@@ -484,7 +484,6 @@ class AiClient {
         // to the history so it knows what it asked for.
         contents.add(candidate.content);
         contents.add(Content.functionResponses(functionResponseParts));
-        contents.add(_toolResultsFollowUpPrompt(outputToolName));
       }
     }
     if (capturedResult == null) {
@@ -494,16 +493,5 @@ class AiClient {
       );
     }
     return capturedResult;
-  }
-
-  Content _toolResultsFollowUpPrompt(String finalOutputToolName) {
-    return Content.text(
-      '''You have received results from previous tool calls. Your next action MUST be a tool call
-Evaluate the information you have: '
-1. If you are completely finished and have all information to provide the final answer according to the schema, you MUST call the `$finalOutputToolName` tool with the final answer. This is the ONLY way to signal completion.
-2. If you need more information or need to perform another action before the final answer, you MUST call another appropriate tool from the available list.
-Do NOT repeat previous tool calls if they were successful and the results are sufficient.
-Do NOT respond with plain text. You must call a tool. The final tool call in your entire process MUST be `$finalOutputToolName`.''',
-    );
   }
 }

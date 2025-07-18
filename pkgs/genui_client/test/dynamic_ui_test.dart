@@ -17,9 +17,15 @@ void main() {
 
     testWidgets('builds a simple Text widget', (WidgetTester tester) async {
       final definition = {
-        'id': 'text1',
-        'type': 'Text',
-        'properties': {'data': 'Hello, World!'},
+        'task_id': 'task1',
+        'root': 'text1',
+        'widgets': {
+          'text1': {
+            'id': 'text1',
+            'type': 'Text',
+            'props': {'data': 'Hello, World!'},
+          }
+        },
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -37,21 +43,26 @@ void main() {
 
     testWidgets('builds a Column with children', (WidgetTester tester) async {
       final definition = {
-        'id': 'col1',
-        'type': 'Column',
-        'properties': {
-          'children': [
-            {
-              'id': 'text1',
-              'type': 'Text',
-              'properties': {'data': 'First'},
+        'task_id': 'task1',
+        'root': 'col1',
+        'widgets': {
+          'col1': {
+            'id': 'col1',
+            'type': 'Column',
+            'props': {
+              'children': ['text1', 'text2']
             },
-            {
-              'id': 'text2',
-              'type': 'Text',
-              'properties': {'data': 'Second'},
-            },
-          ]
+          },
+          'text1': {
+            'id': 'text1',
+            'type': 'Text',
+            'props': {'data': 'First'},
+          },
+          'text2': {
+            'id': 'text2',
+            'type': 'Text',
+            'props': {'data': 'Second'},
+          },
         },
       };
 
@@ -74,9 +85,15 @@ void main() {
     testWidgets('updates a widget via the updateStream',
         (WidgetTester tester) async {
       final definition = {
-        'id': 'text1',
-        'type': 'Text',
-        'properties': {'data': 'Initial Text'},
+        'task_id': 'task1',
+        'root': 'text1',
+        'widgets': {
+          'text1': {
+            'id': 'text1',
+            'type': 'Text',
+            'props': {'data': 'Initial Text'},
+          }
+        },
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -94,7 +111,7 @@ void main() {
       // Send an update
       updateController.add({
         'widgetId': 'text1',
-        'properties': {'data': 'Updated Text'},
+        'props': {'data': 'Updated Text'},
       });
       await tester.pump();
 
@@ -105,13 +122,20 @@ void main() {
     testWidgets('sends an event on button tap', (WidgetTester tester) async {
       Map<String, Object?>? capturedEvent;
       final definition = {
-        'id': 'button1',
-        'type': 'ElevatedButton',
-        'properties': {
-          'child': {
+        'task_id': 'task1',
+        'root': 'button1',
+        'widgets': {
+          'button1': {
+            'id': 'button1',
+            'type': 'ElevatedButton',
+            'props': {
+              'child': 'button_text',
+            },
+          },
+          'button_text': {
             'id': 'button_text',
             'type': 'Text',
-            'properties': {'data': 'Tap Me'},
+            'props': {'data': 'Tap Me'},
           }
         },
       };
@@ -139,9 +163,15 @@ void main() {
     testWidgets('handles TextField input', (WidgetTester tester) async {
       Map<String, Object?>? capturedEvent;
       final definition = {
-        'id': 'field1',
-        'type': 'TextField',
-        'properties': {'value': 'Initial'},
+        'task_id': 'task1',
+        'root': 'field1',
+        'widgets': {
+          'field1': {
+            'id': 'field1',
+            'type': 'TextField',
+            'props': {'value': 'Initial'},
+          }
+        },
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -156,9 +186,10 @@ void main() {
         ),
       ));
 
-      expect(find.text('Initial'), findsOneWidget);
+      final textField = find.byType(TextField);
+      expect(tester.widget<TextField>(textField).controller!.text, 'Initial');
 
-      await tester.enterText(find.byType(TextField), 'New Value');
+      await tester.enterText(textField, 'New Value');
       await tester.pump();
 
       expect(capturedEvent, isNotNull);

@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:isolate';
 
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:stream_channel/isolate_channel.dart';
 
+import 'src/ai_server/ai_server.dart';
 import 'src/dynamic_ui.dart';
 
 void main() {
@@ -27,9 +30,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, this.connect});
+  const MyHomePage({super.key, this.autoStartServer = true});
 
-  final void Function()? connect;
+  final bool autoStartServer;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -39,98 +42,116 @@ class _MyHomePageState extends State<MyHomePage> {
   final _updateController = StreamController<Map<String, Object?>>.broadcast();
   rpc.Peer? _rpcPeer;
   Map<String, Object?>? _uiDefinition;
-  String _connectionStatus = 'Connecting...';
+  String _connectionStatus = 'Initializing...';
   Key _uiKey = UniqueKey();
+  Isolate? _serverIsolate;
+  final _promptController = TextEditingController();
+  Completer<void>? serverStartedCompleter;
+
+  Future<Isolate> Function(SendPort)? serverSpawnerOverride;
+
+  Future<Isolate> _serverSpawner(SendPort sendPort) async {
+    return await Isolate.spawn(
+      serverIsolate,
+      sendPort,
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    (widget.connect ?? _connect)();
-  }
-
-  void _connect() {
-    setState(() {
-      _connectionStatus = 'Connecting...';
-      _uiDefinition = null;
-    });
-
-    try {
-      final socket =
-          WebSocketChannel.connect(Uri.parse('ws://localhost:8765/ws'));
-      // A Peer establishes a bidirectional connection.
-      _rpcPeer = rpc.Peer(socket.cast<String>());
-
-      // Register methods that the server can call on this client.
-      _rpcPeer!.registerMethod('ui.set', (rpc.Parameters params) {
-        if (!mounted) return;
-        debugPrint('Setting UI to ${params.value}');
-        setState(() {
-          final definition = params.value as Map<String, Object?>;
-          _uiDefinition = definition;
-          // Changing the key forces the DynamicUi widget to be replaced
-          // and its state to be completely rebuilt from the new definition.
-          _uiKey = UniqueKey();
-        });
-      });
-
-      _rpcPeer!.registerMethod('ui.update', (rpc.Parameters params) {
-        if (!mounted) return;
-        debugPrint('Updating UI to ${params.value}');
-        final updates = params.asList;
-        for (final update in updates) {
-          _updateController.add(update as Map<String, Object?>);
-        }
-      });
-
-      // Start listening for incoming messages from the server.
-      _rpcPeer!.listen().catchError((Object error) {
-        if (error is rpc.RpcException) {
-          print('RPC Error: ${error.message} (code ${error.code})');
-        } else {
-          print('Connection Error: $error');
-        }
-        if (mounted) {
-          setState(() => _connectionStatus = 'Connection Error');
-        }
-      });
-
-      _rpcPeer!.done.then((_) {
-        print('WebSocket connection closed.');
-        if (mounted) {
-          setState(() {
-            _connectionStatus = 'Disconnected. Retrying...';
-          });
-          // Attempt to reconnect after a delay.
-          Future.delayed(const Duration(seconds: 3), _reconnect);
-        }
-      });
-    } catch (e) {
-      print('Failed to connect: $e');
-      setState(() {
-        _connectionStatus = 'Failed to connect. Retrying...';
-      });
-      Future.delayed(const Duration(seconds: 3), _reconnect);
+    if (widget.autoStartServer) {
+      startServer();
     }
   }
 
-  void _reconnect() {
-    _rpcPeer?.close();
-    _rpcPeer = null;
-    _connect();
+  Future<void> startServer() async {
+    serverStartedCompleter = Completer<void>();
+    unawaited(_startServer());
+    return serverStartedCompleter!.future;
+  }
+
+  Future<void> _startServer() async {
+    setState(() {
+      _connectionStatus = 'Starting server...';
+      _uiDefinition = null;
+    });
+
+    final receivePort = ReceivePort();
+    _serverIsolate =
+        await (serverSpawnerOverride ?? _serverSpawner)(receivePort.sendPort);
+
+    final channel = IsolateChannel<String>.connectReceive(receivePort);
+    _rpcPeer = rpc.Peer(channel);
+
+    _rpcPeer!.registerMethod('ui.set', (rpc.Parameters params) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        final definition = params.value as Map<String, Object?>;
+        _uiDefinition = definition;
+        _uiKey = UniqueKey();
+      });
+    });
+
+    _rpcPeer!.registerMethod('ui.update', (rpc.Parameters params) {
+      if (!mounted) {
+        return;
+      }
+      final updates = params.asList;
+      for (final update in updates) {
+        _updateController.add(update as Map<String, Object?>);
+      }
+    });
+
+    _rpcPeer!.registerMethod('ui.error', (rpc.Parameters params) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _connectionStatus = 'Error: ${params['message'].asString}';
+        _uiDefinition = null;
+      });
+    });
+
+    unawaited(_rpcPeer!.listen());
+
+    await _rpcPeer!.sendRequest('ping');
+
+    setState(() {
+      _connectionStatus = 'Server started.';
+      serverStartedCompleter?.complete();
+    });
   }
 
   @override
   void dispose() {
     _updateController.close();
     _rpcPeer?.close();
+    _serverIsolate?.kill();
+    _promptController.dispose();
     super.dispose();
   }
 
-  /// Sends a UI event to the server as a JSON-RPC notification.
   void _handleUiEvent(Map<String, Object?> event) {
-    print('Sending UI Event: $event');
-    // We send a notification because we don't expect a direct response.
     _rpcPeer?.sendNotification('ui.event', event);
+    setState(() {
+      _uiDefinition = null;
+      _connectionStatus = 'Generating UI...';
+    });
+  }
+
+  void _sendPrompt() {
+    final prompt = _promptController.text;
+    if (prompt.isNotEmpty) {
+      _rpcPeer?.sendNotification('prompt', {'text': prompt});
+      _promptController.clear();
+      setState(() {
+        _uiDefinition = null;
+        _connectionStatus = 'Generating UI...';
+      });
+    }
   }
 
   @override
@@ -140,29 +161,58 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Dynamic UI Demo'),
       ),
-      body: _uiDefinition == null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(_connectionStatus),
-                ],
-              ),
-            )
-          : ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth:1000),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: DynamicUi(
-                  key: _uiKey,
-                  definition: _uiDefinition!,
-                  updateStream: _updateController.stream,
-                  onEvent: _handleUiEvent,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _promptController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter a UI prompt',
+                        ),
+                        onSubmitted: (_) => _sendPrompt(),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _sendPrompt,
+                    ),
+                  ],
                 ),
               ),
-            ),
+              Expanded(
+                child: _uiDefinition == null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_connectionStatus == 'Generating UI...')
+                              const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(_connectionStatus),
+                          ],
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: DynamicUi(
+                          key: _uiKey,
+                          definition: _uiDefinition!,
+                          updateStream: _updateController.stream,
+                          onEvent: _handleUiEvent,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
