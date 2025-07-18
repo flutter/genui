@@ -1,0 +1,16 @@
+version: 2
+enable-beta-ecosystems: true
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    #  Don't auto-submit github actions updates
+    # labels:
+    #   - "autosubmit"
+  - package-ecosystem: "pub"
+    directory: "pkgs/genui_client"
+    schedule:
+      interval: "daily"
+    labels:
+      - "autosubmit"

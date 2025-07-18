@@ -204,13 +204,17 @@ class _DynamicUiState extends State<DynamicUi> {
           return RadioListTile<Object?>(
             title: Text(radio.label!),
             value: radio.value,
+            // ignore: deprecated_member_use
             groupValue: radio.groupValue,
+            // ignore: deprecated_member_use
             onChanged: changedCallback,
           );
         }
         return Radio<Object?>(
           value: radio.value,
+          // ignore: deprecated_member_use
           groupValue: radio.groupValue,
+          // ignore: deprecated_member_use
           onChanged: changedCallback,
         );
       case 'Slider':

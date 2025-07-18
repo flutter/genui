@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'dynamic_ui.dart';
+import 'src/dynamic_ui.dart';
 
 void main() {
   runApp(const MyApp());

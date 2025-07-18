@@ -59,7 +59,7 @@ class AiClient {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    this.model = 'gemini-2.0-flash',
+    this.model = 'gemini-2.5-flash',
     this.platform = const LocalPlatform(),
     this.fileSystem = const LocalFileSystem(),
     this.apiKey,
