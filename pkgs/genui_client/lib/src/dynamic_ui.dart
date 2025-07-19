@@ -53,7 +53,21 @@ class _DynamicUiState extends State<DynamicUi> {
   }
 
   void _initializeState() {
-    _uiDefinition = UiDefinition.fromMap(widget.definition);
+    final definition = Map<String, Object?>.from(widget.definition);
+    final widgets = definition['widgets'];
+
+    // The schema defines `widgets` as a list of widget definitions.
+    // The rest of this class expects `widgets` to be a map from widget ID
+    // to widget definition. So, we convert the list to a map here.
+    if (widgets is List) {
+      definition['widgets'] = {
+        for (final widgetDef in widgets)
+          if (widgetDef is Map<String, Object?> && widgetDef['id'] is String)
+            widgetDef['id'] as String: widgetDef,
+      };
+    }
+
+    _uiDefinition = UiDefinition.fromMap(definition);
     _widgetStates = {};
     _populateInitialStates();
     _updateSubscription = widget.updateStream.listen(_handleStateUpdate);
@@ -93,7 +107,7 @@ class _DynamicUiState extends State<DynamicUi> {
     }
   }
 
-  /// Handles incoming state updates from the stream.
+  /// Handles incoming state updates from the cstream.
   void _handleStateUpdate(Map<String, Object?> updateData) {
     final update = UiStateUpdate.fromMap(updateData);
     final widgetId = update.widgetId;

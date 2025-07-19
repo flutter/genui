@@ -6,8 +6,9 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:stream_channel/isolate_channel.dart';
 
-import '../ai_client/ai_client.dart';
-import '../ui_models.dart';
+import 'ai_client/ai_client.dart';
+import 'ui_models.dart';
+import 'ui_schema.dart';
 
 // A new top-level function to be able to pass the AiClient to the isolate
 // for testing.
@@ -53,26 +54,9 @@ Future<void> _generateAndSendUi(
   AiClient aiClient,
   List<Content> conversation,
 ) async {
-  final uiSchema = Schema(
-    SchemaType.object,
-    description: 'The definition of the UI to display.',
-    properties: {
-      'root': Schema(SchemaType.string, description: 'The root widget ID.'),
-      'widgets': Schema(
-        SchemaType.object,
-        description: 'A map of widget definitions, keyed by widget ID.',
-        properties: {
-          'id': Schema(SchemaType.string, description: 'The widget ID.'),
-          'type': Schema(SchemaType.string, description: 'The widget type.'),
-          'props':
-              Schema(SchemaType.object, description: 'The widget properties.'),
-        },
-      ),
-    },
-  );
-
   try {
-    final response = await aiClient.generateContent(conversation, uiSchema);
+    final response =
+        await aiClient.generateContent(conversation, flutterUiDefinition);
     if (response != null) {
       peer.sendNotification('ui.set', response);
     }

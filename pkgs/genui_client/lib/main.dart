@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:stream_channel/isolate_channel.dart';
 
-import 'src/ai_server/ai_server.dart';
+import 'src/ui_server.dart';
 import 'src/dynamic_ui.dart';
 
 void main() {

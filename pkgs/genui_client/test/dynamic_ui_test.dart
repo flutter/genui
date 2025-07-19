@@ -19,13 +19,13 @@ void main() {
       final definition = {
         'task_id': 'task1',
         'root': 'text1',
-        'widgets': {
-          'text1': {
+        'widgets': [
+          {
             'id': 'text1',
             'type': 'Text',
             'props': {'data': 'Hello, World!'},
           }
-        },
+        ],
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -45,25 +45,25 @@ void main() {
       final definition = {
         'task_id': 'task1',
         'root': 'col1',
-        'widgets': {
-          'col1': {
+        'widgets': [
+          {
             'id': 'col1',
             'type': 'Column',
             'props': {
               'children': ['text1', 'text2']
             },
           },
-          'text1': {
+          {
             'id': 'text1',
             'type': 'Text',
             'props': {'data': 'First'},
           },
-          'text2': {
+          {
             'id': 'text2',
             'type': 'Text',
             'props': {'data': 'Second'},
           },
-        },
+        ],
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -87,13 +87,13 @@ void main() {
       final definition = {
         'task_id': 'task1',
         'root': 'text1',
-        'widgets': {
-          'text1': {
+        'widgets': [
+          {
             'id': 'text1',
             'type': 'Text',
             'props': {'data': 'Initial Text'},
           }
-        },
+        ],
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -124,20 +124,20 @@ void main() {
       final definition = {
         'task_id': 'task1',
         'root': 'button1',
-        'widgets': {
-          'button1': {
+        'widgets': [
+          {
             'id': 'button1',
             'type': 'ElevatedButton',
             'props': {
               'child': 'button_text',
             },
           },
-          'button_text': {
+          {
             'id': 'button_text',
             'type': 'Text',
             'props': {'data': 'Tap Me'},
           }
-        },
+        ],
       };
 
       await tester.pumpWidget(MaterialApp(
@@ -165,13 +165,13 @@ void main() {
       final definition = {
         'task_id': 'task1',
         'root': 'field1',
-        'widgets': {
-          'field1': {
+        'widgets': [
+          {
             'id': 'field1',
             'type': 'TextField',
             'props': {'value': 'Initial'},
           }
-        },
+        ],
       };
 
       await tester.pumpWidget(MaterialApp(

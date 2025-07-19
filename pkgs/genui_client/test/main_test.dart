@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/main.dart';
 import 'package:genui_client/src/ai_client/ai_client.dart';
-import 'package:genui_client/src/ai_server/ai_server.dart';
+import 'package:genui_client/src/ui_server.dart';
 import 'package:genui_client/src/dynamic_ui.dart';
 import 'package:genui_client/src/tools/tools.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
