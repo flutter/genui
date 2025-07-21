@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:firebase_ai/firebase_ai.dart' show Schema;
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 /// Abstract base class for defining tools that an AI agent can invoke.

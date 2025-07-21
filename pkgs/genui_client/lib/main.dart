@@ -1,14 +1,20 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:stream_channel/isolate_channel.dart';
 
-import 'src/ui_server.dart';
+import 'firebase_options.dart';
 import 'src/dynamic_ui.dart';
+import 'src/ui_server.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

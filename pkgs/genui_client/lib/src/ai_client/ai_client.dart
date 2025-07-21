@@ -6,14 +6,14 @@ import 'dart:convert';
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:platform/platform.dart';
 
 import '../tools/tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
-typedef GenerativeModelFactory = GenerativeModel Function({
+typedef GenerativeModelFactory = FirebaseGenerativeModel Function({
   required AiClient configuration,
   Content? systemInstruction,
 });
@@ -60,9 +60,7 @@ class AiClient {
   ///   output from the AI.
   AiClient({
     this.model = 'gemini-2.5-flash',
-    this.platform = const LocalPlatform(),
     this.fileSystem = const LocalFileSystem(),
-    this.apiKey,
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -92,21 +90,6 @@ class AiClient {
   ///
   /// Defaults to 'gemini-2.0-flash'.
   final String model;
-
-  /// The API key to use for accessing the Gemini model.
-  ///
-  /// If this is provided, it will be used directly. If it's `null`, the
-  /// [defaultGenerativeModelFactory] (or a custom [modelCreator]) is expected
-  /// to attempt to retrieve the API key from an alternative source, such as the
-  /// `GEMINI_API_KEY` environment variable via the [platform] instance.
-  final String? apiKey;
-
-  /// The platform to use for accessing environment variables.
-  ///
-  /// This is can be used by the [modelCreator] to look up the `GEMINI_API_KEY`
-  /// if [apiKey] is not directly provided. Defaults to a [LocalPlatform]
-  /// instance, representing the current operating system environment.
-  final Platform platform;
 
   /// The file system to use for accessing files.
   ///
@@ -238,21 +221,18 @@ class AiClient {
     );
   }
 
-  /// The default factory function for creating a [GenerativeModel].
+  /// The default factory function for creating a [FirebaseGenerativeModel].
   ///
-  /// This function instantiates a standard [GenerativeModel] using the `model`
-  /// and `apiKey` (or `GEMINI_API_KEY` from the environment via `platform`)
-  /// from the provided [AiClient] `configuration`.
-  static GenerativeModel defaultGenerativeModelFactory({
+  /// This function instantiates a standard [FirebaseGenerativeModel] using the
+  /// `model` from the provided [AiClient] `configuration`.
+  static FirebaseGenerativeModel defaultGenerativeModelFactory({
     required AiClient configuration,
     Content? systemInstruction,
   }) {
-    return GenerativeModel(
-      model: configuration.model,
-      systemInstruction: systemInstruction,
-      apiKey: configuration.apiKey ??
-          configuration.platform.environment['GEMINI_API_KEY']!,
-    );
+    return FirebaseAI.instance.googleAI().generativeModel(
+          model: configuration.model,
+          systemInstruction: systemInstruction,
+        );
   }
 
   void _error(String message) {
@@ -268,7 +248,7 @@ class AiClient {
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
-    GenerativeModel model,
+    FirebaseGenerativeModel model,
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
@@ -307,9 +287,7 @@ class AiClient {
           },
         );
         return result;
-      } on GenerativeAISdkException catch (exception) {
-        await onFail(exception);
-      } on ServerException catch (exception) {
+      } on FirebaseException catch (exception) {
         if (exception.message.contains(
           '${this.model} is not found for API version',
         )) {
@@ -332,7 +310,7 @@ class AiClient {
   }
 
   Future<T?> _generateContentForcedToolCalling<T extends Object>(
-    GenerativeModel model,
+    FirebaseGenerativeModel model,
     // This list is modified to include tool calls and results.
     List<Content> contents,
     Schema outputSchema,
@@ -387,6 +365,17 @@ class AiClient {
     const maxToolUsageCycles = 40; // Safety break for tool loops
     T? capturedResult;
 
+    final chat = model.startChat(
+      history: contents,
+      toolConfig: ToolConfig(
+        functionCallingConfig: FunctionCallingConfig(
+          mode: FunctionCallingMode.any,
+          allowedFunctionNames: allowedFunctionNames.toList(),
+        ),
+      ),
+      tools: [generativeAiTools],
+    );
+
     while (toolUsageCycle < maxToolUsageCycles && capturedResult == null) {
       toolUsageCycle++;
       _log('Generating content with:');
@@ -397,24 +386,15 @@ class AiClient {
         'With functions: '
         '${allowedFunctionNames.join(', ')}',
       );
-      final response = await model.generateContent(
-        contents,
-        toolConfig: ToolConfig(
-          functionCallingConfig: FunctionCallingConfig(
-            mode: FunctionCallingMode.any,
-            allowedFunctionNames: allowedFunctionNames,
-          ),
-        ),
-        tools: [generativeAiTools],
-      );
+      final response = await chat.sendMessage(contents);
 
       // If the generate call succeeds, we need to reset the delay for the next
       // retry. If the generate call throws, this won't get called, and the
       // delay will double.
       onSuccess();
 
-      inputTokenUsage += response.usageMetadata?.promptTokenCount ?? 0;
-      outputTokenUsage += response.usageMetadata?.candidatesTokenCount ?? 0;
+      inputTokenUsage += response.promptTokenCount ?? 0;
+      outputTokenUsage += response.candidates.first.tokenCount;
 
       if (response.candidates.isEmpty) {
         _warn('Response has no candidates: ${response.promptFeedback}');
@@ -423,7 +403,7 @@ class AiClient {
 
       final candidate = response.candidates.first;
       final functionCalls =
-          candidate.content.parts.whereType<FunctionCall>().toList();
+          candidate.content.parts.whereType<FunctionCallPart>().toList();
 
       if (functionCalls.isEmpty) {
         _warn(
@@ -445,7 +425,7 @@ class AiClient {
         return null;
       }
 
-      final functionResponseParts = <FunctionResponse>[];
+      final functionResponseParts = <FunctionResponsePart>[];
       for (final call in functionCalls) {
         if (call.name == outputToolName) {
           capturedResult = call.args['output'] as T;
@@ -474,7 +454,8 @@ class AiClient {
           );
           toolResult = {'error': 'Tool ${aiTool.name} failed to execute: $e'};
         }
-        functionResponseParts.add(FunctionResponse(call.name, toolResult));
+        functionResponseParts
+            .add(FunctionResponsePart(call.name, toolResult));
       }
 
       // If some functions were called, add their responses to the history and
@@ -483,7 +464,9 @@ class AiClient {
         // Add the model's previous response that contained the function call(s)
         // to the history so it knows what it asked for.
         contents.add(candidate.content);
-        contents.add(Content.functionResponses(functionResponseParts));
+        contents.add(Content.functionResponse(
+            functionResponseParts.first.name,
+            functionResponseParts.first.response));
       }
     }
     if (capturedResult == null) {
