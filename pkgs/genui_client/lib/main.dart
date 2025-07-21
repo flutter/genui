@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
@@ -15,6 +16,13 @@ void main() async {
   final firebaseApp = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // final model = FirebaseAI.googleAI(app: firebaseApp).generativeModel(
+  //   model: 'gemini-2.5-flash',
+  //   systemInstruction: Content.system('You are a story writer.'),
+  // );
+  // final result = await model.generateContent(
+  //     [Content.text('Write me a one paragraph story about a sad programmer.')]);
+  // debugPrint('Story: ${result.text}');
   runApp(GenUIApp(
     firebaseApp: firebaseApp,
   ));
@@ -290,6 +298,12 @@ class IsolateServerConnection implements ServerConnection {
 
     _rpcPeer!.registerMethod('ui.error', (rpc.Parameters params) {
       onError(params['message'].asString);
+    });
+
+    _rpcPeer!.registerMethod('logging.log', (rpc.Parameters params) {
+      final severity = params['severity'].asString;
+      final message = params['message'].asString;
+      debugPrint('[$severity] $message');
     });
 
     unawaited(_rpcPeer!.listen());

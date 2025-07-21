@@ -14,20 +14,27 @@ import 'ui_schema.dart';
 // for testing.
 void serverIsolate(List<Object> args) {
   final sendPort = args[0] as SendPort;
+  final channel = IsolateChannel<String>.connectSend(sendPort);
+  final peer = rpc.Peer(channel);
   final AiClient aiClient;
   if (args.length > 1 && args[1] is AiClient) {
     aiClient = args[1] as AiClient;
   } else {
     final firebaseApp = args[1] as FirebaseApp;
-    aiClient = AiClient(firebaseApp: firebaseApp);
+    aiClient = AiClient(
+      firebaseApp: firebaseApp,
+      loggingCallback: (severity, message) {
+        peer.sendNotification('logging.log', {
+          'severity': severity.name,
+          'message': message,
+        });
+      },
+    );
   }
-  _runServer(sendPort, aiClient);
+  _runServer(peer, aiClient);
 }
 
-Future<void> _runServer(SendPort sendPort, AiClient aiClient) async {
-  final channel = IsolateChannel<String>.connectSend(sendPort);
-  final peer = rpc.Peer(channel);
-
+Future<void> _runServer(rpc.Peer peer, AiClient aiClient) async {
   final conversation = <Content>[];
 
   peer.registerMethod('ping', (_) {
