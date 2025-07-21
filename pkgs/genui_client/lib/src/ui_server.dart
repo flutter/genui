@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:stream_channel/isolate_channel.dart';
@@ -12,21 +13,22 @@ import 'ui_schema.dart';
 
 // A new top-level function to be able to pass the AiClient to the isolate
 // for testing.
-@visibleForTesting
-void serverIsolateTest(List<Object> args) {
+void serverIsolate(List<Object> args) {
   final sendPort = args[0] as SendPort;
-  final aiClient = args[1] as AiClient;
-  serverIsolate(sendPort, aiClient: aiClient);
+  final AiClient aiClient;
+  if (args.length > 1 && args[1] is AiClient) {
+    aiClient = args[1] as AiClient;
+  } else {
+    final firebaseApp = args[1] as FirebaseApp;
+    aiClient = AiClient(firebaseApp: firebaseApp);
+  }
+  _runServer(sendPort, aiClient);
 }
 
-Future<void> serverIsolate(
-  SendPort sendPort, {
-  AiClient? aiClient,
-}) async {
+Future<void> _runServer(SendPort sendPort, AiClient aiClient) async {
   final channel = IsolateChannel<String>.connectSend(sendPort);
   final peer = rpc.Peer(channel);
 
-  aiClient ??= AiClient();
   final conversation = <Content>[];
 
   peer.registerMethod('ping', (_) {
@@ -36,7 +38,7 @@ Future<void> serverIsolate(
   peer.registerMethod('prompt', (rpc.Parameters params) {
     final prompt = params['text'].asString;
     conversation.add(Content.text(prompt));
-    unawaited(_generateAndSendUi(peer, aiClient!, conversation));
+    unawaited(_generateAndSendUi(peer, aiClient, conversation));
   });
 
   peer.registerMethod('ui.event', (rpc.Parameters params) async {
@@ -44,7 +46,7 @@ Future<void> serverIsolate(
     final functionResponse = FunctionResponse(event.widgetId, event.toMap());
     conversation.add(Content.functionResponse(
         functionResponse.name, functionResponse.response));
-    await _generateAndSendUi(peer, aiClient!, conversation);
+    await _generateAndSendUi(peer, aiClient, conversation);
   });
 
   await peer.listen();

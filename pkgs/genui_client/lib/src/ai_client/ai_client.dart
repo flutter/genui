@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import '../tools/tools.dart';
 
@@ -43,6 +44,7 @@ class AiClient {
   /// Creates an [AiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
+  /// - [firebaseApp]: The [FirebaseApp] to use for the connection.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
@@ -57,7 +59,8 @@ class AiClient {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    this.model = 'gemini-2.5-flash',
+    this.model = 'gemini-1.5-flash',
+    this.firebaseApp,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -86,8 +89,13 @@ class AiClient {
   /// This identifier specifies which version or type of the generative AI model
   /// will be invoked for content generation.
   ///
-  /// Defaults to 'gemini-2.0-flash'.
+  /// Defaults to 'gemini-1.5-flash'.
   final String model;
+
+  /// The [FirebaseApp] to use for the connection.
+  ///
+  /// If not supplied, the default Firebase app is used.
+  final FirebaseApp? firebaseApp;
 
   /// The file system to use for accessing files.
   ///
@@ -193,6 +201,7 @@ class AiClient {
   /// 1. Calling one of the available [AiTool]s (from [tools] or
   ///    [additionalTools]). If a tool is called, its `invoke` method is
   ///    executed, and the result is sent back to the AI in a subsequent
+  //
   ///    request.
   /// 2. Calling a special internal tool (named by [outputToolName]) whose
   ///    argument is the final structured data matching [outputSchema].
@@ -226,7 +235,7 @@ class AiClient {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    return FirebaseAI.googleAI().generativeModel(
+    return FirebaseAI.googleAI(app: configuration.firebaseApp).generativeModel(
       model: configuration.model,
       systemInstruction: systemInstruction,
       tools: tools,

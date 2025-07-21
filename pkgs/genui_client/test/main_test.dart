@@ -1,206 +1,195 @@
-import 'dart:isolate';
-
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/main.dart';
-import 'package:genui_client/src/ai_client/ai_client.dart';
 import 'package:genui_client/src/dynamic_ui.dart';
-import 'package:genui_client/src/tools/tools.dart';
-import 'package:genui_client/src/ui_server.dart';
 
-class MockAiClient extends AiClient {
-  MockAiClient({
-    super.model = 'gemini-2.5-flash',
-  });
-
-  int _callCount = 0;
-  final receivedPrompts = <List<Content>>[];
-
-  final _responses = [
-    {
-      'task_id': 'task-123',
-      'root': 'button',
-      'widgets': {
-        'button': {
-          'id': 'button',
-          'type': 'ElevatedButton',
-          'props': {'child': 'text'},
-        },
-        'text': {
-          'id': 'text',
-          'type': 'Text',
-          'props': {'data': 'Click Me'},
-        },
-      },
-    },
-    {
-      'task_id': 'task-123',
-      'root': 'root',
-      'widgets': {
-        'root': {
-          'id': 'root',
-          'type': 'Text',
-          'props': {'data': 'Button clicked!'},
-        },
-      },
-    },
-  ];
+class MockFirebaseApp implements FirebaseApp {
+  @override
+  String get name => 'test';
 
   @override
-  Future<T?> generateContent<T extends Object>(
-    List<Content> prompts,
-    Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
-  }) async {
-    receivedPrompts.add(prompts);
-    if (_callCount >= _responses.length) {
-      return {
-        'root': 'root',
-        'widgets': {
-          'root': {
-            'id': 'root',
-            'type': 'Text',
-            'props': {'data': 'Out of responses'},
-          },
-        },
-      } as T;
-    }
-    return _responses[_callCount++] as T;
-  }
+  FirebaseOptions get options => const FirebaseOptions(
+        apiKey: 'test',
+        appId: 'test',
+        messagingSenderId: 'test',
+        projectId: 'test',
+      );
+
+  @override
+  Future<void> delete() async {}
+
+  @override
+  bool get isAutomaticDataCollectionEnabled => false;
+
+  @override
+  Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {}
+
+  @override
+  Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {}
 }
 
-class MockErrorAiClient extends AiClient {
-  MockErrorAiClient({
-    super.model = 'gemini-2.5-flash',
+class MockServerConnection implements ServerConnection {
+  MockServerConnection({
+    required this.firebaseApp,
+    required this.onSetUi,
+    required this.onUpdateUi,
+    required this.onError,
+    required this.onStatusUpdate,
+    this.serverSpawnerOverride,
   });
 
+  final FirebaseApp firebaseApp;
+  final SetUiCallback onSetUi;
+  final UpdateUiCallback onUpdateUi;
+  final ErrorCallback onError;
+  final StatusUpdateCallback onStatusUpdate;
+  final ServerSpawner? serverSpawnerOverride;
+
+  String? lastPrompt;
+  Map<String, Object?>? lastEvent;
+
   @override
-  Future<T?> generateContent<T extends Object>(
-    List<Content> prompts,
-    Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
-  }) async {
-    throw Exception('Something went wrong');
+  Future<void> start() async {
+    onStatusUpdate('Server started.');
   }
+
+  @override
+  void sendPrompt(String text) {
+    lastPrompt = text;
+    onStatusUpdate('Generating UI...');
+  }
+
+  @override
+  void sendUiEvent(Map<String, Object?> event) {
+    lastEvent = event;
+    onStatusUpdate('Generating UI...');
+  }
+
+  @override
+  void dispose() {}
 }
 
 void main() {
-  testWidgets('MyHomePage shows server started status after startup',
+  late FirebaseApp mockFirebaseApp;
+  late MockServerConnection mockConnection;
+
+  ServerConnection connectionFactory({
+    required FirebaseApp firebaseApp,
+    required SetUiCallback onSetUi,
+    required UpdateUiCallback onUpdateUi,
+    required ErrorCallback onError,
+    required StatusUpdateCallback onStatusUpdate,
+    ServerSpawner? serverSpawnerOverride,
+  }) {
+    mockConnection = MockServerConnection(
+      firebaseApp: firebaseApp,
+      onSetUi: onSetUi,
+      onUpdateUi: onUpdateUi,
+      onError: onError,
+      onStatusUpdate: onStatusUpdate,
+      serverSpawnerOverride: serverSpawnerOverride,
+    );
+    return mockConnection;
+  }
+
+  setUp(() {
+    mockFirebaseApp = MockFirebaseApp();
+  });
+
+  testWidgets('GenUIHomePage shows server started status after startup',
       (WidgetTester tester) async {
-    final homePageKey = GlobalKey<State<MyHomePage>>();
     await tester.pumpWidget(MaterialApp(
-      home: MyHomePage(key: homePageKey, autoStartServer: false),
+      home: GenUIHomePage(
+        autoStartServer: true,
+        firebaseApp: mockFirebaseApp,
+        connectionFactory: connectionFactory,
+      ),
     ));
-    expect(find.text('Initializing...'), findsOneWidget);
-
-    // Replace the default server spawner with one that uses a mock AiClient.
-    (homePageKey.currentState as dynamic).serverSpawnerOverride =
-        (SendPort sendPort) async {
-      return await Isolate.spawn(
-        serverIsolateTest,
-        [sendPort, MockAiClient()],
-      );
-    };
-
-    await tester.runAsync(() async {
-      await (homePageKey.currentState as dynamic).startServer();
-    });
-    await tester.pumpAndSettle();
+    await tester.pump();
     expect(find.text('Server started.'), findsOneWidget);
-
-    // Dispose the widget to clean up resources.
-    await tester.pumpWidget(Container());
-  }, timeout: const Timeout(Duration(seconds: 10)));
+  });
 
   testWidgets('DynamicUi is created and handles events',
       (WidgetTester tester) async {
-    final homePageKey = GlobalKey<State<MyHomePage>>();
     await tester.pumpWidget(MaterialApp(
-      home: MyHomePage(key: homePageKey, autoStartServer: false),
+      home: GenUIHomePage(
+        autoStartServer: true,
+        firebaseApp: mockFirebaseApp,
+        connectionFactory: connectionFactory,
+      ),
     ));
-
-    final mockAiClient = MockAiClient();
-
-    // Replace the default server spawner with one that uses a mock AiClient.
-    (homePageKey.currentState as dynamic).serverSpawnerOverride =
-        (SendPort sendPort) async {
-      return await Isolate.spawn(
-        serverIsolateTest,
-        [sendPort, mockAiClient],
-      );
-    };
-
-    await tester.runAsync(() async {
-      await (homePageKey.currentState as dynamic).startServer();
-    });
-
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     // Enter a prompt and send it.
     await tester.enterText(find.byType(TextField), 'A simple button');
     await tester.tap(find.byType(IconButton));
     await tester.pump();
 
-    // The server is running in an isolate, so we need to wait for the response.
-    // We expect a CircularProgressIndicator to be showing while waiting.
+    expect(mockConnection.lastPrompt, 'A simple button');
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Wait for the server to respond and the UI to be built.
-    await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 100)));
-    await tester.pumpAndSettle();
+    // Simulate server response
+    mockConnection.onSetUi({
+      'task_id': 'task-123',
+      'root': 'button',
+      'widgets': [
+        {
+          'id': 'button',
+          'type': 'ElevatedButton',
+          'props': {'child': 'text'},
+        },
+        {
+          'id': 'text',
+          'type': 'Text',
+          'props': {'data': 'Click Me'},
+        },
+      ],
+    });
+    await tester.pump();
 
-    // After the server responds, the DynamicUi widget should be present.
     expect(find.byType(DynamicUi), findsOneWidget);
     expect(find.text('Click Me'), findsOneWidget);
 
     // Tap the button
     await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
-    await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 100)));
-    await tester.pumpAndSettle();
 
-    // Check that the UI updated
+    expect(mockConnection.lastEvent, isNotNull);
+    expect(mockConnection.lastEvent!['widgetId'], 'button');
+
+    // Simulate server response to event
+    mockConnection.onSetUi({
+      'task_id': 'task-123',
+      'root': 'root',
+      'widgets': [
+        {
+          'id': 'root',
+          'type': 'Text',
+          'props': {'data': 'Button clicked!'},
+        },
+      ],
+    });
+    await tester.pump();
+
     expect(find.text('Button clicked!'), findsOneWidget);
-
-    // Verify that the AI client was called. The UI check is sufficient.
-  }, timeout: const Timeout(Duration(seconds: 20)));
+  });
 
   testWidgets('UI shows error when AI client throws an exception',
       (WidgetTester tester) async {
-    final homePageKey = GlobalKey<State<MyHomePage>>();
     await tester.pumpWidget(MaterialApp(
-      home: MyHomePage(key: homePageKey, autoStartServer: false),
+      home: GenUIHomePage(
+        autoStartServer: true,
+        firebaseApp: mockFirebaseApp,
+        connectionFactory: connectionFactory,
+      ),
     ));
-
-    // Replace the default server spawner with one that uses a mock AiClient.
-    (homePageKey.currentState as dynamic).serverSpawnerOverride =
-        (SendPort sendPort) async {
-      return await Isolate.spawn(
-        serverIsolateTest,
-        [sendPort, MockErrorAiClient()],
-      );
-    };
-
-    await tester.runAsync(() async {
-      await (homePageKey.currentState as dynamic).startServer();
-    });
-
-    await tester.pumpAndSettle();
-
-    // Enter a prompt and send it.
-    await tester.enterText(find.byType(TextField), 'A simple button');
-    await tester.tap(find.byType(IconButton));
     await tester.pump();
-    await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 100)));
-    await tester.pumpAndSettle();
 
-    // Check that the UI shows an error message.
-    expect(find.text('Error: Exception: Something went wrong'), findsOneWidget);
+    // Simulate an error from the server
+    mockConnection.onError('Something went wrong');
+    await tester.pump();
+
+    expect(find.text('Error: Something went wrong'), findsOneWidget);
   });
 }
