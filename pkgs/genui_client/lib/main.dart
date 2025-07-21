@@ -335,6 +335,7 @@ class IsolateServerConnection implements ServerConnection {
   }
 }
 
+@visibleForTesting
 typedef ServerConnectionFactory = ServerConnection Function({
   required FirebaseApp firebaseApp,
   required SetUiCallback onSetUi,
