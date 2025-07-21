@@ -39,11 +39,14 @@ class MockServerConnection implements ServerConnection {
     this.serverSpawnerOverride,
   });
 
+  // ignore: unreachable_from_main
   final FirebaseApp firebaseApp;
   final SetUiCallback onSetUi;
+  // ignore: unreachable_from_main
   final UpdateUiCallback onUpdateUi;
   final ErrorCallback onError;
   final StatusUpdateCallback onStatusUpdate;
+  // ignore: unreachable_from_main
   final ServerSpawner? serverSpawnerOverride;
 
   String? lastPrompt;
