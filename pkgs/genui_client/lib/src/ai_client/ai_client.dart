@@ -59,7 +59,7 @@ class AiClient {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    this.model = 'gemini-1.5-flash',
+    this.model = 'gemini-2.5-flash',
     this.firebaseApp,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
@@ -89,7 +89,7 @@ class AiClient {
   /// This identifier specifies which version or type of the generative AI model
   /// will be invoked for content generation.
   ///
-  /// Defaults to 'gemini-1.5-flash'.
+  /// Defaults to 'gemini-2.5-flash'.
   final String model;
 
   /// The [FirebaseApp] to use for the connection.
