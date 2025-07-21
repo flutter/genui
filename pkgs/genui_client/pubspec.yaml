@@ -8,16 +8,15 @@ environment:
 
 dependencies:
   file: ^7.0.1
-  flutter:
-    sdk: flutter
-  firebase_core: ^3.2.0
   firebase_ai: ^2.2.1
   firebase_app_check: ^0.3.0+1
   firebase_auth: ^5.1.2
+  firebase_core: ^3.2.0
+  flutter:
+    sdk: flutter
   json_rpc_2: ^4.0.0
   platform: ^3.1.6
   stream_channel: ^2.1.4
-  google_generative_ai: ^0.4.7
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2

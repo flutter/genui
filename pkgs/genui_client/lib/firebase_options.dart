@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     authDomain: 'agent-demo-tj.firebaseapp.com',
     storageBucket: 'agent-demo-tj.firebasestorage.app',
   );
+
 }

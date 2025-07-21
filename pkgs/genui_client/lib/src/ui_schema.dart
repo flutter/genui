@@ -1,10 +1,11 @@
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 
 /// A schema for defining a simple UI tree to be rendered by Flutter.
 ///
 /// This schema is a Dart conversion of a more complex JSON schema.
 /// Due to limitations in the Dart `Schema` builder API (specifically the lack
 /// of support for discriminated unions or `anyOf`), this conversion makes a
+
 /// practical compromise.
 ///
 /// It strictly enforces the structure of the `root` object, requiring `id`
@@ -22,7 +23,6 @@ final flutterUiDefinition = Schema.object(
       description: 'The ID of the root widget.',
     ),
     'widgets': Schema.array(
-      description: 'A list of widget definitions.',
       items: Schema.object(
         properties: {
           'id': Schema.string(
@@ -49,11 +49,11 @@ final flutterUiDefinition = Schema.object(
                 'Its structure depends on the value of the "type" field.',
           ),
         },
-        requiredProperties: ['id', 'type'],
+        optionalProperties: ['props'],
       ),
+      description: 'A list of widget definitions.',
     ),
   },
-  requiredProperties: ['root', 'widgets'],
   description: 'A schema for defining a simple UI tree to be rendered by '
       'Flutter.',
 );

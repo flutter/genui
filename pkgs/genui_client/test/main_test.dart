@@ -1,21 +1,18 @@
 import 'dart:isolate';
 
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/main.dart';
 import 'package:genui_client/src/ai_client/ai_client.dart';
-import 'package:genui_client/src/ui_server.dart';
 import 'package:genui_client/src/dynamic_ui.dart';
 import 'package:genui_client/src/tools/tools.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:platform/platform.dart';
+import 'package:genui_client/src/ui_server.dart';
 
 class MockAiClient extends AiClient {
   MockAiClient({
     super.model = 'gemini-2.5-flash',
-    Platform? platform,
-    super.apiKey = 'FAKE_API_KEY',
-  }) : super(platform: platform ?? FakePlatform());
+  });
 
   int _callCount = 0;
   final receivedPrompts = <List<Content>>[];
@@ -77,9 +74,7 @@ class MockAiClient extends AiClient {
 class MockErrorAiClient extends AiClient {
   MockErrorAiClient({
     super.model = 'gemini-2.5-flash',
-    Platform? platform,
-    super.apiKey = 'FAKE_API_KEY',
-  }) : super(platform: platform ?? FakePlatform());
+  });
 
   @override
   Future<T?> generateContent<T extends Object>(

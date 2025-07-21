@@ -7,15 +7,16 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:platform/platform.dart';
 
 import '../tools/tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
-typedef GenerativeModelFactory = FirebaseGenerativeModel Function({
+typedef GenerativeModelFactory = GenerativeModel Function({
   required AiClient configuration,
   Content? systemInstruction,
+  List<Tool>? tools,
+  ToolConfig? toolConfig,
 });
 
 enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
@@ -42,11 +43,8 @@ class AiClient {
   /// Creates an [AiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
-  /// - [platform]: The [Platform] instance for accessing environment variables.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
-  /// - [apiKey]: The API key for the generative AI service. If null, it's
-  ///   typically sourced from environment variables.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
   /// - [maxRetries]: Maximum number of retries for API calls on transient
   ///   errors.
@@ -104,7 +102,7 @@ class AiClient {
   /// The maximum number of retries to attempt when generating content.
   ///
   /// If an API call to the generative model fails with a transient error (like
-  /// [GenerativeAISdkException] or [ServerException]), the client will attempt
+  /// [FirebaseAIException] or [ServerException]), the client will attempt
   /// to retry the call up to this many times.
   ///
   /// Defaults to 8 retries.
@@ -152,7 +150,8 @@ class AiClient {
   /// This factory function is responsible for instantiating the
   /// [GenerativeModel] used for AI interactions. It allows for customization of
   /// the model setup, such as using different HTTP clients, or for providing
-  /// mock models during testing. The factory receives this [AiClient] instance
+  /// mock models during testing.
+  /// The factory receives this [AiClient] instance
   /// as configuration.
   ///
   /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
@@ -209,30 +208,30 @@ class AiClient {
     Iterable<AiTool> additionalTools = const [],
     Content? systemInstruction,
   }) async {
-    final model = modelCreator(
-      configuration: this,
-      systemInstruction: systemInstruction,
-    );
     return await _generateContentWithRetries(
-      model,
       prompts.toList(), // Don't want to modify original prompts.
       outputSchema,
       [...tools, ...additionalTools],
+      systemInstruction,
     );
   }
 
-  /// The default factory function for creating a [FirebaseGenerativeModel].
+  /// The default factory function for creating a [GenerativeModel].
   ///
-  /// This function instantiates a standard [FirebaseGenerativeModel] using the
+  /// This function instantiates a standard [GenerativeModel] using the
   /// `model` from the provided [AiClient] `configuration`.
-  static FirebaseGenerativeModel defaultGenerativeModelFactory({
+  static GenerativeModel defaultGenerativeModelFactory({
     required AiClient configuration,
     Content? systemInstruction,
+    List<Tool>? tools,
+    ToolConfig? toolConfig,
   }) {
-    return FirebaseAI.instance.googleAI().generativeModel(
-          model: configuration.model,
-          systemInstruction: systemInstruction,
-        );
+    return FirebaseAI.googleAI().generativeModel(
+      model: configuration.model,
+      systemInstruction: systemInstruction,
+      tools: tools,
+      toolConfig: toolConfig,
+    );
   }
 
   void _error(String message) {
@@ -248,10 +247,10 @@ class AiClient {
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
-    FirebaseGenerativeModel model,
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
+    Content? systemInstruction,
   ) async {
     var attempts = 0;
     var delay = initialDelay;
@@ -276,10 +275,10 @@ class AiClient {
     while (attempts < maxTries) {
       try {
         final result = await _generateContentForcedToolCalling<T>(
-          model,
           contents,
           outputSchema,
           availableTools,
+          systemInstruction,
           // Reset the delay and attempts on success.
           () {
             delay = initialDelay;
@@ -287,9 +286,9 @@ class AiClient {
           },
         );
         return result;
-      } on FirebaseException catch (exception) {
+      } on FirebaseAIException catch (exception) {
         if (exception.message.contains(
-          '${this.model} is not found for API version',
+          '$model is not found for API version',
         )) {
           // If the model is not found, then just throw an exception.
           throw AiClientException(exception.message);
@@ -310,11 +309,11 @@ class AiClient {
   }
 
   Future<T?> _generateContentForcedToolCalling<T extends Object>(
-    FirebaseGenerativeModel model,
     // This list is modified to include tool calls and results.
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
+    Content? systemInstruction,
     void Function() onSuccess,
   ) async {
     // Create an "output" tool that copies its args into the output.
@@ -327,7 +326,9 @@ class AiClient {
           'MUST call this tool when you are done.',
       // Wrap the outputSchema in an object so that the output schema isn't
       // limited to objects.
-      parameters: Schema.object(properties: {'output': outputSchema}),
+      parameters: Schema.object(
+        properties: {'output': outputSchema},
+      ),
       invokeFunction: (args) async => args, // Invoke is a pass-through
     );
     // Ensure allAiTools doesn't have duplicates by name, and prioritize the
@@ -351,11 +352,13 @@ class AiClient {
     // Registers tools under both their name and their fullName (if different),
     // because `toFunctionDeclarations` will return both declarations if they
     // are different.
-    final generativeAiTools = Tool(
-      functionDeclarations: [
-        ...uniqueAiToolsByName.values.map((t) => t.toFunctionDeclarations())
-      ].expand((e) => e).toList(),
-    );
+    final generativeAiTools = [
+      Tool.functionDeclarations(
+        [...uniqueAiToolsByName.values.map((t) => t.toFunctionDeclarations())]
+            .expand((e) => e)
+            .toList(),
+      )
+    ];
     final allowedFunctionNames = <String>{
       ...uniqueAiToolsByName.keys,
       ...toolFullNames,
@@ -365,15 +368,19 @@ class AiClient {
     const maxToolUsageCycles = 40; // Safety break for tool loops
     T? capturedResult;
 
-    final chat = model.startChat(
-      history: contents,
+    final model = modelCreator(
+      configuration: this,
+      systemInstruction: systemInstruction,
+      tools: generativeAiTools,
       toolConfig: ToolConfig(
-        functionCallingConfig: FunctionCallingConfig(
-          mode: FunctionCallingMode.any,
-          allowedFunctionNames: allowedFunctionNames.toList(),
+        functionCallingConfig: FunctionCallingConfig.any(
+          allowedFunctionNames.toSet(),
         ),
       ),
-      tools: [generativeAiTools],
+    );
+
+    final chat = model.startChat(
+      history: contents,
     );
 
     while (toolUsageCycle < maxToolUsageCycles && capturedResult == null) {
@@ -386,15 +393,17 @@ class AiClient {
         'With functions: '
         '${allowedFunctionNames.join(', ')}',
       );
-      final response = await chat.sendMessage(contents);
+      final response = await chat.sendMessage(contents.last);
 
       // If the generate call succeeds, we need to reset the delay for the next
       // retry. If the generate call throws, this won't get called, and the
       // delay will double.
       onSuccess();
 
-      inputTokenUsage += response.promptTokenCount ?? 0;
-      outputTokenUsage += response.candidates.first.tokenCount;
+      if (response.usageMetadata != null) {
+        inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
+        outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
+      }
 
       if (response.candidates.isEmpty) {
         _warn('Response has no candidates: ${response.promptFeedback}');
@@ -403,7 +412,7 @@ class AiClient {
 
       final candidate = response.candidates.first;
       final functionCalls =
-          candidate.content.parts.whereType<FunctionCallPart>().toList();
+          candidate.content.parts.whereType<FunctionCall>().toList();
 
       if (functionCalls.isEmpty) {
         _warn(
@@ -425,7 +434,7 @@ class AiClient {
         return null;
       }
 
-      final functionResponseParts = <FunctionResponsePart>[];
+      final functionResponseParts = <FunctionResponse>[];
       for (final call in functionCalls) {
         if (call.name == outputToolName) {
           capturedResult = call.args['output'] as T;
@@ -454,8 +463,7 @@ class AiClient {
           );
           toolResult = {'error': 'Tool ${aiTool.name} failed to execute: $e'};
         }
-        functionResponseParts
-            .add(FunctionResponsePart(call.name, toolResult));
+        functionResponseParts.add(FunctionResponse(call.name, toolResult));
       }
 
       // If some functions were called, add their responses to the history and
@@ -464,9 +472,7 @@ class AiClient {
         // Add the model's previous response that contained the function call(s)
         // to the history so it knows what it asked for.
         contents.add(candidate.content);
-        contents.add(Content.functionResponse(
-            functionResponseParts.first.name,
-            functionResponseParts.first.response));
+        contents.add(Content.functionResponses(functionResponseParts));
       }
     }
     if (capturedResult == null) {

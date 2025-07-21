@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:stream_channel/isolate_channel.dart';
 
@@ -42,7 +42,8 @@ Future<void> serverIsolate(
   peer.registerMethod('ui.event', (rpc.Parameters params) async {
     final event = UiEvent.fromMap(params.asMap.cast<String, Object?>());
     final functionResponse = FunctionResponse(event.widgetId, event.toMap());
-    conversation.add(Content.functionResponses([functionResponse]));
+    conversation.add(Content.functionResponse(
+        functionResponse.name, functionResponse.response));
     await _generateAndSendUi(peer, aiClient!, conversation);
   });
 

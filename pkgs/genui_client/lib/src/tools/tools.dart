@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart' show Schema;
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart'
+    show FunctionDeclaration, Schema;
 
 /// Abstract base class for defining tools that an AI agent can invoke.
 ///
@@ -83,9 +83,13 @@ abstract class AiTool<T extends Map<String, Object?>> {
 
   List<FunctionDeclaration> toFunctionDeclarations() {
     return [
-      FunctionDeclaration(name, description, parameters),
+      FunctionDeclaration(name, description,
+          parameters:
+              parameters == null ? {} : {'parameters': parameters!}),
       if (name != fullName)
-        FunctionDeclaration(fullName, description, parameters),
+        FunctionDeclaration(fullName, description,
+            parameters:
+                parameters == null ? {} : {'parameters': parameters!}),
     ];
   }
 }
