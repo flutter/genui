@@ -2,7 +2,13 @@
 
 An SDK to create agentive applications.
 
+Packages:
+
+* [example](pkgs/example/README.md)
+* [genui_client](pkgs/genui_client/README.md)
+
 ## Flutter Coding Agent
+(this section is outdated)
 
 A tool using GenKit to generate Flutter code using an agentic framework.
 
