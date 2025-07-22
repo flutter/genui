@@ -1,4 +1,8 @@
-# Flutter Coding Agent
+# GenUI SDK
+
+An SDK to create agentive applications.
+
+## Flutter Coding Agent
 
 A tool using GenKit to generate Flutter code using an agentic framework.
 
