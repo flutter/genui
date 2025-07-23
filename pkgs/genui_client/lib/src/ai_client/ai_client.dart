@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import '../tools/tools.dart';
 
@@ -44,7 +43,6 @@ class AiClient {
   /// Creates an [AiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
-  /// - [firebaseApp]: The [FirebaseApp] to use for the connection.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
@@ -60,7 +58,6 @@ class AiClient {
   ///   output from the AI.
   AiClient({
     this.model = 'gemini-2.5-flash',
-    this.firebaseApp,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -91,11 +88,6 @@ class AiClient {
   ///
   /// Defaults to 'gemini-2.5-flash'.
   final String model;
-
-  /// The [FirebaseApp] to use for the connection.
-  ///
-  /// If not supplied, the default Firebase app is used.
-  final FirebaseApp? firebaseApp;
 
   /// The file system to use for accessing files.
   ///
@@ -235,7 +227,7 @@ class AiClient {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    return FirebaseAI.googleAI(app: configuration.firebaseApp).generativeModel(
+    return FirebaseAI.googleAI().generativeModel(
       model: configuration.model,
       systemInstruction: systemInstruction,
       tools: tools,
@@ -243,16 +235,19 @@ class AiClient {
     );
   }
 
-  void _error(String message) {
-    loggingCallback?.call(AiLoggingSeverity.error, message);
+  void _error(String message, [StackTrace? stackTrace]) {
+    loggingCallback?.call(AiLoggingSeverity.error,
+        stackTrace != null ? '$message\n$stackTrace' : message);
   }
 
-  void _warn(String message) {
-    loggingCallback?.call(AiLoggingSeverity.warning, message);
+  void _warn(String message, [StackTrace? stackTrace]) {
+    loggingCallback?.call(AiLoggingSeverity.warning,
+        stackTrace != null ? '$message\n$stackTrace' : message);
   }
 
-  void _log(String message) {
-    loggingCallback?.call(AiLoggingSeverity.info, message);
+  void _log(String message, [StackTrace? stackTrace]) {
+    loggingCallback?.call(AiLoggingSeverity.info,
+        stackTrace != null ? '$message\n$stackTrace' : message);
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
@@ -303,11 +298,11 @@ class AiClient {
           throw AiClientException(exception.message);
         }
         await onFail(exception);
-      } catch (exception) {
+      } catch (exception, stack) {
         _error(
-          'Received '
-          '${exception.runtimeType}: $exception',
-        );
+            'Received '
+            '${exception.runtimeType}: $exception',
+            stack);
         // For other exceptions, rethrow immediately.
         rethrow;
       }
@@ -388,10 +383,6 @@ class AiClient {
       ),
     );
 
-    final chat = model.startChat(
-      history: contents,
-    );
-
     while (toolUsageCycle < maxToolUsageCycles && capturedResult == null) {
       toolUsageCycle++;
       _log('Generating content with:');
@@ -402,7 +393,7 @@ class AiClient {
         'With functions: '
         '${allowedFunctionNames.join(', ')}',
       );
-      final response = await chat.sendMessage(contents.last);
+      final response = await model.generateContent(contents);
 
       // If the generate call succeeds, we need to reset the delay for the next
       // retry. If the generate call throws, this won't get called, and the
@@ -446,7 +437,11 @@ class AiClient {
       final functionResponseParts = <FunctionResponse>[];
       for (final call in functionCalls) {
         if (call.name == outputToolName) {
-          capturedResult = call.args['output'] as T;
+          try {
+            capturedResult = (call.args['parameters'] as Map)['output'] as T?;
+          } catch (e, s) {
+            _error('Unable to read output: $call [${call.args}]: $e', s);
+          }
           _log(
             'Invoked output tool ${call.name} with args ${call.args}. '
             'Final result: $capturedResult',
@@ -466,11 +461,14 @@ class AiClient {
             'Invoked tool ${aiTool.name} with args ${call.args}. '
             'Result: $toolResult',
           );
-        } catch (e, s) {
+        } catch (exception, stack) {
           _error(
-            'Error invoking tool ${aiTool.name} with args ${call.args}: $e\n$s',
-          );
-          toolResult = {'error': 'Tool ${aiTool.name} failed to execute: $e'};
+              'Error invoking tool ${aiTool.name} with args ${call.args}: '
+              '$exception\n',
+              stack);
+          toolResult = {
+            'error': 'Tool ${aiTool.name} failed to execute: $exception'
+          };
         }
         functionResponseParts.add(FunctionResponse(call.name, toolResult));
       }

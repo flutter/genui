@@ -1,32 +1,37 @@
 import 'dart:async';
-import 'dart:isolate';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
-import 'package:stream_channel/isolate_channel.dart';
 
 import 'firebase_options.dart';
+import 'src/ai_client/ai_client.dart';
 import 'src/dynamic_ui.dart';
 import 'src/ui_server.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final firebaseApp = await Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(GenUIApp(
-    firebaseApp: firebaseApp,
-  ));
+  await FirebaseAppCheck.instance.activate(
+    appleProvider: AppleProvider.debug,
+    androidProvider: AndroidProvider.debug,
+    webProvider: ReCaptchaV3Provider('debug'),
+  );
+  runApp(const GenUIApp());
 }
 
+/// The main application widget for the GenUI demo application.
+///
+/// This widget sets up the root of the application, configuring the
+/// [MaterialApp] with a title, theme, and the main home page. It serves as the
+/// entry point for the Flutter UI.
 class GenUIApp extends StatelessWidget {
+  /// Creates the main application widget.
   const GenUIApp({
     super.key,
-    required this.firebaseApp,
   });
-
-  final FirebaseApp firebaseApp;
 
   @override
   Widget build(BuildContext context) {
@@ -36,44 +41,47 @@ class GenUIApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: GenUIHomePage(
-        firebaseApp: firebaseApp,
-      ),
+      home: const GenUIHomePage(),
     );
   }
 }
 
-ServerConnection createIsolateServerConnection({
-  required FirebaseApp firebaseApp,
-  required SetUiCallback onSetUi,
-  required UpdateUiCallback onUpdateUi,
-  required ErrorCallback onError,
-  required StatusUpdateCallback onStatusUpdate,
-  ServerSpawner? serverSpawnerOverride,
-}) {
-  return IsolateServerConnection(
-    firebaseApp: firebaseApp,
-    onSetUi: onSetUi,
-    onUpdateUi: onUpdateUi,
-    onError: onError,
-    onStatusUpdate: onStatusUpdate,
-    serverSpawnerOverride: serverSpawnerOverride,
-  );
-}
-
+/// The primary screen of the application, responsible for managing the user
+/// interface and interaction with the AI backend.
+///
+/// This stateful widget handles:
+/// - Establishing and managing the connection to the UI server.
+/// - Providing a text input field for the user to enter prompts.
+/// - Displaying the dynamically generated UI received from the server via the
+///   [DynamicUi] widget.
+/// - Forwarding UI events from the [DynamicUi] widget back to the server.
+/// - Showing connection status and error messages to the user.
 class GenUIHomePage extends StatefulWidget {
+  /// Creates an instance of the GenUI home page.
+  ///
+  /// The [autoStartServer], [connectionFactory], and [aiClient] parameters are
+  /// primarily for testing purposes, allowing for dependency injection and
+  /// controlled startup.
   const GenUIHomePage({
     super.key,
     this.autoStartServer = true,
-    required this.firebaseApp,
-    this.serverSpawnerOverride,
-    this.connectionFactory = createIsolateServerConnection,
+    this.connectionFactory = createStreamServerConnection,
+    this.aiClient,
   });
 
+  /// When true, the UI server connection is automatically initiated when the
+  /// widget is initialized.
   final bool autoStartServer;
-  final FirebaseApp firebaseApp;
-  final ServerSpawner? serverSpawnerOverride;
+
+  /// A factory function used to create the [ServerConnection] instance.
+  /// This allows for replacing the default stream-based connection with a mock
+  /// or alternative implementation for testing.
   final ServerConnectionFactory connectionFactory;
+
+  /// The [AiClient] instance to be used by the server for generating UI.
+  /// If not provided, a default client will be instantiated. This is useful for
+  /// injecting a mock AI client during tests.
+  final AiClient? aiClient;
 
   @override
   State<GenUIHomePage> createState() => _GenUIHomePageState();
@@ -91,8 +99,6 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
   void initState() {
     super.initState();
     _serverConnection = widget.connectionFactory(
-      firebaseApp: widget.firebaseApp,
-      serverSpawnerOverride: widget.serverSpawnerOverride,
       onSetUi: (definition) {
         if (!mounted) return;
         setState(() {
@@ -122,6 +128,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           }
         });
       },
+      aiClient: widget.aiClient,
     );
 
     if (widget.autoStartServer) {
@@ -211,128 +218,3 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
     );
   }
 }
-
-@visibleForTesting
-typedef SetUiCallback = void Function(Map<String, Object?> definition);
-@visibleForTesting
-typedef UpdateUiCallback = void Function(List<Map<String, Object?>> updates);
-@visibleForTesting
-typedef ErrorCallback = void Function(String message);
-@visibleForTesting
-typedef StatusUpdateCallback = void Function(String status);
-@visibleForTesting
-typedef ServerSpawner = Future<Isolate> Function(SendPort, FirebaseApp);
-
-@visibleForTesting
-abstract class ServerConnection {
-  Future<void> start();
-  void sendPrompt(String text);
-  void sendUiEvent(Map<String, Object?> event);
-  void dispose();
-}
-
-@visibleForTesting
-class IsolateServerConnection implements ServerConnection {
-  IsolateServerConnection({
-    required this.firebaseApp,
-    required this.onSetUi,
-    required this.onUpdateUi,
-    required this.onError,
-    required this.onStatusUpdate,
-    this.serverSpawnerOverride,
-  });
-
-  final FirebaseApp firebaseApp;
-  final SetUiCallback onSetUi;
-  final UpdateUiCallback onUpdateUi;
-  final ErrorCallback onError;
-  final StatusUpdateCallback onStatusUpdate;
-  final ServerSpawner? serverSpawnerOverride;
-
-  rpc.Peer? _rpcPeer;
-  Isolate? _serverIsolate;
-  Completer<void>? _serverStartedCompleter;
-
-  Future<Isolate> _serverSpawner(
-      SendPort sendPort, FirebaseApp firebaseApp) async {
-    return await Isolate.spawn(
-      serverIsolate,
-      [sendPort, firebaseApp],
-    );
-  }
-
-  @override
-  Future<void> start() {
-    _serverStartedCompleter = Completer<void>();
-    unawaited(_startServer());
-    return _serverStartedCompleter!.future;
-  }
-
-  Future<void> _startServer() async {
-    onStatusUpdate('Starting server...');
-
-    final receivePort = ReceivePort();
-    _serverIsolate = await (serverSpawnerOverride ?? _serverSpawner)(
-        receivePort.sendPort, firebaseApp);
-
-    final channel = IsolateChannel<String>.connectReceive(receivePort);
-    _rpcPeer = rpc.Peer(channel);
-
-    _rpcPeer!.registerMethod('ui.set', (rpc.Parameters params) {
-      final definition = params.value as Map<String, Object?>;
-      onSetUi(definition);
-    });
-
-    _rpcPeer!.registerMethod('ui.update', (rpc.Parameters params) {
-      final updates = params.asList.cast<Map<String, Object?>>();
-      onUpdateUi(updates);
-    });
-
-    _rpcPeer!.registerMethod('ui.error', (rpc.Parameters params) {
-      onError(params['message'].asString);
-    });
-
-    _rpcPeer!.registerMethod('logging.log', (rpc.Parameters params) {
-      final severity = params['severity'].asString;
-      final message = params['message'].asString;
-      debugPrint('[$severity] $message');
-    });
-
-    unawaited(_rpcPeer!.listen());
-
-    await _rpcPeer!.sendRequest('ping');
-
-    onStatusUpdate('Server started.');
-    _serverStartedCompleter?.complete();
-  }
-
-  @override
-  void sendPrompt(String text) {
-    if (text.isNotEmpty) {
-      _rpcPeer?.sendNotification('prompt', {'text': text});
-      onStatusUpdate('Generating UI...');
-    }
-  }
-
-  @override
-  void sendUiEvent(Map<String, Object?> event) {
-    _rpcPeer?.sendNotification('ui.event', event);
-    onStatusUpdate('Generating UI...');
-  }
-
-  @override
-  void dispose() {
-    _rpcPeer?.close();
-    _serverIsolate?.kill();
-  }
-}
-
-@visibleForTesting
-typedef ServerConnectionFactory = ServerConnection Function({
-  required FirebaseApp firebaseApp,
-  required SetUiCallback onSetUi,
-  required UpdateUiCallback onUpdateUi,
-  required ErrorCallback onError,
-  required StatusUpdateCallback onStatusUpdate,
-  ServerSpawner? serverSpawnerOverride,
-});

@@ -56,9 +56,9 @@ class _DynamicUiState extends State<DynamicUi> {
     final definition = Map<String, Object?>.from(widget.definition);
     final widgets = definition['widgets'];
 
-    // The schema defines `widgets` as a list of widget definitions.
-    // The rest of this class expects `widgets` to be a map from widget ID
-    // to widget definition. So, we convert the list to a map here.
+    // The schema defines `widgets` as a list of widget definitions, but this
+    // class expects `widgets` to be a map from widget ID to widget definition,
+    // so we convert the list to a map here.
     if (widgets is List) {
       definition['widgets'] = {
         for (final widgetDef in widgets)
@@ -132,9 +132,7 @@ class _DynamicUiState extends State<DynamicUi> {
 
   /// Dispatches an event by calling the public [DynamicUi.onEvent] callback.
   void _dispatchEvent(String widgetId, String eventType, Object? value) {
-    final taskId = widget.definition['task_id']! as String;
     final event = UiEvent(
-      taskId: taskId,
       widgetId: widgetId,
       eventType: eventType,
       value: value,
@@ -281,6 +279,7 @@ class _DynamicUiState extends State<DynamicUi> {
 
   // --- Parsing Helper Functions ---
 
+  /// Parses a [UiEdgeInsets] object into a Flutter [EdgeInsets] object.
   EdgeInsets _parseEdgeInsets(UiEdgeInsets edgeInsets) {
     return EdgeInsets.fromLTRB(
       edgeInsets.left,
@@ -290,6 +289,8 @@ class _DynamicUiState extends State<DynamicUi> {
     );
   }
 
+  /// Parses a string representation of an alignment into a Flutter
+  /// [Alignment] object.
   Alignment _parseAlignment(String? alignment) {
     switch (alignment) {
       case 'topLeft':
@@ -315,6 +316,8 @@ class _DynamicUiState extends State<DynamicUi> {
     }
   }
 
+  /// Parses a string representation of a main axis alignment into a Flutter
+  /// [MainAxisAlignment] object.
   MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
     switch (alignment) {
       case 'start':
@@ -334,6 +337,8 @@ class _DynamicUiState extends State<DynamicUi> {
     }
   }
 
+  /// Parses a string representation of a cross axis alignment into a Flutter
+  /// [CrossAxisAlignment] object.
   CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
     switch (alignment) {
       case 'start':
