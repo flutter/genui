@@ -17,17 +17,26 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,50 +49,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBfE4h245gUPNa3RhCYQ8e14RU2oBSYirY',
-    appId: '1:686538628455:web:2c834d7c0edb094664a3c2',
-    messagingSenderId: '686538628455',
-    projectId: 'agent-demo-tj',
-    authDomain: 'agent-demo-tj.firebaseapp.com',
-    storageBucket: 'agent-demo-tj.firebasestorage.app',
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCxByPgKNTJc4Gc5N0w2l-I5ffE-dWkVKg',
+    appId: '1:975757934897:ios:540a1a4eeeb57afb0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+    iosBundleId: 'dev.flutter.genui.genuiClient',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDmASpK1e_mOHGrNt6VU6RZEwZrNJ0cx_8',
-    appId: '1:686538628455:android:6a3b1cf2fea3374864a3c2',
-    messagingSenderId: '686538628455',
-    projectId: 'agent-demo-tj',
-    storageBucket: 'agent-demo-tj.firebasestorage.app',
+    apiKey: 'AIzaSyAel-GAcyjdd83BickJkzf15mbZxyiOpfg',
+    appId: '1:975757934897:android:1735467a70fdea1d0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    storageBucket: 'fluttergenui.firebasestorage.app',
   );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDpykF61GD5fHfdSRrcDk_xnf1JTekkPLw',
-    appId: '1:686538628455:ios:4611001336b1aad664a3c2',
-    messagingSenderId: '686538628455',
-    projectId: 'agent-demo-tj',
-    storageBucket: 'agent-demo-tj.firebasestorage.app',
-    androidClientId: '686538628455-5fnq9mtf416g0jni848d1vsn0rti3iev.apps.googleusercontent.com',
-    iosBundleId: 'dev.flutter.genuiClient',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDpykF61GD5fHfdSRrcDk_xnf1JTekkPLw',
-    appId: '1:686538628455:ios:4611001336b1aad664a3c2',
-    messagingSenderId: '686538628455',
-    projectId: 'agent-demo-tj',
-    storageBucket: 'agent-demo-tj.firebasestorage.app',
-    androidClientId: '686538628455-5fnq9mtf416g0jni848d1vsn0rti3iev.apps.googleusercontent.com',
-    iosBundleId: 'dev.flutter.genuiClient',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBfE4h245gUPNa3RhCYQ8e14RU2oBSYirY',
-    appId: '1:686538628455:web:2c834d7c0edb094664a3c2',
-    messagingSenderId: '686538628455',
-    projectId: 'agent-demo-tj',
-    authDomain: 'agent-demo-tj.firebaseapp.com',
-    storageBucket: 'agent-demo-tj.firebasestorage.app',
-  );
-
 }

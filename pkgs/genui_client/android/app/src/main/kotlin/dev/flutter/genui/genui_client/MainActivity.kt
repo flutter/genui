@@ -1,4 +1,4 @@
-package dev.flutter.genui_client
+package dev.flutter.genui.genui_client
 
 import io.flutter.embedding.android.FlutterActivity
 

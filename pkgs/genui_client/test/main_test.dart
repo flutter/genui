@@ -1,103 +1,16 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/main.dart';
+import 'package:genui_client/src/ai_client/ai_client.dart';
 import 'package:genui_client/src/dynamic_ui.dart';
-
-class MockFirebaseApp implements FirebaseApp {
-  @override
-  String get name => 'test';
-
-  @override
-  FirebaseOptions get options => const FirebaseOptions(
-        apiKey: 'test',
-        appId: 'test',
-        messagingSenderId: 'test',
-        projectId: 'test',
-      );
-
-  @override
-  Future<void> delete() async {}
-
-  @override
-  bool get isAutomaticDataCollectionEnabled => false;
-
-  @override
-  Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {}
-}
-
-class MockServerConnection implements ServerConnection {
-  MockServerConnection({
-    required this.firebaseApp,
-    required this.onSetUi,
-    required this.onUpdateUi,
-    required this.onError,
-    required this.onStatusUpdate,
-    this.serverSpawnerOverride,
-  });
-
-  // ignore: unreachable_from_main
-  final FirebaseApp firebaseApp;
-  final SetUiCallback onSetUi;
-  // ignore: unreachable_from_main
-  final UpdateUiCallback onUpdateUi;
-  final ErrorCallback onError;
-  final StatusUpdateCallback onStatusUpdate;
-  // ignore: unreachable_from_main
-  final ServerSpawner? serverSpawnerOverride;
-
-  String? lastPrompt;
-  Map<String, Object?>? lastEvent;
-
-  @override
-  Future<void> start() async {
-    onStatusUpdate('Server started.');
-  }
-
-  @override
-  void sendPrompt(String text) {
-    lastPrompt = text;
-    onStatusUpdate('Generating UI...');
-  }
-
-  @override
-  void sendUiEvent(Map<String, Object?> event) {
-    lastEvent = event;
-    onStatusUpdate('Generating UI...');
-  }
-
-  @override
-  void dispose() {}
-}
+import 'package:genui_client/src/tools/tools.dart';
 
 void main() {
-  late FirebaseApp mockFirebaseApp;
-  late MockServerConnection mockConnection;
-
-  ServerConnection connectionFactory({
-    required FirebaseApp firebaseApp,
-    required SetUiCallback onSetUi,
-    required UpdateUiCallback onUpdateUi,
-    required ErrorCallback onError,
-    required StatusUpdateCallback onStatusUpdate,
-    ServerSpawner? serverSpawnerOverride,
-  }) {
-    mockConnection = MockServerConnection(
-      firebaseApp: firebaseApp,
-      onSetUi: onSetUi,
-      onUpdateUi: onUpdateUi,
-      onError: onError,
-      onStatusUpdate: onStatusUpdate,
-      serverSpawnerOverride: serverSpawnerOverride,
-    );
-    return mockConnection;
-  }
+  late AiClient fakeAiClient;
 
   setUp(() {
-    mockFirebaseApp = MockFirebaseApp();
+    fakeAiClient = FakeAiClient();
   });
 
   testWidgets('GenUIHomePage shows server started status after startup',
@@ -105,11 +18,10 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: GenUIHomePage(
         autoStartServer: true,
-        firebaseApp: mockFirebaseApp,
-        connectionFactory: connectionFactory,
+        aiClient: fakeAiClient,
       ),
     ));
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(find.text('Server started.'), findsOneWidget);
   });
 
@@ -118,62 +30,22 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: GenUIHomePage(
         autoStartServer: true,
-        firebaseApp: mockFirebaseApp,
-        connectionFactory: connectionFactory,
+        aiClient: fakeAiClient,
       ),
     ));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // Enter a prompt and send it.
     await tester.enterText(find.byType(TextField), 'A simple button');
     await tester.tap(find.byType(IconButton));
-    await tester.pump();
-
-    expect(mockConnection.lastPrompt, 'A simple button');
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-    // Simulate server response
-    mockConnection.onSetUi({
-      'task_id': 'task-123',
-      'root': 'button',
-      'widgets': [
-        {
-          'id': 'button',
-          'type': 'ElevatedButton',
-          'props': {'child': 'text'},
-        },
-        {
-          'id': 'text',
-          'type': 'Text',
-          'props': {'data': 'Click Me'},
-        },
-      ],
-    });
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.byType(DynamicUi), findsOneWidget);
     expect(find.text('Click Me'), findsOneWidget);
 
     // Tap the button
     await tester.tap(find.byType(ElevatedButton));
-    await tester.pump();
-
-    expect(mockConnection.lastEvent, isNotNull);
-    expect(mockConnection.lastEvent!['widgetId'], 'button');
-
-    // Simulate server response to event
-    mockConnection.onSetUi({
-      'task_id': 'task-123',
-      'root': 'root',
-      'widgets': [
-        {
-          'id': 'root',
-          'type': 'Text',
-          'props': {'data': 'Button clicked!'},
-        },
-      ],
-    });
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Button clicked!'), findsOneWidget);
   });
@@ -183,16 +55,77 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: GenUIHomePage(
         autoStartServer: true,
-        firebaseApp: mockFirebaseApp,
-        connectionFactory: connectionFactory,
+        aiClient: fakeAiClient,
       ),
     ));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Simulate an error from the server
-    mockConnection.onError('Something went wrong');
-    await tester.pump();
+    // Enter a prompt that will cause an error.
+    await tester.enterText(find.byType(TextField), 'An error');
+    await tester.tap(find.byType(IconButton));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Error: Something went wrong'), findsOneWidget);
+    expect(find.text('Error: Exception: Something went wrong'), findsOneWidget);
   });
+}
+
+class FakeAiClient implements AiClient {
+  @override
+  Future<T?> generateContent<T extends Object>(
+    List<Content> prompts,
+    Schema outputSchema, {
+    Iterable<AiTool> additionalTools = const [],
+    Content? systemInstruction,
+  }) async {
+    final lastContent = prompts.last;
+    if (lastContent.role == 'user') {
+      final lastPart = lastContent.parts.first as TextPart;
+      if (lastPart.text.contains('error')) {
+        throw Exception('Something went wrong');
+      }
+      if (lastPart.text.contains('button')) {
+        return <String, Object?>{
+          'root': 'button',
+          'widgets': [
+            {
+              'id': 'button',
+              'type': 'ElevatedButton',
+              'props': {'child': 'text'},
+            },
+            {
+              'id': 'text',
+              'type': 'Text',
+              'props': {'data': 'Click Me'},
+            },
+          ],
+        } as T;
+      }
+    } else if (lastContent.role == 'function') {
+      return <String, Object?>{
+        'root': 'root',
+        'widgets': [
+          {
+            'id': 'root',
+            'type': 'Text',
+            'props': {'data': 'Button clicked!'},
+          },
+        ],
+      } as T;
+    }
+    return <String, Object?>{
+      'root': 'root',
+      'widgets': [
+        {
+          'id': 'root',
+          'type': 'Text',
+          'props': {'data': 'Button clicked!'},
+        },
+      ],
+    } as T;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    return super.noSuchMethod(invocation);
+  }
 }
