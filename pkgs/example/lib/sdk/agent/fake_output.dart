@@ -2,7 +2,7 @@ import 'package:example/sdk/catalog/carousel.dart';
 import 'package:example/sdk/catalog/invitation.dart';
 import 'package:example/sdk/catalog/text_intro.dart';
 
-final invitationData = InvitationData(
+final fakeInvitationData = InvitationData(
   textIntroData: TextIntroData(
     h1: 'Hello, Ryan,',
     h2: 'Welcome to traveling with Compass',

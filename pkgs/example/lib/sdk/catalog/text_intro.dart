@@ -1,3 +1,4 @@
+import 'package:example/sdk/model/base_classes.dart';
 import 'package:flutter/material.dart';
 
 class TextIntro extends StatelessWidget {
@@ -9,7 +10,7 @@ class TextIntro extends StatelessWidget {
   }
 }
 
-class TextIntroData {
+class TextIntroData extends WidgetData {
   final String h1;
   final String h2;
   final String intro;

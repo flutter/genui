@@ -9,3 +9,7 @@ sealed class Input {
 class InvitationInput extends Input {
   InvitationInput(super.imageCatalog) : super._();
 }
+
+class UserInput extends Input {
+  UserInput(super.imageCatalog) : super._();
+}
