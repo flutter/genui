@@ -1,20 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/src/dynamic_ui.dart';
 
 void main() {
   group('DynamicUi', () {
-    late StreamController<Map<String, Object?>> updateController;
-
-    setUp(() {
-      updateController = StreamController<Map<String, Object?>>.broadcast();
-    });
-
-    tearDown(() {
-      updateController.close();
-    });
-
     testWidgets('builds a simple Text widget', (WidgetTester tester) async {
       final definition = {
         'root': 'text1',
@@ -34,8 +23,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (_) {},
           ),
         ),
@@ -76,8 +65,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (_) {},
           ),
         ),
@@ -120,8 +109,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (_) {},
           ),
         ),
@@ -133,42 +122,6 @@ void main() {
       expect(row.children.length, 2);
       expect(row.mainAxisAlignment, MainAxisAlignment.spaceBetween);
       expect(row.crossAxisAlignment, CrossAxisAlignment.start);
-    });
-
-    testWidgets('updates a widget via the updateStream',
-        (WidgetTester tester) async {
-      final definition = {
-        'root': 'text1',
-        'widgets': [
-          {
-            'id': 'text1',
-            'type': 'Text',
-            'props': {'data': 'Initial Text'},
-          }
-        ],
-      };
-
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: DynamicUi(
-            definition: definition,
-            updateStream: updateController.stream,
-            onEvent: (_) {},
-          ),
-        ),
-      ));
-
-      expect(find.text('Initial Text'), findsOneWidget);
-
-      // Send an update
-      updateController.add({
-        'widgetId': 'text1',
-        'props': {'data': 'Updated Text'},
-      });
-      await tester.pump();
-
-      expect(find.text('Initial Text'), findsNothing);
-      expect(find.text('Updated Text'), findsOneWidget);
     });
 
     testWidgets('sends an event on button tap', (WidgetTester tester) async {
@@ -194,8 +147,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (event) {
               capturedEvent = event;
             },
@@ -231,8 +184,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (event) {
               capturedEvent = event;
             },
@@ -271,8 +224,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (event) {
               capturedEvent = event;
             },
@@ -311,8 +264,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (event) {
               capturedEvent = event;
             },
@@ -353,8 +306,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (event) {
               capturedEvent = event;
             },
@@ -408,8 +361,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (_) {},
           ),
         ),
@@ -448,8 +401,8 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: DynamicUi(
+            surfaceId: 'test-surface',
             definition: definition,
-            updateStream: updateController.stream,
             onEvent: (_) {},
           ),
         ),

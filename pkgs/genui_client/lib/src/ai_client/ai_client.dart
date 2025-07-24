@@ -185,8 +185,9 @@ class AiClient {
   /// schema.
   ///
   /// This method orchestrates the interaction with the generative AI model. It
-  /// sends the given [prompts] and an [outputSchema] that defines the expected
-  /// structure of the AI's response.
+  /// sends the given [conversation] and an [outputSchema] that defines the
+  /// expected structure of the AI's response. The [conversation] is updated
+  /// in place with the results of the tool-calling conversation.
   ///
   /// The AI is configured to use "forced tool calling", meaning it's expected
   /// to respond by either:
@@ -198,19 +199,21 @@ class AiClient {
   /// 2. Calling a special internal tool (named by [outputToolName]) whose
   ///    argument is the final structured data matching [outputSchema].
   ///
-  /// - [prompts]: A list of [Content] objects representing the input to the AI.
+  /// - [conversation]: A list of [Content] objects representing the input to
+  ///   the AI. This list will be modified in place to include the tool calling
+  ///   conversation.
   /// - [outputSchema]: A [Schema] defining the structure of the desired output
   ///   `T`.
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
   ///   this specific call, in addition to the default [tools].
   Future<T?> generateContent<T extends Object>(
-    List<Content> prompts,
+    List<Content> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
     Content? systemInstruction,
   }) async {
     return await _generateContentWithRetries(
-      prompts.toList(), // Don't want to modify original prompts.
+      conversation,
       outputSchema,
       [...tools, ...additionalTools],
       systemInstruction,

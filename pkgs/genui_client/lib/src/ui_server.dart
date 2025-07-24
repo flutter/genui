@@ -4,6 +4,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
 import 'ai_client/ai_client.dart';
+import 'event_debouncer.dart';
 import 'ui_models.dart';
 import 'ui_schema.dart';
 
@@ -15,6 +16,10 @@ typedef SetUiCallback = void Function(Map<String, Object?> definition);
 @visibleForTesting
 typedef UpdateUiCallback = void Function(List<Map<String, Object?>> updates);
 
+/// A callback to delete a UI surface.
+@visibleForTesting
+typedef DeleteUiCallback = void Function(String surfaceId);
+
 /// A callback to report an error.
 @visibleForTesting
 typedef ErrorCallback = void Function(String message);
@@ -22,6 +27,10 @@ typedef ErrorCallback = void Function(String message);
 /// A callback to report a status update.
 @visibleForTesting
 typedef StatusUpdateCallback = void Function(String status);
+
+/// A callback to report a text response from the AI.
+@visibleForTesting
+typedef TextResponseCallback = void Function(String text);
 
 /// Defines the contract for a connection to the UI generation server.
 ///
@@ -59,8 +68,10 @@ class StreamServerConnection implements ServerConnection {
   StreamServerConnection({
     required this.onSetUi,
     required this.onUpdateUi,
+    required this.onDeleteUi,
     required this.onError,
     required this.onStatusUpdate,
+    required this.onTextResponse,
     AiClient? aiClient,
   }) : _aiClient = aiClient ??
             AiClient(
@@ -69,7 +80,9 @@ class StreamServerConnection implements ServerConnection {
                 // The AiClient is not aware of the response stream.
                 debugPrint('[$severity] $message');
               },
-            );
+            ) {
+    _eventDebouncer = EventDebouncer(callback: _sendUiEvents);
+  }
 
   /// A callback invoked when the server sends a complete new UI definition.
   final SetUiCallback onSetUi;
@@ -78,13 +91,21 @@ class StreamServerConnection implements ServerConnection {
   /// UI.
   final UpdateUiCallback onUpdateUi;
 
+  /// A callback invoked when the server sends a command to delete a UI.
+  final DeleteUiCallback onDeleteUi;
+
   /// A callback invoked when the server reports an error.
   final ErrorCallback onError;
 
   /// A callback invoked with status messages from the server (e.g.,
   /// 'Generating UI...').
   final StatusUpdateCallback onStatusUpdate;
+
+  /// A callback invoked when the server sends a text response.
+  final TextResponseCallback onTextResponse;
+
   final AiClient _aiClient;
+  late final EventDebouncer _eventDebouncer;
 
   final _requestsController = StreamController<Map<String, Object?>>();
   final _responsesController = StreamController<Map<String, Object?>>();
@@ -103,9 +124,17 @@ class StreamServerConnection implements ServerConnection {
           break;
         case 'ui.update':
           onUpdateUi([params]);
+          onStatusUpdate('Server started.');
+          break;
+        case 'ui.delete':
+          onDeleteUi(params['surfaceId'] as String);
+          onStatusUpdate('Server started.');
           break;
         case 'ui.error':
           onError(params['message'] as String);
+          break;
+        case 'text.response':
+          onTextResponse(params['text'] as String);
           break;
         case 'logging.log':
           final severity = params['severity'] as String;
@@ -141,7 +170,24 @@ class StreamServerConnection implements ServerConnection {
 
   @override
   void sendUiEvent(Map<String, Object?> event) {
-    _requestsController.add({'method': 'ui.event', 'params': event});
+    _eventDebouncer.add(UiEvent.fromMap(event));
+  }
+
+  void _sendUiEvents(List<UiEvent> events) {
+    final eventsBySurface = <String, List<UiEvent>>{};
+    for (final event in events) {
+      (eventsBySurface[event.surfaceId] ??= []).add(event);
+    }
+
+    for (final entry in eventsBySurface.entries) {
+      _requestsController.add({
+        'method': 'ui.events',
+        'params': {
+          'surfaceId': entry.key,
+          'events': entry.value.map((e) => e.toMap()).toList(),
+        }
+      });
+    }
     onStatusUpdate('Generating UI...');
   }
 
@@ -150,6 +196,7 @@ class StreamServerConnection implements ServerConnection {
     _responsesSubscription?.cancel();
     _requestsController.close();
     _responsesController.close();
+    _eventDebouncer.dispose();
   }
 }
 
@@ -161,15 +208,19 @@ class StreamServerConnection implements ServerConnection {
 ServerConnection createStreamServerConnection({
   required SetUiCallback onSetUi,
   required UpdateUiCallback onUpdateUi,
+  required DeleteUiCallback onDeleteUi,
   required ErrorCallback onError,
   required StatusUpdateCallback onStatusUpdate,
+  required TextResponseCallback onTextResponse,
   AiClient? aiClient,
 }) {
   return StreamServerConnection(
     onSetUi: onSetUi,
     onUpdateUi: onUpdateUi,
+    onDeleteUi: onDeleteUi,
     onError: onError,
     onStatusUpdate: onStatusUpdate,
+    onTextResponse: onTextResponse,
     aiClient: aiClient,
   );
 }
@@ -186,17 +237,62 @@ Future<void> runUiServer({
   required Stream<Map<String, Object?>> requests,
   required StreamController<Map<String, Object?>> responses,
 }) async {
-  final conversation = <Content>[];
+  final masterConversation = <Content>[];
+  final conversationsBySurfaceId = <String, List<Content>>{};
 
-  Future<void> generateAndSendUi() async {
+  Future<void> generateAndSendResponse({
+    required List<Content> conversation,
+  }) async {
     try {
-      final response =
-          await aiClient.generateContent(conversation, flutterUiDefinition);
-      if (response != null) {
+      final response = await aiClient.generateContent(
+        conversation,
+        flutterUiDefinition,
+      );
+      if (response == null) {
+        return;
+      }
+      final responseMap = response as Map<String, Object?>;
+      if (responseMap['responseText'] case final String responseText) {
         responses.add({
-          'method': 'ui.set',
-          'params': response,
+          'method': 'text.response',
+          'params': {'text': responseText},
         });
+      }
+      if (responseMap['actions'] case final List<Object?> actions) {
+        for (final actionMap in actions.cast<Map<String, Object?>>()) {
+          final action = actionMap['action'] as String;
+          final surfaceId = actionMap['surfaceId'] as String;
+          switch (action) {
+            case 'add':
+              final definition =
+                  actionMap['definition'] as Map<String, Object?>;
+              final newConversation = List<Content>.from(conversation);
+              conversationsBySurfaceId[surfaceId] = newConversation;
+              responses.add({
+                'method': 'ui.set',
+                'params': {
+                  'surfaceId': surfaceId,
+                  ...definition,
+                },
+              });
+            case 'update':
+              final definition =
+                  actionMap['definition'] as Map<String, Object?>;
+              responses.add({
+                'method': 'ui.update',
+                'params': {
+                  'surfaceId': surfaceId,
+                  ...definition,
+                },
+              });
+            case 'delete':
+              conversationsBySurfaceId.remove(surfaceId);
+              responses.add({
+                'method': 'ui.delete',
+                'params': {'surfaceId': surfaceId},
+              });
+          }
+        }
       }
     } catch (e) {
       responses.add({
@@ -218,16 +314,38 @@ Future<void> runUiServer({
         break;
       case 'prompt':
         final prompt = params['text'] as String;
-        conversation.add(Content.text(prompt));
-        unawaited(generateAndSendUi());
+        masterConversation.add(Content.text(prompt));
+        await generateAndSendResponse(
+          conversation: masterConversation,
+        );
         break;
-      case 'ui.event':
-        final event = UiEvent.fromMap(params.cast<String, Object?>());
-        final functionResponse =
-            FunctionResponse(event.widgetId, event.toMap());
-        conversation.add(Content.functionResponse(
-            functionResponse.name, functionResponse.response));
-        await generateAndSendUi();
+      case 'ui.events':
+        final surfaceId = params['surfaceId'] as String;
+        final events = (params['events'] as List)
+            .cast<Map<String, Object?>>()
+            .map(UiEvent.fromMap);
+        final surfaceConversation = conversationsBySurfaceId[surfaceId];
+        if (surfaceConversation == null) {
+          responses.add({
+            'method': 'ui.error',
+            'params': {'message': 'Unknown surfaceId: $surfaceId'}
+          });
+          continue;
+        }
+        for (final event in events) {
+          final functionResponse =
+              FunctionResponse(event.widgetId, event.toMap());
+          surfaceConversation.add(Content.functionResponse(
+              functionResponse.name, functionResponse.response));
+        }
+        surfaceConversation.add(Content.text(
+            'The user has interacted with the UI surface named "$surfaceId". '
+            'Consolidate the UI events and update the UI accordingly. Respond '
+            'with an updated UI definition. You may update any of the '
+            'surfaces, or delete them if they are no longer needed.'));
+        await generateAndSendResponse(
+          conversation: surfaceConversation,
+        );
         break;
     }
   }
@@ -240,7 +358,9 @@ Future<void> runUiServer({
 typedef ServerConnectionFactory = ServerConnection Function({
   required SetUiCallback onSetUi,
   required UpdateUiCallback onUpdateUi,
+  required DeleteUiCallback onDeleteUi,
   required ErrorCallback onError,
   required StatusUpdateCallback onStatusUpdate,
+  required TextResponseCallback onTextResponse,
   AiClient? aiClient,
 });

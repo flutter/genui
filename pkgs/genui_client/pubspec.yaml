@@ -7,6 +7,7 @@ environment:
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
+  collection: ^1.19.1
   file: ^7.0.1
   firebase_ai: ^2.2.1
   firebase_app_check: ^0.3.0+1
@@ -20,6 +21,7 @@ dependencies:
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
+  fake_async: ^1.3.3
   flutter_test:
     sdk: flutter
 
