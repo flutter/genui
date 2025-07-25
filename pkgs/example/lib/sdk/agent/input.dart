@@ -1,15 +1,14 @@
 class ImageCatalog {}
 
 sealed class Input {
-  final ImageCatalog imageCatalog;
-
-  const Input._(this.imageCatalog);
+  const Input._();
 }
 
 class InvitationInput extends Input {
-  InvitationInput(super.imageCatalog) : super._();
+  final String invitationPrompt;
+  InvitationInput(this.invitationPrompt) : super._();
 }
 
 class UserInput extends Input {
-  UserInput(super.imageCatalog) : super._();
+  UserInput() : super._();
 }

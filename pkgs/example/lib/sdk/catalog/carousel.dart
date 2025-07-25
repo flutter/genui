@@ -1,4 +1,4 @@
-import 'package:example/sdk/model/base_classes.dart';
+import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
 
 class Carousel extends StatelessWidget {

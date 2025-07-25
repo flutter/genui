@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-abstract class AppTextStyles {
+abstract class GenUiTextStyles {
   static TextStyle normal(BuildContext context) {
     return Theme.of(context).textTheme.labelLarge!;
   }
