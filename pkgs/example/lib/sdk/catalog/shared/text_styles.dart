@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 abstract class GenUiTextStyles {
   static TextStyle normal(BuildContext context) {
-    return Theme.of(
-      context,
-    ).textTheme.labelLarge!.copyWith(fontSize: 14.0, inherit: true);
+    return Theme.of(context).textTheme.labelLarge!.copyWith(
+      fontSize: 14.0,
+      inherit: true,
+      fontWeight: FontWeight.w300,
+    );
   }
 
   static TextStyle h1(BuildContext context) => normal(
