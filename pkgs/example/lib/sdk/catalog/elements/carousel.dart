@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 const double _imageSize = 190;
 
 class Carousel extends StatelessWidget {
-  const Carousel({super.key, required this.data});
+  const Carousel(this.data, {super.key});
 
   final CarouselData data;
 
@@ -17,7 +17,7 @@ class Carousel extends StatelessWidget {
         itemExtent: _imageSize,
         // Set no border.
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        children: data.items.map((item) => CarouselItem(data: item)).toList(),
+        children: data.items.map((item) => CarouselItem(item)).toList(),
       ),
     );
   }
@@ -26,7 +26,7 @@ class Carousel extends StatelessWidget {
 class CarouselItem extends StatelessWidget {
   final CarouselItemData data;
 
-  const CarouselItem({super.key, required this.data});
+  const CarouselItem(this.data, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,11 @@ class CarouselItem extends StatelessWidget {
           height: _imageSize,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10.0),
-            child: Image.asset(data.assetUrl, fit: BoxFit.cover),
+            child: Image.asset(
+              data.assetUrl,
+              fit: BoxFit.cover,
+              alignment: Alignment.topLeft,
+            ),
           ),
         ),
         Text(

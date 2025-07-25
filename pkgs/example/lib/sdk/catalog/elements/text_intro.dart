@@ -3,7 +3,7 @@ import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
 
 class TextIntro extends StatelessWidget {
-  const TextIntro({super.key, required this.data});
+  const TextIntro(this.data, {super.key});
 
   final TextIntroData data;
 
