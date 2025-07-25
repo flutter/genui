@@ -15,15 +15,15 @@ final fakeInvitationData = InvitationData(
   exploreItems: [
     CarouselItemData(
       title: 'Beach Bliss',
-      imageUrl: 'assets/explore/beach_bliss.png',
+      assetUrl: 'assets/explore/beach_bliss.png',
     ),
     CarouselItemData(
       title: 'Urban Escapes',
-      imageUrl: 'assets/explore/urban_escapes.png',
+      assetUrl: 'assets/explore/urban_escapes.png',
     ),
     CarouselItemData(
       title: "Nature's Wonders",
-      imageUrl: 'assets/explore/natures_wonder.png',
+      assetUrl: 'assets/explore/natures_wonders.png',
     ),
   ],
   chatHintText: 'Ask me anything',
