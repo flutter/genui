@@ -21,13 +21,16 @@ class _GenUiState extends State<GenUi> {
   WidgetBuilder? _widgetBuilder;
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
     final builder = await GenUiAgent.instance.request(
       InvitationInput(widget.initialPrompt),
       widget.controller,
     );
-
     setState(() => _widgetBuilder = builder);
   }
 

@@ -11,13 +11,15 @@ class GenUiAgent {
 
   Future<WidgetBuilder> request(Input input, GenUiController controller) async {
     // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 1500));
-    switch (input.runtimeType) {
-      case InvitationInput _:
-        return (_) =>
-            Invitation(data: fakeInvitationData, controller: controller);
-      default:
-        throw Exception('Unsupported input type: ${input.runtimeType}');
-    }
+    await Future.delayed(const Duration(milliseconds: 1000));
+    return switch (input) {
+      InvitationInput _ => (_) => Invitation(
+        data: fakeInvitationData,
+        controller: controller,
+      ),
+      _ => throw UnimplementedError(
+        'GenUiAgent does not support input of type ${input.runtimeType}',
+      ),
+    };
   }
 }

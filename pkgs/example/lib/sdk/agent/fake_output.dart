@@ -4,7 +4,7 @@ import 'package:example/sdk/catalog/text_intro.dart';
 
 final fakeInvitationData = InvitationData(
   textIntroData: TextIntroData(
-    h1: 'Hello, Ryan,',
+    h1: 'Hello Ryan,',
     h2: 'Welcome to traveling with Compass',
     intro:
         'Explore our promotions below or let me know '

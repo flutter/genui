@@ -17,9 +17,11 @@ class Invitation extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextIntro(data: data.textIntroData),
+        SizedBox(height: 16.0),
         Text(data.exploreTitle, style: GenUiTextStyles.h2(context)),
         Carousel(data: CarouselData(items: data.exploreItems)),
-        Padding(padding: const EdgeInsets.only(top: 16.0), child: ChatBox()),
+        SizedBox(height: 16.0),
+        ChatBox(),
       ],
     );
   }
