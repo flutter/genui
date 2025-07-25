@@ -1,16 +1,23 @@
-import 'package:example/sdk/agent/fake_output.dart';
-import 'package:example/sdk/agent/input.dart';
-import 'package:example/sdk/catalog/invitation.dart';
-import 'package:example/sdk/model/base_classes.dart';
 import 'package:flutter/widgets.dart';
 
+import '../catalog/messages/invitation.dart';
+import '../model/simple_items.dart';
+import 'fake_output.dart';
+import 'input.dart';
+
 class GenUiAgent {
-  Future<Widget> request(Input input, EventHandler handler) async {
-    switch (input.runtimeType) {
-      case InvitationInput _:
-        return Invitation(data: fakeInvitationData, handler: handler);
-      default:
-        throw Exception('Unsupported input type: ${input.runtimeType}');
-    }
+  static final GenUiAgent instance = GenUiAgent._();
+
+  GenUiAgent._();
+
+  Future<WidgetBuilder> request(Input input, GenUiController controller) async {
+    // Simulate network delay
+    await Future<void>.delayed(const Duration(milliseconds: 1000));
+    return switch (input) {
+      InvitationInput _ => (_) => Invitation(fakeInvitationData, controller),
+      _ => throw UnimplementedError(
+        'GenUiAgent does not support input of type ${input.runtimeType}',
+      ),
+    };
   }
 }
