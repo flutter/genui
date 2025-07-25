@@ -30,7 +30,10 @@ class _MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
-  final GenUiController _controller = GenUiController(_myImageCatalog);
+  final GenUiController _controller = GenUiController(
+    imageCatalog: _myImageCatalog,
+    agentIcon: 'assets/agent_icon.png',
+  );
 
   @override
   Widget build(BuildContext context) {

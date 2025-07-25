@@ -11,7 +11,7 @@ abstract class GenUiTextStyles {
 
   static TextStyle h1(BuildContext context) => normal(
     context,
-  ).copyWith(fontSize: 36.0, fontWeight: FontWeight.w700, inherit: true);
+  ).copyWith(fontSize: 30.0, fontWeight: FontWeight.w700, inherit: true);
 
   static TextStyle h2(BuildContext context) => normal(
     context,

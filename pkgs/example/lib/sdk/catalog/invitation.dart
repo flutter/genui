@@ -16,6 +16,8 @@ class Invitation extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Image.asset(controller.agentIcon),
+        SizedBox(height: 8.0),
         TextIntro(data: data.textIntroData),
         SizedBox(height: 16.0),
         Text(data.exploreTitle, style: GenUiTextStyles.h2(context)),
