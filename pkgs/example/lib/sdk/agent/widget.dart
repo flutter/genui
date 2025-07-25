@@ -1,7 +1,8 @@
-import 'package:example/sdk/agent/agent.dart';
-import 'package:example/sdk/agent/input.dart';
-import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
+
+import '../model/simple_items.dart';
+import 'agent.dart';
+import 'input.dart';
 
 class GenUi extends StatefulWidget {
   const GenUi.invitation({

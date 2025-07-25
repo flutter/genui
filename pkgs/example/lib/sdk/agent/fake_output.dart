@@ -1,6 +1,6 @@
-import 'package:example/sdk/catalog/elements/carousel.dart';
-import 'package:example/sdk/catalog/messages/invitation.dart';
-import 'package:example/sdk/catalog/elements/text_intro.dart';
+import '../catalog/elements/carousel.dart';
+import '../catalog/elements/text_intro.dart';
+import '../catalog/messages/invitation.dart';
 
 final fakeInvitationData = InvitationData(
   textIntroData: TextIntroData(

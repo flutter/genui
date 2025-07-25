@@ -1,5 +1,6 @@
-import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/simple_items.dart';
 
 class AgentIcon extends StatelessWidget {
   final GenUiController controller;

@@ -1,8 +1,8 @@
-import 'package:example/sdk/catalog/elements/agent_icon.dart';
-
-import 'package:example/sdk/catalog/elements/text_intro.dart';
-import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/simple_items.dart';
+import '../elements/agent_icon.dart';
+import '../elements/text_intro.dart';
 
 class Elicitation extends StatelessWidget {
   final ElicitationData data;
@@ -16,8 +16,8 @@ class Elicitation extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AgentIcon(controller),
-        SizedBox(height: 8.0),
-        Text('filter will be here'),
+        const SizedBox(height: 8.0),
+        const Text('filter will be here'),
       ],
     );
   }

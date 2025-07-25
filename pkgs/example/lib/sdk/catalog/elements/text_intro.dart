@@ -1,6 +1,7 @@
-import 'package:example/sdk/catalog/shared/text_styles.dart';
-import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/simple_items.dart';
+import '../shared/text_styles.dart';
 
 class TextIntro extends StatelessWidget {
   const TextIntro(this.data, {super.key});

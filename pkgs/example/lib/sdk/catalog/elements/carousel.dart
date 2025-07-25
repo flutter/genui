@@ -1,6 +1,7 @@
-import 'package:example/sdk/catalog/shared/text_styles.dart';
-import 'package:example/sdk/model/simple_items.dart';
 import 'package:flutter/material.dart';
+
+import '../../model/simple_items.dart';
+import '../shared/text_styles.dart';
 
 const double _imageSize = 190;
 
@@ -16,8 +17,8 @@ class Carousel extends StatelessWidget {
       child: CarouselView(
         itemExtent: _imageSize,
         // Set no border.
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        children: data.items.map((item) => CarouselItem(item)).toList(),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        children: data.items.map(CarouselItem.new).toList(),
       ),
     );
   }

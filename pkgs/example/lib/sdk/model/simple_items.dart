@@ -1,4 +1,4 @@
-import 'package:example/sdk/agent/input.dart';
+import '../agent/input.dart';
 
 abstract class WidgetData {}
 
