@@ -1,12 +1,13 @@
-import 'dart:async';
-
+import 'package:collection/collection.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
 import 'src/ai_client/ai_client.dart';
+import 'src/chat_message.dart';
 import 'src/dynamic_ui.dart';
+import 'src/ui_models.dart';
 import 'src/ui_server.dart';
 
 void main() async {
@@ -88,12 +89,11 @@ class GenUIHomePage extends StatefulWidget {
 }
 
 class _GenUIHomePageState extends State<GenUIHomePage> {
-  final _updateController = StreamController<Map<String, Object?>>.broadcast();
-  Map<String, Object?>? _uiDefinition;
+  final _chatHistory = <ChatMessage>[];
   String _connectionStatus = 'Initializing...';
-  Key _uiKey = UniqueKey();
   final _promptController = TextEditingController();
   late final ServerConnection _serverConnection;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -102,29 +102,58 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
       onSetUi: (definition) {
         if (!mounted) return;
         setState(() {
-          _uiDefinition = definition;
-          _uiKey = UniqueKey();
+          final surfaceId = definition['surfaceId'] as String?;
+          _chatHistory.add(UiResponse(
+            definition: definition,
+            surfaceId: surfaceId,
+          ));
         });
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
       },
       onUpdateUi: (updates) {
         if (!mounted) return;
-        for (final update in updates) {
-          _updateController.add(update);
-        }
+        setState(() {
+          for (final update in updates) {
+            final uiUpdate = UiDefinition.fromMap(update);
+            final oldResponse =
+                _chatHistory.whereType<UiResponse>().firstWhereOrNull(
+                      (response) => response.surfaceId == uiUpdate.surfaceId,
+                    );
+            if (oldResponse != null) {
+              final index = _chatHistory.indexOf(oldResponse);
+              _chatHistory[index] =
+                  UiResponse(definition: update, surfaceId: uiUpdate.surfaceId);
+            }
+          }
+        });
+      },
+      onDeleteUi: (surfaceId) {
+        if (!mounted) return;
+        setState(() {
+          _chatHistory.removeWhere((message) =>
+              message is UiResponse && message.surfaceId == surfaceId);
+        });
+      },
+      onTextResponse: (text) {
+        if (!mounted) return;
+        setState(() {
+          _chatHistory.add(TextResponse(text: text));
+        });
       },
       onError: (message) {
         if (!mounted) return;
         setState(() {
+          _chatHistory.add(SystemMessage(text: 'Error: $message'));
           _connectionStatus = 'Error: $message';
-          _uiDefinition = null;
         });
       },
       onStatusUpdate: (status) {
         if (!mounted) return;
         setState(() {
           _connectionStatus = status;
-          if (status != 'Server started.') {
-            _uiDefinition = null;
+          if (status == 'Server started.' && _chatHistory.isEmpty) {
+            _chatHistory.add(const SystemMessage(
+                text: 'I can create UIs. What should I make for you?'));
           }
         });
       },
@@ -136,11 +165,17 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
     }
   }
 
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  }
+
   @override
   void dispose() {
-    _updateController.close();
     _serverConnection.dispose();
     _promptController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -150,14 +185,20 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
 
   void _sendPrompt() {
     final prompt = _promptController.text;
-    _serverConnection.sendPrompt(prompt);
     if (prompt.isNotEmpty) {
+      setState(() {
+        _chatHistory.add(UserPrompt(text: prompt));
+      });
+      _serverConnection.sendPrompt(prompt);
       _promptController.clear();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final showProgressIndicator = _connectionStatus == 'Generating UI...' ||
+        _connectionStatus == 'Starting server...';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -168,6 +209,73 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
+              Expanded(
+                child: _chatHistory.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (showProgressIndicator)
+                              const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(_connectionStatus),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        itemCount: _chatHistory.length,
+                        itemBuilder: (context, index) {
+                          final message = _chatHistory[index];
+                          return switch (message) {
+                            SystemMessage() => Card(
+                                elevation: 2.0,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: ListTile(
+                                  title: Text(message.text),
+                                  leading: const Icon(Icons.smart_toy_outlined),
+                                ),
+                              ),
+                            TextResponse() => Card(
+                                elevation: 2.0,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: ListTile(
+                                  title: Text(message.text),
+                                  leading: const Icon(Icons.smart_toy_outlined),
+                                ),
+                              ),
+                            UserPrompt() => Card(
+                                elevation: 2.0,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: ListTile(
+                                  title: Text(
+                                    message.text,
+                                    textAlign: TextAlign.right,
+                                  ),
+                                  trailing: const Icon(Icons.person),
+                                ),
+                              ),
+                            UiResponse() => Card(
+                                elevation: 2.0,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: DynamicUi(
+                                    key: message.uiKey,
+                                    surfaceId: message.surfaceId,
+                                    definition: message.definition,
+                                    onEvent: _handleUiEvent,
+                                  ),
+                                ),
+                              ),
+                          };
+                        },
+                      ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -188,29 +296,18 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                   ],
                 ),
               ),
-              Expanded(
-                child: _uiDefinition == null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (_connectionStatus == 'Generating UI...')
-                              const CircularProgressIndicator(),
-                            const SizedBox(height: 16),
-                            Text(_connectionStatus),
-                          ],
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: DynamicUi(
-                          key: _uiKey,
-                          definition: _uiDefinition!,
-                          updateStream: _updateController.stream,
-                          onEvent: _handleUiEvent,
-                        ),
-                      ),
-              ),
+              if (showProgressIndicator)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 16),
+                      Text('Generating UI...'),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),

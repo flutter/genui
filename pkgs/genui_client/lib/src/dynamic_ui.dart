@@ -1,24 +1,23 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'ui_models.dart';
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
-/// It takes an initial [definition], listens for state changes on the
-/// [updateStream], and reports user interactions via the [onEvent] callback.
+/// It takes an initial [definition] and reports user interactions
+/// via the [onEvent] callback.
 class DynamicUi extends StatefulWidget {
   const DynamicUi({
     super.key,
+    required this.surfaceId,
     required this.definition,
-    required this.updateStream,
     required this.onEvent,
   });
 
+  /// The ID of the surface that this UI belongs to.
+  final String surfaceId;
+
   /// The initial UI structure.
   final Map<String, Object?> definition;
-
-  /// A stream of state update objects to dynamically change the UI.
-  final Stream<Map<String, Object?>> updateStream;
 
   /// A callback for when a user interacts with a widget.
   final void Function(Map<String, Object?> event) onEvent;
@@ -31,7 +30,6 @@ class _DynamicUiState extends State<DynamicUi> {
   /// Stores the current props for every widget, keyed by widget ID.
   /// This allows for efficient state updates.
   late final Map<String, Map<String, Object?>> _widgetStates;
-  late StreamSubscription<Map<String, Object?>> _updateSubscription;
   final Map<String, TextEditingController> _textControllers = {};
   late final UiDefinition _uiDefinition;
 
@@ -70,11 +68,9 @@ class _DynamicUiState extends State<DynamicUi> {
     _uiDefinition = UiDefinition.fromMap(definition);
     _widgetStates = {};
     _populateInitialStates();
-    _updateSubscription = widget.updateStream.listen(_handleStateUpdate);
   }
 
   void _cleanupState() {
-    _updateSubscription.cancel();
     for (var controller in _textControllers.values) {
       controller.dispose();
     }
@@ -107,32 +103,10 @@ class _DynamicUiState extends State<DynamicUi> {
     }
   }
 
-  /// Handles incoming state updates from the cstream.
-  void _handleStateUpdate(Map<String, Object?> updateData) {
-    final update = UiStateUpdate.fromMap(updateData);
-    final widgetId = update.widgetId;
-
-    if (_widgetStates.containsKey(widgetId) && mounted) {
-      setState(() {
-        // Merge the new props into the existing state.
-        _widgetStates[widgetId]!.addAll(update.props);
-
-        // If a TextField's value is updated, we also need to update
-        // its TextEditingController to reflect the change.
-        final controller = _textControllers[widgetId];
-        if (controller != null) {
-          final newValue = update.props['value'] as String?;
-          if (newValue != null && controller.text != newValue) {
-            controller.text = newValue;
-          }
-        }
-      });
-    }
-  }
-
   /// Dispatches an event by calling the public [DynamicUi.onEvent] callback.
   void _dispatchEvent(String widgetId, String eventType, Object? value) {
     final event = UiEvent(
+      surfaceId: widget.surfaceId,
       widgetId: widgetId,
       eventType: eventType,
       value: value,

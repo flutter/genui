@@ -20,16 +20,21 @@ extension JsonEncodeMap on Map<String, Object?> {
 extension type UiEvent.fromMap(Map<String, Object?> _json) {
   /// Creates a [UiEvent] from a set of properties.
   UiEvent({
+    required String surfaceId,
     required String widgetId,
     required String eventType,
     required DateTime timestamp,
     Object? value,
   }) : _json = {
+          'surfaceId': surfaceId,
           'widgetId': widgetId,
           'eventType': eventType,
           'timestamp': timestamp.toIso8601String(),
           if (value != null) 'value': value,
         };
+
+  /// The ID of the surface that this event originated from.
+  String get surfaceId => _json['surfaceId'] as String;
 
   /// The ID of the widget that triggered the event.
   String get widgetId => _json['widgetId'] as String;
@@ -53,6 +58,9 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
 /// This is sent from the AI to the client to dynamically change the properties
 /// of a widget that is already on screen.
 extension type UiStateUpdate.fromMap(Map<String, Object?> _json) {
+  /// The ID of the surface to update.
+  String get surfaceId => _json['surfaceId'] as String;
+
   /// The ID of the widget to update.
   String get widgetId => _json['widgetId'] as String;
 
@@ -67,6 +75,9 @@ extension type UiStateUpdate.fromMap(Map<String, Object?> _json) {
 ///
 /// This is the root object that defines a complete UI to be rendered.
 extension type UiDefinition.fromMap(Map<String, Object?> _json) {
+  /// The ID of the surface that this UI belongs to.
+  String get surfaceId => _json['surfaceId'] as String;
+
   /// The ID of the root widget in the UI tree.
   String get root => _json['root'] as String;
 
