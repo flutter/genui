@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../model/genui_controller.dart';
 import '../model/simple_items.dart';
 import 'agent.dart';
-import 'input.dart';
+import '../model/input.dart';
 
 class GenUi extends StatefulWidget {
   const GenUi.invitation({
@@ -19,7 +20,9 @@ class GenUi extends StatefulWidget {
 }
 
 class _GenUiState extends State<GenUi> {
+  late final GenUiAgent _agent;
   WidgetBuilder? _widgetBuilder;
+  bool isWaiting = true;
 
   @override
   void initState() {
@@ -28,19 +31,21 @@ class _GenUiState extends State<GenUi> {
   }
 
   Future<void> _initialize() async {
-    final builder = await GenUiAgent.instance.request(
-      InvitationInput(widget.initialPrompt),
-      widget.controller,
-    );
-    setState(() => _widgetBuilder = builder);
+    _agent = GenUiAgent(widget.controller);
+    final builder = await _agent.request(InvitationInput(widget.initialPrompt));
+    setState(() {
+      _widgetBuilder = builder;
+      isWaiting = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final builder = _widgetBuilder;
-    if (builder == null) {
+    if (isWaiting) {
       return const Center(child: CircularProgressIndicator());
     }
+    final builder = _widgetBuilder!;
+    _widgetBuilder = null;
     return builder(context);
   }
 }

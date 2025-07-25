@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../model/genui_controller.dart';
 import '../../model/simple_items.dart';
 
 class AgentIcon extends StatelessWidget {
@@ -8,6 +9,6 @@ class AgentIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(width: 40, height: 40, controller.agentIcon);
+    return Image.asset(width: 40, height: 40, controller.agentIconAsset);
   }
 }

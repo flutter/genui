@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../model/genui_controller.dart';
 import '../../model/simple_items.dart';
 import '../elements/agent_icon.dart';
 import '../elements/text_intro.dart';

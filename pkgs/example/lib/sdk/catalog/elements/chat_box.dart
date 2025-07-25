@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../model/genui_controller.dart';
 import '../../model/simple_items.dart';
 
 class ChatBox extends StatefulWidget {
@@ -49,7 +50,10 @@ class _ChatBoxState extends State<ChatBox> {
     );
   }
 
-  void _submit() {}
+  void _submit() {
+    final inputText = _controller.text.trim();
+    // widget.controller.handleInput(GenUiAgent.instance.createInput(inputText));
+  }
 
   @override
   void dispose() {
