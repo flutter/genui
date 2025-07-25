@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ChatBox extends StatelessWidget {
-  ChatBox({super.key});
+  ChatBox({super.key, this.fakeInput = ''});
+
+  final String fakeInput;
   final _controller = TextEditingController();
 
   @override
@@ -23,5 +25,9 @@ class ChatBox extends StatelessWidget {
     );
   }
 
-  void _submit() {}
+  void _submit() {
+    if (fakeInput.isNotEmpty) {
+      _controller.text = fakeInput;
+    }
+  }
 }
