@@ -82,8 +82,19 @@ extension type UiDefinition.fromMap(Map<String, Object?> _json) {
   String get root => _json['root'] as String;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
-  Map<String, Map<String, Object?>> get widgets =>
-      (_json['widgets'] as Map).cast<String, Map<String, Object?>>();
+  Map<String, Object?> get widgets {
+    print('JSON for widgets is $_json');
+
+    final widgetById = <String, Object?>{};
+
+    for (final widget in (_json['widgets'] as List<Object?>)) {
+      var typedWidget = widget as Map<String, Object?>;
+      widgetById[typedWidget['id'] as String] =
+          typedWidget as Map<String, Object?>;
+    }
+
+    return widgetById;
+  }
 }
 
 /// A data object that represents a single widget definition.

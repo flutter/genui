@@ -17,19 +17,13 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
@@ -65,4 +59,24 @@ class DefaultFirebaseOptions {
     projectId: 'fluttergenui',
     storageBucket: 'fluttergenui.firebasestorage.app',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBZwqYvj1Qe2odTlesCrD6tI7ZUzkax5BA',
+    appId: '1:975757934897:web:818e744e0a7130da0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    authDomain: 'fluttergenui.firebaseapp.com',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+    measurementId: 'G-D2FN00RSD9',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCxByPgKNTJc4Gc5N0w2l-I5ffE-dWkVKg',
+    appId: '1:975757934897:ios:540a1a4eeeb57afb0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+    iosBundleId: 'dev.flutter.genui.genuiClient',
+  );
+
 }

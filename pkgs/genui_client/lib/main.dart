@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'src/ai_client/ai_client.dart';
 import 'src/chat_message.dart';
+import 'src/core_catalog.dart';
 import 'src/dynamic_ui.dart';
 import 'src/ui_models.dart';
 import 'src/ui_server.dart';
+import 'src/widget_tree_llm_adapter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,6 +96,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
   final _promptController = TextEditingController();
   late final ServerConnection _serverConnection;
   final ScrollController _scrollController = ScrollController();
+  final widgetTreeLlmAdapter = WidgetTreeLlmAdapter(coreCatalog);
 
   @override
   void initState() {
@@ -152,12 +155,13 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
         setState(() {
           _connectionStatus = status;
           if (status == 'Server started.' && _chatHistory.isEmpty) {
-            _chatHistory.add(const SystemMessage(
-                text: 'I can create UIs. What should I make for you?'));
+            // _chatHistory.add(const SystemMessage(
+            //     text: 'I can create UIs. What should I make for you?'));
           }
         });
       },
       aiClient: widget.aiClient,
+      widgetTreeLlmAdapter: widgetTreeLlmAdapter,
     );
 
     if (widget.autoStartServer) {
@@ -266,8 +270,10 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                                   padding: const EdgeInsets.all(16.0),
                                   child: DynamicUi(
                                     key: message.uiKey,
+                                    catalog: widgetTreeLlmAdapter.catalog,
                                     surfaceId: message.surfaceId,
-                                    definition: message.definition,
+                                    definition: UiDefinition.fromMap(
+                                        message.definition),
                                     onEvent: _handleUiEvent,
                                   ),
                                 ),
