@@ -1,20 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../model/agent.dart';
 import '../../model/input.dart';
 
 class GenUiWidget extends StatefulWidget {
-  const GenUiWidget(this.input, this.agent);
+  factory GenUiWidget(Input input, GenUiAgent agent) =>
+      GenUiWidget.wait(Completer<Input>()..complete(input), agent);
 
+  const GenUiWidget.wait(this.input, this.agent);
+
+  final Completer<Input> input;
   final GenUiAgent agent;
-  final Input input;
 
   @override
   State<GenUiWidget> createState() => _GenUiWidgetState();
 }
 
 class _GenUiWidgetState extends State<GenUiWidget> {
-  WidgetBuilder? _widgetBuilder;
+  Input? _input;
+  WidgetBuilder? _builder;
 
   @override
   void initState() {
@@ -23,13 +29,16 @@ class _GenUiWidgetState extends State<GenUiWidget> {
   }
 
   Future<void> _initialize() async {
-    final builder = await widget.agent.request(widget.input);
-    setState(() => _widgetBuilder = builder);
+    final input = await widget.input.future;
+    setState(() => _input = input);
+    final builder = await widget.agent.request(input);
+    setState(() => _builder = builder);
   }
 
   @override
   Widget build(BuildContext context) {
-    final builder = _widgetBuilder;
+    if (_input == null) return const SizedBox.shrink();
+    final builder = _builder;
     if (builder == null) {
       return const Center(child: CircularProgressIndicator());
     }

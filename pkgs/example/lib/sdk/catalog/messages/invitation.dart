@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../model/agent.dart';
@@ -20,7 +22,7 @@ class Invitation extends StatefulWidget {
 }
 
 class _InvitationState extends State<Invitation> {
-  final ValueNotifier<UserInput?> _input = ValueNotifier(null);
+  final _input = Completer<Input>();
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +43,13 @@ class _InvitationState extends State<Invitation> {
               'and I am wondering how to make the most out of our time.',
         ),
         const SizedBox(height: 16.0),
-        ValueListenableBuilder<UserInput?>(
-          valueListenable: _input,
-          builder: (context, input, child) {
-            if (input == null) return const SizedBox.shrink();
-            return GenUiWidget(input, widget.agent);
-          },
-        ),
+        GenUiWidget.wait(_input, widget.agent),
       ],
     );
   }
 
   void onInput(UserInput input) {
-    _input.value = input;
+    _input.complete(input);
   }
 }
 

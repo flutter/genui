@@ -60,6 +60,7 @@ class _MyHomePageState extends State<_MyHomePage> {
         child: Center(
           child: GenUiWidget(
             InitialInput('Invite user to create a vacation travel itinerary.'),
+
             _agent,
           ),
         ),

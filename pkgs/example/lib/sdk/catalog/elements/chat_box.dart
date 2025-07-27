@@ -24,8 +24,7 @@ class _ChatBoxState extends State<ChatBox> {
     super.initState();
     _focusNode.addListener(() {
       if (widget.fakeInput.isNotEmpty) {
-        _controller.text = widget.fakeInput;
-        setState(() {});
+        setState(() => _controller.text = widget.fakeInput);
       }
     });
   }
@@ -53,6 +52,7 @@ class _ChatBoxState extends State<ChatBox> {
   }
 
   void _submit() {
+    print('!!!! Input submitted: ${_controller.text}');
     final inputText = _controller.text.trim();
     widget.onInput(ChatBoxInput(inputText));
   }
