@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../sdk/agent/agent.dart';
 import '../sdk/catalog/shared/genui_widget.dart';
 import '../sdk/model/agent.dart';
-import '../sdk/model/assets.dart';
+import '../sdk/model/controller.dart';
 import '../sdk/model/input.dart';
 import '../sdk/model/simple_items.dart';
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: _appTitle,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const _MyHomePage(),
     );
@@ -34,8 +34,11 @@ class _MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
-  final GenUiAgent _agent = SimpleGenUiAgent(
-    GenUiAssets(
+  final _scrollController = ScrollController();
+
+  late final GenUiAgent _agent = SimpleGenUiAgent(
+    GenUiController(
+      _scrollController,
       imageCatalog: _myImageCatalog,
       agentIconAsset: 'assets/agent_icon.png',
     ),
@@ -58,10 +61,14 @@ class _MyHomePageState extends State<_MyHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: GenUiWidget(
-            InitialInput('Invite user to create a vacation travel itinerary.'),
-
-            _agent,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: GenUiWidget(
+              InitialInput(
+                'Invite user to create a vacation travel itinerary.',
+              ),
+              _agent,
+            ),
           ),
         ),
       ),
@@ -71,6 +78,7 @@ class _MyHomePageState extends State<_MyHomePage> {
   @override
   void dispose() {
     _agent.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }

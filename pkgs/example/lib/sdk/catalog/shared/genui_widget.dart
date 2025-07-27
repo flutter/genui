@@ -9,7 +9,7 @@ class GenUiWidget extends StatefulWidget {
   factory GenUiWidget(Input input, GenUiAgent agent) =>
       GenUiWidget.wait(Completer<Input>()..complete(input), agent);
 
-  const GenUiWidget.wait(this.input, this.agent);
+  const GenUiWidget.wait(this.input, this.agent, {super.key});
 
   final Completer<Input> input;
   final GenUiAgent agent;
@@ -33,6 +33,15 @@ class _GenUiWidgetState extends State<GenUiWidget> {
     setState(() => _input = input);
     final builder = await widget.agent.request(input);
     setState(() => _builder = builder);
+
+    // Scroll to the bottom after the widget is built
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    final scroll = widget.agent.controller.scrollController;
+    await scroll.animateTo(
+      scroll.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.fastOutSlowIn,
+    );
   }
 
   @override

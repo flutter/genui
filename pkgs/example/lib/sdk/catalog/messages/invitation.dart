@@ -42,7 +42,7 @@ class _InvitationState extends State<Invitation> {
               'I have 3 days in Zermatt with my wife and 11 year old daughter, '
               'and I am wondering how to make the most out of our time.',
         ),
-        const SizedBox(height: 16.0),
+        const SizedBox(height: 28.0),
         GenUiWidget.wait(_input, widget.agent),
       ],
     );

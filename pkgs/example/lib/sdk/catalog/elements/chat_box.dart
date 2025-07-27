@@ -18,6 +18,7 @@ class ChatBox extends StatefulWidget {
 class _ChatBoxState extends State<ChatBox> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
+  bool _isSubmitted = false;
 
   @override
   void initState() {
@@ -34,15 +35,15 @@ class _ChatBoxState extends State<ChatBox> {
     return TextField(
       controller: _controller,
       focusNode: _focusNode,
+      enabled: !_isSubmitted,
       decoration: InputDecoration(
         hintText: 'Ask me anything',
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(25.0)),
         ),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.send),
-          onPressed: _submit,
-        ),
+        suffixIcon: _isSubmitted
+            ? null
+            : IconButton(icon: const Icon(Icons.send), onPressed: _submit),
       ),
       maxLines: null, // Allows for multi-line input
       keyboardType: TextInputType.multiline,
@@ -52,8 +53,9 @@ class _ChatBoxState extends State<ChatBox> {
   }
 
   void _submit() {
-    print('!!!! Input submitted: ${_controller.text}');
     final inputText = _controller.text.trim();
+    _focusNode.unfocus();
+    setState(() => _isSubmitted = true);
     widget.onInput(ChatBoxInput(inputText));
   }
 

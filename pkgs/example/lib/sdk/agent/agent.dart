@@ -3,15 +3,12 @@ import 'package:flutter/widgets.dart';
 import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
 import '../model/agent.dart';
-import '../model/assets.dart';
 import '../model/input.dart';
 import '../model/simple_items.dart';
 import 'fake_output.dart';
 
-class SimpleGenUiAgent implements GenUiAgent {
-  SimpleGenUiAgent(this.assets);
-
-  final GenUiAssets assets;
+class SimpleGenUiAgent extends GenUiAgent {
+  SimpleGenUiAgent(super.controller);
 
   final List<({Input input, WidgetData output})> _history = [];
 
@@ -40,12 +37,4 @@ class SimpleGenUiAgent implements GenUiAgent {
 
     return result;
   }
-
-  @override
-  Widget icon({double? width, double? height}) {
-    return Image.asset(width: 40, height: 40, assets.agentIconAsset);
-  }
-
-  @override
-  void dispose() {}
 }
