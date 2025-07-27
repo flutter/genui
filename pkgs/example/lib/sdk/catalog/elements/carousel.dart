@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../model/input.dart';
 import '../../model/simple_items.dart';
 import '../shared/text_styles.dart';
 
 const double _imageSize = 190;
 
 class Carousel extends StatelessWidget {
-  const Carousel(this.data, {super.key});
+  const Carousel(this.data, this.onInput, {super.key});
 
   final CarouselData data;
+  final UserInputCallback onInput;
 
   @override
   Widget build(BuildContext context) {

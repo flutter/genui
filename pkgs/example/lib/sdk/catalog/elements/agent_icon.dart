@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../model/genui_controller.dart';
-import '../../model/simple_items.dart';
 
 class AgentIcon extends StatelessWidget {
   final GenUiController controller;

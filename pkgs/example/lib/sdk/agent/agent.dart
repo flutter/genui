@@ -2,15 +2,15 @@ import 'package:flutter/widgets.dart';
 
 import '../catalog/messages/invitation.dart';
 import '../model/genui_controller.dart';
-import '../model/simple_items.dart';
-import 'fake_output.dart';
 import '../model/input.dart';
+import 'fake_output.dart';
 
-class GenUiAgent {
+class GenUiAgentImpl implements GenUiAgent {
   final GenUiController controller;
 
-  GenUiAgent(this.controller);
+  GenUiAgentImpl(this.controller);
 
+  @override
   Future<WidgetBuilder> request(Input input) async {
     // Simulate network delay
     await Future<void>.delayed(const Duration(milliseconds: 1000));

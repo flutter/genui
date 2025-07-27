@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-
-import '../../model/genui_controller.dart';
-import '../../model/simple_items.dart';
+import '../../model/input.dart';
 
 class ChatBox extends StatefulWidget {
-  ChatBox(this.controller, {super.key, this.fakeInput = ''});
+  ChatBox(this.onInput, {super.key, this.fakeInput = ''});
 
-  final GenUiController controller;
+  final UserInputCallback onInput;
+
+  /// Fake input to simulate pre-filled text in the chat box.
+  ///
+  /// TODO(polina-c): Remove this in productized version.
   final String fakeInput;
 
   @override
@@ -52,7 +54,7 @@ class _ChatBoxState extends State<ChatBox> {
 
   void _submit() {
     final inputText = _controller.text.trim();
-    // widget.controller.handleInput(GenUiAgent.instance.createInput(inputText));
+    widget.onInput(ChatBoxInput(inputText));
   }
 
   @override

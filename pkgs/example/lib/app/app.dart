@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../sdk/model/genui_controller.dart';
-import '../sdk/model/input.dart';
 import '../sdk/agent/genui_widget.dart';
+import '../sdk/model/genui_controller.dart';
 import '../sdk/model/simple_items.dart';
 
 class MyApp extends StatelessWidget {

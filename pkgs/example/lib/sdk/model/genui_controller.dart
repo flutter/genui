@@ -3,6 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'input.dart';
 import 'simple_items.dart';
 
+abstract class GenUiAgent {
+  Future<WidgetBuilder> request(Input input);
+}
+
 /// A controller for GenUi that can be used to manage state or handle events.
 class GenUiController {
   GenUiController({required this.imageCatalog, required this.agentIconAsset});
