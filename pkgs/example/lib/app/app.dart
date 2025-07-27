@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../sdk/agent/agent.dart';
-import '../sdk/agent/genui_widget.dart';
+import '../sdk/catalog/shared/genui_widget.dart';
 import '../sdk/model/agent.dart';
 import '../sdk/model/assets.dart';
 import '../sdk/model/simple_items.dart';

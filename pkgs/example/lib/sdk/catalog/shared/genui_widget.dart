@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../model/agent.dart';
-import '../model/input.dart';
+import '../../model/agent.dart';
+import '../../model/input.dart';
 
 class GenUi extends StatefulWidget {
   const GenUi(this.initialPrompt, this.agent);
