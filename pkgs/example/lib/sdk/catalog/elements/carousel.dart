@@ -14,12 +14,17 @@ class Carousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const padding = 8.0;
+
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 220),
       child: CarouselView(
         itemExtent: _imageSize,
+        padding: const EdgeInsets.symmetric(horizontal: padding),
         // Set no border.
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        // TODO(polina-c): Handle the case where item are cut.
+        // https://stackoverflow.com/questions/79714971/how-to-crop-last-image-in-carousel-without-rounded-corners
         children: data.items.map(CarouselItem.new).toList(),
       ),
     );
@@ -28,18 +33,31 @@ class Carousel extends StatelessWidget {
 
 class CarouselItem extends StatelessWidget {
   final CarouselItemData data;
+  final bool isCutOnRight;
+  final bool isCutOnLeft;
 
-  const CarouselItem(this.data, {super.key});
+  const CarouselItem(
+    this.data, {
+    super.key,
+    this.isCutOnRight = false,
+    this.isCutOnLeft = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const radius = Radius.circular(10.0);
+    final borderRadius = BorderRadius.horizontal(
+      left: isCutOnLeft ? Radius.zero : radius,
+      right: isCutOnRight ? Radius.zero : radius,
+    );
+
     return Column(
       children: [
         Container(
           width: _imageSize,
           height: _imageSize,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: borderRadius,
             child: Image.asset(
               data.assetUrl,
               fit: BoxFit.cover,
