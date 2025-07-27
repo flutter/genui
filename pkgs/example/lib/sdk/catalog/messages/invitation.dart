@@ -6,6 +6,7 @@ import '../../model/simple_items.dart';
 import '../elements/carousel.dart';
 import '../elements/chat_box.dart';
 import '../elements/text_intro.dart';
+import '../shared/genui_widget.dart';
 import '../shared/text_styles.dart';
 
 class Invitation extends StatefulWidget {
@@ -23,7 +24,6 @@ class _InvitationState extends State<Invitation> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO(polina-c): move sizes to shared constants.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,7 +45,7 @@ class _InvitationState extends State<Invitation> {
           valueListenable: _input,
           builder: (context, input, child) {
             if (input == null) return const SizedBox.shrink();
-            return const SizedBox.shrink();
+            return GenUiWidget(input, widget.agent);
           },
         ),
       ],

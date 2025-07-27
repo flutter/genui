@@ -4,6 +4,7 @@ import '../sdk/agent/agent.dart';
 import '../sdk/catalog/shared/genui_widget.dart';
 import '../sdk/model/agent.dart';
 import '../sdk/model/assets.dart';
+import '../sdk/model/input.dart';
 import '../sdk/model/simple_items.dart';
 
 class MyApp extends StatelessWidget {
@@ -57,8 +58,8 @@ class _MyHomePageState extends State<_MyHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: GenUi(
-            'Invite user to create a vacation travel itinerary.',
+          child: GenUiWidget(
+            InitialInput('Invite user to create a vacation travel itinerary.'),
             _agent,
           ),
         ),

@@ -3,19 +3,18 @@ import 'package:flutter/material.dart';
 import '../../model/agent.dart';
 import '../../model/input.dart';
 
-class GenUi extends StatefulWidget {
-  const GenUi(this.initialPrompt, this.agent);
+class GenUiWidget extends StatefulWidget {
+  const GenUiWidget(this.input, this.agent);
 
   final GenUiAgent agent;
-  final String initialPrompt;
+  final Input input;
 
   @override
-  State<GenUi> createState() => _GenUiState();
+  State<GenUiWidget> createState() => _GenUiWidgetState();
 }
 
-class _GenUiState extends State<GenUi> {
+class _GenUiWidgetState extends State<GenUiWidget> {
   WidgetBuilder? _widgetBuilder;
-  bool isWaiting = true;
 
   @override
   void initState() {
@@ -24,22 +23,16 @@ class _GenUiState extends State<GenUi> {
   }
 
   Future<void> _initialize() async {
-    final builder = await widget.agent.request(
-      InitialInput(widget.initialPrompt),
-    );
-    setState(() {
-      _widgetBuilder = builder;
-      isWaiting = false;
-    });
+    final builder = await widget.agent.request(widget.input);
+    setState(() => _widgetBuilder = builder);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isWaiting) {
+    final builder = _widgetBuilder;
+    if (builder == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    final builder = _widgetBuilder!;
-    _widgetBuilder = null;
     return builder(context);
   }
 }
