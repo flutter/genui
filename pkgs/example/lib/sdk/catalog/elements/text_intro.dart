@@ -10,23 +10,32 @@ class TextIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h1 = data.h1;
+    final h2 = data.h2;
+    final intro = data.intro;
+
+    final items = [
+      ..._styledText(h1, GenUiTextStyles.h1(context)),
+      ..._styledText(h2, GenUiTextStyles.h2(context)),
+      ..._styledText(intro, GenUiTextStyles.normal(context)),
+    ]..removeLast();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(data.h1, style: GenUiTextStyles.h1(context)),
-        const SizedBox(height: 8.0),
-        Text(data.h2, style: GenUiTextStyles.h2(context)),
-        const SizedBox(height: 16.0),
-        Text(data.intro, style: GenUiTextStyles.normal(context)),
-      ],
+      children: items,
     );
+  }
+
+  static List<Widget> _styledText(String? text, TextStyle style) {
+    if (text == null) return [];
+    return [Text(text, style: style), const SizedBox(height: 16.0)];
   }
 }
 
 class TextIntroData extends WidgetData {
-  final String h1;
-  final String h2;
-  final String intro;
+  final String? h1;
+  final String? h2;
+  final String? intro;
 
-  TextIntroData({required this.h1, required this.h2, required this.intro});
+  TextIntroData({this.h1, this.h2, this.intro});
 }

@@ -1,5 +1,6 @@
 import '../catalog/elements/carousel.dart';
 import '../catalog/elements/text_intro.dart';
+import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
 
 final fakeInvitationData = InvitationData(
@@ -27,4 +28,10 @@ final fakeInvitationData = InvitationData(
     ),
   ],
   chatHintText: 'Ask me anything',
+);
+
+final fakeElicitationData = ElicitationData(
+  textIntroData: TextIntroData(
+    intro: 'OK I can help generate itinerary as follows or tap to edit',
+  ),
 );

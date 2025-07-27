@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
 import '../model/agent.dart';
 import '../model/assets.dart';
@@ -26,7 +27,10 @@ class SimpleGenUiAgent implements GenUiAgent {
       case InitialInput():
         output = fakeInvitationData;
         result = (_) => Invitation(fakeInvitationData, this);
-      case UserInput():
+      case ChatBoxInput():
+        output = fakeElicitationData;
+        result = (_) => Elicitation(fakeElicitationData, this);
+      default:
         throw UnimplementedError(
           'The agent does not support input of type ${input.runtimeType}',
         );
