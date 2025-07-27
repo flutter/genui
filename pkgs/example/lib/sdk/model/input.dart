@@ -1,8 +1,8 @@
 sealed class Input {}
 
-class InvitationInput extends Input {
-  final String invitationPrompt;
-  InvitationInput(this.invitationPrompt);
+class InitialInput extends Input {
+  final String initialPrompt;
+  InitialInput(this.initialPrompt);
 }
 
 class UserInput extends Input {}

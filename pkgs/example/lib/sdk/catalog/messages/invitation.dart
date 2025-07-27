@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../model/genui_controller.dart';
+import '../../model/agent.dart';
 import '../../model/input.dart';
 import '../../model/simple_items.dart';
-import '../elements/agent_icon.dart';
 import '../elements/carousel.dart';
 import '../elements/chat_box.dart';
 import '../elements/text_intro.dart';
@@ -11,9 +10,9 @@ import '../shared/text_styles.dart';
 
 class Invitation extends StatefulWidget {
   final InvitationData data;
-  final GenUiController controller;
+  final GenUiAgent agent;
 
-  const Invitation(this.data, this.controller, {super.key});
+  const Invitation(this.data, this.agent, {super.key});
 
   @override
   State<Invitation> createState() => _InvitationState();
@@ -28,7 +27,7 @@ class _InvitationState extends State<Invitation> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AgentIcon(widget.controller),
+        widget.agent.icon(width: 40, height: 40),
         const SizedBox(height: 8.0),
         TextIntro(widget.data.textIntroData),
         const SizedBox(height: 16.0),
@@ -46,8 +45,6 @@ class _InvitationState extends State<Invitation> {
           valueListenable: _input,
           builder: (context, input, child) {
             if (input == null) return const SizedBox.shrink();
-            widget.controller.handleInput(input);
-            _input.value = null; // Reset after handling input
             return const SizedBox.shrink();
           },
         ),

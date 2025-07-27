@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../sdk/agent/agent.dart';
 import '../sdk/agent/genui_widget.dart';
-import '../sdk/model/genui_controller.dart';
+import '../sdk/model/agent.dart';
+import '../sdk/model/assets.dart';
 import '../sdk/model/simple_items.dart';
 
 class MyApp extends StatelessWidget {
@@ -31,9 +33,11 @@ class _MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
-  final GenUiController _controller = GenUiController(
-    imageCatalog: _myImageCatalog,
-    agentIconAsset: 'assets/agent_icon.png',
+  final GenUiAgent _agent = SimpleGenUiAgent(
+    GenUiAssets(
+      imageCatalog: _myImageCatalog,
+      agentIconAsset: 'assets/agent_icon.png',
+    ),
   );
 
   @override
@@ -53,9 +57,9 @@ class _MyHomePageState extends State<_MyHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: GenUi.invitation(
-            initialPrompt: 'Invite user to create a vacation travel itinerary.',
-            controller: _controller,
+          child: GenUi(
+            'Invite user to create a vacation travel itinerary.',
+            _agent,
           ),
         ),
       ),
@@ -64,7 +68,7 @@ class _MyHomePageState extends State<_MyHomePage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _agent.dispose();
     super.dispose();
   }
 }

@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../model/genui_controller.dart';
+import '../model/agent.dart';
 import '../model/input.dart';
-import 'agent.dart';
 
 class GenUi extends StatefulWidget {
-  const GenUi.invitation({
-    super.key,
-    required this.controller,
-    required this.initialPrompt,
-  });
+  const GenUi(this.initialPrompt, this.agent);
 
-  final GenUiController controller;
+  final GenUiAgent agent;
   final String initialPrompt;
 
   @override
@@ -19,7 +14,6 @@ class GenUi extends StatefulWidget {
 }
 
 class _GenUiState extends State<GenUi> {
-  late final GenUiAgent _agent;
   WidgetBuilder? _widgetBuilder;
   bool isWaiting = true;
 
@@ -30,8 +24,9 @@ class _GenUiState extends State<GenUi> {
   }
 
   Future<void> _initialize() async {
-    _agent = GenUiAgentImpl(widget.controller);
-    final builder = await _agent.request(InvitationInput(widget.initialPrompt));
+    final builder = await widget.agent.request(
+      InitialInput(widget.initialPrompt),
+    );
     setState(() {
       _widgetBuilder = builder;
       isWaiting = false;
