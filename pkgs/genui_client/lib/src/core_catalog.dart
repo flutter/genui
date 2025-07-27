@@ -4,6 +4,7 @@ import 'widgets/column.dart';
 import 'widgets/text.dart';
 import 'widgets/checkbox_group.dart';
 import 'widgets/radio_group.dart';
+import 'widgets/text_field.dart';
 
 final coreCatalog = Catalog([
   elevatedButtonCatalogItem,
@@ -11,4 +12,5 @@ final coreCatalog = Catalog([
   text,
   checkboxGroup,
   radioGroup,
+  textField,
 ]);
