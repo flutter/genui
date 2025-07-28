@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../sdk/agent/agent.dart';
 import '../sdk/catalog/shared/genui_widget.dart';
-import '../sdk/model/agent.dart';
+
 import '../sdk/model/controller.dart';
 import '../sdk/model/input.dart';
 import '../sdk/model/simple_items.dart';
@@ -36,13 +36,22 @@ class _MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<_MyHomePage> {
   final _scrollController = ScrollController();
 
-  late final GenUiAgent _agent = SimpleGenUiAgent(
+  late final GenUiAgent _agent = GenUiAgent(
     GenUiController(
       _scrollController,
       imageCatalog: _myImageCatalog,
       agentIconAsset: 'assets/agent_icon.png',
     ),
-  );
+  )..run();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _agent.controller.state.input.complete(
+      InitialInput('Show invitations to create a vacation travel itinerary.'),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +69,11 @@ class _MyHomePageState extends State<_MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
+        child: Align(
+          alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             controller: _scrollController,
-            child: GenUiWidget(
-              InitialInput(
-                'Invite user to create a vacation travel itinerary.',
-              ),
-              _agent,
-            ),
+            child: GenUiWidget(_agent.controller),
           ),
         ),
       ),

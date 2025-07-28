@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import '../../model/input.dart';
 
 class ChatBox extends StatefulWidget {
-  ChatBox(this.onInput, {super.key, this.fakeInput = ''});
+  ChatBox(this.onInput, {super.key});
 
   final UserInputCallback onInput;
 
   /// Fake input to simulate pre-filled text in the chat box.
   ///
   /// TODO(polina-c): Remove this in productized version.
-  final String fakeInput;
+  final String fakeInput =
+      'I have 3 days in Zermatt with my wife and 11 year old daughter, '
+      'and I am wondering how to make the most out of our time.';
 
   @override
   State<ChatBox> createState() => _ChatBoxState();
@@ -24,7 +26,11 @@ class _ChatBoxState extends State<ChatBox> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
-      if (widget.fakeInput.isNotEmpty) {
+      // Reset the input on focus.
+      if (widget.fakeInput.isNotEmpty &&
+          !_isSubmitted &&
+          _focusNode.hasFocus &&
+          _controller.text.isEmpty) {
         setState(() => _controller.text = widget.fakeInput);
       }
     });
