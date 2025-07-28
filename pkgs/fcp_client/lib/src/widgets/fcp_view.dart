@@ -7,7 +7,7 @@ import '../core/data_type_validator.dart';
 import '../core/fcp_state.dart';
 import '../core/layout_patcher.dart';
 import '../core/state_patcher.dart';
-import '../core/widget_registry.dart';
+import '../core/widget_catalog_registry.dart';
 import '../models/models.dart';
 import 'fcp_provider.dart';
 import 'fcp_view_controller.dart';
@@ -36,7 +36,7 @@ class FcpView extends StatefulWidget {
   final WidgetCatalog catalog;
 
   /// The registry mapping widget types to builder functions.
-  final CatalogRegistry registry;
+  final WidgetCatalogRegistry registry;
 
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
@@ -173,7 +173,7 @@ class _LayoutEngine with ChangeNotifier {
     reset(layout);
   }
 
-  final CatalogRegistry registry;
+  final WidgetCatalogRegistry registry;
   final WidgetCatalog catalog;
   final BindingProcessor bindingProcessor;
   final LayoutPatcher _patcher = LayoutPatcher();

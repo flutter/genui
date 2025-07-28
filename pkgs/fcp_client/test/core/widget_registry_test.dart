@@ -4,10 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('CatalogRegistry', () {
-    late CatalogRegistry registry;
+    late WidgetCatalogRegistry registry;
 
     setUp(() {
-      registry = CatalogRegistry();
+      registry = WidgetCatalogRegistry();
     });
 
     test('register and getBuilder work correctly', () {
@@ -16,8 +16,7 @@ void main() {
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const SizedBox();
+      ) => const SizedBox();
       registry.register('SizedBox', builder);
 
       final retrievedBuilder = registry.getBuilder('SizedBox');
@@ -36,8 +35,7 @@ void main() {
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const SizedBox();
+      ) => const SizedBox();
       registry.register('SizedBox', builder);
       expect(registry.hasBuilder('SizedBox'), isTrue);
     });
@@ -52,15 +50,13 @@ void main() {
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const SizedBox(width: 1);
+      ) => const SizedBox(width: 1);
       SizedBox builder2(
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const SizedBox(width: 2);
+      ) => const SizedBox(width: 2);
 
       registry.register('SizedBox', builder1);
       expect(registry.getBuilder('SizedBox'), same(builder1));

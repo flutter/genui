@@ -80,7 +80,7 @@ An alternative is the "Out-of-Band Model" where catalogs are published to a cent
 - PROS: Keeps the initial client connection very lightweight and fast.
 - CONS: Adds a step to the CI/CD pipeline and couples it to the server's infrastructure.
 
-## **Section 2: The Widget Library Catalog: Defining Capabilities and Data Models**
+## **Section 2: The Widget Catalog: Defining Capabilities and Data Models**
 
 The `WidgetCatalog` is a JSON document, bundled within the client application, that serves as a strict contract of the client's rendering and data-handling capabilities.
 
@@ -417,7 +417,7 @@ This schema defines the objects that are actively exchanged between the client a
 }
 ```
 
-### **6.2. Widget Library Catalog Schema**
+### **6.2. Widget Catalog Schema**
 
 This schema defines the structure of the `WidgetCatalog.json` file. It is updated to include the `dataTypes` definition.
 
@@ -425,7 +425,7 @@ This schema defines the structure of the `WidgetCatalog.json` file. It is update
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/FCP-catalog-schema-v2.json",
-  "title": "FCP Widget Library Catalog Schema",
+  "title": "FCP Widget Catalog Schema",
   "description": "Defines the static widget, property, event, and data type capabilities of an FCP client.",
   "type": "object",
   "$defs": {

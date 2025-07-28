@@ -10,7 +10,7 @@ import 'package:fcp_client/fcp_client.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  final testRegistry = CatalogRegistry()
+  final testRegistry = WidgetCatalogRegistry()
     ..register('Scaffold', (context, node, properties, children) {
       return Scaffold(
         appBar: children['appBar'] as PreferredSizeWidget?,

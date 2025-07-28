@@ -135,10 +135,10 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
     }));
   }
 
-  /// Creates a [CatalogRegistry] and registers the widgets used in this
+  /// Creates a [WidgetCatalogRegistry] and registers the widgets used in this
   /// example.
-  CatalogRegistry _createWidgetRegistry() {
-    return CatalogRegistry()
+  WidgetCatalogRegistry _createWidgetRegistry() {
+    return WidgetCatalogRegistry()
       ..register('Scaffold', (context, node, properties, children) {
         return Scaffold(
           appBar: children['appBar'] as PreferredSizeWidget?,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testRegistry = CatalogRegistry()
+  final testRegistry = WidgetCatalogRegistry()
     ..register(
       'Container',
       (context, node, properties, children) =>
@@ -399,7 +399,7 @@ void main() {
     ) async {
       EventPayload? capturedPayload;
 
-      final eventRegistry = CatalogRegistry()
+      final eventRegistry = WidgetCatalogRegistry()
         ..register(
           'EventButton',
           (context, node, properties, children) => ElevatedButton(
