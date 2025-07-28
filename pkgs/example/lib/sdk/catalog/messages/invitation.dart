@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../model/agent.dart';
 import '../../model/input.dart';
 import '../../model/simple_items.dart';
 import '../elements/carousel.dart';

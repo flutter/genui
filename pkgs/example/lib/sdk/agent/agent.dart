@@ -4,31 +4,44 @@ import 'package:flutter/widgets.dart';
 
 import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
-import '../model/agent.dart';
+import '../model/controller.dart';
 import '../model/input.dart';
 import '../model/simple_items.dart';
+import '../primitives/utils.dart';
 import 'fake_output.dart';
 
-class SimpleGenUiAgent extends GenUiAgent {
-  SimpleGenUiAgent(super.controller);
+class GenUiAgent {
+  GenUiAgent(this.controller);
 
-  final List<GenUiRound> _history = [];
+  GenUiController controller;
 
-  Future<void> _request(Input input) async {
-    round.input.complete(input);
+  void run() => _startCycle();
 
-    // Simulate network delay
+  Future<void> _startCycle() async {
+    while (true) {
+      await _handleNextInput();
+    }
+  }
+
+  void dispose() {
+    // TODO: stop cycle
+  }
+
+  Future<void> _handleNextInput() async {
+    final input = await controller.state.input.future;
+
+    // Simulate network delay.
     await Future<void>.delayed(const Duration(milliseconds: 1000));
 
-    late final WidgetData output;
+    late final WidgetData data;
     late final WidgetBuilder builder;
 
     switch (input) {
       case InitialInput():
-        output = fakeInvitationData;
+        data = fakeInvitationData;
         builder = (_) => Invitation(fakeInvitationData, this);
       case ChatBoxInput():
-        output = fakeElicitationData;
+        data = fakeElicitationData;
         builder = (_) => Elicitation(fakeElicitationData, this);
       default:
         throw UnimplementedError(
@@ -36,8 +49,24 @@ class SimpleGenUiAgent extends GenUiAgent {
         );
     }
 
-    round.output.complete(output);
-    round.builder.complete(builder);
-    _history.add(round);
+    final newInput = await controller.state.input.future;
+    if (newInput != input) {
+      // If the input has changed, we throw away the results.
+      return;
+    }
+
+    // Provide the builder for the widget that wait for it.
+    controller.state.builder.complete(builder);
+
+    // Move the input and data to the history.
+    controller.state.history.add((input: input, data: data));
+
+    // Reset the input completer for the next input.
+    controller.state.input = Completer<Input>();
+    controller.state.builder = Completer<WidgetBuilder>();
+
+    // Scroll to the bottom after the widget is built
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    await scrollToBottom(controller.scrollController);
   }
 }

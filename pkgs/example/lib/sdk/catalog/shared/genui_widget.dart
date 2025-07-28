@@ -2,18 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../model/agent.dart';
+import '../../model/controller.dart';
 import '../../model/input.dart';
 import '../elements/chat_box.dart';
 
 class GenUiWidget extends StatefulWidget {
-  GenUiWidget(this.agent, {Input? input} ) {
+  GenUiWidget(this.controller, {Input? input}) {
     if (input != null) {
-      agent.round.input.complete(input);
+      controller.state.input.complete(input);
     }
   }
 
-  final GenUiAgent agent;
+  final GenUiController controller;
 
   @override
   State<GenUiWidget> createState() => _GenUiWidgetState();
@@ -30,36 +30,38 @@ class _GenUiWidgetState extends State<GenUiWidget> {
   }
 
   Future<void> _initialize() async {
-    final input = await widget.agent.round.input.future;
-    setState(() => _input = input);
-    await widget.agent.request(input);
-    setState(() => _builder = builder);
+    final state = widget.controller.state;
 
-    // Scroll to the bottom after the widget is built
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-    final scroll = widget.agent.controller.scrollController;
-    await scroll.animateTo(
-      scroll.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.fastOutSlowIn,
-    );
+    final input = await state.input.future;
+    setState(() => _input = input);
+    final builder = await state.builder.future;
+    setState(() => _builder = builder);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_input == null) {
-      return ChatBox(
-          onInput,
-          // fakeInput:
-          //     'I have 3 days in Zermatt with my wife and 11 year old daughter, '
-          //     'and I am wondering how to make the most out of our time.',
-        );
-        const SizedBox(height: 28.0),
-    }
+    if (_input == null) return _buildChatBox();
+
     final builder = _builder;
+
     if (builder == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    return builder(context);
+
+    return Column(
+      children: [
+        builder(context),
+        const SizedBox(height: 16.0),
+        _buildChatBox(),
+      ],
+    );
   }
+
+  void _onInput(UserInput input) {
+    widget.controller.state.input.complete(input);
+    widget.controller.state.builder = Completer<WidgetBuilder>();
+    _initialize();
+  }
+
+  Widget _buildChatBox() => ChatBox(_onInput);
 }
