@@ -48,7 +48,9 @@ class _MyHomePageState extends State<_MyHomePage> {
   void initState() {
     super.initState();
 
-    _agent.controller.state.input.complete(InitialInput());
+    _agent.controller.state.input.complete(
+      InitialInput('Show invitations to create a vacation travel itinerary.'),
+    );
   }
 
   @override
