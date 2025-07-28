@@ -21,6 +21,7 @@ class _GenUiWidgetState extends State<GenUiWidget> {
 
   @override
   void initState() {
+    print('Initializing GenUiWidget');
     super.initState();
     _initialize();
   }
@@ -44,13 +45,7 @@ class _GenUiWidgetState extends State<GenUiWidget> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Column(
-      children: [
-        builder(context),
-        const SizedBox(height: 16.0),
-        _buildChatBox(),
-      ],
-    );
+    return builder(context);
   }
 
   void _onInput(UserInput input) {
@@ -59,5 +54,8 @@ class _GenUiWidgetState extends State<GenUiWidget> {
     _initialize();
   }
 
-  Widget _buildChatBox() => ChatBox(_onInput);
+  Widget _buildChatBox() {
+    print('Building chat box');
+    return ChatBox(_onInput);
+  }
 }

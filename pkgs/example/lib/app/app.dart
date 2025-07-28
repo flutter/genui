@@ -69,7 +69,8 @@ class _MyHomePageState extends State<_MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
+        child: Align(
+          alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             controller: _scrollController,
             child: GenUiWidget(_agent.controller),
