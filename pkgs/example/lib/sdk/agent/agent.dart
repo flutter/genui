@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import '../catalog/messages/elicitation.dart';
@@ -10,31 +12,32 @@ import 'fake_output.dart';
 class SimpleGenUiAgent extends GenUiAgent {
   SimpleGenUiAgent(super.controller);
 
-  final List<({Input input, WidgetData output})> _history = [];
+  final List<GenUiRound> _history = [];
 
-  @override
-  Future<WidgetBuilder> request(Input input) async {
+  Future<void> _request(Input input) async {
+    round.input.complete(input);
+
     // Simulate network delay
     await Future<void>.delayed(const Duration(milliseconds: 1000));
 
     late final WidgetData output;
-    late final WidgetBuilder result;
+    late final WidgetBuilder builder;
 
     switch (input) {
       case InitialInput():
         output = fakeInvitationData;
-        result = (_) => Invitation(fakeInvitationData, this);
+        builder = (_) => Invitation(fakeInvitationData, this);
       case ChatBoxInput():
         output = fakeElicitationData;
-        result = (_) => Elicitation(fakeElicitationData, this);
+        builder = (_) => Elicitation(fakeElicitationData, this);
       default:
         throw UnimplementedError(
           'The agent does not support input of type ${input.runtimeType}',
         );
     }
 
-    _history.add((input: input, output: output));
-
-    return result;
+    round.output.complete(output);
+    round.builder.complete(builder);
+    _history.add(round);
   }
 }

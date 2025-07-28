@@ -36,13 +36,7 @@ class _InvitationState extends State<Invitation> {
         Text(widget.data.exploreTitle, style: GenUiTextStyles.h2(context)),
         Carousel(CarouselData(items: widget.data.exploreItems), onInput),
         const SizedBox(height: 16.0),
-        ChatBox(
-          onInput,
-          fakeInput:
-              'I have 3 days in Zermatt with my wife and 11 year old daughter, '
-              'and I am wondering how to make the most out of our time.',
-        ),
-        const SizedBox(height: 28.0),
+
         GenUiWidget.wait(_input, widget.agent),
       ],
     );

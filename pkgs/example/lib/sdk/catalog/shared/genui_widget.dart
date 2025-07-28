@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 
 import '../../model/agent.dart';
 import '../../model/input.dart';
+import '../elements/chat_box.dart';
 
 class GenUiWidget extends StatefulWidget {
-  factory GenUiWidget(Input input, GenUiAgent agent) =>
-      GenUiWidget.wait(Completer<Input>()..complete(input), agent);
+  GenUiWidget(this.agent, {Input? input} ) {
+    if (input != null) {
+      agent.round.input.complete(input);
+    }
+  }
 
-  const GenUiWidget.wait(this.input, this.agent, {super.key});
-
-  final Completer<Input> input;
   final GenUiAgent agent;
 
   @override
@@ -29,9 +30,9 @@ class _GenUiWidgetState extends State<GenUiWidget> {
   }
 
   Future<void> _initialize() async {
-    final input = await widget.input.future;
+    final input = await widget.agent.round.input.future;
     setState(() => _input = input);
-    final builder = await widget.agent.request(input);
+    await widget.agent.request(input);
     setState(() => _builder = builder);
 
     // Scroll to the bottom after the widget is built
@@ -46,7 +47,15 @@ class _GenUiWidgetState extends State<GenUiWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_input == null) return const SizedBox.shrink();
+    if (_input == null) {
+      return ChatBox(
+          onInput,
+          // fakeInput:
+          //     'I have 3 days in Zermatt with my wife and 11 year old daughter, '
+          //     'and I am wondering how to make the most out of our time.',
+        );
+        const SizedBox(height: 28.0),
+    }
     final builder = _builder;
     if (builder == null) {
       return const Center(child: CircularProgressIndicator());
