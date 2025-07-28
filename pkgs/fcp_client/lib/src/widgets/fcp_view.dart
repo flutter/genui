@@ -15,15 +15,15 @@ import 'fcp_view_controller.dart';
 /// The main entry point for rendering a UI from the Flutter Composition
 /// Protocol.
 ///
-/// This widget takes a [packet] containing the layout and state, a [manifest]
-/// defining the data types, and a [registry] of widget builders, and constructs
-/// the corresponding Flutter widget tree. It manages the dynamic state and
-/// updates the UI when the state changes.
+/// This widget takes a [packet] containing the layout and state, a [catalog]
+/// defining the data types, and a [registry] of catalog item builders, and
+/// constructs the corresponding Flutter widget tree. It manages the dynamic
+/// state and updates the UI when the state changes.
 class FcpView extends StatefulWidget {
   const FcpView({
     super.key,
     required this.packet,
-    required this.manifest,
+    required this.catalog,
     required this.registry,
     this.onEvent,
     this.controller,
@@ -32,14 +32,14 @@ class FcpView extends StatefulWidget {
   /// The self-contained UI packet from the server.
   final DynamicUIPacket packet;
 
-  /// The widget library manifest defining the capabilities of the client.
-  final WidgetLibraryManifest manifest;
+  /// The widget library catalog defining the capabilities of the client.
+  final WidgetLibraryCatalog catalog;
 
-  /// The registry mapping widget types to builder functions.
-  final WidgetRegistry registry;
+  /// The registry mapping catalog item types to builder functions.
+  final CatalogRegistry registry;
 
   /// A callback function that is invoked when an event is triggered by a
-  /// widget.
+  /// catalog item.
   final ValueChanged<EventPayload>? onEvent;
 
   /// A controller to programmatically update the view's state or layout.
@@ -70,13 +70,13 @@ class _FcpViewState extends State<FcpView> {
     _state = FcpState(
       widget.packet.state,
       validator: _dataTypeValidator,
-      manifest: widget.manifest,
+      catalog: widget.catalog,
     );
     _statePatcher = StatePatcher();
     _bindingProcessor = BindingProcessor(_state);
     _engine = _LayoutEngine(
       registry: widget.registry,
-      manifest: widget.manifest,
+      catalog: widget.catalog,
       layout: widget.packet.layout,
       bindingProcessor: _bindingProcessor,
     );
@@ -166,20 +166,20 @@ class _FcpViewState extends State<FcpView> {
 class _LayoutEngine with ChangeNotifier {
   _LayoutEngine({
     required this.registry,
-    required this.manifest,
+    required this.catalog,
     required Layout layout,
     required this.bindingProcessor,
   }) {
     reset(layout);
   }
 
-  final WidgetRegistry registry;
-  final WidgetLibraryManifest manifest;
+  final CatalogRegistry registry;
+  final WidgetLibraryCatalog catalog;
   final BindingProcessor bindingProcessor;
   final LayoutPatcher _patcher = LayoutPatcher();
 
   late Layout _layout;
-  late Map<String, WidgetNode> _nodesById;
+  late Map<String, LayoutNode> _nodesById;
 
   /// Resets the engine to a new, clean layout.
   void reset(Layout newLayout) {
@@ -199,7 +199,7 @@ class _LayoutEngine with ChangeNotifier {
     return _buildNode(context, _layout.root);
   }
 
-  /// Recursively builds a single widget node and its descendants.
+  /// Recursively builds a single layout node and its descendants.
   Widget _buildNode(
     BuildContext context,
     String nodeId, [
@@ -227,16 +227,18 @@ class _LayoutEngine with ChangeNotifier {
     final builder = registry.getBuilder(node.type);
     if (builder == null) {
       return _ErrorWidget(
-        'No builder registered for widget type "${node.type}".',
+        'No builder registered for catalog item type "${node.type}".',
       );
     }
 
     // Validate required properties.
-    final widgetDefMap = manifest.widgets[node.type];
-    if (widgetDefMap == null) {
-      return _ErrorWidget('Widget type "${node.type}" not found in manifest.');
+    final itemDefMap = catalog.items[node.type];
+    if (itemDefMap == null) {
+      return _ErrorWidget(
+          'Catalog item type "${node.type}" not found in catalog.');
     }
-    final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
+    final itemDef =
+        CatalogItemDefinition(itemDefMap as Map<String, Object?>);
 
     // Resolve dynamic properties from bindings.
     final boundProperties = bindingProcessor.process(node);
@@ -245,11 +247,11 @@ class _LayoutEngine with ChangeNotifier {
     // ones.
     final resolvedProperties = {...?node.properties, ...boundProperties};
 
-    for (final prop in widgetDef.properties.entries) {
+    for (final prop in itemDef.properties.entries) {
       final propDef = PropertyDefinition(prop.value as Map<String, Object?>);
       if (propDef.isRequired && !resolvedProperties.containsKey(prop.key)) {
         return _ErrorWidget(
-          'Missing required property "${prop.key}" for widget type '
+          'Missing required property "${prop.key}" for catalog item type '
           '"${node.type}".',
         );
       }
@@ -284,12 +286,13 @@ class _LayoutEngine with ChangeNotifier {
 
   Widget _buildListView(
     BuildContext context,
-    WidgetNode node,
+    LayoutNode node,
     Set<String> visited,
   ) {
-    final widgetDefMap = manifest.widgets[node.type];
-    if (widgetDefMap == null) {
-      return _ErrorWidget('Widget type "${node.type}" not found in manifest.');
+    final itemDefMap = catalog.items[node.type];
+    if (itemDefMap == null) {
+      return _ErrorWidget(
+          'Catalog item type "${node.type}" not found in catalog.');
     }
     final boundProperties = bindingProcessor.process(node);
     final data = boundProperties['data'] as List<dynamic>? ?? [];
@@ -313,7 +316,7 @@ class _LayoutEngine with ChangeNotifier {
 
   Widget _buildListItem(
     BuildContext context,
-    WidgetNode templateNode,
+    LayoutNode templateNode,
     Map<String, Object?> itemData,
     Set<String> visited,
   ) {
@@ -325,10 +328,10 @@ class _LayoutEngine with ChangeNotifier {
       );
     }
 
-    final widgetDefMap = manifest.widgets[templateNode.type];
-    if (widgetDefMap == null) {
+    final itemDefMap = catalog.items[templateNode.type];
+    if (itemDefMap == null) {
       return _ErrorWidget(
-        'Widget type "${templateNode.type}" not found in manifest for '
+        'Catalog item type "${templateNode.type}" not found in catalog for '
         'itemTemplate.',
       );
     }

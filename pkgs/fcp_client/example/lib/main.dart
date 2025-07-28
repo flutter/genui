@@ -135,9 +135,10 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
     }));
   }
 
-  /// Creates a [WidgetRegistry] and registers the widgets used in this example.
-  WidgetRegistry _createWidgetRegistry() {
-    return WidgetRegistry()
+  /// Creates a [CatalogRegistry] and registers the catalog items used in this
+  /// example.
+  CatalogRegistry _createWidgetRegistry() {
+    return CatalogRegistry()
       ..register('Scaffold', (context, node, properties, children) {
         return Scaffold(
           appBar: children['appBar'] as PreferredSizeWidget?,
@@ -197,7 +198,7 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
           key: properties['key'] != null ? ValueKey(properties['key']) : null,
           onPressed: () {
             FcpProvider.of(context)?.onEvent?.call(EventPayload({
-                  'sourceWidgetId': node.id,
+                  'sourceNodeId': node.id,
                   'eventName':
                       properties['eventName'] as String? ?? 'onPressed',
                   'arguments': {'mood': properties['mood']},
@@ -211,7 +212,7 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
           value: properties['value'] as bool? ?? false,
           onChanged: (newValue) {
             FcpProvider.of(context)?.onEvent?.call(EventPayload({
-                  'sourceWidgetId': node.id,
+                  'sourceNodeId': node.id,
                   'eventName': 'onChanged',
                   'arguments': {'value': newValue},
                 }));
@@ -220,11 +221,11 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
       });
   }
 
-  /// Creates the [WidgetLibraryManifest] for this example.
-  WidgetLibraryManifest _createManifest() {
-    return WidgetLibraryManifest({
-      'manifestVersion': '1.0.0',
-      'widgets': {
+  /// Creates the [WidgetLibraryCatalog] for this example.
+  WidgetLibraryCatalog _createCatalog() {
+    return WidgetLibraryCatalog({
+      'catalogVersion': '1.0.0',
+      'items': {
         'Scaffold': {
           'properties': {
             'appBar': {'type': 'WidgetId'},
@@ -531,7 +532,7 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
       ),
       home: FcpView(
         registry: _createWidgetRegistry(),
-        manifest: _createManifest(),
+        catalog: _createCatalog(),
         packet: _createUiPacket(),
         controller: _controller,
         onEvent: (payload) {
@@ -543,7 +544,7 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
               _setMood(payload.arguments!['mood'] as String);
               break;
             case 'onChanged':
-              if (payload.sourceWidgetId == 'details_toggle') {
+              if (payload.sourceNodeId == 'details_toggle') {
                 _toggleDetails();
               }
               break;

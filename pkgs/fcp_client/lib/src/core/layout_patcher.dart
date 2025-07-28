@@ -7,7 +7,7 @@ class LayoutPatcher {
   /// Applies a [LayoutUpdate] payload to the given [nodeMap].
   ///
   /// The operations are applied sequentially.
-  void apply(Map<String, WidgetNode> nodeMap, LayoutUpdate update) {
+  void apply(Map<String, LayoutNode> nodeMap, LayoutUpdate update) {
     for (final operation in update.operations) {
       switch (operation.op) {
         case 'add':
@@ -29,7 +29,7 @@ class LayoutPatcher {
     }
   }
 
-  void _handleAdd(Map<String, WidgetNode> nodeMap, LayoutOperation operation) {
+  void _handleAdd(Map<String, LayoutNode> nodeMap, LayoutOperation operation) {
     final nodes = operation.nodes;
     if (nodes == null || nodes.isEmpty) {
       return;
@@ -47,10 +47,10 @@ class LayoutPatcher {
   }
 
   void _handleRemove(
-    Map<String, WidgetNode> nodeMap,
+    Map<String, LayoutNode> nodeMap,
     LayoutOperation operation,
   ) {
-    final ids = operation.ids;
+    final ids = operation.nodeIds;
     if (ids == null || ids.isEmpty) {
       return;
     }
@@ -61,7 +61,7 @@ class LayoutPatcher {
   }
 
   void _handleUpdate(
-    Map<String, WidgetNode> nodeMap,
+    Map<String, LayoutNode> nodeMap,
     LayoutOperation operation,
   ) {
     final nodes = operation.nodes;

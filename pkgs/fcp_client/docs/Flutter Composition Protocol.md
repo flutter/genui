@@ -10,10 +10,10 @@ This document specifies the architecture and data formats for "Flutter Compositi
 
 The central philosophy of FCP is the strict decoupling of four key elements, which together define the complete user interface:
 
-1. **The Manifest (The Contract):** A client-defined document that specifies precisely which widgets, properties, events, and data structures the application is capable of handling. This is a static contract that governs all communication.
-2. **The Layout (The Structure):** A server-provided JSON structure that describes the arrangement of widgets, their static properties, and their relationships to one another.
+1. **The Catalog (The Contract):** A client-defined document that specifies precisely which catalog items, properties, events, and data structures the application is capable of handling. This is a static contract that governs all communication.
+2. **The Layout (The Structure):** A server-provided JSON structure that describes the arrangement of catalog items, their static properties, and their relationships to one another.
 3. **The State (The Data):** A server-provided JSON object containing the dynamic values that populate the layout, such as text content, boolean flags, or lists of data.
-4. **The Data Model (The Schemas):** A set of formal definitions for complex data objects used within the state, included within the Manifest to ensure type safety.
+4. **The Data Model (The Schemas):** A set of formal definitions for complex data objects used within the state, included within the Catalog to ensure type safety.
 
 ### **1.2. The DynamicUIPacket: The Atomic Unit of Communication**
 
@@ -23,21 +23,21 @@ The packet contains the following top-level keys:
 
 - `formatVersion`: A semantic version string (e.g., "2.0.0") for the FCP specification itself.
 - `layout`: The complete, non-recursive widget tree definition, as detailed in Section 3.
-- `state`: The initial state data for the widgets defined in the layout, as detailed in Section 4.
+- `state`: The initial state data for the catalog items defined in the layout, as detailed in Section 4.
 - `metadata`: An optional object for server-side information.
 
 ### **1.3. Data Flow Model**
 
 The data flow is a well-defined sequence:
 
-1. **Client Initialization:** The Flutter app loads its `WidgetLibraryManifest`.
-2. **Initial UI Request:** The client requests the initial UI from the server, including sending the `WidgetLibraryManifest` to the server.
+1. **Client Initialization:** The Flutter app loads its `WidgetLibraryCatalog`.
+2. **Initial UI Request:** The client requests the initial UI from the server, including sending the `WidgetLibraryCatalog` to the server.
 3. **Server Response:** The server responds with a `DynamicUIPacket`.
-4. **Client-Side Rendering:** The client validates the packet against its manifest, then builds the Flutter widget tree by processing the layout and applying state bindings.
-5. **User Interaction:** A user interacts with a widget (e.g., taps a button).
+4. **Client-Side Rendering:** The client validates the packet against its catalog, then builds the Flutter widget tree by processing the layout and applying state bindings.
+5. **User Interaction:** A user interacts with a catalog item (e.g., taps a button).
 6. **Event Transmission:** The client constructs and sends a lightweight `EventPayload` to the server.
 7. **Server-Side Logic & Targeted Update:** The server processes the event and responds with a delta-only payload—either a `LayoutUpdate` to change the structure or a `StateUpdate` to change data.
-8. **Client-Side Patching:** The client applies the update, triggering targeted rebuilds of only the affected widgets.
+8. **Client-Side Patching:** The client applies the update, triggering targeted rebuilds of only the affected catalog items.
 
 ```mermaid
 sequenceDiagram
@@ -48,8 +48,8 @@ sequenceDiagram
     rect rgba(128, 128, 128, 0.12)
         note over User, Server: Initial Handshake & UI Render
         User->>+Flutter Client: Launches App
-        Flutter Client->>Flutter Client: 1. Initializes & Loads WidgetLibraryManifest from bundle
-        Flutter Client->>+Server: 2. Initial Handshake (Sends Manifest + Client Version)
+        Flutter Client->>Flutter Client: 1. Initializes & Loads WidgetLibraryCatalog from bundle
+        Flutter Client->>+Server: 2. Initial Handshake (Sends Catalog + Client Version)
         Server-->>-Flutter Client: 3. Handshake Acknowledged
 
         Flutter Client->>+Server: 4. Requests Initial UI
@@ -59,47 +59,47 @@ sequenceDiagram
     end
 
     loop Interaction & Update Cycle
-        User->>+Flutter Client: 7. Interacts with a rendered widget (e.g., tap)
+        User->>+Flutter Client: 7. Interacts with a rendered catalog item (e.g., tap)
         Flutter Client->>+Server: 8. Transmits EventPayload
         Note left of Server: 9. Processes event business logic <br/>and determines necessary UI changes.
         Server-->>-Flutter Client: 10. Responds with Targeted Update (StateUpdate or LayoutUpdate)
-        Note right of Flutter Client: 11. Applies patch to internal state/layout <br/>and rebuilds only the affected widgets.
+        Note right of Flutter Client: 11. Applies patch to internal state/layout <br/>and rebuilds only the affected catalog items.
         Flutter Client-->>-User: Displays Updated UI
     end
 ```
 
 Architectural Note:
 
-The sequence above shows a "Handshake Model" where the client sends its manifest on the first connection.
+The sequence above shows a "Handshake Model" where the client sends its catalog on the first connection.
 
-- PROS: Simplifies the deployment process; no separate step is needed to publish the manifest.
-- CONS: Increases initial connection latency as the manifest is sent over the network.
+- PROS: Simplifies the deployment process; no separate step is needed to publish the catalog.
+- CONS: Increases initial connection latency as the catalog is sent over the network.
 
-An alternative is the "Out-of-Band Model" where manifests are published to a central repository during the app's build process, and the server fetches them from there.
+An alternative is the "Out-of-Band Model" where catalogs are published to a central repository during the app's build process, and the server fetches them from there.
 
 - PROS: Keeps the initial client connection very lightweight and fast.
 - CONS: Adds a step to the CI/CD pipeline and couples it to the server's infrastructure.
 
-## **Section 2: The Widget Library Manifest: Defining Capabilities and Data Models**
+## **Section 2: The Widget Library Catalog: Defining Capabilities and Data Models**
 
-The `WidgetLibraryManifest` is a JSON document, bundled within the client application, that serves as a strict contract of the client's rendering and data-handling capabilities.
+The `WidgetLibraryCatalog` is a JSON document, bundled within the client application, that serves as a strict contract of the client's rendering and data-handling capabilities.
 
 ### **2.1. Purpose: The Client-Server Contract**
 
-The manifest explicitly declares the client's capabilities, enabling:
+The catalog explicitly declares the client's capabilities, enabling:
 
-- **Server-Side Validation:** The server can validate any `DynamicUIPacket` against the client's manifest before sending it.
-- **Versioning and Coexistence:** The server can store multiple manifest versions and generate compatible UI for different client versions.
-- **Guided LLM Generation:** The manifest provides a structured schema that can be used to constrain the output of a Large Language Model, ensuring it only generates valid, renderable UI definitions.
+- **Server-Side Validation:** The server can validate any `DynamicUIPacket` against the client's catalog before sending it.
+- **Versioning and Coexistence:** The server can store multiple catalog versions and generate compatible UI for different client versions.
+- **Guided LLM Generation:** The catalog provides a structured schema that can be used to constrain the output of a Large Language Model, ensuring it only generates valid, renderable UI definitions.
 - **Formalized Data Structures:** It allows for defining complex data types, ensuring that `state` objects are well-formed and type-safe.
 
-### **2.2. Manifest Schema (`WidgetLibraryManifest`)**
+### **2.2. Catalog Schema (`WidgetLibraryCatalog`)**
 
-The manifest is a top-level JSON object:
+The catalog is a top-level JSON object:
 
-- `manifestVersion`: A string representing the version of the manifest file itself (e.g., "2.1.0").
+- `catalogVersion`: A string representing the version of the catalog file itself (e.g., "2.1.0").
 - `dataTypes`: An object where each key is a custom data type name (e.g., `User`), and the value is a JSON Schema definition for that type.
-- `widgets`: An object where each key is a widget type name (e.g., `Container`), and the value is a `WidgetDefinition` object.
+- `items`: An object where each key is a catalog item type name (e.g., `Container`), and the value is a `CatalogItemDefinition` object.
 
 ### **2.3. Custom Data Type Definitions (`dataTypes`)**
 
@@ -131,16 +131,16 @@ The value of each key under `dataTypes` **must** be a valid JSON Schema object.
 }
 ```
 
-### **2.4. Widget Definition Schema (`WidgetDefinition`)**
+### **2.4. Catalog Item Definition Schema (`CatalogItemDefinition`)**
 
-This object describes a single renderable widget type.
+This object describes a single renderable catalog item type.
 
 - `properties`: An object defining the supported attributes. Each key is a property name (e.g., `color`), and the value is a `PropertyDefinition` object.
-- `events`: An object defining the events this widget can emit. Each key is an event name (e.g., `onPressed`), and the value is a JSON Schema defining the structure of the `arguments` object for that event.
+- `events`: An object defining the events this catalog item can emit. Each key is an event name (e.g., `onPressed`), and the value is a JSON Schema defining the structure of the `arguments` object for that event.
 
 ### **2.5. Property Definition Schema (`PropertyDefinition`)**
 
-This object specifies the type and constraints for a single widget property.
+This object specifies the type and constraints for a single catalog item property.
 
 - `type`: A string defining the data type. The value must be one of the built-in FCP types or a key defined in the top-level `dataTypes` object.
   - **Primitives**: `"String"`, `"Number"`, `"Boolean"`.
@@ -158,28 +158,28 @@ To meet the constraint of a non-recursive format, the FCP layout is defined usin
 
 ### **3.1. The Adjacency List Model**
 
-The layout is a flat list of `WidgetNode` objects. Parent-child relationships are established through ID references. This model allows for $O(1)$ amortized time lookup for any widget by its ID, which is critical for applying targeted updates efficiently.
+The layout is a flat list of `LayoutNode` objects. Parent-child relationships are established through ID references. This model allows for $O(1)$ amortized time lookup for any catalog item by its ID, which is critical for applying targeted updates efficiently.
 
 ### **3.2. Layout Schema (`Layout`)**
 
-- `root`: A string containing the `id` of the root `WidgetNode`.
-- `nodes`: An array of `WidgetNode` objects.
+- `root`: A string containing the `id` of the root `LayoutNode`.
+- `nodes`: An array of `LayoutNode` objects.
 
-### **3.3. Widget Node Schema (`WidgetNode`)**
+### **3.3. Layout Node Schema (`LayoutNode`)**
 
-- `id`: A required, unique string that identifies this specific widget instance.
-- `type`: A string that must match a widget type name in the `WidgetLibraryManifest`.
+- `id`: A required, unique string that identifies this specific catalog item instance.
+- `type`: A string that must match a catalog item type name in the `WidgetLibraryCatalog`.
 - `properties`: An object containing static properties.
-- `bindings`: An optional object that maps widget properties to the `state` object. See Section 4.2.
-- `itemTemplate`: For list-building widgets, this is a complete `WidgetNode` object used as a template. See Section 3.4.
+- `bindings`: An optional object that maps catalog item properties to the `state` object. See Section 4.2.
+- `itemTemplate`: For list-building catalog items, this is a complete `LayoutNode` object used as a template. See Section 3.4.
 
 ### **3.4. Advanced Composition: List Rendering with Builders**
 
-To efficiently render dynamic lists (e.g., search results), the framework supports a builder pattern. This avoids defining a `WidgetNode` for every single item in a list.
+To efficiently render dynamic lists (e.g., search results), the framework supports a builder pattern. This avoids defining a `LayoutNode` for every single item in a list.
 
-A special widget type, e.g., `ListViewBuilder`, can be defined in the manifest. It uses a combination of data binding and a template to generate its children.
+A special catalog item type, e.g., `ListViewBuilder`, can be defined in the catalog. It uses a combination of data binding and a template to generate its children.
 
-- **`properties`**: The builder widget itself would have standard properties (e.g., `scrollDirection`).
+- **`properties`**: The builder catalog item itself would have standard properties (e.g., `scrollDirection`).
 
 - **`bindings`**: It would have a binding to an array in the state object.
 
@@ -187,7 +187,7 @@ A special widget type, e.g., `ListViewBuilder`, can be defined in the manifest. 
 "bindings": { "data": { "path": "products" } }
 ```
 
-- **`itemTemplate`**: It contains a single `WidgetNode` definition that serves as a template for each item. This template can use special binding paths like `item.name` or `item.price`, which the client resolves for each element of the bound `data` list.
+- **`itemTemplate`**: It contains a single `LayoutNode` definition that serves as a template for each item. This template can use special binding paths like `item.name` or `item.price`, which the client resolves for each element of the bound `data` list.
 
 ```json
 // Example: A node for a ListViewBuilder
@@ -214,11 +214,11 @@ FCP enforces a clean separation between the UI's structure (layout) and its dyna
 
 ### **4.1. The `state` Object: A Centralized Data Store**
 
-The `state` key in the `DynamicUIPacket` holds a single JSON object. This is the sole source of truth for all dynamic data. By defining the structure of its contents in the manifest's `dataTypes` section, the state object is not an arbitrary blob but a well-defined, validatable data model. For example, the state could contain a `currentUser` object that is validated against the `User` schema from the manifest.
+The `state` key in the `DynamicUIPacket` holds a single JSON object. This is the sole source of truth for all dynamic data. By defining the structure of its contents in the catalog's `dataTypes` section, the state object is not an arbitrary blob but a well-defined, validatable data model. For example, the state could contain a `currentUser` object that is validated against the `User` schema from the catalog.
 
 ### **4.2. Data Binding with Transformations**
 
-The `bindings` map within a `WidgetNode` forges the connection between layout and state. This mechanism is enhanced to support simple, client-side data transformations.
+The `bindings` map within a `LayoutNode` forges the connection between layout and state. This mechanism is enhanced to support simple, client-side data transformations.
 
 A binding value is an object that specifies the `path` to the data in the state and an optional transformation.
 
@@ -263,11 +263,11 @@ This small, predefined set of transformers adds significant declarative power wi
 
 When a user triggers an event, the client sends an `EventPayload` to the server.
 
-- `sourceWidgetId`: The `id` of the `WidgetNode` that generated the event.
+- `sourceNodeId`: The `id` of the `LayoutNode` that generated the event.
 
 - `eventName`: The name of the event (e.g., `onPressed`).
 
-- `arguments`: An optional object containing contextual data. The structure of this object **must** conform to the schema defined for this event in the `WidgetLibraryManifest`.
+- `arguments`: An optional object containing contextual data. The structure of this object **must** conform to the schema defined for this event in the `WidgetLibraryCatalog`.
 
 ### **5.2. Server-to-Client: The `StateUpdate` Payload**
 
@@ -301,28 +301,28 @@ This schema defines the objects that are actively exchanged between the client a
   "description": "A collection of schemas for data exchanged between client and server in the FCP framework.",
   "type": "object",
   "$defs": {
-    "WidgetNode": {
+    "LayoutNode": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for this widget instance."
+          "description": "Unique identifier for this catalog item instance."
         },
         "type": {
           "type": "string",
-          "description": "The type of the widget, must match a key in the WidgetLibraryManifest."
+          "description": "The type of the catalog item, must match a key in the WidgetLibraryCatalog."
         },
         "properties": {
           "type": "object",
-          "description": "Static properties for this widget."
+          "description": "Static properties for this catalog item."
         },
         "bindings": {
           "type": "object",
-          "description": "Binds widget properties to paths in the state object, with optional transformations."
+          "description": "Binds catalog item properties to paths in the state object, with optional transformations."
         },
         "itemTemplate": {
-          "$ref": "#/$defs/WidgetNode",
-          "description": "A template node for list builder widgets."
+          "$ref": "#/$defs/LayoutNode",
+          "description": "A template node for list builder catalog items."
         }
       },
       "required": ["id", "type"]
@@ -332,11 +332,11 @@ This schema defines the objects that are actively exchanged between the client a
       "properties": {
         "root": {
           "type": "string",
-          "description": "The ID of the root widget node."
+          "description": "The ID of the root layout node."
         },
         "nodes": {
           "type": "array",
-          "items": { "$ref": "#/$defs/WidgetNode" }
+          "items": { "$ref": "#/$defs/LayoutNode" }
         }
       },
       "required": ["root", "nodes"]
@@ -357,11 +357,11 @@ This schema defines the objects that are actively exchanged between the client a
     "EventPayload": {
       "type": "object",
       "properties": {
-        "sourceWidgetId": { "type": "string" },
+        "sourceNodeId": { "type": "string" },
         "eventName": { "type": "string" },
         "arguments": { "type": "object" }
       },
-      "required": ["sourceWidgetId", "eventName"]
+      "required": ["sourceNodeId", "eventName"]
     },
     "StateUpdate": {
       "type": "object",
@@ -395,10 +395,10 @@ This schema defines the objects that are actively exchanged between the client a
               "op": { "type": "string", "enum": ["add", "remove", "update"] },
               "nodes": {
                 "type": "array",
-                "items": { "$ref": "#/$defs/WidgetNode" }
+                "items": { "$ref": "#/$defs/LayoutNode" }
               },
-              "ids": { "type": "array", "items": { "type": "string" } },
-              "targetId": { "type": "string" },
+              "nodeIds": { "type": "array", "items": { "type": "string" } },
+              "targetNodeId": { "type": "string" },
               "targetProperty": { "type": "string" }
             },
             "required": ["op"]
@@ -417,16 +417,16 @@ This schema defines the objects that are actively exchanged between the client a
 }
 ```
 
-### **6.2. Widget Library Manifest Schema**
+### **6.2. Widget Library Catalog Schema**
 
-This schema defines the structure of the `WidgetLibraryManifest.json` file. It is updated to include the `dataTypes` definition.
+This schema defines the structure of the `WidgetLibraryCatalog.json` file. It is updated to include the `dataTypes` definition.
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/FCP-manifest-schema-v2.json",
-  "title": "FCP Widget Library Manifest Schema",
-  "description": "Defines the static widget, property, event, and data type capabilities of an FCP client.",
+  "$id": "https://example.com/FCP-catalog-schema-v2.json",
+  "title": "FCP Widget Library Catalog Schema",
+  "description": "Defines the static catalog item, property, event, and data type capabilities of an FCP client.",
   "type": "object",
   "$defs": {
     "PropertyDefinition": {
@@ -446,7 +446,7 @@ This schema defines the structure of the `WidgetLibraryManifest.json` file. It i
       },
       "required": ["type"]
     },
-    "WidgetDefinition": {
+    "CatalogItemDefinition": {
       "type": "object",
       "properties": {
         "properties": {
@@ -465,7 +465,7 @@ This schema defines the structure of the `WidgetLibraryManifest.json` file. It i
     }
   },
   "properties": {
-    "manifestVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "catalogVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
     "dataTypes": {
       "type": "object",
       "description": "A map of custom data type names to their JSON Schema definitions.",
@@ -473,12 +473,12 @@ This schema defines the structure of the `WidgetLibraryManifest.json` file. It i
         "type": "object"
       }
     },
-    "widgets": {
+    "items": {
       "type": "object",
-      "additionalProperties": { "$ref": "#/$defs/WidgetDefinition" }
+      "additionalProperties": { "$ref": "#/$defs/CatalogItemDefinition" }
     }
   },
-  "required": ["manifestVersion", "widgets"]
+  "required": ["catalogVersion", "items"]
 }
 ```
 
@@ -488,15 +488,15 @@ This schema defines the structure of the `WidgetLibraryManifest.json` file. It i
 
 A robust client-side interpreter should be composed of several key components:
 
-- **Parser and Validator:** Deserializes JSON and validates payloads against both the master schema and the client's `WidgetLibraryManifest`. This includes validating parts of the `state` object against the schemas provided in `dataTypes`.
+- **Parser and Validator:** Deserializes JSON and validates payloads against both the master schema and the client's `WidgetLibraryCatalog`. This includes validating parts of the `state` object against the schemas provided in `dataTypes`.
 - **Widget Tree Builder:** Constructs the Flutter widget tree.
-- **State Manager:** Holds the state object and notifies listening widgets to rebuild when a `StateUpdate` is applied.
+- **State Manager:** Holds the state object and notifies listening catalog items to rebuild when a `StateUpdate` is applied.
 - **Binding Processor:** A crucial component responsible for resolving binding paths and applying the declared transformations.
 - **Update Applier:** Processes incoming `StateUpdate` and `LayoutUpdate` payloads.
 
 ### **7.2. Performance Considerations**
 
-- **Granular Rebuilds:** A change to a single value in the state should only trigger a rebuild of the specific widgets bound to that value.
+- **Granular Rebuilds:** A change to a single value in the state should only trigger a rebuild of the specific catalog items bound to that value.
 
 - **Efficient List Building:** Use Flutter's `ListView.builder` under the hood for FCP's `ListViewBuilder` to ensure that list items are only built as they are scrolled into view.
 
@@ -506,6 +506,6 @@ A robust client-side interpreter should be composed of several key components:
 
 - **Invalid Payloads:** Handle malformed JSON or payloads that do not conform to the schema.
 
-- **Manifest Violations:** If the server sends a layout that violates the `WidgetLibraryManifest` (e.g., unknown widget, bad property type, malformed state object according to a `dataType` schema), the client should log the error and display a fallback UI, not crash.
+- **Catalog Violations:** If the server sends a layout that violates the `WidgetLibraryCatalog` (e.g., unknown catalog item, bad property type, malformed state object according to a `dataType` schema), the client should log the error and display a fallback UI, not crash.
 
 - **Broken Bindings:** If a binding path is invalid or a transformation fails, the client should use a default value or display a visual error indicator.

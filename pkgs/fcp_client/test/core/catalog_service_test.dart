@@ -6,13 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('ManifestService', () {
-    final service = ManifestService();
+  group('CatalogService', () {
+    final service = CatalogService();
     final validJsonString = '''
       {
-        "manifestVersion": "1.0.0",
+        "catalogVersion": "1.0.0",
         "dataTypes": {},
-        "widgets": {
+        "items": {
           "Text": {
             "properties": {
               "data": { "type": "String", "isRequired": true }
@@ -22,18 +22,18 @@ void main() {
       }
     ''';
     final invalidJsonString =
-        '{"manifestVersion": "1.0.0", "widgets": "not a map"}';
+        '{"catalogVersion": "1.0.0", "items": "not a map"}';
 
     group('parse', () {
-      test('parses valid JSON string into a WidgetLibraryManifest', () {
-        final manifest = service.parse(validJsonString);
-        expect(manifest, isA<WidgetLibraryManifest>());
-        expect(manifest.manifestVersion, '1.0.0');
-        expect(manifest.widgets.keys, contains('Text'));
+      test('parses valid JSON string into a WidgetLibraryCatalog', () {
+        final catalog = service.parse(validJsonString);
+        expect(catalog, isA<WidgetLibraryCatalog>());
+        expect(catalog.catalogVersion, '1.0.0');
+        expect(catalog.items.keys, contains('Text'));
       });
 
       test('throws FormatException for invalid JSON structure', () {
-        // The getter 'widgets' should throw a TypeError when it tries to cast
+        // The getter 'items' should throw a TypeError when it tries to cast
         // a String to a Map.
         expect(
           () => service.parse(invalidJsonString),
@@ -61,20 +61,20 @@ void main() {
             .setMockMessageHandler('flutter/assets', null);
       });
 
-      test('loads and parses a manifest from assets', () async {
+      test('loads and parses a catalog from assets', () async {
         mockAssetHandler((message) async {
           final key = utf8.decode(message!.buffer.asUint8List());
-          if (key == 'assets/test_manifest.json') {
+          if (key == 'assets/test_catalog.json') {
             return ByteData.sublistView(utf8.encoder.convert(validJsonString));
           }
           return null;
         });
 
-        final manifest = await service.loadFromAssets(
-          'assets/test_manifest.json',
+        final catalog = await service.loadFromAssets(
+          'assets/test_catalog.json',
         );
-        expect(manifest, isA<WidgetLibraryManifest>());
-        expect(manifest.manifestVersion, '1.0.0');
+        expect(catalog, isA<WidgetLibraryCatalog>());
+        expect(catalog.catalogVersion, '1.0.0');
       });
 
       test('throws if asset does not exist', () async {

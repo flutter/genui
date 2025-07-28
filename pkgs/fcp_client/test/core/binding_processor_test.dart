@@ -17,16 +17,17 @@ void main() {
           'count': 42,
         },
         validator: DataTypeValidator(),
-        manifest: WidgetLibraryManifest({
-          'manifestVersion': '1.0.0',
-          'widgets': {
+        catalog: WidgetLibraryCatalog({
+          'catalogVersion': '1.0.0',
+          'dataTypes': <String, Object?>{},
+          'items': {
             'Text': {
               'properties': {
                 'text': {'type': 'String'},
                 'value': {'type': 'int'},
                 'age': {'type': 'int'},
-              }
-            }
+              },
+            },
           },
         }),
       );
@@ -36,7 +37,7 @@ void main() {
     test('resolves simple path binding', () {
       final binding = Binding.fromJson({'path': 'user.name'});
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -51,7 +52,7 @@ void main() {
         'format': 'Welcome, {}!',
       });
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -66,7 +67,7 @@ void main() {
         'condition': {'if': 'Premium User', 'else': 'Standard User'},
       });
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -84,7 +85,7 @@ void main() {
         'condition': {'if': 'Premium User', 'else': 'Standard User'},
       });
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -102,7 +103,7 @@ void main() {
         },
       });
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -121,7 +122,7 @@ void main() {
         },
       });
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -139,7 +140,7 @@ void main() {
         },
       });
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -151,7 +152,7 @@ void main() {
     test('returns raw value when no transformer is present', () {
       final binding = Binding.fromJson({'path': 'count'});
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'value': binding.toJson()},
@@ -162,7 +163,7 @@ void main() {
 
     test('returns empty map for empty bindings', () {
       final result = processor.process(
-        WidgetNode.fromJson({
+        LayoutNode.fromJson({
           'id': 'w1',
           'type': 'Text',
           'bindings': <String, Object?>{},
@@ -173,22 +174,25 @@ void main() {
 
     test('returns empty map for null bindings', () {
       final result = processor.process(
-        WidgetNode.fromJson({'id': 'w1', 'type': 'Text'}),
+        LayoutNode.fromJson({'id': 'w1', 'type': 'Text'}),
       );
       expect(result, isEmpty);
     });
 
-    test('returns default value for a path that does not exist in the state', () {
-      final binding = Binding.fromJson({'path': 'user.age'});
-      final result = processor.process(
-        WidgetNode.fromJson({
-          'id': 'w1',
-          'type': 'Text',
-          'bindings': {'age': binding.toJson()},
-        }),
-      );
-      expect(result['age'], 0);
-    });
+    test(
+      'returns default value for a path that does not exist in the state',
+      () {
+        final binding = Binding.fromJson({'path': 'user.age'});
+        final result = processor.process(
+          LayoutNode.fromJson({
+            'id': 'w1',
+            'type': 'Text',
+            'bindings': {'age': binding.toJson()},
+          }),
+        );
+        expect(result['age'], 0);
+      },
+    );
 
     group('Scoped Bindings', () {
       final scopedData = {'title': 'Scoped Title', 'value': 100};
@@ -196,7 +200,7 @@ void main() {
       test('resolves item path from scoped data', () {
         final binding = Binding.fromJson({'path': 'item.title'});
         final result = processor.processScoped(
-          WidgetNode.fromJson({
+          LayoutNode.fromJson({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
@@ -209,7 +213,7 @@ void main() {
       test('resolves global path even when scoped data is present', () {
         final binding = Binding.fromJson({'path': 'user.name'});
         final result = processor.processScoped(
-          WidgetNode.fromJson({
+          LayoutNode.fromJson({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
@@ -225,7 +229,7 @@ void main() {
           'format': 'Value: {}',
         });
         final result = processor.processScoped(
-          WidgetNode.fromJson({
+          LayoutNode.fromJson({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
@@ -238,7 +242,7 @@ void main() {
       test('returns default value for item path when scoped data is empty', () {
         final binding = Binding.fromJson({'path': 'item.title'});
         final result = processor.processScoped(
-          WidgetNode.fromJson({
+          LayoutNode.fromJson({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},

@@ -5,12 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('FcpState', () {
-    late WidgetLibraryManifest manifest;
+    late WidgetLibraryCatalog catalog;
 
     setUp(() {
-      manifest = WidgetLibraryManifest({
-        'manifestVersion': '1.0.0',
-        'widgets': {},
+      catalog = WidgetLibraryCatalog({
+        'catalogVersion': '1.0.0',
+        'items': <String, Object?>{},
+        'dataTypes': <String, Object?>{},
       });
     });
 
@@ -18,7 +19,7 @@ void main() {
       final state = FcpState(
         {'name': 'test', 'value': 123},
         validator: DataTypeValidator(),
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(state.getValue('name'), 'test');
       expect(state.getValue('value'), 123);
@@ -33,7 +34,7 @@ void main() {
           },
         },
         validator: DataTypeValidator(),
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(state.getValue('user.name'), 'John Doe');
       expect(state.getValue('user.address.city'), 'New York');
@@ -45,7 +46,7 @@ void main() {
           'user': {'name': 'John Doe'},
         },
         validator: DataTypeValidator(),
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(state.getValue('user.age'), isNull);
       expect(state.getValue('address'), isNull);
@@ -56,7 +57,7 @@ void main() {
       final state = FcpState(
         {'user': 'John Doe'},
         validator: DataTypeValidator(),
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(state.getValue('user.name'), isNull);
     });
@@ -65,7 +66,7 @@ void main() {
       final state = FcpState(
         {'value': 1},
         validator: DataTypeValidator(),
-        manifest: manifest,
+        catalog: catalog,
       );
       var notified = false;
       state.addListener(() {

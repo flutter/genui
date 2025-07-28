@@ -3,21 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testRegistry = WidgetRegistry()
+  final testRegistry = CatalogRegistry()
     ..register(
       'Container',
-      (context, node, properties, children) =>
-          Container(child: children['child'] as Widget?),
+      (
+        context,
+        node,
+        Map<String, Object?> properties,
+        Map<String, dynamic> children,
+      ) => Container(child: children['child'] as Widget?),
     )
     ..register(
       'Text',
-      (context, node, properties, children) =>
-          Text(properties['data'] as String? ?? ''),
+      (
+        context,
+        node,
+        Map<String, Object?> properties,
+        Map<String, dynamic> children,
+      ) => Text(properties['data'] as String? ?? ''),
     );
 
-  final testManifest = WidgetLibraryManifest({
-    'manifestVersion': '1.0.0',
-    'widgets': <String, Object?>{
+  final testCatalog = WidgetLibraryCatalog({
+    'catalogVersion': '1.0.0',
+    'dataTypes': <String, Object?>{},
+    'items': <String, Object?>{
       'Text': {
         'properties': {
           'data': {'type': 'String', 'isRequired': true},
@@ -54,14 +63,15 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
 
       expect(
         find.text(
-          'FCP Error: Missing required property "data" for widget type "Text".',
+          'FCP Error: Missing required property "data" for catalog item type '
+          '"Text".',
         ),
         findsOneWidget,
       );

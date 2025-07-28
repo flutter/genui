@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testRegistry = WidgetRegistry()
+  final testRegistry = CatalogRegistry()
     ..register(
       'Container',
       (context, node, properties, children) =>
@@ -20,9 +20,10 @@ void main() {
           Column(children: (children['children'] as List<Widget>?) ?? []),
     );
 
-  final testManifest = WidgetLibraryManifest({
-    'manifestVersion': '1.0.0',
-    'widgets': <String, Object?>{
+  final testCatalog = WidgetLibraryCatalog({
+    'catalogVersion': '1.0.0',
+    'dataTypes': <String, Object?>{},
+    'items': <String, Object?>{
       'Container': {
         'properties': <String, Object?>{
           'child': {'type': 'WidgetId'},
@@ -74,7 +75,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -106,7 +107,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -153,7 +154,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -165,7 +166,7 @@ void main() {
   });
 
   group('FcpView Error Handling', () {
-    testWidgets('displays an error widget for unregistered widget type', (
+    testWidgets('displays an error widget for unregistered catalog item type', (
       WidgetTester tester,
     ) async {
       final packet = createPacket({
@@ -180,14 +181,14 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
 
       expect(
         find.text(
-          'FCP Error: No builder registered for widget type "UnknownWidget".',
+          'FCP Error: No builder registered for catalog item type "UnknownWidget".',
         ),
         findsOneWidget,
       );
@@ -208,7 +209,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -238,7 +239,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -274,7 +275,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -315,7 +316,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -348,7 +349,7 @@ void main() {
             home: FcpView(
               packet: packet,
               registry: testRegistry,
-              manifest: testManifest,
+              catalog: testCatalog,
             ),
           ),
         );
@@ -380,7 +381,7 @@ void main() {
             home: FcpView(
               packet: packet,
               registry: testRegistry,
-              manifest: testManifest,
+              catalog: testCatalog,
             ),
           ),
         );
@@ -397,14 +398,14 @@ void main() {
     ) async {
       EventPayload? capturedPayload;
 
-      final eventRegistry = WidgetRegistry()
+      final eventRegistry = CatalogRegistry()
         ..register(
           'EventButton',
           (context, node, properties, children) => ElevatedButton(
             onPressed: () {
               FcpProvider.of(context)?.onEvent?.call(
                 EventPayload({
-                  'sourceWidgetId': node.id,
+                  'sourceNodeId': node.id,
                   'eventName': 'onPressed',
                   'arguments': {'value': 'test_value'},
                 }),
@@ -435,7 +436,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: eventRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
             onEvent: (payload) {
               capturedPayload = payload;
             },
@@ -447,7 +448,7 @@ void main() {
       await tester.pump();
 
       expect(capturedPayload, isNotNull);
-      expect(capturedPayload!.sourceWidgetId, 'button');
+      expect(capturedPayload!.sourceNodeId, 'button');
       expect(capturedPayload!.eventName, 'onPressed');
       expect(capturedPayload!.arguments, isA<Map>());
       expect(capturedPayload!.arguments!['value'], 'test_value');
@@ -481,7 +482,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
             controller: controller,
           ),
         ),
@@ -532,7 +533,7 @@ void main() {
             home: FcpView(
               packet: packet,
               registry: testRegistry,
-              manifest: testManifest,
+              catalog: testCatalog,
               controller: controller,
             ),
           ),
@@ -607,7 +608,7 @@ void main() {
             home: FcpView(
               packet: packet,
               registry: testRegistry,
-              manifest: testManifest,
+              catalog: testCatalog,
               controller: controller,
             ),
           ),
@@ -621,7 +622,7 @@ void main() {
           'operations': [
             {
               'op': 'remove',
-              'ids': ['child2'],
+              'nodeIds': ['child2'],
             },
             {
               'op': 'update',
@@ -664,7 +665,7 @@ void main() {
             home: FcpView(
               packet: packet,
               registry: testRegistry,
-              manifest: testManifest,
+              catalog: testCatalog,
               controller: controller,
             ),
           ),

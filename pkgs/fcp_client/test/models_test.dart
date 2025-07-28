@@ -5,26 +5,26 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('FCP Models', () {
-    test('WidgetLibraryManifest correctly parsed', () {
-      final manifest = WidgetLibraryManifest(manifestJson);
-      expect(manifest.manifestVersion, '1.0.0');
-      expect(manifest.widgets, isA<Map>());
-      expect(manifest.widgets.keys, contains('Text'));
+    test('WidgetLibraryCatalog correctly parsed', () {
+      final catalog = WidgetLibraryCatalog(catalogJson);
+      expect(catalog.catalogVersion, '1.0.0');
+      expect(catalog.items, isA<Map>());
+      expect(catalog.items.keys, contains('Text'));
     });
 
-    test('WidgetDefinition correctly parsed', () {
-      final widgets = manifestJson['widgets']! as Map<String, Object?>;
-      final textWidget = widgets['Text']! as Map<String, Object?>;
-      final widgetDef = WidgetDefinition(textWidget);
-      expect(widgetDef.properties, isA<Map>());
-      expect(widgetDef.properties.keys, contains('data'));
-      expect(widgetDef.events, isNull);
+    test('CatalogItemDefinition correctly parsed', () {
+      final items = catalogJson['items']! as Map<String, Object?>;
+      final textItem = items['Text']! as Map<String, Object?>;
+      final itemDef = CatalogItemDefinition(textItem);
+      expect(itemDef.properties, isA<Map>());
+      expect(itemDef.properties.keys, contains('data'));
+      expect(itemDef.events, isNull);
     });
 
     test('PropertyDefinition correctly parsed', () {
-      final widgets = manifestJson['widgets']! as Map<String, Object?>;
-      final textWidget = widgets['Text']! as Map<String, Object?>;
-      final properties = textWidget['properties']! as Map<String, Object?>;
+      final items = catalogJson['items']! as Map<String, Object?>;
+      final textItem = items['Text']! as Map<String, Object?>;
+      final properties = textItem['properties']! as Map<String, Object?>;
       final dataProperty = properties['data']! as Map<String, Object?>;
       final propDef = PropertyDefinition(dataProperty);
       expect(propDef.type, 'String');
@@ -44,15 +44,15 @@ void main() {
       final layoutMap = packetJson['layout']! as Map<String, Object?>;
       final layout = Layout(layoutMap);
       expect(layout.root, 'root_container');
-      expect(layout.nodes, isA<List<WidgetNode>>());
+      expect(layout.nodes, isA<List<LayoutNode>>());
       expect(layout.nodes.length, 3);
     });
 
-    test('WidgetNode correctly parsed', () {
+    test('LayoutNode correctly parsed', () {
       final layoutMap = packetJson['layout']! as Map<String, Object?>;
       final nodes = layoutMap['nodes']! as List<Object?>;
       final firstNodeMap = nodes[0]! as Map<String, Object?>;
-      final node = WidgetNode(firstNodeMap);
+      final node = LayoutNode(firstNodeMap);
       expect(node.id, 'root_container');
       expect(node.type, 'Container');
       expect(node.properties, isA<Map>());
@@ -61,7 +61,7 @@ void main() {
       expect(node.itemTemplate, isNull);
     });
 
-    test('WidgetNode correctly parsed with itemTemplate', () {
+    test('LayoutNode correctly parsed with itemTemplate', () {
       final layoutMap = packetJson['layout']! as Map<String, Object?>;
       final nodes = layoutMap['nodes']! as List<Object?>;
       // Find the node with the itemTemplate for this test
@@ -71,28 +71,28 @@ void main() {
               )
               as Map<String, Object?>;
 
-      final node = WidgetNode(listNodeMap);
+      final node = LayoutNode(listNodeMap);
       expect(node.id, 'my_list_view');
       expect(node.type, 'ListView');
       expect(node.itemTemplate, isNotNull);
-      expect(node.itemTemplate, isA<WidgetNode>());
+      expect(node.itemTemplate, isA<LayoutNode>());
       expect(node.itemTemplate!.id, 'item_template');
       expect(node.itemTemplate!.type, 'Text');
     });
 
-    test('WidgetDefinition correctly parsed with events', () {
-      final widgets = manifestJson['widgets']! as Map<String, Object?>;
-      final buttonWidget = widgets['Button']! as Map<String, Object?>;
-      final widgetDef = WidgetDefinition(buttonWidget);
-      expect(widgetDef.events, isNotNull);
-      expect(widgetDef.events, isA<Map<String, Object?>>());
-      expect(widgetDef.events!.containsKey('onPressed'), isTrue);
+    test('CatalogItemDefinition correctly parsed with events', () {
+      final items = catalogJson['items']! as Map<String, Object?>;
+      final buttonItem = items['Button']! as Map<String, Object?>;
+      final itemDef = CatalogItemDefinition(buttonItem);
+      expect(itemDef.events, isNotNull);
+      expect(itemDef.events, isA<Map<String, Object?>>());
+      expect(itemDef.events!.containsKey('onPressed'), isTrue);
     });
 
     test('PropertyDefinition correctly parsed for Enum', () {
-      final widgets = manifestJson['widgets']! as Map<String, Object?>;
-      final containerWidget = widgets['Container']! as Map<String, Object?>;
-      final properties = containerWidget['properties']! as Map<String, Object?>;
+      final items = catalogJson['items']! as Map<String, Object?>;
+      final containerItem = items['Container']! as Map<String, Object?>;
+      final properties = containerItem['properties']! as Map<String, Object?>;
       final alignmentProp = properties['alignment']! as Map<String, Object?>;
       final propDef = PropertyDefinition(alignmentProp);
       expect(propDef.type, 'Enum');
@@ -105,11 +105,11 @@ void main() {
 
     test('EventPayload correctly parsed', () {
       final payload = EventPayload({
-        'sourceWidgetId': 'my_button',
+        'sourceNodeId': 'my_button',
         'eventName': 'onPressed',
         'arguments': {'clickCount': 1},
       });
-      expect(payload.sourceWidgetId, 'my_button');
+      expect(payload.sourceNodeId, 'my_button');
       expect(payload.eventName, 'onPressed');
       expect(payload.arguments, isA<Map>());
       expect(payload.arguments!['clickCount'], 1);
@@ -191,11 +191,11 @@ void main() {
 
 // --- Mock Data ---
 
-final Map<String, Object?> manifestJson =
+final Map<String, Object?> catalogJson =
     json.decode('''
 {
-  "manifestVersion": "1.0.0",
-  "widgets": {
+  "catalogVersion": "1.0.0",
+  "items": {
     "Text": {
       "properties": {
         "data": {

@@ -10,11 +10,11 @@ class DataTypeValidator {
   bool validate({
     required String dataType,
     required Map<String, Object?> data,
-    required WidgetLibraryManifest manifest,
+    required WidgetLibraryCatalog catalog,
   }) {
-    final schemaMap = manifest.dataTypes[dataType] as Map<String, Object?>?;
+    final schemaMap = catalog.dataTypes[dataType] as Map<String, Object?>?;
     if (schemaMap == null) {
-      // If the data type is not defined in the manifest, we consider it valid.
+      // If the data type is not defined in the catalog, we consider it valid.
       // A stricter implementation might throw an error here.
       return true;
     }

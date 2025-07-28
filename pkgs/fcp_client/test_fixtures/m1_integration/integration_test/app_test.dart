@@ -10,7 +10,7 @@ import 'package:fcp_client/fcp_client.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  final testRegistry = WidgetRegistry()
+  final testRegistry = CatalogRegistry()
     ..register('Scaffold', (context, node, properties, children) {
       return Scaffold(
         appBar: children['appBar'] as PreferredSizeWidget?,
@@ -29,9 +29,10 @@ void main() {
       return Text(properties['data'] as String? ?? '');
     });
 
-  final testManifest = WidgetLibraryManifest({
-    'manifestVersion': '1.0.0',
-    'widgets': {},
+  final testCatalog = WidgetLibraryCatalog({
+    'catalogVersion': '1.0.0',
+    'items': <String, Object?>{},
+    'dataTypes': <String, Object?>{},
   });
 
   DynamicUIPacket createComplexPacket() {
@@ -89,7 +90,7 @@ void main() {
         home: FcpView(
           packet: packet,
           registry: testRegistry,
-          manifest: testManifest,
+          catalog: testCatalog,
         ),
       ),
     );

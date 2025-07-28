@@ -5,13 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('DataTypeValidator', () {
     late DataTypeValidator validator;
-    late WidgetLibraryManifest manifest;
+    late WidgetLibraryCatalog catalog;
 
     setUp(() {
       validator = DataTypeValidator();
-      manifest = WidgetLibraryManifest({
-        'manifestVersion': '1.0.0',
-        'widgets': {},
+      catalog = WidgetLibraryCatalog({
+        'catalogVersion': '1.0.0',
+        'items': <String, Object?>{},
         'dataTypes': {
           'user': {
             'type': 'object',
@@ -31,7 +31,7 @@ void main() {
       final isValid = validator.validate(
         dataType: 'user',
         data: data,
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(isValid, isTrue);
     });
@@ -41,7 +41,7 @@ void main() {
       final isValid = validator.validate(
         dataType: 'user',
         data: data,
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(isValid, isFalse);
     });
@@ -55,7 +55,7 @@ void main() {
       final isValid = validator.validate(
         dataType: 'user',
         data: data,
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(isValid, isFalse);
     });
@@ -65,31 +65,31 @@ void main() {
       final isValid = validator.validate(
         dataType: 'user',
         data: data,
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(isValid, isFalse);
     });
 
-    test('returns true for a data type not in the manifest', () {
+    test('returns true for a data type not in the catalog', () {
       final data = {'any': 'data'};
       final isValid = validator.validate(
         dataType: 'unknown_type',
         data: data,
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(isValid, isTrue);
     });
     test('returns true when dataTypes map is empty', () {
-      manifest = WidgetLibraryManifest({
-        'manifestVersion': '1.0.0',
-        'widgets': <String, Object?>{},
+      catalog = WidgetLibraryCatalog({
+        'catalogVersion': '1.0.0',
+        'items': <String, Object?>{},
         'dataTypes': <String, Object?>{},
       });
       final data = {'any': 'data'};
       final isValid = validator.validate(
         dataType: 'user',
         data: data,
-        manifest: manifest,
+        catalog: catalog,
       );
       expect(isValid, isTrue);
     });

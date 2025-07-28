@@ -3,27 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testRegistry = WidgetRegistry()
+  final testRegistry = CatalogRegistry()
     ..register(
       'Container',
-      (context, node, properties, children) =>
+      (context, node, Map<String, Object?> properties,
+              Map<String, dynamic> children) =>
           Container(child: children['child'] as Widget?),
     )
     ..register(
       'Text',
-      (context, node, properties, children) =>
+      (context, node, Map<String, Object?> properties,
+              Map<String, dynamic> children) =>
           Text(properties['data'] as String? ?? ''),
     )
     ..register(
       'Column',
-      (context, node, properties, children) =>
+      (context, node, Map<String, Object?> properties,
+              Map<String, dynamic> children) =>
           Column(children: (children['children'] as List<Widget>?) ?? []),
     );
 
-  final testManifest = WidgetLibraryManifest({
-    'manifestVersion': '1.0.0',
-    'dataTypes': {},
-    'widgets': {
+  final testCatalog = WidgetLibraryCatalog({
+    'catalogVersion': '1.0.0',
+    'dataTypes': <String, Object?>{},
+    'items': <String, Object?>{
       'Container': {
         'properties': {
           'child': {'type': 'Widget'},
@@ -97,7 +100,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );
@@ -132,7 +135,7 @@ void main() {
           home: FcpView(
             packet: packet,
             registry: testRegistry,
-            manifest: testManifest,
+            catalog: testCatalog,
           ),
         ),
       );

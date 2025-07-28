@@ -22,9 +22,10 @@ void main() {
           'config': {'setting': 'value'},
         },
         validator: DataTypeValidator(),
-        manifest: WidgetLibraryManifest({
-          'manifestVersion': '1.0.0',
-          'widgets': {},
+        catalog: WidgetLibraryCatalog({
+          'catalogVersion': '1.0.0',
+          'items': <String, Object?>{},
+          'dataTypes': <String, Object?>{},
         }),
       );
       patcher = StatePatcher();

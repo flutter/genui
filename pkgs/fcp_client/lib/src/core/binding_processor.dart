@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import 'fcp_state.dart';
 
-/// Processes bindings from a [WidgetNode] to resolve dynamic values from
+/// Processes bindings from a [LayoutNode] to resolve dynamic values from
 /// [FcpState].
 ///
 /// This class handles path resolution and transformations (`format`,
@@ -14,40 +14,42 @@ class BindingProcessor {
   /// Creates a binding processor that resolves values against the given state.
   BindingProcessor(this._state);
 
-  /// Resolves all bindings for a given widget node against the main state.
-  Map<String, Object?> process(WidgetNode node) {
-    final widgetDefJson = _state.manifest.widgets[node.type];
-    if (widgetDefJson == null) {
-      // It's valid for a widget to not have a definition, in which case it
-      // has no properties that can be bound.
+  /// Resolves all bindings for a given layout node against the main state.
+  Map<String, Object?> process(LayoutNode node) {
+    final itemDefJson = _state.catalog.items[node.type];
+    if (itemDefJson == null) {
+      // It's valid for a catalog item to not have a definition, in which case
+      // it has no properties that can be bound.
       return const {};
     }
-    final widgetDef = WidgetDefinition(widgetDefJson as Map<String, Object?>);
-    return _processBindings(node.bindings, widgetDef, null);
+    final itemDef =
+        CatalogItemDefinition(itemDefJson as Map<String, Object?>);
+    return _processBindings(node.bindings, itemDef, null);
   }
 
-  /// Resolves all bindings for a given widget node within a specific data
+  /// Resolves all bindings for a given layout node within a specific data
   /// scope.
   ///
   /// This is used for list item templates, where `item.` paths are resolved
   /// against the `scopedData` object.
   Map<String, Object?> processScoped(
-    WidgetNode node,
+    LayoutNode node,
     Map<String, Object?> scopedData,
   ) {
-    final widgetDefJson = _state.manifest.widgets[node.type];
-    if (widgetDefJson == null) {
-      // It's valid for a widget to not have a definition, in which case it
-      // has no properties that can be bound.
+    final itemDefJson = _state.catalog.items[node.type];
+    if (itemDefJson == null) {
+      // It's valid for a catalog item to not have a definition, in which case
+      // it has no properties that can be bound.
       return const {};
     }
-    final widgetDef = WidgetDefinition(widgetDefJson as Map<String, Object?>);
-    return _processBindings(node.bindings, widgetDef, scopedData);
+    final itemDef =
+        CatalogItemDefinition(itemDefJson as Map<String, Object?>);
+    return _processBindings(node.bindings, itemDef, scopedData);
   }
 
   Map<String, Object?> _processBindings(
     Map<String, Binding>? bindings,
-    WidgetDefinition widgetDef,
+    CatalogItemDefinition itemDef,
     Map<String, Object?>? scopedData,
   ) {
     final resolvedProperties = <String, Object?>{};
@@ -59,7 +61,7 @@ class BindingProcessor {
       final propertyName = entry.key;
       final binding = entry.value;
       resolvedProperties[propertyName] =
-          _resolveBinding(binding, propertyName, widgetDef, scopedData);
+          _resolveBinding(binding, propertyName, itemDef, scopedData);
     }
 
     return resolvedProperties;
@@ -68,7 +70,7 @@ class BindingProcessor {
   Object? _resolveBinding(
     Binding binding,
     String propertyName,
-    WidgetDefinition widgetDef,
+    CatalogItemDefinition itemDef,
     Map<String, Object?>? scopedData,
   ) {
     Object? rawValue;
@@ -85,7 +87,7 @@ class BindingProcessor {
       debugPrint(
         'FCP Warning: Binding path "${binding.path}" resolved to null.',
       );
-      final propDefMap = widgetDef.properties[propertyName];
+      final propDefMap = itemDef.properties[propertyName];
       if (propDefMap != null) {
         final propDef =
             PropertyDefinition(propDefMap as Map<String, Object?>);

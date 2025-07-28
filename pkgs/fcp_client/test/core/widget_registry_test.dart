@@ -3,20 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('WidgetRegistry', () {
-    late WidgetRegistry registry;
+  group('CatalogRegistry', () {
+    late CatalogRegistry registry;
 
     setUp(() {
-      registry = WidgetRegistry();
+      registry = CatalogRegistry();
     });
 
     test('register and getBuilder work correctly', () {
       SizedBox builder(
         BuildContext context,
-        WidgetNode node,
+        LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox();
+      ) =>
+          const SizedBox();
       registry.register('SizedBox', builder);
 
       final retrievedBuilder = registry.getBuilder('SizedBox');
@@ -32,10 +33,11 @@ void main() {
     test('hasBuilder returns true for registered type', () {
       SizedBox builder(
         BuildContext context,
-        WidgetNode node,
+        LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox();
+      ) =>
+          const SizedBox();
       registry.register('SizedBox', builder);
       expect(registry.hasBuilder('SizedBox'), isTrue);
     });
@@ -47,16 +49,18 @@ void main() {
     test('registering a builder overwrites an existing one', () {
       SizedBox builder1(
         BuildContext context,
-        WidgetNode node,
+        LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox(width: 1);
+      ) =>
+          const SizedBox(width: 1);
       SizedBox builder2(
         BuildContext context,
-        WidgetNode node,
+        LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox(width: 2);
+      ) =>
+          const SizedBox(width: 2);
 
       registry.register('SizedBox', builder1);
       expect(registry.getBuilder('SizedBox'), same(builder1));

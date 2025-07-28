@@ -7,13 +7,13 @@ import 'data_type_validator.dart';
 ///
 /// This class holds the state object and notifies listeners when it changes.
 /// It also validates incoming state against the data types defined in the
-/// manifest.
+/// catalog.
 class FcpState with ChangeNotifier {
-  FcpState(this._state, {required this.validator, required this.manifest});
+  FcpState(this._state, {required this.validator, required this.catalog});
 
   Map<String, Object?> _state;
   final DataTypeValidator validator;
-  final WidgetLibraryManifest manifest;
+  final WidgetLibraryCatalog catalog;
 
   /// The current state object.
   Map<String, Object?> get state => _state;
@@ -41,7 +41,7 @@ class FcpState with ChangeNotifier {
     return currentValue;
   }
 
-  /// Validates a new state object against the manifest's data types.
+  /// Validates a new state object against the catalog's data types.
   ///
   /// Returns `true` if all data types in the state are valid, `false`
   /// otherwise.
@@ -53,7 +53,7 @@ class FcpState with ChangeNotifier {
         if (!validator.validate(
           dataType: key,
           data: value,
-          manifest: manifest,
+          catalog: catalog,
         )) {
           return false;
         }

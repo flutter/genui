@@ -5,22 +5,22 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('LayoutPatcher', () {
     late LayoutPatcher patcher;
-    late Map<String, WidgetNode> nodeMap;
+    late Map<String, LayoutNode> nodeMap;
 
     setUp(() {
       patcher = LayoutPatcher();
       nodeMap = {
-        'root': WidgetNode.fromJson({
+        'root': LayoutNode.fromJson({
           'id': 'root',
           'type': 'Container',
           'properties': {'child': 'child1'},
         }),
-        'child1': WidgetNode.fromJson({
+        'child1': LayoutNode.fromJson({
           'id': 'child1',
           'type': 'Text',
           'properties': {'text': 'Hello'},
         }),
-        'child2': WidgetNode.fromJson({
+        'child2': LayoutNode.fromJson({
           'id': 'child2',
           'type': 'Text',
           'properties': {'text': 'World'},
@@ -51,7 +51,7 @@ void main() {
         'operations': [
           {
             'op': 'remove',
-            'ids': ['child1', 'child2'],
+            'nodeIds': ['child1', 'child2'],
           },
         ],
       });
@@ -89,7 +89,7 @@ void main() {
         'operations': [
           {
             'op': 'remove',
-            'ids': ['child2'],
+            'nodeIds': ['child2'],
           },
           {
             'op': 'update',
@@ -133,7 +133,7 @@ void main() {
       final update = LayoutUpdate({
         'operations': [
           {'op': 'add', 'nodes': <Map<String, Object?>>[]},
-          {'op': 'remove', 'ids': null},
+          {'op': 'remove', 'nodeIds': null},
           {'op': 'update', 'nodes': null},
         ],
       });
