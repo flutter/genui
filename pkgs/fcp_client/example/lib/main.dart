@@ -98,9 +98,9 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
     // Next, send a LayoutUpdate to modify the UI structure.
     final operation = _detailsVisible ? 'add' : 'remove';
     final childrenList = [
-      'compliment_text',
+      'compliment_text_padding',
       if (_detailsVisible) 'details_text', // Conditionally include the widget
-      'compliment_button',
+      'compliment_button_padding',
       'mood_selector',
       'details_row', // The Checkbox is now in a Row
       'facts_list',
@@ -168,10 +168,14 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: childWidgets);
       })
-      ..register(
-          'SizedBox',
-          (context, node, properties, children) =>
-              SizedBox(width: properties['width'] as double?))
+      ..register('SizedBox', (context, node, properties, children) =>
+          SizedBox(width: properties['width'] as double?))
+      ..register('Padding', (context, node, properties, children) {
+        return Padding(
+          padding: EdgeInsets.all(properties['all'] as double? ?? 0.0),
+          child: children['child'] as Widget?,
+        );
+      })
       ..register('Text', (context, node, properties, children) {
         final style = properties['style'] as String?;
         final color = properties['color'] as Color?;
@@ -250,6 +254,12 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
         'SizedBox': {
           'properties': {
             'width': {'type': 'Number'}
+          }
+        },
+        'Padding': {
+          'properties': {
+            'all': {'type': 'Number'},
+            'child': {'type': 'WidgetId'}
           }
         },
         'Text': {
@@ -331,13 +341,31 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             'type': 'Column',
             'properties': {
               'children': [
-                'compliment_text',
-                'compliment_button',
+                'compliment_text_padding',
+                'compliment_button_padding',
                 'mood_selector',
                 'details_row',
                 'facts_list',
               ]
             }
+          },
+          // Padding for compliment text
+          {
+            'id': 'compliment_text_padding',
+            'type': 'Padding',
+            'properties': {
+              'all': 12.0,
+              'child': 'compliment_text',
+            },
+          },
+          // Padding for compliment button
+          {
+            'id': 'compliment_button_padding',
+            'type': 'Padding',
+            'properties': {
+              'all': 12.0,
+              'child': 'compliment_button',
+            },
           },
           // Compliment Text
           {
