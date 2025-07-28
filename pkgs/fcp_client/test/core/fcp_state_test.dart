@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('FcpState', () {
-    late WidgetLibraryCatalog catalog;
+    late WidgetCatalog catalog;
 
     setUp(() {
-      catalog = WidgetLibraryCatalog({
+      catalog = WidgetCatalog({
         'catalogVersion': '1.0.0',
         'items': <String, Object?>{},
         'dataTypes': <String, Object?>{},

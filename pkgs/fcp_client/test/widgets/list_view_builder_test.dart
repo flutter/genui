@@ -6,24 +6,33 @@ void main() {
   final testRegistry = CatalogRegistry()
     ..register(
       'Container',
-      (context, node, Map<String, Object?> properties,
-              Map<String, dynamic> children) =>
-          Container(child: children['child'] as Widget?),
+      (
+        context,
+        node,
+        Map<String, Object?> properties,
+        Map<String, dynamic> children,
+      ) => Container(child: children['child'] as Widget?),
     )
     ..register(
       'Text',
-      (context, node, Map<String, Object?> properties,
-              Map<String, dynamic> children) =>
-          Text(properties['data'] as String? ?? ''),
+      (
+        context,
+        node,
+        Map<String, Object?> properties,
+        Map<String, dynamic> children,
+      ) => Text(properties['data'] as String? ?? ''),
     )
     ..register(
       'Column',
-      (context, node, Map<String, Object?> properties,
-              Map<String, dynamic> children) =>
-          Column(children: (children['children'] as List<Widget>?) ?? []),
+      (
+        context,
+        node,
+        Map<String, Object?> properties,
+        Map<String, dynamic> children,
+      ) => Column(children: (children['children'] as List<Widget>?) ?? []),
     );
 
-  final testCatalog = WidgetLibraryCatalog({
+  final testCatalog = WidgetCatalog({
     'catalogVersion': '1.0.0',
     'dataTypes': <String, Object?>{},
     'items': <String, Object?>{

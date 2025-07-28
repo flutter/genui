@@ -23,7 +23,7 @@ void main() {
       ) => Text(properties['data'] as String? ?? ''),
     );
 
-  final testCatalog = WidgetLibraryCatalog({
+  final testCatalog = WidgetCatalog({
     'catalogVersion': '1.0.0',
     'dataTypes': <String, Object?>{},
     'items': <String, Object?>{
@@ -70,7 +70,7 @@ void main() {
 
       expect(
         find.text(
-          'FCP Error: Missing required property "data" for catalog item type '
+          'FCP Error: Missing required property "data" for widget type '
           '"Text".',
         ),
         findsOneWidget,

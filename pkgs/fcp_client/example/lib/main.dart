@@ -135,7 +135,7 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
     }));
   }
 
-  /// Creates a [CatalogRegistry] and registers the catalog items used in this
+  /// Creates a [CatalogRegistry] and registers the widgets used in this
   /// example.
   CatalogRegistry _createWidgetRegistry() {
     return CatalogRegistry()
@@ -169,8 +169,10 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: childWidgets);
       })
-      ..register('SizedBox', (context, node, properties, children) =>
-          SizedBox(width: properties['width'] as double?))
+      ..register(
+          'SizedBox',
+          (context, node, properties, children) =>
+              SizedBox(width: properties['width'] as double?))
       ..register('Padding', (context, node, properties, children) {
         return Padding(
           padding: EdgeInsets.all(properties['all'] as double? ?? 0.0),
@@ -221,9 +223,9 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
       });
   }
 
-  /// Creates the [WidgetLibraryCatalog] for this example.
-  WidgetLibraryCatalog _createCatalog() {
-    return WidgetLibraryCatalog({
+  /// Creates the [WidgetCatalog] for this example.
+  WidgetCatalog _createCatalog() {
+    return WidgetCatalog({
       'catalogVersion': '1.0.0',
       'items': {
         'Scaffold': {

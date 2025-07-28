@@ -5,11 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('DataTypeValidator', () {
     late DataTypeValidator validator;
-    late WidgetLibraryCatalog catalog;
+    late WidgetCatalog catalog;
 
     setUp(() {
       validator = DataTypeValidator();
-      catalog = WidgetLibraryCatalog({
+      catalog = WidgetCatalog({
         'catalogVersion': '1.0.0',
         'items': <String, Object?>{},
         'dataTypes': {
@@ -80,7 +80,7 @@ void main() {
       expect(isValid, isTrue);
     });
     test('returns true when dataTypes map is empty', () {
-      catalog = WidgetLibraryCatalog({
+      catalog = WidgetCatalog({
         'catalogVersion': '1.0.0',
         'items': <String, Object?>{},
         'dataTypes': <String, Object?>{},

@@ -18,12 +18,11 @@ class BindingProcessor {
   Map<String, Object?> process(LayoutNode node) {
     final itemDefJson = _state.catalog.items[node.type];
     if (itemDefJson == null) {
-      // It's valid for a catalog item to not have a definition, in which case
+      // It's valid for a widget to not have a definition, in which case
       // it has no properties that can be bound.
       return const {};
     }
-    final itemDef =
-        CatalogItemDefinition(itemDefJson as Map<String, Object?>);
+    final itemDef = WidgetDefinition(itemDefJson as Map<String, Object?>);
     return _processBindings(node.bindings, itemDef, null);
   }
 
@@ -38,18 +37,17 @@ class BindingProcessor {
   ) {
     final itemDefJson = _state.catalog.items[node.type];
     if (itemDefJson == null) {
-      // It's valid for a catalog item to not have a definition, in which case
+      // It's valid for a widget to not have a definition, in which case
       // it has no properties that can be bound.
       return const {};
     }
-    final itemDef =
-        CatalogItemDefinition(itemDefJson as Map<String, Object?>);
+    final itemDef = WidgetDefinition(itemDefJson as Map<String, Object?>);
     return _processBindings(node.bindings, itemDef, scopedData);
   }
 
   Map<String, Object?> _processBindings(
     Map<String, Binding>? bindings,
-    CatalogItemDefinition itemDef,
+    WidgetDefinition itemDef,
     Map<String, Object?>? scopedData,
   ) {
     final resolvedProperties = <String, Object?>{};
@@ -60,8 +58,12 @@ class BindingProcessor {
     for (final entry in bindings.entries) {
       final propertyName = entry.key;
       final binding = entry.value;
-      resolvedProperties[propertyName] =
-          _resolveBinding(binding, propertyName, itemDef, scopedData);
+      resolvedProperties[propertyName] = _resolveBinding(
+        binding,
+        propertyName,
+        itemDef,
+        scopedData,
+      );
     }
 
     return resolvedProperties;
@@ -70,7 +72,7 @@ class BindingProcessor {
   Object? _resolveBinding(
     Binding binding,
     String propertyName,
-    CatalogItemDefinition itemDef,
+    WidgetDefinition itemDef,
     Map<String, Object?>? scopedData,
   ) {
     Object? rawValue;
@@ -89,8 +91,7 @@ class BindingProcessor {
       );
       final propDefMap = itemDef.properties[propertyName];
       if (propDefMap != null) {
-        final propDef =
-            PropertyDefinition(propDefMap as Map<String, Object?>);
+        final propDef = PropertyDefinition(propDefMap as Map<String, Object?>);
         return _getDefaultValueForType(propDef.type);
       }
       return null;

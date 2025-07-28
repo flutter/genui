@@ -10,7 +10,7 @@ class DataTypeValidator {
   bool validate({
     required String dataType,
     required Map<String, Object?> data,
-    required WidgetLibraryCatalog catalog,
+    required WidgetCatalog catalog,
   }) {
     final schemaMap = catalog.dataTypes[dataType] as Map<String, Object?>?;
     if (schemaMap == null) {

@@ -6,9 +6,8 @@ library;
 
 // The service for loading the widget catalog.
 export 'src/core/catalog_service.dart';
-// The registry for custom catalog item builders.
-export 'src/core/widget_registry.dart'
-    show CatalogRegistry, FcpCatalogItemBuilder;
+// The registry for custom widget builders.
+export 'src/core/widget_registry.dart' show CatalogRegistry, FcpWidgetBuilder;
 export 'src/core/widget_registry.dart';
 // --- Data Models ---
 

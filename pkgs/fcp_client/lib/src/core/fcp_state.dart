@@ -13,7 +13,7 @@ class FcpState with ChangeNotifier {
 
   Map<String, Object?> _state;
   final DataTypeValidator validator;
-  final WidgetLibraryCatalog catalog;
+  final WidgetCatalog catalog;
 
   /// The current state object.
   Map<String, Object?> get state => _state;
@@ -50,11 +50,7 @@ class FcpState with ChangeNotifier {
       final key = entry.key;
       final value = entry.value;
       if (value is Map<String, Object?>) {
-        if (!validator.validate(
-          dataType: key,
-          data: value,
-          catalog: catalog,
-        )) {
+        if (!validator.validate(dataType: key, data: value, catalog: catalog)) {
           return false;
         }
       }

@@ -22,7 +22,7 @@ void main() {
           'config': {'setting': 'value'},
         },
         validator: DataTypeValidator(),
-        catalog: WidgetLibraryCatalog({
+        catalog: WidgetCatalog({
           'catalogVersion': '1.0.0',
           'items': <String, Object?>{},
           'dataTypes': <String, Object?>{},

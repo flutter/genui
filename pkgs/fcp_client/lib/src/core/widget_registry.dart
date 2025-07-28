@@ -10,36 +10,37 @@ import '../models/models.dart';
 /// - [children]: A map of already-built child widgets, keyed by the property
 ///   name they were assigned to (e.g., "child", "appBar", "children"). The
 ///   value can be a single [Widget] or a `List<Widget>`.
-typedef FcpCatalogItemBuilder = Widget Function(
-  BuildContext context,
-  LayoutNode node,
-  Map<String, Object?> properties,
-  Map<String, dynamic> children,
-);
+typedef FcpWidgetBuilder =
+    Widget Function(
+      BuildContext context,
+      LayoutNode node,
+      Map<String, Object?> properties,
+      Map<String, dynamic> children,
+    );
 
-/// A registry that maps catalog item type strings from the catalog to concrete
-/// [FcpCatalogItemBuilder] functions.
+/// A registry that maps widget type strings from the catalog to concrete
+/// [FcpWidgetBuilder] functions.
 ///
-/// This allows the FCP client to be extended with custom catalog item
+/// This allows the FCP client to be extended with custom widget
 /// implementations.
 class CatalogRegistry {
-  final Map<String, FcpCatalogItemBuilder> _builders = {};
+  final Map<String, FcpWidgetBuilder> _builders = {};
 
-  /// Registers a builder for a given catalog item type.
+  /// Registers a builder for a given widget type.
   ///
   /// If a builder for this [type] already exists, it will be overwritten.
-  void register(String type, FcpCatalogItemBuilder builder) {
+  void register(String type, FcpWidgetBuilder builder) {
     _builders[type] = builder;
   }
 
-  /// Retrieves the builder for the given catalog item [type].
+  /// Retrieves the builder for the given widget [type].
   ///
   /// Returns `null` if no builder is registered for the type.
-  FcpCatalogItemBuilder? getBuilder(String type) {
+  FcpWidgetBuilder? getBuilder(String type) {
     return _builders[type];
   }
 
-  /// Checks if a builder is registered for the given catalog item [type].
+  /// Checks if a builder is registered for the given widget [type].
   bool hasBuilder(String type) {
     return _builders.containsKey(type);
   }

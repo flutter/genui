@@ -14,7 +14,7 @@ Our journey began with a clear goal: implement the first milestone of the Flutte
 
 1. **Project Scaffolding:** I began by creating the necessary directory structure (`lib/src/models`, `lib/src/core`, `lib/src/widgets`).
 2. **Core Data Models:** I implemented all the core FCP data structures (`DynamicUIPacket`, `LayoutNode`, etc.) as Dart extension types, providing a type-safe API without requiring code generation.
-3. **Services:** I created the `CatalogService` to load and parse the client's capabilities catalog and a `CatalogRegistry` to map catalog item type strings to Flutter builder functions.
+3. **Services:** I created the `CatalogService` to load and parse the client's capabilities catalog and a `CatalogRegistry` to map widget type strings to Flutter builder functions.
 4. **Static Layout Engine:** I built the central `FcpView` widget and its internal `_LayoutEngine`. This engine was responsible for recursively parsing the layout's node list and constructing the Flutter widget tree, initially only for static, non-interactive UIs.
 
 ## Milestone 1.5: Comprehensive Testing & Edge Cases
@@ -35,7 +35,7 @@ With the initial implementation complete, the focus shifted to ensuring its corr
 3. **Covering Edge Cases:** The user astutely pointed out that the tests were not comprehensive enough.
    **User Request:**
    > Look in the existing code and tests and make sure that they cover relevant edge cases. Are any significant code paths missing tests?
-4. **Cycle Detection & More Tests:** This prompt led to a deeper analysis. I discovered a critical bug where a cyclical layout (e.g., catalog item A contains B, and B contains A) would cause an infinite loop. I fixed this by adding cycle detection to the `_LayoutEngine`. I also added more tests to cover missing cases, such as layouts with invalid child IDs and models with more complex property types (`Enum`, `itemTemplate`).
+4. **Cycle Detection & More Tests:** This prompt led to a deeper analysis. I discovered a critical bug where a cyclical layout (e.g., widget A contains B, and B contains A) would cause an infinite loop. I fixed this by adding cycle detection to the `_LayoutEngine`. I also added more tests to cover missing cases, such as layouts with invalid child IDs and models with more complex property types (`Enum`, `itemTemplate`).
 
 ## The Integration Test Saga
 
@@ -60,7 +60,7 @@ The user correctly pointed out my mistake and provided the solution.
 **Implementation & Debugging:**
 
 1. **Test Fixture App:** Following the user's guidance, I created a new Flutter application in `test_fixtures/m1_integration`. I added a `path` dependency to our `fcp_client` package and set up the integration test there.
-2. **Debugging the `KeyedSubtree`:** The integration test repeatedly failed with a `StateError`. This was a complex bug related to how the `_LayoutEngine` was building and identifying catalog items. My attempts to use `KeyedSubtree` to pass catalog item identifiers to builders were flawed, causing the `Scaffold` in the test to be unable to find its `appBar` and `body` children. After several failed attempts, I corrected the logic in both the layout engine and the test builders to properly handle child resolution.
+2. **Debugging the `KeyedSubtree`:** The integration test repeatedly failed with a `StateError`. This was a complex bug related to how the `_LayoutEngine` was building and identifying widgets. My attempts to use `KeyedSubtree` to pass widget identifiers to builders were flawed, causing the `Scaffold` in the test to be unable to find its `appBar` and `body` children. After several failed attempts, I corrected the logic in both the layout engine and the test builders to properly handle child resolution.
 3. **Cleanup:** Finally, the user requested that I clean up the test fixture to make it a minimal, focused testing environment. I removed boilerplate files, comments, and unused platform support directories.
 
 ## The Example App: Cosmic Compliment Generator
@@ -97,13 +97,13 @@ With a solid, static foundation, we moved on to making the UI dynamic.
 
 1. **State & Binding Services:** I began by creating the `FcpState` class (using `ChangeNotifier`) to hold the dynamic UI data and the `BindingProcessor` service to resolve data paths and apply transformations (`format`, `condition`, `map`). I created unit tests for both immediately.
 2. **Data Model Expansion:** I added the `Binding`, `Condition`, and `MapTransformer` models to `lib/src/models/models.dart` to provide type-safe access to binding definitions.
-3. **Breaking Change - FcpCatalogItemBuilder Signature:** To pass resolved properties to catalog items, I made a necessary breaking change to the `FcpCatalogItemBuilder` typedef, changing its signature to include a `Map<String, Object?> properties` parameter.
+3. **Breaking Change - FcpWidgetBuilder Signature:** To pass resolved properties to widgets, I made a necessary breaking change to the `FcpWidgetBuilder` typedef, changing its signature to include a `Map<String, Object?> properties` parameter.
 4. **Engine Refactor:** I refactored the `_LayoutEngine` inside `FcpView`.
    - It now takes the `FcpState` and `BindingProcessor` as inputs.
-   - The old widget cache was removed, as catalog items now need to rebuild when state changes.
+   - The old widget cache was removed, as widgets now need to rebuild when state changes.
    - The engine's `build` method now wraps the root of the generated UI in an `AnimatedBuilder` to listen for changes on `FcpState` and trigger rebuilds.
    - The `_buildNode` logic was updated to call the `BindingProcessor`, merge the results with static properties, and pass the final `resolvedProperties` map to the new builder signature.
-5. **Fixing Breakages:** The signature change required fixes across the project. I updated the catalog item builders in `fcp_view_test.dart`, the `example/lib/main.dart` app, and the `test_fixtures/m1_integration/integration_test/app_test.dart`.
+5. **Fixing Breakages:** The signature change required fixes across the project. I updated the widget builders in `fcp_view_test.dart`, the `example/lib/main.dart` app, and the `test_fixtures/m1_integration/integration_test/app_test.dart`.
 6. **Example App Update:** I updated the "Cosmic Compliment Generator" to use the new binding system, moving the compliment text from a static property into the `state` object and binding the `Text` widget to it.
 
 **Implementation & Debugging:**
@@ -138,7 +138,7 @@ The core `onEvent` callback was already implemented as part of making the exampl
 
 1. **Analysis:** I first analyzed the existing codebase and the Milestone 3 requirements. I determined that the main `onEvent` callback plumbing was already in place, but the handling of the `arguments` map within the `EventPayload` was not explicitly tested.
 2. **Widget Test:** I added a new test group, 'FcpView Events', to `test/widgets/fcp_view_test.dart`.
-3. **Argument Verification:** I created a test that registers a custom 'EventButton' catalog item. The builder for this button is hardcoded to fire an `EventPayload` containing a specific `arguments` map when tapped.
+3. **Argument Verification:** I created a test that registers a custom 'EventButton' widget. The builder for this button is hardcoded to fire an `EventPayload` containing a specific `arguments` map when tapped.
 4. **Test Execution:** The test pumps an `FcpView` with this button, captures the payload from the `onEvent` callback, and asserts that the `arguments` map was received correctly. This verifies that the entire event pipeline can correctly transmit contextual event data.
 5. **Validation:** With the new test passing and all previous tests still succeeding, I concluded that Milestone 3 was fully implemented and verified.
 
@@ -175,7 +175,7 @@ With `StateUpdate` complete, the final piece of Milestone 4 was to implement `La
 3. **Engine Refactor:** The most significant change was refactoring the `_LayoutEngine` inside `FcpView`. I converted it from a stateless class into a `ChangeNotifier`. This allows the engine to hold the mutable layout state (`_nodesById`) and notify the `FcpView` whenever it changes.
 4. **Controller & View Integration:** I connected the `FcpViewController`'s `onLayoutUpdate` stream to the `_LayoutEngine`. When a `LayoutUpdate` payload is received, it's now passed to the engine, which uses the `LayoutPatcher` to modify its internal node map and then calls `notifyListeners()`.
 5. **Unified Rebuilds:** In `_FcpViewState`, I used a `Listenable.merge()` to combine the `FcpState` and `_LayoutEngine` notifiers. This ensures that the `AnimatedBuilder` in the `build` method triggers a UI rebuild regardless of whether the _state_ or the _layout_ changes, all through a single, efficient mechanism.
-6. **Widget Tests:** Finally, I added a new group of widget tests to `test/widgets/fcp_view_test.dart` to verify the complete end-to-end flow: sending a `LayoutUpdate` through the controller and asserting that the rendered UI correctly reflects the added, removed, or updated catalog items.
+6. **Widget Tests:** Finally, I added a new group of widget tests to `test/widgets/fcp_view_test.dart` to verify the complete end-to-end flow: sending a `LayoutUpdate` through the controller and asserting that the rendered UI correctly reflects the added, removed, or updated widgets.
 
 **Implementation & Debugging:**
 
@@ -198,7 +198,7 @@ To better showcase the new dynamic features, the example app was evolved into a 
 
 1. **Feature Brainstorm:** I decided to add a "mood" selector to demonstrate `map` transformers, a compliment counter for `StateUpdate`, and a "Show Details" `Checkbox` to demonstrate `LayoutUpdate`.
 2. **Engine Refactoring (The Hard Part):** Implementing these features revealed a fundamental weakness in the layout engine's design. The original engine passed a flat `List<Widget>` of children to each builder, forcing the builder to know the order and type of its children. This was fragile. To fix this, I performed a major refactoring:
-   - The `FcpCatalogItemBuilder` typedef was changed to accept a `Map<String, dynamic> children`.
+   - The `FcpWidgetBuilder` typedef was changed to accept a `Map<String, dynamic> children`.
    - The `_LayoutEngine` was rewritten to build named children (e.g., `appBar`, `body`, `child`) and lists of children (`children`) and pass them to the builder in this map. This makes builders much more robust, as they can now request specific children by name (e.g., `children['appBar']`).
 3. **Example App Update:** With the new engine in place, I updated the example app's builders to use the new child map. I implemented the `_toggleDetails` logic to use `LayoutUpdate` to correctly add and remove the details `Text` widget from the `Column`'s children list. I also converted the toggle button to a `Checkbox` and bound its value to the state.
 4. **Static Analysis Cleanup:** After the refactoring, I ran the analyzer, which revealed a number of latent type errors and formatting issues across the entire project. I went through each file (`fcp_view.dart`, the example, and all relevant tests) and fixed the errors, mostly by adding explicit type casts (e.g., `children['child'] as Widget?`) and cleaning up long lines. This left the codebase in a much cleaner and more type-safe state.
@@ -219,11 +219,11 @@ This milestone focused on implementing the final features of the FCP specificati
    - I added a new widget test file (`list_view_builder_test.dart`) and updated the example app to include a list of "Cosmic Facts".
 2. **Data Type Validation:**
    - I searched pub.dev and selected the `json_schema` package for validation.
-   - I created a `DataTypeValidator` service to wrap the package and integrated it into `FcpState`. The state is now validated against schemas in the `WidgetLibraryCatalog` whenever it's updated.
+   - I created a `DataTypeValidator` service to wrap the package and integrated it into `FcpState`. The state is now validated against schemas in the `WidgetCatalog` whenever it's updated.
    - This required a significant refactoring of the `FcpState` constructor and all the test files that used it, which surfaced a number of latent type errors that were subsequently fixed.
 3. **Robust Error Handling:**
    - I updated the `BindingProcessor` to print a debug message when a binding path resolves to `null`, making it easier to debug broken bindings.
-   - I enhanced the `_LayoutEngine` to validate nodes against the `WidgetLibraryCatalog`, adding checks to ensure a catalog item type exists and that all its required properties are present. If a violation is found, the engine now renders a descriptive `_ErrorWidget` instead of crashing.
+   - I enhanced the `_LayoutEngine` to validate nodes against the `WidgetCatalog`, adding checks to ensure a widget type exists and that all its required properties are present. If a violation is found, the engine now renders a descriptive `_ErrorWidget` instead of crashing.
 4. **Test Coverage Review:**
    - Finally, I did a full review of the unit tests, adding new tests for edge cases like empty `dataTypes` maps, updating non-existent nodes in a `LayoutUpdate`, and `map` transformers with no `fallback`. This ensures the core services are resilient.
 
@@ -261,7 +261,7 @@ This journey was filled with valuable lessons:
 2. **Flutter Widget Lifecycle:** I was reminded of two critical lifecycle rules:
    - You cannot access `InheritedWidgets` (like `Theme.of()`) from `initState`. The build logic must be in the `build` method.
    - A widget's state must be correctly updated when its input changes. The `didUpdateWidget` method is essential for reacting to new data passed down from a parent. A simple `!=` check on a complex object is often not enough; for this project, always rebuilding the engine on update was the most robust solution.
-3. **Robust Layout Engine Logic:** Building a recursive layout engine requires careful handling of edge cases. I learned the importance of implementing cycle detection to prevent infinite loops and ensuring that different types of child properties (`child`, `children`, named children) are processed distinctly to avoid creating duplicate catalog items. The refactoring to pass a `Map` of named children to builders instead of a flat `List` was a major improvement in this regard, making the system more robust and builders easier to write.
+3. **Robust Layout Engine Logic:** Building a recursive layout engine requires careful handling of edge cases. I learned the importance of implementing cycle detection to prevent infinite loops and ensuring that different types of child properties (`child`, `children`, named children) are processed distinctly to avoid creating duplicate widgets. The refactoring to pass a `Map` of named children to builders instead of a flat `List` was a major improvement in this regard, making the system more robust and builders easier to write.
 4. **Mocking Flutter Services:** I gained a deeper understanding of how to mock platform channels for testing, particularly the nuances of `setMockMessageHandler` for asset loading.
 5. **Dart Tooling Daemon (DTD):** I learned that my local environment had a configuration issue that prevented me from using the DTD tools effectively, highlighting the importance of a well-configured development environment for advanced debugging.
 6. **Tooling Limitations:** The `run_tests` tool, while convenient, is not a complete replacement for the command line. For tasks like running integration tests that require specific device targeting (`-d` flag), falling back to `run_shell_command` is a necessary and valid approach.
@@ -277,7 +277,7 @@ The key components of the FCP design are realized in the following classes:
 
 - **The FCP Interpreter (`FcpView` & `_LayoutEngine`):** The `FcpView` widget is the main entry point that orchestrates the rendering process. Internally, the `_LayoutEngine` is the core interpreter that walks the `Layout`'s node list, resolves dependencies, and constructs the final widget tree.
 
-- **The Catalog (`WidgetLibraryCatalog`, `CatalogRegistry`, `CatalogService`):** The client's capabilities are defined by registering `FcpCatalogItemBuilder` functions in the `CatalogRegistry`. This registry is the concrete implementation of the "contract" defined by the `WidgetLibraryCatalog` model, which can be loaded from assets using the `CatalogService`.
+- **The Catalog (`WidgetCatalog`, `CatalogRegistry`, `CatalogService`):** The client's capabilities are defined by registering `FcpWidgetBuilder` functions in the `CatalogRegistry`. This registry is the concrete implementation of the "contract" defined by the `WidgetCatalog` model, which can be loaded from assets using the `CatalogService`.
 
 - **The Layout (`Layout`, `LayoutNode`):** The non-recursive, adjacency-list structure of the UI is represented by the `Layout` and `LayoutNode` data models, which are built by the `_LayoutEngine`.
 
@@ -287,6 +287,6 @@ The key components of the FCP design are realized in the following classes:
 
 - **Targeted Updates (`FcpViewController`, `StatePatcher`, `LayoutPatcher`):** The full data flow for live updates is implemented. The `FcpViewController` provides an external API to send `StateUpdate` and `LayoutUpdate` payloads, which are processed by the `StatePatcher` (using `json_patch`) and `LayoutPatcher` services, respectively, to trigger efficient UI rebuilds.
 
-- **Error Handling (`_ErrorWidget`):** In alignment with the specification's best practices, the `_LayoutEngine` performs validation during the build process and renders a descriptive `_ErrorWidget` in place of any component that violates the catalog contract (e.g., unknown catalog item type, missing required property), preventing crashes and improving debuggability.
+- **Error Handling (`_ErrorWidget`):** In alignment with the specification's best practices, the `_LayoutEngine` performs validation during the build process and renders a descriptive `_ErrorWidget` in place of any component that violates the catalog contract (e.g., unknown widget type, missing required property), preventing crashes and improving debuggability.
 
 - **Example & Test Fixtures:** The package includes a comprehensive `example` app that showcases all major features and a minimal `test_fixtures/m1_integration` app for running integration tests, demonstrating real-world usage and ensuring correctness.

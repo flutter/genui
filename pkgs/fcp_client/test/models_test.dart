@@ -5,17 +5,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('FCP Models', () {
-    test('WidgetLibraryCatalog correctly parsed', () {
-      final catalog = WidgetLibraryCatalog(catalogJson);
+    test('WidgetCatalog correctly parsed', () {
+      final catalog = WidgetCatalog(catalogJson);
       expect(catalog.catalogVersion, '1.0.0');
       expect(catalog.items, isA<Map>());
       expect(catalog.items.keys, contains('Text'));
     });
 
-    test('CatalogItemDefinition correctly parsed', () {
+    test('WidgetDefinition correctly parsed', () {
       final items = catalogJson['items']! as Map<String, Object?>;
       final textItem = items['Text']! as Map<String, Object?>;
-      final itemDef = CatalogItemDefinition(textItem);
+      final itemDef = WidgetDefinition(textItem);
       expect(itemDef.properties, isA<Map>());
       expect(itemDef.properties.keys, contains('data'));
       expect(itemDef.events, isNull);
@@ -80,10 +80,10 @@ void main() {
       expect(node.itemTemplate!.type, 'Text');
     });
 
-    test('CatalogItemDefinition correctly parsed with events', () {
+    test('WidgetDefinition correctly parsed with events', () {
       final items = catalogJson['items']! as Map<String, Object?>;
       final buttonItem = items['Button']! as Map<String, Object?>;
-      final itemDef = CatalogItemDefinition(buttonItem);
+      final itemDef = WidgetDefinition(buttonItem);
       expect(itemDef.events, isNotNull);
       expect(itemDef.events, isA<Map<String, Object?>>());
       expect(itemDef.events!.containsKey('onPressed'), isTrue);

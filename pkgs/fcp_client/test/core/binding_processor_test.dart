@@ -17,7 +17,7 @@ void main() {
           'count': 42,
         },
         validator: DataTypeValidator(),
-        catalog: WidgetLibraryCatalog({
+        catalog: WidgetCatalog({
           'catalogVersion': '1.0.0',
           'dataTypes': <String, Object?>{},
           'items': {

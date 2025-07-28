@@ -20,7 +20,7 @@ void main() {
           Column(children: (children['children'] as List<Widget>?) ?? []),
     );
 
-  final testCatalog = WidgetLibraryCatalog({
+  final testCatalog = WidgetCatalog({
     'catalogVersion': '1.0.0',
     'dataTypes': <String, Object?>{},
     'items': <String, Object?>{
@@ -166,7 +166,7 @@ void main() {
   });
 
   group('FcpView Error Handling', () {
-    testWidgets('displays an error widget for unregistered catalog item type', (
+    testWidgets('displays an error widget for unregistered widget type', (
       WidgetTester tester,
     ) async {
       final packet = createPacket({
@@ -188,7 +188,8 @@ void main() {
 
       expect(
         find.text(
-          'FCP Error: No builder registered for catalog item type "UnknownWidget".',
+          'FCP Error: No builder registered for widget type '
+          '"UnknownWidget".',
         ),
         findsOneWidget,
       );

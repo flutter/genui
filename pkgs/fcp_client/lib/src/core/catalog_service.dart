@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/models.dart';
 
-/// A service responsible for loading and parsing the [WidgetLibraryCatalog].
+/// A service responsible for loading and parsing the [WidgetCatalog].
 ///
 /// The catalog defines the client's capabilities. This service provides
 /// methods to load it from the app's bundled assets.
 class CatalogService {
-  /// Parses a [WidgetLibraryCatalog] from a raw JSON string.
+  /// Parses a [WidgetCatalog] from a raw JSON string.
   ///
   /// This can be used if the catalog is obtained from a source other than
   /// the asset bundle, such as over the network.
   ///
   /// Throws a [FormatException] if the JSON is invalid.
-  WidgetLibraryCatalog parse(String jsonString) {
+  WidgetCatalog parse(String jsonString) {
     final jsonMap = json.decode(jsonString) as Map<String, Object?>;
     // Add validation against the JSON schema from the FCP document.
     if (jsonMap['catalogVersion'] is! String) {
@@ -32,14 +32,14 @@ class CatalogService {
         'Invalid catalog: "items" is missing or not a map.',
       );
     }
-    return WidgetLibraryCatalog(jsonMap);
+    return WidgetCatalog(jsonMap);
   }
 
   /// Loads and parses the catalog from the specified asset path.
   ///
   /// The file at [assetPath] is expected to be a valid JSON file that conforms
-  /// to the WidgetLibraryCatalog schema.
-  Future<WidgetLibraryCatalog> loadFromAssets(String assetPath) async {
+  /// to the WidgetCatalog schema.
+  Future<WidgetCatalog> loadFromAssets(String assetPath) async {
     final jsonString = await rootBundle.loadString(assetPath);
     return parse(jsonString);
   }

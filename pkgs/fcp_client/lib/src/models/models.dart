@@ -3,7 +3,7 @@ import 'dart:convert';
 // This is a helper, not part of the core FCP model extensions.
 extension type JsonObject(Map<String, Object?> _json) {
   JsonObject.parse(String jsonString)
-      : this(json.decode(jsonString) as Map<String, Object?>);
+    : this(json.decode(jsonString) as Map<String, Object?>);
 }
 
 // Milestone 1: Core Data Models
@@ -12,12 +12,12 @@ extension type JsonObject(Map<String, Object?> _json) {
 // Catalog-related Models
 // -----------------------------------------------------------------------------
 
-/// A type-safe wrapper for the `WidgetLibraryCatalog` JSON object.
+/// A type-safe wrapper for the `WidgetCatalog` JSON object.
 ///
-/// The catalog is a client-defined document that specifies which catalog items,
+/// The catalog is a client-defined document that specifies which widgets,
 /// properties, events, and data structures the application is capable of
 /// handling. It serves as a strict contract between the client and the server.
-extension type WidgetLibraryCatalog(Map<String, Object?> _json) {
+extension type WidgetCatalog(Map<String, Object?> _json) {
   String get catalogVersion => _json['catalogVersion'] as String;
   Map<String, Object?> get dataTypes =>
       _json['dataTypes'] as Map<String, Object?>;
@@ -25,11 +25,11 @@ extension type WidgetLibraryCatalog(Map<String, Object?> _json) {
       (_json['items'] as Map).cast<String, Object?>();
 }
 
-/// A type-safe wrapper for a `CatalogItemDefinition` JSON object.
+/// A type-safe wrapper for a `WidgetDefinition` JSON object.
 ///
-/// This object describes a single renderable catalog item type, including its
+/// This object describes a single renderable widget type, including its
 /// supported properties and the events it can emit.
-extension type CatalogItemDefinition(Map<String, Object?> _json) {
+extension type WidgetDefinition(Map<String, Object?> _json) {
   Map<String, Object?> get properties =>
       _json['properties'] as Map<String, Object?>;
   Map<String, Object?>? get events => _json['events'] as Map<String, Object?>?;
@@ -37,7 +37,7 @@ extension type CatalogItemDefinition(Map<String, Object?> _json) {
 
 /// A type-safe wrapper for a `PropertyDefinition` JSON object.
 ///
-/// This object specifies the type and constraints for a single catalog item
+/// This object specifies the type and constraints for a single widget
 /// property.
 extension type PropertyDefinition(Map<String, Object?> _json) {
   String get type => _json['type'] as String;
@@ -77,7 +77,7 @@ extension type Layout(Map<String, Object?> _json) {
 
 /// A type-safe wrapper for a `LayoutNode` JSON object.
 ///
-/// A layout node represents a single catalog item instance in the layout,
+/// A layout node represents a single widget instance in the layout,
 /// including its type, properties, and data bindings.
 extension type LayoutNode(Map<String, Object?> _json) {
   LayoutNode.fromJson(Map<String, Object?> json) : this(json);
@@ -162,7 +162,7 @@ extension type LayoutOperation(Map<String, Object?> _json) {
 
 /// A type-safe wrapper for a `Binding` JSON object.
 ///
-/// A binding forges the connection between a catalog item property in the
+/// A binding forges the connection between a widget property in the
 /// layout and a value in the state object, with optional client-side
 /// transformations.
 extension type Binding(Map<String, Object?> _json) {

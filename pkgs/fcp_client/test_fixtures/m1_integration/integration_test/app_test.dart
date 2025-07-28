@@ -29,7 +29,7 @@ void main() {
       return Text(properties['data'] as String? ?? '');
     });
 
-  final testCatalog = WidgetLibraryCatalog({
+  final testCatalog = WidgetCatalog({
     'catalogVersion': '1.0.0',
     'items': <String, Object?>{},
     'dataTypes': <String, Object?>{},

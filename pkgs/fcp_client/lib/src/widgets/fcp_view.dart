@@ -16,7 +16,7 @@ import 'fcp_view_controller.dart';
 /// Protocol.
 ///
 /// This widget takes a [packet] containing the layout and state, a [catalog]
-/// defining the data types, and a [registry] of catalog item builders, and
+/// defining the data types, and a [registry] of widget builders, and
 /// constructs the corresponding Flutter widget tree. It manages the dynamic
 /// state and updates the UI when the state changes.
 class FcpView extends StatefulWidget {
@@ -33,13 +33,13 @@ class FcpView extends StatefulWidget {
   final DynamicUIPacket packet;
 
   /// The widget library catalog defining the capabilities of the client.
-  final WidgetLibraryCatalog catalog;
+  final WidgetCatalog catalog;
 
-  /// The registry mapping catalog item types to builder functions.
+  /// The registry mapping widget types to builder functions.
   final CatalogRegistry registry;
 
   /// A callback function that is invoked when an event is triggered by a
-  /// catalog item.
+  /// widget.
   final ValueChanged<EventPayload>? onEvent;
 
   /// A controller to programmatically update the view's state or layout.
@@ -174,7 +174,7 @@ class _LayoutEngine with ChangeNotifier {
   }
 
   final CatalogRegistry registry;
-  final WidgetLibraryCatalog catalog;
+  final WidgetCatalog catalog;
   final BindingProcessor bindingProcessor;
   final LayoutPatcher _patcher = LayoutPatcher();
 
@@ -227,7 +227,7 @@ class _LayoutEngine with ChangeNotifier {
     final builder = registry.getBuilder(node.type);
     if (builder == null) {
       return _ErrorWidget(
-        'No builder registered for catalog item type "${node.type}".',
+        'No builder registered for widget type "${node.type}".',
       );
     }
 
@@ -235,10 +235,10 @@ class _LayoutEngine with ChangeNotifier {
     final itemDefMap = catalog.items[node.type];
     if (itemDefMap == null) {
       return _ErrorWidget(
-          'Catalog item type "${node.type}" not found in catalog.');
+        'Catalog item type "${node.type}" not found in catalog.',
+      );
     }
-    final itemDef =
-        CatalogItemDefinition(itemDefMap as Map<String, Object?>);
+    final itemDef = WidgetDefinition(itemDefMap as Map<String, Object?>);
 
     // Resolve dynamic properties from bindings.
     final boundProperties = bindingProcessor.process(node);
@@ -251,7 +251,7 @@ class _LayoutEngine with ChangeNotifier {
       final propDef = PropertyDefinition(prop.value as Map<String, Object?>);
       if (propDef.isRequired && !resolvedProperties.containsKey(prop.key)) {
         return _ErrorWidget(
-          'Missing required property "${prop.key}" for catalog item type '
+          'Missing required property "${prop.key}" for widget type '
           '"${node.type}".',
         );
       }
@@ -292,7 +292,8 @@ class _LayoutEngine with ChangeNotifier {
     final itemDefMap = catalog.items[node.type];
     if (itemDefMap == null) {
       return _ErrorWidget(
-          'Catalog item type "${node.type}" not found in catalog.');
+        'Catalog item type "${node.type}" not found in catalog.',
+      );
     }
     final boundProperties = bindingProcessor.process(node);
     final data = boundProperties['data'] as List<dynamic>? ?? [];

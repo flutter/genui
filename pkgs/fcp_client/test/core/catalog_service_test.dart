@@ -25,9 +25,9 @@ void main() {
         '{"catalogVersion": "1.0.0", "items": "not a map"}';
 
     group('parse', () {
-      test('parses valid JSON string into a WidgetLibraryCatalog', () {
+      test('parses valid JSON string into a WidgetCatalog', () {
         final catalog = service.parse(validJsonString);
-        expect(catalog, isA<WidgetLibraryCatalog>());
+        expect(catalog, isA<WidgetCatalog>());
         expect(catalog.catalogVersion, '1.0.0');
         expect(catalog.items.keys, contains('Text'));
       });
@@ -73,7 +73,7 @@ void main() {
         final catalog = await service.loadFromAssets(
           'assets/test_catalog.json',
         );
-        expect(catalog, isA<WidgetLibraryCatalog>());
+        expect(catalog, isA<WidgetCatalog>());
         expect(catalog.catalogVersion, '1.0.0');
       });
 
