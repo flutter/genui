@@ -4,6 +4,7 @@ import '../sdk/agent/agent.dart';
 import '../sdk/catalog/shared/genui_widget.dart';
 
 import '../sdk/model/controller.dart';
+import '../sdk/model/input.dart';
 import '../sdk/model/simple_items.dart';
 
 class MyApp extends StatelessWidget {
@@ -42,6 +43,13 @@ class _MyHomePageState extends State<_MyHomePage> {
       agentIconAsset: 'assets/agent_icon.png',
     ),
   )..run();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _agent.controller.state.input.complete(InitialInput());
+  }
 
   @override
   Widget build(BuildContext context) {
