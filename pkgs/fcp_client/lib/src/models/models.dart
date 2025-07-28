@@ -157,7 +157,7 @@ extension type LayoutOperation(Map<String, Object?> _json) {
 }
 
 // -----------------------------------------------------------------------------
-// Milestone 2: State & Binding Models
+// State & Binding Models
 // -----------------------------------------------------------------------------
 
 /// A type-safe wrapper for a `Binding` JSON object.
