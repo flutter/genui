@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/models.dart';
 
 /// A service that applies layout updates to the UI.
@@ -18,8 +20,10 @@ class LayoutPatcher {
           _handleUpdate(nodeMap, operation);
           break;
         default:
-          // For now, we ignore unknown operations.
           // In a real-world scenario, you might want to log this.
+          debugPrint(
+            'FCP Warning: Ignoring unknown layout operation "${operation.op}".',
+          );
           break;
       }
     }

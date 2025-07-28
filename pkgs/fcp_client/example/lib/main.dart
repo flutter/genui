@@ -161,9 +161,11 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
       ..register('Row', (context, node, properties, children) {
         final childWidgets =
             (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
-        return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        return Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: childWidgets);
       })
       ..register(
@@ -218,7 +220,70 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
   WidgetLibraryManifest _createManifest() {
     return WidgetLibraryManifest({
       'manifestVersion': '1.0.0',
-      'widgets': {},
+      'widgets': {
+        'Scaffold': {
+          'properties': {
+            'appBar': {'type': 'WidgetId'},
+            'body': {'type': 'WidgetId'}
+          }
+        },
+        'AppBar': {
+          'properties': {
+            'title': {'type': 'WidgetId'}
+          }
+        },
+        'Center': {
+          'properties': {
+            'child': {'type': 'WidgetId'}
+          }
+        },
+        'Column': {
+          'properties': {
+            'children': {'type': 'ListOfWidgetIds'}
+          }
+        },
+        'Row': {
+          'properties': {
+            'children': {'type': 'ListOfWidgetIds'}
+          }
+        },
+        'SizedBox': {
+          'properties': {
+            'width': {'type': 'Number'}
+          }
+        },
+        'Text': {
+          'properties': {
+            'data': {'type': 'String'},
+            'style': {
+              'type': 'Enum',
+              'values': ['headline', 'body']
+            },
+            'key': {'type': 'String'},
+            'color': {'type': 'Color'}
+          }
+        },
+        'ElevatedButton': {
+          'properties': {
+            'child': {'type': 'WidgetId'},
+            'key': {'type': 'String'},
+            'eventName': {'type': 'String'},
+            'mood': {'type': 'String'}
+          }
+        },
+        'Checkbox': {
+          'properties': {
+            'value': {'type': 'Boolean'},
+            'key': {'type': 'String'}
+          }
+        },
+        'ListViewBuilder': {
+          'properties': {},
+          'bindings': {
+            'data': {'path': 'string'}
+          }
+        }
+      },
       'dataTypes': {
         'fact': {
           'type': 'object',

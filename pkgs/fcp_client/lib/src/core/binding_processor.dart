@@ -10,13 +10,14 @@ import 'fcp_state.dart';
 /// `condition`, `map`).
 class BindingProcessor {
   final FcpState _state;
+  final WidgetLibraryManifest _manifest;
 
   /// Creates a binding processor that resolves values against the given state.
-  BindingProcessor(this._state);
+  BindingProcessor(this._state, this._manifest);
 
   /// Resolves all bindings for a given widget node against the main state.
-  Map<String, Object?> process(WidgetNode node) {
-    return _processBindings(node.bindings, null);
+  Map<String, Object?> process(WidgetNode node, WidgetDefinition widgetDef) {
+    return _processBindings(node.bindings, widgetDef, null);
   }
 
   /// Resolves all bindings for a given widget node within a specific data
@@ -27,12 +28,14 @@ class BindingProcessor {
   Map<String, Object?> processScoped(
     WidgetNode node,
     Map<String, Object?> scopedData,
+    WidgetDefinition widgetDef,
   ) {
-    return _processBindings(node.bindings, scopedData);
+    return _processBindings(node.bindings, widgetDef, scopedData);
   }
 
   Map<String, Object?> _processBindings(
     Map<String, Binding>? bindings,
+    WidgetDefinition widgetDef,
     Map<String, Object?>? scopedData,
   ) {
     final resolvedProperties = <String, Object?>{};
@@ -43,13 +46,19 @@ class BindingProcessor {
     for (final entry in bindings.entries) {
       final propertyName = entry.key;
       final binding = entry.value;
-      resolvedProperties[propertyName] = _resolveBinding(binding, scopedData);
+      resolvedProperties[propertyName] =
+          _resolveBinding(binding, propertyName, widgetDef, scopedData);
     }
 
     return resolvedProperties;
   }
 
-  Object? _resolveBinding(Binding binding, Map<String, Object?>? scopedData) {
+  Object? _resolveBinding(
+    Binding binding,
+    String propertyName,
+    WidgetDefinition widgetDef,
+    Map<String, Object?>? scopedData,
+  ) {
     Object? rawValue;
     if (binding.path.startsWith('item.')) {
       // Scoped path, resolve against the item data.
@@ -64,7 +73,12 @@ class BindingProcessor {
       debugPrint(
         'FCP Warning: Binding path "${binding.path}" resolved to null.',
       );
-      // TODO: Return a sensible default based on the property type.
+      final propDefMap = widgetDef.properties[propertyName];
+      if (propDefMap != null) {
+        final propDef =
+            PropertyDefinition(propDefMap as Map<String, Object?>);
+        return _getDefaultValueForType(propDef.type);
+      }
       return null;
     }
 
@@ -73,9 +87,16 @@ class BindingProcessor {
 
   Object? _getValueFromMap(String path, Map<String, Object?>? map) {
     if (map == null) return null;
-    // For now, we only support top-level keys in item data.
-    // A more robust implementation would handle nested paths.
-    return map[path];
+    final parts = path.split('.');
+    Object? currentValue = map;
+    for (final part in parts) {
+      if (currentValue is Map<String, Object?>) {
+        currentValue = currentValue[part];
+      } else {
+        return null;
+      }
+    }
+    return currentValue;
   }
 
   Object? _applyTransformation(Object? value, Binding binding) {
@@ -99,5 +120,22 @@ class BindingProcessor {
     }
 
     return value;
+  }
+
+  Object? _getDefaultValueForType(String type) {
+    switch (type) {
+      case 'String':
+        return '';
+      case 'int':
+        return 0;
+      case 'double':
+        return 0.0;
+      case 'bool':
+        return false;
+      case 'List':
+        return [];
+      default:
+        return null;
+    }
   }
 }

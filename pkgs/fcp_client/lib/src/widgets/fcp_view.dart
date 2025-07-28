@@ -60,6 +60,9 @@ class _FcpViewState extends State<FcpView> {
   StreamSubscription? _stateUpdateSubscription;
   StreamSubscription? _layoutUpdateSubscription;
 
+  bool _isStateInvalid = false;
+  String _invalidStateMessage = '';
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +73,7 @@ class _FcpViewState extends State<FcpView> {
       manifest: widget.manifest,
     );
     _statePatcher = StatePatcher();
-    _bindingProcessor = BindingProcessor(_state);
+    _bindingProcessor = BindingProcessor(_state, widget.manifest);
     _engine = _LayoutEngine(
       registry: widget.registry,
       manifest: widget.manifest,
@@ -96,10 +99,17 @@ class _FcpViewState extends State<FcpView> {
       // If the whole packet changes, we update the state and reset the engine
       // to reflect the new static layout and state.
       if (_state.validate(widget.packet.state)) {
+        setState(() {
+          _isStateInvalid = false;
+        });
         _state.state = widget.packet.state;
       } else {
-        // Handle invalid state here. For now, we'll just log it.
-        print('FCP Error: Received a DynamicUIPacket with invalid state.');
+        // Handle invalid state here.
+        setState(() {
+          _isStateInvalid = true;
+          _invalidStateMessage =
+              'Received a DynamicUIPacket with invalid state.';
+        });
       }
       _engine.reset(widget.packet.layout);
     }
@@ -133,6 +143,9 @@ class _FcpViewState extends State<FcpView> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isStateInvalid) {
+      return _ErrorWidget(_invalidStateMessage);
+    }
     return FcpProvider(
       onEvent: widget.onEvent,
       // AnimatedBuilder listens to both state and layout changes and rebuilds
@@ -218,19 +231,20 @@ class _LayoutEngine with ChangeNotifier {
       );
     }
 
-    // Resolve dynamic properties from bindings.
-    final boundProperties = bindingProcessor.process(node);
-
-    // Merge static and dynamic properties. Bound properties override static
-    // ones.
-    final resolvedProperties = {...?node.properties, ...boundProperties};
-
     // Validate required properties.
     final widgetDefMap = manifest.widgets[node.type];
     if (widgetDefMap == null) {
       return _ErrorWidget('Widget type "${node.type}" not found in manifest.');
     }
     final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
+
+    // Resolve dynamic properties from bindings.
+    final boundProperties = bindingProcessor.process(node, widgetDef);
+
+    // Merge static and dynamic properties. Bound properties override static
+    // ones.
+    final resolvedProperties = {...?node.properties, ...boundProperties};
+
     for (final prop in widgetDef.properties.entries) {
       final propDef = PropertyDefinition(prop.value as Map<String, Object?>);
       if (propDef.isRequired && !resolvedProperties.containsKey(prop.key)) {
@@ -273,7 +287,12 @@ class _LayoutEngine with ChangeNotifier {
     WidgetNode node,
     Set<String> visited,
   ) {
-    final boundProperties = bindingProcessor.process(node);
+    final widgetDefMap = manifest.widgets[node.type];
+    if (widgetDefMap == null) {
+      return _ErrorWidget('Widget type "${node.type}" not found in manifest.');
+    }
+    final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
+    final boundProperties = bindingProcessor.process(node, widgetDef);
     final data = boundProperties['data'] as List<dynamic>? ?? [];
     final itemTemplate = node.itemTemplate;
 
@@ -284,6 +303,7 @@ class _LayoutEngine with ChangeNotifier {
     }
 
     return ListView.builder(
+      shrinkWrap: true,
       itemCount: data.length,
       itemBuilder: (context, index) {
         final itemData = data[index] as Map<String, Object?>;
@@ -298,7 +318,7 @@ class _LayoutEngine with ChangeNotifier {
     Map<String, Object?> itemData,
     Set<String> visited,
   ) {
-    // Note: We are not checking for cycles within list items for now.
+    // Cycle checking is handled by passing the `visited` set to _buildNode.
     final builder = registry.getBuilder(templateNode.type);
     if (builder == null) {
       return _ErrorWidget(
@@ -306,17 +326,45 @@ class _LayoutEngine with ChangeNotifier {
       );
     }
 
+    final widgetDefMap = manifest.widgets[templateNode.type];
+    if (widgetDefMap == null) {
+      return _ErrorWidget(
+        'Widget type "${templateNode.type}" not found in manifest for '
+        'itemTemplate.',
+      );
+    }
+    final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
+
     final boundProperties = bindingProcessor.processScoped(
       templateNode,
       itemData,
+      widgetDef,
     );
     final resolvedProperties = {
       ...?templateNode.properties,
       ...boundProperties,
     };
 
-    // Children for list items are not supported in this version.
+    // Recursively build children.
     final builtChildren = <String, dynamic>{};
+    for (final entry in resolvedProperties.entries) {
+      final key = entry.key;
+      final value = entry.value;
+
+      if (value is String && _nodesById.containsKey(value)) {
+        builtChildren[key] = _buildNode(context, value, visited);
+      } else if (value is List) {
+        final childWidgets = <Widget>[];
+        for (final item in value) {
+          if (item is String && _nodesById.containsKey(item)) {
+            childWidgets.add(_buildNode(context, item, visited));
+          }
+        }
+        if (childWidgets.isNotEmpty) {
+          builtChildren[key] = childWidgets;
+        }
+      }
+    }
 
     return builder(context, templateNode, resolvedProperties, builtChildren);
   }

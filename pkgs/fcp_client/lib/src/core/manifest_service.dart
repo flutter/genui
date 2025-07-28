@@ -16,7 +16,22 @@ class ManifestService {
   /// Throws a [FormatException] if the JSON is invalid.
   WidgetLibraryManifest parse(String jsonString) {
     final jsonMap = json.decode(jsonString) as Map<String, Object?>;
-    // TODO: Add validation against the JSON schema from the FCP document.
+    // Add validation against the JSON schema from the FCP document.
+    if (jsonMap['manifestVersion'] is! String) {
+      throw const FormatException(
+        'Invalid manifest: "manifestVersion" is missing or not a string.',
+      );
+    }
+    if (jsonMap['dataTypes'] is! Map) {
+      throw const FormatException(
+        'Invalid manifest: "dataTypes" is missing or not a map.',
+      );
+    }
+    if (jsonMap['widgets'] is! Map) {
+      throw const FormatException(
+        'Invalid manifest: "widgets" is missing or not a map.',
+      );
+    }
     return WidgetLibraryManifest(jsonMap);
   }
 
