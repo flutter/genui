@@ -41,7 +41,7 @@ class _MyHomePageState extends State<_MyHomePage> {
       imageCatalog: _myImageCatalog,
       agentIconAsset: 'assets/agent_icon.png',
     ),
-  );
+  )..run();
 
   @override
   Widget build(BuildContext context) {
