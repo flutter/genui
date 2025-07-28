@@ -16,3 +16,6 @@ layerlens
 TODO before productizing:
 
 1. Make colors and sizes configurable.
+
+## Next
+

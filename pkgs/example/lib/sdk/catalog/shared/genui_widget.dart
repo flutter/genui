@@ -41,11 +41,17 @@ class _GenUiWidgetState extends State<GenUiWidget> {
 
     final builder = _builder;
 
-    if (builder == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return builder(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildChatInput(context),
+        const SizedBox(height: 16.0),
+        if (builder == null)
+          const Center(child: CircularProgressIndicator())
+        else
+          builder(context),
+      ],
+    );
   }
 
   void _onInput(UserInput input) {
@@ -55,7 +61,10 @@ class _GenUiWidgetState extends State<GenUiWidget> {
   }
 
   Widget _buildChatBox() {
-    print('Building chat box');
     return ChatBox(_onInput);
+  }
+
+  Widget _buildChatInput(BuildContext context) {
+    return _input?.build(context) ?? const SizedBox.shrink();
   }
 }
