@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../sdk/agent/agent.dart';
 import '../sdk/catalog/shared/genui_widget.dart';
-import '../sdk/model/agent.dart';
+
 import '../sdk/model/controller.dart';
-import '../sdk/model/input.dart';
 import '../sdk/model/simple_items.dart';
 
 class MyApp extends StatelessWidget {
@@ -36,7 +35,7 @@ class _MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<_MyHomePage> {
   final _scrollController = ScrollController();
 
-  late final GenUiAgent _agent = SimpleGenUiAgent(
+  late final GenUiAgent _agent = GenUiAgent(
     GenUiController(
       _scrollController,
       imageCatalog: _myImageCatalog,
@@ -63,12 +62,7 @@ class _MyHomePageState extends State<_MyHomePage> {
         child: Center(
           child: SingleChildScrollView(
             controller: _scrollController,
-            child: GenUiWidget(
-              InitialInput(
-                'Invite user to create a vacation travel itinerary.',
-              ),
-              _agent,
-            ),
+            child: GenUiWidget(_agent.controller),
           ),
         ),
       ),

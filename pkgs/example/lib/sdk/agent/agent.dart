@@ -39,10 +39,10 @@ class GenUiAgent {
     switch (input) {
       case InitialInput():
         data = fakeInvitationData;
-        builder = (_) => Invitation(fakeInvitationData, this);
+        builder = (_) => Invitation(fakeInvitationData, controller);
       case ChatBoxInput():
         data = fakeElicitationData;
-        builder = (_) => Elicitation(fakeElicitationData, this);
+        builder = (_) => Elicitation(fakeElicitationData, controller);
       default:
         throw UnimplementedError(
           'The agent does not support input of type ${input.runtimeType}',

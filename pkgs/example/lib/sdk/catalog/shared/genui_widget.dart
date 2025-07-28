@@ -7,11 +7,7 @@ import '../../model/input.dart';
 import '../elements/chat_box.dart';
 
 class GenUiWidget extends StatefulWidget {
-  GenUiWidget(this.controller, {Input? input}) {
-    if (input != null) {
-      controller.state.input.complete(input);
-    }
-  }
+  GenUiWidget(this.controller);
 
   final GenUiController controller;
 
