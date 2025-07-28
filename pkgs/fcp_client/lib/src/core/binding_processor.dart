@@ -10,13 +10,19 @@ import 'fcp_state.dart';
 /// `condition`, `map`).
 class BindingProcessor {
   final FcpState _state;
-  final WidgetLibraryManifest _manifest;
 
   /// Creates a binding processor that resolves values against the given state.
-  BindingProcessor(this._state, this._manifest);
+  BindingProcessor(this._state);
 
   /// Resolves all bindings for a given widget node against the main state.
-  Map<String, Object?> process(WidgetNode node, WidgetDefinition widgetDef) {
+  Map<String, Object?> process(WidgetNode node) {
+    final widgetDefJson = _state.manifest.widgets[node.type];
+    if (widgetDefJson == null) {
+      // It's valid for a widget to not have a definition, in which case it
+      // has no properties that can be bound.
+      return const {};
+    }
+    final widgetDef = WidgetDefinition(widgetDefJson as Map<String, Object?>);
     return _processBindings(node.bindings, widgetDef, null);
   }
 
@@ -28,8 +34,14 @@ class BindingProcessor {
   Map<String, Object?> processScoped(
     WidgetNode node,
     Map<String, Object?> scopedData,
-    WidgetDefinition widgetDef,
   ) {
+    final widgetDefJson = _state.manifest.widgets[node.type];
+    if (widgetDefJson == null) {
+      // It's valid for a widget to not have a definition, in which case it
+      // has no properties that can be bound.
+      return const {};
+    }
+    final widgetDef = WidgetDefinition(widgetDefJson as Map<String, Object?>);
     return _processBindings(node.bindings, widgetDef, scopedData);
   }
 

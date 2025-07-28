@@ -22,7 +22,30 @@ void main() {
 
   final testManifest = WidgetLibraryManifest({
     'manifestVersion': '1.0.0',
-    'widgets': {},
+    'dataTypes': {},
+    'widgets': {
+      'Container': {
+        'properties': {
+          'child': {'type': 'Widget'},
+        },
+      },
+      'Text': {
+        'properties': {
+          'data': {'type': 'String'},
+        },
+      },
+      'Column': {
+        'properties': {
+          'children': {'type': 'List<Widget>'},
+        },
+      },
+      'ListViewBuilder': {
+        'properties': {
+          'data': {'type': 'List'},
+          'itemTemplate': {'type': 'Widget'},
+        },
+      },
+    },
   });
 
   DynamicUIPacket createPacket(

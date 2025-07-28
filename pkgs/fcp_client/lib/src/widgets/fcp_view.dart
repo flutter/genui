@@ -73,7 +73,7 @@ class _FcpViewState extends State<FcpView> {
       manifest: widget.manifest,
     );
     _statePatcher = StatePatcher();
-    _bindingProcessor = BindingProcessor(_state, widget.manifest);
+    _bindingProcessor = BindingProcessor(_state);
     _engine = _LayoutEngine(
       registry: widget.registry,
       manifest: widget.manifest,
@@ -239,7 +239,7 @@ class _LayoutEngine with ChangeNotifier {
     final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
 
     // Resolve dynamic properties from bindings.
-    final boundProperties = bindingProcessor.process(node, widgetDef);
+    final boundProperties = bindingProcessor.process(node);
 
     // Merge static and dynamic properties. Bound properties override static
     // ones.
@@ -291,8 +291,7 @@ class _LayoutEngine with ChangeNotifier {
     if (widgetDefMap == null) {
       return _ErrorWidget('Widget type "${node.type}" not found in manifest.');
     }
-    final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
-    final boundProperties = bindingProcessor.process(node, widgetDef);
+    final boundProperties = bindingProcessor.process(node);
     final data = boundProperties['data'] as List<dynamic>? ?? [];
     final itemTemplate = node.itemTemplate;
 
@@ -333,12 +332,10 @@ class _LayoutEngine with ChangeNotifier {
         'itemTemplate.',
       );
     }
-    final widgetDef = WidgetDefinition(widgetDefMap as Map<String, Object?>);
 
     final boundProperties = bindingProcessor.processScoped(
       templateNode,
       itemData,
-      widgetDef,
     );
     final resolvedProperties = {
       ...?templateNode.properties,

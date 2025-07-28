@@ -19,7 +19,15 @@ void main() {
         validator: DataTypeValidator(),
         manifest: WidgetLibraryManifest({
           'manifestVersion': '1.0.0',
-          'widgets': {},
+          'widgets': {
+            'Text': {
+              'properties': {
+                'text': {'type': 'String'},
+                'value': {'type': 'int'},
+                'age': {'type': 'int'},
+              }
+            }
+          },
         }),
       );
       processor = BindingProcessor(state);
@@ -170,7 +178,7 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('returns null for a path that does not exist in the state', () {
+    test('returns default value for a path that does not exist in the state', () {
       final binding = Binding.fromJson({'path': 'user.age'});
       final result = processor.process(
         WidgetNode.fromJson({
@@ -179,7 +187,7 @@ void main() {
           'bindings': {'age': binding.toJson()},
         }),
       );
-      expect(result['age'], isNull);
+      expect(result['age'], 0);
     });
 
     group('Scoped Bindings', () {
@@ -227,7 +235,7 @@ void main() {
         expect(result['text'], 'Value: 100');
       });
 
-      test('returns null for item path when scoped data is empty', () {
+      test('returns default value for item path when scoped data is empty', () {
         final binding = Binding.fromJson({'path': 'item.title'});
         final result = processor.processScoped(
           WidgetNode.fromJson({
@@ -237,7 +245,7 @@ void main() {
           }),
           {},
         );
-        expect(result['text'], isNull);
+        expect(result['text'], '');
       });
     });
   });

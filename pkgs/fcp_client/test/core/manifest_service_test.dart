@@ -11,6 +11,7 @@ void main() {
     final validJsonString = '''
       {
         "manifestVersion": "1.0.0",
+        "dataTypes": {},
         "widgets": {
           "Text": {
             "properties": {
@@ -31,12 +32,12 @@ void main() {
         expect(manifest.widgets.keys, contains('Text'));
       });
 
-      test('throws TypeError for invalid JSON structure', () {
+      test('throws FormatException for invalid JSON structure', () {
         // The getter 'widgets' should throw a TypeError when it tries to cast
         // a String to a Map.
         expect(
-          () => service.parse(invalidJsonString).widgets,
-          throwsA(isA<TypeError>()),
+          () => service.parse(invalidJsonString),
+          throwsA(isA<FormatException>()),
         );
       });
 
