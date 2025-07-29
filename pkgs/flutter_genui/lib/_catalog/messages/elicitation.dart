@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/controller.dart';
 import '../../model/input.dart';
-import '../../model/simple_items.dart';
+import '../../model/_simple_items.dart';
 import '../elements/filter.dart';
 import '../elements/text_intro.dart';
 import '../shared/genui_widget.dart';
@@ -32,7 +32,7 @@ class _ElicitationState extends State<Elicitation> {
         Filter(widget.data.filterData),
 
         const SizedBox(height: 16.0),
-        GenUiWidget(widget.controller),
+        GenUiWidgetInternal(widget.controller),
       ],
     );
   }
