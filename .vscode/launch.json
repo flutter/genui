@@ -6,13 +6,13 @@
     "configurations": [
         {
             "name": "example",
-            "cwd": "pkgs/example",
+            "cwd": "pkgs/examples/travel_app",
             "request": "launch",
             "type": "dart"
         },
         {
             "name": "genui_client",
-            "cwd": "pkgs/genui_client",
+            "cwd": "pkgs/examples/genui_client",
             "request": "launch",
             "type": "dart"
         },
