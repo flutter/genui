@@ -16,7 +16,10 @@ class CosmicComplimentApp extends StatefulWidget {
 }
 
 class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
-  final _controller = FcpViewController();
+  late final FcpViewController _controller;
+  late final WidgetCatalogRegistry _registry;
+  late final WidgetCatalog _catalog;
+
   final _random = Random();
   int _complimentCount = 0;
   bool _detailsVisible = false;
@@ -40,6 +43,20 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
   @override
   void initState() {
     super.initState();
+    _controller = FcpViewController();
+    _registry = _createAndRegisterWidgets();
+    _catalog = _registry.buildCatalog(
+      catalogVersion: '1.0.0',
+      dataTypes: {
+        'fact': {
+          'type': 'object',
+          'properties': {
+            'text': {'type': 'string'},
+          },
+          'required': ['text'],
+        },
+      },
+    );
     // Set the initial compliment.
     _getNewCompliment();
   }
@@ -137,135 +154,121 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
 
   /// Creates a [WidgetCatalogRegistry] and registers the widgets used in this
   /// example.
-  WidgetCatalogRegistry _createWidgetRegistry() {
+  WidgetCatalogRegistry _createAndRegisterWidgets() {
     return WidgetCatalogRegistry()
-      ..register('Scaffold', (context, node, properties, children) {
-        return Scaffold(
-          appBar: children['appBar'] as PreferredSizeWidget?,
-          body: children['body'],
-        );
-      })
-      ..register('AppBar', (context, node, properties, children) {
-        return AppBar(title: children['title']);
-      })
-      ..register(
-          'Center',
-          (context, node, properties, children) =>
-              Center(child: children['child']))
-      ..register('Column', (context, node, properties, children) {
-        final childWidgets =
-            (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: childWidgets);
-      })
-      ..register('Row', (context, node, properties, children) {
-        final childWidgets =
-            (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
-        return Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: childWidgets);
-      })
-      ..register(
-          'SizedBox',
-          (context, node, properties, children) =>
-              SizedBox(width: properties['width'] as double?))
-      ..register('Padding', (context, node, properties, children) {
-        return Padding(
-          padding: EdgeInsets.all(properties['all'] as double? ?? 0.0),
-          child: children['child'] as Widget?,
-        );
-      })
-      ..register('Text', (context, node, properties, children) {
-        final style = properties['style'] as String?;
-        final color = properties['color'] as Color?;
-        TextStyle? textStyle;
-        if (style == 'headline') {
-          textStyle = Theme.of(context).textTheme.headlineMedium;
-        } else if (style == 'body') {
-          textStyle = Theme.of(context).textTheme.bodyLarge;
-        }
-        return Text(
-          properties['data'] as String? ?? '',
-          key: properties['key'] != null ? ValueKey(properties['key']) : null,
-          style: textStyle?.copyWith(color: color),
-          textAlign: TextAlign.center,
-        );
-      })
-      ..register('ElevatedButton', (context, node, properties, children) {
-        return ElevatedButton(
-          key: properties['key'] != null ? ValueKey(properties['key']) : null,
-          onPressed: () {
-            FcpProvider.of(context)?.onEvent?.call(EventPayload({
-                  'sourceNodeId': node.id,
-                  'eventName':
-                      properties['eventName'] as String? ?? 'onPressed',
-                  'arguments': {'mood': properties['mood']},
-                }));
-          },
-          child: children['child'],
-        );
-      })
-      ..register('Checkbox', (context, node, properties, children) {
-        return Checkbox(
-          value: properties['value'] as bool? ?? false,
-          onChanged: (newValue) {
-            FcpProvider.of(context)?.onEvent?.call(EventPayload({
-                  'sourceNodeId': node.id,
-                  'eventName': 'onChanged',
-                  'arguments': {'value': newValue},
-                }));
-          },
-        );
-      });
-  }
-
-  /// Creates the [WidgetCatalog] for this example.
-  WidgetCatalog _createCatalog() {
-    return WidgetCatalog({
-      'catalogVersion': '1.0.0',
-      'items': {
-        'Scaffold': {
+      ..register(CatalogItem(
+        name: 'Scaffold',
+        builder: (context, node, properties, children) {
+          return Scaffold(
+            appBar: children['appBar'] as PreferredSizeWidget?,
+            body: children['body'] as Widget?,
+          );
+        },
+        definition: WidgetDefinition({
           'properties': {
             'appBar': {'type': 'WidgetId'},
             'body': {'type': 'WidgetId'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'AppBar',
+        builder: (context, node, properties, children) {
+          return AppBar(title: children['title'] as Widget?);
         },
-        'AppBar': {
+        definition: WidgetDefinition({
           'properties': {
             'title': {'type': 'WidgetId'}
           }
-        },
-        'Center': {
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'Center',
+        builder: (context, node, properties, children) =>
+            Center(child: children['child'] as Widget?),
+        definition: WidgetDefinition({
           'properties': {
             'child': {'type': 'WidgetId'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'Column',
+        builder: (context, node, properties, children) {
+          final childWidgets =
+              (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
+          return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: childWidgets);
         },
-        'Column': {
+        definition: WidgetDefinition({
           'properties': {
             'children': {'type': 'ListOfWidgetIds'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'Row',
+        builder: (context, node, properties, children) {
+          final childWidgets =
+              (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
+          return Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: childWidgets);
         },
-        'Row': {
+        definition: WidgetDefinition({
           'properties': {
             'children': {'type': 'ListOfWidgetIds'}
           }
-        },
-        'SizedBox': {
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'SizedBox',
+        builder: (context, node, properties, children) =>
+            SizedBox(width: properties['width'] as double?),
+        definition: WidgetDefinition({
           'properties': {
             'width': {'type': 'Number'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'Padding',
+        builder: (context, node, properties, children) {
+          return Padding(
+            padding: EdgeInsets.all(properties['all'] as double? ?? 0.0),
+            child: children['child'] as Widget?,
+          );
         },
-        'Padding': {
+        definition: WidgetDefinition({
           'properties': {
             'all': {'type': 'Number'},
             'child': {'type': 'WidgetId'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'Text',
+        builder: (context, node, properties, children) {
+          final style = properties['style'] as String?;
+          final color = properties['color'] as Color?;
+          TextStyle? textStyle;
+          if (style == 'headline') {
+            textStyle = Theme.of(context).textTheme.headlineMedium;
+          } else if (style == 'body') {
+            textStyle = Theme.of(context).textTheme.bodyLarge;
+          }
+          return Text(
+            properties['data'] as String? ?? '',
+            key: properties['key'] != null ? ValueKey(properties['key']) : null,
+            style: textStyle?.copyWith(color: color),
+            textAlign: TextAlign.center,
+          );
         },
-        'Text': {
+        definition: WidgetDefinition({
           'properties': {
             'data': {'type': 'String'},
             'style': {
@@ -275,38 +278,65 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             'key': {'type': 'String'},
             'color': {'type': 'Color'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'ElevatedButton',
+        builder: (context, node, properties, children) {
+          return ElevatedButton(
+            key: properties['key'] != null ? ValueKey(properties['key']) : null,
+            onPressed: () {
+              FcpProvider.of(context)?.onEvent?.call(EventPayload({
+                    'sourceNodeId': node.id,
+                    'eventName':
+                        properties['eventName'] as String? ?? 'onPressed',
+                    'arguments': {'mood': properties['mood']},
+                  }));
+            },
+            child: children['child'] as Widget?,
+          );
         },
-        'ElevatedButton': {
+        definition: WidgetDefinition({
           'properties': {
             'child': {'type': 'WidgetId'},
             'key': {'type': 'String'},
             'eventName': {'type': 'String'},
             'mood': {'type': 'String'}
           }
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'Checkbox',
+        builder: (context, node, properties, children) {
+          return Checkbox(
+            value: properties['value'] as bool? ?? false,
+            onChanged: (newValue) {
+              FcpProvider.of(context)?.onEvent?.call(EventPayload({
+                    'sourceNodeId': node.id,
+                    'eventName': 'onChanged',
+                    'arguments': {'value': newValue},
+                  }));
+            },
+          );
         },
-        'Checkbox': {
+        definition: WidgetDefinition({
           'properties': {
             'value': {'type': 'Boolean'},
             'key': {'type': 'String'}
           }
-        },
-        'ListViewBuilder': {
+        }),
+      ))
+      ..register(CatalogItem(
+        name: 'ListViewBuilder',
+        builder: (context, node, properties, children) =>
+            const SizedBox.shrink(),
+        definition: WidgetDefinition({
           'properties': {},
           'bindings': {
             'data': {'path': 'string'}
           }
-        }
-      },
-      'dataTypes': {
-        'fact': {
-          'type': 'object',
-          'properties': {
-            'text': {'type': 'string'},
-          },
-          'required': ['text'],
-        },
-      },
-    });
+        }),
+      ));
   }
 
   /// Creates the initial [DynamicUIPacket] that defines the app's UI.
@@ -533,8 +563,8 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: FcpView(
-        registry: _createWidgetRegistry(),
-        catalog: _createCatalog(),
+        registry: _registry,
+        catalog: _catalog,
         packet: _createUiPacket(),
         controller: _controller,
         onEvent: (payload) {

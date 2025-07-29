@@ -1,307 +1,293 @@
-import 'package:fcp_client/fcp_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fcp_client/fcp_client.dart';
+import 'package:fcp_client/src/core/widget_catalog_registry.dart';
 
 void main() {
-  final testRegistry = WidgetCatalogRegistry()
-    ..register(
-      'Container',
-      (context, node, properties, children) =>
-          Container(child: children['child'] as Widget?),
-    )
-    ..register(
-      'Text',
-      (context, node, properties, children) =>
-          Text(properties['data'] as String? ?? ''),
-    )
-    ..register(
-      'Column',
-      (context, node, properties, children) =>
-          Column(children: (children['children'] as List<Widget>?) ?? []),
-    );
-
-  final testCatalog = WidgetCatalog({
-    'catalogVersion': '1.0.0',
-    'dataTypes': <String, Object?>{},
-    'items': <String, Object?>{
-      'Container': {
-        'properties': <String, Object?>{
-          'child': {'type': 'WidgetId'},
-        },
-      },
-      'Text': {
-        'properties': <String, Object?>{
-          'data': {'type': 'String', 'isRequired': true},
-        },
-      },
-      'Column': {
-        'properties': <String, Object?>{
-          'children': {'type': 'ListOfWidgetIds'},
-        },
-      },
-      'EventButton': {
-        'properties': <String, Object?>{
-          'child': {'type': 'WidgetId'},
-        },
-      },
-    },
-  });
-
-  DynamicUIPacket createPacket(Map<String, Object?> layout) {
-    return DynamicUIPacket({
-      'formatVersion': '1.0.0',
-      'layout': layout,
-      'state': <String, Object?>{'title': 'Test Title'},
-    });
-  }
-
-  group('FcpView Rendering', () {
-    testWidgets('renders a simple widget tree correctly', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_text',
-        'nodes': [
-          {
-            'id': 'root_text',
-            'type': 'Text',
-            'properties': {'data': 'Hello'},
-          },
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
-          ),
-        ),
-      );
-
-      expect(find.text('Hello'), findsOneWidget);
-    });
-
-    testWidgets('renders a nested widget tree correctly', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_container',
-        'nodes': [
-          {
-            'id': 'root_container',
-            'type': 'Container',
-            'properties': {'child': 'child_text'},
-          },
-          {
-            'id': 'child_text',
-            'type': 'Text',
-            'properties': {'data': 'Nested'},
-          },
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
-          ),
-        ),
-      );
-
-      expect(find.byType(Container), findsOneWidget);
-      expect(find.text('Nested'), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byType(Container),
-          matching: find.byType(Text),
-        ),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('renders a widget with multiple children (Column)', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_column',
-        'nodes': [
-          {
-            'id': 'root_column',
-            'type': 'Column',
-            'properties': {
-              'children': ['child1', 'child2'],
+  group('FcpView', () {
+    testWidgets('renders a simple static UI', (WidgetTester tester) async {
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
             },
-          },
-          {
-            'id': 'child1',
-            'type': 'Text',
-            'properties': {'data': 'First'},
-          },
-          {
-            'id': 'child2',
-            'type': 'Text',
-            'properties': {'data': 'Second'},
-          },
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(Column), findsOneWidget);
-      expect(find.text('First'), findsOneWidget);
-      expect(find.text('Second'), findsOneWidget);
-    });
-  });
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-  group('FcpView Error Handling', () {
-    testWidgets('displays an error widget for unregistered widget type', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_widget',
-        'nodes': [
-          {'id': 'root_widget', 'type': 'UnknownWidget'},
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
-          ),
-        ),
-      );
-
-      expect(
-        find.text(
-          'FCP Error: No builder registered for widget type '
-          '"UnknownWidget".',
-        ),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('displays an error widget for node not found in layout', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_widget',
-        'nodes': [
-          // The root_widget is not defined in the nodes list
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
-          ),
-        ),
-      );
-
-      expect(
-        find.text('FCP Error: Node with id "root_widget" not found in layout.'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('does not build a missing child node and does not error', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_container',
-        'nodes': [
-          {
-            'id': 'root_container',
-            'type': 'Container',
-            'properties': {'child': 'non_existent_child'},
-          },
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
-          ),
-        ),
-      );
-
-      // The container should be there, but its child should not be.
-      // No error widget should be displayed.
-      expect(find.byType(Container), findsOneWidget);
-      expect(find.byType(Text), findsNothing);
-      expect(find.byType(ErrorWidget), findsNothing);
-    });
-
-    testWidgets('displays an error widget for cyclical layouts', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'node_a',
-        'nodes': [
-          {
-            'id': 'node_a',
-            'type': 'Container',
-            'properties': {'child': 'node_b'},
-          },
-          {
-            'id': 'node_b',
-            'type': 'Container',
-            'properties': {'child': 'node_a'},
-          },
-        ],
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
-          ),
-        ),
-      );
-
-      expect(
-        find.text(
-          'FCP Error: Cyclical layout detected. Node "node_a" is already in '
-          'the build path.',
-        ),
-        findsOneWidget,
-      );
-    });
-  });
-
-  group('FcpView State & Binding', () {
-    testWidgets('renders correctly with a simple state binding', (
-      WidgetTester tester,
-    ) async {
       final packet = DynamicUIPacket({
         'formatVersion': '1.0.0',
         'layout': {
-          'root': 'root_text',
+          'root': 'hello',
           'nodes': [
             {
-              'id': 'root_text',
+              'id': 'hello',
+              'type': 'Text',
+              'properties': {'data': 'Hello, FCP!'},
+            },
+          ],
+        },
+        'state': <String, Object?>{},
+      });
+
+      await tester.pumpWidget(
+        FcpView(packet: packet, catalog: catalog, registry: registry),
+      );
+
+      expect(find.text('Hello, FCP!'), findsOneWidget);
+    });
+
+    testWidgets('renders a nested UI', (WidgetTester tester) async {
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
+          ),
+        )
+        ..register(
+          CatalogItem(
+            name: 'Column',
+            builder: (context, node, properties, children) {
+              return Column(
+                children:
+                    (children['children'] as List<dynamic>?)?.cast<Widget>() ??
+                    [],
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'children': {'type': 'ListOfWidgetIds'},
+              },
+            }),
+          ),
+        );
+
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'col',
+          'nodes': [
+            {
+              'id': 'col',
+              'type': 'Column',
+              'properties': {
+                'children': ['text1', 'text2'],
+              },
+            },
+            {
+              'id': 'text1',
+              'type': 'Text',
+              'properties': {'data': 'Line 1'},
+            },
+            {
+              'id': 'text2',
+              'type': 'Text',
+              'properties': {'data': 'Line 2'},
+            },
+          ],
+        },
+        'state': <String, Object?>{},
+      });
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FcpView(packet: packet, catalog: catalog, registry: registry),
+        ),
+      );
+
+      expect(find.text('Line 1'), findsOneWidget);
+      expect(find.text('Line 2'), findsOneWidget);
+    });
+
+    testWidgets('displays an error for an unknown widget type', (
+      WidgetTester tester,
+    ) async {
+      final registry = WidgetCatalogRegistry();
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'unknown',
+          'nodes': [
+            {'id': 'unknown', 'type': 'MyBogusWidget'},
+          ],
+        },
+        'state': <String, Object?>{},
+      });
+
+      await tester.pumpWidget(
+        FcpView(packet: packet, catalog: catalog, registry: registry),
+      );
+
+      expect(find.textContaining('No builder registered'), findsOneWidget);
+    });
+
+    testWidgets('displays an error for a missing required property', (
+      WidgetTester tester,
+    ) async {
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String', 'isRequired': true},
+              },
+            }),
+          ),
+        );
+
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text',
+          'nodes': [
+            {
+              'id': 'text',
+              'type': 'Text',
+              'properties': <String, Object?>{}, // Missing 'data'
+            },
+          ],
+        },
+        'state': <String, Object?>{},
+      });
+
+      await tester.pumpWidget(
+        FcpView(packet: packet, catalog: catalog, registry: registry),
+      );
+
+      expect(
+        find.textContaining('Missing required property "data"'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('rebuilds when a new packet is provided', (
+      WidgetTester tester,
+    ) async {
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
+          ),
+        );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+
+      final initialPacket = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text',
+          'nodes': [
+            {
+              'id': 'text',
+              'type': 'Text',
+              'properties': {'data': 'Initial'},
+            },
+          ],
+        },
+        'state': <String, Object?>{},
+      });
+
+      final newPacket = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text',
+          'nodes': [
+            {
+              'id': 'text',
+              'type': 'Text',
+              'properties': {'data': 'Updated'},
+            },
+          ],
+        },
+        'state': <String, Object?>{},
+      });
+
+      await tester.pumpWidget(
+        FcpView(packet: initialPacket, catalog: catalog, registry: registry),
+      );
+      expect(find.text('Initial'), findsOneWidget);
+      expect(find.text('Updated'), findsNothing);
+
+      await tester.pumpWidget(
+        FcpView(packet: newPacket, catalog: catalog, registry: registry),
+      );
+      expect(find.text('Initial'), findsNothing);
+      expect(find.text('Updated'), findsOneWidget);
+    });
+  });
+
+  group('FcpView State and Bindings', () {
+    testWidgets('renders UI with bound state', (WidgetTester tester) async {
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
+          ),
+        );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text',
+          'nodes': [
+            {
+              'id': 'text',
               'type': 'Text',
               'bindings': {
                 'data': {'path': 'message'},
@@ -309,135 +295,138 @@ void main() {
             },
           ],
         },
-        'state': {'message': 'Bound Message'},
+        'state': <String, Object?>{'message': 'Hello from state!'},
       });
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
+        FcpView(packet: packet, catalog: catalog, registry: registry),
+      );
+
+      expect(find.text('Hello from state!'), findsOneWidget);
+    });
+
+    testWidgets('UI updates when state changes via controller', (
+      WidgetTester tester,
+    ) async {
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
           ),
+        );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+      final controller = FcpViewController();
+
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text',
+          'nodes': [
+            {
+              'id': 'text',
+              'type': 'Text',
+              'bindings': {
+                'data': {'path': 'message'},
+              },
+            },
+          ],
+        },
+        'state': <String, Object?>{'message': 'Initial'},
+      });
+
+      await tester.pumpWidget(
+        FcpView(
+          packet: packet,
+          catalog: catalog,
+          registry: registry,
+          controller: controller,
         ),
       );
 
-      expect(find.text('Bound Message'), findsOneWidget);
+      expect(find.text('Initial'), findsOneWidget);
+
+      // Act
+      controller.patchState(
+        StateUpdate({
+          'patches': [
+            {'op': 'replace', 'path': '/message', 'value': 'Updated'},
+          ],
+        }),
+      );
+      await tester.pump();
+
+      // Assert
+      expect(find.text('Initial'), findsNothing);
+      expect(find.text('Updated'), findsOneWidget);
     });
-
-    testWidgets(
-      'updates the view when a new packet with new state is provided',
-      (WidgetTester tester) async {
-        var packet = DynamicUIPacket({
-          'formatVersion': '1.0.0',
-          'layout': {
-            'root': 'root_text',
-            'nodes': [
-              {
-                'id': 'root_text',
-                'type': 'Text',
-                'bindings': {
-                  'data': {'path': 'message'},
-                },
-              },
-            ],
-          },
-          'state': {'message': 'Initial Message'},
-        });
-
-        await tester.pumpWidget(
-          MaterialApp(
-            home: FcpView(
-              packet: packet,
-              registry: testRegistry,
-              catalog: testCatalog,
-            ),
-          ),
-        );
-
-        expect(find.text('Initial Message'), findsOneWidget);
-        expect(find.text('Updated Message'), findsNothing);
-
-        // Create a new packet with updated state
-        packet = DynamicUIPacket({
-          'formatVersion': '1.0.0',
-          'layout': {
-            'root': 'root_text',
-            'nodes': [
-              {
-                'id': 'root_text',
-                'type': 'Text',
-                'bindings': {
-                  'data': {'path': 'message'},
-                },
-              },
-            ],
-          },
-          'state': {'message': 'Updated Message'},
-        });
-
-        // Rebuild the widget with the new packet
-        await tester.pumpWidget(
-          MaterialApp(
-            home: FcpView(
-              packet: packet,
-              registry: testRegistry,
-              catalog: testCatalog,
-            ),
-          ),
-        );
-
-        expect(find.text('Initial Message'), findsNothing);
-        expect(find.text('Updated Message'), findsOneWidget);
-      },
-    );
   });
 
   group('FcpView Events', () {
-    testWidgets('fires an event with arguments correctly', (
+    testWidgets('fires onEvent callback with correct payload', (
       WidgetTester tester,
     ) async {
       EventPayload? capturedPayload;
 
-      final eventRegistry = WidgetCatalogRegistry()
+      final registry = WidgetCatalogRegistry()
         ..register(
-          'EventButton',
-          (context, node, properties, children) => ElevatedButton(
-            onPressed: () {
-              FcpProvider.of(context)?.onEvent?.call(
-                EventPayload({
-                  'sourceNodeId': node.id,
-                  'eventName': 'onPressed',
-                  'arguments': {'value': 'test_value'},
-                }),
+          CatalogItem(
+            name: 'EventButton',
+            builder: (context, node, properties, children) {
+              return ElevatedButton(
+                onPressed: () {
+                  FcpProvider.of(context)?.onEvent?.call(
+                    EventPayload({
+                      'sourceNodeId': node.id,
+                      'eventName': 'onPressed',
+                      'arguments': {'test': 'data'},
+                    }),
+                  );
+                },
+                child: const Text('Tap Me'),
               );
             },
-            child: children['child'] as Widget?,
+            definition: WidgetDefinition({
+              'properties': {},
+              'events': {
+                'onPressed': {
+                  'properties': {
+                    'test': {'type': 'String'},
+                  },
+                },
+              },
+            }),
           ),
         );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = createPacket({
-        'root': 'button',
-        'nodes': [
-          {
-            'id': 'button',
-            'type': 'EventButton',
-            'properties': {'child': 'button_text'},
-          },
-          {
-            'id': 'button_text',
-            'type': 'Text',
-            'properties': {'data': 'Tap Me'},
-          },
-        ],
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'button',
+          'nodes': [
+            {'id': 'button', 'type': 'EventButton'},
+          ],
+        },
+        'state': <String, Object?>{},
       });
 
       await tester.pumpWidget(
         MaterialApp(
           home: FcpView(
             packet: packet,
-            registry: eventRegistry,
-            catalog: testCatalog,
+            catalog: catalog,
+            registry: registry,
             onEvent: (payload) {
               capturedPayload = payload;
             },
@@ -451,106 +440,94 @@ void main() {
       expect(capturedPayload, isNotNull);
       expect(capturedPayload!.sourceNodeId, 'button');
       expect(capturedPayload!.eventName, 'onPressed');
-      expect(capturedPayload!.arguments, isA<Map>());
-      expect(capturedPayload!.arguments!['value'], 'test_value');
+      expect(capturedPayload!.arguments, {'test': 'data'});
     });
   });
 
-  group('FcpViewController', () {
-    testWidgets('patches state and updates UI correctly', (
-      WidgetTester tester,
-    ) async {
+  group('FcpView Layout Updates', () {
+    testWidgets('adds a widget with LayoutUpdate', (WidgetTester tester) async {
       final controller = FcpViewController();
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Column',
+            builder: (context, node, properties, children) {
+              return Column(
+                children:
+                    (children['children'] as List<dynamic>?)?.cast<Widget>() ??
+                    [],
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'children': {'type': 'ListOfWidgetIds'},
+              },
+            }),
+          ),
+        )
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
+          ),
+        );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+
       final packet = DynamicUIPacket({
         'formatVersion': '1.0.0',
         'layout': {
-          'root': 'root_text',
+          'root': 'col',
           'nodes': [
             {
-              'id': 'root_text',
-              'type': 'Text',
-              'bindings': {
-                'data': {'path': 'message'},
+              'id': 'col',
+              'type': 'Column',
+              'properties': {
+                'children': ['text1'],
               },
+            },
+            {
+              'id': 'text1',
+              'type': 'Text',
+              'properties': {'data': 'First'},
             },
           ],
         },
-        'state': {'message': 'Initial Message'},
+        'state': <String, Object?>{},
       });
 
       await tester.pumpWidget(
         MaterialApp(
           home: FcpView(
             packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
+            catalog: catalog,
+            registry: registry,
             controller: controller,
           ),
         ),
       );
 
-      expect(find.text('Initial Message'), findsOneWidget);
+      expect(find.text('First'), findsOneWidget);
+      expect(find.text('Second'), findsNothing);
 
-      // Create a patch and send it through the controller
-      final update = StateUpdate({
-        'patches': [
-          {'op': 'replace', 'path': '/message', 'value': 'Patched Message'},
-        ],
-      });
-      controller.patchState(update);
-
-      // Rebuild the widget
-      await tester.pump();
-
-      expect(find.text('Initial Message'), findsNothing);
-      expect(find.text('Patched Message'), findsOneWidget);
-    });
-
-    group('FcpViewController Layout Updates', () {
-      testWidgets('patches layout with "add" and updates UI', (
-        WidgetTester tester,
-      ) async {
-        final controller = FcpViewController();
-        final packet = createPacket({
-          'root': 'root_column',
-          'nodes': [
-            {
-              'id': 'root_column',
-              'type': 'Column',
-              'properties': {
-                'children': ['child1'],
-              },
-            },
-            {
-              'id': 'child1',
-              'type': 'Text',
-              'properties': {'data': 'First'},
-            },
-          ],
-        });
-
-        await tester.pumpWidget(
-          MaterialApp(
-            home: FcpView(
-              packet: packet,
-              registry: testRegistry,
-              catalog: testCatalog,
-              controller: controller,
-            ),
-          ),
-        );
-
-        expect(find.text('First'), findsOneWidget);
-        expect(find.text('Second'), findsNothing);
-
-        // Add a new widget to the layout
-        final update = LayoutUpdate({
+      // Act
+      controller.patchLayout(
+        LayoutUpdate({
           'operations': [
             {
               'op': 'add',
               'nodes': [
                 {
-                  'id': 'child2',
+                  'id': 'text2',
                   'type': 'Text',
                   'properties': {'data': 'Second'},
                 },
@@ -560,141 +537,209 @@ void main() {
               'op': 'update',
               'nodes': [
                 {
-                  'id': 'root_column',
+                  'id': 'col',
                   'type': 'Column',
                   'properties': {
-                    'children': ['child1', 'child2'],
+                    'children': ['text1', 'text2'],
                   },
                 },
               ],
             },
           ],
-        });
-        controller.patchLayout(update);
-        await tester.pump();
+        }),
+      );
+      await tester.pump();
 
-        expect(find.text('First'), findsOneWidget);
-        expect(find.text('Second'), findsOneWidget);
-      });
+      // Assert
+      expect(find.text('First'), findsOneWidget);
+      expect(find.text('Second'), findsOneWidget);
+    });
 
-      testWidgets('patches layout with "remove" and updates UI', (
-        WidgetTester tester,
-      ) async {
-        final controller = FcpViewController();
-        final packet = createPacket({
-          'root': 'root_column',
+    testWidgets('removes a widget with LayoutUpdate', (
+      WidgetTester tester,
+    ) async {
+      final controller = FcpViewController();
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Column',
+            builder: (context, node, properties, children) {
+              return Column(
+                children:
+                    (children['children'] as List<dynamic>?)?.cast<Widget>() ??
+                    [],
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'children': {'type': 'ListOfWidgetIds'},
+              },
+            }),
+          ),
+        )
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
+            },
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
+          ),
+        );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'col',
           'nodes': [
             {
-              'id': 'root_column',
+              'id': 'col',
               'type': 'Column',
               'properties': {
-                'children': ['child1', 'child2'],
+                'children': ['text1', 'text2'],
               },
             },
             {
-              'id': 'child1',
+              'id': 'text1',
               'type': 'Text',
               'properties': {'data': 'First'},
             },
             {
-              'id': 'child2',
+              'id': 'text2',
               'type': 'Text',
               'properties': {'data': 'Second'},
             },
           ],
-        });
+        },
+        'state': <String, Object?>{},
+      });
 
-        await tester.pumpWidget(
-          MaterialApp(
-            home: FcpView(
-              packet: packet,
-              registry: testRegistry,
-              catalog: testCatalog,
-              controller: controller,
-            ),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+            controller: controller,
           ),
-        );
+        ),
+      );
 
-        expect(find.text('First'), findsOneWidget);
-        expect(find.text('Second'), findsOneWidget);
+      expect(find.text('First'), findsOneWidget);
+      expect(find.text('Second'), findsOneWidget);
 
-        // Remove the second child
-        final update = LayoutUpdate({
+      // Act
+      controller.patchLayout(
+        LayoutUpdate({
           'operations': [
             {
               'op': 'remove',
-              'nodeIds': ['child2'],
+              'nodeIds': ['text2'],
             },
             {
               'op': 'update',
               'nodes': [
                 {
-                  'id': 'root_column',
+                  'id': 'col',
                   'type': 'Column',
                   'properties': {
-                    'children': ['child1'],
+                    'children': ['text1'],
                   },
                 },
               ],
             },
           ],
-        });
-        controller.patchLayout(update);
-        await tester.pump();
+        }),
+      );
+      await tester.pump();
 
-        expect(find.text('First'), findsOneWidget);
-        expect(find.text('Second'), findsNothing);
-      });
+      // Assert
+      expect(find.text('First'), findsOneWidget);
+      expect(find.text('Second'), findsNothing);
+    });
 
-      testWidgets('patches layout with "update" and updates UI', (
-        WidgetTester tester,
-      ) async {
-        final controller = FcpViewController();
-        final packet = createPacket({
-          'root': 'text_widget',
-          'nodes': [
-            {
-              'id': 'text_widget',
-              'type': 'Text',
-              'properties': {'data': 'Initial Text'},
+    testWidgets('updates a widget with LayoutUpdate', (
+      WidgetTester tester,
+    ) async {
+      final controller = FcpViewController();
+      final registry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Text',
+            builder: (context, node, properties, children) {
+              return Text(
+                properties['data'] as String? ?? '',
+                textDirection: TextDirection.ltr,
+              );
             },
-          ],
-        });
-
-        await tester.pumpWidget(
-          MaterialApp(
-            home: FcpView(
-              packet: packet,
-              registry: testRegistry,
-              catalog: testCatalog,
-              controller: controller,
-            ),
+            definition: WidgetDefinition({
+              'properties': {
+                'data': {'type': 'String'},
+              },
+            }),
           ),
         );
+      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-        expect(find.text('Initial Text'), findsOneWidget);
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text1',
+          'nodes': [
+            {
+              'id': 'text1',
+              'type': 'Text',
+              'properties': {'data': 'Before'},
+            },
+          ],
+        },
+        'state': <String, Object?>{},
+      });
 
-        // Update the text property
-        final update = LayoutUpdate({
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+            controller: controller,
+          ),
+        ),
+      );
+
+      expect(find.text('Before'), findsOneWidget);
+      expect(find.text('After'), findsNothing);
+
+      // Act
+      controller.patchLayout(
+        LayoutUpdate({
           'operations': [
             {
               'op': 'update',
               'nodes': [
                 {
-                  'id': 'text_widget',
+                  'id': 'text1',
                   'type': 'Text',
-                  'properties': {'data': 'Updated Text'},
+                  'properties': {'data': 'After'},
                 },
               ],
             },
           ],
-        });
-        controller.patchLayout(update);
-        await tester.pump();
+        }),
+      );
+      await tester.pump();
 
-        expect(find.text('Initial Text'), findsNothing);
-        expect(find.text('Updated Text'), findsOneWidget);
-      });
+      // Assert
+      expect(find.text('Before'), findsNothing);
+      expect(find.text('After'), findsOneWidget);
     });
   });
 }

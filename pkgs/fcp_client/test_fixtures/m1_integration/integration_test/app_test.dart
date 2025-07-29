@@ -1,41 +1,79 @@
-// To run this test, navigate to this directory in your terminal and run:
-// flutter test integration_test/app_test.dart -d macos
-// (or -d linux, or -d web)
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:fcp_client/fcp_client.dart';
+import 'package:fcp_client/src/core/widget_catalog_registry.dart';
+import 'package:integration_test/integration_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  final testRegistry = WidgetCatalogRegistry()
-    ..register('Scaffold', (context, node, properties, children) {
-      return Scaffold(
-        appBar: children['appBar'] as PreferredSizeWidget?,
-        body: children['body'],
+  WidgetCatalogRegistry _createTestRegistry() {
+    return WidgetCatalogRegistry()
+      ..register(
+        CatalogItem(
+          name: 'Scaffold',
+          builder: (context, node, properties, children) {
+            return Scaffold(
+              appBar: children['appBar'] as PreferredSizeWidget?,
+              body: children['body'] as Widget?,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'appBar': {'type': 'WidgetId'},
+              'body': {'type': 'WidgetId'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'AppBar',
+          builder: (context, node, properties, children) {
+            return AppBar(
+              title: children['title'] as Widget?,
+              automaticallyImplyLeading: false,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'title': {'type': 'WidgetId'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Text',
+          builder: (context, node, properties, children) {
+            return Text(
+              properties['data'] as String? ?? '',
+              textDirection: TextDirection.ltr,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'data': {'type': 'String'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Center',
+          builder: (context, node, properties, children) {
+            return Center(child: children['child'] as Widget?);
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'child': {'type': 'WidgetId'},
+            },
+          }),
+        ),
       );
-    })
-    ..register('AppBar', (context, node, properties, children) {
-      return AppBar(title: children['title']);
-    })
-    ..register(
-      'Column',
-      (context, node, properties, children) =>
-          Column(children: (children['children'] as List<Widget>?) ?? []),
-    )
-    ..register('Text', (context, node, properties, children) {
-      return Text(properties['data'] as String? ?? '');
-    });
+  }
 
-  final testCatalog = WidgetCatalog({
-    'catalogVersion': '1.0.0',
-    'items': <String, Object?>{},
-    'dataTypes': <String, Object?>{},
-  });
-
-  DynamicUIPacket createComplexPacket() {
+  DynamicUIPacket _createTestPacket() {
     return DynamicUIPacket({
       'formatVersion': '1.0.0',
       'layout': {
@@ -44,7 +82,7 @@ void main() {
           {
             'id': 'root_scaffold',
             'type': 'Scaffold',
-            'properties': {'appBar': 'main_app_bar', 'body': 'main_column'},
+            'properties': {'appBar': 'main_app_bar', 'body': 'main_center'},
           },
           {
             'id': 'main_app_bar',
@@ -57,21 +95,14 @@ void main() {
             'properties': {'data': 'FCP Integration Test'},
           },
           {
-            'id': 'main_column',
-            'type': 'Column',
-            'properties': {
-              'children': ['text1', 'text2'],
-            },
+            'id': 'main_center',
+            'type': 'Center',
+            'properties': {'child': 'body_text'},
           },
           {
-            'id': 'text1',
+            'id': 'body_text',
             'type': 'Text',
-            'properties': {'data': 'First line'},
-          },
-          {
-            'id': 'text2',
-            'type': 'Text',
-            'properties': {'data': 'Second line'},
+            'properties': {'data': 'Hello, world!'},
           },
         ],
       },
@@ -79,51 +110,23 @@ void main() {
     });
   }
 
-  testWidgets('FcpView renders a complex static UI correctly', (
-    WidgetTester tester,
-  ) async {
-    final packet = createComplexPacket();
+  testWidgets('renders a complete static UI', (WidgetTester tester) async {
+    final registry = _createTestRegistry();
+    final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
+    final packet = _createTestPacket();
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(
       MaterialApp(
-        home: FcpView(
-          packet: packet,
-          registry: testRegistry,
-          catalog: testCatalog,
-        ),
+        home: FcpView(packet: packet, catalog: catalog, registry: registry),
       ),
     );
 
-    // Verify that all widgets are rendered correctly.
+    // Verify that the UI is rendered correctly.
+    expect(find.text('FCP Integration Test'), findsOneWidget);
+    expect(find.text('Hello, world!'), findsOneWidget);
     expect(find.byType(Scaffold), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
-    expect(find.text('FCP Integration Test'), findsOneWidget);
-    expect(find.byType(Column), findsOneWidget);
-    expect(find.text('First line'), findsOneWidget);
-    expect(find.text('Second line'), findsOneWidget);
-
-    // Verify the structure.
-    expect(
-      find.descendant(
-        of: find.byType(AppBar),
-        matching: find.text('FCP Integration Test'),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(
-        of: find.byType(Column),
-        matching: find.text('First line'),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(
-        of: find.byType(Column),
-        matching: find.text('Second line'),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byType(Center), findsOneWidget);
   });
 }

@@ -18,30 +18,71 @@ typedef CatalogWidgetBuilder =
       Map<String, dynamic> children,
     );
 
+/// A container for all the information needed to register a widget with the
+/// FCP client, including its name, its builder function, and its definition
+/// for the `WidgetCatalog`.
+class CatalogItem {
+  const CatalogItem({
+    required this.name,
+    required this.builder,
+    required this.definition,
+  });
+
+  /// The name of the widget, which must match the `type` in a `LayoutNode`.
+  final String name;
+
+  /// The function that builds the Flutter widget.
+  final CatalogWidgetBuilder builder;
+
+  /// The FCP definition of the widget, including its properties and events.
+  final WidgetDefinition definition;
+}
+
 /// A registry that maps widget type strings from the catalog to concrete
 /// [CatalogWidgetBuilder] functions.
 ///
 /// This allows the FCP client to be extended with custom widget
 /// implementations.
 class WidgetCatalogRegistry {
-  final Map<String, CatalogWidgetBuilder> _builders = {};
+  final Map<String, CatalogItem> _registeredWidgets = {};
 
-  /// Registers a builder for a given widget type.
+  /// Registers a widget.
   ///
-  /// If a builder for this [type] already exists, it will be overwritten.
-  void register(String type, CatalogWidgetBuilder builder) {
-    _builders[type] = builder;
+  /// If a widget with the same name already exists, it will be overwritten.
+  void register(CatalogItem widget) {
+    _registeredWidgets[widget.name] = widget;
   }
 
   /// Retrieves the builder for the given widget [type].
   ///
   /// Returns `null` if no builder is registered for the type.
   CatalogWidgetBuilder? getBuilder(String type) {
-    return _builders[type];
+    return _registeredWidgets[type]?.builder;
   }
 
   /// Checks if a builder is registered for the given widget [type].
   bool hasBuilder(String type) {
-    return _builders.containsKey(type);
+    return _registeredWidgets.containsKey(type);
+  }
+
+  /// Generates a [WidgetCatalog] from all the registered widgets.
+  ///
+  /// This method iterates through all the `RegisteredWidget` instances and
+  /// compiles their definitions into a single `WidgetCatalog` object that can
+  /// be passed to the `FcpView`.
+  WidgetCatalog buildCatalog({
+    required String catalogVersion,
+    Map<String, Object?> dataTypes = const {},
+  }) {
+    final items = <String, Object?>{};
+    for (final widget in _registeredWidgets.values) {
+      items[widget.name] = widget.definition;
+    }
+
+    return WidgetCatalog({
+      'catalogVersion': catalogVersion,
+      'dataTypes': dataTypes,
+      'items': items,
+    });
   }
 }
