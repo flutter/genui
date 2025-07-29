@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/model/input.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

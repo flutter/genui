@@ -11,8 +11,8 @@ import '../model/controller.dart';
 import '../model/input.dart';
 import '_fake_output.dart';
 
-class GenUIWidget extends StatelessWidget {
-  const GenUIWidget(this.controller, {super.key});
+class GenUiWidget extends StatelessWidget {
+  const GenUiWidget(this.controller, {super.key});
   final GenUiController controller;
 
   @override
