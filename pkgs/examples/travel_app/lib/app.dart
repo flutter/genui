@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../../../flutter_genui/lib/sdk/agent/agent.dart';
-import '../../../flutter_genui/lib/sdk/catalog/shared/genui_widget.dart';
-
-import '../../../flutter_genui/lib/sdk/model/controller.dart';
-import '../../../flutter_genui/lib/sdk/model/input.dart';
-import '../../../flutter_genui/lib/sdk/model/simple_items.dart';
+import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/model/input.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

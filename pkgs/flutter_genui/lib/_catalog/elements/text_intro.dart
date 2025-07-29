@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../model/simple_items.dart';
+import '../../model/_simple_items.dart';
 import '../shared/text_styles.dart';
 
 class TextIntro extends StatelessWidget {

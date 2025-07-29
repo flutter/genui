@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/controller.dart';
 import '../../model/input.dart';
-import '../../model/simple_items.dart';
+import '../../model/_simple_items.dart';
 import '../elements/carousel.dart';
 import '../elements/text_intro.dart';
 import '../shared/genui_widget.dart';
@@ -36,7 +36,7 @@ class _InvitationState extends State<Invitation> {
         Carousel(CarouselData(items: widget.data.exploreItems), onInput),
         const SizedBox(height: 16.0),
 
-        GenUiWidget(widget.genUi),
+        GenUiWidgetInternal(widget.genUi),
       ],
     );
   }

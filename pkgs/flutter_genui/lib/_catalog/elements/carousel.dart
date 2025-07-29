@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../model/input.dart';
-import '../../model/simple_items.dart';
+import '../../model/_simple_items.dart';
 import '../shared/text_styles.dart';
 
 const double _imageSize = 190;

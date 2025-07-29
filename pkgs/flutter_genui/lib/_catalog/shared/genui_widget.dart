@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 
 import '../../model/controller.dart';
 import '../../model/input.dart';
-import '../elements/chat_box.dart';
+import 'chat_box.dart';
 
-class GenUiWidget extends StatefulWidget {
-  GenUiWidget(this.controller);
+class GenUiWidgetInternal extends StatefulWidget {
+  GenUiWidgetInternal(this.controller);
 
   final GenUiController controller;
 
   @override
-  State<GenUiWidget> createState() => _GenUiWidgetState();
+  State<GenUiWidgetInternal> createState() => _GenUiWidgetInternalState();
 }
 
-class _GenUiWidgetState extends State<GenUiWidget> {
+class _GenUiWidgetInternalState extends State<GenUiWidgetInternal> {
   Input? _input;
   WidgetBuilder? _builder;
 
