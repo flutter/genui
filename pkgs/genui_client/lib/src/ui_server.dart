@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'ai_client/ai_client.dart';
 import 'event_debouncer.dart';
 import 'ui_models.dart';
-import 'ui_schema.dart';
+import 'widget_tree_llm_adapter.dart';
 
 /// A callback to set the initial UI definition.
 @visibleForTesting
@@ -72,6 +73,7 @@ class StreamServerConnection implements ServerConnection {
     required this.onError,
     required this.onStatusUpdate,
     required this.onTextResponse,
+    required this.widgetTreeLlmAdapter,
     AiClient? aiClient,
   }) : _aiClient = aiClient ??
             AiClient(
@@ -86,6 +88,8 @@ class StreamServerConnection implements ServerConnection {
 
   /// A callback invoked when the server sends a complete new UI definition.
   final SetUiCallback onSetUi;
+
+  final WidgetTreeLlmAdapter widgetTreeLlmAdapter;
 
   /// A callback invoked when the server sends partial updates to the current
   /// UI.
@@ -151,6 +155,7 @@ class StreamServerConnection implements ServerConnection {
       aiClient: _aiClient,
       requests: _requestsController.stream,
       responses: _responsesController,
+      widgetTreeLlmAdapter: widgetTreeLlmAdapter,
     ));
 
     _requestsController.add({'method': 'ping', 'params': {}});
@@ -212,6 +217,7 @@ ServerConnection createStreamServerConnection({
   required ErrorCallback onError,
   required StatusUpdateCallback onStatusUpdate,
   required TextResponseCallback onTextResponse,
+  required WidgetTreeLlmAdapter widgetTreeLlmAdapter,
   AiClient? aiClient,
 }) {
   return StreamServerConnection(
@@ -221,6 +227,7 @@ ServerConnection createStreamServerConnection({
     onError: onError,
     onStatusUpdate: onStatusUpdate,
     onTextResponse: onTextResponse,
+    widgetTreeLlmAdapter: widgetTreeLlmAdapter,
     aiClient: aiClient,
   );
 }
@@ -236,6 +243,7 @@ Future<void> runUiServer({
   required AiClient aiClient,
   required Stream<Map<String, Object?>> requests,
   required StreamController<Map<String, Object?>> responses,
+  required WidgetTreeLlmAdapter widgetTreeLlmAdapter,
 }) async {
   final masterConversation = <Content>[];
   final conversationsBySurfaceId = <String, List<Content>>{};
@@ -246,7 +254,14 @@ Future<void> runUiServer({
     try {
       final response = await aiClient.generateContent(
         conversation,
-        flutterUiDefinition,
+        widgetTreeLlmAdapter.outputSchema,
+        systemInstruction: Content.system(
+            '''You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
+        
+        The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+
+        For example, the user may say "I want to plan a trip to Mexico". You will first ask some questions by displaying a combination of UI elements, such as a slider to choose budget, options showing activity preferences etc. Then you will walk the user through choosing a hotel, flight and accomodation.
+        '''),
       );
       if (response == null) {
         return;
@@ -363,4 +378,5 @@ typedef ServerConnectionFactory = ServerConnection Function({
   required StatusUpdateCallback onStatusUpdate,
   required TextResponseCallback onTextResponse,
   AiClient? aiClient,
+  required WidgetTreeLlmAdapter widgetTreeLlmAdapter,
 });
