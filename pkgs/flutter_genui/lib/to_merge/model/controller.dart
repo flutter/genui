@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import 'input.dart';
-import '_simple_items.dart';
+import 'simple_items.dart';
 import 'image_catalog.dart';
 
 typedef InputCallback = void Function(Input input);

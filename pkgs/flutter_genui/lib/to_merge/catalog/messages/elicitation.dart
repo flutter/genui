@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/controller.dart';
 import '../../model/input.dart';
-import '../../model/_simple_items.dart';
+import '../../model/simple_items.dart';
 import '../elements/filter.dart';
 import '../elements/text_intro.dart';
 import '../shared/genui_widget.dart';

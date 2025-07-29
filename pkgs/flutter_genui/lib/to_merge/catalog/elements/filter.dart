@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../model/_simple_items.dart';
+import '../../model/simple_items.dart';
 
 class Filter extends StatefulWidget {
   const Filter(this.data, {super.key});
