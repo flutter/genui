@@ -1,5 +1,5 @@
 name: flutter_genui
-description: "GenUI"
+description: "Flutter GenUI"
 version: 0.0.1
 homepage:
 
@@ -14,7 +14,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  dart_flutter_team_lints: ^3.5.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
