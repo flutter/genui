@@ -155,8 +155,8 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
         setState(() {
           _connectionStatus = status;
           if (status == 'Server started.' && _chatHistory.isEmpty) {
-            // _chatHistory.add(const SystemMessage(
-            //     text: 'I can create UIs. What should I make for you?'));
+            _chatHistory
+                .add(const SystemMessage(text: 'What can I do for you?'));
           }
         });
       },

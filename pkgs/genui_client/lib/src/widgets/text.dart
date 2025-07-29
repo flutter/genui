@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../catalog_item.dart';
 
 final text = CatalogItem(
-  name: 'Text',
+  name: 'text',
   dataSchema: Schema.object(
     properties: {
       'text': Schema.string(
