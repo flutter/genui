@@ -82,11 +82,17 @@ abstract class AiTool<T extends Map<String, Object?>> {
 
   List<FunctionDeclaration> toFunctionDeclarations() {
     return [
-      FunctionDeclaration(name, description,
-          parameters: parameters == null ? {} : {'parameters': parameters!}),
+      FunctionDeclaration(
+        name,
+        description,
+        parameters: parameters == null ? {} : {'parameters': parameters!},
+      ),
       if (name != fullName)
-        FunctionDeclaration(fullName, description,
-            parameters: parameters == null ? {} : {'parameters': parameters!}),
+        FunctionDeclaration(
+          fullName,
+          description,
+          parameters: parameters == null ? {} : {'parameters': parameters!},
+        ),
     ];
   }
 }

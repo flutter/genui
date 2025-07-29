@@ -15,6 +15,8 @@ dependencies:
   firebase_core: ^3.2.0
   flutter:
     sdk: flutter
+  flutter_genui:
+    path: ../../flutter_genui
   json_rpc_2: ^4.0.0
   platform: ^3.1.6
   stream_channel: ^2.1.4

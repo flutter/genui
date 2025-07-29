@@ -8,21 +8,22 @@ import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 
-import '../tools/tools.dart';
+import 'tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
-typedef GenerativeModelFactory = GenerativeModel Function({
-  required AiClient configuration,
-  Content? systemInstruction,
-  List<Tool>? tools,
-  ToolConfig? toolConfig,
-});
+typedef GenerativeModelFactory =
+    GenerativeModel Function({
+      required AiClient configuration,
+      Content? systemInstruction,
+      List<Tool>? tools,
+      ToolConfig? toolConfig,
+    });
 
 enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
 
-typedef AiClientLoggingCallback = void Function(
-    AiLoggingSeverity severity, String message);
+typedef AiClientLoggingCallback =
+    void Function(AiLoggingSeverity severity, String message);
 
 class AiClientException implements Exception {
   AiClientException(this.message);
@@ -212,12 +213,10 @@ class AiClient {
     Iterable<AiTool> additionalTools = const [],
     Content? systemInstruction,
   }) async {
-    return await _generateContentWithRetries(
-      conversation,
-      outputSchema,
-      [...tools, ...additionalTools],
-      systemInstruction,
-    );
+    return await _generateContentWithRetries(conversation, outputSchema, [
+      ...tools,
+      ...additionalTools,
+    ], systemInstruction);
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -239,18 +238,24 @@ class AiClient {
   }
 
   void _error(String message, [StackTrace? stackTrace]) {
-    loggingCallback?.call(AiLoggingSeverity.error,
-        stackTrace != null ? '$message\n$stackTrace' : message);
+    loggingCallback?.call(
+      AiLoggingSeverity.error,
+      stackTrace != null ? '$message\n$stackTrace' : message,
+    );
   }
 
   void _warn(String message, [StackTrace? stackTrace]) {
-    loggingCallback?.call(AiLoggingSeverity.warning,
-        stackTrace != null ? '$message\n$stackTrace' : message);
+    loggingCallback?.call(
+      AiLoggingSeverity.warning,
+      stackTrace != null ? '$message\n$stackTrace' : message,
+    );
   }
 
   void _log(String message, [StackTrace? stackTrace]) {
-    loggingCallback?.call(AiLoggingSeverity.info,
-        stackTrace != null ? '$message\n$stackTrace' : message);
+    loggingCallback?.call(
+      AiLoggingSeverity.info,
+      stackTrace != null ? '$message\n$stackTrace' : message,
+    );
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
@@ -294,18 +299,17 @@ class AiClient {
         );
         return result;
       } on FirebaseAIException catch (exception) {
-        if (exception.message.contains(
-          '$model is not found for API version',
-        )) {
+        if (exception.message.contains('$model is not found for API version')) {
           // If the model is not found, then just throw an exception.
           throw AiClientException(exception.message);
         }
         await onFail(exception);
       } catch (exception, stack) {
         _error(
-            'Received '
-            '${exception.runtimeType}: $exception',
-            stack);
+          'Received '
+          '${exception.runtimeType}: $exception',
+          stack,
+        );
         // For other exceptions, rethrow immediately.
         rethrow;
       }
@@ -333,9 +337,7 @@ class AiClient {
           'MUST call this tool when you are done.',
       // Wrap the outputSchema in an object so that the output schema isn't
       // limited to objects.
-      parameters: Schema.object(
-        properties: {'output': outputSchema},
-      ),
+      parameters: Schema.object(properties: {'output': outputSchema}),
       invokeFunction: (args) async => args, // Invoke is a pass-through
     );
     // Ensure allAiTools doesn't have duplicates by name, and prioritize the
@@ -350,7 +352,8 @@ class AiClient {
       if (tool.name != tool.fullName) {
         if (toolFullNames.contains(tool.fullName)) {
           throw AiClientException(
-              'Duplicate tool ${tool.fullName} registered.');
+            'Duplicate tool ${tool.fullName} registered.',
+          );
         }
         toolFullNames.add(tool.fullName);
       }
@@ -361,10 +364,10 @@ class AiClient {
     // are different.
     final generativeAiTools = [
       Tool.functionDeclarations(
-        [...uniqueAiToolsByName.values.map((t) => t.toFunctionDeclarations())]
-            .expand((e) => e)
-            .toList(),
-      )
+        [
+          ...uniqueAiToolsByName.values.map((t) => t.toFunctionDeclarations()),
+        ].expand((e) => e).toList(),
+      ),
     ];
     final allowedFunctionNames = <String>{
       ...uniqueAiToolsByName.keys,
@@ -414,8 +417,9 @@ class AiClient {
       }
 
       final candidate = response.candidates.first;
-      final functionCalls =
-          candidate.content.parts.whereType<FunctionCall>().toList();
+      final functionCalls = candidate.content.parts
+          .whereType<FunctionCall>()
+          .toList();
 
       if (functionCalls.isEmpty) {
         _warn(
@@ -466,11 +470,12 @@ class AiClient {
           );
         } catch (exception, stack) {
           _error(
-              'Error invoking tool ${aiTool.name} with args ${call.args}: '
-              '$exception\n',
-              stack);
+            'Error invoking tool ${aiTool.name} with args ${call.args}: '
+            '$exception\n',
+            stack,
+          );
           toolResult = {
-            'error': 'Tool ${aiTool.name} failed to execute: $exception'
+            'error': 'Tool ${aiTool.name} failed to execute: $exception',
           };
         }
         functionResponseParts.add(FunctionResponse(call.name, toolResult));

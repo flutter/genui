@@ -1,1 +1,1 @@
-Files and folders, that are not exported, are prefixed with '_'.
+Files and folders, that are not intended to be exported, are prefixed with '_'.
