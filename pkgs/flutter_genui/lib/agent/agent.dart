@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../_catalog/messages/elicitation.dart';
-import '../_catalog/messages/invitation.dart';
-import '../_catalog/shared/genui_widget.dart';
-import '../_primitives/utils.dart';
-import '../model/_simple_items.dart';
+import '../catalog/messages/elicitation.dart';
+import '../catalog/messages/invitation.dart';
+import '../catalog/shared/genui_widget.dart';
+import '../primitives/utils.dart';
+import '../model/simple_items.dart';
 import '../model/controller.dart';
 import '../model/input.dart';
-import '_fake_output.dart';
+import 'fake_output.dart';
 
 class GenUiWidget extends StatelessWidget {
   const GenUiWidget(this.controller, {super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../_catalog/elements/carousel.dart';
-import '../_catalog/elements/filter.dart';
-import '../_catalog/elements/text_intro.dart';
-import '../_catalog/messages/elicitation.dart';
-import '../_catalog/messages/invitation.dart';
+import '../catalog/elements/carousel.dart';
+import '../catalog/elements/filter.dart';
+import '../catalog/elements/text_intro.dart';
+import '../catalog/messages/elicitation.dart';
+import '../catalog/messages/invitation.dart';
 
 final fakeInvitationData = InvitationData(
   textIntroData: TextIntroData(
