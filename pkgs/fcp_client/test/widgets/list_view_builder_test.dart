@@ -1,7 +1,6 @@
+import 'package:fcp_client/fcp_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fcp_client/fcp_client.dart';
-import 'package:fcp_client/src/core/widget_catalog_registry.dart';
 
 void main() {
   group('ListViewBuilder', () {

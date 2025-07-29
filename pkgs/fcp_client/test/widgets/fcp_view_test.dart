@@ -1,7 +1,6 @@
+import 'package:fcp_client/fcp_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fcp_client/fcp_client.dart';
-import 'package:fcp_client/src/core/widget_catalog_registry.dart';
 
 void main() {
   group('FcpView', () {
@@ -42,7 +41,13 @@ void main() {
       });
 
       await tester.pumpWidget(
-        FcpView(packet: packet, catalog: catalog, registry: registry),
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+          ),
+        ),
       );
 
       expect(find.text('Hello, FCP!'), findsOneWidget);
@@ -140,7 +145,13 @@ void main() {
       });
 
       await tester.pumpWidget(
-        FcpView(packet: packet, catalog: catalog, registry: registry),
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+          ),
+        ),
       );
 
       expect(find.textContaining('No builder registered'), findsOneWidget);
@@ -185,7 +196,13 @@ void main() {
       });
 
       await tester.pumpWidget(
-        FcpView(packet: packet, catalog: catalog, registry: registry),
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+          ),
+        ),
       );
 
       expect(
@@ -247,13 +264,25 @@ void main() {
       });
 
       await tester.pumpWidget(
-        FcpView(packet: initialPacket, catalog: catalog, registry: registry),
+        MaterialApp(
+          home: FcpView(
+            packet: initialPacket,
+            catalog: catalog,
+            registry: registry,
+          ),
+        ),
       );
       expect(find.text('Initial'), findsOneWidget);
       expect(find.text('Updated'), findsNothing);
 
       await tester.pumpWidget(
-        FcpView(packet: newPacket, catalog: catalog, registry: registry),
+        MaterialApp(
+          home: FcpView(
+            packet: newPacket,
+            catalog: catalog,
+            registry: registry,
+          ),
+        ),
       );
       expect(find.text('Initial'), findsNothing);
       expect(find.text('Updated'), findsOneWidget);
@@ -299,7 +328,13 @@ void main() {
       });
 
       await tester.pumpWidget(
-        FcpView(packet: packet, catalog: catalog, registry: registry),
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+          ),
+        ),
       );
 
       expect(find.text('Hello from state!'), findsOneWidget);
@@ -346,11 +381,13 @@ void main() {
       });
 
       await tester.pumpWidget(
-        FcpView(
-          packet: packet,
-          catalog: catalog,
-          registry: registry,
-          controller: controller,
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            catalog: catalog,
+            registry: registry,
+            controller: controller,
+          ),
         ),
       );
 
@@ -389,7 +426,7 @@ void main() {
                     EventPayload({
                       'sourceNodeId': node.id,
                       'eventName': 'onPressed',
-                      'arguments': {'test': 'data'},
+                      'arguments': <String, Object?>{'test': 'data'},
                     }),
                   );
                 },
@@ -397,9 +434,10 @@ void main() {
               );
             },
             definition: WidgetDefinition({
-              'properties': {},
+              'properties': <String, Object?>{},
               'events': {
                 'onPressed': {
+                  'type': 'object',
                   'properties': {
                     'test': {'type': 'String'},
                   },

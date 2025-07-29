@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fcp_client/fcp_client.dart';
-import 'package:fcp_client/src/core/widget_catalog_registry.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  WidgetCatalogRegistry _createTestRegistry() {
+  WidgetCatalogRegistry createTestRegistry() {
     return WidgetCatalogRegistry()
       ..register(
         CatalogItem(
@@ -73,7 +72,7 @@ void main() {
       );
   }
 
-  DynamicUIPacket _createTestPacket() {
+  DynamicUIPacket createTestPacket() {
     return DynamicUIPacket({
       'formatVersion': '1.0.0',
       'layout': {
@@ -111,9 +110,9 @@ void main() {
   }
 
   testWidgets('renders a complete static UI', (WidgetTester tester) async {
-    final registry = _createTestRegistry();
+    final registry = createTestRegistry();
     final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
-    final packet = _createTestPacket();
+    final packet = createTestPacket();
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(

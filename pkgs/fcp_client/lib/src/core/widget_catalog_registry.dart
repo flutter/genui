@@ -67,7 +67,7 @@ class WidgetCatalogRegistry {
 
   /// Generates a [WidgetCatalog] from all the registered widgets.
   ///
-  /// This method iterates through all the `RegisteredWidget` instances and
+  /// This method iterates through all the `CatalogItem` instances and
   /// compiles their definitions into a single `WidgetCatalog` object that can
   /// be passed to the `FcpView`.
   WidgetCatalog buildCatalog({

@@ -1,68 +1,90 @@
-import 'package:fcp_client/fcp_client.dart';
+import 'package:fcp_client/src/core/widget_catalog_registry.dart';
+import 'package:fcp_client/src/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('CatalogRegistry', () {
-    late WidgetCatalogRegistry registry;
+  group('WidgetCatalogRegistry', () {
+    final testDefinition = WidgetDefinition({'properties': <String, Object?>{}});
 
-    setUp(() {
-      registry = WidgetCatalogRegistry();
-    });
-
-    test('register and getBuilder work correctly', () {
-      SizedBox builder(
+    test('registering and retrieving a builder', () {
+      final registry = WidgetCatalogRegistry();
+      Widget testBuilder(
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox();
-      registry.register('SizedBox', builder);
+      ) =>
+          const SizedBox();
 
-      final retrievedBuilder = registry.getBuilder('SizedBox');
+      registry.register(CatalogItem(
+        name: 'TestWidget',
+        builder: testBuilder,
+        definition: testDefinition,
+      ));
+
+      final retrievedBuilder = registry.getBuilder('TestWidget');
       expect(retrievedBuilder, isNotNull);
-      expect(retrievedBuilder, same(builder));
+      expect(retrievedBuilder, equals(testBuilder));
     });
 
-    test('getBuilder returns null for unregistered type', () {
-      final retrievedBuilder = registry.getBuilder('UnregisteredWidget');
+    test('retrieving a non-existent builder returns null', () {
+      final registry = WidgetCatalogRegistry();
+      final retrievedBuilder = registry.getBuilder('NonExistentWidget');
       expect(retrievedBuilder, isNull);
     });
 
-    test('hasBuilder returns true for registered type', () {
-      SizedBox builder(
+    test('overwriting an existing builder', () {
+      final registry = WidgetCatalogRegistry();
+      Widget builder1(
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox();
-      registry.register('SizedBox', builder);
-      expect(registry.hasBuilder('SizedBox'), isTrue);
+      ) =>
+          const Text('1');
+      Widget builder2(
+        BuildContext context,
+        LayoutNode node,
+        Map<String, Object?> properties,
+        Map<String, dynamic> children,
+      ) =>
+          const Text('2');
+
+      registry.register(CatalogItem(
+        name: 'TestWidget',
+        builder: builder1,
+        definition: testDefinition,
+      ));
+      final retrievedBuilder1 = registry.getBuilder('TestWidget');
+      expect(retrievedBuilder1, equals(builder1));
+
+      registry.register(CatalogItem(
+        name: 'TestWidget',
+        builder: builder2,
+        definition: testDefinition,
+      ));
+      final retrievedBuilder2 = registry.getBuilder('TestWidget');
+      expect(retrievedBuilder2, equals(builder2));
     });
 
-    test('hasBuilder returns false for unregistered type', () {
-      expect(registry.hasBuilder('UnregisteredWidget'), isFalse);
-    });
-
-    test('registering a builder overwrites an existing one', () {
-      SizedBox builder1(
+    test('hasBuilder returns correct value', () {
+      final registry = WidgetCatalogRegistry();
+      Widget testBuilder(
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) => const SizedBox(width: 1);
-      SizedBox builder2(
-        BuildContext context,
-        LayoutNode node,
-        Map<String, Object?> properties,
-        Map<String, dynamic> children,
-      ) => const SizedBox(width: 2);
+      ) =>
+          const SizedBox();
 
-      registry.register('SizedBox', builder1);
-      expect(registry.getBuilder('SizedBox'), same(builder1));
-
-      registry.register('SizedBox', builder2);
-      expect(registry.getBuilder('SizedBox'), same(builder2));
+      expect(registry.hasBuilder('TestWidget'), isFalse);
+      registry.register(CatalogItem(
+        name: 'TestWidget',
+        builder: testBuilder,
+        definition: testDefinition,
+      ));
+      expect(registry.hasBuilder('TestWidget'), isTrue);
     });
   });
 }

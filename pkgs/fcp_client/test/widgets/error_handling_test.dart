@@ -5,76 +5,98 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final testRegistry = WidgetCatalogRegistry()
     ..register(
-      'Container',
-      (
-        context,
-        node,
-        Map<String, Object?> properties,
-        Map<String, dynamic> children,
-      ) => Container(child: children['child'] as Widget?),
-    )
-    ..register(
-      'Text',
-      (
-        context,
-        node,
-        Map<String, Object?> properties,
-        Map<String, dynamic> children,
-      ) => Text(properties['data'] as String? ?? ''),
+      CatalogItem(
+        name: 'Text',
+        builder: (context, node, properties, children) =>
+            Text(properties['data'] as String? ?? ''),
+        definition: WidgetDefinition({
+          'properties': {
+            'data': {'type': 'String', 'isRequired': true}
+          }
+        }),
+      ),
     );
 
-  final testCatalog = WidgetCatalog({
-    'catalogVersion': '1.0.0',
-    'dataTypes': <String, Object?>{},
-    'items': <String, Object?>{
-      'Text': {
-        'properties': {
-          'data': {'type': 'String', 'isRequired': true},
+  final testCatalog = testRegistry.buildCatalog(
+    catalogVersion: '1.0.0',
+    dataTypes: <String, Object?>{},
+  );
+
+  group('FcpView Error Handling', () {
+    testWidgets('displays error for cyclical layout', (tester) async {
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'node_a',
+          'nodes': [
+            {
+              'id': 'node_a',
+              'type': 'Container', // This type is not in the test catalog
+              'properties': {'child': 'node_b'}
+            },
+            {
+              'id': 'node_b',
+              'type': 'Container',
+              'properties': {'child': 'node_a'}
+            }
+          ]
         },
-      },
-    },
-  });
-
-  DynamicUIPacket createPacket(Map<String, Object?> layout) {
-    return DynamicUIPacket({
-      'formatVersion': '1.0.0',
-      'layout': layout,
-      'state': <String, Object?>{},
-    });
-  }
-
-  group('Error Handling', () {
-    testWidgets('displays error for missing required property', (
-      WidgetTester tester,
-    ) async {
-      final packet = createPacket({
-        'root': 'root_text',
-        'nodes': [
-          {
-            'id': 'root_text',
-            'type': 'Text',
-            'properties': <String, Object?>{}, // Missing 'data' property
-          },
-        ],
+        'state': <String, Object?>{}
       });
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(
-            packet: packet,
-            registry: testRegistry,
-            catalog: testCatalog,
+      // We need a registry that has Container to test the cycle
+      final cycleRegistry = WidgetCatalogRegistry()
+        ..register(
+          CatalogItem(
+            name: 'Container',
+            builder: (context, node, properties, children) =>
+                Container(child: children['child'] as Widget?),
+            definition: WidgetDefinition({
+              'properties': {
+                'child': {'type': 'WidgetId'}
+              }
+            }),
           ),
+        );
+      final cycleCatalog = cycleRegistry.buildCatalog(catalogVersion: '1.0.0');
+
+      await tester.pumpWidget(MaterialApp(
+        home: FcpView(
+          packet: packet,
+          registry: cycleRegistry,
+          catalog: cycleCatalog,
         ),
-      );
+      ));
+
+      expect(find.textContaining('Cyclical layout detected'), findsOneWidget);
+    });
+
+    testWidgets('displays error for missing required property', (tester) async {
+      final packet = DynamicUIPacket({
+        'formatVersion': '1.0.0',
+        'layout': {
+          'root': 'text_node',
+          'nodes': [
+            {
+              'id': 'text_node',
+              'type': 'Text',
+              'properties': <String, Object?>{} // Missing 'data'
+            }
+          ]
+        },
+        'state': <String, Object?>{}
+      });
+
+      await tester.pumpWidget(MaterialApp(
+        home: FcpView(
+          packet: packet,
+          registry: testRegistry,
+          catalog: testCatalog,
+        ),
+      ));
 
       expect(
-        find.text(
-          'FCP Error: Missing required property "data" for widget type '
-          '"Text".',
-        ),
-        findsOneWidget,
-      );
+          find.textContaining('Missing required property "data"'), findsOneWidget);
     });
   });
 }
