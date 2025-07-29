@@ -1,6 +1,10 @@
-import 'package:example/sdk/catalog/carousel.dart';
-import 'package:example/sdk/catalog/invitation.dart';
-import 'package:example/sdk/catalog/text_intro.dart';
+import 'package:flutter/material.dart';
+
+import '../catalog/elements/carousel.dart';
+import '../catalog/elements/filter.dart';
+import '../catalog/elements/text_intro.dart';
+import '../catalog/messages/elicitation.dart';
+import '../catalog/messages/invitation.dart';
 
 final fakeInvitationData = InvitationData(
   textIntroData: TextIntroData(
@@ -27,4 +31,20 @@ final fakeInvitationData = InvitationData(
     ),
   ],
   chatHintText: 'Ask me anything',
+);
+
+final fakeElicitationData = ElicitationData(
+  textIntroData: TextIntroData(
+    intro: 'OK I can help generate itinerary as follows or tap to edit',
+  ),
+  filterData: FilterData([
+    FilterItemData(label: 'Zermatt', icon: Icons.location_pin),
+    FilterItemData(label: '3 days', icon: Icons.calendar_month),
+    FilterItemData(
+      label: '2 adults + 1 child',
+      icon: Icons.supervised_user_circle_outlined,
+    ),
+    FilterItemData(label: 'Low cost', icon: Icons.money),
+    FilterItemData(label: 'Medium activity', icon: Icons.run_circle_sharp),
+  ], submitLabel: 'Generate'),
 );
