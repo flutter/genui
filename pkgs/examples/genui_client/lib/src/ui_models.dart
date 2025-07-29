@@ -85,8 +85,7 @@ extension type UiDefinition.fromMap(Map<String, Object?> _json) {
 
     for (final widget in (_json['widgets'] as List<Object?>)) {
       var typedWidget = widget as Map<String, Object?>;
-      widgetById[typedWidget['id'] as String] =
-          typedWidget as Map<String, Object?>;
+      widgetById[typedWidget['id'] as String] = typedWidget;
     }
 
     return widgetById;
