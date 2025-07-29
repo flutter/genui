@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
-import 'src/ai_client/ai_client.dart';
 import 'src/chat_message.dart';
 import 'src/core_catalog.dart';
 import 'src/dynamic_ui.dart';
