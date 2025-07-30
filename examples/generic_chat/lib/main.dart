@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
-import 'src/core_catalog.dart';
-import 'src/widget_tree_llm_adapter.dart';
 
 final systemPrompt =
     '''You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
@@ -62,7 +60,7 @@ class GenUIHomePage extends StatefulWidget {
 
 class _GenUIHomePageState extends State<GenUIHomePage> {
   final _promptController = TextEditingController();
-  late final WidgetTreeLlmAdapter _widgetTreeLlmAdapter;
+  late final ConversationManager _conversationManager;
 
   @override
   void initState() {
@@ -73,7 +71,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
             debugPrint('[$severity] $message');
           },
         );
-    _widgetTreeLlmAdapter = WidgetTreeLlmAdapter(
+    _conversationManager = ConversationManager(
       coreCatalog,
       systemPrompt,
       aiClient,
@@ -83,14 +81,14 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
   @override
   void dispose() {
     _promptController.dispose();
-    _widgetTreeLlmAdapter.dispose();
+    _conversationManager.dispose();
     super.dispose();
   }
 
   void _sendPrompt() {
     final prompt = _promptController.text;
     if (prompt.isNotEmpty) {
-      _widgetTreeLlmAdapter.sendUserPrompt(prompt);
+      _conversationManager.sendUserPrompt(prompt);
       _promptController.clear();
     }
   }
@@ -108,7 +106,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           child: Column(
             children: [
               Expanded(
-                child: _widgetTreeLlmAdapter.widget(),
+                child: _conversationManager.widget(),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -128,7 +126,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                       onPressed: _sendPrompt,
                     ),
                     StreamBuilder<bool>(
-                      stream: _widgetTreeLlmAdapter.loadingStream,
+                      stream: _conversationManager.loadingStream,
                       initialData: false,
                       builder: (context, snapshot) {
                         if (snapshot.data ?? false) {
