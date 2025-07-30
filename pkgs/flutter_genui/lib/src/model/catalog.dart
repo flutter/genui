@@ -11,10 +11,10 @@ class Catalog {
 
   Widget buildWidget(
     Map<String, Object?>
-        data, // The actual deserialized JSON data for this layout
+    data, // The actual deserialized JSON data for this layout
     Widget Function(String id) buildChild,
     void Function(String widgetId, String eventType, Object? value)
-        dispatchEvent,
+    dispatchEvent,
     BuildContext context,
   ) {
     final widgetType = (data['widget'] as Map<String, Object?>).keys.first;
@@ -38,20 +38,20 @@ class Catalog {
     final schemaProperties = {
       for (var item in items) item.name: item.dataSchema,
     };
-    final optionalSchemaProperties = [
-      for (var item in items) item.name,
-    ];
+    final optionalSchemaProperties = [for (var item in items) item.name];
 
     return Schema.object(
-        description:
-            'Represents a *single* widget in a UI widget tree. This widget could be one of many supported types.',
-        properties: {
-          'id': Schema.string(),
-          'widget': Schema.object(
-              description:
-                  'The properties of the specific widget that this represents. This is a oneof - only *one* field should be set on this object!',
-              properties: schemaProperties,
-              optionalProperties: optionalSchemaProperties),
-        });
+      description:
+          'Represents a *single* widget in a UI widget tree. This widget could be one of many supported types.',
+      properties: {
+        'id': Schema.string(),
+        'widget': Schema.object(
+          description:
+              'The properties of the specific widget that this represents. This is a oneof - only *one* field should be set on this object!',
+          properties: schemaProperties,
+          optionalProperties: optionalSchemaProperties,
+        ),
+      },
+    );
   }
 }

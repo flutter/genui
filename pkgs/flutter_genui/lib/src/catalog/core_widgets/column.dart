@@ -1,12 +1,15 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../catalog_item.dart';
+import '../../model/catalog_item.dart';
 
 final _schema = Schema.object(
   properties: {
     'mainAxisAlignment': Schema.enumString(
-      description: 'How children are aligned on the main axis. '
+      description:
+          'How children are aligned on the main axis. '
           'See Flutter\'s MainAxisAlignment for values.',
       enumValues: [
         'start',
@@ -18,15 +21,10 @@ final _schema = Schema.object(
       ],
     ),
     'crossAxisAlignment': Schema.enumString(
-      description: 'How children are aligned on the cross axis. '
+      description:
+          'How children are aligned on the cross axis. '
           'See Flutter\'s CrossAxisAlignment for values.',
-      enumValues: [
-        'start',
-        'center',
-        'end',
-        'stretch',
-        'baseline',
-      ],
+      enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
     'children': Schema.array(
       items: Schema.string(),
@@ -78,10 +76,12 @@ Widget _builder(
 ) {
   final children = (data['children'] as List<dynamic>).cast<String>();
   return Column(
-    mainAxisAlignment:
-        _parseMainAxisAlignment(data['mainAxisAlignment'] as String?),
-    crossAxisAlignment:
-        _parseCrossAxisAlignment(data['crossAxisAlignment'] as String?),
+    mainAxisAlignment: _parseMainAxisAlignment(
+      data['mainAxisAlignment'] as String?,
+    ),
+    crossAxisAlignment: _parseCrossAxisAlignment(
+      data['crossAxisAlignment'] as String?,
+    ),
     children: children.map(buildChild).toList(),
   );
 }

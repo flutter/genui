@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'ui_models.dart';
+import '../model/ui_models.dart';
 
 typedef DebounceCallback = void Function(List<UiEvent> events);
 
@@ -12,9 +12,7 @@ class EventDebouncer {
   });
 
   @visibleForTesting
-  EventDebouncer.test({
-    required this.callback,
-  }) : delay = Duration.zero;
+  EventDebouncer.test({required this.callback}) : delay = Duration.zero;
 
   final DebounceCallback callback;
   final Duration delay;

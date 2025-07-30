@@ -5,10 +5,10 @@ import 'package:flutter/widgets.dart';
 import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
 import '../catalog/shared/genui_widget.dart';
-import '../primitives/utils.dart';
-import '../model/simple_items.dart';
 import '../model/controller.dart';
 import '../model/input.dart';
+import '../model/simple_items.dart';
+import '../primitives/utils.dart';
 import 'fake_output.dart';
 
 class GenUiWidget extends StatelessWidget {

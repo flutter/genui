@@ -6,18 +6,25 @@ Please follow our [contributor guidelines](https://github.com/flutter/flutter/bl
 
 The app uses `firebase_ai` to connect to the LLM, which requires using Firebase.
 
-To configure firebase, run `flutterfire`.
+To configure firebase for a new Dash project, run `flutterfire`:
 
-First, activate `flutterfire`:
+1. Activate `flutterfire`:
 
-```shell
-dart pub global activate flutterfire_cli
-```
+    ```shell
+    dart pub global activate flutterfire_cli
+    ```
 
-The configure it:
+2. `firebase login` with Google credentials
 
-```shell
-flutterfire configure --overwrite-firebase-options --platforms=web,macos,android --project=fluttergenui
-```
+3. Configure firebase in the project directory:
 
-You can configure the project on the Google Cloud Console for the [FlutterGenUI project](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
+    ```shell
+    flutterfire configure --overwrite-firebase-options --platforms=web,macos,android --project=fluttergenui
+    ```
+TODO: figure out how to generate lib/firebase_options.dart, .firebaserc and firebase.json
+
+Guidances:
+https://firebase.google.com/docs/ai-logic/get-started?platform=flutter&api=vertex#prereqs
+https://firebase.flutter.dev/docs/overview
+
+See `fluttergenui` details [here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).

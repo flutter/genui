@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// A data object that represents a user interaction event in the UI.
 ///
 /// This is used to send information from the client to the AI about user
@@ -13,12 +11,12 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
     required DateTime timestamp,
     Object? value,
   }) : _json = {
-          'surfaceId': surfaceId,
-          'widgetId': widgetId,
-          'eventType': eventType,
-          'timestamp': timestamp.toIso8601String(),
-          if (value != null) 'value': value,
-        };
+         'surfaceId': surfaceId,
+         'widgetId': widgetId,
+         'eventType': eventType,
+         'timestamp': timestamp.toIso8601String(),
+         if (value != null) 'value': value,
+       };
 
   /// The ID of the surface that this event originated from.
   String get surfaceId => _json['surfaceId'] as String;

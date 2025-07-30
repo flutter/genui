@@ -1,23 +1,23 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../catalog_item.dart';
+import '../../model/catalog_item.dart';
 
 final _schema = Schema.object(
   properties: {
-    'child': Schema.string(
-      description: 'The ID of a child widget.',
-    ),
+    'child': Schema.string(description: 'The ID of a child widget.'),
   },
 );
 
 Widget _builder(
-    dynamic data, // The actual deserialized JSON data for this layout
-    String id,
-    Widget Function(String id) buildChild,
-    void Function(String widgetId, String eventType, Object? value)
-        dispatchEvent,
-    BuildContext context) {
+  dynamic data, // The actual deserialized JSON data for this layout
+  String id,
+  Widget Function(String id) buildChild,
+  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
+  BuildContext context,
+) {
   /// The ID of the child widget to display inside the button.
   final childId = data['child'] as String;
   final child = buildChild(childId);

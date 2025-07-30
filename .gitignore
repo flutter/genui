@@ -1,4 +1,5 @@
 .dart_tool/
 pubspec.lock
 .DS_Store
+DEPS.md
 Podfile.lock

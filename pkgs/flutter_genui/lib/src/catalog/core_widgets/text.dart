@@ -1,15 +1,11 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import '../catalog_item.dart';
+import '../../model/catalog_item.dart';
 
 final text = CatalogItem(
   name: 'text',
   dataSchema: Schema.object(
-    properties: {
-      'text': Schema.string(
-        description: 'The text to display.',
-      ),
-    },
+    properties: {'text': Schema.string(description: 'The text to display.')},
   ),
   widgetBuilder: (data, id, buildChild, dispatchEvent, context) {
     return Text(
