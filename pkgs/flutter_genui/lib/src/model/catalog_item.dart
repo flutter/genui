@@ -1,16 +1,18 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/material.dart';
 
-typedef CatalogWidgetBuilder = Widget Function(
-  dynamic
-      data, // The actual deserialized JSON data for this widget. The format of this data will exactly match dataSchema below.
-  String id, // The ID of this widget.
-  Widget Function(String id)
+typedef CatalogWidgetBuilder =
+    Widget Function(
+      // The actual deserialized JSON data for this widget. The format of this
+      // data will exactly match dataSchema below.
+      dynamic data,
+      String id, // The ID of this widget.
+      Widget Function(String id)
       buildChild, // A function used to build a child based on the given ID.
-  void Function(String widgetId, String eventType, Object? value)
+      void Function(String widgetId, String eventType, Object? value)
       dispatchEvent, // A function used to dispatch an event.
-  BuildContext context, // The build context.
-);
+      BuildContext context, // The build context.
+    );
 
 /// Defines a UI layout type, its schema, and how to build its widget.
 class CatalogItem {
