@@ -1,4 +1,6 @@
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter_genui/ai_client/llm_connection.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog.dart';
 
