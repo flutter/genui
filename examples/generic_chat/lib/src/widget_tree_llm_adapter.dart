@@ -11,7 +11,8 @@ import 'event_debouncer.dart';
 import 'ui_models.dart';
 
 class WidgetTreeLlmAdapter {
-  WidgetTreeLlmAdapter(this.catalog, this.systemInstruction, this.llmConnection) {
+  WidgetTreeLlmAdapter(
+      this.catalog, this.systemInstruction, this.llmConnection) {
     _eventDebouncer = EventDebouncer(callback: _handleEvents);
   }
 
@@ -132,12 +133,10 @@ class WidgetTreeLlmAdapter {
                       );
               if (oldResponse != null) {
                 final index = _chatHistory.indexOf(oldResponse);
-                _chatHistory[index] = UiResponse(
-                    definition: {
-                      'surfaceId': surfaceId,
-                      ...definition,
-                    },
-                    surfaceId: surfaceId);
+                _chatHistory[index] = UiResponse(definition: {
+                  'surfaceId': surfaceId,
+                  ...definition,
+                }, surfaceId: surfaceId);
               }
             case 'delete':
               conversationsBySurfaceId.remove(surfaceId);
