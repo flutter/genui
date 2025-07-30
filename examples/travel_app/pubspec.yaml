@@ -6,6 +6,7 @@ environment:
   sdk: ^3.9.0-196.0.dev
 
 dependencies:
+  firebase_core: ^3.15.2
   flutter:
     sdk: flutter
   flutter_genui:

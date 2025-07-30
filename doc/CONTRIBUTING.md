@@ -1,30 +1,27 @@
 # Contributing to Flutter GenUI
 
-Please follow our [contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
+Please follow our
+[contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
 
 ## Firebase Configuration
 
 The app uses `firebase_ai` to connect to the LLM, which requires using Firebase.
 
-To configure firebase for a new Dash project, run `flutterfire`:
+To configure firebase for a new Google internal project, follow
+[Firebase guidance](https://firebase.google.com/docs/flutter/setup)
+for your Google account and instead of just `flutterfire configure` run:
 
-1. Activate `flutterfire`:
-
-    ```shell
-    dart pub global activate flutterfire_cli
-    ```
-
-2. `firebase login` with Google credentials
-
-3. Configure firebase in the project directory:
-
-    ```shell
-    flutterfire configure --overwrite-firebase-options --platforms=web,macos,android --project=fluttergenui
-    ```
-TODO: figure out how to generate lib/firebase_options.dart, .firebaserc and firebase.json
+```shell
+flutterfire configure \
+    --overwrite-firebase-options \
+    --platforms=web,macos,android \
+    --project=fluttergenui \
+    --out=lib/firebase_options.dart
+```
 
 Guidances:
-https://firebase.google.com/docs/ai-logic/get-started?platform=flutter&api=vertex#prereqs
-https://firebase.flutter.dev/docs/overview
+* https://firebase.google.com/docs/ai-logic/get-started?platform=flutter&api=vertex#prereqs
+* https://firebase.google.com/docs/flutter/setup
 
-See `fluttergenui` details [here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
+See the project's `fluttergenui` details
+[here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
