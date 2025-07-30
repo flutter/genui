@@ -8,6 +8,7 @@ import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 
+import 'llm_connection.dart';
 import 'tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
@@ -40,7 +41,7 @@ class AiClientException implements Exception {
 /// including model selection, API keys, retry mechanisms, and tool
 /// configurations. It provides a [generateContent] method to interact with
 /// the AI model, supporting structured output and tool usage.
-class AiClient {
+class AiClient implements LlmConnection {
   /// Creates an [AiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
@@ -207,6 +208,7 @@ class AiClient {
   ///   `T`.
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
   ///   this specific call, in addition to the default [tools].
+  @override
   Future<T?> generateContent<T extends Object>(
     List<Content> conversation,
     Schema outputSchema, {
