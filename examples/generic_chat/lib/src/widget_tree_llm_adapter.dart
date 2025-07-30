@@ -226,16 +226,12 @@ class WidgetTreeLlmAdapter {
         stream: uiDataStream,
         initialData: const <ChatMessage>[],
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ConversationWidget(
-                messages: snapshot.data!,
-                catalog: catalog,
-                onEvent: (event) {
-                  _eventDebouncer.add(UiEvent.fromMap(event));
-                });
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
+          return ConversationWidget(
+              messages: snapshot.data!,
+              catalog: catalog,
+              onEvent: (event) {
+                _eventDebouncer.add(UiEvent.fromMap(event));
+              });
         });
   }
 }
