@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../model/catalog.dart';
+import '../model/chat_message.dart';
 import '../model/dynamic_ui.dart';
 import '../model/ui_models.dart';
-import '../model/chat_message.dart';
 
 class ConversationWidget extends StatelessWidget {
   const ConversationWidget({

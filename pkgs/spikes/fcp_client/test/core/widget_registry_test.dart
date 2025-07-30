@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('WidgetCatalogRegistry', () {
-    final testDefinition = WidgetDefinition({'properties': <String, Object?>{}});
+    final testDefinition = WidgetDefinition({
+      'properties': <String, Object?>{},
+    });
 
     test('registering and retrieving a builder', () {
       final registry = WidgetCatalogRegistry();
@@ -14,14 +16,15 @@ void main() {
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const SizedBox();
+      ) => const SizedBox();
 
-      registry.register(CatalogItem(
-        name: 'TestWidget',
-        builder: testBuilder,
-        definition: testDefinition,
-      ));
+      registry.register(
+        CatalogItem(
+          name: 'TestWidget',
+          builder: testBuilder,
+          definition: testDefinition,
+        ),
+      );
 
       final retrievedBuilder = registry.getBuilder('TestWidget');
       expect(retrievedBuilder, isNotNull);
@@ -41,29 +44,31 @@ void main() {
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const Text('1');
+      ) => const Text('1');
       Widget builder2(
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const Text('2');
+      ) => const Text('2');
 
-      registry.register(CatalogItem(
-        name: 'TestWidget',
-        builder: builder1,
-        definition: testDefinition,
-      ));
+      registry.register(
+        CatalogItem(
+          name: 'TestWidget',
+          builder: builder1,
+          definition: testDefinition,
+        ),
+      );
       final retrievedBuilder1 = registry.getBuilder('TestWidget');
       expect(retrievedBuilder1, equals(builder1));
 
-      registry.register(CatalogItem(
-        name: 'TestWidget',
-        builder: builder2,
-        definition: testDefinition,
-      ));
+      registry.register(
+        CatalogItem(
+          name: 'TestWidget',
+          builder: builder2,
+          definition: testDefinition,
+        ),
+      );
       final retrievedBuilder2 = registry.getBuilder('TestWidget');
       expect(retrievedBuilder2, equals(builder2));
     });
@@ -75,15 +80,16 @@ void main() {
         LayoutNode node,
         Map<String, Object?> properties,
         Map<String, dynamic> children,
-      ) =>
-          const SizedBox();
+      ) => const SizedBox();
 
       expect(registry.hasBuilder('TestWidget'), isFalse);
-      registry.register(CatalogItem(
-        name: 'TestWidget',
-        builder: testBuilder,
-        definition: testDefinition,
-      ));
+      registry.register(
+        CatalogItem(
+          name: 'TestWidget',
+          builder: testBuilder,
+          definition: testDefinition,
+        ),
+      );
       expect(registry.hasBuilder('TestWidget'), isTrue);
     });
   });

@@ -42,12 +42,15 @@ class Catalog {
 
     return Schema.object(
       description:
-          'Represents a *single* widget in a UI widget tree. This widget could be one of many supported types.',
+          'Represents a *single* widget in a UI widget tree. '
+          'This widget could be one of many supported types.',
       properties: {
         'id': Schema.string(),
         'widget': Schema.object(
           description:
-              'The properties of the specific widget that this represents. This is a oneof - only *one* field should be set on this object!',
+              'The properties of the specific widget '
+              'that this represents. This is a oneof - only *one* '
+              'field should be set on this object!',
           properties: schemaProperties,
           optionalProperties: optionalSchemaProperties,
         ),

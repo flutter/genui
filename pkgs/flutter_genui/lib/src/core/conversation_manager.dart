@@ -2,13 +2,10 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import '../../flutter_genui.dart';
 
-import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import 'conversation_widget.dart';
-import 'event_debouncer.dart';
-import '../model/ui_models.dart';
 
 class ConversationManager {
   ConversationManager(
@@ -33,7 +30,8 @@ class ConversationManager {
 
   int _outstandingRequests = 0;
 
-  // Stream of updates to the ui data which are used to build the Conversation Widget every time the conversation is updated.
+  // Stream of updates to the ui data which are used to build the
+  // Conversation Widget every time the conversation is updated.
   final StreamController<List<ChatMessage>> _uiDataStreamController =
       StreamController<List<ChatMessage>>.broadcast();
 
@@ -49,7 +47,8 @@ class ConversationManager {
     _eventDebouncer.dispose();
   }
 
-  /// Sends a prompt on behalf of the end user. This should update the UI and also trigger an LLM inference via the llmConnection.
+  /// Sends a prompt on behalf of the end user. This should update the UI and
+  /// also trigger an LLM inference via the llmConnection.
   void sendUserPrompt(String prompt) {
     if (prompt.isEmpty) {
       return;
@@ -205,7 +204,8 @@ class ConversationManager {
             'surfaceId': Schema.string(
               description:
                   'The ID of the surface to perform the action on. For the '
-                  '`add` action, this will be a new surface ID. For `update` and '
+                  '`add` action, this will be a new surface ID. '
+                  'For `update` and '
                   '`delete`, this will be an existing surface ID.',
             ),
             'definition': Schema.object(

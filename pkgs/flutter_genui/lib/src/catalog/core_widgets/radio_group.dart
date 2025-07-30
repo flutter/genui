@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +64,9 @@ class _RadioGroupState extends State<_RadioGroup> {
         return RadioListTile<String>(
           title: Text(label),
           value: label,
+          // ignore: deprecated_member_use
           groupValue: _groupValue,
+          // ignore: deprecated_member_use
           onChanged: changedCallback,
         );
       }).toList(),

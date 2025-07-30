@@ -11,8 +11,8 @@ void main() {
             Text(properties['data'] as String? ?? ''),
         definition: WidgetDefinition({
           'properties': {
-            'data': {'type': 'String', 'isRequired': true}
-          }
+            'data': {'type': 'String', 'isRequired': true},
+          },
         }),
       ),
     );
@@ -32,16 +32,16 @@ void main() {
             {
               'id': 'node_a',
               'type': 'Container', // This type is not in the test catalog
-              'properties': {'child': 'node_b'}
+              'properties': {'child': 'node_b'},
             },
             {
               'id': 'node_b',
               'type': 'Container',
-              'properties': {'child': 'node_a'}
-            }
-          ]
+              'properties': {'child': 'node_a'},
+            },
+          ],
         },
-        'state': <String, Object?>{}
+        'state': <String, Object?>{},
       });
 
       // We need a registry that has Container to test the cycle
@@ -53,20 +53,22 @@ void main() {
                 Container(child: children['child'] as Widget?),
             definition: WidgetDefinition({
               'properties': {
-                'child': {'type': 'WidgetId'}
-              }
+                'child': {'type': 'WidgetId'},
+              },
             }),
           ),
         );
       final cycleCatalog = cycleRegistry.buildCatalog(catalogVersion: '1.0.0');
 
-      await tester.pumpWidget(MaterialApp(
-        home: FcpView(
-          packet: packet,
-          registry: cycleRegistry,
-          catalog: cycleCatalog,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            registry: cycleRegistry,
+            catalog: cycleCatalog,
+          ),
         ),
-      ));
+      );
 
       expect(find.textContaining('Cyclical layout detected'), findsOneWidget);
     });
@@ -80,23 +82,27 @@ void main() {
             {
               'id': 'text_node',
               'type': 'Text',
-              'properties': <String, Object?>{} // Missing 'data'
-            }
-          ]
+              'properties': <String, Object?>{}, // Missing 'data'
+            },
+          ],
         },
-        'state': <String, Object?>{}
+        'state': <String, Object?>{},
       });
 
-      await tester.pumpWidget(MaterialApp(
-        home: FcpView(
-          packet: packet,
-          registry: testRegistry,
-          catalog: testCatalog,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FcpView(
+            packet: packet,
+            registry: testRegistry,
+            catalog: testCatalog,
+          ),
         ),
-      ));
+      );
 
       expect(
-          find.textContaining('Missing required property "data"'), findsOneWidget);
+        find.textContaining('Missing required property "data"'),
+        findsOneWidget,
+      );
     });
   });
 }

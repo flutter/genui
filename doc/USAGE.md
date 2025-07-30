@@ -5,4 +5,6 @@
 1. Follow [the steps](https://firebase.google.com/docs/flutter/setup)
 to configure Firebase for your project.
 
+    NOTE: see how secure it is to publish the app [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
+
 2.
