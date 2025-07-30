@@ -1,16 +1,19 @@
-import 'package:collection/collection.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
-import 'src/chat_message.dart';
 import 'src/core_catalog.dart';
-import 'src/dynamic_ui.dart';
-import 'src/ui_models.dart';
-import 'src/ui_server.dart';
 import 'src/widget_tree_llm_adapter.dart';
+
+final systemPrompt =
+    '''You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
+
+        The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+
+        For example, the user may say "I want to plan a trip to Mexico". You will first ask some questions by displaying a combination of UI elements, such as a slider to choose budget, options showing activity preferences etc. Then you will walk the user through choosing a hotel, flight and accomodation.
+        ''';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,13 +28,7 @@ void main() async {
   runApp(const GenUIApp());
 }
 
-/// The main application widget for the GenUI demo application.
-///
-/// This widget sets up the root of the application, configuring the
-/// [MaterialApp] with a title, theme, and the main home page. It serves as the
-/// entry point for the Flutter UI.
 class GenUIApp extends StatelessWidget {
-  /// Creates the main application widget.
   const GenUIApp({
     super.key,
   });
@@ -49,41 +46,12 @@ class GenUIApp extends StatelessWidget {
   }
 }
 
-/// The primary screen of the application, responsible for managing the user
-/// interface and interaction with the AI backend.
-///
-/// This stateful widget handles:
-/// - Establishing and managing the connection to the UI server.
-/// - Providing a text input field for the user to enter prompts.
-/// - Displaying the dynamically generated UI received from the server via the
-///   [DynamicUi] widget.
-/// - Forwarding UI events from the [DynamicUi] widget back to the server.
-/// - Showing connection status and error messages to the user.
 class GenUIHomePage extends StatefulWidget {
-  /// Creates an instance of the GenUI home page.
-  ///
-  /// The [autoStartServer], [connectionFactory], and [aiClient] parameters are
-  /// primarily for testing purposes, allowing for dependency injection and
-  /// controlled startup.
   const GenUIHomePage({
     super.key,
-    this.autoStartServer = true,
-    this.connectionFactory = createStreamServerConnection,
     this.aiClient,
   });
 
-  /// When true, the UI server connection is automatically initiated when the
-  /// widget is initialized.
-  final bool autoStartServer;
-
-  /// A factory function used to create the [ServerConnection] instance.
-  /// This allows for replacing the default stream-based connection with a mock
-  /// or alternative implementation for testing.
-  final ServerConnectionFactory connectionFactory;
-
-  /// The [AiClient] instance to be used by the server for generating UI.
-  /// If not provided, a default client will be instantiated. This is useful for
-  /// injecting a mock AI client during tests.
   final AiClient? aiClient;
 
   @override
@@ -91,118 +59,42 @@ class GenUIHomePage extends StatefulWidget {
 }
 
 class _GenUIHomePageState extends State<GenUIHomePage> {
-  final _chatHistory = <ChatMessage>[];
-  String _connectionStatus = 'Initializing...';
   final _promptController = TextEditingController();
-  late final ServerConnection _serverConnection;
-  final ScrollController _scrollController = ScrollController();
-  final widgetTreeLlmAdapter = WidgetTreeLlmAdapter(coreCatalog);
+  late final WidgetTreeLlmAdapter _widgetTreeLlmAdapter;
 
   @override
   void initState() {
     super.initState();
-    _serverConnection = widget.connectionFactory(
-      onSetUi: (definition) {
-        if (!mounted) return;
-        setState(() {
-          final surfaceId = definition['surfaceId'] as String?;
-          _chatHistory.add(UiResponse(
-            definition: definition,
-            surfaceId: surfaceId,
-          ));
-        });
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-      },
-      onUpdateUi: (updates) {
-        if (!mounted) return;
-        setState(() {
-          for (final update in updates) {
-            final uiUpdate = UiDefinition.fromMap(update);
-            final oldResponse =
-                _chatHistory.whereType<UiResponse>().firstWhereOrNull(
-                      (response) => response.surfaceId == uiUpdate.surfaceId,
-                    );
-            if (oldResponse != null) {
-              final index = _chatHistory.indexOf(oldResponse);
-              _chatHistory[index] =
-                  UiResponse(definition: update, surfaceId: uiUpdate.surfaceId);
-            }
-          }
-        });
-      },
-      onDeleteUi: (surfaceId) {
-        if (!mounted) return;
-        setState(() {
-          _chatHistory.removeWhere((message) =>
-              message is UiResponse && message.surfaceId == surfaceId);
-        });
-      },
-      onTextResponse: (text) {
-        if (!mounted) return;
-        setState(() {
-          _chatHistory.add(TextResponse(text: text));
-        });
-      },
-      onError: (message) {
-        if (!mounted) return;
-        setState(() {
-          _chatHistory.add(SystemMessage(text: 'Error: $message'));
-          _connectionStatus = 'Error: $message';
-        });
-      },
-      onStatusUpdate: (status) {
-        if (!mounted) return;
-        setState(() {
-          _connectionStatus = status;
-          if (status == 'Server started.' && _chatHistory.isEmpty) {
-            _chatHistory
-                .add(const SystemMessage(text: 'What can I do for you?'));
-          }
-        });
-      },
-      aiClient: widget.aiClient,
-      widgetTreeLlmAdapter: widgetTreeLlmAdapter,
+    final aiClient = widget.aiClient ??
+        AiClient(
+          loggingCallback: (severity, message) {
+            debugPrint('[$severity] $message');
+          },
+        );
+    _widgetTreeLlmAdapter = WidgetTreeLlmAdapter(
+      coreCatalog,
+      systemPrompt,
+      aiClient,
     );
-
-    if (widget.autoStartServer) {
-      _serverConnection.start();
-    }
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    }
   }
 
   @override
   void dispose() {
-    _serverConnection.dispose();
     _promptController.dispose();
-    _scrollController.dispose();
+    _widgetTreeLlmAdapter.dispose();
     super.dispose();
-  }
-
-  void _handleUiEvent(Map<String, Object?> event) {
-    _serverConnection.sendUiEvent(event);
   }
 
   void _sendPrompt() {
     final prompt = _promptController.text;
     if (prompt.isNotEmpty) {
-      setState(() {
-        _chatHistory.add(UserPrompt(text: prompt));
-      });
-      _serverConnection.sendPrompt(prompt);
+      _widgetTreeLlmAdapter.sendUserPrompt(prompt);
       _promptController.clear();
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final showProgressIndicator = _connectionStatus == 'Generating UI...' ||
-        _connectionStatus == 'Starting server...';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -214,73 +106,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           child: Column(
             children: [
               Expanded(
-                child: _chatHistory.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (showProgressIndicator)
-                              const CircularProgressIndicator(),
-                            const SizedBox(height: 16),
-                            Text(_connectionStatus),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        itemCount: _chatHistory.length,
-                        itemBuilder: (context, index) {
-                          final message = _chatHistory[index];
-                          return switch (message) {
-                            SystemMessage() => Card(
-                                elevation: 2.0,
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
-                                child: ListTile(
-                                  title: Text(message.text),
-                                  leading: const Icon(Icons.smart_toy_outlined),
-                                ),
-                              ),
-                            TextResponse() => Card(
-                                elevation: 2.0,
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
-                                child: ListTile(
-                                  title: Text(message.text),
-                                  leading: const Icon(Icons.smart_toy_outlined),
-                                ),
-                              ),
-                            UserPrompt() => Card(
-                                elevation: 2.0,
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
-                                child: ListTile(
-                                  title: Text(
-                                    message.text,
-                                    textAlign: TextAlign.right,
-                                  ),
-                                  trailing: const Icon(Icons.person),
-                                ),
-                              ),
-                            UiResponse() => Card(
-                                elevation: 2.0,
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: DynamicUi(
-                                    key: message.uiKey,
-                                    catalog: widgetTreeLlmAdapter.catalog,
-                                    surfaceId: message.surfaceId,
-                                    definition: UiDefinition.fromMap(
-                                        message.definition),
-                                    onEvent: _handleUiEvent,
-                                  ),
-                                ),
-                              ),
-                          };
-                        },
-                      ),
+                child: _widgetTreeLlmAdapter.widget(),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -302,18 +128,6 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                   ],
                 ),
               ),
-              if (showProgressIndicator)
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 16),
-                      Text('Generating UI...'),
-                    ],
-                  ),
-                ),
             ],
           ),
         ),
