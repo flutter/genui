@@ -9,14 +9,18 @@
             "cwd": "examples/travel_app",
             "request": "launch",
             "type": "dart",
-            // "program": "lib/main.dart",
+        },
+        {
+            "name": "travel_app_hardcoded",
+            "cwd": "examples/travel_app_hardcoded",
+            "request": "launch",
+            "type": "dart",
         },
         {
             "name": "generic_chat",
             "cwd": "examples/generic_chat",
             "request": "launch",
             "type": "dart",
-            // "program": "lib/main.dart",
         },
     ]
 }
