@@ -59,8 +59,7 @@ Future<void> main() async {
         description: 'Must be 3-20 characters, lowercase letters and numbers only.',
         minLength: 3,
         maxLength: 20,
-        pattern: r'^[a-z0-9]+
-,
+        pattern: r'^[a-z0-9]+',
       ),
       'email': StringSchema(
         description: 'A valid email address.',
