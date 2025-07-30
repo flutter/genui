@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/src/flutter_genui.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 import '../model/catalog.dart';
 import '../model/chat_message.dart';

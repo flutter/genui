@@ -77,7 +77,9 @@ Widget _builder(
   void Function(String widgetId, String eventType, Object? value) dispatchEvent,
   BuildContext context,
 ) {
+  // ignore: avoid_dynamic_calls
   final values = (data['values'] as List<dynamic>).cast<bool>();
+  // ignore: avoid_dynamic_calls
   final labels = (data['labels'] as List<dynamic>).cast<String>();
 
   return _CheckboxGroup(

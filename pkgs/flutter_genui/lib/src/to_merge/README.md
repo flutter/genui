@@ -1,1 +1,2 @@
-This folder contains wingets for travel app that should be moved consistently to `src`.
+This folder contains widgets for travel app that should be moved
+consistently to `src`.
