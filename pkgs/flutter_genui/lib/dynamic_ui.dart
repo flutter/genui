@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'catalog.dart';
-import 'ui_models.dart';
+import 'src/ui_models.dart';
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///

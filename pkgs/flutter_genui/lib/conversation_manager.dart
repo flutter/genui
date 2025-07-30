@@ -5,13 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog.dart';
-import 'chat_message.dart';
-import 'conversation_widget.dart';
-import 'event_debouncer.dart';
-import 'ui_models.dart';
+import 'src/chat_message.dart';
+import 'src/conversation_widget.dart';
+import 'src/event_debouncer.dart';
+import 'src/ui_models.dart';
 
-class WidgetTreeLlmAdapter {
-  WidgetTreeLlmAdapter(this.catalog, this.systemInstruction, this.llmConnection) {
+class ConversationManager {
+  ConversationManager(
+    this.catalog,
+    this.systemInstruction,
+    this.llmConnection,
+  ) {
     _eventDebouncer = EventDebouncer(callback: _handleEvents);
   }
 
@@ -72,19 +76,26 @@ class WidgetTreeLlmAdapter {
         continue;
       }
       for (final event in entry.value) {
-        final functionResponse =
-            FunctionResponse(event.widgetId, event.toMap());
-        surfaceConversation.add(Content.functionResponse(
-            functionResponse.name, functionResponse.response));
+        final functionResponse = FunctionResponse(
+          event.widgetId,
+          event.toMap(),
+        );
+        surfaceConversation.add(
+          Content.functionResponse(
+            functionResponse.name,
+            functionResponse.response,
+          ),
+        );
       }
-      surfaceConversation.add(Content.text(
+      surfaceConversation.add(
+        Content.text(
           'The user has interacted with the UI surface named "$surfaceId". '
           'Consolidate the UI events and update the UI accordingly. Respond '
           'with an updated UI definition. You may update any of the '
-          'surfaces, or delete them if they are no longer needed.'));
-      _generateAndSendResponse(
-        conversation: surfaceConversation,
+          'surfaces, or delete them if they are no longer needed.',
+        ),
       );
+      _generateAndSendResponse(conversation: surfaceConversation);
     }
   }
 
@@ -116,13 +127,12 @@ class WidgetTreeLlmAdapter {
                   actionMap['definition'] as Map<String, Object?>;
               final newConversation = List<Content>.from(conversation);
               conversationsBySurfaceId[surfaceId] = newConversation;
-              _chatHistory.add(UiResponse(
-                definition: {
-                  'surfaceId': surfaceId,
-                  ...definition,
-                },
-                surfaceId: surfaceId,
-              ));
+              _chatHistory.add(
+                UiResponse(
+                  definition: {'surfaceId': surfaceId, ...definition},
+                  surfaceId: surfaceId,
+                ),
+              );
             case 'update':
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
@@ -133,16 +143,16 @@ class WidgetTreeLlmAdapter {
               if (oldResponse != null) {
                 final index = _chatHistory.indexOf(oldResponse);
                 _chatHistory[index] = UiResponse(
-                    definition: {
-                      'surfaceId': surfaceId,
-                      ...definition,
-                    },
-                    surfaceId: surfaceId);
+                  definition: {'surfaceId': surfaceId, ...definition},
+                  surfaceId: surfaceId,
+                );
               }
             case 'delete':
               conversationsBySurfaceId.remove(surfaceId);
-              _chatHistory.removeWhere((message) =>
-                  message is UiResponse && message.surfaceId == surfaceId);
+              _chatHistory.removeWhere(
+                (message) =>
+                    message is UiResponse && message.surfaceId == surfaceId,
+              );
           }
         }
       }
@@ -224,19 +234,17 @@ class WidgetTreeLlmAdapter {
 
   Widget widget() {
     return StreamBuilder(
-        stream: uiDataStream,
-        initialData: const <ChatMessage>[],
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ConversationWidget(
-                messages: snapshot.data!,
-                catalog: catalog,
-                onEvent: (event) {
-                  _eventDebouncer.add(UiEvent.fromMap(event));
-                });
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        });
+      stream: uiDataStream,
+      initialData: const <ChatMessage>[],
+      builder: (context, snapshot) {
+        return ConversationWidget(
+          messages: snapshot.data!,
+          catalog: catalog,
+          onEvent: (event) {
+            _eventDebouncer.add(UiEvent.fromMap(event));
+          },
+        );
+      },
+    );
   }
 }

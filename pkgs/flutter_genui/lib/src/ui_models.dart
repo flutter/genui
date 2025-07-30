@@ -1,18 +1,5 @@
 import 'dart:convert';
 
-/// Extension to provide JSON stringification for map-based objects.
-extension JsonEncodeMap on Map<String, Object?> {
-  /// Converts this map object to a JSON string.
-  ///
-  /// If an [indent] is provided, the output will be formatted with that indent.
-  String toJsonString({String indent = ''}) {
-    if (indent.isNotEmpty) {
-      return JsonEncoder.withIndent(indent).convert(this);
-    }
-    return const JsonEncoder().convert(this);
-  }
-}
-
 /// A data object that represents a user interaction event in the UI.
 ///
 /// This is used to send information from the client to the AI about user
@@ -51,22 +38,6 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
 
   /// Converts this event to a map, suitable for JSON serialization.
   Map<String, Object?> toMap() => _json;
-}
-
-/// A data object that represents a state update for a widget.
-///
-/// This is sent from the AI to the client to dynamically change the properties
-/// of a widget that is already on screen.
-extension type UiStateUpdate.fromMap(Map<String, Object?> _json) {
-  /// The ID of the surface to update.
-  String get surfaceId => _json['surfaceId'] as String;
-
-  /// The ID of the widget to update.
-  String get widgetId => _json['widgetId'] as String;
-
-  /// A map of the new properties to apply to the widget. These will be merged
-  /// with the existing properties of the widget.
-  Map<String, Object?> get props => _json['props'] as Map<String, Object?>;
 }
 
 /// A data object that represents the entire UI definition.

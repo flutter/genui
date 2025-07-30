@@ -4,18 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
-import 'src/core_catalog.dart';
-import 'src/widget_tree_llm_adapter.dart';
 
 final systemPrompt =
     '''You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
 
-        The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
 
-        For example, the user may say "I want to plan a trip to Mexico". You will first ask some questions by displaying a combination of UI elements, such as a slider to choose budget, options showing activity preferences etc. Then you will walk the user through choosing a hotel, flight and accomodation.
+For example, the user may say "I want to plan a trip to Mexico". You will first ask some questions by displaying a combination of UI elements, such as a slider to choose budget, options showing activity preferences etc. Then you will walk the user through choosing a hotel, flight and accomodation.
 
-        Typically, you should not update existing surfaces and instead just continually "add" new ones.
-        ''';
+Typically, you should not update existing surfaces and instead just continually "add" new ones.
+''';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,7 +60,7 @@ class GenUIHomePage extends StatefulWidget {
 
 class _GenUIHomePageState extends State<GenUIHomePage> {
   final _promptController = TextEditingController();
-  late final WidgetTreeLlmAdapter _widgetTreeLlmAdapter;
+  late final ConversationManager _conversationManager;
 
   @override
   void initState() {
@@ -73,7 +71,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
             debugPrint('[$severity] $message');
           },
         );
-    _widgetTreeLlmAdapter = WidgetTreeLlmAdapter(
+    _conversationManager = ConversationManager(
       coreCatalog,
       systemPrompt,
       aiClient,
@@ -83,14 +81,14 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
   @override
   void dispose() {
     _promptController.dispose();
-    _widgetTreeLlmAdapter.dispose();
+    _conversationManager.dispose();
     super.dispose();
   }
 
   void _sendPrompt() {
     final prompt = _promptController.text;
     if (prompt.isNotEmpty) {
-      _widgetTreeLlmAdapter.sendUserPrompt(prompt);
+      _conversationManager.sendUserPrompt(prompt);
       _promptController.clear();
     }
   }
@@ -108,7 +106,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           child: Column(
             children: [
               Expanded(
-                child: _widgetTreeLlmAdapter.widget(),
+                child: _conversationManager.widget(),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -128,7 +126,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                       onPressed: _sendPrompt,
                     ),
                     StreamBuilder<bool>(
-                      stream: _widgetTreeLlmAdapter.loadingStream,
+                      stream: _conversationManager.loadingStream,
                       initialData: false,
                       builder: (context, snapshot) {
                         if (snapshot.data ?? false) {
