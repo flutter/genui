@@ -2,13 +2,13 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/flutter_genui.dart';
 
-import 'catalog.dart';
-import 'src/chat_message.dart';
-import 'src/conversation_widget.dart';
-import 'src/event_debouncer.dart';
-import 'src/ui_models.dart';
+import '../model/catalog.dart';
+import '../model/chat_message.dart';
+import 'conversation_widget.dart';
+import 'event_debouncer.dart';
+import '../model/ui_models.dart';
 
 class ConversationManager {
   ConversationManager(
@@ -136,10 +136,11 @@ class ConversationManager {
             case 'update':
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
-              final oldResponse =
-                  _chatHistory.whereType<UiResponse>().firstWhereOrNull(
-                        (response) => response.surfaceId == surfaceId,
-                      );
+              final oldResponse = _chatHistory
+                  .whereType<UiResponse>()
+                  .firstWhereOrNull(
+                    (response) => response.surfaceId == surfaceId,
+                  );
               if (oldResponse != null) {
                 final index = _chatHistory.indexOf(oldResponse);
                 _chatHistory[index] = UiResponse(
@@ -186,51 +187,51 @@ class ConversationManager {
   /// This approach ensures that the fundamental structure of the UI definition
   /// is always valid according to the schema.
   Schema get outputSchema => Schema.object(
-        properties: {
-          'responseText': Schema.string(
-            description:
-                'The text response to the user query. This should be used '
-                'when the query is fully satisfied and no more information is '
-                'needed.',
-          ),
-          'actions': Schema.array(
-            description:
-                'A list of actions to be performed on the UI surfaces.',
-            items: Schema.object(
+    properties: {
+      'responseText': Schema.string(
+        description:
+            'The text response to the user query. This should be used '
+            'when the query is fully satisfied and no more information is '
+            'needed.',
+      ),
+      'actions': Schema.array(
+        description: 'A list of actions to be performed on the UI surfaces.',
+        items: Schema.object(
+          properties: {
+            'action': Schema.enumString(
+              description: 'The action to perform on the UI surface.',
+              enumValues: ['add', 'update', 'delete'],
+            ),
+            'surfaceId': Schema.string(
+              description:
+                  'The ID of the surface to perform the action on. For the '
+                  '`add` action, this will be a new surface ID. For `update` and '
+                  '`delete`, this will be an existing surface ID.',
+            ),
+            'definition': Schema.object(
               properties: {
-                'action': Schema.enumString(
-                  description: 'The action to perform on the UI surface.',
-                  enumValues: ['add', 'update', 'delete'],
+                'root': Schema.string(
+                  description: 'The ID of the root widget.',
                 ),
-                'surfaceId': Schema.string(
-                  description:
-                      'The ID of the surface to perform the action on. For the '
-                      '`add` action, this will be a new surface ID. For `update` and '
-                      '`delete`, this will be an existing surface ID.',
-                ),
-                'definition': Schema.object(
-                  properties: {
-                    'root': Schema.string(
-                      description: 'The ID of the root widget.',
-                    ),
-                    'widgets': Schema.array(
-                      items: catalog.schema,
-                      description: 'A list of widget definitions.',
-                    ),
-                  },
-                  description:
-                      'A schema for defining a simple UI tree to be rendered by '
-                      'Flutter.',
+                'widgets': Schema.array(
+                  items: catalog.schema,
+                  description: 'A list of widget definitions.',
                 ),
               },
-              optionalProperties: ['surfaceId', 'definition'],
+              description:
+                  'A schema for defining a simple UI tree to be rendered by '
+                  'Flutter.',
             ),
-          ),
-        },
-        description: 'A schema for defining a simple UI tree to be rendered by '
-            'Flutter.',
-        optionalProperties: ['actions', 'responseText'],
-      );
+          },
+          optionalProperties: ['surfaceId', 'definition'],
+        ),
+      ),
+    },
+    description:
+        'A schema for defining a simple UI tree to be rendered by '
+        'Flutter.',
+    optionalProperties: ['actions', 'responseText'],
+  );
 
   Widget widget() {
     return StreamBuilder(

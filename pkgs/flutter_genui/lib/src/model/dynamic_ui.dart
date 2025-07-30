@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'catalog.dart';
-import 'src/ui_models.dart';
+import 'ui_models.dart';
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
@@ -58,9 +58,10 @@ class _DynamicUiState extends State<DynamicUi> {
   /// and constructs the corresponding Flutter widget.
   Widget _buildWidget(String widgetId) {
     return widget.catalog.buildWidget(
-        widget.definition.widgets[widgetId]! as Map<String, Object?>,
-        _buildWidget,
-        _dispatchEvent,
-        context);
+      widget.definition.widgets[widgetId]! as Map<String, Object?>,
+      _buildWidget,
+      _dispatchEvent,
+      context,
+    );
   }
 }

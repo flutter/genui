@@ -1,7 +1,7 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../catalog_item.dart';
+import '../../model/catalog_item.dart';
 
 final _schema = Schema.object(
   properties: {
@@ -71,12 +71,12 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
 }
 
 Widget _builder(
-    dynamic data, // The actual deserialized JSON data for this layout
-    String id,
-    Widget Function(String id) buildChild,
-    void Function(String widgetId, String eventType, Object? value)
-        dispatchEvent,
-    BuildContext context) {
+  dynamic data, // The actual deserialized JSON data for this layout
+  String id,
+  Widget Function(String id) buildChild,
+  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
+  BuildContext context,
+) {
   final values = (data['values'] as List<dynamic>).cast<bool>();
   final labels = (data['labels'] as List<dynamic>).cast<String>();
 
