@@ -1,13 +1,17 @@
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/ai_client/llm_connection.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog.dart';
 
 class WidgetTreeLlmAdapter {
-  WidgetTreeLlmAdapter(this.catalog);
+  WidgetTreeLlmAdapter(
+      this.catalog, this.systemInstruction, this.llmConnection);
 
   final Catalog catalog;
+
+  final String systemInstruction;
+
+  final LlmConnection llmConnection;
 
   /// A schema for defining a simple UI tree to be rendered by Flutter.
   ///
