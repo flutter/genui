@@ -5,16 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "example",
-            "cwd": "pkgs/examples/travel_app",
+            "name": "travel_app",
+            "cwd": "examples/travel_app",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            // "program": "lib/main.dart",
         },
         {
-            "name": "genui_client",
-            "cwd": "pkgs/examples/genui_client",
+            "name": "generic_chat",
+            "cwd": "examples/generic_chat",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            // "program": "lib/main.dart",
         },
     ]
 }
