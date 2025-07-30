@@ -21,5 +21,10 @@ To configure firebase for a new Dash project, run `flutterfire`:
     ```shell
     flutterfire configure --overwrite-firebase-options --platforms=web,macos,android --project=fluttergenui
     ```
+TODO: figure out how to generate lib/firebase_options.dart, .firebaserc and firebase.json
+
+Guidances:
+https://firebase.google.com/docs/ai-logic/get-started?platform=flutter&api=vertex#prereqs
+https://firebase.flutter.dev/docs/overview
 
 See `fluttergenui` details [here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
