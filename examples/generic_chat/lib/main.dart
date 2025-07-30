@@ -13,6 +13,8 @@ final systemPrompt =
         The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
 
         For example, the user may say "I want to plan a trip to Mexico". You will first ask some questions by displaying a combination of UI elements, such as a slider to choose budget, options showing activity preferences etc. Then you will walk the user through choosing a hotel, flight and accomodation.
+
+        Typically, you should not update existing surfaces and instead just continually "add" new ones.
         ''';
 
 void main() async {
@@ -124,6 +126,19 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                     IconButton(
                       icon: const Icon(Icons.send),
                       onPressed: _sendPrompt,
+                    ),
+                    StreamBuilder<bool>(
+                      stream: _widgetTreeLlmAdapter.loadingStream,
+                      initialData: false,
+                      builder: (context, snapshot) {
+                        if (snapshot.data ?? false) {
+                          return const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
                     ),
                   ],
                 ),

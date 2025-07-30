@@ -27,14 +27,21 @@ class WidgetTreeLlmAdapter {
   // The current chat data that is shown.
   final _chatHistory = <ChatMessage>[];
 
+  int _outstandingRequests = 0;
+
   // Stream of updates to the ui data which are used to build the Conversation Widget every time the conversation is updated.
   final StreamController<List<ChatMessage>> _uiDataStreamController =
       StreamController<List<ChatMessage>>.broadcast();
 
+  final StreamController<bool> _loadingStreamController =
+      StreamController<bool>.broadcast();
+
   Stream<List<ChatMessage>> get uiDataStream => _uiDataStreamController.stream;
+  Stream<bool> get loadingStream => _loadingStreamController.stream;
 
   void dispose() {
     _uiDataStreamController.close();
+    _loadingStreamController.close();
     _eventDebouncer.dispose();
   }
 
@@ -84,6 +91,8 @@ class WidgetTreeLlmAdapter {
   Future<void> _generateAndSendResponse({
     required List<Content> conversation,
   }) async {
+    _outstandingRequests++;
+    _loadingStreamController.add(true);
     try {
       final response = await llmConnection.generateContent(
         conversation,
@@ -143,6 +152,11 @@ class WidgetTreeLlmAdapter {
       print('Error generating content: $e');
       _chatHistory.add(SystemMessage(text: 'Error: $e'));
       _uiDataStreamController.add(List.from(_chatHistory));
+    } finally {
+      _outstandingRequests--;
+      if (_outstandingRequests == 0) {
+        _loadingStreamController.add(false);
+      }
     }
   }
 
