@@ -47,12 +47,7 @@ class GenUIApp extends StatelessWidget {
 }
 
 class GenUIHomePage extends StatefulWidget {
-  const GenUIHomePage({
-    super.key,
-    this.aiClient,
-  });
-
-  final AiClient? aiClient;
+  const GenUIHomePage({super.key});
 
   @override
   State<GenUIHomePage> createState() => _GenUIHomePageState();
@@ -65,12 +60,11 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
   @override
   void initState() {
     super.initState();
-    final aiClient = widget.aiClient ??
-        AiClient(
-          loggingCallback: (severity, message) {
-            debugPrint('[$severity] $message');
-          },
-        );
+    final aiClient = AiClient(
+      loggingCallback: (severity, message) {
+        debugPrint('[$severity] $message');
+      },
+    );
     _conversationManager = ConversationManager(
       coreCatalog,
       systemPrompt,

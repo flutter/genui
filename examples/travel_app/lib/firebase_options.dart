@@ -23,21 +23,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'DefaultFirebaseOptions have not been configured for linux because '
+          "Firebase AI Logic isn't supported on Linux",
         );
       default:
         throw UnsupportedError(
@@ -46,7 +40,43 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCxByPgKNTJc4Gc5N0w2l-I5ffE-dWkVKg',
+    appId: '1:975757934897:ios:540a1a4eeeb57afb0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+    iosBundleId: 'dev.flutter.genui.genuiClient',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyAel-GAcyjdd83BickJkzf15mbZxyiOpfg',
+    appId: '1:975757934897:android:1735467a70fdea1d0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+  );
+
   static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBZwqYvj1Qe2odTlesCrD6tI7ZUzkax5BA',
+    appId: '1:975757934897:web:818e744e0a7130da0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    authDomain: 'fluttergenui.firebaseapp.com',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+    measurementId: 'G-D2FN00RSD9',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCxByPgKNTJc4Gc5N0w2l-I5ffE-dWkVKg',
+    appId: '1:975757934897:ios:540a1a4eeeb57afb0ff010',
+    messagingSenderId: '975757934897',
+    projectId: 'fluttergenui',
+    storageBucket: 'fluttergenui.firebasestorage.app',
+    iosBundleId: 'dev.flutter.genui.genuiClient',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBZwqYvj1Qe2odTlesCrD6tI7ZUzkax5BA',
     appId: '1:975757934897:web:0152927eeb6b30320ff010',
     messagingSenderId: '975757934897',
@@ -54,22 +84,5 @@ class DefaultFirebaseOptions {
     authDomain: 'fluttergenui.firebaseapp.com',
     storageBucket: 'fluttergenui.firebasestorage.app',
     measurementId: 'G-Z3D9Q293KS',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAel-GAcyjdd83BickJkzf15mbZxyiOpfg',
-    appId: '1:975757934897:android:a3a8fbd24130ce6f0ff010',
-    messagingSenderId: '975757934897',
-    projectId: 'fluttergenui',
-    storageBucket: 'fluttergenui.firebasestorage.app',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCxByPgKNTJc4Gc5N0w2l-I5ffE-dWkVKg',
-    appId: '1:975757934897:ios:88e7b8cd132cfd2f0ff010',
-    messagingSenderId: '975757934897',
-    projectId: 'fluttergenui',
-    storageBucket: 'fluttergenui.firebasestorage.app',
-    iosBundleId: 'com.example.tmp',
   );
 }

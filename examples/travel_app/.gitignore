@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+firepit-log.txt
 
 # IntelliJ related
 *.iml
@@ -30,8 +31,8 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/coverage/
+build/
+coverage/
 
 # Symbolication related
 app.*.symbols
