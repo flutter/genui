@@ -5,6 +5,7 @@ This repository is a collection of packages and applications for the Flutter Gen
 ## TODO before publishing
 
 1. Clean up Google internal information.
+2. Make colors and sizes configurable in catalog.
 
 ## Packages
 
