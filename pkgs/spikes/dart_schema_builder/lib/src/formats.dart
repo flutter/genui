@@ -1,0 +1,54 @@
+// Copyright (c) 2025, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+import 'package:intl/intl.dart';
+
+typedef FormatValidator = bool Function(String);
+
+final Map<String, FormatValidator> formatValidators = {
+  'date-time': (value) {
+    try {
+      DateTime.parse(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  'date': (value) {
+    try {
+      DateFormat('yyyy-MM-dd').parseStrict(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  'time': (value) {
+    try {
+      DateFormat('HH:mm:ss').parseStrict(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  'email': (value) {
+    // A simple regex for email validation.
+    return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value);
+  },
+  'ipv4': (value) {
+    final parts = value.split('.');
+    if (parts.length != 4) return false;
+    return parts.every((part) {
+      final n = int.tryParse(part);
+      return n != null && n >= 0 && n <= 255;
+    });
+  },
+  'ipv6': (value) {
+    try {
+      Uri.parseIPv6Address(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+};
