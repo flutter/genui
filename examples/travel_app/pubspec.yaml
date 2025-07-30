@@ -1,4 +1,5 @@
-name: example
+name: travel_app
+description: A Flutter travel app example using flutter_genui.
 publish_to: 'none'
 
 environment:
