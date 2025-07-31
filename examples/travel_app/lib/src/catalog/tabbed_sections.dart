@@ -9,15 +9,16 @@ final _schema = Schema.object(
       items: Schema.object(
         properties: {
           'title': Schema.string(description: 'The title of the tab.'),
-          'child': Schema.string(description: 'The ID of the child widget for the tab content.'),
+          'child': Schema.string(
+              description: 'The ID of the child widget for the tab content.'),
         },
       ),
     ),
     'height': Schema.number(
-      description: 'The fixed height for the content area of the tabbed sections.',
+      description:
+          'The fixed height for the content area of the tabbed sections.',
     ),
   },
-  optionalProperties: ['height'],
 );
 
 final tabbedSections = CatalogItem(
@@ -77,12 +78,16 @@ class _TabbedSections extends StatelessWidget {
               ? SizedBox(
                   height: height,
                   child: TabBarView(
-                    children: sections.map((section) => buildChild(section.childId)).toList(),
+                    children: sections
+                        .map((section) => buildChild(section.childId))
+                        .toList(),
                   ),
                 )
               : Expanded(
                   child: TabBarView(
-                    children: sections.map((section) => buildChild(section.childId)).toList(),
+                    children: sections
+                        .map((section) => buildChild(section.childId))
+                        .toList(),
                   ),
                 ),
         ],

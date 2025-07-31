@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import '../lib/src/catalog/tabbed_sections.dart';
+import 'package:genui_client/src/catalog/tabbed_sections.dart';
 
 void main() {
   group('TabbedSections', () {
@@ -38,7 +38,7 @@ void main() {
                         data: data,
                         id: 'test_tabbed_sections',
                         buildChild: mockBuildChild,
-                        dispatchEvent: ({widgetId = '', eventType = '', value}) {},
+                        dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {},
                         context: context,
                       );
                     },
@@ -94,7 +94,7 @@ void main() {
                       data: data,
                       id: 'test_tabbed_sections_height',
                       buildChild: mockBuildChild,
-                      dispatchEvent: ({widgetId = '', eventType = '', value}) {},
+                      dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {},
                       context: context,
                     );
                   },
