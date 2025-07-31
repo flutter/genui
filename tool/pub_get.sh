@@ -10,28 +10,29 @@
 set -ex
 
 # The directory that this script is located in.
-TOOL_DIR=`dirname "$0"`
+TOOL_DIR=$(dirname "$0")
 
-cd $TOOL_DIR/../examples/generic_chat
-flutter pub get
-cd -
+# Change to the root of the repository to make paths simpler.
+cd "$TOOL_DIR/.."
 
-cd $TOOL_DIR/../examples/travel_app
-flutter pub get
-cd -
+FLUTTER_PACKAGES=(
+    "examples/generic_chat"
+    "examples/travel_app"
+    "examples/travel_app_hardcoded"
+    "pkgs/flutter_genui"
+    "pkgs/spikes/fcp_client"
+)
 
-cd $TOOL_DIR/../examples/travel_app_hardcoded
-flutter pub get
-cd -
+DART_PACKAGES=(
+    "pkgs/dart_schema_builder"
+)
 
-cd $TOOL_DIR/../pkgs/dart_schema_builder
-dart pub get
-cd -
+for pkg in "${FLUTTER_PACKAGES[@]}"; do
+    echo "--- Running flutter pub get in $pkg ---"
+    (cd "$pkg" && flutter pub get)
+done
 
-cd $TOOL_DIR/../pkgs/flutter_genui
-flutter pub get
-cd -
-
-cd $TOOL_DIR/../pkgs/spikes/fcp_client
-flutter pub get
-cd -
+for pkg in "${DART_PACKAGES[@]}"; do
+    echo "--- Running dart pub get in $pkg ---"
+    (cd "$pkg" && dart pub get)
+done
