@@ -9,7 +9,13 @@ final text = CatalogItem(
   dataSchema: Schema.object(
     properties: {'text': Schema.string(description: 'The text to display.')},
   ),
-  widgetBuilder: (data, id, buildChild, dispatchEvent, context) {
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
     return Text(
       data['text'] as String,
       style: Theme.of(context).textTheme.bodyMedium,

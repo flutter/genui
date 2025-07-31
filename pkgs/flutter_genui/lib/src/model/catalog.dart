@@ -13,8 +13,11 @@ class Catalog {
     Map<String, Object?>
     data, // The actual deserialized JSON data for this layout
     Widget Function(String id) buildChild,
-    void Function(String widgetId, String eventType, Object? value)
-    dispatchEvent,
+    void Function(
+            {required String widgetId,
+            required String eventType,
+            required Object? value})
+        dispatchEvent,
     BuildContext context,
   ) {
     final widgetType = (data['widget'] as Map<String, Object?>).keys.first;
@@ -25,11 +28,11 @@ class Catalog {
     }
 
     return item.widgetBuilder(
-      (data['widget'] as Map<String, Object?>)[widgetType],
-      data['id'] as String,
-      buildChild,
-      dispatchEvent,
-      context,
+      data: (data['widget'] as Map<String, Object?>)[widgetType],
+      id: data['id'] as String,
+      buildChild: buildChild,
+      dispatchEvent: dispatchEvent,
+      context: context,
     );
   }
 

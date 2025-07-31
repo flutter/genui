@@ -33,7 +33,11 @@ class DynamicUi extends StatefulWidget {
 
 class _DynamicUiState extends State<DynamicUi> {
   /// Dispatches an event by calling the public [DynamicUi.onEvent] callback.
-  void _dispatchEvent(String widgetId, String eventType, Object? value) {
+  void _dispatchEvent({
+    required String widgetId,
+    required String eventType,
+    required Object? value,
+  }) {
     final event = UiEvent(
       surfaceId: widget.surfaceId,
       widgetId: widgetId,
@@ -58,8 +62,13 @@ class _DynamicUiState extends State<DynamicUi> {
   /// `widget.definition`
   /// and constructs the corresponding Flutter widget.
   Widget _buildWidget(String widgetId) {
+    var data = widget.definition.widgets[widgetId];
+    if (data == null) {
+      return Text('Widget with id: $widgetId not found.');
+    }
+
     return widget.catalog.buildWidget(
-      widget.definition.widgets[widgetId]! as Map<String, Object?>,
+      data as Map<String, Object?>,
       _buildWidget,
       _dispatchEvent,
       context,

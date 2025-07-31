@@ -69,32 +69,30 @@ class _TextFieldState extends State<_TextField> {
   }
 }
 
-Widget _builder(
-  dynamic data, // The actual deserialized JSON data for this layout
-  String id,
-  Widget Function(String id) buildChild,
-  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
-  BuildContext context,
-) {
-  final value = data['value'] as String? ?? '';
-  final hintText = data['hintText'] as String?;
-  final obscureText = data['obscureText'] as bool? ?? false;
-
-  return _TextField(
-    initialValue: value,
-    hintText: hintText,
-    obscureText: obscureText,
-    onChanged: (newValue) {
-      dispatchEvent(id, 'onChanged', newValue);
-    },
-    onSubmitted: (newValue) {
-      dispatchEvent(id, 'onSubmitted', newValue);
-    },
-  );
-}
-
 final textField = CatalogItem(
   name: 'text_field',
   dataSchema: _schema,
-  widgetBuilder: _builder,
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final value = data['value'] as String? ?? '';
+    final hintText = data['hintText'] as String?;
+    final obscureText = data['obscureText'] as bool? ?? false;
+
+    return _TextField(
+      initialValue: value,
+      hintText: hintText,
+      obscureText: obscureText,
+      onChanged: (newValue) {
+        dispatchEvent(widgetId: id, eventType: 'onChanged', value: newValue);
+      },
+      onSubmitted: (newValue) {
+        dispatchEvent(widgetId: id, eventType: 'onSubmitted', value: newValue);
+      },
+    );
+  },
 );

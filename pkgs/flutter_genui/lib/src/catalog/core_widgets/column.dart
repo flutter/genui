@@ -67,27 +67,25 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-Widget _builder(
-  dynamic data,
-  String id,
-  Widget Function(String id) buildChild,
-  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
-  BuildContext context,
-) {
-  final children = (data['children'] as List<dynamic>).cast<String>();
-  return Column(
-    mainAxisAlignment: _parseMainAxisAlignment(
-      data['mainAxisAlignment'] as String?,
-    ),
-    crossAxisAlignment: _parseCrossAxisAlignment(
-      data['crossAxisAlignment'] as String?,
-    ),
-    children: children.map(buildChild).toList(),
-  );
-}
-
 final columnCatalogItem = CatalogItem(
   name: 'Column',
   dataSchema: _schema,
-  widgetBuilder: _builder,
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final children = (data['children'] as List<dynamic>).cast<String>();
+    return Column(
+      mainAxisAlignment: _parseMainAxisAlignment(
+        data['mainAxisAlignment'] as String?,
+      ),
+      crossAxisAlignment: _parseCrossAxisAlignment(
+        data['crossAxisAlignment'] as String?,
+      ),
+      children: children.map(buildChild).toList(),
+    );
+  },
 );

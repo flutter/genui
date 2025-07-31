@@ -12,27 +12,25 @@ final _schema = Schema.object(
   },
 );
 
-Widget _builder(
-  dynamic data,
-  String id,
-  Widget Function(String id) buildChild,
-  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
-  BuildContext context,
-) {
-  final label = data['label'] as String?;
-  final options = (data['options'] as List).cast<String>();
-  return _OptionsFilterChip(
-    widgetId: id,
-    label: label,
-    options: options,
-    dispatchEvent: dispatchEvent,
-  );
-}
-
 final optionsFilterChip = CatalogItem(
   name: 'optionsFilterChip',
   dataSchema: _schema,
-  widgetBuilder: _builder,
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final label = data['label'] as String?;
+    final options = (data['options'] as List).cast<String>();
+    return _OptionsFilterChip(
+      widgetId: id,
+      label: label,
+      options: options,
+      dispatchEvent: dispatchEvent,
+    );
+  },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
@@ -46,8 +44,10 @@ class _OptionsFilterChip extends StatefulWidget {
   final String widgetId;
   final String? label;
   final List<String> options;
-  final void Function(String widgetId, String eventType, Object? value)
-      dispatchEvent;
+  final void Function(
+      {required String widgetId,
+      required String eventType,
+      required Object? value}) dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -81,9 +81,9 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                   }
                 });
                 widget.dispatchEvent(
-                  widget.widgetId,
-                  'selectionChanged',
-                  _selectedOptions.toList(),
+                  widgetId: widget.widgetId,
+                  eventType: 'selectionChanged',
+                  value: _selectedOptions.toList(),
                 );
               },
             );

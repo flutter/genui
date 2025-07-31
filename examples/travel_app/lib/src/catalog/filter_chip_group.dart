@@ -12,45 +12,44 @@ final _schema = Schema.object(
   },
 );
 
-Widget _builder(
-  dynamic data,
-  String id,
-  Widget Function(String id) buildChild,
-  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
-  BuildContext context,
-) {
-  final submitLabel = data['submitLabel'] as String;
-  final children = (data['children'] as List).cast<String>();
-
-  return Card(
-    color: Theme.of(context).colorScheme.primaryContainer,
-    child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            runSpacing: 16.0,
-            spacing: 8.0,
-            children: children.map(buildChild).toList(),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () => dispatchEvent(id, 'submit', null),
-            child: Text(submitLabel),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
 final filterChipGroup = CatalogItem(
   name: 'filterChipGroup',
   dataSchema: _schema,
-  widgetBuilder: _builder,
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final submitLabel = data['submitLabel'] as String;
+    final children = (data['children'] as List).cast<String>();
+
+    return Card(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              runSpacing: 16.0,
+              spacing: 8.0,
+              children: children.map(buildChild).toList(),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () =>
+                  dispatchEvent(widgetId: id, eventType: 'submit', value: null),
+              child: Text(submitLabel),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
 );
