@@ -10,7 +10,7 @@ echo "================================================="
 echo "Testing package at: $package_path"
 echo "================================================="
 echo "--- Updating submodules ---"
-git submodule update
+git submodule update --init --recursive
 echo "--- Installing dependencies ---"
 dart pub get
 echo "--- Checking formatting ---"
@@ -23,4 +23,3 @@ if [[ -d "test" ]]; then
 else
   echo "No test directory in $package_path"
 fi
-l
