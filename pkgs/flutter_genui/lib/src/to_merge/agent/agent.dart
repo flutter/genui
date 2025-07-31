@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
+import '../catalog/messages/result.dart';
 import '../catalog/shared/genui_widget.dart';
 import '../model/controller.dart';
 import '../model/input.dart';
@@ -54,6 +55,9 @@ class GenUiAgent {
       case ChatBoxInput():
         data = fakeElicitationData;
         builder = (_) => Elicitation(fakeElicitationData, controller);
+      case FilterInput():
+        data = fakeResultData;
+        builder = (_) => Result(fakeResultData, controller);
       default:
         throw UnimplementedError(
           'The agent does not support input of type ${input.runtimeType}',

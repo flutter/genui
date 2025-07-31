@@ -9,6 +9,11 @@ sealed class Input {
 class InitialInput extends Input {
   final String initialPrompt;
   InitialInput(this.initialPrompt);
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
 }
 
 class UserInput extends Input {}
@@ -25,5 +30,12 @@ class ChatBoxInput extends UserInput {
       elevation: 0,
       child: Padding(padding: const EdgeInsets.all(16.0), child: Text(text)),
     );
+  }
+}
+
+class FilterInput extends UserInput {
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
   }
 }

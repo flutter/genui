@@ -21,7 +21,6 @@ class _GenUiWidgetInternalState extends State<GenUiWidgetInternal> {
 
   @override
   void initState() {
-    print('Initializing GenUiWidget');
     super.initState();
     _initialize();
   }
@@ -56,8 +55,6 @@ class _GenUiWidgetInternalState extends State<GenUiWidgetInternal> {
 
   void _onInput(UserInput input) {
     widget.controller.state.input.complete(input);
-    widget.controller.state.builder = Completer<WidgetBuilder>();
-    _initialize();
   }
 
   Widget _buildChatBox() {

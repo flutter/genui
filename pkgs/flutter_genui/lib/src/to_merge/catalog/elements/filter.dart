@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../model/input.dart';
 import '../../model/simple_items.dart';
 
 class Filter extends StatefulWidget {
-  const Filter(this.data, {super.key});
+  const Filter(this.data, this.onInput, {super.key});
 
   final FilterData data;
+  final UserInputCallback onInput;
 
   @override
   State<Filter> createState() => _FilterState();
@@ -29,7 +31,7 @@ class _FilterState extends State<Filter> {
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => widget.onInput(FilterInput()),
               child: Text(widget.data.submitLabel),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,

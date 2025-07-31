@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../model/controller.dart';
@@ -21,7 +19,7 @@ class Invitation extends StatefulWidget {
 }
 
 class _InvitationState extends State<Invitation> {
-  final _input = Completer<Input>();
+  // final _input = Completer<Input>();
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +31,7 @@ class _InvitationState extends State<Invitation> {
         TextIntro(widget.data.textIntroData),
         const SizedBox(height: 16.0),
         Text(widget.data.exploreTitle, style: GenUiTextStyles.h2(context)),
-        Carousel(CarouselData(items: widget.data.exploreItems), onInput),
+        Carousel(CarouselData(items: widget.data.exploreItems), _onInput),
         const SizedBox(height: 16.0),
 
         GenUiWidgetInternal(widget.genUi),
@@ -41,8 +39,8 @@ class _InvitationState extends State<Invitation> {
     );
   }
 
-  void onInput(UserInput input) {
-    _input.complete(input);
+  void _onInput(UserInput input) {
+    // _input.complete(input);
   }
 }
 

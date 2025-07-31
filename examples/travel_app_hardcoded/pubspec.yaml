@@ -22,3 +22,4 @@ flutter:
   assets:
     - assets/explore/
     - assets/agent_icon.png
+    - assets/result.png
