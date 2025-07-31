@@ -119,20 +119,5 @@ jobs:
           # Use jq to iterate over the JSON array of packages.
           # The output of this command is a stream of package paths.
           echo "$JSON_MATRIX" | jq -r '.[].path' | while read -r package_path; do
-            echo ""
-            echo "================================================="
-            echo "Testing package at: $package_path"
-            echo "================================================="
-
-            (
-              cd "$package_path" && \
-              echo "--- Installing dependencies ---" && \
-              dart pub get && \
-              echo "--- Checking formatting ---" && \
-              dart format --output=none --set-exit-if-changed . && \
-              echo "--- Analyzing code ---" && \
-              flutter analyze --fatal-infos && \
-              echo "--- Running tests ---" && \
-              if [[ -d test ]]; then flutter test --test-randomize-ordering-seed=random; fi
-            )
+            bash ci/test.sh "$package_path"
           done
