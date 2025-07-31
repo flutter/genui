@@ -2,7 +2,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-
+import 'src/catalog.dart';
 import 'firebase_options.dart';
 
 final systemPrompt =
@@ -44,8 +44,7 @@ class GenUIApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dynamic UI Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const GenUIHomePage(),
     );
@@ -72,7 +71,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
       },
     );
     _conversationManager = ConversationManager(
-      coreCatalog,
+      catalog,
       systemPrompt,
       aiClient,
     );
