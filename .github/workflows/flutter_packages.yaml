@@ -9,12 +9,14 @@ on:
     paths:
       - ".github/workflows/flutter_packages.yaml"
       - "pkgs/**"
+      - "examples/**"
   pull_request:
     branches:
       - main
     paths:
       - ".github/workflows/flutter_packages.yaml"
       - "pkgs/**"
+      - "examples/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -24,43 +26,66 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      # The output will be a JSON array of package names, e.g.
-      # '["genui_client"]'
-      matrix: ${{ steps.filter.outputs.changes }}
+      # A JSON array of the names of changed packages, e.g., '["pkgs_flutter_genui"]'
+      changed_package_names: ${{ steps.filter.outputs.changes }}
+      # A JSON map from package name to package path, e.g., '{"pkgs_flutter_genui": "pkgs/flutter_genui"}'
+      package_map: ${{ steps.generate_package_data.outputs.package_map }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Generate package data
+        id: generate_package_data
+        run: |
+          # Find all directories containing pubspec.yaml in pkgs and examples.
+          DIRS=$(find pkgs examples -name pubspec.yaml -not -path "*/.dart_tool/*" -exec dirname {} \;)
+
+          FILTER_STRING=""
+          JSON_MAP="{"
+          FIRST=true
+          for dir in $DIRS; do
+            if [ "$FIRST" = false ]; then
+              JSON_MAP="$JSON_MAP,"
+            fi
+            FIRST=false
+            # The name for the matrix and filter key (path with '/' -> '_')
+            package_name=$(echo "$dir" | tr '/' '_')
+            # The actual path to the package
+            package_path="$dir"
+
+            JSON_MAP="$JSON_MAP\"$package_name\":\"$package_path\""
+            FILTER_STRING="$FILTER_STRING  $package_name:\n    - '$package_path/**'\n"
+          done
+          JSON_MAP="$JSON_MAP}"
+
+          echo "package_map=$JSON_MAP" >> $GITHUB_OUTPUT
+          echo "filters=<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$FILTER_STRING" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         id: filter
         with:
-          # For pushes, the base is the previous commit. For PRs, it's the
-          # target branch.
-          base: ${{ github.base_ref }}
-          # The name of the filter becomes the value in the output matrix.
-          filters: |
-            genui_client:
-              - "pkgs/genui_client/**"
-            # To add another package, create a new entry here.
-            # another_package:
-            #   - "pkgs/another_package/**"
+          filters: ${{ steps.generate_package_data.outputs.filters }}
 
   analyze_and_test:
     needs: changes
     # Only run if the 'changes' job has found changed packages.
-    if: github.repository == 'flutter/genui' && needs.changes.outputs.matrix != '[]'
-    name: Test ${{ matrix.package }} on ${{ matrix.os }} with Flutter ${{ matrix.flutter_version }}
+    if: github.repository == 'flutter/genui' && ${{ needs.changes.outputs.changed_package_names != '[]' }}
+    name: Test ${{ matrix.package_name }} on ${{ matrix.os }} with Flutter ${{ matrix.flutter_version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # The list of packages is dynamically set from the 'changes' job.
-        package: ${{ fromJSON(needs.changes.outputs.matrix) }}
+        # The list of package names is dynamically set from the 'changes' job.
+        package_name: ${{ fromJson(needs.changes.outputs.changed_package_names) }}
         flutter_version: [stable, beta, master]
         os: [ubuntu-latest, macos-latest, windows-latest]
-    defaults:
-      run:
-        working-directory: pkgs/${{ matrix.package }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Set package path
+        id: set_path
+        # Look up the path from the map using the package name from the matrix
+        run: echo "path=${{ fromJson(needs.changes.outputs.package_map)[matrix.package_name] }}" >> $GITHUB_OUTPUT
       - uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62
         with:
           distribution: "zulu"
@@ -76,9 +101,14 @@ jobs:
           restore-keys: ${{ runner.os }}-pub-
       - name: Install dependencies
         run: dart pub get
+        working-directory: ${{ steps.set_path.outputs.path }}
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
+        working-directory: ${{ steps.set_path.outputs.path }}
       - name: Analyze code
         run: flutter analyze --fatal-infos
+        working-directory: ${{ steps.set_path.outputs.path }}
       - name: Run Flutter tests
-        run: flutter test --test-randomize-ordering-seed=random
+        run: |-
+          [[ -d test ]] && flutter test --test-randomize-ordering-seed=random
+        working-directory: ${{ steps.set_path.outputs.path }}
