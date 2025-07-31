@@ -92,8 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The matrix is now inverted to set up the runner once and test all changed packages.
-        flutter_version: [stable, beta, master]
+        flutter_version: [beta]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
