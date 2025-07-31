@@ -1,10 +1,10 @@
 name: m1_integration
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.0-28.0.dev
+  sdk: ">=3.8.0 <4.0.0"
 
 dependencies:
   flutter:
