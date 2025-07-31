@@ -74,29 +74,28 @@ class _RadioGroupState extends State<_RadioGroup> {
   }
 }
 
-Widget _builder(
-  dynamic data, // The actual deserialized JSON data for this layout
-  String id,
-  Widget Function(String id) buildChild,
-  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
-  BuildContext context,
-) {
-  final groupValue = data['groupValue'] as String;
-  final labels = (data['labels'] as List<dynamic>).cast<String>();
-
-  return _RadioGroup(
-    initialGroupValue: groupValue,
-    labels: labels,
-    onChanged: (newValue) {
-      if (newValue != null) {
-        dispatchEvent(id, 'onChanged', newValue);
-      }
-    },
-  );
-}
-
 final radioGroup = CatalogItem(
   name: 'radio_group',
   dataSchema: _schema,
-  widgetBuilder: _builder,
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final groupValue = data['groupValue'] as String;
+    final labels = (data['labels'] as List<dynamic>).cast<String>();
+
+    return _RadioGroup(
+      initialGroupValue: groupValue,
+      labels: labels,
+      onChanged: (newValue) {
+        if (newValue != null) {
+          dispatchEvent(
+              widgetId: id, eventType: 'onChanged', value: newValue);
+        }
+      },
+    );
+  },
 );

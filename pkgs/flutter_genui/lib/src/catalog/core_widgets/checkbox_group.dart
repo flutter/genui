@@ -70,29 +70,28 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
   }
 }
 
-Widget _builder(
-  dynamic data, // The actual deserialized JSON data for this layout
-  String id,
-  Widget Function(String id) buildChild,
-  void Function(String widgetId, String eventType, Object? value) dispatchEvent,
-  BuildContext context,
-) {
-  // ignore: avoid_dynamic_calls
-  final values = (data['values'] as List<dynamic>).cast<bool>();
-  // ignore: avoid_dynamic_calls
-  final labels = (data['labels'] as List<dynamic>).cast<String>();
-
-  return _CheckboxGroup(
-    initialValues: values,
-    labels: labels,
-    onChanged: (newValues) {
-      dispatchEvent(id, 'onChanged', newValues);
-    },
-  );
-}
-
 final checkboxGroup = CatalogItem(
   name: 'checkbox_group',
   dataSchema: _schema,
-  widgetBuilder: _builder,
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    // ignore: avoid_dynamic_calls
+    final values = (data['values'] as List<dynamic>).cast<bool>();
+    // ignore: avoid_dynamic_calls
+    final labels = (data['labels'] as List<dynamic>).cast<String>();
+
+    return _CheckboxGroup(
+      initialValues: values,
+      labels: labels,
+      onChanged: (newValues) {
+        dispatchEvent(
+            widgetId: id, eventType: 'onChanged', value: newValues);
+      },
+    );
+  },
 );
