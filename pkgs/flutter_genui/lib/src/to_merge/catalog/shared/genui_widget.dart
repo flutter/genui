@@ -21,7 +21,6 @@ class _GenUiWidgetInternalState extends State<GenUiWidgetInternal> {
 
   @override
   void initState() {
-    print('Initializing GenUiWidget');
     super.initState();
     _initialize();
   }
