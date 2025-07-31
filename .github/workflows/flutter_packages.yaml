@@ -123,6 +123,10 @@ jobs:
         working-directory: ${{ matrix.package.path }}
         run: flutter analyze --fatal-infos
       - name: Run tests
-        if: "hashFiles('${{ matrix.package.path }}/test/**') != ''"
         working-directory: ${{ matrix.package.path }}
-        run: flutter test --test-randomize-ordering-seed=random
+        run: |
+          if [ -d "test" ]; then
+            flutter test --test-randomize-ordering-seed=random
+          else
+            echo "No 'test' directory found in ${{ matrix.package.path }}, skipping tests."
+          fi
