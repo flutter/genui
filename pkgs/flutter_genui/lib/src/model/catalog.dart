@@ -29,7 +29,7 @@ class Catalog {
     }
 
     return item.widgetBuilder(
-      data: (data['widget'] as Map<String, Object?>)[widgetType],
+      data: ((data as Map)['widget'] as Map<String, Object?>)[widgetType]!,
       id: data['id'] as String,
       buildChild: buildChild,
       dispatchEvent: dispatchEvent,

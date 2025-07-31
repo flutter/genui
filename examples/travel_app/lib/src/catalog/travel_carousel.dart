@@ -33,27 +33,35 @@ final travelCarousel = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final items = ((data as Map)['items'] as List<Map>)
-            .map(
-              (item) => _TravelCarouselItemData(
-                title: item['title'] as String,
-                photoUrl: item['photoUrl'] as String,
-              ),
-            )
-            .toList();
+        final items = _TravelCarouselItemListData.fromMap(
+          (data as Map).cast<String, Object?>(),
+        ).items;
         return _TravelCarousel(
-          items: items,
+          items: items.toList(),
           widgetId: id,
           dispatchEvent: dispatchEvent,
         );
       },
 );
 
-class _TravelCarouselItemData {
-  final String title;
-  final String photoUrl;
+extension type _TravelCarouselItemListData.fromMap(Map<String, Object?> _json) {
+  factory _TravelCarouselItemListData({
+    required List<Map<String, Object>> items,
+  }) => _TravelCarouselItemListData.fromMap({'items': items});
 
-  _TravelCarouselItemData({required this.title, required this.photoUrl});
+  Iterable<_TravelCarouselItemData> get items => (_json['items'] as List)
+      .cast<Map<String, Object?>>()
+      .map<_TravelCarouselItemData>(_TravelCarouselItemData.fromMap);
+}
+
+extension type _TravelCarouselItemData.fromMap(Map<String, Object?> _json) {
+  factory _TravelCarouselItemData({
+    required String title,
+    required String photoUrl,
+  }) => _TravelCarouselItemData.fromMap({'title': title, 'photoUrl': photoUrl});
+
+  String get title => _json['title'] as String;
+  String get photoUrl => _json['photoUrl'] as String;
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {

@@ -81,7 +81,7 @@ final columnCatalogItem = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final childrenIds = (data['children'] as List<dynamic>).cast<String>();
+        final childrenIds = ((data as Map)['children'] as List).cast<String>();
         final spacing = (data['spacing'] as num?)?.toDouble() ?? 8.0;
         final childrenWithSpacing = <Widget>[];
         for (var i = 0; i < childrenIds.length; i++) {

@@ -80,7 +80,7 @@ final textField = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final value = data['value'] as String? ?? '';
+        final value = (data as Map)['value'] as String? ?? '';
         final hintText = data['hintText'] as String?;
         final obscureText = data['obscureText'] as bool? ?? false;
 

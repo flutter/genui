@@ -81,10 +81,8 @@ final checkboxGroup = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        // ignore: avoid_dynamic_calls
-        final values = (data['values'] as List<dynamic>).cast<bool>();
-        // ignore: avoid_dynamic_calls
-        final labels = (data['labels'] as List<dynamic>).cast<String>();
+        final values = ((data as Map)['values'] as List).cast<bool>();
+        final labels = (data['labels'] as List).cast<String>();
 
         return _CheckboxGroup(
           initialValues: values,

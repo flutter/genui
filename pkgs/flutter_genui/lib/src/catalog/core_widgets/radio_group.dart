@@ -85,8 +85,8 @@ final radioGroup = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final groupValue = data['groupValue'] as String;
-        final labels = (data['labels'] as List<dynamic>).cast<String>();
+        final groupValue = (data as Map)['groupValue'] as String;
+        final labels = (data['labels'] as List).cast<String>();
 
         return _RadioGroup(
           initialGroupValue: groupValue,

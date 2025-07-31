@@ -26,7 +26,7 @@ final elevatedButtonCatalogItem = CatalogItem(
         required context,
       }) {
         /// The ID of the child widget to display inside the button.
-        final childId = data['child'] as String;
+        final childId = (data as Map)['child'] as String;
         final child = buildChild(childId);
         return ElevatedButton(
           onPressed: () =>

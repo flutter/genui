@@ -18,7 +18,7 @@ final text = CatalogItem(
         required context,
       }) {
         return Text(
-          data['text'] as String,
+          (data as Map)['text'] as String,
           style: Theme.of(context).textTheme.bodyMedium,
         );
       },

@@ -5,7 +5,7 @@ typedef CatalogWidgetBuilder =
     Widget Function({
       // The actual deserialized JSON data for this widget. The format of this
       // data will exactly match dataSchema below.
-      required dynamic data,
+      required Object data,
       required String id, // The ID of this widget.
       required Widget Function(String id)
       buildChild, // A function used to build a child based on the given ID.
