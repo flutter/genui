@@ -5,6 +5,7 @@ import '../catalog/elements/filter.dart';
 import '../catalog/elements/text_intro.dart';
 import '../catalog/messages/elicitation.dart';
 import '../catalog/messages/invitation.dart';
+import '../catalog/messages/result.dart';
 
 final fakeInvitationData = InvitationData(
   textIntroData: TextIntroData(
@@ -47,4 +48,13 @@ final fakeElicitationData = ElicitationData(
     FilterItemData(label: 'Low cost', icon: Icons.money),
     FilterItemData(label: 'Medium activity', icon: Icons.run_circle_sharp),
   ], submitLabel: 'Generate'),
+);
+
+final fakeResultData = ResultData(
+  textIntroData: TextIntroData(
+    h2: 'Zermatt adventure',
+    intro: '3 days - 3 people',
+  ),
+  imageAssetUrl: 'assets/result.png',
+  linkUrl: 'https://www.zermatt.ch/en',
 );

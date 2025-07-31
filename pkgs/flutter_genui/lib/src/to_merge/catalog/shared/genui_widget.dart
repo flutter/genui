@@ -56,7 +56,6 @@ class _GenUiWidgetInternalState extends State<GenUiWidgetInternal> {
 
   void _onInput(UserInput input) {
     widget.controller.state.input.complete(input);
-    widget.controller.state.builder = Completer<WidgetBuilder>();
   }
 
   Widget _buildChatBox() {
