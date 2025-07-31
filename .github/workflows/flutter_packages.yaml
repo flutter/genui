@@ -87,11 +87,12 @@ jobs:
     needs: matrix
     # Only run if the matrix job has produced a non-empty matrix.
     if: github.repository == 'flutter/genui' && ${{ needs.matrix.outputs.matrix != '[]' }}
-    name: Test on ${{ matrix.os }} with Flutter ${{ matrix.flutter_version }}
+    name: ${{ matrix.package.name }} (${{ matrix.flutter_version }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        package: ${{ fromJson(needs.matrix.outputs.matrix) }}
         flutter_version: [beta]
         os: [ubuntu-latest]
     steps:
@@ -109,14 +110,19 @@ jobs:
           path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
-
-      - name: Analyze and test all changed packages
-        run: |
-          set -e
-          JSON_MATRIX='${{ needs.matrix.outputs.matrix }}'
-
-          # Use jq to iterate over the JSON array of packages.
-          # The output of this command is a stream of package paths.
-          echo "$JSON_MATRIX" | jq -r '.[].path' | while read -r package_path; do
-            bash ci/test.sh "$package_path"
-          done
+      - name: Update submodules
+        working-directory: ${{ matrix.package.path }}
+        run: git submodule update --init --recursive
+      - name: Install dependencies
+        working-directory: ${{ matrix.package.path }}
+        run: dart pub get
+      - name: Check formatting
+        working-directory: ${{ matrix.package.path }}
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Analyze code
+        working-directory: ${{ matrix.package.path }}
+        run: flutter analyze --fatal-infos
+      - name: Run tests
+        if: "hashFiles('${{ matrix.package.path }}/test/**') != ''"
+        working-directory: ${{ matrix.package.path }}
+        run: flutter test --test-randomize-ordering-seed=random
