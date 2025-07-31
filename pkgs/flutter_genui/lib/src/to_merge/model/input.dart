@@ -32,3 +32,10 @@ class ChatBoxInput extends UserInput {
     );
   }
 }
+
+class FilterInput extends UserInput {
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
+}

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../model/controller.dart';
@@ -18,8 +20,6 @@ class Elicitation extends StatefulWidget {
 }
 
 class _ElicitationState extends State<Elicitation> {
-  final ValueNotifier<UserInput?> _input = ValueNotifier(null);
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,8 +37,9 @@ class _ElicitationState extends State<Elicitation> {
     );
   }
 
-  void onInput(UserInput input) {
-    _input.value = input;
+  void _onInput(UserInput input) {
+    widget.controller.state.input.complete(input);
+    widget.controller.state.builder = Completer<WidgetBuilder>();
   }
 }
 
