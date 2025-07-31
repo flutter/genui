@@ -18,8 +18,6 @@ class Elicitation extends StatefulWidget {
 }
 
 class _ElicitationState extends State<Elicitation> {
-  final ValueNotifier<UserInput?> _input = ValueNotifier(null);
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -29,7 +27,7 @@ class _ElicitationState extends State<Elicitation> {
         const SizedBox(height: 8.0),
         TextIntro(widget.data.textIntroData),
         const SizedBox(height: 16.0),
-        Filter(widget.data.filterData),
+        Filter(widget.data.filterData, _onInput),
 
         const SizedBox(height: 16.0),
         GenUiWidgetInternal(widget.controller),
@@ -37,8 +35,8 @@ class _ElicitationState extends State<Elicitation> {
     );
   }
 
-  void onInput(UserInput input) {
-    _input.value = input;
+  void _onInput(UserInput input) {
+    widget.controller.state.input.complete(input);
   }
 }
 
