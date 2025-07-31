@@ -4,9 +4,12 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
   properties: {
-    'label': Schema.string(description: 'The label for the filter category.'),
+    'chipLabel': Schema.string(
+        description:
+            'The title of the filter chip e.g. "budget" or "activity type" etc'),
     'options': Schema.array(
-      description: 'The list of options to display as filter chips.',
+      description:
+          'The list of options that the user can choose from. There should be at least three of these.',
       items: Schema.string(),
     ),
   },
@@ -22,12 +25,13 @@ final optionsFilterChip = CatalogItem(
     required dispatchEvent,
     required context,
   }) {
-    final label = data['label'] as String?;
-    final options = (data['options'] as List).cast<String>();
+    final chipLabel = data['chipLabel'] as String;
+    final options = (data['options'] as List<dynamic>).cast<String>();
+
     return _OptionsFilterChip(
-      widgetId: id,
-      label: label,
+      initialChipLabel: chipLabel,
       options: options,
+      widgetId: id,
       dispatchEvent: dispatchEvent,
     );
   },
@@ -35,61 +39,80 @@ final optionsFilterChip = CatalogItem(
 
 class _OptionsFilterChip extends StatefulWidget {
   const _OptionsFilterChip({
-    required this.widgetId,
-    this.label,
+    required this.initialChipLabel,
     required this.options,
+    required this.widgetId,
     required this.dispatchEvent,
   });
 
-  final String widgetId;
-  final String? label;
+  final String initialChipLabel;
   final List<String> options;
-  final void Function(
-      {required String widgetId,
-      required String eventType,
-      required Object? value}) dispatchEvent;
+  final String widgetId;
+  final void Function({
+    required String widgetId,
+    required String eventType,
+    required Object? value,
+  }) dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
 }
 
 class _OptionsFilterChipState extends State<_OptionsFilterChip> {
-  final Set<String> _selectedOptions = {};
+  late String _currentChipLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentChipLabel = widget.initialChipLabel;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null)
-          Text(widget.label!, style: Theme.of(context).textTheme.titleMedium),
-        if (widget.label != null) const SizedBox(height: 8.0),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 8.0,
-          children: widget.options.map((option) {
-            final isSelected = _selectedOptions.contains(option);
-            return FilterChip(
-              label: Text(option),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedOptions.add(option);
-                  } else {
-                    _selectedOptions.remove(option);
-                  }
-                });
-                widget.dispatchEvent(
-                  widgetId: widget.widgetId,
-                  eventType: 'selectionChanged',
-                  value: _selectedOptions.toList(),
+    return FilterChip(
+      label: Text(_currentChipLabel),
+      selected: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      onSelected: (bool selected) {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            String? tempSelectedOption = _currentChipLabel;
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setModalState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: widget.options.map((option) {
+                    return RadioListTile<String>(
+                      title: Text(option),
+                      value: option,
+                      groupValue: tempSelectedOption,
+                      onChanged: (String? newValue) {
+                        setModalState(() {
+                          tempSelectedOption = newValue;
+                        });
+                        if (newValue != null) {
+                          setState(() {
+                            _currentChipLabel = newValue;
+                          });
+                          widget.dispatchEvent(
+                            widgetId: widget.widgetId,
+                            eventType: 'optionSelected',
+                            value: newValue,
+                          );
+                          Navigator.pop(context);
+                        }
+                      },
+                    );
+                  }).toList(),
                 );
               },
             );
-          }).toList(),
-        ),
-      ],
+          },
+        );
+      },
     );
   }
 }

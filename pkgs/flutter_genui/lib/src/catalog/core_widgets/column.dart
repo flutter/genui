@@ -30,6 +30,9 @@ final _schema = Schema.object(
       items: Schema.string(),
       description: 'A list of widget IDs for the children.',
     ),
+    'spacing': Schema.number(
+      description: 'The spacing between children. Defaults to 8.0.',
+    ),
   },
 );
 
@@ -77,7 +80,15 @@ final columnCatalogItem = CatalogItem(
     required dispatchEvent,
     required context,
   }) {
-    final children = (data['children'] as List<dynamic>).cast<String>();
+    final childrenIds = (data['children'] as List<dynamic>).cast<String>();
+    final spacing = (data['spacing'] as num?)?.toDouble() ?? 8.0;
+    final childrenWithSpacing = <Widget>[];
+    for (var i = 0; i < childrenIds.length; i++) {
+      childrenWithSpacing.add(buildChild(childrenIds[i]));
+      if (i < childrenIds.length - 1) {
+        childrenWithSpacing.add(SizedBox(height: spacing));
+      }
+    }
     return Column(
       mainAxisAlignment: _parseMainAxisAlignment(
         data['mainAxisAlignment'] as String?,
@@ -85,7 +96,7 @@ final columnCatalogItem = CatalogItem(
       crossAxisAlignment: _parseCrossAxisAlignment(
         data['crossAxisAlignment'] as String?,
       ),
-      children: children.map(buildChild).toList(),
+      children: childrenWithSpacing,
     );
   },
 );

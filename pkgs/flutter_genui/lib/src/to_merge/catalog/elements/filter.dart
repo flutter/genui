@@ -18,7 +18,6 @@ class _FilterState extends State<Filter> {
   Widget build(BuildContext context) {
     return Card(
       color: Theme.of(context).colorScheme.primaryContainer,
-
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
