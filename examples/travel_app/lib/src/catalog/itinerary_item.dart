@@ -4,43 +4,40 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
   properties: {
-    'title': Schema.string(
-      description: 'The title of the itinerary item.',
-    ),
+    'title': Schema.string(description: 'The title of the itinerary item.'),
     'subtitle': Schema.string(
       description: 'The subtitle of the itinerary item.',
     ),
     'thumbnailUrl': Schema.string(
       description: 'The URL of the thumbnail image.',
     ),
-    'detailText': Schema.string(
-      description: 'The detail text for the item.',
-    ),
+    'detailText': Schema.string(description: 'The detail text for the item.'),
   },
 );
 
 final itineraryItem = CatalogItem(
   name: 'itinerary_item',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final title = data['title'] as String;
-    final subtitle = data['subtitle'] as String;
-    final thumbnailUrl = data['thumbnailUrl'] as String;
-    final detailText = data['detailText'] as String;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final title = (data as Map)['title'] as String;
+        final subtitle = data['subtitle'] as String;
+        final thumbnailUrl = data['thumbnailUrl'] as String;
+        final detailText = data['detailText'] as String;
 
-    return _ItineraryItem(
-      title: title,
-      subtitle: subtitle,
-      thumbnailUrl: thumbnailUrl,
-      detailText: detailText,
-    );
-  },
+        return _ItineraryItem(
+          title: title,
+          subtitle: subtitle,
+          thumbnailUrl: thumbnailUrl,
+          detailText: detailText,
+        );
+      },
 );
 
 class _ItineraryItem extends StatelessWidget {
@@ -54,8 +51,7 @@ class _ItineraryItem extends StatelessWidget {
     required this.subtitle,
     required this.thumbnailUrl,
     required this.detailText,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

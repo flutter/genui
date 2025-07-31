@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:genui_client/src/catalog/filter_chip_group.dart';
 
 void main() {
   group('FilterChipGroup', () {
-    testWidgets('renders submit button and children correctly', (WidgetTester tester) async {
+    testWidgets('renders submit button and children correctly', (
+      WidgetTester tester,
+    ) async {
       // Mock buildChild function
       Widget mockBuildChild(String id) {
         return Text('Child: $id');
@@ -24,11 +25,16 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return catalogItem.widgetBuilder!(
+                return catalogItem.widgetBuilder(
                   data: data,
                   id: 'test_filter_chip_group',
                   buildChild: mockBuildChild,
-                  dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {},
+                  dispatchEvent:
+                      ({
+                        required String widgetId,
+                        required String eventType,
+                        Object? value,
+                      }) {},
                   context: context,
                 );
               },
@@ -38,14 +44,19 @@ void main() {
       );
 
       // Verify that the submit button is displayed with the correct label
-      expect(find.widgetWithText(ElevatedButton, 'Apply Filters'), findsOneWidget);
+      expect(
+        find.widgetWithText(ElevatedButton, 'Apply Filters'),
+        findsOneWidget,
+      );
 
       // Verify that the children are rendered
       expect(find.text('Child: chip1'), findsOneWidget);
       expect(find.text('Child: chip2'), findsOneWidget);
     });
 
-    testWidgets('dispatchEvent is called on submit button press', (WidgetTester tester) async {
+    testWidgets('dispatchEvent is called on submit button press', (
+      WidgetTester tester,
+    ) async {
       // Mock buildChild function
       Widget mockBuildChild(String id) {
         return Text('Child: $id');
@@ -58,7 +69,7 @@ void main() {
         'children': ['chip1'],
       };
 
-      bool dispatchEventCalled = false;
+      var dispatchEventCalled = false;
       String? dispatchedWidgetId;
       String? dispatchedEventType;
       dynamic dispatchedValue;
@@ -69,16 +80,21 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return catalogItem.widgetBuilder!(
+                return catalogItem.widgetBuilder(
                   data: data,
                   id: 'test_filter_chip_group',
                   buildChild: mockBuildChild,
-                  dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {
-                    dispatchEventCalled = true;
-                    dispatchedWidgetId = widgetId;
-                    dispatchedEventType = eventType;
-                    dispatchedValue = value;
-                  },
+                  dispatchEvent:
+                      ({
+                        required String widgetId,
+                        required String eventType,
+                        Object? value,
+                      }) {
+                        dispatchEventCalled = true;
+                        dispatchedWidgetId = widgetId;
+                        dispatchedEventType = eventType;
+                        dispatchedValue = value;
+                      },
                   context: context,
                 );
               },

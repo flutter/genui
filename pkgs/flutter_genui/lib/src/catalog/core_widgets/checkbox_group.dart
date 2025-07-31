@@ -73,25 +73,29 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
 final checkboxGroup = CatalogItem(
   name: 'checkbox_group',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    // ignore: avoid_dynamic_calls
-    final values = (data['values'] as List<dynamic>).cast<bool>();
-    // ignore: avoid_dynamic_calls
-    final labels = (data['labels'] as List<dynamic>).cast<String>();
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        // ignore: avoid_dynamic_calls
+        final values = (data['values'] as List<dynamic>).cast<bool>();
+        // ignore: avoid_dynamic_calls
+        final labels = (data['labels'] as List<dynamic>).cast<String>();
 
-    return _CheckboxGroup(
-      initialValues: values,
-      labels: labels,
-      onChanged: (newValues) {
-        dispatchEvent(
-            widgetId: id, eventType: 'onChanged', value: newValues);
+        return _CheckboxGroup(
+          initialValues: values,
+          labels: labels,
+          onChanged: (newValues) {
+            dispatchEvent(
+              widgetId: id,
+              eventType: 'onChanged',
+              value: newValues,
+            );
+          },
+        );
       },
-    );
-  },
 );

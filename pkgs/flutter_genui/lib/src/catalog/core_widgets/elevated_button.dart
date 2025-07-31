@@ -8,28 +8,30 @@ import '../../model/catalog_item.dart';
 final _schema = Schema.object(
   properties: {
     'child': Schema.string(
-        description:
-            'The ID of a child widget. This should always be set, e.g. to a `text`.'),
+      description:
+          '''The ID of a child widget. This should always be set, e.g. to a `text`.''',
+    ),
   },
 );
 
 final elevatedButtonCatalogItem = CatalogItem(
   name: 'elevated_button',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    /// The ID of the child widget to display inside the button.
-    final childId = data['child'] as String;
-    final child = buildChild(childId);
-    return ElevatedButton(
-      onPressed: () =>
-          dispatchEvent(widgetId: id, eventType: 'onTap', value: null),
-      child: child,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        /// The ID of the child widget to display inside the button.
+        final childId = data['child'] as String;
+        final child = buildChild(childId);
+        return ElevatedButton(
+          onPressed: () =>
+              dispatchEvent(widgetId: id, eventType: 'onTap', value: null),
+          child: child,
+        );
+      },
 );

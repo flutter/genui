@@ -26,21 +26,23 @@ void main() {
       expect(newCompliment, isNot(initialCompliment));
     });
 
-    test('toggling details checkbox adds and removes the details widget',
-        () async {
-      final detailsTextFinder = find.byValueKey('details_text');
-      final toggleFinder = find.byValueKey('details_toggle');
+    test(
+      'toggling details checkbox adds and removes the details widget',
+      () async {
+        final detailsTextFinder = find.byValueKey('details_text');
+        final toggleFinder = find.byValueKey('details_toggle');
 
-      // Details should be absent initially.
-      await driver.waitForAbsent(detailsTextFinder);
+        // Details should be absent initially.
+        await driver.waitForAbsent(detailsTextFinder);
 
-      // Tap checkbox to show details.
-      await driver.tap(toggleFinder);
-      await driver.waitFor(detailsTextFinder);
+        // Tap checkbox to show details.
+        await driver.tap(toggleFinder);
+        await driver.waitFor(detailsTextFinder);
 
-      // Tap checkbox again to hide details.
-      await driver.tap(toggleFinder);
-      await driver.waitForAbsent(detailsTextFinder);
-    });
+        // Tap checkbox again to hide details.
+        await driver.tap(toggleFinder);
+        await driver.waitForAbsent(detailsTextFinder);
+      },
+    );
   });
 }

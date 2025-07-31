@@ -73,30 +73,31 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
 final columnCatalogItem = CatalogItem(
   name: 'Column',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final childrenIds = (data['children'] as List<dynamic>).cast<String>();
-    final spacing = (data['spacing'] as num?)?.toDouble() ?? 8.0;
-    final childrenWithSpacing = <Widget>[];
-    for (var i = 0; i < childrenIds.length; i++) {
-      childrenWithSpacing.add(buildChild(childrenIds[i]));
-      if (i < childrenIds.length - 1) {
-        childrenWithSpacing.add(SizedBox(height: spacing));
-      }
-    }
-    return Column(
-      mainAxisAlignment: _parseMainAxisAlignment(
-        data['mainAxisAlignment'] as String?,
-      ),
-      crossAxisAlignment: _parseCrossAxisAlignment(
-        data['crossAxisAlignment'] as String?,
-      ),
-      children: childrenWithSpacing,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final childrenIds = (data['children'] as List<dynamic>).cast<String>();
+        final spacing = (data['spacing'] as num?)?.toDouble() ?? 8.0;
+        final childrenWithSpacing = <Widget>[];
+        for (var i = 0; i < childrenIds.length; i++) {
+          childrenWithSpacing.add(buildChild(childrenIds[i]));
+          if (i < childrenIds.length - 1) {
+            childrenWithSpacing.add(SizedBox(height: spacing));
+          }
+        }
+        return Column(
+          mainAxisAlignment: _parseMainAxisAlignment(
+            data['mainAxisAlignment'] as String?,
+          ),
+          crossAxisAlignment: _parseCrossAxisAlignment(
+            data['crossAxisAlignment'] as String?,
+          ),
+          children: childrenWithSpacing,
+        );
+      },
 );

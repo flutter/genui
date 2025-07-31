@@ -29,32 +29,38 @@ class _ResultState extends State<Result> {
           children: [
             Image.asset(widget.data.imageAssetUrl, height: 100),
             const SizedBox(width: 8.0),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              TextIntro(widget.data.textIntroData),
-              const SizedBox(height: 8.0),
-              Link(
-                uri: uri,
-                builder: (BuildContext context,
-                    Future<void> Function()? followLink) {
-                  return TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.all(0),
-                      minimumSize: const Size(0, 0),
-                    ),
-                    onPressed: () async {
-                      // TODO (polina-c): figure out why it does not
-                      // open on macOS
-                      await followLink!();
-                    },
-                    child: Text(
-                      'View',
-                      style: GenUiTextStyles.link(context),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16.0),
-            ]),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextIntro(widget.data.textIntroData),
+                const SizedBox(height: 8.0),
+                Link(
+                  uri: uri,
+                  builder:
+                      (
+                        BuildContext context,
+                        Future<void> Function()? followLink,
+                      ) {
+                        return TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(0),
+                            minimumSize: const Size(0, 0),
+                          ),
+                          onPressed: () async {
+                            // TODO (polina-c): figure out why it does not
+                            // open on macOS
+                            await followLink!();
+                          },
+                          child: Text(
+                            'View',
+                            style: GenUiTextStyles.link(context),
+                          ),
+                        );
+                      },
+                ),
+                const SizedBox(height: 16.0),
+              ],
+            ),
           ],
         ),
       ],

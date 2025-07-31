@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/src/catalog/itinerary_item.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   group('ItineraryItem', () {
     testWidgets('renders title and description', (WidgetTester tester) async {
-      const String testTitle = 'Test Title';
-      const String testDescription = 'Test Description';
+      const testTitle = 'Test Title';
+      const testDescription = 'Test Description';
 
       await tester.pumpWidget(
         MaterialApp(
@@ -22,7 +21,12 @@ void main() {
                 },
                 id: 'test_id',
                 buildChild: (id) => const SizedBox(), // Mock buildChild
-                dispatchEvent: ({required widgetId, required eventType, required value}) {}, // Mock dispatchEvent
+                dispatchEvent:
+                    ({
+                      required widgetId,
+                      required eventType,
+                      required value,
+                    }) {}, // Mock dispatchEvent
                 context: context,
               );
             },

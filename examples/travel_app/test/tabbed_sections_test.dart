@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:genui_client/src/catalog/tabbed_sections.dart';
 
 void main() {
   group('TabbedSections', () {
-    testWidgets('renders tabs and content correctly', (WidgetTester tester) async {
+    testWidgets('renders tabs and content correctly', (
+      WidgetTester tester,
+    ) async {
       // Mock buildChild function
       Widget mockBuildChild(String id) {
         if (id == 'child1') {
@@ -34,11 +35,16 @@ void main() {
                 Expanded(
                   child: Builder(
                     builder: (context) {
-                      return catalogItem.widgetBuilder!(
+                      return catalogItem.widgetBuilder(
                         data: data,
                         id: 'test_tabbed_sections',
                         buildChild: mockBuildChild,
-                        dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {},
+                        dispatchEvent:
+                            ({
+                              required String widgetId,
+                              required String eventType,
+                              Object? value,
+                            }) {},
                         context: context,
                       );
                     },
@@ -56,7 +62,10 @@ void main() {
 
       // Verify that the content of the first tab is displayed
       expect(find.text('Content for Tab 1'), findsOneWidget);
-      expect(find.text('Content for Tab 2'), findsNothing); // Second tab content should not be visible initially
+      expect(
+        find.text('Content for Tab 2'),
+        findsNothing,
+      ); // Second tab content should not be visible initially
 
       // Tap on the second tab
       await tester.tap(find.text('Tab 2'));
@@ -67,7 +76,9 @@ void main() {
       expect(find.text('Content for Tab 2'), findsOneWidget);
     });
 
-    testWidgets('renders with fixed height when height is provided', (WidgetTester tester) async {
+    testWidgets('renders with fixed height when height is provided', (
+      WidgetTester tester,
+    ) async {
       // Mock buildChild function
       Widget mockBuildChild(String id) {
         return const Text('Content');
@@ -90,11 +101,16 @@ void main() {
               children: [
                 Builder(
                   builder: (context) {
-                    return catalogItem.widgetBuilder!(
+                    return catalogItem.widgetBuilder(
                       data: data,
                       id: 'test_tabbed_sections_height',
                       buildChild: mockBuildChild,
-                      dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {},
+                      dispatchEvent:
+                          ({
+                            required String widgetId,
+                            required String eventType,
+                            Object? value,
+                          }) {},
                       context: context,
                     );
                   },
@@ -106,9 +122,12 @@ void main() {
       );
 
       // Verify that the SizedBox with the specified height is present
-      expect(find.byWidgetPredicate(
-        (widget) => widget is SizedBox && widget.height == 200.0,
-      ), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is SizedBox && widget.height == 200.0,
+        ),
+        findsOneWidget,
+      );
 
       // Verify that the content is displayed
       expect(find.text('Content'), findsOneWidget);

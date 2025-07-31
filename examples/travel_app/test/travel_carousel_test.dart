@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:genui_client/src/catalog/travel_carousel.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
   group('TravelCarousel', () {
-    testWidgets('renders carousel items correctly', (WidgetTester tester) async {
+    testWidgets('renders carousel items correctly', (
+      WidgetTester tester,
+    ) async {
       await mockNetworkImagesFor(() async {
         // Mock dispatchEvent function
         void mockDispatchEvent({
@@ -30,7 +31,7 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return catalogItem.widgetBuilder!(
+                  return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_travel_carousel',
                     buildChild: (id) => Container(), // Not used in this widget
@@ -47,12 +48,15 @@ void main() {
         expect(find.text('Item 1'), findsOneWidget);
         expect(find.text('Item 2'), findsOneWidget);
 
-        // Verify that the images are present (by type, as network images are hard to test directly)
+        // Verify that the images are present (by type, as network images are
+        // hard to test directly)
         expect(find.byType(Image), findsNWidgets(2));
       });
     });
 
-    testWidgets('dispatchEvent is called on item tap', (WidgetTester tester) async {
+    testWidgets('dispatchEvent is called on item tap', (
+      WidgetTester tester,
+    ) async {
       await mockNetworkImagesFor(() async {
         // Variables to capture dispatched event data
         String? dispatchedWidgetId;
@@ -74,7 +78,10 @@ void main() {
         final catalogItem = travelCarousel;
         final data = {
           'items': [
-            {'title': 'Tappable Item', 'photoUrl': 'https://example.com/tappable.jpg'},
+            {
+              'title': 'Tappable Item',
+              'photoUrl': 'https://example.com/tappable.jpg',
+            },
           ],
         };
 
@@ -84,7 +91,7 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return catalogItem.widgetBuilder!(
+                  return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_travel_carousel_tap',
                     buildChild: (id) => Container(),

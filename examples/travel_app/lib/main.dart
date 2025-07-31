@@ -2,8 +2,9 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'src/catalog.dart';
+
 import 'firebase_options.dart';
+import 'src/catalog.dart';
 import 'src/images.dart';
 
 final systemPrompt =
@@ -51,9 +52,7 @@ $imagesJson
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
     appleProvider: AppleProvider.debug,
     androidProvider: AndroidProvider.debug,
@@ -63,9 +62,7 @@ void main() async {
 }
 
 class GenUIApp extends StatelessWidget {
-  const GenUIApp({
-    super.key,
-  });
+  const GenUIApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -98,11 +95,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _conversationManager = ConversationManager(
-      catalog,
-      systemPrompt,
-      aiClient,
-    );
+    _conversationManager = ConversationManager(catalog, systemPrompt, aiClient);
   }
 
   @override
@@ -132,9 +125,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Expanded(
-                child: _conversationManager.widget(),
-              ),
+              Expanded(child: _conversationManager.widget()),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

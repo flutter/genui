@@ -17,9 +17,7 @@ Typically, you should not update existing surfaces and instead just continually 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
     appleProvider: AppleProvider.debug,
     androidProvider: AndroidProvider.debug,
@@ -29,9 +27,7 @@ void main() async {
 }
 
 class GenUIApp extends StatelessWidget {
-  const GenUIApp({
-    super.key,
-  });
+  const GenUIApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +95,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Expanded(
-                child: _conversationManager.widget(),
-              ),
+              Expanded(child: _conversationManager.widget()),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

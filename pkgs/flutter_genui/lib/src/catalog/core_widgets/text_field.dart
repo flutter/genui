@@ -72,27 +72,36 @@ class _TextFieldState extends State<_TextField> {
 final textField = CatalogItem(
   name: 'text_field',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final value = data['value'] as String? ?? '';
-    final hintText = data['hintText'] as String?;
-    final obscureText = data['obscureText'] as bool? ?? false;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final value = data['value'] as String? ?? '';
+        final hintText = data['hintText'] as String?;
+        final obscureText = data['obscureText'] as bool? ?? false;
 
-    return _TextField(
-      initialValue: value,
-      hintText: hintText,
-      obscureText: obscureText,
-      onChanged: (newValue) {
-        dispatchEvent(widgetId: id, eventType: 'onChanged', value: newValue);
+        return _TextField(
+          initialValue: value,
+          hintText: hintText,
+          obscureText: obscureText,
+          onChanged: (newValue) {
+            dispatchEvent(
+              widgetId: id,
+              eventType: 'onChanged',
+              value: newValue,
+            );
+          },
+          onSubmitted: (newValue) {
+            dispatchEvent(
+              widgetId: id,
+              eventType: 'onSubmitted',
+              value: newValue,
+            );
+          },
+        );
       },
-      onSubmitted: (newValue) {
-        dispatchEvent(widgetId: id, eventType: 'onSubmitted', value: newValue);
-      },
-    );
-  },
 );

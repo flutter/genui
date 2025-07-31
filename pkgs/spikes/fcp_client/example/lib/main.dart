@@ -72,45 +72,51 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
     _complimentCount++;
 
     // Use StateUpdate to patch the compliment and the count.
-    _controller.patchState(StateUpdate({
-      'patches': [
-        {
-          'op': 'replace',
-          'path': '/compliment',
-          'value': _compliments[newIndex]
-        },
-        {
-          'op': 'replace',
-          'path': '/count',
-          'value': _complimentCount,
-        },
-        {
-          'op': 'replace',
-          'path': '/detail',
-          'value': _cosmicDetails[newIndex],
-        }
-      ]
-    }));
+    _controller.patchState(
+      StateUpdate({
+        'patches': [
+          {
+            'op': 'replace',
+            'path': '/compliment',
+            'value': _compliments[newIndex],
+          },
+          {'op': 'replace', 'path': '/count', 'value': _complimentCount},
+          {
+            'op': 'replace',
+            'path': '/detail',
+            'value': _cosmicDetails[newIndex],
+          },
+        ],
+      }),
+    );
   }
 
   void _setMood(String mood) {
     // Use StateUpdate to patch the mood.
-    _controller.patchState(StateUpdate({
-      'patches': [
-        {'op': 'replace', 'path': '/mood', 'value': mood}
-      ]
-    }));
+    _controller.patchState(
+      StateUpdate({
+        'patches': [
+          {'op': 'replace', 'path': '/mood', 'value': mood},
+        ],
+      }),
+    );
   }
 
   void _toggleDetails() {
     _detailsVisible = !_detailsVisible;
 
     // First, update the state to reflect the new visibility.
-    _controller.patchState(StateUpdate({
-      'patches': [
-        {'op': 'replace', 'path': '/detailsVisible', 'value': _detailsVisible}
-      ]
-    }));
+    _controller.patchState(
+      StateUpdate({
+        'patches': [
+          {
+            'op': 'replace',
+            'path': '/detailsVisible',
+            'value': _detailsVisible,
+          },
+        ],
+      }),
+    );
 
     // Next, send a LayoutUpdate to modify the UI structure.
     final operation = _detailsVisible ? 'add' : 'remove';
@@ -123,220 +129,254 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
       'facts_list',
     ];
 
-    _controller.patchLayout(LayoutUpdate({
-      'operations': [
-        {
-          'op': operation,
-          'nodes': [
-            {
-              'id': 'details_text',
-              'type': 'Text',
-              'properties': {'style': 'body', 'key': 'details_text'},
-              'bindings': {
-                'data': {'path': 'detail'}
-              }
-            }
-          ]
-        },
-        {
-          'op': 'update',
-          'nodes': [
-            {
-              'id': 'main_column',
-              'type': 'Column',
-              'properties': {'children': childrenList}
-            }
-          ]
-        }
-      ]
-    }));
+    _controller.patchLayout(
+      LayoutUpdate({
+        'operations': [
+          {
+            'op': operation,
+            'nodes': [
+              {
+                'id': 'details_text',
+                'type': 'Text',
+                'properties': {'style': 'body', 'key': 'details_text'},
+                'bindings': {
+                  'data': {'path': 'detail'},
+                },
+              },
+            ],
+          },
+          {
+            'op': 'update',
+            'nodes': [
+              {
+                'id': 'main_column',
+                'type': 'Column',
+                'properties': {'children': childrenList},
+              },
+            ],
+          },
+        ],
+      }),
+    );
   }
 
   /// Creates a [WidgetCatalogRegistry] and registers the widgets used in this
   /// example.
   WidgetCatalogRegistry _createAndRegisterWidgets() {
     return WidgetCatalogRegistry()
-      ..register(CatalogItem(
-        name: 'Scaffold',
-        builder: (context, node, properties, children) {
-          return Scaffold(
-            appBar: children['appBar'] as PreferredSizeWidget?,
-            body: children['body'] as Widget?,
-          );
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'appBar': {'type': 'WidgetId'},
-            'body': {'type': 'WidgetId'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'AppBar',
-        builder: (context, node, properties, children) {
-          return AppBar(title: children['title'] as Widget?);
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'title': {'type': 'WidgetId'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'Center',
-        builder: (context, node, properties, children) =>
-            Center(child: children['child'] as Widget?),
-        definition: WidgetDefinition({
-          'properties': {
-            'child': {'type': 'WidgetId'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'Column',
-        builder: (context, node, properties, children) {
-          final childWidgets =
-              (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
-          return Column(
+      ..register(
+        CatalogItem(
+          name: 'Scaffold',
+          builder: (context, node, properties, children) {
+            return Scaffold(
+              appBar: children['appBar'] as PreferredSizeWidget?,
+              body: children['body'] as Widget?,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'appBar': {'type': 'WidgetId'},
+              'body': {'type': 'WidgetId'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'AppBar',
+          builder: (context, node, properties, children) {
+            return AppBar(title: children['title'] as Widget?);
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'title': {'type': 'WidgetId'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Center',
+          builder: (context, node, properties, children) =>
+              Center(child: children['child'] as Widget?),
+          definition: WidgetDefinition({
+            'properties': {
+              'child': {'type': 'WidgetId'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Column',
+          builder: (context, node, properties, children) {
+            final childWidgets =
+                (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
+            return Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: childWidgets);
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'children': {'type': 'ListOfWidgetIds'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'Row',
-        builder: (context, node, properties, children) {
-          final childWidgets =
-              (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
-          return Wrap(
+              children: childWidgets,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'children': {'type': 'ListOfWidgetIds'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Row',
+          builder: (context, node, properties, children) {
+            final childWidgets =
+                (children['children'] as List<dynamic>?)?.cast<Widget>() ?? [];
+            return Wrap(
               spacing: 8.0,
               runSpacing: 4.0,
               alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
-              children: childWidgets);
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'children': {'type': 'ListOfWidgetIds'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'SizedBox',
-        builder: (context, node, properties, children) =>
-            SizedBox(width: properties['width'] as double?),
-        definition: WidgetDefinition({
-          'properties': {
-            'width': {'type': 'Number'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'Padding',
-        builder: (context, node, properties, children) {
-          return Padding(
-            padding: EdgeInsets.all(properties['all'] as double? ?? 0.0),
-            child: children['child'] as Widget?,
-          );
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'all': {'type': 'Number'},
-            'child': {'type': 'WidgetId'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'Text',
-        builder: (context, node, properties, children) {
-          final style = properties['style'] as String?;
-          final color = properties['color'] as Color?;
-          TextStyle? textStyle;
-          if (style == 'headline') {
-            textStyle = Theme.of(context).textTheme.headlineMedium;
-          } else if (style == 'body') {
-            textStyle = Theme.of(context).textTheme.bodyLarge;
-          }
-          return Text(
-            properties['data'] as String? ?? '',
-            key: properties['key'] != null ? ValueKey(properties['key']) : null,
-            style: textStyle?.copyWith(color: color),
-            textAlign: TextAlign.center,
-          );
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'data': {'type': 'String'},
-            'style': {
-              'type': 'Enum',
-              'values': ['headline', 'body']
+              children: childWidgets,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'children': {'type': 'ListOfWidgetIds'},
             },
-            'key': {'type': 'String'},
-            'color': {'type': 'Color'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'ElevatedButton',
-        builder: (context, node, properties, children) {
-          return ElevatedButton(
-            key: properties['key'] != null ? ValueKey(properties['key']) : null,
-            onPressed: () {
-              FcpProvider.of(context)?.onEvent?.call(EventPayload({
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'SizedBox',
+          builder: (context, node, properties, children) =>
+              SizedBox(width: properties['width'] as double?),
+          definition: WidgetDefinition({
+            'properties': {
+              'width': {'type': 'Number'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Padding',
+          builder: (context, node, properties, children) {
+            return Padding(
+              padding: EdgeInsets.all(properties['all'] as double? ?? 0.0),
+              child: children['child'] as Widget?,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'all': {'type': 'Number'},
+              'child': {'type': 'WidgetId'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Text',
+          builder: (context, node, properties, children) {
+            final style = properties['style'] as String?;
+            final color = properties['color'] as Color?;
+            TextStyle? textStyle;
+            if (style == 'headline') {
+              textStyle = Theme.of(context).textTheme.headlineMedium;
+            } else if (style == 'body') {
+              textStyle = Theme.of(context).textTheme.bodyLarge;
+            }
+            return Text(
+              properties['data'] as String? ?? '',
+              key: properties['key'] != null
+                  ? ValueKey(properties['key'])
+                  : null,
+              style: textStyle?.copyWith(color: color),
+              textAlign: TextAlign.center,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'data': {'type': 'String'},
+              'style': {
+                'type': 'Enum',
+                'values': ['headline', 'body'],
+              },
+              'key': {'type': 'String'},
+              'color': {'type': 'Color'},
+            },
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'ElevatedButton',
+          builder: (context, node, properties, children) {
+            return ElevatedButton(
+              key: properties['key'] != null
+                  ? ValueKey(properties['key'])
+                  : null,
+              onPressed: () {
+                FcpProvider.of(context)?.onEvent?.call(
+                  EventPayload({
                     'sourceNodeId': node.id,
                     'eventName':
                         properties['eventName'] as String? ?? 'onPressed',
                     'arguments': {'mood': properties['mood']},
-                  }));
+                  }),
+                );
+              },
+              child: children['child'] as Widget?,
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'child': {'type': 'WidgetId'},
+              'key': {'type': 'String'},
+              'eventName': {'type': 'String'},
+              'mood': {'type': 'String'},
             },
-            child: children['child'] as Widget?,
-          );
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'child': {'type': 'WidgetId'},
-            'key': {'type': 'String'},
-            'eventName': {'type': 'String'},
-            'mood': {'type': 'String'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'Checkbox',
-        builder: (context, node, properties, children) {
-          return Checkbox(
-            value: properties['value'] as bool? ?? false,
-            onChanged: (newValue) {
-              FcpProvider.of(context)?.onEvent?.call(EventPayload({
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Checkbox',
+          builder: (context, node, properties, children) {
+            return Checkbox(
+              value: properties['value'] as bool? ?? false,
+              onChanged: (newValue) {
+                FcpProvider.of(context)?.onEvent?.call(
+                  EventPayload({
                     'sourceNodeId': node.id,
                     'eventName': 'onChanged',
                     'arguments': {'value': newValue},
-                  }));
+                  }),
+                );
+              },
+            );
+          },
+          definition: WidgetDefinition({
+            'properties': {
+              'value': {'type': 'Boolean'},
+              'key': {'type': 'String'},
             },
-          );
-        },
-        definition: WidgetDefinition({
-          'properties': {
-            'value': {'type': 'Boolean'},
-            'key': {'type': 'String'}
-          }
-        }),
-      ))
-      ..register(CatalogItem(
-        name: 'ListViewBuilder',
-        builder: (context, node, properties, children) =>
-            const SizedBox.shrink(),
-        definition: WidgetDefinition({
-          'properties': {},
-          'bindings': {
-            'data': {'path': 'string'}
-          }
-        }),
-      ));
+          }),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'ListViewBuilder',
+          builder: (context, node, properties, children) =>
+              const SizedBox.shrink(),
+          definition: WidgetDefinition({
+            'properties': {},
+            'bindings': {
+              'data': {'path': 'string'},
+            },
+          }),
+        ),
+      );
   }
 
   /// Creates the initial [DynamicUIPacket] that defines the app's UI.
@@ -350,24 +390,24 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
           {
             'id': 'root_scaffold',
             'type': 'Scaffold',
-            'properties': {'appBar': 'main_app_bar', 'body': 'main_center'}
+            'properties': {'appBar': 'main_app_bar', 'body': 'main_center'},
           },
           {
             'id': 'main_app_bar',
             'type': 'AppBar',
-            'properties': {'title': 'title_text'}
+            'properties': {'title': 'title_text'},
           },
           {
             'id': 'title_text',
             'type': 'Text',
             'bindings': {
-              'data': {'path': 'count', 'format': 'Cosmic Dashboard ({})'}
-            }
+              'data': {'path': 'count', 'format': 'Cosmic Dashboard ({})'},
+            },
           },
           {
             'id': 'main_center',
             'type': 'Center',
-            'properties': {'child': 'main_column'}
+            'properties': {'child': 'main_column'},
           },
           {
             'id': 'main_column',
@@ -379,26 +419,20 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
                 'mood_selector',
                 'details_row',
                 'facts_list',
-              ]
-            }
+              ],
+            },
           },
           // Padding for compliment text
           {
             'id': 'compliment_text_padding',
             'type': 'Padding',
-            'properties': {
-              'all': 12.0,
-              'child': 'compliment_text',
-            },
+            'properties': {'all': 12.0, 'child': 'compliment_text'},
           },
           // Padding for compliment button
           {
             'id': 'compliment_button_padding',
             'type': 'Padding',
-            'properties': {
-              'all': 12.0,
-              'child': 'compliment_button',
-            },
+            'properties': {'all': 12.0, 'child': 'compliment_button'},
           },
           // Compliment Text
           {
@@ -413,23 +447,23 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
                   'mapping': {
                     'happy': Colors.blue,
                     'excited': Colors.orange,
-                    'calm': Colors.green
+                    'calm': Colors.green,
                   },
-                  'fallback': Colors.black
-                }
-              }
-            }
+                  'fallback': Colors.black,
+                },
+              },
+            },
           },
           // Main Action Button
           {
             'id': 'compliment_button',
             'type': 'ElevatedButton',
-            'properties': {'child': 'button_text', 'key': 'compliment_button'}
+            'properties': {'child': 'button_text', 'key': 'compliment_button'},
           },
           {
             'id': 'button_text',
             'type': 'Text',
-            'properties': {'data': 'Get another compliment'}
+            'properties': {'data': 'Get another compliment'},
           },
           // Mood Selectors
           {
@@ -441,9 +475,9 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
                 'spacer1',
                 'mood_excited',
                 'spacer2',
-                'mood_calm'
-              ]
-            }
+                'mood_calm',
+              ],
+            },
           },
           {
             'id': 'mood_happy',
@@ -451,13 +485,13 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             'properties': {
               'child': 'mood_happy_text',
               'eventName': 'setMood',
-              'mood': 'happy'
-            }
+              'mood': 'happy',
+            },
           },
           {
             'id': 'mood_happy_text',
             'type': 'Text',
-            'properties': {'data': 'Happy'}
+            'properties': {'data': 'Happy'},
           },
           {
             'id': 'mood_excited',
@@ -465,13 +499,13 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             'properties': {
               'child': 'mood_excited_text',
               'eventName': 'setMood',
-              'mood': 'excited'
-            }
+              'mood': 'excited',
+            },
           },
           {
             'id': 'mood_excited_text',
             'type': 'Text',
-            'properties': {'data': 'Excited'}
+            'properties': {'data': 'Excited'},
           },
           {
             'id': 'mood_calm',
@@ -479,63 +513,63 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
             'properties': {
               'child': 'mood_calm_text',
               'eventName': 'setMood',
-              'mood': 'calm'
-            }
+              'mood': 'calm',
+            },
           },
           {
             'id': 'mood_calm_text',
             'type': 'Text',
-            'properties': {'data': 'Calm'}
+            'properties': {'data': 'Calm'},
           },
           // Details Toggle
           {
             'id': 'details_row',
             'type': 'Row',
             'properties': {
-              'children': ['details_toggle_text', 'details_toggle']
-            }
+              'children': ['details_toggle_text', 'details_toggle'],
+            },
           },
           {
             'id': 'details_toggle',
             'type': 'Checkbox',
             'properties': {'key': 'details_toggle'},
             'bindings': {
-              'value': {'path': 'detailsVisible'}
-            }
+              'value': {'path': 'detailsVisible'},
+            },
           },
           {
             'id': 'details_toggle_text',
             'type': 'Text',
-            'properties': {'data': 'Show Details'}
+            'properties': {'data': 'Show Details'},
           },
           // Facts List
           {
             'id': 'facts_list',
             'type': 'ListViewBuilder',
             'bindings': {
-              'data': {'path': 'facts'}
+              'data': {'path': 'facts'},
             },
             'itemTemplate': {
               'id': 'fact_template',
               'type': 'Text',
               'properties': {'style': 'body'},
               'bindings': {
-                'data': {'path': 'item.text'}
-              }
-            }
+                'data': {'path': 'item.text'},
+              },
+            },
           },
           // Spacers
           {
             'id': 'spacer1',
             'type': 'SizedBox',
-            'properties': {'width': 16.0}
+            'properties': {'width': 16.0},
           },
           {
             'id': 'spacer2',
             'type': 'SizedBox',
-            'properties': {'width': 16.0}
+            'properties': {'width': 16.0},
           },
-        ]
+        ],
       },
       'state': {
         'compliment': 'Welcome to the Cosmic Dashboard!',
@@ -547,10 +581,11 @@ class _CosmicComplimentAppState extends State<CosmicComplimentApp> {
           {'text': 'The universe is estimated to be 13.8 billion years old.'},
           {'text': 'A day on Venus is longer than a year on Venus.'},
           {
-            'text': 'There are more trees on Earth than stars in the Milky Way.'
+            'text':
+                'There are more trees on Earth than stars in the Milky Way.',
           },
-        ]
-      }
+        ],
+      },
     });
   }
 

@@ -40,9 +40,10 @@ class TextResponse extends ChatMessage {
 class UiResponse extends ChatMessage {
   /// Creates a [UiResponse] with the given UI [definition].
   UiResponse({required this.definition, String? surfaceId})
-      : uiKey = UniqueKey(),
-        surfaceId = surfaceId ??
-            ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
+    : uiKey = UniqueKey(),
+      surfaceId =
+          surfaceId ??
+          ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
 
   /// The JSON definition of the UI.
   final Map<String, Object?> definition;

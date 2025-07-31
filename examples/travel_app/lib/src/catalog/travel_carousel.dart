@@ -10,10 +10,12 @@ final _schema = Schema.object(
       description: 'A list of items to display in the carousel.',
       items: Schema.object(
         properties: {
-          'title':
-              Schema.string(description: 'The title of the carousel item.'),
-          'photoUrl':
-              Schema.string(description: 'The URL of the photo to display.'),
+          'title': Schema.string(
+            description: 'The title of the carousel item.',
+          ),
+          'photoUrl': Schema.string(
+            description: 'The URL of the photo to display.',
+          ),
         },
       ),
     ),
@@ -23,25 +25,28 @@ final _schema = Schema.object(
 final travelCarousel = CatalogItem(
   name: 'travelCarousel',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final items = (data['items'] as List)
-        .map((item) => _TravelCarouselItemData(
-              title: item['title'] as String,
-              photoUrl: item['photoUrl'] as String,
-            ))
-        .toList();
-    return _TravelCarousel(
-      items: items,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final items = ((data as Map)['items'] as List<Map>)
+            .map(
+              (item) => _TravelCarouselItemData(
+                title: item['title'] as String,
+                photoUrl: item['photoUrl'] as String,
+              ),
+            )
+            .toList();
+        return _TravelCarousel(
+          items: items,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 class _TravelCarouselItemData {
@@ -54,9 +59,9 @@ class _TravelCarouselItemData {
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
 }
 
 class _TravelCarousel extends StatelessWidget {
@@ -72,7 +77,8 @@ class _TravelCarousel extends StatelessWidget {
     required String widgetId,
     required String eventType,
     required Object? value,
-  }) dispatchEvent;
+  })
+  dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +117,8 @@ class _TravelCarouselItem extends StatefulWidget {
     required String widgetId,
     required String eventType,
     required Object? value,
-  }) dispatchEvent;
+  })
+  dispatchEvent;
 
   @override
   State<_TravelCarouselItem> createState() => _TravelCarouselItemState();
@@ -155,17 +162,14 @@ class _TravelCarouselItemState extends State<_TravelCarouselItem> {
               child: ColorFiltered(
                 colorFilter: ColorFilter.mode(
                   _isPressed
-                      ? Colors.black.withOpacity(0.4)
+                      ? Colors.black.withValues(alpha: 0.4)
                       : Colors.transparent,
                   BlendMode.darken,
                 ),
                 child: SizedBox(
                   height: 150,
                   width: 190,
-                  child: Image.network(
-                    widget.data.photoUrl,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.network(widget.data.photoUrl, fit: BoxFit.cover),
                 ),
               ),
             ),

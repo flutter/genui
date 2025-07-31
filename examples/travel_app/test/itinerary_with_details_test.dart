@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui_client/src/catalog/itinerary_with_details.dart';
 import 'package:network_image_mock/network_image_mock.dart';
-import '../lib/src/catalog/itinerary_with_details.dart';
 
 void main() {
   group('ItineraryWithDetails', () {
-    testWidgets('renders card with title, subheading, and thumbnail',
-        (WidgetTester tester) async {
+    testWidgets('renders card with title, subheading, and thumbnail', (
+      WidgetTester tester,
+    ) async {
       await mockNetworkImagesFor(() async {
         final catalogItem = itineraryWithDetails;
         final data = {
@@ -22,7 +22,7 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return catalogItem.widgetBuilder!(
+                  return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_itinerary_card',
                     buildChild: (id) => const Text('Child Content'),
@@ -56,7 +56,7 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return catalogItem.widgetBuilder!(
+                  return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_itinerary_modal',
                     buildChild: (id) => const Text('Modal Child Content'),
@@ -74,30 +74,42 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify modal content is displayed
-        expect(find.byType(Scaffold),
-            findsNWidgets(2)); // Main Scaffold + Modal Scaffold
         expect(
-            find.descendant(
-                of: find.byType(Scaffold).last,
-                matching: find.text('Modal Title')),
-            findsOneWidget);
+          find.byType(Scaffold),
+          findsNWidgets(2),
+        ); // Main Scaffold + Modal Scaffold
         expect(
-            find.descendant(
-                of: find.byType(Scaffold).last,
-                matching: find.text('Modal Child Content')),
-            findsOneWidget);
+          find.descendant(
+            of: find.byType(Scaffold).last,
+            matching: find.text('Modal Title'),
+          ),
+          findsOneWidget,
+        );
         expect(
-            find.byType(Image), findsNWidgets(2)); // One in card, one in modal
+          find.descendant(
+            of: find.byType(Scaffold).last,
+            matching: find.text('Modal Child Content'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.byType(Image),
+          findsNWidgets(2),
+        ); // One in card, one in modal
 
         // Tap close button
         await tester.tap(find.byIcon(Icons.close));
         await tester.pumpAndSettle();
 
         // Verify modal is dismissed
-        expect(find.byType(Scaffold),
-            findsOneWidget); // Only the main Scaffold should remain
-        expect(find.text('Modal Child Content'),
-            findsNothing); // The modal content should be gone
+        expect(
+          find.byType(Scaffold),
+          findsOneWidget,
+        ); // Only the main Scaffold should remain
+        expect(
+          find.text('Modal Child Content'),
+          findsNothing,
+        ); // The modal content should be gone
       });
     });
   });

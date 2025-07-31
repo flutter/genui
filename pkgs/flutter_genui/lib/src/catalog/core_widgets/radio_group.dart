@@ -77,25 +77,29 @@ class _RadioGroupState extends State<_RadioGroup> {
 final radioGroup = CatalogItem(
   name: 'radio_group',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final groupValue = data['groupValue'] as String;
-    final labels = (data['labels'] as List<dynamic>).cast<String>();
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final groupValue = data['groupValue'] as String;
+        final labels = (data['labels'] as List<dynamic>).cast<String>();
 
-    return _RadioGroup(
-      initialGroupValue: groupValue,
-      labels: labels,
-      onChanged: (newValue) {
-        if (newValue != null) {
-          dispatchEvent(
-              widgetId: id, eventType: 'onChanged', value: newValue);
-        }
+        return _RadioGroup(
+          initialGroupValue: groupValue,
+          labels: labels,
+          onChanged: (newValue) {
+            if (newValue != null) {
+              dispatchEvent(
+                widgetId: id,
+                eventType: 'onChanged',
+                value: newValue,
+              );
+            }
+          },
+        );
       },
-    );
-  },
 );

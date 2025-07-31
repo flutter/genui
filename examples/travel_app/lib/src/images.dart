@@ -58,7 +58,7 @@ final imagesJson = '''
   },
   {
     "url": "https://genui-demo-stockimages.web.app/Brighton,_the_front_and_the_chain_pier_seen_in_the_distance.jpg",
-    "description": "\"Brighton: the front and the chain pier seen in the distance,\" by Frederick William Woledge (active"
+    "description": ""Brighton: the front and the chain pier seen in the distance," by Frederick William Woledge (active"
   },
   {
     "url": "https://genui-demo-stockimages.web.app/Carters_Beach-_Sand.jpg",
@@ -130,7 +130,7 @@ final imagesJson = '''
   },
   {
     "url": "https://genui-demo-stockimages.web.app/The_Earth_seen_from_Apollo_17_with_transparent_background.png",
-    "description": "\"The Blue Marble\" is a famous photograph of the Earth taken on December 7, 1972 by the crew of the"
+    "description": ""The Blue Marble" is a famous photograph of the Earth taken on December 7, 1972 by the crew of the"
   },
   {
     "url": "https://genui-demo-stockimages.web.app/Leaf_1_web.jpg",
@@ -166,7 +166,7 @@ final imagesJson = '''
   },
   {
     "url": "https://genui-demo-stockimages.web.app/Marco_Polo_traveling.JPG",
-    "description": "Marco Polo travelling, Miniature from the Book \"The Travels of Marco Polo\" (\"Il milione\"), origina"
+    "description": "Marco Polo travelling, Miniature from the Book "The Travels of Marco Polo" ("Il milione"), origina"
   },
   {
     "url": "https://genui-demo-stockimages.web.app/Saltation-mechanics-i18n.png",
@@ -182,7 +182,7 @@ final imagesJson = '''
   },
   {
     "url": "https://genui-demo-stockimages.web.app/The_Earth_seen_from_Apollo_17.jpg",
-    "description": "\"The Blue Marble\" is a famous photograph of the Earth taken on December 7, 1972, by the crew of th"
+    "description": ""The Blue Marble" is a famous photograph of the Earth taken on December 7, 1972, by the crew of th"
   },
   {
     "url": "https://genui-demo-stockimages.web.app/Ulaan_tsutgalan,_Mongolia.jpg",

@@ -10,7 +10,8 @@ final _schema = Schema.object(
         properties: {
           'title': Schema.string(description: 'The title of the tab.'),
           'child': Schema.string(
-              description: 'The ID of the child widget for the tab content.'),
+            description: 'The ID of the child widget for the tab content.',
+          ),
         },
       ),
     ),
@@ -24,27 +25,30 @@ final _schema = Schema.object(
 final tabbedSections = CatalogItem(
   name: 'tabbedSections',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final sections = (data['sections'] as List)
-        .map((section) => _TabSectionData(
-              title: section['title'] as String,
-              childId: section['child'] as String,
-            ))
-        .toList();
-    final height = (data['height'] as num?)?.toDouble();
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final sections = ((data as Map)['sections'] as List<Map>)
+            .map(
+              (section) => _TabSectionData(
+                title: section['title'] as String,
+                childId: section['child'] as String,
+              ),
+            )
+            .toList();
+        final height = (data['height'] as num?)?.toDouble();
 
-    return _TabbedSections(
-      sections: sections,
-      buildChild: buildChild,
-      height: height,
-    );
-  },
+        return _TabbedSections(
+          sections: sections,
+          buildChild: buildChild,
+          height: height,
+        );
+      },
 );
 
 class _TabSectionData {

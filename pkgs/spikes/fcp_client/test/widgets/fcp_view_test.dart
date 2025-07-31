@@ -42,11 +42,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: FcpView(
-            packet: packet,
-            catalog: catalog,
-            registry: registry,
-          ),
+          home: FcpView(packet: packet, catalog: catalog, registry: registry),
         ),
       );
 
@@ -146,11 +142,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: FcpView(
-            packet: packet,
-            catalog: catalog,
-            registry: registry,
-          ),
+          home: FcpView(packet: packet, catalog: catalog, registry: registry),
         ),
       );
 
@@ -197,11 +189,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: FcpView(
-            packet: packet,
-            catalog: catalog,
-            registry: registry,
-          ),
+          home: FcpView(packet: packet, catalog: catalog, registry: registry),
         ),
       );
 
@@ -329,11 +317,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: FcpView(
-            packet: packet,
-            catalog: catalog,
-            registry: registry,
-          ),
+          home: FcpView(packet: packet, catalog: catalog, registry: registry),
         ),
       );
 

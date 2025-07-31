@@ -5,11 +5,12 @@ import 'package:flutter_genui/flutter_genui.dart';
 final _schema = Schema.object(
   properties: {
     'chipLabel': Schema.string(
-        description:
-            'The title of the filter chip e.g. "budget" or "activity type" etc'),
+      description:
+          'The title of the filter chip e.g. "budget" or "activity type" etc',
+    ),
     'options': Schema.array(
       description:
-          'The list of options that the user can choose from. There should be at least three of these.',
+          '''The list of options that the user can choose from. There should be at least three of these.''',
       items: Schema.string(),
     ),
   },
@@ -18,23 +19,24 @@ final _schema = Schema.object(
 final optionsFilterChip = CatalogItem(
   name: 'optionsFilterChip',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final chipLabel = data['chipLabel'] as String;
-    final options = (data['options'] as List<dynamic>).cast<String>();
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final chipLabel = (data as Map)['chipLabel'] as String;
+        final options = (data['options'] as List<dynamic>).cast<String>();
 
-    return _OptionsFilterChip(
-      initialChipLabel: chipLabel,
-      options: options,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+        return _OptionsFilterChip(
+          initialChipLabel: chipLabel,
+          options: options,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
@@ -52,7 +54,8 @@ class _OptionsFilterChip extends StatefulWidget {
     required String widgetId,
     required String eventType,
     required Object? value,
-  }) dispatchEvent;
+  })
+  dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -72,11 +75,9 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
     return FilterChip(
       label: Text(_currentChipLabel),
       selected: false,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
-        showModalBottomSheet(
+        showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
             String? tempSelectedOption = _currentChipLabel;
@@ -88,7 +89,9 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                     return RadioListTile<String>(
                       title: Text(option),
                       value: option,
+                      // ignore: deprecated_member_use
                       groupValue: tempSelectedOption,
+                      // ignore: deprecated_member_use
                       onChanged: (String? newValue) {
                         setModalState(() {
                           tempSelectedOption = newValue;
