@@ -9,6 +9,11 @@ sealed class Input {
 class InitialInput extends Input {
   final String initialPrompt;
   InitialInput(this.initialPrompt);
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
 }
 
 class UserInput extends Input {}
