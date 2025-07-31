@@ -8,7 +8,8 @@ import '../../model/catalog_item.dart';
 final _schema = Schema.object(
   properties: {
     'mainAxisAlignment': Schema.enumString(
-      description: 'How children are aligned on the main axis. '
+      description:
+          'How children are aligned on the main axis. '
           'See Flutter\'s MainAxisAlignment for values.',
       enumValues: [
         'start',
@@ -20,7 +21,8 @@ final _schema = Schema.object(
       ],
     ),
     'crossAxisAlignment': Schema.enumString(
-      description: 'How children are aligned on the cross axis. '
+      description:
+          'How children are aligned on the cross axis. '
           'See Flutter\'s CrossAxisAlignment for values.',
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
@@ -40,13 +42,12 @@ extension type _ColumnData.fromMap(Map<String, Object?> _json) {
     double? spacing,
     String? mainAxisAlignment,
     String? crossAxisAlignment,
-  }) =>
-      _ColumnData.fromMap({
-        'children': children,
-        'spacing': spacing,
-        'mainAxisAlignment': mainAxisAlignment,
-        'crossAxisAlignment': crossAxisAlignment,
-      });
+  }) => _ColumnData.fromMap({
+    'children': children,
+    'spacing': spacing,
+    'mainAxisAlignment': mainAxisAlignment,
+    'crossAxisAlignment': crossAxisAlignment,
+  });
 
   List<String> get children =>
       ((_json['children'] as List?) ?? []).cast<String>();
@@ -92,31 +93,32 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
 final columnCatalogItem = CatalogItem(
   name: 'Column',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final columnData = _ColumnData.fromMap(data as Map<String, Object?>);
-    final childrenIds = columnData.children;
-    final spacing = columnData.spacing;
-    final childrenWithSpacing = <Widget>[];
-    for (var i = 0; i < childrenIds.length; i++) {
-      childrenWithSpacing.add(buildChild(childrenIds[i]));
-      if (i < childrenIds.length - 1) {
-        childrenWithSpacing.add(SizedBox(height: spacing));
-      }
-    }
-    return Column(
-      mainAxisAlignment: _parseMainAxisAlignment(
-        columnData.mainAxisAlignment,
-      ),
-      crossAxisAlignment: _parseCrossAxisAlignment(
-        columnData.crossAxisAlignment,
-      ),
-      children: childrenWithSpacing,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final columnData = _ColumnData.fromMap(data as Map<String, Object?>);
+        final childrenIds = columnData.children;
+        final spacing = columnData.spacing;
+        final childrenWithSpacing = <Widget>[];
+        for (var i = 0; i < childrenIds.length; i++) {
+          childrenWithSpacing.add(buildChild(childrenIds[i]));
+          if (i < childrenIds.length - 1) {
+            childrenWithSpacing.add(SizedBox(height: spacing));
+          }
+        }
+        return Column(
+          mainAxisAlignment: _parseMainAxisAlignment(
+            columnData.mainAxisAlignment,
+          ),
+          crossAxisAlignment: _parseCrossAxisAlignment(
+            columnData.crossAxisAlignment,
+          ),
+          children: childrenWithSpacing,
+        );
+      },
 );

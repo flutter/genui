@@ -20,9 +20,10 @@ extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
   factory _OptionsFilterChipData({
     required String chipLabel,
     required List<String> options,
-  }) =>
-      _OptionsFilterChipData.fromMap(
-          {'chipLabel': chipLabel, 'options': options});
+  }) => _OptionsFilterChipData.fromMap({
+    'chipLabel': chipLabel,
+    'options': options,
+  });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
@@ -31,22 +32,24 @@ extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
 final optionsFilterChip = CatalogItem(
   name: 'optionsFilterChip',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final optionsFilterChipData =
-        _OptionsFilterChipData.fromMap(data as Map<String, Object?>);
-    return _OptionsFilterChip(
-      initialChipLabel: optionsFilterChipData.chipLabel,
-      options: optionsFilterChipData.options,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final optionsFilterChipData = _OptionsFilterChipData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _OptionsFilterChip(
+          initialChipLabel: optionsFilterChipData.chipLabel,
+          options: optionsFilterChipData.options,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
@@ -64,7 +67,8 @@ class _OptionsFilterChip extends StatefulWidget {
     required String widgetId,
     required String eventType,
     required Object? value,
-  }) dispatchEvent;
+  })
+  dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();

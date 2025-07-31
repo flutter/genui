@@ -20,12 +20,11 @@ extension type _TextFieldData.fromMap(Map<String, Object?> _json) {
     String? value,
     String? hintText,
     bool? obscureText,
-  }) =>
-      _TextFieldData.fromMap({
-        'value': value,
-        'hintText': hintText,
-        'obscureText': obscureText,
-      });
+  }) => _TextFieldData.fromMap({
+    'value': value,
+    'hintText': hintText,
+    'obscureText': obscureText,
+  });
 
   String get value => (_json['value'] as String?) ?? '';
   String? get hintText => _json['hintText'] as String?;
@@ -89,33 +88,35 @@ class _TextFieldState extends State<_TextField> {
 final textField = CatalogItem(
   name: 'text_field',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final textFieldData =
-        _TextFieldData.fromMap(data as Map<String, Object?>);
-    return _TextField(
-      initialValue: textFieldData.value,
-      hintText: textFieldData.hintText,
-      obscureText: textFieldData.obscureText,
-      onChanged: (newValue) {
-        dispatchEvent(
-          widgetId: id,
-          eventType: 'onChanged',
-          value: newValue,
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final textFieldData = _TextFieldData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _TextField(
+          initialValue: textFieldData.value,
+          hintText: textFieldData.hintText,
+          obscureText: textFieldData.obscureText,
+          onChanged: (newValue) {
+            dispatchEvent(
+              widgetId: id,
+              eventType: 'onChanged',
+              value: newValue,
+            );
+          },
+          onSubmitted: (newValue) {
+            dispatchEvent(
+              widgetId: id,
+              eventType: 'onSubmitted',
+              value: newValue,
+            );
+          },
         );
       },
-      onSubmitted: (newValue) {
-        dispatchEvent(
-          widgetId: id,
-          eventType: 'onSubmitted',
-          value: newValue,
-        );
-      },
-    );
-  },
 );

@@ -26,8 +26,7 @@ extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
   factory _TabbedSectionsData({
     required List<Map<String, Object?>> sections,
     double? height,
-  }) =>
-      _TabbedSectionsData.fromMap({'sections': sections, 'height': height});
+  }) => _TabbedSectionsData.fromMap({'sections': sections, 'height': height});
 
   Iterable<_TabSectionItemData> get sections => (_json['sections'] as List)
       .cast<Map<String, Object?>>()
@@ -36,10 +35,7 @@ extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
 }
 
 extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
-  factory _TabSectionItemData({
-    required String title,
-    required String child,
-  }) =>
+  factory _TabSectionItemData({required String title, required String child}) =>
       _TabSectionItemData.fromMap({'title': title, 'child': child});
 
   String get title => _json['title'] as String;
@@ -49,31 +45,33 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
 final tabbedSections = CatalogItem(
   name: 'tabbedSections',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final tabbedSectionsData =
-        _TabbedSectionsData.fromMap(data as Map<String, Object?>);
-    final sections = tabbedSectionsData.sections
-        .map(
-          (section) => _TabSectionData(
-            title: section.title,
-            childId: section.childId,
-          ),
-        )
-        .toList();
-    final height = tabbedSectionsData.height;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final tabbedSectionsData = _TabbedSectionsData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final sections = tabbedSectionsData.sections
+            .map(
+              (section) => _TabSectionData(
+                title: section.title,
+                childId: section.childId,
+              ),
+            )
+            .toList();
+        final height = tabbedSectionsData.height;
 
-    return _TabbedSections(
-      sections: sections,
-      buildChild: buildChild,
-      height: height,
-    );
-  },
+        return _TabbedSections(
+          sections: sections,
+          buildChild: buildChild,
+          height: height,
+        );
+      },
 );
 
 class _TabSectionData {

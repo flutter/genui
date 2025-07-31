@@ -25,13 +25,12 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
     required String subheading,
     required String thumbnailUrl,
     required String child,
-  }) =>
-      _ItineraryWithDetailsData.fromMap({
-        'title': title,
-        'subheading': subheading,
-        'thumbnailUrl': thumbnailUrl,
-        'child': child,
-      });
+  }) => _ItineraryWithDetailsData.fromMap({
+    'title': title,
+    'subheading': subheading,
+    'thumbnailUrl': thumbnailUrl,
+    'child': child,
+  });
 
   String get title => _json['title'] as String;
   String get subheading => _json['subheading'] as String;
@@ -42,24 +41,26 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 final itineraryWithDetails = CatalogItem(
   name: 'itinerary_with_details',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final itineraryWithDetailsData =
-        _ItineraryWithDetailsData.fromMap(data as Map<String, Object?>);
-    final child = buildChild(itineraryWithDetailsData.child);
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final child = buildChild(itineraryWithDetailsData.child);
 
-    return _ItineraryWithDetails(
-      title: itineraryWithDetailsData.title,
-      subheading: itineraryWithDetailsData.subheading,
-      thumbnailUrl: itineraryWithDetailsData.thumbnailUrl,
-      child: child,
-    );
-  },
+        return _ItineraryWithDetails(
+          title: itineraryWithDetailsData.title,
+          subheading: itineraryWithDetailsData.subheading,
+          thumbnailUrl: itineraryWithDetailsData.thumbnailUrl,
+          child: child,
+        );
+      },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {

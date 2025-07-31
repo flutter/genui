@@ -21,8 +21,7 @@ extension type _RadioGroupData.fromMap(Map<String, Object?> _json) {
   factory _RadioGroupData({
     required String groupValue,
     required List<String> labels,
-  }) =>
-      _RadioGroupData.fromMap({'groupValue': groupValue, 'labels': labels});
+  }) => _RadioGroupData.fromMap({'groupValue': groupValue, 'labels': labels});
 
   String get groupValue => _json['groupValue'] as String;
   List<String> get labels => (_json['labels'] as List).cast<String>();
@@ -88,26 +87,27 @@ class _RadioGroupState extends State<_RadioGroup> {
 final radioGroup = CatalogItem(
   name: 'radio_group',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final radioData = _RadioGroupData.fromMap(data as Map<String, Object?>);
-    return _RadioGroup(
-      initialGroupValue: radioData.groupValue,
-      labels: radioData.labels,
-      onChanged: (newValue) {
-        if (newValue != null) {
-          dispatchEvent(
-            widgetId: id,
-            eventType: 'onChanged',
-            value: newValue,
-          );
-        }
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final radioData = _RadioGroupData.fromMap(data as Map<String, Object?>);
+        return _RadioGroup(
+          initialGroupValue: radioData.groupValue,
+          labels: radioData.labels,
+          onChanged: (newValue) {
+            if (newValue != null) {
+              dispatchEvent(
+                widgetId: id,
+                eventType: 'onChanged',
+                value: newValue,
+              );
+            }
+          },
+        );
       },
-    );
-  },
 );

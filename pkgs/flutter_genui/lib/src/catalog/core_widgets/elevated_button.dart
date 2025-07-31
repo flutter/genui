@@ -15,9 +15,7 @@ final _schema = Schema.object(
 );
 
 extension type _ElevatedButtonData.fromMap(Map<String, Object?> _json) {
-  factory _ElevatedButtonData({
-    required String child,
-  }) =>
+  factory _ElevatedButtonData({required String child}) =>
       _ElevatedButtonData.fromMap({'child': child});
 
   String get child => _json['child'] as String;
@@ -26,20 +24,22 @@ extension type _ElevatedButtonData.fromMap(Map<String, Object?> _json) {
 final elevatedButtonCatalogItem = CatalogItem(
   name: 'elevated_button',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final buttonData =
-        _ElevatedButtonData.fromMap(data as Map<String, Object?>);
-    final child = buildChild(buttonData.child);
-    return ElevatedButton(
-      onPressed: () =>
-          dispatchEvent(widgetId: id, eventType: 'onTap', value: null),
-      child: child,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final buttonData = _ElevatedButtonData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final child = buildChild(buttonData.child);
+        return ElevatedButton(
+          onPressed: () =>
+              dispatchEvent(widgetId: id, eventType: 'onTap', value: null),
+          child: child,
+        );
+      },
 );

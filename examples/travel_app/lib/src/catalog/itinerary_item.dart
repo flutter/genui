@@ -21,13 +21,12 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
     required String subtitle,
     required String thumbnailUrl,
     required String detailText,
-  }) =>
-      _ItineraryItemData.fromMap({
-        'title': title,
-        'subtitle': subtitle,
-        'thumbnailUrl': thumbnailUrl,
-        'detailText': detailText,
-      });
+  }) => _ItineraryItemData.fromMap({
+    'title': title,
+    'subtitle': subtitle,
+    'thumbnailUrl': thumbnailUrl,
+    'detailText': detailText,
+  });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
@@ -38,22 +37,24 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
 final itineraryItem = CatalogItem(
   name: 'itinerary_item',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final itineraryItemData =
-        _ItineraryItemData.fromMap(data as Map<String, Object?>);
-    return _ItineraryItem(
-      title: itineraryItemData.title,
-      subtitle: itineraryItemData.subtitle,
-      thumbnailUrl: itineraryItemData.thumbnailUrl,
-      detailText: itineraryItemData.detailText,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final itineraryItemData = _ItineraryItemData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _ItineraryItem(
+          title: itineraryItemData.title,
+          subtitle: itineraryItemData.subtitle,
+          thumbnailUrl: itineraryItemData.thumbnailUrl,
+          detailText: itineraryItemData.detailText,
+        );
+      },
 );
 
 class _ItineraryItem extends StatelessWidget {
