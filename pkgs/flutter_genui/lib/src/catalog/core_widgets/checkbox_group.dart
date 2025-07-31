@@ -16,6 +16,17 @@ final _schema = Schema.object(
   },
 );
 
+extension type _CheckboxGroupData.fromMap(Map<String, Object?> _json) {
+  factory _CheckboxGroupData({
+    required List<bool> values,
+    required List<String> labels,
+  }) =>
+      _CheckboxGroupData.fromMap({'values': values, 'labels': labels});
+
+  List<bool> get values => (_json['values'] as List).cast<bool>();
+  List<String> get labels => (_json['labels'] as List).cast<String>();
+}
+
 class _CheckboxGroup extends StatefulWidget {
   const _CheckboxGroup({
     required this.initialValues,
@@ -73,27 +84,25 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
 final checkboxGroup = CatalogItem(
   name: 'checkbox_group',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-      }) {
-        final values = ((data as Map)['values'] as List).cast<bool>();
-        final labels = (data['labels'] as List).cast<String>();
-
-        return _CheckboxGroup(
-          initialValues: values,
-          labels: labels,
-          onChanged: (newValues) {
-            dispatchEvent(
-              widgetId: id,
-              eventType: 'onChanged',
-              value: newValues,
-            );
-          },
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final checkboxData =
+        _CheckboxGroupData.fromMap(data as Map<String, Object?>);
+    return _CheckboxGroup(
+      initialValues: checkboxData.values,
+      labels: checkboxData.labels,
+      onChanged: (newValues) {
+        dispatchEvent(
+          widgetId: id,
+          eventType: 'onChanged',
+          value: newValues,
         );
       },
+    );
+  },
 );

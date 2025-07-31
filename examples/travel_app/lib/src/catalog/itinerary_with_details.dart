@@ -19,30 +19,47 @@ final _schema = Schema.object(
   },
 );
 
+extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
+  factory _ItineraryWithDetailsData({
+    required String title,
+    required String subheading,
+    required String thumbnailUrl,
+    required String child,
+  }) =>
+      _ItineraryWithDetailsData.fromMap({
+        'title': title,
+        'subheading': subheading,
+        'thumbnailUrl': thumbnailUrl,
+        'child': child,
+      });
+
+  String get title => _json['title'] as String;
+  String get subheading => _json['subheading'] as String;
+  String get thumbnailUrl => _json['thumbnailUrl'] as String;
+  String get child => _json['child'] as String;
+}
+
 final itineraryWithDetails = CatalogItem(
   name: 'itinerary_with_details',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-      }) {
-        final title = (data as Map)['title'] as String;
-        final subheading = data['subheading'] as String;
-        final thumbnailUrl = data['thumbnailUrl'] as String;
-        final childId = data['child'] as String;
-        final child = buildChild(childId);
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final itineraryWithDetailsData =
+        _ItineraryWithDetailsData.fromMap(data as Map<String, Object?>);
+    final child = buildChild(itineraryWithDetailsData.child);
 
-        return _ItineraryWithDetails(
-          title: title,
-          subheading: subheading,
-          thumbnailUrl: thumbnailUrl,
-          child: child,
-        );
-      },
+    return _ItineraryWithDetails(
+      title: itineraryWithDetailsData.title,
+      subheading: itineraryWithDetailsData.subheading,
+      thumbnailUrl: itineraryWithDetailsData.thumbnailUrl,
+      child: child,
+    );
+  },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {

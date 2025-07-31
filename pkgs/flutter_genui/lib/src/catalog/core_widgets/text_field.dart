@@ -15,6 +15,23 @@ final _schema = Schema.object(
   },
 );
 
+extension type _TextFieldData.fromMap(Map<String, Object?> _json) {
+  factory _TextFieldData({
+    String? value,
+    String? hintText,
+    bool? obscureText,
+  }) =>
+      _TextFieldData.fromMap({
+        'value': value,
+        'hintText': hintText,
+        'obscureText': obscureText,
+      });
+
+  String get value => (_json['value'] as String?) ?? '';
+  String? get hintText => _json['hintText'] as String?;
+  bool get obscureText => (_json['obscureText'] as bool?) ?? false;
+}
+
 class _TextField extends StatefulWidget {
   const _TextField({
     required this.initialValue,
@@ -72,36 +89,33 @@ class _TextFieldState extends State<_TextField> {
 final textField = CatalogItem(
   name: 'text_field',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-      }) {
-        final value = (data as Map)['value'] as String? ?? '';
-        final hintText = data['hintText'] as String?;
-        final obscureText = data['obscureText'] as bool? ?? false;
-
-        return _TextField(
-          initialValue: value,
-          hintText: hintText,
-          obscureText: obscureText,
-          onChanged: (newValue) {
-            dispatchEvent(
-              widgetId: id,
-              eventType: 'onChanged',
-              value: newValue,
-            );
-          },
-          onSubmitted: (newValue) {
-            dispatchEvent(
-              widgetId: id,
-              eventType: 'onSubmitted',
-              value: newValue,
-            );
-          },
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+  }) {
+    final textFieldData =
+        _TextFieldData.fromMap(data as Map<String, Object?>);
+    return _TextField(
+      initialValue: textFieldData.value,
+      hintText: textFieldData.hintText,
+      obscureText: textFieldData.obscureText,
+      onChanged: (newValue) {
+        dispatchEvent(
+          widgetId: id,
+          eventType: 'onChanged',
+          value: newValue,
         );
       },
+      onSubmitted: (newValue) {
+        dispatchEvent(
+          widgetId: id,
+          eventType: 'onSubmitted',
+          value: newValue,
+        );
+      },
+    );
+  },
 );
