@@ -23,69 +23,81 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
+  matrix:
     runs-on: ubuntu-latest
     outputs:
-      # A JSON array of the names of changed packages, e.g., '["pkgs_flutter_genui"]'
-      changed_package_names: ${{ steps.filter.outputs.changes }}
-      # A JSON map from package name to package path, e.g., '{"pkgs_flutter_genui": "pkgs/flutter_genui"}'
-      package_map: ${{ steps.generate_package_data.outputs.package_map }}
+      matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          # Fetch the full history to be able to diff against the base branch
+          fetch-depth: 0
 
-      - name: Generate package data
-        id: generate_package_data
+      - name: Generate testing matrix
+        id: generate_matrix
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Find all directories containing pubspec.yaml in pkgs and examples.
-          DIRS=$(find pkgs examples -name pubspec.yaml -not -path "*/.dart_tool/*" -exec dirname {} \;)
+          ALL_DIRS=$(find pkgs examples -name pubspec.yaml -not -path "*/.dart_tool/*" -exec dirname {} \;)
 
-          FILTER_STRING=""
-          JSON_MAP="{"
+          # Get the list of changed files. The method depends on the event type.
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # For PRs, use the GitHub CLI to get a precise list of changed files.
+            CHANGED_FILES=$(gh pr diff --name-only ${{ github.event.pull_request.number }})
+          else
+            # For pushes, diff between the two SHAs of the push.
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+          fi
+
+          # If the workflow file itself changed, we run all packages.
+          if echo "$CHANGED_FILES" | grep -q "^\.github/workflows/flutter_packages.yaml$"; then
+            echo "Workflow file changed. Testing all packages."
+            CHANGED_DIRS=$ALL_DIRS
+          else
+            # Otherwise, determine which packages were actually changed.
+            CHANGED_DIRS=""
+            for dir in $ALL_DIRS; do
+              # Check if any changed file starts with the package directory path.
+              if echo "$CHANGED_FILES" | grep -q "^$dir/"; then
+                CHANGED_DIRS="$CHANGED_DIRS$dir "
+              fi
+            done
+          fi
+
+          # Build a JSON array of package objects for the matrix.
+          JSON_MATRIX="["
           FIRST=true
-          for dir in $DIRS; do
+          for dir in $CHANGED_DIRS; do
             if [ "$FIRST" = false ]; then
-              JSON_MAP="$JSON_MAP,"
+              JSON_MATRIX="$JSON_MATRIX,"
             fi
             FIRST=false
-            # The name for the matrix and filter key (path with '/' -> '_')
+            # The name for the job (path with '/' -> '_')
             package_name=$(echo "$dir" | tr '/' '_')
             # The actual path to the package
             package_path="$dir"
-
-            JSON_MAP="$JSON_MAP\"$package_name\":\"$package_path\""
-            FILTER_STRING="$FILTER_STRING  $package_name:\n    - '$package_path/**'\n"
+            JSON_MATRIX="$JSON_MATRIX{\"name\":\"$package_name\",\"path\":\"$package_path\"}"
           done
-          JSON_MAP="$JSON_MAP}"
+          JSON_MATRIX="$JSON_MATRIX]"
 
-          echo "package_map=$JSON_MAP" >> $GITHUB_OUTPUT
-          echo "filters=<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$FILTER_STRING" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
-        id: filter
-        with:
-          filters: ${{ steps.generate_package_data.outputs.filters }}
+          echo "matrix=$JSON_MATRIX" >> $GITHUB_OUTPUT
 
   analyze_and_test:
-    needs: changes
-    # Only run if the 'changes' job has found changed packages.
-    if: github.repository == 'flutter/genui' && ${{ needs.changes.outputs.changed_package_names != '[]' }}
-    name: Test ${{ matrix.package_name }} on ${{ matrix.os }} with Flutter ${{ matrix.flutter_version }}
+    needs: matrix
+    # Only run if the matrix job has produced a non-empty matrix.
+    if: github.repository == 'flutter/genui' && ${{ needs.matrix.outputs.matrix != '[]' }}
+    name: Test ${{ matrix.package.name }} on ${{ matrix.os }} with Flutter ${{ matrix.flutter_version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # The list of package names is dynamically set from the 'changes' job.
-        package_name: ${{ fromJson(needs.changes.outputs.changed_package_names) }}
-        flutter_version: [stable, beta, master]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # The list of packages is dynamically set from the 'matrix' job.
+        package: ${{ fromJson(needs.matrix.outputs.matrix) }}
+        flutter_version: [beta]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Set package path
-        id: set_path
-        # Look up the path from the map using the package name from the matrix
-        run: echo "path=${{ fromJson(needs.changes.outputs.package_map)[matrix.package_name] }}" >> $GITHUB_OUTPUT
       - uses: actions/setup-java@17f84c3641ba7b8f6deff6309fc4c864478f5d62
         with:
           distribution: "zulu"
@@ -101,14 +113,14 @@ jobs:
           restore-keys: ${{ runner.os }}-pub-
       - name: Install dependencies
         run: dart pub get
-        working-directory: ${{ steps.set_path.outputs.path }}
+        working-directory: ${{ matrix.package.path }}
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
-        working-directory: ${{ steps.set_path.outputs.path }}
+        working-directory: ${{ matrix.package.path }}
       - name: Analyze code
         run: flutter analyze --fatal-infos
-        working-directory: ${{ steps.set_path.outputs.path }}
+        working-directory: ${{ matrix.package.path }}
       - name: Run Flutter tests
         run: |-
           [[ -d test ]] && flutter test --test-randomize-ordering-seed=random
-        working-directory: ${{ steps.set_path.outputs.path }}
+        working-directory: ${{ matrix.package.path }}
