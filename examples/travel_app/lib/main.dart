@@ -86,11 +86,12 @@ class GenUIHomePage extends StatefulWidget {
 class _GenUIHomePageState extends State<GenUIHomePage> {
   final _promptController = TextEditingController();
   late final ConversationManager _conversationManager;
+  late AiClient aiClient;
 
   @override
   void initState() {
     super.initState();
-    final aiClient = AiClient(
+    aiClient = AiClient(
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
@@ -120,18 +121,18 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Dynamic UI Demo'),
         actions: [
-          PopupMenuButton<String>(
-            onSelected: (String value) {
+          PopupMenuButton<GeminiModel>(
+            onSelected: (GeminiModel value) {
               // Handle model selection
-              _conversationManager.aiClient.switchModel(value);
+              aiClient.switchModel(value);
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'gemini-flash',
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<GeminiModel>>[
+              const PopupMenuItem<GeminiModel>(
+                value: GeminiModel.flash,
                 child: Text('Gemini Flash'),
               ),
-              const PopupMenuItem<String>(
-                value: 'gemini-pro',
+              const PopupMenuItem<GeminiModel>(
+                value: GeminiModel.pro,
                 child: Text('Gemini Pro'),
               ),
             ],

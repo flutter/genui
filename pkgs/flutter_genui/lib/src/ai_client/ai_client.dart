@@ -21,6 +21,14 @@ typedef GenerativeModelFactory =
       ToolConfig? toolConfig,
     });
 
+enum GeminiModel {
+  flash('gemini-2.5-flash'),
+  pro('gemini-2.5-pro');
+
+  const GeminiModel(this.modelName);
+  final String modelName;
+}
+
 enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
 
 typedef AiClientLoggingCallback =
@@ -59,7 +67,7 @@ class AiClient implements LlmConnection {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    String model = 'gemini-2.5-flash',
+    this.model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -69,7 +77,7 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) : model = model {
+  }) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -89,7 +97,7 @@ class AiClient implements LlmConnection {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  String model;
+  GeminiModel model;
 
   /// The file system to use for accessing files.
   ///
@@ -186,9 +194,9 @@ class AiClient implements LlmConnection {
   /// Switches the generative model used by this client.
   ///
   /// This method allows changing the underlying AI model dynamically.
-  void switchModel(String newModel) {
+  void switchModel(GeminiModel newModel) {
     model = newModel;
-    _log('Switched AI model to: $newModel');
+    _log('Switched AI model to: ${newModel.modelName}');
   }
 
   /// Generates structured content based on the provided prompts and output
@@ -240,7 +248,7 @@ class AiClient implements LlmConnection {
     ToolConfig? toolConfig,
   }) {
     return FirebaseAI.googleAI().generativeModel(
-      model: configuration.model,
+      model: configuration.model.modelName,
       systemInstruction: systemInstruction,
       tools: tools,
       toolConfig: toolConfig,
