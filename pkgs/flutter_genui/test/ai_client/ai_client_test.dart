@@ -8,7 +8,7 @@ import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../utils.dart';
+import '../test_infra/utils.dart';
 
 void main() {
   group('AiClient', () {
