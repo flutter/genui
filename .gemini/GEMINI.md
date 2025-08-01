@@ -6,7 +6,7 @@ A CatalogItem is an object which represents a widget that can be instantiated by
 
 - Only the variable that defines the CatalogItem should be public. Everything else should be private.
 - The dataSchema must be defined as a Schema object. Look at `pkgs/flutter_genui/lib/src/catalog/core_widgets/elevated_button.dart` as a guide.
-- Remember to use `Schema.object` and `Schema.enumString` etc. Specify `optionalProperties` rather than `required`. This is because _`required`_ is _not_ a parameter of Schema.object!
+- Remember to use `Schema.object` and `Schema.enumString` etc.
 - The Schema should _not_ have a "props" member or an "id" member, as those will be injected at a higher level. The schema should just be an object that includes all the properties that are specific to this widget, e.g. content to display.
 - The only imports should be 'package:firebase_ai/firebase_ai.dart', 'package:flutter/material.dart' and the import for CatalogItem - this will be '../../model/catalog_item.dart' for the SDK, or 'package:flutter_genui/flutter_genui.dart' for the example apps. Any other utilities etc that are needed should be inlined into the file.
 - The name of the CatalogItem should be in lower camel case.
