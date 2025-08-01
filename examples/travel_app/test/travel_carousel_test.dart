@@ -34,7 +34,9 @@ void main() {
                   return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_travel_carousel',
-                    buildChild: (id) => Image.network('https://example.com/$id.jpg'), // Not used in this widget
+                    buildChild: (id) => Image.network(
+                      'https://example.com/$id.jpg',
+                    ), // Not used in this widget
                     dispatchEvent: mockDispatchEvent,
                     context: context,
                   );
@@ -78,10 +80,7 @@ void main() {
         final catalogItem = travelCarousel;
         final data = {
           'items': [
-            {
-              'title': 'Tappable Item',
-              'imageChild': 'tappable_image',
-            },
+            {'title': 'Tappable Item', 'imageChild': 'tappable_image'},
           ],
         };
 
@@ -94,7 +93,8 @@ void main() {
                   return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_travel_carousel_tap',
-                    buildChild: (id) => Image.network('https://example.com/$id.jpg'),
+                    buildChild: (id) =>
+                        Image.network('https://example.com/$id.jpg'),
                     dispatchEvent: mockDispatchEvent,
                     context: context,
                   );

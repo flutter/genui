@@ -14,7 +14,9 @@ final _schema = Schema.object(
             description: 'The title of the carousel item.',
           ),
           'imageChild': Schema.string(
-            description: "The ID of the image widget to display. The image fit should typically be 'cover'"
+            description:
+                'The ID of the image widget to display. The image fit should '
+                "typically be 'cover'",
           ),
         },
       ),
@@ -37,7 +39,14 @@ final travelCarousel = CatalogItem(
           (data as Map).cast<String, Object?>(),
         ).items;
         return _TravelCarousel(
-          items: items.map((e) => _TravelCarouselItemData(title: e.title, imageChild: buildChild(e.imageChild))).toList(),
+          items: items
+              .map(
+                (e) => _TravelCarouselItemData(
+                  title: e.title,
+                  imageChild: buildChild(e.imageChild),
+                ),
+              )
+              .toList(),
           widgetId: id,
           dispatchEvent: dispatchEvent,
         );
@@ -51,14 +60,21 @@ extension type _TravelCarouselItemListData.fromMap(Map<String, Object?> _json) {
 
   Iterable<_TravelCarouselItemSchemaData> get items => (_json['items'] as List)
       .cast<Map<String, Object?>>()
-      .map<_TravelCarouselItemSchemaData>(_TravelCarouselItemSchemaData.fromMap);
+      .map<_TravelCarouselItemSchemaData>(
+        _TravelCarouselItemSchemaData.fromMap,
+      );
 }
 
-extension type _TravelCarouselItemSchemaData.fromMap(Map<String, Object?> _json) {
+extension type _TravelCarouselItemSchemaData.fromMap(
+  Map<String, Object?> _json
+) {
   factory _TravelCarouselItemSchemaData({
     required String title,
     required String imageChild,
-  }) => _TravelCarouselItemSchemaData.fromMap({'title': title, 'imageChild': imageChild});
+  }) => _TravelCarouselItemSchemaData.fromMap({
+    'title': title,
+    'imageChild': imageChild,
+  });
 
   String get title => _json['title'] as String;
   String get imageChild => _json['imageChild'] as String;
@@ -119,7 +135,7 @@ class _TravelCarouselItemData {
   _TravelCarouselItemData({required this.title, required this.imageChild});
 }
 
-class _TravelCarouselItem extends StatelessWidget {
+class _TravelCarouselItem extends StatefulWidget {
   const _TravelCarouselItem({
     required this.data,
     required this.widgetId,
@@ -153,11 +169,7 @@ class _TravelCarouselItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: SizedBox(
-                height: 150,
-                width: 190,
-                child: data.imageChild,
-              ),
+              child: SizedBox(height: 150, width: 190, child: data.imageChild),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

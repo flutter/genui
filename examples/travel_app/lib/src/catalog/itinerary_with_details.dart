@@ -12,7 +12,8 @@ final _schema = Schema.object(
     ),
     'imageChild': Schema.string(
       description:
-          "The ID of the image widget to display. The image fit should typically be 'cover'",
+          'The ID of the image widget to display. The image fit should '
+          "typically be 'cover'",
     ),
     'child': Schema.string(
       description:

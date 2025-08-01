@@ -3,6 +3,7 @@ export 'src/ai_client/llm_connection.dart';
 export 'src/catalog/core_widgets/checkbox_group.dart';
 export 'src/catalog/core_widgets/column.dart';
 export 'src/catalog/core_widgets/elevated_button.dart';
+export 'src/catalog/core_widgets/image.dart';
 export 'src/catalog/core_widgets/radio_group.dart';
 export 'src/catalog/core_widgets/text.dart';
 export 'src/catalog/core_widgets/text_field.dart';

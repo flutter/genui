@@ -10,7 +10,8 @@ final _schema = Schema.object(
     ),
     'imageChild': Schema.string(
       description:
-          "The ID of the image widget to display. The image fit should typically be 'cover'",
+          'The ID of the image widget to display. The image fit should '
+          "typically be 'cover'",
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
@@ -21,18 +22,18 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryItemData({
     required String title,
     required String subtitle,
-    String? imageChild,
+    required String imageChild,
     required String detailText,
   }) => _ItineraryItemData.fromMap({
     'title': title,
     'subtitle': subtitle,
-    if (imageChild != null) 'imageChild': imageChild,
+    'imageChild': imageChild,
     'detailText': detailText,
   });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
-  String? get imageChild => _json['imageChild'] as String?;
+  String get imageChild => _json['imageChild'] as String;
   String get detailText => _json['detailText'] as String;
 }
 
@@ -53,9 +54,7 @@ final itineraryItem = CatalogItem(
         return _ItineraryItem(
           title: itineraryItemData.title,
           subtitle: itineraryItemData.subtitle,
-          imageChild: itineraryItemData.imageChild != null
-              ? buildChild(itineraryItemData.imageChild!)
-              : null,
+          imageChild: buildChild(itineraryItemData.imageChild),
           detailText: itineraryItemData.detailText,
         );
       },
@@ -64,13 +63,13 @@ final itineraryItem = CatalogItem(
 class _ItineraryItem extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Widget? imageChild;
+  final Widget imageChild;
   final String detailText;
 
   const _ItineraryItem({
     required this.title,
     required this.subtitle,
-    this.imageChild,
+    required this.imageChild,
     required this.detailText,
   });
 

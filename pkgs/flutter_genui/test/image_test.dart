@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_genui/src/catalog/core_widgets/image.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
   testWidgets('Image widget renders network image', (
     WidgetTester tester,
   ) async {
-    mockNetworkImagesFor(() async {
+    await mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
