@@ -135,7 +135,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                         value: GeminiModel.flash,
                         child: Row(
                           children: [
-                            Text('Gemini Flash'),
+                            const Text('Gemini Flash'),
                             if (currentModel == GeminiModel.flash)
                               const Icon(Icons.check),
                           ],
@@ -145,7 +145,7 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
                         value: GeminiModel.pro,
                         child: Row(
                           children: [
-                            Text('Gemini Pro'),
+                            const Text('Gemini Pro'),
                             if (currentModel == GeminiModel.pro)
                               const Icon(Icons.check),
                           ],
