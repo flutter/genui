@@ -101,31 +101,21 @@ class _ItineraryWithDetails extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 200, // You can adjust this height as needed
-                            child: imageChild,
-                          ),
-                        ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200, // You can adjust this height as needed
+                        child: imageChild,
                       ),
+                      const SizedBox(height: 16.0),
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 16.0),
-                            Text(
-                              title,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            const SizedBox(height: 16.0),
-                            child,
-                          ],
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ),
+                      const SizedBox(height: 16.0),
+                      child,
                     ],
                   ),
                 ),
