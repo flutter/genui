@@ -28,11 +28,11 @@ DART_PACKAGES=(
 )
 
 for pkg in "${FLUTTER_PACKAGES[@]}"; do
-    echo "--- Running flutter pub upgrade in $pkg ---"
+    echo "--- Refreshing packages in $pkg ---"
     (cd "$pkg" && flutter pub upgrade)
 done
 
 for pkg in "${DART_PACKAGES[@]}"; do
-    echo "--- Running dart pub upgrade in $pkg ---"
+    echo "--- Refreshing packages in $pkg ---"
     (cd "$pkg" && dart pub upgrade)
 done
