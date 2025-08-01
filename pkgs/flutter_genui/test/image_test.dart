@@ -4,17 +4,27 @@ import 'package:flutter_genui/src/catalog/core_widgets/image.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
-  testWidgets('Image widget renders network image', (WidgetTester tester) async {
+  testWidgets('Image widget renders network image', (
+    WidgetTester tester,
+  ) async {
     mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
             builder: (context) => Scaffold(
               body: image.widgetBuilder(
-                data: {'url': 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'},
+                data: {
+                  'url':
+                      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                },
                 id: 'test_image',
                 buildChild: (String id) => const SizedBox(),
-                dispatchEvent: ({required String widgetId, required String eventType, Object? value}) {},
+                dispatchEvent:
+                    ({
+                      required String widgetId,
+                      required String eventType,
+                      Object? value,
+                    }) {},
                 context: context,
               ),
             ),
@@ -25,7 +35,10 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
       final imageWidget = tester.widget<Image>(find.byType(Image));
       expect(imageWidget.image, isA<NetworkImage>());
-      expect((imageWidget.image as NetworkImage).url, 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+      expect(
+        (imageWidget.image as NetworkImage).url,
+        'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+      );
     });
   });
 }
