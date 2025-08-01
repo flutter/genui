@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui_client/src/catalog/filter_chip_group.dart';
+import 'package:flutter_genui/flutter_genui.dart';
+import '../lib/src/catalog/itinerary_with_details.dart';
+import '../lib/src/catalog/filter_chip_group.dart';
 
 void main() {
   group('FilterChipGroup', () {
@@ -25,7 +27,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return catalogItem.widgetBuilder(
+                return catalogItem.widgetBuilder!(
                   data: data,
                   id: 'test_filter_chip_group',
                   buildChild: mockBuildChild,
@@ -69,7 +71,7 @@ void main() {
         'children': ['chip1'],
       };
 
-      var dispatchEventCalled = false;
+      bool dispatchEventCalled = false;
       String? dispatchedWidgetId;
       String? dispatchedEventType;
       dynamic dispatchedValue;
@@ -80,7 +82,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return catalogItem.widgetBuilder(
+                return catalogItem.widgetBuilder!(
                   data: data,
                   id: 'test_filter_chip_group',
                   buildChild: mockBuildChild,

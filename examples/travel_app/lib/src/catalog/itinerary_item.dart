@@ -13,24 +13,25 @@ final _schema = Schema.object(
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
+  optionalProperties: ['imageChild'],
 );
 
 extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryItemData({
     required String title,
     required String subtitle,
-    required String imageChild,
+    String? imageChild,
     required String detailText,
   }) => _ItineraryItemData.fromMap({
     'title': title,
     'subtitle': subtitle,
-    'imageChild': imageChild,
+    if (imageChild != null) 'imageChild': imageChild,
     'detailText': detailText,
   });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
-  String get imageChild => _json['imageChild'] as String;
+  String? get imageChild => _json['imageChild'] as String?;
   String get detailText => _json['detailText'] as String;
 }
 
@@ -51,7 +52,9 @@ final itineraryItem = CatalogItem(
         return _ItineraryItem(
           title: itineraryItemData.title,
           subtitle: itineraryItemData.subtitle,
-          imageChild: buildChild(itineraryItemData.imageChild),
+          imageChild: itineraryItemData.imageChild != null
+              ? buildChild(itineraryItemData.imageChild!)
+              : null,
           detailText: itineraryItemData.detailText,
         );
       },
@@ -60,13 +63,13 @@ final itineraryItem = CatalogItem(
 class _ItineraryItem extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Widget imageChild;
+  final Widget? imageChild;
   final String detailText;
 
   const _ItineraryItem({
     required this.title,
     required this.subtitle,
-    required this.imageChild,
+    this.imageChild,
     required this.detailText,
   });
 
