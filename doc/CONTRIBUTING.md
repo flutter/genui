@@ -25,3 +25,7 @@ Guidances:
 
 See the project's `fluttergenui` details
 [here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
+
+## Shell scripts
+
+To run a script in `tool/`, open it  in VSCode and press ⇧⌘B.
