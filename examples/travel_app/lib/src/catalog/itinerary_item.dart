@@ -9,7 +9,8 @@ final _schema = Schema.object(
       description: 'The subtitle of the itinerary item.',
     ),
     'imageChild': Schema.string(
-      description: "The ID of the image widget to display. The image fit should typically be 'cover'"
+      description:
+          "The ID of the image widget to display. The image fit should typically be 'cover'",
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
@@ -76,7 +77,7 @@ class _ItineraryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
@@ -88,11 +89,7 @@ class _ItineraryItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: SizedBox(
-                height: 80,
-                width: 80,
-                child: imageChild,
-              ),
+              child: SizedBox(height: 80, width: 80, child: imageChild),
             ),
             const SizedBox(width: 16.0),
             Expanded(
@@ -103,8 +100,10 @@ class _ItineraryItem extends StatelessWidget {
                   const SizedBox(height: 4.0),
                   Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 8.0),
-                  Text(detailText,
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    detailText,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),

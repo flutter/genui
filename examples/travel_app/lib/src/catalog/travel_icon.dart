@@ -56,7 +56,8 @@ final travelIcon = CatalogItem(
     properties: {
       'icon': Schema.enumString(
         enumValues: TravelIcons.values.map((e) => e.name).toList(),
-        description: 'The name of the travel icon to display.',
+        description:
+            'The name of the travel icon to display. *only* the given values can be used!',
       ),
     },
   ),

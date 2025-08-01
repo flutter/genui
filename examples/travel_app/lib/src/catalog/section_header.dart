@@ -13,13 +13,8 @@ final _schema = Schema.object(
 );
 
 extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
-  factory _SectionHeaderData({
-    required String title,
-    String? subtitle,
-  }) => _SectionHeaderData.fromMap({
-    'title': title,
-    'subtitle': subtitle,
-  });
+  factory _SectionHeaderData({required String title, String? subtitle}) =>
+      _SectionHeaderData.fromMap({'title': title, 'subtitle': subtitle});
 
   String get title => _json['title'] as String;
   String? get subtitle => _json['subtitle'] as String?;
@@ -41,7 +36,7 @@ final sectionHeaderCatalogItem = CatalogItem(
         );
 
         return Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

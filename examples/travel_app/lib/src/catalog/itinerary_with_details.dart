@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
-  description: 'Widget to show an itinerary or a plan for travel.',
+  description:
+      'Widget to show an itinerary or a plan for travel. Use this only for refined plans where you have already shown the user filter options etc.',
   properties: {
     'title': Schema.string(description: 'The title of the itinerary.'),
     'subheading': Schema.string(
       description: 'The subheading of the itinerary.',
     ),
     'imageChild': Schema.string(
-      description: "The ID of the image widget to display. The image fit should typically be 'cover'"
+      description:
+          "The ID of the image widget to display. The image fit should typically be 'cover'",
     ),
     'child': Schema.string(
       description:
@@ -131,11 +133,7 @@ class _ItineraryWithDetails extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 8.0,
               ), // Adjust radius as needed
-              child: SizedBox(
-                height: 100,
-                width: 100,
-                child: imageChild,
-              ),
+              child: SizedBox(height: 100, width: 100, child: imageChild),
             ),
             const SizedBox(width: 8.0),
             Expanded(

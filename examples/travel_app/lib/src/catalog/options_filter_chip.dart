@@ -130,7 +130,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                           });
                           widget.dispatchEvent(
                             widgetId: widget.widgetId,
-                            eventType: 'optionSelected',
+                            eventType: 'filterOptionSelected',
                             value: newValue,
                           );
                           Navigator.pop(context);

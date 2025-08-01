@@ -1,4 +1,3 @@
-
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -13,33 +12,32 @@ final _schema = Schema.object(
 );
 
 extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
-  factory _TrailheadData({
-    required List<String> topics,
-  }) =>
+  factory _TrailheadData({required List<String> topics}) =>
       _TrailheadData.fromMap({'topics': topics});
 
-  List<String> get topics =>
-      (_json['topics'] as List).cast<String>();
+  List<String> get topics => (_json['topics'] as List).cast<String>();
 }
 
 final trailheadCatalogItem = CatalogItem(
   name: 'trailhead',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-  }) {
-    final trailheadData =
-        _TrailheadData.fromMap(data as Map<String, Object?>);
-    return _Trailhead(
-      topics: trailheadData.topics,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+      }) {
+        final trailheadData = _TrailheadData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _Trailhead(
+          topics: trailheadData.topics,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 class _Trailhead extends StatelessWidget {
@@ -55,7 +53,8 @@ class _Trailhead extends StatelessWidget {
     required String widgetId,
     required String eventType,
     required Object? value,
-  }) dispatchEvent;
+  })
+  dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +69,7 @@ class _Trailhead extends StatelessWidget {
             onPressed: () {
               dispatchEvent(
                 widgetId: widgetId,
-                eventType: 'topicSelected',
+                eventType: 'trailheadTopicSelected',
                 value: topic,
               );
             },
