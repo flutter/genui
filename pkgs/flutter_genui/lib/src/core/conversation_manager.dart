@@ -21,6 +21,8 @@ class ConversationManager {
   final LlmConnection llmConnection;
   late final EventDebouncer _eventDebouncer;
 
+  AiClient get aiClient => llmConnection as AiClient;
+
   // Context used for future LLM inferences
   final masterConversation = <Content>[];
   final conversationsBySurfaceId = <String, List<Content>>{};

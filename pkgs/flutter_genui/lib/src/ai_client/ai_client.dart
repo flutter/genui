@@ -59,7 +59,7 @@ class AiClient implements LlmConnection {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    this.model = 'gemini-2.5-flash',
+    String model = 'gemini-2.5-flash',
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -69,7 +69,7 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) {
+  }) : model = model {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -89,7 +89,7 @@ class AiClient implements LlmConnection {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  final String model;
+  String model;
 
   /// The file system to use for accessing files.
   ///
@@ -182,6 +182,14 @@ class AiClient implements LlmConnection {
 
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
+
+  /// Switches the generative model used by this client.
+  ///
+  /// This method allows changing the underlying AI model dynamically.
+  void switchModel(String newModel) {
+    model = newModel;
+    _log('Switched AI model to: $newModel');
+  }
 
   /// Generates structured content based on the provided prompts and output
   /// schema.

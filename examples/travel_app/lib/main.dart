@@ -119,6 +119,24 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Dynamic UI Demo'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String value) {
+              // Handle model selection
+              _conversationManager.aiClient.switchModel(value);
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'gemini-flash',
+                child: Text('Gemini Flash'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'gemini-pro',
+                child: Text('Gemini Pro'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(
