@@ -7,7 +7,6 @@ export 'src/catalog/core_widgets/image.dart';
 export 'src/catalog/core_widgets/radio_group.dart';
 export 'src/catalog/core_widgets/text.dart';
 export 'src/catalog/core_widgets/text_field.dart';
-export 'src/catalog/core_widgets/image.dart';
 export 'src/core/conversation_manager.dart';
 export 'src/core/core_catalog.dart';
 export 'src/core/event_debouncer.dart';
