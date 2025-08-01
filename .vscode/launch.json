@@ -21,6 +21,6 @@
             "cwd": "examples/generic_chat",
             "request": "launch",
             "type": "dart",
-        },
+        }
     ]
 }
