@@ -33,7 +33,7 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
-  String get imageChild => _json['imageChild'] as String;
+  String? get imageChild => _json['imageChild'] as String?;
   String get detailText => _json['detailText'] as String;
 }
 
@@ -54,7 +54,9 @@ final itineraryItem = CatalogItem(
         return _ItineraryItem(
           title: itineraryItemData.title,
           subtitle: itineraryItemData.subtitle,
-          imageChild: buildChild(itineraryItemData.imageChild),
+          imageChild: itineraryItemData.imageChild != null
+              ? buildChild(itineraryItemData.imageChild!)
+              : null,
           detailText: itineraryItemData.detailText,
         );
       },
@@ -63,7 +65,7 @@ final itineraryItem = CatalogItem(
 class _ItineraryItem extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Widget imageChild;
+  final Widget? imageChild;
   final String detailText;
 
   const _ItineraryItem({
