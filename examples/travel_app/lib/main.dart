@@ -121,21 +121,38 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Dynamic UI Demo'),
         actions: [
-          PopupMenuButton<GeminiModel>(
-            onSelected: (GeminiModel value) {
-              // Handle model selection
-              aiClient.switchModel(value);
+          ValueListenableBuilder<GeminiModel>(
+            valueListenable: aiClient.model,
+            builder: (context, currentModel, child) {
+              return PopupMenuButton<GeminiModel>(
+                onSelected: (GeminiModel value) {
+                  // Handle model selection
+                  aiClient.switchModel(value);
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<GeminiModel>>[
+                  PopupMenuItem<GeminiModel>(
+                    value: GeminiModel.flash,
+                    child: Row(
+                      children: [
+                        Text('Gemini Flash'),
+                        if (currentModel == GeminiModel.flash)
+                          const Icon(Icons.check),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<GeminiModel>(
+                    value: GeminiModel.pro,
+                    child: Row(
+                      children: [
+                        Text('Gemini Pro'),
+                        if (currentModel == GeminiModel.pro)
+                          const Icon(Icons.check),
+                      ],
+                    ),
+                  ),
+                ],
+              );
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<GeminiModel>>[
-              const PopupMenuItem<GeminiModel>(
-                value: GeminiModel.flash,
-                child: Text('Gemini Flash'),
-              ),
-              const PopupMenuItem<GeminiModel>(
-                value: GeminiModel.pro,
-                child: Text('Gemini Pro'),
-              ),
-            ],
           ),
         ],
       ),

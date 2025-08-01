@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/foundation.dart';
 
 import 'llm_connection.dart';
 import 'tools.dart';
@@ -67,7 +68,7 @@ class AiClient implements LlmConnection {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    this.model = GeminiModel.flash,
+    GeminiModel model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -77,7 +78,7 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) {
+  }) : model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -97,7 +98,7 @@ class AiClient implements LlmConnection {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  GeminiModel model;
+  ValueNotifier<GeminiModel> model;
 
   /// The file system to use for accessing files.
   ///
@@ -195,7 +196,7 @@ class AiClient implements LlmConnection {
   ///
   /// This method allows changing the underlying AI model dynamically.
   void switchModel(GeminiModel newModel) {
-    model = newModel;
+    model.value = newModel;
     _log('Switched AI model to: ${newModel.modelName}');
   }
 
@@ -248,7 +249,7 @@ class AiClient implements LlmConnection {
     ToolConfig? toolConfig,
   }) {
     return FirebaseAI.googleAI().generativeModel(
-      model: configuration.model.modelName,
+      model: configuration.model.value.modelName,
       systemInstruction: systemInstruction,
       tools: tools,
       toolConfig: toolConfig,
