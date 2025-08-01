@@ -9,8 +9,8 @@ final _schema = Schema.object(
     'subheading': Schema.string(
       description: 'The subheading of the itinerary.',
     ),
-    'thumbnailUrl': Schema.string(
-      description: 'The URL of the thumbnail image.',
+    'imageChild': Schema.string(
+      description: "The ID of the image widget to display. The image fit should typically be 'cover'"
     ),
     'child': Schema.string(
       description:
@@ -23,18 +23,18 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryWithDetailsData({
     required String title,
     required String subheading,
-    required String thumbnailUrl,
+    required String imageChild,
     required String child,
   }) => _ItineraryWithDetailsData.fromMap({
     'title': title,
     'subheading': subheading,
-    'thumbnailUrl': thumbnailUrl,
+    'imageChild': imageChild,
     'child': child,
   });
 
   String get title => _json['title'] as String;
   String get subheading => _json['subheading'] as String;
-  String get thumbnailUrl => _json['thumbnailUrl'] as String;
+  String get imageChild => _json['imageChild'] as String;
   String get child => _json['child'] as String;
 }
 
@@ -53,11 +53,12 @@ final itineraryWithDetails = CatalogItem(
           data as Map<String, Object?>,
         );
         final child = buildChild(itineraryWithDetailsData.child);
+        final imageChild = buildChild(itineraryWithDetailsData.imageChild);
 
         return _ItineraryWithDetails(
           title: itineraryWithDetailsData.title,
           subheading: itineraryWithDetailsData.subheading,
-          thumbnailUrl: itineraryWithDetailsData.thumbnailUrl,
+          imageChild: imageChild,
           child: child,
         );
       },
@@ -66,13 +67,13 @@ final itineraryWithDetails = CatalogItem(
 class _ItineraryWithDetails extends StatelessWidget {
   final String title;
   final String subheading;
-  final String thumbnailUrl;
+  final Widget imageChild;
   final Widget child;
 
   const _ItineraryWithDetails({
     required this.title,
     required this.subheading,
-    required this.thumbnailUrl,
+    required this.imageChild,
     required this.child,
   });
 
@@ -103,13 +104,10 @@ class _ItineraryWithDetails extends StatelessWidget {
                       Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 500),
-                          child: Image.network(
-                            thumbnailUrl,
+                          child: SizedBox(
                             width: double.infinity,
-                            fit: BoxFit.cover,
                             height: 200, // You can adjust this height as needed
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.image, size: 200),
+                            child: imageChild,
                           ),
                         ),
                       ),
@@ -143,11 +141,10 @@ class _ItineraryWithDetails extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 8.0,
               ), // Adjust radius as needed
-              child: Image.network(
-                thumbnailUrl,
+              child: SizedBox(
                 height: 100,
                 width: 100,
-                fit: BoxFit.cover,
+                child: imageChild,
               ),
             ),
             const SizedBox(width: 8.0),

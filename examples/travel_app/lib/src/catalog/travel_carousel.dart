@@ -13,8 +13,8 @@ final _schema = Schema.object(
           'title': Schema.string(
             description: 'The title of the carousel item.',
           ),
-          'photoUrl': Schema.string(
-            description: 'The URL of the photo to display.',
+          'imageChild': Schema.string(
+            description: "The ID of the image widget to display. The image fit should typically be 'cover'"
           ),
         },
       ),
@@ -37,7 +37,7 @@ final travelCarousel = CatalogItem(
           (data as Map).cast<String, Object?>(),
         ).items;
         return _TravelCarousel(
-          items: items.toList(),
+          items: items.map((e) => _TravelCarouselItemData(title: e.title, imageChild: buildChild(e.imageChild))).toList(),
           widgetId: id,
           dispatchEvent: dispatchEvent,
         );
@@ -49,19 +49,19 @@ extension type _TravelCarouselItemListData.fromMap(Map<String, Object?> _json) {
     required List<Map<String, Object>> items,
   }) => _TravelCarouselItemListData.fromMap({'items': items});
 
-  Iterable<_TravelCarouselItemData> get items => (_json['items'] as List)
+  Iterable<_TravelCarouselItemSchemaData> get items => (_json['items'] as List)
       .cast<Map<String, Object?>>()
-      .map<_TravelCarouselItemData>(_TravelCarouselItemData.fromMap);
+      .map<_TravelCarouselItemSchemaData>(_TravelCarouselItemSchemaData.fromMap);
 }
 
-extension type _TravelCarouselItemData.fromMap(Map<String, Object?> _json) {
-  factory _TravelCarouselItemData({
+extension type _TravelCarouselItemSchemaData.fromMap(Map<String, Object?> _json) {
+  factory _TravelCarouselItemSchemaData({
     required String title,
-    required String photoUrl,
-  }) => _TravelCarouselItemData.fromMap({'title': title, 'photoUrl': photoUrl});
+    required String imageChild,
+  }) => _TravelCarouselItemSchemaData.fromMap({'title': title, 'imageChild': imageChild});
 
   String get title => _json['title'] as String;
-  String get photoUrl => _json['photoUrl'] as String;
+  String get imageChild => _json['imageChild'] as String;
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
@@ -110,6 +110,13 @@ class _TravelCarousel extends StatelessWidget {
       ),
     );
   }
+}
+
+class _TravelCarouselItemData {
+  final String title;
+  final Widget imageChild;
+
+  _TravelCarouselItemData({required this.title, required this.imageChild});
 }
 
 class _TravelCarouselItem extends StatefulWidget {
@@ -177,7 +184,7 @@ class _TravelCarouselItemState extends State<_TravelCarouselItem> {
                 child: SizedBox(
                   height: 150,
                   width: 190,
-                  child: Image.network(widget.data.photoUrl, fit: BoxFit.cover),
+                  child: widget.data.imageChild,
                 ),
               ),
             ),

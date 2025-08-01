@@ -13,7 +13,7 @@ void main() {
         final data = {
           'title': 'Test Title',
           'subheading': 'Test Subheading',
-          'thumbnailUrl': 'https://example.com/thumbnail.jpg',
+          'imageChild': 'image_child_id',
           'child': 'child_widget_id',
         };
 
@@ -25,7 +25,12 @@ void main() {
                   return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_itinerary_card',
-                    buildChild: (id) => const Text('Child Content'),
+                    buildChild: (id) {
+                      if (id == 'image_child_id') {
+                        return Image.network('https://example.com/thumbnail.jpg');
+                      }
+                      return const Text('Child Content');
+                    },
                     dispatchEvent: ({widgetId = '', eventType = '', value}) {},
                     context: context,
                   );
@@ -47,7 +52,7 @@ void main() {
         final data = {
           'title': 'Modal Title',
           'subheading': 'Modal Subheading',
-          'thumbnailUrl': 'https://example.com/modal_thumbnail.jpg',
+          'imageChild': 'image_child_id',
           'child': 'modal_child_widget_id',
         };
 
@@ -59,7 +64,12 @@ void main() {
                   return catalogItem.widgetBuilder(
                     data: data,
                     id: 'test_itinerary_modal',
-                    buildChild: (id) => const Text('Modal Child Content'),
+                    buildChild: (id) {
+                      if (id == 'image_child_id') {
+                        return Image.network('https://example.com/modal_thumbnail.jpg');
+                      }
+                      return const Text('Modal Child Content');
+                    },
                     dispatchEvent: ({widgetId = '', eventType = '', value}) {},
                     context: context,
                   );

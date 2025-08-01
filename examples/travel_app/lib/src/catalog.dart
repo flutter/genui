@@ -20,4 +20,5 @@ final catalog = Catalog([
   itineraryWithDetails,
   itineraryItem,
   tabbedSections,
+  image,
 ]);

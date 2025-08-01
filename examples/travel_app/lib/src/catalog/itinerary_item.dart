@@ -8,8 +8,8 @@ final _schema = Schema.object(
     'subtitle': Schema.string(
       description: 'The subtitle of the itinerary item.',
     ),
-    'thumbnailUrl': Schema.string(
-      description: 'The URL of the thumbnail image.',
+    'imageChild': Schema.string(
+      description: "The ID of the image widget to display. The image fit should typically be 'cover'"
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
@@ -19,18 +19,18 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryItemData({
     required String title,
     required String subtitle,
-    required String thumbnailUrl,
+    required String imageChild,
     required String detailText,
   }) => _ItineraryItemData.fromMap({
     'title': title,
     'subtitle': subtitle,
-    'thumbnailUrl': thumbnailUrl,
+    'imageChild': imageChild,
     'detailText': detailText,
   });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
-  String get thumbnailUrl => _json['thumbnailUrl'] as String;
+  String get imageChild => _json['imageChild'] as String;
   String get detailText => _json['detailText'] as String;
 }
 
@@ -51,7 +51,7 @@ final itineraryItem = CatalogItem(
         return _ItineraryItem(
           title: itineraryItemData.title,
           subtitle: itineraryItemData.subtitle,
-          thumbnailUrl: itineraryItemData.thumbnailUrl,
+          imageChild: buildChild(itineraryItemData.imageChild),
           detailText: itineraryItemData.detailText,
         );
       },
@@ -60,13 +60,13 @@ final itineraryItem = CatalogItem(
 class _ItineraryItem extends StatelessWidget {
   final String title;
   final String subtitle;
-  final String thumbnailUrl;
+  final Widget imageChild;
   final String detailText;
 
   const _ItineraryItem({
     required this.title,
     required this.subtitle,
-    required this.thumbnailUrl,
+    required this.imageChild,
     required this.detailText,
   });
 
@@ -84,13 +84,10 @@ class _ItineraryItem extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(
-              thumbnailUrl,
+            child: SizedBox(
               height: 80,
               width: 80,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image, size: 80),
+              child: imageChild,
             ),
           ),
           const SizedBox(width: 16.0),
