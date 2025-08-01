@@ -15,15 +15,15 @@ import 'tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
-typedef GenerativeModelFactory = GenerativeModelInterface Function({
-  required AiClient configuration,
-  Content? systemInstruction,
-  List<Tool>? tools,
-  ToolConfig? toolConfig,
-});
+typedef GenerativeModelFactory =
+    GenerativeModelInterface Function({
+      required AiClient configuration,
+      Content? systemInstruction,
+      List<Tool>? tools,
+      ToolConfig? toolConfig,
+    });
 
 enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
-
 
 typedef AiClientLoggingCallback =
     void Function(AiLoggingSeverity severity, String message);
@@ -259,12 +259,14 @@ class AiClient implements LlmConnection {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    return GenerativeModelWrapper(FirebaseAI.googleAI().generativeModel(
-      model: configuration.model,
-      systemInstruction: systemInstruction,
-      tools: tools,
-      toolConfig: toolConfig,
-    ));
+    return GenerativeModelWrapper(
+      FirebaseAI.googleAI().generativeModel(
+        model: configuration.model,
+        systemInstruction: systemInstruction,
+        tools: tools,
+        toolConfig: toolConfig,
+      ),
+    );
   }
 
   void _error(String message, [StackTrace? stackTrace]) {

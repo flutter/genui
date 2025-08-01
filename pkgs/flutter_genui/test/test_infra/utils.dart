@@ -38,7 +38,8 @@ class FakeGenerativeModel implements GenerativeModelInterface {
       return response!;
     }
     throw StateError(
-        'No response or exception configured for FakeGenerativeModel');
+      'No response or exception configured for FakeGenerativeModel',
+    );
   }
 }
 
