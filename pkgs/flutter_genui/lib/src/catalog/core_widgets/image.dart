@@ -44,12 +44,23 @@ final image = CatalogItem(
       data as Map<String, Object?>,
     );
 
-    if (imageData.url != null) {
-      return Image.network(imageData.url!, fit: imageData.fit);
+    final url = imageData.url;
+    final assetName = imageData.assetName;
+
+    if (url != null && assetName != null) {
+      throw Exception('Image widget must have either a url or an assetName, but not both.');
     }
 
-    if (imageData.assetName != null) {
-      return Image.asset(imageData.assetName!, fit: imageData.fit);
+    if (url == null && assetName == null) {
+      throw Exception('Image widget must have either a url or an assetName.');
+    }
+
+    if (url != null) {
+      return Image.network(url, fit: imageData.fit);
+    }
+
+    if (assetName != null) {
+      return Image.asset(assetName, fit: imageData.fit);
     }
 
     return const SizedBox();
