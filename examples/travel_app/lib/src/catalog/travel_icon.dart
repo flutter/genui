@@ -1,6 +1,6 @@
-import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 enum TravelIcons {
   // Location
@@ -57,7 +57,8 @@ final travelIcon = CatalogItem(
       'icon': Schema.enumString(
         enumValues: TravelIcons.values.map((e) => e.name).toList(),
         description:
-            'The name of the travel icon to display. *only* the given values can be used!',
+            'The name of the travel icon to display. *only* the given ' 
+            'values can be used!',
       ),
     },
   ),

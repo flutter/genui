@@ -15,8 +15,8 @@ final _schema = Schema.object(
           ),
           'imageChild': Schema.string(
             description:
-                'The ID of the image widget to display. The image fit should '
-                "typically be 'cover'",
+                'The ID of the image widget to display. The image fit should ' 
+                'typically be \'cover\'',
           ),
         },
       ),
@@ -135,7 +135,7 @@ class _TravelCarouselItemData {
   _TravelCarouselItemData({required this.title, required this.imageChild});
 }
 
-class _TravelCarouselItem extends StatefulWidget {
+class _TravelCarouselItem extends StatelessWidget {
   const _TravelCarouselItem({
     required this.data,
     required this.widgetId,

@@ -6,8 +6,8 @@ import 'catalog/itinerary_with_details.dart';
 import 'catalog/options_filter_chip.dart';
 import 'catalog/section_header.dart';
 import 'catalog/tabbed_sections.dart';
-import 'catalog/travel_carousel.dart';
 import 'catalog/trailhead.dart';
+import 'catalog/travel_carousel.dart';
 
 final catalog = Catalog([
   elevatedButtonCatalogItem,

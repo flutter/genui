@@ -6,7 +6,8 @@ final _schema = Schema.object(
   properties: {
     'chipLabel': Schema.string(
       description:
-          'The title of the filter chip e.g. "budget" or "activity type" etc',
+          'The title of the filter chip e.g. "budget" or "activity type" ' 
+          'etc',
     ),
     'options': Schema.array(
       description:
@@ -15,8 +16,9 @@ final _schema = Schema.object(
     ),
     'iconChild': Schema.string(
       description:
-          'An icon to display on the left of the chip. '
-          'This should be an icon widget. Always use this if there is a relevant icon.',
+          'An icon to display on the left of the chip. ' 
+          'This should be an icon widget. Always use this if there is a ' 
+          'relevant icon.',
     ),
   },
   optionalProperties: ['iconChild'],

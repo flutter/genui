@@ -4,7 +4,9 @@ import 'package:genui_client/src/catalog/trailhead.dart';
 
 void main() {
   group('Trailhead', () {
-    testWidgets('renders trailhead chips correctly', (WidgetTester tester) async {
+    testWidgets('renders trailhead chips correctly', (
+      WidgetTester tester,
+    ) async {
       // Mock dispatchEvent function
       void mockDispatchEvent({
         required String widgetId,
@@ -27,8 +29,7 @@ void main() {
                 return catalogItem.widgetBuilder(
                   data: data,
                   id: 'test_trailhead',
-                  buildChild: (id) =>
-                      Container(), // Not used in this widget
+                  buildChild: (id) => Container(), // Not used in this widget
                   dispatchEvent: mockDispatchEvent,
                   context: context,
                 );
@@ -44,8 +45,9 @@ void main() {
       expect(find.text('Topic 3'), findsOneWidget);
     });
 
-    testWidgets('dispatchEvent is called on chip tap',
-        (WidgetTester tester) async {
+    testWidgets('dispatchEvent is called on chip tap', (
+      WidgetTester tester,
+    ) async {
       // Variables to capture dispatched event data
       String? dispatchedWidgetId;
       String? dispatchedEventType;
@@ -77,8 +79,7 @@ void main() {
                 return catalogItem.widgetBuilder(
                   data: data,
                   id: 'test_trailhead_tap',
-                  buildChild: (id) =>
-                      Container(), // Not used in this widget
+                  buildChild: (id) => Container(), // Not used in this widget
                   dispatchEvent: mockDispatchEvent,
                   context: context,
                 );

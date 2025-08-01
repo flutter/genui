@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/src/catalog/travel_icon.dart';
+import 'package:genui_client/src/catalog/travel_icon.dart';
 
 void main() {
   group('TravelIcon Widget', () {
