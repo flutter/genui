@@ -22,7 +22,9 @@ void main() {
                     'detailText': testDescription,
                   },
                   id: 'test_id',
-                  buildChild: (id) => Image.network('https://example.com/thumbnail.jpg'), // Mock buildChild
+                  buildChild: (id) => Image.network(
+                    'https://example.com/thumbnail.jpg',
+                  ), // Mock buildChild
                   dispatchEvent:
                       ({
                         required widgetId,

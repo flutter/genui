@@ -25,3 +25,4 @@ dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
+  network_image_mock: any
