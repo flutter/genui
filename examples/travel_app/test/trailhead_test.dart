@@ -95,7 +95,7 @@ void main() {
 
       // Verify that dispatchEvent was called with the correct arguments
       expect(dispatchedWidgetId, 'test_trailhead_tap');
-      expect(dispatchedEventType, 'topicSelected');
+      expect(dispatchedEventType, 'trailheadTopicSelected');
       expect(dispatchedValue, 'Tappable Topic');
     });
   });

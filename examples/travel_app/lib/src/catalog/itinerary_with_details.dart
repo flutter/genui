@@ -4,8 +4,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
   description:
-      'Widget to show an itinerary or a plan for travel. Use this only for ' 
-      'refined plans where you have already shown the user filter options ' 
+      'Widget to show an itinerary or a plan for travel. Use this only for '
+      'refined plans where you have already shown the user filter options '
       'etc.',
   properties: {
     'title': Schema.string(description: 'The title of the itinerary.'),
