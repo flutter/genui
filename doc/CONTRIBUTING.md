@@ -1,5 +1,7 @@
 # Contributing to Flutter GenUI
 
+## Style and other
+
 Please follow our
 [contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
 

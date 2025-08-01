@@ -8,7 +8,7 @@ This style guide outlines the coding conventions for contributions to this repos
 
 Code should follow the relevant style guides, and use the correct
 auto-formatter, for each language, as described in
-[the repository contributing guide's Style section](https://github.com/flutter/genui/blob/main/CONTRIBUTING.md#style).
+[the repository contributing guide's Style section](https://github.com/flutter/genui/blob/main/CONTRIBUTING.md#style-and-other).
 
 ## Best Practices
 
