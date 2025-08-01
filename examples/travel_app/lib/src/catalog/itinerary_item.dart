@@ -9,7 +9,8 @@ final _schema = Schema.object(
       description: 'The subtitle of the itinerary item.',
     ),
     'imageChild': Schema.string(
-      description: "The ID of the image widget to display. The image fit should typically be 'cover'"
+      description:
+          "The ID of the image widget to display. The image fit should typically be 'cover'",
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
@@ -84,11 +85,7 @@ class _ItineraryItem extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
-            child: SizedBox(
-              height: 80,
-              width: 80,
-              child: imageChild,
-            ),
+            child: SizedBox(height: 80, width: 80, child: imageChild),
           ),
           const SizedBox(width: 16.0),
           Expanded(

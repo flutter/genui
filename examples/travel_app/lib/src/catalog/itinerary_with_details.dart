@@ -10,7 +10,8 @@ final _schema = Schema.object(
       description: 'The subheading of the itinerary.',
     ),
     'imageChild': Schema.string(
-      description: "The ID of the image widget to display. The image fit should typically be 'cover'"
+      description:
+          "The ID of the image widget to display. The image fit should typically be 'cover'",
     ),
     'child': Schema.string(
       description:
@@ -141,11 +142,7 @@ class _ItineraryWithDetails extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 8.0,
               ), // Adjust radius as needed
-              child: SizedBox(
-                height: 100,
-                width: 100,
-                child: imageChild,
-              ),
+              child: SizedBox(height: 100, width: 100, child: imageChild),
             ),
             const SizedBox(width: 8.0),
             Expanded(

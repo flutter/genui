@@ -27,7 +27,9 @@ void main() {
                     id: 'test_itinerary_card',
                     buildChild: (id) {
                       if (id == 'image_child_id') {
-                        return Image.network('https://example.com/thumbnail.jpg');
+                        return Image.network(
+                          'https://example.com/thumbnail.jpg',
+                        );
                       }
                       return const Text('Child Content');
                     },
@@ -66,7 +68,9 @@ void main() {
                     id: 'test_itinerary_modal',
                     buildChild: (id) {
                       if (id == 'image_child_id') {
-                        return Image.network('https://example.com/modal_thumbnail.jpg');
+                        return Image.network(
+                          'https://example.com/modal_thumbnail.jpg',
+                        );
                       }
                       return const Text('Modal Child Content');
                     },
