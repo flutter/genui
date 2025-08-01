@@ -6,7 +6,7 @@ import 'package:network_image_mock/network_image_mock.dart';
 void main() {
   group('ItineraryItem', () {
     testWidgets('renders title and description', (WidgetTester tester) async {
-      mockNetworkImagesFor(() async {
+      await mockNetworkImagesFor(() async {
         const testTitle = 'Test Title';
         const testDescription = 'Test Description';
 

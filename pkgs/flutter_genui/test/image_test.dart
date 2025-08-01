@@ -7,7 +7,7 @@ void main() {
   testWidgets('Image widget renders network image', (
     WidgetTester tester,
   ) async {
-    mockNetworkImagesFor(() async {
+    await mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
