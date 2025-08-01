@@ -30,4 +30,4 @@ See the project's `fluttergenui` details
 
 ## Shell scripts
 
-To run a script in `tool/`, open it  in VSCode and press ⇧⌘B.
+To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
