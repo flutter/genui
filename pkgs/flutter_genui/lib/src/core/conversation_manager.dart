@@ -13,7 +13,7 @@ class ConversationManager {
     this.systemInstruction,
     this.llmConnection,
   ) {
-    _eventDebouncer = EventDebouncer(callback: _handleEvents);
+    _eventDebouncer = EventDebouncer(callback: handleEvents);
   }
 
   final Catalog catalog;
@@ -60,7 +60,7 @@ class ConversationManager {
     _generateAndSendResponse(conversation: masterConversation);
   }
 
-  void _handleEvents(List<UiEvent> events) {
+  void handleEvents(List<UiEvent> events) {
     final eventsBySurface = <String, List<UiEvent>>{};
     for (final event in events) {
       (eventsBySurface[event.surfaceId] ??= []).add(event);
