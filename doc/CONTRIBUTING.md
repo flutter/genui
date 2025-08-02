@@ -2,8 +2,8 @@
 
 ## Guidelines
 
-Please follow Flutter
-[contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
+Please follow
+[Flutter contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
 
 ## Firebase Configuration
 
