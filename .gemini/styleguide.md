@@ -12,7 +12,7 @@ auto-formatter, for each language, as described in
 
 ## Best Practices
 
-- Code should follow the guidance and principles described in
+- Code should follow the guidance and principles described in:
   [the flutter/genui contribution guide](https://github.com/flutter/flutter/blob/master/docs/ecosystem/contributing/README.md).
 - Code should be tested.
 - PR descriptions should include the Pre-Review Checklist from
