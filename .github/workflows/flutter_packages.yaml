@@ -106,13 +106,10 @@ jobs:
         with:
           channel: ${{ matrix.flutter_version }}
           cache: true
-      - name: Set PUB_CACHE environment variable
-        run: echo "PUB_CACHE=${{ github.workspace }}/.pub-cache" >> $GITHUB_ENV
-
       - name: Cache Pub dependencies
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
         with:
-          path: ${{ github.workspace }}/.pub-cache
+          path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
       - name: Update submodules
