@@ -2,3 +2,4 @@
 pubspec.lock
 .DS_Store
 Podfile.lock
+DEPS.md
