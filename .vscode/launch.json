@@ -12,7 +12,7 @@
         },
         {
             "name": "travel_app_hardcoded",
-            "cwd": "examples/travel_app_hardcoded",
+            "cwd": "pkgs/spikes/travel_app_hardcoded",
             "request": "launch",
             "type": "dart",
         },
