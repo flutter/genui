@@ -8,7 +8,6 @@ import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 import 'generative_model_interface.dart';
 import 'llm_connection.dart';
