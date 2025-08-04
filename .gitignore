@@ -2,3 +2,6 @@
 pubspec.lock
 .DS_Store
 Podfile.lock
+
+# Diagrams, produced by https://pub.dev/packages/layerlens
+DEPS.md

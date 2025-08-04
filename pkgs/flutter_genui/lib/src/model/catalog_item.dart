@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 typedef CatalogWidgetBuilder =
     Widget Function({
       // The actual deserialized JSON data for this widget. The format of this
-      // data will exactly match dataSchema below.
+      // data will exactly match [CatalogItem.dataSchema].
       required Object data,
       required String id, // The ID of this widget.
       required Widget Function(String id)
@@ -12,6 +12,7 @@ typedef CatalogWidgetBuilder =
       required void Function({
         required String widgetId,
         required String eventType,
+        // TODO: Explain expected schema for [value].
         required Object? value,
       })
       dispatchEvent, // A function used to dispatch an event.

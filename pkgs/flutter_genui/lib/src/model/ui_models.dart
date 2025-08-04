@@ -1,6 +1,6 @@
 /// A data object that represents a user interaction event in the UI.
 ///
-/// This is used to send information from the client to the AI about user
+/// This is used to send information from the app to the AI about user
 /// actions, such as tapping a button or entering text.
 extension type UiEvent.fromMap(Map<String, Object?> _json) {
   /// Creates a [UiEvent] from a set of properties.

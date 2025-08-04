@@ -64,6 +64,7 @@ class _DynamicUiState extends State<DynamicUi> {
   Widget _buildWidget(String widgetId) {
     var data = widget.definition.widgets[widgetId];
     if (data == null) {
+      // TODO: Handle missing widget gracefully.
       return Text('Widget with id: $widgetId not found.');
     }
 

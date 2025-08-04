@@ -23,11 +23,11 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  runApp(const GenUIApp());
+  runApp(const MyApp());
 }
 
-class GenUIApp extends StatelessWidget {
-  const GenUIApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +37,19 @@ class GenUIApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const GenUIHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
-class GenUIHomePage extends StatefulWidget {
-  const GenUIHomePage({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  State<GenUIHomePage> createState() => _GenUIHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _GenUIHomePageState extends State<GenUIHomePage> {
+class _MyHomePageState extends State<MyHomePage> {
   final _promptController = TextEditingController();
   late final ConversationManager _conversationManager;
 

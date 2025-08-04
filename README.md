@@ -1,6 +1,7 @@
 # Flutter Generative UI SDK Packages and Apps
 
-This repository is a collection of packages and applications for the Flutter Generative UI SDK.
+This repository is a collection of packages and applications for
+the Flutter Generative UI SDK.
 
 ## TODO before publishing
 
@@ -15,3 +16,12 @@ Example: https://github.com/dart-lang/leak_tracker?tab=readme-ov-file#packages
 ## Contribute
 
 See [CONTRIBUTING.md](doc/CONTRIBUTING.md)
+
+## Backward compatibility
+
+This package is experimental, that means the API may change
+without notice.
+
+## Internal information
+
+go/flutter-genui-internal

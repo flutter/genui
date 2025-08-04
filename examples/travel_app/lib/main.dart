@@ -11,7 +11,8 @@ final systemPrompt =
     '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
 and then guides them to book it.
 
-You should typically first show some options with a travel_carousel and also ask more about the user using filter chips.
+You should typically first show some options with a travel_carousel and also ask more about the
+user request using filter chips.
 
 After you refine the search, show a 'result' widget with the final trip.
 
@@ -19,7 +20,8 @@ After you refine the search, show a 'result' widget with the final trip.
 For example, the user may say "I want to plan a trip to Mexico".
 You will first find out more information by showing filter chips etc.
 
-Then you will generate a result which includes a detailed itinerary, which uses the itinerary_with_details widget.
+Then you will generate a result which includes a detailed itinerary, which
+uses the itinerary_with_details widget.
 
 When you provide results like this, you should show another set of "trailhead" buttons below to allow
 the user to explore more topics. E.g. for mexico, after generating an itinerary, you might include a
@@ -31,12 +33,14 @@ in cycles of asking for information and then making suggestions.
 
 # Communication via UI elements
 
-You communicate with the user via tools that control rich UI. The UI is a chat-style interface, and when you use the 'add' action,
+You communicate with the user via tools that control rich UI. The UI is a chat-style interface,
+and when you use the 'add' action,
 you are adding another element to the end of the stream.
 
 In general, you should keep adding more UI elements to the end of the chat. You should
-only replace elements if they are no-longer relevant. For example if a user performs a search,
-then you can replace the filter chips etc with a new surface that includes both filter chips *and* the result.
+only replace elements if they are no-longer relevant. For example if a userperforms a search,
+then you can replace the filter chips etc with a new surface that includes both
+filterchips *and* the result.
 That way the user can refine their search and retry.
 
 # UI style
@@ -58,11 +62,11 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  runApp(const GenUIApp());
+  runApp(const MyApp());
 }
 
-class GenUIApp extends StatelessWidget {
-  const GenUIApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,19 +75,19 @@ class GenUIApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const GenUIHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
-class GenUIHomePage extends StatefulWidget {
-  const GenUIHomePage({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  State<GenUIHomePage> createState() => _GenUIHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _GenUIHomePageState extends State<GenUIHomePage> {
+class _MyHomePageState extends State<MyHomePage> {
   final _promptController = TextEditingController();
   late final ConversationManager _conversationManager;
 

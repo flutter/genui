@@ -1,9 +1,9 @@
 # Contributing to Flutter GenUI
 
-## Style and other
+## Guidelines
 
-Please follow our
-[contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
+Please follow
+[Flutter contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
 
 ## Firebase Configuration
 

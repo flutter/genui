@@ -18,9 +18,9 @@ cd "$TOOL_DIR/.."
 FLUTTER_PACKAGES=(
     "examples/generic_chat"
     "examples/travel_app"
-    "examples/travel_app_hardcoded"
     "pkgs/flutter_genui"
     "pkgs/spikes/fcp_client"
+    "pkgs/spikes/travel_app_hardcoded"
 )
 
 DART_PACKAGES=(
