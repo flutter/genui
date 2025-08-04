@@ -58,7 +58,7 @@ $_imagesJson
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // TODO: we should remove FirebaseAppCheck, as it adds complexity
+  // TODO: remove FirebaseAppCheck, as it adds complexity
   //to the example.
   await FirebaseAppCheck.instance.activate(
     appleProvider: AppleProvider.debug,
