@@ -20,7 +20,7 @@ void main() {
       final imageDir = Directory(imagesCatalogPath);
       final imageFiles = imageDir
           .listSync()
-          .where((file) => file.path.endsWith('.jpg'))
+          .where((file) => file.path != imagesCatalogJsonFile)
           .map((file) => file.path)
           .toList();
 

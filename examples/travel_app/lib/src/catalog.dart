@@ -9,9 +9,10 @@ import 'catalog/tabbed_sections.dart';
 import 'catalog/travel_carousel.dart';
 
 const imagesCatalogPath = 'assets/travel_images';
+const imagesCatalogJsonFile = '$imagesCatalogPath/.images.json';
 
 Future<String> imagesCatalogJson() async {
-  var result = await rootBundle.loadString('$imagesCatalogPath/.images.json');
+  var result = await rootBundle.loadString(imagesCatalogJsonFile);
   result = result.replaceAll(
     '"image_file_name": "',
     '"image_file_name": "$imagesCatalogPath/',
