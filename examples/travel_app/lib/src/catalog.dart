@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog/filter_chip_group.dart';
@@ -6,6 +7,9 @@ import 'catalog/itinerary_with_details.dart';
 import 'catalog/options_filter_chip.dart';
 import 'catalog/tabbed_sections.dart';
 import 'catalog/travel_carousel.dart';
+
+Future<String> imagesJson() async =>
+    await rootBundle.loadString('assets/travel_images/.images.json');
 
 final catalog = Catalog([
   elevatedButtonCatalogItem,

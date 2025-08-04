@@ -5,9 +5,10 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
 import 'src/catalog.dart';
-import 'src/images.dart';
 
-final systemPrompt =
+late final String _imagesJson;
+
+final _systemPrompt =
     '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
 and then guides them to book it.
 
@@ -51,7 +52,7 @@ E.g. after an itinerary item like a beach visit, you could include a carousel of
 # Images to use
 
 If you need to use any image URLs, try to find the most relevant ones from the following data:
-$imagesJson
+$_imagesJson
 ''';
 
 void main() async {
@@ -64,6 +65,7 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
+  _imagesJson = await imagesJson();
   runApp(const MyApp());
 }
 
@@ -101,7 +103,11 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _conversationManager = ConversationManager(catalog, systemPrompt, aiClient);
+    _conversationManager = ConversationManager(
+      catalog,
+      _systemPrompt,
+      aiClient,
+    );
   }
 
   @override
