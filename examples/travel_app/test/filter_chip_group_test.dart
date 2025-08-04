@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui_client/src/catalog/filter_chip_group.dart';
+import 'package:travel_app/src/catalog/filter_chip_group.dart';
 
 void main() {
   group('FilterChipGroup', () {

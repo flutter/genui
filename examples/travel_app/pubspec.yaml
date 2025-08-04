@@ -1,4 +1,4 @@
-name: genui_client
+name: travel_app
 description: "An app that generates user interfaces on the fly using AI."
 publish_to: "none"
 version: 0.1.0

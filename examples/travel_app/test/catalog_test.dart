@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -5,22 +7,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog.dart';
 
 void main() {
-  test('images.json should contain all images from assets/travel_images',
-      () async {
-    TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+    'images.json should contain all images from assets/travel_images',
+    () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
 
-    final imageAssets = await imagesJson();
-    final imageList = (jsonDecode(imageAssets) as List)
-        .map((e) => e['image_file_name'] as String)
-        .toList();
+      final imageAssets = await imagesJson();
+      final imageList = (jsonDecode(imageAssets) as List)
+          .map((e) => e['image_file_name'] as String)
+          .toList();
 
-    final imageDir = Directory('assets/travel_images');
-    final imageFiles = imageDir
-        .listSync()
-        .where((file) => file.path.endsWith('.jpg'))
-        .map((file) => file.path.split('/').last)
-        .toList();
+      final imageDir = Directory('assets/travel_images');
+      final imageFiles = imageDir
+          .listSync()
+          .where((file) => file.path.endsWith('.jpg'))
+          .map((file) => file.path.split('/').last)
+          .toList();
 
-    expect(imageList, unorderedEquals(imageFiles));
-  });
+      expect(imageList, unorderedEquals(imageFiles));
+    },
+  );
 }

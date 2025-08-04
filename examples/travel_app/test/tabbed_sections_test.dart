@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui_client/src/catalog/tabbed_sections.dart';
+import 'package:travel_app/src/catalog/tabbed_sections.dart';
 
 void main() {
   group('TabbedSections', () {

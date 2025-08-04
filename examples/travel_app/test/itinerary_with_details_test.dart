@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui_client/src/catalog/itinerary_with_details.dart';
 import 'package:network_image_mock/network_image_mock.dart';
+import 'package:travel_app/src/catalog/itinerary_with_details.dart';
 
 void main() {
   group('ItineraryWithDetails', () {
