@@ -12,16 +12,16 @@ void main() {
     () async {
       TestWidgetsFlutterBinding.ensureInitialized();
 
-      final imageAssets = await imagesJson();
+      final imageAssets = await imagesCatalogJson();
       final imageList = (jsonDecode(imageAssets) as List)
           .map((e) => e['image_file_name'] as String)
           .toList();
 
-      final imageDir = Directory('assets/travel_images');
+      final imageDir = Directory(imagesCatalogPath);
       final imageFiles = imageDir
           .listSync()
           .where((file) => file.path.endsWith('.jpg'))
-          .map((file) => file.path.split('/').last)
+          .map((file) => file.path)
           .toList();
 
       expect(imageList, unorderedEquals(imageFiles));
