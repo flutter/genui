@@ -51,7 +51,8 @@ E.g. after an itinerary item like a beach visit, you could include a carousel of
 
 # Images to use
 
-If you need to use any image URLs, try to find the most relevant ones from the following data:
+If you need to use any images, try to find the most relevant ones from the following
+asset images:
 $_imagesJson
 ''';
 
