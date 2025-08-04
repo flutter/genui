@@ -7,11 +7,8 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
-<<<<<<< HEAD
 import 'package:flutter/foundation.dart';
-=======
 import 'package:meta/meta.dart';
->>>>>>> main
 
 import 'generative_model_interface.dart';
 import 'llm_connection.dart';
@@ -100,7 +97,7 @@ class AiClient implements LlmConnection {
   @visibleForTesting
   AiClient.test({
     required this.modelCreator,
-    this.model = 'gemini-2.5-flash',
+    GeminiModel model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -109,7 +106,7 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) {
+  }) : model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -129,7 +126,7 @@ class AiClient implements LlmConnection {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  ValueNotifier<GeminiModel> model;
+  final ValueNotifier<GeminiModel> model;
 
   /// The file system to use for accessing files.
   ///
@@ -497,7 +494,7 @@ class AiClient implements LlmConnection {
       for (final call in functionCalls) {
         if (call.name == outputToolName) {
           try {
-            capturedResult = (call.args['parameters'] as Map)['output'] as T?;
+            capturedResult = call.args['output'] as T?;
           } catch (e, s) {
             _error('Unable to read output: $call [${call.args}]: $e', s);
           }
