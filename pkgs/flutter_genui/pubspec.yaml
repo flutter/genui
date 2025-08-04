@@ -17,6 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   json_rpc_2: ^4.0.0
+  meta: ^1.16.0
   platform: ^3.1.6
   stream_channel: ^2.1.4
   url_launcher: ^6.2.6
@@ -25,4 +26,4 @@ dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
-  network_image_mock: any
+  network_image_mock: ^2.1.1

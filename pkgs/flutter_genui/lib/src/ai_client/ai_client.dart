@@ -7,15 +7,20 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+<<<<<<< HEAD
 import 'package:flutter/foundation.dart';
+=======
+import 'package:meta/meta.dart';
+>>>>>>> main
 
+import 'generative_model_interface.dart';
 import 'llm_connection.dart';
 import 'tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
 typedef GenerativeModelFactory =
-    GenerativeModel Function({
+    GenerativeModelInterface Function({
       required AiClient configuration,
       Content? systemInstruction,
       List<Tool>? tools,
@@ -79,6 +84,32 @@ class AiClient implements LlmConnection {
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
   }) : model = ValueNotifier(model) {
+    final duplicateToolNames = tools.map((t) => t.name).toSet();
+    if (duplicateToolNames.length != tools.length) {
+      final duplicateTools = tools.where((t) {
+        return tools.where((other) => other.name == t.name).length > 1;
+      });
+      throw AiClientException(
+        'Duplicate tool(s) '
+        '${duplicateTools.map<String>((t) => t.name).toSet().join(', ')} '
+        'registered. Tool names must be unique.',
+      );
+    }
+  }
+
+  @visibleForTesting
+  AiClient.test({
+    required this.modelCreator,
+    this.model = 'gemini-2.5-flash',
+    this.fileSystem = const LocalFileSystem(),
+    this.maxRetries = 8,
+    this.initialDelay = const Duration(seconds: 1),
+    this.minDelay = const Duration(seconds: 8),
+    this.maxConcurrentJobs = 20,
+    this.loggingCallback,
+    this.tools = const <AiTool>[],
+    this.outputToolName = 'provideFinalOutput',
+  }) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -242,17 +273,19 @@ class AiClient implements LlmConnection {
   ///
   /// This function instantiates a standard [GenerativeModel] using the
   /// `model` from the provided [AiClient] `configuration`.
-  static GenerativeModel defaultGenerativeModelFactory({
+  static GenerativeModelInterface defaultGenerativeModelFactory({
     required AiClient configuration,
     Content? systemInstruction,
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    return FirebaseAI.googleAI().generativeModel(
-      model: configuration.model.value.modelName,
-      systemInstruction: systemInstruction,
-      tools: tools,
-      toolConfig: toolConfig,
+   return GenerativeModelWrapper(
+      FirebaseAI.googleAI().generativeModel(
+        model: configuration.model.value.modelName,
+        systemInstruction: systemInstruction,
+        tools: tools,
+        toolConfig: toolConfig,
+      ),
     );
   }
 

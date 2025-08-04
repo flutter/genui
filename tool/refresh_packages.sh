@@ -18,9 +18,9 @@ cd "$TOOL_DIR/.."
 FLUTTER_PACKAGES=(
     "examples/generic_chat"
     "examples/travel_app"
-    "examples/travel_app_hardcoded"
     "pkgs/flutter_genui"
     "pkgs/spikes/fcp_client"
+    "pkgs/spikes/travel_app_hardcoded"
 )
 
 DART_PACKAGES=(
@@ -28,11 +28,11 @@ DART_PACKAGES=(
 )
 
 for pkg in "${FLUTTER_PACKAGES[@]}"; do
-    echo "--- Running flutter pub get in $pkg ---"
-    (cd "$pkg" && flutter pub get)
+    echo "--- Refreshing packages in $pkg ---"
+    (cd "$pkg" && flutter pub upgrade)
 done
 
 for pkg in "${DART_PACKAGES[@]}"; do
-    echo "--- Running dart pub get in $pkg ---"
-    (cd "$pkg" && dart pub get)
+    echo "--- Refreshing packages in $pkg ---"
+    (cd "$pkg" && dart pub upgrade)
 done

@@ -2,10 +2,13 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import '../../flutter_genui.dart';
 
+import '../ai_client/llm_connection.dart';
+import '../model/catalog.dart';
 import '../model/chat_message.dart';
+import '../model/ui_models.dart';
 import 'conversation_widget.dart';
+import 'event_debouncer.dart';
 
 class ConversationManager {
   ConversationManager(
@@ -13,7 +16,7 @@ class ConversationManager {
     this.systemInstruction,
     this.llmConnection,
   ) {
-    _eventDebouncer = EventDebouncer(callback: _handleEvents);
+    _eventDebouncer = EventDebouncer(callback: handleEvents);
   }
 
   final Catalog catalog;
@@ -60,7 +63,7 @@ class ConversationManager {
     _generateAndSendResponse(conversation: masterConversation);
   }
 
-  void _handleEvents(List<UiEvent> events) {
+  void handleEvents(List<UiEvent> events) {
     final eventsBySurface = <String, List<UiEvent>>{};
     for (final event in events) {
       (eventsBySurface[event.surfaceId] ??= []).add(event);

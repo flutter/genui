@@ -1,7 +1,9 @@
 # Contributing to Flutter GenUI
 
-Please follow our
-[contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
+## Guidelines
+
+Please follow
+[Flutter contributor guidelines](https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md).
 
 ## Firebase Configuration
 
@@ -25,3 +27,7 @@ Guidances:
 
 See the project's `fluttergenui` details
 [here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
+
+## Shell scripts
+
+To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
