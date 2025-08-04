@@ -1,36 +1,30 @@
-// ignore_for_file: avoid_dynamic_calls
-
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui_client/src/catalog.dart';
+import 'package:travel_app/src/catalog/image.dart';
+
+import 'utils.dart';
 
 void main() {
-  test(
-    '.images.json accurately lists all images in the assets/travel_images directory',
-    () async {
-      WidgetsFlutterBinding.ensureInitialized();
-      final imageDirectory = Directory('assets/travel_images');
-      final imageFiles =
-          imageDirectory
-              .listSync()
-              .where(
-                (file) =>
-                    file.path.endsWith('.jpg') || file.path.endsWith('.png'),
-              )
-              .map((file) => file.path.split('/').last)
-              .toList()
-            ..sort();
+  testWidgets('Image builds correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      testCatalogItem(
+        image,
+        {
+          'source': 'assets/travel_images/paris.jpg',
+          'width': 100.0,
+          'height': 100.0,
+          'fit': 'cover',
+        },
+      ),
+    );
 
-      final jsonString = await imagesJson();
-      final jsonList = json.decode(jsonString) as List;
-      final jsonImageFiles =
-          jsonList.map((item) => item['image_file_name'] as String).toList()
-            ..sort();
-
-      expect(imageFiles, equals(jsonImageFiles));
-    },
-  );
+    final imageWidget = tester.widget<Image>(find.byType(Image));
+    expect(imageWidget.width, 100.0);
+    expect(imageWidget.height, 100.0);
+    expect(imageWidget.fit, BoxFit.cover);
+    expect(
+      (imageWidget.image as AssetImage).assetName,
+      'assets/travel_images/paris.jpg',
+    );
+  });
 }
