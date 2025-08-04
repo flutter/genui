@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/src/catalog.dart';
 
@@ -10,6 +11,7 @@ void main() {
   test(
     '.images.json accurately lists all images in the assets/travel_images directory',
     () async {
+      WidgetsFlutterBinding.ensureInitialized();
       final imageDirectory = Directory('assets/travel_images');
       final imageFiles =
           imageDirectory
