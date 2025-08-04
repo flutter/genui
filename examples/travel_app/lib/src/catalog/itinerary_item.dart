@@ -77,6 +77,7 @@ class _ItineraryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
       child: Container(
@@ -97,14 +98,11 @@ class _ItineraryItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
+                  Text(title, style: theme.textTheme.titleMedium),
                   const SizedBox(height: 4.0),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                  Text(subtitle, style: theme.textTheme.bodySmall),
                   const SizedBox(height: 8.0),
-                  Text(
-                    detailText,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                  Text(detailText, style: theme.textTheme.bodyMedium),
                 ],
               ),
             ),
