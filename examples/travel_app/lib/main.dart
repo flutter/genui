@@ -66,7 +66,7 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  _imagesJson = await imagesJson();
+  _imagesJson = await imagesCatalogJson();
   runApp(const MyApp());
 }
 
