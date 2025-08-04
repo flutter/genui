@@ -276,7 +276,7 @@ class AiClient implements LlmConnection {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-   return GenerativeModelWrapper(
+    return GenerativeModelWrapper(
       FirebaseAI.googleAI().generativeModel(
         model: configuration.model.value.modelName,
         systemInstruction: systemInstruction,
