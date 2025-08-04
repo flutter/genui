@@ -8,16 +8,11 @@ import '../model/chat_message.dart';
 import 'conversation_widget.dart';
 
 class ConversationManager {
-  ConversationManager(
-    this.catalog,
-    this.systemInstruction,
-    this.llmConnection,
-  ) {
+  ConversationManager(this.catalog, this.llmConnection) {
     _eventDebouncer = EventDebouncer(callback: handleEvents);
   }
 
   final Catalog catalog;
-  final String systemInstruction;
   final LlmConnection llmConnection;
   late final EventDebouncer _eventDebouncer;
 
@@ -107,7 +102,6 @@ class ConversationManager {
       final response = await llmConnection.generateContent(
         conversation,
         outputSchema,
-        systemInstruction: Content.system(systemInstruction),
       );
       if (response == null) {
         return;

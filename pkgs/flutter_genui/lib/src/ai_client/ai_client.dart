@@ -18,7 +18,6 @@ import 'tools.dart';
 typedef GenerativeModelFactory =
     GenerativeModelInterface Function({
       required AiClient configuration,
-      Content? systemInstruction,
       List<Tool>? tools,
       ToolConfig? toolConfig,
     });
@@ -47,6 +46,7 @@ class AiClient implements LlmConnection {
   /// Creates an [AiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
+  /// - [systemInstruction]: An optional instruction to the model.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
@@ -62,6 +62,7 @@ class AiClient implements LlmConnection {
   ///   output from the AI.
   AiClient({
     this.model = 'gemini-2.5-flash',
+    this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -89,6 +90,7 @@ class AiClient implements LlmConnection {
   AiClient.test({
     required this.modelCreator,
     this.model = 'gemini-2.5-flash',
+    this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -116,8 +118,11 @@ class AiClient implements LlmConnection {
   /// This identifier specifies which version or type of the generative AI model
   /// will be invoked for content generation.
   ///
-  /// Defaults to 'gemini-2.5-flash'.
+  /// Defaults to 'gemini-1.5-flash'.
   final String model;
+
+  /// An optional instruction to the model.
+  final String? systemInstruction;
 
   /// The file system to use for accessing files.
   ///
@@ -241,12 +246,11 @@ class AiClient implements LlmConnection {
     List<Content> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
   }) async {
     return await _generateContentWithRetries(conversation, outputSchema, [
       ...tools,
       ...additionalTools,
-    ], systemInstruction);
+    ]);
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -255,14 +259,15 @@ class AiClient implements LlmConnection {
   /// `model` from the provided [AiClient] `configuration`.
   static GenerativeModelInterface defaultGenerativeModelFactory({
     required AiClient configuration,
-    Content? systemInstruction,
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
     return GenerativeModelWrapper(
       FirebaseAI.googleAI().generativeModel(
         model: configuration.model,
-        systemInstruction: systemInstruction,
+        systemInstruction: configuration.systemInstruction != null
+            ? Content.system(configuration.systemInstruction!)
+            : null,
         tools: tools,
         toolConfig: toolConfig,
       ),
@@ -294,7 +299,6 @@ class AiClient implements LlmConnection {
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
-    Content? systemInstruction,
   ) async {
     var attempts = 0;
     var delay = initialDelay;
@@ -322,7 +326,6 @@ class AiClient implements LlmConnection {
           contents,
           outputSchema,
           availableTools,
-          systemInstruction,
           // Reset the delay and attempts on success.
           () {
             delay = initialDelay;
@@ -356,7 +359,6 @@ class AiClient implements LlmConnection {
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
-    Content? systemInstruction,
     void Function() onSuccess,
   ) async {
     // Create an "output" tool that copies its args into the output.
@@ -412,7 +414,6 @@ class AiClient implements LlmConnection {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction: systemInstruction,
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(

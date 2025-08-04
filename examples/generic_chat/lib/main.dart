@@ -57,13 +57,13 @@ class _GenUIHomePageState extends State<GenUIHomePage> {
   void initState() {
     super.initState();
     final aiClient = AiClient(
+      systemInstruction: systemPrompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
     );
     _conversationManager = ConversationManager(
       coreCatalog,
-      systemPrompt,
       aiClient,
     );
   }

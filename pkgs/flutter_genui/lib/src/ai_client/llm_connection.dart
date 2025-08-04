@@ -11,6 +11,5 @@ abstract interface class LlmConnection {
     List<Content> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
   });
 }

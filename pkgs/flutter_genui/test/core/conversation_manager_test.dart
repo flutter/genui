@@ -19,10 +19,9 @@ void main() {
     late FakeAiClient fakeAiClient;
 
     setUp(() {
-      fakeAiClient = FakeAiClient();
+      fakeAiClient = FakeAiClient(systemInstruction: 'You are a helpful assistant.');
       manager = ConversationManager(
         coreCatalog,
-        'You are a helpful assistant.',
         fakeAiClient,
       );
     });
