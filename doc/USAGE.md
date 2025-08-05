@@ -12,13 +12,15 @@ This guidance explains how to enable GenUI for your
 1. [Enable Gemini](https://firebase.google.com/docs/gemini-in-firebase/set-up-gemini)
 for the project.
 
+  TODO: check if GenUI will work without this step.
+
 1. Follow [the steps](https://firebase.google.com/docs/flutter/setup)
-to configure Firebase for your Flutter project.
+to configure your Flutter project.
 
     NOTE: see how secure it is to publish the generated files
     [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
 
-1. If you use ios or macos platform, add this key to your
+1. If you run your Flutter project on ios or macos platform, add this key to your
 `<platform>/Runner/*.entitlements`:
 
   ```xml
