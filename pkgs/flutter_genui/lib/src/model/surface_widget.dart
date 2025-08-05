@@ -37,14 +37,14 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
   void _dispatchEvent({
     required String widgetId,
     required String eventType,
-    required bool isSubmit,
+    required bool isAction,
     required Object? value,
   }) {
     final event = UiEvent(
       surfaceId: widget.surfaceId,
       widgetId: widgetId,
       eventType: eventType,
-      isSubmit: isSubmit,
+      isAction: isAction,
       value: value,
       timestamp: DateTime.now().toUtc(),
     );

@@ -19,7 +19,7 @@ class UiEventManager {
       _eventQueue.add(event);
     }
 
-    if (event.isSubmit) {
+    if (event.isAction) {
       _send();
     }
   }

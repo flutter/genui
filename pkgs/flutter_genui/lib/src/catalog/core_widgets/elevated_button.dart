@@ -40,7 +40,7 @@ final elevatedButtonCatalogItem = CatalogItem(
           onPressed: () => dispatchEvent(
             widgetId: id,
             eventType: 'onTap',
-            isSubmit: true,
+            isAction: true,
             value: null,
           ),
           child: child,

@@ -29,7 +29,7 @@ void main() {
                       ({
                         required widgetId,
                         required eventType,
-                        required bool isSubmit,
+                        required bool isAction,
                         required value,
                       }) {}, // Mock dispatchEvent
                   context: context,

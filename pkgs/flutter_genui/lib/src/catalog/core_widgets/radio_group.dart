@@ -104,7 +104,7 @@ final radioGroup = CatalogItem(
               dispatchEvent(
                 widgetId: id,
                 eventType: 'onChanged',
-                isSubmit: false,
+                isAction: false,
                 value: newValue,
               );
             }

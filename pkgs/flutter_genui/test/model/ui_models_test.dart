@@ -13,7 +13,7 @@ void main() {
         surfaceId: 'testSurface',
         widgetId: 'testWidget',
         eventType: 'onTap',
-        isSubmit: true,
+        isAction: true,
         timestamp: now,
         value: 'testValue',
       );
@@ -21,7 +21,7 @@ void main() {
       expect(event.surfaceId, 'testSurface');
       expect(event.widgetId, 'testWidget');
       expect(event.eventType, 'onTap');
-      expect(event.isSubmit, isTrue);
+      expect(event.isAction, isTrue);
       expect(event.timestamp, now);
       expect(event.value, 'testValue');
     });
@@ -32,7 +32,7 @@ void main() {
         'surfaceId': 'testSurface',
         'widgetId': 'testWidget',
         'eventType': 'onTap',
-        'isSubmit': false,
+        'isAction': false,
         'timestamp': now.toIso8601String(),
         'value': 'testValue',
       });
@@ -40,7 +40,7 @@ void main() {
       expect(event.surfaceId, 'testSurface');
       expect(event.widgetId, 'testWidget');
       expect(event.eventType, 'onTap');
-      expect(event.isSubmit, isFalse);
+      expect(event.isAction, isFalse);
       expect(event.timestamp, now);
       expect(event.value, 'testValue');
     });
@@ -51,7 +51,7 @@ void main() {
         surfaceId: 'testSurface',
         widgetId: 'testWidget',
         eventType: 'onTap',
-        isSubmit: true,
+        isAction: true,
         timestamp: now,
         value: 'testValue',
       );
@@ -61,7 +61,7 @@ void main() {
       expect(map['surfaceId'], 'testSurface');
       expect(map['widgetId'], 'testWidget');
       expect(map['eventType'], 'onTap');
-      expect(map['isSubmit'], isTrue);
+      expect(map['isAction'], isTrue);
       expect(map['timestamp'], now.toIso8601String());
       expect(map['value'], 'testValue');
     });

@@ -37,7 +37,7 @@ void main() {
                         ({
                           required String widgetId,
                           required String eventType,
-                          required bool isSubmit,
+                          required bool isAction,
                           Object? value,
                         }) {},
                     context: context,
@@ -84,7 +84,7 @@ void main() {
                         ({
                           required String widgetId,
                           required String eventType,
-                          required bool isSubmit,
+                          required bool isAction,
                           Object? value,
                         }) {},
                     context: context,

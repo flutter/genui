@@ -30,7 +30,7 @@ void main() {
                   ({
                     required widgetId,
                     required eventType,
-                    required isSubmit,
+                    required isAction,
                     required Object? value,
                   }) {},
                   context,
@@ -67,7 +67,7 @@ void main() {
                   ({
                     required widgetId,
                     required eventType,
-                    required isSubmit,
+                    required isAction,
                     required Object? value,
                   }) {},
                   context,

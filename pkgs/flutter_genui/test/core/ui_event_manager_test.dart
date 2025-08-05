@@ -12,7 +12,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isSubmit: false,
+        isAction: false,
         timestamp: DateTime(2025),
         value: 'a',
       );
@@ -20,7 +20,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',
-        isSubmit: false,
+        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: null,
       );
@@ -28,7 +28,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isSubmit: false,
+        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: 'b',
       );
@@ -36,7 +36,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w3',
         eventType: 'onTap',
-        isSubmit: true,
+        isAction: true,
         timestamp: DateTime(2025, 1, 1, 0, 0, 3),
         value: null,
       );
@@ -63,7 +63,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isSubmit: false,
+        isAction: false,
         timestamp: DateTime(2025),
         value: 'a',
       );
@@ -71,7 +71,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isSubmit: false,
+        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: 'b',
       );
@@ -79,7 +79,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',
-        isSubmit: true,
+        isAction: true,
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: null,
       );

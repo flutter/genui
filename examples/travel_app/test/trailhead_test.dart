@@ -22,7 +22,7 @@ void main() {
                       ({
                         required widgetId,
                         required eventType,
-                        required isSubmit,
+                        required isAction,
                         required value,
                       }) {},
                   context: context,
