@@ -40,3 +40,10 @@ When the CatalogItem API changes, it is necessary to update all the existing cat
 ## How to update every CatalogItem
 
 1. Find all CatalogItem implementations which will be at `examples/travel_app/lib/src/catalog/*`, `pkgs/flutter_genui/lib/src/catalog/*` etc. Update each of them.
+
+## Folder `spikes`
+
+The folder `spikes` contains experiments and proof of concepts,
+that does not have to be of good quality.
+
+Skip this folder when reviewing code.
