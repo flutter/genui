@@ -11,14 +11,20 @@
             "type": "dart",
         },
         {
+            "name": "generic_chat",
+            "cwd": "examples/generic_chat",
+            "request": "launch",
+            "type": "dart",
+        },
+        {
             "name": "travel_app_hardcoded",
             "cwd": "pkgs/spikes/travel_app_hardcoded",
             "request": "launch",
             "type": "dart",
         },
         {
-            "name": "generic_chat",
-            "cwd": "examples/generic_chat",
+            "name": "usage_test",
+            "cwd": "pkgs/spikes/usage_test",
             "request": "launch",
             "type": "dart",
         }

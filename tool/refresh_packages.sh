@@ -21,6 +21,7 @@ FLUTTER_PACKAGES=(
     "pkgs/flutter_genui"
     "pkgs/spikes/fcp_client"
     "pkgs/spikes/travel_app_hardcoded"
+    "pkgs/spikes/usage_test"
 )
 
 DART_PACKAGES=(

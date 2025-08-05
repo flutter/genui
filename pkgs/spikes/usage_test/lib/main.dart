@@ -34,7 +34,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GenUiManager _genUiManager = GenUiManager.conversation();
+  final GenUiManager _genUiManager = GenUiManager.conversation(
+    instruction: 'Talk to me',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(child: Expanded(child: _genUiManager.widget())),
+      body: Center(child: _genUiManager.widget()),
     );
   }
 }
