@@ -34,9 +34,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GenUiManager _genUiManager = GenUiManager.conversation(
-    instruction: 'Talk to me',
-  );
+  final GenUiManager _genUiManager = GenUiManager.conversation();
+
+  @override
+  void initState() {
+    super.initState();
+    _genUiManager.sendUserPrompt('Talk to me.');
+  }
 
   @override
   Widget build(BuildContext context) {
