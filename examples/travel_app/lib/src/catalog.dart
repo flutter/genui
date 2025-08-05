@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog/filter_chip_group.dart';
@@ -8,7 +9,9 @@ import 'catalog/options_filter_chip.dart';
 import 'catalog/tabbed_sections.dart';
 import 'catalog/travel_carousel.dart';
 
+@visibleForTesting
 const imagesCatalogPath = 'assets/travel_images';
+@visibleForTesting
 const imagesCatalogJsonFile = '$imagesCatalogPath/.images.json';
 
 Future<String> imagesCatalogJson() async {
