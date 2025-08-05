@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -79,12 +83,7 @@ class _OptionsFilterChip extends StatefulWidget {
   final List<String> options;
   final String widgetId;
   final Widget? iconChild;
-  final void Function({
-    required String widgetId,
-    required String eventType,
-    required Object? value,
-  })
-  dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -131,9 +130,11 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                             _currentChipLabel = newValue;
                           });
                           widget.dispatchEvent(
-                            widgetId: widget.widgetId,
-                            eventType: 'filterOptionSelected',
-                            value: newValue,
+                            UiChangeEvent(
+                              widgetId: widget.widgetId,
+                              eventType: 'filterOptionSelected',
+                              value: newValue,
+                            ),
                           );
                           Navigator.pop(context);
                         }

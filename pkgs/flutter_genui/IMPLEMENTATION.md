@@ -35,7 +35,7 @@ This layer defines the data structures that represent the dynamic UI and the con
 - **`Catalog` and `CatalogItem`**: These classes define the registry of available UI components. The `Catalog` holds a list of `CatalogItem`s, and each `CatalogItem` defines a widget's name, its data schema, and a builder function to render it.
 - **`UiDefinition` and `UiEvent`**: `UiDefinition` represents a complete UI tree to be rendered, including the root widget and a map of all widget definitions. `UiEvent` is a data object representing a user interaction (e.g., a button tap), which is sent back to the `ConversationManager`.
 - **`ChatMessage`**: A sealed class representing the different types of messages in the conversation history: `UserPrompt`, `TextResponse`, `UiResponse`, and `SystemMessage`.
-- **`DynamicUi`**: The Flutter widget responsible for recursively building the UI tree from a `UiDefinition`. It uses the provided `Catalog` to find the correct widget builder for each node in the tree.
+- **`SurfaceWidget`**: The Flutter widget responsible for recursively building the UI tree from a `UiDefinition`. It uses the provided `Catalog` to find the correct widget builder for each node in the tree.
 
 ### 4. Widget Catalog Layer (`lib/src/catalog/`)
 
@@ -57,7 +57,7 @@ This layer provides a set of core, general-purpose UI widgets that can be used o
    - For an **`update`** action, it finds the existing `UiResponse` with the matching `surfaceId` and replaces it with the new definition.
    - For a **`delete`** action, it removes the corresponding `UiResponse` from the chat history.
 8. **UI Rendering**: The `_uiDataStreamController` in the `ConversationManager` emits the updated chat history. The `ConversationWidget` rebuilds, and its `ListView` now includes the new or updated `UiResponse`.
-9. **Dynamic UI Build**: The `DynamicUi` widget within the `ConversationWidget` receives the `UiDefinition` and recursively builds the Flutter widget tree using the `Catalog`.
+9. **Dynamic UI Build**: The `SurfaceWidget` widget within the `ConversationWidget` receives the `UiDefinition` and recursively builds the Flutter widget tree using the `Catalog`.
 10. **User Interaction**: The user interacts with the newly generated UI (e.g., clicks a button).
 11. **Event Dispatch**: The widget's `onPressed` handler calls the `dispatchEvent` function, creating a `UiEvent`.
 12. **Event Handling**: The `EventDebouncer` collects and sends the event to the `ConversationManager`.

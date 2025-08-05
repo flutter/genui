@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 
 import 'catalog.dart';
@@ -7,8 +11,8 @@ import 'ui_models.dart';
 ///
 /// It takes an initial [definition] and reports user interactions
 /// via the [onEvent] callback.
-class DynamicUi extends StatefulWidget {
-  const DynamicUi({
+class SurfaceWidget extends StatefulWidget {
+  const SurfaceWidget({
     super.key,
     required this.catalog,
     required this.surfaceId,
@@ -28,24 +32,17 @@ class DynamicUi extends StatefulWidget {
   final Catalog catalog;
 
   @override
-  State<DynamicUi> createState() => _DynamicUiState();
+  State<SurfaceWidget> createState() => _SurfaceWidgetState();
 }
 
-class _DynamicUiState extends State<DynamicUi> {
-  /// Dispatches an event by calling the public [DynamicUi.onEvent] callback.
-  void _dispatchEvent({
-    required String widgetId,
-    required String eventType,
-    required Object? value,
-  }) {
-    final event = UiEvent(
-      surfaceId: widget.surfaceId,
-      widgetId: widgetId,
-      eventType: eventType,
-      value: value,
-      timestamp: DateTime.now().toUtc(),
-    );
-    widget.onEvent(event.toMap());
+class _SurfaceWidgetState extends State<SurfaceWidget> {
+  /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
+  /// callback.
+  void _dispatchEvent(UiEvent event) {
+    // The event comes in without a surfaceId, which we add here.
+    final eventMap = event.toMap();
+    eventMap['surfaceId'] = widget.surfaceId;
+    widget.onEvent(eventMap);
   }
 
   @override

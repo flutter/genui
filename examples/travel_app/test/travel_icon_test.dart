@@ -1,23 +1,25 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/travel_icon.dart';
 
 void main() {
-  group('TravelIcon Widget', () {
-    testWidgets('travelIcon builds an Icon widget with the correct icon', (
-      WidgetTester tester,
-    ) async {
+  group('travelIcon', () {
+    testWidgets('renders correct icon', (WidgetTester tester) async {
+      final data = {'icon': 'hotel'};
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return travelIcon.widgetBuilder(
-                  data: {'icon': 'airport'},
-                  id: 'test_icon',
-                  buildChild: (childId) => const SizedBox(),
-                  dispatchEvent:
-                      ({required widgetId, required eventType, value}) {},
+                  data: data,
+                  id: 'testId',
+                  buildChild: (_) => const SizedBox.shrink(),
+                  dispatchEvent: (event) {},
                   context: context,
                 );
               },
@@ -26,24 +28,23 @@ void main() {
         ),
       );
 
-      expect(find.byType(Icon), findsOneWidget);
-      expect(find.byIcon(Icons.flight), findsOneWidget);
+      expect(find.byIcon(Icons.hotel), findsOneWidget);
     });
 
-    testWidgets('travelIcon builds a SizedBox when the icon is not found', (
+    testWidgets('renders empty box for invalid icon', (
       WidgetTester tester,
     ) async {
+      final data = {'icon': 'invalid_icon'};
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
                 return travelIcon.widgetBuilder(
-                  data: {'icon': 'invalid_icon'},
-                  id: 'test_icon',
-                  buildChild: (childId) => const SizedBox(),
-                  dispatchEvent:
-                      ({required widgetId, required eventType, value}) {},
+                  data: data,
+                  id: 'testId',
+                  buildChild: (_) => const SizedBox.shrink(),
+                  dispatchEvent: (event) {},
                   context: context,
                 );
               },
@@ -53,6 +54,7 @@ void main() {
       );
 
       expect(find.byType(SizedBox), findsOneWidget);
+      expect(find.byType(Icon), findsNothing);
     });
   });
 }

@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/tabbed_sections.dart';
@@ -39,12 +43,7 @@ void main() {
                         data: data,
                         id: 'test_tabbed_sections',
                         buildChild: mockBuildChild,
-                        dispatchEvent:
-                            ({
-                              required String widgetId,
-                              required String eventType,
-                              Object? value,
-                            }) {},
+                        dispatchEvent: (event) {},
                         context: context,
                       );
                     },
@@ -105,12 +104,7 @@ void main() {
                       data: data,
                       id: 'test_tabbed_sections_height',
                       buildChild: mockBuildChild,
-                      dispatchEvent:
-                          ({
-                            required String widgetId,
-                            required String eventType,
-                            Object? value,
-                          }) {},
+                      dispatchEvent: (event) {},
                       context: context,
                     );
                   },

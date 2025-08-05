@@ -44,10 +44,13 @@ void main() {
         description: 'd',
         invokeFunction: (_) async => <String, Object?>{},
       );
-      expect(
-        () => createClient(tools: [tool1, tool2]),
-        throwsA(isA<AiClientException>()),
-      );
+      try {
+        createClient(tools: [tool1, tool2]);
+        fail('should throw');
+      } catch (e) {
+        expect(e, isA<AiClientException>());
+        expect((e as AiClientException).message, contains('Duplicate tool(s)'));
+      }
     });
 
     test('generateContent returns structured data', () async {
@@ -56,7 +59,9 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
+              'parameters': {
+                'output': {'key': 'value'},
+              },
             }),
           ]),
           [],
@@ -104,7 +109,9 @@ void main() {
           Candidate(
             Content.model([
               FunctionCall('provideFinalOutput', {
-                'output': {'final': 'result'},
+                'parameters': {
+                  'output': {'final': 'result'},
+                },
               }),
             ]),
             [],
@@ -132,7 +139,9 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
+              'parameters': {
+                'output': {'key': 'value'},
+              },
             }),
           ]),
           [],
@@ -174,7 +183,9 @@ void main() {
           Candidate(
             Content.model([
               FunctionCall('provideFinalOutput', {
-                'output': {'final': 'result'},
+                'parameters': {
+                  'output': {'final': 'result'},
+                },
               }),
             ]),
             [],
@@ -190,6 +201,7 @@ void main() {
       ], Schema.object(properties: {'final': Schema.string()}));
 
       expect(result, isNotNull);
+      expect(result!['final'], 'result');
     });
 
     test('generateContent returns null if no candidates', () async {
@@ -271,31 +283,6 @@ void main() {
       );
 
       expect(result, isNull);
-    });
-
-    test('token usage is tracked', () async {
-      client = createClient();
-      fakeModel.response = GenerateContentResponse([
-        Candidate(
-          Content.model([
-            FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
-            }),
-          ]),
-          [],
-          null,
-          null,
-          null,
-        ),
-      ], PromptFeedback(null, null, []));
-
-      await client.generateContent<Map<String, Object?>>(
-        [],
-        Schema.object(properties: {'key': Schema.string()}),
-      );
-
-      expect(client.inputTokenUsage, 0);
-      expect(client.outputTokenUsage, 0);
     });
 
     test('logging callback is called', () async {

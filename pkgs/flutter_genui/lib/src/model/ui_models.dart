@@ -1,31 +1,23 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 /// A data object that represents a user interaction event in the UI.
 ///
 /// This is used to send information from the app to the AI about user
 /// actions, such as tapping a button or entering text.
 extension type UiEvent.fromMap(Map<String, Object?> _json) {
-  /// Creates a [UiEvent] from a set of properties.
-  UiEvent({
-    required String surfaceId,
-    required String widgetId,
-    required String eventType,
-    required DateTime timestamp,
-    Object? value,
-  }) : _json = {
-         'surfaceId': surfaceId,
-         'widgetId': widgetId,
-         'eventType': eventType,
-         'timestamp': timestamp.toIso8601String(),
-         if (value != null) 'value': value,
-       };
-
   /// The ID of the surface that this event originated from.
-  String get surfaceId => _json['surfaceId'] as String;
+  String? get surfaceId => _json['surfaceId'] as String?;
 
   /// The ID of the widget that triggered the event.
   String get widgetId => _json['widgetId'] as String;
 
   /// The type of event that was triggered (e.g., 'onChanged', 'onTap').
   String get eventType => _json['eventType'] as String;
+
+  /// Whether this event should trigger a submission to the LLM.
+  bool get isAction => _json['isAction'] as bool;
 
   /// The value associated with the event, if any (e.g., the text in a
   /// `TextField`, or the value of a `Checkbox`).
@@ -36,6 +28,44 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
 
   /// Converts this event to a map, suitable for JSON serialization.
   Map<String, Object?> toMap() => _json;
+}
+
+extension type UiActionEvent.fromMap(Map<String, Object?> _json)
+    implements UiEvent {
+  /// Creates a [UiEvent] from a set of properties.
+  UiActionEvent({
+    String? surfaceId,
+    required String widgetId,
+    required String eventType,
+    DateTime? timestamp,
+    Object? value,
+  }) : _json = {
+         if (surfaceId != null) 'surfaceId': surfaceId,
+         'widgetId': widgetId,
+         'eventType': eventType,
+         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
+         'isAction': true,
+         if (value != null) 'value': value,
+       };
+}
+
+extension type UiChangeEvent.fromMap(Map<String, Object?> _json)
+    implements UiEvent {
+  /// Creates a [UiEvent] from a set of properties.
+  UiChangeEvent({
+    String? surfaceId,
+    required String widgetId,
+    required String eventType,
+    DateTime? timestamp,
+    Object? value,
+  }) : _json = {
+         if (surfaceId != null) 'surfaceId': surfaceId,
+         'widgetId': widgetId,
+         'eventType': eventType,
+         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
+         'isAction': false,
+         if (value != null) 'value': value,
+       };
 }
 
 /// A data object that represents the entire UI definition.

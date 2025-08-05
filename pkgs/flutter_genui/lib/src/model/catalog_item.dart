@@ -1,22 +1,26 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
+
+import '../../flutter_genui.dart';
+
+typedef ChildBuilderCallback = Widget Function(String id);
 
 typedef CatalogWidgetBuilder =
     Widget Function({
       // The actual deserialized JSON data for this widget. The format of this
       // data will exactly match [CatalogItem.dataSchema].
       required Object data,
-      required String id, // The ID of this widget.
-      required Widget Function(String id)
-      buildChild, // A function used to build a child based on the given ID.
-      required void Function({
-        required String widgetId,
-        required String eventType,
-        // TODO: Explain expected schema for [value].
-        required Object? value,
-      })
-      dispatchEvent, // A function used to dispatch an event.
-      required BuildContext context, // The build context.
+      // The ID of this widget.
+      required String id,
+      // A function used to build a child based on the given ID.
+      required ChildBuilderCallback buildChild,
+      // A function used to dispatch an event.
+      required DispatchEventCallback dispatchEvent,
+      required BuildContext context,
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.

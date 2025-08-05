@@ -1,5 +1,7 @@
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog/filter_chip_group.dart';
@@ -10,20 +12,7 @@ import 'catalog/section_header.dart';
 import 'catalog/tabbed_sections.dart';
 import 'catalog/trailhead.dart';
 import 'catalog/travel_carousel.dart';
-
-@visibleForTesting
-const assetImageCatalogPath = 'assets/travel_images';
-@visibleForTesting
-const assetImageCatalogJsonFile = '$assetImageCatalogPath/.images.json';
-
-Future<String> assetImageCatalogJson() async {
-  var result = await rootBundle.loadString(assetImageCatalogJsonFile);
-  result = result.replaceAll(
-    '"image_file_name": "',
-    '"image_file_name": "$assetImageCatalogPath/',
-  );
-  return result;
-}
+import 'catalog/travel_icon.dart';
 
 final catalog = Catalog([
   elevatedButtonCatalogItem,
@@ -41,4 +30,5 @@ final catalog = Catalog([
   sectionHeaderCatalogItem,
   trailheadCatalogItem,
   image,
+  travelIcon,
 ]);

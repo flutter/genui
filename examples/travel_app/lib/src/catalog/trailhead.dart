@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -49,12 +53,7 @@ class _Trailhead extends StatelessWidget {
 
   final List<String> topics;
   final String widgetId;
-  final void Function({
-    required String widgetId,
-    required String eventType,
-    required Object? value,
-  })
-  dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +67,11 @@ class _Trailhead extends StatelessWidget {
             label: Text(topic),
             onPressed: () {
               dispatchEvent(
-                widgetId: widgetId,
-                eventType: 'trailheadTopicSelected',
-                value: topic,
+                UiActionEvent(
+                  widgetId: widgetId,
+                  eventType: 'trailheadTopicSelected',
+                  value: topic,
+                ),
               );
             },
           );

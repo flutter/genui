@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -59,9 +63,11 @@ final filterChipGroup = CatalogItem(
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () => dispatchEvent(
-                    widgetId: id,
-                    eventType: 'submit',
-                    value: null,
+                    UiActionEvent(
+                      widgetId: id,
+                      eventType: 'submit',
+                      value: null,
+                    ),
                   ),
                   child: Text(submitLabel),
                   style: ElevatedButton.styleFrom(

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/src/core/conversation_widget.dart';
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
-import 'package:flutter_genui/src/model/dynamic_ui.dart';
+import 'package:flutter_genui/src/model/surface_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -91,7 +91,7 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(DynamicUi), findsOneWidget);
+      expect(find.byType(SurfaceWidget), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
     });
   });

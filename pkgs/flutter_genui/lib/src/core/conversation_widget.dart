@@ -1,8 +1,12 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
-import '../model/dynamic_ui.dart';
+import '../model/surface_widget.dart';
 import '../model/ui_models.dart';
 
 class ConversationWidget extends StatelessWidget {
@@ -50,7 +54,7 @@ class ConversationWidget extends StatelessWidget {
           ),
           UiResponse() => Padding(
             padding: const EdgeInsets.all(16.0),
-            child: DynamicUi(
+            child: SurfaceWidget(
               key: message.uiKey,
               catalog: catalog,
               surfaceId: message.surfaceId,

@@ -27,11 +27,7 @@ void main() {
                 final widget = catalog.buildWidget(
                   data,
                   (_) => const SizedBox(),
-                  ({
-                    required widgetId,
-                    required eventType,
-                    required Object? value,
-                  }) {},
+                  (UiEvent event) {},
                   context,
                 );
                 expect(widget, isA<Text>());
@@ -63,11 +59,7 @@ void main() {
                 final widget = catalog.buildWidget(
                   data,
                   (_) => const SizedBox(),
-                  ({
-                    required widgetId,
-                    required eventType,
-                    required Object? value,
-                  }) {},
+                  (UiEvent event) {},
                   context,
                 );
                 expect(widget, isA<Container>());
