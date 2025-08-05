@@ -11,8 +11,7 @@ NOTE: For Google-internal projects see go/flutter-genui-internal.
 
 To run examples:
 
-1. [Create a new project](https://support.google.com/appsheet/answer/10104995)
-with Firebase Console.
+1. [Create a new project](https://support.google.com/appsheet/answer/10104995) with Firebase Console.
 
 The app uses `firebase_ai` to connect to the LLM, which requires using Firebase.
 
