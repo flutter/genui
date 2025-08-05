@@ -7,7 +7,7 @@ Please follow
 
 ## Firebase Configuration
 
-NOTE: For Google-internal project, check go/flutter-genui-internal.
+NOTE: For Google-internal projects see go/flutter-genui-internal.
 
 To run examples:
 
