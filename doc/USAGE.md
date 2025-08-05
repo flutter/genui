@@ -61,7 +61,7 @@ you want the generated user interface to render:
 
 1. Update the `build` method of the widget to render `_genUiManager.widget()`.
 
-1. In `initState` or in user event handler submit AI request:
+1. In `initState`, or in an event handler, submit an AI request:
 
     ```dart
     _genUiManager.sendUserPrompt(userPrompt);
