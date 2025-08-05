@@ -22,7 +22,7 @@ to configure your Flutter project.
     [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
 
 1. If you run your Flutter project on ios or macos platform, add this key to your
-`<platform>/Runner/*.entitlements`:
+`{ios,macos}/Runner/*.entitlements` file(s):
 
   ```xml
   <dict>
