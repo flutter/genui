@@ -51,7 +51,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _promptController = TextEditingController();
-  late final GenUiManager _conversationManager;
+  late final GenUiManager _genUiManager;
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _conversationManager = GenUiManager.conversation(
+    _genUiManager = GenUiManager.conversation(
       coreCatalog,
       systemPrompt,
       aiClient,
@@ -71,14 +71,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     _promptController.dispose();
-    _conversationManager.dispose();
+    _genUiManager.dispose();
     super.dispose();
   }
 
   void _sendPrompt() {
     final prompt = _promptController.text;
     if (prompt.isNotEmpty) {
-      _conversationManager.sendUserPrompt(prompt);
+      _genUiManager.sendUserPrompt(prompt);
       _promptController.clear();
     }
   }
@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Expanded(child: _conversationManager.widget()),
+              Expanded(child: _genUiManager.widget()),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: _sendPrompt,
                     ),
                     StreamBuilder<bool>(
-                      stream: _conversationManager.loadingStream,
+                      stream: _genUiManager.loadingStream,
                       initialData: false,
                       builder: (context, snapshot) {
                         if (snapshot.data ?? false) {
