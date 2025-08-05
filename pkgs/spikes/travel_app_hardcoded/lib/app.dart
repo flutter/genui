@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+
+import 'sdk_stubs/agent/agent.dart';
+import 'sdk_stubs/model/controller.dart';
+import 'sdk_stubs/model/image_catalog.dart';
+import 'sdk_stubs/model/input.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -10,8 +10,8 @@ import '../model/ui_models.dart';
 import 'conversation_widget.dart';
 import 'event_debouncer.dart';
 
-class ConversationManager {
-  ConversationManager(
+class GenUiManager {
+  GenUiManager.conversation(
     this.catalog,
     this.systemInstruction,
     this.llmConnection,

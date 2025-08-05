@@ -14,7 +14,11 @@ extension type _TextData.fromMap(Map<String, Object?> _json) {
 final text = CatalogItem(
   name: 'text',
   dataSchema: Schema.object(
-    properties: {'text': Schema.string(description: 'The text to display.')},
+    properties: {
+      'text': Schema.string(
+        description: 'The text to display. This does *not* support markdown.',
+      ),
+    },
   ),
   widgetBuilder:
       ({
