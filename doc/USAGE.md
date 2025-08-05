@@ -59,7 +59,7 @@ you want the generated user interface to render:
     final GenUiManager _genUiManager = GenUiManager.conversation();
     ```
 
-1. Update method `build` of the widget to render `_genUiManager.widget()`.
+1. Update the `build` method of the widget to render `_genUiManager.widget()`.
 
 1. In `initState` or in user event handler submit AI request:
 
