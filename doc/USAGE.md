@@ -53,7 +53,7 @@ to configure your Flutter project.
     ```
 
 1. Construct `GenUiManager` as a state member in a widget where
-you want GenUI to render:
+you want the generated user interface to render:
 
     ```dart
     final GenUiManager _genUiManager = GenUiManager.conversation();
