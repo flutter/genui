@@ -3,11 +3,6 @@
 This repository is a collection of packages and applications for
 the Flutter Generative UI SDK.
 
-## TODO before publishing
-
-1. Clean up Google internal information.
-2. Make colors and sizes consistent and organized in catalog.
-
 ## Packages
 
 TODO: describe packages
