@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 
 import 'generative_model_interface.dart';
 import 'llm_connection.dart';
@@ -22,6 +22,14 @@ typedef GenerativeModelFactory =
       List<Tool>? tools,
       ToolConfig? toolConfig,
     });
+
+enum GeminiModel {
+  flash('gemini-2.5-flash'),
+  pro('gemini-2.5-pro');
+
+  const GeminiModel(this.modelName);
+  final String modelName;
+}
 
 enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
 
@@ -61,7 +69,7 @@ class AiClient implements LlmConnection {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   AiClient({
-    this.model = 'gemini-2.5-flash',
+    GeminiModel model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -71,7 +79,7 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) {
+  }) : model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -88,7 +96,7 @@ class AiClient implements LlmConnection {
   @visibleForTesting
   AiClient.test({
     required this.modelCreator,
-    this.model = 'gemini-2.5-flash',
+    GeminiModel model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -97,7 +105,7 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) {
+  }) : model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -117,7 +125,7 @@ class AiClient implements LlmConnection {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  final String model;
+  final ValueNotifier<GeminiModel> model;
 
   /// The file system to use for accessing files.
   ///
@@ -211,6 +219,14 @@ class AiClient implements LlmConnection {
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
 
+  /// Switches the generative model used by this client.
+  ///
+  /// This method allows changing the underlying AI model dynamically.
+  void switchModel(GeminiModel newModel) {
+    model.value = newModel;
+    _log('Switched AI model to: ${newModel.modelName}');
+  }
+
   /// Generates structured content based on the provided prompts and output
   /// schema.
   ///
@@ -261,7 +277,7 @@ class AiClient implements LlmConnection {
   }) {
     return GenerativeModelWrapper(
       FirebaseAI.googleAI().generativeModel(
-        model: configuration.model,
+        model: configuration.model.value.modelName,
         systemInstruction: systemInstruction,
         tools: tools,
         toolConfig: toolConfig,
@@ -477,7 +493,7 @@ class AiClient implements LlmConnection {
       for (final call in functionCalls) {
         if (call.name == outputToolName) {
           try {
-            capturedResult = (call.args['parameters'] as Map)['output'] as T?;
+            capturedResult = call.args['output'] as T?;
           } catch (e, s) {
             _error('Unable to read output: $call [${call.args}]: $e', s);
           }

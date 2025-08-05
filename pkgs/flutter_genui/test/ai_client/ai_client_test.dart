@@ -56,9 +56,7 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'parameters': {
-                'output': {'key': 'value'},
-              },
+              'output': {'key': 'value'},
             }),
           ]),
           [],
@@ -106,9 +104,7 @@ void main() {
           Candidate(
             Content.model([
               FunctionCall('provideFinalOutput', {
-                'parameters': {
-                  'output': {'final': 'result'},
-                },
+                'output': {'final': 'result'},
               }),
             ]),
             [],
@@ -136,9 +132,7 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'parameters': {
-                'output': {'key': 'value'},
-              },
+              'output': {'key': 'value'},
             }),
           ]),
           [],
@@ -180,9 +174,7 @@ void main() {
           Candidate(
             Content.model([
               FunctionCall('provideFinalOutput', {
-                'parameters': {
-                  'output': {'final': 'result'},
-                },
+                'output': {'final': 'result'},
               }),
             ]),
             [],
@@ -240,7 +232,7 @@ void main() {
           Content.model([TextPart('unexpected text')]),
           [],
           null,
-          FinishReason.other,
+          FinishReason.stop,
           null,
         ),
       ], null);
@@ -287,9 +279,7 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'parameters': {
-                'output': {'key': 'value'},
-              },
+              'output': {'key': 'value'},
             }),
           ]),
           [],
@@ -320,9 +310,7 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'parameters': {
-                'output': {'key': 'value'},
-              },
+              'output': {'key': 'value'},
             }),
           ]),
           [],

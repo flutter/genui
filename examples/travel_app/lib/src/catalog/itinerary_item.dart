@@ -15,6 +15,7 @@ final _schema = Schema.object(
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
+  optionalProperties: ['imageChild'],
 );
 
 extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
@@ -32,7 +33,7 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
-  String get imageChild => _json['imageChild'] as String;
+  String? get imageChild => _json['imageChild'] as String?;
   String get detailText => _json['detailText'] as String;
 }
 
@@ -53,7 +54,9 @@ final itineraryItem = CatalogItem(
         return _ItineraryItem(
           title: itineraryItemData.title,
           subtitle: itineraryItemData.subtitle,
-          imageChild: buildChild(itineraryItemData.imageChild),
+          imageChild: itineraryItemData.imageChild != null
+              ? buildChild(itineraryItemData.imageChild!)
+              : null,
           detailText: itineraryItemData.detailText,
         );
       },
@@ -62,7 +65,7 @@ final itineraryItem = CatalogItem(
 class _ItineraryItem extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Widget imageChild;
+  final Widget? imageChild;
   final String detailText;
 
   const _ItineraryItem({
@@ -74,34 +77,37 @@ class _ItineraryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: SizedBox(height: 80, width: 80, child: imageChild),
-          ),
-          const SizedBox(width: 16.0),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 4.0),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 8.0),
-                Text(detailText, style: Theme.of(context).textTheme.bodyMedium),
-              ],
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: SizedBox(height: 80, width: 80, child: imageChild),
             ),
-          ),
-        ],
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 4.0),
+                  Text(subtitle, style: theme.textTheme.bodySmall),
+                  const SizedBox(height: 8.0),
+                  Text(detailText, style: theme.textTheme.bodyMedium),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

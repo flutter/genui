@@ -6,27 +6,38 @@ final _schema = Schema.object(
   properties: {
     'chipLabel': Schema.string(
       description:
-          'The title of the filter chip e.g. "budget" or "activity type" etc',
+          'The title of the filter chip e.g. "budget" or "activity type" '
+          'etc',
     ),
     'options': Schema.array(
       description:
           '''The list of options that the user can choose from. There should be at least three of these.''',
       items: Schema.string(),
     ),
+    'iconChild': Schema.string(
+      description:
+          'An icon to display on the left of the chip. '
+          'This should be an icon widget. Always use this if there is a '
+          'relevant icon.',
+    ),
   },
+  optionalProperties: ['iconChild'],
 );
 
 extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
   factory _OptionsFilterChipData({
     required String chipLabel,
     required List<String> options,
+    String? iconChild,
   }) => _OptionsFilterChipData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
+    if (iconChild != null) 'iconChild': iconChild,
   });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
+  String? get iconChild => _json['iconChild'] as String?;
 }
 
 final optionsFilterChip = CatalogItem(
@@ -48,6 +59,9 @@ final optionsFilterChip = CatalogItem(
           options: optionsFilterChipData.options,
           widgetId: id,
           dispatchEvent: dispatchEvent,
+          iconChild: optionsFilterChipData.iconChild != null
+              ? buildChild(optionsFilterChipData.iconChild!)
+              : null,
         );
       },
 );
@@ -58,11 +72,13 @@ class _OptionsFilterChip extends StatefulWidget {
     required this.options,
     required this.widgetId,
     required this.dispatchEvent,
+    this.iconChild,
   });
 
   final String initialChipLabel;
   final List<String> options;
   final String widgetId;
+  final Widget? iconChild;
   final void Function({
     required String widgetId,
     required String eventType,
@@ -86,6 +102,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
   @override
   Widget build(BuildContext context) {
     return FilterChip(
+      avatar: widget.iconChild,
       label: Text(_currentChipLabel),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -115,7 +132,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                           });
                           widget.dispatchEvent(
                             widgetId: widget.widgetId,
-                            eventType: 'optionSelected',
+                            eventType: 'filterOptionSelected',
                             value: newValue,
                           );
                           Navigator.pop(context);

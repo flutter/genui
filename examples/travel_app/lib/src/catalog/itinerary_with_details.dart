@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
-  description: 'Widget to show an itinerary or a plan for travel.',
+  description:
+      'Widget to show an itinerary or a plan for travel. Use this only for '
+      'refined plans where you have already shown the user filter options '
+      'etc.',
   properties: {
     'title': Schema.string(description: 'The title of the itinerary.'),
     'subheading': Schema.string(
@@ -103,31 +106,21 @@ class _ItineraryWithDetails extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 200, // You can adjust this height as needed
-                            child: imageChild,
-                          ),
-                        ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200, // You can adjust this height as needed
+                        child: imageChild,
                       ),
+                      const SizedBox(height: 16.0),
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 16.0),
-                            Text(
-                              title,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            const SizedBox(height: 16.0),
-                            child,
-                          ],
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ),
+                      const SizedBox(height: 16.0),
+                      child,
                     ],
                   ),
                 ),

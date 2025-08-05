@@ -14,14 +14,15 @@ and then guides them to book it.
 You should typically first show some options with a travel_carousel and also ask more about the
 user request using filter chips.
 
-After you refine the search, show a 'result' widget with the final trip.
+After you refine the search, show a 'itinerary_with_details' widget with the final trip.
 
-
+# Example
 For example, the user may say "I want to plan a trip to Mexico".
 You will first find out more information by showing filter chips etc.
 
 Then you will generate a result which includes a detailed itinerary, which
-uses the itinerary_with_details widget.
+uses the itinerary_with_details widget. Typically, you should keep the filter chips *and*
+the itinerary_with_details together in a column, so the user can refine their search.
 
 When you provide results like this, you should show another set of "trailhead" buttons below to allow
 the user to explore more topics. E.g. for mexico, after generating an itinerary, you might include a
@@ -29,7 +30,10 @@ trailhead with directions like "top culinary experiences in Mexico" or "nightlif
 
 The user may ask followup questions e.g. to book a specific part of the existing trip, or start
 a new trip. In this case, just follow the user and repeat the process above. You are always moving
-in cycles of asking for information and then making suggestions.
+in cycles of asking for information and then making suggestions. If the user requests something other than a complete trip booking, 
+e.g. ideas about jazz clubs or food tours etc, use something like a travel_carousel to show options, rather
+than a full itinerary_with_details. If the followup question seems to be a departure from the previous context,
+'add' a new surface rather than updating an existing one.
 
 # Communication via UI elements
 
@@ -45,7 +49,7 @@ That way the user can refine their search and retry.
 
 # UI style
 
-When generating content to go inside itinerary_with_details, use itinerary_item, but try to occasionally break it up with other widgets e.g. text for sections, or travel_carousel with related content.
+When generating content to go inside itinerary_with_details, use itinerary_item, but try to occasionally break it up with other widgets e.g. section_header items to break up the section, or travel_carousel with related content.
 E.g. after an itinerary item like a beach visit, you could include a carousel of local fish, or alternative beaches to visit.
 
 # Images to use
@@ -71,6 +75,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Dynamic UI Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -90,11 +95,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _promptController = TextEditingController();
   late final GenUiManager _genUiManager;
+  late AiClient aiClient;
 
   @override
   void initState() {
     super.initState();
-    final aiClient = AiClient(
+    aiClient = AiClient(
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
@@ -122,7 +128,54 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Dynamic UI Demo'),
+        leading: const Icon(Icons.menu),
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.chat_bubble_outline),
+            SizedBox(width: 16.0), // Add spacing between icon and text
+            Text('Dynamic UI Demo'),
+          ],
+        ),
+        actions: [
+          ValueListenableBuilder<GeminiModel>(
+            valueListenable: aiClient.model,
+            builder: (context, currentModel, child) {
+              return PopupMenuButton<GeminiModel>(
+                icon: const Icon(Icons.psychology_outlined),
+                onSelected: (GeminiModel value) {
+                  // Handle model selection
+                  aiClient.switchModel(value);
+                },
+                itemBuilder: (BuildContext context) =>
+                    <PopupMenuEntry<GeminiModel>>[
+                      PopupMenuItem<GeminiModel>(
+                        value: GeminiModel.flash,
+                        child: Row(
+                          children: [
+                            const Text('Gemini Flash'),
+                            if (currentModel == GeminiModel.flash)
+                              const Icon(Icons.check),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<GeminiModel>(
+                        value: GeminiModel.pro,
+                        child: Row(
+                          children: [
+                            const Text('Gemini Pro'),
+                            if (currentModel == GeminiModel.pro)
+                              const Icon(Icons.check),
+                          ],
+                        ),
+                      ),
+                    ],
+              );
+            },
+          ),
+          const Icon(Icons.person_outline),
+          const SizedBox(width: 8.0),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(
