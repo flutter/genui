@@ -5,8 +5,8 @@
 import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/src/core/genui_manager.dart';
 import 'package:flutter_genui/src/core/core_catalog.dart';
+import 'package:flutter_genui/src/core/genui_manager.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../fake_ai_client.dart';
 
 void main() {
-  group('ConversationManager', () {
+  group('$GenUiManager', () {
     late GenUiManager manager;
     late FakeAiClient fakeAiClient;
 
