@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
+import 'src/asset_images.dart';
 import 'src/catalog.dart';
-import 'src/images.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +19,7 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
+  _imagesJson = await assetImageCatalogJson();
   runApp(const MyApp());
 }
 
@@ -177,6 +178,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+late final String _imagesJson;
+
 final systemPrompt =
     '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
 and then guides them to book it.
@@ -222,8 +225,7 @@ That way the user can refine their search and retry.
 When generating content to go inside itinerary_with_details, use itinerary_item, but try to occasionally break it up with other widgets e.g. section_header items to break up the section, or travel_carousel with related content.
 E.g. after an itinerary item like a beach visit, you could include a carousel of local fish, or alternative beaches to visit.
 
-# Images to use
-
-If you need to use any image URLs, try to find the most relevant ones from the following data:
-$imagesJson
+If you need to use any images, try to find the most relevant ones from the following
+asset images:
+$_imagesJson
 ''';
