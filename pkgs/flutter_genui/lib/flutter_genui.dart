@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 export 'src/ai_client/ai_client.dart';
 export 'src/ai_client/llm_connection.dart';
 export 'src/catalog/core_widgets/checkbox_group.dart';

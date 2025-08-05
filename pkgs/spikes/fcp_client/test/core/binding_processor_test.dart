@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:fcp_client/src/core/binding_processor.dart';
 import 'package:fcp_client/src/core/data_type_validator.dart';
 import 'package:fcp_client/src/core/fcp_state.dart';

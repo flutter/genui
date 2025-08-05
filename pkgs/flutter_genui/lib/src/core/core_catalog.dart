@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import '../catalog/core_widgets/checkbox_group.dart';
 import '../catalog/core_widgets/column.dart';
 import '../catalog/core_widgets/elevated_button.dart';

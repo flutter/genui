@@ -1,3 +1,7 @@
+# Copyright 2025 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
 name: Flutter GenUI CI
@@ -83,7 +87,7 @@ jobs:
 
           echo "matrix=$JSON_MATRIX" >> $GITHUB_OUTPUT
 
-  analyze_and_test:
+analyze_and_test:
     needs: matrix
     # Only run if the matrix job has produced a non-empty matrix.
     if: github.repository == 'flutter/genui' && ${{ needs.matrix.outputs.matrix != '[]' }}
