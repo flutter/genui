@@ -50,9 +50,3 @@ To run this application, you will need to have the Flutter SDK installed and a F
 ## The UI Schema
 
 The contract between the AI model and the Flutter client is defined in `lib/src/ui_schema.dart`. This file contains a `Schema` object that details the expected structure of the JSON UI definition, including the available widget types and their supported properties. This schema is crucial for ensuring the model generates valid and renderable UI.
-
-## Contributing
-
-Read our [Contributor Guide] for contributing to the Flutter repos.
-
-[Contributor Guide]: https://github.com/flutter/flutter/blob/master/docs/contributing/README.md

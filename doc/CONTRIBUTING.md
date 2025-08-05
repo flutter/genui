@@ -32,9 +32,6 @@ Guidances:
 * https://firebase.google.com/docs/ai-logic/get-started?platform=flutter&api=vertex#prereqs
 * https://firebase.google.com/docs/flutter/setup
 
-See the project's `fluttergenui` details
-[here](https://pantheon.corp.google.com/welcome?inv=1&invt=Ab4FMw&project=fluttergenui).
-
 ## Shell scripts
 
 To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
