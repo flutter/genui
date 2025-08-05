@@ -1,6 +1,6 @@
 # GenUI Usage
 
-This document explains how to enable GenUI for your
+This guidance explains how to enable GenUI for your
 [Flutter project](https://docs.flutter.dev/reference/create-new-app).
 
 ## Getting Started
