@@ -82,6 +82,7 @@ class _OptionsFilterChip extends StatefulWidget {
   final void Function({
     required String widgetId,
     required String eventType,
+    required bool isSubmit,
     required Object? value,
   })
   dispatchEvent;
@@ -133,6 +134,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                           widget.dispatchEvent(
                             widgetId: widget.widgetId,
                             eventType: 'filterOptionSelected',
+                            isSubmit: false,
                             value: newValue,
                           );
                           Navigator.pop(context);

@@ -52,6 +52,7 @@ class _Trailhead extends StatelessWidget {
   final void Function({
     required String widgetId,
     required String eventType,
+    required bool isSubmit,
     required Object? value,
   })
   dispatchEvent;
@@ -70,6 +71,7 @@ class _Trailhead extends StatelessWidget {
               dispatchEvent(
                 widgetId: widgetId,
                 eventType: 'trailheadTopicSelected',
+                isSubmit: true,
                 value: topic,
               );
             },

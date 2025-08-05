@@ -33,7 +33,13 @@ void main() {
                       }
                       return const Text('Child Content');
                     },
-                    dispatchEvent: ({widgetId = '', eventType = '', value}) {},
+                    dispatchEvent:
+                        ({
+                          required String widgetId,
+                          required String eventType,
+                          required bool isSubmit,
+                          Object? value,
+                        }) {},
                     context: context,
                   );
                 },
@@ -74,7 +80,13 @@ void main() {
                       }
                       return const Text('Modal Child Content');
                     },
-                    dispatchEvent: ({widgetId = '', eventType = '', value}) {},
+                    dispatchEvent:
+                        ({
+                          required String widgetId,
+                          required String eventType,
+                          required bool isSubmit,
+                          Object? value,
+                        }) {},
                     context: context,
                   );
                 },

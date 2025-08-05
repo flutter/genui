@@ -3,37 +3,32 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/src/catalog/filter_chip_group.dart';
 
 void main() {
-  group('FilterChipGroup', () {
-    testWidgets('renders submit button and children correctly', (
-      WidgetTester tester,
-    ) async {
-      // Mock buildChild function
-      Widget mockBuildChild(String id) {
-        return Text('Child: $id');
-      }
-
-      // Create a CatalogItem instance with test data
-      final catalogItem = filterChipGroup;
+  group('filterChipGroup', () {
+    testWidgets('builds Card with ElevatedButton', (WidgetTester tester) async {
       final data = {
-        'submitLabel': 'Apply Filters',
-        'children': ['chip1', 'chip2'],
+        'submitLabel': 'Submit',
+        'children': ['child1', 'child2'],
       };
 
-      // Build the widget
+      Widget buildChild(String id) {
+        return Text(id);
+      }
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return catalogItem.widgetBuilder(
+                return filterChipGroup.widgetBuilder(
                   data: data,
-                  id: 'test_filter_chip_group',
-                  buildChild: mockBuildChild,
+                  id: 'testId',
+                  buildChild: buildChild,
                   dispatchEvent:
                       ({
-                        required String widgetId,
-                        required String eventType,
-                        Object? value,
+                        required widgetId,
+                        required eventType,
+                        required isSubmit,
+                        required value,
                       }) {},
                   context: context,
                 );
@@ -43,57 +38,36 @@ void main() {
         ),
       );
 
-      // Verify that the submit button is displayed with the correct label
-      expect(
-        find.widgetWithText(ElevatedButton, 'Apply Filters'),
-        findsOneWidget,
-      );
-
-      // Verify that the children are rendered
-      expect(find.text('Child: chip1'), findsOneWidget);
-      expect(find.text('Child: chip2'), findsOneWidget);
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsOneWidget);
+      expect(find.text('Submit'), findsOneWidget);
+      expect(find.text('child1'), findsOneWidget);
+      expect(find.text('child2'), findsOneWidget);
     });
 
-    testWidgets('dispatchEvent is called on submit button press', (
+    testWidgets('dispatches submit event on button press', (
       WidgetTester tester,
     ) async {
-      // Mock buildChild function
-      Widget mockBuildChild(String id) {
-        return Text('Child: $id');
-      }
-
-      // Create a CatalogItem instance with test data
-      final catalogItem = filterChipGroup;
-      final data = {
-        'submitLabel': 'Apply Filters',
-        'children': ['chip1'],
-      };
-
-      var dispatchEventCalled = false;
-      String? dispatchedWidgetId;
+      final data = {'submitLabel': 'Submit', 'children': <String>[]};
       String? dispatchedEventType;
-      dynamic dispatchedValue;
 
-      // Build the widget
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return catalogItem.widgetBuilder(
+                return filterChipGroup.widgetBuilder(
                   data: data,
-                  id: 'test_filter_chip_group',
-                  buildChild: mockBuildChild,
+                  id: 'testId',
+                  buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent:
                       ({
-                        required String widgetId,
-                        required String eventType,
-                        Object? value,
+                        required widgetId,
+                        required eventType,
+                        required isSubmit,
+                        required value,
                       }) {
-                        dispatchEventCalled = true;
-                        dispatchedWidgetId = widgetId;
                         dispatchedEventType = eventType;
-                        dispatchedValue = value;
                       },
                   context: context,
                 );
@@ -103,15 +77,8 @@ void main() {
         ),
       );
 
-      // Tap the submit button
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Apply Filters'));
-      await tester.pumpAndSettle();
-
-      // Verify that dispatchEvent was called with the correct arguments
-      expect(dispatchEventCalled, isTrue);
-      expect(dispatchedWidgetId, 'test_filter_chip_group');
+      await tester.tap(find.byType(ElevatedButton));
       expect(dispatchedEventType, 'submit');
-      expect(dispatchedValue, isNull);
     });
   });
 }

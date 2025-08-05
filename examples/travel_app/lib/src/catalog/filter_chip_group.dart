@@ -61,6 +61,7 @@ final filterChipGroup = CatalogItem(
                   onPressed: () => dispatchEvent(
                     widgetId: id,
                     eventType: 'submit',
+                    isSubmit: true,
                     value: null,
                   ),
                   child: Text(submitLabel),

@@ -1,5 +1,3 @@
-
-
 import '../model/ui_models.dart';
 
 typedef SendEventsCallback = void Function(List<UiEvent> events);

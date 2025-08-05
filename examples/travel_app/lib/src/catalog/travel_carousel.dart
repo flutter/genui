@@ -100,6 +100,7 @@ class _TravelCarousel extends StatelessWidget {
   final void Function({
     required String widgetId,
     required String eventType,
+    required bool isSubmit,
     required Object? value,
   })
   dispatchEvent;
@@ -147,6 +148,7 @@ class _TravelCarouselItem extends StatelessWidget {
   final void Function({
     required String widgetId,
     required String eventType,
+    required bool isSubmit,
     required Object? value,
   })
   dispatchEvent;
@@ -160,6 +162,7 @@ class _TravelCarouselItem extends StatelessWidget {
           dispatchEvent(
             widgetId: widgetId,
             eventType: 'itemSelected',
+            isSubmit: true,
             value: data.title,
           );
         },
