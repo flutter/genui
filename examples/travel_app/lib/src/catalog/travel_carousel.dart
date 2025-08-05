@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:ui';
 
 import 'package:firebase_ai/firebase_ai.dart';
@@ -97,12 +101,7 @@ class _TravelCarousel extends StatelessWidget {
 
   final List<_TravelCarouselItemData> items;
   final String widgetId;
-  final void Function({
-    required String widgetId,
-    required String eventType,
-    required Object? value,
-  })
-  dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -144,12 +143,7 @@ class _TravelCarouselItem extends StatelessWidget {
 
   final _TravelCarouselItemData data;
   final String widgetId;
-  final void Function({
-    required String widgetId,
-    required String eventType,
-    required Object? value,
-  })
-  dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -158,9 +152,11 @@ class _TravelCarouselItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           dispatchEvent(
-            widgetId: widgetId,
-            eventType: 'itemSelected',
-            value: data.title,
+            UiActionEvent(
+              widgetId: widgetId,
+              eventType: 'itemSelected',
+              value: data.title,
+            ),
           );
         },
         borderRadius: BorderRadius.circular(10.0),

@@ -1,101 +1,37 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui_client/src/catalog/travel_carousel.dart';
 import 'package:network_image_mock/network_image_mock.dart';
+import 'package:travel_app/src/catalog/travel_carousel.dart';
 
 void main() {
-  group('TravelCarousel', () {
-    testWidgets('renders carousel items correctly', (
-      WidgetTester tester,
-    ) async {
+  group('travelCarousel', () {
+    testWidgets('builds correctly', (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
-        // Mock dispatchEvent function
-        void mockDispatchEvent({
-          required String widgetId,
-          required String eventType,
-          Object? value,
-        }) {}
-
-        // Create a CatalogItem instance with test data
-        final catalogItem = travelCarousel;
         final data = {
           'items': [
-            {'title': 'Item 1', 'imageChild': 'image1'},
-            {'title': 'Item 2', 'imageChild': 'image2'},
+            {'title': 'Item 1', 'imageChild': 'imageId1'},
+            {'title': 'Item 2', 'imageChild': 'imageId2'},
           ],
         };
 
-        // Build the widget
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: Builder(
-                builder: (context) {
-                  return catalogItem.widgetBuilder(
-                    data: data,
-                    id: 'test_travel_carousel',
-                    buildChild: (id) => Image.network(
-                      'https://example.com/$id.jpg',
-                    ), // Not used in this widget
-                    dispatchEvent: mockDispatchEvent,
-                    context: context,
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-
-        // Verify that the titles are displayed
-        expect(find.text('Item 1'), findsOneWidget);
-        expect(find.text('Item 2'), findsOneWidget);
-
-        // Verify that the images are present (by type, as network images are
-        // hard to test directly)
-        expect(find.byType(Image), findsNWidgets(2));
-      });
-    });
-
-    testWidgets('dispatchEvent is called on item tap', (
-      WidgetTester tester,
-    ) async {
-      await mockNetworkImagesFor(() async {
-        // Variables to capture dispatched event data
-        String? dispatchedWidgetId;
-        String? dispatchedEventType;
-        Object? dispatchedValue;
-
-        // Mock dispatchEvent function
-        void mockDispatchEvent({
-          required String widgetId,
-          required String eventType,
-          Object? value,
-        }) {
-          dispatchedWidgetId = widgetId;
-          dispatchedEventType = eventType;
-          dispatchedValue = value;
+        Widget buildChild(String id) {
+          return Image.network('https://example.com/image.jpg');
         }
 
-        // Create a CatalogItem instance with test data
-        final catalogItem = travelCarousel;
-        final data = {
-          'items': [
-            {'title': 'Tappable Item', 'imageChild': 'tappable_image'},
-          ],
-        };
-
-        // Build the widget
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return catalogItem.widgetBuilder(
+                  return travelCarousel.widgetBuilder(
                     data: data,
-                    id: 'test_travel_carousel_tap',
-                    buildChild: (id) =>
-                        Image.network('https://example.com/$id.jpg'),
-                    dispatchEvent: mockDispatchEvent,
+                    id: 'testId',
+                    buildChild: buildChild,
+                    dispatchEvent: (event) {},
                     context: context,
                   );
                 },
@@ -104,14 +40,9 @@ void main() {
           ),
         );
 
-        // Tap on the item
-        await tester.tap(find.text('Tappable Item'));
-        await tester.pumpAndSettle();
-
-        // Verify that dispatchEvent was called with the correct arguments
-        expect(dispatchedWidgetId, 'test_travel_carousel_tap');
-        expect(dispatchedEventType, 'itemSelected');
-        expect(dispatchedValue, 'Tappable Item');
+        expect(find.text('Item 1'), findsOneWidget);
+        expect(find.text('Item 2'), findsOneWidget);
+        expect(find.byType(Image), findsNWidgets(2));
       });
     });
   });

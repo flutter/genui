@@ -1,30 +1,32 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../ai_client/ai_client.dart';
 import '../ai_client/llm_connection.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import 'conversation_widget.dart';
-import 'event_debouncer.dart';
+import 'ui_event_manager.dart';
 
 class GenUiManager {
-  GenUiManager.conversation({
-    LlmConnection? llmConnection,
-    this.catalog = const Catalog([]),
-    this.instruction = '',
-  }) {
-    this.llmConnection = llmConnection ?? AiClient();
-    _eventDebouncer = EventDebouncer(callback: handleEvents);
+  GenUiManager.conversation(
+    this.catalog,
+    this.systemInstruction,
+    this.llmConnection,
+  ) {
+    _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
-  final String instruction;
-  late final LlmConnection llmConnection;
-  late final EventDebouncer _eventDebouncer;
+  final String systemInstruction;
+  final LlmConnection llmConnection;
+  late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences
   final masterConversation = <Content>[];
@@ -49,7 +51,7 @@ class GenUiManager {
   void dispose() {
     _uiDataStreamController.close();
     _loadingStreamController.close();
-    _eventDebouncer.dispose();
+    _eventManager.dispose();
   }
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
@@ -68,7 +70,10 @@ class GenUiManager {
   void handleEvents(List<UiEvent> events) {
     final eventsBySurface = <String, List<UiEvent>>{};
     for (final event in events) {
-      (eventsBySurface[event.surfaceId] ??= []).add(event);
+      final surfaceId = event.surfaceId;
+      if (surfaceId != null) {
+        (eventsBySurface[surfaceId] ??= []).add(event);
+      }
     }
 
     for (final entry in eventsBySurface.entries) {
@@ -112,7 +117,7 @@ class GenUiManager {
       final response = await llmConnection.generateContent(
         conversation,
         outputSchema,
-        systemInstruction: Content.system(instruction),
+        systemInstruction: Content.system(systemInstruction),
       );
       if (response == null) {
         return;
@@ -124,7 +129,13 @@ class GenUiManager {
       if (responseMap['actions'] case final List<Object?> actions) {
         for (final actionMap in actions.cast<Map<String, Object?>>()) {
           final action = actionMap['action'] as String;
-          final surfaceId = actionMap['surfaceId'] as String;
+          final surfaceId = actionMap['surfaceId'] as String?;
+          if (surfaceId == null) {
+            throw FormatException(
+              'surfaceId is required for all actions. This action is missing '
+              'it: $actionMap',
+            );
+          }
           switch (action) {
             case 'add':
               final definition =
@@ -163,7 +174,6 @@ class GenUiManager {
       }
       _uiDataStreamController.add(List.from(_chatHistory));
     } catch (e) {
-      // TODO: better error handling
       print('Error generating content: $e');
       _chatHistory.add(SystemMessage(text: 'Error: $e'));
       _uiDataStreamController.add(List.from(_chatHistory));
@@ -247,7 +257,7 @@ class GenUiManager {
           messages: snapshot.data!,
           catalog: catalog,
           onEvent: (event) {
-            _eventDebouncer.add(UiEvent.fromMap(event));
+            _eventManager.add(UiEvent.fromMap(event));
           },
         );
       },

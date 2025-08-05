@@ -1,7 +1,12 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/ui_models.dart';
 
 final _schema = Schema.object(
   properties: {
@@ -99,9 +104,11 @@ final checkboxGroup = CatalogItem(
           labels: checkboxData.labels,
           onChanged: (newValues) {
             dispatchEvent(
-              widgetId: id,
-              eventType: 'onChanged',
-              value: newValues,
+              UiChangeEvent(
+                widgetId: id,
+                eventType: 'onChanged',
+                value: newValues,
+              ),
             );
           },
         );

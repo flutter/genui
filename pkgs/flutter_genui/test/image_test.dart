@@ -1,5 +1,10 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/src/catalog/core_widgets/image.dart';
+import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
@@ -19,12 +24,7 @@ void main() {
                 },
                 id: 'test_image',
                 buildChild: (String id) => const SizedBox(),
-                dispatchEvent:
-                    ({
-                      required String widgetId,
-                      required String eventType,
-                      Object? value,
-                    }) {},
+                dispatchEvent: (UiEvent event) {},
                 context: context,
               ),
             ),
