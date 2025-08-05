@@ -59,7 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _genUiManager = GenUiManager.conversation(catalog, systemPrompt, aiClient);
+    _genUiManager = GenUiManager.conversation(
+      catalog: catalog,
+      instruction: prompt,
+      llmConnection: aiClient,
+    );
   }
 
   @override
@@ -180,7 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 late final String _imagesJson;
 
-final systemPrompt =
+final prompt =
     '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
 and then guides them to book it.
 

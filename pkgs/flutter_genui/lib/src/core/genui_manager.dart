@@ -7,25 +7,23 @@ import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../ai_client/llm_connection.dart';
-import '../model/catalog.dart';
+import '../../flutter_genui.dart';
 import '../model/chat_message.dart';
-import '../model/ui_models.dart';
 import 'conversation_widget.dart';
-import 'ui_event_manager.dart';
 
 class GenUiManager {
-  GenUiManager.conversation(
-    this.catalog,
-    this.systemInstruction,
-    this.llmConnection,
-  ) {
+  GenUiManager.conversation({
+    LlmConnection? llmConnection,
+    this.catalog = const Catalog([]),
+    this.instruction = '',
+  }) {
+    this.llmConnection = llmConnection ?? AiClient();
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
-  final String systemInstruction;
-  final LlmConnection llmConnection;
+  final String instruction;
+  late final LlmConnection llmConnection;
   late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences
@@ -117,7 +115,7 @@ class GenUiManager {
       final response = await llmConnection.generateContent(
         conversation,
         outputSchema,
-        systemInstruction: Content.system(systemInstruction),
+        systemInstruction: Content.system(instruction),
       );
       if (response == null) {
         return;
