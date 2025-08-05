@@ -8,6 +8,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/ui_models.dart';
 
 final _schema = Schema.object(
   properties: {
@@ -106,9 +107,11 @@ final radioGroup = CatalogItem(
           onChanged: (newValue) {
             if (newValue != null) {
               dispatchEvent(
-                widgetId: id,
-                eventType: 'onChanged',
-                value: newValue,
+                UiChangeEvent(
+                  widgetId: id,
+                  eventType: 'onChanged',
+                  value: newValue,
+                ),
               );
             }
           },

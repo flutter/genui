@@ -43,12 +43,7 @@ void main() {
                         data: data,
                         id: 'test_tabbed_sections',
                         buildChild: mockBuildChild,
-                        dispatchEvent:
-                            ({
-                              required String widgetId,
-                              required String eventType,
-                              Object? value,
-                            }) {},
+                        dispatchEvent: (event) {},
                         context: context,
                       );
                     },
@@ -109,12 +104,7 @@ void main() {
                       data: data,
                       id: 'test_tabbed_sections_height',
                       buildChild: mockBuildChild,
-                      dispatchEvent:
-                          ({
-                            required String widgetId,
-                            required String eventType,
-                            Object? value,
-                          }) {},
+                      dispatchEvent: (event) {},
                       context: context,
                     );
                   },

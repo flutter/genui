@@ -12,6 +12,7 @@ import 'catalog/section_header.dart';
 import 'catalog/tabbed_sections.dart';
 import 'catalog/trailhead.dart';
 import 'catalog/travel_carousel.dart';
+import 'catalog/travel_icon.dart';
 
 final catalog = Catalog([
   elevatedButtonCatalogItem,
@@ -29,4 +30,5 @@ final catalog = Catalog([
   sectionHeaderCatalogItem,
   trailheadCatalogItem,
   image,
+  travelIcon,
 ]);

@@ -29,12 +29,7 @@ void main() {
                   buildChild: (id) => Image.network(
                     'https://example.com/thumbnail.jpg',
                   ), // Mock buildChild
-                  dispatchEvent:
-                      ({
-                        required widgetId,
-                        required eventType,
-                        required value,
-                      }) {}, // Mock dispatchEvent
+                  dispatchEvent: (event) {}, // Mock dispatchEvent
                   context: context,
                 );
               },

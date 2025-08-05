@@ -8,6 +8,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/ui_models.dart';
 
 final _schema = Schema.object(
   properties: {
@@ -41,8 +42,13 @@ final elevatedButtonCatalogItem = CatalogItem(
         );
         final child = buildChild(buttonData.child);
         return ElevatedButton(
-          onPressed: () =>
-              dispatchEvent(widgetId: id, eventType: 'onTap', value: null),
+          onPressed: () => dispatchEvent(
+            UiActionEvent(
+              widgetId: id,
+              eventType: 'onTap',
+              value: null,
+            ),
+          ),
           child: child,
         );
       },
