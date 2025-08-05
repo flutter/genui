@@ -7,26 +7,24 @@ class UiEventManager {
 
   final SendEventsCallback callback;
 
-  final List<UiEvent> _eventQueue = [];
-  final Map<String, UiEvent> _coalescedEvents = {};
+  final Map<String, Map<String, UiEvent>> _coalescedEvents = {};
 
   void add(UiEvent event) {
-    // Coalesce events that happen rapidly and only the last value matters.
-    if (event.eventType == 'onChanged') {
-      _coalescedEvents[event.widgetId] = event;
+    if (!event.isAction) {
+      // Coalesce events that don't signal a terminating action. Only the last
+      // value for each event type matters.
+      _coalescedEvents[event.widgetId] ??= <String, UiEvent>{};
+      _coalescedEvents[event.widgetId]![event.eventType] = event;
     } else {
-      // For other events (like onTap), we want to keep all of them.
-      _eventQueue.add(event);
-    }
-
-    if (event.isAction) {
-      _send();
+      _send(event);
     }
   }
 
-  void _send() {
-    final events = <UiEvent>[..._eventQueue, ..._coalescedEvents.values];
-    _eventQueue.clear();
+  void _send(UiEvent triggerAction) {
+    final events = <UiEvent>[
+      triggerAction,
+      ..._coalescedEvents.values.expand((event) => event.values),
+    ];
     _coalescedEvents.clear();
     if (events.isNotEmpty) {
       // Sort by timestamp to maintain order for non-coalesced events.
@@ -36,7 +34,6 @@ class UiEventManager {
   }
 
   void dispose() {
-    _eventQueue.clear();
     _coalescedEvents.clear();
   }
 }
