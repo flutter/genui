@@ -16,7 +16,7 @@ final _schema = Schema.object(
           'imageChild': Schema.string(
             description:
                 'The ID of the image widget to display. The image fit should '
-                "typically be 'cover'",
+                'typically be \'cover\'',
           ),
         },
       ),
@@ -135,7 +135,7 @@ class _TravelCarouselItemData {
   _TravelCarouselItemData({required this.title, required this.imageChild});
 }
 
-class _TravelCarouselItem extends StatefulWidget {
+class _TravelCarouselItem extends StatelessWidget {
   const _TravelCarouselItem({
     required this.data,
     required this.widgetId,
@@ -152,62 +152,29 @@ class _TravelCarouselItem extends StatefulWidget {
   dispatchEvent;
 
   @override
-  State<_TravelCarouselItem> createState() => _TravelCarouselItemState();
-}
-
-class _TravelCarouselItemState extends State<_TravelCarouselItem> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _isPressed = true;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          _isPressed = false;
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          _isPressed = false;
-        });
-      },
-      onTap: () {
-        widget.dispatchEvent(
-          widgetId: widget.widgetId,
-          eventType: 'itemSelected',
-          value: widget.data.title,
-        );
-      },
-      child: SizedBox(
-        width: 190,
+    return SizedBox(
+      width: 190,
+      child: InkWell(
+        onTap: () {
+          dispatchEvent(
+            widgetId: widgetId,
+            eventType: 'itemSelected',
+            value: data.title,
+          );
+        },
+        borderRadius: BorderRadius.circular(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  _isPressed
-                      ? Colors.black.withValues(alpha: 0.4)
-                      : Colors.transparent,
-                  BlendMode.darken,
-                ),
-                child: SizedBox(
-                  height: 150,
-                  width: 190,
-                  child: widget.data.imageChild,
-                ),
-              ),
+              child: SizedBox(height: 150, width: 190, child: data.imageChild),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                widget.data.title,
+                data.title,
                 style: Theme.of(context).textTheme.titleMedium,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
