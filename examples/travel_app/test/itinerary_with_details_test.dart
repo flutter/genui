@@ -33,11 +33,16 @@ void main() {
                       }
                       return const Text('Child Content');
                     },
-                    dispatchEvent:
+                    dispatchActionEvent:
                         ({
                           required String widgetId,
                           required String eventType,
-                          required bool isAction,
+                          Object? value,
+                        }) {},
+                    dispatchChangeEvent:
+                        ({
+                          required String widgetId,
+                          required String eventType,
                           Object? value,
                         }) {},
                     context: context,
@@ -80,11 +85,16 @@ void main() {
                       }
                       return const Text('Modal Child Content');
                     },
-                    dispatchEvent:
+                    dispatchActionEvent:
                         ({
                           required String widgetId,
                           required String eventType,
-                          required bool isAction,
+                          Object? value,
+                        }) {},
+                    dispatchChangeEvent:
+                        ({
+                          required String widgetId,
+                          required String eventType,
                           Object? value,
                         }) {},
                     context: context,

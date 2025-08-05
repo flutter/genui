@@ -35,7 +35,8 @@ final filterChipGroup = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final filterChipGroupData = _FilterChipGroupData.fromMap(
@@ -58,10 +59,9 @@ final filterChipGroup = CatalogItem(
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: () => dispatchEvent(
+                  onPressed: () => dispatchActionEvent(
                     widgetId: id,
                     eventType: 'submit',
-                    isAction: true,
                     value: null,
                   ),
                   child: Text(submitLabel),

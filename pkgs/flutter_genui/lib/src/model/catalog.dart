@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
@@ -11,31 +15,44 @@ class Catalog {
 
   Widget buildWidget(
     Map<String, Object?>
-    data, // The actual deserialized JSON data for this layout
+        data, // The actual deserialized JSON data for this layout
     Widget Function(String id) buildChild,
     void Function({
       required String widgetId,
       required String eventType,
-      required bool isAction,
       required Object? value,
     })
-    dispatchEvent,
+        dispatchActionEvent,
+    void Function({
+      required String widgetId,
+      required String eventType,
+      required Object? value,
+    })
+        dispatchChangeEvent,
     BuildContext context,
   ) {
-    final widgetType = (data['widget'] as Map<String, Object?>).keys.first;
-    final item = items.firstWhereOrNull((item) => item.name == widgetType);
-    if (item == null) {
-      print('Item $widgetType was not found in catalog');
+    try {
+      final widgetData = data['widget'] as Map<String, Object?>?;
+      if (widgetData == null || widgetData.isEmpty) {
+        return Container();
+      }
+      final widgetType = widgetData.keys.first;
+      final item = items.firstWhereOrNull((item) => item.name == widgetType);
+      if (item == null) {
+        return Container();
+      }
+
+      return item.widgetBuilder(
+        data: widgetData[widgetType]!,
+        id: data['id'] as String,
+        buildChild: buildChild,
+        dispatchActionEvent: dispatchActionEvent,
+        dispatchChangeEvent: dispatchChangeEvent,
+        context: context,
+      );
+    } catch (e) {
       return Container();
     }
-
-    return item.widgetBuilder(
-      data: ((data as Map)['widget'] as Map<String, Object?>)[widgetType]!,
-      id: data['id'] as String,
-      buildChild: buildChild,
-      dispatchEvent: dispatchEvent,
-      context: context,
-    );
   }
 
   Schema get schema {

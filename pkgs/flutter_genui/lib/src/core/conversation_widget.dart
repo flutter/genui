@@ -14,7 +14,7 @@ class ConversationWidget extends StatelessWidget {
   });
 
   final List<ChatMessage> messages;
-  final void Function(Map<String, Object?> event) onEvent;
+  final void Function(UiEvent event) onEvent;
   final Catalog catalog;
 
   @override

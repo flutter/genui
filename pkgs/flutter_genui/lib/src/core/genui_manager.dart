@@ -47,7 +47,6 @@ class GenUiManager {
   void dispose() {
     _uiDataStreamController.close();
     _loadingStreamController.close();
-    _eventManager.dispose();
   }
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
@@ -245,7 +244,7 @@ class GenUiManager {
           messages: snapshot.data!,
           catalog: catalog,
           onEvent: (event) {
-            _eventManager.add(UiEvent.fromMap(event));
+            _eventManager.add(event);
           },
         );
       },

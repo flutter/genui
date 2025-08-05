@@ -23,11 +23,16 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: buildChild,
-                  dispatchEvent:
+                  dispatchActionEvent:
                       ({
                         required widgetId,
                         required eventType,
-                        required isAction,
+                        required value,
+                      }) {},
+                  dispatchChangeEvent:
+                      ({
+                        required widgetId,
+                        required eventType,
                         required value,
                       }) {},
                   context: context,
@@ -60,15 +65,20 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent:
+                  dispatchActionEvent:
                       ({
                         required widgetId,
                         required eventType,
-                        required isAction,
                         required value,
                       }) {
                         dispatchedEventType = eventType;
                       },
+                  dispatchChangeEvent:
+                      ({
+                        required widgetId,
+                        required eventType,
+                        required value,
+                      }) {},
                   context: context,
                 );
               },

@@ -29,7 +29,8 @@ final elevatedButtonCatalogItem = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final buttonData = _ElevatedButtonData.fromMap(
@@ -37,10 +38,9 @@ final elevatedButtonCatalogItem = CatalogItem(
         );
         final child = buildChild(buttonData.child);
         return ElevatedButton(
-          onPressed: () => dispatchEvent(
+          onPressed: () => dispatchActionEvent(
             widgetId: id,
             eventType: 'onTap',
-            isAction: true,
             value: null,
           ),
           child: child,

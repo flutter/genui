@@ -25,11 +25,16 @@ void main() {
                   buildChild: (id) => Image.network(
                     'https://example.com/thumbnail.jpg',
                   ), // Mock buildChild
-                  dispatchEvent:
+                  dispatchActionEvent:
                       ({
                         required widgetId,
                         required eventType,
-                        required bool isAction,
+                        required value,
+                      }) {},
+                  dispatchChangeEvent:
+                      ({
+                        required widgetId,
+                        required eventType,
                         required value,
                       }) {}, // Mock dispatchEvent
                   context: context,

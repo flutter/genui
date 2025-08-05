@@ -25,7 +25,8 @@ final text = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final textData = _TextData.fromMap(data as Map<String, Object?>);

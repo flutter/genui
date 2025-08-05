@@ -32,7 +32,8 @@ final travelCarousel = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final items = _TravelCarouselItemListData.fromMap(
@@ -48,7 +49,7 @@ final travelCarousel = CatalogItem(
               )
               .toList(),
           widgetId: id,
-          dispatchEvent: dispatchEvent,
+          dispatchActionEvent: dispatchActionEvent,
         );
       },
 );
@@ -92,7 +93,7 @@ class _TravelCarousel extends StatelessWidget {
   const _TravelCarousel({
     required this.items,
     required this.widgetId,
-    required this.dispatchEvent,
+    required this.dispatchActionEvent,
   });
 
   final List<_TravelCarouselItemData> items;
@@ -100,10 +101,9 @@ class _TravelCarousel extends StatelessWidget {
   final void Function({
     required String widgetId,
     required String eventType,
-    required bool isAction,
     required Object? value,
   })
-  dispatchEvent;
+  dispatchActionEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +119,7 @@ class _TravelCarousel extends StatelessWidget {
             return _TravelCarouselItem(
               data: items[index],
               widgetId: widgetId,
-              dispatchEvent: dispatchEvent,
+              dispatchActionEvent: dispatchActionEvent,
             );
           },
           separatorBuilder: (context, index) => const SizedBox(width: 16),
@@ -140,7 +140,7 @@ class _TravelCarouselItem extends StatelessWidget {
   const _TravelCarouselItem({
     required this.data,
     required this.widgetId,
-    required this.dispatchEvent,
+    required this.dispatchActionEvent,
   });
 
   final _TravelCarouselItemData data;
@@ -148,10 +148,9 @@ class _TravelCarouselItem extends StatelessWidget {
   final void Function({
     required String widgetId,
     required String eventType,
-    required bool isAction,
     required Object? value,
   })
-  dispatchEvent;
+  dispatchActionEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -159,10 +158,9 @@ class _TravelCarouselItem extends StatelessWidget {
       width: 190,
       child: InkWell(
         onTap: () {
-          dispatchEvent(
+          dispatchActionEvent(
             widgetId: widgetId,
             eventType: 'itemSelected',
-            isAction: true,
             value: data.title,
           );
         },

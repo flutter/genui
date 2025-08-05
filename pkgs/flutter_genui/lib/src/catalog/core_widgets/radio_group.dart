@@ -92,7 +92,8 @@ final radioGroup = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final radioData = _RadioGroupData.fromMap(data as Map<String, Object?>);
@@ -101,10 +102,9 @@ final radioGroup = CatalogItem(
           labels: radioData.labels,
           onChanged: (newValue) {
             if (newValue != null) {
-              dispatchEvent(
+              dispatchChangeEvent(
                 widgetId: id,
                 eventType: 'onChanged',
-                isAction: false,
                 value: newValue,
               );
             }

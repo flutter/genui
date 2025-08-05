@@ -36,7 +36,8 @@ final image = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final imageData = _ImageData.fromMap(data as Map<String, Object?>);

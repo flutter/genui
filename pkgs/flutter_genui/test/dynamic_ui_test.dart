@@ -43,7 +43,7 @@ void main() {
   });
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
-    Map<String, Object?>? event;
+    UiEvent? event;
 
     final definition = UiDefinition.fromMap({
       'surfaceId': 'testSurface',
@@ -80,8 +80,9 @@ void main() {
     await tester.tap(find.byType(ElevatedButton));
 
     expect(event, isNotNull);
-    expect(event!['surfaceId'], 'testSurface');
-    expect(event!['widgetId'], 'root');
-    expect(event!['eventType'], 'onTap');
+    expect(event, isA<UiActionEvent>());
+    expect(event!.surfaceId, 'testSurface');
+    expect(event!.widgetId, 'root');
+    expect(event!.eventType, 'onTap');
   });
 }

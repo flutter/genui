@@ -50,7 +50,8 @@ final tabbedSections = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchEvent,
+        required dispatchActionEvent,
+        required dispatchChangeEvent,
         required context,
       }) {
         final tabbedSectionsData = _TabbedSectionsData.fromMap(

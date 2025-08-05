@@ -12,11 +12,17 @@ typedef CatalogWidgetBuilder =
       required void Function({
         required String widgetId,
         required String eventType,
-        required bool isAction,
-        // TODO: Explain expected schema for [value].
         required Object? value,
       })
-      dispatchEvent, // A function used to dispatch an event.
+      // A function used to dispatch an event that triggers an action.
+      dispatchActionEvent,
+      required void Function({
+        required String widgetId,
+        required String eventType,
+        required Object? value,
+      })
+      // A function used to dispatch an event that changes state.
+      dispatchChangeEvent,
       required BuildContext context, // The build context.
     });
 
