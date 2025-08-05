@@ -14,7 +14,3 @@ export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/dynamic_ui.dart';
 export 'src/model/ui_models.dart';
-export 'src/to_merge/agent/agent.dart';
-export 'src/to_merge/model/controller.dart';
-export 'src/to_merge/model/image_catalog.dart';
-export 'src/to_merge/model/input.dart';
