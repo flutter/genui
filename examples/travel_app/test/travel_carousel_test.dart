@@ -27,13 +27,7 @@ void main() {
                     data: data,
                     id: 'testId',
                     buildChild: buildChild,
-                    dispatchEvent:
-                        ({
-                          required widgetId,
-                          required eventType,
-                          required isAction,
-                          required value,
-                        }) {},
+                    dispatchEvent: (event) {},
                     context: context,
                   );
                 },

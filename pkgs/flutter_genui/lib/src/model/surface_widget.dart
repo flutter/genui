@@ -34,21 +34,11 @@ class SurfaceWidget extends StatefulWidget {
 class _SurfaceWidgetState extends State<SurfaceWidget> {
   /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
   /// callback.
-  void _dispatchEvent({
-    required String widgetId,
-    required String eventType,
-    required bool isAction,
-    required Object? value,
-  }) {
-    final event = UiEvent(
-      surfaceId: widget.surfaceId,
-      widgetId: widgetId,
-      eventType: eventType,
-      isAction: isAction,
-      value: value,
-      timestamp: DateTime.now().toUtc(),
-    );
-    widget.onEvent(event.toMap());
+  void _dispatchEvent(UiEvent event) {
+    // The event comes in without a surfaceId, which we add here.
+    final eventMap = event.toMap();
+    eventMap['surfaceId'] = widget.surfaceId;
+    widget.onEvent(eventMap);
   }
 
   @override

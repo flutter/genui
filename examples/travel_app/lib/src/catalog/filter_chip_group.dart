@@ -59,10 +59,12 @@ final filterChipGroup = CatalogItem(
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () => dispatchEvent(
-                    widgetId: id,
-                    eventType: 'submit',
-                    isAction: true,
-                    value: null,
+                    UiEvent(
+                      widgetId: id,
+                      eventType: 'submit',
+                      isAction: true,
+                      value: null,
+                    ),
                   ),
                   child: Text(submitLabel),
                   style: ElevatedButton.styleFrom(

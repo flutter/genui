@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_client/src/catalog/filter_chip_group.dart';
 
@@ -23,13 +24,7 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: buildChild,
-                  dispatchEvent:
-                      ({
-                        required widgetId,
-                        required eventType,
-                        required isAction,
-                        required value,
-                      }) {},
+                  dispatchEvent: (UiEvent _) {},
                   context: context,
                 );
               },
@@ -60,15 +55,9 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent:
-                      ({
-                        required widgetId,
-                        required eventType,
-                        required isAction,
-                        required value,
-                      }) {
-                        dispatchedEventType = eventType;
-                      },
+                  dispatchEvent: (event) {
+                    dispatchedEventType = event.eventType;
+                  },
                   context: context,
                 );
               },

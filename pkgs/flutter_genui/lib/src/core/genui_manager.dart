@@ -66,7 +66,10 @@ class GenUiManager {
   void handleEvents(List<UiEvent> events) {
     final eventsBySurface = <String, List<UiEvent>>{};
     for (final event in events) {
-      (eventsBySurface[event.surfaceId] ??= []).add(event);
+      final surfaceId = event.surfaceId;
+      if (surfaceId != null) {
+        (eventsBySurface[surfaceId] ??= []).add(event);
+      }
     }
 
     for (final entry in eventsBySurface.entries) {
@@ -122,7 +125,13 @@ class GenUiManager {
       if (responseMap['actions'] case final List<Object?> actions) {
         for (final actionMap in actions.cast<Map<String, Object?>>()) {
           final action = actionMap['action'] as String;
-          final surfaceId = actionMap['surfaceId'] as String;
+          final surfaceId = actionMap['surfaceId'] as String?;
+          if (surfaceId == null) {
+            throw FormatException(
+              'surfaceId is required for all actions. This action is missing '
+              'it: $actionMap',
+            );
+          }
           switch (action) {
             case 'add':
               final definition =
@@ -161,7 +170,6 @@ class GenUiManager {
       }
       _uiDataStreamController.add(List.from(_chatHistory));
     } catch (e) {
-      // TODO: better error handling
       print('Error generating content: $e');
       _chatHistory.add(SystemMessage(text: 'Error: $e'));
       _uiDataStreamController.add(List.from(_chatHistory));

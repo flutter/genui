@@ -79,13 +79,7 @@ class _OptionsFilterChip extends StatefulWidget {
   final List<String> options;
   final String widgetId;
   final Widget? iconChild;
-  final void Function({
-    required String widgetId,
-    required String eventType,
-    required bool isAction,
-    required Object? value,
-  })
-  dispatchEvent;
+  final void Function(UiEvent event) dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -132,10 +126,12 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                             _currentChipLabel = newValue;
                           });
                           widget.dispatchEvent(
-                            widgetId: widget.widgetId,
-                            eventType: 'filterOptionSelected',
-                            isAction: false,
-                            value: newValue,
+                            UiEvent(
+                              widgetId: widget.widgetId,
+                              eventType: 'filterOptionSelected',
+                              isAction: false,
+                              value: newValue,
+                            ),
                           );
                           Navigator.pop(context);
                         }

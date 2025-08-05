@@ -5,23 +5,23 @@
 extension type UiEvent.fromMap(Map<String, Object?> _json) {
   /// Creates a [UiEvent] from a set of properties.
   UiEvent({
-    required String surfaceId,
+    String? surfaceId,
     required String widgetId,
     required String eventType,
-    required DateTime timestamp,
+    DateTime? timestamp,
     required bool isAction,
     Object? value,
   }) : _json = {
-         'surfaceId': surfaceId,
+         if (surfaceId != null) 'surfaceId': surfaceId,
          'widgetId': widgetId,
          'eventType': eventType,
-         'timestamp': timestamp.toIso8601String(),
+         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
          'isAction': isAction,
          if (value != null) 'value': value,
        };
 
   /// The ID of the surface that this event originated from.
-  String get surfaceId => _json['surfaceId'] as String;
+  String? get surfaceId => _json['surfaceId'] as String?;
 
   /// The ID of the widget that triggered the event.
   String get widgetId => _json['widgetId'] as String;

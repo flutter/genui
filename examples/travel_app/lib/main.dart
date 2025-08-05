@@ -173,7 +173,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
 final systemPrompt =
     '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
 and then guides them to book it.
