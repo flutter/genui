@@ -18,6 +18,17 @@ to configure Firebase for your Flutter project.
     NOTE: see how secure it is to publish the generated files
     [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
 
+1. If you use ios or macos platform, add this key to your
+`<platform>/Runner/*.entitlements`:
+
+  ```xml
+  <dict>
+    ...
+    <key>com.apple.security.network.client</key>
+    <true/>
+  </dict>
+  ```
+
 ### Employ `flutter_genui`
 
 1. Add dependency to `flutter_genui` with one of options:
