@@ -34,7 +34,7 @@ to configure your Flutter project.
 
 ### Employ `flutter_genui`
 
-1. Add dependency to `flutter_genui` with one of options:
+1. Add a dependency on `flutter_genui` with one of the following options:
 
     * `flutter pub add flutter_genui`
 
