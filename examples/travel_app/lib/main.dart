@@ -31,7 +31,7 @@ trailhead with directions like "top culinary experiences in Mexico" or "nightlif
 
 The user may ask followup questions e.g. to book a specific part of the existing trip, or start
 a new trip. In this case, just follow the user and repeat the process above. You are always moving
-in cycles of asking for information and then making suggestions. If the user requests something other than a complete trip booking, 
+in cycles of asking for information and then making suggestions. If the user requests something other than a complete trip booking,
 e.g. ideas about jazz clubs or food tours etc, use something like a travel_carousel to show options, rather
 than a full itinerary_with_details. If the followup question seems to be a departure from the previous context,
 'add' a new surface rather than updating an existing one.
@@ -70,7 +70,7 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  _imagesJson = await imagesCatalogJson();
+  _imagesJson = await assetImageCatalogJson();
   runApp(const MyApp());
 }
 

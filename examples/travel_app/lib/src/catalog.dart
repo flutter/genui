@@ -12,15 +12,15 @@ import 'catalog/trailhead.dart';
 import 'catalog/travel_carousel.dart';
 
 @visibleForTesting
-const imagesCatalogPath = 'assets/travel_images';
+const assetImageCatalogPath = 'assets/travel_images';
 @visibleForTesting
-const imagesCatalogJsonFile = '$imagesCatalogPath/.images.json';
+const assetImageCatalogJsonFile = '$assetImageCatalogPath/.images.json';
 
-Future<String> imagesCatalogJson() async {
-  var result = await rootBundle.loadString(imagesCatalogJsonFile);
+Future<String> assetImageCatalogJson() async {
+  var result = await rootBundle.loadString(assetImageCatalogJsonFile);
   result = result.replaceAll(
     '"image_file_name": "',
-    '"image_file_name": "$imagesCatalogPath/',
+    '"image_file_name": "$assetImageCatalogPath/',
   );
   return result;
 }
