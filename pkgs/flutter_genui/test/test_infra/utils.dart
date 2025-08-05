@@ -16,15 +16,12 @@ class FakeGenerativeModel implements GenerativeModelInterface {
   GenerateContentResponse? response;
   List<GenerateContentResponse> responses = [];
   Exception? exception;
+  PromptFeedback? promptFeedback;
 
   @override
   Future<GenerateContentResponse> generateContent(
-    Iterable<Content> content, {
-    List<SafetySetting>? safetySettings,
-    GenerationConfig? generationConfig,
-    List<Tool>? tools,
-    ToolConfig? toolConfig,
-  }) async {
+    Iterable<Content> content,
+  ) async {
     generateContentCallCount++;
     if (exception != null) {
       final e = exception;
@@ -32,10 +29,11 @@ class FakeGenerativeModel implements GenerativeModelInterface {
       throw e!;
     }
     if (responses.isNotEmpty) {
-      return responses.removeAt(0);
+      final response = responses.removeAt(0);
+      return GenerateContentResponse(response.candidates, promptFeedback);
     }
     if (response != null) {
-      return response!;
+      return GenerateContentResponse(response!.candidates, promptFeedback);
     }
     throw StateError(
       'No response or exception configured for FakeGenerativeModel',

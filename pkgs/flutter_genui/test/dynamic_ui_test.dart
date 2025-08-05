@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final testCatalog = Catalog([elevatedButtonCatalogItem, text]);
 
-  testWidgets('DynamicUi builds a widget from a definition', (
+  testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
   ) async {
     final definition = UiDefinition.fromMap({
@@ -29,7 +29,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: DynamicUi(
+        home: SurfaceWidget(
           catalog: testCatalog,
           surfaceId: 'testSurface',
           definition: definition,
@@ -42,7 +42,7 @@ void main() {
     expect(find.byType(ElevatedButton), findsOneWidget);
   });
 
-  testWidgets('DynamicUi handles events', (WidgetTester tester) async {
+  testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
     Map<String, Object?>? event;
 
     final definition = UiDefinition.fromMap({
@@ -66,7 +66,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: DynamicUi(
+        home: SurfaceWidget(
           catalog: testCatalog,
           surfaceId: 'testSurface',
           definition: definition,

@@ -10,7 +10,7 @@ The core of the application is a continuous interaction loop between the user, t
 
 1. **Prompt**: The user enters a text prompt describing the desired user interface (e.g., "Create a login form with a username field, a password field, and a login button").
 2. **Generation**: The prompt is sent to the generative AI model. The model is given instructions to return a JSON object that conforms to a predefined UI schema.
-3. **Rendering**: The Flutter client receives the JSON response. A `DynamicUi` widget parses the JSON and recursively builds a native Flutter widget tree based on the definition.
+3. **Rendering**: The Flutter client receives the JSON response. A `SurfaceWidget` widget parses the JSON and recursively builds a native Flutter widget tree based on the definition.
 4. **Interaction**: The user interacts with the rendered UI (e.g., types in a text field, taps a button).
 5. **Event Feedback**: Each interaction generates a `UiEvent` object. This event is sent back to the AI model, framed as a "function call response". This makes the model believe it has invoked a tool that returned the user's action as its result.
 6. **Update**: The model processes the event and the conversation history, and can then generate a new JSON UI definition to reflect the new state of the application (e.g., showing a loading spinner after the login button is pressed). This cycle allows for creating truly interactive and stateful applications driven by the AI.

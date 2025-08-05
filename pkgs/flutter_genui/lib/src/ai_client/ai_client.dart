@@ -275,7 +275,7 @@ class AiClient implements LlmConnection {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    return GenerativeModelWrapper(
+    return FirebaseAiGenerativeModel(
       FirebaseAI.googleAI().generativeModel(
         model: configuration.model.value.modelName,
         systemInstruction: systemInstruction,
@@ -439,14 +439,17 @@ class AiClient implements LlmConnection {
 
     while (toolUsageCycle < maxToolUsageCycles && capturedResult == null) {
       toolUsageCycle++;
-      _log('Generating content with:');
-      for (final content in contents) {
-        _log(const JsonEncoder.withIndent('  ').convert(content.toJson()));
-      }
-      _log(
-        'With functions: '
-        '${allowedFunctionNames.join(', ')}',
-      );
+
+      final concatenatedContents = contents
+          .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
+          .join('\n');
+
+      _log('''****** Performing Inference ******
+$concatenatedContents
+With functions:
+  '${allowedFunctionNames.join(', ')}',
+  ''');
+      DateTime startTime = DateTime.now();
       final response = await model.generateContent(contents);
 
       // If the generate call succeeds, we need to reset the delay for the next
@@ -458,6 +461,12 @@ class AiClient implements LlmConnection {
         inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
         outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
       }
+      _log(
+        '****** Completed Inference ******\n'
+        'Latency = ${DateTime.now().difference(startTime).inMilliseconds}ms\n'
+        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
+        'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
+      );
 
       if (response.candidates.isEmpty) {
         _warn('Response has no candidates: ${response.promptFeedback}');
@@ -493,13 +502,15 @@ class AiClient implements LlmConnection {
       for (final call in functionCalls) {
         if (call.name == outputToolName) {
           try {
-            capturedResult = call.args['output'] as T?;
+            capturedResult =
+                (call.args['parameters'] as Map<String, Object?>)['output']
+                    as T?;
           } catch (e, s) {
             _error('Unable to read output: $call [${call.args}]: $e', s);
           }
           _log(
-            'Invoked output tool ${call.name} with args ${call.args}. '
-            'Final result: $capturedResult',
+            '****** Gen UI Output ******.\n'
+            '${const JsonEncoder.withIndent('  ').convert(capturedResult)}}',
           );
           continue;
         }

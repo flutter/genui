@@ -12,5 +12,5 @@ export 'src/core/event_debouncer.dart';
 export 'src/core/genui_manager.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
-export 'src/model/dynamic_ui.dart';
+export 'src/model/surface_widget.dart';
 export 'src/model/ui_models.dart';
