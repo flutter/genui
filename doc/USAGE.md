@@ -21,7 +21,7 @@ to configure your Flutter project.
     NOTE: see how secure it is to publish the generated files
     [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
 
-1. If you run your Flutter project on ios or macos platform, add this key to your
+1. If you run your Flutter project on the `ios` or `macos` platform, add this key to your
 `{ios,macos}/Runner/*.entitlements` file(s):
 
   ```xml
