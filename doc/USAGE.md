@@ -38,7 +38,7 @@ to configure your Flutter project.
 
     * `flutter pub add flutter_genui`
 
-    * Reference by path in pubspec.yaml:
+    * Or reference it by `path` in the `pubspec.yaml`:
 
       ```
       flutter_genui:
