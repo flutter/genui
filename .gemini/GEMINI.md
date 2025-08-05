@@ -46,4 +46,4 @@ When the CatalogItem API changes, it is necessary to update all the existing cat
 The folder `spikes` contains experiments and proof of concepts,
 that does not have to be of good quality.
 
-So, skip this folder, when reviewing the code.
+Skip this folder when reviewing code.
