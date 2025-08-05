@@ -51,7 +51,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _promptController = TextEditingController();
-  late final ConversationManager _conversationManager;
+  late final GenUiManager _conversationManager;
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _conversationManager = ConversationManager(
+    _conversationManager = GenUiManager.conversation(
       coreCatalog,
       systemPrompt,
       aiClient,
