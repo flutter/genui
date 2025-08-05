@@ -32,7 +32,8 @@ class SurfaceWidget extends StatefulWidget {
 }
 
 class _SurfaceWidgetState extends State<SurfaceWidget> {
-  /// Dispatches an event by calling the public [SurfaceWidget.onEvent] callback.
+  /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
+  /// callback.
   void _dispatchEvent({
     required String widgetId,
     required String eventType,

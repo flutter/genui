@@ -449,8 +449,9 @@ $concatenatedContents
 With functions:
   '${allowedFunctionNames.join(', ')}',
   ''');
-      DateTime startTime = DateTime.now();
+      final inferenceStartTime = DateTime.now();
       final response = await model.generateContent(contents);
+      final elapsed = DateTime.now().difference(inferenceStartTime);
 
       // If the generate call succeeds, we need to reset the delay for the next
       // retry. If the generate call throws, this won't get called, and the
@@ -463,7 +464,7 @@ With functions:
       }
       _log(
         '****** Completed Inference ******\n'
-        'Latency = ${DateTime.now().difference(startTime).inMilliseconds}ms\n'
+        'Latency = ${elapsed.inMilliseconds}ms\n'
         'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
         'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
       );
