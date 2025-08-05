@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
 
-    _genUiManager = GenUiManager.conversation(catalog, systemPrompt, aiClient);
+    _genUiManager = GenUiManager.conversation(catalog, _systemPrompt, aiClient);
   }
 
   @override
