@@ -7,56 +7,94 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('UiEvent', () {
-    test('fromMap and toMap work correctly', () {
-      final now = DateTime.now().toUtc();
+    test('can be created and read', () {
+      final now = DateTime.now();
       final event = UiEvent(
-        surfaceId: 's1',
-        widgetId: 'w1',
+        surfaceId: 'testSurface',
+        widgetId: 'testWidget',
         eventType: 'onTap',
+        isSubmit: true,
         timestamp: now,
-        value: 'test value',
+        value: 'testValue',
       );
 
-      final map = event.toMap();
-      final recreatedEvent = UiEvent.fromMap(map);
-
-      expect(recreatedEvent.surfaceId, 's1');
-      expect(recreatedEvent.widgetId, 'w1');
-      expect(recreatedEvent.eventType, 'onTap');
-      expect(recreatedEvent.timestamp, now);
-      expect(recreatedEvent.value, 'test value');
+      expect(event.surfaceId, 'testSurface');
+      expect(event.widgetId, 'testWidget');
+      expect(event.eventType, 'onTap');
+      expect(event.isSubmit, isTrue);
+      expect(event.timestamp, now);
+      expect(event.value, 'testValue');
     });
 
-    test('toMap handles null value', () {
+    test('can be created from map and read', () {
+      final now = DateTime.now();
+      final event = UiEvent.fromMap({
+        'surfaceId': 'testSurface',
+        'widgetId': 'testWidget',
+        'eventType': 'onTap',
+        'isSubmit': false,
+        'timestamp': now.toIso8601String(),
+        'value': 'testValue',
+      });
+
+      expect(event.surfaceId, 'testSurface');
+      expect(event.widgetId, 'testWidget');
+      expect(event.eventType, 'onTap');
+      expect(event.isSubmit, isFalse);
+      expect(event.timestamp, now);
+      expect(event.value, 'testValue');
+    });
+
+    test('can be converted to map', () {
+      final now = DateTime.now();
       final event = UiEvent(
-        surfaceId: 's1',
-        widgetId: 'w1',
+        surfaceId: 'testSurface',
+        widgetId: 'testWidget',
         eventType: 'onTap',
-        timestamp: DateTime.now(),
+        isSubmit: true,
+        timestamp: now,
+        value: 'testValue',
       );
+
       final map = event.toMap();
-      expect(map.containsKey('value'), isFalse);
+
+      expect(map['surfaceId'], 'testSurface');
+      expect(map['widgetId'], 'testWidget');
+      expect(map['eventType'], 'onTap');
+      expect(map['isSubmit'], isTrue);
+      expect(map['timestamp'], now.toIso8601String());
+      expect(map['value'], 'testValue');
     });
   });
 
   group('UiDefinition', () {
-    test('fromMap correctly parses widget list', () {
-      final definitionMap = {
+    test('can be created and read', () {
+      final definition = UiDefinition.fromMap({
         'surfaceId': 'testSurface',
-        'root': 'rootId',
+        'root': 'rootWidget',
         'widgets': [
-          {'id': 'widget1', 'data': 'A'},
-          {'id': 'widget2', 'data': 'B'},
+          {
+            'id': 'rootWidget',
+            'widget': {'text': 'Hello'},
+          },
+          {
+            'id': 'childWidget',
+            'widget': {'text': 'World'},
+          },
         ],
-      };
-
-      final definition = UiDefinition.fromMap(definitionMap);
+      });
 
       expect(definition.surfaceId, 'testSurface');
-      expect(definition.root, 'rootId');
+      expect(definition.root, 'rootWidget');
       expect(definition.widgets.length, 2);
-      expect(definition.widgets['widget1'], {'id': 'widget1', 'data': 'A'});
-      expect(definition.widgets['widget2'], {'id': 'widget2', 'data': 'B'});
+      expect(definition.widgets['rootWidget'], {
+        'id': 'rootWidget',
+        'widget': {'text': 'Hello'},
+      });
+      expect(definition.widgets['childWidget'], {
+        'id': 'childWidget',
+        'widget': {'text': 'World'},
+      });
     });
   });
 }

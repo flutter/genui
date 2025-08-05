@@ -9,12 +9,14 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
     required String widgetId,
     required String eventType,
     required DateTime timestamp,
+    required bool isSubmit,
     Object? value,
   }) : _json = {
          'surfaceId': surfaceId,
          'widgetId': widgetId,
          'eventType': eventType,
          'timestamp': timestamp.toIso8601String(),
+         'isSubmit': isSubmit,
          if (value != null) 'value': value,
        };
 
@@ -26,6 +28,9 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
 
   /// The type of event that was triggered (e.g., 'onChanged', 'onTap').
   String get eventType => _json['eventType'] as String;
+
+  /// Whether this event should trigger a submission to the LLM.
+  bool get isSubmit => _json['isSubmit'] as bool;
 
   /// The value associated with the event, if any (e.g., the text in a
   /// `TextField`, or the value of a `Checkbox`).

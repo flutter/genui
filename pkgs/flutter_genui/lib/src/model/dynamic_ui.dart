@@ -36,12 +36,14 @@ class _DynamicUiState extends State<DynamicUi> {
   void _dispatchEvent({
     required String widgetId,
     required String eventType,
+    required bool isSubmit,
     required Object? value,
   }) {
     final event = UiEvent(
       surfaceId: widget.surfaceId,
       widgetId: widgetId,
       eventType: eventType,
+      isSubmit: isSubmit,
       value: value,
       timestamp: DateTime.now().toUtc(),
     );

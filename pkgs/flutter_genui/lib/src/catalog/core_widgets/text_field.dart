@@ -107,6 +107,7 @@ final textField = CatalogItem(
             dispatchEvent(
               widgetId: id,
               eventType: 'onChanged',
+              isSubmit: false,
               value: newValue,
             );
           },
@@ -114,6 +115,7 @@ final textField = CatalogItem(
             dispatchEvent(
               widgetId: id,
               eventType: 'onSubmitted',
+              isSubmit: true,
               value: newValue,
             );
           },

@@ -278,6 +278,7 @@ void main() {
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onTap',
+        isSubmit: true,
         timestamp: DateTime.now(),
       );
       fakeAiClient.response = {'responseText': 'event handled'};

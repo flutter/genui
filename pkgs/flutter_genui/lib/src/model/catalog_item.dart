@@ -12,6 +12,7 @@ typedef CatalogWidgetBuilder =
       required void Function({
         required String widgetId,
         required String eventType,
+        required bool isSubmit,
         // TODO: Explain expected schema for [value].
         required Object? value,
       })

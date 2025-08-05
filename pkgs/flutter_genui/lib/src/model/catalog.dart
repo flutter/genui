@@ -16,6 +16,7 @@ class Catalog {
     void Function({
       required String widgetId,
       required String eventType,
+      required bool isSubmit,
       required Object? value,
     })
     dispatchEvent,

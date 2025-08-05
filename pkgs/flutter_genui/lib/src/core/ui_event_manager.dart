@@ -1,29 +1,18 @@
-import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+
 import '../model/ui_models.dart';
 
-typedef DebounceCallback = void Function(List<UiEvent> events);
+typedef SendEventsCallback = void Function(List<UiEvent> events);
 
-class EventDebouncer {
-  EventDebouncer({
-    required this.callback,
-    this.delay = const Duration(seconds: 2),
-  });
+class UiEventManager {
+  UiEventManager({required this.callback});
 
-  @visibleForTesting
-  EventDebouncer.test({required this.callback}) : delay = Duration.zero;
+  final SendEventsCallback callback;
 
-  final DebounceCallback callback;
-  final Duration delay;
-
-  Timer? _timer;
   final List<UiEvent> _eventQueue = [];
   final Map<String, UiEvent> _coalescedEvents = {};
 
   void add(UiEvent event) {
-    _timer?.cancel();
-
     // Coalesce events that happen rapidly and only the last value matters.
     if (event.eventType == 'onChanged') {
       _coalescedEvents[event.widgetId] = event;
@@ -32,10 +21,12 @@ class EventDebouncer {
       _eventQueue.add(event);
     }
 
-    _timer = Timer(delay, _fire);
+    if (event.isSubmit) {
+      _send();
+    }
   }
 
-  void _fire() {
+  void _send() {
     final events = <UiEvent>[..._eventQueue, ..._coalescedEvents.values];
     _eventQueue.clear();
     _coalescedEvents.clear();
@@ -47,6 +38,7 @@ class EventDebouncer {
   }
 
   void dispose() {
-    _timer?.cancel();
+    _eventQueue.clear();
+    _coalescedEvents.clear();
   }
 }

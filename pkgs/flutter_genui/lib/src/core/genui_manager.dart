@@ -8,7 +8,7 @@ import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import 'conversation_widget.dart';
-import 'event_debouncer.dart';
+import 'ui_event_manager.dart';
 
 class GenUiManager {
   GenUiManager.conversation(
@@ -16,13 +16,13 @@ class GenUiManager {
     this.systemInstruction,
     this.llmConnection,
   ) {
-    _eventDebouncer = EventDebouncer(callback: handleEvents);
+    _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
   final String systemInstruction;
   final LlmConnection llmConnection;
-  late final EventDebouncer _eventDebouncer;
+  late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences
   final masterConversation = <Content>[];
@@ -47,7 +47,7 @@ class GenUiManager {
   void dispose() {
     _uiDataStreamController.close();
     _loadingStreamController.close();
-    _eventDebouncer.dispose();
+    _eventManager.dispose();
   }
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
@@ -245,7 +245,7 @@ class GenUiManager {
           messages: snapshot.data!,
           catalog: catalog,
           onEvent: (event) {
-            _eventDebouncer.add(UiEvent.fromMap(event));
+            _eventManager.add(UiEvent.fromMap(event));
           },
         );
       },

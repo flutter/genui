@@ -101,6 +101,7 @@ final checkboxGroup = CatalogItem(
             dispatchEvent(
               widgetId: id,
               eventType: 'onChanged',
+              isSubmit: false,
               value: newValues,
             );
           },
