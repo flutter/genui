@@ -45,7 +45,7 @@ to configure your Flutter project.
           path: <path to flutter_genui>
       ```
 
-1. Invoke before `runApp`:
+1. Invoke `Firebase.initializeApp` before `runApp`:
 
     ```dart
     WidgetsFlutterBinding.ensureInitialized();
