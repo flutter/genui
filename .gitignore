@@ -3,5 +3,8 @@ pubspec.lock
 .DS_Store
 Podfile.lock
 
-# Diagrams, produced by https://pub.dev/packages/layerlens
+# Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
+
+# Firebase auto-generated artifacts.
+.firebase/

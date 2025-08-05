@@ -12,7 +12,6 @@
 .swiftpm/
 migrate_working_dir/
 firepit-log.txt
-.firebase/
 
 # IntelliJ related
 *.iml
