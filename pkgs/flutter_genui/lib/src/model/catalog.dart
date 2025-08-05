@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'catalog_item.dart';
 
 class Catalog {
-  Catalog(this.items);
+  const Catalog(this.items);
 
   final List<CatalogItem> items;
 

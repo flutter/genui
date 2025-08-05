@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
-import 'src/catalog.dart';
 import 'src/images.dart';
 
 final systemPrompt =
@@ -30,7 +29,7 @@ trailhead with directions like "top culinary experiences in Mexico" or "nightlif
 
 The user may ask followup questions e.g. to book a specific part of the existing trip, or start
 a new trip. In this case, just follow the user and repeat the process above. You are always moving
-in cycles of asking for information and then making suggestions. If the user requests something other than a complete trip booking, 
+in cycles of asking for information and then making suggestions. If the user requests something other than a complete trip booking,
 e.g. ideas about jazz clubs or food tours etc, use something like a travel_carousel to show options, rather
 than a full itinerary_with_details. If the followup question seems to be a departure from the previous context,
 'add' a new surface rather than updating an existing one.
@@ -105,7 +104,11 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _genUiManager = GenUiManager.conversation(catalog, systemPrompt, aiClient);
+    _genUiManager = GenUiManager.conversation(
+      catalog: coreCatalog,
+      instruction: systemPrompt,
+      llmConnection: aiClient,
+    );
   }
 
   @override

@@ -21,9 +21,9 @@ void main() {
     setUp(() {
       fakeAiClient = FakeAiClient();
       manager = GenUiManager.conversation(
-        coreCatalog,
-        'You are a helpful assistant.',
-        fakeAiClient,
+        catalog: coreCatalog,
+        instruction: 'You are a helpful assistant.',
+        llmConnection: fakeAiClient,
       );
     });
 

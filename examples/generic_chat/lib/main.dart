@@ -62,9 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
     _genUiManager = GenUiManager.conversation(
-      coreCatalog,
-      systemPrompt,
-      aiClient,
+      catalog: coreCatalog,
+      instruction: systemPrompt,
+      llmConnection: aiClient,
     );
   }
 

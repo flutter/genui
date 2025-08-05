@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
+import '../ai_client/ai_client.dart';
 import '../ai_client/llm_connection.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
@@ -11,17 +12,18 @@ import 'conversation_widget.dart';
 import 'event_debouncer.dart';
 
 class GenUiManager {
-  GenUiManager.conversation(
-    this.catalog,
-    this.systemInstruction,
-    this.llmConnection,
-  ) {
+  GenUiManager.conversation({
+    LlmConnection? llmConnection,
+    this.catalog = const Catalog([]),
+    this.instruction = '',
+  }) {
+    this.llmConnection = llmConnection ?? AiClient();
     _eventDebouncer = EventDebouncer(callback: handleEvents);
   }
 
   final Catalog catalog;
-  final String systemInstruction;
-  final LlmConnection llmConnection;
+  final String instruction;
+  late final LlmConnection llmConnection;
   late final EventDebouncer _eventDebouncer;
 
   // Context used for future LLM inferences
@@ -110,7 +112,7 @@ class GenUiManager {
       final response = await llmConnection.generateContent(
         conversation,
         outputSchema,
-        systemInstruction: Content.system(systemInstruction),
+        systemInstruction: Content.system(instruction),
       );
       if (response == null) {
         return;
