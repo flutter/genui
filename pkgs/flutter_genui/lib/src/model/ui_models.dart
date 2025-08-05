@@ -3,23 +3,6 @@
 /// This is used to send information from the app to the AI about user
 /// actions, such as tapping a button or entering text.
 extension type UiEvent.fromMap(Map<String, Object?> _json) {
-  /// Creates a [UiEvent] from a set of properties.
-  UiEvent({
-    String? surfaceId,
-    required String widgetId,
-    required String eventType,
-    DateTime? timestamp,
-    required bool isAction,
-    Object? value,
-  }) : _json = {
-         if (surfaceId != null) 'surfaceId': surfaceId,
-         'widgetId': widgetId,
-         'eventType': eventType,
-         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
-         'isAction': isAction,
-         if (value != null) 'value': value,
-       };
-
   /// The ID of the surface that this event originated from.
   String? get surfaceId => _json['surfaceId'] as String?;
 
@@ -41,6 +24,44 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
 
   /// Converts this event to a map, suitable for JSON serialization.
   Map<String, Object?> toMap() => _json;
+}
+
+extension type UiActionEvent.fromMap(Map<String, Object?> _json)
+    implements UiEvent {
+  /// Creates a [UiEvent] from a set of properties.
+  UiActionEvent({
+    String? surfaceId,
+    required String widgetId,
+    required String eventType,
+    DateTime? timestamp,
+    Object? value,
+  }) : _json = {
+         if (surfaceId != null) 'surfaceId': surfaceId,
+         'widgetId': widgetId,
+         'eventType': eventType,
+         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
+         'isAction': true,
+         if (value != null) 'value': value,
+       };
+}
+
+extension type UiChangeEvent.fromMap(Map<String, Object?> _json)
+    implements UiEvent {
+  /// Creates a [UiEvent] from a set of properties.
+  UiChangeEvent({
+    String? surfaceId,
+    required String widgetId,
+    required String eventType,
+    DateTime? timestamp,
+    Object? value,
+  }) : _json = {
+         if (surfaceId != null) 'surfaceId': surfaceId,
+         'widgetId': widgetId,
+         'eventType': eventType,
+         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
+         'isAction': false,
+         if (value != null) 'value': value,
+       };
 }
 
 /// A data object that represents the entire UI definition.

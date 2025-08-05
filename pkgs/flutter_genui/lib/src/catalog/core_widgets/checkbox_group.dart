@@ -100,10 +100,9 @@ final checkboxGroup = CatalogItem(
           labels: checkboxData.labels,
           onChanged: (newValues) {
             dispatchEvent(
-              UiEvent(
+              UiChangeEvent(
                 widgetId: id,
                 eventType: 'onChanged',
-                isAction: false,
                 value: newValues,
               ),
             );

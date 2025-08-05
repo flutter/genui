@@ -2,8 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import 'catalog_item.dart';
-import 'ui_models.dart';
+import '../../flutter_genui.dart';
 
 class Catalog {
   Catalog(this.items);
@@ -14,7 +13,7 @@ class Catalog {
     Map<String, Object?>
     data, // The actual deserialized JSON data for this layout
     Widget Function(String id) buildChild,
-    void Function(UiEvent event) dispatchEvent,
+    DispatchEventCallback dispatchEvent,
     BuildContext context,
   ) {
     final widgetType = (data['widget'] as Map<String, Object?>).keys.first;

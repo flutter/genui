@@ -9,11 +9,10 @@ void main() {
   group('UiEvent', () {
     test('can be created and read', () {
       final now = DateTime.now();
-      final event = UiEvent(
+      final event = UiActionEvent(
         surfaceId: 'testSurface',
         widgetId: 'testWidget',
         eventType: 'onTap',
-        isAction: true,
         timestamp: now,
         value: 'testValue',
       );
@@ -47,11 +46,10 @@ void main() {
 
     test('can be converted to map', () {
       final now = DateTime.now();
-      final event = UiEvent(
+      final event = UiActionEvent(
         surfaceId: 'testSurface',
         widgetId: 'testWidget',
         eventType: 'onTap',
-        isAction: true,
         timestamp: now,
         value: 'testValue',
       );

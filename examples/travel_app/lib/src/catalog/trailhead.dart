@@ -49,7 +49,7 @@ class _Trailhead extends StatelessWidget {
 
   final List<String> topics;
   final String widgetId;
-  final void Function(UiEvent event) dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +63,9 @@ class _Trailhead extends StatelessWidget {
             label: Text(topic),
             onPressed: () {
               dispatchEvent(
-                UiEvent(
+                UiActionEvent(
                   widgetId: widgetId,
                   eventType: 'trailheadTopicSelected',
-                  isAction: true,
                   value: topic,
                 ),
               );

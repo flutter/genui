@@ -59,10 +59,9 @@ final filterChipGroup = CatalogItem(
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () => dispatchEvent(
-                    UiEvent(
+                    UiActionEvent(
                       widgetId: id,
                       eventType: 'submit',
-                      isAction: true,
                       value: null,
                     ),
                   ),

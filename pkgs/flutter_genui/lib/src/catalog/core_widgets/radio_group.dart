@@ -103,10 +103,9 @@ final radioGroup = CatalogItem(
           onChanged: (newValue) {
             if (newValue != null) {
               dispatchEvent(
-                UiEvent(
+                UiChangeEvent(
                   widgetId: id,
                   eventType: 'onChanged',
-                  isAction: false,
                   value: newValue,
                 ),
               );

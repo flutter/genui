@@ -97,7 +97,7 @@ class _TravelCarousel extends StatelessWidget {
 
   final List<_TravelCarouselItemData> items;
   final String widgetId;
-  final void Function(UiEvent event) dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +139,7 @@ class _TravelCarouselItem extends StatelessWidget {
 
   final _TravelCarouselItemData data;
   final String widgetId;
-  final void Function(UiEvent event) dispatchEvent;
+  final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -148,10 +148,9 @@ class _TravelCarouselItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           dispatchEvent(
-            UiEvent(
+            UiActionEvent(
               widgetId: widgetId,
               eventType: 'itemSelected',
-              isAction: true,
               value: data.title,
             ),
           );

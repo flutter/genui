@@ -1,6 +1,7 @@
 import '../model/ui_models.dart';
 
 typedef SendEventsCallback = void Function(List<UiEvent> events);
+typedef DispatchEventCallback = void Function(UiEvent event);
 
 class UiEventManager {
   UiEventManager({required this.callback});

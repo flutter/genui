@@ -106,20 +106,18 @@ final textField = CatalogItem(
           obscureText: textFieldData.obscureText,
           onChanged: (newValue) {
             dispatchEvent(
-              UiEvent(
+              UiChangeEvent(
                 widgetId: id,
                 eventType: 'onChanged',
-                isAction: false,
                 value: newValue,
               ),
             );
           },
           onSubmitted: (newValue) {
             dispatchEvent(
-              UiEvent(
+              UiActionEvent(
                 widgetId: id,
                 eventType: 'onSubmitted',
-                isAction: true,
                 value: newValue,
               ),
             );

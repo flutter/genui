@@ -8,35 +8,31 @@ void main() {
       final sentEvents = <UiEvent>[];
       final manager = UiEventManager(callback: sentEvents.addAll);
 
-      final event1 = UiEvent(
+      final event1 = UiChangeEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isAction: false,
         timestamp: DateTime(2025),
         value: 'a',
       );
-      final event2 = UiEvent(
+      final event2 = UiChangeEvent(
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',
-        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: null,
       );
-      final event3 = UiEvent(
+      final event3 = UiChangeEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: 'b',
       );
-      final submitEvent = UiEvent(
+      final submitEvent = UiActionEvent(
         surfaceId: 's1',
         widgetId: 'w3',
         eventType: 'onTap',
-        isAction: true,
         timestamp: DateTime(2025, 1, 1, 0, 0, 3),
         value: null,
       );
@@ -59,27 +55,24 @@ void main() {
       final sentEvents = <UiEvent>[];
       final manager = UiEventManager(callback: sentEvents.addAll);
 
-      final event1 = UiEvent(
+      final event1 = UiChangeEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isAction: false,
         timestamp: DateTime(2025),
         value: 'a',
       );
-      final event2 = UiEvent(
+      final event2 = UiChangeEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
-        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: 'b',
       );
-      final submitEvent = UiEvent(
+      final submitEvent = UiActionEvent(
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',
-        isAction: true,
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: null,
       );
