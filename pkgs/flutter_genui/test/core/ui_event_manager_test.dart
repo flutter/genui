@@ -4,35 +4,39 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('UiEventManager', () {
-    test('accumulates state change events and sends on action', () {
+    test('accumulates non-submit events and sends on submit', () {
       final sentEvents = <UiEvent>[];
       final manager = UiEventManager(callback: sentEvents.addAll);
 
-      final event1 = UiChangeEvent(
+      final event1 = UiEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
+        isAction: false,
         timestamp: DateTime(2025),
         value: 'a',
       );
-      final event2 = UiActionEvent(
+      final event2 = UiEvent(
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',
+        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: null,
       );
-      final event3 = UiChangeEvent(
+      final event3 = UiEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
+        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: 'b',
       );
-      final submitEvent = UiActionEvent(
+      final submitEvent = UiEvent(
         surfaceId: 's1',
         widgetId: 'w3',
         eventType: 'onTap',
+        isAction: true,
         timestamp: DateTime(2025, 1, 1, 0, 0, 3),
         value: null,
       );
@@ -41,41 +45,41 @@ void main() {
       manager.add(event2);
       manager.add(event3);
 
-      expect(sentEvents, hasLength(2));
-      expect(sentEvents[0], equals(event1));
-      expect(sentEvents[1], equals(event2));
-
-      sentEvents.clear();
+      expect(sentEvents, isEmpty);
 
       manager.add(submitEvent);
 
-      expect(sentEvents, hasLength(2));
-      expect(sentEvents[0], equals(event3));
-      expect(sentEvents[1], equals(submitEvent));
+      expect(sentEvents, hasLength(3));
+      expect(sentEvents[0], equals(event2));
+      expect(sentEvents[1], equals(event3));
+      expect(sentEvents[2], equals(submitEvent));
     });
 
-    test('coalesces state change events', () {
+    test('coalesces onChanged events', () {
       final sentEvents = <UiEvent>[];
       final manager = UiEventManager(callback: sentEvents.addAll);
 
-      final event1 = UiChangeEvent(
+      final event1 = UiEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
+        isAction: false,
         timestamp: DateTime(2025),
         value: 'a',
       );
-      final event2 = UiChangeEvent(
+      final event2 = UiEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onChanged',
+        isAction: false,
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: 'b',
       );
-      final submitEvent = UiActionEvent(
+      final submitEvent = UiEvent(
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',
+        isAction: true,
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: null,
       );

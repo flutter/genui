@@ -88,8 +88,7 @@ final checkboxGroup = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchActionEvent,
-        required dispatchChangeEvent,
+        required dispatchEvent,
         required context,
       }) {
         final checkboxData = _CheckboxGroupData.fromMap(
@@ -99,9 +98,10 @@ final checkboxGroup = CatalogItem(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,
           onChanged: (newValues) {
-            dispatchChangeEvent(
+            dispatchEvent(
               widgetId: id,
               eventType: 'onChanged',
+              isAction: false,
               value: newValues,
             );
           },

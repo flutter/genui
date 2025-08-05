@@ -19,16 +19,11 @@ void main() {
                 },
                 id: 'test_image',
                 buildChild: (String id) => const SizedBox(),
-                dispatchActionEvent:
+                dispatchEvent:
                     ({
                       required String widgetId,
                       required String eventType,
-                      Object? value,
-                    }) {},
-                dispatchChangeEvent:
-                    ({
-                      required String widgetId,
-                      required String eventType,
+                      required bool isAction,
                       Object? value,
                     }) {},
                 context: context,

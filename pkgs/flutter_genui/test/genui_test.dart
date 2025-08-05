@@ -30,11 +30,7 @@ void main() {
                   ({
                     required widgetId,
                     required eventType,
-                    required Object? value,
-                  }) {},
-                  ({
-                    required widgetId,
-                    required eventType,
+                    required isAction,
                     required Object? value,
                   }) {},
                   context,
@@ -71,11 +67,7 @@ void main() {
                   ({
                     required widgetId,
                     required eventType,
-                    required Object? value,
-                  }) {},
-                  ({
-                    required widgetId,
-                    required eventType,
+                    required isAction,
                     required Object? value,
                   }) {},
                   context,

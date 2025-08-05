@@ -19,7 +19,7 @@ void main() {
             body: ConversationWidget(
               messages: messages,
               catalog: coreCatalog,
-              onEvent: (event) {},
+              onEvent: (_) {},
             ),
           ),
         ),
@@ -36,7 +36,7 @@ void main() {
             body: ConversationWidget(
               messages: messages,
               catalog: coreCatalog,
-              onEvent: (event) {},
+              onEvent: (_) {},
             ),
           ),
         ),
@@ -53,7 +53,7 @@ void main() {
             body: ConversationWidget(
               messages: messages,
               catalog: coreCatalog,
-              onEvent: (event) {},
+              onEvent: (_) {},
             ),
           ),
         ),
@@ -86,7 +86,7 @@ void main() {
             body: ConversationWidget(
               messages: messages,
               catalog: coreCatalog,
-              onEvent: (event) {},
+              onEvent: (_) {},
             ),
           ),
         ),

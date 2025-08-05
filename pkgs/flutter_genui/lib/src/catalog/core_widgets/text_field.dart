@@ -93,8 +93,7 @@ final textField = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchActionEvent,
-        required dispatchChangeEvent,
+        required dispatchEvent,
         required context,
       }) {
         final textFieldData = _TextFieldData.fromMap(
@@ -105,16 +104,18 @@ final textField = CatalogItem(
           hintText: textFieldData.hintText,
           obscureText: textFieldData.obscureText,
           onChanged: (newValue) {
-            dispatchChangeEvent(
+            dispatchEvent(
               widgetId: id,
               eventType: 'onChanged',
+              isAction: false,
               value: newValue,
             );
           },
           onSubmitted: (newValue) {
-            dispatchActionEvent(
+            dispatchEvent(
               widgetId: id,
               eventType: 'onSubmitted',
+              isAction: true,
               value: newValue,
             );
           },

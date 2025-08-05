@@ -26,8 +26,7 @@ final trailheadCatalogItem = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchActionEvent,
-        required dispatchChangeEvent,
+        required dispatchEvent,
         required context,
       }) {
         final trailheadData = _TrailheadData.fromMap(
@@ -36,7 +35,7 @@ final trailheadCatalogItem = CatalogItem(
         return _Trailhead(
           topics: trailheadData.topics,
           widgetId: id,
-          dispatchActionEvent: dispatchActionEvent,
+          dispatchEvent: dispatchEvent,
         );
       },
 );
@@ -45,7 +44,7 @@ class _Trailhead extends StatelessWidget {
   const _Trailhead({
     required this.topics,
     required this.widgetId,
-    required this.dispatchActionEvent,
+    required this.dispatchEvent,
   });
 
   final List<String> topics;
@@ -53,9 +52,10 @@ class _Trailhead extends StatelessWidget {
   final void Function({
     required String widgetId,
     required String eventType,
+    required bool isAction,
     required Object? value,
   })
-  dispatchActionEvent;
+  dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +68,10 @@ class _Trailhead extends StatelessWidget {
           return InputChip(
             label: Text(topic),
             onPressed: () {
-              dispatchActionEvent(
+              dispatchEvent(
                 widgetId: widgetId,
                 eventType: 'trailheadTopicSelected',
+                isAction: true,
                 value: topic,
               );
             },

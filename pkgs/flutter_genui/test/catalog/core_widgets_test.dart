@@ -20,7 +20,7 @@ void main() {
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
       Map<String, Object?> definition,
-      void Function(UiEvent) onEvent,
+      void Function(Map<String, Object?>) onEvent,
     ) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -39,7 +39,7 @@ void main() {
     testWidgets('ElevatedButton renders and handles taps', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
+      Map<String, Object?>? event;
       final definition = {
         'surfaceId': 'testSurface',
         'root': 'button',
@@ -65,15 +65,14 @@ void main() {
       await tester.tap(find.byType(ElevatedButton));
 
       expect(event, isNotNull);
-      expect(event, isA<UiActionEvent>());
-      expect(event!.widgetId, 'button');
-      expect(event!.eventType, 'onTap');
+      expect(event!['widgetId'], 'button');
+      expect(event!['eventType'], 'onTap');
     });
 
     testWidgets('CheckboxGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
+      Map<String, Object?>? event;
       final definition = {
         'surfaceId': 'testSurface',
         'root': 'checkboxes',
@@ -100,10 +99,9 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(event, isNotNull);
-      expect(event, isA<UiChangeEvent>());
-      expect(event!.widgetId, 'checkboxes');
-      expect(event!.eventType, 'onChanged');
-      expect(event!.value, [true, true]);
+      expect(event!['widgetId'], 'checkboxes');
+      expect(event!['eventType'], 'onChanged');
+      expect(event!['value'], [true, true]);
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -150,7 +148,7 @@ void main() {
     testWidgets('RadioGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
+      Map<String, Object?>? event;
       final definition = {
         'surfaceId': 'testSurface',
         'root': 'radios',
@@ -173,16 +171,15 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(event, isNotNull);
-      expect(event, isA<UiChangeEvent>());
-      expect(event!.widgetId, 'radios');
-      expect(event!.eventType, 'onChanged');
-      expect(event!.value, 'B');
+      expect(event!['widgetId'], 'radios');
+      expect(event!['eventType'], 'onChanged');
+      expect(event!['value'], 'B');
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
+      Map<String, Object?>? event;
       final definition = {
         'surfaceId': 'testSurface',
         'root': 'field',
@@ -206,19 +203,17 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(event, isNotNull);
-      expect(event, isA<UiChangeEvent>());
-      expect(event!.widgetId, 'field');
-      expect(event!.eventType, 'onChanged');
-      expect(event!.value, 'new value');
+      expect(event!['widgetId'], 'field');
+      expect(event!['eventType'], 'onChanged');
+      expect(event!['value'], 'new value');
 
       // Test onSubmitted
       event = null;
       await tester.testTextInput.receiveAction(TextInputAction.done);
       expect(event, isNotNull);
-      expect(event, isA<UiActionEvent>());
-      expect(event!.widgetId, 'field');
-      expect(event!.eventType, 'onSubmitted');
-      expect(event!.value, 'new value');
+      expect(event!['widgetId'], 'field');
+      expect(event!['eventType'], 'onSubmitted');
+      expect(event!['value'], 'new value');
     });
   });
 }

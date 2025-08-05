@@ -274,10 +274,11 @@ void main() {
       await addSub.cancel();
 
       // Simulate a UI event
-      final event = UiActionEvent(
+      final event = UiEvent(
         surfaceId: 's1',
         widgetId: 'w1',
         eventType: 'onTap',
+        isAction: true,
         timestamp: DateTime.now(),
       );
       fakeAiClient.response = {'responseText': 'event handled'};

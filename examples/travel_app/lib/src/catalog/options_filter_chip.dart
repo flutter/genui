@@ -48,8 +48,7 @@ final optionsFilterChip = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchActionEvent,
-        required dispatchChangeEvent,
+        required dispatchEvent,
         required context,
       }) {
         final optionsFilterChipData = _OptionsFilterChipData.fromMap(
@@ -59,7 +58,7 @@ final optionsFilterChip = CatalogItem(
           initialChipLabel: optionsFilterChipData.chipLabel,
           options: optionsFilterChipData.options,
           widgetId: id,
-          dispatchChangeEvent: dispatchChangeEvent,
+          dispatchEvent: dispatchEvent,
           iconChild: optionsFilterChipData.iconChild != null
               ? buildChild(optionsFilterChipData.iconChild!)
               : null,
@@ -72,7 +71,7 @@ class _OptionsFilterChip extends StatefulWidget {
     required this.initialChipLabel,
     required this.options,
     required this.widgetId,
-    required this.dispatchChangeEvent,
+    required this.dispatchEvent,
     this.iconChild,
   });
 
@@ -83,9 +82,10 @@ class _OptionsFilterChip extends StatefulWidget {
   final void Function({
     required String widgetId,
     required String eventType,
+    required bool isAction,
     required Object? value,
   })
-  dispatchChangeEvent;
+  dispatchEvent;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -131,9 +131,10 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                           setState(() {
                             _currentChipLabel = newValue;
                           });
-                          widget.dispatchChangeEvent(
+                          widget.dispatchEvent(
                             widgetId: widget.widgetId,
                             eventType: 'filterOptionSelected',
+                            isAction: false,
                             value: newValue,
                           );
                           Navigator.pop(context);

@@ -23,7 +23,7 @@ class SurfaceWidget extends StatefulWidget {
   final UiDefinition definition;
 
   /// A callback for when a user interacts with a widget.
-  final void Function(UiEvent event) onEvent;
+  final void Function(Map<String, Object?> event) onEvent;
 
   final Catalog catalog;
 
@@ -34,34 +34,21 @@ class SurfaceWidget extends StatefulWidget {
 class _SurfaceWidgetState extends State<SurfaceWidget> {
   /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
   /// callback.
-  void _dispatchActionEvent({
+  void _dispatchEvent({
     required String widgetId,
     required String eventType,
+    required bool isAction,
     required Object? value,
   }) {
-    final event = UiActionEvent(
+    final event = UiEvent(
       surfaceId: widget.surfaceId,
       widgetId: widgetId,
       eventType: eventType,
+      isAction: isAction,
       value: value,
       timestamp: DateTime.now().toUtc(),
     );
-    widget.onEvent(event);
-  }
-
-  void _dispatchChangeEvent({
-    required String widgetId,
-    required String eventType,
-    required Object? value,
-  }) {
-    final event = UiChangeEvent(
-      surfaceId: widget.surfaceId,
-      widgetId: widgetId,
-      eventType: eventType,
-      value: value,
-      timestamp: DateTime.now().toUtc(),
-    );
-    widget.onEvent(event);
+    widget.onEvent(event.toMap());
   }
 
   @override
@@ -87,8 +74,7 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
     return widget.catalog.buildWidget(
       data as Map<String, Object?>,
       _buildWidget,
-      _dispatchActionEvent,
-      _dispatchChangeEvent,
+      _dispatchEvent,
       context,
     );
   }

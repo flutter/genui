@@ -28,8 +28,7 @@ final sectionHeaderCatalogItem = CatalogItem(
         required data,
         required id,
         required buildChild,
-        required dispatchActionEvent,
-        required dispatchChangeEvent,
+        required dispatchEvent,
         required context,
       }) {
         final sectionHeaderData = _SectionHeaderData.fromMap(
