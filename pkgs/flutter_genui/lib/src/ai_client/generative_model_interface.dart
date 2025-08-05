@@ -6,36 +6,18 @@ import 'package:firebase_ai/firebase_ai.dart';
 
 /// An interface for a generative model, allowing for mock implementations.
 abstract class GenerativeModelInterface {
-  Future<GenerateContentResponse> generateContent(
-    Iterable<Content> content, {
-    List<SafetySetting>? safetySettings,
-    GenerationConfig? generationConfig,
-    List<Tool>? tools,
-    ToolConfig? toolConfig,
-  });
+  Future<GenerateContentResponse> generateContent(Iterable<Content> content);
 }
 
 /// A wrapper for the `firebase_ai` [GenerativeModel] that implements the
 /// [GenerativeModelInterface].
-class GenerativeModelWrapper implements GenerativeModelInterface {
+class FirebaseAiGenerativeModel implements GenerativeModelInterface {
   final GenerativeModel _model;
 
-  GenerativeModelWrapper(this._model);
+  FirebaseAiGenerativeModel(this._model);
 
   @override
-  Future<GenerateContentResponse> generateContent(
-    Iterable<Content> content, {
-    List<SafetySetting>? safetySettings,
-    GenerationConfig? generationConfig,
-    List<Tool>? tools,
-    ToolConfig? toolConfig,
-  }) {
-    return _model.generateContent(
-      content,
-      safetySettings: safetySettings,
-      generationConfig: generationConfig,
-      tools: tools,
-      toolConfig: toolConfig,
-    );
+  Future<GenerateContentResponse> generateContent(Iterable<Content> content) {
+    return _model.generateContent(content);
   }
 }

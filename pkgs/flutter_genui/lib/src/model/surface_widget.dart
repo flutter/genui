@@ -7,8 +7,8 @@ import 'ui_models.dart';
 ///
 /// It takes an initial [definition] and reports user interactions
 /// via the [onEvent] callback.
-class DynamicUi extends StatefulWidget {
-  const DynamicUi({
+class SurfaceWidget extends StatefulWidget {
+  const SurfaceWidget({
     super.key,
     required this.catalog,
     required this.surfaceId,
@@ -28,11 +28,12 @@ class DynamicUi extends StatefulWidget {
   final Catalog catalog;
 
   @override
-  State<DynamicUi> createState() => _DynamicUiState();
+  State<SurfaceWidget> createState() => _SurfaceWidgetState();
 }
 
-class _DynamicUiState extends State<DynamicUi> {
-  /// Dispatches an event by calling the public [DynamicUi.onEvent] callback.
+class _SurfaceWidgetState extends State<SurfaceWidget> {
+  /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
+  /// callback.
   void _dispatchEvent({
     required String widgetId,
     required String eventType,

@@ -25,7 +25,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: DynamicUi(
+            body: SurfaceWidget(
               catalog: testCatalog,
               surfaceId: 'testSurface',
               definition: UiDefinition.fromMap(definition),
