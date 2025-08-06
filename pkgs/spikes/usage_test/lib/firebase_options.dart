@@ -67,5 +67,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'flutter-genui.firebasestorage.app',
     iosBundleId: 'com.example.usageTest',
   );
-
 }
