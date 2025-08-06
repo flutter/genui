@@ -6,7 +6,7 @@ This guidance explains how to enable GenUI for your
 ## Hello World
 
 This section describes how to build a minimal
-GenUI application.
+GenUI interaction.
 
 ### Configure Firebase
 
@@ -33,6 +33,8 @@ to configure your Flutter project.
   ```
 
 ### Employ `flutter_genui`
+
+Check [main.dart of minimal_genui](https://github.com/flutter/genui/blob/main/examples/minimal_genui/lib/main.dart) or follow the steps:
 
 1. Add a dependency on `flutter_genui` with one of the following options:
 
