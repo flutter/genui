@@ -150,10 +150,10 @@ class GeminiAiClient implements AiClient {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  final ValueNotifier<AiModel> _model;
+  final ValueNotifier<GeminiModel> _model;
 
   @override
-  ValueListenable<AiModel> get model => _model;
+  ValueListenable<GeminiModel> get model => _model;
 
   @override
   List<AiModel> get models =>
@@ -256,6 +256,12 @@ class GeminiAiClient implements AiClient {
 
   @override
   void switchModel(AiModel newModel) {
+    if (newModel is! GeminiModel) {
+      throw ArgumentError(
+        'Invalid model type: ${newModel.runtimeType} supplied to '
+        '$GeminiAiClient.switchModel.',
+      );
+    }
     _model.value = newModel;
     _log('Switched AI model to: ${newModel.displayName}');
   }
@@ -307,7 +313,7 @@ class GeminiAiClient implements AiClient {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    final geminiModel = configuration.model.value as GeminiModel;
+    final geminiModel = configuration.model.value;
     return FirebaseAiGenerativeModel(
       FirebaseAI.googleAI().generativeModel(
         model: geminiModel.type.modelName,
@@ -379,7 +385,7 @@ class GeminiAiClient implements AiClient {
         return result;
       } on FirebaseAIException catch (exception) {
         if (exception.message.contains(
-          '${(model.value as GeminiModel).type.modelName} is not found for '
+          '${model.value.type.modelName} is not found for '
           'API version',
         )) {
           // If the model is not found, then just throw an exception.

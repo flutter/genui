@@ -47,10 +47,10 @@ class TravelPlannerPage extends StatefulWidget {
   final AiClient? aiClient;
 
   @override
-  State<TravelPlannerPage> createState() => _MyHomePageState();
+  State<TravelPlannerPage> createState() => _TravelPlannerPageState();
 }
 
-class _MyHomePageState extends State<TravelPlannerPage> {
+class _TravelPlannerPageState extends State<TravelPlannerPage> {
   final _promptController = TextEditingController();
   late final GenUiManager _genUiManager;
   late AiClient aiClient;

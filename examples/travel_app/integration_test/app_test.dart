@@ -9,7 +9,7 @@ import 'package:travel_app/main.dart' as app;
 
 import '../test/mock_ai_client.dart';
 
-Future<void> main() async {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Initial UI test', () {
