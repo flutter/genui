@@ -17,18 +17,19 @@ import 'core_catalog.dart';
 import 'ui_event_manager.dart';
 
 class GenUiManager {
-  void _init() {
+  void _init(Catalog? catalog) {
+    this.catalog = catalog ?? coreCatalog;
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   GenUiManager.conversation({
     required this.aiClient,
-    this.catalog = const Catalog([]),
+    Catalog? catalog,
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
   }) {
-    _init();
+    _init(catalog);
   }
 
   GenUiManager.chat({
@@ -38,8 +39,7 @@ class GenUiManager {
     this.systemMessageBuilder,
     this.showInternalMessages = false,
   }) {
-    this.catalog = catalog ?? coreCatalog;
-    _init();
+    _init(catalog);
   }
 
   final bool showInternalMessages;
