@@ -29,8 +29,8 @@
             "type": "dart",
         },
         {
-            "name": "usage_test",
-            "cwd": "pkgs/spikes/usage_test",
+            "name": "chat_box_tester",
+            "cwd": "pkgs/spikes/chat_box_tester",
             "request": "launch",
             "type": "dart",
         }
