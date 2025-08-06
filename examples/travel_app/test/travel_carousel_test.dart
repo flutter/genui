@@ -48,6 +48,7 @@ void main() {
 
         expect(find.text('Item 1'), findsOneWidget);
         expect(find.text('Item 2'), findsOneWidget);
+        expect(find.byType(Image), findsNWidgets(2));
 
         await tester.tap(find.text('Item 1'));
         await tester.pump();

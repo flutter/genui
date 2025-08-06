@@ -10,8 +10,13 @@ import 'package:travel_app/src/asset_images.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('assetImageCatalogJson should return valid json', () async {
-    final result = await assetImageCatalogJson();
-    jsonDecode(result);
-  });
+  test(
+    'assetImageCatalogJson should return a valid and non-empty JSON object',
+    () async {
+      final result = await assetImageCatalogJson();
+      final decoded = jsonDecode(result);
+      expect(decoded, isA<List<dynamic>>());
+      expect(decoded, isNotEmpty);
+    },
+  );
 }
