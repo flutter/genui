@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     aiClient = AiClient(
-      systemInstruction: Content.system(prompt),
+      systemInstruction: prompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
