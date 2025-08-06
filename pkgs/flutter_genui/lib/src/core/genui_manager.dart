@@ -67,12 +67,11 @@ class GenUiManager {
     }
 
     _chatHistory.add(
-      UserPrompt(
-        text:
-            'The user has interacted with the UI surface named "$surfaceId". '
-            'Consolidate the UI events and update the UI accordingly. Respond '
-            'with an updated UI definition. You may update any of the '
-            'surfaces, or delete them if they are no longer needed.',
+      InternalMessage(
+        'The user has interacted with the UI surface named "$surfaceId". '
+        'Consolidate the UI events and update the UI accordingly. You can '
+        'choose to update this surface if the previous content is no-longer '
+        'needed, or add a new surface to show additional content.',
       ),
     );
 
@@ -91,8 +90,8 @@ class GenUiManager {
           conversation.add(
             Content.model([TextPart(jsonEncode(message.definition))]),
           );
-        // case InternalMessage(text: final text):
-        //   conversation.add(Content.text(text));
+        case InternalMessage():
+          conversation.add(Content.text(message.text));
         case UiEventMessage():
           conversation.add(
             Content.functionResponse(
@@ -100,8 +99,6 @@ class GenUiManager {
               message.event.toMap(),
             ),
           );
-        case _:
-          break;
       }
     }
     return conversation;

@@ -23,7 +23,7 @@ class SystemMessage extends ChatMessage {
 /// A message representing an internal message
 class InternalMessage extends ChatMessage {
   /// Creates a [SystemMessage] with the given [text].
-  const InternalMessage({required this.text});
+  const InternalMessage(this.text);
 
   /// The text of the system message.
   final String text;

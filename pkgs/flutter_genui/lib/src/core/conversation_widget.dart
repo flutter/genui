@@ -64,6 +64,7 @@ class ConversationWidget extends StatelessWidget {
               onEvent: onEvent,
             ),
           ),
+          _ => const SizedBox.shrink(),
         };
       },
     );
