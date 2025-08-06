@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,13 @@ class _MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
+  late final _chatBoxController = (() => ChatBoxController(onInputSubmitted))();
+  final _log = TextEditingController();
+
+  void onInputSubmitted(String input) {
+    _log.text += 'User: $input\n';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +45,13 @@ class _MyHomePageState extends State<_MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[ChatBox(), const Text('hello')],
+          children: <Widget>[
+            Expanded(child: ChatBox(_chatBoxController)),
+            SizedBox(
+              height: 20,
+              child: TextField(controller: _log, readOnly: true),
+            ),
+          ],
         ),
       ),
     );

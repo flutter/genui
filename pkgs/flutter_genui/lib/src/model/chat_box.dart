@@ -14,7 +14,7 @@ Widget defaultChatBoxBuilder(ChatBoxController controller) =>
     ChatBox(controller);
 
 class ChatBoxController {
-  ChatBoxController({required this.onInput});
+  ChatBoxController(this.onInput);
 
   /// The chat box will stop taking input after [stopped] is completed.
   final stopped = Completer<void>();
