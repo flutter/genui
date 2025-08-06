@@ -36,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GenUiManager _genUiManager = GenUiManager.conversation(
-    llmConnection: AiClient(),
+    aiClient: BasicAiClient(),
   );
 
   @override

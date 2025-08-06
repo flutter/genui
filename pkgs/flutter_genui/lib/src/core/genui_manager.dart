@@ -14,7 +14,7 @@ import 'conversation_widget.dart';
 
 class GenUiManager {
   GenUiManager.conversation({
-    required this.llmConnection,
+    required this.aiClient,
     this.catalog = const Catalog([]),
     this.userPromptBuilder,
     this.systemMessageBuilder,
@@ -26,7 +26,7 @@ class GenUiManager {
   final bool showInternalMessages;
 
   final Catalog catalog;
-  final LlmConnection llmConnection;
+  final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
   final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
@@ -57,7 +57,7 @@ class GenUiManager {
   }
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
-  /// also trigger an LLM inference via the llmConnection.
+  /// also trigger an AI inference via the [aiClient].
   void sendUserPrompt(String prompt) {
     if (prompt.isEmpty) {
       return;
@@ -115,7 +115,7 @@ class GenUiManager {
     _outstandingRequests++;
     _loadingStreamController.add(true);
     try {
-      final response = await llmConnection.generateContent(
+      final response = await aiClient.generateContent(
         _contentForChatHistory(),
         outputSchema,
       );

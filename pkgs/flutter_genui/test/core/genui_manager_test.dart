@@ -22,7 +22,7 @@ void main() {
       fakeAiClient = FakeAiClient();
       manager = GenUiManager.conversation(
         catalog: coreCatalog,
-        llmConnection: fakeAiClient,
+        aiClient: fakeAiClient,
       );
     });
 
@@ -398,7 +398,7 @@ void main() {
         'true', () async {
       manager = GenUiManager.conversation(
         catalog: coreCatalog,
-        llmConnection: fakeAiClient,
+        aiClient: fakeAiClient,
         showInternalMessages: true,
       );
       const prompt = 'Hello';

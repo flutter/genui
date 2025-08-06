@@ -51,7 +51,7 @@ abstract class AiTool<T extends Map<String, Object?>> {
   /// "readFile" and a [prefix] of "file" would be registered under both
   /// "readFile" and "file.readFile".
   ///
-  /// This is so that the LLM can ask for the "readFile" tool, even if it was
+  /// This is so that the AI can ask for the "readFile" tool, even if it was
   /// registered as "file.readFile", and it will still find the right tool.
   ///
   /// For MCP tools, prefixes are typically set to the name of the MCP server.

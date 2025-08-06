@@ -16,7 +16,7 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
   /// The type of event that was triggered (e.g., 'onChanged', 'onTap').
   String get eventType => _json['eventType'] as String;
 
-  /// Whether this event should trigger a submission to the LLM.
+  /// Whether this event should trigger a submission to the AI.
   bool get isAction => _json['isAction'] as bool;
 
   /// The value associated with the event, if any (e.g., the text in a

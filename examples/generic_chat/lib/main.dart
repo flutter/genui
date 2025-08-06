@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    final aiClient = AiClient(
+    final aiClient = BasicAiClient(
       systemInstruction: systemPrompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     _genUiManager = GenUiManager.conversation(
       catalog: coreCatalog,
-      llmConnection: aiClient,
+      aiClient: aiClient,
     );
   }
 
