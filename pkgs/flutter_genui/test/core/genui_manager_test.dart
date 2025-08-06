@@ -133,10 +133,11 @@ void main() {
       expect(uiResponse.surfaceId, 's1');
       expect(uiResponse.definition['root'], 'root');
       expect(
-          manager.chatHistoryForTesting
-              .whereType<UiResponse>()
-              .any((m) => m.surfaceId == 's1'),
-          isTrue);
+        manager.chatHistoryForTesting.whereType<UiResponse>().any(
+          (m) => m.surfaceId == 's1',
+        ),
+        isTrue,
+      );
     });
 
     test('handles UI "update" action from AI', () async {
@@ -243,10 +244,11 @@ void main() {
         await addCompleter.future;
         await addSub.cancel();
         expect(
-          manager.chatHistoryForTesting
-              .whereType<UiResponse>()
-              .any((m) => m.surfaceId == 's1'),
-          isTrue);
+          manager.chatHistoryForTesting.whereType<UiResponse>().any(
+            (m) => m.surfaceId == 's1',
+          ),
+          isTrue,
+        );
 
         // Now, delete it
         fakeAiClient.response = {
@@ -269,10 +271,11 @@ void main() {
         await deleteSub.cancel();
 
         expect(
-            manager.chatHistoryForTesting
-                .whereType<UiResponse>()
-                .any((m) => m.surfaceId == 's1'),
-            isFalse);
+          manager.chatHistoryForTesting.whereType<UiResponse>().any(
+            (m) => m.surfaceId == 's1',
+          ),
+          isFalse,
+        );
       },
       timeout: const Timeout(Duration(seconds: 10)),
     );
@@ -392,49 +395,50 @@ void main() {
     });
 
     test(
-        'when showInternalMessages is true, internal messages are in the stream',
-        () async {
-      manager = GenUiManager.conversation(
-        catalog: coreCatalog,
-        llmConnection: fakeAiClient,
-        showInternalMessages: true,
-      );
-      const prompt = 'Hello';
-      fakeAiClient.response = {
-        'actions': [
-          {
-            'action': 'add',
-            'surfaceId': 's1',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'Hi back'},
+      'when showInternalMessages is true, internal messages are in the stream',
+      () async {
+        manager = GenUiManager.conversation(
+          catalog: coreCatalog,
+          llmConnection: fakeAiClient,
+          showInternalMessages: true,
+        );
+        const prompt = 'Hello';
+        fakeAiClient.response = {
+          'actions': [
+            {
+              'action': 'add',
+              'surfaceId': 's1',
+              'definition': {
+                'root': 'root',
+                'widgets': [
+                  {
+                    'id': 'root',
+                    'widget': {
+                      'text': {'text': 'Hi back'},
+                    },
                   },
-                },
-              ],
+                ],
+              },
             },
-          },
-        ],
-      };
+          ],
+        };
 
-      final chatHistoryCompleter = Completer<List<ChatMessage>>();
-      manager.uiDataStream.listen((data) {
-        if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
-          chatHistoryCompleter.complete(data);
-        }
-      });
+        final chatHistoryCompleter = Completer<List<ChatMessage>>();
+        manager.uiDataStream.listen((data) {
+          if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
+            chatHistoryCompleter.complete(data);
+          }
+        });
 
-      manager.sendUserPrompt(prompt);
+        manager.sendUserPrompt(prompt);
 
-      final chatHistory = await chatHistoryCompleter.future;
+        final chatHistory = await chatHistoryCompleter.future;
 
-      expect(chatHistory[0], isA<UserPrompt>());
-      expect((chatHistory[0] as UserPrompt).text, prompt);
-      expect(chatHistory[1], isA<UiResponse>());
-    });
+        expect(chatHistory[0], isA<UserPrompt>());
+        expect((chatHistory[0] as UserPrompt).text, prompt);
+        expect(chatHistory[1], isA<UiResponse>());
+      },
+    );
   });
 }
 

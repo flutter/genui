@@ -72,10 +72,10 @@ class ConversationWidget extends StatelessWidget {
               onEvent: onEvent,
             ),
           ),
-          InternalMessage() =>
-            _InternalMessageWidget(content: message.text),
-          UiEventMessage() =>
-            _InternalMessageWidget(content: message.event.toString()),
+          InternalMessage() => _InternalMessageWidget(content: message.text),
+          UiEventMessage() => _InternalMessageWidget(
+            content: message.event.toString(),
+          ),
           _ => const SizedBox.shrink(),
         };
       },
@@ -84,9 +84,7 @@ class ConversationWidget extends StatelessWidget {
 }
 
 class _InternalMessageWidget extends StatelessWidget {
-  const _InternalMessageWidget({
-    required this.content,
-  });
+  const _InternalMessageWidget({required this.content});
 
   final String content;
 
