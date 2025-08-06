@@ -34,7 +34,25 @@ void main() {
       'sendUserPrompt adds message and calls AI, updates with response',
       () async {
         const prompt = 'Hello';
-        fakeAiClient.response = {'responseText': 'Hi back'};
+        fakeAiClient.response = {
+          'actions': [
+            {
+              'action': 'add',
+              'surfaceId': 's1',
+              'definition': {
+                'root': 'root',
+                'widgets': [
+                  {
+                    'id': 'root',
+                    'widget': {
+                      'text': {'text': 'Hi back'},
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        };
 
         final chatHistoryCompleter = Completer<List<ChatMessage>>();
         manager.uiDataStream.listen((data) {
@@ -49,8 +67,7 @@ void main() {
 
         expect(chatHistory[0], isA<UserPrompt>());
         expect((chatHistory[0] as UserPrompt).text, prompt);
-        expect(chatHistory[1], isA<TextResponse>());
-        expect((chatHistory[1] as TextResponse).text, 'Hi back');
+        expect(chatHistory[1], isA<UiResponse>());
 
         expect(fakeAiClient.generateContentCallCount, 1);
         expect(
@@ -115,7 +132,12 @@ void main() {
       final uiResponse = chatHistory.whereType<UiResponse>().first;
       expect(uiResponse.surfaceId, 's1');
       expect(uiResponse.definition['root'], 'root');
-      expect(manager.conversationsBySurfaceId.containsKey('s1'), isTrue);
+      expect(
+        manager.chatHistoryForTesting.whereType<UiResponse>().any(
+          (m) => m.surfaceId == 's1',
+        ),
+        isTrue,
+      );
     });
 
     test('handles UI "update" action from AI', () async {
@@ -221,7 +243,12 @@ void main() {
         await pumpEventQueue();
         await addCompleter.future;
         await addSub.cancel();
-        expect(manager.conversationsBySurfaceId.containsKey('s1'), isTrue);
+        expect(
+          manager.chatHistoryForTesting.whereType<UiResponse>().any(
+            (m) => m.surfaceId == 's1',
+          ),
+          isTrue,
+        );
 
         // Now, delete it
         fakeAiClient.response = {
@@ -232,7 +259,7 @@ void main() {
 
         final deleteCompleter = Completer<void>();
         final deleteSub = manager.uiDataStream.listen((data) {
-          if (manager.conversationsBySurfaceId.isEmpty &&
+          if (!data.whereType<UiResponse>().any((m) => m.surfaceId == 's1') &&
               !deleteCompleter.isCompleted) {
             deleteCompleter.complete();
           }
@@ -243,7 +270,12 @@ void main() {
         await deleteCompleter.future;
         await deleteSub.cancel();
 
-        expect(manager.conversationsBySurfaceId.containsKey('s1'), isFalse);
+        expect(
+          manager.chatHistoryForTesting.whereType<UiResponse>().any(
+            (m) => m.surfaceId == 's1',
+          ),
+          isFalse,
+        );
       },
       timeout: const Timeout(Duration(seconds: 10)),
     );
@@ -279,21 +311,37 @@ void main() {
         eventType: 'onTap',
         timestamp: DateTime.now(),
       );
-      fakeAiClient.response = {'responseText': 'event handled'};
+      fakeAiClient.response = {
+        'actions': [
+          {
+            'action': 'add',
+            'surfaceId': 's2',
+            'definition': {
+              'root': 'root',
+              'widgets': [
+                {
+                  'id': 'root',
+                  'widget': {
+                    'text': {'text': 'event handled'},
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
 
       final eventCompleter = Completer<List<ChatMessage>>();
       final eventSub = manager.uiDataStream.listen((data) {
-        // Wait for the text response from the event
-        if (data.isNotEmpty &&
-            data.last is TextResponse &&
-            (data.last as TextResponse).text == 'event handled') {
+        // Wait for the ui response from the event
+        if (data.whereType<UiResponse>().length > 1) {
           if (!eventCompleter.isCompleted) {
             eventCompleter.complete(data);
           }
         }
       });
 
-      manager.handleEvents([event]);
+      manager.handleEvents('s1', [event]);
       await pumpEventQueue();
 
       final chatHistory = await eventCompleter.future;
@@ -301,14 +349,13 @@ void main() {
 
       expect(fakeAiClient.generateContentCallCount, 2);
       final lastConversation = fakeAiClient.lastConversation;
-      expect(lastConversation[1].role, 'function');
+      expect(lastConversation[2].role, 'user');
       expect(
         (lastConversation.last.parts.first as TextPart).text,
         contains('user has interacted with the UI'),
       );
 
-      expect(chatHistory.last, isA<TextResponse>());
-      expect((chatHistory.last as TextResponse).text, 'event handled');
+      expect(chatHistory.last, isA<UiResponse>());
     });
 
     test('handles AI error gracefully', () async {
@@ -345,6 +392,50 @@ void main() {
     test("doesn't send empty prompt", () {
       manager.sendUserPrompt('');
       expect(fakeAiClient.generateContentCallCount, 0);
+    });
+
+    test('sends user prompt and gets UI response when showInternalMessages is '
+        'true', () async {
+      manager = GenUiManager.conversation(
+        catalog: coreCatalog,
+        llmConnection: fakeAiClient,
+        showInternalMessages: true,
+      );
+      const prompt = 'Hello';
+      fakeAiClient.response = {
+        'actions': [
+          {
+            'action': 'add',
+            'surfaceId': 's1',
+            'definition': {
+              'root': 'root',
+              'widgets': [
+                {
+                  'id': 'root',
+                  'widget': {
+                    'text': {'text': 'Hi back'},
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+
+      final chatHistoryCompleter = Completer<List<ChatMessage>>();
+      manager.uiDataStream.listen((data) {
+        if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
+          chatHistoryCompleter.complete(data);
+        }
+      });
+
+      manager.sendUserPrompt(prompt);
+
+      final chatHistory = await chatHistoryCompleter.future;
+
+      expect(chatHistory[0], isA<UserPrompt>());
+      expect((chatHistory[0] as UserPrompt).text, prompt);
+      expect(chatHistory[1], isA<UiResponse>());
     });
   });
 }

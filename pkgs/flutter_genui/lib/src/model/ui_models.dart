@@ -8,7 +8,7 @@
 /// actions, such as tapping a button or entering text.
 extension type UiEvent.fromMap(Map<String, Object?> _json) {
   /// The ID of the surface that this event originated from.
-  String? get surfaceId => _json['surfaceId'] as String?;
+  String get surfaceId => _json['surfaceId'] as String;
 
   /// The ID of the widget that triggered the event.
   String get widgetId => _json['widgetId'] as String;

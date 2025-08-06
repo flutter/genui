@@ -28,8 +28,8 @@ void main() {
       expect(find.byIcon(Icons.person), findsOneWidget);
     });
 
-    testWidgets('renders TextResponse correctly', (WidgetTester tester) async {
-      final messages = [const TextResponse(text: 'Hi there')];
+    testWidgets('renders SystemMessage correctly', (WidgetTester tester) async {
+      final messages = [const SystemMessage(text: 'Hi there')];
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -42,23 +42,6 @@ void main() {
         ),
       );
       expect(find.text('Hi there'), findsOneWidget);
-      expect(find.byIcon(Icons.smart_toy_outlined), findsOneWidget);
-    });
-
-    testWidgets('renders SystemMessage correctly', (WidgetTester tester) async {
-      final messages = [const SystemMessage(text: 'Error')];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ConversationWidget(
-              messages: messages,
-              catalog: coreCatalog,
-              onEvent: (_) {},
-            ),
-          ),
-        ),
-      );
-      expect(find.text('Error'), findsOneWidget);
       expect(find.byIcon(Icons.smart_toy_outlined), findsOneWidget);
     });
 
@@ -93,6 +76,46 @@ void main() {
       );
       expect(find.byType(SurfaceWidget), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
+    });
+
+    testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
+      final messages = [const UserPrompt(text: 'Hello')];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ConversationWidget(
+              messages: messages,
+              catalog: coreCatalog,
+              onEvent: (_) {},
+              userPromptBuilder: (context, message) =>
+                  const Text('Custom User Prompt'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Custom User Prompt'), findsOneWidget);
+      expect(find.text('Hello'), findsNothing);
+    });
+
+    testWidgets('uses custom systemMessageBuilder', (
+      WidgetTester tester,
+    ) async {
+      final messages = [const SystemMessage(text: 'Error')];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ConversationWidget(
+              messages: messages,
+              catalog: coreCatalog,
+              onEvent: (_) {},
+              systemMessageBuilder: (context, message) =>
+                  const Text('Custom System Message'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Custom System Message'), findsOneWidget);
+      expect(find.text('Error'), findsNothing);
     });
   });
 }

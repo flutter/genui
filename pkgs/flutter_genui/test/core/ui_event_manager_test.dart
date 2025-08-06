@@ -6,7 +6,9 @@ void main() {
   group('UiEventManager', () {
     test('accumulates non-submit events and sends on submit', () {
       final sentEvents = <UiEvent>[];
-      final manager = UiEventManager(callback: sentEvents.addAll);
+      final manager = UiEventManager(
+        callback: (_, events) => sentEvents.addAll(events),
+      );
 
       final event1 = UiChangeEvent(
         surfaceId: 's1',
@@ -53,7 +55,9 @@ void main() {
 
     test('coalesces onChanged events', () {
       final sentEvents = <UiEvent>[];
-      final manager = UiEventManager(callback: sentEvents.addAll);
+      final manager = UiEventManager(
+        callback: (_, events) => sentEvents.addAll(events),
+      );
 
       final event1 = UiChangeEvent(
         surfaceId: 's1',
