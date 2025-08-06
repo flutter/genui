@@ -9,46 +9,55 @@ import 'package:travel_app/src/catalog/filter_chip_group.dart';
 
 void main() {
   group('filterChipGroup', () {
-    testWidgets('builds Card with ElevatedButton', (WidgetTester tester) async {
-      final data = {
-        'submitLabel': 'Submit',
-        'children': ['child1', 'child2'],
-      };
+    testWidgets(
+      'renders children and dispatches submit event on button press',
+      (WidgetTester tester) async {
+        final data = {
+          'submitLabel': 'Submit',
+          'children': ['child1', 'child2'],
+        };
+        UiEvent? dispatchedEvent;
 
-      Widget buildChild(String id) {
-        return Text(id);
-      }
+        Widget buildChild(String id) => Text(id);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return filterChipGroup.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: buildChild,
-                  dispatchEvent: (UiEvent _) {},
-                  context: context,
-                );
-              },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return filterChipGroup.widgetBuilder(
+                    data: data,
+                    id: 'testId',
+                    buildChild: buildChild,
+                    dispatchEvent: (event) {
+                      dispatchedEvent = event;
+                    },
+                    context: context,
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(Card), findsOneWidget);
-      expect(find.byType(ElevatedButton), findsOneWidget);
-      expect(find.text('Submit'), findsOneWidget);
-      expect(find.text('child1'), findsOneWidget);
-      expect(find.text('child2'), findsOneWidget);
-    });
+        // Verify that children and the submit button are rendered.
+        expect(find.text('child1'), findsOneWidget);
+        expect(find.text('child2'), findsOneWidget);
+        final button = find.widgetWithText(ElevatedButton, 'Submit');
+        expect(button, findsOneWidget);
 
-    testWidgets('dispatches submit event on button press', (
+        // Verify that the submit event is dispatched on tap.
+        await tester.tap(button);
+        expect(dispatchedEvent, isA<UiActionEvent>());
+        expect(dispatchedEvent?.eventType, 'submit');
+        expect((dispatchedEvent as UiActionEvent).widgetId, 'testId');
+      },
+    );
+
+    testWidgets('renders correctly with no children', (
       WidgetTester tester,
     ) async {
       final data = {'submitLabel': 'Submit', 'children': <String>[]};
-      String? dispatchedEventType;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -59,9 +68,7 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEventType = event.eventType;
-                  },
+                  dispatchEvent: (UiEvent _) {},
                   context: context,
                 );
               },
@@ -70,8 +77,9 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(ElevatedButton));
-      expect(dispatchedEventType, 'submit');
+      // Verify that the submit button is rendered, but no children are.
+      expect(find.byType(Text), findsOneWidget); // The button label
+      expect(find.widgetWithText(ElevatedButton, 'Submit'), findsOneWidget);
     });
   });
 }

@@ -2,8 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-name: genui_client
-description: "An app that generates user interfaces on the fly using AI."
+name: generic_chat
+description: "A generic chat app that generates user interfaces on the fly using AI."
 publish_to: "none"
 version: 0.1.0
 
