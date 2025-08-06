@@ -9,36 +9,79 @@ import 'package:travel_app/src/catalog/itinerary_item.dart';
 
 void main() {
   group('ItineraryItem', () {
-    testWidgets('renders title and description', (WidgetTester tester) async {
+    testWidgets('renders title, subtitle, detail text and image', (
+      WidgetTester tester,
+    ) async {
       await mockNetworkImagesFor(() async {
         const testTitle = 'Test Title';
-        const testDescription = 'Test Description';
+        const testSubtitle = 'Test Subtitle';
+        const testDetailText = 'Test Detail Text';
 
         await tester.pumpWidget(
           MaterialApp(
-            home: Builder(
-              builder: (context) {
-                return itineraryItem.widgetBuilder(
-                  data: {
-                    'title': testTitle,
-                    'subtitle': 'Test Subtitle',
-                    'imageChild': 'image_child_id',
-                    'detailText': testDescription,
-                  },
-                  id: 'test_id',
-                  buildChild: (id) => Image.network(
-                    'https://example.com/thumbnail.jpg',
-                  ), // Mock buildChild
-                  dispatchEvent: (event) {}, // Mock dispatchEvent
-                  context: context,
-                );
-              },
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return itineraryItem.widgetBuilder(
+                    data: {
+                      'title': testTitle,
+                      'subtitle': testSubtitle,
+                      'imageChild': 'image_child_id',
+                      'detailText': testDetailText,
+                    },
+                    id: 'test_id',
+                    buildChild: (id) => Image.network(
+                      'https://example.com/thumbnail.jpg',
+                    ), // Mock buildChild
+                    dispatchEvent: (event) {}, // Mock dispatchEvent
+                    context: context,
+                  );
+                },
+              ),
             ),
           ),
         );
 
         expect(find.text(testTitle), findsOneWidget);
-        expect(find.text(testDescription), findsOneWidget);
+        expect(find.text(testSubtitle), findsOneWidget);
+        expect(find.text(testDetailText), findsOneWidget);
+        expect(find.byType(Image), findsOneWidget);
+      });
+    });
+
+    testWidgets('renders without image', (WidgetTester tester) async {
+      await mockNetworkImagesFor(() async {
+        const testTitle = 'Test Title';
+        const testSubtitle = 'Test Subtitle';
+        const testDetailText = 'Test Detail Text';
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return itineraryItem.widgetBuilder(
+                    data: {
+                      'title': testTitle,
+                      'subtitle': testSubtitle,
+                      'detailText': testDetailText,
+                    },
+                    id: 'test_id',
+                    buildChild: (id) =>
+                        const SizedBox.shrink(), // Mock buildChild
+                    dispatchEvent: (event) {}, // Mock dispatchEvent
+                    context: context,
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text(testTitle), findsOneWidget);
+        expect(find.text(testSubtitle), findsOneWidget);
+        expect(find.text(testDetailText), findsOneWidget);
+        expect(find.byType(Image), findsNothing);
       });
     });
   });

@@ -3,64 +3,22 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/catalog/trailhead.dart';
+import 'package:travel_app/src/catalog/section_header.dart';
 
 void main() {
-  group('trailheadCatalogItem', () {
-    testWidgets('builds widget correctly and handles tap', (
+  group('sectionHeaderCatalogItem', () {
+    testWidgets('renders title with a distinct style', (
       WidgetTester tester,
     ) async {
-      final data = {
-        'topics': ['Topic A', 'Topic B'],
-      };
-      UiEvent? dispatchedEvent;
+      final data = {'title': 'Section Title'};
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailheadCatalogItem.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEvent = event;
-                  },
-                  context: context,
-                );
-              },
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Topic A'), findsOneWidget);
-      expect(find.text('Topic B'), findsOneWidget);
-
-      await tester.tap(find.text('Topic A'));
-      await tester.pump();
-
-      expect(dispatchedEvent, isA<UiActionEvent>());
-      final actionEvent = dispatchedEvent as UiActionEvent;
-      expect(actionEvent.widgetId, 'testId');
-      expect(actionEvent.eventType, 'trailheadTopicSelected');
-      expect(actionEvent.value, 'Topic A');
-    });
-
-    testWidgets('builds widget correctly with no topics', (
-      WidgetTester tester,
-    ) async {
-      final data = {'topics': <String>[]};
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return trailheadCatalogItem.widgetBuilder(
+                return sectionHeaderCatalogItem.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
@@ -73,7 +31,37 @@ void main() {
         ),
       );
 
-      expect(find.byType(InputChip), findsNothing);
+      final title = tester.widget<Text>(find.text('Section Title'));
+      expect(title.style?.fontWeight, FontWeight.bold);
+    });
+
+    testWidgets('renders title and subtitle with distinct styles', (
+      WidgetTester tester,
+    ) async {
+      final data = {'title': 'Section Title', 'subtitle': 'Section Subtitle'};
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return sectionHeaderCatalogItem.widgetBuilder(
+                  data: data,
+                  id: 'testId',
+                  buildChild: (_) => const SizedBox.shrink(),
+                  dispatchEvent: (event) {},
+                  context: context,
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      final title = tester.widget<Text>(find.text('Section Title'));
+      final subtitle = tester.widget<Text>(find.text('Section Subtitle'));
+      expect(title.style?.fontWeight, FontWeight.bold);
+      expect(subtitle.style?.color, Colors.grey);
     });
   });
 }
