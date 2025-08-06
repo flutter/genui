@@ -80,8 +80,8 @@ class AiClient implements LlmConnection {
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
     String? systemInstruction,
-  })  : _systemInstruction = systemInstruction,
-        model = ValueNotifier(model) {
+  }) : _systemInstruction = systemInstruction,
+       model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -108,8 +108,8 @@ class AiClient implements LlmConnection {
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
     String? systemInstruction,
-  })  : _systemInstruction = systemInstruction,
-        model = ValueNotifier(model) {
+  }) : _systemInstruction = systemInstruction,
+       model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -431,8 +431,9 @@ class AiClient implements LlmConnection {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction:
-          _systemInstruction == null ? null : Content.system(_systemInstruction!),
+      systemInstruction: _systemInstruction == null
+          ? null
+          : Content.system(_systemInstruction),
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(
