@@ -27,9 +27,6 @@ class GenUiManager {
   final LlmConnection llmConnection;
   late final UiEventManager _eventManager;
 
-  // Context used for future LLM inferences
-  final pendingEventsBySurfaceId = <String, List<UiEvent>>{};
-
   @visibleForTesting
   List<ChatMessage> get chatHistoryForTesting => _chatHistory;
 
@@ -164,7 +161,6 @@ class GenUiManager {
                 );
               }
             case 'delete':
-              pendingEventsBySurfaceId.remove(surfaceId);
               _chatHistory.removeWhere(
                 (message) =>
                     message is UiResponse && message.surfaceId == surfaceId,
