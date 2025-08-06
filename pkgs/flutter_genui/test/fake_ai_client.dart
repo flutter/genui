@@ -9,18 +9,20 @@ import 'package:flutter_genui/src/ai_client/llm_connection.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 
 class FakeAiClient implements LlmConnection {
+  FakeAiClient({this.systemInstruction});
+
   Object? response;
   Exception? exception;
   int generateContentCallCount = 0;
   List<Content> lastConversation = [];
   Future<void> Function()? preGenerateContent;
+  Content? systemInstruction;
 
   @override
   Future<T?> generateContent<T extends Object>(
     List<Content> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
   }) async {
     await preGenerateContent?.call();
     generateContentCallCount++;

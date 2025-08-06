@@ -19,10 +19,11 @@ void main() {
     late FakeAiClient fakeAiClient;
 
     setUp(() {
-      fakeAiClient = FakeAiClient();
+      fakeAiClient = FakeAiClient(
+        systemInstruction: Content.system('You are a helpful assistant.'),
+      );
       manager = GenUiManager.conversation(
         catalog: coreCatalog,
-        instruction: 'You are a helpful assistant.',
         llmConnection: fakeAiClient,
       );
     });

@@ -15,14 +15,14 @@ class GenUiManager {
   GenUiManager.conversation({
     LlmConnection? llmConnection,
     this.catalog = const Catalog([]),
-    this.instruction = '',
+    String instruction = '',
   }) {
-    this.llmConnection = llmConnection ?? AiClient();
+    this.llmConnection =
+        llmConnection ?? AiClient(systemInstruction: Content.system(instruction));
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
-  final String instruction;
   late final LlmConnection llmConnection;
   late final UiEventManager _eventManager;
 
@@ -115,7 +115,6 @@ class GenUiManager {
       final response = await llmConnection.generateContent(
         conversation,
         outputSchema,
-        systemInstruction: Content.system(instruction),
       );
       if (response == null) {
         return;
