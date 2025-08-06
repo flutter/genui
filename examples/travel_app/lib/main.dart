@@ -55,13 +55,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     aiClient = AiClient(
+      systemInstruction: prompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
     );
     _genUiManager = GenUiManager.conversation(
       catalog: catalog,
-      instruction: prompt,
       llmConnection: aiClient,
     );
   }

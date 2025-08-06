@@ -61,13 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     final aiClient = AiClient(
+      systemInstruction: systemPrompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
     );
     _genUiManager = GenUiManager.conversation(
       catalog: coreCatalog,
-      instruction: systemPrompt,
       llmConnection: aiClient,
     );
   }

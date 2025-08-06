@@ -58,7 +58,7 @@ Check [main.dart of minimal_genui](https://github.com/flutter/genui/blob/main/ex
 you want the generated user interface to render:
 
     ```dart
-    final GenUiManager _genUiManager = GenUiManager.conversation();
+    final GenUiManager _genUiManager = GenUiManager.conversation(llmConnection: AiClient());
     ```
 
 1. Update the `build` method of the widget to render `_genUiManager.widget()`.

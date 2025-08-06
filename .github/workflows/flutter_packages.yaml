@@ -87,7 +87,7 @@ jobs:
 
           echo "matrix=$JSON_MATRIX" >> $GITHUB_OUTPUT
 
-analyze_and_test:
+  analyze_and_test:
     needs: matrix
     # Only run if the matrix job has produced a non-empty matrix.
     if: github.repository == 'flutter/genui' && ${{ needs.matrix.outputs.matrix != '[]' }}
@@ -106,7 +106,7 @@ analyze_and_test:
           distribution: "zulu"
           java-version: "17"
           cache: "gradle"
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
         with:
           channel: ${{ matrix.flutter_version }}
           cache: true

@@ -79,7 +79,9 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) : model = ValueNotifier(model) {
+    String? systemInstruction,
+  })  : _systemInstruction = systemInstruction,
+        model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -105,7 +107,9 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) : model = ValueNotifier(model) {
+    String? systemInstruction,
+  })  : _systemInstruction = systemInstruction,
+        model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -213,6 +217,9 @@ class AiClient implements LlmConnection {
   /// Defaults to 'provideFinalOutput'.
   final String outputToolName;
 
+  /// The system instruction to use for the AI.
+  final String? _systemInstruction;
+
   /// The total number of input tokens used by this client.
   int inputTokenUsage = 0;
 
@@ -257,12 +264,11 @@ class AiClient implements LlmConnection {
     List<Content> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
   }) async {
     return await _generateContentWithRetries(conversation, outputSchema, [
       ...tools,
       ...additionalTools,
-    ], systemInstruction);
+    ]);
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -310,7 +316,6 @@ class AiClient implements LlmConnection {
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
-    Content? systemInstruction,
   ) async {
     var attempts = 0;
     var delay = initialDelay;
@@ -338,7 +343,6 @@ class AiClient implements LlmConnection {
           contents,
           outputSchema,
           availableTools,
-          systemInstruction,
           // Reset the delay and attempts on success.
           () {
             delay = initialDelay;
@@ -372,7 +376,6 @@ class AiClient implements LlmConnection {
     List<Content> contents,
     Schema outputSchema,
     List<AiTool> availableTools,
-    Content? systemInstruction,
     void Function() onSuccess,
   ) async {
     // Create an "output" tool that copies its args into the output.
@@ -428,7 +431,8 @@ class AiClient implements LlmConnection {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction: systemInstruction,
+      systemInstruction:
+          _systemInstruction == null ? null : Content.system(_systemInstruction!),
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(
