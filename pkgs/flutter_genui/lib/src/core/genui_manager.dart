@@ -158,8 +158,8 @@ class GenUiManager {
                 );
                 _chatHistory.add(
                   InternalMessage(
-                    'The existing surface with id $surfaceId has been updated in response '
-                    'to user input.',
+                    'The existing surface with id $surfaceId has been updated '
+                    'in response to user input.',
                   ),
                 );
               }

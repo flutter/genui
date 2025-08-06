@@ -76,7 +76,6 @@ class ConversationWidget extends StatelessWidget {
           UiEventMessage() => _InternalMessageWidget(
             content: message.event.toString(),
           ),
-          _ => const SizedBox.shrink(),
         };
       },
     );

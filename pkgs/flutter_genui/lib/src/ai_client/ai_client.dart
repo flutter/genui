@@ -433,7 +433,7 @@ class AiClient implements LlmConnection {
       configuration: this,
       systemInstruction: _systemInstruction == null
           ? null
-          : Content.system(_systemInstruction!),
+          : Content.system(_systemInstruction),
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(
