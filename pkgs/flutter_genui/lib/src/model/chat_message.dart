@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'ui_models.dart';
+
 /// A sealed class representing a message in the chat history.
 sealed class ChatMessage {
   const ChatMessage();
@@ -13,6 +15,15 @@ sealed class ChatMessage {
 class SystemMessage extends ChatMessage {
   /// Creates a [SystemMessage] with the given [text].
   const SystemMessage({required this.text});
+
+  /// The text of the system message.
+  final String text;
+}
+
+/// A message representing an internal message
+class InternalMessage extends ChatMessage {
+  /// Creates a [SystemMessage] with the given [text].
+  const InternalMessage({required this.text});
 
   /// The text of the system message.
   final String text;
@@ -44,4 +55,13 @@ class UiResponse extends ChatMessage {
 
   /// The unique ID for this UI surface.
   final String surfaceId;
+}
+
+/// A message representing a UI event from the user.
+class UiEventMessage extends ChatMessage {
+  /// Creates a [UiEventMessage] with the given [event].
+  const UiEventMessage({required this.event});
+
+  /// The UI event that was triggered.
+  final UiEvent event;
 }

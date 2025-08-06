@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
@@ -15,21 +16,16 @@ class GenUiManager {
   GenUiManager.conversation({
     required this.llmConnection,
     this.catalog = const Catalog([]),
-    this.userPromptBuilder,
-    this.systemMessageBuilder,
   }) {
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
   final LlmConnection llmConnection;
-  final UserPromptBuilder? userPromptBuilder;
-  final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences
-  final masterConversation = <Content>[];
-  final conversationsBySurfaceId = <String, List<Content>>{};
+  final pendingEventsBySurfaceId = <String, List<UiEvent>>{};
 
   // The current chat data that is shown.
   final _chatHistory = <ChatMessage>[];
@@ -62,59 +58,61 @@ class GenUiManager {
     _chatHistory.add(UserPrompt(text: prompt));
     _uiDataStreamController.add(List.from(_chatHistory));
 
-    masterConversation.add(Content.text(prompt));
-    _generateAndSendResponse(conversation: masterConversation);
+    _generateAndSendResponse();
   }
 
-  void handleEvents(List<UiEvent> events) {
-    final eventsBySurface = <String, List<UiEvent>>{};
+  void handleEvents(String surfaceId, List<UiEvent> events) {
     for (final event in events) {
-      final surfaceId = event.surfaceId;
-      if (surfaceId != null) {
-        (eventsBySurface[surfaceId] ??= []).add(event);
-      }
+      _chatHistory.add(UiEventMessage(event: event));
     }
 
-    for (final entry in eventsBySurface.entries) {
-      final surfaceId = entry.key;
-      final surfaceConversation = conversationsBySurfaceId[surfaceId];
-      if (surfaceConversation == null) {
-        // TODO: Handle error - unknown surfaceId
-        print('Unknown surfaceId: $surfaceId');
-        continue;
-      }
-      for (final event in entry.value) {
-        final functionResponse = FunctionResponse(
-          event.widgetId,
-          event.toMap(),
-        );
-        surfaceConversation.add(
-          Content.functionResponse(
-            functionResponse.name,
-            functionResponse.response,
-          ),
-        );
-      }
-      surfaceConversation.add(
-        Content.text(
-          'The user has interacted with the UI surface named "$surfaceId". '
-          'Consolidate the UI events and update the UI accordingly. Respond '
-          'with an updated UI definition. You may update any of the '
-          'surfaces, or delete them if they are no longer needed.',
-        ),
-      );
-      _generateAndSendResponse(conversation: surfaceConversation);
-    }
+    _chatHistory.add(
+      UserPrompt(
+        text:
+            'The user has interacted with the UI surface named "$surfaceId". '
+            'Consolidate the UI events and update the UI accordingly. Respond '
+            'with an updated UI definition. You may update any of the '
+            'surfaces, or delete them if they are no longer needed.',
+      ),
+    );
+
+    _generateAndSendResponse();
   }
 
-  Future<void> _generateAndSendResponse({
-    required List<Content> conversation,
-  }) async {
+  List<Content> _contentForChatHistory() {
+    final conversation = <Content>[];
+    for (final message in _chatHistory) {
+      switch (message) {
+        case SystemMessage():
+          conversation.add(Content.system(message.text));
+        case UserPrompt():
+          conversation.add(Content.text(message.text));
+        case UiResponse():
+          conversation.add(
+            Content.model([TextPart(jsonEncode(message.definition))]),
+          );
+        // case InternalMessage(text: final text):
+        //   conversation.add(Content.text(text));
+        case UiEventMessage():
+          conversation.add(
+            Content.functionResponse(
+              message.event.widgetId,
+              message.event.toMap(),
+            ),
+          );
+        case _:
+          break;
+      }
+    }
+    return conversation;
+  }
+
+  Future<void> _generateAndSendResponse() async {
     _outstandingRequests++;
     _loadingStreamController.add(true);
     try {
       final response = await llmConnection.generateContent(
-        conversation,
+        _contentForChatHistory(),
         outputSchema,
       );
       if (response == null) {
@@ -135,8 +133,6 @@ class GenUiManager {
             case 'add':
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
-              final newConversation = List<Content>.from(conversation);
-              conversationsBySurfaceId[surfaceId] = newConversation;
               _chatHistory.add(
                 UiResponse(
                   definition: {'surfaceId': surfaceId, ...definition},
@@ -159,7 +155,7 @@ class GenUiManager {
                 );
               }
             case 'delete':
-              conversationsBySurfaceId.remove(surfaceId);
+              pendingEventsBySurfaceId.remove(surfaceId);
               _chatHistory.removeWhere(
                 (message) =>
                     message is UiResponse && message.surfaceId == surfaceId,
@@ -197,6 +193,12 @@ class GenUiManager {
   /// is always valid according to the schema.
   Schema get outputSchema => Schema.object(
     properties: {
+      'responseText': Schema.string(
+        description:
+            'The text response to the user query. This should be used '
+            'when the query is fully satisfied and no more information is '
+            'needed.',
+      ),
       'actions': Schema.array(
         description: 'A list of actions to be performed on the UI surfaces.',
         items: Schema.object(
@@ -234,6 +236,7 @@ class GenUiManager {
     description:
         'A schema for defining a simple UI tree to be rendered by '
         'Flutter.',
+    optionalProperties: ['actions', 'responseText'],
   );
 
   Widget widget() {
@@ -247,8 +250,6 @@ class GenUiManager {
           onEvent: (event) {
             _eventManager.add(UiEvent.fromMap(event));
           },
-          systemMessageBuilder: systemMessageBuilder,
-          userPromptBuilder: userPromptBuilder,
         );
       },
     );
