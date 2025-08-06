@@ -79,8 +79,9 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    this.systemInstruction,
-  }) : model = ValueNotifier(model) {
+    Content? systemInstruction,
+  })  : _systemInstruction = systemInstruction,
+        model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -106,8 +107,9 @@ class AiClient implements LlmConnection {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    this.systemInstruction,
-  }) : model = ValueNotifier(model) {
+    Content? systemInstruction,
+  })  : _systemInstruction = systemInstruction,
+        model = ValueNotifier(model) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -216,7 +218,7 @@ class AiClient implements LlmConnection {
   final String outputToolName;
 
   /// The system instruction to use for the AI.
-  final Content? systemInstruction;
+  final Content? _systemInstruction;
 
   /// The total number of input tokens used by this client.
   int inputTokenUsage = 0;
@@ -429,7 +431,7 @@ class AiClient implements LlmConnection {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction: systemInstruction,
+      systemInstruction: _systemInstruction,
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(
