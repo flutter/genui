@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
@@ -106,17 +108,46 @@ class GenUiManager {
     }
   }
 
+  String _getCurrentUiState() {
+    final uiStates = <Map<String, Object?>>[];
+    for (final message in _chatHistory) {
+      if (message is UiResponse) {
+        uiStates.add(message.definition);
+      }
+    }
+    if (uiStates.isEmpty) {
+      return 'The UI is currently empty.';
+    }
+    return jsonEncode(uiStates);
+  }
+
   Future<void> _generateAndSendResponse({
     required List<Content> conversation,
   }) async {
     _outstandingRequests++;
     _loadingStreamController.add(true);
     try {
+      final uiState = _getCurrentUiState();
+      final tempConversation = [
+        ...conversation,
+        Content.text(
+          'The following is the current UI state. Use this to inform your '
+          'response. Do not repeat this back to the user.\n'
+          'Current UI state: $uiState',
+        ),
+      ];
       final response = await llmConnection.generateContent(
-        conversation,
+        tempConversation,
         outputSchema,
         systemInstruction: Content.system(instruction),
       );
+
+      // Copy the tool-call-and-response history from the temporary
+      // conversation back to the original.
+      if (tempConversation.length > conversation.length + 1) {
+        conversation.addAll(tempConversation.sublist(conversation.length + 1));
+      }
+
       if (response == null) {
         return;
       }

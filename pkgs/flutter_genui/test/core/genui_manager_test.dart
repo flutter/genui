@@ -54,8 +54,11 @@ void main() {
         expect((chatHistory[1] as TextResponse).text, 'Hi back');
 
         expect(fakeAiClient.generateContentCallCount, 1);
+        final lastConversation = fakeAiClient.lastConversation;
         expect(
-          (fakeAiClient.lastConversation.last.parts.first as TextPart).text,
+          (lastConversation[lastConversation.length - 2].parts.first
+                  as TextPart)
+              .text,
           prompt,
         );
       },
@@ -304,7 +307,9 @@ void main() {
       final lastConversation = fakeAiClient.lastConversation;
       expect(lastConversation[1].role, 'function');
       expect(
-        (lastConversation.last.parts.first as TextPart).text,
+        (lastConversation[lastConversation.length - 2].parts.first
+                as TextPart)
+            .text,
         contains('user has interacted with the UI'),
       );
 
@@ -346,6 +351,61 @@ void main() {
     test("doesn't send empty prompt", () {
       manager.sendUserPrompt('');
       expect(fakeAiClient.generateContentCallCount, 0);
+    });
+
+    test('sendUserPrompt includes current UI state in the prompt', () async {
+      // 1. Add a UI to the chat history.
+      fakeAiClient.response = {
+        'actions': [
+          {
+            'action': 'add',
+            'surfaceId': 's1',
+            'definition': {
+              'root': 'root',
+              'widgets': [
+                {
+                  'id': 'root',
+                  'widget': {
+                    'text': {'text': 'Initial UI'},
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+
+      final addCompleter = Completer<void>();
+      final addSub = manager.uiDataStream.listen((data) {
+        if (data.whereType<UiResponse>().isNotEmpty &&
+            !addCompleter.isCompleted) {
+          addCompleter.complete();
+        }
+      });
+
+      manager.sendUserPrompt('show me a UI');
+      await pumpEventQueue();
+      await addCompleter.future;
+      await addSub.cancel();
+
+      // 2. Send a new prompt and check the conversation passed to the AI.
+      const prompt = 'Hello';
+      fakeAiClient.response = {'responseText': 'Hi back'};
+
+      manager.sendUserPrompt(prompt);
+      await pumpEventQueue();
+
+      expect(fakeAiClient.generateContentCallCount, 2);
+      final lastConversation = fakeAiClient.lastConversation;
+      final lastContent = lastConversation[lastConversation.length - 2];
+      expect(lastContent, isA<Content>());
+      expect((lastContent.parts.first as TextPart).text, prompt);
+
+      final uiStateContent = lastConversation.last;
+      expect(uiStateContent, isA<Content>());
+      final uiStateText = (uiStateContent.parts.first as TextPart).text;
+      expect(uiStateText, contains('Current UI state:'));
+      expect(uiStateText, contains('Initial UI'));
     });
   });
 }
