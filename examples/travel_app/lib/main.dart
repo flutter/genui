@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'Dynamic UI Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        cardTheme: const CardThemeData(elevation: 0),
       ),
       home: const MyHomePage(),
     );
@@ -232,4 +233,6 @@ E.g. after an itinerary item like a beach visit, you could include a carousel of
 If you need to use any images, try to find the most relevant ones from the following
 asset images:
 $_imagesJson
+
+**NEVER** use any other image URLs or names that you may be aware of. If you are using images, only choose assets from the list above.
 ''';

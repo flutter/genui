@@ -9,9 +9,13 @@ import '../../model/catalog_item.dart';
 
 final _schema = Schema.object(
   properties: {
-    'url': Schema.string(description: 'The URL of the image to display.'),
+    'url': Schema.string(
+      description:
+          'The URL of the image to display. Only use URLs that have been provided in the prompt here.',
+    ),
     'assetName': Schema.string(
-      description: 'The name of the asset to display.',
+      description:
+          'The name of the asset to display. Only use assets that have been provided in the prompt.',
     ),
     'fit': Schema.enumString(
       description: 'How the image should be inscribed into the box.',

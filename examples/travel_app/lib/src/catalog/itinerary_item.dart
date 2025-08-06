@@ -19,7 +19,6 @@ final _schema = Schema.object(
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
-  optionalProperties: ['imageChild'],
 );
 
 extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {

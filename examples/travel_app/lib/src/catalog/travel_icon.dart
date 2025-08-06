@@ -39,7 +39,7 @@ enum TravelIcons {
 }
 
 final travelIcon = CatalogItem(
-  name: 'travelIcon',
+  name: 'travel_icon',
   widgetBuilder:
       ({
         required data,
@@ -61,8 +61,8 @@ final travelIcon = CatalogItem(
       'icon': Schema.enumString(
         enumValues: TravelIcons.values.map((e) => e.name).toList(),
         description:
-            'The name of the travel icon to display. *only* the given '
-            'values can be used!',
+            'The name of the travel icon to display. *ONLY* the given '
+            'values can be used! Never use any other values!',
       ),
     },
   ),

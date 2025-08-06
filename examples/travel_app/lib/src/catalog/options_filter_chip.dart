@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
+  description:
+      'A filter chip to choose a travel option. *Always* put this inside filter_chip_group!',
   properties: {
     'chipLabel': Schema.string(
       description:
@@ -21,8 +23,9 @@ final _schema = Schema.object(
     'iconChild': Schema.string(
       description:
           'An icon to display on the left of the chip. '
-          'This should be an icon widget. Always use this if there is a '
-          'relevant icon.',
+          'This should be a `travel_icon` widget. Always use this *if* there '
+          'is a relevant icon avialable. Never use a `text` widget with emojis '
+          'in here.',
     ),
   },
   optionalProperties: ['iconChild'],
