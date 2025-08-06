@@ -12,10 +12,25 @@ import '../../flutter_genui.dart';
 import '../model/chat_message.dart';
 import 'conversation_widget.dart';
 
-enum GenUiStyle { conversation, chat }
+enum _GenUiStyle {
+  // Flexible, can be used for any type of UI.
+  conversation,
+  // UI is tailored for chat UX.
+  chat,
+}
 
 class GenUiManager {
   GenUiManager.conversation({
+    required this.llmConnection,
+    this.catalog = const Catalog([]),
+    this.userPromptBuilder,
+    this.systemMessageBuilder,
+    this.showInternalMessages = false,
+  }) {
+    _eventManager = UiEventManager(callback: handleEvents);
+  }
+
+  GenUiManager.chat({
     required this.llmConnection,
     this.catalog = const Catalog([]),
     this.userPromptBuilder,
