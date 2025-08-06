@@ -13,7 +13,7 @@ import '../model/chat_message.dart';
 import 'conversation_widget.dart';
 
 enum _GenUiStyle {
-  // Flexible, can be used for any type of UI.
+  // Flexible UX.
   conversation,
   // UI is tailored for chat UX.
   chat,
@@ -26,8 +26,8 @@ class GenUiManager {
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) {
-    _eventManager = UiEventManager(callback: handleEvents);
+  }) : _style = _GenUiStyle.conversation {
+    _init();
   }
 
   GenUiManager.chat({
@@ -36,9 +36,15 @@ class GenUiManager {
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) {
+  }) : _style = _GenUiStyle.chat {
+    _init();
+  }
+
+  void _init() {
     _eventManager = UiEventManager(callback: handleEvents);
   }
+
+  final _GenUiStyle _style;
 
   final bool showInternalMessages;
 
