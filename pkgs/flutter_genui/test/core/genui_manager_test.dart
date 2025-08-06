@@ -132,7 +132,11 @@ void main() {
       final uiResponse = chatHistory.whereType<UiResponse>().first;
       expect(uiResponse.surfaceId, 's1');
       expect(uiResponse.definition['root'], 'root');
-      expect(manager.conversationsBySurfaceId.containsKey('s1'), isTrue);
+      expect(
+          manager.chatHistoryForTesting
+              .whereType<UiResponse>()
+              .any((m) => m.surfaceId == 's1'),
+          isTrue);
     });
 
     test('handles UI "update" action from AI', () async {
@@ -238,7 +242,11 @@ void main() {
         await pumpEventQueue();
         await addCompleter.future;
         await addSub.cancel();
-        expect(manager.conversationsBySurfaceId.containsKey('s1'), isTrue);
+        expect(
+          manager.chatHistoryForTesting
+              .whereType<UiResponse>()
+              .any((m) => m.surfaceId == 's1'),
+          isTrue);
 
         // Now, delete it
         fakeAiClient.response = {
@@ -249,7 +257,7 @@ void main() {
 
         final deleteCompleter = Completer<void>();
         final deleteSub = manager.uiDataStream.listen((data) {
-          if (manager.conversationsBySurfaceId.isEmpty &&
+          if (!data.whereType<UiResponse>().any((m) => m.surfaceId == 's1') &&
               !deleteCompleter.isCompleted) {
             deleteCompleter.complete();
           }
@@ -260,7 +268,11 @@ void main() {
         await deleteCompleter.future;
         await deleteSub.cancel();
 
-        expect(manager.conversationsBySurfaceId.containsKey('s1'), isFalse);
+        expect(
+            manager.chatHistoryForTesting
+                .whereType<UiResponse>()
+                .any((m) => m.surfaceId == 's1'),
+            isFalse);
       },
       timeout: const Timeout(Duration(seconds: 10)),
     );
@@ -326,7 +338,7 @@ void main() {
         }
       });
 
-      manager.handleEvents([event]);
+      manager.handleEvents('s1', [event]);
       await pumpEventQueue();
 
       final chatHistory = await eventCompleter.future;
@@ -334,7 +346,7 @@ void main() {
 
       expect(fakeAiClient.generateContentCallCount, 2);
       final lastConversation = fakeAiClient.lastConversation;
-      expect(lastConversation[1].role, 'function');
+      expect(lastConversation[2].role, 'user');
       expect(
         (lastConversation.last.parts.first as TextPart).text,
         contains('user has interacted with the UI'),

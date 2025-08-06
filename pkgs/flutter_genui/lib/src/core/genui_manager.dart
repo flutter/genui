@@ -30,6 +30,9 @@ class GenUiManager {
   // Context used for future LLM inferences
   final pendingEventsBySurfaceId = <String, List<UiEvent>>{};
 
+  @visibleForTesting
+  List<ChatMessage> get chatHistoryForTesting => _chatHistory;
+
   // The current chat data that is shown.
   final _chatHistory = <ChatMessage>[];
 
@@ -77,6 +80,7 @@ class GenUiManager {
         'needed, or add a new surface to show additional content.',
       ),
     );
+    _uiDataStreamController.add(List.from(_chatHistory));
 
     _generateAndSendResponse();
   }
