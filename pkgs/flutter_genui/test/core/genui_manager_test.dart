@@ -55,12 +55,9 @@ void main() {
 
         expect(fakeAiClient.generateContentCallCount, 1);
         final lastConversation = fakeAiClient.lastConversation;
-        expect(
-          (lastConversation[lastConversation.length - 2].parts.first
-                  as TextPart)
-              .text,
-          prompt,
-        );
+        final userPromptContent = lastConversation[lastConversation.length - 2];
+        final userPromptText = (userPromptContent.parts.first as TextPart).text;
+        expect(userPromptText, prompt);
       },
     );
 
@@ -306,12 +303,9 @@ void main() {
       expect(fakeAiClient.generateContentCallCount, 2);
       final lastConversation = fakeAiClient.lastConversation;
       expect(lastConversation[1].role, 'function');
-      expect(
-        (lastConversation[lastConversation.length - 2].parts.first
-                as TextPart)
-            .text,
-        contains('user has interacted with the UI'),
-      );
+      final promptContent = lastConversation[lastConversation.length - 2];
+      final promptText = (promptContent.parts.first as TextPart).text;
+      expect(promptText, contains('user has interacted with the UI'));
 
       expect(chatHistory.last, isA<TextResponse>());
       expect((chatHistory.last as TextResponse).text, 'event handled');

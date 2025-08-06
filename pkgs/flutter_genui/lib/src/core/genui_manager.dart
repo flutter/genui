@@ -109,12 +109,10 @@ class GenUiManager {
   }
 
   String _getCurrentUiState() {
-    final uiStates = <Map<String, Object?>>[];
-    for (final message in _chatHistory) {
-      if (message is UiResponse) {
-        uiStates.add(message.definition);
-      }
-    }
+    final uiStates = _chatHistory
+        .whereType<UiResponse>()
+        .map((response) => response.definition)
+        .toList();
     if (uiStates.isEmpty) {
       return 'The UI is currently empty.';
     }
