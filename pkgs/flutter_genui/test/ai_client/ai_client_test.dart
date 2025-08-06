@@ -4,7 +4,6 @@
 
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -35,35 +35,14 @@ enum GeminiModelType {
 
 /// A class that represents a Gemini model.
 class GeminiModel extends AiModel {
-  /// Creates a new instance of [GeminiModel].
+  /// Creates a new instance of [GeminiModel] as a specific [type].
   GeminiModel(this.type);
 
   /// The type of the model.
   final GeminiModelType type;
 
   @override
-  String get displayName {
-    switch (type) {
-      case GeminiModelType.flash:
-        return 'Gemini Flash';
-      case GeminiModelType.pro:
-        return 'Gemini Pro';
-    }
-  }
-}
-
-enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
-
-typedef AiClientLoggingCallback =
-    void Function(AiLoggingSeverity severity, String message);
-
-class AiClientException implements Exception {
-  AiClientException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => '$AiClientException: $message';
+  String get displayName => type.displayName;
 }
 
 /// A basic implementation of [AiClient] for accessing a Gemini model.
