@@ -378,6 +378,51 @@ void main() {
       manager.sendUserPrompt('');
       expect(fakeAiClient.generateContentCallCount, 0);
     });
+
+    test(
+        'when showInternalMessages is true, internal messages are in the stream',
+        () async {
+      manager = GenUiManager.conversation(
+        catalog: coreCatalog,
+        llmConnection: fakeAiClient,
+        showInternalMessages: true,
+      );
+      const prompt = 'Hello';
+      fakeAiClient.response = {
+        'actions': [
+          {
+            'action': 'add',
+            'surfaceId': 's1',
+            'definition': {
+              'root': 'root',
+              'widgets': [
+                {
+                  'id': 'root',
+                  'widget': {
+                    'text': {'text': 'Hi back'},
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+
+      final chatHistoryCompleter = Completer<List<ChatMessage>>();
+      manager.uiDataStream.listen((data) {
+        if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
+          chatHistoryCompleter.complete(data);
+        }
+      });
+
+      manager.sendUserPrompt(prompt);
+
+      final chatHistory = await chatHistoryCompleter.future;
+
+      expect(chatHistory[0], isA<UserPrompt>());
+      expect((chatHistory[0] as UserPrompt).text, prompt);
+      expect(chatHistory[1], isA<UiResponse>());
+    });
   });
 }
 

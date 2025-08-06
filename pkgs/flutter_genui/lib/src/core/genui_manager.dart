@@ -16,9 +16,12 @@ class GenUiManager {
   GenUiManager.conversation({
     required this.llmConnection,
     this.catalog = const Catalog([]),
+    this.showInternalMessages = false,
   }) {
     _eventManager = UiEventManager(callback: handleEvents);
   }
+
+  final bool showInternalMessages;
 
   final Catalog catalog;
   final LlmConnection llmConnection;
@@ -83,7 +86,7 @@ class GenUiManager {
     for (final message in _chatHistory) {
       switch (message) {
         case SystemMessage():
-          conversation.add(Content.system(message.text));
+          conversation.add(Content.text(message.text));
         case UserPrompt():
           conversation.add(Content.text(message.text));
         case UiResponse():
@@ -94,10 +97,9 @@ class GenUiManager {
           conversation.add(Content.text(message.text));
         case UiEventMessage():
           conversation.add(
-            Content.functionResponse(
-              message.event.widgetId,
-              message.event.toMap(),
-            ),
+            Content('user', [
+              FunctionResponse(message.event.widgetId, message.event.toMap()),
+            ]),
           );
       }
     }
@@ -149,6 +151,12 @@ class GenUiManager {
                 _chatHistory[index] = UiResponse(
                   definition: {'surfaceId': surfaceId, ...definition},
                   surfaceId: surfaceId,
+                );
+                _chatHistory.add(
+                  InternalMessage(
+                    'The existing surface with id $surfaceId has been updated in response '
+                    'to user input.',
+                  ),
                 );
               }
             case 'delete':
@@ -244,6 +252,7 @@ class GenUiManager {
         return ConversationWidget(
           messages: snapshot.data!,
           catalog: catalog,
+          showInternalMessages: showInternalMessages,
           onEvent: (event) {
             _eventManager.add(UiEvent.fromMap(event));
           },

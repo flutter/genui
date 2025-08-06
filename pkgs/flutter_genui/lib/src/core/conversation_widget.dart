@@ -23,6 +23,7 @@ class ConversationWidget extends StatelessWidget {
     required this.onEvent,
     this.systemMessageBuilder,
     this.userPromptBuilder,
+    this.showInternalMessages = false,
   });
 
   final List<ChatMessage> messages;
@@ -30,13 +31,20 @@ class ConversationWidget extends StatelessWidget {
   final Catalog catalog;
   final SystemMessageBuilder? systemMessageBuilder;
   final UserPromptBuilder? userPromptBuilder;
+  final bool showInternalMessages;
 
   @override
   Widget build(BuildContext context) {
+    final renderedMessages = messages.where((message) {
+      if (showInternalMessages) {
+        return true;
+      }
+      return message is! InternalMessage && message is! UiEventMessage;
+    }).toList();
     return ListView.builder(
-      itemCount: messages.length,
+      itemCount: renderedMessages.length,
       itemBuilder: (context, index) {
-        final message = messages[index];
+        final message = renderedMessages[index];
         return switch (message) {
           SystemMessage() =>
             systemMessageBuilder != null
@@ -64,9 +72,34 @@ class ConversationWidget extends StatelessWidget {
               onEvent: onEvent,
             ),
           ),
+          InternalMessage() =>
+            _InternalMessageWidget(content: message.text),
+          UiEventMessage() =>
+            _InternalMessageWidget(content: message.event.toString()),
           _ => const SizedBox.shrink(),
         };
       },
+    );
+  }
+}
+
+class _InternalMessageWidget extends StatelessWidget {
+  const _InternalMessageWidget({
+    required this.content,
+  });
+
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        color: Colors.grey.shade200,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('Internal message: $content'),
+        ),
+      ),
     );
   }
 }
