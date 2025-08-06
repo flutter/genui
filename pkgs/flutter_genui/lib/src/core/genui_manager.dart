@@ -8,11 +8,19 @@ import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../../flutter_genui.dart';
+import '../ai_client/ai_client.dart';
+import '../model/catalog.dart';
 import '../model/chat_message.dart';
+import '../model/ui_models.dart';
 import 'conversation_widget.dart';
+import 'core_catalog.dart';
+import 'ui_event_manager.dart';
 
 class GenUiManager {
+  void _init() {
+    _eventManager = UiEventManager(callback: handleEvents);
+  }
+
   GenUiManager.conversation({
     required this.aiClient,
     this.catalog = const Catalog([]),
@@ -20,12 +28,23 @@ class GenUiManager {
     this.systemMessageBuilder,
     this.showInternalMessages = false,
   }) {
-    _eventManager = UiEventManager(callback: handleEvents);
+    _init();
+  }
+
+  GenUiManager.chat({
+    required this.aiClient,
+    Catalog? catalog,
+    this.userPromptBuilder,
+    this.systemMessageBuilder,
+    this.showInternalMessages = false,
+  }) {
+    this.catalog = catalog ?? coreCatalog;
+    _init();
   }
 
   final bool showInternalMessages;
 
-  final Catalog catalog;
+  late final Catalog catalog;
   final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
   final SystemMessageBuilder? systemMessageBuilder;

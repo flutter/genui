@@ -29,7 +29,7 @@ class CatalogItem {
   final Schema dataSchema; // The schema definition for this widget's data.
   final CatalogWidgetBuilder widgetBuilder;
 
-  CatalogItem({
+  const CatalogItem({
     required this.name,
     required this.dataSchema,
     required this.widgetBuilder,
