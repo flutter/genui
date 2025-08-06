@@ -45,7 +45,7 @@ class AiClientException implements Exception {
   String toString() => '$AiClientException: $message';
 }
 
-/// An interface for accessing a Gemini model.
+/// A basic implementation of [AiClient] for accessing a Gemini model.
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
 /// including model selection, API keys, retry mechanisms, and tool
