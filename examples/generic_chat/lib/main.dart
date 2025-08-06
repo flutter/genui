@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    final aiClient = BasicAiClient(
+    final aiClient = GeminiAiClient(
       systemInstruction: systemPrompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');

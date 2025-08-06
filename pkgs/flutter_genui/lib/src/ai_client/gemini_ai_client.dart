@@ -17,7 +17,7 @@ import 'tools.dart';
 /// related components.
 typedef GenerativeModelFactory =
     GenerativeModelInterface Function({
-      required BasicAiClient configuration,
+      required GeminiAiClient configuration,
       Content? systemInstruction,
       List<Tool>? tools,
       ToolConfig? toolConfig,
@@ -51,8 +51,8 @@ class AiClientException implements Exception {
 /// including model selection, API keys, retry mechanisms, and tool
 /// configurations. It provides a [generateContent] method to interact with
 /// the AI model, supporting structured output and tool usage.
-class BasicAiClient implements AiClient {
-  /// Creates an [BasicAiClient] instance with specified configurations.
+class GeminiAiClient implements AiClient {
+  /// Creates an [GeminiAiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
@@ -68,7 +68,7 @@ class BasicAiClient implements AiClient {
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
-  BasicAiClient({
+  GeminiAiClient({
     GeminiModel model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
@@ -96,7 +96,7 @@ class BasicAiClient implements AiClient {
   }
 
   @visibleForTesting
-  BasicAiClient.test({
+  GeminiAiClient.test({
     required this.modelCreator,
     GeminiModel model = GeminiModel.flash,
     this.fileSystem = const LocalFileSystem(),
@@ -133,7 +133,7 @@ class BasicAiClient implements AiClient {
 
   /// The file system to use for accessing files.
   ///
-  /// While not directly used by [BasicAiClient]'s core content generation
+  /// While not directly used by [GeminiAiClient]'s core content generation
   /// logic, this [FileSystem] instance can be utilized by [AiTool]
   /// implementations that require file read/write capabilities.
   ///
@@ -170,7 +170,7 @@ class BasicAiClient implements AiClient {
   /// The maximum number of concurrent jobs to run.
   ///
   /// This property is intended for systems that might manage multiple
-  /// [BasicAiClient] operations or other concurrent tasks.
+  /// [GeminiAiClient] operations or other concurrent tasks.
   /// The [generateContent] method itself is a single asynchronous operation
   /// and does not directly enforce this limit.
   ///
@@ -193,7 +193,7 @@ class BasicAiClient implements AiClient {
   /// [GenerativeModel] used for AI interactions. It allows for customization of
   /// the model setup, such as using different HTTP clients, or for providing
   /// mock models during testing.
-  /// The factory receives this [BasicAiClient] instance
+  /// The factory receives this [GeminiAiClient] instance
   /// as configuration.
   ///
   /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
@@ -274,9 +274,9 @@ class BasicAiClient implements AiClient {
   /// The default factory function for creating a [GenerativeModel].
   ///
   /// This function instantiates a standard [GenerativeModel] using the
-  /// `model` from the provided [BasicAiClient] `configuration`.
+  /// `model` from the provided [GeminiAiClient] `configuration`.
   static GenerativeModelInterface defaultGenerativeModelFactory({
-    required BasicAiClient configuration,
+    required GeminiAiClient configuration,
     Content? systemInstruction,
     List<Tool>? tools,
     ToolConfig? toolConfig,
