@@ -7,7 +7,7 @@ generative UI to their features.
 
 | Package | Description | Version |
 | --- | --- | --- |
-| [flutter_genui](pkgs/flutter_genui/) | (work in progress, used by flutter_test) A framework to employ Generative UI. | [![pub package](https://img.shields.io/pub/v/flutter_genui.svg)](https://pub.dev/packages/flutter_genui) |
+| [flutter_genui](pkgs/flutter_genui/) | (work in progress) A framework to employ Generative UI. | [![pub package](https://img.shields.io/pub/v/flutter_genui.svg)](https://pub.dev/packages/flutter_genui) |
 
 ## Usage
 
