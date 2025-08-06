@@ -34,7 +34,7 @@ to configure your Flutter project.
 
 ### Employ `flutter_genui`
 
-Check [main.dart of minimal_genui](https://github.com/flutter/genui/blob/main/examples/minimal_genui/lib/main.dart) or follow the steps:
+For a complete example, refer to [main.dart in the minimal_genui example](../examples/minimal_genui/lib/main.dart). The following steps outline the details:
 
 1. Add a dependency on `flutter_genui` with one of the following options:
 
