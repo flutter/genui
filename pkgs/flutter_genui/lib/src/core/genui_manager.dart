@@ -13,17 +13,14 @@ import 'conversation_widget.dart';
 
 class GenUiManager {
   GenUiManager.conversation({
-    LlmConnection? llmConnection,
+    required this.llmConnection,
     this.catalog = const Catalog([]),
-    String instruction = '',
   }) {
-    this.llmConnection =
-        llmConnection ?? AiClient(systemInstruction: Content.system(instruction));
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
-  late final LlmConnection llmConnection;
+  final LlmConnection llmConnection;
   late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences

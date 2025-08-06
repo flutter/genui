@@ -56,7 +56,7 @@ to configure your Flutter project.
 you want the generated user interface to render:
 
     ```dart
-    final GenUiManager _genUiManager = GenUiManager.conversation();
+    final GenUiManager _genUiManager = GenUiManager.conversation(llmConnection: AiClient());
     ```
 
 1. Update the `build` method of the widget to render `_genUiManager.widget()`.
