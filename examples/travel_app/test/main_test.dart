@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 // TODO(gspencer): Remove this dependency on firebase_ai once we have generic
-// replacements for Schema, Content and Part.
+// replacements for TextPart.
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/main.dart' as app;
 
-import 'mock_ai_client.dart';
+import 'test_infra/mock_ai_client.dart';
 
 void main() {
   testWidgets('Can switch models', (WidgetTester tester) async {
