@@ -4,7 +4,7 @@
 
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/ai_client/ai_client.dart';
+import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,17 +13,17 @@ import '../test_infra/utils.dart';
 void main() {
   group('AiClient', () {
     late FakeGenerativeModel fakeModel;
-    late AiClient client;
+    late GeminiAiClient client;
 
     setUp(() {
       fakeModel = FakeGenerativeModel();
     });
 
-    AiClient createClient({
+    GeminiAiClient createClient({
       List<AiTool> tools = const [],
       AiClientLoggingCallback? loggingCallback,
     }) {
-      return AiClient.test(
+      return GeminiAiClient.test(
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
               return fakeModel;

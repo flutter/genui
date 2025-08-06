@@ -1,12 +1,17 @@
-# Flutter Generative UI SDK Packages and Apps
+# Flutter Generative UI SDK (Flutter GenUI, flutter_genui)
 
-This repository is a collection of packages and applications for
-the Flutter Generative UI SDK.
+A Flutter library to enable developers to easily add interactive
+generative UI to their applications.
 
 ## Packages
 
-TODO: describe packages
-Example: https://github.com/dart-lang/leak_tracker?tab=readme-ov-file#packages
+| Package | Description | Version |
+| --- | --- | --- |
+| [flutter_genui](pkgs/flutter_genui/) | (work in progress) A framework to employ Generative UI. | [![pub package](https://img.shields.io/pub/v/flutter_genui.svg)](https://pub.dev/packages/flutter_genui) |
+
+## Usage
+
+See [doc/USAGE.md](doc/USAGE.md).
 
 ## Contribute
 

@@ -5,10 +5,10 @@
 import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/src/ai_client/llm_connection.dart';
+import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 
-class FakeAiClient implements LlmConnection {
+class FakeAiClient implements AiClient {
   Object? response;
   Exception? exception;
   int generateContentCallCount = 0;

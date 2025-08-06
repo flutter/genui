@@ -60,13 +60,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    final aiClient = AiClient(
+    final aiClient = GeminiAiClient(
       systemInstruction: systemPrompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
     );
-    _genUiManager = GenUiManager(catalog: coreCatalog, llmConnection: aiClient);
+    _genUiManager = GenUiManager.conversation(
+      catalog: coreCatalog,
+      aiClient: aiClient,
+    );
   }
 
   @override
