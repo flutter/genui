@@ -110,7 +110,7 @@ class _ChatMessage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (isStart) ...[Icon(icon), const SizedBox(width: 8.0)],
-                    Flexible(child: Text(text)),
+                    Text(text),
                     if (!isStart) ...[const SizedBox(width: 8.0), Icon(icon)],
                   ],
                 ),
