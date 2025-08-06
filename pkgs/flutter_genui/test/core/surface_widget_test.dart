@@ -97,8 +97,9 @@ void main() {
       expect(find.text('Hello'), findsNothing);
     });
 
-    testWidgets('uses custom systemMessageBuilder',
-        (WidgetTester tester) async {
+    testWidgets('uses custom systemMessageBuilder', (
+      WidgetTester tester,
+    ) async {
       final messages = [const SystemMessage(text: 'Error')];
       await tester.pumpWidget(
         MaterialApp(
