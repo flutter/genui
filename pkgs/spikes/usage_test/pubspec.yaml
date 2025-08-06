@@ -1,22 +1,22 @@
 name: usage_test
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
   sdk: ^3.10.0-28.0.dev
 
 dependencies:
+  cupertino_icons: ^1.0.8
+  firebase_core: ^4.0.0
   flutter:
     sdk: flutter
   flutter_genui:
     path: ../../flutter_genui
-  cupertino_icons: ^1.0.8
-  firebase_core: ^4.0.0
 
 dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
-  dart_flutter_team_lints: ^3.5.2
 
 flutter:
   uses-material-design: true
