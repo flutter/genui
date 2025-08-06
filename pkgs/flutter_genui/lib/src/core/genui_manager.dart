@@ -15,12 +15,16 @@ class GenUiManager {
   GenUiManager.conversation({
     required this.llmConnection,
     this.catalog = const Catalog([]),
+    this.userPromptBuilder,
+    this.systemMessageBuilder,
   }) {
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
   final LlmConnection llmConnection;
+  final UserPromptBuilder? userPromptBuilder;
+  final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences
@@ -117,9 +121,6 @@ class GenUiManager {
         return;
       }
       final responseMap = response as Map<String, Object?>;
-      if (responseMap['responseText'] case final String responseText) {
-        _chatHistory.add(TextResponse(text: responseText));
-      }
       if (responseMap['actions'] case final List<Object?> actions) {
         for (final actionMap in actions.cast<Map<String, Object?>>()) {
           final action = actionMap['action'] as String;
@@ -196,12 +197,6 @@ class GenUiManager {
   /// is always valid according to the schema.
   Schema get outputSchema => Schema.object(
     properties: {
-      'responseText': Schema.string(
-        description:
-            'The text response to the user query. This should be used '
-            'when the query is fully satisfied and no more information is '
-            'needed.',
-      ),
       'actions': Schema.array(
         description: 'A list of actions to be performed on the UI surfaces.',
         items: Schema.object(
@@ -239,7 +234,6 @@ class GenUiManager {
     description:
         'A schema for defining a simple UI tree to be rendered by '
         'Flutter.',
-    optionalProperties: ['actions', 'responseText'],
   );
 
   Widget widget() {
@@ -253,6 +247,8 @@ class GenUiManager {
           onEvent: (event) {
             _eventManager.add(UiEvent.fromMap(event));
           },
+          systemMessageBuilder: systemMessageBuilder,
+          userPromptBuilder: userPromptBuilder,
         );
       },
     );

@@ -34,7 +34,25 @@ void main() {
       'sendUserPrompt adds message and calls AI, updates with response',
       () async {
         const prompt = 'Hello';
-        fakeAiClient.response = {'responseText': 'Hi back'};
+        fakeAiClient.response = {
+          'actions': [
+            {
+              'action': 'add',
+              'surfaceId': 's1',
+              'definition': {
+                'root': 'root',
+                'widgets': [
+                  {
+                    'id': 'root',
+                    'widget': {
+                      'text': {'text': 'Hi back'},
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        };
 
         final chatHistoryCompleter = Completer<List<ChatMessage>>();
         manager.uiDataStream.listen((data) {
@@ -49,8 +67,7 @@ void main() {
 
         expect(chatHistory[0], isA<UserPrompt>());
         expect((chatHistory[0] as UserPrompt).text, prompt);
-        expect(chatHistory[1], isA<TextResponse>());
-        expect((chatHistory[1] as TextResponse).text, 'Hi back');
+        expect(chatHistory[1], isA<UiResponse>());
 
         expect(fakeAiClient.generateContentCallCount, 1);
         expect(
@@ -279,14 +296,30 @@ void main() {
         eventType: 'onTap',
         timestamp: DateTime.now(),
       );
-      fakeAiClient.response = {'responseText': 'event handled'};
+      fakeAiClient.response = {
+        'actions': [
+          {
+            'action': 'add',
+            'surfaceId': 's2',
+            'definition': {
+              'root': 'root',
+              'widgets': [
+                {
+                  'id': 'root',
+                  'widget': {
+                    'text': {'text': 'event handled'},
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
 
       final eventCompleter = Completer<List<ChatMessage>>();
       final eventSub = manager.uiDataStream.listen((data) {
-        // Wait for the text response from the event
-        if (data.isNotEmpty &&
-            data.last is TextResponse &&
-            (data.last as TextResponse).text == 'event handled') {
+        // Wait for the ui response from the event
+        if (data.whereType<UiResponse>().length > 1) {
           if (!eventCompleter.isCompleted) {
             eventCompleter.complete(data);
           }
@@ -307,8 +340,7 @@ void main() {
         contains('user has interacted with the UI'),
       );
 
-      expect(chatHistory.last, isA<TextResponse>());
-      expect((chatHistory.last as TextResponse).text, 'event handled');
+      expect(chatHistory.last, isA<UiResponse>());
     });
 
     test('handles AI error gracefully', () async {

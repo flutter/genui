@@ -27,15 +27,6 @@ class UserPrompt extends ChatMessage {
   final String text;
 }
 
-/// A message representing a text response from the AI.
-class TextResponse extends ChatMessage {
-  /// Creates a [TextResponse] with the given [text].
-  const TextResponse({required this.text});
-
-  /// The text of the AI's response.
-  final String text;
-}
-
 /// A message representing a UI response from the AI.
 class UiResponse extends ChatMessage {
   /// Creates a [UiResponse] with the given UI [definition].
