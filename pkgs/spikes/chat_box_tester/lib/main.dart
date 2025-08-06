@@ -29,7 +29,7 @@ class _MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<_MyHomePage> {
   late final _chatBoxController = (() => ChatBoxController(onInputSubmitted))();
-  final _log = TextEditingController();
+  final _log = TextEditingController(text: '');
 
   void onInputSubmitted(String input) {
     _log.text += 'User: $input\n';
@@ -42,17 +42,26 @@ class _MyHomePageState extends State<_MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Chat Box Tester'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(child: ChatBox(_chatBoxController)),
-            SizedBox(
-              height: 20,
-              child: TextField(controller: _log, readOnly: true),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              color: Colors.red,
+              child: ChatBox(_chatBoxController),
             ),
-          ],
-        ),
+          ),
+          SizedBox(
+            height: 150,
+            child: Expanded(
+              child: TextField(
+                controller: _log,
+                readOnly: true,
+                decoration: null,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

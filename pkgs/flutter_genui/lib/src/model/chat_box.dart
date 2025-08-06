@@ -57,34 +57,43 @@ class _ChatBoxState extends State<ChatBox> {
   @override
   void initState() {
     super.initState();
-    _focusNode.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      focusNode: _focusNode,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius)),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+
+      children: [
+        TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(widget.borderRadius),
+              ),
+            ),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: _submit,
+            ),
+          ),
+          maxLines: null, // Allows for multi-line input
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.send,
+          onSubmitted: (String value) => _submit(),
         ),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.send),
-          onPressed: _submit,
-        ),
-      ),
-      maxLines: null, // Allows for multi-line input
-      keyboardType: TextInputType.multiline,
-      textInputAction: TextInputAction.send,
-      onSubmitted: (String value) => _submit(),
+      ],
     );
   }
 
   void _submit() {
     final inputText = _controller.text.trim();
-    _focusNode.unfocus();
     widget.controller.onInput(inputText);
   }
 
