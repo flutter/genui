@@ -221,7 +221,7 @@ you are adding another element to the end of the stream.
 In general, you should keep adding more UI elements to the end of the chat. You should
 only replace elements if they are no-longer relevant. For example if a userperforms a search,
 then you can replace the filter chips etc with a new surface that includes both
-filterchips *and* the result.
+filter chips *and* the result.
 That way the user can refine their search and retry.
 
 # UI style
