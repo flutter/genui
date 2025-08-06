@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/main.dart' as app;
 
-import 'test_infra/mock_ai_client.dart';
+import 'test_infra/fake_ai_client.dart';
 
 void main() {
   testWidgets('Can switch models', (WidgetTester tester) async {
-    final mockAiClient = MockAiClient();
+    final mockAiClient = FakeAiClient();
     await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
 
     expect(find.text('mock1'), findsNothing);
@@ -32,7 +32,7 @@ void main() {
   });
 
   testWidgets('Can send a prompt', (WidgetTester tester) async {
-    final mockAiClient = MockAiClient();
+    final mockAiClient = FakeAiClient();
     await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
 
     await tester.enterText(find.byType(TextField), 'test prompt');

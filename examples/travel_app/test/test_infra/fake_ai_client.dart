@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 
-class MockAiClient implements AiClient {
+class FakeAiClient implements AiClient {
   Object? response;
   Exception? exception;
   int generateContentCallCount = 0;

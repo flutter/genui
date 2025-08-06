@@ -7,14 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:travel_app/main.dart' as app;
 
-import '../test/test_infra/mock_ai_client.dart';
+import '../test/test_infra/fake_ai_client.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
-      final mockAiClient = MockAiClient();
+      final mockAiClient = FakeAiClient();
       mockAiClient.response = _baliResponse;
 
       runApp(app.TravelApp(aiClient: mockAiClient));
