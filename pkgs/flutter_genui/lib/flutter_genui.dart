@@ -18,3 +18,4 @@ export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/surface_widget.dart';
 export 'src/model/ui_models.dart';
+export 'src/widgets/loading_scrim.dart';

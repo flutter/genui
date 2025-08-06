@@ -40,13 +40,15 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({super.key, this.aiClient});
+
+  final AiClient? aiClient;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   final _promptController = TextEditingController();
   late final GenUiManager _genUiManager;
   late AiClient aiClient;
@@ -138,43 +140,40 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
-          child: Column(
-            children: [
-              Expanded(child: _genUiManager.widget()),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
+          child: StreamBuilder<bool>(
+            stream: _genUiManager.loadingStream,
+            initialData: false,
+            builder: (context, snapshot) {
+              final isLoading = snapshot.data ?? false;
+              return LoadingScrim(
+                isLoading: isLoading,
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _promptController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter a UI prompt',
-                        ),
-                        onSubmitted: (_) => _sendPrompt(),
+                    Expanded(child: _genUiManager.widget()),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _promptController,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter a UI prompt',
+                              ),
+                              onSubmitted: (_) => _sendPrompt(),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.send),
+                            onPressed: _sendPrompt,
+                          ),
+                        ],
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: _sendPrompt,
-                    ),
-                    StreamBuilder<bool>(
-                      stream: _genUiManager.loadingStream,
-                      initialData: false,
-                      builder: (context, snapshot) {
-                        if (snapshot.data ?? false) {
-                          return const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
