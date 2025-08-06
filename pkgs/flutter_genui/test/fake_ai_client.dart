@@ -20,7 +20,6 @@ class FakeAiClient implements LlmConnection {
     List<Content> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
-    Content? systemInstruction,
   }) async {
     await preGenerateContent?.call();
     generateContentCallCount++;

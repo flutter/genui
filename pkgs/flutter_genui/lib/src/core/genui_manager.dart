@@ -15,17 +15,14 @@ import 'conversation_widget.dart';
 
 class GenUiManager {
   GenUiManager.conversation({
-    LlmConnection? llmConnection,
+    required this.llmConnection,
     this.catalog = const Catalog([]),
-    this.instruction = '',
   }) {
-    this.llmConnection = llmConnection ?? AiClient();
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final Catalog catalog;
-  final String instruction;
-  late final LlmConnection llmConnection;
+  final LlmConnection llmConnection;
   late final UiEventManager _eventManager;
 
   // Context used for future LLM inferences
@@ -137,7 +134,6 @@ class GenUiManager {
       final response = await llmConnection.generateContent(
         tempConversation,
         outputSchema,
-        systemInstruction: Content.system(instruction),
       );
 
       // Copy the tool-call-and-response history from the temporary
