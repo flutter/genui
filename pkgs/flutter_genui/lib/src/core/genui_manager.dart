@@ -12,6 +12,8 @@ import '../../flutter_genui.dart';
 import '../model/chat_message.dart';
 import 'conversation_widget.dart';
 
+enum GenUiStyle { conversation, chat }
+
 class GenUiManager {
   GenUiManager.conversation({
     required this.llmConnection,
