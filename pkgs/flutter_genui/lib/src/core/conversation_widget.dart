@@ -41,45 +41,18 @@ class ConversationWidget extends StatelessWidget {
           SystemMessage() =>
             systemMessageBuilder != null
                 ? systemMessageBuilder!(context, message)
-                : Card(
-                    elevation: 2.0,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 4.0,
-                    ),
-                    child: ListTile(
-                      title: Text(message.text),
-                      leading: const Icon(Icons.smart_toy_outlined),
-                    ),
+                : _ChatMessage(
+                    text: message.text,
+                    icon: Icons.smart_toy_outlined,
+                    alignment: MainAxisAlignment.start,
                   ),
           UserPrompt() =>
             userPromptBuilder != null
                 ? userPromptBuilder!(context, message)
-                : Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 4.0,
-                      horizontal: 8.0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: Card(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: const Radius.circular(20.0),
-                                bottomLeft: const Radius.circular(20.0),
-                                bottomRight: const Radius.circular(20.0),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Text(message.text),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                : _ChatMessage(
+                    text: message.text,
+                    icon: Icons.person,
+                    alignment: MainAxisAlignment.end,
                   ),
           UiResponse() => Padding(
             padding: const EdgeInsets.all(16.0),
@@ -93,6 +66,59 @@ class ConversationWidget extends StatelessWidget {
           ),
         };
       },
+    );
+  }
+}
+
+class _ChatMessage extends StatelessWidget {
+  const _ChatMessage({
+    required this.text,
+    required this.icon,
+    required this.alignment,
+  });
+
+  final String text;
+  final IconData icon;
+  final MainAxisAlignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    final isStart = alignment == MainAxisAlignment.start;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+      child: Row(
+        mainAxisAlignment: alignment,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(
+                    alignment == MainAxisAlignment.start ? 5 : 25,
+                  ),
+                  topRight: Radius.circular(
+                    alignment == MainAxisAlignment.start ? 25 : 5,
+                  ),
+                  bottomLeft: const Radius.circular(25),
+                  bottomRight: const Radius.circular(25),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isStart) ...[Icon(icon), const SizedBox(width: 8.0)],
+                    Flexible(child: Text(text)),
+                    if (!isStart) ...[const SizedBox(width: 8.0), Icon(icon)],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

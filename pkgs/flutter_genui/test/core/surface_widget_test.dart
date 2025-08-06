@@ -25,7 +25,7 @@ void main() {
         ),
       );
       expect(find.text('Hello'), findsOneWidget);
-      expect(find.byIcon(Icons.person), findsNothing);
+      expect(find.byIcon(Icons.person), findsOneWidget);
     });
 
     testWidgets('renders SystemMessage correctly', (WidgetTester tester) async {
