@@ -12,39 +12,32 @@ import '../../flutter_genui.dart';
 import '../model/chat_message.dart';
 import 'conversation_widget.dart';
 
-enum _GenUiStyle {
-  // Flexible UX.
-  conversation,
-  // UI is tailored for chat UX.
-  chat,
-}
-
 class GenUiManager {
-  GenUiManager.conversation({
+  /// Creates a GenUiManager with flexible UX.
+  GenUiManager({
     required this.llmConnection,
     this.catalog = const Catalog([]),
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) : _style = _GenUiStyle.conversation {
+  }) {
     _init();
   }
 
+  // UI is tailored with chat UX.
   GenUiManager.chat({
     required this.llmConnection,
     this.catalog = const Catalog([]),
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) : _style = _GenUiStyle.chat {
+  }) {
     _init();
   }
 
   void _init() {
     _eventManager = UiEventManager(callback: handleEvents);
   }
-
-  final _GenUiStyle _style;
 
   final bool showInternalMessages;
 
@@ -264,6 +257,7 @@ class GenUiManager {
         'Flutter.',
   );
 
+  /// Builds a widget that contains the conversation UI.
   Widget widget() {
     return StreamBuilder(
       stream: uiDataStream,

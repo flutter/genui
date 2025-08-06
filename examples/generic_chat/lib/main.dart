@@ -66,10 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _genUiManager = GenUiManager.conversation(
-      catalog: coreCatalog,
-      llmConnection: aiClient,
-    );
+    _genUiManager = GenUiManager(catalog: coreCatalog, llmConnection: aiClient);
   }
 
   @override

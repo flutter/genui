@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint('[$severity] $message');
       },
     );
-    _genUiManager = GenUiManager.conversation(
+    _genUiManager = GenUiManager.chat(
       catalog: catalog,
       llmConnection: aiClient,
     );
