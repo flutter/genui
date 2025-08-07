@@ -17,11 +17,6 @@ sealed class ChatMessage {
   const ChatMessage();
 }
 
-/// Invitation to input text.
-class ChatInvitationMessage extends ChatMessage {
-  const ChatInvitationMessage();
-}
-
 /// A message representing a system message.
 class SystemMessage extends ChatMessage {
   /// Creates a [SystemMessage] with the given [text].

@@ -68,13 +68,11 @@ class _GenUiChatState extends State<GenUiChat> {
       return message is! InternalMessage && message is! UiEventMessage;
     }).toList();
 
-    messages.add(const ChatInvitationMessage());
-
     return ListView.builder(
-      reverse: true,
-      itemCount: messages.length,
+      itemCount: messages.length + 1,
       itemBuilder: (context, index) {
-        final message = messages[index];
+        // If the message is null, return the chat box.
+        final message = index == messages.length ? null : messages[index];
         return switch (message) {
           SystemMessage() =>
             widget.systemMessageBuilder != null
@@ -106,10 +104,7 @@ class _GenUiChatState extends State<GenUiChat> {
           UiEventMessage() => _InternalMessageWidget(
             content: message.event.toString(),
           ),
-          ChatInvitationMessage() => widget.chatBoxBuilder(
-            _chatController,
-            context,
-          ),
+          null => widget.chatBoxBuilder(_chatController, context),
         };
       },
     );

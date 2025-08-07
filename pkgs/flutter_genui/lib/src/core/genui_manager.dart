@@ -131,8 +131,6 @@ class GenUiManager {
               FunctionResponse(message.event.widgetId, message.event.toMap()),
             ]),
           );
-        case ChatInvitationMessage():
-          throw StateError('Chat invitation message should not be here.');
       }
     }
     return conversation;

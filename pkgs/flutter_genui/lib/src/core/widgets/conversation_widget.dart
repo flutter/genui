@@ -70,9 +70,6 @@ class ConversationWidget extends StatelessWidget {
           UiEventMessage() => _InternalMessageWidget(
             content: message.event.toString(),
           ),
-          ChatInvitationMessage() => throw StateError(
-            'Chat invitation message should not be here.',
-          ),
         };
       },
     );
