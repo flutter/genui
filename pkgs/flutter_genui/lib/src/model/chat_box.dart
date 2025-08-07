@@ -88,7 +88,16 @@ class _ChatBoxState extends State<ChatBox> {
     _waitForActivity();
   }
 
+  @override
+  void didUpdateWidget(covariant ChatBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _waitForActivity();
+    }
+  }
+
   Future<void> _waitForActivity() async {
+    setState(() {});
     await widget.controller._requested.future;
     setState(() {});
     await widget.controller._responded.future;
@@ -147,12 +156,9 @@ class _ChatBoxState extends State<ChatBox> {
   void _submit() {
     final input = _controller.text.trim();
     if (input.isEmpty) return;
-
     widget.controller.submitInput(input);
-
     _controller.text = '';
     _focusNode.requestFocus();
-    setState(() {});
   }
 
   @override
