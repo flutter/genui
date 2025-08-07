@@ -9,13 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_genui:
+    path: ../../flutter_genui
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
-  flutter_genui:
-    path: ../../flutter_genui
 
 flutter:
   uses-material-design: true
