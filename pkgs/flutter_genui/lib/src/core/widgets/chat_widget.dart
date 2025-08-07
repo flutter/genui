@@ -10,8 +10,8 @@ import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 
-class ChatWidget extends StatelessWidget {
-  const ChatWidget({
+class ChatWidget extends StatefulWidget {
+  ChatWidget({
     super.key,
     required this.messages,
     required this.catalog,
@@ -31,9 +31,20 @@ class ChatWidget extends StatelessWidget {
   final bool showInternalMessages;
 
   @override
+  State<ChatWidget> createState() => _ChatWidgetState();
+}
+
+class _ChatWidgetState extends State<ChatWidget> {
+  late final ChatController _chatController = ChatController(_onChatInput);
+
+  void _onChatInput(String input) {
+    // chatController.addMessage(UserPrompt(text: input));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final renderedMessages = messages.where((message) {
-      if (showInternalMessages) {
+    final renderedMessages = widget.messages.where((message) {
+      if (widget.showInternalMessages) {
         return true;
       }
       return message is! InternalMessage && message is! UiEventMessage;
@@ -44,16 +55,16 @@ class ChatWidget extends StatelessWidget {
         final message = renderedMessages[index];
         return switch (message) {
           SystemMessage() =>
-            systemMessageBuilder != null
-                ? systemMessageBuilder!(context, message)
+            widget.systemMessageBuilder != null
+                ? widget.systemMessageBuilder!(context, message)
                 : _ChatMessage(
                     text: message.text,
                     icon: Icons.smart_toy_outlined,
                     alignment: MainAxisAlignment.start,
                   ),
           UserPrompt() =>
-            userPromptBuilder != null
-                ? userPromptBuilder!(context, message)
+            widget.userPromptBuilder != null
+                ? widget.userPromptBuilder!(context, message)
                 : _ChatMessage(
                     text: message.text,
                     icon: Icons.person,
@@ -63,10 +74,10 @@ class ChatWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: SurfaceWidget(
               key: message.uiKey,
-              catalog: catalog,
+              catalog: widget.catalog,
               surfaceId: message.surfaceId,
               definition: UiDefinition.fromMap(message.definition),
-              onEvent: onEvent,
+              onEvent: widget.onEvent,
             ),
           ),
           InternalMessage() => _InternalMessageWidget(content: message.text),
