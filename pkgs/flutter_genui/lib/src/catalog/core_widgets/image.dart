@@ -9,8 +9,16 @@ import '../../model/catalog_item.dart';
 
 final _schema = S.object(
   properties: {
-    'url': S.string(description: 'The URL of the image to display.'),
-    'assetName': S.string(description: 'The name of the asset to display.'),
+    'url': S.string(
+      description:
+          'The URL of the image to display. Only one '
+          'of url or assetName may be specified.',
+    ),
+    'assetName': S.string(
+      description:
+          'The name of the asset to display. Only '
+          'one of assetName or url may be specified.',
+    ),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
