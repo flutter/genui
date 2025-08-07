@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,9 @@ import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
-import 'conversation_widget.dart';
 import 'core_catalog.dart';
 import 'ui_event_manager.dart';
+import 'widgets/conversation_widget.dart';
 
 class GenUiManager {
   void _init(Catalog? catalog) {

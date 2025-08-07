@@ -4,10 +4,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../model/catalog.dart';
-import '../model/chat_message.dart';
-import '../model/surface_widget.dart';
-import '../model/ui_models.dart';
+import '../../model/catalog.dart';
+import '../../model/chat_message.dart';
+import '../../model/surface_widget.dart';
+import '../../model/ui_models.dart';
 
 typedef SystemMessageBuilder =
     Widget Function(BuildContext context, SystemMessage message);

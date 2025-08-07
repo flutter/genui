@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/src/core/conversation_widget.dart';
+import 'package:flutter_genui/src/core/widgets/conversation_widget.dart';
 import 'package:flutter_genui/src/model/catalog.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_test/flutter_test.dart';
