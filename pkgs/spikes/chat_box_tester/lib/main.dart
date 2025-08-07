@@ -28,11 +28,17 @@ class _MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
-  late final _chatBoxController = (() => ChatBoxController(onInputSubmitted))();
+  late ChatController _chatController = ChatController(onInputSubmitted);
   final _log = TextEditingController(text: '');
 
   void onInputSubmitted(String input) {
-    _log.text += 'User: $input\n';
+    print('!!! Input submitted: $input');
+    _addLogEntry('User: $input');
+    _emulateStartProcessing();
+  }
+
+  void _addLogEntry(String entry) {
+    _log.text = '$entry\n${_log.text}';
   }
 
   @override
@@ -43,26 +49,60 @@ class _MyHomePageState extends State<_MyHomePage> {
         title: const Text('Chat Box Tester'),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
-            child: Container(
-              color: Colors.red,
-              child: ChatBox(_chatBoxController),
-            ),
-          ),
-          SizedBox(
-            height: 150,
-            child: Expanded(
-              child: TextField(
-                controller: _log,
-                readOnly: true,
-                decoration: null,
+          Expanded(child: ChatBox(_chatController)),
+          const SizedBox(height: 10),
+          Container(
+            color: Colors.grey[200],
+            child: SizedBox(
+              height: 150,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _log,
+                      readOnly: true,
+                      decoration: null,
+                      maxLines: null,
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _emulateStartProcessing,
+                        child: const Text('Emulate AI request from other UI'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _addLogEntry('AI: responded');
+                          _chatController.setResponded();
+                        },
+                        child: const Text('Emulate AI response'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _chatController = ChatController(onInputSubmitted);
+                          _log.text = '';
+                          setState(() {});
+                        },
+                        child: const Text('Start over'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _emulateStartProcessing() {
+    _addLogEntry('AI: started processing');
+    _chatController.setRequested();
   }
 }

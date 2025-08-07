@@ -8,16 +8,12 @@ import 'package:flutter/material.dart';
 
 typedef ChatBoxCallback = void Function(String input);
 
-typedef ChatBoxBuilder = Widget Function(ChatBoxController controller);
+typedef ChatBoxBuilder = Widget Function(ChatController controller);
 
-Widget defaultChatBoxBuilder(ChatBoxController controller) =>
-    ChatBox(controller);
+Widget defaultChatBoxBuilder(ChatController controller) => ChatBox(controller);
 
-class ChatBoxController {
-  ChatBoxController(this.onInput);
-
-  /// The chat box will stop taking input after [stopped] is completed.
-  final stopped = Completer<void>();
+class ChatController {
+  ChatController(this.onInput);
 
   /// Is invoked when the user submits input.
   ///
@@ -25,12 +21,41 @@ class ChatBoxController {
   /// should be able to handle multiple invocations.
   final void Function(String input) onInput;
 
-  /// If true, the user will see a progress indicator.
-  final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(true);
+  final List<String> history = [];
+
+  /// At least one request to AI is sent.
+  final _requested = Completer<void>();
+
+  /// At least one response from AI is received.
+  final _responded = Completer<void>();
+
+  Future<void> get requested => _requested.future;
+
+  Future<void> get responded => _responded.future;
+
+  bool get isRequested => _requested.isCompleted;
+  bool get isResponded => _responded.isCompleted;
+
+  void setRequested() {
+    if (!_requested.isCompleted) {
+      _requested.complete();
+    }
+  }
+
+  void setResponded() {
+    if (!_responded.isCompleted) {
+      _responded.complete();
+    }
+  }
+
+  void submitInput(String input) {
+    onInput(input);
+    history.add(input);
+  }
 
   void dispose() {
-    stopped.complete();
-    isProcessing.dispose();
+    _requested.complete();
+    _responded.complete();
   }
 }
 
@@ -42,7 +67,7 @@ class ChatBox extends StatefulWidget {
     this.hintText = 'Ask me anything',
   });
 
-  final ChatBoxController controller;
+  final ChatController controller;
   final double borderRadius;
   final String hintText;
 
@@ -60,41 +85,74 @@ class _ChatBoxState extends State<ChatBox> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
+    _waitForActivity();
+  }
+
+  Future<void> _waitForActivity() async {
+    await widget.controller._requested.future;
+    setState(() {});
+    await widget.controller._responded.future;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final isRequested = widget.controller.isRequested;
+    final isResponded = widget.controller.isResponded;
+    final isProgressing = isRequested && !isResponded;
+
+    final history = widget.controller.history.map(
+      (e) => Padding(
+        padding: const EdgeInsets.all(0),
+        child: Card(
+          elevation: 0,
+          child: Padding(padding: const EdgeInsets.all(8.0), child: Text(e)),
+        ),
+      ),
+    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(widget.borderRadius),
+        ...history,
+        if (isProgressing) ...[
+          const Center(child: CircularProgressIndicator()),
+          const SizedBox(height: 10),
+        ],
+        if (!isResponded)
+          TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(widget.borderRadius),
+                ),
+              ),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.send),
+                onPressed: _submit,
               ),
             ),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.send),
-              onPressed: _submit,
-            ),
+            maxLines: null, // Allows for multi-line input
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.send,
+            onSubmitted: (String value) => _submit(),
           ),
-          maxLines: null, // Allows for multi-line input
-          keyboardType: TextInputType.multiline,
-          textInputAction: TextInputAction.send,
-          onSubmitted: (String value) => _submit(),
-        ),
       ],
     );
   }
 
   void _submit() {
-    final inputText = _controller.text.trim();
-    widget.controller.onInput(inputText);
+    final input = _controller.text.trim();
+    if (input.isEmpty) return;
+
+    widget.controller.submitInput(input);
+
+    _controller.text = '';
+    _focusNode.requestFocus();
+    setState(() {});
   }
 
   @override
