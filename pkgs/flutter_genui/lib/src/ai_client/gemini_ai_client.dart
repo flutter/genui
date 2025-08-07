@@ -23,26 +23,26 @@ typedef GenerativeModelFactory =
       ToolConfig? toolConfig,
     });
 
-enum GeminiModel {
-  flash('gemini-2.5-flash'),
-  pro('gemini-2.5-pro');
+/// An enum for the available Gemini models.
+enum GeminiModelType {
+  flash('gemini-2.5-flash', 'Gemini 2.5 Flash'),
+  pro('gemini-2.5-pro', 'Gemini 2.5 Pro');
 
-  const GeminiModel(this.modelName);
+  const GeminiModelType(this.modelName, this.displayName);
   final String modelName;
+  final String displayName;
 }
 
-enum AiLoggingSeverity { trace, debug, info, warning, error, fatal }
+/// A class that represents a Gemini model.
+class GeminiModel extends AiModel {
+  /// Creates a new instance of [GeminiModel] as a specific [type].
+  GeminiModel(this.type);
 
-typedef AiClientLoggingCallback =
-    void Function(AiLoggingSeverity severity, String message);
-
-class AiClientException implements Exception {
-  AiClientException(this.message);
-
-  final String message;
+  /// The type of the model.
+  final GeminiModelType type;
 
   @override
-  String toString() => '$AiClientException: $message';
+  String get displayName => type.displayName;
 }
 
 /// A basic implementation of [AiClient] for accessing a Gemini model.
@@ -69,7 +69,7 @@ class GeminiAiClient implements AiClient {
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   GeminiAiClient({
-    GeminiModel model = GeminiModel.flash,
+    GeminiModelType model = GeminiModelType.flash,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -81,7 +81,7 @@ class GeminiAiClient implements AiClient {
     this.outputToolName = 'provideFinalOutput',
     String? systemInstruction,
   }) : _systemInstruction = systemInstruction,
-       model = ValueNotifier(model) {
+       _model = ValueNotifier(GeminiModel(model)) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -98,7 +98,7 @@ class GeminiAiClient implements AiClient {
   @visibleForTesting
   GeminiAiClient.test({
     required this.modelCreator,
-    GeminiModel model = GeminiModel.flash,
+    GeminiModelType model = GeminiModelType.flash,
     this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -109,7 +109,7 @@ class GeminiAiClient implements AiClient {
     this.outputToolName = 'provideFinalOutput',
     String? systemInstruction,
   }) : _systemInstruction = systemInstruction,
-       model = ValueNotifier(model) {
+       _model = ValueNotifier(GeminiModel(model)) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -129,7 +129,14 @@ class GeminiAiClient implements AiClient {
   /// will be invoked for content generation.
   ///
   /// Defaults to 'gemini-2.5-flash'.
-  final ValueNotifier<GeminiModel> model;
+  final ValueNotifier<GeminiModel> _model;
+
+  @override
+  ValueListenable<GeminiModel> get model => _model;
+
+  @override
+  List<AiModel> get models =>
+      GeminiModelType.values.map(GeminiModel.new).toList();
 
   /// The file system to use for accessing files.
   ///
@@ -226,12 +233,16 @@ class GeminiAiClient implements AiClient {
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
 
-  /// Switches the generative model used by this client.
-  ///
-  /// This method allows changing the underlying AI model dynamically.
-  void switchModel(GeminiModel newModel) {
-    model.value = newModel;
-    _log('Switched AI model to: ${newModel.modelName}');
+  @override
+  void switchModel(AiModel newModel) {
+    if (newModel is! GeminiModel) {
+      throw ArgumentError(
+        'Invalid model type: ${newModel.runtimeType} supplied to '
+        '$GeminiAiClient.switchModel.',
+      );
+    }
+    _model.value = newModel;
+    _log('Switched AI model to: ${newModel.displayName}');
   }
 
   /// Generates structured content based on the provided prompts and output
@@ -281,9 +292,10 @@ class GeminiAiClient implements AiClient {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
+    final geminiModel = configuration.model.value;
     return FirebaseAiGenerativeModel(
       FirebaseAI.googleAI().generativeModel(
-        model: configuration.model.value.modelName,
+        model: geminiModel.type.modelName,
         systemInstruction: systemInstruction,
         tools: tools,
         toolConfig: toolConfig,
@@ -351,7 +363,10 @@ class GeminiAiClient implements AiClient {
         );
         return result;
       } on FirebaseAIException catch (exception) {
-        if (exception.message.contains('$model is not found for API version')) {
+        if (exception.message.contains(
+          '${model.value.type.modelName} is not found for '
+          'API version',
+        )) {
           // If the model is not found, then just throw an exception.
           throw AiClientException(exception.message);
         }
@@ -516,7 +531,7 @@ With functions:
           }
           _log(
             '****** Gen UI Output ******.\n'
-            '${const JsonEncoder.withIndent('  ').convert(capturedResult)}}',
+            '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
           );
           continue;
         }
@@ -536,7 +551,7 @@ With functions:
         } catch (exception, stack) {
           _error(
             'Error invoking tool ${aiTool.name} with args ${call.args}: '
-            '$exception\n',
+            '$exception',
             stack,
           );
           toolResult = {

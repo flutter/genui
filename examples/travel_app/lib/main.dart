@@ -20,11 +20,13 @@ void main() async {
     webProvider: ReCaptchaV3Provider('debug'),
   );
   _imagesJson = await assetImageCatalogJson();
-  runApp(const MyApp());
+  runApp(const TravelApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TravelApp extends StatelessWidget {
+  const TravelApp({this.aiClient, super.key});
+
+  final AiClient? aiClient;
 
   @override
   Widget build(BuildContext context) {
@@ -34,33 +36,37 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(),
+      home: TravelPlannerPage(aiClient: aiClient),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class TravelPlannerPage extends StatefulWidget {
+  const TravelPlannerPage({this.aiClient, super.key});
+
+  final AiClient? aiClient;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<TravelPlannerPage> createState() => _TravelPlannerPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _TravelPlannerPageState extends State<TravelPlannerPage> {
   final _promptController = TextEditingController();
   late final GenUiManager _genUiManager;
-  late GeminiAiClient aiClient;
+  late AiClient aiClient;
 
   @override
   void initState() {
     super.initState();
-    aiClient = GeminiAiClient(
-      systemInstruction: prompt,
-      loggingCallback: (severity, message) {
-        debugPrint('[$severity] $message');
-      },
-    );
-    _genUiManager = GenUiManager.chat(
+    aiClient =
+        widget.aiClient ??
+        GeminiAiClient(
+          systemInstruction: prompt,
+          loggingCallback: (severity, message) {
+            debugPrint('[$severity] $message');
+          },
+        );
+    _genUiManager = GenUiManager.conversation(
       catalog: catalog,
       aiClient: aiClient,
     );
@@ -96,38 +102,28 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         actions: [
-          ValueListenableBuilder<GeminiModel>(
+          ValueListenableBuilder<AiModel>(
             valueListenable: aiClient.model,
             builder: (context, currentModel, child) {
-              return PopupMenuButton<GeminiModel>(
+              return PopupMenuButton<AiModel>(
                 icon: const Icon(Icons.psychology_outlined),
-                onSelected: (GeminiModel value) {
+                onSelected: (AiModel value) {
                   // Handle model selection
                   aiClient.switchModel(value);
                 },
-                itemBuilder: (BuildContext context) =>
-                    <PopupMenuEntry<GeminiModel>>[
-                      PopupMenuItem<GeminiModel>(
-                        value: GeminiModel.flash,
-                        child: Row(
-                          children: [
-                            const Text('Gemini Flash'),
-                            if (currentModel == GeminiModel.flash)
-                              const Icon(Icons.check),
-                          ],
-                        ),
+                itemBuilder: (BuildContext context) {
+                  return aiClient.models.map((model) {
+                    return PopupMenuItem<AiModel>(
+                      value: model,
+                      child: Row(
+                        children: [
+                          Text(model.displayName),
+                          if (currentModel == model) const Icon(Icons.check),
+                        ],
                       ),
-                      PopupMenuItem<GeminiModel>(
-                        value: GeminiModel.pro,
-                        child: Row(
-                          children: [
-                            const Text('Gemini Pro'),
-                            if (currentModel == GeminiModel.pro)
-                              const Icon(Icons.check),
-                          ],
-                        ),
-                      ),
-                    ],
+                    );
+                  }).toList();
+                },
               );
             },
           ),

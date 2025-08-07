@@ -4,8 +4,11 @@
 
 import 'dart:async';
 
+// TODO(gspencer): Remove this dependency on firebase_ai once we have generic
+// replacements for Schema, Content and Part.
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/src/ai_client/ai_client.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 
 class FakeAiClient implements AiClient {
@@ -14,6 +17,7 @@ class FakeAiClient implements AiClient {
   int generateContentCallCount = 0;
   List<Content> lastConversation = [];
   Future<void> Function()? preGenerateContent;
+  final Completer<void> _responseCompleter = Completer<void>();
 
   @override
   Future<T?> generateContent<T extends Object>(
@@ -29,6 +33,30 @@ class FakeAiClient implements AiClient {
       exception = null; // Reset for next call
       throw e!;
     }
+    // Allow tests to wait for this to be called.
+    _responseCompleter.complete();
     return response as T?;
   }
+
+  Future<void> get responseFinished => _responseCompleter.future;
+
+  final _model = ValueNotifier<AiModel>(_MockAiModel('mock1'));
+
+  @override
+  ValueListenable<AiModel> get model => _model;
+
+  @override
+  List<AiModel> get models => [_MockAiModel('mock1'), _MockAiModel('mock2')];
+
+  @override
+  void switchModel(AiModel model) {
+    _model.value = model;
+  }
+}
+
+class _MockAiModel extends AiModel {
+  _MockAiModel(this.displayName);
+
+  @override
+  final String displayName;
 }
