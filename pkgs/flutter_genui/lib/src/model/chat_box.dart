@@ -79,7 +79,7 @@ class _ChatBoxState extends State<ChatBox> {
             return Visibility(
               visible: isWaiting,
               child: const Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
+                padding: EdgeInsets.only(bottom: 18.0),
                 child: Center(child: CircularProgressIndicator()),
               ),
             );
@@ -121,12 +121,7 @@ class _ChatBoxState extends State<ChatBox> {
 
   void _submit() {
     var input = _controller.text.trim();
-    if (input.isEmpty) {
-      if (widget.controller.isWaiting.value) {
-        return; // Do not submit empty input if request is already sent.
-      }
-      input = 'Explain me what to do next.';
-    }
+    if (input.isEmpty) return;
     widget.controller.onInput(input);
     _controller.text = '';
     _focusNode.requestFocus();

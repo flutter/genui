@@ -112,14 +112,6 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     super.dispose();
   }
 
-  void _sendPrompt() {
-    final prompt = _promptController.text;
-    if (prompt.isNotEmpty) {
-      _genUiManager.sendUserPrompt(prompt);
-      _promptController.clear();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,43 +159,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
-          child: Column(
-            children: [
-              Expanded(child: _genUiManager.widget()),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _promptController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter a UI prompt',
-                        ),
-                        onSubmitted: (_) => _sendPrompt(),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: _sendPrompt,
-                    ),
-                    StreamBuilder<bool>(
-                      stream: _genUiManager.loadingStream,
-                      initialData: false,
-                      builder: (context, snapshot) {
-                        if (snapshot.data ?? false) {
-                          return const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: _genUiManager.widget(),
           ),
         ),
       ),
