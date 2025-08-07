@@ -15,17 +15,18 @@ import 'conversation_widget.dart';
 class GenUiManager {
   GenUiManager.conversation({
     required this.aiClient,
-    this.catalog = const Catalog([]),
+    Catalog? catalog,
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
   }) {
     _eventManager = UiEventManager(callback: handleEvents);
+    this.catalog = catalog ?? coreCatalog;
   }
 
   final bool showInternalMessages;
 
-  final Catalog catalog;
+  late final Catalog catalog;
   final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
   final SystemMessageBuilder? systemMessageBuilder;
