@@ -1,4 +1,6 @@
-# CatalogItem
+# Instructions for code review
+
+## CatalogItem
 
 A CatalogItem is an object which represents a widget that can be instantiated by an LLM. It centralizes the widgetBuilder function for the widget along with the data schema and name.
 
@@ -47,3 +49,8 @@ The folder `spikes` contains experiments and proof of concepts,
 that does not have to be of good quality.
 
 Skip this folder when reviewing code.
+
+## Draft pull requests
+
+Do not review pull requests, when they are in draft state.
+Wait them to be ready for review.
