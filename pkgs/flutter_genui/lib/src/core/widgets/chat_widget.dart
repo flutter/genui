@@ -89,13 +89,17 @@ class _GenUiChatState extends State<GenUiChat> {
     }).toList();
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: messages.length + 1,
+            // Reverse the list to show the latest message at the bottom.
+            reverse: true,
+            itemCount: messages.length,
             itemBuilder: (context, index) {
-              // If the message is null, return the chat box.
-              final message = index == messages.length ? null : messages[index];
+              index = messages.length - 1 - index; // Reverse index
+              final message = messages[index];
               return switch (message) {
                 SystemMessage() =>
                   widget.systemMessageBuilder != null
@@ -129,11 +133,12 @@ class _GenUiChatState extends State<GenUiChat> {
                 UiEventMessage() => _InternalMessageWidget(
                   content: message.event.toString(),
                 ),
-                null => widget.chatBoxBuilder(_chatController, context),
               };
             },
           ),
         ),
+        const SizedBox(height: 8.0),
+        widget.chatBoxBuilder(_chatController, context),
       ],
     );
   }

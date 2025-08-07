@@ -83,33 +83,47 @@ class _ChatBoxState extends State<ChatBox> {
           },
         ),
 
-        TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(widget.borderRadius),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(widget.borderRadius),
+                    ),
+                  ),
+                ),
+                maxLines: null, // Allows for multi-line input
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (String value) => _submit(),
               ),
             ),
-            suffixIcon: IconButton(
+            // The icon is outside of text field,
+            // because it also should respond to UI selections.
+            IconButton(
               icon: const Icon(Icons.send),
               onPressed: _submit,
+              iconSize: 28,
             ),
-          ),
-          maxLines: null, // Allows for multi-line input
-          keyboardType: TextInputType.multiline,
-          textInputAction: TextInputAction.send,
-          onSubmitted: (String value) => _submit(),
+          ],
         ),
       ],
     );
   }
 
   void _submit() {
-    final input = _controller.text.trim();
-    if (input.isEmpty) return;
+    var input = _controller.text.trim();
+    if (input.isEmpty) {
+      if (widget.controller.isWaiting.value) {
+        return; // Do not submit empty input if request is already sent.
+      }
+      input = 'Explain me what to do next.';
+    }
     widget.controller.onInput(input);
     _controller.text = '';
     _focusNode.requestFocus();
