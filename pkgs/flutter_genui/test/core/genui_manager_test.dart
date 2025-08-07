@@ -11,7 +11,7 @@ import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../fake_ai_client.dart';
+import '../test_infra/fake_ai_client.dart';
 
 void main() {
   group('$GenUiManager', () {
