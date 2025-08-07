@@ -46,7 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text(title),
       ),
-      body: Center(child: _genUiManager.widget()),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _genUiManager.widget(),
+      ),
     );
   }
 }

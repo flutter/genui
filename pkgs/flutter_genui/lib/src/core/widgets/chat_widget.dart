@@ -51,6 +51,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     messages.add(const ChatInvitationMessage());
 
     return ListView.builder(
+      reverse: true,
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final message = messages[index];
