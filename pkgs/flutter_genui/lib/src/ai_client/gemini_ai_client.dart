@@ -95,7 +95,7 @@ class GeminiAiClient implements AiClient {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    this.addChatPromptPrefix = true,
+    bool addChatPromptPrefix = true,
     String? systemInstruction,
   }) : _systemInstruction = addChatPromptPrefix
            ? '$_chatPromptPrefix$systemInstruction'
@@ -126,7 +126,7 @@ class GeminiAiClient implements AiClient {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    this.addChatPromptPrefix = true,
+    bool addChatPromptPrefix = true,
     String? systemInstruction,
   }) : _systemInstruction = systemInstruction,
        _model = ValueNotifier(GeminiModel(model)) {
@@ -142,8 +142,6 @@ class GeminiAiClient implements AiClient {
       );
     }
   }
-
-  final bool addChatPromptPrefix;
 
   /// The name of the Gemini model to use.
   ///
