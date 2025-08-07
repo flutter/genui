@@ -12,6 +12,9 @@ import 'number_schema.dart';
 import 'object_schema.dart';
 import 'string_schema.dart';
 
+// A shortcut typedef so that we can use S.object, etc.
+typedef S = Schema;
+
 /// A JSON Schema object defining any kind of property.
 ///
 /// See https://json-schema.org/draft/2020-12/json-schema-core.html for the full
@@ -21,8 +24,14 @@ import 'string_schema.dart';
 /// if you need something more complex you can create your own
 /// `Map<String, Object?>` and cast it to [Schema] (or a subtype) directly.
 extension type Schema.fromMap(Map<String, Object?> _value) {
-  /// A combined schema, see
-  /// https://json-schema.org/understanding-json-schema/reference/combining#schema-composition
+  /// Creates a combined schema.
+  ///
+  /// This constructor is used for creating complex schemas that combine other
+  /// schemas using composition keywords like `allOf`, `anyOf`, `oneOf`, and
+  /// conditional subschemas. It also allows setting various core metadata
+  /// keywords.
+  ///
+  /// See https://json-schema.org/understanding-json-schema/reference/combining#schema-composition
   ///
   /// ```dart
   /// final schema = Schema.combined(
@@ -97,6 +106,11 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     });
   }
 
+  /// Creates a JSON Schema definition for a [String].
+  ///
+  /// See also:
+  ///
+  /// * [StringSchema] for the class that this factory constructor delegates to.
   factory Schema.string({
     String? title,
     String? description,
@@ -108,8 +122,19 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     String? format,
   }) = StringSchema;
 
+  /// Creates a JSON Schema definition for a [bool].
+  ///
+  /// See also:
+  ///
+  /// * [BooleanSchema] for the class that this factory constructor delegates
+  ///   to.
   factory Schema.boolean({String? title, String? description}) = BooleanSchema;
 
+  /// Creates a JSON Schema definition for a [num].
+  ///
+  /// See also:
+  ///
+  /// * [NumberSchema] for the class that this factory constructor delegates to.
   factory Schema.number({
     String? title,
     String? description,
@@ -120,6 +145,12 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     num? multipleOf,
   }) = NumberSchema;
 
+  /// Creates a JSON Schema definition for an [int].
+  ///
+  /// See also:
+  ///
+  /// * [IntegerSchema] for the class that this factory constructor delegates
+  ///   to.
   factory Schema.integer({
     String? title,
     String? description,
@@ -130,6 +161,11 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     num? multipleOf,
   }) = IntegerSchema;
 
+  /// Creates a JSON Schema definition for a [List].
+  ///
+  /// See also:
+  ///
+  /// * [ListSchema] for the class that this factory constructor delegates to.
   factory Schema.list({
     String? title,
     String? description,
@@ -144,6 +180,11 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     bool? uniqueItems,
   }) = ListSchema;
 
+  /// Creates a JSON Schema definition for an object with properties.
+  ///
+  /// See also:
+  ///
+  /// * [ObjectSchema] for the class that this factory constructor delegates to.
   factory Schema.object({
     String? title,
     String? description,
@@ -158,16 +199,31 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     int? maxProperties,
   }) = ObjectSchema;
 
+  /// Creates a JSON Schema definition for `null`.
+  ///
+  /// See also:
+  ///
+  ///  * [NullSchema] for the class that this factory constructor delegates to.
   factory Schema.nil({String? title, String? description}) = NullSchema;
 
+  /// Creates a schema from a boolean value.
+  ///
+  /// A `true` value creates a schema that allows any value, while a `false`
+  /// value creates a schema that allows no values.
   factory Schema.fromBoolean(bool value, {List<String> jsonPath = const []}) {
     return Schema.fromMap(value ? {} : {'not': {}});
   }
 
+  /// The underlying map representation of the schema.
   Map<String, Object?> get value => _value;
 
+  /// Gets the value of a keyword from the schema map.
   Object? operator [](String key) => _value[key];
 
+  /// Retrieves a subschema for a given keyword, handling boolean schemas.
+  ///
+  /// Some keywords in JSON Schema can be a schema object or a boolean. This
+  /// method correctly interprets a boolean as a valid subschema.
   Schema? schemaOrBool(String key) {
     final v = _value[key];
     if (v == null) return null;
@@ -177,6 +233,10 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     return Schema.fromMap(v as Map<String, Object?>);
   }
 
+  /// Retrieves a map of property names to schemas, handling boolean schemas.
+  ///
+  /// This is used for keywords like `properties` where the value is a map of
+  /// schemas, and those schemas themselves can be boolean values.
   Map<String, Schema>? mapToSchemaOrBool(String key) {
     final v = _value[key];
     if (v is Map) {
@@ -195,12 +255,16 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
 
   // Core Keywords
 
-  /// The type of the schema.
+  /// The type of the data that this schema defines.
   ///
-  /// This can be a [JsonType] or a [List<JsonType>].
+  /// The value can be a string representing a single [JsonType], or a list of
+  /// strings if the data can be one of multiple types.
   Object? get type => _value['type'];
 
-  /// A list of valid values.
+  /// A list of valid values for an instance.
+  ///
+  /// The instance is valid if its value is deeply equal to one of the values
+  /// in this array.
   List<Object?>? get enumValues => (_value['enum'] as List?)?.cast<Object?>();
 
   /// A constant value that the instance must be equal to.
@@ -213,42 +277,80 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
   String? get description => _value['description'] as String?;
 
   /// A comment for the schema.
+  ///
+  /// This keyword is intended for adding comments to a schema and has no
+  /// validation effect.
   String? get $comment => _value['\$comment'] as String?;
 
   /// The default value for the instance.
+  ///
+  /// This keyword does not affect validation but can be used by applications
+  /// to provide a default value.
   Object? get defaultValue => _value['default'];
 
   /// A list of example values.
+  ///
+  /// This keyword is for documentation purposes and does not affect
+  /// validation.
   List<Object?>? get examples => (_value['examples'] as List?)?.cast<Object?>();
 
-  /// Whether the instance is deprecated.
+  /// Indicates whether the instance is deprecated.
+  ///
+  /// This keyword does not affect validation but can be used by tools to
+  /// signal that a property is deprecated.
   bool? get deprecated => _value['deprecated'] as bool?;
 
-  /// Whether the instance is read-only.
+  /// Indicates whether the instance is read-only.
+  ///
+  /// This keyword does not affect validation but can be used by applications
+  /// to control write access to a property.
   bool? get readOnly => _value['readOnly'] as bool?;
 
-  /// Whether the instance is write-only.
+  /// Indicates whether the instance is write-only.
+  ///
+  /// This keyword does not affect validation but can be used by applications
+  /// to control read access to a property.
   bool? get writeOnly => _value['writeOnly'] as bool?;
 
   /// A map of re-usable schemas.
+  ///
+  /// This keyword provides a set of schema definitions that can be referenced
+  /// from elsewhere in the same schema document.
   Map<String, Schema>? get $defs => mapToSchemaOrBool(kDefs);
 
   /// A reference to another schema.
+  ///
+  /// This allows for the re-use of schemas. The value is a URI-reference that
+  /// resolves to a schema.
   String? get $ref => _value[kRef] as String?;
 
   /// A dynamic reference to another schema.
+  ///
+  /// This works with `$dynamicAnchor` to allow for dynamic resolution of
+  /// references in extended schemas.
   String? get $dynamicRef => _value[kDynamicRef] as String?;
 
   /// An anchor for this schema.
+  ///
+  /// This allows a schema to be identified by a plain name fragment, which can
+  /// then be used in a URI to reference this schema.
   String? get $anchor => _value[kAnchor] as String?;
 
   /// A dynamic anchor for this schema.
+  ///
+  /// This works with `$dynamicRef` to allow for dynamic extension of schemas.
   String? get $dynamicAnchor => _value[kDynamicAnchor] as String?;
 
   /// The ID of the schema.
+  ///
+  /// This sets a base URI for the schema, which affects how `$ref` references
+  /// are resolved.
   String? get $id => _value['\$id'] as String?;
 
   /// The meta-schema for this schema.
+  ///
+  /// This specifies the URI of the dialect of JSON Schema that this schema is
+  /// written in.
   String? get $schema => _value['\$schema'] as String?;
 
   // Schema Composition
@@ -269,6 +371,9 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
 
   /// If the instance is valid against this schema, then it must also be valid
   /// against [thenSchema].
+  ///
+  /// If the instance is not valid against this schema, it must be valid
+  /// against [elseSchema], if present.
   Object? get ifSchema => _value['if'];
 
   /// The schema that the instance must be valid against if it is valid against

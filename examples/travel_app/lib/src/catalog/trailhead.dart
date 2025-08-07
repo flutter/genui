@@ -2,17 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'topics': Schema.array(
+    'topics': S.list(
       description: 'A list of topics to display as chips.',
-      items: Schema.string(description: 'A topic to explore.'),
+      items: S.string(description: 'A topic to explore.'),
     ),
   },
+  required: ['topics'],
 );
 
 extension type _TrailheadData.fromMap(Map<String, Object?> _json) {

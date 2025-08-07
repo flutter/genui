@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:collection/collection.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../flutter_genui.dart';
@@ -41,23 +41,22 @@ class Catalog {
     final schemaProperties = {
       for (var item in items) item.name: item.dataSchema,
     };
-    final optionalSchemaProperties = [for (var item in items) item.name];
 
-    return Schema.object(
+    return S.object(
       description:
           'Represents a *single* widget in a UI widget tree. '
           'This widget could be one of many supported types.',
       properties: {
-        'id': Schema.string(),
-        'widget': Schema.object(
+        'id': S.string(),
+        'widget': S.object(
           description:
               'The properties of the specific widget '
               'that this represents. This is a oneof - only *one* '
               'field should be set on this object!',
           properties: schemaProperties,
-          optionalProperties: optionalSchemaProperties,
         ),
       },
+      required: ['id', 'widget'],
     );
   }
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
@@ -64,15 +64,16 @@ final travelIcon = CatalogItem(
           return const SizedBox.shrink();
         }
       },
-  dataSchema: Schema.object(
+  dataSchema: S.object(
     properties: {
-      'icon': Schema.enumString(
+      'icon': S.string(
         enumValues: TravelIcons.values.map((e) => e.name).toList(),
         description:
             'The name of the travel icon to display. *only* the given '
             'values can be used!',
       ),
     },
+    required: ['icon'],
   ),
 );
 

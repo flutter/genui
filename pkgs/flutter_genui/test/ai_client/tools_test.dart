@@ -2,45 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AiTool', () {
-    test('toFunctionDeclarations returns correct declarations', () {
-      final tool = DynamicAiTool<Map<String, Object?>>(
-        name: 'testTool',
-        description: 'A test tool.',
-        parameters: Schema.object(properties: {'param1': Schema.string()}),
-        invokeFunction: (args) async => {},
-      );
-
-      final declarations = tool.toFunctionDeclarations();
-      expect(declarations.length, 1);
-      final declaration = declarations.first;
-      expect(declaration.name, 'testTool');
-      expect(declaration.description, 'A test tool.');
-    });
-
-    test(
-      'toFunctionDeclarations returns two declarations when prefix is used',
-      () {
-        final tool = DynamicAiTool<Map<String, Object?>>(
-          name: 'testTool',
-          prefix: 'prefix',
-          description: 'A test tool.',
-          parameters: Schema.object(properties: {'param1': Schema.string()}),
-          invokeFunction: (args) async => {},
-        );
-
-        final declarations = tool.toFunctionDeclarations();
-        expect(declarations.length, 2);
-        expect(declarations[0].name, 'testTool');
-        expect(declarations[1].name, 'prefix.testTool');
-      },
-    );
-
     test('fullName returns correct name', () {
       final tool = DynamicAiTool<Map<String, Object?>>(
         name: 'testTool',
@@ -65,6 +32,7 @@ void main() {
       final tool = DynamicAiTool<Map<String, Object?>>(
         name: 'testTool',
         description: 'A test tool.',
+        parameters: S.object(properties: {}),
         invokeFunction: (args) async {
           called = true;
           return {};

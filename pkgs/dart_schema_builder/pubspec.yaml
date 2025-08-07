@@ -11,7 +11,7 @@ environment:
 
 dependencies:
   args: ^2.7.0
-  characters: ^1.4.1
+  characters: ^1.4.0
   collection: ^1.19.1
   decimal: ^3.2.4
   http: ^1.4.0

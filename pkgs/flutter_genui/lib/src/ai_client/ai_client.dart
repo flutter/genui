@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 // TODO(gspencer): Remove this dependency on firebase_ai once we have generic
-// replacements for Content and Schema.
-import 'package:firebase_ai/firebase_ai.dart';
+// replacements for Content.
+import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_ai/firebase_ai.dart' show Content;
 import 'package:flutter/foundation.dart';
 
 import 'tools.dart';

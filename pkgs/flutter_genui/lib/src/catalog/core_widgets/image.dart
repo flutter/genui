@@ -2,23 +2,28 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'url': Schema.string(description: 'The URL of the image to display.'),
-    'assetName': Schema.string(
-      description: 'The name of the asset to display.',
+    'url': S.string(
+      description:
+          'The URL of the image to display. Only one '
+          'of url or assetName may be specified.',
     ),
-    'fit': Schema.enumString(
+    'assetName': S.string(
+      description:
+          'The name of the asset to display. Only '
+          'one of assetName or url may be specified.',
+    ),
+    'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
     ),
   },
-  optionalProperties: ['url', 'assetName', 'fit'],
 );
 
 extension type _ImageData.fromMap(Map<String, Object?> _json) {

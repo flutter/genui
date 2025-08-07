@@ -4,9 +4,8 @@
 
 import 'dart:async';
 
-// TODO(gspencer): Remove this dependency on firebase_ai once we have generic
-// replacements for Schema, Content and Part.
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_ai/firebase_ai.dart' show Content;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';

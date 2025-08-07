@@ -4,19 +4,21 @@
 
 // ignore_for_file: avoid_dynamic_calls
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'child': Schema.string(
+    'child': S.string(
       description:
-          '''The ID of a child widget. This should always be set, e.g. to a `text`.''',
+          'The ID of a child widget. This should always be set, e.g. to a '
+          '`text`.',
     ),
   },
+  required: ['child'],
 );
 
 extension type _ElevatedButtonData.fromMap(Map<String, Object?> _json) {

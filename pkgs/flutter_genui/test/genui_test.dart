@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,14 +74,14 @@ void main() {
 
     test('schema generation is correct', () {
       final catalog = Catalog([text, elevatedButtonCatalogItem]);
-      final schema = catalog.schema;
+      final schema = catalog.schema as ObjectSchema;
 
       expect(schema.properties?.containsKey('id'), isTrue);
       expect(schema.properties?.containsKey('widget'), isTrue);
 
-      final widgetSchema = schema.properties?['widget'];
-      expect(widgetSchema?.properties?.containsKey('text'), isTrue);
-      expect(widgetSchema?.properties?.containsKey('elevated_button'), isTrue);
+      final widgetSchema = schema.properties?['widget'] as ObjectSchema;
+      expect(widgetSchema.properties?.containsKey('text'), isTrue);
+      expect(widgetSchema.properties?.containsKey('elevated_button'), isTrue);
     });
   });
 }

@@ -5,30 +5,30 @@
 /// @docImport 'filter_chip_group.dart';
 library;
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'chipLabel': Schema.string(
+    'chipLabel': S.string(
       description:
           'The title of the filter chip e.g. "budget" or "activity type" '
           'etc',
     ),
-    'options': Schema.array(
+    'options': S.list(
       description:
           '''The list of options that the user can choose from. There should be at least three of these.''',
-      items: Schema.string(),
+      items: S.string(),
     ),
-    'iconChild': Schema.string(
+    'iconChild': S.string(
       description:
           'An icon to display on the left of the chip. '
           'This should be an icon widget. Always use this if there is a '
           'relevant icon.',
     ),
   },
-  optionalProperties: ['iconChild'],
+  required: ['chipLabel', 'options'],
 );
 
 extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {

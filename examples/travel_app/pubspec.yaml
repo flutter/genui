@@ -12,6 +12,8 @@ environment:
 
 dependencies:
   collection: ^1.19.1
+  dart_schema_builder:
+    path: ../../pkgs/dart_schema_builder
   file: ^7.0.1
   firebase_ai: ^3.0.0
   firebase_app_check: ^0.4.0

@@ -4,7 +4,7 @@
 
 // ignore_for_file: avoid_dynamic_calls
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import '../../model/catalog_item.dart';
 
@@ -17,12 +17,13 @@ extension type _TextData.fromMap(Map<String, Object?> _json) {
 
 final text = CatalogItem(
   name: 'text',
-  dataSchema: Schema.object(
+  dataSchema: S.object(
     properties: {
-      'text': Schema.string(
+      'text': S.string(
         description: 'The text to display. This does *not* support markdown.',
       ),
     },
+    required: ['text'],
   ),
   widgetBuilder:
       ({

@@ -2,7 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_ai/firebase_ai.dart'
+    show
+        Candidate,
+        Content,
+        FinishReason,
+        FirebaseAIException,
+        FunctionCall,
+        GenerateContentResponse,
+        TextPart;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,7 +81,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {'key': Schema.string()}),
+        S.object(properties: {'key': S.string()}),
       );
 
       expect(result, isNotNull);
@@ -88,7 +97,7 @@ void main() {
           toolCalled = true;
           return {'status': 'ok'};
         },
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
       );
       client = createClient(tools: [tool]);
 
@@ -123,7 +132,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>([
         Content.text('do something'),
-      ], Schema.object(properties: {'final': Schema.string()}));
+      ], S.object(properties: {'final': S.string()}));
 
       expect(toolCalled, isTrue);
       expect(result, isNotNull);
@@ -152,7 +161,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {'key': Schema.string()}),
+        S.object(properties: {'key': S.string()}),
       );
 
       expect(result, isNotNull);
@@ -164,7 +173,7 @@ void main() {
         name: 'badTool',
         description: 'd',
         invokeFunction: (_) async => throw Exception('tool error'),
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
       );
       client = createClient(tools: [tool]);
 
@@ -197,7 +206,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>([
         Content.text('do something'),
-      ], Schema.object(properties: {'final': Schema.string()}));
+      ], S.object(properties: {'final': S.string()}));
 
       expect(result, isNotNull);
       expect(result!['final'], 'result');
@@ -209,7 +218,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {}),
+        S.object(properties: {}),
       );
 
       expect(result, isNull);
@@ -230,7 +239,7 @@ void main() {
       expect(
         () => client.generateContent<Map<String, Object?>>(
           [],
-          Schema.object(properties: {}),
+          S.object(properties: {}),
         ),
         throwsA(isA<AiClientException>()),
       );
@@ -250,7 +259,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {}),
+        S.object(properties: {}),
       );
 
       expect(result, isNull);
@@ -261,7 +270,7 @@ void main() {
         name: 'loopTool',
         description: 'd',
         invokeFunction: (_) async => <String, Object?>{},
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
       );
       client = createClient(tools: [tool]);
 
@@ -278,7 +287,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {}),
+        S.object(properties: {}),
       );
 
       expect(result, isNull);
@@ -296,7 +305,9 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
+              'parameters': {
+                'output': {'key': 'value'},
+              },
             }),
           ]),
           [],
@@ -308,7 +319,7 @@ void main() {
 
       await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {'key': Schema.string()}),
+        S.object(properties: {'key': S.string()}),
       );
 
       expect(logMessages, isNotEmpty);

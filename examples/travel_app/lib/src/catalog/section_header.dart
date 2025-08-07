@@ -5,16 +5,17 @@
 /// @docImport 'itinerary_item.dart';
 library;
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   description: 'A widget to break up sections of a longer list of content.',
   properties: {
-    'title': Schema.string(description: 'The title of the section.'),
-    'subtitle': Schema.string(description: 'The subtitle of the section.'),
+    'title': S.string(description: 'The title of the section.'),
+    'subtitle': S.string(description: 'The subtitle of the section.'),
   },
+  required: ['title'],
 );
 
 extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {

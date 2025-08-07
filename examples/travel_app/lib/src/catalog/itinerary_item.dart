@@ -5,24 +5,22 @@
 /// @docImport 'itinerary_with_details.dart';
 library;
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'title': Schema.string(description: 'The title of the itinerary item.'),
-    'subtitle': Schema.string(
-      description: 'The subtitle of the itinerary item.',
-    ),
-    'imageChild': Schema.string(
+    'title': S.string(description: 'The title of the itinerary item.'),
+    'subtitle': S.string(description: 'The subtitle of the itinerary item.'),
+    'imageChild': S.string(
       description:
           'The ID of the image widget to display. The image fit should '
           "typically be 'cover'",
     ),
-    'detailText': Schema.string(description: 'The detail text for the item.'),
+    'detailText': S.string(description: 'The detail text for the item.'),
   },
-  optionalProperties: ['imageChild'],
+  required: ['title', 'subtitle', 'detailText'],
 );
 
 extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {

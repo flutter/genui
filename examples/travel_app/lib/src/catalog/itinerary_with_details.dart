@@ -5,30 +5,29 @@
 /// @docImport 'itinerary_item.dart';
 library;
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   description:
       'Widget to show an itinerary or a plan for travel. Use this only for '
       'refined plans where you have already shown the user filter options '
       'etc.',
   properties: {
-    'title': Schema.string(description: 'The title of the itinerary.'),
-    'subheading': Schema.string(
-      description: 'The subheading of the itinerary.',
-    ),
-    'imageChild': Schema.string(
+    'title': S.string(description: 'The title of the itinerary.'),
+    'subheading': S.string(description: 'The subheading of the itinerary.'),
+    'imageChild': S.string(
       description:
           'The ID of the image widget to display. The image fit should '
           "typically be 'cover'",
     ),
-    'child': Schema.string(
+    'child': S.string(
       description:
           '''The ID of a child widget to display in a modal. This should typically be a column which contains a sequence of itinerary_items, text, travel_carousel etc. Most of the content should be the trip details shown in itinerary_items, but try to break it up with other elements showing related content. If there are multiple sections to the itinerary, you can use the tabbed_sections to break them up.''',
     ),
   },
+  required: ['title', 'subheading', 'imageChild', 'child'],
 );
 
 extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
