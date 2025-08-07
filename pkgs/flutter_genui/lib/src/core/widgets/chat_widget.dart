@@ -88,45 +88,53 @@ class _GenUiChatState extends State<GenUiChat> {
       return message is! InternalMessage && message is! UiEventMessage;
     }).toList();
 
-    return ListView.builder(
-      itemCount: messages.length + 1,
-      itemBuilder: (context, index) {
-        // If the message is null, return the chat box.
-        final message = index == messages.length ? null : messages[index];
-        return switch (message) {
-          SystemMessage() =>
-            widget.systemMessageBuilder != null
-                ? widget.systemMessageBuilder!(context, message)
-                : _ChatMessage(
-                    text: message.text,
-                    icon: Icons.smart_toy_outlined,
-                    alignment: MainAxisAlignment.start,
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: messages.length + 1,
+            itemBuilder: (context, index) {
+              // If the message is null, return the chat box.
+              final message = index == messages.length ? null : messages[index];
+              return switch (message) {
+                SystemMessage() =>
+                  widget.systemMessageBuilder != null
+                      ? widget.systemMessageBuilder!(context, message)
+                      : _ChatMessage(
+                          text: message.text,
+                          icon: Icons.smart_toy_outlined,
+                          alignment: MainAxisAlignment.start,
+                        ),
+                UserPrompt() =>
+                  widget.userPromptBuilder != null
+                      ? widget.userPromptBuilder!(context, message)
+                      : _ChatMessage(
+                          text: message.text,
+                          icon: Icons.person,
+                          alignment: MainAxisAlignment.end,
+                        ),
+                UiResponse() => Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SurfaceWidget(
+                    key: message.uiKey,
+                    catalog: widget.catalog,
+                    surfaceId: message.surfaceId,
+                    definition: UiDefinition.fromMap(message.definition),
+                    onEvent: widget.onEvent,
                   ),
-          UserPrompt() =>
-            widget.userPromptBuilder != null
-                ? widget.userPromptBuilder!(context, message)
-                : _ChatMessage(
-                    text: message.text,
-                    icon: Icons.person,
-                    alignment: MainAxisAlignment.end,
-                  ),
-          UiResponse() => Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SurfaceWidget(
-              key: message.uiKey,
-              catalog: widget.catalog,
-              surfaceId: message.surfaceId,
-              definition: UiDefinition.fromMap(message.definition),
-              onEvent: widget.onEvent,
-            ),
+                ),
+                InternalMessage() => _InternalMessageWidget(
+                  content: message.text,
+                ),
+                UiEventMessage() => _InternalMessageWidget(
+                  content: message.event.toString(),
+                ),
+                null => widget.chatBoxBuilder(_chatController, context),
+              };
+            },
           ),
-          InternalMessage() => _InternalMessageWidget(content: message.text),
-          UiEventMessage() => _InternalMessageWidget(
-            content: message.event.toString(),
-          ),
-          null => widget.chatBoxBuilder(_chatController, context),
-        };
-      },
+        ),
+      ],
     );
   }
 }
