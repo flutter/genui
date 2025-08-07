@@ -2,7 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_ai/firebase_ai.dart'
+    show
+        Candidate,
+        Content,
+        FinishReason,
+        FirebaseAIException,
+        FunctionCall,
+        GenerateContentResponse,
+        TextPart;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -296,7 +305,9 @@ void main() {
         Candidate(
           Content.model([
             FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
+              'parameters': {
+                'output': {'key': 'value'},
+              },
             }),
           ]),
           [],

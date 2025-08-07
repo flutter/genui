@@ -5,7 +5,7 @@
 /// @docImport 'itinerary_with_details.dart';
 library;
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
@@ -22,7 +22,7 @@ final _schema = Schema.object(
     ),
     'detailText': Schema.string(description: 'The detail text for the item.'),
   },
-  optionalProperties: ['imageChild'],
+  required: ['title', 'subtitle', 'detailText'],
 );
 
 extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {

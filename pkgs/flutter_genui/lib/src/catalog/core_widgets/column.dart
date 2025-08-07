@@ -4,14 +4,14 @@
 
 // ignore_for_file: avoid_dynamic_calls
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 
 final _schema = Schema.object(
   properties: {
-    'mainAxisAlignment': Schema.enumString(
+    'mainAxisAlignment': Schema.string(
       description:
           'How children are aligned on the main axis. '
           'See Flutter\'s MainAxisAlignment for values.',
@@ -24,13 +24,13 @@ final _schema = Schema.object(
         'spaceEvenly',
       ],
     ),
-    'crossAxisAlignment': Schema.enumString(
+    'crossAxisAlignment': Schema.string(
       description:
           'How children are aligned on the cross axis. '
           'See Flutter\'s CrossAxisAlignment for values.',
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
-    'children': Schema.array(
+    'children': Schema.list(
       items: Schema.string(),
       description: 'A list of widget IDs for the children.',
     ),

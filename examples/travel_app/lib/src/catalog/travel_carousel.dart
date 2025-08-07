@@ -4,13 +4,13 @@
 
 import 'dart:ui';
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
   properties: {
-    'items': Schema.array(
+    'items': Schema.list(
       description: 'A list of items to display in the carousel.',
       items: Schema.object(
         properties: {
@@ -23,9 +23,11 @@ final _schema = Schema.object(
                 'typically be \'cover\'',
           ),
         },
+        required: ['title', 'imageChild'],
       ),
     ),
   },
+  required: ['items'],
 );
 
 /// A widget that presents a horizontally scrolling list of tappable items, each

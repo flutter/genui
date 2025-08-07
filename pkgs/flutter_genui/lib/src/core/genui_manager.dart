@@ -6,7 +6,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart' show Schema;
+import 'package:firebase_ai/firebase_ai.dart'
+    as firebase_ai
+    show Content, FunctionResponse, TextPart;
 import 'package:flutter/material.dart';
 
 import '../ai_client/ai_client.dart';
@@ -91,24 +94,29 @@ class GenUiManager {
     _generateAndSendResponse();
   }
 
-  List<Content> _contentForChatHistory() {
-    final conversation = <Content>[];
+  List<firebase_ai.Content> _contentForChatHistory() {
+    final conversation = <firebase_ai.Content>[];
     for (final message in _chatHistory) {
       switch (message) {
         case SystemMessage():
-          conversation.add(Content.text(message.text));
+          conversation.add(firebase_ai.Content.text(message.text));
         case UserPrompt():
-          conversation.add(Content.text(message.text));
+          conversation.add(firebase_ai.Content.text(message.text));
         case UiResponse():
           conversation.add(
-            Content.model([TextPart(jsonEncode(message.definition))]),
+            firebase_ai.Content.model([
+              firebase_ai.TextPart(jsonEncode(message.definition)),
+            ]),
           );
         case InternalMessage():
-          conversation.add(Content.text(message.text));
+          conversation.add(firebase_ai.Content.text(message.text));
         case UiEventMessage():
           conversation.add(
-            Content('user', [
-              FunctionResponse(message.event.widgetId, message.event.toMap()),
+            firebase_ai.Content('user', [
+              firebase_ai.FunctionResponse(
+                message.event.widgetId,
+                message.event.toMap(),
+              ),
             ]),
           );
       }
@@ -207,11 +215,11 @@ class GenUiManager {
   /// is always valid according to the schema.
   Schema get outputSchema => Schema.object(
     properties: {
-      'actions': Schema.array(
+      'actions': Schema.list(
         description: 'A list of actions to be performed on the UI surfaces.',
         items: Schema.object(
           properties: {
-            'action': Schema.enumString(
+            'action': Schema.string(
               description: 'The action to perform on the UI surface.',
               enumValues: ['add', 'update', 'delete'],
             ),
@@ -227,23 +235,26 @@ class GenUiManager {
                 'root': Schema.string(
                   description: 'The ID of the root widget.',
                 ),
-                'widgets': Schema.array(
+                'widgets': Schema.list(
                   items: catalog.schema,
                   description: 'A list of widget definitions.',
+                  minItems: 1,
                 ),
               },
               description:
-                  'A schema for defining a simple UI tree to be rendered by '
+                  'A schema for a simple UI tree to be rendered by '
                   'Flutter.',
+              required: ['root', 'widgets'],
             ),
           },
-          optionalProperties: ['surfaceId', 'definition'],
+          required: ['action', 'surfaceId'],
         ),
       ),
     },
     description:
         'A schema for defining a simple UI tree to be rendered by '
         'Flutter.',
+    required: ['actions'],
   );
 
   Widget widget() {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart' show FunctionDeclaration, Schema;
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 
 /// Abstract base class for defining tools that an AI agent can invoke.
 ///
@@ -79,22 +79,6 @@ abstract class AiTool<T extends Map<String, Object?>> {
   /// Returns a [Future] that completes with a map of results from the tool's
   /// execution. This result map will be sent back to the AI.
   Future<T> invoke(Map<String, Object?> args);
-
-  List<FunctionDeclaration> toFunctionDeclarations() {
-    return [
-      FunctionDeclaration(
-        name,
-        description,
-        parameters: parameters == null ? {} : {'parameters': parameters!},
-      ),
-      if (name != fullName)
-        FunctionDeclaration(
-          fullName,
-          description,
-          parameters: parameters == null ? {} : {'parameters': parameters!},
-        ),
-    ];
-  }
 }
 
 /// An [AiTool] that allows for dynamic invocation of a function.

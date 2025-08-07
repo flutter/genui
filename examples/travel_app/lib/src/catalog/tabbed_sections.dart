@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = Schema.object(
   properties: {
-    'sections': Schema.array(
+    'sections': Schema.list(
       description: 'A list of sections to display as tabs.',
       items: Schema.object(
         properties: {
@@ -17,6 +17,7 @@ final _schema = Schema.object(
             description: 'The ID of the child widget for the tab content.',
           ),
         },
+        required: ['title', 'child'],
       ),
     ),
     'height': Schema.number(
@@ -24,6 +25,7 @@ final _schema = Schema.object(
           'The fixed height for the content area of the tabbed sections.',
     ),
   },
+  required: ['sections'],
 );
 
 extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {

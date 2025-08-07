@@ -4,12 +4,14 @@
 
 import 'dart:convert';
 
+import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
 import 'ai_client.dart';
+import 'gemini_schema_adapter.dart';
 import 'generative_model_interface.dart';
 import 'tools.dart';
 
@@ -132,7 +134,7 @@ class GeminiAiClient implements AiClient {
   final ValueNotifier<GeminiModel> _model;
 
   @override
-  ValueListenable<GeminiModel> get model => _model;
+  ValueListenable<AiModel> get model => _model;
 
   @override
   List<AiModel> get models =>
@@ -266,14 +268,14 @@ class GeminiAiClient implements AiClient {
   /// - [conversation]: A list of [Content] objects representing the input to
   ///   the AI. This list will be modified in place to include the tool calling
   ///   conversation.
-  /// - [outputSchema]: A [Schema] defining the structure of the desired output
-  ///   `T`.
+  /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
+  ///   output `T`.
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
   ///   this specific call, in addition to the default [tools].
   @override
   Future<T?> generateContent<T extends Object>(
     List<Content> conversation,
-    Schema outputSchema, {
+    dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     return await _generateContentWithRetries(conversation, outputSchema, [
@@ -292,7 +294,7 @@ class GeminiAiClient implements AiClient {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    final geminiModel = configuration.model.value;
+    final geminiModel = configuration._model.value;
     return FirebaseAiGenerativeModel(
       FirebaseAI.googleAI().generativeModel(
         model: geminiModel.type.modelName,
@@ -326,7 +328,7 @@ class GeminiAiClient implements AiClient {
 
   Future<T?> _generateContentWithRetries<T extends Object>(
     List<Content> contents,
-    Schema outputSchema,
+    dsb.Schema outputSchema,
     List<AiTool> availableTools,
   ) async {
     var attempts = 0;
@@ -364,7 +366,7 @@ class GeminiAiClient implements AiClient {
         return result;
       } on FirebaseAIException catch (exception) {
         if (exception.message.contains(
-          '${model.value.type.modelName} is not found for '
+          '${_model.value.type.modelName} is not found for '
           'API version',
         )) {
           // If the model is not found, then just throw an exception.
@@ -389,10 +391,12 @@ class GeminiAiClient implements AiClient {
   Future<T?> _generateContentForcedToolCalling<T extends Object>(
     // This list is modified to include tool calls and results.
     List<Content> contents,
-    Schema outputSchema,
+    dsb.Schema outputSchema,
     List<AiTool> availableTools,
     void Function() onSuccess,
   ) async {
+    final adapter = GeminiSchemaAdapter();
+
     // Create an "output" tool that copies its args into the output.
     final finalOutputAiTool = DynamicAiTool<Map<String, Object?>>(
       name: outputToolName,
@@ -403,7 +407,7 @@ class GeminiAiClient implements AiClient {
           'MUST call this tool when you are done.',
       // Wrap the outputSchema in an object so that the output schema isn't
       // limited to objects.
-      parameters: Schema.object(properties: {'output': outputSchema}),
+      parameters: dsb.Schema.object(properties: {'output': outputSchema}),
       invokeFunction: (args) async => args, // Invoke is a pass-through
     );
     // Ensure allAiTools doesn't have duplicates by name, and prioritize the
@@ -425,16 +429,46 @@ class GeminiAiClient implements AiClient {
       }
     }
 
+    final functionDeclarations = <FunctionDeclaration>[];
+    for (final tool in uniqueAiToolsByName.values) {
+      Schema? adaptedParameters;
+      if (tool.parameters != null) {
+        final result = adapter.adapt(tool.parameters!);
+        if (result.errors.isNotEmpty) {
+          _warn(
+            'Errors adapting parameters for tool ${tool.name}: '
+            '${result.errors.join('\n')}',
+          );
+        }
+        adaptedParameters = result.schema;
+      }
+
+      final parameters = adaptedParameters == null
+          ? <String, Schema>{}
+          : {'parameters': adaptedParameters};
+
+      functionDeclarations.add(
+        FunctionDeclaration(
+          tool.name,
+          tool.description,
+          parameters: parameters,
+        ),
+      );
+      if (tool.name != tool.fullName) {
+        functionDeclarations.add(
+          FunctionDeclaration(
+            tool.fullName,
+            tool.description,
+            parameters: parameters,
+          ),
+        );
+      }
+    }
+
     // Registers tools under both their name and their fullName (if different),
     // because `toFunctionDeclarations` will return both declarations if they
     // are different.
-    final generativeAiTools = [
-      Tool.functionDeclarations(
-        [
-          ...uniqueAiToolsByName.values.map((t) => t.toFunctionDeclarations()),
-        ].expand((e) => e).toList(),
-      ),
-    ];
+    final generativeAiTools = [Tool.functionDeclarations(functionDeclarations)];
     final allowedFunctionNames = <String>{
       ...uniqueAiToolsByName.keys,
       ...toolFullNames,
@@ -502,7 +536,7 @@ With functions:
       if (functionCalls.isEmpty) {
         _warn(
           'Model did not call any function. FinishReason: '
-          '${candidate.finishReason}. Text: "${candidate.text}"',
+          '${candidate.finishReason}. Text: "${candidate.text}" ',
         );
         if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
           _warn(

@@ -4,7 +4,7 @@
 
 // ignore_for_file: avoid_dynamic_calls
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
@@ -15,11 +15,12 @@ final _schema = Schema.object(
     'groupValue': Schema.string(
       description: 'The currently selected value for a group of radio buttons.',
     ),
-    'labels': Schema.array(
+    'labels': Schema.list(
       items: Schema.string(),
       description: 'A list of labels for the radio buttons.',
     ),
   },
+  required: ['groupValue', 'labels'],
 );
 
 extension type _RadioGroupData.fromMap(Map<String, Object?> _json) {

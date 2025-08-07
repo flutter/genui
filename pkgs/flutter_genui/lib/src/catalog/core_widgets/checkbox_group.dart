@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
@@ -10,15 +10,16 @@ import '../../model/ui_models.dart';
 
 final _schema = Schema.object(
   properties: {
-    'values': Schema.array(
+    'values': Schema.list(
       items: Schema.boolean(),
       description: 'The values of the checkboxes.',
     ),
-    'labels': Schema.array(
+    'labels': Schema.list(
       items: Schema.string(),
       description: 'A list of labels for the checkboxes.',
     ),
   },
+  required: ['values', 'labels'],
 );
 
 extension type _CheckboxGroupData.fromMap(Map<String, Object?> _json) {

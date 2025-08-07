@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
@@ -11,11 +11,12 @@ final _schema = Schema.object(
     'submitLabel': Schema.string(
       description: 'The label for the submit button.',
     ),
-    'children': Schema.array(
+    'children': Schema.list(
       description: 'A list of widget IDs for the children.',
       items: Schema.string(),
     ),
   },
+  required: ['submitLabel', 'children'],
 );
 
 extension type _FilterChipGroupData.fromMap(Map<String, Object?> _json) {
