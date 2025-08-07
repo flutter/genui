@@ -24,14 +24,13 @@ class GenUiManager {
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) {
+  }) : catalog = catalog ?? coreCatalog {
     _eventManager = UiEventManager(callback: handleEvents);
-    this.catalog = catalog ?? coreCatalog;
   }
 
   final bool showInternalMessages;
 
-  late final Catalog catalog;
+  final Catalog catalog;
   final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
   final SystemMessageBuilder? systemMessageBuilder;
