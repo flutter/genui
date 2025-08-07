@@ -9,12 +9,6 @@ import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 
-typedef SystemMessageBuilder =
-    Widget Function(BuildContext context, SystemMessage message);
-
-typedef UserPromptBuilder =
-    Widget Function(BuildContext context, UserPrompt message);
-
 class ConversationWidget extends StatelessWidget {
   const ConversationWidget({
     super.key,

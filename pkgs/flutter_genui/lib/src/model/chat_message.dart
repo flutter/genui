@@ -6,6 +6,12 @@ import 'package:flutter/material.dart';
 
 import 'ui_models.dart';
 
+typedef SystemMessageBuilder =
+    Widget Function(BuildContext context, SystemMessage message);
+
+typedef UserPromptBuilder =
+    Widget Function(BuildContext context, UserPrompt message);
+
 /// A sealed class representing a message in the chat history.
 sealed class ChatMessage {
   const ChatMessage();
