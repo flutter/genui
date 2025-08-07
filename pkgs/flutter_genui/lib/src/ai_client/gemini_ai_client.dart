@@ -27,11 +27,10 @@ such as a slider to choose budget, options showing activity preferences etc.
 Then you will walk the user through choosing a hotel, flight and accommodation.
 Finally, you will suggest an itinerary based on the user's choices.
 
-Or, user may say "I want to plan a birthday party for my son".
+Or, user may say "I want to choose a restaurant".
 You will first ask some questions by displaying a combination of UI elements,
-such as a slider to choose budget, options showing activity preferences etc.
-Then you will walk the user through choosing a venue, food, and activities.
-Finally, you will suggest a plan based on the user's choices.
+such as a slider to choose cuisine, options showing location preferences etc.
+Finally, you will suggest a list of restaurants based on the user's choices.
 
 Or, user may say "I want to understand history of philosophy".
 You will first ask some questions by displaying a combination of UI elements,
