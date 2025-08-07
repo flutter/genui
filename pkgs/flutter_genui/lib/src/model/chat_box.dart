@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 typedef ChatBoxCallback = void Function(String input);
@@ -21,38 +22,22 @@ class ChatBoxController {
 
   /// Is invoked when the user submits input.
   ///
-  /// User can submit input multiple times, so this callback
-  /// should be able to handle multiple invocations.
+  /// User can submit input without waiting for a response.
   ChatBoxCallback onInput;
 
-  /// At least one request to AI is sent.
-  final _requested = Completer<void>();
-
-  /// At least one response from AI is received.
-  final _responded = Completer<void>();
-
-  Future<void> get requested => _requested.future;
-
-  Future<void> get responded => _responded.future;
-
-  bool get isRequested => _requested.isCompleted;
-  bool get isResponded => _responded.isCompleted;
+  final ValueNotifier<bool> _isWaiting = ValueNotifier<bool>(false);
+  late final ValueListenable<bool> isWaiting = _isWaiting;
 
   void setRequested() {
-    if (!_requested.isCompleted) {
-      _requested.complete();
-    }
+    _isWaiting.value = true;
   }
 
   void setResponded() {
-    if (!_responded.isCompleted) {
-      _responded.complete();
-    }
+    _isWaiting.value = false;
   }
 
   void dispose() {
-    _requested.complete();
-    _responded.complete();
+    _isWaiting.dispose();
   }
 }
 
@@ -82,60 +67,44 @@ class _ChatBoxState extends State<ChatBox> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
-    _waitForActivity();
-  }
-
-  @override
-  void didUpdateWidget(covariant ChatBox oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) {
-      _waitForActivity();
-    }
-  }
-
-  Future<void> _waitForActivity() async {
-    if (mounted) setState(() {});
-    await widget.controller._requested.future;
-    if (mounted) setState(() {});
-    await widget.controller._responded.future;
-    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final isRequested = widget.controller.isRequested;
-    final isResponded = widget.controller.isResponded;
-    final isProgressing = isRequested && !isResponded;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (isProgressing) ...[
-          const Center(child: CircularProgressIndicator()),
-          const SizedBox(height: 10),
-        ],
-        if (!isResponded)
-          TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(widget.borderRadius),
-                ),
-              ),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: _submit,
+        ValueListenableBuilder<bool>(
+          valueListenable: widget.controller.isWaiting,
+          builder: (context, isWaiting, child) {
+            return Visibility(
+              visible: isWaiting,
+              child: const Center(child: CircularProgressIndicator()),
+            );
+          },
+        ),
+
+        TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(widget.borderRadius),
               ),
             ),
-            maxLines: null, // Allows for multi-line input
-            keyboardType: TextInputType.multiline,
-            textInputAction: TextInputAction.send,
-            onSubmitted: (String value) => _submit(),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: _submit,
+            ),
           ),
+          maxLines: null, // Allows for multi-line input
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.send,
+          onSubmitted: (String value) => _submit(),
+        ),
       ],
     );
   }
