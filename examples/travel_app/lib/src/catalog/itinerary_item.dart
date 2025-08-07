@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'itinerary_with_details.dart';
+library;
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -41,6 +44,17 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
   String get detailText => _json['detailText'] as String;
 }
 
+/// A widget that displays a single, distinct event or activity within a larger
+/// travel plan.
+///
+/// It serves as a fundamental building block for creating detailed,
+/// step-by-step travel itineraries. Each `itineraryItem` typically includes a
+/// title, a subtitle (for time or location), an optional image, and a block of
+/// text for details.
+///
+/// These are most often used in a `Column` within a modal view that is launched
+/// from an [itineraryWithDetails] widget, where a sequence of these items can
+/// represent a full day's schedule or a list of activities.
 final itineraryItem = CatalogItem(
   name: 'itinerary_item',
   dataSchema: _schema,

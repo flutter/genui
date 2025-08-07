@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'filter_chip_group.dart';
+library;
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -44,6 +47,18 @@ extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
   String? get iconChild => _json['iconChild'] as String?;
 }
 
+/// An interactive chip that allows the user to select a single option from a
+/// predefined list.
+///
+/// This widget is a key component for gathering user preferences. It displays a
+/// category (e.g., "Budget," "Activity Type") and, when tapped, presents a
+/// modal bottom sheet containing a list of radio buttons for the available
+/// options.
+///
+/// It is typically used within a [filterChipGroup] to manage multiple facets of
+/// a user's query. When an option is selected, it dispatches a [UiChangeEvent],
+/// which informs the AI of the user's choice, allowing it to refine its
+/// subsequent responses.
 final optionsFilterChip = CatalogItem(
   name: 'optionsFilterChip',
   dataSchema: _schema,

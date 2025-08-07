@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'itinerary_item.dart';
+library;
+
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -47,6 +50,15 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
   String get child => _json['child'] as String;
 }
 
+/// A high-level summary card that represents a complete travel itinerary.
+///
+/// This widget is intended to be used as a primary result after a user has
+/// refined their search criteria. It displays a title, subheading, and a
+/// prominent image to give the user a quick overview of the proposed trip.
+///
+/// When tapped, it presents a modal bottom sheet containing the detailed
+/// breakdown of the itinerary, which is typically composed of a `Column` of
+/// [itineraryItem] widgets and other supplemental content.
 final itineraryWithDetails = CatalogItem(
   name: 'itinerary_with_details',
   dataSchema: _schema,

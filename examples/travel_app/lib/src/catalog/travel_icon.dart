@@ -38,6 +38,14 @@ enum TravelIcons {
   museum,
 }
 
+/// A catalog item for a widget that maps a semantic, travel-related name to a
+/// specific Material Design [IconData].
+///
+/// This provides the AI with a constrained, domain-specific vocabulary of icons
+/// (e.g., 'hotel', 'hiking', 'airport') rather than requiring it to know the
+/// names of the entire Material Icons library. This ensures that the icons used
+/// are always relevant to the travel context and maintain a consistent visual
+/// style throughout the application.
 final travelIcon = CatalogItem(
   name: 'travelIcon',
   widgetBuilder:
