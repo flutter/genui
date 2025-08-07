@@ -4,17 +4,12 @@
 
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../ai_client/ai_client.dart';
-import '../model/catalog.dart';
+import '../../flutter_genui.dart';
 import '../model/chat_message.dart';
-import '../model/ui_models.dart';
-import 'core_catalog.dart';
-import 'ui_event_manager.dart';
 import 'widgets/chat_widget.dart';
 import 'widgets/conversation_widget.dart';
 
@@ -50,6 +45,8 @@ class GenUiManager {
 
   final GenUiStyle style;
 
+  late final GenUiChatController? _chatController;
+
   final bool showInternalMessages;
 
   late final Catalog catalog;
@@ -57,8 +54,6 @@ class GenUiManager {
   final UserPromptBuilder? userPromptBuilder;
   final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
-
-  late final GenUiChatController? _chatController;
 
   @visibleForTesting
   List<ChatMessage> get chatHistoryForTesting => _chatHistory;
@@ -89,7 +84,6 @@ class GenUiManager {
   /// Sends a prompt on behalf of the end user. This should update the UI and
   /// also trigger an AI inference via the [aiClient].
   void sendUserPrompt(String prompt) {
-    print('!!!! User prompt: $prompt');
     if (prompt.isEmpty) {
       return;
     }
@@ -138,10 +132,7 @@ class GenUiManager {
             ]),
           );
         case ChatInvitationMessage():
-          throw StateError(
-            'Chat invitation message should not be in the '
-            'chat history.',
-          );
+          throw StateError('Chat invitation message should not be here.');
       }
     }
     return conversation;
@@ -208,6 +199,7 @@ class GenUiManager {
           }
         }
       }
+      _uiDataStreamController.add(List.from(_chatHistory));
     } catch (e) {
       print('Error generating content: $e');
       _chatHistory.add(SystemMessage(text: 'Error: $e'));
