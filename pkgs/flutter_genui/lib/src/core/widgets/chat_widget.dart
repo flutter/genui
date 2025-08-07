@@ -40,7 +40,7 @@ class GenUiChat extends StatefulWidget {
   final ChatBoxCallback onChatMessage;
   final GenUiChatController controller;
 
-  final List<AiMessage> messages;
+  final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
   final SystemMessageBuilder? systemMessageBuilder;

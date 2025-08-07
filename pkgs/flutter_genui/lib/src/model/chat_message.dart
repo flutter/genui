@@ -13,17 +13,17 @@ typedef UserPromptBuilder =
     Widget Function(BuildContext context, UserPrompt message);
 
 /// A sealed class representing a message in the chat history.
-sealed class AiMessage {
-  const AiMessage();
+sealed class ChatMessage {
+  const ChatMessage();
 }
 
 /// Invitation to input text.
-class ChatInvitationMessage extends AiMessage {
+class ChatInvitationMessage extends ChatMessage {
   const ChatInvitationMessage();
 }
 
 /// A message representing a system message.
-class SystemMessage extends AiMessage {
+class SystemMessage extends ChatMessage {
   /// Creates a [SystemMessage] with the given [text].
   const SystemMessage({required this.text});
 
@@ -32,7 +32,7 @@ class SystemMessage extends AiMessage {
 }
 
 /// A message representing an internal message
-class InternalMessage extends AiMessage {
+class InternalMessage extends ChatMessage {
   /// Creates a [InternalMessage] with the given [text].
   const InternalMessage(this.text);
 
@@ -41,7 +41,7 @@ class InternalMessage extends AiMessage {
 }
 
 /// A message representing a user's text prompt.
-class UserPrompt extends AiMessage {
+class UserPrompt extends ChatMessage {
   /// Creates a [UserPrompt] with the given [text].
   const UserPrompt({required this.text});
 
@@ -50,7 +50,7 @@ class UserPrompt extends AiMessage {
 }
 
 /// A message representing a UI response from the AI.
-class UiResponse extends AiMessage {
+class UiResponse extends ChatMessage {
   /// Creates a [UiResponse] with the given UI [definition].
   UiResponse({required this.definition, String? surfaceId})
     : uiKey = UniqueKey(),
@@ -69,7 +69,7 @@ class UiResponse extends AiMessage {
 }
 
 /// A message representing a UI event from the user.
-class UiEventMessage extends AiMessage {
+class UiEventMessage extends ChatMessage {
   /// Creates a [UiEventMessage] with the given [event].
   const UiEventMessage({required this.event});
 

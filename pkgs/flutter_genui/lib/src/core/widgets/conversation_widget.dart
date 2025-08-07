@@ -20,7 +20,7 @@ class ConversationWidget extends StatelessWidget {
     this.showInternalMessages = false,
   });
 
-  final List<AiMessage> messages;
+  final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
   final SystemMessageBuilder? systemMessageBuilder;
