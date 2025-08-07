@@ -20,10 +20,7 @@ void main() {
 
     setUp(() {
       fakeAiClient = FakeAiClient();
-      manager = GenUiManager.conversation(
-        catalog: coreCatalog,
-        aiClient: fakeAiClient,
-      );
+      manager = GenUiManager(catalog: coreCatalog, aiClient: fakeAiClient);
     });
 
     tearDown(() {
@@ -396,7 +393,7 @@ void main() {
 
     test('sends user prompt and gets UI response when showInternalMessages is '
         'true', () async {
-      manager = GenUiManager.conversation(
+      manager = GenUiManager(
         catalog: coreCatalog,
         aiClient: fakeAiClient,
         showInternalMessages: true,

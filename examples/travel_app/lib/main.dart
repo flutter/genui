@@ -66,10 +66,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             debugPrint('[$severity] $message');
           },
         );
-    _genUiManager = GenUiManager.conversation(
-      catalog: catalog,
-      aiClient: aiClient,
-    );
+    _genUiManager = GenUiManager(catalog: catalog, aiClient: aiClient);
   }
 
   @override

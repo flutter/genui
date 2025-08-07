@@ -17,19 +17,21 @@ import 'core_catalog.dart';
 import 'ui_event_manager.dart';
 import 'widgets/conversation_widget.dart';
 
+enum GenUiStyle { flexible, chat }
+
 class GenUiManager {
   void _init(Catalog? catalog) {
     this.catalog = catalog ?? coreCatalog;
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
-  GenUiManager.conversation({
+  GenUiManager({
     required this.aiClient,
     Catalog? catalog,
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) {
+  }) : style = GenUiStyle.flexible {
     _init(catalog);
   }
 
@@ -39,9 +41,11 @@ class GenUiManager {
     this.userPromptBuilder,
     this.systemMessageBuilder,
     this.showInternalMessages = false,
-  }) {
+  }) : style = GenUiStyle.chat {
     _init(catalog);
   }
+
+  final GenUiStyle style;
 
   final bool showInternalMessages;
 
