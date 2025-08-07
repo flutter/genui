@@ -10,12 +10,26 @@ import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 
-class ChatWidget extends StatefulWidget {
-  ChatWidget({
+class GenUiChatController {
+  final _onResponseReceived = ValueNotifier<int>(0);
+
+  void setResponseReceived() {
+    _onResponseReceived.value++;
+  }
+
+  void dispose() {
+    _onResponseReceived.dispose();
+  }
+}
+
+class GenUiChat extends StatefulWidget {
+  GenUiChat({
     super.key,
     required this.messages,
     required this.catalog,
     required this.onEvent,
+    required this.onChatMessage,
+    required this.controller,
     this.systemMessageBuilder,
     this.userPromptBuilder,
     this.showInternalMessages = false,
@@ -23,6 +37,9 @@ class ChatWidget extends StatefulWidget {
   });
 
   final ChatBoxBuilder chatBoxBuilder;
+  final ChatBoxCallback onChatMessage;
+  final GenUiChatController controller;
+
   final List<AiMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
@@ -31,13 +48,16 @@ class ChatWidget extends StatefulWidget {
   final bool showInternalMessages;
 
   @override
-  State<ChatWidget> createState() => _ChatWidgetState();
+  State<GenUiChat> createState() => _GenUiChatState();
 }
 
-class _ChatWidgetState extends State<ChatWidget> {
+class _GenUiChatState extends State<GenUiChat> {
   late final ChatController _chatController = ChatController(_onChatInput);
 
-  void _onChatInput(String input) {}
+  void _onChatInput(String input) {
+    _chatController.setRequested();
+    widget.onChatMessage(input);
+  }
 
   @override
   Widget build(BuildContext context) {

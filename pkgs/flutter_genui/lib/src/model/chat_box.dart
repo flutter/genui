@@ -21,7 +21,7 @@ class ChatController {
   ///
   /// User can submit input multiple times, so this callback
   /// should be able to handle multiple invocations.
-  final void Function(String input) onInput;
+  ChatBoxCallback onInput;
 
   final List<String> history = [];
 

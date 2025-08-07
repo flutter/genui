@@ -34,6 +34,7 @@ class GenUiManager {
     this.showInternalMessages = false,
   }) : style = GenUiStyle.flexible {
     _init(catalog);
+    _chatController = null;
   }
 
   GenUiManager.chat({
@@ -44,6 +45,7 @@ class GenUiManager {
     this.showInternalMessages = false,
   }) : style = GenUiStyle.chat {
     _init(catalog);
+    _chatController = GenUiChatController();
   }
 
   final GenUiStyle style;
@@ -55,6 +57,8 @@ class GenUiManager {
   final UserPromptBuilder? userPromptBuilder;
   final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
+
+  late final GenUiChatController? _chatController;
 
   @visibleForTesting
   List<AiMessage> get chatHistoryForTesting => _chatHistory;
@@ -79,11 +83,13 @@ class GenUiManager {
     _uiDataStreamController.close();
     _loadingStreamController.close();
     _eventManager.dispose();
+    _chatController?.dispose();
   }
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
   /// also trigger an AI inference via the [aiClient].
   void sendUserPrompt(String prompt) {
+    print('!!!! User prompt: $prompt');
     if (prompt.isEmpty) {
       return;
     }
@@ -202,7 +208,6 @@ class GenUiManager {
           }
         }
       }
-      _uiDataStreamController.add(List.from(_chatHistory));
     } catch (e) {
       print('Error generating content: $e');
       _chatHistory.add(SystemMessage(text: 'Error: $e'));
@@ -211,6 +216,7 @@ class GenUiManager {
       _outstandingRequests--;
       if (_outstandingRequests == 0) {
         _loadingStreamController.add(false);
+        _chatController?.setResponseReceived();
       }
     }
   }
@@ -287,7 +293,7 @@ class GenUiManager {
             systemMessageBuilder: systemMessageBuilder,
             userPromptBuilder: userPromptBuilder,
           ),
-          GenUiStyle.chat => ChatWidget(
+          GenUiStyle.chat => GenUiChat(
             messages: snapshot.data!,
             catalog: catalog,
             showInternalMessages: showInternalMessages,
@@ -296,6 +302,8 @@ class GenUiManager {
             },
             systemMessageBuilder: systemMessageBuilder,
             userPromptBuilder: userPromptBuilder,
+            onChatMessage: sendUserPrompt,
+            controller: _chatController!,
           ),
         };
       },
