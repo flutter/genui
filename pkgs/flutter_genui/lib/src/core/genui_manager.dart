@@ -57,22 +57,22 @@ class GenUiManager {
   late final UiEventManager _eventManager;
 
   @visibleForTesting
-  List<ChatMessage> get chatHistoryForTesting => _chatHistory;
+  List<AiMessage> get chatHistoryForTesting => _chatHistory;
 
   // The current chat data that is shown.
-  final _chatHistory = <ChatMessage>[];
+  final _chatHistory = <AiMessage>[];
 
   int _outstandingRequests = 0;
 
   // Stream of updates to the ui data which are used to build the
   // Conversation Widget every time the conversation is updated.
-  final StreamController<List<ChatMessage>> _uiDataStreamController =
-      StreamController<List<ChatMessage>>.broadcast();
+  final StreamController<List<AiMessage>> _uiDataStreamController =
+      StreamController<List<AiMessage>>.broadcast();
 
   final StreamController<bool> _loadingStreamController =
       StreamController<bool>.broadcast();
 
-  Stream<List<ChatMessage>> get uiDataStream => _uiDataStreamController.stream;
+  Stream<List<AiMessage>> get uiDataStream => _uiDataStreamController.stream;
   Stream<bool> get loadingStream => _loadingStreamController.stream;
 
   void dispose() {
@@ -130,6 +130,11 @@ class GenUiManager {
             Content('user', [
               FunctionResponse(message.event.widgetId, message.event.toMap()),
             ]),
+          );
+        case ChatInvitationMessage():
+          throw StateError(
+            'Chat invitation message should not be in the '
+            'chat history.',
           );
       }
     }
@@ -269,7 +274,7 @@ class GenUiManager {
   Widget widget() {
     return StreamBuilder(
       stream: uiDataStream,
-      initialData: const <ChatMessage>[],
+      initialData: const <AiMessage>[],
       builder: (context, snapshot) {
         return switch (style) {
           GenUiStyle.flexible => ConversationWidget(

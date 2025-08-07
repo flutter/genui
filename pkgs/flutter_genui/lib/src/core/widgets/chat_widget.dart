@@ -23,7 +23,7 @@ class ChatWidget extends StatefulWidget {
   });
 
   final ChatBoxBuilder chatBoxBuilder;
-  final List<ChatMessage> messages;
+  final List<AiMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
   final SystemMessageBuilder? systemMessageBuilder;
@@ -37,22 +37,23 @@ class ChatWidget extends StatefulWidget {
 class _ChatWidgetState extends State<ChatWidget> {
   late final ChatController _chatController = ChatController(_onChatInput);
 
-  void _onChatInput(String input) {
-    // chatController.addMessage(UserPrompt(text: input));
-  }
+  void _onChatInput(String input) {}
 
   @override
   Widget build(BuildContext context) {
-    final renderedMessages = widget.messages.where((message) {
+    final messages = widget.messages.where((message) {
       if (widget.showInternalMessages) {
         return true;
       }
       return message is! InternalMessage && message is! UiEventMessage;
     }).toList();
+
+    messages.add(const ChatInvitationMessage());
+
     return ListView.builder(
-      itemCount: renderedMessages.length,
+      itemCount: messages.length,
       itemBuilder: (context, index) {
-        final message = renderedMessages[index];
+        final message = messages[index];
         return switch (message) {
           SystemMessage() =>
             widget.systemMessageBuilder != null
@@ -83,6 +84,10 @@ class _ChatWidgetState extends State<ChatWidget> {
           InternalMessage() => _InternalMessageWidget(content: message.text),
           UiEventMessage() => _InternalMessageWidget(
             content: message.event.toString(),
+          ),
+          ChatInvitationMessage() => widget.chatBoxBuilder(
+            _chatController,
+            context,
           ),
         };
       },

@@ -40,12 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   @override
-  void initState() {
-    super.initState();
-    _genUiManager.sendUserPrompt('Talk to me.');
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
