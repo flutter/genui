@@ -9,6 +9,7 @@ import '../../model/chat_box.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
+import '../../primitives/ui_primitives.dart';
 
 class GenUiChatController {
   final _onAiRequestSent = ValueNotifier<int>(0);
@@ -46,7 +47,7 @@ class GenUiChat extends StatefulWidget {
   final ChatBoxCallback onChatMessage;
   final GenUiChatController controller;
 
-  final List<ChatMessage> messages;
+  final List<MessageData> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
   final SystemMessageBuilder? systemMessageBuilder;
@@ -116,7 +117,7 @@ class _GenUiChatState extends State<GenUiChat> {
                 SystemMessage() =>
                   widget.systemMessageBuilder != null
                       ? widget.systemMessageBuilder!(context, message)
-                      : _ChatMessage(
+                      : ChatMessage(
                           text: message.text,
                           icon: Icons.smart_toy_outlined,
                           alignment: MainAxisAlignment.start,
@@ -124,7 +125,7 @@ class _GenUiChatState extends State<GenUiChat> {
                 UserPrompt() =>
                   widget.userPromptBuilder != null
                       ? widget.userPromptBuilder!(context, message)
-                      : _ChatMessage(
+                      : ChatMessage(
                           text: message.text,
                           icon: Icons.person,
                           alignment: MainAxisAlignment.end,
@@ -139,10 +140,10 @@ class _GenUiChatState extends State<GenUiChat> {
                     onEvent: widget.onEvent,
                   ),
                 ),
-                InternalMessage() => _InternalMessageWidget(
+                InternalMessage() => InternalMessageWidget(
                   content: message.text,
                 ),
-                UiEventMessage() => _InternalMessageWidget(
+                UiEventMessage() => InternalMessageWidget(
                   content: message.event.toString(),
                 ),
               };
@@ -152,78 +153,6 @@ class _GenUiChatState extends State<GenUiChat> {
         const SizedBox(height: 8.0),
         widget.chatBoxBuilder(_chatController, context),
       ],
-    );
-  }
-}
-
-class _InternalMessageWidget extends StatelessWidget {
-  const _InternalMessageWidget({required this.content});
-
-  final String content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        color: Colors.grey.shade200,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Internal message: $content'),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChatMessage extends StatelessWidget {
-  const _ChatMessage({
-    required this.text,
-    required this.icon,
-    required this.alignment,
-  });
-
-  final String text;
-  final IconData icon;
-  final MainAxisAlignment alignment;
-
-  @override
-  Widget build(BuildContext context) {
-    final isStart = alignment == MainAxisAlignment.start;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      child: Row(
-        mainAxisAlignment: alignment,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(
-                    alignment == MainAxisAlignment.start ? 5 : 25,
-                  ),
-                  topRight: Radius.circular(
-                    alignment == MainAxisAlignment.start ? 25 : 5,
-                  ),
-                  bottomLeft: const Radius.circular(25),
-                  bottomRight: const Radius.circular(25),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isStart) ...[Icon(icon), const SizedBox(width: 8.0)],
-                    Text(text),
-                    if (!isStart) ...[const SizedBox(width: 8.0), Icon(icon)],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

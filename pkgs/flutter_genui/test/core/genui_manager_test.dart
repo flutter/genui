@@ -51,7 +51,7 @@ void main() {
           ],
         };
 
-        final chatHistoryCompleter = Completer<List<ChatMessage>>();
+        final chatHistoryCompleter = Completer<List<MessageData>>();
         manager.uiDataStream.listen((data) {
           if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
             chatHistoryCompleter.complete(data);
@@ -115,7 +115,7 @@ void main() {
         ],
       };
 
-      final completer = Completer<List<ChatMessage>>();
+      final completer = Completer<List<MessageData>>();
       manager.uiDataStream.listen((data) {
         if (data.whereType<UiResponse>().isNotEmpty && !completer.isCompleted) {
           completer.complete(data);
@@ -182,7 +182,7 @@ void main() {
         ],
       };
 
-      final completer = Completer<List<ChatMessage>>();
+      final completer = Completer<List<MessageData>>();
       manager.uiDataStream.listen((data) {
         final uiResponses = data.whereType<UiResponse>();
         if (uiResponses.isNotEmpty) {
@@ -328,7 +328,7 @@ void main() {
         ],
       };
 
-      final eventCompleter = Completer<List<ChatMessage>>();
+      final eventCompleter = Completer<List<MessageData>>();
       final eventSub = manager.uiDataStream.listen((data) {
         // Wait for the ui response from the event
         if (data.whereType<UiResponse>().length > 1) {
@@ -358,7 +358,7 @@ void main() {
     test('handles AI error gracefully', () async {
       fakeAiClient.exception = Exception('AI go boom');
 
-      final completer = Completer<List<ChatMessage>>();
+      final completer = Completer<List<MessageData>>();
       final sub = manager.uiDataStream.listen((data) {
         if (data.isNotEmpty &&
             data.last is SystemMessage &&
@@ -419,7 +419,7 @@ void main() {
         ],
       };
 
-      final chatHistoryCompleter = Completer<List<ChatMessage>>();
+      final chatHistoryCompleter = Completer<List<MessageData>>();
       manager.uiDataStream.listen((data) {
         if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
           chatHistoryCompleter.complete(data);

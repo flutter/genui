@@ -70,22 +70,22 @@ class GenUiManager {
   late final UiEventManager _eventManager;
 
   @visibleForTesting
-  List<ChatMessage> get chatHistoryForTesting => _chatHistory;
+  List<MessageData> get chatHistoryForTesting => _chatHistory;
 
   // The current chat data that is shown.
-  final _chatHistory = <ChatMessage>[];
+  final _chatHistory = <MessageData>[];
 
   int _outstandingRequests = 0;
 
   // Stream of updates to the ui data which are used to build the
   // Conversation Widget every time the conversation is updated.
-  final StreamController<List<ChatMessage>> _uiDataStreamController =
-      StreamController<List<ChatMessage>>.broadcast();
+  final StreamController<List<MessageData>> _uiDataStreamController =
+      StreamController<List<MessageData>>.broadcast();
 
   final StreamController<bool> _loadingStreamController =
       StreamController<bool>.broadcast();
 
-  Stream<List<ChatMessage>> get uiDataStream => _uiDataStreamController.stream;
+  Stream<List<MessageData>> get uiDataStream => _uiDataStreamController.stream;
   Stream<bool> get loadingStream => _loadingStreamController.stream;
 
   void dispose() {
@@ -290,7 +290,7 @@ class GenUiManager {
   Widget widget() {
     return StreamBuilder(
       stream: uiDataStream,
-      initialData: const <ChatMessage>[],
+      initialData: const <MessageData>[],
       builder: (context, snapshot) {
         return switch (style) {
           GenUiStyle.flexible => ConversationWidget(

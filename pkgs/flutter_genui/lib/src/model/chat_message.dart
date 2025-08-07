@@ -13,12 +13,12 @@ typedef UserPromptBuilder =
     Widget Function(BuildContext context, UserPrompt message);
 
 /// A sealed class representing a message in the chat history.
-sealed class ChatMessage {
-  const ChatMessage();
+sealed class MessageData {
+  const MessageData();
 }
 
 /// A message representing a system message.
-class SystemMessage extends ChatMessage {
+class SystemMessage extends MessageData {
   /// Creates a [SystemMessage] with the given [text].
   const SystemMessage({required this.text});
 
@@ -27,7 +27,7 @@ class SystemMessage extends ChatMessage {
 }
 
 /// A message representing an internal message
-class InternalMessage extends ChatMessage {
+class InternalMessage extends MessageData {
   /// Creates a [InternalMessage] with the given [text].
   const InternalMessage(this.text);
 
@@ -36,7 +36,7 @@ class InternalMessage extends ChatMessage {
 }
 
 /// A message representing a user's text prompt.
-class UserPrompt extends ChatMessage {
+class UserPrompt extends MessageData {
   /// Creates a [UserPrompt] with the given [text].
   const UserPrompt({required this.text});
 
@@ -45,7 +45,7 @@ class UserPrompt extends ChatMessage {
 }
 
 /// A message representing a UI response from the AI.
-class UiResponse extends ChatMessage {
+class UiResponse extends MessageData {
   /// Creates a [UiResponse] with the given UI [definition].
   UiResponse({required this.definition, String? surfaceId})
     : uiKey = UniqueKey(),
@@ -64,7 +64,7 @@ class UiResponse extends ChatMessage {
 }
 
 /// A message representing a UI event from the user.
-class UiEventMessage extends ChatMessage {
+class UiEventMessage extends MessageData {
   /// Creates a [UiEventMessage] with the given [event].
   const UiEventMessage({required this.event});
 
