@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'values': Schema.list(
-      items: Schema.boolean(),
+    'values': S.list(
+      items: S.boolean(),
       description: 'The values of the checkboxes.',
     ),
-    'labels': Schema.list(
-      items: Schema.string(),
+    'labels': S.list(
+      items: S.string(),
       description: 'A list of labels for the checkboxes.',
     ),
   },

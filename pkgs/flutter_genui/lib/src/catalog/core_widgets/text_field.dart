@@ -10,11 +10,11 @@ import 'package:flutter/material.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'value': Schema.string(description: 'The initial value of the text field.'),
-    'hintText': Schema.string(description: 'Hint text for the text field.'),
-    'obscureText': Schema.boolean(
+    'value': S.string(description: 'The initial value of the text field.'),
+    'hintText': S.string(description: 'Hint text for the text field.'),
+    'obscureText': S.boolean(
       description: 'Whether the text should be obscured.',
     ),
   },

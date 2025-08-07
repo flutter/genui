@@ -32,7 +32,7 @@ void main() {
       final tool = DynamicAiTool<Map<String, Object?>>(
         name: 'testTool',
         description: 'A test tool.',
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
         invokeFunction: (args) async {
           called = true;
           return {};

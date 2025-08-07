@@ -407,7 +407,7 @@ class GeminiAiClient implements AiClient {
           'MUST call this tool when you are done.',
       // Wrap the outputSchema in an object so that the output schema isn't
       // limited to objects.
-      parameters: dsb.Schema.object(properties: {'output': outputSchema}),
+      parameters: dsb.S.object(properties: {'output': outputSchema}),
       invokeFunction: (args) async => args, // Invoke is a pass-through
     );
     // Ensure allAiTools doesn't have duplicates by name, and prioritize the

@@ -81,7 +81,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {'key': Schema.string()}),
+        S.object(properties: {'key': S.string()}),
       );
 
       expect(result, isNotNull);
@@ -97,7 +97,7 @@ void main() {
           toolCalled = true;
           return {'status': 'ok'};
         },
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
       );
       client = createClient(tools: [tool]);
 
@@ -132,7 +132,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>([
         Content.text('do something'),
-      ], Schema.object(properties: {'final': Schema.string()}));
+      ], S.object(properties: {'final': S.string()}));
 
       expect(toolCalled, isTrue);
       expect(result, isNotNull);
@@ -161,7 +161,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {'key': Schema.string()}),
+        S.object(properties: {'key': S.string()}),
       );
 
       expect(result, isNotNull);
@@ -173,7 +173,7 @@ void main() {
         name: 'badTool',
         description: 'd',
         invokeFunction: (_) async => throw Exception('tool error'),
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
       );
       client = createClient(tools: [tool]);
 
@@ -206,7 +206,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>([
         Content.text('do something'),
-      ], Schema.object(properties: {'final': Schema.string()}));
+      ], S.object(properties: {'final': S.string()}));
 
       expect(result, isNotNull);
       expect(result!['final'], 'result');
@@ -218,7 +218,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {}),
+        S.object(properties: {}),
       );
 
       expect(result, isNull);
@@ -239,7 +239,7 @@ void main() {
       expect(
         () => client.generateContent<Map<String, Object?>>(
           [],
-          Schema.object(properties: {}),
+          S.object(properties: {}),
         ),
         throwsA(isA<AiClientException>()),
       );
@@ -259,7 +259,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {}),
+        S.object(properties: {}),
       );
 
       expect(result, isNull);
@@ -270,7 +270,7 @@ void main() {
         name: 'loopTool',
         description: 'd',
         invokeFunction: (_) async => <String, Object?>{},
-        parameters: Schema.object(properties: {}),
+        parameters: S.object(properties: {}),
       );
       client = createClient(tools: [tool]);
 
@@ -287,7 +287,7 @@ void main() {
 
       final result = await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {}),
+        S.object(properties: {}),
       );
 
       expect(result, isNull);
@@ -319,7 +319,7 @@ void main() {
 
       await client.generateContent<Map<String, Object?>>(
         [],
-        Schema.object(properties: {'key': Schema.string()}),
+        S.object(properties: {'key': S.string()}),
       );
 
       expect(logMessages, isNotEmpty);

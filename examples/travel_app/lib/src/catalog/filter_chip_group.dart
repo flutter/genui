@@ -6,14 +6,12 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'submitLabel': Schema.string(
-      description: 'The label for the submit button.',
-    ),
-    'children': Schema.list(
+    'submitLabel': S.string(description: 'The label for the submit button.'),
+    'children': S.list(
       description: 'A list of widget IDs for the children.',
-      items: Schema.string(),
+      items: S.string(),
     ),
   },
   required: ['submitLabel', 'children'],

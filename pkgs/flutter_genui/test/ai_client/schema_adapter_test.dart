@@ -17,11 +17,8 @@ void main() {
 
     group('adaptObject', () {
       test('should adapt a simple object schema', () {
-        final dsbSchema = dsb.Schema.object(
-          properties: {
-            'name': dsb.Schema.string(),
-            'age': dsb.Schema.integer(),
-          },
+        final dsbSchema = dsb.S.object(
+          properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
           required: ['name'],
         );
 
@@ -43,8 +40,8 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.Schema.object(
-          properties: {'name': dsb.Schema.string()},
+        final dsbSchema = dsb.S.object(
+          properties: {'name': dsb.S.string()},
           minProperties: 1,
           maxProperties: 5,
         );
@@ -67,8 +64,8 @@ void main() {
 
     group('adaptArray', () {
       test('should adapt a simple array schema', () {
-        final dsbSchema = dsb.Schema.list(
-          items: dsb.Schema.string(),
+        final dsbSchema = dsb.S.list(
+          items: dsb.S.string(),
           minItems: 1,
           maxItems: 10,
         );
@@ -96,10 +93,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.Schema.list(
-          items: dsb.Schema.string(),
-          uniqueItems: true,
-        );
+        final dsbSchema = dsb.S.list(items: dsb.S.string(), uniqueItems: true);
 
         final result = adapter.adapt(dsbSchema);
 
@@ -115,7 +109,7 @@ void main() {
 
     group('adaptString', () {
       test('should adapt a simple string schema', () {
-        final dsbSchema = dsb.Schema.string(
+        final dsbSchema = dsb.S.string(
           format: 'email',
           enumValues: ['test@example.com', 'user@example.com'],
         );
@@ -133,7 +127,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.Schema.string(
+        final dsbSchema = dsb.S.string(
           minLength: 1,
           maxLength: 10,
           pattern: r'^[a-zA-Z]+$',
@@ -161,7 +155,7 @@ void main() {
 
     group('adaptNumber', () {
       test('should adapt a simple number schema', () {
-        final dsbSchema = dsb.Schema.number(minimum: 0.0, maximum: 100.0);
+        final dsbSchema = dsb.S.number(minimum: 0.0, maximum: 100.0);
 
         final result = adapter.adapt(dsbSchema);
 
@@ -173,7 +167,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.Schema.number(
+        final dsbSchema = dsb.S.number(
           exclusiveMinimum: 0.0,
           exclusiveMaximum: 100.0,
           multipleOf: 5.0,
@@ -201,7 +195,7 @@ void main() {
 
     group('adaptInteger', () {
       test('should adapt a simple integer schema', () {
-        final dsbSchema = dsb.Schema.integer(minimum: 0, maximum: 100);
+        final dsbSchema = dsb.S.integer(minimum: 0, maximum: 100);
 
         final result = adapter.adapt(dsbSchema);
 
@@ -213,7 +207,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.Schema.integer(
+        final dsbSchema = dsb.S.integer(
           exclusiveMinimum: 0,
           exclusiveMaximum: 100,
           multipleOf: 5,
@@ -241,7 +235,7 @@ void main() {
 
     group('adaptBoolean', () {
       test('should adapt a boolean schema', () {
-        final dsbSchema = dsb.Schema.boolean();
+        final dsbSchema = dsb.S.boolean();
         final result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -251,7 +245,7 @@ void main() {
 
     group('adaptNull', () {
       test('should adapt a null schema to a nullable object', () {
-        final dsbSchema = dsb.Schema.nil();
+        final dsbSchema = dsb.S.nil();
         final result = adapter.adapt(dsbSchema);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.object);
@@ -312,12 +306,12 @@ void main() {
 
     group('Edge Cases', () {
       test('should handle nested objects and arrays', () {
-        final dsbSchema = dsb.Schema.object(
+        final dsbSchema = dsb.S.object(
           properties: {
-            'user': dsb.Schema.object(
+            'user': dsb.S.object(
               properties: {
-                'name': dsb.Schema.string(),
-                'roles': dsb.Schema.list(items: dsb.Schema.string()),
+                'name': dsb.S.string(),
+                'roles': dsb.S.list(items: dsb.S.string()),
               },
               required: ['name'],
             ),
@@ -360,7 +354,7 @@ void main() {
       });
 
       test('should handle an empty object schema', () {
-        final dsbSchema = dsb.Schema.object(properties: {});
+        final dsbSchema = dsb.S.object(properties: {});
         final result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -370,11 +364,8 @@ void main() {
       });
 
       test('should handle an object with all properties required', () {
-        final dsbSchema = dsb.Schema.object(
-          properties: {
-            'name': dsb.Schema.string(),
-            'age': dsb.Schema.integer(),
-          },
+        final dsbSchema = dsb.S.object(
+          properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
           required: ['name', 'age'],
         );
         final result = adapter.adapt(dsbSchema);
@@ -384,11 +375,8 @@ void main() {
       });
 
       test('should handle an object with no required properties', () {
-        final dsbSchema = dsb.Schema.object(
-          properties: {
-            'name': dsb.Schema.string(),
-            'age': dsb.Schema.integer(),
-          },
+        final dsbSchema = dsb.S.object(
+          properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
         );
         final result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
@@ -400,12 +388,9 @@ void main() {
       });
 
       test('should handle an array of objects', () {
-        final dsbSchema = dsb.Schema.list(
-          items: dsb.Schema.object(
-            properties: {
-              'name': dsb.Schema.string(),
-              'value': dsb.Schema.integer(),
-            },
+        final dsbSchema = dsb.S.list(
+          items: dsb.S.object(
+            properties: {'name': dsb.S.string(), 'value': dsb.S.integer()},
             required: ['name'],
           ),
         );

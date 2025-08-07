@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'child': Schema.string(
+    'child': S.string(
       description:
           'The ID of a child widget. This should always be set, e.g. to a '
           '`text`.',

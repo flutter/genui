@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:dart_schema_builder/dart_schema_builder.dart' show Schema;
+import 'package:dart_schema_builder/dart_schema_builder.dart' show S, Schema;
 import 'package:firebase_ai/firebase_ai.dart'
     as firebase_ai
     show Content, FunctionResponse, TextPart;
@@ -207,35 +207,33 @@ class GenUiManager {
   ///
   /// It strictly enforces the structure of the `root` object, requiring `id`
   /// and `type` for every widget in the `widgets` list. The `props` field
-  /// within each widget is defined as a `Schema.object` with all possible
+  /// within each widget is defined as a `S.object` with all possible
   /// properties for all widget types. The application logic should validate the
   /// contents of `props` based on the widget's `type`.
   ///
   /// This approach ensures that the fundamental structure of the UI definition
   /// is always valid according to the schema.
-  Schema get outputSchema => Schema.object(
+  Schema get outputSchema => S.object(
     properties: {
-      'actions': Schema.list(
+      'actions': S.list(
         description: 'A list of actions to be performed on the UI surfaces.',
-        items: Schema.object(
+        items: S.object(
           properties: {
-            'action': Schema.string(
+            'action': S.string(
               description: 'The action to perform on the UI surface.',
               enumValues: ['add', 'update', 'delete'],
             ),
-            'surfaceId': Schema.string(
+            'surfaceId': S.string(
               description:
                   'The ID of the surface to perform the action on. For the '
                   '`add` action, this will be a new surface ID. '
                   'For `update` and '
                   '`delete`, this will be an existing surface ID.',
             ),
-            'definition': Schema.object(
+            'definition': S.object(
               properties: {
-                'root': Schema.string(
-                  description: 'The ID of the root widget.',
-                ),
-                'widgets': Schema.list(
+                'root': S.string(description: 'The ID of the root widget.'),
+                'widgets': S.list(
                   items: catalog.schema,
                   description: 'A list of widget definitions.',
                   minItems: 1,

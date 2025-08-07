@@ -64,9 +64,9 @@ final travelIcon = CatalogItem(
           return const SizedBox.shrink();
         }
       },
-  dataSchema: Schema.object(
+  dataSchema: S.object(
     properties: {
-      'icon': Schema.string(
+      'icon': S.string(
         enumValues: TravelIcons.values.map((e) => e.name).toList(),
         description:
             'The name of the travel icon to display. *only* the given '

@@ -42,13 +42,13 @@ class Catalog {
       for (var item in items) item.name: item.dataSchema,
     };
 
-    return Schema.object(
+    return S.object(
       description:
           'Represents a *single* widget in a UI widget tree. '
           'This widget could be one of many supported types.',
       properties: {
-        'id': Schema.string(),
-        'widget': Schema.object(
+        'id': S.string(),
+        'widget': S.object(
           description:
               'The properties of the specific widget '
               'that this represents. This is a oneof - only *one* '

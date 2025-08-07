@@ -7,13 +7,11 @@ import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 
-final _schema = Schema.object(
+final _schema = S.object(
   properties: {
-    'url': Schema.string(description: 'The URL of the image to display.'),
-    'assetName': Schema.string(
-      description: 'The name of the asset to display.',
-    ),
-    'fit': Schema.string(
+    'url': S.string(description: 'The URL of the image to display.'),
+    'assetName': S.string(description: 'The name of the asset to display.'),
+    'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
     ),
