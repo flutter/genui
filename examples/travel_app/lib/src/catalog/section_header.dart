@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
+/// @docImport 'itinerary_item.dart';
+library;
 
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,13 @@ extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
   String? get subtitle => _json['subtitle'] as String?;
 }
 
+/// A presentational widget used to create visual and thematic separation within
+/// a list of content.
+///
+/// It displays a prominent title and an optional subtitle, helping to organize
+/// longer sequences of widgets, such as a detailed travel itinerary composed of
+/// multiple [itineraryItem] widgets. Its primary role is to improve the
+/// structure and scannability of the UI.
 final sectionHeaderCatalogItem = CatalogItem(
   name: 'sectionHeader',
   dataSchema: _schema,

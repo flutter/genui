@@ -31,6 +31,14 @@ extension type _FilterChipGroupData.fromMap(Map<String, Object?> _json) {
   List<String> get children => (_json['children'] as List).cast<String>();
 }
 
+/// A container widget that visually groups a collection of filter chips.
+///
+/// This component is designed to present the user with multiple categories of
+/// choices (e.g., "Budget", "Activity Type", "Duration"). Each choice is
+/// managed by a child chip. The `filterChipGroup` provides a single "Submit"
+/// button that, when pressed, dispatches a single event. This signals the AI
+/// to process the current selections from all the child chips at once, which
+/// is useful for refining a search or query with multiple parameters.
 final filterChipGroup = CatalogItem(
   name: 'filterChipGroup',
   dataSchema: _schema,

@@ -22,6 +22,15 @@ extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
   List<String> get topics => (_json['topics'] as List).cast<String>();
 }
 
+/// A widget that presents a list of suggested topics or follow-up questions to
+/// the user in the form of interactive chips.
+///
+/// This component is designed to guide the conversation and encourage further
+/// exploration after a primary query has been addressed. For instance, after
+/// generating a trip itinerary, the AI might use a `trailhead` to suggest
+/// related topics like "local cuisine," "nightlife," or "day trips." When a
+/// user taps a topic, it sends a new prompt to the AI, continuing the
+/// conversation in a new direction.
 final trailheadCatalogItem = CatalogItem(
   name: 'trailhead',
   dataSchema: _schema,

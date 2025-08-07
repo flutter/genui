@@ -23,9 +23,27 @@ void main() async {
   runApp(const TravelApp());
 }
 
+
+/// The root widget for the travel application.
+///
+/// This widget sets up the [MaterialApp], which configures the overall theme,
+/// title, and home page for the app. It serves as the main entry point for the
+/// user interface.
+///
+/// The [aiClient] parameter is optional and primarily used for testing
+/// purposes. If an [AiClient] is not provided, the [TravelPlannerPage] will
+/// instantiate its own default [GeminiAiClient].
 class TravelApp extends StatelessWidget {
+  /// Creates a new [TravelApp].
+  ///
+  /// The optional [aiClient] can be used to inject a specific AI client,
+  /// which is useful for testing with a mock implementation.
   const TravelApp({this.aiClient, super.key});
 
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default [GeminiAiClient] will be created by the
+  /// [TravelPlannerPage].
   final AiClient? aiClient;
 
   @override
@@ -41,9 +59,29 @@ class TravelApp extends StatelessWidget {
   }
 }
 
+
+/// The main page for the travel planner application.
+///
+/// This stateful widget manages the core user interface, including the app bar,
+/// the conversation view powered by [GenUiManager], and the input field for
+/// user prompts. It also handles the initialization of the [AiClient] and the
+/// [GenUiManager].
+///
+/// The page allows users to interact with the generative AI to plan trips. It
+/// features a text field to send prompts, a view to display the dynamically
+/// generated UI, and a menu to switch between different AI models.
 class TravelPlannerPage extends StatefulWidget {
+  /// Creates a new [TravelPlannerPage].
+  ///
+  /// An optional [aiClient] can be provided, which is useful for testing
+  /// or using a custom AI client implementation. If not provided, a default
+  /// [GeminiAiClient] is created.
   const TravelPlannerPage({this.aiClient, super.key});
 
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default instance of [GeminiAiClient] will be created within
+  /// the page's state.
   final AiClient? aiClient;
 
   @override

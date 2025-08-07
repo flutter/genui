@@ -46,6 +46,13 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
   String get childId => _json['child'] as String;
 }
 
+/// A container that organizes content into a series of tabs.
+///
+/// This widget is particularly useful for breaking down complex information
+/// into manageable sections. For example, in a multi-day travel itinerary, each
+/// tab could represent a different day, a different city, or a different theme
+/// (e.g., "Activities", "Dining"). This helps to avoid overwhelming the user
+/// with a long, scrolling list of information.
 final tabbedSections = CatalogItem(
   name: 'tabbedSections',
   dataSchema: _schema,

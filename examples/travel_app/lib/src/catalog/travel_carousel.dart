@@ -28,6 +28,15 @@ final _schema = Schema.object(
   },
 );
 
+/// A widget that presents a horizontally scrolling list of tappable items, each
+/// with an image and a title.
+///
+/// This component is ideal for showcasing a set of options to the user in a
+/// visually engaging way, such as potential destinations, activities, or tours.
+/// It is often used by the AI in the initial stages of a conversation to help
+/// narrow down the user's preferences. When an item is tapped, it dispatches an
+/// event with the item's title, allowing the AI to respond to the user's
+/// selection.
 final travelCarousel = CatalogItem(
   name: 'travelCarousel',
   dataSchema: _schema,
