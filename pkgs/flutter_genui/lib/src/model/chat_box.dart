@@ -78,7 +78,10 @@ class _ChatBoxState extends State<ChatBox> {
           builder: (context, isWaiting, child) {
             return Visibility(
               visible: isWaiting,
-              child: const Center(child: CircularProgressIndicator()),
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: Center(child: CircularProgressIndicator()),
+              ),
             );
           },
         ),

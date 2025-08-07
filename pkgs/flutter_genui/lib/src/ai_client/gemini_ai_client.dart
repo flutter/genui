@@ -97,7 +97,8 @@ class GeminiAiClient implements AiClient {
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
-  /// - [isChat]: Whether this client is used for chat interactions. If true,
+  /// - [addChatPromptPrefix]: Whether this client is used for chat interactions.
+  ///   If true,
   ///   the system instruction will be prefixed with instruction to create
   ///   a chat-based UI.
   GeminiAiClient({
@@ -111,9 +112,9 @@ class GeminiAiClient implements AiClient {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    this.isChat = true,
+    this.addChatPromptPrefix = true,
     String? systemInstruction,
-  }) : _systemInstruction = isChat
+  }) : _systemInstruction = addChatPromptPrefix
            ? '$_chatPromptPrefix$systemInstruction'
            : systemInstruction,
        _model = ValueNotifier(GeminiModel(model)) {
@@ -142,7 +143,7 @@ class GeminiAiClient implements AiClient {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    this.isChat = true,
+    this.addChatPromptPrefix = true,
     String? systemInstruction,
   }) : _systemInstruction = systemInstruction,
        _model = ValueNotifier(GeminiModel(model)) {
@@ -159,7 +160,7 @@ class GeminiAiClient implements AiClient {
     }
   }
 
-  final bool isChat;
+  final bool addChatPromptPrefix;
 
   /// The name of the Gemini model to use.
   ///
