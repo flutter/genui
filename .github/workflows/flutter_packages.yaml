@@ -110,6 +110,8 @@ jobs:
         with:
           channel: ${{ matrix.flutter_version }}
           cache: true
+      - name: Print Flutter version
+        run: flutter --version
       - name: Cache Pub dependencies
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
         with:
@@ -136,3 +138,5 @@ jobs:
           else
             echo "No 'test' directory found in ${{ matrix.package.path }}, skipping tests."
           fi
+      - name: Check for cycles
+        run: dart pub global activate layerlens && layerlens --fail-on-cycles
