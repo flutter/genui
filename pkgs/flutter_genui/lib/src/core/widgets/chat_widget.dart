@@ -11,14 +11,14 @@ import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 
 class GenUiChatController {
-  final _onResponseReceived = ValueNotifier<int>(0);
+  final _onAiResponseReceived = ValueNotifier<int>(0);
 
-  void setResponseReceived() {
-    _onResponseReceived.value++;
+  void setAiResponseReceived() {
+    _onAiResponseReceived.value++;
   }
 
   void dispose() {
-    _onResponseReceived.dispose();
+    _onAiResponseReceived.dispose();
   }
 }
 
@@ -52,11 +52,31 @@ class GenUiChat extends StatefulWidget {
 }
 
 class _GenUiChatState extends State<GenUiChat> {
-  late final ChatController _chatController = ChatController(_onChatInput);
+  late final ChatBoxController _chatController = ChatBoxController(
+    _onChatInput,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller._onAiResponseReceived.addListener(_onAiResponseReceived);
+  }
+
+  void _onAiResponseReceived() {
+    _chatController.setResponded();
+  }
 
   void _onChatInput(String input) {
     _chatController.setRequested();
     widget.onChatMessage(input);
+  }
+
+  @override
+  void dispose() {
+    widget.controller._onAiResponseReceived.removeListener(
+      _onAiResponseReceived,
+    );
+    super.dispose();
   }
 
   @override

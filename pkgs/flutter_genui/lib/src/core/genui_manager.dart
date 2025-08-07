@@ -211,7 +211,7 @@ class GenUiManager {
       _outstandingRequests--;
       if (_outstandingRequests == 0) {
         _loadingStreamController.add(false);
-        _chatController?.setResponseReceived();
+        _chatController?.setAiResponseReceived();
       }
     }
   }

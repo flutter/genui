@@ -28,7 +28,7 @@ class _MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
-  late ChatController _chatController = ChatController(onInputSubmitted);
+  late ChatBoxController _chatController = ChatBoxController(onInputSubmitted);
   final _log = TextEditingController(text: '');
 
   void onInputSubmitted(String input) {
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<_MyHomePage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          _chatController = ChatController(onInputSubmitted);
+                          _chatController = ChatBoxController(onInputSubmitted);
                           _log.text = '';
                           setState(() {});
                         },

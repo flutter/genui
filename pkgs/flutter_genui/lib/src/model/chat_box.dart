@@ -9,13 +9,15 @@ import 'package:flutter/material.dart';
 typedef ChatBoxCallback = void Function(String input);
 
 typedef ChatBoxBuilder =
-    Widget Function(ChatController controller, BuildContext context);
+    Widget Function(ChatBoxController controller, BuildContext context);
 
-Widget defaultChatBoxBuilder(ChatController controller, BuildContext context) =>
-    ChatBox(controller);
+Widget defaultChatBoxBuilder(
+  ChatBoxController controller,
+  BuildContext context,
+) => ChatBox(controller);
 
-class ChatController {
-  ChatController(this.onInput);
+class ChatBoxController {
+  ChatBoxController(this.onInput);
 
   /// Is invoked when the user submits input.
   ///
@@ -69,7 +71,7 @@ class ChatBox extends StatefulWidget {
     this.hintText = 'Ask me anything',
   });
 
-  final ChatController controller;
+  final ChatBoxController controller;
   final double borderRadius;
   final String hintText;
 
@@ -99,11 +101,11 @@ class _ChatBoxState extends State<ChatBox> {
   }
 
   Future<void> _waitForActivity() async {
-    setState(() {});
+    if (mounted) setState(() {});
     await widget.controller._requested.future;
-    setState(() {});
+    if (mounted) setState(() {});
     await widget.controller._responded.future;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
