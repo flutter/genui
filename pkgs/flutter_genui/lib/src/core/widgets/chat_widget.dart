@@ -11,14 +11,20 @@ import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 
 class GenUiChatController {
+  final _onAiRequestSent = ValueNotifier<int>(0);
   final _onAiResponseReceived = ValueNotifier<int>(0);
 
   void setAiResponseReceived() {
     _onAiResponseReceived.value++;
   }
 
+  void setAiRequestSent() {
+    _onAiRequestSent.value++;
+  }
+
   void dispose() {
     _onAiResponseReceived.dispose();
+    _onAiRequestSent.dispose();
   }
 }
 
@@ -60,10 +66,15 @@ class _GenUiChatState extends State<GenUiChat> {
   void initState() {
     super.initState();
     widget.controller._onAiResponseReceived.addListener(_onAiResponseReceived);
+    widget.controller._onAiRequestSent.addListener(_onAiRequestSent);
   }
 
   void _onAiResponseReceived() {
     _chatController.setResponded();
+  }
+
+  void _onAiRequestSent() {
+    _chatController.setRequested();
   }
 
   void _onChatInput(String input) {
@@ -76,6 +87,7 @@ class _GenUiChatState extends State<GenUiChat> {
     widget.controller._onAiResponseReceived.removeListener(
       _onAiResponseReceived,
     );
+    widget.controller._onAiRequestSent.removeListener(_onAiRequestSent);
     super.dispose();
   }
 

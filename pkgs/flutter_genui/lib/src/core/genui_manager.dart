@@ -49,7 +49,7 @@ class GenUiManager {
     loadingStream.listen((bool data) {
       print('!!! Loading state changed: $data');
       if (data) {
-        _chatController?.setAiResponseReceived();
+        _chatController?.setAiRequestSent();
       }
     });
   }
