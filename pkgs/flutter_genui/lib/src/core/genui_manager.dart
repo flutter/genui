@@ -46,6 +46,12 @@ class GenUiManager {
   }) : style = GenUiStyle.chat {
     _init(catalog);
     _chatController = GenUiChatController();
+    loadingStream.listen((bool data) {
+      print('!!! Loading state changed: $data');
+      if (data) {
+        _chatController?.setAiResponseReceived();
+      }
+    });
   }
 
   final GenUiStyle style;
