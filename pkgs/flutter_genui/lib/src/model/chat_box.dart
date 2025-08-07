@@ -25,8 +25,6 @@ class ChatBoxController {
   /// should be able to handle multiple invocations.
   ChatBoxCallback onInput;
 
-  final List<String> history = [];
-
   /// At least one request to AI is sent.
   final _requested = Completer<void>();
 
@@ -50,11 +48,6 @@ class ChatBoxController {
     if (!_responded.isCompleted) {
       _responded.complete();
     }
-  }
-
-  void submitInput(String input) {
-    onInput(input);
-    history.add(input);
   }
 
   void dispose() {
@@ -114,20 +107,10 @@ class _ChatBoxState extends State<ChatBox> {
     final isResponded = widget.controller.isResponded;
     final isProgressing = isRequested && !isResponded;
 
-    final history = widget.controller.history.map(
-      (e) => Padding(
-        padding: const EdgeInsets.all(0),
-        child: Card(
-          elevation: 0,
-          child: Padding(padding: const EdgeInsets.all(8.0), child: Text(e)),
-        ),
-      ),
-    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        ...history,
         if (isProgressing) ...[
           const Center(child: CircularProgressIndicator()),
           const SizedBox(height: 10),
@@ -160,7 +143,7 @@ class _ChatBoxState extends State<ChatBox> {
   void _submit() {
     final input = _controller.text.trim();
     if (input.isEmpty) return;
-    widget.controller.submitInput(input);
+    widget.controller.onInput(input);
     _controller.text = '';
     _focusNode.requestFocus();
     setState(() {});
