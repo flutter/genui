@@ -32,7 +32,6 @@ class _MyHomePageState extends State<_MyHomePage> {
   final _log = TextEditingController(text: '');
 
   void onInputSubmitted(String input) {
-    print('!!! Input submitted: $input');
     _addLogEntry('User: $input');
     _emulateStartProcessing();
   }
