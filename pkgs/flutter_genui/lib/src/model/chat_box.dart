@@ -161,6 +161,7 @@ class _ChatBoxState extends State<ChatBox> {
     widget.controller.submitInput(input);
     _controller.text = '';
     _focusNode.requestFocus();
+    setState(() {});
   }
 
   @override
