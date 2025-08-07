@@ -97,10 +97,9 @@ class GeminiAiClient implements AiClient {
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
-  /// - [addChatPromptPrefix]: Whether this client is used for chat interactions.
-  ///   If true,
-  ///   the system instruction will be prefixed with instruction to create
-  ///   a chat-based UI.
+  /// - [addChatPromptPrefix]: Whether this client is used for chat
+  ///   interactions. If true, the system instruction will be prefixed with
+  ///   instruction to create a chat-based UI.
   GeminiAiClient({
     GeminiModelType model = GeminiModelType.flash,
     this.fileSystem = const LocalFileSystem(),
