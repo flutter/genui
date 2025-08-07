@@ -23,7 +23,6 @@ void main() async {
   runApp(const TravelApp());
 }
 
-
 /// The root widget for the travel application.
 ///
 /// This widget sets up the [MaterialApp], which configures the overall theme,
@@ -58,7 +57,6 @@ class TravelApp extends StatelessWidget {
     );
   }
 }
-
 
 /// The main page for the travel planner application.
 ///
@@ -253,7 +251,7 @@ and when you use the 'add' action,
 you are adding another element to the end of the stream.
 
 In general, you should keep adding more UI elements to the end of the chat. You should
-only replace elements if they are no-longer relevant. For example if a userperforms a search,
+only replace elements if they are no-longer relevant. For example if a user performs a search,
 then you can replace the filter chips etc with a new surface that includes both
 filter chips *and* the result.
 That way the user can refine their search and retry.

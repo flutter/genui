@@ -38,8 +38,8 @@ enum TravelIcons {
   museum,
 }
 
-/// A simple widget that maps a semantic, travel-related name to a specific
-/// Material Design [IconData].
+/// A catalog item for a widget that maps a semantic, travel-related name to a
+/// specific Material Design [IconData].
 ///
 /// This provides the AI with a constrained, domain-specific vocabulary of icons
 /// (e.g., 'hotel', 'hiking', 'airport') rather than requiring it to know the
