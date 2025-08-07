@@ -5,12 +5,13 @@
 import 'package:flutter/material.dart';
 
 import '../../model/catalog.dart';
+import '../../model/chat_box.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 
-class ConversationWidget extends StatelessWidget {
-  const ConversationWidget({
+class ChatWidget extends StatelessWidget {
+  const ChatWidget({
     super.key,
     required this.messages,
     required this.catalog,
@@ -18,8 +19,10 @@ class ConversationWidget extends StatelessWidget {
     this.systemMessageBuilder,
     this.userPromptBuilder,
     this.showInternalMessages = false,
+    this.chatBoxBuilder = defaultChatBoxBuilder,
   });
 
+  final ChatBoxBuilder chatBoxBuilder;
   final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;

@@ -15,6 +15,7 @@ import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import 'core_catalog.dart';
 import 'ui_event_manager.dart';
+import 'widgets/chat_widget.dart';
 import 'widgets/conversation_widget.dart';
 
 enum GenUiStyle { flexible, chat }
@@ -270,16 +271,28 @@ class GenUiManager {
       stream: uiDataStream,
       initialData: const <ChatMessage>[],
       builder: (context, snapshot) {
-        return ConversationWidget(
-          messages: snapshot.data!,
-          catalog: catalog,
-          showInternalMessages: showInternalMessages,
-          onEvent: (event) {
-            _eventManager.add(UiEvent.fromMap(event));
-          },
-          systemMessageBuilder: systemMessageBuilder,
-          userPromptBuilder: userPromptBuilder,
-        );
+        return switch (style) {
+          GenUiStyle.flexible => ConversationWidget(
+            messages: snapshot.data!,
+            catalog: catalog,
+            showInternalMessages: showInternalMessages,
+            onEvent: (event) {
+              _eventManager.add(UiEvent.fromMap(event));
+            },
+            systemMessageBuilder: systemMessageBuilder,
+            userPromptBuilder: userPromptBuilder,
+          ),
+          GenUiStyle.chat => ChatWidget(
+            messages: snapshot.data!,
+            catalog: catalog,
+            showInternalMessages: showInternalMessages,
+            onEvent: (event) {
+              _eventManager.add(UiEvent.fromMap(event));
+            },
+            systemMessageBuilder: systemMessageBuilder,
+            userPromptBuilder: userPromptBuilder,
+          ),
+        };
       },
     );
   }

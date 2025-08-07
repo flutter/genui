@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 
 typedef ChatBoxCallback = void Function(String input);
 
-typedef ChatBoxBuilder = Widget Function(ChatController controller);
+typedef ChatBoxBuilder =
+    Widget Function(ChatController controller, BuildContext context);
 
-Widget defaultChatBoxBuilder(ChatController controller) => ChatBox(controller);
+Widget defaultChatBoxBuilder(ChatController controller, BuildContext context) =>
+    ChatBox(controller);
 
 class ChatController {
   ChatController(this.onInput);
