@@ -129,7 +129,10 @@ class _GenUiChatState extends State<GenUiChat> {
                           alignment: MainAxisAlignment.end,
                         ),
                 AssistantMessage() => _ChatMessage(
-                  text: (message.parts.first as TextPart).text,
+                  text: message.parts
+                      .whereType<TextPart>()
+                      .map((part) => part.text)
+                      .join('\n'),
                   icon: Icons.smart_toy_outlined,
                   alignment: MainAxisAlignment.start,
                 ),
