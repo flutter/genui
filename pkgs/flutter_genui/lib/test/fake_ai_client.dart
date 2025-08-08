@@ -6,9 +6,10 @@ import 'dart:async';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/ai_client/tools.dart';
-import 'package:flutter_genui/src/model/chat_message.dart' as genui;
+
+import '../flutter_genui.dart';
+import '../src/ai_client/tools.dart';
+import '../src/model/chat_message.dart' as genui;
 
 /// A fake implementation of [AiClient] for testing purposes.
 ///

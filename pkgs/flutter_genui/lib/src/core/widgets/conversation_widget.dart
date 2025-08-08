@@ -8,6 +8,7 @@ import '../../model/catalog.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
+import 'chat_primitives.dart';
 
 typedef SystemMessageBuilder =
     Widget Function(BuildContext context, SystemMessage message);
@@ -53,7 +54,7 @@ class ConversationWidget extends StatelessWidget {
           UserMessage() =>
             userPromptBuilder != null
                 ? userPromptBuilder!(context, message)
-                : _ChatMessage(
+                : ChatMessageWidget(
                     text: message.parts
                         .whereType<TextPart>()
                         .map((part) => part.text)
@@ -61,7 +62,7 @@ class ConversationWidget extends StatelessWidget {
                     icon: Icons.person,
                     alignment: MainAxisAlignment.end,
                   ),
-          AssistantMessage() => _ChatMessage(
+          AssistantMessage() => ChatMessageWidget(
             text: message.parts
                 .whereType<TextPart>()
                 .map((part) => part.text)
@@ -79,84 +80,12 @@ class ConversationWidget extends StatelessWidget {
               onEvent: onEvent,
             ),
           ),
-          InternalMessage() => _InternalMessageWidget(content: message.text),
-          ToolResponseMessage() => _InternalMessageWidget(
+          InternalMessage() => InternalMessageWidget(content: message.text),
+          ToolResponseMessage() => InternalMessageWidget(
             content: message.results.toString(),
           ),
         };
       },
-    );
-  }
-}
-
-class _InternalMessageWidget extends StatelessWidget {
-  const _InternalMessageWidget({required this.content});
-
-  final String content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        color: Colors.grey.shade200,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Internal message: $content'),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChatMessage extends StatelessWidget {
-  const _ChatMessage({
-    required this.text,
-    required this.icon,
-    required this.alignment,
-  });
-
-  final String text;
-  final IconData icon;
-  final MainAxisAlignment alignment;
-
-  @override
-  Widget build(BuildContext context) {
-    final isStart = alignment == MainAxisAlignment.start;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      child: Row(
-        mainAxisAlignment: alignment,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(
-                    alignment == MainAxisAlignment.start ? 5 : 25,
-                  ),
-                  topRight: Radius.circular(
-                    alignment == MainAxisAlignment.start ? 25 : 5,
-                  ),
-                  bottomLeft: const Radius.circular(25),
-                  bottomRight: const Radius.circular(25),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isStart) ...[Icon(icon), const SizedBox(width: 8.0)],
-                    Flexible(child: Text(text)),
-                    if (!isStart) ...[const SizedBox(width: 8.0), Icon(icon)],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

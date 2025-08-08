@@ -4,10 +4,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/main.dart' as app;
-
-import 'package:flutter_genui/test.dart';
 
 void main() {
   testWidgets('Can switch models', (WidgetTester tester) async {
