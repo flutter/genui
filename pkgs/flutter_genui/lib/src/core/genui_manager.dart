@@ -134,10 +134,10 @@ class GenUiManager {
 
     final messageParts = <MessagePart>[
       ...toolResults,
-      TextPart(
+      ThinkingPart(
         'The user has interacted with the UI surface named "$surfaceId". '
-        'Consolidate the UI events and update the UI accordingly. You can '
-        'choose to update this surface if the previous content is no-longer '
+        'Consolidate the UI events and update the UI accordingly. '
+        'Choose to update this surface if the previous content is no-longer '
         'needed, or add a new surface to show additional content.',
       ),
     ];

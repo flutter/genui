@@ -113,47 +113,58 @@ class _GenUiChatState extends State<GenUiChat> {
             itemBuilder: (context, index) {
               index = messages.length - 1 - index; // Reverse index
               final message = messages[index];
-              return switch (message) {
-                SystemMessage() =>
-                  widget.systemMessageBuilder != null
+              switch (message) {
+                case SystemMessage():
+                  return widget.systemMessageBuilder != null
                       ? widget.systemMessageBuilder!(context, message)
-                      : const SizedBox.shrink(),
-                UserMessage() =>
-                  widget.userPromptBuilder != null
-                      ? widget.userPromptBuilder!(context, message)
-                      : ChatMessageWidget(
-                          text: message.parts
-                              .whereType<TextPart>()
-                              .map<String>((part) => part.text)
-                              .join('\n'),
-                          icon: Icons.person,
-                          alignment: MainAxisAlignment.end,
-                        ),
-                AssistantMessage() => ChatMessageWidget(
-                  text: message.parts
+                      : const SizedBox.shrink();
+                case UserMessage():
+                  if (widget.userPromptBuilder != null) {
+                    return widget.userPromptBuilder!(context, message);
+                  }
+                  final text = message.parts
+                      .whereType<TextPart>()
+                      .map<String>((part) => part.text)
+                      .join('\n');
+                  if (text.trim().isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return ChatMessageWidget(
+                    text: text,
+                    icon: Icons.person,
+                    alignment: MainAxisAlignment.end,
+                  );
+                case AssistantMessage():
+                  final text = message.parts
                       .whereType<TextPart>()
                       .map((part) => part.text)
-                      .join('\n'),
-                  icon: Icons.smart_toy_outlined,
-                  alignment: MainAxisAlignment.start,
-                ),
-                UiResponseMessage() => Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SurfaceWidget(
-                    key: message.uiKey,
-                    catalog: widget.catalog,
-                    surfaceId: message.surfaceId,
-                    definition: UiDefinition.fromMap(message.definition),
-                    onEvent: widget.onEvent,
-                  ),
-                ),
-                InternalMessage() => InternalMessageWidget(
-                  content: message.text,
-                ),
-                ToolResponseMessage() => InternalMessageWidget(
-                  content: message.results.toString(),
-                ),
-              };
+                      .join('\n');
+                  if (text.trim().isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return ChatMessageWidget(
+                    text: text,
+                    icon: Icons.smart_toy_outlined,
+                    alignment: MainAxisAlignment.start,
+                  );
+                case UiResponseMessage():
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SurfaceWidget(
+                      key: message.uiKey,
+                      catalog: widget.catalog,
+                      surfaceId: message.surfaceId,
+                      definition: UiDefinition.fromMap(message.definition),
+                      onEvent: widget.onEvent,
+                    ),
+                  );
+                case InternalMessage():
+                  return InternalMessageWidget(content: message.text);
+                case ToolResponseMessage():
+                  return InternalMessageWidget(
+                    content: message.results.toString(),
+                  );
+              }
             },
           ),
         ),
