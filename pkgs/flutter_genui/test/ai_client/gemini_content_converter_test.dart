@@ -49,12 +49,20 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('toFirebaseAiContent ignores UiResponseMessage', () {
+    test('toFirebaseAiContent converts UiResponseMessage to a TextPart', () {
+      final definition = {'root': 'a', 'widgets': []};
       final messages = [
-        UiResponseMessage(definition: {'root': 'a', 'widgets': []}),
+        UiResponseMessage(definition: definition),
       ];
       final result = converter.toFirebaseAiContent(messages);
-      expect(result, isEmpty);
+      expect(result, hasLength(1));
+      expect(result.first.role, 'user');
+      expect(result.first.parts, hasLength(1));
+      expect(result.first.parts.first, isA<firebase_ai.TextPart>());
+      expect(
+        (result.first.parts.first as firebase_ai.TextPart).text,
+        contains(jsonEncode(definition)),
+      );
     });
 
     test('toFirebaseAiContent ignores InternalMessage', () {
