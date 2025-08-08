@@ -53,9 +53,10 @@ class GeminiContentConverter {
               ),
             );
           } else if (part.url != null) {
-            // Gemini doesn't directly support URLs in parts like some other
-            // APIs. A real implementation would download the data. For now,
-            // we'll just send a text representation.
+            // TODO(gspencer): Gemini doesn't directly support URLs in parts
+            // like some other APIs. A more complete implementation would
+            // download the data. For now, we'll just send a text
+            // representation.
             result.add(firebase_ai.TextPart('Image at ${part.url}'));
           } else {
             throw AiClientException('ImagePart has no data.');
@@ -72,8 +73,8 @@ class GeminiContentConverter {
             ),
           );
         case ThinkingPart():
-          // This is a provider-specific part, so we can represent it as text.
-          result.add(firebase_ai.TextPart('Thinking: ${part.thinkingText}'));
+          // Represent thoughts as text.
+          result.add(firebase_ai.TextPart('Thinking: ${part.text}'));
       }
     }
     return result;

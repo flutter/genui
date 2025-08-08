@@ -102,9 +102,9 @@ final class ToolResultPart implements MessagePart {
 /// A provider-specific part for "thinking" blocks.
 final class ThinkingPart implements MessagePart {
   /// The reasoning content from the model.
-  final String thinkingText;
+  final String text;
 
-  const ThinkingPart(this.thinkingText);
+  const ThinkingPart(this.text);
 }
 
 /// A sealed class representing a message in the chat history.

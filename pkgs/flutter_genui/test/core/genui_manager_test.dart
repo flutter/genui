@@ -342,9 +342,9 @@ void main() {
       final lastConversation = fakeAiClient.lastConversation;
       final userMessage = lastConversation[2] as UserMessage;
       expect(userMessage.parts.first, isA<ToolResultPart>());
-      expect(userMessage.parts.last, isA<TextPart>());
+      expect(userMessage.parts.last, isA<ThinkingPart>());
       expect(
-        (userMessage.parts.last as TextPart).text,
+        (userMessage.parts.last as ThinkingPart).text,
         contains('The user has interacted with the UI surface'),
       );
 
