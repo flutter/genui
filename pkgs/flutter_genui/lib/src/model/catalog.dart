@@ -8,11 +8,36 @@ import 'package:flutter/material.dart';
 
 import '../../flutter_genui.dart';
 
+typedef CatalogChildBuilder = Widget Function(String id);
+
+/// Represents a collection of UI components that a generative AI model can use
+/// to construct a user interface.
+///
+/// A [Catalog] serves two primary purposes:
+/// 1. It holds a list of [CatalogItem]s, which define the available widgets.
+/// 2. It provides a mechanism to build a Flutter widget from a JSON-like data
+///    structure (`Map<String, Object?>`).
+/// 3. It dynamically generates a [Schema] that describes the structure of all
+///    supported widgets, which can be provided to the AI model.
 class Catalog {
+  /// Creates a new catalog with the given list of [items].
   const Catalog(this.items);
 
+  /// The list of [CatalogItem]s available in this catalog.
   final List<CatalogItem> items;
 
+  /// Builds a Flutter widget from a JSON-like data structure.
+  ///
+  /// This method looks up the appropriate [CatalogItem] based on the `widget`
+  /// field in the [data] map and uses its `widgetBuilder` to construct the
+  /// widget.
+  ///
+  /// * [data]: The deserialized JSON data for the widget to build.
+  /// * [buildChild]: A function that can be called to recursively build child
+  ///   widgets by their ID.
+  /// * [dispatchEvent]: A callback to send UI events, like button presses or
+  ///   value changes, back to the model.
+  /// * [context]: The build context for the widget.
   Widget buildWidget(
     Map<String, Object?>
     data, // The actual deserialized JSON data for this layout
@@ -36,6 +61,13 @@ class Catalog {
     );
   }
 
+  /// A dynamically generated [Schema] that describes all widgets in the
+  /// catalog.
+  ///
+  /// This schema is a "one-of" object, where the `widget` property can be one
+  /// of the schemas from the [items] in the catalog. This is used to inform the
+  /// generative AI model about the available UI components and their expected
+  /// data structures.
   Schema get schema {
     // Dynamically build schema properties from supported layouts
     final schemaProperties = {

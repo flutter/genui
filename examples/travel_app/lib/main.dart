@@ -97,12 +97,15 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     aiClient =
         widget.aiClient ??
         GeminiAiClient(
-          systemInstruction: prompt,
           loggingCallback: (severity, message) {
             debugPrint('[$severity] $message');
           },
         );
-    _genUiManager = GenUiManager.chat(catalog: catalog, aiClient: aiClient);
+    _genUiManager = GenUiManager.chat(
+      catalog: catalog,
+      aiClient: aiClient,
+      systemPrompt: prompt,
+    );
   }
 
   @override
@@ -169,7 +172,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 }
 
-late final String _imagesJson;
+String? _imagesJson;
 
 final prompt =
     '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
@@ -218,5 +221,5 @@ E.g. after an itinerary item like a beach visit, you could include a carousel of
 
 If you need to use any images, try to find the most relevant ones from the following
 asset images:
-$_imagesJson
+${_imagesJson ?? ''}
 ''';

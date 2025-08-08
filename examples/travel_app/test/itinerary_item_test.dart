@@ -30,9 +30,14 @@ void main() {
                       'detailText': testDetailText,
                     },
                     id: 'test_id',
-                    buildChild: (id) => Image.network(
-                      'https://example.com/thumbnail.jpg',
-                    ), // Mock buildChild
+                    buildChild: (id) {
+                      if (id == 'image_child_id') {
+                        return Image.network(
+                          'https://example.com/thumbnail.jpg',
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                     dispatchEvent: (event) {}, // Mock dispatchEvent
                     context: context,
                   );

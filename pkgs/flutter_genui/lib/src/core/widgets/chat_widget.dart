@@ -9,7 +9,7 @@ import '../../model/chat_box.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
-import '../../primitives/ui_primitives.dart';
+import 'conversation_widget.dart';
 
 class GenUiChatController {
   final _onAiRequestSent = ValueNotifier<int>(0);
@@ -30,7 +30,7 @@ class GenUiChatController {
 }
 
 class GenUiChat extends StatefulWidget {
-  GenUiChat({
+  const GenUiChat({
     super.key,
     required this.messages,
     required this.catalog,
@@ -47,7 +47,7 @@ class GenUiChat extends StatefulWidget {
   final ChatBoxCallback onChatMessage;
   final GenUiChatController controller;
 
-  final List<MessageData> messages;
+  final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
   final SystemMessageBuilder? systemMessageBuilder;
@@ -98,12 +98,11 @@ class _GenUiChatState extends State<GenUiChat> {
       if (widget.showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage && message is! UiEventMessage;
+      return message is! InternalMessage && message is! ToolResponseMessage;
     }).toList();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-
       children: [
         Expanded(
           child: ListView.builder(
@@ -117,20 +116,24 @@ class _GenUiChatState extends State<GenUiChat> {
                 SystemMessage() =>
                   widget.systemMessageBuilder != null
                       ? widget.systemMessageBuilder!(context, message)
-                      : ChatMessage(
-                          text: message.text,
-                          icon: Icons.smart_toy_outlined,
-                          alignment: MainAxisAlignment.start,
-                        ),
-                UserPrompt() =>
+                      : const SizedBox.shrink(),
+                UserMessage() =>
                   widget.userPromptBuilder != null
                       ? widget.userPromptBuilder!(context, message)
-                      : ChatMessage(
-                          text: message.text,
+                      : _ChatMessage(
+                          text: message.parts
+                              .whereType<TextPart>()
+                              .map<String>((part) => part.text)
+                              .join('\n'),
                           icon: Icons.person,
                           alignment: MainAxisAlignment.end,
                         ),
-                UiResponse() => Padding(
+                AssistantMessage() => _ChatMessage(
+                  text: (message.parts.first as TextPart).text,
+                  icon: Icons.smart_toy_outlined,
+                  alignment: MainAxisAlignment.start,
+                ),
+                UiResponseMessage() => Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: SurfaceWidget(
                     key: message.uiKey,
@@ -140,11 +143,11 @@ class _GenUiChatState extends State<GenUiChat> {
                     onEvent: widget.onEvent,
                   ),
                 ),
-                InternalMessage() => InternalMessageWidget(
+                InternalMessage() => _InternalMessageWidget(
                   content: message.text,
                 ),
-                UiEventMessage() => InternalMessageWidget(
-                  content: message.event.toString(),
+                ToolResponseMessage() => _InternalMessageWidget(
+                  content: message.results.toString(),
                 ),
               };
             },
@@ -153,6 +156,78 @@ class _GenUiChatState extends State<GenUiChat> {
         const SizedBox(height: 8.0),
         widget.chatBoxBuilder(_chatController, context),
       ],
+    );
+  }
+}
+
+class _InternalMessageWidget extends StatelessWidget {
+  const _InternalMessageWidget({required this.content});
+
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        color: Colors.grey.shade200,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('Internal message: $content'),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatMessage extends StatelessWidget {
+  const _ChatMessage({
+    required this.text,
+    required this.icon,
+    required this.alignment,
+  });
+
+  final String text;
+  final IconData icon;
+  final MainAxisAlignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    final isStart = alignment == MainAxisAlignment.start;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+      child: Row(
+        mainAxisAlignment: alignment,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(
+                    alignment == MainAxisAlignment.start ? 5 : 25,
+                  ),
+                  topRight: Radius.circular(
+                    alignment == MainAxisAlignment.start ? 25 : 5,
+                  ),
+                  bottomLeft: const Radius.circular(25),
+                  bottomRight: const Radius.circular(25),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isStart) ...[Icon(icon), const SizedBox(width: 8.0)],
+                    Flexible(child: Text(text)),
+                    if (!isStart) ...[const SizedBox(width: 8.0), Icon(icon)],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

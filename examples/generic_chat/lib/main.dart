@@ -61,12 +61,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     final aiClient = GeminiAiClient(
-      systemInstruction: systemPrompt,
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
     );
-    _genUiManager = GenUiManager(catalog: coreCatalog, aiClient: aiClient);
+    _genUiManager = GenUiManager(
+      catalog: coreCatalog,
+      aiClient: aiClient,
+      systemPrompt: systemPrompt,
+    );
   }
 
   @override

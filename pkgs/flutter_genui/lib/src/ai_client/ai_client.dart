@@ -2,12 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TODO(gspencer): Remove this dependency on firebase_ai once we have generic
-// replacements for Content.
 import 'package:dart_schema_builder/dart_schema_builder.dart';
-import 'package:firebase_ai/firebase_ai.dart' show Content;
 import 'package:flutter/foundation.dart';
 
+import '../model/chat_message.dart';
 import 'tools.dart';
 
 /// An abstract class representing a type of AI model.
@@ -33,7 +31,7 @@ abstract interface class AiClient {
   /// The [additionalTools] are added to the list of tools available to the
   /// AI model.
   Future<T?> generateContent<T extends Object>(
-    List<Content> conversation,
+    List<ChatMessage> conversation,
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   });

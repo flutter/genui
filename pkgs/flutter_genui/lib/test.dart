@@ -2,10 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_test/flutter_test.dart';
+/// A library for providing test implementations of GenUI classes.
+library;
 
-void main() {
-  group('SurfaceWidget', () {
-    // TODO(gspencer): Write tests for SurfaceWidget.
-  });
-}
+export 'test/fake_ai_client.dart';

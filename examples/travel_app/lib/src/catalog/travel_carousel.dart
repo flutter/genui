@@ -15,13 +15,13 @@ final _schema = S.object(
       items: S.object(
         properties: {
           'title': S.string(description: 'The title of the carousel item.'),
-          'imageChild': S.string(
+          'imageChildId': S.string(
             description:
-                'The ID of the image widget to display. The image fit should '
-                'typically be \'cover\'',
+                'The ID of the image widget to display as the carousel item '
+                'image. Be sure to create image widgets with matching IDs.',
           ),
         },
-        required: ['title', 'imageChild'],
+        required: ['title', 'imageChildId'],
       ),
     ),
   },
@@ -56,7 +56,7 @@ final travelCarousel = CatalogItem(
               .map(
                 (e) => _TravelCarouselItemData(
                   title: e.title,
-                  imageChild: buildChild(e.imageChild),
+                  imageChild: buildChild(e.imageChildId),
                 ),
               )
               .toList(),
@@ -83,14 +83,14 @@ extension type _TravelCarouselItemSchemaData.fromMap(
 ) {
   factory _TravelCarouselItemSchemaData({
     required String title,
-    required String imageChild,
+    required String imageChildId,
   }) => _TravelCarouselItemSchemaData.fromMap({
     'title': title,
-    'imageChild': imageChild,
+    'imageChildId': imageChildId,
   });
 
   String get title => _json['title'] as String;
-  String get imageChild => _json['imageChild'] as String;
+  String get imageChildId => _json['imageChildId'] as String;
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {

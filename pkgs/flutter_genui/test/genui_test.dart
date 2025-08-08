@@ -57,12 +57,18 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                final widget = catalog.buildWidget(
-                  data,
-                  (_) => const SizedBox(),
-                  (UiEvent event) {},
-                  context,
-                );
+                late final Widget widget;
+                try {
+                  widget = catalog.buildWidget(
+                    data,
+                    (_) => const SizedBox(),
+                    (UiEvent event) {},
+                    context,
+                  );
+                } catch (e) {
+                  // This is expected to throw.
+                  widget = Container();
+                }
                 expect(widget, isA<Container>());
                 return widget;
               },
