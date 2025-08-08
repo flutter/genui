@@ -17,35 +17,36 @@ final _schema = S.object(
   properties: {
     'title': S.string(description: 'The title of the itinerary.'),
     'subheading': S.string(description: 'The subheading of the itinerary.'),
-    'imageChild': S.string(
+    'imageChildId': S.string(
       description:
           'The ID of the image widget to display. The image fit should '
-          "typically be 'cover'",
+          "typically be 'cover'.  Be sure to create an image widget with a "
+          'matching ID.',
     ),
     'child': S.string(
       description:
           '''The ID of a child widget to display in a modal. This should typically be a column which contains a sequence of itinerary_items, text, travel_carousel etc. Most of the content should be the trip details shown in itinerary_items, but try to break it up with other elements showing related content. If there are multiple sections to the itinerary, you can use the tabbed_sections to break them up.''',
     ),
   },
-  required: ['title', 'subheading', 'imageChild', 'child'],
+  required: ['title', 'subheading', 'imageChildId', 'child'],
 );
 
 extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryWithDetailsData({
     required String title,
     required String subheading,
-    required String imageChild,
+    required String imageChildId,
     required String child,
   }) => _ItineraryWithDetailsData.fromMap({
     'title': title,
     'subheading': subheading,
-    'imageChild': imageChild,
+    'imageChildId': imageChildId,
     'child': child,
   });
 
   String get title => _json['title'] as String;
   String get subheading => _json['subheading'] as String;
-  String get imageChild => _json['imageChild'] as String;
+  String get imageChildId => _json['imageChildId'] as String;
   String get child => _json['child'] as String;
 }
 
@@ -73,7 +74,7 @@ final itineraryWithDetails = CatalogItem(
           data as Map<String, Object?>,
         );
         final child = buildChild(itineraryWithDetailsData.child);
-        final imageChild = buildChild(itineraryWithDetailsData.imageChild);
+        final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
         return _ItineraryWithDetails(
           title: itineraryWithDetailsData.title,

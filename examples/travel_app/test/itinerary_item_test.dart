@@ -26,7 +26,7 @@ void main() {
                     data: {
                       'title': testTitle,
                       'subtitle': testSubtitle,
-                      'imageChild': 'image_child_id',
+                      'imageChildId': 'image_child_id',
                       'detailText': testDetailText,
                     },
                     id: 'test_id',
