@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
+
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:file/file.dart';
 import 'package:file/local.dart';
@@ -75,6 +75,7 @@ class GeminiAiClient implements AiClient {
   ///   output from the AI.
   GeminiAiClient({
     GeminiModelType model = GeminiModelType.flash,
+    this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -102,6 +103,7 @@ class GeminiAiClient implements AiClient {
   GeminiAiClient.test({
     required this.modelCreator,
     GeminiModelType model = GeminiModelType.flash,
+    this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -123,6 +125,9 @@ class GeminiAiClient implements AiClient {
       );
     }
   }
+
+  /// The system instruction to use for the AI model.
+  final String? systemInstruction;
 
   /// The name of the Gemini model to use.
   ///
@@ -392,9 +397,7 @@ class GeminiAiClient implements AiClient {
     void Function() onSuccess,
   ) async {
     final converter = GeminiContentConverter();
-    final systemMessage = messages.whereType<SystemMessage>().firstOrNull?.text;
-    final nonSystemMessages = messages.whereNot((m) => m is SystemMessage);
-    final contents = converter.toFirebaseAiContent(nonSystemMessages.toList());
+    final contents = converter.toFirebaseAiContent(messages);
     final adapter = GeminiSchemaAdapter();
 
     // Create an "output" tool that copies its args into the output.
@@ -480,9 +483,9 @@ class GeminiAiClient implements AiClient {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction: systemMessage == null
+      systemInstruction: systemInstruction == null
           ? null
-          : Content.system(systemMessage),
+          : Content.system(systemInstruction!),
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(

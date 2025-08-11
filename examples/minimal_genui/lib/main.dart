@@ -4,6 +4,14 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 import 'firebase_options.dart';
 
+const _chatPrompt = '''
+You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
+
+The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+
+Typically, you should not update existing surfaces and instead just continually "add" new ones.
+''';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -36,7 +44,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GenUiManager _genUiManager = GenUiManager.chat(
-    aiClient: GeminiAiClient(),
+    aiClient: GeminiAiClient(systemInstruction: _chatPrompt),
   );
 
   @override

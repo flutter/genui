@@ -370,12 +370,18 @@ void main() {
         }
       });
 
-      try {
-        await manager.sendUserPrompt('break');
-      } catch (e) {
-        // The test is designed to throw, so this is expected.
-      }
-      await pumpEventQueue();
+      final logs = <String>[];
+      await runZoned(
+        () async {
+          await manager.sendUserPrompt('break');
+          await pumpEventQueue();
+        },
+        zoneSpecification: ZoneSpecification(
+          print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
+            logs.add(line);
+          },
+        ),
+      );
 
       final chatHistory = await completer.future;
       await sub.cancel();
@@ -388,6 +394,8 @@ void main() {
 
       await loadingCompleter.future;
       await loadingSub.cancel();
+
+      expect(logs.first, contains('Error generating content'));
     });
 
     test("doesn't send empty prompt", () async {

@@ -82,7 +82,7 @@ void main() {
       ], null);
 
       final result = await client.generateContent<Map<String, Object?>>([
-        const SystemMessage('system prompt'),
+        UserMessage.text('user prompt'),
       ], S.object(properties: {'key': S.string()}));
 
       expect(result, isNotNull);
@@ -161,7 +161,7 @@ void main() {
       ], null);
 
       final result = await client.generateContent<Map<String, Object?>>([
-        const SystemMessage('system prompt'),
+        UserMessage.text('user prompt'),
       ], S.object(properties: {'key': S.string()}));
 
       expect(result, isNotNull);
@@ -217,7 +217,7 @@ void main() {
       fakeModel.response = GenerateContentResponse([], null);
 
       final result = await client.generateContent<Map<String, Object?>>([
-        const SystemMessage('system prompt'),
+        UserMessage.text('user prompt'),
       ], S.object(properties: {}));
 
       expect(result, isNull);
@@ -237,7 +237,7 @@ void main() {
 
       expect(
         () => client.generateContent<Map<String, Object?>>([
-          const SystemMessage('system prompt'),
+          UserMessage.text('user prompt'),
         ], S.object(properties: {})),
         throwsA(isA<AiClientException>()),
       );
@@ -256,7 +256,7 @@ void main() {
       ], null);
 
       final result = await client.generateContent<Map<String, Object?>>([
-        const SystemMessage('system prompt'),
+        UserMessage.text('user prompt'),
       ], S.object(properties: {}));
 
       expect(result, isNull);
@@ -283,7 +283,7 @@ void main() {
       ], null);
 
       final result = await client.generateContent<Map<String, Object?>>([
-        const SystemMessage('system prompt'),
+        UserMessage.text('user prompt'),
       ], S.object(properties: {}));
 
       expect(result, isNull);
@@ -314,7 +314,7 @@ void main() {
       ], null);
 
       await client.generateContent<Map<String, Object?>>([
-        const SystemMessage('system prompt'),
+        UserMessage.text('user prompt'),
       ], S.object(properties: {'key': S.string()}));
 
       expect(logMessages, isNotEmpty);

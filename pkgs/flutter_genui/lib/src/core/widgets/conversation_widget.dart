@@ -10,11 +10,10 @@ import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
 import 'chat_primitives.dart';
 
-typedef SystemMessageBuilder =
-    Widget Function(BuildContext context, SystemMessage message);
-
-typedef UserPromptBuilder =
-    Widget Function(BuildContext context, UserMessage message);
+typedef UserPromptBuilder = Widget Function(
+  BuildContext context,
+  UserMessage message,
+);
 
 class ConversationWidget extends StatelessWidget {
   const ConversationWidget({
@@ -22,7 +21,6 @@ class ConversationWidget extends StatelessWidget {
     required this.messages,
     required this.catalog,
     required this.onEvent,
-    this.systemMessageBuilder,
     this.userPromptBuilder,
     this.showInternalMessages = false,
   });
@@ -30,7 +28,6 @@ class ConversationWidget extends StatelessWidget {
   final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
-  final SystemMessageBuilder? systemMessageBuilder;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
@@ -47,10 +44,6 @@ class ConversationWidget extends StatelessWidget {
       itemBuilder: (context, index) {
         final message = renderedMessages[index];
         switch (message) {
-          case SystemMessage():
-            return systemMessageBuilder != null
-                ? systemMessageBuilder!(context, message)
-                : const SizedBox.shrink();
           case UserMessage():
             return userPromptBuilder != null
                 ? userPromptBuilder!(context, message)

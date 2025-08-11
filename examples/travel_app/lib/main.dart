@@ -100,12 +100,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           loggingCallback: (severity, message) {
             debugPrint('[$severity] $message');
           },
+          systemInstruction: prompt,
         );
-    _genUiManager = GenUiManager.chat(
-      catalog: catalog,
-      aiClient: aiClient,
-      systemPrompt: prompt,
-    );
+    _genUiManager = GenUiManager.chat(catalog: catalog, aiClient: aiClient);
   }
 
   @override
@@ -175,8 +172,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
 String? _imagesJson;
 
 final prompt =
-    '''You are a helpful travel agent assistant who figures out what kind of trip the user wants,
-and then guides them to book it.
+    '''You are a helpful travel agent assistant who helps suggest options so the user can develop a plan and find relevant information for what kind of trip the user wants, and then guides them to book it.
+
+The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+
+Typically, you should not update existing surfaces and instead just continually "add" new ones.
 
 You should typically first show some options with a travel_carousel and also ask more about the
 user request using filter chips.

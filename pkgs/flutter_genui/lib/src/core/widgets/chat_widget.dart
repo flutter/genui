@@ -38,7 +38,6 @@ class GenUiChat extends StatefulWidget {
     required this.onEvent,
     required this.onChatMessage,
     required this.controller,
-    this.systemMessageBuilder,
     this.userPromptBuilder,
     this.showInternalMessages = false,
     this.chatBoxBuilder = defaultChatBoxBuilder,
@@ -51,7 +50,6 @@ class GenUiChat extends StatefulWidget {
   final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
-  final SystemMessageBuilder? systemMessageBuilder;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
@@ -114,10 +112,6 @@ class _GenUiChatState extends State<GenUiChat> {
               index = messages.length - 1 - index; // Reverse index
               final message = messages[index];
               switch (message) {
-                case SystemMessage():
-                  return widget.systemMessageBuilder != null
-                      ? widget.systemMessageBuilder!(context, message)
-                      : const SizedBox.shrink();
                 case UserMessage():
                   if (widget.userPromptBuilder != null) {
                     return widget.userPromptBuilder!(context, message);

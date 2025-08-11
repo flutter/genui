@@ -43,14 +43,10 @@ void main() {
       );
     });
 
-    test('toFirebaseAiContent ignores SystemMessage', () {
-      final messages = [const SystemMessage('You are a helpful assistant.')];
-      final result = converter.toFirebaseAiContent(messages);
-      expect(result, isEmpty);
-    });
+    
 
     test('toFirebaseAiContent converts UiResponseMessage to a TextPart', () {
-      final definition = {'root': 'a', 'widgets': []};
+      final definition = {'root': 'a', 'widgets': <Object?>[]};
       final messages = [
         UiResponseMessage(definition: definition),
       ];
@@ -165,7 +161,6 @@ void main() {
         final messages = [
           UserMessage.text('First message'),
           AssistantMessage.text('Second message'),
-          const SystemMessage('Ignore me'),
           UserMessage.text('Third message'),
         ];
         final result = converter.toFirebaseAiContent(messages);

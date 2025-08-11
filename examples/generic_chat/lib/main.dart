@@ -64,12 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
       loggingCallback: (severity, message) {
         debugPrint('[$severity] $message');
       },
+      systemInstruction: systemPrompt,
     );
-    _genUiManager = GenUiManager(
-      catalog: coreCatalog,
-      aiClient: aiClient,
-      systemPrompt: systemPrompt,
-    );
+    _genUiManager = GenUiManager(catalog: coreCatalog, aiClient: aiClient);
   }
 
   @override

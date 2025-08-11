@@ -15,22 +15,22 @@ The application is structured into several distinct layers, each with a specific
 This is the main entry point and the visible part of the application. Its responsibilities are:
 
 - **Initialization**: It initializes Firebase and Firebase App Check.
-- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar, a text input field for user prompts, a send button, and a main content area where the dynamic UI is rendered.
-- **State Management**: It holds and manages the lifecycle of the `ConversationManager`, which is the core of the app's logic.
+- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar and a main content area where the dynamic UI is rendered. The `GenUiManager` provides the chat input field.
+- **State Management**: It holds and manages the lifecycle of the `GenUiManager`, which is the core of the app's logic.
 
 ### 2. Conversation Management Layer ([`package:flutter_genui`](../../pkgs/flutter_genui/IMPLEMENTATION.md))
 
-The `ConversationManager` from the `flutter_genui` package is the central orchestrator of the application.
+The `GenUiManager` from the `flutter_genui` package is the central orchestrator of the application.
 
 - **Conversation Flow**: It manages the back-and-forth between the user and the AI model.
 - **Prompt Handling**: It takes the user's text prompt, combines it with the conversation history and the system prompt, and sends it to the AI Client.
-- **UI Generation**: It receives tool-call requests from the model, which are essentially instructions to render specific UI widgets.
-- **Widget Rendering**: It looks up the requested widget in the `Catalog`, validates the provided data against the widget's schema, and uses the widget's builder function to create and display the Flutter widget.
-- **State Tracking**: It maintains the state of the rendered UI, including the history of the conversation.
+- **UI Generation**: It receives a list of actions from the model, which are essentially instructions to `add`, `update`, or `delete` UI surfaces.
+- **Widget Rendering**: It uses a `SurfaceWidget` to recursively build the UI tree defined by the model's response. The `SurfaceWidget` looks up the requested widget in the `Catalog`, validates the provided data against the widget's schema, and uses the widget's builder function to create and display the Flutter widget.
+- **State Tracking**: It maintains the state of the rendered UI surfaces and the history of the conversation.
 
 ### 3. AI/Model Layer (`package:flutter_genui`)
 
-The `AiClient` class, also part of `flutter_genui`, abstracts the communication with the underlying generative AI model (e.g., a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
+The `GeminiAiClient` class, also part of `flutter_genui`, abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
 
 ### 4. Widget Catalog (The "Tools")
 
@@ -50,7 +50,7 @@ The interaction with the model is heavily guided by a detailed **system prompt**
 - **Conversation Flow**: To first ask clarifying questions and then present results.
 - **Tool Usage**: Which widgets (tools) to use in different situations (e.g., use `travel_carousel` for options, `itinerary_with_details` for final results).
 - **UI Style**: How to compose widgets for a good user experience (e.g., breaking up itineraries with other content).
-- **Available Data**: It includes a JSON string (`imagesJson`) containing a list of available image URLs and descriptions, ensuring the model uses relevant and high-quality images.
+- **Available Data**: It includes a JSON string (`_imagesJson`) containing a list of available image URLs and descriptions, ensuring the model uses relevant and high-quality images.
 
 ### The Widget Catalog
 
@@ -66,7 +66,7 @@ Each component in the catalog is a `CatalogItem` with three key parts:
 
 Each custom widget in `lib/src/catalog/` follows a consistent pattern:
 
-1. **Schema Definition**: A `_schema` variable defines the data structure using `Schema.object`, `Schema.string`, `Schema.array`, etc.
+1. **Schema Definition**: A `_schema` variable defines the data structure using `S.object`, `S.string`, `S.list`, etc.
 2. **Data Accessor**: A Dart `extension type` is defined to provide type-safe access to the `Map<String, Object?>` data received from the model. This avoids manual casting and error-prone map access.
 3. **`CatalogItem` Instance**: A final variable creates the `CatalogItem`, passing the `name`, `dataSchema`, and `widgetBuilder`.
 4. **Widget Implementation**: A standard Flutter `StatelessWidget` or `StatefulWidget` that contains the actual UI code for the component.
@@ -75,12 +75,12 @@ Each custom widget in `lib/src/catalog/` follows a consistent pattern:
 
 Widgets can be nested to create complex layouts. This is achieved by having a widget's schema accept the ID of another widget as a parameter (e.g., the `child` property of `itinerary_with_details`).
 
-The `widgetBuilder` for a container-like widget receives a `buildChild` function as an argument. It can call `buildChild(childId)` to recursively ask the `ConversationManager` to build and return the child widget, which is then placed in the parent's widget tree.
+The `widgetBuilder` for a container-like widget receives a `buildChild` function as an argument. It can call `buildChild(childId)` to recursively ask the `SurfaceWidget` to build and return the child widget, which is then placed in the parent's widget tree.
 
 ### User Interaction and Events
 
 The UI is not just for display; it's interactive. Widgets like `optionsFilterChip` and `filterChipGroup` can capture user input.
 
-- **Event Dispatching**: The `widgetBuilder` receives a `dispatchEvent` function. This function can be called in response to user actions (like a button press or item selection).
-- **Event Data**: `dispatchEvent` sends an event type and a value back to the `ConversationManager`.
-- **Conversation Update**: The `ConversationManager` adds this event information to the conversation history and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
+- **Event Dispatching**: The `widgetBuilder` receives a `dispatchEvent` function. This function is called in response to user actions (like a button press or item selection), creating a `UiEvent` (`UiActionEvent` for submissions, `UiChangeEvent` for value changes).
+- **Event Handling**: The `GenUiManager` is wired to receive these events via the `UiEventManager`. The `UiEventManager` coalesces multiple `UiChangeEvent`s and sends them in a batch with the next `UiActionEvent`.
+- **Conversation Update**: The `GenUiManager` adds the event information (as `ToolResultPart`s) to the conversation history and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).

@@ -117,25 +117,6 @@ void main() {
       expect(find.text('Hello'), findsNothing);
     });
 
-    testWidgets('uses custom systemMessageBuilder', (
-      WidgetTester tester,
-    ) async {
-      final messages = [const SystemMessage('Error')];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ConversationWidget(
-              messages: messages,
-              catalog: coreCatalog,
-              onEvent: (_) {},
-              systemMessageBuilder: (context, message) =>
-                  const Text('Custom System Message'),
-            ),
-          ),
-        ),
-      );
-      expect(find.text('Custom System Message'), findsOneWidget);
-      expect(find.text('Error'), findsNothing);
-    });
+    
   });
 }

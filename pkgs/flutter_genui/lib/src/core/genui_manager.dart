@@ -18,13 +18,7 @@ import 'ui_event_manager.dart';
 import 'widgets/chat_widget.dart';
 import 'widgets/conversation_widget.dart';
 
-const _chatPromptPrefix = '''
-You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
 
-The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
-
-Typically, you should not update existing surfaces and instead just continually "add" new ones.
-''';
 
 enum GenUiStyle { flexible, chat }
 
@@ -38,14 +32,9 @@ class GenUiManager {
     required this.aiClient,
     Catalog? catalog,
     this.userPromptBuilder,
-    this.systemMessageBuilder,
     this.showInternalMessages = false,
-    String? systemPrompt,
   }) : style = GenUiStyle.flexible {
     _init(catalog);
-    if (systemPrompt != null) {
-      _chatHistory.add(SystemMessage(systemPrompt));
-    }
     _chatController = null;
   }
 
@@ -53,16 +42,9 @@ class GenUiManager {
     required this.aiClient,
     Catalog? catalog,
     this.userPromptBuilder,
-    this.systemMessageBuilder,
     this.showInternalMessages = false,
-    String? systemPrompt,
-    String chatPrompt = _chatPromptPrefix,
   }) : style = GenUiStyle.chat {
     _init(catalog);
-    final fullSystemPrompt = '$chatPrompt${systemPrompt ?? ''}';
-    if (fullSystemPrompt.isNotEmpty) {
-      _chatHistory.add(SystemMessage(fullSystemPrompt));
-    }
     _chatController = GenUiChatController();
     loadingStream.listen((bool data) {
       if (data) {
@@ -80,7 +62,6 @@ class GenUiManager {
   late final Catalog catalog;
   final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
-  final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
 
   @visibleForTesting
@@ -288,7 +269,6 @@ class GenUiManager {
             onEvent: (event) {
               _eventManager.add(UiEvent.fromMap(event));
             },
-            systemMessageBuilder: systemMessageBuilder,
             userPromptBuilder: userPromptBuilder,
           ),
           GenUiStyle.chat => GenUiChat(
@@ -298,7 +278,6 @@ class GenUiManager {
             onEvent: (event) {
               _eventManager.add(UiEvent.fromMap(event));
             },
-            systemMessageBuilder: systemMessageBuilder,
             userPromptBuilder: userPromptBuilder,
             onChatMessage: sendUserPrompt,
             controller: _chatController!,

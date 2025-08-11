@@ -112,14 +112,7 @@ sealed class ChatMessage {
   const ChatMessage();
 }
 
-/// A message representing a system message.
-final class SystemMessage extends ChatMessage {
-  /// Creates a [SystemMessage] with the given [text].
-  const SystemMessage(this.text);
 
-  /// The text of the system message.
-  final String text;
-}
 
 /// A message representing an internal message
 final class InternalMessage extends ChatMessage {
