@@ -43,13 +43,9 @@ void main() {
       );
     });
 
-    
-
     test('toFirebaseAiContent converts UiResponseMessage to a TextPart', () {
       final definition = {'root': 'a', 'widgets': <Object?>[]};
-      final messages = [
-        UiResponseMessage(definition: definition),
-      ];
+      final messages = [UiResponseMessage(definition: definition)];
       final result = converter.toFirebaseAiContent(messages);
       expect(result, hasLength(1));
       expect(result.first.role, 'user');

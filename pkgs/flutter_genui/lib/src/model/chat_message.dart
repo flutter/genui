@@ -112,8 +112,6 @@ sealed class ChatMessage {
   const ChatMessage();
 }
 
-
-
 /// A message representing an internal message
 final class InternalMessage extends ChatMessage {
   /// Creates a [InternalMessage] with the given [text].

@@ -18,8 +18,6 @@ import 'ui_event_manager.dart';
 import 'widgets/chat_widget.dart';
 import 'widgets/conversation_widget.dart';
 
-
-
 enum GenUiStyle { flexible, chat }
 
 class GenUiManager {

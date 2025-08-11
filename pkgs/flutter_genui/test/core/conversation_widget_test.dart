@@ -116,7 +116,5 @@ void main() {
       expect(find.text('Custom User Prompt'), findsOneWidget);
       expect(find.text('Hello'), findsNothing);
     });
-
-    
   });
 }

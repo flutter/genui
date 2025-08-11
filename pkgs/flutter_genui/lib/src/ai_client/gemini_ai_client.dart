@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 
-
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:file/file.dart';
 import 'package:file/local.dart';

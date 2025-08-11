@@ -29,7 +29,7 @@ class GeminiContentConverter {
               'for your information. You should use this to inform your '
               'decision about what to do next. The user is seeing this UI.\n\n'
               '${jsonEncode(message.definition)}',
-            )
+            ),
           ],
         ),
         InternalMessage() => (null, <firebase_ai.Part>[]), // Not sent to model
