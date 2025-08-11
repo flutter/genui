@@ -43,7 +43,7 @@ For a complete example, refer to [main.dart in the minimal_genui example](../exa
       ```
         flutter_genui:
           git:
-            url: git@github.com:flutter/genui.git
+            url: https://github.com/flutter/genui.git
             path: pkgs/flutter_genui
       ```
 
