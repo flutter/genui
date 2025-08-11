@@ -38,14 +38,16 @@ For a complete example, refer to [main.dart in the minimal_genui example](../exa
 
 1. Add a dependency on `flutter_genui` with one of the following options:
 
-    * `flutter pub add flutter_genui`
-
-    * Or reference it by `path` in the `pubspec.yaml`:
+    * Reference the github project directly in the `pubspec.yaml`:
 
       ```
-      flutter_genui:
-          path: <path to flutter_genui>
+        flutter_genui:
+          git:
+            url: git@github.com:flutter/genui.git
+            path: pkgs/flutter_genui
       ```
+
+     * Future: download from pub.dev!
 
 1. Invoke `Firebase.initializeApp` before `runApp`:
 
