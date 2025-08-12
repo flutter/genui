@@ -62,7 +62,7 @@ to take advantage of chat-pre-shaped option.
 
 1. Update the `build` method of the widget to render `_genUiManager.widget()`.
 
-1. If you did not use chat option, in `initState`, or in an event handler,
+1. If you are not using the `.chat` constructor, in `initState`, or in an event handler,
 submit an AI request: `_genUiManager.sendUserPrompt(userPrompt)`.
 
 1. Start your application and verify that after the prompt is submitted,
