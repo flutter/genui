@@ -36,9 +36,10 @@ to configure your Flutter project.
 
 For a complete example, refer to [main.dart in the minimal_genui example](../examples/minimal_genui/lib/main.dart). The following steps outline the details:
 
-1. Add a dependency on `flutter_genui` with one of the following options:
+1. Add a dependency on `flutter_genui` in the `pubspec.yaml`, section `dependencies`
+   with one of the following options:
 
-    * Reference the github project directly in the `pubspec.yaml`:
+    * Reference the github project directly:
 
       ```
         flutter_genui:
