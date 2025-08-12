@@ -58,7 +58,7 @@ For a complete example, refer to [main.dart in the minimal_genui example](../exa
 
 1. Construct `GenUiManager` as a state member in a widget where
 you want the generated user interface to render. Use the constructior `.chat'
-to take advantage of chat-pre-shaped option.  
+to take advantage of chat-pre-shaped option.
 
 1. Update the `build` method of the widget to render `_genUiManager.widget()`.
 
