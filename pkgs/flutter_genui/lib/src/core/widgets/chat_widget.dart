@@ -52,10 +52,7 @@ class GenUiChat extends StatelessWidget {
                   switch (message) {
                     case UserMessage():
                       if (userPromptBuilder != null) {
-                        return userPromptBuilder!(
-                          context,
-                          message,
-                        );
+                        return userPromptBuilder!(context, message);
                       }
                       final text = message.parts
                           .whereType<TextPart>()
