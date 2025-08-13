@@ -27,7 +27,8 @@ class GenUiForFirebaseAi {
   /// [onSubmit] callback will be never called.
   Future<GenUiBuilder> requestUi(
     String prompt,
-    ValueChanged<UserSelection> onSubmit,
+    ValueChanged<GenUiUserSelection> onChanged,
+    ValueChanged<GenUiUserSelection> onSubmit,
   ) async {
     throw UnimplementedError(
       'The widgetBuilder getter is not implemented yet.',
@@ -35,6 +36,6 @@ class GenUiForFirebaseAi {
   }
 }
 
-typedef GenUiBuilder = Widget Function({UserSelection? userSelection});
+typedef GenUiBuilder = Widget Function({GenUiUserSelection? userSelection});
 
-abstract class UserSelection {}
+abstract class GenUiUserSelection {}
