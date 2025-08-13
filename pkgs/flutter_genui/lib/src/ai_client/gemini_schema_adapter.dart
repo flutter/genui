@@ -269,6 +269,7 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.object,
       properties: properties,
       optionalProperties: optionalProperties,
+      description: dsbSchema.description,
     );
   }
 
@@ -346,6 +347,7 @@ class GeminiSchemaAdapter {
       items: adaptedItems,
       minItems: listSchema.minItems,
       maxItems: listSchema.maxItems,
+      description: dsbSchema.description,
     );
   }
 
@@ -380,6 +382,7 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.string,
       format: stringSchema.format,
       enumValues: stringSchema.enumValues?.map((e) => e.toString()).toList(),
+      description: dsbSchema.description,
     );
   }
 
@@ -414,6 +417,7 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.number,
       minimum: numberSchema.minimum?.toDouble(),
       maximum: numberSchema.maximum?.toDouble(),
+      description: dsbSchema.description,
     );
   }
 
@@ -448,16 +452,24 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.integer,
       minimum: integerSchema.minimum?.toDouble(),
       maximum: integerSchema.maximum?.toDouble(),
+      description: dsbSchema.description,
     );
   }
 
   /// Adapts a boolean schema.
   firebase_ai.Schema? _adaptBoolean(dsb.Schema dsbSchema, List<String> path) {
-    return firebase_ai.Schema(firebase_ai.SchemaType.boolean);
+    return firebase_ai.Schema(
+      firebase_ai.SchemaType.boolean,
+      description: dsbSchema.description,
+    );
   }
 
   /// Adapts a null schema.
   firebase_ai.Schema? _adaptNull(dsb.Schema dsbSchema, List<String> path) {
-    return firebase_ai.Schema(firebase_ai.SchemaType.object, nullable: true);
+    return firebase_ai.Schema(
+      firebase_ai.SchemaType.object,
+      nullable: true,
+      description: dsbSchema.description,
+    );
   }
 }
