@@ -19,24 +19,28 @@ class GenUiForFirebaseAi {
   /// Returns a [WidgetBuilder] that can be used to build the UI.
   ///
   /// The [prompt] parameter is the user prompt to be sent to the model.
-  ///   ///
-  /// The [onSubmit] callback is called when the user submits the selections
-  /// in the UI.
-  ///
-  /// Some responses may not require user interaction, in which case the
-  /// [onSubmit] callback will be never called.
-  Future<GenUiBuilder> requestUi(
-    String prompt,
-    ValueChanged<GenUiUserSelection> onChanged,
-    ValueChanged<GenUiUserSelection> onSubmit,
-  ) async {
+
+  Future<GenUiBuilder> requestUi(String prompt) async {
     throw UnimplementedError(
       'The widgetBuilder getter is not implemented yet.',
     );
   }
 }
 
+/// A builder function for generating UI components.
+///
+/// The [onSubmit] and [onChange] callback is called when the user
+/// submits or changes the selections
+/// in the UI.
+///
+/// Some components may not require user interaction, in which case the
+/// [onChange] and [onSubmit] callback will be never called.
 typedef GenUiBuilder =
-    Widget Function({GenUiUserSelection? selection, BuildContext? context});
+    Widget Function({
+      UserSelection? selection,
+      BuildContext? context,
+      ValueChanged<UserSelection> onChange,
+      ValueChanged<UserSelection> onSubmit,
+    });
 
-abstract class GenUiUserSelection {}
+abstract class UserSelection {}
