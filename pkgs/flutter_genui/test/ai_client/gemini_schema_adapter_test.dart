@@ -15,179 +15,428 @@ void main() {
       adapter = GeminiSchemaAdapter();
     });
 
-    test('adapts a simple object schema', () {
-      final dsbSchema = dsb.Schema.object(
-        properties: {
-          'name': dsb.Schema.string(description: 'The name of the person.'),
-          'age': dsb.Schema.integer(description: 'The age of the person.'),
-        },
-        required: ['name'],
-        description: 'A person object.',
-      );
-
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
-
-      expect(result.errors, isEmpty);
-      expect(schema.type, firebase_ai.SchemaType.object);
-      expect(schema.description, 'A person object.');
-      expect(schema.properties, isA<Map<String, firebase_ai.Schema>>());
-      expect(schema.properties!.length, 2);
-      expect(schema.properties!['name']!.type, firebase_ai.SchemaType.string);
-      expect(schema.properties!['name']!.description,
-          'The name of the person.');
-      expect(schema.properties!['age']!.type, firebase_ai.SchemaType.integer);
-      expect(
-          schema.properties!['age']!.description, 'The age of the person.');
-      expect(schema.optionalProperties, ['age']);
-    });
-
-    test('adapts a schema with an array of objects', () {
-      final dsbSchema = dsb.Schema.list(
-        items: dsb.Schema.object(
+    group('adaptObject', () {
+      test('should adapt a simple object schema', () {
+        final dsbSchema = dsb.Schema.object(
           properties: {
-            'item': dsb.Schema.string(),
+            'name': dsb.Schema.string(description: 'The name of the person.'),
+            'age': dsb.Schema.integer(description: 'The age of the person.'),
           },
-        ),
-        description: 'A list of items.',
-      );
+          required: ['name'],
+          description: 'A person object.',
+        );
 
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
+        final result = adapter.adapt(dsbSchema);
 
-      expect(result.errors, isEmpty);
-      expect(schema.type, firebase_ai.SchemaType.array);
-      expect(schema.description, 'A list of items.');
-      expect(schema.items, isNotNull);
-      expect(schema.items!.type, firebase_ai.SchemaType.object);
-      expect(schema.items!.properties!.length, 1);
-      expect(schema.items!.properties!['item']!.type,
-          firebase_ai.SchemaType.string);
-    });
-
-    test('adapts a string schema with enum values', () {
-      final dsbSchema = dsb.Schema.string(
-        enumValues: ['apple', 'banana', 'orange'],
-        description: 'A choice of fruit.',
-      );
-
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
-
-      expect(result.errors, isEmpty);
-      expect(schema.type, firebase_ai.SchemaType.string);
-      expect(schema.description, 'A choice of fruit.');
-      expect(schema.enumValues, ['apple', 'banana', 'orange']);
-    });
-
-    test('adapts number and integer schemas with ranges', () {
-      final dsbSchema = dsb.Schema.object(properties: {
-        'number': dsb.Schema.number(minimum: 10.5, maximum: 20.5),
-        'integer': dsb.Schema.integer(minimum: 1, maximum: 100),
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.object);
+        expect(result.schema!.description, 'A person object.');
+        expect(result.schema!.properties, hasLength(2));
+        expect(
+          result.schema!.properties!['name']!.type,
+          firebase_ai.SchemaType.string,
+        );
+        expect(
+          result.schema!.properties!['name']!.description,
+          'The name of the person.',
+        );
+        expect(
+          result.schema!.properties!['age']!.type,
+          firebase_ai.SchemaType.integer,
+        );
+        expect(
+          result.schema!.properties!['age']!.description,
+          'The age of the person.',
+        );
+        expect(result.schema!.optionalProperties, equals(['age']));
       });
 
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
+      test('should handle unsupported keywords and log errors', () {
+        final dsbSchema = dsb.Schema.object(
+          properties: {'name': dsb.Schema.string()},
+          minProperties: 1,
+          maxProperties: 5,
+          additionalProperties: dsb.Schema.boolean(),
+        );
 
-      expect(result.errors, isEmpty);
-      expect(schema.properties!['number']!.minimum, 10.5);
-      expect(schema.properties!['number']!.maximum, 20.5);
-      expect(schema.properties!['integer']!.minimum, 1);
-      expect(schema.properties!['integer']!.maximum, 100);
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(3));
+        expect(
+          result.errors[0].message,
+          contains('Unsupported keyword "additionalProperties"'),
+        );
+        expect(
+          result.errors[1].message,
+          contains('Unsupported keyword "minProperties"'),
+        );
+        expect(
+          result.errors[2].message,
+          contains('Unsupported keyword "maxProperties"'),
+        );
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.object);
+      });
     });
 
-    test('adapts boolean and null schemas', () {
-      final dsbSchema = dsb.Schema.object(properties: {
-        'is_active': dsb.Schema.boolean(),
-        'extra_data': dsb.Schema.nil(),
+    group('adaptArray', () {
+      test('should adapt a simple array schema', () {
+        final dsbSchema = dsb.Schema.list(
+          items: dsb.Schema.string(),
+          minItems: 1,
+          maxItems: 10,
+          description: 'A list of items.',
+        );
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.array);
+        expect(result.schema!.description, 'A list of items.');
+        expect(result.schema!.items, isNotNull);
+        expect(result.schema!.items!.type, firebase_ai.SchemaType.string);
+        expect(result.schema!.minItems, 1);
+        expect(result.schema!.maxItems, 10);
       });
 
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
-
-      expect(result.errors, isEmpty);
-      expect(schema.properties!['is_active']!.type,
-          firebase_ai.SchemaType.boolean);
-      expect(schema.properties!['extra_data']!.type,
-          firebase_ai.SchemaType.object);
-      expect(schema.properties!['extra_data']!.nullable, isTrue);
-    });
-
-    test('handles unsupported keywords and reports errors', () {
-      final dsbSchema = dsb.Schema.object(
-        properties: {
-          'name': dsb.Schema.string(pattern: '^[a-zA-Z]+\$'),
-        },
-        additionalProperties: dsb.Schema.boolean(),
-      );
-
-      final result = adapter.adapt(dsbSchema);
-      expect(result.errors, isNotEmpty);
-      expect(result.errors.length, 2);
-      expect(
-          result.errors.any((e) =>
-              e.message.contains('Unsupported keyword "additionalProperties"')),
-          isTrue);
-      expect(
-          result.errors
-              .any((e) => e.message.contains('Unsupported keyword "pattern"')),
-          isTrue);
-    });
-
-    test('handles schema with multiple types', () {
-      final dsbSchema = dsb.Schema.fromMap({
-        'type': ['string', 'null'],
+      test('should log an error if items is missing', () {
+        final dsbSchema = dsb.Schema.fromMap({'type': 'array'});
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isNotEmpty);
+        expect(
+          result.errors.first.message,
+          'Array schema must have an "items" property.',
+        );
+        expect(result.schema, isNull);
       });
 
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
+      test('should handle unsupported keywords and log errors', () {
+        final dsbSchema = dsb.Schema.list(
+          items: dsb.Schema.string(),
+          uniqueItems: true,
+        );
 
-      expect(result.errors.length, 1);
-      expect(result.errors[0].message, contains('Multiple types found'));
-      expect(schema.type, firebase_ai.SchemaType.string);
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(1));
+        expect(
+          result.errors[0].message,
+          contains('Unsupported keyword "uniqueItems"'),
+        );
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.array);
+      });
     });
 
-    test('handles implicitly typed object schema', () {
-      final dsbSchema = dsb.Schema.fromMap({
-        'properties': {
-          'implicit': dsb.Schema.string(),
-        },
+    group('adaptString', () {
+      test('should adapt a simple string schema', () {
+        final dsbSchema = dsb.Schema.string(
+          format: 'email',
+          enumValues: ['test@example.com', 'user@example.com'],
+          description: 'A choice of fruit.',
+        );
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.string);
+        expect(result.schema!.description, 'A choice of fruit.');
+        expect(result.schema!.format, 'email');
+        expect(result.schema!.enumValues, [
+          'test@example.com',
+          'user@example.com',
+        ]);
       });
 
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
+      test('should handle unsupported keywords and log errors', () {
+        final dsbSchema = dsb.Schema.string(
+          minLength: 1,
+          maxLength: 10,
+          pattern: r'^[a-zA-Z]+$',
+        );
 
-      expect(result.errors, isEmpty);
-      expect(schema.type, firebase_ai.SchemaType.object);
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(3));
+        expect(
+          result.errors[0].message,
+          contains('Unsupported keyword "minLength"'),
+        );
+        expect(
+          result.errors[1].message,
+          contains('Unsupported keyword "maxLength"'),
+        );
+        expect(
+          result.errors[2].message,
+          contains('Unsupported keyword "pattern"'),
+        );
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.string);
+      });
     });
 
-    test('handles implicitly typed array schema', () {
-      final dsbSchema = dsb.Schema.fromMap({
-        'items': dsb.Schema.string(),
+    group('adaptNumber', () {
+      test('should adapt a simple number schema', () {
+        final dsbSchema = dsb.Schema.number(minimum: 0.0, maximum: 100.0);
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.number);
+        expect(result.schema!.minimum, 0.0);
+        expect(result.schema!.maximum, 100.0);
       });
 
-      final result = adapter.adapt(dsbSchema);
-      final schema = result.schema!;
+      test('should handle unsupported keywords and log errors', () {
+        final dsbSchema = dsb.Schema.number(
+          exclusiveMinimum: 0.0,
+          exclusiveMaximum: 100.0,
+          multipleOf: 5.0,
+        );
 
-      expect(result.errors, isEmpty);
-      expect(schema.type, firebase_ai.SchemaType.array);
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(3));
+        expect(
+          result.errors[0].message,
+          contains('Unsupported keyword "exclusiveMinimum"'),
+        );
+        expect(
+          result.errors[1].message,
+          contains('Unsupported keyword "exclusiveMaximum"'),
+        );
+        expect(
+          result.errors[2].message,
+          contains('Unsupported keyword "multipleOf"'),
+        );
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.number);
+      });
     });
 
-    test('returns error for schema with no type or structure', () {
-      final dsbSchema = dsb.Schema.fromMap({});
-      final result = adapter.adapt(dsbSchema);
-      expect(result.schema, isNull);
-      expect(result.errors, isNotEmpty);
-      expect(result.errors[0].message, contains('must have a "type"'));
+    group('adaptInteger', () {
+      test('should adapt a simple integer schema', () {
+        final dsbSchema = dsb.Schema.integer(minimum: 0, maximum: 100);
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.integer);
+        expect(result.schema!.minimum, 0.0);
+        expect(result.schema!.maximum, 100.0);
+      });
+
+      test('should handle unsupported keywords and log errors', () {
+        final dsbSchema = dsb.Schema.integer(
+          exclusiveMinimum: 0,
+          exclusiveMaximum: 100,
+          multipleOf: 5,
+        );
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(3));
+        expect(
+          result.errors[0].message,
+          contains('Unsupported keyword "exclusiveMinimum"'),
+        );
+        expect(
+          result.errors[1].message,
+          contains('Unsupported keyword "exclusiveMaximum"'),
+        );
+        expect(
+          result.errors[2].message,
+          contains('Unsupported keyword "multipleOf"'),
+        );
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.integer);
+      });
     });
 
-    test('returns error for array schema without items', () {
-      final dsbSchema = dsb.Schema.list();
-      final result = adapter.adapt(dsbSchema);
-      expect(result.schema, isNull);
-      expect(result.errors, isNotEmpty);
-      expect(
-          result.errors[0].message, contains('must have an "items" property'));
+    group('adaptBoolean', () {
+      test('should adapt a boolean schema', () {
+        final dsbSchema = dsb.Schema.boolean();
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.boolean);
+      });
+    });
+
+    group('adaptNull', () {
+      test('should adapt a null schema to a nullable object', () {
+        final dsbSchema = dsb.Schema.nil();
+        final result = adapter.adapt(dsbSchema);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.object);
+        expect(result.schema!.nullable, isTrue);
+      });
+    });
+
+    group('General Error Handling', () {
+      test('should log an error for an unknown type', () {
+        final dsbSchema = dsb.Schema.fromMap({'type': 'unknown'});
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isNotEmpty);
+        expect(
+          result.errors.first.message,
+          'Unsupported schema type "unknown".',
+        );
+        expect(result.schema, isNull);
+      });
+
+      test('should log an error for a schema with no type', () {
+        final dsbSchema = dsb.Schema.fromMap({});
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isNotEmpty);
+        expect(
+          result.errors.first.message,
+          'Schema must have a "type" or be implicitly typed with '
+          '"properties" or "items".',
+        );
+        expect(result.schema, isNull);
+      });
+
+      test('should handle multiple types and use the first one', () {
+        final dsbSchema = dsb.Schema.fromMap({
+          'type': ['string', 'integer'],
+        });
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, hasLength(1));
+        expect(
+          result.errors.first.message,
+          'Multiple types found (string, integer). Only the first type '
+          '"string" will be used.',
+        );
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.string);
+      });
+
+      test('should handle an empty type array', () {
+        final dsbSchema = dsb.Schema.fromMap({'type': []});
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, hasLength(1));
+        expect(
+          result.errors.first.message,
+          'Schema has an empty "type" array.',
+        );
+        expect(result.schema, isNull);
+      });
+    });
+
+    group('Edge Cases', () {
+      test('should handle nested objects and arrays', () {
+        final dsbSchema = dsb.Schema.object(
+          properties: {
+            'user': dsb.Schema.object(
+              properties: {
+                'name': dsb.Schema.string(),
+                'roles': dsb.Schema.list(items: dsb.Schema.string()),
+              },
+              required: ['name'],
+            ),
+          },
+        );
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        final userSchema = result.schema!.properties!['user']!;
+        expect(userSchema.type, firebase_ai.SchemaType.object);
+        expect(userSchema.properties, hasLength(2));
+        expect(userSchema.optionalProperties, equals(['roles']));
+        final rolesSchema = userSchema.properties!['roles']!;
+        expect(rolesSchema.type, firebase_ai.SchemaType.array);
+        expect(rolesSchema.items!.type, firebase_ai.SchemaType.string);
+      });
+
+      test('should handle implicitly typed object schema', () {
+        final dsbSchema = dsb.Schema.fromMap({
+          'properties': {
+            'name': {'type': 'string'},
+          },
+        });
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.object);
+      });
+
+      test('should handle implicitly typed array schema', () {
+        final dsbSchema = dsb.Schema.fromMap({
+          'items': {'type': 'string'},
+        });
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.array);
+      });
+
+      test('should handle an empty object schema', () {
+        final dsbSchema = dsb.Schema.object(properties: {});
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.object);
+        expect(result.schema!.properties, isEmpty);
+        expect(result.schema!.optionalProperties, isEmpty);
+      });
+
+      test('should handle an object with all properties required', () {
+        final dsbSchema = dsb.Schema.object(
+          properties: {
+            'name': dsb.Schema.string(),
+            'age': dsb.Schema.integer(),
+          },
+          required: ['name', 'age'],
+        );
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.optionalProperties, isEmpty);
+      });
+
+      test('should handle an object with no required properties', () {
+        final dsbSchema = dsb.Schema.object(
+          properties: {
+            'name': dsb.Schema.string(),
+            'age': dsb.Schema.integer(),
+          },
+        );
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(
+          result.schema!.optionalProperties,
+          unorderedEquals(['name', 'age']),
+        );
+      });
+
+      test('should handle an array of objects', () {
+        final dsbSchema = dsb.Schema.list(
+          items: dsb.Schema.object(
+            properties: {
+              'name': dsb.Schema.string(),
+              'value': dsb.Schema.integer(),
+            },
+            required: ['name'],
+          ),
+        );
+        final result = adapter.adapt(dsbSchema);
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.array);
+        final itemsSchema = result.schema!.items!;
+        expect(itemsSchema.type, firebase_ai.SchemaType.object);
+        expect(itemsSchema.properties, hasLength(2));
+        expect(itemsSchema.optionalProperties, equals(['value']));
+      });
     });
   });
 }
