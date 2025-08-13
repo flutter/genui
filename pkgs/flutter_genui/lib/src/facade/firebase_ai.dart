@@ -36,7 +36,7 @@ typedef GenUiBuilder =
       UserSelection? selection,
       BuildContext? context,
       ValueChanged<UserSelection> onChange,
-      VoidCallback onSubmit,
+      ValueChanged<UserSelection> onSubmit,
     });
 
 abstract class UserSelection {}
