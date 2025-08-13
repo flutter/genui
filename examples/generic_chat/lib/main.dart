@@ -96,7 +96,12 @@ class _MyHomePageState extends State<MyHomePage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Expanded(child: GenUiChat(genUiManager: _genUiManager, showInternalMessages: true)),
+              Expanded(
+                child: GenUiChat(
+                  genUiManager: _genUiManager,
+                  showInternalMessages: true,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

@@ -45,6 +45,7 @@ class GenUiManager implements SurfaceHost {
   final StreamController<bool> _loadingStreamController =
       StreamController<bool>.broadcast();
 
+  @override
   final Catalog catalog;
   Stream<List<ChatMessage>> get uiUpdates => _uiUpdatesController.stream;
   Stream<bool> get loadingStream => _loadingStreamController.stream;
@@ -67,6 +68,7 @@ class GenUiManager implements SurfaceHost {
     return _generateAndSendResponse();
   }
 
+  @override
   void sendEvent(Map<String, dynamic> event) {
     _eventManager.add(UiEvent.fromMap(event));
   }

@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/core/widgets/conversation_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

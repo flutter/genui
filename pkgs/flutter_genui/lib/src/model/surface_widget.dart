@@ -4,9 +4,11 @@
 
 import 'package:flutter/material.dart';
 
+import '../../flutter_genui.dart' show SurfaceWidget;
 import '../core/genui_manager.dart';
 import 'catalog.dart';
 import 'chat_message.dart';
+import 'surface_widget.dart' show SurfaceWidget;
 import 'ui_models.dart';
 
 abstract class SurfaceHost {
