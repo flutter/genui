@@ -25,12 +25,16 @@ class GenUiForFirebaseAi {
   ///
   /// Some responses may not require user interaction, in which case the
   /// [onSubmit] callback will be never called.
-  Future<WidgetBuilder> requestUi(
+  Future<GenUiBuilder> requestUi(
     String prompt,
-    ValueChanged<String> onSubmit,
+    ValueChanged<UserSelection> onSubmit,
   ) async {
     throw UnimplementedError(
       'The widgetBuilder getter is not implemented yet.',
     );
   }
 }
+
+typedef GenUiBuilder = Widget Function({UserSelection? userSelection});
+
+abstract class UserSelection {}
