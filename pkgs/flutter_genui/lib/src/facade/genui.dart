@@ -10,7 +10,7 @@ class FlutterGenUI {
     String? generalPrompt,
     Object? widgetCatalog,
     Object? imageStore,
-    bool collectHistory = false,
+    bool collectHistory = true,
   });
 
   /// Converts a general prompt into a prompt that requests to return UI.
@@ -20,9 +20,9 @@ class FlutterGenUI {
 
   /// Renders the response from the model.
   ///
-  /// The [response] is expected to be a string that describes the UI.
-  /// The [onSubmit] callback is called when the user submits the response
-  /// to the UI.
+  /// The [response] is a string that describes the UI.
+  /// The [onSubmit] callback is called when the user submits selections
+  /// in the UI.
   WidgetBuilder renderResponse(
     String response,
     ValueChanged<String>? onSubmit,
