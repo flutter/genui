@@ -50,7 +50,7 @@ void main() {
         };
 
         final chatHistoryCompleter = Completer<List<ChatMessage>>();
-        manager.uiDataStream.listen((data) {
+        manager.uiUpdates.listen((data) {
           if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
             chatHistoryCompleter.complete(data);
           }
@@ -121,7 +121,7 @@ void main() {
       };
 
       final completer = Completer<List<ChatMessage>>();
-      manager.uiDataStream.listen((data) {
+      manager.uiUpdates.listen((data) {
         if (data.whereType<UiResponseMessage>().isNotEmpty &&
             !completer.isCompleted) {
           completer.complete(data);
@@ -221,7 +221,7 @@ void main() {
         };
 
         final addCompleter = Completer<void>();
-        final addSub = manager.uiDataStream.listen((data) {
+        final addSub = manager.uiUpdates.listen((data) {
           if (data.whereType<UiResponseMessage>().isNotEmpty &&
               !addCompleter.isCompleted) {
             addCompleter.complete();
@@ -247,7 +247,7 @@ void main() {
         };
 
         final deleteCompleter = Completer<void>();
-        final deleteSub = manager.uiDataStream.listen((data) {
+        final deleteSub = manager.uiUpdates.listen((data) {
           if (!data.whereType<UiResponseMessage>().any(
                 (m) => m.surfaceId == 's1',
               ) &&
@@ -283,7 +283,7 @@ void main() {
         ],
       };
       final addCompleter = Completer<void>();
-      final addSub = manager.uiDataStream.listen((data) {
+      final addSub = manager.uiUpdates.listen((data) {
         if (data.whereType<UiResponseMessage>().isNotEmpty &&
             !addCompleter.isCompleted) {
           addCompleter.complete();
@@ -323,7 +323,7 @@ void main() {
       };
 
       final eventCompleter = Completer<List<ChatMessage>>();
-      final eventSub = manager.uiDataStream.listen((data) {
+      final eventSub = manager.uiUpdates.listen((data) {
         // Wait for the ui response from the event
         if (data.whereType<UiResponseMessage>().length > 1) {
           if (!eventCompleter.isCompleted) {
@@ -355,7 +355,7 @@ void main() {
       fakeAiClient.exception = Exception('AI go boom');
 
       final completer = Completer<List<ChatMessage>>();
-      final sub = manager.uiDataStream.listen((data) {
+      final sub = manager.uiUpdates.listen((data) {
         if (data.isNotEmpty &&
             data.last is AssistantMessage &&
             !completer.isCompleted) {
@@ -432,7 +432,7 @@ void main() {
       };
 
       final chatHistoryCompleter = Completer<List<ChatMessage>>();
-      manager.uiDataStream.listen((data) {
+      manager.uiUpdates.listen((data) {
         if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
           chatHistoryCompleter.complete(data);
         }

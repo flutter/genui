@@ -2,29 +2,38 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/src/model/chat_box.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ChatBox', () {
-    late ChatBoxController controller;
     String? lastInput;
+    late StreamController<bool> loadingStreamController;
 
     setUp(() {
       lastInput = null;
-      controller = ChatBoxController((input) {
-        lastInput = input;
-      });
+      loadingStreamController = StreamController<bool>();
     });
 
     tearDown(() {
-      controller.dispose();
+      loadingStreamController.close();
     });
 
     Future<void> pumpChatBox(WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: ChatBox(controller))),
+        MaterialApp(
+          home: Scaffold(
+            body: ChatBox(
+              onInput: (input) {
+                lastInput = input;
+              },
+              loadingStream: loadingStreamController.stream,
+            ),
+          ),
+        ),
       );
     }
 
@@ -63,35 +72,15 @@ void main() {
       await pumpChatBox(tester);
       expect(find.byType(CircularProgressIndicator), findsNothing);
 
-      controller.setRequested();
+      loadingStreamController.add(true);
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      controller.setResponded();
+      loadingStreamController.add(false);
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
   });
 
-  group('ChatBoxController', () {
-    test('isWaiting updates correctly', () {
-      final controller = ChatBoxController((_) {});
-      final notifications = <bool>[];
-      controller.isWaiting.addListener(() {
-        notifications.add(controller.isWaiting.value);
-      });
-
-      expect(controller.isWaiting.value, isFalse);
-
-      controller.setRequested();
-      expect(controller.isWaiting.value, isTrue);
-      expect(notifications, [true]);
-
-      controller.setResponded();
-      expect(controller.isWaiting.value, isFalse);
-      expect(notifications, [true, false]);
-
-      controller.dispose();
-    });
-  });
+  
 }
