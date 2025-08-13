@@ -13,15 +13,15 @@ class FlutterGenUI {
     bool collectHistory = true,
   });
 
-  /// Converts a general prompt into a prompt that requests to return UI.
+  /// Converts a general prompt to a prompt that requests to return UI.
   String uiPrompt(String prompt) {
     throw UnimplementedError('The uiPrompt method is not implemented yet.');
   }
 
   /// Renders the response from the model.
   ///
-  /// The [response] is a string that describes the UI.
-  /// The [onSubmit] callback is called when the user submits selections
+  /// The [response] is a string, received from AI, that describes the UI.
+  /// The [onSubmit] callback is called when the user submits the selections
   /// in the UI.
   WidgetBuilder renderResponse(
     String response,
