@@ -8,7 +8,10 @@ import '../../model/catalog.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
-import '../../primitives/ui_primitives.dart';
+import 'chat_primitives.dart';
+
+typedef UserPromptBuilder =
+    Widget Function(BuildContext context, UserMessage message);
 
 class ConversationWidget extends StatelessWidget {
   const ConversationWidget({
@@ -16,15 +19,13 @@ class ConversationWidget extends StatelessWidget {
     required this.messages,
     required this.catalog,
     required this.onEvent,
-    this.systemMessageBuilder,
     this.userPromptBuilder,
     this.showInternalMessages = false,
   });
 
-  final List<MessageData> messages;
+  final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
-  final SystemMessageBuilder? systemMessageBuilder;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
@@ -34,44 +35,53 @@ class ConversationWidget extends StatelessWidget {
       if (showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage && message is! UiEventMessage;
+      return message is! InternalMessage && message is! ToolResponseMessage;
     }).toList();
     return ListView.builder(
       itemCount: renderedMessages.length,
       itemBuilder: (context, index) {
         final message = renderedMessages[index];
-        return switch (message) {
-          SystemMessage() =>
-            systemMessageBuilder != null
-                ? systemMessageBuilder!(context, message)
-                : ChatMessage(
-                    text: message.text,
-                    icon: Icons.smart_toy_outlined,
-                    alignment: MainAxisAlignment.start,
-                  ),
-          UserPrompt() =>
-            userPromptBuilder != null
+        switch (message) {
+          case UserMessage():
+            return userPromptBuilder != null
                 ? userPromptBuilder!(context, message)
-                : ChatMessage(
-                    text: message.text,
+                : ChatMessageWidget(
+                    text: message.parts
+                        .whereType<TextPart>()
+                        .map((part) => part.text)
+                        .join('\n'),
                     icon: Icons.person,
                     alignment: MainAxisAlignment.end,
-                  ),
-          UiResponse() => Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SurfaceWidget(
-              key: message.uiKey,
-              catalog: catalog,
-              surfaceId: message.surfaceId,
-              definition: UiDefinition.fromMap(message.definition),
-              onEvent: onEvent,
-            ),
-          ),
-          InternalMessage() => InternalMessageWidget(content: message.text),
-          UiEventMessage() => InternalMessageWidget(
-            content: message.event.toString(),
-          ),
-        };
+                  );
+          case AssistantMessage():
+            final text = message.parts
+                .whereType<TextPart>()
+                .map((part) => part.text)
+                .join('\n');
+            if (text.trim().isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return ChatMessageWidget(
+              text: text,
+              icon: Icons.smart_toy_outlined,
+              alignment: MainAxisAlignment.start,
+            );
+          case UiResponseMessage():
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SurfaceWidget(
+                key: message.uiKey,
+                catalog: catalog,
+                surfaceId: message.surfaceId,
+                definition: UiDefinition.fromMap(message.definition),
+                onEvent: onEvent,
+              ),
+            );
+          case InternalMessage():
+            return InternalMessageWidget(content: message.text);
+          case ToolResponseMessage():
+            return InternalMessageWidget(content: message.results.toString());
+        }
       },
     );
   }

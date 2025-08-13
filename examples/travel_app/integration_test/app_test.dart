@@ -3,11 +3,10 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:travel_app/main.dart' as app;
-
-import '../test/test_infra/fake_ai_client.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

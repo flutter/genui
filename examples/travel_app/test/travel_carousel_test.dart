@@ -16,8 +16,8 @@ void main() {
       await mockNetworkImagesFor(() async {
         final data = {
           'items': [
-            {'title': 'Item 1', 'imageChild': 'imageId1'},
-            {'title': 'Item 2', 'imageChild': 'imageId2'},
+            {'title': 'Item 1', 'imageChildId': 'imageId1'},
+            {'title': 'Item 2', 'imageChildId': 'imageId2'},
           ],
         };
         UiEvent? dispatchedEvent;

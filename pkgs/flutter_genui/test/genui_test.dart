@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -52,24 +54,35 @@ void main() {
         },
       };
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                final widget = catalog.buildWidget(
-                  data,
-                  (_) => const SizedBox(),
-                  (UiEvent event) {},
-                  context,
-                );
-                expect(widget, isA<Container>());
-                return widget;
-              },
+      final logs = <String>[];
+      await runZoned(
+        () async {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(
+                body: Builder(
+                  builder: (context) {
+                    final widget = catalog.buildWidget(
+                      data,
+                      (_) => const SizedBox(),
+                      (UiEvent event) {},
+                      context,
+                    );
+                    expect(widget, isA<Container>());
+                    return widget;
+                  },
+                ),
+              ),
             ),
-          ),
+          );
+        },
+        zoneSpecification: ZoneSpecification(
+          print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
+            logs.add(line);
+          },
         ),
       );
+      expect(logs.first, contains('Item unknown_widget was not found'));
     });
 
     test('schema generation is correct', () {

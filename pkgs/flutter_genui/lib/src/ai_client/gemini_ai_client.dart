@@ -10,18 +10,12 @@ import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
+import '../model/chat_message.dart';
 import 'ai_client.dart';
+import 'gemini_content_converter.dart';
 import 'gemini_schema_adapter.dart';
 import 'generative_model_interface.dart';
 import 'tools.dart';
-
-const _chatPromptPrefix = '''
-You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
-
-The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
-
-Typically, you should not update existing surfaces and instead just continually "add" new ones.
-''';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
@@ -78,11 +72,9 @@ class GeminiAiClient implements AiClient {
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
-  /// - [addChatPromptPrefix]: Whether this client is used for chat
-  ///   interactions. If true, the system instruction will be prefixed with
-  ///   instruction to create a chat-based UI.
   GeminiAiClient({
     GeminiModelType model = GeminiModelType.flash,
+    this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxRetries = 8,
@@ -92,12 +84,7 @@ class GeminiAiClient implements AiClient {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    bool addChatPromptPrefix = true,
-    String? systemInstruction,
-  }) : _systemInstruction = addChatPromptPrefix
-           ? '$_chatPromptPrefix$systemInstruction'
-           : systemInstruction,
-       _model = ValueNotifier(GeminiModel(model)) {
+  }) : _model = ValueNotifier(GeminiModel(model)) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -115,6 +102,7 @@ class GeminiAiClient implements AiClient {
   GeminiAiClient.test({
     required this.modelCreator,
     GeminiModelType model = GeminiModelType.flash,
+    this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
@@ -123,10 +111,7 @@ class GeminiAiClient implements AiClient {
     this.loggingCallback,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-    bool addChatPromptPrefix = true,
-    String? systemInstruction,
-  }) : _systemInstruction = systemInstruction,
-       _model = ValueNotifier(GeminiModel(model)) {
+  }) : _model = ValueNotifier(GeminiModel(model)) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -139,6 +124,9 @@ class GeminiAiClient implements AiClient {
       );
     }
   }
+
+  /// The system instruction to use for the AI model.
+  final String? systemInstruction;
 
   /// The name of the Gemini model to use.
   ///
@@ -241,9 +229,6 @@ class GeminiAiClient implements AiClient {
   /// Defaults to 'provideFinalOutput'.
   final String outputToolName;
 
-  /// The system instruction to use for the AI.
-  final String? _systemInstruction;
-
   /// The total number of input tokens used by this client.
   int inputTokenUsage = 0;
 
@@ -289,7 +274,7 @@ class GeminiAiClient implements AiClient {
   ///   this specific call, in addition to the default [tools].
   @override
   Future<T?> generateContent<T extends Object>(
-    List<Content> conversation,
+    List<ChatMessage> conversation,
     dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
@@ -342,7 +327,7 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
-    List<Content> contents,
+    List<ChatMessage> contents,
     dsb.Schema outputSchema,
     List<AiTool> availableTools,
   ) async {
@@ -405,11 +390,13 @@ class GeminiAiClient implements AiClient {
 
   Future<T?> _generateContentForcedToolCalling<T extends Object>(
     // This list is modified to include tool calls and results.
-    List<Content> contents,
+    List<ChatMessage> messages,
     dsb.Schema outputSchema,
     List<AiTool> availableTools,
     void Function() onSuccess,
   ) async {
+    final converter = GeminiContentConverter();
+    final contents = converter.toFirebaseAiContent(messages);
     final adapter = GeminiSchemaAdapter();
 
     // Create an "output" tool that copies its args into the output.
@@ -495,9 +482,9 @@ class GeminiAiClient implements AiClient {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction: _systemInstruction == null
+      systemInstruction: systemInstruction == null
           ? null
-          : Content.system(_systemInstruction),
+          : Content.system(systemInstruction!),
       tools: generativeAiTools,
       toolConfig: ToolConfig(
         functionCallingConfig: FunctionCallingConfig.any(
@@ -623,6 +610,7 @@ With functions:
       _error(
         'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. '
         'No final output was produced.',
+        StackTrace.current,
       );
     }
     return capturedResult;

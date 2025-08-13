@@ -18,5 +18,6 @@ export 'src/facade/firebase_ai.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_box.dart';
+export 'src/model/chat_message.dart';
 export 'src/model/surface_widget.dart';
 export 'src/model/ui_models.dart';

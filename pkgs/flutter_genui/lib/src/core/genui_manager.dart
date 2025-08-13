@@ -7,9 +7,6 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart' show S, Schema;
-import 'package:firebase_ai/firebase_ai.dart'
-    as firebase_ai
-    show Content, FunctionResponse, TextPart;
 import 'package:flutter/material.dart';
 
 import '../ai_client/ai_client.dart';
@@ -33,7 +30,6 @@ class GenUiManager {
     required this.aiClient,
     Catalog? catalog,
     this.userPromptBuilder,
-    this.systemMessageBuilder,
     this.showInternalMessages = false,
   }) : style = GenUiStyle.flexible {
     _init(catalog);
@@ -44,13 +40,11 @@ class GenUiManager {
     required this.aiClient,
     Catalog? catalog,
     this.userPromptBuilder,
-    this.systemMessageBuilder,
     this.showInternalMessages = false,
   }) : style = GenUiStyle.chat {
     _init(catalog);
     _chatController = GenUiChatController();
     loadingStream.listen((bool data) {
-      print('!!! Loading state changed: $data');
       if (data) {
         _chatController?.setAiRequestSent();
       }
@@ -66,26 +60,25 @@ class GenUiManager {
   late final Catalog catalog;
   final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
-  final SystemMessageBuilder? systemMessageBuilder;
   late final UiEventManager _eventManager;
 
   @visibleForTesting
-  List<MessageData> get chatHistoryForTesting => _chatHistory;
+  List<ChatMessage> get chatHistoryForTesting => _chatHistory;
 
   // The current chat data that is shown.
-  final _chatHistory = <MessageData>[];
+  final _chatHistory = <ChatMessage>[];
 
   int _outstandingRequests = 0;
 
   // Stream of updates to the ui data which are used to build the
   // Conversation Widget every time the conversation is updated.
-  final StreamController<List<MessageData>> _uiDataStreamController =
-      StreamController<List<MessageData>>.broadcast();
+  final StreamController<List<ChatMessage>> _uiDataStreamController =
+      StreamController<List<ChatMessage>>.broadcast();
 
   final StreamController<bool> _loadingStreamController =
       StreamController<bool>.broadcast();
 
-  Stream<List<MessageData>> get uiDataStream => _uiDataStreamController.stream;
+  Stream<List<ChatMessage>> get uiDataStream => _uiDataStreamController.stream;
   Stream<bool> get loadingStream => _loadingStreamController.stream;
 
   void dispose() {
@@ -97,62 +90,41 @@ class GenUiManager {
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
   /// also trigger an AI inference via the [aiClient].
-  void sendUserPrompt(String prompt) {
+  Future<void> sendUserPrompt(String prompt) async {
     if (prompt.isEmpty) {
       return;
     }
-    _chatHistory.add(UserPrompt(text: prompt));
+    _chatHistory.add(UserMessage.text(prompt));
     _uiDataStreamController.add(List.from(_chatHistory));
 
-    _generateAndSendResponse();
+    return _generateAndSendResponse();
   }
 
   void handleEvents(String surfaceId, List<UiEvent> events) {
+    final toolResults = <ToolResultPart>[];
     for (final event in events) {
-      _chatHistory.add(UiEventMessage(event: event));
+      toolResults.add(
+        ToolResultPart(
+          callId: event.widgetId,
+          result: jsonEncode(event.toMap()),
+        ),
+      );
     }
 
-    _chatHistory.add(
-      InternalMessage(
+    final messageParts = <MessagePart>[
+      ...toolResults,
+      ThinkingPart(
         'The user has interacted with the UI surface named "$surfaceId". '
-        'Consolidate the UI events and update the UI accordingly. You can '
-        'choose to update this surface if the previous content is no-longer '
+        'Consolidate the UI events and update the UI accordingly. '
+        'Choose to update this surface if the previous content is no-longer '
         'needed, or add a new surface to show additional content.',
       ),
-    );
+    ];
+
+    _chatHistory.add(UserMessage(messageParts));
     _uiDataStreamController.add(List.from(_chatHistory));
 
     _generateAndSendResponse();
-  }
-
-  List<firebase_ai.Content> _contentForChatHistory() {
-    final conversation = <firebase_ai.Content>[];
-    for (final message in _chatHistory) {
-      switch (message) {
-        case SystemMessage():
-          conversation.add(firebase_ai.Content.text(message.text));
-        case UserPrompt():
-          conversation.add(firebase_ai.Content.text(message.text));
-        case UiResponse():
-          conversation.add(
-            firebase_ai.Content.model([
-              firebase_ai.TextPart(jsonEncode(message.definition)),
-            ]),
-          );
-        case InternalMessage():
-          conversation.add(firebase_ai.Content.text(message.text));
-        case UiEventMessage():
-          conversation.add(
-            firebase_ai.Content('user', [
-              firebase_ai.FunctionResponse(
-                message.event.widgetId,
-                message.event.toMap(),
-              ),
-            ]),
-          );
-      }
-    }
-    return conversation;
   }
 
   Future<void> _generateAndSendResponse() async {
@@ -160,7 +132,7 @@ class GenUiManager {
     _loadingStreamController.add(true);
     try {
       final response = await aiClient.generateContent(
-        _contentForChatHistory(),
+        _chatHistory,
         outputSchema,
       );
       if (response == null) {
@@ -182,36 +154,31 @@ class GenUiManager {
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
               _chatHistory.add(
-                UiResponse(
-                  definition: {'surfaceId': surfaceId, ...definition},
+                UiResponseMessage(
                   surfaceId: surfaceId,
+                  definition: {'surfaceId': surfaceId, ...definition},
                 ),
               );
             case 'update':
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
               final oldResponse = _chatHistory
-                  .whereType<UiResponse>()
+                  .whereType<UiResponseMessage>()
                   .firstWhereOrNull(
                     (response) => response.surfaceId == surfaceId,
                   );
               if (oldResponse != null) {
                 final index = _chatHistory.indexOf(oldResponse);
-                _chatHistory[index] = UiResponse(
-                  definition: {'surfaceId': surfaceId, ...definition},
+                _chatHistory[index] = UiResponseMessage(
                   surfaceId: surfaceId,
-                );
-                _chatHistory.add(
-                  InternalMessage(
-                    'The existing surface with id $surfaceId has been updated '
-                    'in response to user input.',
-                  ),
+                  definition: {'surfaceId': surfaceId, ...definition},
                 );
               }
             case 'delete':
               _chatHistory.removeWhere(
                 (message) =>
-                    message is UiResponse && message.surfaceId == surfaceId,
+                    message is UiResponseMessage &&
+                    message.surfaceId == surfaceId,
               );
           }
         }
@@ -219,7 +186,7 @@ class GenUiManager {
       _uiDataStreamController.add(List.from(_chatHistory));
     } catch (e) {
       print('Error generating content: $e');
-      _chatHistory.add(SystemMessage(text: 'Error: $e'));
+      _chatHistory.add(AssistantMessage.text('Error: $e'));
       _uiDataStreamController.add(List.from(_chatHistory));
     } finally {
       _outstandingRequests--;
@@ -290,7 +257,7 @@ class GenUiManager {
   Widget widget() {
     return StreamBuilder(
       stream: uiDataStream,
-      initialData: const <MessageData>[],
+      initialData: const <ChatMessage>[],
       builder: (context, snapshot) {
         return switch (style) {
           GenUiStyle.flexible => ConversationWidget(
@@ -300,7 +267,6 @@ class GenUiManager {
             onEvent: (event) {
               _eventManager.add(UiEvent.fromMap(event));
             },
-            systemMessageBuilder: systemMessageBuilder,
             userPromptBuilder: userPromptBuilder,
           ),
           GenUiStyle.chat => GenUiChat(
@@ -310,7 +276,6 @@ class GenUiManager {
             onEvent: (event) {
               _eventManager.add(UiEvent.fromMap(event));
             },
-            systemMessageBuilder: systemMessageBuilder,
             userPromptBuilder: userPromptBuilder,
             onChatMessage: sendUserPrompt,
             controller: _chatController!,

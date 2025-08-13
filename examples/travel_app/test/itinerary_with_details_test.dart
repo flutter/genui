@@ -17,7 +17,7 @@ void main() {
         final data = {
           'title': 'Test Title',
           'subheading': 'Test Subheading',
-          'imageChild': 'image_child_id',
+          'imageChildId': 'image_child_id',
           'child': 'child_widget_id',
         };
 
@@ -58,7 +58,7 @@ void main() {
         final data = {
           'title': 'Modal Title',
           'subheading': 'Modal Subheading',
-          'imageChild': 'image_child_id',
+          'imageChildId': 'image_child_id',
           'child': 'modal_child_widget_id',
         };
 

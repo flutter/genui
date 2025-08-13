@@ -6,31 +6,23 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+/// A semantic vocabulary of icons relevant to a travel application.
 enum TravelIcons {
-  // Location
   location,
   hotel,
   restaurant,
   airport,
   train,
   car,
-
-  // Time
   date,
   time,
   calendar,
-
-  // People
   people,
   person,
   family,
-
-  // Finance
   creditCard,
   wallet,
   receipt,
-
-  // Activities
   hiking,
   swimming,
   surfing,

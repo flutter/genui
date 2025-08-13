@@ -13,10 +13,11 @@ final _schema = S.object(
   properties: {
     'title': S.string(description: 'The title of the itinerary item.'),
     'subtitle': S.string(description: 'The subtitle of the itinerary item.'),
-    'imageChild': S.string(
+    'imageChildId': S.string(
       description:
           'The ID of the image widget to display. The image fit should '
-          "typically be 'cover'",
+          "typically be 'cover'.  Be sure to create an image widget with a "
+          'matching ID.',
     ),
     'detailText': S.string(description: 'The detail text for the item.'),
   },
@@ -27,18 +28,18 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryItemData({
     required String title,
     required String subtitle,
-    required String imageChild,
+    String? imageChildId,
     required String detailText,
   }) => _ItineraryItemData.fromMap({
     'title': title,
     'subtitle': subtitle,
-    'imageChild': imageChild,
+    'imageChildId': imageChildId,
     'detailText': detailText,
   });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
-  String? get imageChild => _json['imageChild'] as String?;
+  String? get imageChildId => _json['imageChildId'] as String?;
   String get detailText => _json['detailText'] as String;
 }
 
@@ -70,8 +71,8 @@ final itineraryItem = CatalogItem(
         return _ItineraryItem(
           title: itineraryItemData.title,
           subtitle: itineraryItemData.subtitle,
-          imageChild: itineraryItemData.imageChild != null
-              ? buildChild(itineraryItemData.imageChild!)
+          imageChild: itineraryItemData.imageChildId != null
+              ? buildChild(itineraryItemData.imageChildId!)
               : null,
           detailText: itineraryItemData.detailText,
         );

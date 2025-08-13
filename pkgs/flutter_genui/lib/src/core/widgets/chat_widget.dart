@@ -9,7 +9,8 @@ import '../../model/chat_box.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../../model/ui_models.dart';
-import '../../primitives/ui_primitives.dart';
+import 'chat_primitives.dart';
+import 'conversation_widget.dart';
 
 class GenUiChatController {
   final _onAiRequestSent = ValueNotifier<int>(0);
@@ -30,14 +31,13 @@ class GenUiChatController {
 }
 
 class GenUiChat extends StatefulWidget {
-  GenUiChat({
+  const GenUiChat({
     super.key,
     required this.messages,
     required this.catalog,
     required this.onEvent,
     required this.onChatMessage,
     required this.controller,
-    this.systemMessageBuilder,
     this.userPromptBuilder,
     this.showInternalMessages = false,
     this.chatBoxBuilder = defaultChatBoxBuilder,
@@ -47,10 +47,9 @@ class GenUiChat extends StatefulWidget {
   final ChatBoxCallback onChatMessage;
   final GenUiChatController controller;
 
-  final List<MessageData> messages;
+  final List<ChatMessage> messages;
   final void Function(Map<String, Object?> event) onEvent;
   final Catalog catalog;
-  final SystemMessageBuilder? systemMessageBuilder;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
@@ -98,12 +97,11 @@ class _GenUiChatState extends State<GenUiChat> {
       if (widget.showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage && message is! UiEventMessage;
+      return message is! InternalMessage && message is! ToolResponseMessage;
     }).toList();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-
       children: [
         Expanded(
           child: ListView.builder(
@@ -113,40 +111,54 @@ class _GenUiChatState extends State<GenUiChat> {
             itemBuilder: (context, index) {
               index = messages.length - 1 - index; // Reverse index
               final message = messages[index];
-              return switch (message) {
-                SystemMessage() =>
-                  widget.systemMessageBuilder != null
-                      ? widget.systemMessageBuilder!(context, message)
-                      : ChatMessage(
-                          text: message.text,
-                          icon: Icons.smart_toy_outlined,
-                          alignment: MainAxisAlignment.start,
-                        ),
-                UserPrompt() =>
-                  widget.userPromptBuilder != null
-                      ? widget.userPromptBuilder!(context, message)
-                      : ChatMessage(
-                          text: message.text,
-                          icon: Icons.person,
-                          alignment: MainAxisAlignment.end,
-                        ),
-                UiResponse() => Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SurfaceWidget(
-                    key: message.uiKey,
-                    catalog: widget.catalog,
-                    surfaceId: message.surfaceId,
-                    definition: UiDefinition.fromMap(message.definition),
-                    onEvent: widget.onEvent,
-                  ),
-                ),
-                InternalMessage() => InternalMessageWidget(
-                  content: message.text,
-                ),
-                UiEventMessage() => InternalMessageWidget(
-                  content: message.event.toString(),
-                ),
-              };
+              switch (message) {
+                case UserMessage():
+                  if (widget.userPromptBuilder != null) {
+                    return widget.userPromptBuilder!(context, message);
+                  }
+                  final text = message.parts
+                      .whereType<TextPart>()
+                      .map<String>((part) => part.text)
+                      .join('\n');
+                  if (text.trim().isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return ChatMessageWidget(
+                    text: text,
+                    icon: Icons.person,
+                    alignment: MainAxisAlignment.end,
+                  );
+                case AssistantMessage():
+                  final text = message.parts
+                      .whereType<TextPart>()
+                      .map((part) => part.text)
+                      .join('\n');
+                  if (text.trim().isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return ChatMessageWidget(
+                    text: text,
+                    icon: Icons.smart_toy_outlined,
+                    alignment: MainAxisAlignment.start,
+                  );
+                case UiResponseMessage():
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SurfaceWidget(
+                      key: message.uiKey,
+                      catalog: widget.catalog,
+                      surfaceId: message.surfaceId,
+                      definition: UiDefinition.fromMap(message.definition),
+                      onEvent: widget.onEvent,
+                    ),
+                  );
+                case InternalMessage():
+                  return InternalMessageWidget(content: message.text);
+                case ToolResponseMessage():
+                  return InternalMessageWidget(
+                    content: message.results.toString(),
+                  );
+              }
             },
           ),
         ),

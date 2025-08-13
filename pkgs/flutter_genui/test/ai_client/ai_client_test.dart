@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:firebase_ai/firebase_ai.dart'
     show
         Candidate,
@@ -10,10 +11,11 @@ import 'package:firebase_ai/firebase_ai.dart'
         FinishReason,
         FirebaseAIException,
         FunctionCall,
-        GenerateContentResponse,
-        TextPart;
-import 'package:flutter_genui/flutter_genui.dart';
+        GenerateContentResponse;
+import 'package:flutter_genui/src/ai_client/ai_client.dart';
+import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
+import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../test_infra/utils.dart';
@@ -79,10 +81,9 @@ void main() {
         ),
       ], null);
 
-      final result = await client.generateContent<Map<String, Object?>>(
-        [],
-        S.object(properties: {'key': S.string()}),
-      );
+      final result = await client.generateContent<Map<String, Object?>>([
+        UserMessage.text('user prompt'),
+      ], S.object(properties: {'key': S.string()}));
 
       expect(result, isNotNull);
       expect(result!['key'], 'value');
@@ -131,7 +132,7 @@ void main() {
       ];
 
       final result = await client.generateContent<Map<String, Object?>>([
-        Content.text('do something'),
+        UserMessage.text('do something'),
       ], S.object(properties: {'final': S.string()}));
 
       expect(toolCalled, isTrue);
@@ -159,10 +160,9 @@ void main() {
         ),
       ], null);
 
-      final result = await client.generateContent<Map<String, Object?>>(
-        [],
-        S.object(properties: {'key': S.string()}),
-      );
+      final result = await client.generateContent<Map<String, Object?>>([
+        UserMessage.text('user prompt'),
+      ], S.object(properties: {'key': S.string()}));
 
       expect(result, isNotNull);
       expect(fakeModel.generateContentCallCount, 2);
@@ -205,7 +205,7 @@ void main() {
       ];
 
       final result = await client.generateContent<Map<String, Object?>>([
-        Content.text('do something'),
+        UserMessage.text('do something'),
       ], S.object(properties: {'final': S.string()}));
 
       expect(result, isNotNull);
@@ -216,10 +216,9 @@ void main() {
       client = createClient();
       fakeModel.response = GenerateContentResponse([], null);
 
-      final result = await client.generateContent<Map<String, Object?>>(
-        [],
-        S.object(properties: {}),
-      );
+      final result = await client.generateContent<Map<String, Object?>>([
+        UserMessage.text('user prompt'),
+      ], S.object(properties: {}));
 
       expect(result, isNull);
     });
@@ -237,10 +236,9 @@ void main() {
       ], null);
 
       expect(
-        () => client.generateContent<Map<String, Object?>>(
-          [],
-          S.object(properties: {}),
-        ),
+        () => client.generateContent<Map<String, Object?>>([
+          UserMessage.text('user prompt'),
+        ], S.object(properties: {})),
         throwsA(isA<AiClientException>()),
       );
     });
@@ -249,7 +247,7 @@ void main() {
       client = createClient();
       fakeModel.response = GenerateContentResponse([
         Candidate(
-          Content.model([TextPart('unexpected text')]),
+          Content.model([firebase_ai.TextPart('unexpected text')]),
           [],
           null,
           FinishReason.stop,
@@ -257,10 +255,9 @@ void main() {
         ),
       ], null);
 
-      final result = await client.generateContent<Map<String, Object?>>(
-        [],
-        S.object(properties: {}),
-      );
+      final result = await client.generateContent<Map<String, Object?>>([
+        UserMessage.text('user prompt'),
+      ], S.object(properties: {}));
 
       expect(result, isNull);
     });
@@ -285,10 +282,9 @@ void main() {
         ),
       ], null);
 
-      final result = await client.generateContent<Map<String, Object?>>(
-        [],
-        S.object(properties: {}),
-      );
+      final result = await client.generateContent<Map<String, Object?>>([
+        UserMessage.text('user prompt'),
+      ], S.object(properties: {}));
 
       expect(result, isNull);
     });
@@ -317,10 +313,9 @@ void main() {
         ),
       ], null);
 
-      await client.generateContent<Map<String, Object?>>(
-        [],
-        S.object(properties: {'key': S.string()}),
-      );
+      await client.generateContent<Map<String, Object?>>([
+        UserMessage.text('user prompt'),
+      ], S.object(properties: {'key': S.string()}));
 
       expect(logMessages, isNotEmpty);
     });

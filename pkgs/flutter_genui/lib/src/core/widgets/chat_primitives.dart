@@ -1,7 +1,11 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
 
 class InternalMessageWidget extends StatelessWidget {
-  const InternalMessageWidget({required this.content});
+  const InternalMessageWidget({super.key, required this.content});
 
   final String content;
 
@@ -12,15 +16,16 @@ class InternalMessageWidget extends StatelessWidget {
         color: Colors.grey.shade200,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Flexible(child: Text('Internal message: $content')),
+          child: Text('Internal message: $content'),
         ),
       ),
     );
   }
 }
 
-class ChatMessage extends StatelessWidget {
-  const ChatMessage({
+class ChatMessageWidget extends StatelessWidget {
+  const ChatMessageWidget({
+    super.key,
     required this.text,
     required this.icon,
     required this.alignment,
