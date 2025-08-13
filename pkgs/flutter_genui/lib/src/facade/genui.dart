@@ -6,11 +6,10 @@ import 'package:flutter/widgets.dart';
 
 /// Facade for the Flutter Gen UI package
 class FlutterGenUI {
-  FlutterGenUI.light({
+  FlutterGenUI({
     String? generalPrompt,
     Object? widgetCatalog,
     Object? imageStore,
-    bool collectHistory = true,
   });
 
   /// Converts a general prompt to a prompt that requests to return UI.
