@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: _genUiManager.widget(),
+        child: GenUiChat(genUiManager: _genUiManager),
       ),
     );
   }

@@ -33,7 +33,6 @@ class GenUiManager {
     this.showInternalMessages = false,
   }) : style = GenUiStyle.flexible {
     _init(catalog);
-    _chatController = null;
   }
 
   GenUiManager.chat({
@@ -43,21 +42,12 @@ class GenUiManager {
     this.showInternalMessages = false,
   }) : style = GenUiStyle.chat {
     _init(catalog);
-    _chatController = GenUiChatController();
-    loadingStream.listen((bool data) {
-      if (data) {
-        _chatController?.setAiRequestSent();
-      }
-    });
   }
 
   final GenUiStyle style;
 
-  late final GenUiChatController? _chatController;
-
   final bool showInternalMessages;
 
-  late final Catalog catalog;
   final AiClient aiClient;
   final UserPromptBuilder? userPromptBuilder;
   late final UiEventManager _eventManager;
@@ -72,20 +62,20 @@ class GenUiManager {
 
   // Stream of updates to the ui data which are used to build the
   // Conversation Widget every time the conversation is updated.
-  final StreamController<List<ChatMessage>> _uiDataStreamController =
+  final StreamController<List<ChatMessage>> _uiUpdatesController =
       StreamController<List<ChatMessage>>.broadcast();
 
   final StreamController<bool> _loadingStreamController =
       StreamController<bool>.broadcast();
 
-  Stream<List<ChatMessage>> get uiDataStream => _uiDataStreamController.stream;
+  late final Catalog catalog;
+  Stream<List<ChatMessage>> get uiUpdates => _uiUpdatesController.stream;
   Stream<bool> get loadingStream => _loadingStreamController.stream;
 
   void dispose() {
-    _uiDataStreamController.close();
+    _uiUpdatesController.close();
     _loadingStreamController.close();
     _eventManager.dispose();
-    _chatController?.dispose();
   }
 
   /// Sends a prompt on behalf of the end user. This should update the UI and
@@ -95,9 +85,13 @@ class GenUiManager {
       return;
     }
     _chatHistory.add(UserMessage.text(prompt));
-    _uiDataStreamController.add(List.from(_chatHistory));
+    _uiUpdatesController.add(List.from(_chatHistory));
 
     return _generateAndSendResponse();
+  }
+
+  void sendEvent(Map<String, dynamic> event) {
+    _eventManager.add(UiEvent.fromMap(event));
   }
 
   void handleEvents(String surfaceId, List<UiEvent> events) {
@@ -122,7 +116,7 @@ class GenUiManager {
     ];
 
     _chatHistory.add(UserMessage(messageParts));
-    _uiDataStreamController.add(List.from(_chatHistory));
+    _uiUpdatesController.add(List.from(_chatHistory));
 
     _generateAndSendResponse();
   }
@@ -183,16 +177,15 @@ class GenUiManager {
           }
         }
       }
-      _uiDataStreamController.add(List.from(_chatHistory));
+      _uiUpdatesController.add(List.from(_chatHistory));
     } catch (e) {
       print('Error generating content: $e');
       _chatHistory.add(AssistantMessage.text('Error: $e'));
-      _uiDataStreamController.add(List.from(_chatHistory));
+      _uiUpdatesController.add(List.from(_chatHistory));
     } finally {
       _outstandingRequests--;
       if (_outstandingRequests == 0) {
         _loadingStreamController.add(false);
-        _chatController?.setAiResponseReceived();
       }
     }
   }
@@ -253,35 +246,4 @@ class GenUiManager {
         'Flutter.',
     required: ['actions'],
   );
-
-  Widget widget() {
-    return StreamBuilder(
-      stream: uiDataStream,
-      initialData: const <ChatMessage>[],
-      builder: (context, snapshot) {
-        return switch (style) {
-          GenUiStyle.flexible => ConversationWidget(
-            messages: snapshot.data!,
-            catalog: catalog,
-            showInternalMessages: showInternalMessages,
-            onEvent: (event) {
-              _eventManager.add(UiEvent.fromMap(event));
-            },
-            userPromptBuilder: userPromptBuilder,
-          ),
-          GenUiStyle.chat => GenUiChat(
-            messages: snapshot.data!,
-            catalog: catalog,
-            showInternalMessages: showInternalMessages,
-            onEvent: (event) {
-              _eventManager.add(UiEvent.fromMap(event));
-            },
-            userPromptBuilder: userPromptBuilder,
-            onChatMessage: sendUserPrompt,
-            controller: _chatController!,
-          ),
-        };
-      },
-    );
-  }
 }

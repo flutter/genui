@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Column(
             children: [
-              Expanded(child: _genUiManager.widget()),
+              Expanded(child: GenUiChat(genUiManager: _genUiManager)),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

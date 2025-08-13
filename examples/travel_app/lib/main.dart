@@ -161,7 +161,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           constraints: const BoxConstraints(maxWidth: 1000),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: _genUiManager.widget(),
+            child: GenUiChat(genUiManager: _genUiManager),
           ),
         ),
       ),
