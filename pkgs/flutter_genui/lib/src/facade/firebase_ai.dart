@@ -18,7 +18,7 @@ class GenUiForFirebaseAi {
     throw UnimplementedError();
   }
 
-  Future<GenUiBuilder> sendUiRequest(UserSelection prompt) async {
+  Future<GenUiBuilder> sendRequestFromGenUi(UserSelection prompt) async {
     throw UnimplementedError();
   }
 }
