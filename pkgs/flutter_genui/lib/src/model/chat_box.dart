@@ -7,49 +7,32 @@ import 'package:flutter/material.dart';
 
 typedef ChatBoxCallback = void Function(String input);
 
-typedef ChatBoxBuilder =
-    Widget Function(ChatBoxController controller, BuildContext context);
+typedef ChatBoxBuilder = Widget Function(
+    BuildContext context, ChatBoxCallback onInput, Stream<bool> loadingStream);
 
 Widget defaultChatBoxBuilder(
-  ChatBoxController controller,
   BuildContext context,
-) => ChatBox(controller);
-
-class ChatBoxController {
-  ChatBoxController(this.onInput);
-
-  /// Is invoked when the user submits input.
-  ///
-  /// User can submit input without waiting for a response.
-  ChatBoxCallback onInput;
-
-  final ValueNotifier<bool> _isWaiting = ValueNotifier<bool>(false);
-  late final ValueListenable<bool> isWaiting = _isWaiting;
-
-  void setRequested() {
-    _isWaiting.value = true;
-  }
-
-  void setResponded() {
-    _isWaiting.value = false;
-  }
-
-  void dispose() {
-    _isWaiting.dispose();
-  }
-}
+  ChatBoxCallback onInput,
+  Stream<bool> loadingStream,
+) =>
+    ChatBox(
+      onInput: onInput,
+      loadingStream: loadingStream,
+    );
 
 class ChatBox extends StatefulWidget {
-  ChatBox(
-    this.controller, {
+  const ChatBox({
     super.key,
     this.borderRadius = 25.0,
     this.hintText = 'Ask me anything',
+    required this.onInput,
+    required this.loadingStream,
   });
 
-  final ChatBoxController controller;
   final double borderRadius;
   final String hintText;
+  final ChatBoxCallback onInput;
+  final Stream<bool> loadingStream;
 
   @override
   State<ChatBox> createState() => _ChatBoxState();
@@ -73,11 +56,11 @@ class _ChatBoxState extends State<ChatBox> {
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        ValueListenableBuilder<bool>(
-          valueListenable: widget.controller.isWaiting,
-          builder: (context, isWaiting, child) {
+        StreamBuilder<bool>(
+          stream: widget.loadingStream,
+          builder: (context, snapshot) {
             return Visibility(
-              visible: isWaiting,
+              visible: snapshot.data ?? false,
               child: const Padding(
                 padding: EdgeInsets.only(bottom: 18.0),
                 child: Center(child: CircularProgressIndicator()),
@@ -122,7 +105,7 @@ class _ChatBoxState extends State<ChatBox> {
   void _submit() {
     var input = _controller.text.trim();
     if (input.isEmpty) return;
-    widget.controller.onInput(input);
+    widget.onInput(input);
     _controller.text = '';
     _focusNode.requestFocus();
     setState(() {});

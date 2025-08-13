@@ -101,8 +101,9 @@ class GenUiChat extends StatelessWidget {
             ),
             const SizedBox(height: 8.0),
             chatBoxBuilder(
-              ChatBoxController(genUiManager.sendUserPrompt),
               context,
+              genUiManager.sendUserPrompt,
+              genUiManager.loadingStream,
             ),
           ],
         );
