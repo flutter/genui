@@ -14,16 +14,12 @@ class GenUiForFirebaseAi {
     Object? imageStore,
   });
 
-  /// Renders the response from the model.
-  ///
-  /// Returns a [WidgetBuilder] that can be used to build the UI.
-  ///
-  /// The [prompt] parameter is the user prompt to be sent to the model.
+  Future<GenUiBuilder> sendTextRequest(String prompt) async {
+    throw UnimplementedError();
+  }
 
-  Future<GenUiBuilder> requestUi(String prompt) async {
-    throw UnimplementedError(
-      'The widgetBuilder getter is not implemented yet.',
-    );
+  Future<GenUiBuilder> sendUiRequest(UserSelection prompt) async {
+    throw UnimplementedError();
   }
 }
 
