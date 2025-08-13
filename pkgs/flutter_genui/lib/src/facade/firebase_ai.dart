@@ -25,18 +25,18 @@ class GenUiForFirebaseAi {
 
 /// A builder function for generating UI components.
 ///
-/// The [onSubmit] and [onChange] callback is called when the user
+/// The [onSubmitted] and [onChanged] callback is called when the user
 /// submits or changes the selections
 /// in the UI.
 ///
 /// Some components may not require user interaction, in which case the
-/// [onChange] and [onSubmit] callback will be never called.
+/// callbacks will be never called.
 typedef GenUiBuilder =
     Widget Function({
       UserSelection? selection,
       BuildContext? context,
-      ValueChanged<UserSelection> onChange,
-      ValueChanged<UserSelection> onSubmit,
+      ValueChanged<UserSelection> onChanged,
+      ValueChanged<UserSelection> onSubmitted,
     });
 
 abstract class UserSelection {}
