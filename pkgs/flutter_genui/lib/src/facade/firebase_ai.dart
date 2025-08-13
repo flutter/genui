@@ -36,6 +36,7 @@ class GenUiForFirebaseAi {
   }
 }
 
-typedef GenUiBuilder = Widget Function({GenUiUserSelection? userSelection});
+typedef GenUiBuilder =
+    Widget Function({GenUiUserSelection? selection, BuildContext? context});
 
 abstract class GenUiUserSelection {}
