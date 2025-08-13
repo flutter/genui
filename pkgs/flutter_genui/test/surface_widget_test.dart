@@ -5,9 +5,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
-class MockGenUiManager extends Mock implements GenUiManager {}
+class TestSurfaceHost implements SurfaceHost {
+  TestSurfaceHost({required this.testCatalog, required this.onEvent});
+
+  final Catalog testCatalog;
+  final void Function(Map<String, Object?>) onEvent;
+
+  @override
+  Catalog get catalog => testCatalog;
+
+  @override
+  void sendEvent(Map<String, Object?> event) {
+    onEvent(event);
+  }
+}
 
 void main() {
   final testCatalog = Catalog([elevatedButtonCatalogItem, text]);
@@ -34,14 +46,10 @@ void main() {
       ],
     };
 
-    final mockGenUiManager = MockGenUiManager();
-    when(mockGenUiManager.catalog).thenReturn(testCatalog);
-    when(mockGenUiManager.sendEvent(any)).thenAnswer((_) {});
-
     await tester.pumpWidget(
       MaterialApp(
         home: SurfaceWidget(
-          genUiManager: mockGenUiManager,
+          host: TestSurfaceHost(testCatalog: testCatalog, onEvent: (_) {}),
           response: UiResponseMessage(
             surfaceId: 'testSurface',
             definition: definition,
@@ -76,16 +84,15 @@ void main() {
       ],
     };
 
-    final mockGenUiManager = MockGenUiManager();
-    when(mockGenUiManager.catalog).thenReturn(testCatalog);
-    when(mockGenUiManager.sendEvent(any)).thenAnswer((realInvocation) {
-      event = realInvocation.positionalArguments[0] as Map<String, Object?>?;
-    });
-
     await tester.pumpWidget(
       MaterialApp(
         home: SurfaceWidget(
-          genUiManager: mockGenUiManager,
+          host: TestSurfaceHost(
+            testCatalog: testCatalog,
+            onEvent: (e) {
+              event = e;
+            },
+          ),
           response: UiResponseMessage(
             surfaceId: 'testSurface',
             definition: definition,

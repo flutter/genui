@@ -5,10 +5,8 @@
 import 'package:flutter/material.dart';
 
 import '../../model/chat_message.dart';
+import '../genui_manager.dart';
 import 'chat_primitives.dart';
-
-typedef UserPromptBuilder =
-    Widget Function(BuildContext context, UserMessage message);
 
 class ConversationWidget extends StatelessWidget {
   const ConversationWidget({

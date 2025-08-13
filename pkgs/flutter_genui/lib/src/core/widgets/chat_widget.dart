@@ -84,7 +84,7 @@ class GenUiChat extends StatelessWidget {
                         child: SurfaceWidget(
                           key: message.uiKey,
                           response: message,
-                          genUiManager: genUiManager,
+                          host: genUiManager,
                         ),
                       );
                     case InternalMessage():

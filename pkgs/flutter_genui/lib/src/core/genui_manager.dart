@@ -17,14 +17,23 @@ import '../model/ui_models.dart';
 import 'core_catalog.dart';
 import 'ui_event_manager.dart';
 
+typedef UserPromptBuilder =
+    Widget Function(BuildContext context, UserMessage message);
+
 class GenUiManager implements SurfaceHost {
-  GenUiManager({required this.aiClient, Catalog? catalog})
-    : catalog = catalog ?? coreCatalog {
+  GenUiManager({
+    required this.aiClient,
+    Catalog? catalog,
+    this.showInternalMessages = false,
+    this.userPromptBuilder,
+  }) : catalog = catalog ?? coreCatalog {
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   final AiClient aiClient;
   late final UiEventManager _eventManager;
+  final bool showInternalMessages;
+  final UserPromptBuilder? userPromptBuilder;
 
   @visibleForTesting
   List<ChatMessage> get chatHistoryForTesting => _chatHistory;

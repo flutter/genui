@@ -81,6 +81,4 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
   });
-
-  
 }

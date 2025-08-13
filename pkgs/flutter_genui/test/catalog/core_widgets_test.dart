@@ -5,9 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
-class MockGenUiManager extends Mock implements GenUiManager {}
+import '../surface_widget_test.dart';
 
 void main() {
   group('Core Widgets', () {
@@ -25,17 +24,11 @@ void main() {
       Map<String, Object?> definition,
       void Function(Map<String, Object?>) onEvent,
     ) async {
-      final mockGenUiManager = MockGenUiManager();
-      when(mockGenUiManager.catalog).thenReturn(testCatalog);
-      when(mockGenUiManager.sendEvent(any)).thenAnswer((realInvocation) {
-        onEvent(realInvocation.positionalArguments[0] as Map<String, Object?>);
-      });
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SurfaceWidget(
-              genUiManager: mockGenUiManager,
+              host: TestSurfaceHost(testCatalog: testCatalog, onEvent: onEvent),
               response: UiResponseMessage(
                 surfaceId: 'testSurface',
                 definition: definition,

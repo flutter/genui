@@ -9,6 +9,11 @@ import 'catalog.dart';
 import 'chat_message.dart';
 import 'ui_models.dart';
 
+abstract class SurfaceHost {
+  Catalog get catalog;
+  void sendEvent(Map<String, Object?> event);
+}
+
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
 /// It takes an initial [definition] and reports user interactions

@@ -7,18 +7,18 @@ import 'package:flutter/material.dart';
 
 typedef ChatBoxCallback = void Function(String input);
 
-typedef ChatBoxBuilder = Widget Function(
-    BuildContext context, ChatBoxCallback onInput, Stream<bool> loadingStream);
+typedef ChatBoxBuilder =
+    Widget Function(
+      BuildContext context,
+      ChatBoxCallback onInput,
+      Stream<bool> loadingStream,
+    );
 
 Widget defaultChatBoxBuilder(
   BuildContext context,
   ChatBoxCallback onInput,
   Stream<bool> loadingStream,
-) =>
-    ChatBox(
-      onInput: onInput,
-      loadingStream: loadingStream,
-    );
+) => ChatBox(onInput: onInput, loadingStream: loadingStream);
 
 class ChatBox extends StatefulWidget {
   const ChatBox({

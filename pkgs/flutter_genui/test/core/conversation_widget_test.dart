@@ -17,11 +17,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: ConversationWidget(
-              messages: messages,
-            ),
-          ),
+          home: Scaffold(body: ConversationWidget(messages: messages)),
         ),
       );
 
@@ -34,11 +30,7 @@ void main() {
       ];
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: ConversationWidget(
-              messages: messages,
-            ),
-          ),
+          home: Scaffold(body: ConversationWidget(messages: messages)),
         ),
       );
       expect(find.text('Hello'), findsOneWidget);

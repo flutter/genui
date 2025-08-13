@@ -102,7 +102,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           },
           systemInstruction: prompt,
         );
-    _genUiManager = GenUiManager.chat(catalog: catalog, aiClient: aiClient);
+    _genUiManager = GenUiManager(catalog: catalog, aiClient: aiClient);
   }
 
   @override

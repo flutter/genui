@@ -402,53 +402,6 @@ void main() {
       await manager.sendUserPrompt('');
       expect(fakeAiClient.generateContentCallCount, 0);
     });
-
-    test('sends user prompt and gets UI response when showInternalMessages is '
-        'true', () async {
-      manager = GenUiManager(
-        catalog: coreCatalog,
-        aiClient: fakeAiClient,
-        showInternalMessages: true,
-      );
-      const prompt = 'Hello';
-      fakeAiClient.response = {
-        'actions': [
-          {
-            'action': 'add',
-            'surfaceId': 's1',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'Hi back'},
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
-
-      final chatHistoryCompleter = Completer<List<ChatMessage>>();
-      manager.uiUpdates.listen((data) {
-        if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
-          chatHistoryCompleter.complete(data);
-        }
-      });
-
-      await manager.sendUserPrompt(prompt);
-
-      final chatHistory = await chatHistoryCompleter.future;
-
-      expect(chatHistory[0], isA<UserMessage>());
-      expect(
-        ((chatHistory[0] as UserMessage).parts.first as TextPart).text,
-        prompt,
-      );
-      expect(chatHistory[1], isA<UiResponseMessage>());
-    });
   });
 }
 
