@@ -25,7 +25,7 @@ class GenUiForFirebaseAi {
   ///
   /// Some responses may not require user interaction, in which case the
   /// [onSubmit] callback will be never called.
-  Future<WidgetBuilder> request(
+  Future<WidgetBuilder> requestUi(
     String prompt,
     ValueChanged<String> onSubmit,
   ) async {
