@@ -16,10 +16,14 @@ class GenUiChat extends StatelessWidget {
     super.key,
     required this.genUiManager,
     this.chatBoxBuilder = defaultChatBoxBuilder,
+    this.showInternalMessages = false,
+    this.userPromptBuilder,
   });
 
   final GenUiManager genUiManager;
   final ChatBoxBuilder chatBoxBuilder;
+  final bool showInternalMessages;
+  final UserPromptBuilder? userPromptBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +32,7 @@ class GenUiChat extends StatelessWidget {
       initialData: const <ChatMessage>[],
       builder: (context, snapshot) {
         final messages = snapshot.data!.where((message) {
-          if (genUiManager.showInternalMessages) {
+          if (showInternalMessages) {
             return true;
           }
           return message is! InternalMessage && message is! ToolResponseMessage;
@@ -47,8 +51,8 @@ class GenUiChat extends StatelessWidget {
                   final message = messages[index];
                   switch (message) {
                     case UserMessage():
-                      if (genUiManager.userPromptBuilder != null) {
-                        return genUiManager.userPromptBuilder!(
+                      if (userPromptBuilder != null) {
+                        return userPromptBuilder!(
                           context,
                           message,
                         );
