@@ -4,12 +4,11 @@
 
 import 'package:flutter/material.dart';
 
-import '../genui_manager.dart';
 import '../../model/chat_box.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
+import '../genui_manager.dart';
 import 'chat_primitives.dart';
-import '../../model/ui_models.dart';
 
 class GenUiChat extends StatelessWidget {
   const GenUiChat({

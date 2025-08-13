@@ -4,11 +4,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../../flutter_genui.dart' show SurfaceWidget;
-import '../core/genui_manager.dart';
 import 'catalog.dart';
 import 'chat_message.dart';
-import 'surface_widget.dart' show SurfaceWidget;
 import 'ui_models.dart';
 
 abstract class SurfaceHost {
@@ -16,10 +13,9 @@ abstract class SurfaceHost {
   void sendEvent(Map<String, Object?> event);
 }
 
-/// A widget that builds a UI dynamically from a JSON-like definition.
+/// A widget that builds a UI surface dynamically from data returned by the LLM.
 ///
-/// It takes an initial [definition] and reports user interactions
-/// via the [onEvent] callback.
+/// A surface is similar to a "turn" in a chat conversation.
 class SurfaceWidget extends StatefulWidget {
   const SurfaceWidget({super.key, required this.response, required this.host});
 
@@ -31,27 +27,20 @@ class SurfaceWidget extends StatefulWidget {
 }
 
 class _SurfaceWidgetState extends State<SurfaceWidget> {
-  late final String _surfaceId;
   late final UiDefinition _definition;
-  late final void Function(Map<String, Object?> event) _onEvent;
-  late final Catalog _catalog;
 
   @override
   void initState() {
     super.initState();
-    _surfaceId = widget.response.surfaceId;
     _definition = UiDefinition.fromMap(widget.response.definition);
-    _onEvent = widget.host.sendEvent;
-    _catalog = widget.host.catalog;
   }
 
-  /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
-  /// callback.
+  /// Dispatches an event by propagating it to the host.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
-    eventMap['surfaceId'] = _surfaceId;
-    _onEvent(eventMap);
+    eventMap['surfaceId'] = widget.response.surfaceId;
+    widget.host.sendEvent(eventMap);
   }
 
   @override
@@ -74,7 +63,7 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
       return Text('Widget with id: $widgetId not found.');
     }
 
-    return _catalog.buildWidget(
+    return widget.host.catalog.buildWidget(
       data as Map<String, Object?>,
       _buildWidget,
       _dispatchEvent,
