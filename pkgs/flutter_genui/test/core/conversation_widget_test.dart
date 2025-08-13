@@ -12,21 +12,7 @@ void main() {
     testWidgets('renders a list of messages', (WidgetTester tester) async {
       final messages = [
         UserMessage.text('Hello'),
-        UiResponseMessage(
-          surfaceId: 's1',
-          definition: {
-            'surfaceId': 's1',
-            'root': 'r1',
-            'widgets': [
-              {
-                'id': 'r1',
-                'widget': {
-                  'text': {'text': 'Hi there!'},
-                },
-              },
-            ],
-          },
-        ),
+        AssistantMessage.text('Hi there!'),
       ];
 
       await tester.pumpWidget(
@@ -34,8 +20,6 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
-              onEvent: (_) {},
             ),
           ),
         ),
@@ -53,47 +37,12 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
-              onEvent: (_) {},
             ),
           ),
         ),
       );
       expect(find.text('Hello'), findsOneWidget);
       expect(find.byIcon(Icons.person), findsOneWidget);
-    });
-
-    testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
-      final messages = [
-        UiResponseMessage(
-          surfaceId: 's1',
-          definition: {
-            'surfaceId': 's1',
-            'root': 'root',
-            'widgets': [
-              {
-                'id': 'root',
-                'widget': {
-                  'text': {'text': 'UI Content'},
-                },
-              },
-            ],
-          },
-        ),
-      ];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ConversationWidget(
-              messages: messages,
-              catalog: coreCatalog,
-              onEvent: (_) {},
-            ),
-          ),
-        ),
-      );
-      expect(find.byType(SurfaceWidget), findsOneWidget);
-      expect(find.text('UI Content'), findsOneWidget);
     });
 
     testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
@@ -105,8 +54,6 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
-              onEvent: (_) {},
               userPromptBuilder: (context, message) =>
                   const Text('Custom User Prompt'),
             ),

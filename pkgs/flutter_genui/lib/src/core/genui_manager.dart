@@ -12,44 +12,18 @@ import 'package:flutter/material.dart';
 import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
+import '../model/surface_widget.dart';
 import '../model/ui_models.dart';
 import 'core_catalog.dart';
 import 'ui_event_manager.dart';
-import 'widgets/chat_widget.dart';
-import 'widgets/conversation_widget.dart';
 
-enum GenUiStyle { flexible, chat }
-
-class GenUiManager {
-  void _init(Catalog? catalog) {
-    this.catalog = catalog ?? coreCatalog;
+class GenUiManager implements SurfaceHost {
+  GenUiManager({required this.aiClient, Catalog? catalog})
+    : catalog = catalog ?? coreCatalog {
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
-  GenUiManager({
-    required this.aiClient,
-    Catalog? catalog,
-    this.userPromptBuilder,
-    this.showInternalMessages = false,
-  }) : style = GenUiStyle.flexible {
-    _init(catalog);
-  }
-
-  GenUiManager.chat({
-    required this.aiClient,
-    Catalog? catalog,
-    this.userPromptBuilder,
-    this.showInternalMessages = false,
-  }) : style = GenUiStyle.chat {
-    _init(catalog);
-  }
-
-  final GenUiStyle style;
-
-  final bool showInternalMessages;
-
   final AiClient aiClient;
-  final UserPromptBuilder? userPromptBuilder;
   late final UiEventManager _eventManager;
 
   @visibleForTesting
@@ -68,7 +42,7 @@ class GenUiManager {
   final StreamController<bool> _loadingStreamController =
       StreamController<bool>.broadcast();
 
-  late final Catalog catalog;
+  final Catalog catalog;
   Stream<List<ChatMessage>> get uiUpdates => _uiUpdatesController.stream;
   Stream<bool> get loadingStream => _loadingStreamController.stream;
 

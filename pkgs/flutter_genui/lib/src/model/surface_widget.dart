@@ -4,7 +4,9 @@
 
 import 'package:flutter/material.dart';
 
+import '../core/genui_manager.dart';
 import 'catalog.dart';
+import 'chat_message.dart';
 import 'ui_models.dart';
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
@@ -12,43 +14,43 @@ import 'ui_models.dart';
 /// It takes an initial [definition] and reports user interactions
 /// via the [onEvent] callback.
 class SurfaceWidget extends StatefulWidget {
-  const SurfaceWidget({
-    super.key,
-    required this.catalog,
-    required this.surfaceId,
-    required this.definition,
-    required this.onEvent,
-  });
+  const SurfaceWidget({super.key, required this.response, required this.host});
 
-  /// The ID of the surface that this UI belongs to.
-  final String surfaceId;
-
-  /// The initial UI structure.
-  final UiDefinition definition;
-
-  /// A callback for when a user interacts with a widget.
-  final void Function(Map<String, Object?> event) onEvent;
-
-  final Catalog catalog;
+  final UiResponseMessage response;
+  final SurfaceHost host;
 
   @override
   State<SurfaceWidget> createState() => _SurfaceWidgetState();
 }
 
 class _SurfaceWidgetState extends State<SurfaceWidget> {
+  late final String _surfaceId;
+  late final UiDefinition _definition;
+  late final void Function(Map<String, Object?> event) _onEvent;
+  late final Catalog _catalog;
+
+  @override
+  void initState() {
+    super.initState();
+    _surfaceId = widget.response.surfaceId;
+    _definition = UiDefinition.fromMap(widget.response.definition);
+    _onEvent = widget.host.sendEvent;
+    _catalog = widget.host.catalog;
+  }
+
   /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
   /// callback.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
-    eventMap['surfaceId'] = widget.surfaceId;
-    widget.onEvent(eventMap);
+    eventMap['surfaceId'] = _surfaceId;
+    _onEvent(eventMap);
   }
 
   @override
   Widget build(BuildContext context) {
-    final rootId = widget.definition.root;
-    if (widget.definition.widgets.isEmpty) {
+    final rootId = _definition.root;
+    if (_definition.widgets.isEmpty) {
       return const SizedBox.shrink();
     }
     return _buildWidget(rootId);
@@ -59,13 +61,13 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
   /// `widget.definition`
   /// and constructs the corresponding Flutter widget.
   Widget _buildWidget(String widgetId) {
-    var data = widget.definition.widgets[widgetId];
+    var data = _definition.widgets[widgetId];
     if (data == null) {
       // TODO: Handle missing widget gracefully.
       return Text('Widget with id: $widgetId not found.');
     }
 
-    return widget.catalog.buildWidget(
+    return _catalog.buildWidget(
       data as Map<String, Object?>,
       _buildWidget,
       _dispatchEvent,

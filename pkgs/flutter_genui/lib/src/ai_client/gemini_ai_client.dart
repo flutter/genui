@@ -443,6 +443,9 @@ class GeminiAiClient implements AiClient {
           );
         }
         adaptedParameters = result.schema;
+        print(
+          'Parameters are ${const JsonEncoder.withIndent('  ').convert(adaptedParameters!.toJson())}',
+        );
       }
 
       final parameters = adaptedParameters == null

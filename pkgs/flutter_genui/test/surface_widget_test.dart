@@ -5,6 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+
+class MockGenUiManager extends Mock implements GenUiManager {}
 
 void main() {
   final testCatalog = Catalog([elevatedButtonCatalogItem, text]);
@@ -12,7 +15,7 @@ void main() {
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
   ) async {
-    final definition = UiDefinition.fromMap({
+    final definition = {
       'surfaceId': 'testSurface',
       'root': 'root',
       'widgets': [
@@ -29,15 +32,20 @@ void main() {
           },
         },
       ],
-    });
+    };
+
+    final mockGenUiManager = MockGenUiManager();
+    when(mockGenUiManager.catalog).thenReturn(testCatalog);
+    when(mockGenUiManager.sendEvent(any)).thenAnswer((_) {});
 
     await tester.pumpWidget(
       MaterialApp(
         home: SurfaceWidget(
-          catalog: testCatalog,
-          surfaceId: 'testSurface',
-          definition: definition,
-          onEvent: (event) {},
+          genUiManager: mockGenUiManager,
+          response: UiResponseMessage(
+            surfaceId: 'testSurface',
+            definition: definition,
+          ),
         ),
       ),
     );
@@ -49,7 +57,7 @@ void main() {
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
     Map<String, Object?>? event;
 
-    final definition = UiDefinition.fromMap({
+    final definition = {
       'surfaceId': 'testSurface',
       'root': 'root',
       'widgets': [
@@ -66,17 +74,22 @@ void main() {
           },
         },
       ],
+    };
+
+    final mockGenUiManager = MockGenUiManager();
+    when(mockGenUiManager.catalog).thenReturn(testCatalog);
+    when(mockGenUiManager.sendEvent(any)).thenAnswer((realInvocation) {
+      event = realInvocation.positionalArguments[0] as Map<String, Object?>?;
     });
 
     await tester.pumpWidget(
       MaterialApp(
         home: SurfaceWidget(
-          catalog: testCatalog,
-          surfaceId: 'testSurface',
-          definition: definition,
-          onEvent: (e) {
-            event = e;
-          },
+          genUiManager: mockGenUiManager,
+          response: UiResponseMessage(
+            surfaceId: 'testSurface',
+            definition: definition,
+          ),
         ),
       ),
     );

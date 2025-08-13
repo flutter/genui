@@ -83,10 +83,8 @@ class GenUiChat extends StatelessWidget {
                         padding: const EdgeInsets.all(16.0),
                         child: SurfaceWidget(
                           key: message.uiKey,
-                          catalog: genUiManager.catalog,
-                          surfaceId: message.surfaceId,
-                          definition: UiDefinition.fromMap(message.definition),
-                          onEvent: genUiManager.sendEvent,
+                          response: message,
+                          genUiManager: genUiManager,
                         ),
                       );
                     case InternalMessage():
