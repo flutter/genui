@@ -6,5 +6,7 @@ Podfile.lock
 # Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
 
-# Firebase auto-generated artifacts.
-.firebase/
+# # Firebase configurations for example apps
+# # These should be created locally with `flutterfire configure`
+# .firebase/
+# **/macos/Runner/GoogleService-Info.plist
