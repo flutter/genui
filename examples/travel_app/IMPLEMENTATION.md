@@ -50,7 +50,7 @@ The interaction with the model is heavily guided by a detailed **system prompt**
 - **Conversation Flow**: To first ask clarifying questions and then present results.
 - **Tool Usage**: Which widgets (tools) to use in different situations (e.g., use `travel_carousel` for options, `itinerary_with_details` for final results).
 - **UI Style**: How to compose widgets for a good user experience (e.g., breaking up itineraries with other content).
-- **Available Data**: It includes a JSON string (`_imagesJson`) containing a list of available image URLs and descriptions, ensuring the model uses relevant and high-quality images.
+- **Available Data**: It includes a JSON string (`_imagesJson`) containing a list of available asset image paths and descriptions, ensuring the model uses relevant and high-quality images from the application's assets.
 
 ### The Widget Catalog
 
