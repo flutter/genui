@@ -127,6 +127,11 @@ jobs:
       - name: Check formatting
         working-directory: ${{ matrix.package.path }}
         run: dart format --output=none --set-exit-if-changed .
+      - name: Check copyrights
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          (cd ${{ github.workspace }}/tool/fix_copyright && dart pub upgrade) > /dev/null 2>&1
+          dart ${{ github.workspace }}/tool/fix_copyright/bin/fix_copyright.dart --year 2025
       - name: Analyze code
         working-directory: ${{ matrix.package.path }}
         run: flutter analyze --fatal-infos
