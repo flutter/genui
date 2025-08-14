@@ -1,6 +1,7 @@
 # minimal_genui
 
-This is minimal usage of `flutter_genui`, to test
-[USAGE.md](https://github.com/flutter/genui/blob/main/doc/USAGE.md).
+This is minimal usage of `flutter_genui`.
 
-[Firebase Project](https://console.firebase.google.com/project/flutter-genui)
+See
+[USAGE.md](https://github.com/flutter/genui/blob/main/doc/USAGE.md)
+for steps to configure.
