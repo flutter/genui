@@ -76,18 +76,23 @@ you want the generated user interface to render.
           stream: genUiManager.uiUpdates,
           initialData: const <ChatMessage>[],
           builder: (context, snapshot) {
-            // ...
+            final messages = snapshot.data!;
+            return ListView.builder(
+                // Reverse the list to show the latest message at the bottom.
+                reverse: true,
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  // Render each item here.
+                }
+            );
           }
         )
         ```
 
-        1. Inside the `StreamBuilder`, handle the different types of messages that can now exist in the Gen UI conversation. Use the implementation in `chat_widget.dart` as a reference. You must use the `SurfaceWidget` in `flutter_genui` to render messages of type `UiResponseMessage`. These are Gen UI components of the conversation.
+        1. Inside the `StreamBuilder`, create a list and handle the different types of messages that can now exist in the Gen UI conversation. Use the implementation in `chat_widget.dart` as a reference. You must use the `SurfaceWidget` in `flutter_genui` to render messages of type `UiResponseMessage`. These are Gen UI components of the conversation.
         ```dart
         switch (message) {
           case UserMessage():
-            if (userPromptBuilder != null) {
-              return userPromptBuilder!(context, message);
-            }
             final text = message.parts
                 .whereType<TextPart>()
                 .map<String>((part) => part.text)
@@ -95,21 +100,14 @@ you want the generated user interface to render.
             if (text.trim().isEmpty) {
               return const SizedBox.shrink();
             }
-            return MyChatMessageWidget(
-              text: text,
-              icon: Icons.person,
-              alignment: MainAxisAlignment.end,
-            );
+            return MyChatMessageWidget(text: text);
 
           case UiResponseMessage():
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SurfaceWidget(
+            SurfaceWidget(
                 key: message.uiKey,
                 response: message,
                 host: genUiManager,
               ),
-            );
           case _:
             return const SizedBox.shrink();
         }
