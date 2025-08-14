@@ -8,7 +8,7 @@ import 'package:flutter_genui/src/ai_client/gemini_schema_adapter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('SchemaAdapter', () {
+  group('GeminiSchemaAdapter', () {
     late GeminiSchemaAdapter adapter;
 
     setUp(() {
@@ -17,9 +17,13 @@ void main() {
 
     group('adaptObject', () {
       test('should adapt a simple object schema', () {
-        final dsbSchema = dsb.S.object(
-          properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
+        final dsbSchema = dsb.Schema.object(
+          properties: {
+            'name': dsb.Schema.string(description: 'The name of the person.'),
+            'age': dsb.Schema.integer(description: 'The age of the person.'),
+          },
           required: ['name'],
+          description: 'A person object.',
         );
 
         final result = adapter.adapt(dsbSchema);
@@ -27,34 +31,48 @@ void main() {
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.object);
+        expect(result.schema!.description, 'A person object.');
         expect(result.schema!.properties, hasLength(2));
         expect(
           result.schema!.properties!['name']!.type,
           firebase_ai.SchemaType.string,
         );
         expect(
+          result.schema!.properties!['name']!.description,
+          'The name of the person.',
+        );
+        expect(
           result.schema!.properties!['age']!.type,
           firebase_ai.SchemaType.integer,
+        );
+        expect(
+          result.schema!.properties!['age']!.description,
+          'The age of the person.',
         );
         expect(result.schema!.optionalProperties, equals(['age']));
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.S.object(
-          properties: {'name': dsb.S.string()},
+        final dsbSchema = dsb.Schema.object(
+          properties: {'name': dsb.Schema.string()},
           minProperties: 1,
           maxProperties: 5,
+          additionalProperties: dsb.Schema.boolean(),
         );
 
         final result = adapter.adapt(dsbSchema);
 
-        expect(result.errors, hasLength(2));
+        expect(result.errors, hasLength(3));
         expect(
           result.errors[0].message,
-          contains('Unsupported keyword "minProperties"'),
+          contains('Unsupported keyword "additionalProperties"'),
         );
         expect(
           result.errors[1].message,
+          contains('Unsupported keyword "minProperties"'),
+        );
+        expect(
+          result.errors[2].message,
           contains('Unsupported keyword "maxProperties"'),
         );
         expect(result.schema, isNotNull);
@@ -64,10 +82,11 @@ void main() {
 
     group('adaptArray', () {
       test('should adapt a simple array schema', () {
-        final dsbSchema = dsb.S.list(
-          items: dsb.S.string(),
+        final dsbSchema = dsb.Schema.list(
+          items: dsb.Schema.string(),
           minItems: 1,
           maxItems: 10,
+          description: 'A list of items.',
         );
 
         final result = adapter.adapt(dsbSchema);
@@ -75,6 +94,7 @@ void main() {
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.array);
+        expect(result.schema!.description, 'A list of items.');
         expect(result.schema!.items, isNotNull);
         expect(result.schema!.items!.type, firebase_ai.SchemaType.string);
         expect(result.schema!.minItems, 1);
@@ -93,7 +113,10 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.S.list(items: dsb.S.string(), uniqueItems: true);
+        final dsbSchema = dsb.Schema.list(
+          items: dsb.Schema.string(),
+          uniqueItems: true,
+        );
 
         final result = adapter.adapt(dsbSchema);
 
@@ -109,9 +132,10 @@ void main() {
 
     group('adaptString', () {
       test('should adapt a simple string schema', () {
-        final dsbSchema = dsb.S.string(
+        final dsbSchema = dsb.Schema.string(
           format: 'email',
           enumValues: ['test@example.com', 'user@example.com'],
+          description: 'A choice of fruit.',
         );
 
         final result = adapter.adapt(dsbSchema);
@@ -119,6 +143,7 @@ void main() {
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.string);
+        expect(result.schema!.description, 'A choice of fruit.');
         expect(result.schema!.format, 'email');
         expect(result.schema!.enumValues, [
           'test@example.com',
@@ -127,7 +152,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.S.string(
+        final dsbSchema = dsb.Schema.string(
           minLength: 1,
           maxLength: 10,
           pattern: r'^[a-zA-Z]+$',
@@ -155,7 +180,7 @@ void main() {
 
     group('adaptNumber', () {
       test('should adapt a simple number schema', () {
-        final dsbSchema = dsb.S.number(minimum: 0.0, maximum: 100.0);
+        final dsbSchema = dsb.Schema.number(minimum: 0.0, maximum: 100.0);
 
         final result = adapter.adapt(dsbSchema);
 
@@ -167,7 +192,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.S.number(
+        final dsbSchema = dsb.Schema.number(
           exclusiveMinimum: 0.0,
           exclusiveMaximum: 100.0,
           multipleOf: 5.0,
@@ -195,7 +220,7 @@ void main() {
 
     group('adaptInteger', () {
       test('should adapt a simple integer schema', () {
-        final dsbSchema = dsb.S.integer(minimum: 0, maximum: 100);
+        final dsbSchema = dsb.Schema.integer(minimum: 0, maximum: 100);
 
         final result = adapter.adapt(dsbSchema);
 
@@ -207,7 +232,7 @@ void main() {
       });
 
       test('should handle unsupported keywords and log errors', () {
-        final dsbSchema = dsb.S.integer(
+        final dsbSchema = dsb.Schema.integer(
           exclusiveMinimum: 0,
           exclusiveMaximum: 100,
           multipleOf: 5,
@@ -235,7 +260,7 @@ void main() {
 
     group('adaptBoolean', () {
       test('should adapt a boolean schema', () {
-        final dsbSchema = dsb.S.boolean();
+        final dsbSchema = dsb.Schema.boolean();
         final result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -245,7 +270,7 @@ void main() {
 
     group('adaptNull', () {
       test('should adapt a null schema to a nullable object', () {
-        final dsbSchema = dsb.S.nil();
+        final dsbSchema = dsb.Schema.nil();
         final result = adapter.adapt(dsbSchema);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.object);
@@ -306,12 +331,12 @@ void main() {
 
     group('Edge Cases', () {
       test('should handle nested objects and arrays', () {
-        final dsbSchema = dsb.S.object(
+        final dsbSchema = dsb.Schema.object(
           properties: {
-            'user': dsb.S.object(
+            'user': dsb.Schema.object(
               properties: {
-                'name': dsb.S.string(),
-                'roles': dsb.S.list(items: dsb.S.string()),
+                'name': dsb.Schema.string(),
+                'roles': dsb.Schema.list(items: dsb.Schema.string()),
               },
               required: ['name'],
             ),
@@ -354,7 +379,7 @@ void main() {
       });
 
       test('should handle an empty object schema', () {
-        final dsbSchema = dsb.S.object(properties: {});
+        final dsbSchema = dsb.Schema.object(properties: {});
         final result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -364,8 +389,11 @@ void main() {
       });
 
       test('should handle an object with all properties required', () {
-        final dsbSchema = dsb.S.object(
-          properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
+        final dsbSchema = dsb.Schema.object(
+          properties: {
+            'name': dsb.Schema.string(),
+            'age': dsb.Schema.integer(),
+          },
           required: ['name', 'age'],
         );
         final result = adapter.adapt(dsbSchema);
@@ -375,8 +403,11 @@ void main() {
       });
 
       test('should handle an object with no required properties', () {
-        final dsbSchema = dsb.S.object(
-          properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
+        final dsbSchema = dsb.Schema.object(
+          properties: {
+            'name': dsb.Schema.string(),
+            'age': dsb.Schema.integer(),
+          },
         );
         final result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
@@ -388,9 +419,12 @@ void main() {
       });
 
       test('should handle an array of objects', () {
-        final dsbSchema = dsb.S.list(
-          items: dsb.S.object(
-            properties: {'name': dsb.S.string(), 'value': dsb.S.integer()},
+        final dsbSchema = dsb.Schema.list(
+          items: dsb.Schema.object(
+            properties: {
+              'name': dsb.Schema.string(),
+              'value': dsb.Schema.integer(),
+            },
             required: ['name'],
           ),
         );
