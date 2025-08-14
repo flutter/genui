@@ -18,6 +18,11 @@ for the project.
 1. Follow [the steps](https://firebase.google.com/docs/flutter/setup)
 to configure your Flutter project.
 
+    NOTE: if `flutterfire configure` fails with "not found in <platform>":
+    - open your project in Firebase console
+    - go to Project Settings > General > Your apps
+    - add the missing platform
+
     NOTE: see how secure it is to publish the generated files
     [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
 
