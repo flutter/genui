@@ -19,9 +19,13 @@ for the project.
 to configure your Flutter project.
 
     NOTE:
-    - if `flutterfire configure` fails with "not found in <platform>",
-    .
-    TODO: file issue against Firebase API.
+    If `flutterfire configure` fails with errors, try one or all of these:
+    - delete existing `lib/firebase_options.dart`
+    - switch to flutter stable
+    - run `flutter clean` and `flutter upgrade` for the project
+    - recreate firebase project
+    - remove a platform folder in flutter project and re-add it with flutter stable by
+    running command like `flutter create --platforms=web,macos .`
 
     NOTE: see how secure it is to publish the generated files
     [here](https://firebase.google.com/docs/projects/learn-more#config-files-objects).
