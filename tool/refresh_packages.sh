@@ -16,7 +16,6 @@ TOOL_DIR=$(dirname "$0")
 cd "$TOOL_DIR/.."
 
 FLUTTER_PACKAGES=(
-    "examples/generic_chat"
     "examples/travel_app"
     "examples/minimal_genui"
     "pkgs/flutter_genui"
