@@ -2,23 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart' as fb;
 import 'package:flutter/widgets.dart';
 
 /// Facade for the Flutter Gen UI package, tailored for Firebase AI integration.
 class GenUiForFirebaseAi {
   GenUiForFirebaseAi({
-    required ChatSession chatSession,
+    required fb.ChatSession chatSession,
     String? generalPrompt,
     Object? widgetCatalog,
     Object? imageStore,
   });
 
-  Future<GenUiBuilder> sendTextRequest(String prompt) async {
+  Future<GenUiResponse> sendTextRequest(String prompt) async {
     throw UnimplementedError();
   }
 
-  Future<GenUiBuilder> sendRequestFromGenUi(UserSelection prompt) async {
+  Future<GenUiResponse> sendRequestFromGenUi(UserSelection prompt) async {
     throw UnimplementedError();
   }
 
