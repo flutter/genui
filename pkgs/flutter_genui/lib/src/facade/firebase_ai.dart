@@ -8,7 +8,7 @@ import 'package:flutter/widgets.dart';
 /// Facade for the Flutter Gen UI package, tailored for Firebase AI integration.
 class GenUiForFirebaseAi {
   GenUiForFirebaseAi({
-    required fb.ChatSession chatSession,
+    required fb.ChatSession firebaseChatSession,
     String? generalPrompt,
     Object? widgetCatalog,
     Object? imageStore,
