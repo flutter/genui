@@ -12,7 +12,7 @@ Podfile
 # Firebase configurations for example apps
 # These should be created locally with `flutterfire configure`
 # .firebase/
-# **/lib/firebase_options.dart
+**/lib/firebase_options.dart
 # **/android/app/google-services.json
 # **/ios/Runner/GoogleService-Info.plist
 # **/macos/Runner/GoogleService-Info.plist
