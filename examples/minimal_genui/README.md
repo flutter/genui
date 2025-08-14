@@ -1,4 +1,4 @@
-# minimal_genui
+# Minimal GenUI
 
 This is minimal usage of `flutter_genui`.
 
