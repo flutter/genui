@@ -31,7 +31,7 @@ This section describes how to build a minimal GenUI interaction.
 
 ### Employ `flutter_genui`
 
-For a complete example, refer to [main.dart in the minimal_genui example](../examples/minimal_genui/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
+For a complete example, refer to [main.dart in the minimal_genui example](examples/minimal_genui/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
 
 1. In your `pubspec.yaml` file, add `flutter_genui` to the `dependencies` section with one of the following options:
 

@@ -12,7 +12,7 @@ generative UI to their applications.
 
 ## Usage
 
-See [doc/USAGE.md](USAGE.md).
+See [USAGE.md](USAGE.md).
 
 ## Contribute
 
