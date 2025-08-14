@@ -25,8 +25,8 @@ class GenUiForFirebaseAi {
   /// Subscribes to changes in the widgets in previous Gen UI response.
   ///
   /// Use [GenUiResponse.responseId] to identify the previous widget
-  /// that changed.
-  void listenPreviousWidgetChanges(ValueChanged<GenUiResponse> change) {
+  /// that has changed.
+  void listenPreviousWidgetChanges(ValueChanged<GenUiResponse> onChange) {
     throw UnimplementedError();
   }
 }
