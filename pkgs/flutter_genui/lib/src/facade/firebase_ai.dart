@@ -21,6 +21,21 @@ class GenUiForFirebaseAi {
   Future<GenUiBuilder> sendRequestFromGenUi(UserSelection prompt) async {
     throw UnimplementedError();
   }
+
+  /// Subscribes to changes in the widgets in previous Gen UI response.
+  ///
+  /// Use [GenUiResponse.responseId] to identify the previous widget
+  /// that changed.
+  void listenPreviousWidgetChanges(ValueChanged<GenUiResponse> change) {
+    throw UnimplementedError();
+  }
+}
+
+class GenUiResponse {
+  final GenUiBuilder builder;
+  final String responseId;
+
+  GenUiResponse({required this.builder, required this.responseId});
 }
 
 /// A builder function for generating UI components.
