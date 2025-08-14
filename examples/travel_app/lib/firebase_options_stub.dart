@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 
 /// This is stub to use for unit testing.
