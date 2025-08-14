@@ -16,7 +16,5 @@ Podfile
 .firebaserc
 firebase.json
 firebase_options.dart
-
 **/android/app/google-services.json
 **/Runner/GoogleService-Info.plist
-examples/minimal_genui/lib/firebase_options.dart
