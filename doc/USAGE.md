@@ -19,7 +19,7 @@ for the project.
 to configure your Flutter project.
 
     NOTE:
-    If `flutterfire configure` fails with errors, try one or all of these:
+    If `flutterfire configure` fails, try one or all of these:
     - delete existing `lib/firebase_options.dart`
     - switch to flutter stable
     - run `flutter clean` and `flutter upgrade` for the project
