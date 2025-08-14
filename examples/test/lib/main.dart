@@ -2,7 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-import 'firebase_options.dart';
+// Import `firebase_options.dart` if it exists
+// otherwise import the stub.
+import 'firebase_options_stub.dart'
+    if (dart.library.io) 'firebase_options.dart';
 
 const _chatPrompt = '''
 You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
