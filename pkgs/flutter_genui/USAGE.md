@@ -39,7 +39,7 @@ If `flutterfire configure` fails, try one or all of these:
 
 ### Employ `flutter_genui`
 
-For a complete example, refer to [main.dart in the minimal_genui example](examples/minimal_genui/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
+For a complete example, refer to [main.dart in the minimal_genui example](../../examples/minimal_genui/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
 
 1. In your `pubspec.yaml` file, add `flutter_genui` to the `dependencies` section with one of the following options:
 
@@ -71,7 +71,7 @@ For a complete example, refer to [main.dart in the minimal_genui example](exampl
 
 ## Enhance to GenUI Application
 
-Get inspired by our examples. The [`minimal_genui`](examples/minimal_genui/) example is a great starting point. You can find other examples under development in the [`examples/`](examples/) directory. Most will require you to [configure Firebase](#configure-firebase) first.
+Get inspired by our examples. The [`minimal_genui`](../../examples/minimal_genui/) example is a great starting point. You can find other examples under development in the [`examples/`](../../examples/) directory. Most will require you to [configure Firebase](#configure-firebase) first.
 
 Then apply what you learned to your app!
 

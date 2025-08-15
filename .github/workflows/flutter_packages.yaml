@@ -54,25 +54,23 @@ jobs:
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
           fi
 
-          # If the workflow file itself changed, we run all packages.
-          if echo "$CHANGED_FILES" | grep -q "^\.github/workflows/flutter_packages.yaml$"; then
-            echo "Workflow file changed. Testing all packages."
-            CHANGED_DIRS=$ALL_DIRS
+          # Build a regex to match any of the package directories or the workflow file.
+          REGEX="^\.github/workflows/flutter_packages.yaml$"
+          for dir in $ALL_DIRS; do
+            REGEX="$REGEX|^$dir/"
+          done
+
+          if echo "$CHANGED_FILES" | grep -q -E "$REGEX"; then
+            echo "Changes detected in package directories or workflow file. Testing all packages."
+            DIRS_TO_TEST=$ALL_DIRS
           else
-            # Otherwise, determine which packages were actually changed.
-            CHANGED_DIRS=""
-            for dir in $ALL_DIRS; do
-              # Check if any changed file starts with the package directory path.
-              if echo "$CHANGED_FILES" | grep -q "^$dir/"; then
-                CHANGED_DIRS="$CHANGED_DIRS$dir "
-              fi
-            done
+            DIRS_TO_TEST=""
           fi
 
           # Build a JSON array of package objects for the matrix.
           JSON_MATRIX="["
           FIRST=true
-          for dir in $CHANGED_DIRS; do
+          for dir in $DIRS_TO_TEST; do
             if [ "$FIRST" = false ]; then
               JSON_MATRIX="$JSON_MATRIX,"
             fi
