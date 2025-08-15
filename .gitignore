@@ -11,7 +11,7 @@ Podfile
 
 # Firebase configurations for example apps.
 # These should be created locally with `flutterfire configure`.
-# See doc/USAGE.md for more details.
+# See pkgs/flutter_genui/USAGE.md for more details.
 .firebase/
 .firebaserc
 firebase.json

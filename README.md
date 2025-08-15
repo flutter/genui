@@ -12,7 +12,7 @@ generative UI to their applications.
 
 ## Usage
 
-See [USAGE.md](USAGE.md).
+See [pkgs/flutter_genui/USAGE.md](pkgs/flutter_genui/USAGE.md).
 
 ## Contribute
 

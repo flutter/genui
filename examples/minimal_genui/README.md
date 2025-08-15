@@ -43,9 +43,10 @@ configured.
 
 1. **Configure Firebase**: Follow the instructions to add Firebase to your
    Flutter app for the platforms you intend to support (Android, iOS, web,
-   etc.). See [USAGE.md](../../USAGE.md) for steps to configure Firebase. You
-   will need to replace the placeholder values in `lib/firebase_options.dart`
-   with the configuration from your own Firebase project.
+   etc.). See [flutter_genui's USAGE.md](../../pkgs/flutter_genui/USAGE.md) for steps to
+   configure Firebase. You will need to replace the placeholder values in
+   `lib/firebase_options.dart` with the configuration from your own Firebase
+   project.
 2. **Run the App**: Once Firebase is configured, you can run the app like any
    other Flutter project:
 

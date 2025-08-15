@@ -9,7 +9,7 @@ Please follow
 
 To run examples:
 
-1. Configure Firebase as described in [USAGE.md](USAGE.md#configure-firebase).
+1. Configure Firebase as described in [USAGE.md](pkgs/flutter_genui/USAGE.md#configure-firebase).
 2. Run `flutter run`.
 
 NOTE: For Google-internal projects see go/flutter-genui-internal.
