@@ -208,9 +208,9 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
 
   /// Creates a JSON schema definition for any value.
   factory Schema.any({String? title, String? description}) => Schema.fromMap({
-        if (title != null) 'title': title,
-        if (description != null) 'description': description,
-      });
+    if (title != null) 'title': title,
+    if (description != null) 'description': description,
+  });
 
   /// Creates a schema from a boolean value.
   ///

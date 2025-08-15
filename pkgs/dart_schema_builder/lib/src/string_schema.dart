@@ -52,6 +52,4 @@ extension type const StringSchema.fromMap(Map<String, Object?> _value)
   /// See https://json-schema.org/understanding-json-schema/reference/string.html#format
   /// for a list of supported formats.
   String? get format => _value['format'] as String?;
-
-
 }
