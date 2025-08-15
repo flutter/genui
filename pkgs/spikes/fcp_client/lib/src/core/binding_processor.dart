@@ -146,6 +146,9 @@ class BindingProcessor {
   }
 
   Object? _getDefaultValueForType(Schema schema) {
+    if (schema.defaultValue != null) {
+      return schema.defaultValue;
+    }
     final type = schema.type;
     if (type is String) {
       switch (type) {

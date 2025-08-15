@@ -16,6 +16,18 @@ class FcpColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: children);
+    final mainAxisAlignment = MainAxisAlignment.values.firstWhere(
+      (e) => e.name == properties['mainAxisAlignment'],
+      orElse: () => MainAxisAlignment.start,
+    );
+    final crossAxisAlignment = CrossAxisAlignment.values.firstWhere(
+      (e) => e.name == properties['crossAxisAlignment'],
+      orElse: () => CrossAxisAlignment.center,
+    );
+    return Column(
+      mainAxisAlignment: mainAxisAlignment,
+      crossAxisAlignment: crossAxisAlignment,
+      children: children,
+    );
   }
 }

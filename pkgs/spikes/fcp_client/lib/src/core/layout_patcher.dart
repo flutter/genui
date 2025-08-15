@@ -68,6 +68,8 @@ class LayoutPatcher {
     final List<String> newChildrenIds;
     if (currentChildren is List) {
       newChildrenIds = [...currentChildren.cast<String>(), ...newNodeIds];
+    } else if (currentChildren is String) {
+      newChildrenIds = [currentChildren, ...newNodeIds];
     } else {
       newChildrenIds = newNodeIds;
     }
