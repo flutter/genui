@@ -1,0 +1,30 @@
+# Copyright 2025 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: fcp_tools
+description: A package providing AI tools for dynamically creating and manipulating a Flutter user interface with FCP.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  ai_client:
+    path: ../ai_client
+  dart_schema_builder:
+    path: ../../dart_schema_builder
+  fcp_client:
+    path: ../fcp_client
+  file: ^7.0.1
+  flutter:
+    sdk: flutter
+  meta: ^1.16.0
+  platform: ^3.1.6
+
+dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter

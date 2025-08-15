@@ -39,7 +39,7 @@ sequenceDiagram
 
 ### **Core Components:**
 
-- **AI Client:** Serves as the primary interface for the chat application. It manages the conversation history and orchestrates the calls to the Gemini LLM, including passing the tool definitions. The `fcp_tools` package will be agnostic to the specific AI client implementation.
+- **`ai_client` (`AiClient`):** Serves as the primary interface for the application. It manages the conversation history and orchestrates the calls to the Gemini LLM, including passing the tool definitions. The `fcp_tools` package will use this package for its AI-related functionalities.
 - **`FcpSurfaceManager` (New):** A new class within `fcp_tools` responsible for managing the lifecycle of multiple UI surfaces. It will maintain a map of `surfaceId` to `FcpViewController` instances. The AI tools will interact with this manager to perform their operations.
 - **`fcp_client` (`FcpView`, `FcpViewController`):** The rendering layer. Each surface managed by `FcpSurfaceManager` will be an `FcpView` widget, controlled by its corresponding `FcpViewController`.
 - **`dart_schema_builder`:** Used to define the schemas for the tool parameters, ensuring that the LLM provides correctly structured arguments.
