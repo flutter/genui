@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import '../../fcp_client.dart' show FcpView;
 import '../models/models.dart';
 import 'fcp_view.dart' show FcpView;
 

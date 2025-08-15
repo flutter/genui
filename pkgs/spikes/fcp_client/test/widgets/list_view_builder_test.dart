@@ -17,7 +17,7 @@ void main() {
             name: 'ListViewBuilder',
             builder: (context, node, properties, children) =>
                 const SizedBox.shrink(),
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {},
               'bindings': {
                 'data': {'path': 'string'},
@@ -34,7 +34,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -43,7 +43,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'my_list',
@@ -93,7 +93,7 @@ void main() {
             name: 'ListViewBuilder',
             builder: (context, node, properties, children) =>
                 const SizedBox.shrink(),
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {},
               'bindings': {
                 'data': {'path': 'string'},
@@ -110,7 +110,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -119,7 +119,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'my_list',

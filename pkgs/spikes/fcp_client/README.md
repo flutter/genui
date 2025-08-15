@@ -17,9 +17,10 @@ This package provides the tools to parse these components and render a complete 
 ## Features
 
 - **JSON to Widget Rendering:** Dynamically build a Flutter UI from a JSON `DynamicUIPacket`.
-- **Extensible Catalog Registry:** Register your own custom Flutter widgets to be used in the dynamic UI.
-- **Static Layout Engine:** Efficiently builds the widget tree from a non-recursive, flat adjacency list of nodes.
-- **Event Handling:** A mechanism to capture and handle user interactions (e.g., button presses) and send them to a backend or state management layer.
+- **Extensible Widget Registry:** Register your own custom Flutter widgets to be used in the dynamic UI.
+- **Dynamic Catalog Generation:** The client generates a `WidgetCatalog` at runtime based on the registered widgets.
+- **State Management & Data Binding:** A simple but powerful state management solution with support for data binding and transformations.
+- **Targeted Updates:** Apply partial updates to the state or layout without rebuilding the entire UI.
 - **Robust Error Handling:** Gracefully handles errors like missing widgets or cyclical layouts and displays a clear error UI instead of crashing.
 
 ## Getting Started
@@ -37,8 +38,9 @@ dependencies:
 Here is a simple example of how to use `FcpView` to render a UI. For a more complete, interactive example, see the `example/` directory.
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:fcp_client/fcp_client.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(const SimpleApp());
@@ -50,34 +52,90 @@ class SimpleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 1. Create a registry and register the widgets your UI will use.
-    final registry = CatalogRegistry()
-      ..register('Scaffold', (context, node, children) => Scaffold(body: children.first))
-      ..register('Center', (context, node, children) => Center(child: children.first))
-      ..register('Text', (context, node, children) {
-        return Text(node.properties?['data'] as String? ?? 'Default Text');
-      });
+    final registry = WidgetCatalogRegistry()
+      ..register(
+        CatalogItem(
+          name: 'Scaffold',
+          builder: (context, node, properties, children) =>
+              Scaffold(body: children['body']?.first),
+          definition: WidgetDefinition(
+            properties: ObjectSchema(
+              properties: {
+                'body': Schema.fromMap({'type': 'string'}),
+              },
+            ),
+          ),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Center',
+          builder: (context, node, properties, children) =>
+              Center(child: children['child']?.first),
+          definition: WidgetDefinition(
+            properties: ObjectSchema(
+              properties: {
+                'child': Schema.fromMap({'type': 'string'}),
+              },
+            ),
+          ),
+        ),
+      )
+      ..register(
+        CatalogItem(
+          name: 'Text',
+          builder: (context, node, properties, children) {
+            return Text(properties['data'] as String? ?? 'Default Text');
+          },
+          definition: WidgetDefinition(
+            properties: ObjectSchema(
+              properties: {
+                'data': Schema.fromMap({'type': 'string'}),
+              },
+              required: ['data'],
+            ),
+          ),
+        ),
+      );
 
-    // 2. Define the UI structure and data in a DynamicUIPacket.
-    final uiPacket = DynamicUIPacket({
-      'formatVersion': '1.0.0',
-      'layout': {
-        'root': 'root_scaffold',
-        'nodes': [
-          {'id': 'root_scaffold', 'type': 'Scaffold', 'properties': {'body': 'center_node'}},
-          {'id': 'center_node', 'type': 'Center', 'properties': {'child': 'text_node'}},
-          {'id': 'text_node', 'type': 'Text', 'properties': {'data': 'Hello from FCP!'}}
-        ]
-      },
-      'state': {}
-    });
+    // 2. The catalog is built from the registry.
+    final catalog = registry.buildCatalog();
 
-    // 3. Use the FcpView widget to render the UI.
+    // 3. Define the UI structure and data in a DynamicUIPacket.
+    final uiPacket = DynamicUIPacket(
+      layout: Layout(
+        root: 'root_scaffold',
+        nodes: [
+          LayoutNode(
+            id: 'root_scaffold',
+            type: 'Scaffold',
+            properties: {'body': 'center_node'},
+          ),
+          LayoutNode(
+            id: 'center_node',
+            type: 'Center',
+            properties: {'child': 'text_node'},
+          ),
+          LayoutNode(
+            id: 'text_node',
+            type: 'Text',
+            properties: {'data': 'Hello from FCP!'},
+          )
+        ],
+      ),
+      state: const {},
+    );
+
+    // 4. Use the FcpView widget to render the UI.
     return MaterialApp(
       home: FcpView(
         registry: registry,
+        catalog: catalog,
         packet: uiPacket,
         onEvent: (payload) {
-          print('Event received from ${payload.sourceNodeId}: ${payload.eventName}');
+          debugPrint(
+            'Event received from ${payload.sourceNodeId}: ${payload.eventName}',
+          );
         },
       ),
     );

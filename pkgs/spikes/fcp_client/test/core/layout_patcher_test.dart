@@ -14,17 +14,17 @@ void main() {
     setUp(() {
       patcher = LayoutPatcher();
       nodeMap = {
-        'root': LayoutNode.fromJson({
+        'root': LayoutNode.fromMap({
           'id': 'root',
           'type': 'Container',
           'properties': {'child': 'child1'},
         }),
-        'child1': LayoutNode.fromJson({
+        'child1': LayoutNode.fromMap({
           'id': 'child1',
           'type': 'Text',
           'properties': {'text': 'Hello'},
         }),
-        'child2': LayoutNode.fromJson({
+        'child2': LayoutNode.fromMap({
           'id': 'child2',
           'type': 'Text',
           'properties': {'text': 'World'},
@@ -33,7 +33,7 @@ void main() {
     });
 
     test('handles "add" operation', () {
-      final update = LayoutUpdate({
+      final add = LayoutUpdate.fromMap({
         'operations': [
           {
             'op': 'add',
@@ -44,14 +44,14 @@ void main() {
         ],
       });
 
-      patcher.apply(nodeMap, update);
+      patcher.apply(nodeMap, add);
 
       expect(nodeMap.containsKey('child3'), isTrue);
       expect(nodeMap['child3']!.type, 'Button');
     });
 
     test('handles "remove" operation', () {
-      final update = LayoutUpdate({
+      final remove = LayoutUpdate.fromMap({
         'operations': [
           {
             'op': 'remove',
@@ -60,18 +60,18 @@ void main() {
         ],
       });
 
-      patcher.apply(nodeMap, update);
+      patcher.apply(nodeMap, remove);
 
       expect(nodeMap.containsKey('child1'), isFalse);
       expect(nodeMap.containsKey('child2'), isFalse);
       expect(nodeMap.containsKey('root'), isTrue);
     });
 
-    test('handles "update" operation', () {
-      final update = LayoutUpdate({
+    test('handles "replace" operation', () {
+      final replace = LayoutUpdate.fromMap({
         'operations': [
           {
-            'op': 'update',
+            'op': 'replace',
             'nodes': [
               {
                 'id': 'child1',
@@ -83,20 +83,20 @@ void main() {
         ],
       });
 
-      patcher.apply(nodeMap, update);
+      patcher.apply(nodeMap, replace);
 
       expect(nodeMap['child1']!.properties!['text'], 'Goodbye');
     });
 
     test('handles multiple operations in sequence', () {
-      final update = LayoutUpdate({
+      final update = LayoutUpdate.fromMap({
         'operations': [
           {
             'op': 'remove',
             'nodeIds': ['child2'],
           },
           {
-            'op': 'update',
+            'op': 'replace',
             'nodes': [
               {
                 'id': 'child1',
@@ -122,7 +122,7 @@ void main() {
     });
 
     test('ignores unknown operations gracefully', () {
-      final update = LayoutUpdate({
+      final update = LayoutUpdate.fromMap({
         'operations': [
           {'op': 'unknown_op'},
         ],
@@ -134,11 +134,11 @@ void main() {
     });
 
     test('does not fail on empty or null node/id lists', () {
-      final update = LayoutUpdate({
+      final update = LayoutUpdate.fromMap({
         'operations': [
           {'op': 'add', 'nodes': <Map<String, Object?>>[]},
           {'op': 'remove', 'nodeIds': null},
-          {'op': 'update', 'nodes': null},
+          {'op': 'replace', 'nodes': null},
         ],
       });
 
@@ -147,10 +147,10 @@ void main() {
       expect(nodeMap.length, 3);
     });
     test('does not throw when updating a non-existent node', () {
-      final update = LayoutUpdate({
+      final replace = LayoutUpdate.fromMap({
         'operations': [
           {
-            'op': 'update',
+            'op': 'replace',
             'nodes': [
               {'id': 'non_existent', 'type': 'Text'},
             ],
@@ -159,7 +159,7 @@ void main() {
       });
 
       // Should not throw and should not add the node
-      patcher.apply(nodeMap, update);
+      patcher.apply(nodeMap, replace);
       expect(nodeMap.containsKey('non_existent'), isFalse);
       expect(nodeMap.length, 3);
     });

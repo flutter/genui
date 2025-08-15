@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/widgets.dart';
-import '../models/models.dart';
+
+import '../../fcp_client.dart';
 
 /// A function that builds a Flutter [Widget] from an FCP [LayoutNode].
 ///
@@ -12,20 +13,25 @@ import '../models/models.dart';
 /// - [properties]: A map of resolved properties, combining static values from
 ///   the node and dynamic values from state bindings.
 /// - [children]: A map of already-built child widgets, keyed by the property
-///   name they were assigned to (e.g., "child", "appBar", "children"). The
-///   value can be a single [Widget] or a `List<Widget>`.
+///   name they were assigned to (e.g., "child", "appBar"). The value is a
+///   list of widgets, even for single-child properties.
 typedef CatalogWidgetBuilder =
     Widget Function(
       BuildContext context,
       LayoutNode node,
       Map<String, Object?> properties,
-      Map<String, dynamic> children,
+      Map<String, List<Widget>> children,
     );
 
 /// A container for all the information needed to register a widget with the
 /// FCP client, including its name, its builder function, and its definition
 /// for the `WidgetCatalog`.
 class CatalogItem {
+  /// Creates a catalog item with the given [name], [builder], and [definition].
+  ///
+  /// The [name] must match the `type` in a `LayoutNode`. The [builder] is the
+  /// function that builds the Flutter widget. The [definition] is the FCP
+  /// definition of the widget, including its properties and events.
   const CatalogItem({
     required this.name,
     required this.builder,
@@ -74,16 +80,19 @@ class WidgetCatalogRegistry {
   /// This method iterates through all the `CatalogItem` instances and
   /// compiles their definitions into a single `WidgetCatalog` object that can
   /// be passed to the `FcpView`.
+  ///
+  /// The [catalogVersion] defaults to [fcpVersion]. The [dataTypes] are
+  /// any custom data types to be included in the catalog.
   WidgetCatalog buildCatalog({
-    required String catalogVersion,
+    String catalogVersion = fcpVersion,
     Map<String, Object?> dataTypes = const {},
   }) {
-    final items = <String, Object?>{};
+    final items = <String, WidgetDefinition?>{};
     for (final widget in _registeredWidgets.values) {
       items[widget.name] = widget.definition;
     }
 
-    return WidgetCatalog({
+    return WidgetCatalog.fromMap({
       'catalogVersion': catalogVersion,
       'dataTypes': dataTypes,
       'items': items,
