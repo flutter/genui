@@ -18,3 +18,6 @@ firebase.json
 firebase_options.dart
 **/android/app/google-services.json
 **/Runner/GoogleService-Info.plist
+
+# User specific firebase script.
+tool/refresh_firebase.sh
