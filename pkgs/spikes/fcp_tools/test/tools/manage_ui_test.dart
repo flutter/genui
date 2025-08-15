@@ -5,6 +5,7 @@
 import 'package:fcp_client/fcp_client.dart';
 import 'package:fcp_tools/fcp_tools.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 
 import 'mock_fcp_view_controller.dart';
 
@@ -124,6 +125,20 @@ void main() {
       await tool.patchState.invoke({'surfaceId': 'test', 'patches': patches});
       expect(mockController.patchStateCallCount, 1);
       expect(mockController.lastStateUpdate!.patches.first['op'], 'replace');
+    });
+    test('logging is called', () async {
+      final records = <LogRecord>[];
+      Logger.root.level = Level.ALL;
+      Logger.root.onRecord.listen(records.add);
+
+      await tool.set.invoke({
+        'surfaceId': 'test',
+        'layout': <String, Object?>{'root': 'root', 'nodes': []},
+        'state': <String, Object?>{},
+      });
+
+      expect(records, isNotEmpty);
+      expect(records.first.message, contains('Invoking "set"'));
     });
   });
 }

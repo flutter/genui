@@ -579,7 +579,9 @@ With functions:
         );
         Map<String, Object?> toolResult;
         try {
-          toolResult = await aiTool.invoke(call.args);
+          final args = call.args['parameters'] as Map<String, Object?>? ??
+              call.args;
+          toolResult = await aiTool.invoke(args);
           _log(
             'Invoked tool ${aiTool.name} with args ${call.args}. '
             'Result: $toolResult',

@@ -4,6 +4,7 @@
 
 import 'package:fcp_client/fcp_client.dart';
 import 'package:flutter/widgets.dart';
+import 'package:logging/logging.dart';
 
 /// Manages a collection of UI surfaces, each with its own
 /// [FcpViewController] and [DynamicUIPacket].
@@ -13,6 +14,7 @@ import 'package:flutter/widgets.dart';
 class FcpSurfaceManager with ChangeNotifier {
   final Map<String, FcpViewController> _controllers = {};
   final Map<String, DynamicUIPacket> _packets = {};
+  final _log = Logger('FcpSurfaceManager');
 
   /// A map of surface IDs to their respective [FcpViewController]s.
   Map<String, FcpViewController> get controllers => _controllers;
@@ -25,8 +27,10 @@ class FcpSurfaceManager with ChangeNotifier {
   /// If a surface with the same ID does not exist, a new controller will be
   /// created.
   void setSurface(String surfaceId, DynamicUIPacket packet) {
+    _log.info('Setting surface "$surfaceId".');
     _packets[surfaceId] = packet;
     if (!_controllers.containsKey(surfaceId)) {
+      _log.info('Creating new controller for surface "$surfaceId".');
       _controllers[surfaceId] = FcpViewController();
     }
     notifyListeners();
@@ -36,6 +40,7 @@ class FcpSurfaceManager with ChangeNotifier {
   ///
   /// Returns `null` if no surface with the given ID exists.
   FcpViewController? getController(String surfaceId) {
+    _log.fine('Getting controller for surface "$surfaceId".');
     return _controllers[surfaceId];
   }
 
@@ -43,16 +48,19 @@ class FcpSurfaceManager with ChangeNotifier {
   ///
   /// Returns `null` if no surface with the given ID exists.
   DynamicUIPacket? getPacket(String surfaceId) {
+    _log.fine('Getting packet for surface "$surfaceId".');
     return _packets[surfaceId];
   }
 
   /// Returns a list of all active surface IDs.
   List<String> listSurfaces() {
+    _log.fine('Listing surfaces: ${_controllers.keys}');
     return _controllers.keys.toList();
   }
 
   /// Removes the surface with the given [surfaceId].
   void removeSurface(String surfaceId) {
+    _log.info('Removing surface "$surfaceId".');
     _controllers[surfaceId]?.dispose();
     _controllers.remove(surfaceId);
     _packets.remove(surfaceId);
@@ -61,6 +69,7 @@ class FcpSurfaceManager with ChangeNotifier {
 
   @override
   void dispose() {
+    _log.info('Disposing FcpSurfaceManager.');
     for (final controller in _controllers.values) {
       controller.dispose();
     }

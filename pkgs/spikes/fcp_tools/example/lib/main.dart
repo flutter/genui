@@ -9,10 +9,19 @@ import 'package:fcp_tools/fcp_tools.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 
+import 'app_host.dart';
+import 'catalog.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    debugPrint(
+      '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}',
+    );
+  });
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
@@ -20,7 +29,7 @@ Future<void> main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  runApp(const FcpToolsExample());
+  runApp(const AppHost(child: FcpToolsExample()));
 }
 
 class FcpToolsExample extends StatefulWidget {
@@ -31,27 +40,17 @@ class FcpToolsExample extends StatefulWidget {
 }
 
 class _FcpToolsExampleState extends State<FcpToolsExample> {
-  late final FcpSurfaceManager _surfaceManager;
-  late final AiClient _aiClient;
+  late FcpSurfaceManager _surfaceManager;
+  late AiClient _aiClient;
   final List<ChatMessage> _chatHistory = [];
   final TextEditingController _textController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _surfaceManager = FcpSurfaceManager();
-    final manageUiTool = ManageUiTool(_surfaceManager);
-    final widgetCatalog = WidgetCatalog(items: {}, dataTypes: {});
-    final getWidgetCatalogTool = GetWidgetCatalogTool(widgetCatalog);
-    _aiClient = GeminiAiClient(
-      tools: [...manageUiTool.tools, getWidgetCatalogTool.get],
-    );
-  }
-
-  @override
-  void dispose() {
-    _surfaceManager.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = FcpToolsProvider.of(context);
+    _surfaceManager = provider.surfaceManager;
+    _aiClient = provider.aiClient;
   }
 
   Future<void> _sendPrompt() async {
@@ -63,22 +62,10 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     });
     _textController.clear();
 
-    final response = await _aiClient.generateContent(
+    await _aiClient.generateContent(
       _chatHistory,
-      Schema.object(
-        properties: {
-          'response': Schema.string(description: 'The response to the user.'),
-        },
-      ),
+      Schema.object(properties: {}),
     );
-
-    setState(() {
-      _chatHistory.add(
-        AssistantMessage.text(
-          (response as Map<String, Object?>)['response'] as String,
-        ),
-      );
-    });
   }
 
   @override
@@ -117,9 +104,8 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
                     if (packet == null) return const SizedBox.shrink();
                     return FcpView(
                       packet: packet,
-                      // TODO(gspencer): Provide a real catalog and registry.
-                      catalog: WidgetCatalog(items: {}, dataTypes: {}),
-                      registry: WidgetCatalogRegistry(),
+                      catalog: exampleCatalog.buildCatalog(),
+                      registry: exampleCatalog,
                       controller: _surfaceManager.getController(surfaceId),
                     );
                   }).toList(),
