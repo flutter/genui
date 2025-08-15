@@ -7,7 +7,20 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 final fcpPropertySchema = Schema.object(
   properties: {
     'name': Schema.string(description: 'The name of the property.'),
-    'value': Schema.any(description: 'The value of the property.'),
+    'value': Schema.combined(
+      anyOf: [
+        S.string(),
+        S.boolean(),
+        S.integer(),
+        S.number(),
+        S.nil(),
+        S.list(items: S.string()),
+        S.list(items: S.boolean()),
+        S.list(items: S.integer()),
+        S.list(items: S.number()),
+      ],
+      description: 'The value of the property.',
+    ),
   },
   required: ['name', 'value'],
 );
@@ -16,7 +29,8 @@ final fcpBindingSchema = Schema.object(
   properties: {
     'name': Schema.string(description: 'The name of the property to bind.'),
     'path': Schema.string(
-        description: 'The path to the value in the state object.'),
+      description: 'The path to the value in the state object.',
+    ),
   },
   required: ['name', 'path'],
 );
@@ -25,11 +39,13 @@ final fcpBindingSchema = Schema.object(
 final fcpLayoutNodeSchema = Schema.object(
   properties: {
     'id': Schema.string(
-      description: 'A unique identifier for this widget. This is used to '
+      description:
+          'A unique identifier for this widget. This is used to '
           'refer to the widget in the layout and in event handlers.',
     ),
     'type': Schema.string(
-      description: 'The type of the widget. This must be one of the widget '
+      description:
+          'The type of the widget. This must be one of the widget '
           'types available in the widget catalog.',
     ),
     'properties': Schema.list(
@@ -54,7 +70,8 @@ final fcpLayoutNodeSchema = Schema.object(
 final fcpLayoutSchema = Schema.object(
   properties: {
     'root': Schema.string(
-      description: 'The ID of the root widget. This widget will be the '
+      description:
+          'The ID of the root widget. This widget will be the '
           'first widget to be rendered.',
     ),
     'nodes': Schema.list(
@@ -67,7 +84,8 @@ final fcpLayoutSchema = Schema.object(
 
 /// A schema for the state of an FCP packet.
 final fcpStateSchema = Schema.list(
-  description: 'A list of key-value pairs representing the state of the UI. '
+  description:
+      'A list of key-value pairs representing the state of the UI. '
       'The keys of this map can be any string, and the values can be any valid '
       'JSON object. The state is used to store dynamic data that can be '
       'referenced by the widgets in the layout.',
@@ -83,7 +101,8 @@ final fcpLayoutOperationSchema = Schema.object(
     ),
     'path': Schema.string(
       description:
-          'A JSON Pointer (RFC 6901) path to the location in the layout to modify.',
+          'A JSON Pointer (RFC 6901) path to the location in the layout to '
+          'modify.',
     ),
     'value': Schema.any(
       description:
