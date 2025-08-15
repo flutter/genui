@@ -25,20 +25,20 @@ TOOL_DIR=$(dirname "$0")
 
 PROJECT_ID="fluttergenui"
 
-cd "$TOOL_DIR/../examples/minimal_genui"
-rm -rf lib/firebase_options.dart
-flutterfire configure \
-   --overwrite-firebase-options \
-   --platforms=macos \
-   --project=$PROJECT_ID \
-   --out=lib/firebase_options.dart
-cd -
+EXAMPLES=(
+    "minimal_genui"
+    "travel_app"
+)
 
-cd "$TOOL_DIR/../examples/travel_app"
-rm -rf lib/firebase_options.dart
-flutterfire configure \
-   --overwrite-firebase-options \
-   --platforms=macos \
-   --project=$PROJECT_ID \
-   --out=lib/firebase_options.dart
-cd -
+for example in "${EXAMPLES[@]}"; do
+    echo "--- Configuring Firebase for $example ---"
+    (
+        cd "$TOOL_DIR/../examples/$example"
+        rm -rf lib/firebase_options.dart
+        flutterfire configure \
+           --overwrite-firebase-options \
+           --platforms=macos \
+           --project="$PROJECT_ID" \
+           --out=lib/firebase_options.dart
+    )
+done
