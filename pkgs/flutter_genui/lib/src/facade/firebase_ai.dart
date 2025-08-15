@@ -7,11 +7,11 @@ import 'package:flutter/widgets.dart';
 
 /// Facade for the Flutter Gen UI package, tailored for Firebase AI integration.
 class GenUiForFirebaseAi {
+  // TODO: add flexibility for more complicated stories.
   GenUiForFirebaseAi({
     required fb.ChatSession firebaseChatSession,
     String? generalPrompt,
     Object? widgetCatalog,
-    Object? imageStore,
   });
 
   Future<GenUiResponse> sendTextRequest(String prompt) async {
@@ -19,14 +19,6 @@ class GenUiForFirebaseAi {
   }
 
   Future<GenUiResponse> sendRequestFromGenUi(UserSelection prompt) async {
-    throw UnimplementedError();
-  }
-
-  /// Subscribes to changes in the widgets in previous Gen UI response.
-  ///
-  /// Use [GenUiResponse.responseId] to identify the previous widget
-  /// that has changed.
-  void listenPreviousWidgetChanges(ValueChanged<GenUiResponse> onChange) {
     throw UnimplementedError();
   }
 }
