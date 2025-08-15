@@ -1,0 +1,154 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:typed_data';
+
+/// A sealed class representing a part of a message.
+///
+/// This allows for multi-modal content in a single message.
+sealed class MessagePart {}
+
+/// A text part of a message.
+final class TextPart implements MessagePart {
+  /// The text content.
+  final String text;
+
+  const TextPart(this.text);
+}
+
+/// An image part of a message.
+///
+/// Use the factory constructors to create an instance from different sources.
+final class ImagePart implements MessagePart {
+  /// The raw image bytes. May be null if created from a URL or Base64.
+  final Uint8List? bytes;
+
+  /// The Base64 encoded image string. May be null if created from bytes or URL.
+  final String? base64;
+
+  /// The URL of the image. May be null if created from bytes or Base64.
+  final Uri? url;
+
+  /// The MIME type of the image (e.g., 'image/jpeg', 'image/png').
+  /// Required when providing image data directly.
+  final String? mimeType;
+
+  // Private constructor to enforce creation via factories.
+  const ImagePart._({this.bytes, this.base64, this.url, this.mimeType});
+
+  /// Creates an [ImagePart] from raw image bytes.
+  const factory ImagePart.fromBytes(
+    Uint8List bytes, {
+    required String mimeType,
+  }) = _ImagePartFromBytes;
+
+  /// Creates an [ImagePart] from a Base64 encoded string.
+  const factory ImagePart.fromBase64(
+    String base64, {
+    required String mimeType,
+  }) = _ImagePartFromBase64;
+
+  /// Creates an [ImagePart] from a URL.
+  const factory ImagePart.fromUrl(Uri url) = _ImagePartFromUrl;
+}
+
+// Private implementation classes for ImagePart factories
+final class _ImagePartFromBytes extends ImagePart {
+  const _ImagePartFromBytes(Uint8List bytes, {required String mimeType})
+      : super._(bytes: bytes, mimeType: mimeType);
+}
+
+final class _ImagePartFromBase64 extends ImagePart {
+  const _ImagePartFromBase64(String base64, {required String mimeType})
+      : super._(base64: base64, mimeType: mimeType);
+}
+
+final class _ImagePartFromUrl extends ImagePart {
+  const _ImagePartFromUrl(Uri url) : super._(url: url);
+}
+
+/// A part representing a request from the model to call a tool.
+final class ToolCallPart implements MessagePart {
+  /// The name of the tool to call.
+  final String toolName;
+
+  /// The arguments for the tool, as a JSON-like map.
+  final Map<String, dynamic> arguments;
+
+  /// A unique identifier for this specific tool call.
+  final String id;
+
+  const ToolCallPart({
+    required this.id,
+    required this.toolName,
+    required this.arguments,
+  });
+}
+
+/// A part representing the result of a tool call, to be sent back to the model.
+final class ToolResultPart implements MessagePart {
+  /// The ID of the this result corresponds to.
+  final String callId;
+
+  /// The result of the tool execution, often a JSON string.
+  final String result;
+
+  const ToolResultPart({required this.callId, required this.result});
+}
+
+/// A provider-specific part for "thinking" blocks.
+final class ThinkingPart implements MessagePart {
+  /// The reasoning content from the model.
+  final String text;
+
+  const ThinkingPart(this.text);
+}
+
+/// A sealed class representing a message in the chat history.
+sealed class ChatMessage {
+  const ChatMessage();
+}
+
+/// A message representing an internal message
+final class InternalMessage extends ChatMessage {
+  /// Creates a [InternalMessage] with the given [text].
+  const InternalMessage(this.text);
+
+  /// The text of the system message.
+  final String text;
+}
+
+/// A message representing a user's text prompt.
+final class UserMessage extends ChatMessage {
+  /// Creates a [UserMessage] with the given [parts].
+  const UserMessage(this.parts);
+
+  /// Creates a [UserMessage] with the given [text].
+  factory UserMessage.text(String text) => UserMessage([TextPart(text)]);
+
+  /// The parts of the user's message.
+  final List<MessagePart> parts;
+}
+
+/// A message representing a response from the AI.
+final class AssistantMessage extends ChatMessage {
+  /// Creates a [AssistantMessage] with the given [parts].
+  const AssistantMessage(this.parts);
+
+  /// Creates a [AssistantMessage] with the given [text].
+  factory AssistantMessage.text(String text) =>
+      AssistantMessage([TextPart(text)]);
+
+  /// The parts of the assistant's message.
+  final List<MessagePart> parts;
+}
+
+/// A message representing a response from a tool.
+final class ToolResponseMessage extends ChatMessage {
+  /// Creates a [ToolResponseMessage] with the given [results].
+  const ToolResponseMessage(this.results);
+
+  /// The results of the tool calls.
+  final List<ToolResultPart> results;
+}

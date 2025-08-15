@@ -1,0 +1,40 @@
+# Copyright 2025 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: ai_client
+description: Provides a general purpose wrapper around LLM access.
+version: 0.1.0
+homepage: https://github.com/flutter/genui/pkgs/spikes/ai_client
+license: BSD-3-Clause
+issue_tracker: https://github.com/flutter/genui/issues
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  collection: ^1.19.1
+  dart_schema_builder:
+    path: ../../dart_schema_builder
+  fcp_client:
+    path: ../fcp_client
+  file: ^7.0.1
+  firebase_ai: ^3.0.0
+  firebase_app_check: ^0.4.0
+  firebase_auth: ^6.0.0
+  firebase_core: ^4.0.0
+  flutter:
+    sdk: flutter
+  json_rpc_2: ^4.0.0
+  meta: ^1.16.0
+  platform: ^3.1.6
+  stream_channel: ^2.1.4
+  url_launcher: ^6.2.6
+
+dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter
+  network_image_mock: ^2.1.1
