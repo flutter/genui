@@ -25,6 +25,7 @@ FLUTTER_PACKAGES=(
 
 DART_PACKAGES=(
     "pkgs/dart_schema_builder"
+    "tool/fix_copyright"
 )
 
 for pkg in "${FLUTTER_PACKAGES[@]}"; do

@@ -206,6 +206,12 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
   ///  * [NullSchema] for the class that this factory constructor delegates to.
   factory Schema.nil({String? title, String? description}) = NullSchema;
 
+  /// Creates a JSON schema definition for any value.
+  factory Schema.any({String? title, String? description}) => Schema.fromMap({
+    if (title != null) 'title': title,
+    if (description != null) 'description': description,
+  });
+
   /// Creates a schema from a boolean value.
   ///
   /// A `true` value creates a schema that allows any value, while a `false`
