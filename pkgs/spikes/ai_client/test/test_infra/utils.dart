@@ -4,10 +4,9 @@
 
 import 'dart:async';
 
+import 'package:ai_client/src/generative_model_interface.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ai_client/src/generative_model_interface.dart';
 
 // A fake GenerativeModel that doesn't extend or implement the real one,
 // to work around the final class restriction.

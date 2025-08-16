@@ -7,20 +7,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 final fcpPropertySchema = Schema.object(
   properties: {
     'name': Schema.string(description: 'The name of the property.'),
-    'value': Schema.combined(
-      anyOf: [
-        S.string(),
-        S.boolean(),
-        S.integer(),
-        S.number(),
-        S.nil(),
-        S.list(items: S.string()),
-        S.list(items: S.boolean()),
-        S.list(items: S.integer()),
-        S.list(items: S.number()),
-      ],
-      description: 'The value of the property.',
-    ),
+    'value': Schema.any(description: 'The value of the property.'),
   },
   required: ['name', 'value'],
 );

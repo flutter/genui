@@ -35,7 +35,7 @@ void main() {
 
     test('converts ToolResponseMessage', () {
       final messages = [
-        ToolResponseMessage([
+        const ToolResponseMessage([
           ToolResultPart(callId: '123', result: '{"status": "done"}'),
         ])
       ];
@@ -69,7 +69,7 @@ void main() {
     test('converts ImagePart from base64', () {
       const base64String = 'AQID'; // [1, 2, 3]
       final messages = [
-        UserMessage([ImagePart.fromBase64(base64String, mimeType: 'image/png')])
+        const UserMessage([ImagePart.fromBase64(base64String, mimeType: 'image/png')])
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.InlineDataPart;
@@ -79,7 +79,7 @@ void main() {
 
     test('converts ThinkingPart', () {
       final messages = [
-        AssistantMessage([const ThinkingPart('hmmm...')])
+        const AssistantMessage([ThinkingPart('hmmm...')])
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.TextPart;

@@ -3,9 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:ai_client/ai_client.dart';
-import 'package:ai_client/src/ai_client.dart';
-import 'package:ai_client/src/gemini_ai_client.dart';
-import 'package:ai_client/src/model/chat_message.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:firebase_ai/firebase_ai.dart'

@@ -80,6 +80,23 @@ class GeminiSchemaAdapter {
   /// This method is called by [adapt] and recursively traverses the schema,
   /// converting each part to the `firebase_ai` format.
   firebase_ai.Schema? _adapt(dsb.Schema schema, List<String> path) {
+    if (schema.value.isEmpty) {
+      // An empty schema allows any value.
+      return firebase_ai.Schema(firebase_ai.SchemaType.object);
+    }
+    if (schema.anyOf case final List<Object?> anyOf) {
+      final schemas = <firebase_ai.Schema>[];
+      for (final subSchema in anyOf) {
+        if (subSchema is dsb.Schema) {
+          final adapted = _adapt(subSchema, path);
+          if (adapted != null) {
+            schemas.add(adapted);
+          }
+        }
+      }
+      return firebase_ai.Schema.anyOf(schemas: schemas);
+    }
+
     _checkUnsupportedGlobalKeywords(schema, path);
 
     final type = schema.type;
@@ -114,6 +131,56 @@ class GeminiSchemaAdapter {
     }
 
     if (typeName == null) {
+      // This is likely a Schema.any() with some metadata. For Gemini, this
+      // is interpreted as a generic object that can hold any value.
+      final otherKeys = schema.value.keys.toSet().difference(const {
+        'title',
+        'description',
+        '\$comment',
+      });
+      if (otherKeys.isEmpty) {
+        final anyOfSchema = firebase_ai.Schema.anyOf(
+          schemas: [
+            firebase_ai.Schema(firebase_ai.SchemaType.string),
+            firebase_ai.Schema(firebase_ai.SchemaType.number),
+            firebase_ai.Schema(firebase_ai.SchemaType.integer),
+            firebase_ai.Schema(firebase_ai.SchemaType.boolean),
+            firebase_ai.Schema(firebase_ai.SchemaType.object),
+            firebase_ai.Schema(
+              firebase_ai.SchemaType.array,
+              items: firebase_ai.Schema(firebase_ai.SchemaType.string),
+            ),
+            firebase_ai.Schema(
+              firebase_ai.SchemaType.array,
+              items: firebase_ai.Schema(firebase_ai.SchemaType.number),
+            ),
+            firebase_ai.Schema(
+              firebase_ai.SchemaType.array,
+              items: firebase_ai.Schema(firebase_ai.SchemaType.integer),
+            ),
+            firebase_ai.Schema(
+              firebase_ai.SchemaType.array,
+              items: firebase_ai.Schema(firebase_ai.SchemaType.boolean),
+            ),
+            firebase_ai.Schema(
+              firebase_ai.SchemaType.array,
+              items: firebase_ai.Schema(firebase_ai.SchemaType.object),
+            ),
+            firebase_ai.Schema(firebase_ai.SchemaType.object, nullable: true),
+          ],
+        );
+        if (schema.description case final String description) {
+          return firebase_ai.Schema(
+            anyOfSchema.type,
+            anyOf: anyOfSchema.anyOf,
+            description: description,
+          );
+        }
+        return anyOfSchema;
+      }
+    }
+
+    if (typeName == null) {
       _errors.add(
         GeminiSchemaAdapterError(
           'Schema must have a "type" or be implicitly typed with "properties" '
@@ -124,21 +191,29 @@ class GeminiSchemaAdapter {
       return null;
     }
 
+    firebase_ai.Schema? baseSchema;
     switch (typeName) {
       case 'object':
-        return _adaptObject(schema, path);
+        baseSchema = _adaptObject(schema, path);
+        break;
       case 'array':
-        return _adaptArray(schema, path);
+        baseSchema = _adaptArray(schema, path);
+        break;
       case 'string':
-        return _adaptString(schema, path);
+        baseSchema = _adaptString(schema, path);
+        break;
       case 'number':
-        return _adaptNumber(schema, path);
+        baseSchema = _adaptNumber(schema, path);
+        break;
       case 'integer':
-        return _adaptInteger(schema, path);
+        baseSchema = _adaptInteger(schema, path);
+        break;
       case 'boolean':
-        return _adaptBoolean(schema, path);
+        baseSchema = _adaptBoolean(schema, path);
+        break;
       case 'null':
-        return _adaptNull(schema, path);
+        baseSchema = _adaptNull(schema, path);
+        break;
       default:
         _errors.add(
           GeminiSchemaAdapterError(
@@ -148,6 +223,27 @@ class GeminiSchemaAdapter {
         );
         return null;
     }
+
+    if (baseSchema != null && schema.description != null) {
+      // Create a new schema with the description.
+      return firebase_ai.Schema(
+        baseSchema.type,
+        description: schema.description,
+        format: baseSchema.format,
+        properties: baseSchema.properties,
+        optionalProperties: baseSchema.optionalProperties,
+        items: baseSchema.items,
+        minItems: baseSchema.minItems,
+        maxItems: baseSchema.maxItems,
+        minimum: baseSchema.minimum,
+        maximum: baseSchema.maximum,
+        enumValues: baseSchema.enumValues,
+        nullable: baseSchema.nullable,
+        anyOf: baseSchema.anyOf,
+      );
+    }
+
+    return baseSchema;
   }
 
   /// Checks for and logs errors for unsupported global keywords.
@@ -166,7 +262,6 @@ class GeminiSchemaAdapter {
       '\$id',
       '\$schema',
       'allOf',
-      'anyOf',
       'oneOf',
       'not',
       'if',
@@ -191,8 +286,17 @@ class GeminiSchemaAdapter {
   /// Adapts an object schema.
   firebase_ai.Schema? _adaptObject(dsb.Schema dsbSchema, List<String> path) {
     final objectSchema = dsb.ObjectSchema.fromMap(dsbSchema.value);
-    final properties = <String, firebase_ai.Schema>{};
+
+    // A "true" boolean schema has an empty value.
+    if (objectSchema.additionalProperties?.value.isEmpty ?? false) {
+      // If additionalProperties is true, we create a generic object schema
+      // that allows any properties.
+      return firebase_ai.Schema(firebase_ai.SchemaType.object);
+    }
+
+    Map<String, firebase_ai.Schema>? properties;
     if (objectSchema.properties != null) {
+      properties = {};
       for (final entry in objectSchema.properties!.entries) {
         final propertyPath = [...path, 'properties', entry.key];
         final adaptedProperty = _adapt(entry.value, propertyPath);
@@ -259,7 +363,7 @@ class GeminiSchemaAdapter {
       );
     }
 
-    final allProperties = properties.keys.toSet();
+    final allProperties = properties?.keys.toSet() ?? {};
     final requiredProperties = objectSchema.required?.toSet() ?? {};
     final optionalProperties = allProperties
         .difference(requiredProperties)
@@ -269,7 +373,6 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.object,
       properties: properties,
       optionalProperties: optionalProperties,
-      description: dsbSchema.description,
     );
   }
 
@@ -347,7 +450,6 @@ class GeminiSchemaAdapter {
       items: adaptedItems,
       minItems: listSchema.minItems,
       maxItems: listSchema.maxItems,
-      description: dsbSchema.description,
     );
   }
 
@@ -382,7 +484,6 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.string,
       format: stringSchema.format,
       enumValues: stringSchema.enumValues?.map((e) => e.toString()).toList(),
-      description: dsbSchema.description,
     );
   }
 
@@ -417,7 +518,6 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.number,
       minimum: numberSchema.minimum?.toDouble(),
       maximum: numberSchema.maximum?.toDouble(),
-      description: dsbSchema.description,
     );
   }
 
@@ -452,24 +552,16 @@ class GeminiSchemaAdapter {
       firebase_ai.SchemaType.integer,
       minimum: integerSchema.minimum?.toDouble(),
       maximum: integerSchema.maximum?.toDouble(),
-      description: dsbSchema.description,
     );
   }
 
   /// Adapts a boolean schema.
   firebase_ai.Schema? _adaptBoolean(dsb.Schema dsbSchema, List<String> path) {
-    return firebase_ai.Schema(
-      firebase_ai.SchemaType.boolean,
-      description: dsbSchema.description,
-    );
+    return firebase_ai.Schema(firebase_ai.SchemaType.boolean);
   }
 
   /// Adapts a null schema.
   firebase_ai.Schema? _adaptNull(dsb.Schema dsbSchema, List<String> path) {
-    return firebase_ai.Schema(
-      firebase_ai.SchemaType.object,
-      nullable: true,
-      description: dsbSchema.description,
-    );
+    return firebase_ai.Schema(firebase_ai.SchemaType.object, nullable: true);
   }
 }
