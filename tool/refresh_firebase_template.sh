@@ -16,6 +16,9 @@
 #   3. Run the script with one of two ways:
 #      - Run `sh tool/refresh_firebase.sh`
 #      - Open in VSCode and  press `Cmd+Shift+B`.
+# Troubleshooting:
+#   1. If the script fails with "No Firebase project found",
+#      run `firebase logout` and `firebase login`.
 
 # Fast fail the script on failures.
 set -ex
