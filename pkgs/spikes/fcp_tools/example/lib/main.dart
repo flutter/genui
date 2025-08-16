@@ -43,6 +43,7 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
   late FcpSurfaceManager _surfaceManager;
   late AiClient _aiClient;
   final List<ChatMessage> _chatHistory = [];
+  final Map<ChatMessage, String> _surfaceMap = {};
   final TextEditingController _textController = TextEditingController();
 
   @override
@@ -62,10 +63,32 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     });
     _textController.clear();
 
+    final originalHistoryLength = _chatHistory.length;
     await _aiClient.generateContent(
       _chatHistory,
       Schema.object(properties: {}),
     );
+
+    if (_chatHistory.length > originalHistoryLength) {
+      final newMessages = _chatHistory.sublist(originalHistoryLength);
+      for (final message in newMessages) {
+        if (message is AssistantMessage) {
+          String? surfaceId;
+          for (final part in message.parts) {
+            if (part is ToolCallPart && part.toolName == 'set') {
+              final params =
+                  part.arguments['parameters'] as Map<String, dynamic>?;
+              surfaceId = params?['surfaceId'] as String?;
+              if (surfaceId != null) {
+                _surfaceMap[message] = surfaceId;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    setState(() {});
   }
 
   @override
@@ -76,41 +99,60 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
         body: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: _chatHistory.length,
-                itemBuilder: (context, index) {
-                  final message = _chatHistory[index];
-                  return ListTile(
-                    title: Text(
-                      message is UserMessage
-                          ? (message.parts.first as TextPart).text
-                          : (message as AssistantMessage).parts.isNotEmpty
-                          ? (message.parts.first as TextPart).text
-                          : '',
-                    ),
-                    leading: Icon(
-                      message is UserMessage ? Icons.person : Icons.computer,
-                    ),
-                  );
-                },
-              ),
-            ),
-            AnimatedBuilder(
-              animation: _surfaceManager,
-              builder: (context, child) {
-                return Column(
-                  children: _surfaceManager.listSurfaces().map((surfaceId) {
-                    final packet = _surfaceManager.getPacket(surfaceId);
-                    if (packet == null) return const SizedBox.shrink();
-                    return FcpView(
-                      packet: packet,
-                      catalog: exampleCatalog.buildCatalog(),
-                      registry: exampleCatalog,
-                      controller: _surfaceManager.getController(surfaceId),
+              child: ListView(
+                children: [
+                  ..._chatHistory.map((message) {
+                    final textContent = switch (message) {
+                      UserMessage() => message.parts
+                          .whereType<TextPart>()
+                          .map((p) => p.text)
+                          .join(),
+                      AssistantMessage() => message.parts
+                          .whereType<TextPart>()
+                          .map((p) => p.text)
+                          .join(),
+                      _ => '',
+                    };
+
+                    Widget titleWidget;
+                    if (textContent.isNotEmpty) {
+                      titleWidget = Text(textContent);
+                    } else if (message is AssistantMessage) {
+                      // Show something for non-text, non-surface assistant
+                      // messages (e.g. tool call in progress).
+                      titleWidget = const Text('...');
+                    } else {
+                      titleWidget = const SizedBox.shrink();
+                    }
+
+                    return ListTile(
+                      title: titleWidget,
+                      leading: Icon(
+                        message is UserMessage ? Icons.person : Icons.computer,
+                      ),
                     );
-                  }).toList(),
-                );
-              },
+                  }),
+                  ListenableBuilder(
+                    listenable: _surfaceManager,
+                    builder: (context, child) {
+                      return Column(
+                        children:
+                            _surfaceManager.listSurfaces().map((surfaceId) {
+                          final packet = _surfaceManager.getPacket(surfaceId);
+                          if (packet == null) return const SizedBox.shrink();
+                          return FcpView(
+                            packet: packet,
+                            catalog: exampleCatalog.buildCatalog(),
+                            registry: exampleCatalog,
+                            controller:
+                                _surfaceManager.getController(surfaceId),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
