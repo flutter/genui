@@ -1,3 +1,0 @@
-# Travel App
-
-TODO: describe

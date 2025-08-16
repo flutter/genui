@@ -4,8 +4,8 @@
 # This file should be version controlled and should not be manually edited.
 
 version:
-  revision: "30ae030c625dd3b9852c7388c10fe996dc166192"
-  channel: "master"
+  revision: "2fcda047903fbb12ff989be3f58e72398c846318"
+  channel: "main"
 
 project_type: app
 
@@ -13,26 +13,23 @@ project_type: app
 migration:
   platforms:
     - platform: root
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
+      create_revision: 2fcda047903fbb12ff989be3f58e72398c846318
+      base_revision: 2fcda047903fbb12ff989be3f58e72398c846318
     - platform: android
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
+      create_revision: 2fcda047903fbb12ff989be3f58e72398c846318
+      base_revision: 2fcda047903fbb12ff989be3f58e72398c846318
     - platform: ios
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-    - platform: linux
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
+      create_revision: 2fcda047903fbb12ff989be3f58e72398c846318
+      base_revision: 2fcda047903fbb12ff989be3f58e72398c846318
     - platform: macos
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
+      create_revision: 2fcda047903fbb12ff989be3f58e72398c846318
+      base_revision: 2fcda047903fbb12ff989be3f58e72398c846318
     - platform: web
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
+      create_revision: 2fcda047903fbb12ff989be3f58e72398c846318
+      base_revision: 2fcda047903fbb12ff989be3f58e72398c846318
     - platform: windows
-      create_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
-      base_revision: 30ae030c625dd3b9852c7388c10fe996dc166192
+      create_revision: 2fcda047903fbb12ff989be3f58e72398c846318
+      base_revision: 2fcda047903fbb12ff989be3f58e72398c846318
 
   # User provided section
 

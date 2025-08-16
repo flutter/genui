@@ -1,3 +1,0 @@
-# Generic Chat
-
-TODO: describe

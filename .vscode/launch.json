@@ -11,26 +11,8 @@
             "type": "dart",
         },
         {
-            "name": "generic_chat",
-            "cwd": "examples/generic_chat",
-            "request": "launch",
-            "type": "dart",
-        },
-        {
             "name": "minimal_genui",
             "cwd": "examples/minimal_genui",
-            "request": "launch",
-            "type": "dart",
-        },
-        {
-            "name": "travel_app_hardcoded",
-            "cwd": "pkgs/spikes/travel_app_hardcoded",
-            "request": "launch",
-            "type": "dart",
-        },
-        {
-            "name": "chat_box_tester",
-            "cwd": "pkgs/spikes/chat_box_tester",
             "request": "launch",
             "type": "dart",
         }

@@ -3,8 +3,8 @@
 # found in the LICENSE file.
 
 name: travel_app
-description: "An app that generates user interfaces on the fly using AI."
-publish_to: "none"
+description: "An app that generates travel user interfaces on the fly using AI."
+publish_to: "none" # Remove this line when we're ready to publish to pub.dev
 version: 0.1.0
 
 environment:

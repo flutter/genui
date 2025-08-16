@@ -1,8 +1,8 @@
 #!/bin/bash
-
-# Copyright 2023 The Chromium Authors. All rights reserved.
+# Copyright 2025 The Flutter Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+
 
 # Runs `pub get` for all code in the repo.
 
@@ -16,17 +16,16 @@ TOOL_DIR=$(dirname "$0")
 cd "$TOOL_DIR/.."
 
 FLUTTER_PACKAGES=(
-    "examples/generic_chat"
     "examples/travel_app"
     "examples/minimal_genui"
     "pkgs/flutter_genui"
     "pkgs/spikes/fcp_client"
-    "pkgs/spikes/travel_app_hardcoded"
     "pkgs/spikes/chat_box_tester"
 )
 
 DART_PACKAGES=(
     "pkgs/dart_schema_builder"
+    "tool/fix_copyright"
 )
 
 for pkg in "${FLUTTER_PACKAGES[@]}"; do

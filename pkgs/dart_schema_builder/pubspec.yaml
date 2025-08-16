@@ -3,8 +3,12 @@
 # found in the LICENSE file.
 
 name: dart_schema_builder
-description: A sample command-line application.
+description: A full-featured package used to build and validate JSON schemas in Dart.
 version: 0.1.0
+homepage: https://github.com/flutter/genui/pkgs/dart_schema_builder
+license: BSD-3-Clause
+issue_tracker: https://github.com/flutter/genui/issues
+publish_to: none
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
