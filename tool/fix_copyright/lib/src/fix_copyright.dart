@@ -11,6 +11,8 @@ import 'dart:io';
 
 import 'package:file/file.dart';
 
+import 'exclude_list.dart';
+
 typedef LogFunction = void Function(String);
 
 Future<int> fixCopyrights(
@@ -38,6 +40,7 @@ Future<int> fixCopyrights(
         .listSync(recursive: true)
         .whereType<File>()
         .where((File file) => extensionMap.containsKey(getExtension(file)))
+        .where((File file) => !isExcluded(file.path))
         .map((File file) => file.absolute);
   }
 
@@ -125,7 +128,9 @@ Future<int> fixCopyrights(
       stdLog(fileSystem.path.canonicalize(file.path));
     }
     if (!force) {
-      stdErr('\nRun with --force to update them.');
+      stdErr(
+        '\nRun `cd tool/fix_copyright && dart run --force` to update them.',
+      );
     } else {
       stdErr(
         '''\nAll files were given correct copyright notices, but please check them all manually. If a file had an out-of-compliance copyright that didn't match a known pattern, it may have been left intact, leaving a duplicate.''',
