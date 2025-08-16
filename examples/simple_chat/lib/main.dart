@@ -15,7 +15,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart' as fb;
+import 'package:flutter_genui/flutter_genui.dart' hide ChatMessage;
+import 'chat_message.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -46,16 +48,13 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final List<String> _messages = [];
-  late final FirebaseAIService _aiService;
+  final List<ChatMessageController> _messages = [];
+  final _genUi = GenUiForFirebaseAi(
+    firebaseChatSession: _createFirebaseChatSession(),
+    // TODO: provide widget catalog and image source
+  );
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _aiService = FirebaseAIService();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +69,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];
-                  return ListTile(title: Text(message));
+                  return ListTile(
+                    title: ChatMessage(message, onSubmitted: _sendUiRequest),
+                  );
                 },
               ),
             ),
@@ -89,12 +90,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: const InputDecoration(
                         hintText: 'Type your message...',
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      onSubmitted: (_) => _sendTextRequest(),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.send),
-                    onPressed: _sendMessage,
+                    onPressed: _sendTextRequest,
                   ),
                 ],
               ),
@@ -105,24 +106,33 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _sendMessage() async {
+  Future<void> _sendTextRequest() async {
     final text = _textController.text;
     if (text.isEmpty) {
       return;
     }
 
     setState(() {
-      _messages.add('You: $text');
+      _messages.add(ChatMessageController(text: 'You: $text'));
     });
 
     _textController.clear();
     _scrollToBottom();
 
     setState(() => _isLoading = true);
-    final response = await _aiService.sendMessageStream(text);
-
+    final response = await _genUi.sendTextRequest(text);
     setState(() {
-      _messages.add('Bot: $response');
+      _messages.add(ChatMessageController(genUiResponse: response));
+      _isLoading = false;
+    });
+    _scrollToBottom();
+  }
+
+  Future<void> _sendUiRequest(UserSelection selection) async {
+    setState(() => _isLoading = true);
+    final response = await _genUi.sendRequestFromGenUi(selection);
+    setState(() {
+      _messages.add(ChatMessageController(genUiResponse: response));
       _isLoading = false;
     });
     _scrollToBottom();
@@ -141,18 +151,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-class FirebaseAIService {
-  late final GenerativeModel _model;
-  late final ChatSession _chat;
-
-  FirebaseAIService() {
-    _model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
-    _chat = _model.startChat();
-  }
-
-  Future<String> sendMessageStream(String message) async {
-    final prompt = Content.text(message);
-    final response = await _chat.sendMessage(prompt);
-    return response.text ?? 'Sorry, I could not process that.';
-  }
+fb.ChatSession _createFirebaseChatSession() {
+  final model = fb.FirebaseAI.googleAI().generativeModel(
+    model: 'gemini-2.5-flash',
+  );
+  return model.startChat();
 }
