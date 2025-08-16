@@ -5,14 +5,30 @@
 import 'package:firebase_ai/firebase_ai.dart' as fb;
 import 'package:flutter/widgets.dart';
 
+import '../ai_client/gemini_ai_client.dart';
+import '../core/genui_manager.dart';
+
 /// Facade for the Flutter Gen UI package, tailored for Firebase AI integration.
 class GenUiForFirebaseAi {
-  // TODO: add flexibility for more complicated stories.
+  late final GenUiManager _manager;
+
   GenUiForFirebaseAi({
     required fb.ChatSession firebaseChatSession,
     String? generalPrompt,
     Object? widgetCatalog,
-  });
+  }) {
+    // TODO: use provided firebaseChatSession.
+    _manager = GenUiManager(
+      aiClient: GeminiAiClient(
+        systemInstruction:
+            '''You are a helpful assistant who speaks in the style of a pirate.
+
+    The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+
+    ''',
+      ),
+    );
+  }
 
   Future<GenUiResponse> sendTextRequest(String prompt) async {
     throw UnimplementedError();
