@@ -18,6 +18,7 @@ cd "$TOOL_DIR/.."
 FLUTTER_PACKAGES=(
     "examples/travel_app"
     "examples/minimal_genui"
+    "examples/simple_chat"
     "pkgs/flutter_genui"
     "pkgs/spikes/fcp_client"
     "pkgs/spikes/chat_box_tester"
