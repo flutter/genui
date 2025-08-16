@@ -99,9 +99,13 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
         body: Column(
           children: [
             Expanded(
-              child: ListView(
-                children: [
-                  ..._chatHistory.map((message) {
+              child: ListenableBuilder(
+                listenable: _surfaceManager,
+                builder: (context, child) {
+                  final children = <Widget>[];
+                  final renderedSurfaces = <String>{};
+                  for (final message in _chatHistory) {
+                    final surfaceId = _surfaceMap[message];
                     final textContent = switch (message) {
                       UserMessage() => message.parts
                           .whereType<TextPart>()
@@ -117,7 +121,8 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
                     Widget titleWidget;
                     if (textContent.isNotEmpty) {
                       titleWidget = Text(textContent);
-                    } else if (message is AssistantMessage) {
+                    } else if (surfaceId == null &&
+                        message is AssistantMessage) {
                       // Show something for non-text, non-surface assistant
                       // messages (e.g. tool call in progress).
                       titleWidget = const Text('...');
@@ -125,33 +130,62 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
                       titleWidget = const SizedBox.shrink();
                     }
 
-                    return ListTile(
-                      title: titleWidget,
-                      leading: Icon(
-                        message is UserMessage ? Icons.person : Icons.computer,
+                    Widget? fcpView;
+                    if (surfaceId != null) {
+                      final packet = _surfaceManager.getPacket(surfaceId);
+                      if (packet != null) {
+                        fcpView = FcpView(
+                          packet: packet,
+                          catalog: exampleCatalog.buildCatalog(),
+                          registry: exampleCatalog,
+                          controller: _surfaceManager.getController(surfaceId),
+                        );
+                        renderedSurfaces.add(surfaceId);
+                      }
+                    }
+                    children.add(
+                      ListTile(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            titleWidget,
+                            if (fcpView != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: fcpView,
+                              ),
+                          ],
+                        ),
+                        leading: Icon(
+                          message is UserMessage
+                              ? Icons.person
+                              : Icons.computer,
+                        ),
                       ),
                     );
-                  }),
-                  ListenableBuilder(
-                    listenable: _surfaceManager,
-                    builder: (context, child) {
-                      return Column(
-                        children:
-                            _surfaceManager.listSurfaces().map((surfaceId) {
-                          final packet = _surfaceManager.getPacket(surfaceId);
-                          if (packet == null) return const SizedBox.shrink();
-                          return FcpView(
-                            packet: packet,
-                            catalog: exampleCatalog.buildCatalog(),
-                            registry: exampleCatalog,
-                            controller:
-                                _surfaceManager.getController(surfaceId),
-                          );
-                        }).toList(),
+                  }
+
+                  for (final surfaceId in _surfaceManager.listSurfaces()) {
+                    if (renderedSurfaces.contains(surfaceId)) {
+                      continue;
+                    }
+                    final packet = _surfaceManager.getPacket(surfaceId);
+                    if (packet != null) {
+                      children.add(
+                        FcpView(
+                          packet: packet,
+                          catalog: exampleCatalog.buildCatalog(),
+                          registry: exampleCatalog,
+                          controller: _surfaceManager.getController(surfaceId),
+                        ),
                       );
-                    },
-                  ),
-                ],
+                    }
+                  }
+
+                  return ListView(
+                    children: children,
+                  );
+                },
               ),
             ),
             Padding(
