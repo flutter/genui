@@ -17,7 +17,7 @@ class GenUiForFirebaseAi {
     String? generalPrompt,
     Object? widgetCatalog,
   }) {
-    // TODO: use provided firebaseChatSession.
+    // TODO: use the provided firebaseChatSession.
     _manager = GenUiManager(
       aiClient: GeminiAiClient(
         systemInstruction:
