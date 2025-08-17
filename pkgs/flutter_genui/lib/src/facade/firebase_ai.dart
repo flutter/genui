@@ -11,11 +11,13 @@ import '../core/genui_manager.dart';
 /// Facade for the Flutter Gen UI package, tailored for Firebase AI integration.
 class GenUiForFirebaseAi {
   late final GenUiManager _manager;
+  final List<String> pinnedWidgets;
 
   GenUiForFirebaseAi({
     required fb.ChatSession firebaseChatSession,
     String? generalPrompt,
     Object? widgetCatalog,
+    this.pinnedWidgets = const [],
   }) {
     // TODO: use the provided firebaseChatSession.
     _manager = GenUiManager(
@@ -40,10 +42,10 @@ class GenUiForFirebaseAi {
 }
 
 class GenUiResponse {
-  final GenUiBuilder builder;
-  final String responseId;
+  final GenUiBuilder? chatMessage;
+  final Map<String, GenUiBuilder> pinnedWidgets;
 
-  GenUiResponse({required this.builder, required this.responseId});
+  GenUiResponse(this.chatMessage, this.pinnedWidgets);
 }
 
 /// A builder function for generating UI components.
