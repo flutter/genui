@@ -27,7 +27,7 @@ class ChatMessage extends StatefulWidget {
 class _ChatMessageState extends State<ChatMessage> {
   @override
   Widget build(BuildContext context) {
-    final builder = widget.controller.genUiResponse?.builder;
+    final builder = widget.controller.genUiResponse?.chatMessage;
     if (builder == null) {
       return Text(widget.controller.text ?? '');
     }
