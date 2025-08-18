@@ -15,6 +15,16 @@ import 'app_host.dart';
 import 'catalog.dart';
 import 'firebase_options.dart';
 
+String _extractText(ChatMessage message) {
+  return switch (message) {
+    UserMessage(:final parts) =>
+      parts.whereType<TextPart>().map((p) => p.text).join(),
+    AssistantMessage(:final parts) =>
+      parts.whereType<TextPart>().map((p) => p.text).join(),
+    _ => '',
+  };
+}
+
 Future<void> main() async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
@@ -41,9 +51,8 @@ class FcpToolsExample extends StatefulWidget {
 
 class _FcpToolsExampleState extends State<FcpToolsExample> {
   late FcpSurfaceManager _surfaceManager;
+  late ConversationHistoryManager _conversationHistoryManager;
   late AiClient _aiClient;
-  final List<ChatMessage> _chatHistory = [];
-  final Map<ChatMessage, String> _surfaceMap = {};
   final TextEditingController _textController = TextEditingController();
 
   @override
@@ -51,6 +60,7 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     super.didChangeDependencies();
     final provider = FcpToolsProvider.of(context);
     _surfaceManager = provider.surfaceManager;
+    _conversationHistoryManager = provider.conversationHistoryManager;
     _aiClient = provider.aiClient;
   }
 
@@ -58,37 +68,23 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     final prompt = _textController.text;
     if (prompt.isEmpty) return;
 
-    setState(() {
-      _chatHistory.add(UserMessage.text(prompt));
-    });
+    _conversationHistoryManager.addMessage(UserMessage.text(prompt));
     _textController.clear();
 
-    final originalHistoryLength = _chatHistory.length;
+    // Create a copy of the history for the AI client to modify.
+    final history = _conversationHistoryManager.messages.toList();
+    final originalHistoryLength = history.length;
     await _aiClient.generateContent(
-      _chatHistory,
+      history,
       Schema.object(properties: {}),
     );
 
-    if (_chatHistory.length > originalHistoryLength) {
-      final newMessages = _chatHistory.sublist(originalHistoryLength);
+    if (history.length > originalHistoryLength) {
+      final newMessages = history.sublist(originalHistoryLength);
       for (final message in newMessages) {
-        if (message is AssistantMessage) {
-          String? surfaceId;
-          for (final part in message.parts) {
-            if (part is ToolCallPart && part.toolName == 'set') {
-              final params =
-                  part.arguments['parameters'] as Map<String, dynamic>?;
-              surfaceId = params?['surfaceId'] as String?;
-              if (surfaceId != null) {
-                _surfaceMap[message] = surfaceId;
-                break;
-              }
-            }
-          }
-        }
+        _conversationHistoryManager.addMessage(message);
       }
     }
-    setState(() {});
   }
 
   @override
@@ -100,90 +96,34 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
           children: [
             Expanded(
               child: ListenableBuilder(
-                listenable: _surfaceManager,
+                listenable: _conversationHistoryManager,
                 builder: (context, child) {
-                  final children = <Widget>[];
-                  final renderedSurfaces = <String>{};
-                  for (final message in _chatHistory) {
-                    final surfaceId = _surfaceMap[message];
-                    final textContent = switch (message) {
-                      UserMessage() => message.parts
-                          .whereType<TextPart>()
-                          .map((p) => p.text)
-                          .join(),
-                      AssistantMessage() => message.parts
-                          .whereType<TextPart>()
-                          .map((p) => p.text)
-                          .join(),
-                      _ => '',
-                    };
-
-                    Widget titleWidget;
-                    if (textContent.isNotEmpty) {
-                      titleWidget = Text(textContent);
-                    } else if (surfaceId == null &&
-                        message is AssistantMessage) {
-                      // Show something for non-text, non-surface assistant
-                      // messages (e.g. tool call in progress).
-                      titleWidget = const Text('...');
-                    } else {
-                      titleWidget = const SizedBox.shrink();
-                    }
-
-                    Widget? fcpView;
-                    if (surfaceId != null) {
-                      final packet = _surfaceManager.getPacket(surfaceId);
-                      if (packet != null) {
-                        fcpView = FcpView(
-                          packet: packet,
-                          catalog: exampleCatalog.buildCatalog(),
-                          registry: exampleCatalog,
-                          controller: _surfaceManager.getController(surfaceId),
-                        );
-                        renderedSurfaces.add(surfaceId);
-                      }
-                    }
-                    children.add(
-                      ListTile(
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            titleWidget,
-                            if (fcpView != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: fcpView,
-                              ),
-                          ],
-                        ),
-                        leading: Icon(
-                          message is UserMessage
-                              ? Icons.person
-                              : Icons.computer,
-                        ),
-                      ),
-                    );
-                  }
-
-                  for (final surfaceId in _surfaceManager.listSurfaces()) {
-                    if (renderedSurfaces.contains(surfaceId)) {
-                      continue;
-                    }
-                    final packet = _surfaceManager.getPacket(surfaceId);
-                    if (packet != null) {
-                      children.add(
-                        FcpView(
-                          packet: packet,
-                          catalog: exampleCatalog.buildCatalog(),
-                          registry: exampleCatalog,
-                          controller: _surfaceManager.getController(surfaceId),
-                        ),
-                      );
-                    }
-                  }
-
-                  return ListView(
-                    children: children,
+                  final history = _conversationHistoryManager.history;
+                  return ListView.builder(
+                    itemCount: history.length,
+                    itemBuilder: (context, index) {
+                      final entry = history[index];
+                      return switch (entry) {
+                        MessageEntry(:final message) => ListTile(
+                            leading: Icon(
+                              message is UserMessage
+                                  ? Icons.person
+                                  : Icons.computer,
+                            ),
+                            title: Text(_extractText(message)),
+                          ),
+                        SurfaceEntry(:final surfaceId) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FcpView(
+                              packet: _surfaceManager.getPacket(surfaceId)!,
+                              catalog: exampleCatalog.buildCatalog(),
+                              registry: exampleCatalog,
+                              controller:
+                                  _surfaceManager.getController(surfaceId),
+                            ),
+                          ),
+                      };
+                    },
                   );
                 },
               ),
@@ -198,6 +138,7 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
                       decoration: const InputDecoration(
                         hintText: 'Enter a prompt...',
                       ),
+                      onSubmitted: (_) => _sendPrompt(),
                     ),
                   ),
                   IconButton(

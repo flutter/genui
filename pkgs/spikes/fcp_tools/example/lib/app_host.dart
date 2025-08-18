@@ -21,12 +21,14 @@ class AppHost extends StatefulWidget {
 
 class _AppHostState extends State<AppHost> {
   late final FcpSurfaceManager _surfaceManager;
+  late final ConversationHistoryManager _conversationHistoryManager;
   late final AiClient _aiClient;
 
   @override
   void initState() {
     super.initState();
     _surfaceManager = FcpSurfaceManager();
+    _conversationHistoryManager = ConversationHistoryManager(_surfaceManager);
     final manageUiTool = ManageUiTool(_surfaceManager);
     final widgetCatalog = exampleCatalog.buildCatalog();
     Logger('AppHost').info('Widget Catalog: ${widgetCatalog.toJson()}');
@@ -57,6 +59,7 @@ class _AppHostState extends State<AppHost> {
   @override
   void dispose() {
     _surfaceManager.dispose();
+    _conversationHistoryManager.dispose();
     super.dispose();
   }
 
@@ -64,6 +67,7 @@ class _AppHostState extends State<AppHost> {
   Widget build(BuildContext context) {
     return FcpToolsProvider(
       surfaceManager: _surfaceManager,
+      conversationHistoryManager: _conversationHistoryManager,
       aiClient: _aiClient,
       child: widget.child,
     );
@@ -75,15 +79,17 @@ class FcpToolsProvider extends InheritedWidget {
     super.key,
     required this.surfaceManager,
     required this.aiClient,
+    required this.conversationHistoryManager,
     required super.child,
   });
 
   final FcpSurfaceManager surfaceManager;
+  final ConversationHistoryManager conversationHistoryManager;
   final AiClient aiClient;
 
   static FcpToolsProvider of(BuildContext context) {
-    final FcpToolsProvider? result = context
-        .dependOnInheritedWidgetOfExactType<FcpToolsProvider>();
+    final FcpToolsProvider? result =
+        context.dependOnInheritedWidgetOfExactType<FcpToolsProvider>();
     assert(result != null, 'No FcpToolsProvider found in context');
     return result!;
   }
@@ -91,6 +97,7 @@ class FcpToolsProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(FcpToolsProvider oldWidget) {
     return surfaceManager != oldWidget.surfaceManager ||
-        aiClient != oldWidget.aiClient;
+        aiClient != oldWidget.aiClient ||
+        conversationHistoryManager != oldWidget.conversationHistoryManager;
   }
 }
