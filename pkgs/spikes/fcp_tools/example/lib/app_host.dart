@@ -29,21 +29,24 @@ class _AppHostState extends State<AppHost> {
     super.initState();
     _surfaceManager = FcpSurfaceManager();
     _conversationHistoryManager = ConversationHistoryManager(_surfaceManager);
-    final manageUiTool = ManageUiTool(_surfaceManager);
     final widgetCatalog = exampleCatalog.buildCatalog();
     Logger('AppHost').info('Widget Catalog: ${widgetCatalog.toJson()}');
-    final getWidgetCatalogTool = GetWidgetCatalogTool(widgetCatalog);
     _aiClient = GeminiAiClient(
       systemInstruction: 'You are a helpful AI assistant that builds user '
           'interfaces. The user will provide the current state of all UI '
           'surfaces at the beginning of the conversation. Use this to inform '
           'your responses. When a user asks for a UI, you MUST first call the '
-          '`get_widget_catalog` tool to see the available widgets. Then, you '
-          'MUST use the `manage_ui` tool to build the UI, and you MUST ONLY '
-          'use the widget types provided in the catalog. When using the '
-          '`patchLayout` tool, each operation in the `operations` list MUST '
-          'have an `op` property.',
-      tools: [...manageUiTool.tools, getWidgetCatalogTool.get],
+          '`get_widget_catalog` tool to see the available widgets.'
+          'To create a new UI surface, use the `set` tool.'
+          'To modify an existing UI surface, use the `patchLayout` or '
+          '`patchState` tools.'
+          'You MUST ONLY use the widget types provided in the catalog. When '
+          'using the `patchLayout` tool, each operation in the `operations` '
+          'list MUST have an `op` property.',
+      tools: [
+        ...ManageUiTool(_surfaceManager).tools,
+        GetWidgetCatalogTool(widgetCatalog).get
+      ],
       loggingCallback: (severity, message) {
         Logger('AiClient').log(switch (severity) {
           AiLoggingSeverity.trace => Level.FINEST,
