@@ -13,7 +13,7 @@ void main() {
     late Map<String, LayoutNode> nodeMap;
 
     setUp(() {
-      patcher = LayoutPatcher();
+      patcher = const LayoutPatcher();
       nodeMap = {
         'root': LayoutNode.fromMap({
           'id': 'root',

@@ -193,7 +193,7 @@ class _LayoutEngine with ChangeNotifier {
   final WidgetCatalogRegistry registry;
   final WidgetCatalog catalog;
   final BindingProcessor bindingProcessor;
-  final LayoutPatcher _patcher = LayoutPatcher();
+  final LayoutPatcher _patcher = const LayoutPatcher(strict: false);
 
   late Layout _layout;
   late Map<String, LayoutNode> _nodesById;

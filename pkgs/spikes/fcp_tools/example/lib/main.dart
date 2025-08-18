@@ -44,6 +44,7 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
   late ConversationHistoryManager _conversationHistoryManager;
   late AiClient _aiClient;
   final TextEditingController _textController = TextEditingController();
+  bool _isWorking = false;
 
   @override
   void didChangeDependencies() {
@@ -59,25 +60,37 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     if (prompt.isEmpty) return;
     _textController.clear();
 
+    setState(() {
+      _isWorking = true;
+    });
+
     _conversationHistoryManager.addMessage(UserMessage([TextPart(prompt)]));
     final messages = _conversationHistoryManager.messages;
 
     // // Create a copy of the history for the AI client to modify.
     final originalMessageCount = messages.length;
-    final response = await _aiClient.generateContent<String>(
-      _conversationHistoryManager.messages,
-      Schema.string(),
-    );
-    if (response != null) {
-      _conversationHistoryManager.addMessage(
-        AssistantMessage([TextPart(response)]),
+    try {
+      final response = await _aiClient.generateContent<String>(
+        _conversationHistoryManager.messages,
+        Schema.string(),
       );
-    }
+      if (response != null) {
+        _conversationHistoryManager.addMessage(
+          AssistantMessage([TextPart(response)]),
+        );
+      }
 
-    if (messages.length > originalMessageCount) {
-      final newMessages = messages.sublist(originalMessageCount);
-      for (final message in newMessages) {
-        _conversationHistoryManager.addMessage(message);
+      if (messages.length > originalMessageCount) {
+        final newMessages = messages.sublist(originalMessageCount);
+        for (final message in newMessages) {
+          _conversationHistoryManager.addMessage(message);
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+        });
       }
     }
   }
@@ -134,13 +147,24 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
                       decoration: const InputDecoration(
                         hintText: 'Enter a prompt...',
                       ),
-                      onSubmitted: (_) => _sendPrompt(),
+                      onSubmitted: _isWorking ? null : (_) => _sendPrompt(),
+                      enabled: !_isWorking,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: _sendPrompt,
-                  ),
+                  if (_isWorking)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _sendPrompt,
+                    ),
                 ],
               ),
             ),

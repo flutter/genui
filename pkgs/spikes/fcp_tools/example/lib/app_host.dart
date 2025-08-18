@@ -32,18 +32,16 @@ class _AppHostState extends State<AppHost> {
     final widgetCatalog = exampleCatalog.buildCatalog();
     Logger('AppHost').info('Widget Catalog: ${widgetCatalog.toJson()}');
     _aiClient = GeminiAiClient(
-      systemInstruction:
-          'You are a helpful AI assistant that builds user '
-          'interfaces. The user will provide the current state of all UI '
-          'surfaces at the beginning of the conversation. Use this to inform '
-          'your responses. When a user asks for a UI, you MUST first call the '
-          '`get_widget_catalog` tool to see the available widgets.'
-          'To create a new UI surface, use the `set` tool.'
-          'To modify an existing UI surface, use the `patchLayout` or '
-          '`patchState` tools.'
-          'You MUST ONLY use the widget types provided in the catalog. When '
-          'using the `patchLayout` tool, each operation in the `operations` '
-          'list MUST have an `op` property.',
+      systemInstruction: '''
+You are a helpful AI assistant that builds user interfaces. When a user asks for a UI, and you don't already know what the widget catalog contains, you MUST first call the `get_widget_catalog` tool to see the available widgets. You MUST ONLY use the widget types provided in the catalog.
+
+To create a new UI surface, use the `ui.set` tool. To modify an existing UI surface, use the `ui.patchLayout` or `ui.patchState` tools, as appropriate.
+
+When using the `ui` tool, you must only refer to surfaces that you know exist, either because you created them, or because you have discovered them with the `ui.list` tool.
+
+Pay attention to the most recent UI state returned from the `ui.set` or `ui.patchLayout` or `ui.patchState` tools.
+
+When using the `ui.patchLayout` tool, each operation in the `patches` list MUST have an `op` property.''',
       tools: [
         ...ManageUiTool(_surfaceManager).tools,
         GetWidgetCatalogTool(widgetCatalog).get,

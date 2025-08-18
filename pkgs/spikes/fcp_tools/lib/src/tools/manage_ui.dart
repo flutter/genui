@@ -22,7 +22,7 @@ Map<String, Object?> _getSurfacesState(FcpSurfaceManager surfaceManager) {
       };
     }
   }
-  return {'surfaces': surfaceData};
+  return {'current_ui': surfaceData};
 }
 
 Map<String, Object?> _reconstructMap(List<Map<String, Object?>> properties) {
@@ -37,6 +37,25 @@ Map<String, Object?> _reconstructBindings(List<Map<String, Object?>> bindings) {
     for (final binding in bindings)
       binding['name'] as String: {'path': binding['path']},
   };
+}
+
+List<Map<String, Object?>> _deconstructMap(Map<String, Object?>? map) {
+  if (map == null) {
+    return [];
+  }
+  return map.entries.map((e) => {'name': e.key, 'value': e.value}).toList();
+}
+
+List<Map<String, Object?>> _deconstructBindings(
+  Map<String, Object?>? bindings,
+) {
+  if (bindings == null) {
+    return [];
+  }
+  return bindings.entries.map((e) {
+    final binding = e.value as Map<String, Object?>;
+    return {'name': e.key, 'path': binding['path']};
+  }).toList();
 }
 
 /// A tool for managing the UI of a surface.
@@ -63,6 +82,9 @@ class ManageUiTool {
         'will replace any existing UI on that surface.',
     parameters: Schema.object(
       properties: {
+        'reason': Schema.string(
+          description: 'A short reason why you are calling this tool.',
+        ),
         'surfaceId': Schema.string(
           description:
               'The ID of the target surface. This is a unique '
@@ -72,7 +94,7 @@ class ManageUiTool {
         'layout': fcpLayoutSchema,
         'state': fcpStateSchema,
       },
-      required: ['surfaceId', 'layout', 'state'],
+      required: ['surfaceId', 'layout', 'state', 'reason'],
     ),
     invokeFunction: (args) async {
       final surfaceId = args['surfaceId'] as String?;
@@ -113,7 +135,11 @@ class ManageUiTool {
       }
       final packet = DynamicUIPacket(layout: layout, state: state);
       surfaceManager.setSurface(surfaceId, packet);
-      return {'success': true, ..._getSurfacesState(surfaceManager)};
+      return {
+        'success': true,
+        'outcome': 'Surface $surfaceId was set.',
+        ..._getSurfacesState(surfaceManager),
+      };
     },
   );
 
@@ -134,9 +160,23 @@ class ManageUiTool {
       final surfaceId = args['surfaceId'] as String;
       _log.info('Invoking "get" on surface "$surfaceId".');
       final packet = surfaceManager.getPacket(surfaceId);
+      if (packet == null) {
+        return {'layout': {}, 'state': []};
+      }
+      final layoutJson = packet.layout.toJson();
+      final nodes = (layoutJson['nodes'] as List<Object?>).map((node) {
+        final nodeMap = node as Map<String, Object?>;
+        final properties = nodeMap['properties'] as Map<String, Object?>?;
+        final bindings = nodeMap['bindings'] as Map<String, Object?>?;
+        return {
+          ...nodeMap,
+          'properties': _deconstructMap(properties),
+          'bindings': _deconstructBindings(bindings),
+        };
+      }).toList();
       return {
-        'layout': packet?.layout.toJson() ?? {},
-        'state': packet?.state ?? {},
+        'layout': {'root': layoutJson['root'], 'nodes': nodes},
+        'state': _deconstructMap(packet.state),
       };
     },
   );
@@ -182,6 +222,9 @@ class ManageUiTool {
         ' specific surface.',
     parameters: Schema.object(
       properties: {
+        'reason': Schema.string(
+          description: 'A short reason why you are calling this tool.',
+        ),
         'surfaceId': Schema.string(
           description: 'The ID of the target surface.',
         ),
@@ -192,7 +235,7 @@ class ManageUiTool {
           items: jsonPatchOperationSchema,
         ),
       },
-      required: ['surfaceId', 'patches'],
+      required: ['surfaceId', 'patches', 'reason'],
     ),
     invokeFunction: (args) async {
       final surfaceId = args['surfaceId'] as String;
@@ -202,7 +245,11 @@ class ManageUiTool {
       );
       final patches = LayoutUpdate.fromMap({'patches': args['patches']});
       surfaceManager.getController(surfaceId)?.patchLayout(patches);
-      return {'success': true, ..._getSurfacesState(surfaceManager)};
+      return {
+        'success': true,
+        'outcome': 'Layout for $surfaceId was patched.',
+        ..._getSurfacesState(surfaceManager),
+      };
     },
   );
 
@@ -232,7 +279,11 @@ class ManageUiTool {
       _log.info('Invoking "patchState" on surface "$surfaceId".');
       final patches = StateUpdate.fromMap({'patches': args['patches']});
       surfaceManager.getController(surfaceId)?.patchState(patches);
-      return {'success': true, ..._getSurfacesState(surfaceManager)};
+      return {
+        'success': true,
+        'outcome': 'State for $surfaceId was patched.',
+        ..._getSurfacesState(surfaceManager),
+      };
     },
   );
 

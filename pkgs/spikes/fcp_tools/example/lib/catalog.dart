@@ -26,20 +26,41 @@ final textCatalogItem = CatalogItem(
 final textFieldCatalogItem = CatalogItem(
   name: 'TextField',
   definition: WidgetDefinition(
-    properties:
-        Schema.object(
-              properties: {
-                'hintText': Schema.string(
-                  description:
-                      'The hint text to display in '
-                      'the text field when it is empty.',
-                ),
-              },
-            )
-            as ObjectSchema,
+    properties: Schema.object(
+      properties: {
+        'hintText': Schema.string(
+          description: 'The hint text to display in '
+              'the text field when it is empty.',
+        ),
+        'value': Schema.string(
+          description: 'The current value of the text field.',
+        ),
+      },
+    ) as ObjectSchema,
+    events: Schema.object(
+      properties: {
+        'onChanged': Schema.object(
+          properties: {
+            'value': Schema.string(
+              description: 'The new value of the text field.',
+            ),
+          },
+        ),
+      },
+    ) as ObjectSchema,
   ),
   builder: (context, node, properties, children) {
     return TextField(
+      controller: TextEditingController(text: properties['value'] as String?),
+      onChanged: (value) {
+        FcpProvider.of(context)?.onEvent?.call(
+              EventPayload(
+                sourceNodeId: node.id,
+                eventName: 'onChanged',
+                arguments: {'value': value},
+              ),
+            );
+      },
       decoration: InputDecoration(hintText: properties['hintText'] as String?),
     );
   },

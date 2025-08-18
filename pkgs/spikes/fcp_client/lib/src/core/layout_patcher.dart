@@ -8,6 +8,10 @@ import '../models/models.dart';
 
 /// A service that applies layout updates to a map of [LayoutNode]s.
 class LayoutPatcher {
+  const LayoutPatcher({this.strict = true});
+
+  final bool strict;
+
   /// Applies a [LayoutUpdate] payload to the given [nodeMap].
   ///
   /// The operations are applied sequentially using the JSON Patch (RFC 6902)
@@ -19,7 +23,7 @@ class LayoutPatcher {
     final patchedJson = JsonPatch.apply(
       layoutJson,
       update.patches,
-      strict: true,
+      strict: strict,
     );
     final patchedNodes = (patchedJson['nodes'] as Map<String, Object?>).map(
       (k, v) => MapEntry(k, LayoutNode.fromMap(v as Map<String, Object?>)),
