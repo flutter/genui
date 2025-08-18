@@ -72,7 +72,7 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     _textController.clear();
 
     // Create a copy of the history for the AI client to modify.
-    final history = _conversationHistoryManager.messages.toList();
+    final history = _conversationHistoryManager.historyForAi.toList();
     final originalHistoryLength = history.length;
     await _aiClient.generateContent(
       history,

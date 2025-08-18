@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:ai_client/ai_client.dart';
 import 'package:flutter/foundation.dart';
 
@@ -78,6 +80,35 @@ class ConversationHistoryManager with ChangeNotifier {
       }
     }
 
+    return result;
+  }
+
+  /// Returns the chat history formatted for the AI, including the current
+  /// state of all surfaces.
+  List<ChatMessage> get historyForAi {
+    final result = <ChatMessage>[];
+    // Prepend with current state of all surfaces.
+    final surfaces = _surfaceManager.listSurfaces();
+    if (surfaces.isNotEmpty) {
+      final parts = <MessagePart>[];
+      parts.add(const TextPart(
+          'This is the current state of the UI. Use this as context for the '
+          'user\'s request.'));
+      for (final surfaceId in surfaces) {
+        final packet = _surfaceManager.getPacket(surfaceId);
+        if (packet != null) {
+          final packetJson = jsonEncode({
+            'layout': packet.layout.toJson(),
+            'state': packet.state,
+          });
+          parts.add(TextPart('Surface "$surfaceId":\n' 
+              '```json\n$packetJson\n```'));
+        }
+      }
+      // This should probably be a user message to provide context.
+      result.add(UserMessage(parts));
+    }
+    result.addAll(_messages);
     return result;
   }
 
