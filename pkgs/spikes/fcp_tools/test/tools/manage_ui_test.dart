@@ -50,34 +50,39 @@ void main() {
     });
 
     test('get returns the correct data', () async {
-      final layout = Layout(root: 'root', nodes: []);
+      final layout = Layout(root: 'root', nodes: const []);
       final state = {'key': 'value'};
       final packet = DynamicUIPacket(layout: layout, state: state);
       manager.setSurface('test', packet);
 
       final result = await tool.get.invoke({'surfaceId': 'test'});
-      expect(result['layout'], layout.toJson());
-      expect(result['state'], state);
+      expect(result['layout'], {
+        'root': 'root',
+        'nodes': [],
+      });
+      expect(result['state'], [
+        {'name': 'key', 'value': 'value'}
+      ]);
     });
 
     test('get returns empty data for non-existent surface', () async {
       final result = await tool.get.invoke({'surfaceId': 'test'});
       expect(result['layout'], <String, Object?>{});
-      expect(result['state'], <String, Object?>{});
+      expect(result['state'], <Object?>[]);
     });
 
     test('list returns the correct data', () async {
       manager.setSurface(
         'test1',
         DynamicUIPacket(
-          layout: Layout(root: 'root', nodes: []),
+          layout: Layout(root: 'root', nodes: const []),
           state: {},
         ),
       );
       manager.setSurface(
         'test2',
         DynamicUIPacket(
-          layout: Layout(root: 'root', nodes: []),
+          layout: Layout(root: 'root', nodes: const []),
           state: {},
         ),
       );
@@ -89,7 +94,7 @@ void main() {
       manager.setSurface(
         'test',
         DynamicUIPacket(
-          layout: Layout(root: 'root', nodes: []),
+          layout: Layout(root: 'root', nodes: const []),
           state: {},
         ),
       );
@@ -98,13 +103,22 @@ void main() {
       expect(manager.getController('test'), isNull);
     });
 
-    test('patchLayout calls the controller', () async {
+    test('patchLayout calls the controller with widget ID', () async {
       final mockController = MockFcpViewController();
       manager.controllers['test'] = mockController;
+      manager.packets['test'] = DynamicUIPacket(
+        layout: Layout(
+          root: 'root',
+          nodes: [
+            LayoutNode(id: 'root', type: 'Column', properties: const {}),
+          ],
+        ),
+        state: const {},
+      );
       final patches = [
         {
           'op': 'add',
-          'path': '/nodes/-',
+          'path': '/nodes/root/properties/children/-',
           'value': {'id': 'new', 'type': 'Text'},
         },
       ];
@@ -113,7 +127,44 @@ void main() {
         'patches': patches,
       });
       expect(mockController.patchLayoutCallCount, 1);
-      expect(mockController.lastLayoutUpdate!.patches.first['op'], 'add');
+      final lastPatches = mockController.lastLayoutUpdate!.patches;
+      expect(lastPatches.first['op'], 'add');
+      expect(
+        lastPatches.first['path'],
+        '/nodes/0/properties/children/-',
+      );
+    });
+
+    test('patchLayout calls the controller with index', () async {
+      final mockController = MockFcpViewController();
+      manager.controllers['test'] = mockController;
+      manager.packets['test'] = DynamicUIPacket(
+        layout: Layout(
+          root: 'root',
+          nodes: [
+            LayoutNode(id: 'root', type: 'Column', properties: const {}),
+          ],
+        ),
+        state: const {},
+      );
+      final patches = [
+        {
+          'op': 'add',
+          'path': '/nodes/0/properties/children/-',
+          'value': {'id': 'new', 'type': 'Text'},
+        },
+      ];
+      await tool.patchLayout.invoke({
+        'surfaceId': 'test',
+        'patches': patches,
+      });
+      expect(mockController.patchLayoutCallCount, 1);
+      final lastPatches = mockController.lastLayoutUpdate!.patches;
+      expect(lastPatches.first['op'], 'add');
+      expect(
+        lastPatches.first['path'],
+        '/nodes/0/properties/children/-',
+      );
     });
 
     test('patchState calls the controller', () async {
