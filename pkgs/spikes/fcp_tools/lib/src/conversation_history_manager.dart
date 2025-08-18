@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
 
 import 'package:ai_client/ai_client.dart';
 import 'package:flutter/foundation.dart';
@@ -82,45 +81,6 @@ class ConversationHistoryManager with ChangeNotifier {
 
     return result;
   }
-
-  // /// Returns the chat history formatted for the AI, including the current
-  // /// state of all surfaces as an additional part in the last user message.
-  // List<ChatMessage> get historyForAi {
-  //   final result = <ChatMessage>[];
-  //   // Prepend with current state of all surfaces.
-  //   final surfaces = _surfaceManager.listSurfaces();
-  //   result.addAll(_messages);
-  //   final lastUser = result.lastIndexWhere((message) => message is UserMessage);
-  //   if (surfaces.isNotEmpty) {
-  //     final parts = <MessagePart>[];
-  //     parts.add(const TextPart('This is the current state of the UI:'));
-  //     for (final surfaceId in surfaces) {
-  //       final packet = _surfaceManager.getPacket(surfaceId);
-  //       if (packet != null) {
-  //         final packetJson = json.encode({
-  //           'layout': packet.layout.toJson(),
-  //           'state': packet.state,
-  //         });
-  //         parts.add(
-  //           TextPart(
-  //             'Surface "$surfaceId":\n'
-  //             '```json\n$packetJson\n```',
-  //           ),
-  //         );
-  //       }
-  //     }
-  //     if (lastUser != -1) {
-  //       final replacement = UserMessage([
-  //         ...(result[lastUser] as UserMessage).parts,
-  //         ...parts,
-  //       ]);
-  //       result.replaceRange(lastUser, lastUser, [replacement]);
-  //     } else {
-  //       result.add(UserMessage(parts));
-  //     }
-  //   }
-  //   return result;
-  // }
 
   void _surfaceManagerListener() {
     final newSurfaces = _surfaceManager.listSurfaces();

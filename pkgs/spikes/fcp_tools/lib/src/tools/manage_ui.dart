@@ -196,7 +196,10 @@ class ManageUiTool {
     ),
     invokeFunction: (args) async {
       final surfaceId = args['surfaceId'] as String;
-      _log.info('Invoking "patchLayout" on surface "$surfaceId".');
+      _log.info(
+        'Invoking "patchLayout" on surface "$surfaceId" with patches: '
+        '${args['patches']}',
+      );
       final patches = LayoutUpdate.fromMap({'patches': args['patches']});
       surfaceManager.getController(surfaceId)?.patchLayout(patches);
       return {'success': true, ..._getSurfacesState(surfaceManager)};
