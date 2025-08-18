@@ -91,10 +91,7 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
             'state': packet.state,
           });
           parts.add(
-            TextPart(
-              'Surface "$surfaceId":\n'
-              '```json\n$packetJson\n```',
-            ),
+            TextPart('Surface "$surfaceId":\n```json\n$packetJson\n```'),
           );
         }
       }

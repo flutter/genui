@@ -88,9 +88,13 @@ class ManageUiTool {
         'root': layoutMap['root'],
         'nodes': nodes,
       });
-      final state = _reconstructMap(
-        (args['state'] as List).cast<Map<String, Object?>>(),
-      );
+      final stateData = args['state'];
+      final Map<String, Object?> state;
+      if (stateData is List) {
+        state = _reconstructMap(stateData.cast<Map<String, Object?>>());
+      } else {
+        state = (stateData as Map).cast<String, Object?>();
+      }
       final packet = DynamicUIPacket(layout: layout, state: state);
       surfaceManager.setSurface(surfaceId, packet);
       return {'success': true};

@@ -101,7 +101,7 @@ void main() {
     test('patchLayout calls the controller', () async {
       final mockController = MockFcpViewController();
       manager.controllers['test'] = mockController;
-      final operations = [
+      final patches = [
         {
           'op': 'add',
           'path': '/nodes/-',
@@ -110,10 +110,10 @@ void main() {
       ];
       await tool.patchLayout.invoke({
         'surfaceId': 'test',
-        'operations': operations,
+        'patches': patches,
       });
       expect(mockController.patchLayoutCallCount, 1);
-      expect(mockController.lastLayoutUpdate!.operations.first.op, 'add');
+      expect(mockController.lastLayoutUpdate!.patches.first['op'], 'add');
     });
 
     test('patchState calls the controller', () async {
