@@ -16,9 +16,20 @@ Map<String, Object?> _getSurfacesState(FcpSurfaceManager surfaceManager) {
   for (final surfaceId in surfaces) {
     final packet = surfaceManager.getPacket(surfaceId);
     if (packet != null) {
+      final layoutJson = packet.layout.toJson();
+      final nodes = (layoutJson['nodes'] as List<Object?>).map((node) {
+        final nodeMap = node as Map<String, Object?>;
+        final properties = nodeMap['properties'] as Map<String, Object?>?;
+        final bindings = nodeMap['bindings'] as Map<String, Object?>?;
+        return {
+          ...nodeMap,
+          'properties': _deconstructMap(properties),
+          'bindings': _deconstructBindings(bindings),
+        };
+      }).toList();
       surfaceData[surfaceId] = {
-        'layout': packet.layout.toJson(),
-        'state': packet.state,
+        'layout': {'root': layoutJson['root'], 'nodes': nodes},
+        'state': _deconstructMap(packet.state),
       };
     }
   }
@@ -83,7 +94,8 @@ class ManageUiTool {
     parameters: Schema.object(
       properties: {
         'reason': Schema.string(
-          description: 'A short reason why you are calling this tool.',
+          description:
+              '''A short reason why you are calling this tool. If this is not the first time you have called this tool with similar arguments, include a detailed description as to why you are calling it repeatedly: is there something missing in the previous tool response?''',
         ),
         'surfaceId': Schema.string(
           description:
