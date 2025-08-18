@@ -10,6 +10,21 @@ import 'package:logging/logging.dart';
 import '../fcp_schemas.dart';
 import '../fcp_surface_manager.dart';
 
+Map<String, Object?> _getSurfacesState(FcpSurfaceManager surfaceManager) {
+  final surfaces = surfaceManager.listSurfaces();
+  final surfaceData = <String, Object?>{};
+  for (final surfaceId in surfaces) {
+    final packet = surfaceManager.getPacket(surfaceId);
+    if (packet != null) {
+      surfaceData[surfaceId] = {
+        'layout': packet.layout.toJson(),
+        'state': packet.state,
+      };
+    }
+  }
+  return {'surfaces': surfaceData};
+}
+
 Map<String, Object?> _reconstructMap(List<Map<String, Object?>> properties) {
   return {
     for (final property in properties)
@@ -41,6 +56,7 @@ class ManageUiTool {
   /// The AI tool for setting the UI of a surface.
   AiTool<Map<String, Object?>> get set => DynamicAiTool(
     name: 'set',
+    prefix: 'ui',
     description:
         'Sets the complete UI for a given surface. If the surface with the '
         'specified `surfaceId` does not exist, it will be created. This '
@@ -97,13 +113,14 @@ class ManageUiTool {
       }
       final packet = DynamicUIPacket(layout: layout, state: state);
       surfaceManager.setSurface(surfaceId, packet);
-      return {'success': true};
+      return {'success': true, ..._getSurfacesState(surfaceManager)};
     },
   );
 
   /// The AI tool for getting the UI of a surface.
   AiTool<Map<String, Object?>> get get => DynamicAiTool(
     name: 'get',
+    prefix: 'ui',
     description: 'Retrieves the current Layout and State for a given surface.',
     parameters: Schema.object(
       properties: {
@@ -127,6 +144,7 @@ class ManageUiTool {
   /// The AI tool for listing the active surfaces.
   AiTool<Map<String, Object?>> get list => DynamicAiTool(
     name: 'list',
+    prefix: 'ui',
     description: 'Lists the IDs of all currently active surfaces.',
     invokeFunction: (args) async {
       _log.info('Invoking "list".');
@@ -137,6 +155,7 @@ class ManageUiTool {
   /// The AI tool for removing a surface.
   AiTool<Map<String, Object?>> get remove => DynamicAiTool(
     name: 'remove',
+    prefix: 'ui',
     description: 'Removes/destroys the UI surface with the specified ID.',
     parameters: Schema.object(
       properties: {
@@ -150,13 +169,14 @@ class ManageUiTool {
       final surfaceId = args['surfaceId'] as String;
       _log.info('Invoking "remove" on surface "$surfaceId".');
       surfaceManager.removeSurface(surfaceId);
-      return {'success': true};
+      return {'success': true, ..._getSurfacesState(surfaceManager)};
     },
   );
 
   /// The AI tool for patching the layout of a surface.
   AiTool<Map<String, Object?>> get patchLayout => DynamicAiTool(
     name: 'patchLayout',
+    prefix: 'ui',
     description:
         'Applies a set of JSON Patch (RFC 6902) operations to the layout of a'
         ' specific surface.',
@@ -179,13 +199,14 @@ class ManageUiTool {
       _log.info('Invoking "patchLayout" on surface "$surfaceId".');
       final patches = LayoutUpdate.fromMap({'patches': args['patches']});
       surfaceManager.getController(surfaceId)?.patchLayout(patches);
-      return {'success': true};
+      return {'success': true, ..._getSurfacesState(surfaceManager)};
     },
   );
 
   /// The AI tool for patching the state of a surface.
   AiTool<Map<String, Object?>> get patchState => DynamicAiTool(
     name: 'patchState',
+    prefix: 'ui',
     description:
         'Applies a set of JSON Patch (RFC 6902) operations to the'
         ' state of a specific surface.',
@@ -208,7 +229,7 @@ class ManageUiTool {
       _log.info('Invoking "patchState" on surface "$surfaceId".');
       final patches = StateUpdate.fromMap({'patches': args['patches']});
       surfaceManager.getController(surfaceId)?.patchState(patches);
-      return {'success': true};
+      return {'success': true, ..._getSurfacesState(surfaceManager)};
     },
   );
 

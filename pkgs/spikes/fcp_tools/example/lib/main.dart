@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
-
 import 'package:ai_client/ai_client.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:fcp_client/fcp_client.dart';
@@ -16,16 +14,6 @@ import 'package:logging/logging.dart';
 import 'app_host.dart';
 import 'catalog.dart';
 import 'firebase_options.dart';
-
-String _extractText(ChatMessage message) {
-  return switch (message) {
-    UserMessage(:final parts) =>
-      parts.whereType<TextPart>().map((p) => p.text).join(),
-    AssistantMessage(:final parts) =>
-      parts.whereType<TextPart>().map((p) => p.text).join(),
-    _ => '',
-  };
-}
 
 Future<void> main() async {
   Logger.root.level = Level.ALL;
@@ -71,41 +59,23 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
     if (prompt.isEmpty) return;
     _textController.clear();
 
-    final history = _conversationHistoryManager.historyForAi.toList();
-    final parts = <MessagePart>[];
-    parts.add(TextPart(prompt));
-    final surfaces = _surfaceManager.listSurfaces();
-    if (surfaces.isNotEmpty) {
-      parts.insert(
-        0,
-        const TextPart(
-          'This is the current state of the UI. Use this as context for the '
-          "user's request.",
-        ),
+    _conversationHistoryManager.addMessage(UserMessage([TextPart(prompt)]));
+    final messages = _conversationHistoryManager.messages;
+
+    // // Create a copy of the history for the AI client to modify.
+    final originalMessageCount = messages.length;
+    final response = await _aiClient.generateContent<String>(
+      _conversationHistoryManager.messages,
+      Schema.string(),
+    );
+    if (response != null) {
+      _conversationHistoryManager.addMessage(
+        AssistantMessage([TextPart(response)]),
       );
-      for (final surfaceId in surfaces) {
-        final packet = _surfaceManager.getPacket(surfaceId);
-        if (packet != null) {
-          final packetJson = json.encode({
-            'layout': packet.layout.toJson(),
-            'state': packet.state,
-          });
-          parts.add(
-            TextPart('Surface "$surfaceId":\n```json\n$packetJson\n```'),
-          );
-        }
-      }
     }
-    final userMessage = UserMessage(parts);
-    _conversationHistoryManager.addMessage(userMessage);
-    history.add(userMessage);
 
-    // Create a copy of the history for the AI client to modify.
-    final originalHistoryLength = history.length;
-    await _aiClient.generateContent(history, Schema.object(properties: {}));
-
-    if (history.length > originalHistoryLength) {
-      final newMessages = history.sublist(originalHistoryLength);
+    if (messages.length > originalMessageCount) {
+      final newMessages = messages.sublist(originalMessageCount);
       for (final message in newMessages) {
         _conversationHistoryManager.addMessage(message);
       }
@@ -179,4 +149,14 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
       ),
     );
   }
+}
+
+String _extractText(ChatMessage message) {
+  return switch (message) {
+    UserMessage(:final parts) =>
+      parts.whereType<TextPart>().map((p) => p.text).join(),
+    AssistantMessage(:final parts) =>
+      parts.whereType<TextPart>().map((p) => p.text).join(),
+    _ => '',
+  };
 }
