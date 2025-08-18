@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:ai_client/ai_client.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:fcp_client/fcp_client.dart';
@@ -67,17 +69,43 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
   Future<void> _sendPrompt() async {
     final prompt = _textController.text;
     if (prompt.isEmpty) return;
-
-    _conversationHistoryManager.addMessage(UserMessage.text(prompt));
     _textController.clear();
 
-    // Create a copy of the history for the AI client to modify.
     final history = _conversationHistoryManager.historyForAi.toList();
+    final parts = <MessagePart>[];
+    parts.add(TextPart(prompt));
+    final surfaces = _surfaceManager.listSurfaces();
+    if (surfaces.isNotEmpty) {
+      parts.insert(
+        0,
+        const TextPart(
+          'This is the current state of the UI. Use this as context for the '
+          "user's request.",
+        ),
+      );
+      for (final surfaceId in surfaces) {
+        final packet = _surfaceManager.getPacket(surfaceId);
+        if (packet != null) {
+          final packetJson = json.encode({
+            'layout': packet.layout.toJson(),
+            'state': packet.state,
+          });
+          parts.add(
+            TextPart(
+              'Surface "$surfaceId":\n'
+              '```json\n$packetJson\n```',
+            ),
+          );
+        }
+      }
+    }
+    final userMessage = UserMessage(parts);
+    _conversationHistoryManager.addMessage(userMessage);
+    history.add(userMessage);
+
+    // Create a copy of the history for the AI client to modify.
     final originalHistoryLength = history.length;
-    await _aiClient.generateContent(
-      history,
-      Schema.object(properties: {}),
-    );
+    await _aiClient.generateContent(history, Schema.object(properties: {}));
 
     if (history.length > originalHistoryLength) {
       final newMessages = history.sublist(originalHistoryLength);
@@ -105,23 +133,24 @@ class _FcpToolsExampleState extends State<FcpToolsExample> {
                       final entry = history[index];
                       return switch (entry) {
                         MessageEntry(:final message) => ListTile(
-                            leading: Icon(
-                              message is UserMessage
-                                  ? Icons.person
-                                  : Icons.computer,
-                            ),
-                            title: Text(_extractText(message)),
+                          leading: Icon(
+                            message is UserMessage
+                                ? Icons.person
+                                : Icons.computer,
                           ),
+                          title: Text(_extractText(message)),
+                        ),
                         SurfaceEntry(:final surfaceId) => Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FcpView(
-                              packet: _surfaceManager.getPacket(surfaceId)!,
-                              catalog: exampleCatalog.buildCatalog(),
-                              registry: exampleCatalog,
-                              controller:
-                                  _surfaceManager.getController(surfaceId),
+                          padding: const EdgeInsets.all(8.0),
+                          child: FcpView(
+                            packet: _surfaceManager.getPacket(surfaceId)!,
+                            catalog: exampleCatalog.buildCatalog(),
+                            registry: exampleCatalog,
+                            controller: _surfaceManager.getController(
+                              surfaceId,
                             ),
                           ),
+                        ),
                       };
                     },
                   );

@@ -17,10 +17,7 @@ void main() {
 
     test('adapts a simple object schema', () {
       final schema = dsb.S.object(
-        properties: {
-          'name': dsb.S.string(),
-          'age': dsb.S.integer(),
-        },
+        properties: {'name': dsb.S.string(), 'age': dsb.S.integer()},
         required: ['name'],
       );
       final result = adapter.adapt(schema);
@@ -85,8 +82,10 @@ void main() {
       final schema = dsb.Schema.fromMap({'description': 'a schema'});
       final result = adapter.adapt(schema);
       expect(result.errors.length, 1);
-      expect(result.errors.first.message,
-          contains('must have a "type" or be implicitly typed'));
+      expect(
+        result.errors.first.message,
+        contains('must have a "type" or be implicitly typed'),
+      );
       expect(result.schema, isNull);
     });
 
@@ -94,8 +93,10 @@ void main() {
       final schema = dsb.Schema.fromMap({'type': 'array'});
       final result = adapter.adapt(schema);
       expect(result.errors.length, 1);
-      expect(result.errors.first.message,
-          contains('Array schema must have an "items" property'));
+      expect(
+        result.errors.first.message,
+        contains('Array schema must have an "items" property'),
+      );
       expect(result.schema, isNull);
     });
   });

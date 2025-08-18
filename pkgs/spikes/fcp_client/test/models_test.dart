@@ -106,13 +106,17 @@ void main() {
     });
 
     test('LayoutUpdate correctly parsed', () {
-      final add = LayoutUpdate.fromMap({
-        'operations': <Map<String, Object?>>[
-          {'op': 'add', 'nodes': <Object?>[]},
+      final update = LayoutUpdate.fromMap({
+        'patches': [
+          {
+            'op': 'add',
+            'path': '/nodes/new_node',
+            'value': {'id': 'new_node', 'type': 'Text'},
+          },
         ],
       });
-      expect(add.operations, isA<List>());
-      expect(add.operations.first.op, 'add');
+      expect(update.patches, isA<List>());
+      expect(update.patches.first['op'], 'add');
     });
   });
 

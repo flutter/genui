@@ -30,14 +30,16 @@ void main() {
       expect(result.first.role, 'model');
       expect(result.first.parts.first, isA<firebase_ai.TextPart>());
       expect(
-          (result.first.parts.first as firebase_ai.TextPart).text, 'Hi there');
+        (result.first.parts.first as firebase_ai.TextPart).text,
+        'Hi there',
+      );
     });
 
     test('converts ToolResponseMessage', () {
       final messages = [
         const ToolResponseMessage([
           ToolResultPart(callId: '123', result: '{"status": "done"}'),
-        ])
+        ]),
       ];
       final result = converter.toFirebaseAiContent(messages);
       expect(result.length, 1);
@@ -58,7 +60,7 @@ void main() {
     test('converts ImagePart from bytes', () {
       final bytes = Uint8List.fromList([1, 2, 3]);
       final messages = [
-        UserMessage([ImagePart.fromBytes(bytes, mimeType: 'image/png')])
+        UserMessage([ImagePart.fromBytes(bytes, mimeType: 'image/png')]),
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.InlineDataPart;
@@ -69,7 +71,9 @@ void main() {
     test('converts ImagePart from base64', () {
       const base64String = 'AQID'; // [1, 2, 3]
       final messages = [
-        const UserMessage([ImagePart.fromBase64(base64String, mimeType: 'image/png')])
+        const UserMessage([
+          ImagePart.fromBase64(base64String, mimeType: 'image/png'),
+        ]),
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.InlineDataPart;
@@ -79,7 +83,7 @@ void main() {
 
     test('converts ThinkingPart', () {
       final messages = [
-        const AssistantMessage([ThinkingPart('hmmm...')])
+        const AssistantMessage([ThinkingPart('hmmm...')]),
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.TextPart;

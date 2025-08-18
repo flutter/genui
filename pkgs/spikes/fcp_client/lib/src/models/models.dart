@@ -275,20 +275,13 @@ extension type StateUpdate.fromMap(Map<String, Object?> _json)
 /// items).
 extension type LayoutUpdate.fromMap(Map<String, Object?> _json)
     implements JsonObjectBase {
-  /// Creates a new [LayoutUpdate] from a list of [operations].
-  factory LayoutUpdate({required List<LayoutOperation> operations}) =>
-      LayoutUpdate.fromMap({
-        'operations': operations.map((e) => e.toJson()).toList(),
-      });
+  /// Creates a new [LayoutUpdate] from a list of [patches].
+  factory LayoutUpdate({required List<Map<String, Object?>> patches}) =>
+      LayoutUpdate.fromMap({'patches': patches});
 
   /// An array of layout modification objects.
-  List<LayoutOperation> get operations {
-    final opsList = _json['operations'] as List<Object?>;
-    return opsList
-        .cast<Map<String, Object?>>()
-        .map(LayoutOperation.fromMap)
-        .toList();
-  }
+  List<Map<String, Object?>> get patches =>
+      (_json['patches'] as List<Object?>? ?? []).cast<Map<String, Object?>>();
 }
 
 /// A type-safe wrapper for a `LayoutOperation` JSON object, which represents

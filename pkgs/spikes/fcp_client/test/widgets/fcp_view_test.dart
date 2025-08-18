@@ -496,28 +496,20 @@ void main() {
       // Act
       controller.patchLayout(
         LayoutUpdate.fromMap({
-          'operations': [
+          'patches': [
             {
               'op': 'add',
-              'nodes': [
-                {
-                  'id': 'text2',
-                  'type': 'Text',
-                  'properties': {'data': 'Second'},
-                },
-              ],
+              'path': '/nodes/text2',
+              'value': {
+                'id': 'text2',
+                'type': 'Text',
+                'properties': {'data': 'Second'},
+              },
             },
             {
               'op': 'replace',
-              'nodes': [
-                {
-                  'id': 'col',
-                  'type': 'Column',
-                  'properties': {
-                    'children': ['text1', 'text2'],
-                  },
-                },
-              ],
+              'path': '/nodes/col/properties/children',
+              'value': ['text1', 'text2'],
             },
           ],
         }),
@@ -609,22 +601,12 @@ void main() {
       // Act
       controller.patchLayout(
         LayoutUpdate.fromMap({
-          'operations': [
-            {
-              'op': 'remove',
-              'nodeIds': ['text2'],
-            },
+          'patches': [
+            {'op': 'remove', 'path': '/nodes/text2'},
             {
               'op': 'replace',
-              'nodes': [
-                {
-                  'id': 'col',
-                  'type': 'Column',
-                  'properties': {
-                    'children': ['text1'],
-                  },
-                },
-              ],
+              'path': '/nodes/col/properties/children',
+              'value': ['text1'],
             },
           ],
         }),
@@ -691,16 +673,11 @@ void main() {
       // Act
       controller.patchLayout(
         LayoutUpdate.fromMap({
-          'operations': [
+          'patches': [
             {
               'op': 'replace',
-              'nodes': [
-                {
-                  'id': 'text1',
-                  'type': 'Text',
-                  'properties': {'data': 'After'},
-                },
-              ],
+              'path': '/nodes/text1/properties/data',
+              'value': 'After',
             },
           ],
         }),

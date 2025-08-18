@@ -56,12 +56,12 @@ final class ImagePart implements MessagePart {
 // Private implementation classes for ImagePart factories
 final class _ImagePartFromBytes extends ImagePart {
   const _ImagePartFromBytes(Uint8List bytes, {required String mimeType})
-      : super._(bytes: bytes, mimeType: mimeType);
+    : super._(bytes: bytes, mimeType: mimeType);
 }
 
 final class _ImagePartFromBase64 extends ImagePart {
   const _ImagePartFromBase64(String base64, {required String mimeType})
-      : super._(base64: base64, mimeType: mimeType);
+    : super._(base64: base64, mimeType: mimeType);
 }
 
 final class _ImagePartFromUrl extends ImagePart {

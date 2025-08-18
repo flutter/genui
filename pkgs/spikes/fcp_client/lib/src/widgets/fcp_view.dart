@@ -119,10 +119,15 @@ class _FcpViewState extends State<FcpView> {
       _listenToController();
     }
 
-    if (!const DeepCollectionEquality().equals(
-      widget.packet.toJson(),
-      oldWidget.packet.toJson(),
-    )) {
+    if (widget.packet.formatVersion != oldWidget.packet.formatVersion ||
+        !const DeepCollectionEquality().equals(
+          widget.packet.layout,
+          oldWidget.packet.layout,
+        ) ||
+        !const DeepCollectionEquality().equals(
+          widget.packet.state,
+          oldWidget.packet.state,
+        )) {
       _initializeFromPacket();
     }
   }

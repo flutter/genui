@@ -308,12 +308,15 @@ void main() {
       );
       expect(
         () => createClient(tools: [tool1, tool2]),
-        throwsA(isA<AiClientException>()
-            .having((e) => e.message, 'message', contains('Duplicate tool'))),
+        throwsA(
+          isA<AiClientException>().having(
+            (e) => e.message,
+            'message',
+            contains('Duplicate tool'),
+          ),
+        ),
       );
     });
-
-    
 
     test('system instruction is passed to model creator', () async {
       String? passedSystemInstruction;
@@ -321,17 +324,19 @@ void main() {
         systemInstruction: 'Be a helpful assistant.',
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
-          passedSystemInstruction = systemInstruction?.parts
-              .whereType<firebase_ai.TextPart>()
-              .first
-              .text;
-          return fakeModel;
-        },
+              passedSystemInstruction = systemInstruction?.parts
+                  .whereType<firebase_ai.TextPart>()
+                  .first
+                  .text;
+              return fakeModel;
+            },
       );
 
       fakeModel.response = GenerateContentResponse([], null);
       await client.generateContent<Map<String, Object?>>(
-          [], S.object(properties: {}));
+        [],
+        S.object(properties: {}),
+      );
 
       expect(passedSystemInstruction, 'Be a helpful assistant.');
     });

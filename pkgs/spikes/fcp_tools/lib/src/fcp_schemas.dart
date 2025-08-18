@@ -99,3 +99,27 @@ final fcpLayoutOperationSchema = Schema.object(
   },
   required: ['op', 'path'],
 );
+
+/// A schema for a single JSON Patch (RFC 6902) operation.
+final jsonPatchOperationSchema = Schema.object(
+  properties: {
+    'op': Schema.string(
+      description: 'The operation to perform.',
+      enumValues: ['add', 'remove', 'replace', 'move', 'copy', 'test'],
+    ),
+    'path': Schema.string(
+      description:
+          'A JSON Pointer (RFC 6901) path to the location in the document to '
+          'modify.',
+    ),
+    'value': Schema.any(
+      description:
+          'The value to apply. For "add", "replace", and "test", this is the '
+          'new content. For "remove", this is ignored.',
+    ),
+    'from': Schema.string(
+      description: 'A JSON Pointer path for "move" and "copy" operations.',
+    ),
+  },
+  required: ['op', 'path'],
+);

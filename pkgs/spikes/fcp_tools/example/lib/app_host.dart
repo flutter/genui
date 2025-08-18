@@ -32,7 +32,8 @@ class _AppHostState extends State<AppHost> {
     final widgetCatalog = exampleCatalog.buildCatalog();
     Logger('AppHost').info('Widget Catalog: ${widgetCatalog.toJson()}');
     _aiClient = GeminiAiClient(
-      systemInstruction: 'You are a helpful AI assistant that builds user '
+      systemInstruction:
+          'You are a helpful AI assistant that builds user '
           'interfaces. The user will provide the current state of all UI '
           'surfaces at the beginning of the conversation. Use this to inform '
           'your responses. When a user asks for a UI, you MUST first call the '
@@ -45,7 +46,7 @@ class _AppHostState extends State<AppHost> {
           'list MUST have an `op` property.',
       tools: [
         ...ManageUiTool(_surfaceManager).tools,
-        GetWidgetCatalogTool(widgetCatalog).get
+        GetWidgetCatalogTool(widgetCatalog).get,
       ],
       loggingCallback: (severity, message) {
         Logger('AiClient').log(switch (severity) {
@@ -92,8 +93,8 @@ class FcpToolsProvider extends InheritedWidget {
   final AiClient aiClient;
 
   static FcpToolsProvider of(BuildContext context) {
-    final FcpToolsProvider? result =
-        context.dependOnInheritedWidgetOfExactType<FcpToolsProvider>();
+    final FcpToolsProvider? result = context
+        .dependOnInheritedWidgetOfExactType<FcpToolsProvider>();
     assert(result != null, 'No FcpToolsProvider found in context');
     return result!;
   }
