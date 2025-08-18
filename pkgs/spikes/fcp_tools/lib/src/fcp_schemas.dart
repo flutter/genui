@@ -27,26 +27,20 @@ final fcpLayoutNodeSchema = Schema.object(
   properties: {
     'id': Schema.string(
       description:
-          'A unique identifier for this widget. This is used to '
-          'refer to the widget in the layout and in event handlers.',
+          '''A unique identifier for this widget. This is used to refer to the widget in the layout and in event handlers.''',
     ),
     'type': Schema.string(
       description:
-          'The type of the widget. This must be one of the widget '
-          'types available in the widget catalog.',
+          '''The type of the widget. This must be one of the widget types available in the widget catalog.''',
     ),
     'properties': Schema.list(
       description:
-          'A list of static properties for this widget. The keys and values '
-          'of this map must conform to the schema of the widget type.',
+          '''A list of static properties for this widget. The keys and values of this map must conform to the schema of the widget type.''',
       items: fcpPropertySchema,
     ),
     'bindings': Schema.list(
       description:
-          'A list of dynamic properties for this widget. The keys of this map '
-          'must be valid properties for the widget type, and the values must '
-          'be objects with a "path" property that points to a value in the '
-          'state.',
+          '''A list of dynamic properties for this widget. The keys of this map must be valid properties for the widget type, and the values must be objects with a "path" property that points to a value in the state.''',
       items: fcpBindingSchema,
     ),
   },
@@ -58,8 +52,7 @@ final fcpLayoutSchema = Schema.object(
   properties: {
     'root': Schema.string(
       description:
-          'The ID of the root widget. This widget will be the '
-          'first widget to be rendered.',
+          '''The ID of the root widget. This widget will be the first widget to be rendered.''',
     ),
     'nodes': Schema.list(
       description: 'A list of all the widgets in the layout.',
@@ -72,10 +65,7 @@ final fcpLayoutSchema = Schema.object(
 /// A schema for the state of an FCP packet.
 final fcpStateSchema = Schema.list(
   description:
-      'A list of key-value pairs representing the state of the UI. '
-      'The keys of this map can be any string, and the values can be any valid '
-      'JSON object. The state is used to store dynamic data that can be '
-      'referenced by the widgets in the layout.',
+      '''A list of key-value pairs representing the state of the UI. The keys of this map can be any string, and the values can be any valid JSON object. The state is used to store dynamic data that can be referenced by the widgets in the layout.''',
   items: fcpPropertySchema,
 );
 
@@ -88,13 +78,11 @@ final fcpLayoutOperationSchema = Schema.object(
     ),
     'path': Schema.string(
       description:
-          'A JSON Pointer (RFC 6901) path to the location in the layout to '
-          'modify.',
+          '''A JSON Pointer (RFC 6901) path to the location in the layout to modify.''',
     ),
     'value': Schema.any(
       description:
-          'The value to apply. For "add" and "replace", this is the new '
-          'content. For "remove", this is ignored.',
+          '''The value to apply. For "add" and "replace", this is the new content. For "remove", this is ignored.''',
     ),
   },
   required: ['op', 'path'],
@@ -109,16 +97,15 @@ final jsonPatchOperationSchema = Schema.object(
     ),
     'path': Schema.string(
       description:
-          'A JSON Pointer (RFC 6901) path to the location in the document to '
-          'modify.',
+          '''A JSON Pointer (RFC 6901) path to the location in the document to modify.''',
     ),
     'value': Schema.any(
       description:
-          'The value to apply. For "add", "replace", and "test", this is the '
-          'new content. For "remove", this is ignored.',
+          '''The value to apply. For "add" and "replace" operations, this is the new content. For "remove", this is ignored. For the "add" operation on a list, the value is a single item to add, or a list of items to add. When adding to the state, the value should be an object with "name" and "value" properties. When adding a new widget to a "children" list, you must perform two "add" operations: one to add the new widget to the `nodes` list, and another to add the ID of the new widget to the `children` list of the parent. When adding to the layout, the value should be a complete widget definition.''',
     ),
     'from': Schema.string(
-      description: 'A JSON Pointer path for "move" and "copy" operations.',
+      description:
+          '''A JSON Pointer (RFC 6901) path for "move" and "copy" operations, referencing the location of the value to be moved or copied.''',
     ),
   },
   required: ['op', 'path'],

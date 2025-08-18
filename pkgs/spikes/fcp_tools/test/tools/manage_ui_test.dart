@@ -56,12 +56,9 @@ void main() {
       manager.setSurface('test', packet);
 
       final result = await tool.get.invoke({'surfaceId': 'test'});
-      expect(result['layout'], {
-        'root': 'root',
-        'nodes': [],
-      });
+      expect(result['layout'], {'root': 'root', 'nodes': []});
       expect(result['state'], [
-        {'name': 'key', 'value': 'value'}
+        {'name': 'key', 'value': 'value'},
       ]);
     });
 
@@ -109,9 +106,7 @@ void main() {
       manager.packets['test'] = DynamicUIPacket(
         layout: Layout(
           root: 'root',
-          nodes: [
-            LayoutNode(id: 'root', type: 'Column', properties: const {}),
-          ],
+          nodes: [LayoutNode(id: 'root', type: 'Column', properties: const {})],
         ),
         state: const {},
       );
@@ -122,17 +117,11 @@ void main() {
           'value': {'id': 'new', 'type': 'Text'},
         },
       ];
-      await tool.patchLayout.invoke({
-        'surfaceId': 'test',
-        'patches': patches,
-      });
+      await tool.patchLayout.invoke({'surfaceId': 'test', 'patches': patches});
       expect(mockController.patchLayoutCallCount, 1);
       final lastPatches = mockController.lastLayoutUpdate!.patches;
       expect(lastPatches.first['op'], 'add');
-      expect(
-        lastPatches.first['path'],
-        '/nodes/0/properties/children/-',
-      );
+      expect(lastPatches.first['path'], '/nodes/0/properties/children/-');
     });
 
     test('patchLayout calls the controller with index', () async {
@@ -141,9 +130,7 @@ void main() {
       manager.packets['test'] = DynamicUIPacket(
         layout: Layout(
           root: 'root',
-          nodes: [
-            LayoutNode(id: 'root', type: 'Column', properties: const {}),
-          ],
+          nodes: [LayoutNode(id: 'root', type: 'Column', properties: const {})],
         ),
         state: const {},
       );
@@ -154,17 +141,11 @@ void main() {
           'value': {'id': 'new', 'type': 'Text'},
         },
       ];
-      await tool.patchLayout.invoke({
-        'surfaceId': 'test',
-        'patches': patches,
-      });
+      await tool.patchLayout.invoke({'surfaceId': 'test', 'patches': patches});
       expect(mockController.patchLayoutCallCount, 1);
       final lastPatches = mockController.lastLayoutUpdate!.patches;
       expect(lastPatches.first['op'], 'add');
-      expect(
-        lastPatches.first['path'],
-        '/nodes/0/properties/children/-',
-      );
+      expect(lastPatches.first['path'], '/nodes/0/properties/children/-');
     });
 
     test('patchState calls the controller', () async {
