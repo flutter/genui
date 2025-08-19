@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../ai_client/ai_client.dart';
@@ -30,7 +31,12 @@ class GenUiManager {
 
   late final Catalog catalog;
   final AiClient aiClient;
+
   GenUiSurfaces _surfaces;
+
+  /// If true, the AI is processing a request.
+  ValueListenable<bool> get isProcessing_ => _isProcessing;
+  final ValueNotifier<bool> _isProcessing = ValueNotifier<bool>(false);
 
   /// Resets the surfaces updatable by the AI client.
   set surfaces(GenUiSurfaces value) {
