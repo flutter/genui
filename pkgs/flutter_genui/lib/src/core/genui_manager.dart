@@ -13,7 +13,6 @@ import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
-import 'core_catalog.dart';
 import 'ui_event_manager.dart';
 import 'widgets/chat_widget.dart';
 import 'widgets/conversation_widget.dart';

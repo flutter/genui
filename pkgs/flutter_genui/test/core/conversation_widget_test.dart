@@ -34,7 +34,7 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              catalog: Catalog(coreWidgets),
               onEvent: (_) {},
             ),
           ),
@@ -53,7 +53,7 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              catalog: Catalog(coreWidgets),
               onEvent: (_) {},
             ),
           ),
@@ -105,7 +105,7 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              catalog: Catalog(coreWidgets),
               onEvent: (_) {},
               userPromptBuilder: (context, message) =>
                   const Text('Custom User Prompt'),
