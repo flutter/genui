@@ -10,17 +10,17 @@ class ActionsConfig {
     this.allowDelete = true,
   });
 
-  /// Creates a new [ActionsConfig] that only allows creating new widgets.
+  /// Creates a new [ActionsConfig] that only allows creating new surfaces.
   const ActionsConfig.createOnly()
     : this(allowUpdate: false, allowDelete: false);
 
-  /// Whether to allow creating new widgets.
+  /// Whether to allow creating new surfaces.
   final bool allowCreate;
 
-  /// Whether to allow updating existing widgets.
+  /// Whether to allow updating existing surfaces.
   final bool allowUpdate;
 
-  /// Whether to allow deleting existing widgets.
+  /// Whether to allow deleting existing surfaces.
   final bool allowDelete;
 }
 
