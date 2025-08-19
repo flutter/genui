@@ -34,6 +34,7 @@ class GenUiManager {
 
   /// Resets the surfaces updatable by the AI client.
   set surfaces(GenUiSurfaces value) {
+    _surfaces = value;
     throw UnimplementedError();
   }
 
