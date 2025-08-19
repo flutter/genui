@@ -38,20 +38,17 @@ class GenUiManager {
   /// Called when there is a warning to report.
   final ValueChanged<String>? onWarning;
 
-  GenUiSurfaces _surfaces;
-
   /// If true, the AI is processing a request.
-  ValueListenable<bool> get isProcessing_ => _isProcessing;
+  ValueListenable<bool> get isProcessing => _isProcessing;
   final ValueNotifier<bool> _isProcessing = ValueNotifier<bool>(false);
 
-  /// Resets the surfaces updatable by the AI client.
+  /// Surfaces updatable by the AI client.
+  GenUiSurfaces get surfaces => _surfaces;
+  GenUiSurfaces _surfaces;
   set surfaces(GenUiSurfaces value) {
     _surfaces = value;
     throw UnimplementedError();
   }
-
-  /// Surfaces updatable by the AI client.
-  GenUiSurfaces get surfaces => _surfaces;
 
   /// Builds a widget for the given [surfaceId].
   ///
