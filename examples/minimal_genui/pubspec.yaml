@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   flutter_genui:
     path: ../../pkgs/flutter_genui
+  dart_schema_builder:
+    path: ../../pkgs/dart_schema_builder
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
