@@ -46,7 +46,7 @@ class GenUiManager {
     throw UnimplementedError();
   }
 
-  /// Resets the surfaces updatable by the AI client.
+  /// Surfaces updatable by the AI client.
   GenUiSurfaces get surfaces => _surfaces;
 
   /// Builds a widget for the given [surfaceId].
