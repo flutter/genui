@@ -76,6 +76,9 @@ class GenUiManager {
   ///
   /// If the surface with [surfaceId] does not exist in [surfaces],
   /// will throw an error.
+  ///
+  /// The stream will complete when the surface is removed
+  /// from [surfaces].
   Stream<WidgetBuilder> surfaceUpdates(String surfaceId) =>
       throw UnimplementedError();
 }
