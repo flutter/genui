@@ -82,4 +82,7 @@ class GenUiManager {
   /// from [surfaces].
   Stream<WidgetBuilder> surfaceUpdates(String surfaceId) =>
       throw UnimplementedError();
+
+  /// Stream of updates for all surfaces.
+  Stream<WidgetBuilder> get allSurfaceUpdates => throw UnimplementedError();
 }
