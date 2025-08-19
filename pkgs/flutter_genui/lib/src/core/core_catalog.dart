@@ -9,9 +9,9 @@ import '../catalog/core_widgets/image.dart';
 import '../catalog/core_widgets/radio_group.dart';
 import '../catalog/core_widgets/text.dart';
 import '../catalog/core_widgets/text_field.dart';
-import '../model/catalog.dart';
+import '../model/catalog_item.dart';
 
-final coreCatalog = Catalog([
+final Iterable<CatalogItem> coreWidgets = [
   elevatedButtonCatalogItem,
   columnCatalogItem,
   text,
@@ -19,4 +19,4 @@ final coreCatalog = Catalog([
   radioGroup,
   textField,
   image,
-]);
+];

@@ -21,14 +21,14 @@ import 'widgets/conversation_widget.dart';
 enum GenUiStyle { flexible, chat }
 
 class GenUiManager {
-  void _init(Catalog? catalog) {
-    this.catalog = catalog ?? coreCatalog;
+  void _init(Catalog catalog) {
+    this.catalog = catalog;
     _eventManager = UiEventManager(callback: handleEvents);
   }
 
   GenUiManager({
     required this.aiClient,
-    Catalog? catalog,
+    required Catalog catalog,
     this.userPromptBuilder,
     this.showInternalMessages = false,
   }) : style = GenUiStyle.flexible {
@@ -38,7 +38,7 @@ class GenUiManager {
 
   GenUiManager.chat({
     required this.aiClient,
-    Catalog? catalog,
+    required Catalog catalog,
     this.userPromptBuilder,
     this.showInternalMessages = false,
   }) : style = GenUiStyle.chat {

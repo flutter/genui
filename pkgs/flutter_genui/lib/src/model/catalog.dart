@@ -24,7 +24,7 @@ class Catalog {
   const Catalog(this.items);
 
   /// The list of [CatalogItem]s available in this catalog.
-  final List<CatalogItem> items;
+  final Iterable<CatalogItem> items;
 
   /// Builds a Flutter widget from a JSON-like data structure.
   ///

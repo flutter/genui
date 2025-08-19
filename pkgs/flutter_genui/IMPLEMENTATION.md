@@ -41,7 +41,7 @@ This layer defines the data structures that represent the dynamic UI and the con
 
 This layer provides a set of core, general-purpose UI widgets that can be used out-of-the-box.
 
-- **`core_catalog.dart`**: Defines the `coreCatalog`, which includes fundamental widgets like `Column`, `Text`, `ElevatedButton`, `TextField`, `CheckboxGroup`, `RadioGroup`, and `Image`.
+- **`core_catalog.dart`**: Defines the `coreWidgets` list which includes fundamental widgets like `Column`, `Text`, `ElevatedButton`, `TextField`, `CheckboxGroup`, `RadioGroup`, and `Image`.
 - **Widget Implementation**: Each core widget follows the standard `CatalogItem` pattern: a schema definition, a type-safe data accessor using an `extension type`, the `CatalogItem` instance, and the Flutter widget implementation.
 
 ## How It Works: The Generative UI Cycle

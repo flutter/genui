@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter_genui/src/model/catalog.dart';
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
@@ -18,7 +19,10 @@ void main() {
 
     setUp(() {
       fakeAiClient = FakeAiClient();
-      manager = GenUiManager(catalog: coreCatalog, aiClient: fakeAiClient);
+      manager = GenUiManager(
+        catalog: Catalog(coreWidgets),
+        aiClient: fakeAiClient,
+      );
     });
 
     tearDown(() {
@@ -406,7 +410,7 @@ void main() {
     test('sends user prompt and gets UI response when showInternalMessages is '
         'true', () async {
       manager = GenUiManager(
-        catalog: coreCatalog,
+        catalog: Catalog(coreWidgets),
         aiClient: fakeAiClient,
         showInternalMessages: true,
       );

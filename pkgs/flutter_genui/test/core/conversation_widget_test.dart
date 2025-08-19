@@ -86,7 +86,7 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              catalog: Catalog(coreWidgets),
               onEvent: (_) {},
             ),
           ),
