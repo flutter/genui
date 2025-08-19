@@ -24,6 +24,7 @@ class GenUiManager {
   GenUiManager({
     required this.aiClient,
     required GenUiSurfaces surfaces,
+    required this.generalPrompt,
     Catalog? catalog,
   }) : _surfaces = surfaces {
     this.catalog = catalog ?? coreCatalog;
@@ -31,6 +32,7 @@ class GenUiManager {
 
   late final Catalog catalog;
   final AiClient aiClient;
+  final String generalPrompt;
 
   GenUiSurfaces _surfaces;
 
