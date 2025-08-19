@@ -6,11 +6,11 @@ import 'package:firebase_ai/firebase_ai.dart' as fb;
 import 'package:flutter/widgets.dart';
 
 import '../ai_client/gemini_ai_client.dart';
-import '../core/genui_manager.dart';
+import '../core/old_genui_manager.dart';
 
 /// Facade for the Flutter Gen UI package, tailored for Firebase AI integration.
 class GenUiForFirebaseAi {
-  late final GenUiManager _manager;
+  late final OldGenUiManager _manager;
   final List<String> pinnedWidgets;
 
   GenUiForFirebaseAi({
@@ -20,7 +20,7 @@ class GenUiForFirebaseAi {
     this.pinnedWidgets = const [],
   }) {
     // TODO: use the provided firebaseChatSession.
-    _manager = GenUiManager(
+    _manager = OldGenUiManager(
       aiClient: GeminiAiClient(
         systemInstruction:
             '''You are a helpful assistant who speaks in the style of a pirate.
