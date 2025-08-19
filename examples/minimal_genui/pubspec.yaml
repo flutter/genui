@@ -6,13 +6,13 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
+  dart_schema_builder:
+    path: ../../pkgs/dart_schema_builder
   firebase_core: ^4.0.0
   flutter:
     sdk: flutter
   flutter_genui:
     path: ../../pkgs/flutter_genui
-  dart_schema_builder:
-    path: ../../pkgs/dart_schema_builder
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
