@@ -4,7 +4,9 @@
 
 import 'package:flutter/widgets.dart';
 
-import '../../flutter_genui.dart';
+import '../ai_client/ai_client.dart';
+import '../model/catalog.dart';
+import 'core_catalog.dart';
 
 class GenUiManager {
   GenUiManager({required this.aiClient, Catalog? catalog}) {
@@ -27,6 +29,7 @@ class GenUiManager {
     throw UnimplementedError();
   }
 
-  /// Stream of updates for surfaces.
-  Stream<String> get uiStream => throw UnimplementedError();
+  /// Stream of updates for the surface.
+  Stream<WidgetBuilder> uiStream(String surfaceId) =>
+      throw UnimplementedError();
 }

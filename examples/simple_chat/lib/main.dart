@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ai/firebase_ai.dart' as fb;
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_genui/flutter_genui.dart' hide ChatMessage;
 import 'chat_message.dart';
 import 'firebase_options.dart';
@@ -38,8 +38,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<ChatMessageController> _messages = [];
-  final _genUi = GenUiForFirebaseAi(
-    firebaseChatSession: _createFirebaseChatSession(),
+  final _genUi = SimpleChat(
+    firebaseChatSession: FirebaseAIService(),
+    generalPrompt:
+        '''You are a helpful assistant who speaks in the style of a pirate.
+    The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+    ''',
     // TODO: provide widget catalog and image source
   );
   final ScrollController _scrollController = ScrollController();
@@ -117,16 +121,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
-  Future<void> _sendUiRequest(UserSelection selection) async {
-    setState(() => _isLoading = true);
-    final response = await _genUi.sendRequestFromGenUi(selection);
-    setState(() {
-      _messages.add(ChatMessageController(genUiResponse: response));
-      _isLoading = false;
-    });
-    _scrollToBottom();
-  }
-
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -140,9 +134,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-fb.ChatSession _createFirebaseChatSession() {
-  final model = fb.FirebaseAI.googleAI().generativeModel(
-    model: 'gemini-2.5-flash',
-  );
-  return model.startChat();
+class FirebaseAIService {
+  late final GenerativeModel _model;
+  late final ChatSession _chat;
+
+  FirebaseAIService() {
+    _model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
+    _chat = _model.startChat();
+  }
+
+  Future<String> sendMessageStream(String message) async {
+    final prompt = Content.text(message);
+    final response = await _chat.sendMessage(prompt);
+    return response.text ?? 'Sorry, I could not process that.';
+  }
 }
