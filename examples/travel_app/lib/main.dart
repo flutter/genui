@@ -6,6 +6,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/core/genui_configuration.dart';
 
 import 'firebase_options.dart';
 import 'src/asset_images.dart';
@@ -102,7 +103,17 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           },
           systemInstruction: prompt,
         );
-    _genUiManager = GenUiManager.chat(catalog: catalog, aiClient: aiClient);
+    _genUiManager = GenUiManager.chat(
+      catalog: catalog,
+      aiClient: aiClient,
+      configuration: const GenUiConfiguration(
+        actions: ActionsConfig(
+          allowCreate: true,
+          allowUpdate: true,
+          allowDelete: true,
+        ),
+      ),
+    );
   }
 
   @override

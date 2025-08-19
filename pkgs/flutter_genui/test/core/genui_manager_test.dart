@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
+import 'package:flutter_genui/src/core/genui_configuration.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_genui/test.dart';
@@ -18,7 +19,17 @@ void main() {
 
     setUp(() {
       fakeAiClient = FakeAiClient();
-      manager = GenUiManager(catalog: coreCatalog, aiClient: fakeAiClient);
+      manager = GenUiManager(
+        catalog: coreCatalog,
+        aiClient: fakeAiClient,
+        configuration: const GenUiConfiguration(
+          actions: ActionsConfig(
+            allowCreate: true,
+            allowUpdate: true,
+            allowDelete: true,
+          ),
+        ),
+      );
     });
 
     tearDown(() {

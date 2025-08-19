@@ -14,6 +14,7 @@ import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import 'core_catalog.dart';
+import 'genui_configuration.dart';
 import 'ui_event_manager.dart';
 import 'widgets/chat_widget.dart';
 import 'widgets/conversation_widget.dart';
@@ -28,6 +29,7 @@ class GenUiManager {
 
   GenUiManager({
     required this.aiClient,
+    this.configuration = const GenUiConfiguration(),
     Catalog? catalog,
     this.userPromptBuilder,
     this.showInternalMessages = false,
@@ -38,6 +40,7 @@ class GenUiManager {
 
   GenUiManager.chat({
     required this.aiClient,
+    this.configuration = const GenUiConfiguration(),
     Catalog? catalog,
     this.userPromptBuilder,
     this.showInternalMessages = false,
@@ -52,6 +55,8 @@ class GenUiManager {
   }
 
   final GenUiStyle style;
+
+  final GenUiConfiguration configuration;
 
   late final GenUiChatController? _chatController;
 
@@ -151,6 +156,9 @@ class GenUiManager {
           }
           switch (action) {
             case 'add':
+              if (!configuration.actions.allowCreate) {
+                throw Exception('Create action is not allowed.');
+              }
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
               _chatHistory.add(
@@ -160,6 +168,9 @@ class GenUiManager {
                 ),
               );
             case 'update':
+              if (!configuration.actions.allowUpdate) {
+                throw Exception('Update action is not allowed.');
+              }
               final definition =
                   actionMap['definition'] as Map<String, Object?>;
               final oldResponse = _chatHistory
@@ -175,6 +186,9 @@ class GenUiManager {
                 );
               }
             case 'delete':
+              if (!configuration.actions.allowDelete) {
+                throw Exception('Delete action is not allowed.');
+              }
               _chatHistory.removeWhere(
                 (message) =>
                     message is UiResponseMessage &&
@@ -212,47 +226,59 @@ class GenUiManager {
   ///
   /// This approach ensures that the fundamental structure of the UI definition
   /// is always valid according to the schema.
-  Schema get outputSchema => S.object(
-    properties: {
-      'actions': S.list(
-        description: 'A list of actions to be performed on the UI surfaces.',
-        items: S.object(
-          properties: {
-            'action': S.string(
-              description: 'The action to perform on the UI surface.',
-              enumValues: ['add', 'update', 'delete'],
-            ),
-            'surfaceId': S.string(
-              description:
-                  'The ID of the surface to perform the action on. For the '
-                  '`add` action, this will be a new surface ID. '
-                  'For `update` and '
-                  '`delete`, this will be an existing surface ID.',
-            ),
-            'definition': S.object(
-              properties: {
-                'root': S.string(description: 'The ID of the root widget.'),
-                'widgets': S.list(
-                  items: catalog.schema,
-                  description: 'A list of widget definitions.',
-                  minItems: 1,
-                ),
-              },
-              description:
-                  'A schema for a simple UI tree to be rendered by '
-                  'Flutter.',
-              required: ['root', 'widgets'],
-            ),
-          },
-          required: ['action', 'surfaceId'],
+  Schema get outputSchema {
+    final allowedActions = <String>[];
+    if (configuration.actions.allowCreate) {
+      allowedActions.add('add');
+    }
+    if (configuration.actions.allowUpdate) {
+      allowedActions.add('update');
+    }
+    if (configuration.actions.allowDelete) {
+      allowedActions.add('delete');
+    }
+    return S.object(
+      properties: {
+        'actions': S.list(
+          description: 'A list of actions to be performed on the UI surfaces.',
+          items: S.object(
+            properties: {
+              'action': S.string(
+                description: 'The action to perform on the UI surface.',
+                enumValues: allowedActions,
+              ),
+              'surfaceId': S.string(
+                description:
+                    'The ID of the surface to perform the action on. For the '
+                    '`add` action, this will be a new surface ID. '
+                    'For `update` and '
+                    '`delete`, this will be an existing surface ID.',
+              ),
+              'definition': S.object(
+                properties: {
+                  'root': S.string(description: 'The ID of the root widget.'),
+                  'widgets': S.list(
+                    items: catalog.schema,
+                    description: 'A list of widget definitions.',
+                    minItems: 1,
+                  ),
+                },
+                description:
+                    'A schema for a simple UI tree to be rendered by '
+                    'Flutter.',
+                required: ['root', 'widgets'],
+              ),
+            },
+            required: ['action', 'surfaceId'],
+          ),
         ),
-      ),
-    },
-    description:
-        'A schema for defining a simple UI tree to be rendered by '
-        'Flutter.',
-    required: ['actions'],
-  );
+      },
+      description:
+          'A schema for defining a simple UI tree to be rendered by '
+          'Flutter.',
+      required: ['actions'],
+    );
+  }
 
   Widget widget() {
     return StreamBuilder(
