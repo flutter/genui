@@ -14,7 +14,7 @@ class GenUiSurfaces {
   /// Ids of the surfaces that can be updated.
   final Set<String> surfacesIds;
 
-  /// The [description] explains the surfaces for the AI.
+  /// Explains the surfaces, itemized in [surfacesIds], for the AI.
   final String description;
 
   GenUiSurfaces({required this.surfacesIds, required this.description});
