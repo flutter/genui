@@ -20,6 +20,7 @@ import 'widgets/conversation_widget.dart';
 
 enum GenUiStyle { flexible, chat }
 
+// TODO: delete this API after the new API is enabled.
 class OldGenUiManager {
   void _init(Catalog? catalog) {
     this.catalog = catalog ?? coreCatalog;
