@@ -8,15 +8,32 @@ import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import 'core_catalog.dart';
 
+/// Surfaces that can be updated by the AI client.
+class GenUiSurfaces {
+  /// Ids of the surfaces that can be updated.
+  final Set<String> surfacesIds;
+
+  /// The [description] explains the surfaces for the AI.
+  final String description;
+
+  GenUiSurfaces({required this.surfacesIds, required this.description});
+}
+
 class GenUiManager {
-  GenUiManager({required this.aiClient, Catalog? catalog}) {
+  GenUiManager({
+    required this.aiClient,
+    required GenUiSurfaces surfaces,
+    Catalog? catalog,
+  }) : _surfaces = surfaces {
     this.catalog = catalog ?? coreCatalog;
   }
 
   late final Catalog catalog;
   final AiClient aiClient;
+  GenUiSurfaces _surfaces;
 
-  void setUpdatableSurfaces(List<String> surfaces, String description) {
+  /// Sets the surfaces that can be updated by the AI client.
+  void setSurfaces(GenUiSurfaces surfaces) {
     throw UnimplementedError();
   }
 
