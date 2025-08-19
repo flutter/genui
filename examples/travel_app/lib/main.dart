@@ -156,12 +156,14 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           const SizedBox(width: 8.0),
         ],
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: _genUiManager.widget(),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _genUiManager.widget(),
+            ),
           ),
         ),
       ),
