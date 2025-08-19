@@ -5,20 +5,20 @@
 import 'dart:async';
 
 import 'package:flutter_genui/src/core/core_catalog.dart';
-import 'package:flutter_genui/src/core/genui_manager.dart';
+import 'package:flutter_genui/src/core/old_genui_manager.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('$GenUiManager', () {
-    late GenUiManager manager;
+  group('$OldGenUiManager', () {
+    late OldGenUiManager manager;
     late FakeAiClient fakeAiClient;
 
     setUp(() {
       fakeAiClient = FakeAiClient();
-      manager = GenUiManager(catalog: coreCatalog, aiClient: fakeAiClient);
+      manager = OldGenUiManager(catalog: coreCatalog, aiClient: fakeAiClient);
     });
 
     tearDown(() {
@@ -405,7 +405,7 @@ void main() {
 
     test('sends user prompt and gets UI response when showInternalMessages is '
         'true', () async {
-      manager = GenUiManager(
+      manager = OldGenUiManager(
         catalog: coreCatalog,
         aiClient: fakeAiClient,
         showInternalMessages: true,

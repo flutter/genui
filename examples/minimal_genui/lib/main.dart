@@ -47,7 +47,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GenUiManager _genUiManager = GenUiManager.chat(
+  final OldGenUiManager _genUiManager = OldGenUiManager.chat(
     aiClient: GeminiAiClient(systemInstruction: _chatPrompt),
   );
 
