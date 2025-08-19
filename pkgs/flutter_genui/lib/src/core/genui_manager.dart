@@ -25,6 +25,7 @@ class GenUiManager {
     required this.aiClient,
     required GenUiSurfaces surfaces,
     required this.generalPrompt,
+    this.onWarning,
     Catalog? catalog,
   }) : _surfaces = surfaces {
     this.catalog = catalog ?? coreCatalog;
@@ -33,6 +34,9 @@ class GenUiManager {
   late final Catalog catalog;
   final AiClient aiClient;
   final String generalPrompt;
+
+  /// Called when there is a warning to report.
+  final ValueChanged<String>? onWarning;
 
   GenUiSurfaces _surfaces;
 
