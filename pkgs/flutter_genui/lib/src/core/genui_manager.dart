@@ -20,6 +20,11 @@ class GenUiSurfaces {
   GenUiSurfaces({required this.surfacesIds, required this.description});
 }
 
+abstract class GenUiWarning {
+  /// The warning message.
+  String get message;
+}
+
 class GenUiManager {
   GenUiManager({
     required this.aiClient,
@@ -36,7 +41,7 @@ class GenUiManager {
   final String generalPrompt;
 
   /// Called when there is a warning to report.
-  final ValueChanged<String>? onWarning;
+  final ValueChanged<GenUiWarning>? onWarning;
 
   /// If true, the AI is processing a request.
   ValueListenable<bool> get isProcessing => _isProcessing;
@@ -80,9 +85,6 @@ class GenUiManager {
   ///
   /// The stream will complete when the surface is removed
   /// from [surfaces].
-  Stream<WidgetBuilder> surfaceUpdates(String surfaceId) =>
+  Stream<WidgetBuilder> surfaceUpdates(String? surfaceId) =>
       throw UnimplementedError();
-
-  /// Stream of updates for all surfaces.
-  Stream<WidgetBuilder> get allSurfaceUpdates => throw UnimplementedError();
 }
