@@ -62,6 +62,9 @@ class GenUiManager {
   }
 
   /// Stream of updates for the surface.
+  ///
+  /// If the surface with [surfaceId] does not exist in [surfaces],
+  /// will throw an error.
   Stream<WidgetBuilder> uiStream(String surfaceId) =>
       throw UnimplementedError();
 }
