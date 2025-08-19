@@ -20,9 +20,17 @@ class GenUiSurfaces {
   GenUiSurfaces({required this.surfacesIds, required this.description});
 }
 
-abstract class GenUiWarning {
+sealed class GenUiWarning {
   /// The warning message.
   String get message;
+}
+
+class TextGenUiWarning implements GenUiWarning {
+  /// Creates a warning with the given [message].
+  TextGenUiWarning(this.message);
+
+  @override
+  final String message;
 }
 
 // TODO: rename to GenUiManager after implementing.
