@@ -29,11 +29,26 @@ class GenUiManager {
   GenUiSurfaces _surfaces;
 
   /// Resets the surfaces updatable by the AI client.
-  void setSurfaces(GenUiSurfaces surfaces) {
+  set surfaces(GenUiSurfaces value) {
     throw UnimplementedError();
   }
 
-  Widget build({required BuildContext context, required String surfaceId}) {
+  /// Resets the surfaces updatable by the AI client.
+  GenUiSurfaces get surfaces => _surfaces;
+
+  /// Builds a widget for the given [surfaceId].
+  ///
+  /// If the surface is not defined by AI yet, will use default builder.
+  ///
+  /// If [defaultBuilder] is not provided, `SizedBox.shrink()` will be rendered.
+  ///
+  /// If the surface with [surfaceId] does not exist in [surfaces],
+  /// will throw an error.
+  Widget build({
+    required BuildContext context,
+    required String surfaceId,
+    WidgetBuilder? defaultBuilder,
+  }) {
     throw UnimplementedError();
   }
 
