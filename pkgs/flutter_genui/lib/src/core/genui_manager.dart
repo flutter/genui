@@ -58,7 +58,9 @@ class GenUiManager {
   }
 
   /// Sends a text prompt to the AI client.
-  void sendTextPrompt(String prompt) {
+  ///
+  /// The future will complete when the prompt is responded to.
+  Future<void> sendTextPrompt(String prompt) {
     throw UnimplementedError();
   }
 
