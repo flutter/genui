@@ -227,16 +227,11 @@ class GenUiManager {
   /// This approach ensures that the fundamental structure of the UI definition
   /// is always valid according to the schema.
   Schema get outputSchema {
-    final allowedActions = <String>[];
-    if (configuration.actions.allowCreate) {
-      allowedActions.add('add');
-    }
-    if (configuration.actions.allowUpdate) {
-      allowedActions.add('update');
-    }
-    if (configuration.actions.allowDelete) {
-      allowedActions.add('delete');
-    }
+    final allowedActions = <String>[
+      if (configuration.actions.allowCreate) 'add',
+      if (configuration.actions.allowUpdate) 'update',
+      if (configuration.actions.allowDelete) 'delete',
+    ];
     return S.object(
       properties: {
         'actions': S.list(
