@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -36,7 +37,10 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<String> _messages = [];
-  final FirebaseAIService _aiService = FirebaseAIService();
+  final ChatGenUi _genUi = ChatGenUi(
+    aiClient: FirebaseAIService().aiClient,
+    generalPrompt: 'You are a helpful assistant.',
+  );
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
 
@@ -102,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     setState(() => _isLoading = true);
-    final response = await _aiService.sendMessageStream(text);
+    final response = await _genUi.sendMessageStream(text);
 
     setState(() {
       _messages.add('Bot: $response');
@@ -126,16 +130,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
 class FirebaseAIService {
   late final GenerativeModel _model;
-  late final ChatSession _chat;
+  late final AiClient aiClient;
 
   FirebaseAIService() {
     _model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
-    _chat = _model.startChat();
-  }
-
-  Future<String> sendMessageStream(String message) async {
-    final prompt = Content.text(message);
-    final response = await _chat.sendMessage(prompt);
-    return response.text ?? 'Sorry, I could not process that.';
+    aiClient = GeminiAiClient(
+      modelCreator:
+          ({
+            required GeminiAiClient configuration,
+            Content? systemInstruction,
+            ToolConfig? toolConfig,
+            List<Tool>? tools,
+          }) {
+            return FirebaseAiGenerativeModel(_model);
+          },
+    );
   }
 }
