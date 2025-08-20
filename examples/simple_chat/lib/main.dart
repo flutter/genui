@@ -5,18 +5,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/flutter_genui.dart' hide ChatMessage;
-import 'chat_message.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(const ChatApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ChatApp extends StatelessWidget {
+  const ChatApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +35,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final List<ChatMessageController> _messages = [];
-  final _genUi = SimpleChat(
-    firebaseChatSession: FirebaseAIService(),
-    generalPrompt:
-        '''You are a helpful assistant who speaks in the style of a pirate.
-    The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
-    ''',
-    // TODO: provide widget catalog and image source
-  );
+  final List<String> _messages = [];
+  final FirebaseAIService _aiService = FirebaseAIService();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
 
@@ -62,9 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];
-                  return ListTile(
-                    title: ChatMessage(message, onSubmitted: _sendUiRequest),
-                  );
+                  return ListTile(title: Text(message));
                 },
               ),
             ),
@@ -83,12 +72,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: const InputDecoration(
                         hintText: 'Type your message...',
                       ),
-                      onSubmitted: (_) => _sendTextRequest(),
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.send),
-                    onPressed: _sendTextRequest,
+                    onPressed: _sendMessage,
                   ),
                 ],
               ),
@@ -99,23 +88,24 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _sendTextRequest() async {
+  Future<void> _sendMessage() async {
     final text = _textController.text;
     if (text.isEmpty) {
       return;
     }
 
     setState(() {
-      _messages.add(ChatMessageController(text: 'You: $text'));
+      _messages.add('You: $text');
     });
 
     _textController.clear();
     _scrollToBottom();
 
     setState(() => _isLoading = true);
-    final response = await _genUi.sendTextRequest(text);
+    final response = await _aiService.sendMessageStream(text);
+
     setState(() {
-      _messages.add(ChatMessageController(genUiResponse: response));
+      _messages.add('Bot: $response');
       _isLoading = false;
     });
     _scrollToBottom();
