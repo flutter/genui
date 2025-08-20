@@ -14,7 +14,6 @@ export 'src/catalog/core_widgets/text_field.dart';
 export 'src/core/core_catalog.dart';
 export 'src/core/old_genui_manager.dart';
 export 'src/core/genui_manager.dart';
-export 'src/core/new_genui_manager.dart';
 export 'src/core/ui_event_manager.dart';
 export 'src/facade/firebase_ai.dart';
 export 'src/model/catalog.dart';
