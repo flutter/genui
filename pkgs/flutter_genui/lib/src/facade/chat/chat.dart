@@ -99,16 +99,13 @@ $customization
 ''';
 }
 
-String _surfacesDescription(String surfaceId) => '''The surface "$surfaceId"
-is intended to contain non-text interactions
-between you and the user and the AI in response to the last text prompt.
+String _surfacesDescription(String surfaceId) =>
+    '''
+The surface "$surfaceId" is intended to contain non-text interactions between you and the user and the AI in response to the last text prompt.
 
 If you can respond to the user's request, just respond.
 
-Otherwise, you should ask for clarifications
-or provide options for the user to choose from.
+Otherwise, you should ask for clarifications or provide options for the user to choose from.
 
-You should continue appending to the surface with new responses
-till the moment when the response does not require non-text input from the user,
-and you can just answer the question.
+You should continue appending to the surface with new responses till the moment when the response does not require non-text input from the user, and you can just answer the question.
 ''';
