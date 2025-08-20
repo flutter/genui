@@ -18,6 +18,9 @@ class GenUiSurfaces {
   final String description;
 
   GenUiSurfaces({required this.surfacesIds, required this.description});
+  const GenUiSurfaces.empty()
+    : surfacesIds = const <String>{},
+      description = '';
 }
 
 abstract class GenUiWarning {
