@@ -28,6 +28,13 @@ abstract class GenUiWarning {
   String get message;
 }
 
+class TextGenUiWarning extends GenUiWarning {
+  @override
+  final String message;
+
+  TextGenUiWarning(this.message);
+}
+
 // TODO: rename to GenUiManager after implementing.
 class NewGenUiManager {
   NewGenUiManager({
@@ -94,6 +101,10 @@ class NewGenUiManager {
 
   /// Stream of updates for all surfaces.
   Stream<SurfaceUpdate> get allSurfaceUpdates => throw UnimplementedError();
+
+  void dispose() {
+    _isProcessing.dispose();
+  }
 }
 
 class SurfaceUpdate {

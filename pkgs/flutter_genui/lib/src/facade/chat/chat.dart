@@ -21,7 +21,7 @@ class SimpleChatGenUi {
       // named "InteractiveChatMessage".
       catalog: catalog,
       generalPrompt: generalPrompt,
-      surfaces: GenUiSurfaces.empty(),
+      surfaces: const GenUiSurfaces.empty(),
     );
 
     _streamSubscription = _genUi.allSurfaceUpdates.listen(_onUiReceived);
