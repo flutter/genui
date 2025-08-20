@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -148,12 +149,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 
   Future<void> _triggerInference() async {
-    final response = await _aiClient.generateText(List.of(_conversation));
-    if (mounted && response.isNotEmpty) {
-      setState(() {
-        _conversation.add(AssistantMessage.text(response));
-      });
-    }
+    await _aiClient.generateContent(List.of(_conversation), Schema.object());
   }
 
   void _onUiEvents(String surfaceId, List<UiEvent> events) {
