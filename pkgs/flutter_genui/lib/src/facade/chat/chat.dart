@@ -31,7 +31,7 @@ class SimpleChatGenUi {
     _streamSubscription = _genUi.allSurfaceUpdates.listen(_onUiReceived);
   }
 
-  late _ChatSurface _chatSurface;
+  _ChatSurface? _chatSurface;
 
   late final StreamSubscription<SurfaceUpdate> _streamSubscription;
 
@@ -44,17 +44,27 @@ class SimpleChatGenUi {
   ValueListenable<bool> get isProcessing => _genUi.isProcessing;
 
   void _onUiReceived(SurfaceUpdate update) {
-    if (update.surfaceId != _chatSurface.surfaceId) {
+    final surface = _chatSurface;
+    if (surface == null) {
       onWarning?.call(
         TextGenUiWarning(
           'Received update for surface "${update.surfaceId}", '
-          'but this surface does not exist any more.'
-          'The current chat surface is "${_chatSurface.surfaceId}".',
+          'but the chat surface is not initialized.',
         ),
       );
       return;
     }
-    _chatSurface.onUpdate(update.builder);
+    if (update.surfaceId != surface.surfaceId) {
+      onWarning?.call(
+        TextGenUiWarning(
+          'Received update for surface "${update.surfaceId}", '
+          'but this surface does not exist any more.'
+          'The current chat surface is "${surface.surfaceId}".',
+        ),
+      );
+      return;
+    }
+    surface.onUpdate(update.builder);
   }
 
   /// Sends a text prompt to the AI client.
@@ -62,7 +72,7 @@ class SimpleChatGenUi {
   /// Returns the UI to show to the user.
   void sendTextPrompt(String prompt, ValueChanged<WidgetBuilder> onUpdate) {
     _chatSurface = _ChatSurface(onUpdate);
-    _genUi.surfaces = _chatSurface.surfaces;
+    _genUi.surfaces = _chatSurface!.surfaces;
     // Unawaited because the builder will be provided in `onUpdate`.
     _genUi.sendTextPrompt(prompt);
   }
@@ -89,7 +99,7 @@ class _ChatSurface {
 }
 
 String _generalPrompt(String customization) {
-  return '''You are a helpful AI assistant chats
+  return '''You are a helpful AI assistant that chats
 with user, answering their questions and providing information.
 You should respond to the user's requests in a conversational manner,
 and you may ask for clarifications if needed.
