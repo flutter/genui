@@ -20,7 +20,7 @@ class SimpleChatGenUi {
       // TODO: extend default catalog with the widget for the chat surface
       // named "InteractiveChatMessage".
       catalog: catalog,
-      generalPrompt: generalPrompt,
+      generalPrompt: _generalPrompt(generalPrompt),
       surfaces: const GenUiSurfaces.empty(),
     );
 
@@ -44,8 +44,8 @@ class SimpleChatGenUi {
       onWarning?.call(
         TextGenUiWarning(
           'Received update for surface "${update.surfaceId}", '
-          'but the current chat surface is '
-          '"${_chatSurface.surfaceId}", which is unexpected.',
+          'but this surface does not exist any more.'
+          'The current chat surface is "${_chatSurface.surfaceId}".',
         ),
       );
       return;
