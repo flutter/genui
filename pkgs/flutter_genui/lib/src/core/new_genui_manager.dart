@@ -18,20 +18,11 @@ class GenUiSurfaces {
   final String description;
 
   GenUiSurfaces({required this.surfacesIds, required this.description});
-  GenUiSurfaces.empty() : this(surfacesIds: const <String>{}, description: '');
 }
 
-sealed class GenUiWarning {
+abstract class GenUiWarning {
   /// The warning message.
   String get message;
-}
-
-class TextGenUiWarning implements GenUiWarning {
-  /// Creates a warning with the given [message].
-  TextGenUiWarning(this.message);
-
-  @override
-  final String message;
 }
 
 // TODO: rename to GenUiManager after implementing.
@@ -100,8 +91,6 @@ class NewGenUiManager {
 
   /// Stream of updates for all surfaces.
   Stream<SurfaceUpdate> get allSurfaceUpdates => throw UnimplementedError();
-
-  void dispose() {}
 }
 
 class SurfaceUpdate {
