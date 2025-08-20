@@ -329,6 +329,90 @@ void main() {
       });
     });
 
+    group('anyOf', () {
+      test('should adapt a schema with anyOf', () {
+        final dsbSchema = dsb.Schema.combined(
+          anyOf: [
+            {
+              'properties': {
+                'bar': {'type': 'number'},
+              },
+            },
+            {
+              'properties': {
+                'baz': {'type': 'boolean'},
+              },
+            },
+          ],
+        );
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, isEmpty);
+        expect(result.schema, isNotNull);
+        expect(result.schema!.type, firebase_ai.SchemaType.anyOf);
+        expect(result.schema!.properties, isNull);
+        expect(result.schema!.anyOf, isNotNull);
+        expect(result.schema!.anyOf, hasLength(2));
+        final firstAnyOf = result.schema!.anyOf![0];
+        expect(firstAnyOf.type, firebase_ai.SchemaType.object);
+        expect(firstAnyOf.properties, hasLength(1));
+        expect(
+          firstAnyOf.properties!['bar']!.type,
+          firebase_ai.SchemaType.number,
+        );
+        final secondAnyOf = result.schema!.anyOf![1];
+        expect(secondAnyOf.type, firebase_ai.SchemaType.object);
+        expect(secondAnyOf.properties, hasLength(1));
+        expect(
+          secondAnyOf.properties!['baz']!.type,
+          firebase_ai.SchemaType.boolean,
+        );
+      });
+
+      test('should report an error for an empty anyOf list', () {
+        final dsbSchema = dsb.Schema.fromMap({'type': 'object', 'anyOf': []});
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(1));
+        expect(
+          result.errors[0].message,
+          'The value of "anyOf" must be a non-empty array of schemas.',
+        );
+      });
+
+      test('should report an error for a non-list anyOf', () {
+        final dsbSchema = dsb.Schema.fromMap({
+          'type': 'object',
+          'anyOf': 'not-a-list',
+        });
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(1));
+        expect(
+          result.errors[0].message,
+          'The value of "anyOf" must be a non-empty array of schemas.',
+        );
+      });
+
+      test('should report an error for invalid item in anyOf list', () {
+        final dsbSchema = dsb.Schema.fromMap({
+          'type': 'object',
+          'anyOf': ['not-a-schema'],
+        });
+
+        final result = adapter.adapt(dsbSchema);
+
+        expect(result.errors, hasLength(1));
+        expect(
+          result.errors[0].message,
+          'Schema inside "anyOf" must be an object.',
+        );
+      });
+    });
+
     group('Edge Cases', () {
       test('should handle nested objects and arrays', () {
         final dsbSchema = dsb.Schema.object(

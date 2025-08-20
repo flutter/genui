@@ -4,11 +4,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/core/widgets/conversation_widget.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ConversationWidget', () {
+    late GenUiManager manager;
+
+    setUp(() {
+      manager = GenUiManager(catalog: coreCatalog);
+    });
+
     testWidgets('renders a list of messages', (WidgetTester tester) async {
       final messages = [
         UserMessage.text('Hello'),
@@ -28,13 +34,17 @@ void main() {
           },
         ),
       ];
+      manager.addOrUpdateSurface(
+        's1',
+        (messages[1] as UiResponseMessage).definition,
+      );
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              manager: manager,
               onEvent: (_) {},
             ),
           ),
@@ -53,7 +63,7 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              manager: manager,
               onEvent: (_) {},
             ),
           ),
@@ -81,12 +91,13 @@ void main() {
           },
         ),
       ];
+      manager.addOrUpdateSurface('s1', messages[0].definition);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              manager: manager,
               onEvent: (_) {},
             ),
           ),
@@ -105,7 +116,7 @@ void main() {
           home: Scaffold(
             body: ConversationWidget(
               messages: messages,
-              catalog: coreCatalog,
+              manager: manager,
               onEvent: (_) {},
               userPromptBuilder: (context, message) =>
                   const Text('Custom User Prompt'),
