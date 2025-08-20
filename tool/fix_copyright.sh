@@ -11,4 +11,4 @@ set -ex
 # The directory that this script is located in.
 TOOL_DIR=$(dirname $(realpath "${BASH_SOURCE[0]}"))
 
-dart "$TOOL_DIR/fix_copyright/bin/fix_copyright.dart" --year "$(date +%Y)" --force
+dart "$TOOL_DIR/fix_copyright/bin/fix_copyright.dart" --year 2025 --force
