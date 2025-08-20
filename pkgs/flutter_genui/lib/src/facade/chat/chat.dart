@@ -115,7 +115,7 @@ $customization
 
 String _surfacesDescription(String surfaceId) =>
     '''
-The surface "$surfaceId" is intended to contain non-text interactions between you and the user and the AI in response to the last text prompt.
+The surface "$surfaceId" is intended to contain non-text interactions between you (the AI) and the user in response to the last text prompt.
 
 If you can respond to the user's request, just respond.
 
