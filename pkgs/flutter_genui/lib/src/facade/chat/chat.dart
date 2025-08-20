@@ -11,8 +11,8 @@ import '../../ai_client/ai_client.dart';
 import '../../core/new_genui_manager.dart';
 import '../../model/catalog.dart';
 
-class SimpleChatGenUi {
-  SimpleChatGenUi({
+class ChatGenUi {
+  ChatGenUi({
     required AiClient aiClient,
     this.onWarning,
     Catalog? catalog,

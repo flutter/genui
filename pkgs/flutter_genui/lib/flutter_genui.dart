@@ -4,6 +4,7 @@
 
 export 'src/ai_client/ai_client.dart';
 export 'src/ai_client/gemini_ai_client.dart';
+export 'src/ai_client/generative_model_interface.dart';
 export 'src/catalog/core_widgets/checkbox_group.dart';
 export 'src/catalog/core_widgets/column.dart';
 export 'src/catalog/core_widgets/elevated_button.dart';
