@@ -10,16 +10,16 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const ChatApp());
+  runApp(const MyApp());
 }
 
-class ChatApp extends StatelessWidget {
-  const ChatApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter and Firebase AI',
+      title: 'Simple Chat',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: const ChatScreen(),
     );
