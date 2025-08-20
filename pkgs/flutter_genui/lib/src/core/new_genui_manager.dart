@@ -74,8 +74,8 @@ class NewGenUiManager {
   ///
   /// If the surface with [surfaceId] does not exist in [surfaces],
   /// will throw an error.
-  Widget build({
-    required BuildContext context,
+  Widget build(
+    BuildContext context, {
     required String surfaceId,
     WidgetBuilder? defaultBuilder,
   }) {

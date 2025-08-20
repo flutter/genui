@@ -49,7 +49,7 @@ class ChatGenUi {
       onWarning?.call(
         TextGenUiWarning(
           'Received update for surface "${update.surfaceId}", '
-          'but the chat surface is not initialized.',
+          'but the chat surface is not initialized yet.',
         ),
       );
       return;
@@ -70,16 +70,25 @@ class ChatGenUi {
   /// Sends a text prompt to the AI client.
   ///
   /// Returns the UI to show to the user.
-  void sendTextPrompt(String prompt, ValueChanged<WidgetBuilder> onUpdate) {
-    _chatSurface = _ChatSurface(onUpdate);
-    _genUi.surfaces = _chatSurface!.surfaces;
-    // Unawaited because the builder will be provided in `onUpdate`.
-    _genUi.sendTextPrompt(prompt);
+  Future<WidgetBuilder> sendTextPrompt(
+    String prompt,
+    ValueChanged<WidgetBuilder> onUpdate,
+  ) async {
+    final surface = _chatSurface = _ChatSurface(onUpdate);
+    _genUi.surfaces = surface.surfaces;
+    await _genUi.sendTextPrompt(prompt);
+    surface.subscription = _genUi
+        .surfaceUpdates(surface.surfaceId)
+        .listen(onUpdate);
+    return (BuildContext context) =>
+        _genUi.build(context, surfaceId: surface.surfaceId);
   }
 
   void dispose() {
     _streamSubscription.cancel();
     _genUi.dispose();
+    _chatSurface?.dispose();
+    _chatSurface = null;
   }
 }
 
@@ -88,7 +97,13 @@ class _ChatSurface {
 
   _ChatSurface(this.onUpdate) : surfaceId = 'chat${_chatSurfaceIndex++}';
 
+  /// Callback to the application to render the received UI.
   final ValueChanged<WidgetBuilder> onUpdate;
+
+  /// Subscription to the stream of updates for this surface.
+  ///
+  /// It will be canceled when the surface is disposed.
+  StreamSubscription<WidgetBuilder>? subscription;
 
   final String surfaceId;
 
@@ -96,6 +111,11 @@ class _ChatSurface {
     surfacesIds: {surfaceId},
     description: _surfacesDescription(surfaceId),
   );
+
+  void dispose() {
+    subscription?.cancel();
+    subscription = null;
+  }
 }
 
 String _generalPrompt(String customization) {

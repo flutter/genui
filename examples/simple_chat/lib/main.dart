@@ -106,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     setState(() => _isLoading = true);
-    _genUi.sendTextPrompt(text);
+    final builder = await _genUi.sendTextPrompt(text);
 
     setState(() {
       _messages.add('Bot: $response');
