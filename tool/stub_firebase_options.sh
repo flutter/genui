@@ -10,3 +10,4 @@ set -ex
 
 cp -f examples/minimal_genui/lib/firebase_options_stub.dart examples/minimal_genui/lib/firebase_options.dart
 cp -f examples/travel_app/lib/firebase_options_stub.dart examples/travel_app/lib/firebase_options.dart
+cp -f examples/simple_chat/lib/firebase_options_stub.dart examples/simple_chat/lib/firebase_options.dart
