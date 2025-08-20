@@ -100,7 +100,7 @@ class _ChatSurface {
 
 String _generalPrompt(String customization) {
   return '''You are a helpful AI assistant that chats
-with user, answering their questions and providing information.
+with a user, answering their questions and providing information.
 You should respond to the user's requests in a conversational manner,
 and you may ask for clarifications if needed.
 You should not ask for clarifications if the user has already provided enough information.
@@ -115,7 +115,7 @@ $customization
 
 String _surfacesDescription(String surfaceId) =>
     '''
-The surface "$surfaceId" is intended to contain non-text interactions between you (the AI) and the user in response to the last text prompt.
+The surface "$surfaceId" is intended to contain non-text interactions between you and the user in response to the last text prompt.
 
 If you can respond to the user's request, just respond.
 
