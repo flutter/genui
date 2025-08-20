@@ -13,5 +13,5 @@ TOOL_DIR=$(dirname "$0")
 
 (
   cd "$TOOL_DIR/.."
-  dart tool/fix_copyright/bin/fix_copyright.dart --year 2025 --force
+  dart tool/fix_copyright/bin/fix_copyright.dart --year "$(date +%Y)" --force
 )
