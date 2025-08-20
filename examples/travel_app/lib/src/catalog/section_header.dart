@@ -33,8 +33,8 @@ extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
 /// longer sequences of widgets, such as a detailed travel itinerary composed of
 /// multiple [itineraryItem] widgets. Its primary role is to improve the
 /// structure and scannability of the UI.
-final sectionHeaderCatalogItem = CatalogItem(
-  name: 'sectionHeader',
+final sectionHeader = CatalogItem(
+  name: 'SectionHeader',
   dataSchema: _schema,
   widgetBuilder:
       ({

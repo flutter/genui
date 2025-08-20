@@ -91,7 +91,7 @@ class _TextFieldState extends State<_TextField> {
 }
 
 final textField = CatalogItem(
-  name: 'text_field',
+  name: 'TextField',
   dataSchema: _schema,
   widgetBuilder:
       ({

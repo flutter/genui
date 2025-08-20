@@ -34,12 +34,12 @@ extension type _FilterChipGroupData.fromMap(Map<String, Object?> _json) {
 ///
 /// This component is designed to present the user with multiple categories of
 /// choices (e.g., "Budget", "Activity Type", "Duration"). Each choice is
-/// managed by a child chip. The `filterChipGroup` provides a single "Submit"
+/// managed by a child chip. The [filterChipGroup] provides a single "Submit"
 /// button that, when pressed, dispatches a single event. This signals the AI
 /// to process the current selections from all the child chips at once, which
 /// is useful for refining a search or query with multiple parameters.
 final filterChipGroup = CatalogItem(
-  name: 'filterChipGroup',
+  name: 'FilterChipGroup',
   dataSchema: _schema,
   widgetBuilder:
       ({

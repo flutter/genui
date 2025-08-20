@@ -12,8 +12,8 @@ import '../catalog/core_widgets/text_field.dart';
 import '../model/catalog.dart';
 
 final coreCatalog = Catalog([
-  elevatedButtonCatalogItem,
-  columnCatalogItem,
+  elevatedButton,
+  column,
   text,
   checkboxGroup,
   radioGroup,

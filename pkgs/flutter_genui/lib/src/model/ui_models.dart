@@ -78,6 +78,9 @@ extension type UiDefinition.fromMap(Map<String, Object?> _json) {
   /// The ID of the root widget in the UI tree.
   String get root => _json['root'] as String;
 
+  /// The original list of widget definitions.
+  List<Object?> get widgetList => _json['widgets'] as List<Object?>;
+
   /// A map of all widget definitions in the UI, keyed by their ID.
   Map<String, Object?> get widgets {
     final widgetById = <String, Object?>{};

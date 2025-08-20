@@ -35,6 +35,15 @@ abstract interface class AiClient {
     Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   });
+
+  /// Generates a text response from the given [conversation].
+  ///
+  /// The [additionalTools] are added to the list of tools available to the
+  /// AI model, but the model is not required to use them.
+  Future<String> generateText(
+    List<ChatMessage> conversation, {
+    Iterable<AiTool> additionalTools = const [],
+  });
 }
 
 /// The severity of a log message from the AI client.

@@ -38,7 +38,7 @@ extension type _ImageData.fromMap(Map<String, Object?> _json) {
 }
 
 final image = CatalogItem(
-  name: 'image',
+  name: 'Image',
   dataSchema: _schema,
   widgetBuilder:
       ({

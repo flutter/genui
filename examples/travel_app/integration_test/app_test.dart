@@ -60,7 +60,7 @@ const Map<String, Object> _baliResponse = {
           },
           {
             'widget': {
-              'text': {
+              'Text': {
                 'text':
                     'Great! I can help you plan a fantastic trip to Bali. To '
                     'get started, what kind of experience are you looking for?',
@@ -71,7 +71,7 @@ const Map<String, Object> _baliResponse = {
           {
             'id': 'bali_carousel',
             'widget': {
-              'travelCarousel': {
+              'TravelCarousel': {
                 'items': [
                   {
                     'imageChild': 'bali_memorial_image',
@@ -92,7 +92,7 @@ const Map<String, Object> _baliResponse = {
           {
             'id': 'bali_memorial_image',
             'widget': {
-              'image': {
+              'Image': {
                 'fit': 'cover',
                 'assetName': 'assets/travel_images/bali_memorial.jpg',
               },
@@ -101,7 +101,7 @@ const Map<String, Object> _baliResponse = {
           {
             'id': 'nyepi_festival_image',
             'widget': {
-              'image': {
+              'Image': {
                 'fit': 'cover',
                 'assetName': 'assets/travel_images/nyepi_festival_bali.jpg',
               },
@@ -109,7 +109,7 @@ const Map<String, Object> _baliResponse = {
           },
           {
             'widget': {
-              'image': {
+              'Image': {
                 'assetName':
                     'assets/travel_images/kata_noi_beach_phuket_thailand.jpg',
                 'fit': 'cover',
@@ -119,7 +119,7 @@ const Map<String, Object> _baliResponse = {
           },
           {
             'widget': {
-              'filterChipGroup': {
+              'FilterChipGroup': {
                 'submitLabel': 'Plan My Trip',
                 'children': [
                   'travel_style_chip',
@@ -132,7 +132,7 @@ const Map<String, Object> _baliResponse = {
           },
           {
             'widget': {
-              'optionsFilterChip': {
+              'OptionsFilterChip': {
                 'iconChild': 'travel_icon_hiking',
                 'options': [
                   'Relaxation',
@@ -148,13 +148,13 @@ const Map<String, Object> _baliResponse = {
           },
           {
             'widget': {
-              'travelIcon': {'icon': 'hiking'},
+              'TravelIcon': {'icon': 'hiking'},
             },
             'id': 'travel_icon_hiking',
           },
           {
             'widget': {
-              'optionsFilterChip': {
+              'OptionsFilterChip': {
                 'options': ['Economy', 'Mid-range', 'Luxury'],
                 'iconChild': 'travel_icon_wallet',
                 'chipLabel': 'Budget',
@@ -165,13 +165,13 @@ const Map<String, Object> _baliResponse = {
           {
             'id': 'travel_icon_wallet',
             'widget': {
-              'travelIcon': {'icon': 'wallet'},
+              'TravelIcon': {'icon': 'wallet'},
             },
           },
           {
             'id': 'duration_chip',
             'widget': {
-              'optionsFilterChip': {
+              'OptionsFilterChip': {
                 'chipLabel': 'Duration',
                 'options': ['3-5 Days', '1 Week', '10+ Days'],
                 'iconChild': 'travel_icon_calendar',
@@ -180,7 +180,7 @@ const Map<String, Object> _baliResponse = {
           },
           {
             'widget': {
-              'travelIcon': {'icon': 'calendar'},
+              'TravelIcon': {'icon': 'calendar'},
             },
             'id': 'travel_icon_calendar',
           },

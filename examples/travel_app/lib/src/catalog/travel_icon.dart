@@ -39,7 +39,7 @@ enum TravelIcons {
 /// are always relevant to the travel context and maintain a consistent visual
 /// style throughout the application.
 final travelIcon = CatalogItem(
-  name: 'travelIcon',
+  name: 'TravelIcon',
   widgetBuilder:
       ({
         required data,

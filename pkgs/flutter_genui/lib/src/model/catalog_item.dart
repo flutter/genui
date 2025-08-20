@@ -25,7 +25,7 @@ typedef CatalogWidgetBuilder =
 
 /// Defines a UI layout type, its schema, and how to build its widget.
 class CatalogItem {
-  final String name; // The key used in JSON, e.g., 'text_chat_message'
+  final String name; // The key used in JSON, e.g., 'TextChatMessage'
   final Schema dataSchema; // The schema definition for this widget's data.
   final CatalogWidgetBuilder widgetBuilder;
 

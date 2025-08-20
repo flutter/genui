@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/section_header.dart';
 
 void main() {
-  group('sectionHeaderCatalogItem', () {
+  group('sectionHeader', () {
     testWidgets('renders title with a distinct style', (
       WidgetTester tester,
     ) async {
@@ -18,7 +18,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return sectionHeaderCatalogItem.widgetBuilder(
+                return sectionHeader.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
@@ -45,7 +45,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return sectionHeaderCatalogItem.widgetBuilder(
+                return sectionHeader.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
