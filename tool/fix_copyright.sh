@@ -12,4 +12,4 @@ set -ex
 TOOL_DIR=$(dirname $(realpath "${BASH_SOURCE[0]}"))
 
 # The year is hardcoded to 2025, year of project creation.
-dart "$TOOL_DIR/fix_copyright/bin/fix_copyright.dart" --year 2025 --force
+dart "$TOOL_DIR/fix_copyright/bin/fix_copyright.dart" --year 2025 --force "$@"
