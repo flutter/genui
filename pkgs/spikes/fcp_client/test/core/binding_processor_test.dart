@@ -21,13 +21,13 @@ void main() {
           'count': 42,
         },
         validator: DataTypeValidator(),
-        catalog: WidgetCatalog({
+        catalog: WidgetCatalog.fromMap({
           'catalogVersion': '1.0.0',
           'dataTypes': <String, Object?>{},
           'items': {
             'Text': {
               'properties': {
-                'text': {'type': 'String'},
+                'text': {'type': 'string'},
                 'value': {'type': 'int'},
                 'age': {'type': 'int'},
               },
@@ -39,9 +39,9 @@ void main() {
     });
 
     test('resolves simple path binding', () {
-      final binding = Binding.fromJson({'path': 'user.name'});
+      final binding = Binding.fromMap({'path': 'user.name'});
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -51,12 +51,12 @@ void main() {
     });
 
     test('handles format transformer', () {
-      final binding = Binding.fromJson({
+      final binding = Binding.fromMap({
         'path': 'user.name',
         'format': 'Welcome, {}!',
       });
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -66,12 +66,12 @@ void main() {
     });
 
     test('handles condition transformer (true case)', () {
-      final binding = Binding.fromJson({
+      final binding = Binding.fromMap({
         'path': 'user.isPremium',
-        'condition': {'if': 'Premium User', 'else': 'Standard User'},
+        'condition': {'ifValue': 'Premium User', 'elseValue': 'Standard User'},
       });
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -84,12 +84,12 @@ void main() {
       state.state = {
         'user': {'isPremium': false},
       };
-      final binding = Binding.fromJson({
+      final binding = Binding.fromMap({
         'path': 'user.isPremium',
-        'condition': {'if': 'Premium User', 'else': 'Standard User'},
+        'condition': {'ifValue': 'Premium User', 'elseValue': 'Standard User'},
       });
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -99,7 +99,7 @@ void main() {
     });
 
     test('handles map transformer (found case)', () {
-      final binding = Binding.fromJson({
+      final binding = Binding.fromMap({
         'path': 'status',
         'map': {
           'mapping': {'active': 'Online', 'inactive': 'Offline'},
@@ -107,7 +107,7 @@ void main() {
         },
       });
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -118,7 +118,7 @@ void main() {
 
     test('handles map transformer (fallback case)', () {
       state.state = {'status': 'away'};
-      final binding = Binding.fromJson({
+      final binding = Binding.fromMap({
         'path': 'status',
         'map': {
           'mapping': {'active': 'Online', 'inactive': 'Offline'},
@@ -126,7 +126,7 @@ void main() {
         },
       });
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -137,14 +137,14 @@ void main() {
 
     test('handles map transformer with no fallback (miss case)', () {
       state.state = {'status': 'away'};
-      final binding = Binding.fromJson({
+      final binding = Binding.fromMap({
         'path': 'status',
         'map': {
           'mapping': {'active': 'Online', 'inactive': 'Offline'},
         },
       });
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'text': binding.toJson()},
@@ -154,9 +154,9 @@ void main() {
     });
 
     test('returns raw value when no transformer is present', () {
-      final binding = Binding.fromJson({'path': 'count'});
+      final binding = Binding.fromMap({'path': 'count'});
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': {'value': binding.toJson()},
@@ -167,7 +167,7 @@ void main() {
 
     test('returns empty map for empty bindings', () {
       final result = processor.process(
-        LayoutNode.fromJson({
+        LayoutNode.fromMap({
           'id': 'w1',
           'type': 'Text',
           'bindings': <String, Object?>{},
@@ -178,7 +178,7 @@ void main() {
 
     test('returns empty map for null bindings', () {
       final result = processor.process(
-        LayoutNode.fromJson({'id': 'w1', 'type': 'Text'}),
+        LayoutNode.fromMap({'id': 'w1', 'type': 'Text'}),
       );
       expect(result, isEmpty);
     });
@@ -186,15 +186,15 @@ void main() {
     test(
       'returns default value for a path that does not exist in the state',
       () {
-        final binding = Binding.fromJson({'path': 'user.age'});
+        final binding = Binding.fromMap({'path': 'user.age'});
         final result = processor.process(
-          LayoutNode.fromJson({
+          LayoutNode.fromMap({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'age': binding.toJson()},
           }),
         );
-        expect(result['age'], 0);
+        expect(result['age'], isNull);
       },
     );
 
@@ -202,9 +202,9 @@ void main() {
       final scopedData = {'title': 'Scoped Title', 'value': 100};
 
       test('resolves item path from scoped data', () {
-        final binding = Binding.fromJson({'path': 'item.title'});
+        final binding = Binding.fromMap({'path': 'item.title'});
         final result = processor.processScoped(
-          LayoutNode.fromJson({
+          LayoutNode.fromMap({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
@@ -215,9 +215,9 @@ void main() {
       });
 
       test('resolves global path even when scoped data is present', () {
-        final binding = Binding.fromJson({'path': 'user.name'});
+        final binding = Binding.fromMap({'path': 'user.name'});
         final result = processor.processScoped(
-          LayoutNode.fromJson({
+          LayoutNode.fromMap({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
@@ -228,12 +228,12 @@ void main() {
       });
 
       test('applies transformer to scoped data', () {
-        final binding = Binding.fromJson({
+        final binding = Binding.fromMap({
           'path': 'item.value',
           'format': 'Value: {}',
         });
         final result = processor.processScoped(
-          LayoutNode.fromJson({
+          LayoutNode.fromMap({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
@@ -244,16 +244,16 @@ void main() {
       });
 
       test('returns default value for item path when scoped data is empty', () {
-        final binding = Binding.fromJson({'path': 'item.title'});
+        final binding = Binding.fromMap({'path': 'item.title'});
         final result = processor.processScoped(
-          LayoutNode.fromJson({
+          LayoutNode.fromMap({
             'id': 'w1',
             'type': 'Text',
             'bindings': {'text': binding.toJson()},
           }),
           {},
         );
-        expect(result['text'], '');
+        expect(result['text'], isNull);
       });
     });
   });

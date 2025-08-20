@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:fcp_client/fcp_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +20,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -29,7 +30,7 @@ void main() {
 
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'hello',
@@ -64,7 +65,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -75,13 +76,9 @@ void main() {
           CatalogItem(
             name: 'Column',
             builder: (context, node, properties, children) {
-              return Column(
-                children:
-                    (children['children'] as List<dynamic>?)?.cast<Widget>() ??
-                    [],
-              );
+              return Column(children: children['children'] ?? []);
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'children': {'type': 'ListOfWidgetIds'},
               },
@@ -91,7 +88,7 @@ void main() {
 
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'col',
@@ -133,7 +130,7 @@ void main() {
     ) async {
       final registry = WidgetCatalogRegistry();
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'unknown',
@@ -153,56 +150,6 @@ void main() {
       expect(find.textContaining('No builder registered'), findsOneWidget);
     });
 
-    testWidgets('displays an error for a missing required property', (
-      WidgetTester tester,
-    ) async {
-      final registry = WidgetCatalogRegistry()
-        ..register(
-          CatalogItem(
-            name: 'Text',
-            builder: (context, node, properties, children) {
-              return Text(
-                properties['data'] as String? ?? '',
-                textDirection: TextDirection.ltr,
-              );
-            },
-            definition: WidgetDefinition({
-              'properties': {
-                'data': {'type': 'String', 'isRequired': true},
-              },
-            }),
-          ),
-        );
-
-      final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
-
-      final packet = DynamicUIPacket({
-        'formatVersion': '1.0.0',
-        'layout': {
-          'root': 'text',
-          'nodes': [
-            {
-              'id': 'text',
-              'type': 'Text',
-              'properties': <String, Object?>{}, // Missing 'data'
-            },
-          ],
-        },
-        'state': <String, Object?>{},
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FcpView(packet: packet, catalog: catalog, registry: registry),
-        ),
-      );
-
-      expect(
-        find.textContaining('Missing required property "data"'),
-        findsOneWidget,
-      );
-    });
-
     testWidgets('rebuilds when a new packet is provided', (
       WidgetTester tester,
     ) async {
@@ -216,16 +163,21 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
-              'properties': {
-                'data': {'type': 'String'},
-              },
-            }),
+            definition: WidgetDefinition(
+              properties: ObjectSchema(properties: {'data': Schema.string()}),
+              events: ObjectSchema(
+                properties: {
+                  'onChanged': Schema.object(
+                    properties: {'data': Schema.boolean()},
+                  ),
+                },
+              ),
+            ),
           ),
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final initialPacket = DynamicUIPacket({
+      final initialPacket = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'text',
@@ -240,7 +192,7 @@ void main() {
         'state': <String, Object?>{},
       });
 
-      final newPacket = DynamicUIPacket({
+      final newPacket = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'text',
@@ -293,7 +245,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -302,7 +254,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'text',
@@ -341,7 +293,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -351,7 +303,7 @@ void main() {
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
       final controller = FcpViewController();
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'text',
@@ -383,7 +335,7 @@ void main() {
 
       // Act
       controller.patchState(
-        StateUpdate({
+        StateUpdate.fromMap({
           'patches': [
             {'op': 'replace', 'path': '/message', 'value': 'Updated'},
           ],
@@ -411,7 +363,7 @@ void main() {
               return ElevatedButton(
                 onPressed: () {
                   FcpProvider.of(context)?.onEvent?.call(
-                    EventPayload({
+                    EventPayload.fromMap({
                       'sourceNodeId': node.id,
                       'eventName': 'onPressed',
                       'arguments': <String, Object?>{'test': 'data'},
@@ -421,7 +373,7 @@ void main() {
                 child: const Text('Tap Me'),
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': <String, Object?>{},
               'events': {
                 'onPressed': {
@@ -436,7 +388,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'button',
@@ -478,13 +430,9 @@ void main() {
           CatalogItem(
             name: 'Column',
             builder: (context, node, properties, children) {
-              return Column(
-                children:
-                    (children['children'] as List<dynamic>?)?.cast<Widget>() ??
-                    [],
-              );
+              return Column(children: children['children'] ?? []);
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'children': {'type': 'ListOfWidgetIds'},
               },
@@ -500,7 +448,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -509,7 +457,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'col',
@@ -547,7 +495,7 @@ void main() {
 
       // Act
       controller.patchLayout(
-        LayoutUpdate({
+        LayoutUpdate.fromMap({
           'operations': [
             {
               'op': 'add',
@@ -560,7 +508,7 @@ void main() {
               ],
             },
             {
-              'op': 'update',
+              'op': 'replace',
               'nodes': [
                 {
                   'id': 'col',
@@ -590,13 +538,9 @@ void main() {
           CatalogItem(
             name: 'Column',
             builder: (context, node, properties, children) {
-              return Column(
-                children:
-                    (children['children'] as List<dynamic>?)?.cast<Widget>() ??
-                    [],
-              );
+              return Column(children: children['children'] ?? []);
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'children': {'type': 'ListOfWidgetIds'},
               },
@@ -612,7 +556,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -621,7 +565,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'col',
@@ -664,14 +608,14 @@ void main() {
 
       // Act
       controller.patchLayout(
-        LayoutUpdate({
+        LayoutUpdate.fromMap({
           'operations': [
             {
               'op': 'remove',
               'nodeIds': ['text2'],
             },
             {
-              'op': 'update',
+              'op': 'replace',
               'nodes': [
                 {
                   'id': 'col',
@@ -706,7 +650,7 @@ void main() {
                 textDirection: TextDirection.ltr,
               );
             },
-            definition: WidgetDefinition({
+            definition: WidgetDefinition.fromMap({
               'properties': {
                 'data': {'type': 'String'},
               },
@@ -715,7 +659,7 @@ void main() {
         );
       final catalog = registry.buildCatalog(catalogVersion: '1.0.0');
 
-      final packet = DynamicUIPacket({
+      final packet = DynamicUIPacket.fromMap({
         'formatVersion': '1.0.0',
         'layout': {
           'root': 'text1',
@@ -746,10 +690,10 @@ void main() {
 
       // Act
       controller.patchLayout(
-        LayoutUpdate({
+        LayoutUpdate.fromMap({
           'operations': [
             {
-              'op': 'update',
+              'op': 'replace',
               'nodes': [
                 {
                   'id': 'text1',

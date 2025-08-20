@@ -11,10 +11,15 @@ import '../../fcp_client.dart';
 /// fire events, without having to pass the callback through many layers of
 /// widget constructors.
 class FcpProvider extends InheritedWidget {
+  /// Creates an [FcpProvider] that provides an [onEvent] callback to its
+  /// descendants.
   const FcpProvider({super.key, required super.child, this.onEvent});
 
+  /// A callback function that is invoked when an event is triggered by a
+  /// widget.
   final ValueChanged<EventPayload>? onEvent;
 
+  /// Retrieves the [FcpProvider] from the given [context].
   static FcpProvider? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<FcpProvider>();
   }

@@ -26,7 +26,7 @@ void main() {
           'config': {'setting': 'value'},
         },
         validator: DataTypeValidator(),
-        catalog: WidgetCatalog({
+        catalog: WidgetCatalog.fromMap({
           'catalogVersion': '1.0.0',
           'items': <String, Object?>{},
           'dataTypes': <String, Object?>{},
@@ -35,8 +35,8 @@ void main() {
       patcher = StatePatcher();
     });
 
-    test('applies a "replace" operation correctly', () {
-      final update = StateUpdate({
+    test('applies a "update" operation correctly', () {
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'replace', 'path': '/user/name', 'value': 'Bob'},
         ],
@@ -48,7 +48,7 @@ void main() {
     });
 
     test('applies an "add" operation to a list', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'add', 'path': '/tags/-', 'value': 'c'},
         ],
@@ -60,7 +60,7 @@ void main() {
     });
 
     test('applies a "remove" operation from a list', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'remove', 'path': '/tags/0'},
         ],
@@ -72,7 +72,7 @@ void main() {
     });
 
     test('applies a "copy" operation', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'copy', 'from': '/user/name', 'path': '/user/alias'},
         ],
@@ -82,7 +82,7 @@ void main() {
     });
 
     test('applies a "move" operation', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'move', 'from': '/config', 'path': '/user/config'},
         ],
@@ -93,7 +93,7 @@ void main() {
     });
 
     test('applies a "test" operation successfully', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'test', 'path': '/user/name', 'value': 'Alice'},
         ],
@@ -105,7 +105,7 @@ void main() {
     test(
       'throws JsonPatchTestFailedException for a failing "test" operation',
       () {
-        final update = StateUpdate({
+        final update = StateUpdate.fromMap({
           'patches': [
             {'op': 'test', 'path': '/user/name', 'value': 'WrongValue'},
           ],
@@ -118,7 +118,7 @@ void main() {
     );
 
     test('applies patch to a deeply nested property', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'replace', 'path': '/user/details/points', 'value': 150},
         ],
@@ -128,7 +128,7 @@ void main() {
     });
 
     test('throws JsonPatchError for invalid path in "replace"', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'replace', 'path': '/user/nonexistent/path', 'value': 'new'},
         ],
@@ -140,7 +140,7 @@ void main() {
     });
 
     test('throws JsonPatchError for invalid path in "remove"', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'remove', 'path': '/nonexistent'},
         ],
@@ -152,7 +152,7 @@ void main() {
     });
 
     test('applies multiple operations', () {
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'replace', 'path': '/user/email', 'value': 'new@example.com'},
           {'op': 'add', 'path': '/user/age', 'value': 30},
@@ -172,7 +172,7 @@ void main() {
         notified = true;
       });
 
-      final update = StateUpdate({
+      final update = StateUpdate.fromMap({
         'patches': [
           {'op': 'replace', 'path': '/user/name', 'value': 'Charlie'},
         ],

@@ -6,11 +6,11 @@ import 'package:flutter/foundation.dart';
 
 import '../models/models.dart';
 
-/// A service that applies layout updates to the UI.
+/// A service that applies layout updates to a map of [LayoutNode]s.
 class LayoutPatcher {
   /// Applies a [LayoutUpdate] payload to the given [nodeMap].
   ///
-  /// The operations are applied sequentially.
+  /// The operations (`add`, `remove`, `replace`) are applied sequentially.
   void apply(Map<String, LayoutNode> nodeMap, LayoutUpdate update) {
     for (final operation in update.operations) {
       switch (operation.op) {
@@ -20,8 +20,8 @@ class LayoutPatcher {
         case 'remove':
           _handleRemove(nodeMap, operation);
           break;
-        case 'update':
-          _handleUpdate(nodeMap, operation);
+        case 'replace':
+          _handleReplace(nodeMap, operation);
           break;
         default:
           // In a real-world scenario, you might want to log this.
@@ -43,11 +43,48 @@ class LayoutPatcher {
       nodeMap[node.id] = node;
     }
 
-    // Note: The FCP spec implies that 'add' can also target a specific
-    // property of a parent node (e.g., adding to a 'children' list).
-    // The current implementation adds the node to the main map, but doesn't
-    // modify the parent. This logic will be handled by the layout engine
-    // when it rebuilds the tree.
+    final targetNodeId = operation.targetNodeId;
+    final targetProperty = operation.targetProperty;
+
+    if (targetNodeId == null || targetProperty == null) {
+      return;
+    }
+
+    final targetNode = nodeMap[targetNodeId];
+    if (targetNode == null) {
+      debugPrint(
+        'FCP Warning: Target node "$targetNodeId" not found for "add" '
+        'operation.',
+      );
+      return;
+    }
+
+    final newNodeIds = nodes.map((n) => n.id).toList();
+    final currentProperties = Map<String, Object?>.from(
+      targetNode.properties ?? {},
+    );
+    final currentChildren = currentProperties[targetProperty];
+
+    final List<String> newChildrenIds;
+    if (currentChildren is List) {
+      newChildrenIds = [...currentChildren.cast<String>(), ...newNodeIds];
+    } else if (currentChildren is String) {
+      newChildrenIds = [currentChildren, ...newNodeIds];
+    } else {
+      newChildrenIds = newNodeIds;
+    }
+
+    currentProperties[targetProperty] = newChildrenIds;
+
+    final newTargetNode = LayoutNode(
+      id: targetNode.id,
+      type: targetNode.type,
+      properties: currentProperties,
+      bindings: targetNode.bindings,
+      itemTemplate: targetNode.itemTemplate,
+    );
+
+    nodeMap[targetNodeId] = newTargetNode;
   }
 
   void _handleRemove(
@@ -64,7 +101,7 @@ class LayoutPatcher {
     }
   }
 
-  void _handleUpdate(
+  void _handleReplace(
     Map<String, LayoutNode> nodeMap,
     LayoutOperation operation,
   ) {

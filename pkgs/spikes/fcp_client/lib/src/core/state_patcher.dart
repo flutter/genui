@@ -15,7 +15,7 @@ class StatePatcher {
   /// If the patch operation is successful, the [FcpState] will be updated
   /// and notify its listeners.
   void apply(FcpState state, StateUpdate update) {
-    final result = JsonPatch.apply(state.state, update.patches);
+    final result = JsonPatch.apply(state.state, update.patches, strict: true);
 
     // The json_patch package returns a new map. We need to update the state
     // with this new map to trigger the change notification.

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:fcp_client/fcp_client.dart';
 import 'package:fcp_client/src/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('FCP Models', () {
     test('WidgetCatalog correctly parsed', () {
-      final catalog = WidgetCatalog(catalogJson);
+      final catalog = WidgetCatalog.fromMap(catalogJson);
       expect(catalog.catalogVersion, '1.0.0');
       expect(catalog.items, isA<Map>());
       expect(catalog.items.keys, contains('Text'));
@@ -19,25 +20,14 @@ void main() {
     test('WidgetDefinition correctly parsed', () {
       final items = catalogJson['items']! as Map<String, Object?>;
       final textItem = items['Text']! as Map<String, Object?>;
-      final itemDef = WidgetDefinition(textItem);
-      expect(itemDef.properties, isA<Map>());
-      expect(itemDef.properties.keys, contains('data'));
+      final itemDef = WidgetDefinition.fromMap(textItem);
+      expect(itemDef.properties, isA<ObjectSchema>());
+      expect(itemDef.properties.value, contains('data'));
       expect(itemDef.events, isNull);
     });
 
-    test('PropertyDefinition correctly parsed', () {
-      final items = catalogJson['items']! as Map<String, Object?>;
-      final textItem = items['Text']! as Map<String, Object?>;
-      final properties = textItem['properties']! as Map<String, Object?>;
-      final dataProperty = properties['data']! as Map<String, Object?>;
-      final propDef = PropertyDefinition(dataProperty);
-      expect(propDef.type, 'String');
-      expect(propDef.isRequired, true);
-      expect(propDef.defaultValue, isNull);
-    });
-
     test('DynamicUIPacket correctly parsed', () {
-      final packet = DynamicUIPacket(packetJson);
+      final packet = DynamicUIPacket.fromMap(packetJson);
       expect(packet.formatVersion, '1.0.0');
       expect(packet.layout, isA<Layout>());
       expect(packet.state, isA<Map>());
@@ -46,7 +36,7 @@ void main() {
 
     test('Layout correctly parsed', () {
       final layoutMap = packetJson['layout']! as Map<String, Object?>;
-      final layout = Layout(layoutMap);
+      final layout = Layout.fromMap(layoutMap);
       expect(layout.root, 'root_container');
       expect(layout.nodes, isA<List<LayoutNode>>());
       expect(layout.nodes.length, 3);
@@ -56,7 +46,7 @@ void main() {
       final layoutMap = packetJson['layout']! as Map<String, Object?>;
       final nodes = layoutMap['nodes']! as List<Object?>;
       final firstNodeMap = nodes[0]! as Map<String, Object?>;
-      final node = LayoutNode(firstNodeMap);
+      final node = LayoutNode.fromMap(firstNodeMap);
       expect(node.id, 'root_container');
       expect(node.type, 'Container');
       expect(node.properties, isA<Map>());
@@ -75,7 +65,7 @@ void main() {
               )
               as Map<String, Object?>;
 
-      final node = LayoutNode(listNodeMap);
+      final node = LayoutNode.fromMap(listNodeMap);
       expect(node.id, 'my_list_view');
       expect(node.type, 'ListView');
       expect(node.itemTemplate, isNotNull);
@@ -87,28 +77,14 @@ void main() {
     test('WidgetDefinition correctly parsed with events', () {
       final items = catalogJson['items']! as Map<String, Object?>;
       final buttonItem = items['Button']! as Map<String, Object?>;
-      final itemDef = WidgetDefinition(buttonItem);
+      final itemDef = WidgetDefinition.fromMap(buttonItem);
       expect(itemDef.events, isNotNull);
-      expect(itemDef.events, isA<Map<String, Object?>>());
-      expect(itemDef.events!.containsKey('onPressed'), isTrue);
-    });
-
-    test('PropertyDefinition correctly parsed for Enum', () {
-      final items = catalogJson['items']! as Map<String, Object?>;
-      final containerItem = items['Container']! as Map<String, Object?>;
-      final properties = containerItem['properties']! as Map<String, Object?>;
-      final alignmentProp = properties['alignment']! as Map<String, Object?>;
-      final propDef = PropertyDefinition(alignmentProp);
-      expect(propDef.type, 'Enum');
-      expect(propDef.isRequired, isFalse);
-      expect(propDef.defaultValue, 'center');
-      expect(propDef.values, isNotNull);
-      expect(propDef.values, contains('center'));
-      expect(propDef.values, contains('topLeft'));
+      expect(itemDef.events, isA<ObjectSchema>());
+      expect(itemDef.events!.value.containsKey('onPressed'), isTrue);
     });
 
     test('EventPayload correctly parsed', () {
-      final payload = EventPayload({
+      final payload = EventPayload.fromMap({
         'sourceNodeId': 'my_button',
         'eventName': 'onPressed',
         'arguments': {'clickCount': 1},
@@ -120,30 +96,30 @@ void main() {
     });
 
     test('StateUpdate correctly parsed', () {
-      final update = StateUpdate({
+      final replace = StateUpdate.fromMap({
         'patches': [
           {'op': 'replace', 'path': '/title', 'value': 'New Title'},
         ],
       });
-      expect(update.patches, isA<List>());
-      expect(update.patches.first['op'], 'replace');
+      expect(replace.patches, isA<List>());
+      expect(replace.patches.first['op'], 'replace');
     });
 
     test('LayoutUpdate correctly parsed', () {
-      final update = LayoutUpdate({
+      final add = LayoutUpdate.fromMap({
         'operations': <Map<String, Object?>>[
           {'op': 'add', 'nodes': <Object?>[]},
         ],
       });
-      expect(update.operations, isA<List>());
-      expect(update.operations.first.op, 'add');
+      expect(add.operations, isA<List>());
+      expect(add.operations.first.op, 'add');
     });
   });
 
   group('Binding Models', () {
     test('Binding with format correctly parsed', () {
       final json = {'path': 'user.name', 'format': 'Welcome, {}'};
-      final binding = Binding.fromJson(json);
+      final binding = Binding.fromMap(json);
       expect(binding.path, 'user.name');
       expect(binding.format, 'Welcome, {}');
       expect(binding.condition, isNull);
@@ -153,9 +129,9 @@ void main() {
     test('Binding with condition correctly parsed', () {
       final json = {
         'path': 'user.isPremium',
-        'condition': {'if': 'Premium', 'else': 'Standard'},
+        'condition': {'ifValue': 'Premium', 'elseValue': 'Standard'},
       };
-      final binding = Binding.fromJson(json);
+      final binding = Binding.fromMap(json);
       expect(binding.path, 'user.isPremium');
       expect(binding.condition, isNotNull);
       expect(binding.condition, isA<Condition>());
@@ -171,7 +147,7 @@ void main() {
           'fallback': 'Unknown',
         },
       };
-      final binding = Binding.fromJson(json);
+      final binding = Binding.fromMap(json);
       expect(binding.path, 'status');
       expect(binding.map, isNotNull);
       expect(binding.map, isA<MapTransformer>());
@@ -187,7 +163,7 @@ void main() {
           'fallback': 'Unknown',
         },
       };
-      final binding = Binding.fromJson(json);
+      final binding = Binding.fromMap(json);
       expect(binding.toJson(), equals(json));
     });
   });
@@ -203,20 +179,21 @@ final Map<String, Object?> catalogJson =
     "Text": {
       "properties": {
         "data": {
-          "type": "String",
-          "isRequired": true
+          "type": "string",
+          "description": "The text to display."
         }
-      }
+      },
+      "required": ["data"]
     },
     "Container": {
       "properties": {
         "child": {
-          "type": "WidgetId"
+          "type": "widget"
         },
         "alignment": {
-          "type": "Enum",
-          "defaultValue": "center",
-          "values": ["center", "topLeft", "bottomRight"]
+          "type": "string",
+          "default": "center",
+          "enum": ["center", "topLeft", "bottomRight"]
         }
       }
     },

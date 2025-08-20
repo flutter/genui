@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'state_patcher.dart';
+library;
+
 import 'package:flutter/foundation.dart';
 
 import '../models/models.dart';
@@ -13,10 +16,17 @@ import 'data_type_validator.dart';
 /// It also validates incoming state against the data types defined in the
 /// catalog.
 class FcpState with ChangeNotifier {
+  /// Creates a new FcpState with an initial state object.
+  ///
+  /// The [validator] is used to validate data types against the [catalog].
   FcpState(this._state, {required this.validator, required this.catalog});
 
   Map<String, Object?> _state;
+
+  /// The validator used to check data types against the catalog.
   final DataTypeValidator validator;
+
+  /// The widget catalog containing data type definitions.
   final WidgetCatalog catalog;
 
   /// The current state object.
@@ -25,7 +35,7 @@ class FcpState with ChangeNotifier {
   /// Sets a new state object and notifies listeners.
   ///
   /// This is used for wholesale replacement of the state. For partial updates,
-  /// use `StatePatcher`.
+  /// use [StatePatcher].
   set state(Map<String, Object?> newState) {
     _state = newState;
     notifyListeners();
@@ -49,12 +59,16 @@ class FcpState with ChangeNotifier {
   ///
   /// Returns `true` if all data types in the state are valid, `false`
   /// otherwise.
-  bool validate(Map<String, Object?> newState) {
+  Future<bool> validate(Map<String, Object?> newState) async {
     for (final entry in newState.entries) {
       final key = entry.key;
       final value = entry.value;
       if (value is Map<String, Object?>) {
-        if (!validator.validate(dataType: key, data: value, catalog: catalog)) {
+        if (!await validator.validate(
+          dataType: key,
+          data: value,
+          catalog: catalog,
+        )) {
           return false;
         }
       }

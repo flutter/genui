@@ -11,8 +11,6 @@ library;
 // The service for loading the widget catalog.
 export 'src/core/catalog_service.dart';
 // The registry for custom widget builders.
-export 'src/core/widget_catalog_registry.dart'
-    show CatalogWidgetBuilder, WidgetCatalogRegistry;
 export 'src/core/widget_catalog_registry.dart';
 // --- Data Models ---
 
@@ -21,3 +19,6 @@ export 'src/models/models.dart';
 export 'src/widgets/fcp_provider.dart';
 export 'src/widgets/fcp_view.dart';
 export 'src/widgets/fcp_view_controller.dart';
+
+/// The version of the FCP client.
+const String fcpVersion = '0.1.0';

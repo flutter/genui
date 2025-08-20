@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/foundation.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:flutter/material.dart';
 
 import '../models/models.dart';
 import 'fcp_state.dart';
@@ -13,10 +14,10 @@ import 'fcp_state.dart';
 /// This class handles path resolution and transformations (`format`,
 /// `condition`, `map`).
 class BindingProcessor {
-  final FcpState _state;
-
   /// Creates a binding processor that resolves values against the given state.
   BindingProcessor(this._state);
+
+  final FcpState _state;
 
   /// Resolves all bindings for a given layout node against the main state.
   Map<String, Object?> process(LayoutNode node) {
@@ -26,7 +27,9 @@ class BindingProcessor {
       // it has no properties that can be bound.
       return const {};
     }
-    final itemDef = WidgetDefinition(itemDefJson as Map<String, Object?>);
+    final itemDef = WidgetDefinition.fromMap(
+      itemDefJson as Map<String, Object?>,
+    );
     return _processBindings(node.bindings, itemDef, null);
   }
 
@@ -45,7 +48,9 @@ class BindingProcessor {
       // it has no properties that can be bound.
       return const {};
     }
-    final itemDef = WidgetDefinition(itemDefJson as Map<String, Object?>);
+    final itemDef = WidgetDefinition.fromMap(
+      itemDefJson as Map<String, Object?>,
+    );
     return _processBindings(node.bindings, itemDef, scopedData);
   }
 
@@ -93,10 +98,9 @@ class BindingProcessor {
       debugPrint(
         'FCP Warning: Binding path "${binding.path}" resolved to null.',
       );
-      final propDefMap = itemDef.properties[propertyName];
-      if (propDefMap != null) {
-        final propDef = PropertyDefinition(propDefMap as Map<String, Object?>);
-        return _getDefaultValueForType(propDef.type);
+      final propSchema = itemDef.properties.properties?[propertyName];
+      if (propSchema != null) {
+        return _getDefaultValueForType(propSchema);
       }
       return null;
     }
@@ -141,20 +145,36 @@ class BindingProcessor {
     return value;
   }
 
-  Object? _getDefaultValueForType(String type) {
-    switch (type) {
-      case 'String':
-        return '';
-      case 'int':
-        return 0;
-      case 'double':
-        return 0.0;
-      case 'bool':
-        return false;
-      case 'List':
-        return [];
-      default:
-        return null;
+  Object? _getDefaultValueForType(Schema schema) {
+    if (schema.defaultValue != null) {
+      return schema.defaultValue;
     }
+    final type = schema.type;
+    if (type is String) {
+      switch (type) {
+        case 'string':
+          return '';
+        case 'integer':
+          return 0;
+        case 'number':
+          return 0.0;
+        case 'boolean':
+          return false;
+        case 'object':
+          return <String, Object?>{};
+        case 'array':
+          return <Object?>[];
+        case 'null':
+          return null;
+      }
+    }
+    if (type is List<String>) {
+      if (type.isEmpty) {
+        return null;
+      }
+      // Return the default for the first type in the list.
+      return _getDefaultValueForType(Schema.fromMap({'type': type.first}));
+    }
+    return null;
   }
 }

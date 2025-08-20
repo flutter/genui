@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('WidgetCatalogRegistry', () {
-    final testDefinition = WidgetDefinition({
+    final testDefinition = WidgetDefinition.fromMap({
       'properties': <String, Object?>{},
     });
 
@@ -19,7 +19,7 @@ void main() {
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
-        Map<String, dynamic> children,
+        Map<String, List<Widget>> children,
       ) => const SizedBox();
 
       registry.register(
@@ -47,13 +47,13 @@ void main() {
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
-        Map<String, dynamic> children,
+        Map<String, List<Widget>> children,
       ) => const Text('1');
       Widget builder2(
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
-        Map<String, dynamic> children,
+        Map<String, List<Widget>> children,
       ) => const Text('2');
 
       registry.register(
@@ -83,7 +83,7 @@ void main() {
         BuildContext context,
         LayoutNode node,
         Map<String, Object?> properties,
-        Map<String, dynamic> children,
+        Map<String, List<Widget>> children,
       ) => const SizedBox();
 
       expect(registry.hasBuilder('TestWidget'), isFalse);

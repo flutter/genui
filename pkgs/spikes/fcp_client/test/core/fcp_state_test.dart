@@ -12,7 +12,7 @@ void main() {
     late WidgetCatalog catalog;
 
     setUp(() {
-      catalog = WidgetCatalog({
+      catalog = WidgetCatalog.fromMap({
         'catalogVersion': '1.0.0',
         'items': <String, Object?>{},
         'dataTypes': <String, Object?>{},

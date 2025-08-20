@@ -17,11 +17,11 @@ void main() {
           name: 'Scaffold',
           builder: (context, node, properties, children) {
             return Scaffold(
-              appBar: children['appBar'] as PreferredSizeWidget?,
-              body: children['body'] as Widget?,
+              appBar: children['appBar']?.first as PreferredSizeWidget?,
+              body: children['body']?.first,
             );
           },
-          definition: WidgetDefinition({
+          definition: WidgetDefinition.fromMap({
             'properties': {
               'appBar': {'type': 'WidgetId'},
               'body': {'type': 'WidgetId'},
@@ -34,11 +34,11 @@ void main() {
           name: 'AppBar',
           builder: (context, node, properties, children) {
             return AppBar(
-              title: children['title'] as Widget?,
+              title: children['title']?.first,
               automaticallyImplyLeading: false,
             );
           },
-          definition: WidgetDefinition({
+          definition: WidgetDefinition.fromMap({
             'properties': {
               'title': {'type': 'WidgetId'},
             },
@@ -54,7 +54,7 @@ void main() {
               textDirection: TextDirection.ltr,
             );
           },
-          definition: WidgetDefinition({
+          definition: WidgetDefinition.fromMap({
             'properties': {
               'data': {'type': 'String'},
             },
@@ -65,9 +65,9 @@ void main() {
         CatalogItem(
           name: 'Center',
           builder: (context, node, properties, children) {
-            return Center(child: children['child'] as Widget?);
+            return Center(child: children['child']?.first);
           },
-          definition: WidgetDefinition({
+          definition: WidgetDefinition.fromMap({
             'properties': {
               'child': {'type': 'WidgetId'},
             },
@@ -77,7 +77,7 @@ void main() {
   }
 
   DynamicUIPacket createTestPacket() {
-    return DynamicUIPacket({
+    return DynamicUIPacket.fromMap({
       'formatVersion': '1.0.0',
       'layout': {
         'root': 'root_scaffold',

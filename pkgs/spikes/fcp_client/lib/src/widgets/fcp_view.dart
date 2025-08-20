@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart' show DeepCollectionEquality;
 import 'package:flutter/material.dart';
 
 import '../core/binding_processor.dart';
@@ -24,6 +25,11 @@ import 'fcp_view_controller.dart';
 /// constructs the corresponding Flutter widget tree. It manages the dynamic
 /// state and updates the UI when the state changes.
 class FcpView extends StatefulWidget {
+  /// Creates a widget that renders a UI from an FCP [packet].
+  ///
+  /// The [catalog] and [registry] are required to interpret the packet. The
+  /// [onEvent] callback is invoked when a widget triggers an event. The
+  /// [controller] can be used to programmatically update the view.
   const FcpView({
     super.key,
     required this.packet,
@@ -54,12 +60,12 @@ class FcpView extends StatefulWidget {
 }
 
 class _FcpViewState extends State<FcpView> {
-  late final FcpState _state;
-  late final StatePatcher _statePatcher;
-  late final DataTypeValidator _dataTypeValidator;
-  late final BindingProcessor _bindingProcessor;
-  late final _LayoutEngine _engine;
-  late final Listenable _listenable;
+  FcpState? _state;
+  StatePatcher? _statePatcher;
+  DataTypeValidator? _dataTypeValidator;
+  BindingProcessor? _bindingProcessor;
+  _LayoutEngine? _engine;
+  Listenable? _listenable;
 
   StreamSubscription? _stateUpdateSubscription;
   StreamSubscription? _layoutUpdateSubscription;
@@ -70,24 +76,38 @@ class _FcpViewState extends State<FcpView> {
   @override
   void initState() {
     super.initState();
+    _initializeFromPacket();
+    _listenToController();
+  }
+
+  void _initializeFromPacket() {
     _dataTypeValidator = DataTypeValidator();
     _state = FcpState(
       widget.packet.state,
-      validator: _dataTypeValidator,
+      validator: _dataTypeValidator!,
       catalog: widget.catalog,
     );
     _statePatcher = StatePatcher();
-    _bindingProcessor = BindingProcessor(_state);
+    _bindingProcessor = BindingProcessor(_state!);
     _engine = _LayoutEngine(
       registry: widget.registry,
       catalog: widget.catalog,
       layout: widget.packet.layout,
-      bindingProcessor: _bindingProcessor,
+      bindingProcessor: _bindingProcessor!,
     );
 
-    _listenable = Listenable.merge([_state, _engine]);
+    _listenable = Listenable.merge([_state!, _engine!]);
+    _validateInitialState();
+  }
 
-    _listenToController();
+  void _validateInitialState() async {
+    if (!await _state!.validate(_state!.state)) {
+      if (!mounted) return;
+      setState(() {
+        _isStateInvalid = true;
+        _invalidStateMessage = 'Initial state is invalid.';
+      });
+    }
   }
 
   @override
@@ -99,23 +119,11 @@ class _FcpViewState extends State<FcpView> {
       _listenToController();
     }
 
-    if (widget.packet != oldWidget.packet) {
-      // If the whole packet changes, we update the state and reset the engine
-      // to reflect the new static layout and state.
-      if (_state.validate(widget.packet.state)) {
-        setState(() {
-          _isStateInvalid = false;
-        });
-        _state.state = widget.packet.state;
-      } else {
-        // Handle invalid state here.
-        setState(() {
-          _isStateInvalid = true;
-          _invalidStateMessage =
-              'Received a DynamicUIPacket with invalid state.';
-        });
-      }
-      _engine.reset(widget.packet.layout);
+    if (!const DeepCollectionEquality().equals(
+      widget.packet.toJson(),
+      oldWidget.packet.toJson(),
+    )) {
+      _initializeFromPacket();
     }
   }
 
@@ -123,12 +131,12 @@ class _FcpViewState extends State<FcpView> {
     _stateUpdateSubscription = widget.controller?.onStateUpdate.listen((
       update,
     ) {
-      _statePatcher.apply(_state, update);
+      _statePatcher!.apply(_state!, update);
     });
     _layoutUpdateSubscription = widget.controller?.onLayoutUpdate.listen((
       update,
     ) {
-      _engine.patch(update);
+      _engine!.patch(update);
     });
   }
 
@@ -140,8 +148,8 @@ class _FcpViewState extends State<FcpView> {
   @override
   void dispose() {
     _unlistenToController();
-    _engine.dispose();
-    _state.dispose();
+    _engine?.dispose();
+    _state?.dispose();
     super.dispose();
   }
 
@@ -152,13 +160,13 @@ class _FcpViewState extends State<FcpView> {
     }
     return FcpProvider(
       onEvent: widget.onEvent,
-      // AnimatedBuilder listens to both state and layout changes and rebuilds
+      // ListenableBuilder listens to both state and layout changes and rebuilds
       // the entire tree. Flutter's diffing is efficient enough for this to be
       // performant for most cases.
-      child: AnimatedBuilder(
-        animation: _listenable,
+      child: ListenableBuilder(
+        listenable: _listenable!,
         builder: (context, _) {
-          return _engine.build(context);
+          return _engine!.build(context);
         },
       ),
     );
@@ -242,7 +250,9 @@ class _LayoutEngine with ChangeNotifier {
         'Catalog item type "${node.type}" not found in catalog.',
       );
     }
-    final itemDef = WidgetDefinition(itemDefMap as Map<String, Object?>);
+    final itemDef = WidgetDefinition.fromMap(
+      itemDefMap as Map<String, Object?>,
+    );
 
     // Resolve dynamic properties from bindings.
     final boundProperties = bindingProcessor.process(node);
@@ -251,25 +261,25 @@ class _LayoutEngine with ChangeNotifier {
     // ones.
     final resolvedProperties = {...?node.properties, ...boundProperties};
 
-    for (final prop in itemDef.properties.entries) {
-      final propDef = PropertyDefinition(prop.value as Map<String, Object?>);
-      if (propDef.isRequired && !resolvedProperties.containsKey(prop.key)) {
+    final requiredProperties = itemDef.properties.required ?? [];
+    for (final propName in requiredProperties) {
+      if (!resolvedProperties.containsKey(propName)) {
         return _ErrorWidget(
-          'Missing required property "${prop.key}" for widget type '
+          'Missing required property "$propName" for widget type '
           '"${node.type}".',
         );
       }
     }
 
     // Recursively build all children defined in the properties.
-    final builtChildren = <String, dynamic>{};
+    final builtChildren = <String, List<Widget>>{};
     for (final entry in resolvedProperties.entries) {
       final key = entry.key;
       final value = entry.value;
 
       if (value is String && _nodesById.containsKey(value)) {
         // This is a single child reference by ID.
-        builtChildren[key] = _buildNode(context, value, currentPath);
+        builtChildren[key] = [_buildNode(context, value, currentPath)];
       } else if (value is List) {
         // This could be a list of child references by ID.
         final childWidgets = <Widget>[];
@@ -351,13 +361,13 @@ class _LayoutEngine with ChangeNotifier {
     };
 
     // Recursively build children.
-    final builtChildren = <String, dynamic>{};
+    final builtChildren = <String, List<Widget>>{};
     for (final entry in resolvedProperties.entries) {
       final key = entry.key;
       final value = entry.value;
 
       if (value is String && _nodesById.containsKey(value)) {
-        builtChildren[key] = _buildNode(context, value, visited);
+        builtChildren[key] = [_buildNode(context, value, visited)];
       } else if (value is List) {
         final childWidgets = <Widget>[];
         for (final item in value) {

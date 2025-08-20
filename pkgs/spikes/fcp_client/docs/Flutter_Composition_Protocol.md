@@ -30,7 +30,7 @@ The packet contains the following top-level keys:
 
 The data flow is a well-defined sequence:
 
-1. **Client Initialization:** The Flutter app loads its `WidgetCatalog`.
+1. **Client Initialization:** The Flutter app initializes its widget registry and generates its `WidgetCatalog`.
 2. **Initial UI Request:** The client requests the initial UI from the server, including sending the `WidgetCatalog` to the server.
 3. **Server Response:** The server responds with a `DynamicUIPacket`.
 4. **Client-Side Rendering:** The client validates the packet against its catalog, then builds the Flutter widget tree by processing the layout and applying state bindings.
@@ -48,7 +48,7 @@ sequenceDiagram
     rect rgba(128, 128, 128, 0.12)
         note over User, Server: Initial Handshake & UI Render
         User->>+Flutter Client: Launches App
-        Flutter Client->>Flutter Client: 1. Initializes & Loads WidgetCatalog from bundle
+        Flutter Client->>Flutter Client: 1. Initializes WidgetRegistry & Generates Catalog
         Flutter Client->>+Server: 2. Initial Handshake (Sends Catalog + Client Version)
         Server-->>-Flutter Client: 3. Handshake Acknowledged
 
@@ -68,21 +68,9 @@ sequenceDiagram
     end
 ```
 
-Architectural Note:
-
-The sequence above shows a "Handshake Model" where the client sends its catalog on the first connection.
-
-- PROS: Simplifies the deployment process; no separate step is needed to publish the catalog.
-- CONS: Increases initial connection latency as the catalog is sent over the network.
-
-An alternative is the "Out-of-Band Model" where catalogs are published to a central repository during the app's build process, and the server fetches them from there.
-
-- PROS: Keeps the initial client connection very lightweight and fast.
-- CONS: Adds a step to the CI/CD pipeline and couples it to the server's infrastructure.
-
 ## **Section 2: The Widget Catalog: Defining Capabilities and Data Models**
 
-The `WidgetCatalog` is a JSON document, bundled within the client application, that serves as a strict contract of the client's rendering and data-handling capabilities.
+The `WidgetCatalog` is a JSON document that serves as a strict contract of the client's rendering and data-handling capabilities. While it can be a static file bundled with the application, it is typically generated at runtime from a `WidgetCatalogRegistry` where widget builders and their definitions are registered in code.
 
 ### **2.1. Purpose: The Client-Server Contract**
 
@@ -133,24 +121,31 @@ The value of each key under `dataTypes` **must** be a valid JSON Schema object.
 
 ### **2.4. Widget Definition Schema (`WidgetDefinition`)**
 
-This object describes a single renderable widget type.
+This object describes a single renderable widget type. It uses the JSON Schema standard to define its properties.
 
-- `properties`: An object defining the supported attributes. Each key is a property name (e.g., `color`), and the value is a `PropertyDefinition` object.
+- `properties`: A **JSON Schema object** that defines the supported attributes for the widget. This allows for rich validation, including types, patterns, required fields, and nested objects.
 - `events`: An object defining the events this widget can emit. Each key is an event name (e.g., `onPressed`), and the value is a JSON Schema defining the structure of the `arguments` object for that event.
 
-### **2.5. Property Definition Schema (`PropertyDefinition`)**
-
-This object specifies the type and constraints for a single widget property.
-
-- `type`: A string defining the data type. The value must be one of the built-in FCP types or a key defined in the top-level `dataTypes` object.
-  - **Primitives**: `"String"`, `"Number"`, `"Boolean"`.
-  - **Reference Types**: `"WidgetId"`, `"ListOfWidgetIds"`.
-  - **Enumerations**: `"Enum"` (requires a `values` array property).
-  - **Built-in Complex Types**: `"Color"`, `"EdgeInsets"`, `"TextStyle"`, `"Alignment"`. These correspond to common Flutter data types and are pre-defined.
-  - **Custom Data Types**: Any string that is a key in the `dataTypes` map (e.g., `"User"`, `"Product"` from the example above).
-- `values`: An array of strings, required only when `type` is `"Enum"`.
-- `isRequired`: A boolean indicating if the property is mandatory.
-- `defaultValue`: An optional value to be used if an optional property is not provided.
+```json
+// Example: A WidgetDefinition for a 'Button' widget
+"Button": {
+  "properties": {
+    "type": "object",
+    "properties": {
+      "text": { "type": "string" },
+      "disabled": { "type": "boolean", "default": false },
+      "child": { "type": "string", "description": "A WidgetId for a child." }
+    },
+    "required": ["text"]
+  },
+  "events": {
+    "onPressed": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+}
+```
 
 ## **Section 3: UI Composition: The Non-Recursive Layout Schema**
 
@@ -241,11 +236,11 @@ A binding value is an object that specifies the `path` to the data in the state 
 
 - **`condition`**: Evaluates a path to a boolean. Can be used to conditionally provide a value.
 
-  - `if`: The value to use if the path is `true`.
+  - `ifValue`: The value to use if the path is `true`.
 
-  - `else`: The value to use if the path is `false`.
+  - `elseValue`: The value to use if the path is `false`.
 
-  - Example: `{"path": "user.isPremium", "if": "Premium User", "else": "Standard User"}`
+  - Example: `{"path": "user.isPremium", "condition": {"ifValue": "Premium User", "elseValue": "Standard User"}}`
 
 - **`map`**: Maps a value to another value. Useful for enum-like state.
 
@@ -253,7 +248,7 @@ A binding value is an object that specifies the `path` to the data in the state 
 
   - `fallback`: A value to use if the state value is not in the map.
 
-  - Example: `{"path": "status", "mapping": {"active": "#FF00FF00", "inactive": "#FFFF0000"}, "fallback": "#FF888888"}`
+  - Example: `{"path": "status", "map": {"mapping": {"active": "#FF00FF00", "inactive": "#FFFF0000"}, "fallback": "#FF888888"}}`
 
 This small, predefined set of transformers adds significant declarative power without the security risks of a full expression language.
 
@@ -264,14 +259,13 @@ This small, predefined set of transformers adds significant declarative power wi
 When a user triggers an event, the client sends an `EventPayload` to the server.
 
 - `sourceNodeId`: The `id` of the `LayoutNode` that generated the event.
-
 - `eventName`: The name of the event (e.g., `onPressed`).
-
+- `timestamp`: An ISO 8601 string representing when the event occurred.
 - `arguments`: An optional object containing contextual data. The structure of this object **must** conform to the schema defined for this event in the `WidgetCatalog`.
 
 ### **5.2. Server-to-Client: The `StateUpdate` Payload**
 
-To change only dynamic data, the server sends a `StateUpdate` payload using the **JSON Patch standard (RFC 6902\)**.
+To change only dynamic data, the server sends a `StateUpdate` payload using the **JSON Patch standard (RFC 6902)**.
 
 - `patches`: An array of JSON Patch operation objects. For example, to change a user's name to "Bob", the array would contain:
 
@@ -283,7 +277,7 @@ To change only dynamic data, the server sends a `StateUpdate` payload using the 
 
 For surgical modifications to the UI's structure, the server sends a `LayoutUpdate` payload with a simpler, custom operation set.
 
-- `operations`: An array of layout modification objects. Each object specifies an `op` (`add`, `remove`, `update`), the nodes to modify, and targeting information.
+- `operations`: An array of layout modification objects. Each object specifies an `op` (`add`, `remove`, `replace`), the nodes to modify, and targeting information.
 
 ## **Section 6: Complete JSON Schema Definitions**
 
@@ -359,9 +353,10 @@ This schema defines the objects that are actively exchanged between the client a
       "properties": {
         "sourceNodeId": { "type": "string" },
         "eventName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
         "arguments": { "type": "object" }
       },
-      "required": ["sourceNodeId", "eventName"]
+      "required": ["sourceNodeId", "eventName", "timestamp"]
     },
     "StateUpdate": {
       "type": "object",
@@ -392,7 +387,7 @@ This schema defines the objects that are actively exchanged between the client a
           "items": {
             "type": "object",
             "properties": {
-              "op": { "type": "string", "enum": ["add", "remove", "update"] },
+              "op": { "type": "string", "enum": ["add", "remove", "replace"] },
               "nodes": {
                 "type": "array",
                 "items": { "$ref": "#/$defs/LayoutNode" }
@@ -429,29 +424,12 @@ This schema defines the structure of the `WidgetCatalog.json` file. It is update
   "description": "Defines the static widget, property, event, and data type capabilities of an FCP client.",
   "type": "object",
   "$defs": {
-    "PropertyDefinition": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "description": "The data type. Can be a built-in FCP type or a key from the top-level 'dataTypes' map."
-        },
-        "values": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "Required when type is 'Enum'."
-        },
-        "isRequired": { "type": "boolean", "default": false },
-        "defaultValue": {}
-      },
-      "required": ["type"]
-    },
     "WidgetDefinition": {
       "type": "object",
       "properties": {
         "properties": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/$defs/PropertyDefinition" }
+          "description": "A JSON Schema object defining the properties for this widget."
         },
         "events": {
           "type": "object",
@@ -489,7 +467,7 @@ This schema defines the structure of the `WidgetCatalog.json` file. It is update
 A robust client-side interpreter should be composed of several key components:
 
 - **Parser and Validator:** Deserializes JSON and validates payloads against both the master schema and the client's `WidgetCatalog`. This includes validating parts of the `state` object against the schemas provided in `dataTypes`.
-- **Widget Tree Builder:** Constructs the Flutter widget tree.
+- **Widget Tree Builder:** Constructs the Flutter widget tree. This is typically driven by a `WidgetCatalogRegistry` that maps widget type names to concrete Flutter builder functions.
 - **State Manager:** Holds the state object and notifies listening widgets to rebuild when a `StateUpdate` is applied.
 - **Binding Processor:** A crucial component responsible for resolving binding paths and applying the declared transformations.
 - **Update Applier:** Processes incoming `StateUpdate` and `LayoutUpdate` payloads.
