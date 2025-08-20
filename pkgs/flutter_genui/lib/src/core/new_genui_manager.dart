@@ -100,6 +100,8 @@ class NewGenUiManager {
 
   /// Stream of updates for all surfaces.
   Stream<SurfaceUpdate> get allSurfaceUpdates => throw UnimplementedError();
+
+  void dispose() {}
 }
 
 class SurfaceUpdate {
