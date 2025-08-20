@@ -86,6 +86,15 @@ class NewGenUiManager {
   ///
   /// The stream will complete when the surface is removed
   /// from [surfaces].
-  Stream<WidgetBuilder> surfaceUpdates(String? surfaceId) =>
+  Stream<WidgetBuilder> surfaceUpdates(String surfaceId) =>
       throw UnimplementedError();
+
+  /// Stream of updates for all surfaces.
+  Stream<SurfaceUpdate> get allSurfaceUpdates => throw UnimplementedError();
+}
+
+class SurfaceUpdate {
+  SurfaceUpdate({required this.surfaceId, required this.builder});
+  final String surfaceId;
+  final WidgetBuilder builder;
 }
