@@ -7,14 +7,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../flutter_genui.dart';
-import 'test.dart';
 
 class GenUiSurface extends StatefulWidget {
   const GenUiSurface(this.genUiManager, {super.key, required this.surfaceId});
 
   final GenUiManager genUiManager;
   final String surfaceId;
-  final test = testString;
 
   @override
   State<GenUiSurface> createState() => _GenUiSurfaceState();
