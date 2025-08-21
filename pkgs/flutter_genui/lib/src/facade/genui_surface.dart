@@ -28,7 +28,7 @@ class GenUiSurface extends StatefulWidget {
   });
 
   /// The manager that holds the state of the UI.
-  final GenuiManager manager;
+  final GenUiManager manager;
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;

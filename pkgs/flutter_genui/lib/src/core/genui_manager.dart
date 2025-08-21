@@ -11,10 +11,10 @@ import '../model/ui_models.dart';
 import 'surface_manager.dart';
 import 'ui_tools.dart';
 
-class GenuiManager {
+class GenUiManager {
   SurfaceManager surfaceManager;
 
-  GenuiManager({Catalog? catalog})
+  GenUiManager({Catalog? catalog})
     : surfaceManager = SurfaceManager(catalog: catalog);
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces =>

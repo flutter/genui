@@ -31,7 +31,7 @@ class GenUiChatController {
   }
 
   late final StreamSubscription<GenUiUpdate> _updateSubscription;
-  final GenuiManager manager;
+  final GenUiManager manager;
   final _onAiRequestSent = ValueNotifier<int>(0);
   final _onAiResponseReceived = ValueNotifier<int>(0);
   final _conversation = ValueNotifier<List<ChatMessage>>([]);

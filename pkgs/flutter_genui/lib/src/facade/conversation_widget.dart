@@ -25,7 +25,7 @@ class ConversationWidget extends StatelessWidget {
 
   final List<ChatMessage> messages;
   final UiEventCallback onEvent;
-  final GenuiManager manager;
+  final GenUiManager manager;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
