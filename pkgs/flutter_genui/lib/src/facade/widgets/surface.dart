@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../flutter_genui.dart';
+import '../../core/genui_manager.dart';
 
 class GenUiSurface extends StatefulWidget {
   const GenUiSurface(this.genUiManager, {super.key, required this.surfaceId});

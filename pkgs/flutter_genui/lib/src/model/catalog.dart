@@ -6,7 +6,8 @@ import 'package:collection/collection.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
-import '../../flutter_genui.dart';
+import '../core/ui_event_manager.dart';
+import 'catalog_item.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
