@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'schema.dart';
+import 'schema/schema.dart';
 import 'schema_cache.dart';
 import 'utils.dart';
 

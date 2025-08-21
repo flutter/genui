@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'json_type.dart';
+import '../json_type.dart';
 import 'schema.dart';
 
 /// A JSON Schema definition for a [bool].

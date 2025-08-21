@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../constants.dart';
+import '../json_type.dart';
 import 'boolean_schema.dart';
-import 'constants.dart';
 import 'integer_schema.dart';
-import 'json_type.dart';
 import 'list_schema.dart';
 import 'null_schema.dart';
 import 'number_schema.dart';

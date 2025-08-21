@@ -4,7 +4,8 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:dart_schema_builder/src/schema.dart';
+
+import 'package:dart_schema_builder/src/schema/schema.dart';
 import 'package:dart_schema_builder/src/schema_cache.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';

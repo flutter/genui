@@ -3,9 +3,10 @@
 // found in the LICENSE file.
 
 import 'dart:collection';
-import 'json_type.dart';
+
+import '../json_type.dart';
+import '../validation_error.dart';
 import 'schema.dart';
-import 'validation_error.dart';
 
 /// A JSON Schema definition for a [num].
 ///
