@@ -127,7 +127,9 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   @override
   void dispose() {
-    _definitionNotifier.dispose();
+    _allUpdatesSubscription?.cancel();
+    // We should not dispose _definitionNotifier,
+    // because it is owned by the manager.
     super.dispose();
   }
 }
