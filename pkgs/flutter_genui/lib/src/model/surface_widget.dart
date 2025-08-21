@@ -84,8 +84,8 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
   Widget _buildWidget(UiDefinition definition, String widgetId) {
     var data = definition.widgets[widgetId];
     if (data == null) {
-      // TODO: Handle missing widget gracefully.
-      return Text('Widget with id: $widgetId not found.');
+      genUiLogger.severe('Widget with id: $widgetId not found.');
+      return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
     return widget.manager.catalog.buildWidget(
