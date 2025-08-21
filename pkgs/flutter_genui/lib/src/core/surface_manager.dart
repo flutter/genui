@@ -6,11 +6,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../flutter_genui.dart' show AiClient;
-import '../ai_client/ai_client.dart' show AiClient;
 
 import '../model/catalog.dart';
-import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import 'core_catalog.dart';
