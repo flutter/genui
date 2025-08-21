@@ -58,7 +58,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
     if (oldWidget.surfaceId != widget.surfaceId ||
         oldWidget.manager != widget.manager) {
-      initState();
+      _init();
     }
   }
 
