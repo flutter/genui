@@ -4,7 +4,6 @@
 
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
-import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
