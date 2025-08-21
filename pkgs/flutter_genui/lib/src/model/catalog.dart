@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../flutter_genui.dart';
 
+/// A callback that builds a child widget for a catalog item.
 typedef CatalogChildBuilder = Widget Function(String id);
 
 /// Represents a collection of UI components that a generative AI model can use

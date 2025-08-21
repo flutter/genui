@@ -9,24 +9,29 @@ import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import 'core_catalog.dart';
 
-/// Surfaces that can be updated by the AI client.
+/// A class that defines the UI surfaces that can be updated by the AI client.
 class GenUiSurfaces {
+  /// Creates a new [GenUiSurfaces] with the given [surfacesIds] and
+  /// [description].
+  GenUiSurfaces({required this.surfacesIds, required this.description});
+
   /// Ids of the surfaces that can be updated.
   final Set<String> surfacesIds;
 
   /// Explains the surfaces, itemized in [surfacesIds], for the AI.
   final String description;
-
-  GenUiSurfaces({required this.surfacesIds, required this.description});
 }
 
+/// An abstract class for warnings that can be issued by the [NewGenUiManager].
 abstract class GenUiWarning {
   /// The warning message.
   String get message;
 }
 
 // TODO: rename to GenUiManager after implementing.
+/// A manager for the state of the generative UI.
 class NewGenUiManager {
+  /// Creates a new [NewGenUiManager].
   NewGenUiManager({
     required this.aiClient,
     required GenUiSurfaces surfaces,
@@ -37,8 +42,13 @@ class NewGenUiManager {
     this.catalog = catalog ?? coreCatalog;
   }
 
+  /// The catalog of UI components that can be used to build the UI.
   late final Catalog catalog;
+
+  /// The AI client to use for generating UI.
   final AiClient aiClient;
+
+  /// The general prompt to use for the AI.
   final String generalPrompt;
 
   /// Called when there is a warning to report.
@@ -93,8 +103,14 @@ class NewGenUiManager {
   Stream<SurfaceUpdate> get allSurfaceUpdates => throw UnimplementedError();
 }
 
+/// A class that represents an update to a UI surface.
 class SurfaceUpdate {
+  /// Creates a new [SurfaceUpdate] with the given [surfaceId] and [builder].
   SurfaceUpdate({required this.surfaceId, required this.builder});
+
+  /// The ID of the surface that was updated.
   final String surfaceId;
+
+  /// The builder for the updated surface.
   final WidgetBuilder builder;
 }

@@ -11,6 +11,10 @@ import 'ai_client.dart';
 
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
 /// specific `Content` classes.
+///
+/// This class is responsible for translating the abstract [ChatMessage]
+/// representation into the concrete `firebase_ai.Content` representation
+/// required by the `firebase_ai` package.
 class GeminiContentConverter {
   /// Converts a list of `ChatMessage` objects to a list of
   /// `firebase_ai.Content` objects.

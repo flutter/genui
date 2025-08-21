@@ -18,22 +18,32 @@ import 'gemini_schema_adapter.dart';
 import 'generative_model_interface.dart';
 import 'tools.dart';
 
-/// Defines the severity levels for logging messages within the AI client and
-/// related components.
-typedef GenerativeModelFactory = GenerativeModelInterface Function({
-  required GeminiAiClient configuration,
-  Content? systemInstruction,
-  List<Tool>? tools,
-  ToolConfig? toolConfig,
-});
+/// A factory for creating a [GenerativeModelInterface].
+///
+/// This is used to allow for custom model creation, for example, for testing.
+typedef GenerativeModelFactory =
+    GenerativeModelInterface Function({
+      required GeminiAiClient configuration,
+      Content? systemInstruction,
+      List<Tool>? tools,
+      ToolConfig? toolConfig,
+    });
 
 /// An enum for the available Gemini models.
 enum GeminiModelType {
+  /// The Gemini 2.5 Flash model.
   flash('gemini-2.5-flash', 'Gemini 2.5 Flash'),
+
+  /// The Gemini 2.5 Pro model.
   pro('gemini-2.5-pro', 'Gemini 2.5 Pro');
 
+  /// Creates a [GeminiModelType] with the given [modelName] and [displayName].
   const GeminiModelType(this.modelName, this.displayName);
+
+  /// The name of the model as known by the Gemini API.
   final String modelName;
+
+  /// The human-readable name of the model.
   final String displayName;
 }
 
@@ -67,7 +77,7 @@ class GeminiAiClient implements AiClient {
   /// - [initialDelay]: Initial delay for the exponential backoff retry
   ///   strategy.
   /// - [maxConcurrentJobs]: Intended for managing concurrent AI operations,
-///   though not directly enforced by [generateContent] itself.
+  ///   though not directly enforced by [generateContent] itself.
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
@@ -76,32 +86,6 @@ class GeminiAiClient implements AiClient {
     this.systemInstruction,
     this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
-    this.maxRetries = 8,
-    this.initialDelay = const Duration(seconds: 1),
-    this.minDelay = const Duration(seconds: 8),
-    this.maxConcurrentJobs = 20,
-    this.tools = const <AiTool>[],
-    this.outputToolName = 'provideFinalOutput',
-  }) : _model = ValueNotifier(GeminiModel(model)) {
-    final duplicateToolNames = tools.map((t) => t.name).toSet();
-    if (duplicateToolNames.length != tools.length) {
-      final duplicateTools = tools.where((t) {
-        return tools.where((other) => other.name == t.name).length > 1;
-      });
-      throw AiClientException(
-        'Duplicate tool(s) '
-        '${duplicateTools.map<String>((t) => t.name).toSet().join(', ')} '
-        'registered. Tool names must be unique.',
-      );
-    }
-  }
-
-  @visibleForTesting
-  GeminiAiClient.test({
-    required this.modelCreator,
-    GeminiModelType model = GeminiModelType.flash,
-    this.systemInstruction,
-    this.fileSystem = const LocalFileSystem(),
     this.maxRetries = 8,
     this.initialDelay = const Duration(seconds: 1),
     this.minDelay = const Duration(seconds: 8),
@@ -262,9 +246,8 @@ class GeminiAiClient implements AiClient {
   @override
   Future<T?> generateContent<T extends Object>(
     List<ChatMessage> conversation,
-    dsb.Schema outputSchema,
-    {
-    Iterable<AiTool> additionalTools = const [],
+    dsb.Schema outputSchema, {
+    Iterable<AiTool> additionalTools = const {},
   }) async {
     return await _generateContentWithRetries(conversation, outputSchema, [
       ...tools,
@@ -274,9 +257,8 @@ class GeminiAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    List<ChatMessage> conversation,
-    {
-    Iterable<AiTool> additionalTools = const [],
+    List<ChatMessage> conversation, {
+    Iterable<AiTool> additionalTools = const {},
   }) async {
     return await _generateTextWithRetries(conversation, [
       ...tools,
@@ -498,11 +480,11 @@ class GeminiAiClient implements AiClient {
         try {
           capturedResult =
               (call.args['parameters'] as Map<String, Object?>)['output'];
-        } catch (e, s) {
+        } catch (exception, stack) {
           genUiLogger.severe(
-            'Unable to read output: $call [${call.args}]: $e',
-            e,
-            s,
+            'Unable to read output: $call [${call.args}]',
+            exception,
+            stack,
           );
         }
         genUiLogger.info(
@@ -526,9 +508,8 @@ class GeminiAiClient implements AiClient {
         );
       } catch (exception, stack) {
         genUiLogger.severe(
-          'Error invoking tool ${aiTool.name} with args ${call.args}: '
+          'Error invoking tool ${aiTool.name} with args ${call.args}: ',
           '$exception',
-          exception,
           stack,
         );
         toolResult = {

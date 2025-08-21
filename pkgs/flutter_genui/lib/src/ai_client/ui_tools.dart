@@ -8,6 +8,9 @@ import '../core/genui_manager.dart';
 import 'tools.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
+///
+/// This tool allows the AI to create a new UI surface or update an existing
+/// one with a new definition.
 class AddOrUpdateSurfaceTool extends AiTool<Map<String, Object?>> {
   /// Creates an [AddOrUpdateSurfaceTool].
   AddOrUpdateSurfaceTool(this.manager)
@@ -59,6 +62,8 @@ class AddOrUpdateSurfaceTool extends AiTool<Map<String, Object?>> {
 }
 
 /// An [AiTool] for deleting a UI surface.
+///
+/// This tool allows the AI to remove a UI surface that is no longer needed.
 class DeleteSurfaceTool extends AiTool<Map<String, Object?>> {
   /// Creates a [DeleteSurfaceTool].
   DeleteSurfaceTool(this.manager)

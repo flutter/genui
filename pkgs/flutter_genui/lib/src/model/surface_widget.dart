@@ -8,12 +8,14 @@ import '../core/genui_manager.dart';
 import '../core/logging.dart';
 import 'ui_models.dart';
 
+/// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
 /// It reports user interactions via the [onEvent] callback.
 class SurfaceWidget extends StatefulWidget {
+  /// Creates a new [SurfaceWidget].
   const SurfaceWidget({
     super.key,
     required this.manager,

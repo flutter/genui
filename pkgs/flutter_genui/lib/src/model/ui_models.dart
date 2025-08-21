@@ -30,6 +30,10 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
   Map<String, Object?> toMap() => _json;
 }
 
+/// A UI event that represents a user action.
+///
+/// This is used for events that should trigger a submission to the AI, such as
+/// tapping a button.
 extension type UiActionEvent.fromMap(Map<String, Object?> _json)
     implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
@@ -49,6 +53,10 @@ extension type UiActionEvent.fromMap(Map<String, Object?> _json)
        };
 }
 
+/// A UI event that represents a change in the UI state.
+///
+/// This is used for events that should not trigger a submission to the AI, such
+/// as entering text in a text field.
 extension type UiChangeEvent.fromMap(Map<String, Object?> _json)
     implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.

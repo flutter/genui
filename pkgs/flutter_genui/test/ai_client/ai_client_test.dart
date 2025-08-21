@@ -32,7 +32,7 @@ void main() {
     });
 
     GeminiAiClient createClient({List<AiTool> tools = const []}) {
-      return GeminiAiClient.test(
+      return GeminiAiClient(
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
               return fakeModel;

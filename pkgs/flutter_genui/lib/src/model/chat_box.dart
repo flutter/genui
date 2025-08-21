@@ -5,17 +5,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// A callback that is called when the user submits a chat message.
 typedef ChatBoxCallback = void Function(String input);
 
+/// A builder for a chat box widget.
 typedef ChatBoxBuilder =
     Widget Function(ChatBoxController controller, BuildContext context);
 
+/// The default chat box builder.
 Widget defaultChatBoxBuilder(
   ChatBoxController controller,
   BuildContext context,
 ) => ChatBox(controller);
 
+/// A controller for a chat box.
+///
+/// This controller is used to manage the state of the chat box, such as
+/// whether it is waiting for a response from the AI.
 class ChatBoxController {
+  /// Creates a new [ChatBoxController].
   ChatBoxController(this.onInput);
 
   /// Is invoked when the user submits input.
@@ -24,22 +32,30 @@ class ChatBoxController {
   ChatBoxCallback onInput;
 
   final ValueNotifier<bool> _isWaiting = ValueNotifier<bool>(false);
+
+  /// A [ValueListenable] that indicates whether the chat box is waiting for a
+  /// response from the AI.
   late final ValueListenable<bool> isWaiting = _isWaiting;
 
+  /// Sets the chat box to the waiting state.
   void setRequested() {
     _isWaiting.value = true;
   }
 
+  /// Sets the chat box to the not-waiting state.
   void setResponded() {
     _isWaiting.value = false;
   }
 
+  /// Disposes of the resources used by the controller.
   void dispose() {
     _isWaiting.dispose();
   }
 }
 
+/// A widget that provides a text input field for a chat interface.
 class ChatBox extends StatefulWidget {
+  /// Creates a new [ChatBox].
   ChatBox(
     this.controller, {
     super.key,
@@ -47,8 +63,13 @@ class ChatBox extends StatefulWidget {
     this.hintText = 'Ask me anything',
   });
 
+  /// The controller for the chat box.
   final ChatBoxController controller;
+
+  /// The border radius of the text field.
   final double borderRadius;
+
+  /// The hint text to display in the text field.
   final String hintText;
 
   @override
@@ -85,7 +106,6 @@ class _ChatBoxState extends State<ChatBox> {
             );
           },
         ),
-
         Row(
           children: [
             Expanded(
