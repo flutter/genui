@@ -6,10 +6,14 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../flutter_genui.dart' show AiClient;
+import '../ai_client/ai_client.dart' show AiClient;
+import '../ai_client/tools.dart';
+import '../ai_client/ui_tools.dart';
 import '../model/catalog.dart';
 import '../model/ui_models.dart';
-import '../primitives/logging.dart';
 import 'core_catalog.dart';
+import 'logging.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -81,6 +85,14 @@ class GenUiManager {
   /// This can be used to listen for changes to a specific surface.
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
     return _surfaces.putIfAbsent(surfaceId, () => ValueNotifier(null));
+  }
+
+  /// Returns a list of [AiTool]s that can be used to manipulate the UI.
+  ///
+  /// These tools should be provided to the [AiClient] to allow the AI to
+  /// generate and modify the UI.
+  List<AiTool> getTools() {
+    return [AddOrUpdateSurfaceTool(this), DeleteSurfaceTool(this)];
   }
 
   /// Adds or updates a UI surface.
