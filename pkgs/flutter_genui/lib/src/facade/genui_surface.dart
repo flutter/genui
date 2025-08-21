@@ -7,8 +7,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
-import '../primitives/logging.dart';
-import '../model/ui_models.dart';
+import '../core/logging.dart';
+import 'ui_models.dart';
 
 /// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
@@ -43,7 +43,7 @@ class GenUiSurface extends StatefulWidget {
 }
 
 class _GenUiSurfaceState extends State<GenUiSurface> {
-  late final ValueNotifier<UiDefinition?>? _definitionNotifier;
+  ValueNotifier<UiDefinition?>? _definitionNotifier;
   StreamSubscription<GenUiUpdate>? _allUpdatesSubscription;
 
   @override
@@ -87,12 +87,13 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   @override
   Widget build(BuildContext context) {
-    if (_definitionNotifier == null) {
+    final notifier = _definitionNotifier;
+    if (notifier == null) {
       return const SizedBox.shrink();
     }
 
     return ValueListenableBuilder<UiDefinition?>(
-      valueListenable: _definitionNotifier,
+      valueListenable: notifier,
       builder: (context, definition, child) {
         genUiLogger.info('Building surface ${widget.surfaceId}');
         if (definition == null) {
