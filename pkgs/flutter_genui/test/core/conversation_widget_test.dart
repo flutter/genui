@@ -9,10 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ConversationWidget', () {
-    late GenUiManager manager;
+    late SurfaceManager manager;
 
     setUp(() {
-      manager = GenUiManager(catalog: coreCatalog);
+      manager = SurfaceManager(catalog: coreCatalog);
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {

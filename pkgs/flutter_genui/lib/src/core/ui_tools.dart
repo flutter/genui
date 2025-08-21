@@ -5,7 +5,8 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 
 import '../model/tools.dart';
-import 'genui_manager.dart';
+import 'surface_manager.dart';
+import 'surface_manager_interface.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
 ///
@@ -49,8 +50,8 @@ class AddOrUpdateSurfaceTool extends AiTool<Map<String, Object?>> {
         ),
       );
 
-  /// The [GenUiManager] to use for updating the UI.
-  final GenUiManager manager;
+  /// The [SurfaceManagerInterface] to use for updating the UI.
+  final SurfaceManagerInterface manager;
 
   @override
   Future<Map<String, Object?>> invoke(Map<String, Object?> args) async {
@@ -81,8 +82,8 @@ class DeleteSurfaceTool extends AiTool<Map<String, Object?>> {
         ),
       );
 
-  /// The [GenUiManager] to use for updating the UI.
-  final GenUiManager manager;
+  /// The [SurfaceManager] to use for updating the UI.
+  final SurfaceManager manager;
 
   @override
   Future<Map<String, Object?>> invoke(Map<String, Object?> args) async {

@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../core/genui_manager.dart';
+import '../core/surface_manager.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 
@@ -27,7 +27,7 @@ class GenUiSurface extends StatefulWidget {
   });
 
   /// The manager that holds the state of the UI.
-  final GenUiManager manager;
+  final SurfaceManager manager;
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;

@@ -3,11 +3,10 @@
 // found in the LICENSE file.
 
 import '../model/catalog.dart';
-import 'surface_manager.dart';
 
-class GenuiManager {
-  SurfaceManager surfaceManager;
+abstract class SurfaceManagerInterface {
+  void addOrUpdateSurface(String id, Map<String, dynamic> definition);
+  void removeSurface(String id);
 
-  GenuiManager({Catalog? catalog})
-    : surfaceManager = SurfaceManager(catalog: catalog);
+  Catalog get catalog;
 }

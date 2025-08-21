@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../core/genui_manager.dart';
+import '../core/surface_manager.dart';
 import '../core/widgets/chat_primitives.dart';
 import '../model/chat_message.dart';
 import 'genui_surface.dart';
@@ -24,7 +24,7 @@ class ConversationWidget extends StatelessWidget {
 
   final List<ChatMessage> messages;
   final UiEventCallback onEvent;
-  final GenUiManager manager;
+  final SurfaceManager manager;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
