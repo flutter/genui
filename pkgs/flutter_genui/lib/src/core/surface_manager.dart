@@ -68,6 +68,7 @@ class SurfaceManager extends SurfaceManagerInterface {
   SurfaceManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   /// The catalog of UI components that can be used to build the UI.
+  @override
   final Catalog catalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
@@ -100,6 +101,7 @@ class SurfaceManager extends SurfaceManagerInterface {
   /// Adds or updates a UI surface.
   ///
   /// This method is called by the [AddOrUpdateSurfaceTool] to update the UI.
+  @override
   void addOrUpdateSurface(String surfaceId, Map<String, Object?> definition) {
     final uiDefinition = UiDefinition.fromMap({
       'surfaceId': surfaceId,
