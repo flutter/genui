@@ -68,7 +68,7 @@ class ConversationWidget extends StatelessWidget {
           case UiResponseMessage():
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SurfaceWidget(
+              child: GenUiSurface(
                 key: message.uiKey,
                 manager: manager,
                 surfaceId: message.surfaceId,

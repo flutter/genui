@@ -16,9 +16,9 @@ typedef UiEventCallback = void Function(UiEvent event);
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
 /// It reports user interactions via the [onEvent] callback.
-class SurfaceWidget extends StatefulWidget {
-  /// Creates a new [SurfaceWidget].
-  const SurfaceWidget({
+class GenUiSurface extends StatefulWidget {
+  /// Creates a new [GenUiSurface].
+  const GenUiSurface({
     super.key,
     required this.manager,
     required this.surfaceId,
@@ -39,10 +39,29 @@ class SurfaceWidget extends StatefulWidget {
   final WidgetBuilder? defaultBuilder;
 
   @override
-  State<SurfaceWidget> createState() => _SurfaceWidgetState();
+  State<GenUiSurface> createState() => _GenUiSurfaceState();
+
+  @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is GenUiSurface &&
+        other.manager == manager &&
+        other.surfaceId == surfaceId &&
+        other.onEvent == onEvent &&
+        other.defaultBuilder == defaultBuilder;
+  }
+
+  @override
+  int get hashCode {
+    return manager.hashCode ^
+        surfaceId.hashCode ^
+        onEvent.hashCode ^
+        defaultBuilder.hashCode;
+  }
 }
 
-class _SurfaceWidgetState extends State<SurfaceWidget> {
+class _GenUiSurfaceState extends State<GenUiSurface> {
   late final ValueNotifier<UiDefinition?> _definitionNotifier;
   StreamSubscription<GenUiUpdate>? _allUpdatesSubscription;
 
@@ -51,6 +70,16 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
     super.initState();
     _init();
   }
+
+  // @override
+  // void didUpdateWidget(covariant GenUiSurface oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+
+  //   if (oldWidget.surfaceId != widget.surfaceId ||
+  //       oldWidget.genUiManager != widget.genUiManager) {
+  //     initState();
+  //   }
+  // }
 
   void _init() {
     // Reset previous subscription for updates.
@@ -66,7 +95,7 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
     setState(() {});
   }
 
-  /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
+  /// Dispatches an event by calling the public [GenUiSurface.onEvent]
   /// callback.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.

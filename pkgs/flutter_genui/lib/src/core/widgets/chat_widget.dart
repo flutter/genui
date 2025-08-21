@@ -206,7 +206,7 @@ class _GenUiChatState extends State<GenUiChat> {
                     case UiResponseMessage():
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: SurfaceWidget(
+                        child: GenUiSurface(
                           key: message.uiKey,
                           manager: widget.controller.manager,
                           surfaceId: message.surfaceId,
