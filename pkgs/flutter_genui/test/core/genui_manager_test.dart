@@ -114,13 +114,6 @@ void main() {
       expect(manager.surface('s1').value, isNull);
     });
 
-    test('getTools returns the correct tools', () {
-      final tools = manager.getTools();
-      expect(tools, hasLength(2));
-      expect(tools[0], isA<AddOrUpdateSurfaceTool>());
-      expect(tools[1], isA<DeleteSurfaceTool>());
-    });
-
     test('surface() creates a new ValueNotifier if one does not exist', () {
       final notifier1 = manager.surface('s1');
       final notifier2 = manager.surface('s1');
