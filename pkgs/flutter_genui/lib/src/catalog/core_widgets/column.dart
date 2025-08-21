@@ -94,7 +94,7 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-final columnCatalogItem = CatalogItem(
+final column = CatalogItem(
   name: 'Column',
   dataSchema: _schema,
   widgetBuilder:

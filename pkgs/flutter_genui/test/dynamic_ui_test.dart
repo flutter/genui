@@ -7,7 +7,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testCatalog = Catalog([elevatedButtonCatalogItem, text]);
+  final testCatalog = Catalog([elevatedButton, text]);
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
@@ -19,13 +19,13 @@ void main() {
         {
           'id': 'root',
           'widget': {
-            'elevated_button': {'child': 'text'},
+            'ElevatedButton': {'child': 'text'},
           },
         },
         {
           'id': 'text',
           'widget': {
-            'text': {'text': 'Hello'},
+            'Text': {'text': 'Hello'},
           },
         },
       ],
@@ -56,13 +56,13 @@ void main() {
         {
           'id': 'root',
           'widget': {
-            'elevated_button': {'child': 'text'},
+            'ElevatedButton': {'child': 'text'},
           },
         },
         {
           'id': 'text',
           'widget': {
-            'text': {'text': 'Hello'},
+            'Text': {'text': 'Hello'},
           },
         },
       ],

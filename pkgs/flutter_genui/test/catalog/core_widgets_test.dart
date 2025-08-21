@@ -9,10 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Core Widgets', () {
     final testCatalog = Catalog([
-      elevatedButtonCatalogItem,
+      elevatedButton,
       text,
       checkboxGroup,
-      columnCatalogItem,
+      column,
       radioGroup,
       textField,
     ]);
@@ -47,13 +47,13 @@ void main() {
           {
             'id': 'button',
             'widget': {
-              'elevated_button': {'child': 'text'},
+              'ElevatedButton': {'child': 'text'},
             },
           },
           {
             'id': 'text',
             'widget': {
-              'text': {'text': 'Click Me'},
+              'Text': {'text': 'Click Me'},
             },
           },
         ],
@@ -80,7 +80,7 @@ void main() {
           {
             'id': 'checkboxes',
             'widget': {
-              'checkbox_group': {
+              'CheckboxGroup': {
                 'values': [true, false],
                 'labels': ['A', 'B'],
               },
@@ -121,13 +121,13 @@ void main() {
           {
             'id': 'text1',
             'widget': {
-              'text': {'text': 'First'},
+              'Text': {'text': 'First'},
             },
           },
           {
             'id': 'text2',
             'widget': {
-              'text': {'text': 'Second'},
+              'Text': {'text': 'Second'},
             },
           },
         ],
@@ -156,7 +156,7 @@ void main() {
           {
             'id': 'radios',
             'widget': {
-              'radio_group': {
+              'RadioGroup': {
                 'groupValue': 'A',
                 'labels': ['A', 'B'],
               },
@@ -187,7 +187,7 @@ void main() {
           {
             'id': 'field',
             'widget': {
-              'text_field': {'value': 'initial', 'hintText': 'hint'},
+              'TextField': {'value': 'initial', 'hintText': 'hint'},
             },
           },
         ],

@@ -87,7 +87,7 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
 }
 
 final checkboxGroup = CatalogItem(
-  name: 'checkbox_group',
+  name: 'CheckboxGroup',
   dataSchema: _schema,
   widgetBuilder:
       ({

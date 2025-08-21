@@ -60,7 +60,7 @@ extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
 /// which informs the AI of the user's choice, allowing it to refine its
 /// subsequent responses.
 final optionsFilterChip = CatalogItem(
-  name: 'optionsFilterChip',
+  name: 'OptionsFilterChip',
   dataSchema: _schema,
   widgetBuilder:
       ({

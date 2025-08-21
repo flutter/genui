@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/trailhead.dart';
 
 void main() {
-  group('trailheadCatalogItem', () {
+  group('trailhead', () {
     testWidgets('builds widget correctly and handles tap', (
       WidgetTester tester,
     ) async {
@@ -22,7 +22,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailheadCatalogItem.widgetBuilder(
+                return trailhead.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
@@ -60,7 +60,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailheadCatalogItem.widgetBuilder(
+                return trailhead.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),

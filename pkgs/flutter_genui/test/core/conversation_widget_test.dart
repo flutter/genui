@@ -21,7 +21,7 @@ void main() {
               {
                 'id': 'r1',
                 'widget': {
-                  'text': {'text': 'Hi there!'},
+                  'Text': {'text': 'Hi there!'},
                 },
               },
             ],
@@ -74,7 +74,7 @@ void main() {
               {
                 'id': 'root',
                 'widget': {
-                  'text': {'text': 'UI Content'},
+                  'Text': {'text': 'UI Content'},
                 },
               },
             ],

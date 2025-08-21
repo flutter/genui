@@ -19,13 +19,13 @@ final _schema = S.object(
     'subheading': S.string(description: 'The subheading of the itinerary.'),
     'imageChildId': S.string(
       description:
-          'The ID of the image widget to display. The image fit should '
-          "typically be 'cover'.  Be sure to create an image widget with a "
+          'The ID of the Image widget to display. The Image fit should '
+          "typically be 'cover'.  Be sure to create an Image widget with a "
           'matching ID.',
     ),
     'child': S.string(
       description:
-          '''The ID of a child widget to display in a modal. This should typically be a column which contains a sequence of itinerary_items, text, travel_carousel etc. Most of the content should be the trip details shown in itinerary_items, but try to break it up with other elements showing related content. If there are multiple sections to the itinerary, you can use the tabbed_sections to break them up.''',
+          '''The ID of a child widget to display in a modal. This should typically be a Column which contains a sequence of ItineraryItems, Text, TravelCarousel etc. Most of the content should be the trip details shown in ItineraryItems, but try to break it up with other elements showing related content. If there are multiple sections to the itinerary, you can use the TabbedSections to break them up.''',
     ),
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],
@@ -60,7 +60,7 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 /// breakdown of the itinerary, which is typically composed of a `Column` of
 /// [itineraryItem] widgets and other supplemental content.
 final itineraryWithDetails = CatalogItem(
-  name: 'itinerary_with_details',
+  name: 'ItineraryWithDetails',
   dataSchema: _schema,
   widgetBuilder:
       ({

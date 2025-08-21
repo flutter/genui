@@ -16,7 +16,7 @@ extension type _TextData.fromMap(Map<String, Object?> _json) {
 }
 
 final text = CatalogItem(
-  name: 'text',
+  name: 'Text',
   dataSchema: S.object(
     properties: {
       'text': S.string(

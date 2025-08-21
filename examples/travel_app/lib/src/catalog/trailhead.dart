@@ -28,12 +28,12 @@ extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
 ///
 /// This component is designed to guide the conversation and encourage further
 /// exploration after a primary query has been addressed. For instance, after
-/// generating a trip itinerary, the AI might use a `trailhead` to suggest
+/// generating a trip itinerary, the AI might use a [trailhead] to suggest
 /// related topics like "local cuisine," "nightlife," or "day trips." When a
 /// user taps a topic, it sends a new prompt to the AI, continuing the
 /// conversation in a new direction.
-final trailheadCatalogItem = CatalogItem(
-  name: 'trailhead',
+final trailhead = CatalogItem(
+  name: 'Trailhead',
   dataSchema: _schema,
   widgetBuilder:
       ({

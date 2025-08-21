@@ -18,7 +18,7 @@ void main() {
       final data = {
         'id': 'text1',
         'widget': {
-          'text': {'text': 'hello'},
+          'Text': {'text': 'hello'},
         },
       };
 
@@ -86,15 +86,15 @@ void main() {
     });
 
     test('schema generation is correct', () {
-      final catalog = Catalog([text, elevatedButtonCatalogItem]);
+      final catalog = Catalog([text, elevatedButton]);
       final schema = catalog.schema as ObjectSchema;
 
       expect(schema.properties?.containsKey('id'), isTrue);
       expect(schema.properties?.containsKey('widget'), isTrue);
 
       final widgetSchema = schema.properties?['widget'] as ObjectSchema;
-      expect(widgetSchema.properties?.containsKey('text'), isTrue);
-      expect(widgetSchema.properties?.containsKey('elevated_button'), isTrue);
+      expect(widgetSchema.properties?.containsKey('Text'), isTrue);
+      expect(widgetSchema.properties?.containsKey('ElevatedButton'), isTrue);
     });
   });
 }
