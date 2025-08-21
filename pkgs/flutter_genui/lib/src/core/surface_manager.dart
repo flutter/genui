@@ -91,7 +91,7 @@ class SurfaceManager extends SurfaceManagerInterface {
 
   /// Adds or updates a UI surface.
   ///
-  /// This method is called by the [AddOrUpdateSurfaceTool] to update the UI.
+  /// This method is called to update the UI.
   @override
   void addOrUpdateSurface(String surfaceId, Map<String, Object?> definition) {
     final uiDefinition = UiDefinition.fromMap({
@@ -112,7 +112,7 @@ class SurfaceManager extends SurfaceManagerInterface {
 
   /// Deletes a UI surface.
   ///
-  /// This method is called by the [DeleteSurfaceTool] to update the UI.
+  /// This method is called to update the UI.
   void deleteSurface(String surfaceId) {
     if (_surfaces.containsKey(surfaceId)) {
       genUiLogger.info('Deleting surface $surfaceId');

@@ -53,14 +53,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late final SurfaceManager _genUiManager;
+  late final GenuiManager _genUiManager;
   late final GeminiAiClient _aiClient;
   late final GenUiChatController _chatController;
 
   @override
   void initState() {
     super.initState();
-    _genUiManager = SurfaceManager();
+    _genUiManager = GenuiManager();
     _chatController = GenUiChatController(manager: _genUiManager);
     _aiClient = GeminiAiClient(
       systemInstruction: _chatPrompt,

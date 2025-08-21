@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../core/genui_manager.dart';
 import '../core/surface_manager.dart';
 import '../core/widgets/chat_primitives.dart';
 import '../model/chat_box.dart';
@@ -30,7 +31,7 @@ class GenUiChatController {
   }
 
   late final StreamSubscription<GenUiUpdate> _updateSubscription;
-  final SurfaceManager manager;
+  final GenuiManager manager;
   final _onAiRequestSent = ValueNotifier<int>(0);
   final _onAiResponseReceived = ValueNotifier<int>(0);
   final _conversation = ValueNotifier<List<ChatMessage>>([]);

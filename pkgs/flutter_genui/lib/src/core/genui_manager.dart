@@ -2,8 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
+
+import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/tools.dart';
+import '../model/ui_models.dart';
 import 'surface_manager.dart';
 import 'ui_tools.dart';
 
@@ -12,6 +16,13 @@ class GenuiManager {
 
   GenuiManager({Catalog? catalog})
     : surfaceManager = SurfaceManager(catalog: catalog);
+
+  Map<String, ValueNotifier<UiDefinition?>> get surfaces =>
+      surfaceManager.surfaces;
+
+  Stream<GenUiUpdate> get updates => surfaceManager.updates;
+
+  Catalog get catalog => surfaceManager.catalog;
 
   /// Returns a list of [AiTool]s that can be used to manipulate the UI.
   ///
@@ -22,5 +33,12 @@ class GenuiManager {
       AddOrUpdateSurfaceTool(surfaceManager),
       DeleteSurfaceTool(surfaceManager),
     ];
+  }
+
+  ValueNotifier<UiDefinition?> surface(String surfaceId) =>
+      surfaceManager.surface(surfaceId);
+
+  void dispose() {
+    surfaceManager.dispose();
   }
 }
