@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('GenUiChatController', () {
-    late SurfaceManager manager;
+    late GenUiManager manager;
     late GenUiChatController controller;
 
     setUp(() {
-      manager = SurfaceManager();
+      manager = GenUiManager();
       controller = GenUiChatController(manager: manager);
     });
 
