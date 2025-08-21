@@ -15,7 +15,7 @@ import 'package:firebase_ai/firebase_ai.dart'
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
-import 'package:flutter_genui/src/core/logging.dart';
+import 'package:flutter_genui/src/primitives/logging.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';

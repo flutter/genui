@@ -12,7 +12,7 @@ import '../ai_client/ui_tools.dart';
 import '../model/catalog.dart';
 import '../model/ui_models.dart';
 import 'core_catalog.dart';
-import 'logging.dart';
+import '../primitives/logging.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///

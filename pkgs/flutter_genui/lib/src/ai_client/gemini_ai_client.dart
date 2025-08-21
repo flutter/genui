@@ -10,7 +10,7 @@ import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
-import '../core/logging.dart';
+import '../primitives/logging.dart';
 import '../model/chat_message.dart';
 import 'ai_client.dart';
 import 'gemini_content_converter.dart';

@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
-import '../core/logging.dart';
+import '../primitives/logging.dart';
 import '../model/ui_models.dart';
 
 /// A callback for when a user interacts with a widget.
