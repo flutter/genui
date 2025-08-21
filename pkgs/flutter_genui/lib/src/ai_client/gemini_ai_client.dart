@@ -247,7 +247,7 @@ class GeminiAiClient implements AiClient {
   Future<T?> generateContent<T extends Object>(
     List<ChatMessage> conversation,
     dsb.Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const {},
+    Iterable<AiTool> additionalTools = const [],
   }) async {
     return await _generateContentWithRetries(conversation, outputSchema, [
       ...tools,
@@ -258,7 +258,7 @@ class GeminiAiClient implements AiClient {
   @override
   Future<String> generateText(
     List<ChatMessage> conversation, {
-    Iterable<AiTool> additionalTools = const {},
+    Iterable<AiTool> additionalTools = const [],
   }) async {
     return await _generateTextWithRetries(conversation, [
       ...tools,

@@ -53,27 +53,6 @@ abstract interface class AiClient {
   });
 }
 
-/// The severity of a log message from the AI client.
-enum AiLoggingSeverity {
-  /// A trace message, for detailed debugging.
-  trace,
-
-  /// A debug message, for debugging.
-  debug,
-
-  /// An informational message.
-  info,
-
-  /// A warning message.
-  warning,
-
-  /// An error message.
-  error,
-
-  /// A fatal error message.
-  fatal,
-}
-
 /// An exception thrown by an [AiClient] or its subclasses.
 class AiClientException implements Exception {
   /// Creates an [AiClientException] with the given [message].
