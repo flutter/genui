@@ -8,12 +8,13 @@ import 'package:flutter/foundation.dart';
 
 import '../../flutter_genui.dart' show AiClient;
 import '../ai_client/ai_client.dart' show AiClient;
-import '../ai_client/tools.dart';
-import '../ai_client/ui_tools.dart';
+
 import '../model/catalog.dart';
+import '../model/tools.dart';
 import '../model/ui_models.dart';
+import '../primitives/logging.dart';
 import 'core_catalog.dart';
-import 'logging.dart';
+import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
