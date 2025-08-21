@@ -43,7 +43,7 @@ class GenUiSurface extends StatefulWidget {
 }
 
 class _GenUiSurfaceState extends State<GenUiSurface> {
-  late final ValueNotifier<UiDefinition?> _definitionNotifier;
+  late final ValueNotifier<UiDefinition?>? _definitionNotifier;
   StreamSubscription<GenUiUpdate>? _allUpdatesSubscription;
 
   @override
@@ -87,6 +87,10 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   @override
   Widget build(BuildContext context) {
+    if (_definitionNotifier == null) {
+      return const SizedBox.shrink();
+    }
+
     return ValueListenableBuilder<UiDefinition?>(
       valueListenable: _definitionNotifier,
       builder: (context, definition, child) {
