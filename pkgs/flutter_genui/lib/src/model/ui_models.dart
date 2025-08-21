@@ -30,6 +30,10 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
   Map<String, Object?> toMap() => _json;
 }
 
+/// A UI event that represents a user action.
+///
+/// This is used for events that should trigger a submission to the AI, such as
+/// tapping a button.
 extension type UiActionEvent.fromMap(Map<String, Object?> _json)
     implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
@@ -49,6 +53,10 @@ extension type UiActionEvent.fromMap(Map<String, Object?> _json)
        };
 }
 
+/// A UI event that represents a change in the UI state.
+///
+/// This is used for events that should not trigger a submission to the AI, such
+/// as entering text in a text field.
 extension type UiChangeEvent.fromMap(Map<String, Object?> _json)
     implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
@@ -77,6 +85,9 @@ extension type UiDefinition.fromMap(Map<String, Object?> _json) {
 
   /// The ID of the root widget in the UI tree.
   String get root => _json['root'] as String;
+
+  /// The original list of widget definitions.
+  List<Object?> get widgetList => _json['widgets'] as List<Object?>;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
   Map<String, Object?> get widgets {

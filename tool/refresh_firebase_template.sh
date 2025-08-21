@@ -38,10 +38,10 @@ for example in "${EXAMPLES[@]}"; do
     echo "--- Configuring Firebase for $example ---"
     (
         cd "$TOOL_DIR/../examples/$example"
-        rm -rf lib/firebase_options.dart
+        rm -f lib/firebase_options.dart
         flutterfire configure \
            --overwrite-firebase-options \
-           --platforms=macos \
+           --platforms=macos,web,ios,android \
            --project="$PROJECT_ID" \
            --out=lib/firebase_options.dart
     )

@@ -2,455 +2,145 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
+import 'package:flutter_genui/src/ai_client/ui_tools.dart';
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
-import 'package:flutter_genui/src/model/chat_message.dart';
-import 'package:flutter_genui/src/model/ui_models.dart';
-import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('$GenUiManager', () {
     late GenUiManager manager;
-    late FakeAiClient fakeAiClient;
 
     setUp(() {
-      fakeAiClient = FakeAiClient();
-      manager = GenUiManager(catalog: coreCatalog, aiClient: fakeAiClient);
+      manager = GenUiManager(catalog: coreCatalog);
     });
 
     tearDown(() {
       manager.dispose();
     });
 
-    test(
-      'sendUserPrompt adds message and calls AI, updates with response',
-      () async {
-        const prompt = 'Hello';
-        fakeAiClient.response = {
-          'actions': [
-            {
-              'action': 'add',
-              'surfaceId': 's1',
-              'definition': {
-                'root': 'root',
-                'widgets': [
-                  {
-                    'id': 'root',
-                    'widget': {
-                      'text': {'text': 'Hi back'},
-                    },
-                  },
-                ],
-              },
+    test('addOrUpdateSurface adds a new surface and fires SurfaceAdded with '
+        'definition', () async {
+      final definitionMap = {
+        'root': 'root',
+        'widgets': [
+          {
+            'id': 'root',
+            'widget': {
+              'Text': {'text': 'Hello'},
             },
-          ],
-        };
+          },
+        ],
+      };
 
-        final chatHistoryCompleter = Completer<List<ChatMessage>>();
-        manager.uiDataStream.listen((data) {
-          if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
-            chatHistoryCompleter.complete(data);
-          }
-        });
+      final futureUpdate = manager.updates.first;
 
-        await manager.sendUserPrompt(prompt);
+      manager.addOrUpdateSurface('s1', definitionMap);
 
-        final chatHistory = await chatHistoryCompleter.future;
+      final update = await futureUpdate;
 
-        expect(chatHistory[0], isA<UserMessage>());
-        expect((chatHistory[0] as UserMessage).parts.first, isA<TextPart>());
-        expect(
-          ((chatHistory[0] as UserMessage).parts.first as TextPart).text,
-          prompt,
-        );
-        expect(chatHistory[1], isA<UiResponseMessage>());
-
-        expect(fakeAiClient.generateContentCallCount, 1);
-        final lastConversation = fakeAiClient.lastConversation;
-        expect(lastConversation.first, isA<UserMessage>());
-        expect(
-          ((lastConversation.first as UserMessage).parts.first as TextPart)
-              .text,
-          prompt,
-        );
-      },
-    );
-
-    test('loadingStream emits true then false during AI call', () async {
-      const prompt = 'Hello';
-      final completer = Completer<void>();
-      fakeAiClient.response = {'actions': <Object>[]};
-      fakeAiClient.preGenerateContent = () => completer.future;
-
-      final loadingStates = <bool>[];
-      final sub = manager.loadingStream.listen(loadingStates.add);
-
-      unawaited(manager.sendUserPrompt(prompt));
-      await pumpEventQueue();
-      expect(loadingStates, [true]);
-
-      completer.complete();
-      await pumpEventQueue();
-      expect(loadingStates, [true, false]);
-
-      await sub.cancel();
+      expect(update, isA<SurfaceAdded>());
+      expect(update.surfaceId, 's1');
+      final addedUpdate = update as SurfaceAdded;
+      expect(addedUpdate.definition, isNotNull);
+      expect(addedUpdate.definition.root, 'root');
+      expect(manager.surface('s1').value, isNotNull);
+      expect(manager.surface('s1').value!.root, 'root');
     });
 
-    test('handles UI "add" action from AI', () async {
-      fakeAiClient.response = {
-        'actions': [
+    test('addOrUpdateSurface updates an existing surface and fires '
+        'SurfaceUpdated', () async {
+      final oldDefinition = {
+        'root': 'root',
+        'widgets': [
           {
-            'action': 'add',
-            'surfaceId': 's1',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'UI Content'},
-                  },
-                },
-              ],
+            'id': 'root',
+            'widget': {
+              'text': {'text': 'Old'},
+            },
+          },
+        ],
+      };
+      manager.addOrUpdateSurface('s1', oldDefinition);
+
+      final newDefinition = {
+        'root': 'root',
+        'widgets': [
+          {
+            'id': 'root',
+            'widget': {
+              'text': {'text': 'New'},
             },
           },
         ],
       };
 
-      final completer = Completer<List<ChatMessage>>();
-      manager.uiDataStream.listen((data) {
-        if (data.whereType<UiResponseMessage>().isNotEmpty &&
-            !completer.isCompleted) {
-          completer.complete(data);
-        }
-      });
+      final futureUpdate = manager.updates.first;
+      manager.addOrUpdateSurface('s1', newDefinition);
+      final update = await futureUpdate;
 
-      await manager.sendUserPrompt('show me a UI');
-      await pumpEventQueue();
-      final chatHistory = await completer.future;
-
-      final uiResponse = chatHistory.whereType<UiResponseMessage>().first;
-      expect(uiResponse.surfaceId, 's1');
-      expect(uiResponse.definition['root'], 'root');
-      expect(
-        manager.chatHistoryForTesting.whereType<UiResponseMessage>().any(
-          (m) => m.surfaceId == 's1',
-        ),
-        isTrue,
-      );
-    });
-
-    test('handles UI "update" action from AI', () async {
-      // First, add a UI
-      fakeAiClient.response = {
-        'actions': [
-          {
-            'action': 'add',
-            'surfaceId': 's1',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'Old Content'},
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
-      await manager.sendUserPrompt('show me a UI');
-      await fakeAiClient.responseCompleter.future;
-
-      // Now, update it
-      fakeAiClient.response = {
-        'actions': [
-          {
-            'action': 'update',
-            'surfaceId': 's1',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'New Content'},
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
-
-      await manager.sendUserPrompt('update the UI');
-      await fakeAiClient.responseCompleter.future;
-
-      final uiResponse = manager.chatHistoryForTesting
-          .whereType<UiResponseMessage>()
-          .firstWhere((m) => m.surfaceId == 's1');
-      expect(uiResponse.surfaceId, 's1');
-      final widgetDef =
-          (uiResponse.definition['widgets'] as List<Object?>).first
-              as Map<String, Object?>;
-      final textWidget = widgetDef['widget'] as Map<String, Object?>? ?? {};
-      final text = textWidget['text'] as Map<String, Object?>? ?? {};
-      expect(text['text'], 'New Content');
-    });
-
-    test(
-      'handles UI "delete" action from AI',
-      () async {
-        // First, add a UI
-        fakeAiClient.response = {
-          'actions': [
-            {
-              'action': 'add',
-              'surfaceId': 's1',
-              'definition': {
-                'root': 'root',
-                'widgets': <Map<String, Object?>>[],
-              },
-            },
-          ],
-        };
-
-        final addCompleter = Completer<void>();
-        final addSub = manager.uiDataStream.listen((data) {
-          if (data.whereType<UiResponseMessage>().isNotEmpty &&
-              !addCompleter.isCompleted) {
-            addCompleter.complete();
-          }
-        });
-
-        await manager.sendUserPrompt('show me a UI');
-        await pumpEventQueue();
-        await addCompleter.future;
-        await addSub.cancel();
-        expect(
-          manager.chatHistoryForTesting.whereType<UiResponseMessage>().any(
-            (m) => m.surfaceId == 's1',
-          ),
-          isTrue,
-        );
-
-        // Now, delete it
-        fakeAiClient.response = {
-          'actions': [
-            {'action': 'delete', 'surfaceId': 's1'},
-          ],
-        };
-
-        final deleteCompleter = Completer<void>();
-        final deleteSub = manager.uiDataStream.listen((data) {
-          if (!data.whereType<UiResponseMessage>().any(
-                (m) => m.surfaceId == 's1',
-              ) &&
-              !deleteCompleter.isCompleted) {
-            deleteCompleter.complete();
-          }
-        });
-
-        await manager.sendUserPrompt('delete the UI');
-        await pumpEventQueue();
-        await deleteCompleter.future;
-        await deleteSub.cancel();
-
-        expect(
-          manager.chatHistoryForTesting.whereType<UiResponseMessage>().any(
-            (m) => m.surfaceId == 's1',
-          ),
-          isFalse,
-        );
-      },
-      timeout: const Timeout(Duration(seconds: 10)),
-    );
-
-    test('handles UI events and calls AI', () async {
-      // Add a UI to interact with
-      fakeAiClient.response = {
-        'actions': [
-          {
-            'action': 'add',
-            'surfaceId': 's1',
-            'definition': {'root': 'root', 'widgets': <Map<String, Object?>>[]},
-          },
-        ],
-      };
-      final addCompleter = Completer<void>();
-      final addSub = manager.uiDataStream.listen((data) {
-        if (data.whereType<UiResponseMessage>().isNotEmpty &&
-            !addCompleter.isCompleted) {
-          addCompleter.complete();
-        }
-      });
-
-      await manager.sendUserPrompt('show me a UI');
-      await pumpEventQueue();
-      await addCompleter.future;
-      await addSub.cancel();
-
-      // Simulate a UI event
-      final event = UiActionEvent(
-        surfaceId: 's1',
-        widgetId: 'w1',
-        eventType: 'onTap',
-        timestamp: DateTime.now(),
-      );
-      fakeAiClient.response = {
-        'actions': [
-          {
-            'action': 'add',
-            'surfaceId': 's2',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'event handled'},
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
-
-      final eventCompleter = Completer<List<ChatMessage>>();
-      final eventSub = manager.uiDataStream.listen((data) {
-        // Wait for the ui response from the event
-        if (data.whereType<UiResponseMessage>().length > 1) {
-          if (!eventCompleter.isCompleted) {
-            eventCompleter.complete(data);
-          }
-        }
-      });
-
-      manager.handleEvents('s1', [event]);
-      await pumpEventQueue();
-
-      final chatHistory = await eventCompleter.future;
-      await eventSub.cancel();
-
-      expect(fakeAiClient.generateContentCallCount, 2);
-      final lastConversation = fakeAiClient.lastConversation;
-      final userMessage = lastConversation[2] as UserMessage;
-      expect(userMessage.parts.first, isA<ToolResultPart>());
-      expect(userMessage.parts.last, isA<ThinkingPart>());
-      expect(
-        (userMessage.parts.last as ThinkingPart).text,
-        contains('The user has interacted with the UI surface'),
-      );
-
-      expect(chatHistory.last, isA<UiResponseMessage>());
-    });
-
-    test('handles AI error gracefully', () async {
-      fakeAiClient.exception = Exception('AI go boom');
-
-      final completer = Completer<List<ChatMessage>>();
-      final sub = manager.uiDataStream.listen((data) {
-        if (data.isNotEmpty &&
-            data.last is AssistantMessage &&
-            !completer.isCompleted) {
-          completer.complete(data);
-        }
-      });
-
-      final loadingCompleter = Completer<void>();
-      final loadingSub = manager.loadingStream.listen((loading) {
-        if (!loading && !loadingCompleter.isCompleted) {
-          loadingCompleter.complete();
-        }
-      });
-
-      final logs = <String>[];
-      await runZoned(
-        () async {
-          await manager.sendUserPrompt('break');
-          await pumpEventQueue();
+      expect(update, isA<SurfaceUpdated>());
+      expect(update.surfaceId, 's1');
+      final updatedDefinition = (update as SurfaceUpdated).definition;
+      expect(updatedDefinition.widgets['root'], {
+        'id': 'root',
+        'widget': {
+          'text': {'text': 'New'},
         },
-        zoneSpecification: ZoneSpecification(
-          print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
-            logs.add(line);
-          },
-        ),
-      );
-
-      final chatHistory = await completer.future;
-      await sub.cancel();
-
-      expect(chatHistory.last, isA<AssistantMessage>());
-      expect(
-        ((chatHistory.last as AssistantMessage).parts.first as TextPart).text,
-        contains('Error:'),
-      );
-
-      await loadingCompleter.future;
-      await loadingSub.cancel();
-
-      expect(logs.first, contains('Error generating content'));
+      });
+      expect(manager.surface('s1').value, updatedDefinition);
     });
 
-    test("doesn't send empty prompt", () async {
-      await manager.sendUserPrompt('');
-      expect(fakeAiClient.generateContentCallCount, 0);
-    });
-
-    test('sends user prompt and gets UI response when showInternalMessages is '
-        'true', () async {
-      manager = GenUiManager(
-        catalog: coreCatalog,
-        aiClient: fakeAiClient,
-        showInternalMessages: true,
-      );
-      const prompt = 'Hello';
-      fakeAiClient.response = {
-        'actions': [
+    test('deleteSurface removes a surface and fires SurfaceRemoved', () async {
+      final definition = {
+        'root': 'root',
+        'widgets': [
           {
-            'action': 'add',
-            'surfaceId': 's1',
-            'definition': {
-              'root': 'root',
-              'widgets': [
-                {
-                  'id': 'root',
-                  'widget': {
-                    'text': {'text': 'Hi back'},
-                  },
-                },
-              ],
+            'id': 'root',
+            'widget': {
+              'text': {'text': 'Hello'},
             },
           },
         ],
       };
+      manager.addOrUpdateSurface('s1', definition);
 
-      final chatHistoryCompleter = Completer<List<ChatMessage>>();
-      manager.uiDataStream.listen((data) {
-        if (data.length == 2 && !chatHistoryCompleter.isCompleted) {
-          chatHistoryCompleter.complete(data);
-        }
-      });
+      final futureUpdate = manager.updates.first;
+      manager.deleteSurface('s1');
+      final update = await futureUpdate;
 
-      await manager.sendUserPrompt(prompt);
+      expect(update, isA<SurfaceRemoved>());
+      expect(update.surfaceId, 's1');
+      expect(manager.surface('s1').value, isNull);
+    });
 
-      final chatHistory = await chatHistoryCompleter.future;
+    test('getTools returns the correct tools', () {
+      final tools = manager.getTools();
+      expect(tools, hasLength(2));
+      expect(tools[0], isA<AddOrUpdateSurfaceTool>());
+      expect(tools[1], isA<DeleteSurfaceTool>());
+    });
 
-      expect(chatHistory[0], isA<UserMessage>());
-      expect(
-        ((chatHistory[0] as UserMessage).parts.first as TextPart).text,
-        prompt,
+    test('surface() creates a new ValueNotifier if one does not exist', () {
+      final notifier1 = manager.surface('s1');
+      final notifier2 = manager.surface('s1');
+      expect(notifier1, same(notifier2));
+      expect(notifier1.value, isNull);
+    });
+
+    test('dispose() closes the updates stream', () async {
+      var isClosed = false;
+      manager.updates.listen(
+        null,
+        onDone: () {
+          isClosed = true;
+        },
       );
-      expect(chatHistory[1], isA<UiResponseMessage>());
+
+      manager.dispose();
+
+      await Future<void>.delayed(Duration.zero);
+      expect(isClosed, isTrue);
     });
   });
 }
-
-// Helper to allow microtasks to run.
-Future<void> pumpEventQueue() => Future<void>.delayed(Duration.zero);

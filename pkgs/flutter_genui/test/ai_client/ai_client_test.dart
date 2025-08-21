@@ -15,8 +15,10 @@ import 'package:firebase_ai/firebase_ai.dart'
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
 import 'package:flutter_genui/src/ai_client/tools.dart';
+import 'package:flutter_genui/src/core/logging.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 
 import '../test_infra/utils.dart';
 
@@ -29,17 +31,13 @@ void main() {
       fakeModel = FakeGenerativeModel();
     });
 
-    GeminiAiClient createClient({
-      List<AiTool> tools = const [],
-      AiClientLoggingCallback? loggingCallback,
-    }) {
-      return GeminiAiClient.test(
+    GeminiAiClient createClient({List<AiTool> tools = const []}) {
+      return GeminiAiClient(
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
               return fakeModel;
             },
         tools: tools,
-        loggingCallback: loggingCallback,
       );
     }
 
@@ -291,11 +289,14 @@ void main() {
 
     test('logging callback is called', () async {
       final logMessages = <String>[];
-      client = createClient(
-        loggingCallback: (severity, message) {
-          logMessages.add(message);
-        },
+      client = createClient();
+      configureGenUiLogging(
+        level: Level.ALL,
+        logCallback: (_, message) => logMessages.add(message),
       );
+      addTearDown(() {
+        configureGenUiLogging(level: Level.OFF);
+      });
 
       fakeModel.response = GenerateContentResponse([
         Candidate(

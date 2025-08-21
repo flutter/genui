@@ -2,19 +2,85 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../../model/catalog.dart';
 import '../../model/chat_box.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
-import '../../model/ui_models.dart';
+import '../genui_manager.dart';
 import 'chat_primitives.dart';
-import 'conversation_widget.dart';
 
 class GenUiChatController {
+  GenUiChatController({required this.manager}) {
+    _conversation.value = manager.surfaces.entries.map((entry) {
+      final surfaceId = entry.key;
+      final definition = entry.value.value;
+      _surfaceIds.add(surfaceId);
+      return UiResponseMessage(
+        definition: {
+          'root': definition?.root,
+          'widgets': definition?.widgetList,
+        },
+        surfaceId: surfaceId,
+      );
+    }).toList();
+    _updateSubscription = manager.updates.listen(_onUpdate);
+  }
+
+  late final StreamSubscription<GenUiUpdate> _updateSubscription;
+  final GenUiManager manager;
   final _onAiRequestSent = ValueNotifier<int>(0);
   final _onAiResponseReceived = ValueNotifier<int>(0);
+  final _conversation = ValueNotifier<List<ChatMessage>>([]);
+  final _surfaceIds = <String>[];
+
+  ValueNotifier<List<ChatMessage>> get conversation => _conversation;
+
+  void addMessage(ChatMessage message) {
+    _conversation.value = [..._conversation.value, message];
+  }
+
+  void _onUpdate(GenUiUpdate update) {
+    final currentConversation = _conversation.value;
+    switch (update) {
+      case SurfaceAdded(:final surfaceId, :final definition):
+        if (!_surfaceIds.contains(surfaceId)) {
+          _surfaceIds.add(surfaceId);
+          _conversation.value = [
+            ...currentConversation,
+            UiResponseMessage(
+              definition: {
+                'root': definition.root,
+                'widgets': definition.widgetList,
+              },
+              surfaceId: surfaceId,
+            ),
+          ];
+        }
+      case SurfaceRemoved(:final surfaceId):
+        _surfaceIds.remove(surfaceId);
+        _conversation.value = currentConversation
+            .where((m) => !(m is UiResponseMessage && m.surfaceId == surfaceId))
+            .toList();
+      case SurfaceUpdated(:final surfaceId, :final definition):
+        final index = currentConversation.lastIndexWhere(
+          (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
+        );
+        if (index != -1) {
+          final newConversation = [...currentConversation];
+          newConversation[index] = UiResponseMessage(
+            definition: {
+              'root': definition.root,
+              'widgets': definition.widgetList,
+            },
+            surfaceId: surfaceId,
+          );
+          _conversation.value = newConversation;
+        }
+    }
+  }
 
   void setAiResponseReceived() {
     _onAiResponseReceived.value++;
@@ -25,20 +91,19 @@ class GenUiChatController {
   }
 
   void dispose() {
+    _updateSubscription.cancel();
     _onAiResponseReceived.dispose();
     _onAiRequestSent.dispose();
+    _conversation.dispose();
   }
 }
 
 class GenUiChat extends StatefulWidget {
   const GenUiChat({
     super.key,
-    required this.messages,
-    required this.catalog,
     required this.onEvent,
     required this.onChatMessage,
     required this.controller,
-    this.userPromptBuilder,
     this.showInternalMessages = false,
     this.chatBoxBuilder = defaultChatBoxBuilder,
   });
@@ -47,10 +112,7 @@ class GenUiChat extends StatefulWidget {
   final ChatBoxCallback onChatMessage;
   final GenUiChatController controller;
 
-  final List<ChatMessage> messages;
-  final void Function(Map<String, Object?> event) onEvent;
-  final Catalog catalog;
-  final UserPromptBuilder? userPromptBuilder;
+  final UiEventCallback onEvent;
   final bool showInternalMessages;
 
   @override
@@ -93,78 +155,77 @@ class _GenUiChatState extends State<GenUiChat> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = widget.messages.where((message) {
-      if (widget.showInternalMessages) {
-        return true;
-      }
-      return message is! InternalMessage && message is! ToolResponseMessage;
-    }).toList();
+    return ValueListenableBuilder<List<ChatMessage>>(
+      valueListenable: widget.controller.conversation,
+      builder: (context, messages, child) {
+        final filteredMessages = messages.where((message) {
+          if (widget.showInternalMessages) {
+            return true;
+          }
+          return message is! InternalMessage && message is! ToolResponseMessage;
+        }).toList();
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Expanded(
-          child: ListView.builder(
-            // Reverse the list to show the latest message at the bottom.
-            reverse: true,
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              index = messages.length - 1 - index; // Reverse index
-              final message = messages[index];
-              switch (message) {
-                case UserMessage():
-                  if (widget.userPromptBuilder != null) {
-                    return widget.userPromptBuilder!(context, message);
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: ListView.builder(
+                // Reverse the list to show the latest message at the bottom.
+                reverse: true,
+                itemCount: filteredMessages.length,
+                itemBuilder: (context, index) {
+                  index = filteredMessages.length - 1 - index; // Reverse index
+                  final message = filteredMessages[index];
+                  switch (message) {
+                    case UserMessage():
+                      final text = message.parts
+                          .whereType<TextPart>()
+                          .map<String>((part) => part.text)
+                          .join('\n');
+                      if (text.trim().isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return ChatMessageWidget(
+                        text: text,
+                        icon: Icons.person,
+                        alignment: MainAxisAlignment.end,
+                      );
+                    case AssistantMessage():
+                      final text = message.parts
+                          .whereType<TextPart>()
+                          .map((part) => part.text)
+                          .join('\n');
+                      if (text.trim().isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return ChatMessageWidget(
+                        text: text,
+                        icon: Icons.smart_toy_outlined,
+                        alignment: MainAxisAlignment.start,
+                      );
+                    case UiResponseMessage():
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SurfaceWidget(
+                          key: message.uiKey,
+                          manager: widget.controller.manager,
+                          surfaceId: message.surfaceId,
+                          onEvent: widget.onEvent,
+                        ),
+                      );
+                    case InternalMessage():
+                      return const SizedBox.shrink();
+                    case ToolResponseMessage():
+                      return const SizedBox.shrink();
                   }
-                  final text = message.parts
-                      .whereType<TextPart>()
-                      .map<String>((part) => part.text)
-                      .join('\n');
-                  if (text.trim().isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return ChatMessageWidget(
-                    text: text,
-                    icon: Icons.person,
-                    alignment: MainAxisAlignment.end,
-                  );
-                case AssistantMessage():
-                  final text = message.parts
-                      .whereType<TextPart>()
-                      .map((part) => part.text)
-                      .join('\n');
-                  if (text.trim().isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return ChatMessageWidget(
-                    text: text,
-                    icon: Icons.smart_toy_outlined,
-                    alignment: MainAxisAlignment.start,
-                  );
-                case UiResponseMessage():
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SurfaceWidget(
-                      key: message.uiKey,
-                      catalog: widget.catalog,
-                      surfaceId: message.surfaceId,
-                      definition: UiDefinition.fromMap(message.definition),
-                      onEvent: widget.onEvent,
-                    ),
-                  );
-                case InternalMessage():
-                  return InternalMessageWidget(content: message.text);
-                case ToolResponseMessage():
-                  return InternalMessageWidget(
-                    content: message.results.toString(),
-                  );
-              }
-            },
-          ),
-        ),
-        const SizedBox(height: 8.0),
-        widget.chatBoxBuilder(_chatController, context),
-      ],
+                },
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            widget.chatBoxBuilder(_chatController, context),
+          ],
+        );
+      },
     );
   }
 }

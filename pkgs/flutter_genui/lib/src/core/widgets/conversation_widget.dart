@@ -4,10 +4,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../../model/catalog.dart';
 import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
-import '../../model/ui_models.dart';
+import '../genui_manager.dart';
 import 'chat_primitives.dart';
 
 typedef UserPromptBuilder =
@@ -17,15 +16,15 @@ class ConversationWidget extends StatelessWidget {
   const ConversationWidget({
     super.key,
     required this.messages,
-    required this.catalog,
+    required this.manager,
     required this.onEvent,
     this.userPromptBuilder,
     this.showInternalMessages = false,
   });
 
   final List<ChatMessage> messages;
-  final void Function(Map<String, Object?> event) onEvent;
-  final Catalog catalog;
+  final UiEventCallback onEvent;
+  final GenUiManager manager;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
@@ -71,9 +70,8 @@ class ConversationWidget extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: SurfaceWidget(
                 key: message.uiKey,
-                catalog: catalog,
+                manager: manager,
                 surfaceId: message.surfaceId,
-                definition: UiDefinition.fromMap(message.definition),
                 onEvent: onEvent,
               ),
             );

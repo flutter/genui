@@ -4,70 +4,95 @@
 
 import 'package:flutter/material.dart';
 
-import 'catalog.dart';
+import '../core/genui_manager.dart';
+import '../core/logging.dart';
 import 'ui_models.dart';
+
+/// A callback for when a user interacts with a widget.
+typedef UiEventCallback = void Function(UiEvent event);
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
-/// It takes an initial [definition] and reports user interactions
-/// via the [onEvent] callback.
+/// It reports user interactions via the [onEvent] callback.
 class SurfaceWidget extends StatefulWidget {
+  /// Creates a new [SurfaceWidget].
   const SurfaceWidget({
     super.key,
-    required this.catalog,
+    required this.manager,
     required this.surfaceId,
-    required this.definition,
     required this.onEvent,
+    this.defaultBuilder,
   });
+
+  /// The manager that holds the state of the UI.
+  final GenUiManager manager;
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;
 
-  /// The initial UI structure.
-  final UiDefinition definition;
-
   /// A callback for when a user interacts with a widget.
-  final void Function(Map<String, Object?> event) onEvent;
+  final UiEventCallback onEvent;
 
-  final Catalog catalog;
+  /// A builder for the widget to display when the surface has no definition.
+  final WidgetBuilder? defaultBuilder;
 
   @override
   State<SurfaceWidget> createState() => _SurfaceWidgetState();
 }
 
 class _SurfaceWidgetState extends State<SurfaceWidget> {
+  late final ValueNotifier<UiDefinition?> _definitionNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _definitionNotifier = widget.manager.surface(widget.surfaceId);
+  }
+
   /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
   /// callback.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
     eventMap['surfaceId'] = widget.surfaceId;
-    widget.onEvent(eventMap);
+    widget.onEvent(UiEvent.fromMap(eventMap));
   }
 
   @override
   Widget build(BuildContext context) {
-    final rootId = widget.definition.root;
-    if (widget.definition.widgets.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return _buildWidget(rootId);
+    return ValueListenableBuilder<UiDefinition?>(
+      valueListenable: _definitionNotifier,
+      builder: (context, definition, child) {
+        genUiLogger.info('Building surface ${widget.surfaceId}');
+        if (definition == null) {
+          genUiLogger.info('Surface ${widget.surfaceId} has no definition.');
+          return widget.defaultBuilder?.call(context) ??
+              const SizedBox.shrink();
+        }
+        final rootId = definition.root;
+        if (definition.widgets.isEmpty) {
+          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
+          return const SizedBox.shrink();
+        }
+        return _buildWidget(definition, rootId);
+      },
+    );
   }
 
   /// The main recursive build function.
   /// It reads a widget definition and its current state from
   /// `widget.definition`
   /// and constructs the corresponding Flutter widget.
-  Widget _buildWidget(String widgetId) {
-    var data = widget.definition.widgets[widgetId];
+  Widget _buildWidget(UiDefinition definition, String widgetId) {
+    var data = definition.widgets[widgetId];
     if (data == null) {
-      // TODO: Handle missing widget gracefully.
-      return Text('Widget with id: $widgetId not found.');
+      genUiLogger.severe('Widget with id: $widgetId not found.');
+      return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    return widget.catalog.buildWidget(
+    return widget.manager.catalog.buildWidget(
       data as Map<String, Object?>,
-      _buildWidget,
+      (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,
       context,
     );

@@ -8,8 +8,6 @@ import 'package:flutter/material.dart';
 
 import '../../flutter_genui.dart';
 
-typedef CatalogChildBuilder = Widget Function(String id);
-
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
 ///
@@ -45,13 +43,15 @@ class Catalog {
     DispatchEventCallback dispatchEvent,
     BuildContext context,
   ) {
-    final widgetType = (data['widget'] as Map<String, Object?>).keys.first;
+    final widgetType =
+        (data['widget'] as Map<String, Object?>).keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
-      print('Item $widgetType was not found in catalog');
+      genUiLogger.severe('Item $widgetType was not found in catalog');
       return Container();
     }
 
+    genUiLogger.info('Building widget ${item.name} with id ${data['id']}');
     return item.widgetBuilder(
       data: ((data as Map)['widget'] as Map<String, Object?>)[widgetType]!,
       id: data['id'] as String,
@@ -65,14 +65,18 @@ class Catalog {
   /// catalog.
   ///
   /// This schema is a "one-of" object, where the `widget` property can be one
-  /// of the schemas from the [items] in the catalog. This is used to inform the
-  /// generative AI model about the available UI components and their expected
-  /// data structures.
+  /// of the schemas from the [items] in the catalog. This is used to inform
+  /// the generative AI model about the available UI components and their
+  /// expected data structures.
   Schema get schema {
     // Dynamically build schema properties from supported layouts
-    final schemaProperties = {
-      for (var item in items) item.name: item.dataSchema,
-    };
+    final schemaProperties = [
+      for (var item in items)
+        Schema.object(
+          properties: {item.name: item.dataSchema},
+          required: [item.name],
+        ),
+    ];
 
     return S.object(
       description:
@@ -80,12 +84,16 @@ class Catalog {
           'This widget could be one of many supported types.',
       properties: {
         'id': S.string(),
-        'widget': S.object(
+        'widget': Schema.combined(
           description:
-              'The properties of the specific widget '
-              'that this represents. This is a oneof - only *one* '
-              'field should be set on this object!',
-          properties: schemaProperties,
+              'A wrapper object for a single widget definition. It MUST '
+              'contain exactly one key, where the key is the name of a '
+              'widget type (e.g., "Column", "Text", "ElevatedButton") from the '
+              'list of allowed properties. The value is an object containing '
+              'the definition of that widget using its properties. '
+              'For example: `{"TypeOfWidget": {"widget_property": "Value of '
+              'property"}}`',
+          anyOf: schemaProperties,
         ),
       },
       required: ['id', 'widget'],
