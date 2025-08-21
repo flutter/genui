@@ -14,9 +14,9 @@ typedef UiEventCallback = void Function(UiEvent event);
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
 /// It reports user interactions via the [onEvent] callback.
-class SurfaceWidget extends StatefulWidget {
-  /// Creates a new [SurfaceWidget].
-  const SurfaceWidget({
+class GenUiSurface extends StatefulWidget {
+  /// Creates a new [GenUiSurface].
+  const GenUiSurface({
     super.key,
     required this.manager,
     required this.surfaceId,
@@ -37,10 +37,10 @@ class SurfaceWidget extends StatefulWidget {
   final WidgetBuilder? defaultBuilder;
 
   @override
-  State<SurfaceWidget> createState() => _SurfaceWidgetState();
+  State<GenUiSurface> createState() => _GenUiSurfaceState();
 }
 
-class _SurfaceWidgetState extends State<SurfaceWidget> {
+class _GenUiSurfaceState extends State<GenUiSurface> {
   late final ValueNotifier<UiDefinition?> _definitionNotifier;
 
   @override
@@ -49,7 +49,7 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
     _definitionNotifier = widget.manager.surface(widget.surfaceId);
   }
 
-  /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
+  /// Dispatches an event by calling the public [GenUiSurface.onEvent]
   /// callback.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.

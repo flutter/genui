@@ -103,7 +103,7 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(SurfaceWidget), findsOneWidget);
+      expect(find.byType(GenUiSurface), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
     });
 

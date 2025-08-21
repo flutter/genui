@@ -27,7 +27,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SurfaceWidget(
+            body: GenUiSurface(
               manager: manager,
               surfaceId: 'testSurface',
               onEvent: onEvent,
