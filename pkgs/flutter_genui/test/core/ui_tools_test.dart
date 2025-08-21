@@ -1,5 +1,4 @@
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
