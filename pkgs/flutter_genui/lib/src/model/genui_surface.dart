@@ -40,25 +40,6 @@ class GenUiSurface extends StatefulWidget {
 
   @override
   State<GenUiSurface> createState() => _GenUiSurfaceState();
-
-  @override
-  operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is GenUiSurface &&
-        other.manager == manager &&
-        other.surfaceId == surfaceId &&
-        other.onEvent == onEvent &&
-        other.defaultBuilder == defaultBuilder;
-  }
-
-  @override
-  int get hashCode {
-    return manager.hashCode ^
-        surfaceId.hashCode ^
-        onEvent.hashCode ^
-        defaultBuilder.hashCode;
-  }
 }
 
 class _GenUiSurfaceState extends State<GenUiSurface> {
@@ -71,15 +52,15 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     _init();
   }
 
-  // @override
-  // void didUpdateWidget(covariant GenUiSurface oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
+  @override
+  void didUpdateWidget(covariant GenUiSurface oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-  //   if (oldWidget.surfaceId != widget.surfaceId ||
-  //       oldWidget.genUiManager != widget.genUiManager) {
-  //     initState();
-  //   }
-  // }
+    if (oldWidget.surfaceId != widget.surfaceId ||
+        oldWidget.manager != widget.manager) {
+      initState();
+    }
+  }
 
   void _init() {
     // Reset previous subscription for updates.
