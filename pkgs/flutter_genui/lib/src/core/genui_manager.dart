@@ -6,7 +6,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../flutter_genui.dart' show AiClient;
 import '../ai_client/ai_client.dart' show AiClient;
 import '../ai_client/tools.dart';
 import '../ai_client/ui_tools.dart';
