@@ -64,9 +64,9 @@ class TravelApp extends StatelessWidget {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface, including the app bar,
-/// the conversation view powered by [SurfaceManager], and the input field for
+/// the conversation view powered by [GenUiManager], and the input field for
 /// user prompts. It also handles the initialization of the [AiClient] and the
-/// [SurfaceManager].
+/// [GenUiManager].
 ///
 /// The page allows users to interact with the generative AI to plan trips. It
 /// features a text field to send prompts, a view to display the dynamically
@@ -90,7 +90,7 @@ class TravelPlannerPage extends StatefulWidget {
 }
 
 class _TravelPlannerPageState extends State<TravelPlannerPage> {
-  late final SurfaceManager _genUiManager;
+  late final GenUiManager _genUiManager;
   late final AiClient _aiClient;
   late final UiEventManager _eventManager;
   final List<ChatMessage> _conversation = [];
@@ -98,7 +98,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   @override
   void initState() {
     super.initState();
-    _genUiManager = SurfaceManager(catalog: catalog);
+    _genUiManager = GenUiManager(catalog: catalog);
     _eventManager = UiEventManager(callback: _onUiEvents);
     _aiClient =
         widget.aiClient ??
