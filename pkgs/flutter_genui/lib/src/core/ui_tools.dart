@@ -4,8 +4,8 @@
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 
-import '../core/genui_manager.dart';
-import 'tools.dart';
+import '../model/tools.dart';
+import 'genui_manager.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
 ///

@@ -10,13 +10,13 @@ import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
-import '../primitives/logging.dart';
 import '../model/chat_message.dart';
+import '../model/tools.dart';
+import '../primitives/logging.dart';
 import 'ai_client.dart';
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
-import 'tools.dart';
 
 /// A factory for creating a [GeminiGenerativeModelInterface].
 ///

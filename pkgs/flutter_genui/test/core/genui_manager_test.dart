@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_genui/src/ai_client/ui_tools.dart';
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
+import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

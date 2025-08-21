@@ -6,7 +6,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
 import '../model/chat_message.dart';
-import 'tools.dart';
+import '../model/tools.dart';
 
 /// An abstract class representing a type of AI model.
 ///

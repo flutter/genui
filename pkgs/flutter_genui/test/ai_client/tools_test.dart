@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
-import 'package:flutter_genui/src/ai_client/tools.dart';
+import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

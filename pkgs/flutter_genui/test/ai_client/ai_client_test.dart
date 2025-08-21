@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
-import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:firebase_ai/firebase_ai.dart'
     show
         Candidate,
@@ -12,11 +11,12 @@ import 'package:firebase_ai/firebase_ai.dart'
         FirebaseAIException,
         FunctionCall,
         GenerateContentResponse;
+import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
-import 'package:flutter_genui/src/ai_client/tools.dart';
-import 'package:flutter_genui/src/primitives/logging.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
+import 'package:flutter_genui/src/model/tools.dart';
+import 'package:flutter_genui/src/primitives/logging.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
 
