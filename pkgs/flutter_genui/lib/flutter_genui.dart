@@ -16,8 +16,8 @@ export 'src/core/genui_manager.dart';
 export 'src/core/logging.dart';
 
 export 'src/core/ui_event_manager.dart';
-export 'src/core/widgets/chat_widget.dart';
-export 'src/core/widgets/conversation_widget.dart';
+export 'src/facade/chat_widget.dart';
+export 'src/facade/conversation_widget.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_box.dart';
