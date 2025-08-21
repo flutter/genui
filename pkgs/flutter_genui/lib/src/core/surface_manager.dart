@@ -6,7 +6,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-
 import '../model/catalog.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
