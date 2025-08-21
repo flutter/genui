@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../../model/chat_message.dart';
-import '../../model/genui_surface.dart';
+import '../../facade/genui_surface.dart';
 import '../genui_manager.dart';
 import 'chat_primitives.dart';
 

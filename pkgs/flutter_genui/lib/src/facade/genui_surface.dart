@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
 import '../core/logging.dart';
-import 'ui_models.dart';
+import '../model/ui_models.dart';
 
 /// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
