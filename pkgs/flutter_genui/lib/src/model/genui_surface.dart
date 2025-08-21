@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
@@ -42,11 +44,26 @@ class SurfaceWidget extends StatefulWidget {
 
 class _SurfaceWidgetState extends State<SurfaceWidget> {
   late final ValueNotifier<UiDefinition?> _definitionNotifier;
+  StreamSubscription<GenUiUpdate>? _allUpdatesSubscription;
 
   @override
   void initState() {
     super.initState();
-    _definitionNotifier = widget.manager.surface(widget.surfaceId);
+    _init();
+  }
+
+  void _init() {
+    // Reset previous subscription for updates.
+    _allUpdatesSubscription?.cancel();
+    _allUpdatesSubscription = widget.manager.updates.listen((update) {
+      if (update.surfaceId == widget.surfaceId) _init();
+    });
+
+    // Update definition if it is changed.
+    final newDefinitionNotifier = widget.manager.surface(widget.surfaceId);
+    if (newDefinitionNotifier == _definitionNotifier) return;
+    _definitionNotifier = newDefinitionNotifier;
+    setState(() {});
   }
 
   /// Dispatches an event by calling the public [SurfaceWidget.onEvent]
@@ -96,5 +113,11 @@ class _SurfaceWidgetState extends State<SurfaceWidget> {
       _dispatchEvent,
       context,
     );
+  }
+
+  @override
+  void dispose() {
+    _definitionNotifier.dispose();
+    super.dispose();
   }
 }
