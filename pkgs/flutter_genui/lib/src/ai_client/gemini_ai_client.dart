@@ -20,13 +20,12 @@ import 'tools.dart';
 
 /// Defines the severity levels for logging messages within the AI client and
 /// related components.
-typedef GenerativeModelFactory =
-    GenerativeModelInterface Function({
-      required GeminiAiClient configuration,
-      Content? systemInstruction,
-      List<Tool>? tools,
-      ToolConfig? toolConfig,
-    });
+typedef GenerativeModelFactory = GenerativeModelInterface Function({
+  required GeminiAiClient configuration,
+  Content? systemInstruction,
+  List<Tool>? tools,
+  ToolConfig? toolConfig,
+});
 
 /// An enum for the available Gemini models.
 enum GeminiModelType {
@@ -68,7 +67,7 @@ class GeminiAiClient implements AiClient {
   /// - [initialDelay]: Initial delay for the exponential backoff retry
   ///   strategy.
   /// - [maxConcurrentJobs]: Intended for managing concurrent AI operations,
-  ///   though not directly enforced by [generateContent] itself.
+///   though not directly enforced by [generateContent] itself.
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
@@ -263,7 +262,8 @@ class GeminiAiClient implements AiClient {
   @override
   Future<T?> generateContent<T extends Object>(
     List<ChatMessage> conversation,
-    dsb.Schema outputSchema, {
+    dsb.Schema outputSchema,
+    {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     return await _generateContentWithRetries(conversation, outputSchema, [
@@ -274,7 +274,8 @@ class GeminiAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    List<ChatMessage> conversation, {
+    List<ChatMessage> conversation,
+    {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     return await _generateTextWithRetries(conversation, [
@@ -309,6 +310,36 @@ class GeminiAiClient implements AiClient {
     dsb.Schema outputSchema,
     List<AiTool> availableTools,
   ) async {
+    return _generateWithRetries<T?>(
+      (onSuccess) async =>
+          await _generate(
+                messages: contents,
+                availableTools: availableTools,
+                onSuccess: onSuccess,
+                outputSchema: outputSchema,
+              )
+              as T?,
+    );
+  }
+
+  Future<String> _generateTextWithRetries(
+    List<ChatMessage> contents,
+    List<AiTool> availableTools,
+  ) async {
+    return _generateWithRetries<String>(
+      (onSuccess) async =>
+          await _generate(
+                messages: contents,
+                availableTools: availableTools,
+                onSuccess: onSuccess,
+              )
+              as String,
+    );
+  }
+
+  Future<T> _generateWithRetries<T>(
+    Future<T> Function(void Function() onSuccess) generationFunction,
+  ) async {
     var attempts = 0;
     var delay = initialDelay;
     final maxTries = maxRetries + 1; // Retries plus the first attempt.
@@ -331,10 +362,7 @@ class GeminiAiClient implements AiClient {
 
     while (attempts < maxTries) {
       try {
-        final result = await _generateContentForcedToolCalling<T>(
-          contents,
-          outputSchema,
-          availableTools,
+        final result = await generationFunction(
           // Reset the delay and attempts on success.
           () {
             delay = initialDelay;
@@ -367,35 +395,33 @@ class GeminiAiClient implements AiClient {
     throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
-  Future<T?> _generateContentForcedToolCalling<T extends Object>(
-    // This list is modified to include tool calls and results.
-    List<ChatMessage> messages,
-    dsb.Schema outputSchema,
-    List<AiTool> availableTools,
-    void Function() onSuccess,
-  ) async {
-    final converter = GeminiContentConverter();
-    final contents = converter.toFirebaseAiContent(messages);
-    final adapter = GeminiSchemaAdapter();
-
+  ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
+  _setupToolsAndFunctions({
+    required bool isForcedToolCalling,
+    required List<AiTool> availableTools,
+    required GeminiSchemaAdapter adapter,
+    required dsb.Schema? outputSchema,
+  }) {
     // Create an "output" tool that copies its args into the output.
-    final finalOutputAiTool = DynamicAiTool<Map<String, Object?>>(
-      name: outputToolName,
-      description:
-          'Returns the final output. Call this function ONLY when you have '
-          'your complete structured output that conforms to the required '
-          'schema. Do not call this if you need to use other tools first. You '
-          'MUST call this tool when you are done.',
-      // Wrap the outputSchema in an object so that the output schema isn't
-      // limited to objects.
-      parameters: dsb.S.object(properties: {'output': outputSchema}),
-      invokeFunction: (args) async => args, // Invoke is a pass-through
-    );
-    // Ensure allAiTools doesn't have duplicates by name, and prioritize the
-    // finalOutputAiTool
+    final finalOutputAiTool = isForcedToolCalling
+        ? DynamicAiTool<Map<String, Object?>>(
+            name: outputToolName,
+            description:
+                '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
+            // Wrap the outputSchema in an object so that the output schema
+            // isn't limited to objects.
+            parameters: dsb.S.object(properties: {'output': outputSchema!}),
+            invokeFunction: (args) async => args, // Invoke is a pass-through
+          )
+        : null;
+
+    final allTools = isForcedToolCalling
+        ? [...availableTools, finalOutputAiTool!]
+        : availableTools;
+
     final uniqueAiToolsByName = <String, AiTool>{};
     final toolFullNames = <String>{};
-    for (final tool in [...availableTools, finalOutputAiTool]) {
+    for (final tool in allTools) {
       if (uniqueAiToolsByName.containsKey(tool.name)) {
         throw AiClientException('Duplicate tool ${tool.name} registered.');
       }
@@ -442,18 +468,103 @@ class GeminiAiClient implements AiClient {
       }
     }
 
-    // Registers tools under both their name and their fullName (if different),
-    // because `toFunctionDeclarations` will return both declarations if they
-    // are different.
-    final generativeAiTools = [Tool.functionDeclarations(functionDeclarations)];
+    final generativeAiTools = functionDeclarations.isNotEmpty
+        ? [Tool.functionDeclarations(functionDeclarations)]
+        : null;
+
     final allowedFunctionNames = <String>{
       ...uniqueAiToolsByName.keys,
       ...toolFullNames,
     };
 
+    return (
+      generativeAiTools: generativeAiTools,
+      allowedFunctionNames: allowedFunctionNames,
+    );
+  }
+
+  Future<
+    ({List<FunctionResponse> functionResponseParts, Object? capturedResult})
+  >
+  _processFunctionCalls({
+    required List<FunctionCall> functionCalls,
+    required bool isForcedToolCalling,
+    required List<AiTool> availableTools,
+    Object? capturedResult,
+  }) async {
+    final functionResponseParts = <FunctionResponse>[];
+    for (final call in functionCalls) {
+      if (isForcedToolCalling && call.name == outputToolName) {
+        try {
+          capturedResult =
+              (call.args['parameters'] as Map<String, Object?>)['output'];
+        } catch (e, s) {
+          genUiLogger.severe(
+            'Unable to read output: $call [${call.args}]: $e',
+            e,
+            s,
+          );
+        }
+        genUiLogger.info(
+          '****** Gen UI Output ******.\n'
+          '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
+        );
+        continue;
+      }
+
+      final aiTool = availableTools.firstWhere(
+        (t) => t.name == call.name || t.fullName == call.name,
+        orElse: () =>
+            throw AiClientException('Unknown tool ${call.name} called.'),
+      );
+      Map<String, Object?> toolResult;
+      try {
+        toolResult = await aiTool.invoke(call.args);
+        genUiLogger.info(
+          'Invoked tool ${aiTool.name} with args ${call.args}. ',
+          'Result: $toolResult',
+        );
+      } catch (exception, stack) {
+        genUiLogger.severe(
+          'Error invoking tool ${aiTool.name} with args ${call.args}: '
+          '$exception',
+          exception,
+          stack,
+        );
+        toolResult = {
+          'error': 'Tool ${aiTool.name} failed to execute: $exception',
+        };
+      }
+      functionResponseParts.add(FunctionResponse(call.name, toolResult));
+    }
+    return (
+      functionResponseParts: functionResponseParts,
+      capturedResult: capturedResult,
+    );
+  }
+
+  Future<Object?> _generate({
+    // This list is modified to include tool calls and results.
+    required List<ChatMessage> messages,
+    required List<AiTool> availableTools,
+    required void Function() onSuccess,
+    dsb.Schema? outputSchema,
+  }) async {
+    final isForcedToolCalling = outputSchema != null;
+    final converter = GeminiContentConverter();
+    final contents = converter.toFirebaseAiContent(messages);
+    final adapter = GeminiSchemaAdapter();
+
+    final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
+      isForcedToolCalling: isForcedToolCalling,
+      availableTools: availableTools,
+      adapter: adapter,
+      outputSchema: outputSchema,
+    );
+
     var toolUsageCycle = 0;
     const maxToolUsageCycles = 40; // Safety break for tool loops
-    T? capturedResult;
+    Object? capturedResult;
 
     final model = modelCreator(
       configuration: this,
@@ -461,14 +572,19 @@ class GeminiAiClient implements AiClient {
           ? null
           : Content.system(systemInstruction!),
       tools: generativeAiTools,
-      toolConfig: ToolConfig(
-        functionCallingConfig: FunctionCallingConfig.any(
-          allowedFunctionNames.toSet(),
-        ),
-      ),
+      toolConfig: isForcedToolCalling
+          ? ToolConfig(
+              functionCallingConfig: FunctionCallingConfig.any(
+                allowedFunctionNames.toSet(),
+              ),
+            )
+          : null,
     );
 
-    while (toolUsageCycle < maxToolUsageCycles && capturedResult == null) {
+    while (toolUsageCycle < maxToolUsageCycles) {
+      if (isForcedToolCalling && capturedResult != null) {
+        break;
+      }
       toolUsageCycle++;
 
       final concatenatedContents = contents
@@ -484,9 +600,6 @@ With functions:
       final response = await model.generateContent(contents);
       final elapsed = DateTime.now().difference(inferenceStartTime);
 
-      // If the generate call succeeds, we need to reset the delay for the next
-      // retry. If the generate call throws, this won't get called, and the
-      // delay will double.
       onSuccess();
 
       if (response.usageMetadata != null) {
@@ -504,7 +617,7 @@ With functions:
         genUiLogger.warning(
           'Response has no candidates: ${response.promptFeedback}',
         );
-        return null;
+        return isForcedToolCalling ? null : '';
       }
 
       final candidate = response.candidates.first;
@@ -513,325 +626,52 @@ With functions:
           .toList();
 
       if (functionCalls.isEmpty) {
-        genUiLogger.warning(
-          'Model did not call any function. FinishReason: '
-          '${candidate.finishReason}. Text: "${candidate.text}" ',
-        );
-        if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
+        if (isForcedToolCalling) {
           genUiLogger.warning(
-            'Model returned direct text instead of a tool call. This might be '
-            'an error or unexpected AI behavior for forced tool calling.',
+            'Model did not call any function. FinishReason: '
+            '${candidate.finishReason}. Text: "${candidate.text}" ',
           );
-          return null;
-        }
-        genUiLogger.info(
-          'No function calls and no text. FinishReason: '
-          '${candidate.finishReason} '
-          'PromptFeedback: ${response.promptFeedback}',
-        );
-        return null;
-      }
-
-      final functionResponseParts = <FunctionResponse>[];
-      for (final call in functionCalls) {
-        if (call.name == outputToolName) {
-          try {
-            capturedResult =
-                (call.args['parameters'] as Map<String, Object?>)['output']
-                    as T?;
-          } catch (e, s) {
-            genUiLogger.severe(
-              'Unable to read output: $call [${call.args}]: $e',
-              e,
-              s,
+          if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
+            genUiLogger.warning(
+              'Model returned direct text instead of a tool call. This might '
+              'be an error or unexpected AI behavior for forced tool calling.',
             );
           }
-          genUiLogger.info(
-            '****** Gen UI Output ******.\n'
-            '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
-          );
-          continue;
+          return null;
+        } else {
+          return candidate.text ?? '';
         }
-
-        final aiTool = availableTools.firstWhere(
-          (t) => t.name == call.name || t.fullName == call.name,
-          orElse: () =>
-              throw AiClientException('Unknown tool ${call.name} called.'),
-        );
-        Map<String, Object?> toolResult;
-        try {
-          toolResult = await aiTool.invoke(call.args);
-          genUiLogger.info(
-            'Invoked tool ${aiTool.name} with args ${call.args}. ',
-            'Result: $toolResult',
-          );
-        } catch (exception, stack) {
-          genUiLogger.severe(
-            'Error invoking tool ${aiTool.name} with args ${call.args}: '
-            '$exception',
-            exception,
-            stack,
-          );
-          toolResult = {
-            'error': 'Tool ${aiTool.name} failed to execute: $exception',
-          };
-        }
-        functionResponseParts.add(FunctionResponse(call.name, toolResult));
       }
 
-      // If some functions were called, add their responses to the history and
-      // try again.
+      final result = await _processFunctionCalls(
+        functionCalls: functionCalls,
+        isForcedToolCalling: isForcedToolCalling,
+        availableTools: availableTools,
+        capturedResult: capturedResult,
+      );
+      capturedResult = result.capturedResult;
+      final functionResponseParts = result.functionResponseParts;
+
       if (functionResponseParts.isNotEmpty) {
-        // Add the model's previous response that contained the function call(s)
-        // to the history so it knows what it asked for.
         contents.add(candidate.content);
         contents.add(Content.functionResponses(functionResponseParts));
       }
     }
-    if (capturedResult == null) {
+
+    if (isForcedToolCalling) {
       genUiLogger.severe(
         'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
         'No final output was produced.',
         StackTrace.current,
       );
-    }
-    return capturedResult;
-  }
-
-  Future<String> _generateTextWithRetries(
-    List<ChatMessage> contents,
-    List<AiTool> availableTools,
-  ) async {
-    var attempts = 0;
-    var delay = initialDelay;
-    final maxTries = maxRetries + 1; // Retries plus the first attempt.
-
-    Future<void> onFail(Exception exception) async {
-      attempts++;
-      if (attempts >= maxTries) {
-        genUiLogger.warning('Max retries of $maxRetries reached.');
-        throw exception;
-      }
+      return capturedResult;
+    } else {
       genUiLogger.severe(
-        'Received exception, retrying in ${delay + minDelay}.: $exception',
+        'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
+        'No final output was produced.',
+        StackTrace.current,
       );
-      // Make the delay at least minDelay long, since the reset window
-      // for exceeding the number of requests is 10 seconds long, and
-      // requesting it faster than that just means it makes us wait longer.
-      await Future<void>.delayed(delay + minDelay);
-      delay *= 2;
+      return '';
     }
-
-    while (attempts < maxTries) {
-      try {
-        final result = await _generateText(
-          contents,
-          availableTools,
-          // Reset the delay and attempts on success.
-          () {
-            delay = initialDelay;
-            attempts = 0;
-          },
-        );
-        return result;
-      } on FirebaseAIException catch (exception) {
-        if (exception.message.contains(
-          '${_model.value.type.modelName} is not found for '
-          'API version',
-        )) {
-          // If the model is not found, then just throw an exception.
-          throw AiClientException(exception.message);
-        }
-        await onFail(exception);
-      } catch (exception, stack) {
-        genUiLogger.severe(
-          'Received '
-          '${exception.runtimeType}: $exception',
-          exception,
-          stack,
-        );
-        // For other exceptions, rethrow immediately.
-        rethrow;
-      }
-    }
-    // This line should be unreachable if maxRetries > 0,
-    // but is needed for static analysis.
-    throw StateError('Exceeded maximum retries without throwing an exception.');
-  }
-
-  Future<String> _generateText(
-    // This list is modified to include tool calls and results.
-    List<ChatMessage> messages,
-    List<AiTool> availableTools,
-    void Function() onSuccess,
-  ) async {
-    final converter = GeminiContentConverter();
-    final contents = converter.toFirebaseAiContent(messages);
-    final adapter = GeminiSchemaAdapter();
-
-    final uniqueAiToolsByName = <String, AiTool>{};
-    final toolFullNames = <String>{};
-    for (final tool in availableTools) {
-      if (uniqueAiToolsByName.containsKey(tool.name)) {
-        throw AiClientException('Duplicate tool ${tool.name} registered.');
-      }
-      uniqueAiToolsByName[tool.name] = tool;
-      if (tool.name != tool.fullName) {
-        if (toolFullNames.contains(tool.fullName)) {
-          throw AiClientException(
-            'Duplicate tool ${tool.fullName} registered.',
-          );
-        }
-        toolFullNames.add(tool.fullName);
-      }
-    }
-
-    final functionDeclarations = <FunctionDeclaration>[];
-    if (availableTools.isNotEmpty) {
-      for (final tool in uniqueAiToolsByName.values) {
-        Schema? adaptedParameters;
-        if (tool.parameters != null) {
-          final result = adapter.adapt(tool.parameters!);
-          if (result.errors.isNotEmpty) {
-            genUiLogger.warning(
-              'Errors adapting parameters for tool ${tool.name}: '
-              '${result.errors.join('\n')}',
-            );
-          }
-          adaptedParameters = result.schema;
-        }
-
-        final parameters = adaptedParameters?.properties;
-
-        functionDeclarations.add(
-          FunctionDeclaration(
-            tool.name,
-            tool.description,
-            parameters: parameters ?? const {},
-          ),
-        );
-        if (tool.name != tool.fullName) {
-          functionDeclarations.add(
-            FunctionDeclaration(
-              tool.fullName,
-              tool.description,
-              parameters: parameters ?? const {},
-            ),
-          );
-        }
-      }
-    }
-
-    final concatenatedDeclarations = functionDeclarations
-        .map((d) => const JsonEncoder.withIndent('  ').convert(d.toJson()))
-        .join(',\n');
-    genUiLogger.info(
-      '****** Function Declarations ******\n$concatenatedDeclarations',
-    );
-
-    final generativeAiTools = availableTools.isNotEmpty
-        ? [Tool.functionDeclarations(functionDeclarations)]
-        : null;
-
-    var toolUsageCycle = 0;
-    const maxToolUsageCycles = 40; // Safety break for tool loops
-
-    final model = modelCreator(
-      configuration: this,
-      systemInstruction: systemInstruction == null
-          ? null
-          : Content.system(systemInstruction!),
-      tools: generativeAiTools,
-    );
-
-    while (toolUsageCycle < maxToolUsageCycles) {
-      toolUsageCycle++;
-
-      final concatenatedContents = contents
-          .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
-          .join('\n');
-
-      genUiLogger.info(
-        '''****** Performing Inference ******\n$concatenatedContents\nWith functions:\n  '${availableTools.map((e) => e.name).join(', ')}',\n  ''',
-      );
-      final inferenceStartTime = DateTime.now();
-      final response = await model.generateContent(contents);
-      final elapsed = DateTime.now().difference(inferenceStartTime);
-
-      // If the generate call succeeds, we need to reset the delay for the next
-      // retry. If the generate call throws, this won't get called, and the
-      // delay will double.
-      onSuccess();
-
-      if (response.usageMetadata != null) {
-        inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
-        outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
-      }
-      genUiLogger.info(
-        '****** Completed Inference ******\n'
-        'Latency = ${elapsed.inMilliseconds}ms\n'
-        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
-        'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
-      );
-
-      if (response.candidates.isEmpty) {
-        genUiLogger.warning(
-          'Response has no candidates: ${response.promptFeedback}',
-        );
-        return '';
-      }
-
-      final candidate = response.candidates.first;
-      final functionCalls = candidate.content.parts
-          .whereType<FunctionCall>()
-          .toList();
-
-      if (functionCalls.isEmpty) {
-        return candidate.text ?? '';
-      }
-
-      final functionResponseParts = <FunctionResponse>[];
-      for (final call in functionCalls) {
-        final aiTool = availableTools.firstWhere(
-          (t) => t.name == call.name || t.fullName == call.name,
-          orElse: () =>
-              throw AiClientException('Unknown tool ${call.name} called.'),
-        );
-        Map<String, Object?> toolResult;
-        try {
-          toolResult = await aiTool.invoke(call.args);
-          genUiLogger.info(
-            'Invoked tool ${aiTool.name} with args ${call.args}. ',
-            'Result: $toolResult',
-          );
-        } catch (exception, stack) {
-          genUiLogger.severe(
-            'Error invoking tool ${aiTool.name} with args ${call.args}: '
-            '$exception',
-            exception,
-            stack,
-          );
-          toolResult = {
-            'error': 'Tool ${aiTool.name} failed to execute: $exception',
-          };
-        }
-        functionResponseParts.add(FunctionResponse(call.name, toolResult));
-      }
-
-      // If some functions were called, add their responses to the history and
-      // try again.
-      if (functionResponseParts.isNotEmpty) {
-        // Add the model's previous response that contained the function call(s)
-        // to the history so it knows what it asked for.
-        contents.add(candidate.content);
-        contents.add(Content.functionResponses(functionResponseParts));
-      }
-    }
-    genUiLogger.severe(
-      'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-      'No final output was produced.',
-      StackTrace.current,
-    );
-    return '';
   }
 }

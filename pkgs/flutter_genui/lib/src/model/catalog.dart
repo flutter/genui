@@ -45,7 +45,8 @@ class Catalog {
     DispatchEventCallback dispatchEvent,
     BuildContext context,
   ) {
-    final widgetType = (data['widget'] as Map<String, Object?>).keys.first;
+    final widgetType =
+        (data['widget'] as Map<String, Object?>).keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
       genUiLogger.severe('Item $widgetType was not found in catalog');
