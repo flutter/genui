@@ -14,15 +14,15 @@ import '../core/logging.dart';
 import '../model/chat_message.dart';
 import 'ai_client.dart';
 import 'gemini_content_converter.dart';
+import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
-import 'generative_model_interface.dart';
 import 'tools.dart';
 
-/// A factory for creating a [GenerativeModelInterface].
+/// A factory for creating a [GeminiGenerativeModelInterface].
 ///
 /// This is used to allow for custom model creation, for example, for testing.
 typedef GenerativeModelFactory =
-    GenerativeModelInterface Function({
+    GeminiGenerativeModelInterface Function({
       required GeminiAiClient configuration,
       Content? systemInstruction,
       List<Tool>? tools,
@@ -173,7 +173,7 @@ class GeminiAiClient implements AiClient {
   /// A function to use for creating the model itself.
   ///
   /// This factory function is responsible for instantiating the
-  /// [GenerativeModelInterface] used for AI interactions. It allows for
+  /// [GeminiGenerativeModelInterface] used for AI interactions. It allows for
   /// customization of the model setup, such as using different HTTP clients,
   /// or for providing mock models during testing.
   /// The factory receives this [GeminiAiClient] instance
@@ -270,14 +270,14 @@ class GeminiAiClient implements AiClient {
   ///
   /// This function instantiates a standard [GenerativeModel] using the
   /// `model` from the provided [GeminiAiClient] `configuration`.
-  static GenerativeModelInterface defaultGenerativeModelFactory({
+  static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
     required GeminiAiClient configuration,
     Content? systemInstruction,
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
     final geminiModel = configuration._model.value;
-    return FirebaseAiGenerativeModel(
+    return GeminiGenerativeModel(
       FirebaseAI.googleAI().generativeModel(
         model: geminiModel.type.modelName,
         systemInstruction: systemInstruction,
@@ -509,7 +509,7 @@ class GeminiAiClient implements AiClient {
       } catch (exception, stack) {
         genUiLogger.severe(
           'Error invoking tool ${aiTool.name} with args ${call.args}: ',
-          '$exception',
+          exception,
           stack,
         );
         toolResult = {

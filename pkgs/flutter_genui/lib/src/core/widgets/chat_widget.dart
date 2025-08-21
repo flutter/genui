@@ -11,7 +11,6 @@ import '../../model/chat_message.dart';
 import '../../model/surface_widget.dart';
 import '../genui_manager.dart';
 import 'chat_primitives.dart';
-import 'conversation_widget.dart';
 
 class GenUiChatController {
   GenUiChatController({required this.manager}) {
@@ -105,7 +104,6 @@ class GenUiChat extends StatefulWidget {
     required this.onEvent,
     required this.onChatMessage,
     required this.controller,
-    this.userPromptBuilder,
     this.showInternalMessages = false,
     this.chatBoxBuilder = defaultChatBoxBuilder,
   });
@@ -115,7 +113,6 @@ class GenUiChat extends StatefulWidget {
   final GenUiChatController controller;
 
   final UiEventCallback onEvent;
-  final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
 
   @override
@@ -181,9 +178,6 @@ class _GenUiChatState extends State<GenUiChat> {
                   final message = filteredMessages[index];
                   switch (message) {
                     case UserMessage():
-                      if (widget.userPromptBuilder != null) {
-                        return widget.userPromptBuilder!(context, message);
-                      }
                       final text = message.parts
                           .whereType<TextPart>()
                           .map<String>((part) => part.text)
@@ -220,11 +214,9 @@ class _GenUiChatState extends State<GenUiChat> {
                         ),
                       );
                     case InternalMessage():
-                      return InternalMessageWidget(content: message.text);
+                      return const SizedBox.shrink();
                     case ToolResponseMessage():
-                      return InternalMessageWidget(
-                        content: message.results.toString(),
-                      );
+                      return const SizedBox.shrink();
                   }
                 },
               ),

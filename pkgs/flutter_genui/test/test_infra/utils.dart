@@ -5,13 +5,11 @@
 import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter/material.dart';
-
-import 'package:flutter_genui/src/ai_client/generative_model_interface.dart';
+import 'package:flutter_genui/src/ai_client/gemini_generative_model.dart';
 
 // A fake GenerativeModel that doesn't extend or implement the real one,
 // to work around the final class restriction.
-class FakeGenerativeModel implements GenerativeModelInterface {
+class FakeGenerativeModel implements GeminiGenerativeModelInterface {
   int generateContentCallCount = 0;
   GenerateContentResponse? response;
   List<GenerateContentResponse> responses = [];
@@ -38,18 +36,5 @@ class FakeGenerativeModel implements GenerativeModelInterface {
     throw StateError(
       'No response or exception configured for FakeGenerativeModel',
     );
-  }
-}
-
-class BuildContextProvider extends StatelessWidget {
-  final WidgetBuilder builder;
-  late final BuildContext context;
-
-  BuildContextProvider(this.builder, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    this.context = context;
-    return builder(context);
   }
 }
