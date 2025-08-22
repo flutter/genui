@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+///@docImport 'fcp_view.dart';
+library;
+
 import 'dart:async';
 
 import '../models/models.dart';
-
-/// @docImport 'fcp_view.dart';
 
 /// A controller to programmatically interact with an [FcpView].
 ///
