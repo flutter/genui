@@ -479,7 +479,8 @@ class GeminiAiClient implements AiClient {
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
           capturedResult =
-              (call.args['parameters'] as Map<String, Object?>)['output'];
+              (call.args['parameters'] as Map<String, Object?>?)?['output'] ??
+              '';
         } catch (exception, stack) {
           genUiLogger.severe(
             'Unable to read output: $call [${call.args}]',
@@ -559,7 +560,7 @@ class GeminiAiClient implements AiClient {
                 allowedFunctionNames.toSet(),
               ),
             )
-          : null,
+          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
     );
 
     while (toolUsageCycle < maxToolUsageCycles) {
