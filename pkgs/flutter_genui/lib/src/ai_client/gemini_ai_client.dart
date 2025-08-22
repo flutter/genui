@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:file/file.dart';
 import 'package:file/local.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter/foundation.dart';
 
 import '../model/chat_message.dart';
@@ -24,9 +24,9 @@ import 'gemini_schema_adapter.dart';
 typedef GenerativeModelFactory =
     GeminiGenerativeModelInterface Function({
       required GeminiAiClient configuration,
-      Content? systemInstruction,
-      List<Tool>? tools,
-      ToolConfig? toolConfig,
+      firebase_ai.Content? systemInstruction,
+      List<firebase_ai.Tool>? tools,
+      firebase_ai.ToolConfig? toolConfig,
     });
 
 /// An enum for the available Gemini models.
@@ -71,7 +71,8 @@ class GeminiAiClient implements AiClient {
   /// - [model]: The identifier of the generative AI model to use.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
-  /// - [modelCreator]: A factory function to create the [GenerativeModel].
+  /// - [modelCreator]: A factory function to create the
+  ///   [firebase_ai.GenerativeModel].
   /// - [maxRetries]: Maximum number of retries for API calls on transient
   ///   errors.
   /// - [initialDelay]: Initial delay for the exponential backoff retry
@@ -137,7 +138,7 @@ class GeminiAiClient implements AiClient {
   /// The maximum number of retries to attempt when generating content.
   ///
   /// If an API call to the generative model fails with a transient error (like
-  /// [FirebaseAIException]), the client will attempt
+  /// [firebase_ai.FirebaseAIException]), the client will attempt
   /// to retry the call up to this many times.
   ///
   /// Defaults to 8 retries.
@@ -174,13 +175,12 @@ class GeminiAiClient implements AiClient {
   ///
   /// This factory function is responsible for instantiating the
   /// [GeminiGenerativeModelInterface] used for AI interactions. It allows for
-  /// customization of the model setup, such as using different HTTP clients,
-  /// or for providing mock models during testing.
-  /// The factory receives this [GeminiAiClient] instance
-  /// as configuration.
+  /// customization of the model setup, such as using different HTTP clients, or
+  /// for providing mock models during testing. The factory receives this
+  /// [GeminiAiClient] instance as configuration.
   ///
-  /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
-  /// [defaultGenerativeModelFactory].
+  /// Defaults to a wrapper for the regular [firebase_ai.GenerativeModel]
+  /// constructor, [defaultGenerativeModelFactory].
   final GenerativeModelFactory modelCreator;
 
   /// The list of tools to configure by default for this AI instance.
@@ -231,14 +231,14 @@ class GeminiAiClient implements AiClient {
   /// 1. Calling one of the available [AiTool]s (from [tools] or
   ///    [additionalTools]). If a tool is called, its `invoke` method is
   ///    executed, and the result is sent back to the AI in a subsequent
-  //
-  ///    request.
-  /// 2. Calling a special internal tool (named by [outputToolName]) whose
-  ///    argument is the final structured data matching [outputSchema].
+  ///    request. / 2. Calling a special internal tool (named by
+  /// [outputToolName]) whose /
+  ///    argument is the final structured data matching
+  /// [outputSchema].
   ///
-  /// - [conversation]: A list of [Content] objects representing the input to
-  ///   the AI. This list will be modified in place to include the tool calling
-  ///   conversation.
+  /// - [conversation]: A list of [firebase_ai.Content] objects representing
+  ///   the input to /   the AI. This list will be modified in place to include the
+  ///   tool calling /   conversation.
   /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
   ///   output `T`.
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
@@ -266,19 +266,19 @@ class GeminiAiClient implements AiClient {
     ]);
   }
 
-  /// The default factory function for creating a [GenerativeModel].
+  /// The default factory function for creating a [firebase_ai.GenerativeModel].
   ///
-  /// This function instantiates a standard [GenerativeModel] using the
-  /// `model` from the provided [GeminiAiClient] `configuration`.
+  /// This function instantiates a standard [firebase_ai.GenerativeModel] using
+  /// the `model` from the provided [GeminiAiClient] `configuration`.
   static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
     required GeminiAiClient configuration,
-    Content? systemInstruction,
-    List<Tool>? tools,
-    ToolConfig? toolConfig,
+    firebase_ai.Content? systemInstruction,
+    List<firebase_ai.Tool>? tools,
+    firebase_ai.ToolConfig? toolConfig,
   }) {
     final geminiModel = configuration._model.value;
     return GeminiGenerativeModel(
-      FirebaseAI.googleAI().generativeModel(
+      firebase_ai.FirebaseAI.googleAI().generativeModel(
         model: geminiModel.type.modelName,
         systemInstruction: systemInstruction,
         tools: tools,
@@ -352,7 +352,7 @@ class GeminiAiClient implements AiClient {
           },
         );
         return result;
-      } on FirebaseAIException catch (exception) {
+      } on firebase_ai.FirebaseAIException catch (exception) {
         if (exception.message.contains(
           '${_model.value.type.modelName} is not found for '
           'API version',
@@ -377,7 +377,10 @@ class GeminiAiClient implements AiClient {
     throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
-  ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
+  ({
+    List<firebase_ai.Tool>? generativeAiTools,
+    Set<String> allowedFunctionNames,
+  })
   _setupToolsAndFunctions({
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
@@ -418,22 +421,22 @@ class GeminiAiClient implements AiClient {
       }
     }
 
-    final functionDeclarations = <FunctionDeclaration>[];
+    final functionDeclarations = <firebase_ai.FunctionDeclaration>[];
     for (final tool in uniqueAiToolsByName.values) {
-      Schema? adaptedParameters;
+      firebase_ai.Schema? adaptedParameters;
       if (tool.parameters != null) {
         final result = adapter.adapt(tool.parameters!);
         if (result.errors.isNotEmpty) {
           genUiLogger.warning(
             'Errors adapting parameters for tool ${tool.name}: '
-            '${result.errors.join('\n')}',
+            '${result.errors.join('n')}',
           );
         }
         adaptedParameters = result.schema;
       }
       final parameters = adaptedParameters?.properties;
       functionDeclarations.add(
-        FunctionDeclaration(
+        firebase_ai.FunctionDeclaration(
           tool.name,
           tool.description,
           parameters: parameters ?? const {},
@@ -441,7 +444,7 @@ class GeminiAiClient implements AiClient {
       );
       if (tool.name != tool.fullName) {
         functionDeclarations.add(
-          FunctionDeclaration(
+          firebase_ai.FunctionDeclaration(
             tool.fullName,
             tool.description,
             parameters: parameters ?? const {},
@@ -451,7 +454,7 @@ class GeminiAiClient implements AiClient {
     }
 
     final generativeAiTools = functionDeclarations.isNotEmpty
-        ? [Tool.functionDeclarations(functionDeclarations)]
+        ? [firebase_ai.Tool.functionDeclarations(functionDeclarations)]
         : null;
 
     final allowedFunctionNames = <String>{
@@ -466,15 +469,18 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<
-    ({List<FunctionResponse> functionResponseParts, Object? capturedResult})
+    ({
+      List<firebase_ai.FunctionResponse> functionResponseParts,
+      Object? capturedResult,
+    })
   >
   _processFunctionCalls({
-    required List<FunctionCall> functionCalls,
+    required List<firebase_ai.FunctionCall> functionCalls,
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
     Object? capturedResult,
   }) async {
-    final functionResponseParts = <FunctionResponse>[];
+    final functionResponseParts = <firebase_ai.FunctionResponse>[];
     for (final call in functionCalls) {
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
@@ -492,7 +498,7 @@ class GeminiAiClient implements AiClient {
           '****** Gen UI Output ******.\n'
           '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
         );
-        continue;
+        break;
       }
 
       final aiTool = availableTools.firstWhere(
@@ -517,7 +523,9 @@ class GeminiAiClient implements AiClient {
           'error': 'Tool ${aiTool.name} failed to execute: $exception',
         };
       }
-      functionResponseParts.add(FunctionResponse(call.name, toolResult));
+      functionResponseParts.add(
+        firebase_ai.FunctionResponse(call.name, toolResult),
+      );
     }
     return (
       functionResponseParts: functionResponseParts,
@@ -552,15 +560,17 @@ class GeminiAiClient implements AiClient {
       configuration: this,
       systemInstruction: systemInstruction == null
           ? null
-          : Content.system(systemInstruction!),
+          : firebase_ai.Content.system(systemInstruction!),
       tools: generativeAiTools,
       toolConfig: isForcedToolCalling
-          ? ToolConfig(
-              functionCallingConfig: FunctionCallingConfig.any(
+          ? firebase_ai.ToolConfig(
+              functionCallingConfig: firebase_ai.FunctionCallingConfig.any(
                 allowedFunctionNames.toSet(),
               ),
             )
-          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
+          : firebase_ai.ToolConfig(
+              functionCallingConfig: firebase_ai.FunctionCallingConfig.auto(),
+            ),
     );
 
     while (toolUsageCycle < maxToolUsageCycles) {
@@ -571,7 +581,7 @@ class GeminiAiClient implements AiClient {
 
       final concatenatedContents = contents
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
-          .join('\n');
+          .join('n');
 
       genUiLogger.info('''****** Performing Inference ******
 $concatenatedContents
@@ -604,7 +614,7 @@ With functions:
 
       final candidate = response.candidates.first;
       final functionCalls = candidate.content.parts
-          .whereType<FunctionCall>()
+          .whereType<firebase_ai.FunctionCall>()
           .toList();
 
       if (functionCalls.isEmpty) {
@@ -619,9 +629,14 @@ With functions:
               'be an error or unexpected AI behavior for forced tool calling.',
             );
           }
+          if (candidate.text != null) {
+            messages.add(AssistantMessage.text(candidate.text!));
+          }
           return null;
         } else {
-          return candidate.text ?? '';
+          final text = candidate.text ?? '';
+          messages.add(AssistantMessage.text(text));
+          return text;
         }
       }
 
@@ -634,18 +649,54 @@ With functions:
       capturedResult = result.capturedResult;
       final functionResponseParts = result.functionResponseParts;
 
+      final assistantParts = candidate.content.parts
+          .map((part) {
+            if (part is firebase_ai.FunctionCall) {
+              return ToolCallPart(
+                id: part.name,
+                toolName: part.name,
+                arguments: part.args,
+              );
+            }
+            if (part is firebase_ai.TextPart) {
+              return TextPart(part.text);
+            }
+            return null;
+          })
+          .whereType<MessagePart>()
+          .toList();
+
+      if (assistantParts.isNotEmpty) {
+        messages.add(AssistantMessage(assistantParts));
+      }
+
       if (functionResponseParts.isNotEmpty) {
         contents.add(candidate.content);
-        contents.add(Content.functionResponses(functionResponseParts));
+        contents.add(
+          firebase_ai.Content.functionResponses(functionResponseParts),
+        );
+
+        final toolResponseParts = functionResponseParts.map((response) {
+          return ToolResultPart(
+            callId: response.name,
+            result: jsonEncode(response.response),
+          );
+        }).toList();
+
+        if (toolResponseParts.isNotEmpty) {
+          messages.add(ToolResponseMessage(toolResponseParts));
+        }
       }
     }
 
     if (isForcedToolCalling) {
-      genUiLogger.severe(
-        'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-        'No final output was produced.',
-        StackTrace.current,
-      );
+      if (toolUsageCycle >= maxToolUsageCycles) {
+        genUiLogger.severe(
+          'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
+          'No final output was produced.',
+          StackTrace.current,
+        );
+      }
       return capturedResult;
     } else {
       genUiLogger.severe(

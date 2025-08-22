@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -148,7 +149,10 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 
   Future<void> _triggerInference() async {
-    await _aiClient.generateText(List.of(_conversation));
+    await _aiClient.generateContent(
+      _conversation,
+      S.boolean(description: 'Successfully generated a response UI.'),
+    );
   }
 
   void _onUiEvents(String surfaceId, List<UiEvent> events) {
@@ -259,7 +263,8 @@ final prompt =
 You are a helpful travel agent assistant. Use the provided tools to build and
 manage the user interface in response to the user's requests. Call the
 `addOrUpdateSurface` tool to show new content or update existing content. Use
-the `deleteSurface` tool to remove UI that is no longer relevant.
+the `deleteSurface` tool to remove UI that is no longer relevant. Once you have
+sent one UI update, stop and wait for user input.
 
 The user will ask questions, and you will respond by generating appropriate UI
 elements. Instead of asking for information via text, prefer using UI elements
