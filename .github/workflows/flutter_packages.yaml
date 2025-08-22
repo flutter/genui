@@ -146,4 +146,6 @@ jobs:
       # TODO: uncomment after fixing cycles
       # - name: Check for cycles
       #   working-directory: ${{ matrix.package.path }}
-      #   run: dart pub global activate layerlens && layerlens --fail-on-cycles
+      #   run: |
+      #     dart pub global activate layerlens
+      #     layerlens --fail-on-cycles  --except "lib/src/schema"
