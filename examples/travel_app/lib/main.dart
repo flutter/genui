@@ -8,10 +8,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:logging/logging.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 
 import 'firebase_options.dart';
 import 'src/asset_images.dart';
 import 'src/catalog.dart';
+
+sealed class ConversationTurn {}
+
+final class FirebaseAiConversationTurn implements ConversationTurn {
+  final Content content;
+
+  const FirebaseAiConversationTurn(this.content);
+}
+
+final class GenUiConversationTurn implements ConversationTurn {
+  final SurfaceController surfaceController;
+
+  GenUiConversationTurn(this.surfaceController);
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

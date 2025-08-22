@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
-import '../core/surface_manager.dart';
+import '../core/surface_controller.dart';
 import '../core/widgets/chat_primitives.dart';
 import '../model/chat_box.dart';
 import '../model/chat_message.dart';
@@ -205,12 +205,16 @@ class _GenUiChatState extends State<GenUiChat> {
                         alignment: MainAxisAlignment.start,
                       );
                     case UiResponseMessage():
+                      final surfaceController = SurfaceController(
+                        definitionNotifier: widget.controller.manager
+                            .surface(message.surfaceId),
+                        catalog: widget.controller.manager.catalog,
+                      );
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: GenUiSurface(
                           key: message.uiKey,
-                          manager: widget.controller.manager,
-                          surfaceId: message.surfaceId,
+                          controller: surfaceController,
                           onEvent: widget.onEvent,
                         ),
                       );

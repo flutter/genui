@@ -2,17 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-import '../core/genui_manager.dart';
-import '../core/surface_manager.dart';
+import '../core/surface_controller.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-
-/// A callback for when a user interacts with a widget.
-typedef UiEventCallback = void Function(UiEvent event);
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
@@ -21,20 +15,12 @@ class GenUiSurface extends StatefulWidget {
   /// Creates a new [GenUiSurface].
   const GenUiSurface({
     super.key,
-    required this.manager,
-    required this.surfaceId,
-    required this.onEvent,
+    required this.controller,
     this.defaultBuilder,
   });
 
-  /// The manager that holds the state of the UI.
-  final GenUiManager manager;
-
-  /// The ID of the surface that this UI belongs to.
-  final String surfaceId;
-
-  /// A callback for when a user interacts with a widget.
-  final UiEventCallback onEvent;
+  /// The controller that holds the state of the UI.
+  final SurfaceController controller;
 
   /// A builder for the widget to display when the surface has no definition.
   final WidgetBuilder? defaultBuilder;
@@ -44,67 +30,36 @@ class GenUiSurface extends StatefulWidget {
 }
 
 class _GenUiSurfaceState extends State<GenUiSurface> {
-  ValueNotifier<UiDefinition?>? _definitionNotifier;
-  StreamSubscription<GenUiUpdate>? _allUpdatesSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  @override
-  void didUpdateWidget(covariant GenUiSurface oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.surfaceId != widget.surfaceId ||
-        oldWidget.manager != widget.manager) {
-      _init();
-    }
-  }
-
-  void _init() {
-    // Reset previous subscription for updates.
-    _allUpdatesSubscription?.cancel();
-    _allUpdatesSubscription = widget.manager.updates.listen((update) {
-      if (update.surfaceId == widget.surfaceId) _init();
-    });
-
-    // Update definition if it is changed.
-    final newDefinitionNotifier = widget.manager.surface(widget.surfaceId);
-    if (newDefinitionNotifier == _definitionNotifier) return;
-    _definitionNotifier = newDefinitionNotifier;
-    setState(() {});
-  }
-
   /// Dispatches an event by calling the public [GenUiSurface.onEvent]
   /// callback.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
-    eventMap['surfaceId'] = widget.surfaceId;
-    widget.onEvent(UiEvent.fromMap(eventMap));
+    eventMap['surfaceId'] =
+        widget.controller.definitionNotifier.value?.surfaceId;
+    widget.controller.onEvent(UiEvent.fromMap(eventMap));
   }
 
   @override
   Widget build(BuildContext context) {
-    final notifier = _definitionNotifier;
-    if (notifier == null) {
-      return const SizedBox.shrink();
-    }
-
     return ValueListenableBuilder<UiDefinition?>(
-      valueListenable: notifier,
+      valueListenable: widget.controller.definitionNotifier,
       builder: (context, definition, child) {
-        genUiLogger.info('Building surface ${widget.surfaceId}');
+        genUiLogger.info(
+          'Building surface ${widget.controller.definitionNotifier.value?.surfaceId}',
+        );
         if (definition == null) {
-          genUiLogger.info('Surface ${widget.surfaceId} has no definition.');
+          genUiLogger.info(
+            'Surface ${widget.controller.definitionNotifier.value?.surfaceId} has no definition.',
+          );
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
         final rootId = definition.root;
         if (definition.widgets.isEmpty) {
-          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
+          genUiLogger.warning(
+            'Surface ${widget.controller.definitionNotifier.value?.surfaceId} has no widgets.',
+          );
           return const SizedBox.shrink();
         }
         return _buildWidget(definition, rootId);
@@ -123,19 +78,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    return widget.manager.catalog.buildWidget(
+    return widget.controller.catalog.buildWidget(
       data as Map<String, Object?>,
       (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,
       context,
     );
-  }
-
-  @override
-  void dispose() {
-    _allUpdatesSubscription?.cancel();
-    // We should not dispose _definitionNotifier,
-    // because it is owned by the manager.
-    super.dispose();
   }
 }

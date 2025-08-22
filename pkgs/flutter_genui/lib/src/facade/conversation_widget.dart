@@ -5,12 +5,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
+import '../core/surface_controller.dart';
 import '../core/widgets/chat_primitives.dart';
 import '../model/chat_message.dart';
 import 'genui_surface.dart';
 
-typedef UserPromptBuilder =
-    Widget Function(BuildContext context, UserMessage message);
+typedef UserPromptBuilder = Widget Function(
+    BuildContext context, UserMessage message);
 
 class ConversationWidget extends StatelessWidget {
   const ConversationWidget({
@@ -66,12 +67,15 @@ class ConversationWidget extends StatelessWidget {
               alignment: MainAxisAlignment.start,
             );
           case UiResponseMessage():
+            final surfaceController = SurfaceController(
+              definitionNotifier: manager.surface(message.surfaceId),
+              catalog: manager.catalog,
+            );
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: GenUiSurface(
                 key: message.uiKey,
-                manager: manager,
-                surfaceId: message.surfaceId,
+                controller: surfaceController,
                 onEvent: onEvent,
               ),
             );
