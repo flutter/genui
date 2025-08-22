@@ -19,6 +19,3 @@ export 'src/models/models.dart';
 export 'src/widgets/fcp_provider.dart';
 export 'src/widgets/fcp_view.dart';
 export 'src/widgets/fcp_view_controller.dart';
-
-/// The version of the FCP client.
-const String fcpVersion = '0.1.0';
