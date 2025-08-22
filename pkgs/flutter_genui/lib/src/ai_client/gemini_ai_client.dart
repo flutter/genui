@@ -7,10 +7,10 @@ import 'dart:convert';
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:file/file.dart';
 import 'package:file/local.dart';
-import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
-import '../model/chat_message.dart';
+import '../model/chat_message.dart' as msg;
 import '../model/tools.dart';
 import '../primitives/logging.dart';
 import 'ai_client.dart';
@@ -24,9 +24,9 @@ import 'gemini_schema_adapter.dart';
 typedef GenerativeModelFactory =
     GeminiGenerativeModelInterface Function({
       required GeminiAiClient configuration,
-      firebase_ai.Content? systemInstruction,
-      List<firebase_ai.Tool>? tools,
-      firebase_ai.ToolConfig? toolConfig,
+      Content? systemInstruction,
+      List<Tool>? tools,
+      ToolConfig? toolConfig,
     });
 
 /// An enum for the available Gemini models.
@@ -72,7 +72,7 @@ class GeminiAiClient implements AiClient {
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
   /// - [modelCreator]: A factory function to create the
-  ///   [firebase_ai.GenerativeModel].
+  ///   [GenerativeModel].
   /// - [maxRetries]: Maximum number of retries for API calls on transient
   ///   errors.
   /// - [initialDelay]: Initial delay for the exponential backoff retry
@@ -138,7 +138,7 @@ class GeminiAiClient implements AiClient {
   /// The maximum number of retries to attempt when generating content.
   ///
   /// If an API call to the generative model fails with a transient error (like
-  /// [firebase_ai.FirebaseAIException]), the client will attempt
+  /// [FirebaseAIException]), the client will attempt
   /// to retry the call up to this many times.
   ///
   /// Defaults to 8 retries.
@@ -179,7 +179,7 @@ class GeminiAiClient implements AiClient {
   /// for providing mock models during testing. The factory receives this
   /// [GeminiAiClient] instance as configuration.
   ///
-  /// Defaults to a wrapper for the regular [firebase_ai.GenerativeModel]
+  /// Defaults to a wrapper for the regular [GenerativeModel]
   /// constructor, [defaultGenerativeModelFactory].
   final GenerativeModelFactory modelCreator;
 
@@ -236,7 +236,7 @@ class GeminiAiClient implements AiClient {
   ///    argument is the final structured data matching
   /// [outputSchema].
   ///
-  /// - [conversation]: A list of [firebase_ai.Content] objects representing
+  /// - [conversation]: A list of [Content] objects representing
   ///   the input to /   the AI. This list will be modified in place to include the
   ///   tool calling /   conversation.
   /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
@@ -245,7 +245,7 @@ class GeminiAiClient implements AiClient {
   ///   this specific call, in addition to the default [tools].
   @override
   Future<T?> generateContent<T extends Object>(
-    List<ChatMessage> conversation,
+    List<msg.ChatMessage> conversation,
     dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
@@ -257,7 +257,7 @@ class GeminiAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    List<ChatMessage> conversation, {
+    List<msg.ChatMessage> conversation, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     return await _generateTextWithRetries(conversation, [
@@ -266,19 +266,19 @@ class GeminiAiClient implements AiClient {
     ]);
   }
 
-  /// The default factory function for creating a [firebase_ai.GenerativeModel].
+  /// The default factory function for creating a [GenerativeModel].
   ///
-  /// This function instantiates a standard [firebase_ai.GenerativeModel] using
+  /// This function instantiates a standard [GenerativeModel] using
   /// the `model` from the provided [GeminiAiClient] `configuration`.
   static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
     required GeminiAiClient configuration,
-    firebase_ai.Content? systemInstruction,
-    List<firebase_ai.Tool>? tools,
-    firebase_ai.ToolConfig? toolConfig,
+    Content? systemInstruction,
+    List<Tool>? tools,
+    ToolConfig? toolConfig,
   }) {
     final geminiModel = configuration._model.value;
     return GeminiGenerativeModel(
-      firebase_ai.FirebaseAI.googleAI().generativeModel(
+      FirebaseAI.googleAI().generativeModel(
         model: geminiModel.type.modelName,
         systemInstruction: systemInstruction,
         tools: tools,
@@ -288,7 +288,7 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
-    List<ChatMessage> contents,
+    List<msg.ChatMessage> contents,
     dsb.Schema outputSchema,
     List<AiTool> availableTools,
   ) async {
@@ -305,7 +305,7 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<String> _generateTextWithRetries(
-    List<ChatMessage> contents,
+    List<msg.ChatMessage> contents,
     List<AiTool> availableTools,
   ) async {
     return _generateWithRetries<String>(
@@ -352,7 +352,7 @@ class GeminiAiClient implements AiClient {
           },
         );
         return result;
-      } on firebase_ai.FirebaseAIException catch (exception) {
+      } on FirebaseAIException catch (exception) {
         if (exception.message.contains(
           '${_model.value.type.modelName} is not found for '
           'API version',
@@ -377,10 +377,7 @@ class GeminiAiClient implements AiClient {
     throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
-  ({
-    List<firebase_ai.Tool>? generativeAiTools,
-    Set<String> allowedFunctionNames,
-  })
+  ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
   _setupToolsAndFunctions({
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
@@ -421,9 +418,9 @@ class GeminiAiClient implements AiClient {
       }
     }
 
-    final functionDeclarations = <firebase_ai.FunctionDeclaration>[];
+    final functionDeclarations = <FunctionDeclaration>[];
     for (final tool in uniqueAiToolsByName.values) {
-      firebase_ai.Schema? adaptedParameters;
+      Schema? adaptedParameters;
       if (tool.parameters != null) {
         final result = adapter.adapt(tool.parameters!);
         if (result.errors.isNotEmpty) {
@@ -436,7 +433,7 @@ class GeminiAiClient implements AiClient {
       }
       final parameters = adaptedParameters?.properties;
       functionDeclarations.add(
-        firebase_ai.FunctionDeclaration(
+        FunctionDeclaration(
           tool.name,
           tool.description,
           parameters: parameters ?? const {},
@@ -444,7 +441,7 @@ class GeminiAiClient implements AiClient {
       );
       if (tool.name != tool.fullName) {
         functionDeclarations.add(
-          firebase_ai.FunctionDeclaration(
+          FunctionDeclaration(
             tool.fullName,
             tool.description,
             parameters: parameters ?? const {},
@@ -454,7 +451,7 @@ class GeminiAiClient implements AiClient {
     }
 
     final generativeAiTools = functionDeclarations.isNotEmpty
-        ? [firebase_ai.Tool.functionDeclarations(functionDeclarations)]
+        ? [Tool.functionDeclarations(functionDeclarations)]
         : null;
 
     final allowedFunctionNames = <String>{
@@ -469,18 +466,15 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<
-    ({
-      List<firebase_ai.FunctionResponse> functionResponseParts,
-      Object? capturedResult,
-    })
+    ({List<FunctionResponse> functionResponseParts, Object? capturedResult})
   >
   _processFunctionCalls({
-    required List<firebase_ai.FunctionCall> functionCalls,
+    required List<FunctionCall> functionCalls,
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
     Object? capturedResult,
   }) async {
-    final functionResponseParts = <firebase_ai.FunctionResponse>[];
+    final functionResponseParts = <FunctionResponse>[];
     for (final call in functionCalls) {
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
@@ -523,9 +517,7 @@ class GeminiAiClient implements AiClient {
           'error': 'Tool ${aiTool.name} failed to execute: $exception',
         };
       }
-      functionResponseParts.add(
-        firebase_ai.FunctionResponse(call.name, toolResult),
-      );
+      functionResponseParts.add(FunctionResponse(call.name, toolResult));
     }
     return (
       functionResponseParts: functionResponseParts,
@@ -535,7 +527,7 @@ class GeminiAiClient implements AiClient {
 
   Future<Object?> _generate({
     // This list is modified to include tool calls and results.
-    required List<ChatMessage> messages,
+    required List<msg.ChatMessage> messages,
     required List<AiTool> availableTools,
     required void Function() onSuccess,
     dsb.Schema? outputSchema,
@@ -560,17 +552,15 @@ class GeminiAiClient implements AiClient {
       configuration: this,
       systemInstruction: systemInstruction == null
           ? null
-          : firebase_ai.Content.system(systemInstruction!),
+          : Content.system(systemInstruction!),
       tools: generativeAiTools,
       toolConfig: isForcedToolCalling
-          ? firebase_ai.ToolConfig(
-              functionCallingConfig: firebase_ai.FunctionCallingConfig.any(
+          ? ToolConfig(
+              functionCallingConfig: FunctionCallingConfig.any(
                 allowedFunctionNames.toSet(),
               ),
             )
-          : firebase_ai.ToolConfig(
-              functionCallingConfig: firebase_ai.FunctionCallingConfig.auto(),
-            ),
+          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
     );
 
     while (toolUsageCycle < maxToolUsageCycles) {
@@ -614,7 +604,7 @@ With functions:
 
       final candidate = response.candidates.first;
       final functionCalls = candidate.content.parts
-          .whereType<firebase_ai.FunctionCall>()
+          .whereType<FunctionCall>()
           .toList();
 
       if (functionCalls.isEmpty) {
@@ -630,12 +620,12 @@ With functions:
             );
           }
           if (candidate.text != null) {
-            messages.add(AssistantMessage.text(candidate.text!));
+            messages.add(msg.AssistantMessage.text(candidate.text!));
           }
           return null;
         } else {
           final text = candidate.text ?? '';
-          messages.add(AssistantMessage.text(text));
+          messages.add(msg.AssistantMessage.text(text));
           return text;
         }
       }
@@ -651,40 +641,38 @@ With functions:
 
       final assistantParts = candidate.content.parts
           .map((part) {
-            if (part is firebase_ai.FunctionCall) {
-              return ToolCallPart(
+            if (part is FunctionCall) {
+              return msg.ToolCallPart(
                 id: part.name,
                 toolName: part.name,
                 arguments: part.args,
               );
             }
-            if (part is firebase_ai.TextPart) {
+            if (part is TextPart) {
               return TextPart(part.text);
             }
             return null;
           })
-          .whereType<MessagePart>()
+          .whereType<msg.MessagePart>()
           .toList();
 
       if (assistantParts.isNotEmpty) {
-        messages.add(AssistantMessage(assistantParts));
+        messages.add(msg.AssistantMessage(assistantParts));
       }
 
       if (functionResponseParts.isNotEmpty) {
         contents.add(candidate.content);
-        contents.add(
-          firebase_ai.Content.functionResponses(functionResponseParts),
-        );
+        contents.add(Content.functionResponses(functionResponseParts));
 
         final toolResponseParts = functionResponseParts.map((response) {
-          return ToolResultPart(
+          return msg.ToolResultPart(
             callId: response.name,
             result: jsonEncode(response.response),
           );
         }).toList();
 
         if (toolResponseParts.isNotEmpty) {
-          messages.add(ToolResponseMessage(toolResponseParts));
+          messages.add(msg.ToolResponseMessage(toolResponseParts));
         }
       }
     }
