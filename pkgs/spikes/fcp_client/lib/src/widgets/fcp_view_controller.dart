@@ -5,7 +5,8 @@
 import 'dart:async';
 
 import '../models/models.dart';
-import 'fcp_view.dart' show FcpView;
+
+/// @docImport 'fcp_view.dart';
 
 /// A controller to programmatically interact with an [FcpView].
 ///
