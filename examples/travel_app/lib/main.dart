@@ -8,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:logging/logging.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart' hide Schema;
 
 import 'firebase_options.dart';
 import 'src/asset_images.dart';
@@ -108,7 +108,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final GenUiManager _genUiManager;
   late final AiClient _aiClient;
   late final UiEventManager _eventManager;
-  final List<ChatMessage> _conversation = [];
+  final List<ConversationTurn> _conversation = [];
 
   @override
   void initState() {
@@ -124,33 +124,14 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _genUiManager.updates.listen((update) {
       setState(() {
         switch (update) {
-          case SurfaceAdded(:final surfaceId, :final definition):
-            _conversation.add(
-              UiResponseMessage(
-                definition: {
-                  'root': definition.root,
-                  'widgets': definition.widgetList,
-                },
-                surfaceId: surfaceId,
-              ),
-            );
+          case SurfaceAdded(:final controller):
+            _conversation.add(GenUiConversationTurn(controller));
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
-              (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
+              (m) =>
+                  m is GenUiConversationTurn &&
+                  m.surfaceController.surfaceId == surfaceId,
             );
-          case SurfaceUpdated(:final surfaceId, :final definition):
-            final index = _conversation.lastIndexWhere(
-              (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
-            );
-            if (index != -1) {
-              _conversation[index] = UiResponseMessage(
-                definition: {
-                  'root': definition.root,
-                  'widgets': definition.widgetList,
-                },
-                surfaceId: surfaceId,
-              );
-            }
         }
       });
     });
@@ -182,7 +163,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     }
 
     setState(() {
-      _conversation.add(UserMessage.text(message.toString()));
+      _conversation.add(
+        FirebaseAiConversationTurn(Content.text(message.toString())),
+      );
     });
     _triggerInference();
   }
@@ -193,7 +176,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
 
   void _sendPrompt(String text) {
     setState(() {
-      _conversation.add(UserMessage.text(text));
+      _conversation.add(FirebaseAiConversationTurn(Content.text(text)));
     });
     _triggerInference();
   }
@@ -249,10 +232,19 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
               Expanded(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1000),
-                  child: ConversationWidget(
-                    messages: _conversation,
-                    manager: _genUiManager,
-                    onEvent: _handleUiEvent,
+                  child: ListView.builder(
+                    itemCount: _conversation.length,
+                    itemBuilder: (context, index) {
+                      final turn = _conversation[index];
+                      switch (turn) {
+                        case FirebaseAiConversationTurn():
+                          return Text(turn.content.parts.first.toString());
+                        case GenUiConversationTurn():
+                          return GenUiSurface(
+                            controller: turn.surfaceController,
+                          );
+                      }
+                    },
                   ),
                 ),
               ),

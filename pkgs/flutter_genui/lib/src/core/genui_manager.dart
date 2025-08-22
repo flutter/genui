@@ -13,6 +13,7 @@ import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import 'core_catalog.dart';
 import 'ui_tools.dart';
+import 'surface_controller.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -20,26 +21,26 @@ import 'ui_tools.dart';
 /// [SurfaceRemoved].
 sealed class GenUiUpdate {
   /// Creates a [GenUiUpdate] for the given [surfaceId].
-  const GenUiUpdate(this.surfaceId);
-
-  /// The ID of the surface that was updated.
-  final String surfaceId;
+  const GenUiUpdate();
 }
 
 /// Fired when a new surface is created.
 class SurfaceAdded extends GenUiUpdate {
   /// Creates a [SurfaceAdded] event for the given [surfaceId] and
   /// [definition].
-  const SurfaceAdded(super.surfaceId, this.definition);
+  const SurfaceAdded(this.controller);
 
   /// The definition of the new surface.
-  final UiDefinition definition;
+  final SurfaceController controller;
 }
 
 /// Fired when a surface is deleted.
 class SurfaceRemoved extends GenUiUpdate {
   /// Creates a [SurfaceRemoved] event for the given [surfaceId].
-  const SurfaceRemoved(super.surfaceId);
+  const SurfaceRemoved(this.surfaceId);
+
+  /// The ID of the surface that was updated.
+  final String surfaceId;
 }
 
 class GenUiManager {
@@ -48,9 +49,8 @@ class GenUiManager {
   final Catalog catalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
+  final _controllers = <String, SurfaceController>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
-
-  Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
   Stream<GenUiUpdate> get updates => _updates.stream;
 
@@ -78,15 +78,21 @@ class GenUiManager {
       'surfaceId': surfaceId,
       ...definition,
     });
-    final notifier = surface(surfaceId); // Gets or creates the notifier.
+
+    final notifier = _surfaces.putIfAbsent(
+      surfaceId,
+      () => ValueNotifier(null),
+    );
     final isNew = notifier.value == null;
     notifier.value = uiDefinition;
     if (isNew) {
-      genUiLogger.info('Adding surface $surfaceId');
-      _updates.add(SurfaceAdded(surfaceId, uiDefinition));
-    } else {
-      genUiLogger.info('Updating surface $surfaceId');
-      _updates.add(SurfaceUpdated(surfaceId, uiDefinition));
+      final controller = SurfaceController(
+        catalog: catalog,
+        definitionNotifier: notifier,
+      );
+      _controllers[surfaceId] = controller;
+
+      _updates.add(SurfaceAdded(controller));
     }
   }
 

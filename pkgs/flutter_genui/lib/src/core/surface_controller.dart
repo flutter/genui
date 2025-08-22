@@ -11,15 +11,13 @@ import '../model/ui_models.dart';
 typedef UiEventCallback = void Function(UiEvent event);
 
 class SurfaceController {
-  SurfaceController({
-    required this.definitionNotifier,
-    required this.catalog,
-    required this.onEvent,
-  });
+  SurfaceController({required this.definitionNotifier, required this.catalog});
 
   final ValueNotifier<UiDefinition?> definitionNotifier;
   final Catalog catalog;
 
+  String get surfaceId => definitionNotifier.value!.surfaceId;
+
   /// A callback for when a user interacts with a widget.
-  final UiEventCallback onEvent;
+  UiEventCallback? onEvent;
 }
