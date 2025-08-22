@@ -143,9 +143,9 @@ jobs:
           else
             echo "No 'test' directory found in ${{ matrix.package.path }}, skipping tests."
           fi
-      # TODO: uncomment after fixing cycles
-      # - name: Check for cycles
-      #   working-directory: ${{ matrix.package.path }}
-      #   run: |
-      #     dart pub global activate layerlens
-      #     layerlens --fail-on-cycles  --except "lib/src/schema"
+
+      - name: Check for cycles
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          dart pub global activate layerlens
+          layerlens --fail-on-cycles  --except "lib/src/schema"
