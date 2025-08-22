@@ -171,6 +171,38 @@ Widgets can be nested to create complex layouts. This is achieved by having a wi
 
 The `widgetBuilder` for a container-like widget receives a `buildChild` function as an argument. It can call `buildChild(childId)` to recursively ask the `GenUiSurface` to build and return the child widget, which is then placed in the parent's widget tree.
 
+```mermaid
+graph TD
+    subgraph "UI Definition from LLM"
+        RootDef["root: 'itinerary_1'"]
+        WidgetsDef["widgets: [...]"]
+    end
+
+    subgraph "Rendered UI"
+        A(GenUiSurface) -- Renders --> B(ItineraryWithDetails Widget)
+        B -- contains --> C(Column Widget)
+        C -- contains --> D(Text Widget)
+        C -- contains --> E(TravelCarousel Widget)
+    end
+
+    subgraph "Recursive Build Process"
+        F["GenUiSurface.build<br>('itinerary_1')"] -->|Calls builder for Itinerary| G["ItineraryBuilder"]
+        G -->|"calls<br>buildChild('column_1')"| H["GenUiSurface.build<br>('column_1')"]
+        H -->|calls builder<br>for Column| I["ColumnBuilder"]
+        I -->|"calls<br>buildChild('text_1')"| J["...builds Text"]
+        I -->|"calls<br>buildChild('carousel_1')"| K["...builds TravelCarousel"]
+    end
+
+    RootDef --> F
+    WidgetsDef --> F
+
+    %% Add links from build process to rendered UI
+    F -- "creates" --> B
+    H -- "creates" --> C
+    J -- "creates" --> D
+    K -- "creates" --> E
+```
+
 ### User Interaction and Events
 
 The UI is not just for display; it's interactive. Widgets like `optionsFilterChip` and `filterChipGroup` can capture user input.
