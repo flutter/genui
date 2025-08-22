@@ -65,21 +65,6 @@ class GenUiChatController {
         _conversation.value = currentConversation
             .where((m) => !(m is UiResponseMessage && m.surfaceId == surfaceId))
             .toList();
-      case SurfaceUpdated(:final surfaceId, :final definition):
-        final index = currentConversation.lastIndexWhere(
-          (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
-        );
-        if (index != -1) {
-          final newConversation = [...currentConversation];
-          newConversation[index] = UiResponseMessage(
-            definition: {
-              'root': definition.root,
-              'widgets': definition.widgetList,
-            },
-            surfaceId: surfaceId,
-          );
-          _conversation.value = newConversation;
-        }
     }
   }
 
@@ -206,8 +191,9 @@ class _GenUiChatState extends State<GenUiChat> {
                       );
                     case UiResponseMessage():
                       final surfaceController = SurfaceController(
-                        definitionNotifier: widget.controller.manager
-                            .surface(message.surfaceId),
+                        definitionNotifier: widget.controller.manager.surface(
+                          message.surfaceId,
+                        ),
                         catalog: widget.controller.manager.catalog,
                       );
                       return Padding(

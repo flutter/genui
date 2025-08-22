@@ -37,7 +37,10 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     final eventMap = event.toMap();
     eventMap['surfaceId'] =
         widget.controller.definitionNotifier.value?.surfaceId;
-    widget.controller.onEvent(UiEvent.fromMap(eventMap));
+    final callback = widget.controller.onEvent;
+    if (callback != null) {
+      callback(UiEvent.fromMap(eventMap));
+    }
   }
 
   @override

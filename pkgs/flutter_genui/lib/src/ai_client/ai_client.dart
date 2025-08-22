@@ -34,23 +34,13 @@ abstract interface class AiClient {
 
   /// Generates content from the given [conversation] and returns an object of
   /// type [T] that conforms to the given [outputSchema].
-  ///
-  /// The [additionalTools] are added to the list of tools available to the
-  /// AI model.
   Future<T?> generateContent<T extends Object>(
     List<ChatMessage> conversation,
-    Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const [],
-  });
+    Schema outputSchema,
+  );
 
   /// Generates a text response from the given [conversation].
-  ///
-  /// The [additionalTools] are added to the list of tools available to the
-  /// AI model, but the model is not required to use them.
-  Future<String> generateText(
-    List<ChatMessage> conversation, {
-    Iterable<AiTool> additionalTools = const [],
-  });
+  Future<String> generateText(List<ChatMessage> conversation);
 }
 
 /// An exception thrown by an [AiClient] or its subclasses.

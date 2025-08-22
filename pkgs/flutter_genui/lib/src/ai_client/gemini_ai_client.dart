@@ -10,13 +10,28 @@ import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
-import '../model/chat_message.dart';
+import '../../flutter_genui.dart';
+import '../model/chat_message.dart' show ChatMessage;
 import '../model/tools.dart';
 import '../primitives/logging.dart';
 import 'ai_client.dart';
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
+
+extension ContentExtension on SurfaceController {
+  Content toContent() {
+    return Content('user', [
+      TextPart(
+        'The following is the current UI state that you have generated, '
+        'for your information. You should use this to inform your '
+        'decision about what to do next. The user is seeing this UI, '
+        'which is on a surface with ID "${definitionNotifier.value!.surfaceId}".\n\n'
+        '${jsonEncode(definitionNotifier.value!)}',
+      ),
+    ]);
+  }
+}
 
 /// A factory for creating a [GeminiGenerativeModelInterface].
 ///
@@ -225,45 +240,17 @@ class GeminiAiClient implements AiClient {
   /// sends the given [conversation] and an [outputSchema] that defines the
   /// expected structure of the AI's response. The [conversation] is updated
   /// in place with the results of the tool-calling conversation.
-  ///
-  /// The AI is configured to use "forced tool calling", meaning it's expected
-  /// to respond by either:
-  /// 1. Calling one of the available [AiTool]s (from [tools] or
-  ///    [additionalTools]). If a tool is called, its `invoke` method is
-  ///    executed, and the result is sent back to the AI in a subsequent
-  //
-  ///    request.
-  /// 2. Calling a special internal tool (named by [outputToolName]) whose
-  ///    argument is the final structured data matching [outputSchema].
-  ///
-  /// - [conversation]: A list of [Content] objects representing the input to
-  ///   the AI. This list will be modified in place to include the tool calling
-  ///   conversation.
-  /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
-  ///   output `T`.
-  /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
-  ///   this specific call, in addition to the default [tools].
   @override
   Future<T?> generateContent<T extends Object>(
     List<ChatMessage> conversation,
-    dsb.Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const [],
-  }) async {
-    return await _generateContentWithRetries(conversation, outputSchema, [
-      ...tools,
-      ...additionalTools,
-    ]);
+    dsb.Schema outputSchema,
+  ) async {
+    return await _generateContentWithRetries(conversation, outputSchema);
   }
 
   @override
-  Future<String> generateText(
-    List<ChatMessage> conversation, {
-    Iterable<AiTool> additionalTools = const [],
-  }) async {
-    return await _generateTextWithRetries(conversation, [
-      ...tools,
-      ...additionalTools,
-    ]);
+  Future<String> generateText(List<ChatMessage> conversation) async {
+    return await _generateTextWithRetries(conversation);
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -290,13 +277,11 @@ class GeminiAiClient implements AiClient {
   Future<T?> _generateContentWithRetries<T extends Object>(
     List<ChatMessage> contents,
     dsb.Schema outputSchema,
-    List<AiTool> availableTools,
   ) async {
     return _generateWithRetries<T?>(
       (onSuccess) async =>
           await _generate(
                 messages: contents,
-                availableTools: availableTools,
                 onSuccess: onSuccess,
                 outputSchema: outputSchema,
               )
@@ -304,18 +289,10 @@ class GeminiAiClient implements AiClient {
     );
   }
 
-  Future<String> _generateTextWithRetries(
-    List<ChatMessage> contents,
-    List<AiTool> availableTools,
-  ) async {
+  Future<String> _generateTextWithRetries(List<ChatMessage> contents) async {
     return _generateWithRetries<String>(
       (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-              )
-              as String,
+          await _generate(messages: contents, onSuccess: onSuccess) as String,
     );
   }
 
@@ -380,7 +357,6 @@ class GeminiAiClient implements AiClient {
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
   _setupToolsAndFunctions({
     required bool isForcedToolCalling,
-    required List<AiTool> availableTools,
     required GeminiSchemaAdapter adapter,
     required dsb.Schema? outputSchema,
   }) {
@@ -398,8 +374,8 @@ class GeminiAiClient implements AiClient {
         : null;
 
     final allTools = isForcedToolCalling
-        ? [...availableTools, finalOutputAiTool!]
-        : availableTools;
+        ? [...tools, finalOutputAiTool!]
+        : tools;
 
     final uniqueAiToolsByName = <String, AiTool>{};
     final toolFullNames = <String>{};
@@ -471,7 +447,7 @@ class GeminiAiClient implements AiClient {
   _processFunctionCalls({
     required List<FunctionCall> functionCalls,
     required bool isForcedToolCalling,
-    required List<AiTool> availableTools,
+
     Object? capturedResult,
   }) async {
     final functionResponseParts = <FunctionResponse>[];
@@ -494,7 +470,7 @@ class GeminiAiClient implements AiClient {
         continue;
       }
 
-      final aiTool = availableTools.firstWhere(
+      final aiTool = tools.firstWhere(
         (t) => t.name == call.name || t.fullName == call.name,
         orElse: () =>
             throw AiClientException('Unknown tool ${call.name} called.'),
@@ -527,18 +503,26 @@ class GeminiAiClient implements AiClient {
   Future<Object?> _generate({
     // This list is modified to include tool calls and results.
     required List<ChatMessage> messages,
-    required List<AiTool> availableTools,
+    required void Function() onSuccess,
+    dsb.Schema? outputSchema,
+  }) async {
+    final converter = GeminiContentConverter();
+    final contents = converter.toFirebaseAiContent(messages);
+    return await generateFromContent(contents: contents, onSuccess: onSuccess);
+  }
+
+  Future<Object?> generateFromContent({
+    // This list is modified to include tool calls and results.
+    required List<Content> contents,
     required void Function() onSuccess,
     dsb.Schema? outputSchema,
   }) async {
     final isForcedToolCalling = outputSchema != null;
-    final converter = GeminiContentConverter();
-    final contents = converter.toFirebaseAiContent(messages);
+
     final adapter = GeminiSchemaAdapter();
 
     final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
       isForcedToolCalling: isForcedToolCalling,
-      availableTools: availableTools,
       adapter: adapter,
       outputSchema: outputSchema,
     );
@@ -627,7 +611,6 @@ With functions:
       final result = await _processFunctionCalls(
         functionCalls: functionCalls,
         isForcedToolCalling: isForcedToolCalling,
-        availableTools: availableTools,
         capturedResult: capturedResult,
       );
       capturedResult = result.capturedResult;

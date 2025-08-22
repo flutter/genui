@@ -14,16 +14,30 @@ import 'firebase_options.dart';
 import 'src/asset_images.dart';
 import 'src/catalog.dart';
 
-sealed class ConversationTurn {}
+sealed class ConversationTurn {
+  Content toContent() {
+    return Content.text(toString());
+  }
+}
 
 final class FirebaseAiConversationTurn implements ConversationTurn {
   final Content content;
+
+  @override
+  Content toContent() {
+    return content;
+  }
 
   const FirebaseAiConversationTurn(this.content);
 }
 
 final class GenUiConversationTurn implements ConversationTurn {
   final SurfaceController surfaceController;
+
+  @override
+  Content toContent() {
+    return surfaceController.toContent();
+  }
 
   GenUiConversationTurn(this.surfaceController);
 }
@@ -61,7 +75,7 @@ class TravelApp extends StatelessWidget {
   ///
   /// If null, a default [GeminiAiClient] will be created by the
   /// [TravelPlannerPage].
-  final AiClient? aiClient;
+  final GeminiAiClient? aiClient;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +112,7 @@ class TravelPlannerPage extends StatefulWidget {
   ///
   /// If null, a default instance of [GeminiAiClient] will be created within
   /// the page's state.
-  final AiClient? aiClient;
+  final GeminiAiClient? aiClient;
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
@@ -106,7 +120,7 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final GenUiManager _genUiManager;
-  late final AiClient _aiClient;
+  late final GeminiAiClient _aiClient;
   late final UiEventManager _eventManager;
   final List<ConversationTurn> _conversation = [];
 
@@ -145,7 +159,10 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 
   Future<void> _triggerInference() async {
-    await _aiClient.generateContent(List.of(_conversation), Schema.object());
+    await _aiClient.generateFromContent(
+      contents: List.of(_conversation.map((e) => e.toContent())),
+      onSuccess: () => {},
+    );
   }
 
   void _onUiEvents(String surfaceId, List<UiEvent> events) {
