@@ -4,7 +4,7 @@
 
 import 'package:flutter/widgets.dart';
 
-import '../conatants.dart';
+import '../constants.dart';
 import '../models/models.dart';
 
 /// A function that builds a Flutter [Widget] from an FCP [LayoutNode].
