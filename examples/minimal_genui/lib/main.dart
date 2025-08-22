@@ -2,21 +2,27 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 
 const _chatPrompt = '''
 You are a helpful assistant who figures out what the user wants to do and then helps suggest options so they can develop a plan and find relevant information.
 
-The user will ask questions, and you will respond by generating appropriate UI elements. Typically, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+The user will ask questions, and you will respond by generating appropriate UI elements. If necessary, you will first elicit more information to understand the user's needs, then you will start displaying information and the user's plans.
+
+Use the provided tools to build and manage the user interface in response to the user's requests. Call the `addOrUpdateSurface` tool to show new content or update existing content. Use the `deleteSurface` tool to remove UI that is no longer relevant.
 ''';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  configureGenUiLogging(level: Level.ALL);
   runApp(const MyApp());
 }
 
@@ -45,9 +51,56 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GenUiManager _genUiManager = GenUiManager.chat(
-    aiClient: GeminiAiClient(systemInstruction: _chatPrompt),
-  );
+  late final GenUiManager _genUiManager;
+  late final GeminiAiClient _aiClient;
+  late final GenUiChatController _chatController;
+
+  @override
+  void initState() {
+    super.initState();
+    _genUiManager = GenUiManager(configuration: const GenUiConfiguration());
+    _chatController = GenUiChatController(manager: _genUiManager);
+    _aiClient = GeminiAiClient(
+      systemInstruction: _chatPrompt,
+      tools: _genUiManager.getTools(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _genUiManager.dispose();
+    _chatController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _triggerInference() async {
+    _chatController.setAiRequestSent();
+    try {
+      final response = await _aiClient.generateText(
+        List.of(_chatController.conversation.value),
+      );
+      _chatController.addMessage(AssistantMessage.text(response));
+    } finally {
+      _chatController.setAiResponseReceived();
+    }
+  }
+
+  void _handleUiEvent(UiEvent event) {
+    if (!event.isAction) return;
+
+    _chatController.addMessage(
+      UserMessage.text(
+        'The user triggered the "${event.eventType}" event on widget '
+        '"${event.widgetId}" with the value: ${event.value}.',
+      ),
+    );
+    unawaited(_triggerInference());
+  }
+
+  void _sendPrompt(String text) {
+    _chatController.addMessage(UserMessage.text(text));
+    unawaited(_triggerInference());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: _genUiManager.widget(),
+        child: GenUiChat(
+          onEvent: _handleUiEvent,
+          onChatMessage: _sendPrompt,
+          controller: _chatController,
+        ),
       ),
     );
   }

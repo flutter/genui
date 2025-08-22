@@ -17,8 +17,8 @@ final _schema = S.object(
           'title': S.string(description: 'The title of the carousel item.'),
           'imageChildId': S.string(
             description:
-                'The ID of the image widget to display as the carousel item '
-                'image. Be sure to create image widgets with matching IDs.',
+                'The ID of the Image widget to display as the carousel item '
+                'image. Be sure to create Image widgets with matching IDs.',
           ),
         },
         required: ['title', 'imageChildId'],
@@ -38,7 +38,7 @@ final _schema = S.object(
 /// event with the item's title, allowing the AI to respond to the user's
 /// selection.
 final travelCarousel = CatalogItem(
-  name: 'travelCarousel',
+  name: 'TravelCarousel',
   dataSchema: _schema,
   widgetBuilder:
       ({

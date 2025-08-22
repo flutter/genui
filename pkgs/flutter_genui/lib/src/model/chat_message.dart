@@ -16,6 +16,7 @@ final class TextPart implements MessagePart {
   /// The text content.
   final String text;
 
+  /// Creates a [TextPart] with the given [text].
   const TextPart(this.text);
 }
 
@@ -81,6 +82,8 @@ final class ToolCallPart implements MessagePart {
   /// A unique identifier for this specific tool call.
   final String id;
 
+  /// Creates a [ToolCallPart] with the given [id], [toolName], and
+  /// [arguments].
   const ToolCallPart({
     required this.id,
     required this.toolName,
@@ -96,6 +99,7 @@ final class ToolResultPart implements MessagePart {
   /// The result of the tool execution, often a JSON string.
   final String result;
 
+  /// Creates a [ToolResultPart] with the given [callId] and [result].
   const ToolResultPart({required this.callId, required this.result});
 }
 
@@ -104,11 +108,13 @@ final class ThinkingPart implements MessagePart {
   /// The reasoning content from the model.
   final String text;
 
+  /// Creates a [ThinkingPart] with the given [text].
   const ThinkingPart(this.text);
 }
 
 /// A sealed class representing a message in the chat history.
 sealed class ChatMessage {
+  /// Creates a [ChatMessage].
   const ChatMessage();
 }
 

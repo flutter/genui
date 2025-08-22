@@ -5,10 +5,12 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
-import '../../flutter_genui.dart';
+import 'ui_event_manager.dart';
 
+/// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
 
+/// A callback that builds a widget for a catalog item.
 typedef CatalogWidgetBuilder =
     Widget Function({
       // The actual deserialized JSON data for this widget. The format of this
@@ -25,13 +27,19 @@ typedef CatalogWidgetBuilder =
 
 /// Defines a UI layout type, its schema, and how to build its widget.
 class CatalogItem {
-  final String name; // The key used in JSON, e.g., 'text_chat_message'
-  final Schema dataSchema; // The schema definition for this widget's data.
-  final CatalogWidgetBuilder widgetBuilder;
-
+  /// Creates a new [CatalogItem].
   const CatalogItem({
     required this.name,
     required this.dataSchema,
     required this.widgetBuilder,
   });
+
+  /// The widget type name used in JSON, e.g., 'TextChatMessage'.
+  final String name;
+
+  /// The schema definition for this widget's data.
+  final Schema dataSchema;
+
+  /// The builder for this widget.
+  final CatalogWidgetBuilder widgetBuilder;
 }

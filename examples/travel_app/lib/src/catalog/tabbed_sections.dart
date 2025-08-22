@@ -56,7 +56,7 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
 /// (e.g., "Activities", "Dining"). This helps to avoid overwhelming the user
 /// with a long, scrolling list of information.
 final tabbedSections = CatalogItem(
-  name: 'tabbedSections',
+  name: 'TabbedSections',
   dataSchema: _schema,
   widgetBuilder:
       ({

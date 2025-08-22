@@ -5,7 +5,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'schema.dart';
+import 'schema/schema.dart';
 
 class SchemaCache {
   final http.Client _httpClient;

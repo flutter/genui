@@ -80,7 +80,42 @@ class GeminiSchemaAdapter {
   /// This method is called by [adapt] and recursively traverses the schema,
   /// converting each part to the `firebase_ai` format.
   firebase_ai.Schema? _adapt(dsb.Schema schema, List<String> path) {
-    _checkUnsupportedGlobalKeywords(schema, path);
+    checkUnsupportedGlobalKeywords(schema, path);
+
+    if (schema.value.containsKey('anyOf')) {
+      final anyOfList = schema.value['anyOf'];
+      if (anyOfList is List && anyOfList.isNotEmpty) {
+        final schemas = <firebase_ai.Schema>[];
+        for (var i = 0; i < anyOfList.length; i++) {
+          final subSchemaMap = anyOfList[i];
+          if (subSchemaMap is! Map<String, dynamic>) {
+            _errors.add(
+              GeminiSchemaAdapterError(
+                'Schema inside "anyOf" must be an object.',
+                path: [...path, 'anyOf', i.toString()],
+              ),
+            );
+            continue;
+          }
+          final subSchema = dsb.Schema.fromMap(subSchemaMap);
+          final subPath = [...path, 'anyOf', i.toString()];
+          final adaptedSchema = _adapt(subSchema, subPath);
+          if (adaptedSchema != null) {
+            schemas.add(adaptedSchema);
+          }
+        }
+        if (schemas.isNotEmpty) {
+          return firebase_ai.Schema.anyOf(schemas: schemas);
+        }
+      } else {
+        _errors.add(
+          GeminiSchemaAdapterError(
+            'The value of "anyOf" must be a non-empty array of schemas.',
+            path: path,
+          ),
+        );
+      }
+    }
 
     final type = schema.type;
     String? typeName;
@@ -151,7 +186,7 @@ class GeminiSchemaAdapter {
   }
 
   /// Checks for and logs errors for unsupported global keywords.
-  void _checkUnsupportedGlobalKeywords(dsb.Schema schema, List<String> path) {
+  void checkUnsupportedGlobalKeywords(dsb.Schema schema, List<String> path) {
     const unsupportedKeywords = {
       '\$comment',
       'default',
@@ -166,7 +201,6 @@ class GeminiSchemaAdapter {
       '\$id',
       '\$schema',
       'allOf',
-      'anyOf',
       'oneOf',
       'not',
       'if',

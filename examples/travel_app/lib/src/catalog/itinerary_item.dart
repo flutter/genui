@@ -15,8 +15,8 @@ final _schema = S.object(
     'subtitle': S.string(description: 'The subtitle of the itinerary item.'),
     'imageChildId': S.string(
       description:
-          'The ID of the image widget to display. The image fit should '
-          "typically be 'cover'.  Be sure to create an image widget with a "
+          'The ID of the Image widget to display. The Image fit should '
+          "typically be 'cover'.  Be sure to create an Image widget with a "
           'matching ID.',
     ),
     'detailText': S.string(description: 'The detail text for the item.'),
@@ -47,7 +47,7 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
 /// travel plan.
 ///
 /// It serves as a fundamental building block for creating detailed,
-/// step-by-step travel itineraries. Each `itineraryItem` typically includes a
+/// step-by-step travel itineraries. Each [itineraryItem] typically includes a
 /// title, a subtitle (for time or location), an optional image, and a block of
 /// text for details.
 ///
@@ -55,7 +55,7 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
 /// from an [itineraryWithDetails] widget, where a sequence of these items can
 /// represent a full day's schedule or a list of activities.
 final itineraryItem = CatalogItem(
-  name: 'itinerary_item',
+  name: 'ItineraryItem',
   dataSchema: _schema,
   widgetBuilder:
       ({

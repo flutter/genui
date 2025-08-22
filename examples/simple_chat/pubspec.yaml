@@ -1,0 +1,25 @@
+name: simple_chat
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0-333.2.beta
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  firebase_ai: ^3.0.0
+  firebase_core: ^4.0.0
+  flutter_genui:
+    path: ../../pkgs/flutter_genui
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

@@ -14,8 +14,8 @@ final _schema = S.object(
   properties: {
     'child': S.string(
       description:
-          'The ID of a child widget. This should always be set, e.g. to a '
-          '`text`.',
+          'The ID of a child widget. This should always be set, e.g. to the ID '
+          'of a `Text` widget.',
     ),
   },
   required: ['child'],
@@ -28,8 +28,8 @@ extension type _ElevatedButtonData.fromMap(Map<String, Object?> _json) {
   String get child => _json['child'] as String;
 }
 
-final elevatedButtonCatalogItem = CatalogItem(
-  name: 'elevated_button',
+final elevatedButton = CatalogItem(
+  name: 'ElevatedButton',
   dataSchema: _schema,
   widgetBuilder:
       ({

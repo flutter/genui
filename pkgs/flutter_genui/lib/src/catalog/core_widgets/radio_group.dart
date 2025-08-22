@@ -91,7 +91,7 @@ class _RadioGroupState extends State<_RadioGroup> {
 }
 
 final radioGroup = CatalogItem(
-  name: 'radio_group',
+  name: 'RadioGroup',
   dataSchema: _schema,
   widgetBuilder:
       ({

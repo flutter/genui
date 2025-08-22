@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 
 void main() {
   group('Catalog', () {
@@ -18,7 +17,7 @@ void main() {
       final data = {
         'id': 'text1',
         'widget': {
-          'text': {'text': 'hello'},
+          'Text': {'text': 'hello'},
         },
       };
 
@@ -54,47 +53,56 @@ void main() {
         },
       };
 
-      final logs = <String>[];
-      await runZoned(
-        () async {
-          await tester.pumpWidget(
-            MaterialApp(
-              home: Scaffold(
-                body: Builder(
-                  builder: (context) {
-                    final widget = catalog.buildWidget(
-                      data,
-                      (_) => const SizedBox(),
-                      (UiEvent event) {},
-                      context,
-                    );
-                    expect(widget, isA<Container>());
-                    return widget;
-                  },
-                ),
-              ),
-            ),
-          );
-        },
-        zoneSpecification: ZoneSpecification(
-          print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
-            logs.add(line);
-          },
+      final logFuture = expectLater(
+        genUiLogger.onRecord,
+        emits(
+          isA<LogRecord>().having(
+            (e) => e.message,
+            'message',
+            contains('Item unknown_widget was not found'),
+          ),
         ),
       );
-      expect(logs.first, contains('Item unknown_widget was not found'));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                final widget = catalog.buildWidget(
+                  data,
+                  (_) => const SizedBox(),
+                  (UiEvent event) {},
+                  context,
+                );
+                expect(widget, isA<Container>());
+                return widget;
+              },
+            ),
+          ),
+        ),
+      );
+      await logFuture;
     });
 
     test('schema generation is correct', () {
-      final catalog = Catalog([text, elevatedButtonCatalogItem]);
+      final catalog = Catalog([text, elevatedButton]);
       final schema = catalog.schema as ObjectSchema;
 
       expect(schema.properties?.containsKey('id'), isTrue);
       expect(schema.properties?.containsKey('widget'), isTrue);
 
-      final widgetSchema = schema.properties?['widget'] as ObjectSchema;
-      expect(widgetSchema.properties?.containsKey('text'), isTrue);
-      expect(widgetSchema.properties?.containsKey('elevated_button'), isTrue);
+      final widgetSchema = schema.properties!['widget'] as Schema;
+      final widgetSchemaMap = widgetSchema.value;
+      final anyOf = widgetSchemaMap['anyOf'] as List<Object?>;
+      final widgetProperties = anyOf
+          .map((e) => e as Schema)
+          .map((e) => e.value)
+          .map((e) => e['properties'] as Map<String, Object?>)
+          .expand((element) => element.keys)
+          .toList();
+
+      expect(widgetProperties, contains('Text'));
+      expect(widgetProperties, contains('ElevatedButton'));
     });
   });
 }
