@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright 2025 The Flutter Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 
 # Runs `pub get` for all code in the repo.
 
@@ -10,30 +9,9 @@
 set -ex
 
 # The directory that this script is located in.
-TOOL_DIR=$(dirname "$0")
+TOOL_DIR=$(dirname $(realpath "${BASH_SOURCE[0]}"))
 
 # Change to the root of the repository to make paths simpler.
 cd "$TOOL_DIR/.."
 
-FLUTTER_PACKAGES=(
-    "examples/travel_app"
-    "examples/minimal_genui"
-    "pkgs/flutter_genui"
-    "pkgs/spikes/fcp_client"
-    "pkgs/spikes/chat_box_tester"
-)
-
-DART_PACKAGES=(
-    "pkgs/dart_schema_builder"
-    "tool/fix_copyright"
-)
-
-for pkg in "${FLUTTER_PACKAGES[@]}"; do
-    echo "--- Refreshing packages in $pkg ---"
-    (cd "$pkg" && flutter pub upgrade)
-done
-
-for pkg in "${DART_PACKAGES[@]}"; do
-    echo "--- Refreshing packages in $pkg ---"
-    (cd "$pkg" && dart pub upgrade)
-done
+find . -name "pubspec.yaml" -exec dirname {} \; | xargs -I {} sh -c 'echo "Running pub upgrade in {}"; (cd "{}" && flutter pub upgrade)'
