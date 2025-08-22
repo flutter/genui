@@ -71,7 +71,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     });
 
     // Update definition if it is changed.
-    final newDefinitionNotifier = widget.manager.surface(widget.surfaceId);
+    final newDefinitionNotifier = widget.manager.surfaceManager.surface(widget.surfaceId);
     if (newDefinitionNotifier == _definitionNotifier) return;
     _definitionNotifier = newDefinitionNotifier;
     setState(() {});

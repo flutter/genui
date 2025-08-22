@@ -11,7 +11,7 @@ void main() {
     late GenUiChatController controller;
 
     setUp(() {
-      manager = GenUiManager();
+      manager = GenUiManager(configuration: const GenUiConfiguration());
       controller = GenUiChatController(manager: manager);
     });
 

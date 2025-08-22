@@ -22,7 +22,7 @@ void main() {
       Map<String, Object?> definition,
       UiEventCallback onEvent,
     ) async {
-      final manager = GenUiManager(catalog: testCatalog);
+      final manager = GenUiManager(catalog: testCatalog, configuration: const GenUiConfiguration());
       manager.addOrUpdateSurface('testSurface', definition);
       await tester.pumpWidget(
         MaterialApp(
