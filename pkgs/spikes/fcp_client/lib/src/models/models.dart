@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart' show ObjectSchema;
 
-import '../../fcp_client.dart';
+import '../constants.dart';
 
 /// Extension to provide JSON stringification for map-based objects.
 extension JsonEncodeMap on Map<String, Object?> {

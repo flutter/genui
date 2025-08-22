@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import '../../fcp_client.dart';
+
+import '../models/models.dart';
 
 /// An [InheritedWidget] that provides FCP-related data to the widget tree.
 ///
