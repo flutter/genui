@@ -292,6 +292,7 @@ class GeminiAiClient implements AiClient {
     dsb.Schema outputSchema,
     List<AiTool> availableTools,
   ) async {
+    genUiLogger.fine('Generating content with retries.');
     return _generateWithRetries<T?>(
       (onSuccess) async =>
           await _generate(
@@ -308,6 +309,7 @@ class GeminiAiClient implements AiClient {
     List<msg.ChatMessage> contents,
     List<AiTool> availableTools,
   ) async {
+    genUiLogger.fine('Generating text with retries.');
     return _generateWithRetries<String>(
       (onSuccess) async =>
           await _generate(
@@ -325,6 +327,7 @@ class GeminiAiClient implements AiClient {
     var attempts = 0;
     var delay = initialDelay;
     final maxTries = maxRetries + 1; // Retries plus the first attempt.
+    genUiLogger.fine('Starting generation with up to $maxRetries retries.');
 
     Future<void> onFail(Exception exception) async {
       attempts++;
@@ -332,13 +335,15 @@ class GeminiAiClient implements AiClient {
         genUiLogger.warning('Max retries of $maxRetries reached.');
         throw exception;
       }
-      genUiLogger.severe(
-        'Received exception, retrying in ${delay + minDelay}.: $exception',
-      );
       // Make the delay at least minDelay long, since the reset window
       // for exceeding the number of requests is 10 seconds long, and
       // requesting it faster than that just means it makes us wait longer.
-      await Future<void>.delayed(delay + minDelay);
+      final waitTime = delay + minDelay;
+      genUiLogger.severe(
+        'Received exception, retrying in $waitTime. Attempt $attempts of '
+        '$maxTries. Exception: $exception',
+      );
+      await Future<void>.delayed(waitTime);
       delay *= 2;
     }
 
@@ -351,6 +356,7 @@ class GeminiAiClient implements AiClient {
             attempts = 0;
           },
         );
+        genUiLogger.fine('Generation successful.');
         return result;
       } on FirebaseAIException catch (exception) {
         if (exception.message.contains(
@@ -384,6 +390,10 @@ class GeminiAiClient implements AiClient {
     required GeminiSchemaAdapter adapter,
     required dsb.Schema? outputSchema,
   }) {
+    genUiLogger.fine(
+      'Setting up tools'
+      '${isForcedToolCalling ? ' with forced tool calling' : ''}',
+    );
     // Create an "output" tool that copies its args into the output.
     final finalOutputAiTool = isForcedToolCalling
         ? DynamicAiTool<Map<String, Object?>>(
@@ -400,6 +410,9 @@ class GeminiAiClient implements AiClient {
     final allTools = isForcedToolCalling
         ? [...availableTools, finalOutputAiTool!]
         : availableTools;
+    genUiLogger.fine(
+      'Available tools: ${allTools.map((t) => t.name).join(', ')}',
+    );
 
     final uniqueAiToolsByName = <String, AiTool>{};
     final toolFullNames = <String>{};
@@ -449,6 +462,10 @@ class GeminiAiClient implements AiClient {
         );
       }
     }
+    genUiLogger.fine(
+      'Adapted tools to function declarations: '
+      '${functionDeclarations.map((d) => d.name).join(', ')}',
+    );
 
     final generativeAiTools = functionDeclarations.isNotEmpty
         ? [Tool.functionDeclarations(functionDeclarations)]
@@ -458,6 +475,10 @@ class GeminiAiClient implements AiClient {
       ...uniqueAiToolsByName.keys,
       ...toolFullNames,
     };
+
+    genUiLogger.fine(
+      'Allowed function names for model: ${allowedFunctionNames.join(', ')}',
+    );
 
     return (
       generativeAiTools: generativeAiTools,
@@ -474,13 +495,22 @@ class GeminiAiClient implements AiClient {
     required List<AiTool> availableTools,
     Object? capturedResult,
   }) async {
+    genUiLogger.fine(
+      'Processing ${functionCalls.length} function calls from model.',
+    );
     final functionResponseParts = <FunctionResponse>[];
     for (final call in functionCalls) {
+      genUiLogger.fine(
+        'Processing function call: ${call.name} with args: ${call.args}',
+      );
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
           capturedResult =
               (call.args['parameters'] as Map<String, Object?>?)?['output'] ??
               '';
+          genUiLogger.fine(
+            'Captured final output from tool "$outputToolName".',
+          );
         } catch (exception, stack) {
           genUiLogger.severe(
             'Unable to read output: $call [${call.args}]',
@@ -502,6 +532,7 @@ class GeminiAiClient implements AiClient {
       );
       Map<String, Object?> toolResult;
       try {
+        genUiLogger.fine('Invoking tool: ${aiTool.name}');
         toolResult = await aiTool.invoke(call.args);
         genUiLogger.info(
           'Invoked tool ${aiTool.name} with args ${call.args}. ',
@@ -519,6 +550,10 @@ class GeminiAiClient implements AiClient {
       }
       functionResponseParts.add(FunctionResponse(call.name, toolResult));
     }
+    genUiLogger.fine(
+      'Finished processing function calls. Returning '
+      '${functionResponseParts.length} responses.',
+    );
     return (
       functionResponseParts: functionResponseParts,
       capturedResult: capturedResult,
@@ -564,7 +599,9 @@ class GeminiAiClient implements AiClient {
     );
 
     while (toolUsageCycle < maxToolUsageCycles) {
+      genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');
       if (isForcedToolCalling && capturedResult != null) {
+        genUiLogger.fine('Captured result found, exiting tool usage loop.');
         break;
       }
       toolUsageCycle++;
@@ -573,11 +610,12 @@ class GeminiAiClient implements AiClient {
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
           .join('\n');
 
-      genUiLogger.info('''****** Performing Inference ******
-$concatenatedContents
+      genUiLogger.info(
+        '''****** Performing Inference ******\n$concatenatedContents
 With functions:
   '${allowedFunctionNames.join(', ')}',
-  ''');
+  ''',
+      );
       final inferenceStartTime = DateTime.now();
       final response = await model.generateContent(contents);
       final elapsed = DateTime.now().difference(inferenceStartTime);
@@ -608,6 +646,7 @@ With functions:
           .toList();
 
       if (functionCalls.isEmpty) {
+        genUiLogger.fine('Model response contained no function calls.');
         if (isForcedToolCalling) {
           genUiLogger.warning(
             'Model did not call any function. FinishReason: '
@@ -626,10 +665,14 @@ With functions:
         } else {
           final text = candidate.text ?? '';
           messages.add(msg.AssistantMessage.text(text));
+          genUiLogger.fine('Returning text response: "$text"');
           return text;
         }
       }
 
+      genUiLogger.fine(
+        'Model response contained ${functionCalls.length} function calls.',
+      );
       final result = await _processFunctionCalls(
         functionCalls: functionCalls,
         isForcedToolCalling: isForcedToolCalling,
@@ -658,6 +701,10 @@ With functions:
 
       if (assistantParts.isNotEmpty) {
         messages.add(msg.AssistantMessage(assistantParts));
+        genUiLogger.fine(
+          'Added assistant message with ${assistantParts.length} parts to '
+          'conversation.',
+        );
       }
 
       if (functionResponseParts.isNotEmpty) {
@@ -673,6 +720,10 @@ With functions:
 
         if (toolResponseParts.isNotEmpty) {
           messages.add(msg.ToolResponseMessage(toolResponseParts));
+          genUiLogger.fine(
+            'Added tool response message with ${toolResponseParts.length} '
+            'parts to conversation.',
+          );
         }
       }
     }
@@ -685,6 +736,7 @@ With functions:
           StackTrace.current,
         );
       }
+      genUiLogger.fine('Exited tool usage loop. Returning captured result.');
       return capturedResult;
     } else {
       genUiLogger.severe(
