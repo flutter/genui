@@ -359,8 +359,7 @@ class GeminiAiClient implements AiClient {
         return result;
       } on FirebaseAIException catch (exception) {
         if (exception.message.contains(
-          '${_model.value.type.modelName} is not found for '
-          'API version',
+          '${_model.value.type.modelName} is not found for API version',
         )) {
           // If the model is not found, then just throw an exception.
           throw AiClientException(exception.message);
@@ -505,8 +504,7 @@ class GeminiAiClient implements AiClient {
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
           capturedResult =
-              (call.args['parameters'] as Map<String, Object?>?)?['output'] ??
-              '';
+              (call.args['parameters'] as Map<String, Object?>?)?['output'];
           genUiLogger.fine(
             'Captured final output from tool "$outputToolName".',
           );
@@ -658,11 +656,12 @@ With functions:
             );
           }
           if (candidate.text != null) {
-            final text = candidate.text!;
-            messages.add(msg.AssistantMessage.text(text));
-            genUiLogger.fine('Returning text response: "$text"');
-            return text;
+            messages.add(msg.AssistantMessage.text(candidate.text!));
           }
+          genUiLogger.fine(
+            'Model returned text but no function calls with forced tool '
+            'calling, so returning null.',
+          );
           return null;
         } else {
           final text = candidate.text ?? '';
