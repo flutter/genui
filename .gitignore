@@ -33,6 +33,11 @@ DEPS.md
 **/coverage/
 **/pubspec.lock
 GeneratedPluginRegistrant.h
+GeneratedPluginRegistrant.m
+GeneratedPluginRegistrant.swift
+generated_plugin_registrant.cc
+generated_plugin_registrant.h
+
 
 # Symbolication related
 app.*.symbols
