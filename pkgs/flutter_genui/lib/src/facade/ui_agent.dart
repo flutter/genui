@@ -1,9 +1,7 @@
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../flutter_genui.dart';
-import '../ai_client/ai_client.dart';
-import '../core/genui_manager.dart';
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 
 /// Generic facade for GenUi package.
 class UiAgent {
@@ -28,7 +26,8 @@ class UiAgent {
   late final AiClient _aiClient;
   final List<ChatMessage> _conversation = [];
 
-  Future<void> sendTextRequest(String text) async {
+  Future<void> sendRequest(UserMessage message) async {
+    _conversation.add(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
   }
 
