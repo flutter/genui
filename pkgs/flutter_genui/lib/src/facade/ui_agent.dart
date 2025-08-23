@@ -3,27 +3,34 @@ import 'package:flutter/rendering.dart';
 import '../../flutter_genui.dart';
 import '../ai_client/ai_client.dart';
 import '../core/genui_manager.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart';
 
 /// Generic facade for GenUi package.
 class UiAgent {
   UiAgent(
     String genericPrompt,
+    Catalog? catalog,
     this.onSurfaceAdded,
     this.onSurfaceUpdated,
     this.onSurfaceRemoved,
-  ) : _genUiManager = GenUiManager() {
+  ) : _genUiManager = GenUiManager(catalog: catalog) {
     _aiClient = GeminiAiClient(
       systemInstruction: '$genericPrompt\n\n$_technicalPrompt',
       tools: _genUiManager.getTools(),
     );
   }
 
-  final GenUiManager _genUiManager;
-  late final AiClient _aiClient;
-
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
   final ValueChanged<SurfaceUpdated>? onSurfaceUpdated;
   final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
+
+  final GenUiManager _genUiManager;
+  late final AiClient _aiClient;
+  final List<ChatMessage> _conversation = [];
+
+  Future<void> sendTextRequest(String text) async {
+    await _aiClient.generateContent(List.of(_conversation), Schema.object());
+  }
 
   void dispose() {
     _genUiManager.dispose();
