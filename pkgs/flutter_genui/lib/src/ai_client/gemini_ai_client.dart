@@ -426,7 +426,7 @@ class GeminiAiClient implements AiClient {
         if (result.errors.isNotEmpty) {
           genUiLogger.warning(
             'Errors adapting parameters for tool ${tool.name}: '
-            '${result.errors.join('n')}',
+            '${result.errors.join('\n')}',
           );
         }
         adaptedParameters = result.schema;
@@ -571,7 +571,7 @@ class GeminiAiClient implements AiClient {
 
       final concatenatedContents = contents
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
-          .join('n');
+          .join('\n');
 
       genUiLogger.info('''****** Performing Inference ******
 $concatenatedContents
@@ -649,7 +649,7 @@ With functions:
               );
             }
             if (part is TextPart) {
-              return TextPart(part.text);
+              return msg.TextPart(part.text);
             }
             return null;
           })
