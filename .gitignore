@@ -35,9 +35,9 @@ DEPS.md
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.swift
+GeneratedPluginRegistrant.java
 generated_plugin_registrant.cc
 generated_plugin_registrant.h
-
 
 # Symbolication related
 app.*.symbols
