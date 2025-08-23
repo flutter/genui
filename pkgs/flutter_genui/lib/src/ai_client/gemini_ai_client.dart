@@ -63,16 +63,15 @@ class GeminiModel extends AiModel {
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
 /// including model selection, API keys, retry mechanisms, and tool
-/// configurations. It provides a [generateContent] method to interact with
-/// the AI model, supporting structured output and tool usage.
+/// configurations. It provides a [generateContent] method to interact with the
+/// AI model, supporting structured output and tool usage.
 class GeminiAiClient implements AiClient {
   /// Creates an [GeminiAiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
   /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
-  /// - [modelCreator]: A factory function to create the
-  ///   [GenerativeModel].
+  /// - [modelCreator]: A factory function to create the [GenerativeModel].
   /// - [maxRetries]: Maximum number of retries for API calls on transient
   ///   errors.
   /// - [initialDelay]: Initial delay for the exponential backoff retry
@@ -138,8 +137,8 @@ class GeminiAiClient implements AiClient {
   /// The maximum number of retries to attempt when generating content.
   ///
   /// If an API call to the generative model fails with a transient error (like
-  /// [FirebaseAIException]), the client will attempt
-  /// to retry the call up to this many times.
+  /// [FirebaseAIException]), the client will attempt to retry the call up to
+  /// this many times.
   ///
   /// Defaults to 8 retries.
   final int maxRetries;
@@ -164,9 +163,9 @@ class GeminiAiClient implements AiClient {
   /// The maximum number of concurrent jobs to run.
   ///
   /// This property is intended for systems that might manage multiple
-  /// [GeminiAiClient] operations or other concurrent tasks.
-  /// The [generateContent] method itself is a single asynchronous operation
-  /// and does not directly enforce this limit.
+  /// [GeminiAiClient] operations or other concurrent tasks. The
+  /// [generateContent] method itself is a single asynchronous operation and
+  /// does not directly enforce this limit.
   ///
   /// Defaults to 20.
   final int maxConcurrentJobs;
@@ -179,15 +178,15 @@ class GeminiAiClient implements AiClient {
   /// for providing mock models during testing. The factory receives this
   /// [GeminiAiClient] instance as configuration.
   ///
-  /// Defaults to a wrapper for the regular [GenerativeModel]
-  /// constructor, [defaultGenerativeModelFactory].
+  /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
+  /// [defaultGenerativeModelFactory].
   final GenerativeModelFactory modelCreator;
 
   /// The list of tools to configure by default for this AI instance.
   ///
   /// These [AiTool]s are made available to the AI during every
-  /// [generateContent] call, in addition to any tools passed
-  /// directly to that method.
+  /// [generateContent] call, in addition to any tools passed directly to that
+  /// method.
   final List<AiTool> tools;
 
   /// The name of an internal pseudo-tool used to retrieve the final structured
@@ -223,22 +222,22 @@ class GeminiAiClient implements AiClient {
   ///
   /// This method orchestrates the interaction with the generative AI model. It
   /// sends the given [conversation] and an [outputSchema] that defines the
-  /// expected structure of the AI's response. The [conversation] is updated
-  /// in place with the results of the tool-calling conversation.
+  /// expected structure of the AI's response. The [conversation] is updated in
+  /// place with the results of the tool-calling conversation.
   ///
   /// The AI is configured to use "forced tool calling", meaning it's expected
   /// to respond by either:
+  ///
   /// 1. Calling one of the available [AiTool]s (from [tools] or
   ///    [additionalTools]). If a tool is called, its `invoke` method is
   ///    executed, and the result is sent back to the AI in a subsequent
-  ///    request. / 2. Calling a special internal tool (named by
-  /// [outputToolName]) whose /
-  ///    argument is the final structured data matching
-  /// [outputSchema].
+  ///    request.
+  /// 2. Calling a special internal tool (named by [outputToolName]) whose
+  ///    argument is the final structured data matching [outputSchema].
   ///
-  /// - [conversation]: A list of [Content] objects representing
-  ///   the input to /   the AI. This list will be modified in place to include the
-  ///   tool calling /   conversation.
+  /// - [conversation]: A list of [Content] objects representing the input to
+  ///   the AI. This list will be modified in place to include the tool calling
+  ///   conversation.
   /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
   ///   output `T`.
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
@@ -268,8 +267,8 @@ class GeminiAiClient implements AiClient {
 
   /// The default factory function for creating a [GenerativeModel].
   ///
-  /// This function instantiates a standard [GenerativeModel] using
-  /// the `model` from the provided [GeminiAiClient] `configuration`.
+  /// This function instantiates a standard [GenerativeModel] using the `model`
+  /// from the provided [GeminiAiClient] `configuration`.
   static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
     required GeminiAiClient configuration,
     Content? systemInstruction,
@@ -335,9 +334,9 @@ class GeminiAiClient implements AiClient {
         genUiLogger.warning('Max retries of $maxRetries reached.');
         throw exception;
       }
-      // Make the delay at least minDelay long, since the reset window
-      // for exceeding the number of requests is 10 seconds long, and
-      // requesting it faster than that just means it makes us wait longer.
+      // Make the delay at least minDelay long, since the reset window for
+      // exceeding the number of requests is 10 seconds long, and requesting it
+      // faster than that just means it makes us wait longer.
       final waitTime = delay + minDelay;
       genUiLogger.severe(
         'Received exception, retrying in $waitTime. Attempt $attempts of '
@@ -378,8 +377,8 @@ class GeminiAiClient implements AiClient {
         rethrow;
       }
     }
-    // This line should be unreachable if maxRetries > 0,
-    // but is needed for static analysis.
+    // This line should be unreachable if maxRetries > 0, but is needed for
+    // static analysis.
     throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
@@ -659,7 +658,10 @@ With functions:
             );
           }
           if (candidate.text != null) {
-            messages.add(msg.AssistantMessage.text(candidate.text!));
+            final text = candidate.text!;
+            messages.add(msg.AssistantMessage.text(text));
+            genUiLogger.fine('Returning text response: "$text"');
+            return text;
           }
           return null;
         } else {

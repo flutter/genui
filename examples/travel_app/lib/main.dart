@@ -269,8 +269,7 @@ final prompt =
 You are a helpful travel agent assistant. Use the provided tools to build and
 manage the user interface in response to the user's requests. Call the
 `addOrUpdateSurface` tool to show new content or update existing content. Use
-the `deleteSurface` tool to remove UI that is no longer relevant. Once you have
-sent one UI update, stop and wait for user input.
+the `deleteSurface` tool to remove UI that is no longer relevant.
 
 The user will ask questions, and you will respond by generating appropriate UI
 elements. Instead of asking for information via text, prefer using UI elements
