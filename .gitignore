@@ -32,6 +32,7 @@ DEPS.md
 **/build/
 **/coverage/
 **/pubspec.lock
+generated_plugins.cmake
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.swift
