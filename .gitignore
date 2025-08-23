@@ -13,6 +13,9 @@
 migrate_working_dir/
 firepit-log.txt
 
+# Diagrams, produced by https://pub.dev/packages/layerlens.
+DEPS.md
+
 # IntelliJ related
 *.iml
 *.ipr
