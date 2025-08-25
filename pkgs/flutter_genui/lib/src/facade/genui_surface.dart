@@ -125,7 +125,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     }
 
     return widget.manager.catalog.buildWidget(
-      data as Json,
+      data as JsonMap,
       (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,
       context,

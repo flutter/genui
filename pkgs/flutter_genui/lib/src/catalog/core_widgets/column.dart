@@ -41,7 +41,7 @@ final _schema = S.object(
   },
 );
 
-extension type _ColumnData.fromMap(Json _json) {
+extension type _ColumnData.fromMap(JsonMap _json) {
   factory _ColumnData({
     List<String> children = const [],
     double? spacing,
@@ -106,7 +106,7 @@ final column = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final columnData = _ColumnData.fromMap(data as Json);
+        final columnData = _ColumnData.fromMap(data as JsonMap);
         final childrenIds = columnData.children;
         final spacing = columnData.spacing;
         final childrenWithSpacing = <Widget>[];

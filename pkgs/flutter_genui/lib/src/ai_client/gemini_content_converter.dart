@@ -81,7 +81,7 @@ class GeminiContentConverter {
               part.callId,
               // The result from ToolResultPart is a JSON string, but
               // FunctionResponse expects a Map.
-              jsonDecode(part.result) as Json,
+              jsonDecode(part.result) as JsonMap,
             ),
           );
         case ThinkingPart():

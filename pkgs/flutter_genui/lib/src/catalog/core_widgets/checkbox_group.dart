@@ -23,7 +23,7 @@ final _schema = S.object(
   required: ['values', 'labels'],
 );
 
-extension type _CheckboxGroupData.fromMap(Json _json) {
+extension type _CheckboxGroupData.fromMap(JsonMap _json) {
   factory _CheckboxGroupData({
     required List<bool> values,
     required List<String> labels,
@@ -98,7 +98,7 @@ final checkboxGroup = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final checkboxData = _CheckboxGroupData.fromMap(data as Json);
+        final checkboxData = _CheckboxGroupData.fromMap(data as JsonMap);
         return _CheckboxGroup(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,

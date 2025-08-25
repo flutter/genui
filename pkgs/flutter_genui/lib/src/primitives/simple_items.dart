@@ -2,4 +2,4 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-typedef Json = Map<String, Object?>;
+typedef JsonMap = Map<String, Object?>;

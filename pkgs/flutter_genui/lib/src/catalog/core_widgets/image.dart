@@ -27,7 +27,7 @@ final _schema = S.object(
   },
 );
 
-extension type _ImageData.fromMap(Json _json) {
+extension type _ImageData.fromMap(JsonMap _json) {
   factory _ImageData({String? url, String? assetName, String? fit}) =>
       _ImageData.fromMap({'url': url, 'assetName': assetName, 'fit': fit});
 
@@ -49,7 +49,7 @@ final image = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final imageData = _ImageData.fromMap(data as Json);
+        final imageData = _ImageData.fromMap(data as JsonMap);
 
         final url = imageData.url;
         final assetName = imageData.assetName;

@@ -8,7 +8,7 @@ import '../primitives/simple_items.dart';
 ///
 /// This is used to send information from the app to the AI about user
 /// actions, such as tapping a button or entering text.
-extension type UiEvent.fromMap(Json _json) {
+extension type UiEvent.fromMap(JsonMap _json) {
   /// The ID of the surface that this event originated from.
   String get surfaceId => _json['surfaceId'] as String;
 
@@ -29,14 +29,14 @@ extension type UiEvent.fromMap(Json _json) {
   DateTime get timestamp => DateTime.parse(_json['timestamp'] as String);
 
   /// Converts this event to a map, suitable for JSON serialization.
-  Json toMap() => _json;
+  JsonMap toMap() => _json;
 }
 
 /// A UI event that represents a user action.
 ///
 /// This is used for events that should trigger a submission to the AI, such as
 /// tapping a button.
-extension type UiActionEvent.fromMap(Json _json) implements UiEvent {
+extension type UiActionEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
   UiActionEvent({
     String? surfaceId,
@@ -58,7 +58,7 @@ extension type UiActionEvent.fromMap(Json _json) implements UiEvent {
 ///
 /// This is used for events that should not trigger a submission to the AI, such
 /// as entering text in a text field.
-extension type UiChangeEvent.fromMap(Json _json) implements UiEvent {
+extension type UiChangeEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
   UiChangeEvent({
     String? surfaceId,
@@ -79,7 +79,7 @@ extension type UiChangeEvent.fromMap(Json _json) implements UiEvent {
 /// A data object that represents the entire UI definition.
 ///
 /// This is the root object that defines a complete UI to be rendered.
-extension type UiDefinition.fromMap(Json _json) {
+extension type UiDefinition.fromMap(JsonMap _json) {
   /// The ID of the surface that this UI belongs to.
   String get surfaceId => _json['surfaceId'] as String;
 
@@ -90,11 +90,11 @@ extension type UiDefinition.fromMap(Json _json) {
   List<Object?> get widgetList => _json['widgets'] as List<Object?>;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
-  Json get widgets {
+  JsonMap get widgets {
     final widgetById = <String, Object?>{};
 
     for (final widget in (_json['widgets'] as List<Object?>)) {
-      var typedWidget = widget as Json;
+      var typedWidget = widget as JsonMap;
       widgetById[typedWidget['id'] as String] = typedWidget;
     }
 

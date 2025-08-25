@@ -21,7 +21,7 @@ final _schema = S.object(
   },
 );
 
-extension type _TextFieldData.fromMap(Json _json) {
+extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
     String? value,
     String? hintText,
@@ -102,7 +102,7 @@ final textField = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final textFieldData = _TextFieldData.fromMap(data as Json);
+        final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         return _TextField(
           initialValue: textFieldData.value,
           hintText: textFieldData.hintText,

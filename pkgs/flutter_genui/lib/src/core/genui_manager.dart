@@ -43,7 +43,7 @@ class GenUiManager {
     surfaceManager.dispose();
   }
 
-  void addOrUpdateSurface(String s, Json definition) =>
+  void addOrUpdateSurface(String s, JsonMap definition) =>
       surfaceManager.addOrUpdateSurface(s, definition);
 
   void deleteSurface(String s) => surfaceManager.deleteSurface(s);

@@ -173,7 +173,7 @@ final class UiResponseMessage extends ChatMessage {
           ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
 
   /// The JSON definition of the UI.
-  final Json definition;
+  final JsonMap definition;
 
   /// A unique key for the UI widget.
   final Key uiKey;

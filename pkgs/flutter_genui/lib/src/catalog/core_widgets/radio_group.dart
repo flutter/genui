@@ -24,7 +24,7 @@ final _schema = S.object(
   required: ['groupValue', 'labels'],
 );
 
-extension type _RadioGroupData.fromMap(Json _json) {
+extension type _RadioGroupData.fromMap(JsonMap _json) {
   factory _RadioGroupData({
     required String groupValue,
     required List<String> labels,
@@ -102,7 +102,7 @@ final radioGroup = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final radioData = _RadioGroupData.fromMap(data as Json);
+        final radioData = _RadioGroupData.fromMap(data as JsonMap);
         return _RadioGroup(
           initialGroupValue: radioData.groupValue,
           labels: radioData.labels,

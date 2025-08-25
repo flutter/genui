@@ -40,12 +40,12 @@ class Catalog {
   ///   value changes, back to the model.
   /// * [context]: The build context for the widget.
   Widget buildWidget(
-    Json data, // The actual deserialized JSON data for this layout
+    JsonMap data, // The actual deserialized JSON data for this layout
     Widget Function(String id) buildChild,
     DispatchEventCallback dispatchEvent,
     BuildContext context,
   ) {
-    final widgetType = (data['widget'] as Json).keys.firstOrNull;
+    final widgetType = (data['widget'] as JsonMap).keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
       genUiLogger.severe('Item $widgetType was not found in catalog');
@@ -54,7 +54,7 @@ class Catalog {
 
     genUiLogger.info('Building widget ${item.name} with id ${data['id']}');
     return item.widgetBuilder(
-      data: ((data as Map)['widget'] as Json)[widgetType]!,
+      data: ((data as Map)['widget'] as JsonMap)[widgetType]!,
       id: data['id'] as String,
       buildChild: buildChild,
       dispatchEvent: dispatchEvent,

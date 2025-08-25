@@ -87,7 +87,7 @@ class SurfaceManager {
   /// Adds or updates a UI surface.
   ///
   /// This method is called to update the UI.
-  void addOrUpdateSurface(String surfaceId, Json definition) {
+  void addOrUpdateSurface(String surfaceId, JsonMap definition) {
     final uiDefinition = UiDefinition.fromMap({
       'surfaceId': surfaceId,
       ...definition,
