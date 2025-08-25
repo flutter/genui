@@ -36,7 +36,10 @@ DEPS.md
 **/GeneratedPluginRegistrant.*
 **/generated_plugin_registrant.*
 **/Podfile
+**/Podfile.lock
 **/Runner-Bridging-Header.h
+**/project.pbxproj
+**/contents.xcworkspacedata
 
 # Symbolication related
 app.*.symbols
