@@ -10,6 +10,9 @@ import 'ui_event_manager.dart';
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
 
+/// Storage for values by surfaceId.
+typedef ValueStore = Map<String, String>;
+
 /// A callback that builds a widget for a catalog item.
 typedef CatalogWidgetBuilder =
     Widget Function({
@@ -23,6 +26,7 @@ typedef CatalogWidgetBuilder =
       // A function used to dispatch an event.
       required DispatchEventCallback dispatchEvent,
       required BuildContext context,
+      required ValueStore values,
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.

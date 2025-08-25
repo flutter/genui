@@ -101,6 +101,7 @@ final textField = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         return _TextField(

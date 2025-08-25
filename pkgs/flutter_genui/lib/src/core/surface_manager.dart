@@ -67,6 +67,7 @@ class SurfaceManager {
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
+  final _values = <String, String>{};
 
   /// A map of the current UI surfaces.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;

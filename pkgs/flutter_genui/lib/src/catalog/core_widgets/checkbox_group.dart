@@ -97,6 +97,7 @@ final checkboxGroup = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final checkboxData = _CheckboxGroupData.fromMap(data as JsonMap);
         return _CheckboxGroup(

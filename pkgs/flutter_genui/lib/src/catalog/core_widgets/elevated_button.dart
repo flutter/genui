@@ -39,6 +39,7 @@ final elevatedButton = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
