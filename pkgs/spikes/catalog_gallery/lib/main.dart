@@ -103,7 +103,9 @@ class _CatalogViewState extends State<CatalogView> {
           subtitle: GenUiSurface(
             manager: _genUi,
             surfaceId: surfaceId,
-            onEvent: (event) {},
+            onEvent: (event) {
+              print('Event received: $event');
+            },
           ),
         );
       },
