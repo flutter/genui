@@ -58,10 +58,7 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
     final surfaceId = args['surfaceId'] as String;
     final definition = args['definition'] as JsonMap;
     manager.addOrUpdateSurface(surfaceId, definition);
-    return {
-      'surfaceId': surfaceId,
-      'definition': definition,
-    };
+    return {'surfaceId': surfaceId, 'definition': definition};
   }
 }
 

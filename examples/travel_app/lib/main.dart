@@ -167,6 +167,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         required: ['result'],
       ),
     );
+    if (result == null) {
+      return;
+    }
     final value =
         (result as Map).cast<String, Object?>()['message'] as String? ?? '';
     if (value.isNotEmpty) {
