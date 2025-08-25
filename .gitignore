@@ -36,6 +36,7 @@ DEPS.md
 **/GeneratedPluginRegistrant.*
 **/generated_plugin_registrant.*
 **/Podfile
+**/Runner-Bridging-Header.h
 
 # Symbolication related
 app.*.symbols
