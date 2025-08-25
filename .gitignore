@@ -5,7 +5,6 @@
 
 # Miscellaneous
 *.class
-*.log
 *.pyc
 *.swp
 .DS_Store
@@ -16,7 +15,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-firepit-log.txt
+**/firepit-log.txt
+**/pglite-debug.log
 
 # Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
