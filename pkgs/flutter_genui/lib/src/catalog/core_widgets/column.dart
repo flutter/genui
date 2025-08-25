@@ -4,6 +4,7 @@
 
 // ignore_for_file: avoid_dynamic_calls
 import 'dart:convert';
+import 'dart:io';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -126,5 +127,6 @@ final column = CatalogItem(
           children: childrenWithSpacing,
         );
       },
-  exampleData: jsonDecode() as JsonMap,
+  exampleData: {},
+  // jsonDecode(File('column_example.json').readAsStringSync()) as JsonMap,
 );
