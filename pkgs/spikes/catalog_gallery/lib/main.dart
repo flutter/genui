@@ -73,7 +73,13 @@ class CatalogView extends StatelessWidget {
           .map(
             (CatalogItem item) => ListTile(
               title: Text(item.name),
-              subtitle: Text(item.exampleData.toString()),
+              subtitle: item.widgetBuilder(
+                context: context,
+                data: item.exampleData!,
+                id: item.name,
+                buildChild: (String id) => const SizedBox.shrink(),
+                dispatchEvent: (UiEvent event) {},
+              ),
             ),
           )
           .toList(),

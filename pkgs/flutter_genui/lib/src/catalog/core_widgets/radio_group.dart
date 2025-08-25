@@ -106,20 +106,24 @@ final radioGroup = CatalogItem(
         required context,
       }) {
         final radioData = _RadioGroupData.fromMap(data as Map<String, Object?>);
-        return _RadioGroup(
-          initialGroupValue: radioData.groupValue,
-          labels: radioData.labels,
-          onChanged: (newValue) {
-            if (newValue != null) {
-              dispatchEvent(
-                UiChangeEvent(
-                  widgetId: id,
-                  eventType: 'onChanged',
-                  value: newValue,
-                ),
-              );
-            }
-          },
+        return Column(
+          children: [
+            _RadioGroup(
+              initialGroupValue: radioData.groupValue,
+              labels: radioData.labels,
+              onChanged: (newValue) {
+                if (newValue != null) {
+                  dispatchEvent(
+                    UiChangeEvent(
+                      widgetId: id,
+                      eventType: 'onChanged',
+                      value: newValue,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
         );
       },
 );
