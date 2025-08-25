@@ -84,9 +84,7 @@ class _CatalogViewState extends State<CatalogView> {
     for (final item in items) {
       final data = item.exampleData!;
       final surfaceId = item.name;
-      print('!!!! $surfaceId');
       _genUi.surfaceManager.addOrUpdateSurface(surfaceId, data);
-      print('!!!! $surfaceId done');
       surfaceIds.add(surfaceId);
     }
   }
@@ -98,7 +96,10 @@ class _CatalogViewState extends State<CatalogView> {
       itemBuilder: (BuildContext context, int index) {
         final surfaceId = surfaceIds[index];
         return ListTile(
-          title: Text(surfaceId),
+          title: Text(
+            '$surfaceId:',
+            style: const TextStyle(decoration: TextDecoration.underline),
+          ),
           subtitle: GenUiSurface(
             manager: _genUi,
             surfaceId: surfaceId,
