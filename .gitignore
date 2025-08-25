@@ -1,3 +1,8 @@
+# These files are regularly auto-updated, but they should not be ignored:
+# **/project.pbxproj
+# **/settings.gradle.kts
+# **/build.gradle.kts
+
 # Miscellaneous
 *.class
 *.log
@@ -38,7 +43,6 @@ DEPS.md
 **/Podfile
 **/Podfile.lock
 **/Runner-Bridging-Header.h
-**/project.pbxproj
 **/contents.xcworkspacedata
 
 # Symbolication related
