@@ -67,22 +67,42 @@ class CatalogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: catalog.items
-          .where((CatalogItem item) => item.exampleData != null)
-          .map(
-            (CatalogItem item) => ListTile(
-              title: Text(item.name),
-              subtitle: item.widgetBuilder(
-                context: context,
-                data: item.exampleData!,
-                id: item.name,
-                buildChild: (String id) => const SizedBox.shrink(),
-                dispatchEvent: (UiEvent event) {},
-              ),
-            ),
-          )
-          .toList(),
+    final items = catalog.items.where(
+      (CatalogItem item) => item.exampleData != null,
     );
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (BuildContext context, int index) {
+        final item = items.elementAt(index);
+        final data =
+        return ListTile(
+          title: Text(item.name),
+          subtitle: item.widgetBuilder(
+            context: context,
+            data: item.exampleData!,
+            id: item.name,
+            buildChild: (String id) => const SizedBox.shrink(),
+            dispatchEvent: (UiEvent event) {},
+          ),
+        );
+      },
+    );
+    // return ListView(
+    //   children: catalog.items
+    //       .where((CatalogItem item) => item.exampleData != null)
+    //       .map(
+    //         (CatalogItem item) => ListTile(
+    //           title: Text(item.name),
+    //           subtitle: item.widgetBuilder(
+    //             context: context,
+    //             data: item.exampleData!,
+    //             id: item.name,
+    //             buildChild: (String id) => const SizedBox.shrink(),
+    //             dispatchEvent: (UiEvent event) {},
+    //           ),
+    //         ),
+    //       )
+    //       .toList(),
+    // );
   }
 }
