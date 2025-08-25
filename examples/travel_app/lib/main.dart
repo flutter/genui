@@ -149,15 +149,24 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 
   Future<void> _triggerInference() async {
-    await _aiClient.generateContent(List.of(_conversation), Schema.object());
+    await _aiClient.generateContent(
+      _conversation,
+      S.boolean(description: 'Successfully generated a response UI.'),
+    );
   }
 
   void _onUiEvents(String surfaceId, List<UiEvent> events) {
     final actionEvent = events.firstWhere((e) => e.isAction);
     final message = StringBuffer(
       'The user triggered the "${actionEvent.eventType}" event on widget '
-      '"${actionEvent.widgetId}".',
+      '"${actionEvent.widgetId}"',
     );
+    final value = actionEvent.value;
+    if (value is String && value.isNotEmpty) {
+      message.write(' with value "$value"');
+    }
+    message.write('.');
+
     final changeEvents = events.where((e) => !e.isAction).toList();
     if (changeEvents.isNotEmpty) {
       message.writeln(' Current values of other widgets:');
