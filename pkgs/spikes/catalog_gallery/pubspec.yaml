@@ -17,10 +17,10 @@ dependencies:
     path: ../../../examples/travel_app
 
 dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
 
-  dart_flutter_team_lints: ^3.5.2
 
 flutter:
   uses-material-design: true
