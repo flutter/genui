@@ -60,49 +60,52 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class CatalogView extends StatelessWidget {
+class CatalogView extends StatefulWidget {
   const CatalogView({super.key, required this.catalog});
 
   final Catalog catalog;
 
   @override
-  Widget build(BuildContext context) {
-    final items = catalog.items.where(
+  State<CatalogView> createState() => _CatalogViewState();
+}
+
+class _CatalogViewState extends State<CatalogView> {
+  final _genUi = GenUiManager();
+  final surfaceIds = <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final items = widget.catalog.items.where(
       (CatalogItem item) => item.exampleData != null,
     );
+
+    for (final item in items) {
+      final data = item.exampleData!;
+      final surfaceId = item.name;
+      print('!!!! $surfaceId');
+      _genUi.surfaceManager.addOrUpdateSurface(surfaceId, data);
+      print('!!!! $surfaceId done');
+      surfaceIds.add(surfaceId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: items.length,
+      itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
-        final item = items.elementAt(index);
-        final data =
+        final surfaceId = surfaceIds[index];
         return ListTile(
-          title: Text(item.name),
-          subtitle: item.widgetBuilder(
-            context: context,
-            data: item.exampleData!,
-            id: item.name,
-            buildChild: (String id) => const SizedBox.shrink(),
-            dispatchEvent: (UiEvent event) {},
+          title: Text(surfaceId),
+          subtitle: GenUiSurface(
+            manager: _genUi,
+            surfaceId: surfaceId,
+            onEvent: (event) {},
           ),
         );
       },
     );
-    // return ListView(
-    //   children: catalog.items
-    //       .where((CatalogItem item) => item.exampleData != null)
-    //       .map(
-    //         (CatalogItem item) => ListTile(
-    //           title: Text(item.name),
-    //           subtitle: item.widgetBuilder(
-    //             context: context,
-    //             data: item.exampleData!,
-    //             id: item.name,
-    //             buildChild: (String id) => const SizedBox.shrink(),
-    //             dispatchEvent: (UiEvent event) {},
-    //           ),
-    //         ),
-    //       )
-    //       .toList(),
-    // );
   }
 }
