@@ -35,6 +35,7 @@ DEPS.md
 generated_plugins.cmake
 GeneratedPluginRegistrant.*
 generated_plugin_registrant.*
+Podfile
 
 # Symbolication related
 app.*.symbols
