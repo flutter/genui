@@ -65,9 +65,10 @@ class SurfaceManager {
   /// The catalog of UI components that can be used to build the UI.
   final Catalog catalog;
 
+  final values = <String, String>{};
+
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
-  final _values = <String, String>{};
 
   /// A map of the current UI surfaces.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
