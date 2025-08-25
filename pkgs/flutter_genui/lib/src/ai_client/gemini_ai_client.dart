@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import '../model/chat_message.dart';
 import '../model/tools.dart';
 import '../primitives/logging.dart';
+import '../primitives/simple_items.dart';
 import 'ai_client.dart';
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';
@@ -386,7 +387,7 @@ class GeminiAiClient implements AiClient {
   }) {
     // Create an "output" tool that copies its args into the output.
     final finalOutputAiTool = isForcedToolCalling
-        ? DynamicAiTool<Map<String, Object?>>(
+        ? DynamicAiTool<Json>(
             name: outputToolName,
             description:
                 '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
@@ -478,8 +479,7 @@ class GeminiAiClient implements AiClient {
     for (final call in functionCalls) {
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
-          capturedResult =
-              (call.args['parameters'] as Map<String, Object?>)['output'];
+          capturedResult = (call.args['parameters'] as Json)['output'];
         } catch (exception, stack) {
           genUiLogger.severe(
             'Unable to read output: $call [${call.args}]',
@@ -499,7 +499,7 @@ class GeminiAiClient implements AiClient {
         orElse: () =>
             throw AiClientException('Unknown tool ${call.name} called.'),
       );
-      Map<String, Object?> toolResult;
+      Json toolResult;
       try {
         toolResult = await aiTool.invoke(call.args);
         genUiLogger.info(

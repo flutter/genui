@@ -10,6 +10,7 @@ import '../core/genui_manager.dart';
 import '../core/surface_manager.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
+import '../primitives/simple_items.dart';
 
 /// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
@@ -124,7 +125,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     }
 
     return widget.manager.catalog.buildWidget(
-      data as Map<String, Object?>,
+      data as Json,
       (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,
       context,

@@ -5,13 +5,14 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 
 import '../model/tools.dart';
+import '../primitives/simple_items.dart';
 import 'surface_manager.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
 ///
 /// This tool allows the AI to create a new UI surface or update an existing
 /// one with a new definition.
-class AddOrUpdateSurfaceTool extends AiTool<Map<String, Object?>> {
+class AddOrUpdateSurfaceTool extends AiTool<Json> {
   /// Creates an [AddOrUpdateSurfaceTool].
   AddOrUpdateSurfaceTool(this.manager)
     : super(
@@ -53,9 +54,9 @@ class AddOrUpdateSurfaceTool extends AiTool<Map<String, Object?>> {
   final SurfaceManager manager;
 
   @override
-  Future<Map<String, Object?>> invoke(Map<String, Object?> args) async {
+  Future<Json> invoke(Json args) async {
     final surfaceId = args['surfaceId'] as String;
-    final definition = args['definition'] as Map<String, Object?>;
+    final definition = args['definition'] as Json;
     manager.addOrUpdateSurface(surfaceId, definition);
     return {'status': 'ok'};
   }
@@ -64,7 +65,7 @@ class AddOrUpdateSurfaceTool extends AiTool<Map<String, Object?>> {
 /// An [AiTool] for deleting a UI surface.
 ///
 /// This tool allows the AI to remove a UI surface that is no longer needed.
-class DeleteSurfaceTool extends AiTool<Map<String, Object?>> {
+class DeleteSurfaceTool extends AiTool<Json> {
   /// Creates a [DeleteSurfaceTool].
   DeleteSurfaceTool(this.manager)
     : super(
@@ -85,7 +86,7 @@ class DeleteSurfaceTool extends AiTool<Map<String, Object?>> {
   final SurfaceManager manager;
 
   @override
-  Future<Map<String, Object?>> invoke(Map<String, Object?> args) async {
+  Future<Json> invoke(Json args) async {
     final surfaceId = args['surfaceId'] as String;
     manager.deleteSurface(surfaceId);
     return {'status': 'ok'};

@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 
 import '../model/chat_message.dart';
+import '../primitives/simple_items.dart';
 import 'ai_client.dart';
 
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
@@ -80,7 +81,7 @@ class GeminiContentConverter {
               part.callId,
               // The result from ToolResultPart is a JSON string, but
               // FunctionResponse expects a Map.
-              jsonDecode(part.result) as Map<String, Object?>,
+              jsonDecode(part.result) as Json,
             ),
           );
         case ThinkingPart():

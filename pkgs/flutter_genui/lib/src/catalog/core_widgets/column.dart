@@ -8,6 +8,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -40,7 +41,7 @@ final _schema = S.object(
   },
 );
 
-extension type _ColumnData.fromMap(Map<String, Object?> _json) {
+extension type _ColumnData.fromMap(Json _json) {
   factory _ColumnData({
     List<String> children = const [],
     double? spacing,
@@ -105,7 +106,7 @@ final column = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final columnData = _ColumnData.fromMap(data as Map<String, Object?>);
+        final columnData = _ColumnData.fromMap(data as Json);
         final childrenIds = columnData.children;
         final spacing = columnData.spacing;
         final childrenWithSpacing = <Widget>[];

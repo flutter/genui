@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import '../model/catalog.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
+import '../primitives/simple_items.dart';
 import 'core_catalog.dart';
 
 /// A sealed class representing an update to the UI managed by [SurfaceManager].
@@ -86,7 +87,7 @@ class SurfaceManager {
   /// Adds or updates a UI surface.
   ///
   /// This method is called to update the UI.
-  void addOrUpdateSurface(String surfaceId, Map<String, Object?> definition) {
+  void addOrUpdateSurface(String surfaceId, Json definition) {
     final uiDefinition = UiDefinition.fromMap({
       'surfaceId': surfaceId,
       ...definition,

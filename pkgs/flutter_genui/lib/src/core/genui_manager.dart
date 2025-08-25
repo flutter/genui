@@ -8,6 +8,7 @@ import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
+import '../primitives/simple_items.dart';
 import 'surface_manager.dart';
 import 'ui_tools.dart';
 
@@ -42,7 +43,7 @@ class GenUiManager {
     surfaceManager.dispose();
   }
 
-  void addOrUpdateSurface(String s, Map<String, Object?> definition) =>
+  void addOrUpdateSurface(String s, Json definition) =>
       surfaceManager.addOrUpdateSurface(s, definition);
 
   void deleteSurface(String s) => surfaceManager.deleteSurface(s);
