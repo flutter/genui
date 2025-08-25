@@ -45,7 +45,7 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Catalog items that has "example" field set'),
+          title: const Text('Catalog items that has "exampleData" field set'),
           bottom: TabBar(
             tabs: catalogs.keys.map((String key) => Tab(text: key)).toList(),
           ),
@@ -67,6 +67,16 @@ class CatalogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    return ListView(
+      children: catalog.items
+          .where((CatalogItem item) => item.exampleData != null)
+          .map(
+            (CatalogItem item) => ListTile(
+              title: Text(item.name),
+              subtitle: Text(item.exampleData.toString()),
+            ),
+          )
+          .toList(),
+    );
   }
 }
