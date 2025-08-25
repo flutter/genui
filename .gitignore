@@ -13,6 +13,9 @@
 migrate_working_dir/
 firepit-log.txt
 
+# Diagrams, produced by https://pub.dev/packages/layerlens.
+DEPS.md
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -29,6 +32,9 @@ firepit-log.txt
 **/build/
 **/coverage/
 **/pubspec.lock
+generated_plugins.cmake
+GeneratedPluginRegistrant.*
+generated_plugin_registrant.*
 
 # Symbolication related
 app.*.symbols
