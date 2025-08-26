@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:simple_chat/message.dart';
 import 'firebase_options.dart';
@@ -119,6 +119,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) {
       return;
     }
+
+    await _uiAgent.sendRequest(UserMessage([TextPart(text)]));
 
     setState(() {
       _messages.add(MessageController(text: 'You: $text'));
