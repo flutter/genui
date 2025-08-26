@@ -55,6 +55,7 @@ void main() {
       final addedUpdate = update as SurfaceAdded;
       expect(addedUpdate.definition, isNotNull);
       expect(addedUpdate.definition.root, 'root');
+      expect(addedUpdate.controller, isNotNull);
       expect(manager.surface('s1').value, isNotNull);
       expect(manager.surface('s1').value!.root, 'root');
     });

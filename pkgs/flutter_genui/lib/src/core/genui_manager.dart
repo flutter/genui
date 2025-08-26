@@ -14,6 +14,7 @@ import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'core_catalog.dart';
 import 'ui_tools.dart';
+import 'surface_controller.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -31,10 +32,13 @@ sealed class GenUiUpdate {
 class SurfaceAdded extends GenUiUpdate {
   /// Creates a [SurfaceAdded] event for the given [surfaceId] and
   /// [definition].
-  const SurfaceAdded(super.surfaceId, this.definition);
+  const SurfaceAdded(super.surfaceId, this.definition, this.controller);
 
   /// The definition of the new surface.
   final UiDefinition definition;
+
+  /// The controller for the new surface.
+  final SurfaceController controller;
 }
 
 /// Fired when an existing surface is modified.
@@ -60,6 +64,7 @@ class GenUiManager {
   final _updates = StreamController<GenUiUpdate>.broadcast();
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
+  final _controllers = <String, SurfaceController>{};
 
   Stream<GenUiUpdate> get updates => _updates.stream;
 
@@ -100,7 +105,12 @@ class GenUiManager {
     notifier.value = uiDefinition;
     if (isNew) {
       genUiLogger.info('Adding surface $surfaceId');
-      _updates.add(SurfaceAdded(surfaceId, uiDefinition));
+      final controller = SurfaceController(
+        definitionNotifier: notifier,
+        catalog: catalog,
+      );
+      _controllers[surfaceId] = controller;
+      _updates.add(SurfaceAdded(surfaceId, uiDefinition, controller));
     } else {
       genUiLogger.info('Updating surface $surfaceId');
       _updates.add(SurfaceUpdated(surfaceId, uiDefinition));
@@ -111,6 +121,7 @@ class GenUiManager {
     if (_surfaces.containsKey(surfaceId)) {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);
+      _controllers.remove(surfaceId);
       notifier?.dispose();
       _updates.add(SurfaceRemoved(surfaceId));
     }

@@ -13,6 +13,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(catalog: testCatalog);
+    final addOrUpdateSurfaceTool = manager
+        .getTools()
+        .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
     final definition = {
       'root': 'root',
       'widgets': [
@@ -30,7 +33,10 @@ void main() {
         },
       ],
     };
-    manager.addOrUpdateSurface('testSurface', definition);
+    await addOrUpdateSurfaceTool.invoke({
+      'surfaceId': 'testSurface',
+      'definition': definition,
+    });
 
     await tester.pumpWidget(
       MaterialApp(
@@ -49,6 +55,9 @@ void main() {
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
     UiEvent? event;
     final manager = GenUiManager(catalog: testCatalog);
+    final addOrUpdateSurfaceTool = manager
+        .getTools()
+        .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
     final definition = {
       'root': 'root',
       'widgets': [
@@ -66,7 +75,10 @@ void main() {
         },
       ],
     };
-    manager.addOrUpdateSurface('testSurface', definition);
+    await addOrUpdateSurfaceTool.invoke({
+      'surfaceId': 'testSurface',
+      'definition': definition,
+    });
 
     await tester.pumpWidget(
       MaterialApp(

@@ -109,7 +109,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _genUiManager.updates.listen((update) {
       setState(() {
         switch (update) {
-          case SurfaceAdded(:final surfaceId, :final definition):
+          case SurfaceAdded(:final surfaceId, :final definition, :final controller):
             _conversation.add(
               UiResponseMessage(
                 definition: {

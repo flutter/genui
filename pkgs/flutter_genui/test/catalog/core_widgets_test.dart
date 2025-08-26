@@ -23,7 +23,13 @@ void main() {
       UiEventCallback onEvent,
     ) async {
       final manager = GenUiManager(catalog: testCatalog);
-      manager.addOrUpdateSurface('testSurface', definition);
+      final addOrUpdateSurfaceTool = manager
+          .getTools()
+          .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 'testSurface',
+        'definition': definition,
+      });
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

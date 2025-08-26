@@ -46,7 +46,7 @@ class GenUiChatController {
   void _onUpdate(GenUiUpdate update) {
     final currentConversation = _conversation.value;
     switch (update) {
-      case SurfaceAdded(:final surfaceId, :final definition):
+      case SurfaceAdded(:final surfaceId, :final definition, :final controller):
         if (!_surfaceIds.contains(surfaceId)) {
           _surfaceIds.add(surfaceId);
           _conversation.value = [
