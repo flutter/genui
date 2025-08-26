@@ -1,4 +1,5 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../flutter_genui.dart';
@@ -21,6 +22,7 @@ class UiAgent {
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
   final ValueChanged<SurfaceUpdated>? onSurfaceUpdated;
   final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
+  // ValueListenable<bool> get isProcessing => _genUiManager.isProcessing;
 
   final GenUiManager _genUiManager;
   late final AiClient _aiClient;
