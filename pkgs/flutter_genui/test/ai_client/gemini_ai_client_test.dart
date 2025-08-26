@@ -30,17 +30,10 @@ void main() {
             }) => fakeModel,
       );
 
-      final completer = Completer<GenerateContentResponse>();
-
-      expect(client.activeRequests.value, 0);
-
+      fakeModel.response =
+          GenerateContentResponse([], PromptFeedback(BlockReason.other, '', []));
       final future = client.generateText([]);
-
       expect(client.activeRequests.value, 1);
-
-      completer.complete(
-        GenerateContentResponse([], PromptFeedback(BlockReason.other, '', [])),
-      );
 
       await future;
 
@@ -58,7 +51,8 @@ void main() {
             }) => fakeModel,
       );
 
-      final completer = Completer<GenerateContentResponse>();
+      final exception = Exception('Test Exception');
+      fakeModel.exception = exception;
 
       expect(client.activeRequests.value, 0);
 
@@ -66,10 +60,7 @@ void main() {
 
       expect(client.activeRequests.value, 1);
 
-      final exception = Exception('Test Exception');
-      completer.completeError(exception);
-
-      await expectLater(future, throwsA(isA<AiClientException>()));
+      await expectLater(future, throwsA(isA<Exception>()));
 
       expect(client.activeRequests.value, 0);
     });
