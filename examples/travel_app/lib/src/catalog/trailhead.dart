@@ -42,6 +42,7 @@ final trailhead = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final trailheadData = _TrailheadData.fromMap(
           data as Map<String, Object?>,

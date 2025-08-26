@@ -31,6 +31,7 @@ void main() {
                   (_) => const SizedBox(),
                   (UiEvent event) {},
                   context,
+                  {},
                 );
                 expect(widget, isA<Text>());
                 expect((widget as Text).data, 'hello');
@@ -73,6 +74,7 @@ void main() {
                   (_) => const SizedBox(),
                   (UiEvent event) {},
                   context,
+                  {},
                 );
                 expect(widget, isA<Container>());
                 return widget;

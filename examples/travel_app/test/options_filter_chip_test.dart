@@ -39,6 +39,7 @@ void main() {
                     dispatchedEvent = event;
                   },
                   context: context,
+                  values: {},
                 );
               },
             ),
@@ -102,6 +103,7 @@ void main() {
                     dispatchedEvent = event;
                   },
                   context: context,
+                  values: {},
                 );
               },
             ),

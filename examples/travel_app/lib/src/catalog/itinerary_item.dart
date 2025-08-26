@@ -64,6 +64,7 @@ final itineraryItem = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final itineraryItemData = _ItineraryItemData.fromMap(
           data as Map<String, Object?>,

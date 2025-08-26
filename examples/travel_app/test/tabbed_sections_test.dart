@@ -45,6 +45,7 @@ void main() {
                         buildChild: mockBuildChild,
                         dispatchEvent: (event) {},
                         context: context,
+                        values: {},
                       );
                     },
                   ),
@@ -106,6 +107,7 @@ void main() {
                       buildChild: mockBuildChild,
                       dispatchEvent: (event) {},
                       context: context,
+                      values: {},
                     );
                   },
                 ),

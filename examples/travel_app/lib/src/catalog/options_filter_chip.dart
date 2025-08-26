@@ -69,6 +69,7 @@ final optionsFilterChip = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final optionsFilterChipData = _OptionsFilterChipData.fromMap(
           data as Map<String, Object?>,

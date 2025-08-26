@@ -33,6 +33,7 @@ void main() {
                       dispatchedEvent = event;
                     },
                     context: context,
+                    values: {},
                   );
                 },
               ),
@@ -70,6 +71,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (UiEvent _) {},
                   context: context,
+                  values: {},
                 );
               },
             ),

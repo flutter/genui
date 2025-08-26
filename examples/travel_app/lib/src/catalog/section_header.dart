@@ -43,6 +43,7 @@ final sectionHeader = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final sectionHeaderData = _SectionHeaderData.fromMap(
           data as Map<String, Object?>,

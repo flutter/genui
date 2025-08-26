@@ -26,6 +26,7 @@ void main() {
                 buildChild: (String id) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 context: context,
+                values: {},
               ),
             ),
           ),

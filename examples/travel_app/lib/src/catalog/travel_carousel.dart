@@ -47,6 +47,7 @@ final travelCarousel = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final items = _TravelCarouselItemListData.fromMap(
           (data as Map).cast<String, Object?>(),

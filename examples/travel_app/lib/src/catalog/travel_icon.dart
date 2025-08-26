@@ -47,6 +47,7 @@ final travelIcon = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final props = data as Map<String, Object?>;
         try {
