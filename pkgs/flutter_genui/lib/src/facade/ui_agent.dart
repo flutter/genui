@@ -44,14 +44,14 @@ class UiAgent {
       });
 
   void _onActivityUpdates() {
-    _activeRequests.value = _aiClient.activeRequests.value > 0;
+    _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
 
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
   final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
 
-  ValueListenable<bool> get activeRequests => _activeRequests;
-  final ValueNotifier<bool> _activeRequests = ValueNotifier(false);
+  ValueListenable<bool> get isProcessing => _isProcessing;
+  final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
     return _genUiManager.surface(surfaceId);

@@ -20,7 +20,7 @@ class ChatMessage extends StatefulWidget {
 }
 
 class _ChatMessageState extends State<ChatMessage> {
-  late final ValueNotifier<UiDefinition?> _definition;
+  late final ValueNotifier<UiDefinition?>? _definition;
 
   @override
   void didUpdateWidget(covariant ChatMessage oldWidget) {
@@ -47,18 +47,14 @@ class _ChatMessageState extends State<ChatMessage> {
 
   @override
   Widget build(BuildContext context) {
-    // final builder = widget.controller.genUiResponse?.builder;
-    // if (builder == null) {
-    //   return Text(widget.controller.text ?? '');
-    // }
+    final surfaceId = widget.controller.surfaceId;
 
-    // return builder(
-    //   selection: widget.controller.selection,
-    //   context: context,
-    //   onChanged: (selection) =>
-    //       setState(() => widget.controller.selection = selection),
-    //   onSubmitted: widget.onSubmitted,
-    // );
-    throw UnimplementedError();
+    if (surfaceId == null) return Text(widget.controller.text ?? '');
+
+    return GenUiSurface(
+      manager: manager,
+      surfaceId: surfaceId,
+      onEvent: onEvent,
+    );
   }
 }
