@@ -22,7 +22,7 @@ void main() {
 
       final tool = AddOrUpdateSurfaceTool(
         onAddOrUpdate: fakeOnAddOrUpdate,
-        catalog: Catalog.custom([]),
+        catalog: Catalog.create([]),
       );
 
       final args = {

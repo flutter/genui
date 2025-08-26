@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Core Widgets', () {
-    final testCatalog = Catalog.custom([
+    final testCatalog = Catalog.create([
       elevatedButton,
       text,
       checkboxGroup,

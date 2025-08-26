@@ -26,7 +26,7 @@ class Catalog {
   const Catalog._(this.items);
 
   /// Creates a new catalog with the given list of [items].
-  factory Catalog.custom(List<CatalogItem> items) {
+  factory Catalog.create(List<CatalogItem> items) {
     return Catalog._(items);
   }
 
