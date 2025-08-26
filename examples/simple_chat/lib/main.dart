@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -36,9 +37,21 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<String> _messages = [];
+  final UiAgent _uiAgent = UiAgent(
+    'You are a helpful assistant.',
+    catalog: null,
+    onSurfaceAdded: _onSurfaceAdded,
+    onSurfaceRemoved: _onSurfaceRemoved,
+  );
   final FirebaseAIService _aiService = FirebaseAIService();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
+
+  static ValueChanged<SurfaceAdded>? get _onSurfaceAdded =>
+      (surface) => print('Surface added: $surface');
+
+  static ValueChanged<SurfaceRemoved>? get _onSurfaceRemoved =>
+      (surface) => print('Surface removed: $surface');
 
   @override
   Widget build(BuildContext context) {

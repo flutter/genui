@@ -18,12 +18,11 @@ class UiAgent {
   // This class limits functionality of the GenUi package.
   // with the plan to gradually extend it.
   UiAgent(
-    String instruction,
+    String instruction, {
     Catalog? catalog,
     this.onSurfaceAdded,
-    this.onSurfaceUpdated,
     this.onSurfaceRemoved,
-  ) : _genUiManager = GenUiManager(catalog: catalog) {
+  }) : _genUiManager = GenUiManager(catalog: catalog) {
     _aiClient = GeminiAiClient(
       systemInstruction: '$instruction\n\n$_technicalPrompt',
       tools: _genUiManager.getTools(),
@@ -38,15 +37,12 @@ class UiAgent {
       .listen((update) {
         if (update is SurfaceAdded) {
           onSurfaceAdded?.call(update);
-        } else if (update is SurfaceUpdated) {
-          onSurfaceUpdated?.call(update);
         } else if (update is SurfaceRemoved) {
           onSurfaceRemoved?.call(update);
         }
       });
 
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
-  final ValueChanged<SurfaceUpdated>? onSurfaceUpdated;
   final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
 
   ValueListenable<int> get activeRequests => _aiClient.activeRequests;
