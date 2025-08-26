@@ -68,7 +68,8 @@ class UiAgent {
     return _genUiManager.surface(surfaceId);
   }
 
-  //  TODO: listen for conversation updates from surfaces
+  // TODO: listen for conversation updates from surfaces,
+  // and add them to the conversation history.
 
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
