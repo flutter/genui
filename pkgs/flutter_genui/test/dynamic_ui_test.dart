@@ -38,12 +38,11 @@ void main() {
       'definition': definition,
     });
 
+    final controller = manager.controllers['testSurface']!;
     await tester.pumpWidget(
       MaterialApp(
         home: GenUiSurface(
-          manager: manager,
-          surfaceId: 'testSurface',
-          onEvent: (event) {},
+          controller: controller,
         ),
       ),
     );
@@ -80,14 +79,14 @@ void main() {
       'definition': definition,
     });
 
+    final controller = manager.controllers['testSurface']!;
+    controller.onEvent = (e) {
+      event = e;
+    };
     await tester.pumpWidget(
       MaterialApp(
         home: GenUiSurface(
-          manager: manager,
-          surfaceId: 'testSurface',
-          onEvent: (e) {
-            event = e;
-          },
+          controller: controller,
         ),
       ),
     );

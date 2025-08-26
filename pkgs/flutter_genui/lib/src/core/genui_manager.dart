@@ -64,6 +64,7 @@ class GenUiManager {
   final _updates = StreamController<GenUiUpdate>.broadcast();
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
+  Map<String, SurfaceController> get controllers => _controllers;
   final _controllers = <String, SurfaceController>{};
 
   Stream<GenUiUpdate> get updates => _updates.stream;
