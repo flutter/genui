@@ -39,7 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
   // TODO: pass model from FirebaseAIService
-  final UiAgent _uiAgent = UiAgent(
+  late final UiAgent _uiAgent = UiAgent(
     'You are a helpful assistant.',
     catalog: null,
     onSurfaceAdded: _onSurfaceAdded,
@@ -47,11 +47,13 @@ class _ChatScreenState extends State<ChatScreen> {
   );
   final ScrollController _scrollController = ScrollController();
 
-  static ValueChanged<SurfaceAdded>? get _onSurfaceAdded =>
-      (surface) => print('Surface added: $surface');
+  void _onSurfaceAdded(SurfaceAdded surface) {
+    _messages.add(MessageController(surfaceId: surface.surfaceId));
+  }
 
-  static ValueChanged<SurfaceRemoved>? get _onSurfaceRemoved =>
-      (surface) => print('Surface removed: $surface');
+  void _onSurfaceRemoved(SurfaceRemoved surface) {
+    _messages.removeWhere((message) => message.surfaceId == surface.surfaceId);
+  }
 
   @override
   Widget build(BuildContext context) {
