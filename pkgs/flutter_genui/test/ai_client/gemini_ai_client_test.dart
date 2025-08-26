@@ -40,7 +40,7 @@ void main() {
       completer.complete(
         GenerateContentResponse(
           [],
-          promptFeedback: PromptFeedback(blockReason: BlockReason.unspecified),
+          PromptFeedback(BlockReason.other, '', []),
         ),
       );
 
@@ -73,7 +73,7 @@ void main() {
       final exception = Exception('Test Exception');
       completer.completeError(exception);
 
-      await expectLater(future, throwsA(isA<Exception>()));
+      await expectLater(future, throwsA(isA<AiClientException>()));
 
       expect(client.activeRequests.value, 0);
     });
