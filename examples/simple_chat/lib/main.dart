@@ -37,7 +37,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final List<MessageViewController> _messages = [];
+  final List<MessageController> _messages = [];
   final UiAgent _uiAgent = UiAgent(
     'You are a helpful assistant.',
     catalog: null,

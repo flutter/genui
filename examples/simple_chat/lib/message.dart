@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-class MessageViewController {
-  MessageViewController({this.text, this.surfaceId})
+class MessageController {
+  MessageController({this.text, this.surfaceId})
     : assert((surfaceId == null) != (text == null));
 
   final String? text;
@@ -12,7 +12,7 @@ class MessageViewController {
 class MessageView extends StatefulWidget {
   const MessageView(this.controller, this.builder, {super.key});
 
-  final MessageViewController controller;
+  final MessageController controller;
   final SurfaceBuilder builder;
 
   @override
