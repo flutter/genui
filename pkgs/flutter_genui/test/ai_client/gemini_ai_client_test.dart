@@ -7,17 +7,19 @@ import 'dart:async';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
-import 'package:flutter_genui/src/ai_client/gemini_generative_model.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
-class MockGeminiGenerativeModel extends Mock
-    implements GeminiGenerativeModelInterface {}
+import '../test_infra/utils.dart';
 
 void main() {
   group('GeminiAiClient', () {
+    late FakeGenerativeModel fakeModel;
+
+    setUp(() {
+      fakeModel = FakeGenerativeModel();
+    });
+
     test('activeRequests increments and decrements correctly', () async {
-      final mockModel = MockGeminiGenerativeModel();
       final client = GeminiAiClient(
         modelCreator:
             ({
@@ -25,11 +27,10 @@ void main() {
               Content? systemInstruction,
               List<Tool>? tools,
               ToolConfig? toolConfig,
-            }) => mockModel,
+            }) => fakeModel,
       );
 
       final completer = Completer<GenerateContentResponse>();
-      when(mockModel.generateContent(any)).thenAnswer((_) => completer.future);
 
       expect(client.activeRequests.value, 0);
 
@@ -47,7 +48,6 @@ void main() {
     });
 
     test('activeRequests decrements on error', () async {
-      final mockModel = MockGeminiGenerativeModel();
       final client = GeminiAiClient(
         modelCreator:
             ({
@@ -55,11 +55,10 @@ void main() {
               Content? systemInstruction,
               List<Tool>? tools,
               ToolConfig? toolConfig,
-            }) => mockModel,
+            }) => fakeModel,
       );
 
       final completer = Completer<GenerateContentResponse>();
-      when(mockModel.generateContent(any)).thenAnswer((_) => completer.future);
 
       expect(client.activeRequests.value, 0);
 
