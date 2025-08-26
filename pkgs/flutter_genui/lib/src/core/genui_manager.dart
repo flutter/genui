@@ -67,8 +67,10 @@ class GenUiManager implements SurfaceBuilder {
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
+  @override
   Stream<GenUiUpdate> get updates => _updates.stream;
 
+  @override
   final Catalog catalog;
 
   /// Returns a list of [AiTool]s that can be used to manipulate the UI.
@@ -85,6 +87,7 @@ class GenUiManager implements SurfaceBuilder {
     ];
   }
 
+  @override
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
     return _surfaces.putIfAbsent(surfaceId, () => ValueNotifier(null));
   }
