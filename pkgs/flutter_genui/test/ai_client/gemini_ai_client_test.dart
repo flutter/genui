@@ -19,13 +19,13 @@ void main() {
     test('activeRequests increments and decrements correctly', () async {
       final mockModel = MockGeminiGenerativeModel();
       final client = GeminiAiClient(
-        modelCreator: ({
-          required GeminiAiClient configuration,
-          Content? systemInstruction,
-          List<Tool>? tools,
-          ToolConfig? toolConfig,
-        }) =>
-            mockModel,
+        modelCreator:
+            ({
+              required GeminiAiClient configuration,
+              Content? systemInstruction,
+              List<Tool>? tools,
+              ToolConfig? toolConfig,
+            }) => mockModel,
       );
 
       final completer = Completer<GenerateContentResponse>();
@@ -38,10 +38,7 @@ void main() {
       expect(client.activeRequests.value, 1);
 
       completer.complete(
-        GenerateContentResponse(
-          [],
-          PromptFeedback(BlockReason.other, '', []),
-        ),
+        GenerateContentResponse([], PromptFeedback(BlockReason.other, '', [])),
       );
 
       await future;
@@ -52,13 +49,13 @@ void main() {
     test('activeRequests decrements on error', () async {
       final mockModel = MockGeminiGenerativeModel();
       final client = GeminiAiClient(
-        modelCreator: ({
-          required GeminiAiClient configuration,
-          Content? systemInstruction,
-          List<Tool>? tools,
-          ToolConfig? toolConfig,
-        }) =>
-            mockModel,
+        modelCreator:
+            ({
+              required GeminiAiClient configuration,
+              Content? systemInstruction,
+              List<Tool>? tools,
+              ToolConfig? toolConfig,
+            }) => mockModel,
       );
 
       final completer = Completer<GenerateContentResponse>();
