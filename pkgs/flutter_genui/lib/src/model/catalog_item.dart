@@ -26,7 +26,9 @@ typedef CatalogWidgetBuilder =
       required ChildBuilderCallback buildChild,
       // A function used to dispatch an event.
       required DispatchEventCallback dispatchEvent,
+
       required BuildContext context,
+      // The current values of all widgets.
       required ValueStore values,
     });
 

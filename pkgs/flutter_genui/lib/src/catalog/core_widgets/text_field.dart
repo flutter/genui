@@ -109,6 +109,7 @@ final textField = CatalogItem(
           hintText: textFieldData.hintText,
           obscureText: textFieldData.obscureText,
           onChanged: (newValue) {
+            values[id] = newValue;
             dispatchEvent(
               UiChangeEvent(
                 widgetId: id,

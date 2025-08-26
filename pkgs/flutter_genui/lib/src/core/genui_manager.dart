@@ -63,7 +63,7 @@ class GenUiManager {
   // TODO: revisit this implementation after discussion
   // on go/gen-ui-surface-controller-proposal.
   //
-  // TODO: consider to make it listenable by copying
+  // TODO: consider to make it listenable by copying implementation of
   // ValueListenable for lists from DevTools implementation.
   final valueStore = ValueStore();
 

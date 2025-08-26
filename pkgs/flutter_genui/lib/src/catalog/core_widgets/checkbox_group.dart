@@ -104,6 +104,7 @@ final checkboxGroup = CatalogItem(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,
           onChanged: (newValues) {
+            values[id] = newValues;
             dispatchEvent(
               UiChangeEvent(
                 widgetId: id,
