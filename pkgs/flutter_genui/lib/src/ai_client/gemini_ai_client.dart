@@ -218,6 +218,9 @@ class GeminiAiClient implements AiClient {
     genUiLogger.info('Switched AI model to: ${newModel.displayName}');
   }
 
+  final ValueNotifier<int> _activeRequests = ValueNotifier(0);
+  ValueListenable<int> get activeRequests => _activeRequests;
+
   /// Generates structured content based on the provided prompts and output
   /// schema.
   ///
@@ -249,10 +252,15 @@ class GeminiAiClient implements AiClient {
     dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
-    return await _generateContentWithRetries(conversation, outputSchema, [
-      ...tools,
-      ...additionalTools,
-    ]);
+    _activeRequests.value++;
+    // ignore: omit_local_variable_types, it is needed to resolve compile error
+    final T? result = await _generateContentWithRetries(
+      conversation,
+      outputSchema,
+      [...tools, ...additionalTools],
+    );
+    _activeRequests.value--;
+    return result;
   }
 
   @override
@@ -260,10 +268,13 @@ class GeminiAiClient implements AiClient {
     List<msg.ChatMessage> conversation, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
-    return await _generateTextWithRetries(conversation, [
+    _activeRequests.value++;
+    final result = await _generateTextWithRetries(conversation, [
       ...tools,
       ...additionalTools,
     ]);
+    _activeRequests.value--;
+    return result;
   }
 
   /// The default factory function for creating a [GenerativeModel].
