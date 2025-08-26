@@ -6,7 +6,11 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../flutter_genui.dart';
+import '../ai_client/ai_client.dart';
+import '../ai_client/gemini_ai_client.dart';
+import '../core/genui_manager.dart';
+import '../model/catalog.dart';
+import '../model/chat_message.dart';
 
 /// Generic facade for GenUi package.
 class UiAgent {
