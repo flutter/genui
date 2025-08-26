@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "simple_chat",
+            "cwd": "examples/simple_chat",
+            "request": "launch",
+            "type": "dart",
+        },
+        {
             "name": "travel_app",
             "cwd": "examples/travel_app",
             "request": "launch",
