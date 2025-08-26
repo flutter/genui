@@ -38,15 +38,14 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
+  // TODO: pass model from FirebaseAIService
   final UiAgent _uiAgent = UiAgent(
     'You are a helpful assistant.',
     catalog: null,
     onSurfaceAdded: _onSurfaceAdded,
     onSurfaceRemoved: _onSurfaceRemoved,
   );
-  final FirebaseAIService _aiService = FirebaseAIService();
   final ScrollController _scrollController = ScrollController();
-  bool _isLoading = false;
 
   static ValueChanged<SurfaceAdded>? get _onSurfaceAdded =>
       (surface) => print('Surface added: $surface');
@@ -73,11 +72,18 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-            if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircularProgressIndicator(),
-              ),
+
+            ValueListenableBuilder(
+              valueListenable: _uiAgent.isProcessing,
+              builder: (_, isProcessing, _) {
+                if (!isProcessing) return Container();
+                return const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -111,7 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     setState(() {
-      _messages.add('You: $text');
+      _messages.add(MessageController(text: 'You: $text'));
     });
 
     _textController.clear();
