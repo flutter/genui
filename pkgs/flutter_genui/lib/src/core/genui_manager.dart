@@ -72,10 +72,10 @@ class GenUiManager {
   List<AiTool> getTools() {
     return [
       AddOrUpdateSurfaceTool(
-        onAddOrUpdate: addOrUpdateSurface,
+        onAddOrUpdate: _addOrUpdateSurface,
         catalog: catalog,
       ),
-      DeleteSurfaceTool(onDelete: deleteSurface),
+      DeleteSurfaceTool(onDelete: _deleteSurface),
     ];
   }
 
@@ -90,7 +90,7 @@ class GenUiManager {
     }
   }
 
-  void addOrUpdateSurface(String surfaceId, JsonMap definition) {
+  void _addOrUpdateSurface(String surfaceId, JsonMap definition) {
     final uiDefinition = UiDefinition.fromMap({
       'surfaceId': surfaceId,
       ...definition,
@@ -107,7 +107,7 @@ class GenUiManager {
     }
   }
 
-  void deleteSurface(String surfaceId) {
+  void _deleteSurface(String surfaceId) {
     if (_surfaces.containsKey(surfaceId)) {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);

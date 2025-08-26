@@ -4,23 +4,31 @@
 
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
-
+import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('$GenUiManager', () {
+  group('GenUiManager', () {
     late GenUiManager manager;
+    late AiTool addOrUpdateSurfaceTool;
+    late AiTool deleteSurfaceTool;
 
     setUp(() {
       manager = GenUiManager(catalog: coreCatalog);
+      addOrUpdateSurfaceTool = manager
+          .getTools()
+          .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
+      deleteSurfaceTool =
+          manager.getTools().firstWhere((tool) => tool.name == 'deleteSurface');
     });
 
     tearDown(() {
       manager.dispose();
     });
 
-    test('addOrUpdateSurface adds a new surface and fires SurfaceAdded with '
-        'definition', () async {
+    test(
+        'addOrUpdateSurface tool adds a new surface and fires SurfaceAdded with definition',
+        () async {
       final definitionMap = {
         'root': 'root',
         'widgets': [
@@ -35,7 +43,10 @@ void main() {
 
       final futureUpdate = manager.updates.first;
 
-      manager.addOrUpdateSurface('s1', definitionMap);
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's1',
+        'definition': definitionMap,
+      });
 
       final update = await futureUpdate;
 
@@ -48,8 +59,9 @@ void main() {
       expect(manager.surface('s1').value!.root, 'root');
     });
 
-    test('addOrUpdateSurface updates an existing surface and fires '
-        'SurfaceUpdated', () async {
+    test(
+        'addOrUpdateSurface tool updates an existing surface and fires SurfaceUpdated',
+        () async {
       final oldDefinition = {
         'root': 'root',
         'widgets': [
@@ -61,7 +73,10 @@ void main() {
           },
         ],
       };
-      manager.addOrUpdateSurface('s1', oldDefinition);
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's1',
+        'definition': oldDefinition,
+      });
 
       final newDefinition = {
         'root': 'root',
@@ -76,7 +91,10 @@ void main() {
       };
 
       final futureUpdate = manager.updates.first;
-      manager.addOrUpdateSurface('s1', newDefinition);
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's1',
+        'definition': newDefinition,
+      });
       final update = await futureUpdate;
 
       expect(update, isA<SurfaceUpdated>());
@@ -91,7 +109,7 @@ void main() {
       expect(manager.surface('s1').value, updatedDefinition);
     });
 
-    test('deleteSurface removes a surface and fires SurfaceRemoved', () async {
+    test('deleteSurface tool removes a surface and fires SurfaceRemoved', () async {
       final definition = {
         'root': 'root',
         'widgets': [
@@ -103,10 +121,13 @@ void main() {
           },
         ],
       };
-      manager.addOrUpdateSurface('s1', definition);
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's1',
+        'definition': definition,
+      });
 
       final futureUpdate = manager.updates.first;
-      manager.deleteSurface('s1');
+      await deleteSurfaceTool.invoke({'surfaceId': 's1'});
       final update = await futureUpdate;
 
       expect(update, isA<SurfaceRemoved>());
