@@ -12,6 +12,7 @@ import '../ai_client/gemini_ai_client.dart';
 import '../core/genui_manager.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
+import '../model/ui_models.dart';
 
 /// Generic facade for GenUi package.
 class UiAgent {
@@ -27,14 +28,14 @@ class UiAgent {
       systemInstruction: '$instruction\n\n$_technicalPrompt',
       tools: _genUiManager.getTools(),
     );
+    _aiClient.activeRequests.addListener(_onActivityUpdates);
   }
 
   final GenUiManager _genUiManager;
   late final AiClient _aiClient;
   final List<ChatMessage> _conversation = [];
-  late final StreamSubscription<GenUiUpdate> _subscription = _genUiManager
-      .updates
-      .listen((update) {
+  late final StreamSubscription<GenUiUpdate> _surfaceSubscription =
+      _genUiManager.updates.listen((update) {
         if (update is SurfaceAdded) {
           onSurfaceAdded?.call(update);
         } else if (update is SurfaceRemoved) {
@@ -42,12 +43,21 @@ class UiAgent {
         }
       });
 
+  void _onActivityUpdates() {
+    _activeRequests.value = _aiClient.activeRequests.value > 0;
+  }
+
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
   final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
 
-  ValueListenable<int> get activeRequests => _aiClient.activeRequests;
+  ValueListenable<bool> get activeRequests => _activeRequests;
+  final ValueNotifier<bool> _activeRequests = ValueNotifier(false);
 
-  //  TODO listen for conversation updates
+  ValueNotifier<UiDefinition?> surface(String surfaceId) {
+    return _genUiManager.surface(surfaceId);
+  }
+
+  //  TODO: listen for conversation updates from surfaces
 
   Future<void> sendRequest(UserMessage message) async {
     _conversation.add(message);
@@ -55,8 +65,10 @@ class UiAgent {
   }
 
   void dispose() {
-    _subscription.cancel();
+    _aiClient.activeRequests.removeListener(_onActivityUpdates);
+    _surfaceSubscription.cancel();
     _genUiManager.dispose();
+    _aiClient.dispose();
   }
 }
 
