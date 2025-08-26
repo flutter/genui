@@ -49,6 +49,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _onSurfaceAdded(SurfaceAdded surface) {
     _messages.add(MessageController(surfaceId: surface.surfaceId));
+    setState(() {});
+    _scrollToBottom();
   }
 
   void _onSurfaceRemoved(SurfaceRemoved surface) {
@@ -123,15 +125,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     _textController.clear();
-    _scrollToBottom();
-
-    setState(() => _isLoading = true);
-    final response = await _aiService.sendMessageStream(text);
-
-    setState(() {
-      _messages.add('Bot: $response');
-      _isLoading = false;
-    });
     _scrollToBottom();
   }
 
