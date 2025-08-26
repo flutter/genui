@@ -18,39 +18,39 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
     required this.onAddOrUpdate,
     required Catalog catalog,
   }) : super(
-          name: 'addOrUpdateSurface',
-          description:
-              'Adds a new UI surface or updates an existing one. Use this to '
-              'display new content or change what is currently visible.',
-          parameters: S.object(
-            properties: {
-              'surfaceId': S.string(
-                description:
-                    'The unique identifier for the UI surface to create or '
-                    'modify.',
-              ),
-              'definition': S.object(
-                properties: {
-                  'root': S.string(
-                    description:
-                        'The ID of the root widget. This ID must correspond to '
-                        'the ID of one of the widgets in the `widgets` list.',
-                  ),
-                  'widgets': S.list(
-                    items: catalog.schema,
-                    description: 'A list of widget definitions.',
-                    minItems: 1,
-                  ),
-                },
-                description:
-                    'A schema for a simple UI tree to be rendered by '
-                    'Flutter.',
-                required: ['root', 'widgets'],
-              ),
-            },
-            required: ['surfaceId', 'definition'],
-          ),
-        );
+         name: 'addOrUpdateSurface',
+         description:
+             'Adds a new UI surface or updates an existing one. Use this to '
+             'display new content or change what is currently visible.',
+         parameters: S.object(
+           properties: {
+             'surfaceId': S.string(
+               description:
+                   'The unique identifier for the UI surface to create or '
+                   'modify.',
+             ),
+             'definition': S.object(
+               properties: {
+                 'root': S.string(
+                   description:
+                       'The ID of the root widget. This ID must correspond to '
+                       'the ID of one of the widgets in the `widgets` list.',
+                 ),
+                 'widgets': S.list(
+                   items: catalog.schema,
+                   description: 'A list of widget definitions.',
+                   minItems: 1,
+                 ),
+               },
+               description:
+                   'A schema for a simple UI tree to be rendered by '
+                   'Flutter.',
+               required: ['root', 'widgets'],
+             ),
+           },
+           required: ['surfaceId', 'definition'],
+         ),
+       );
 
   /// The callback to invoke when adding or updating a surface.
   final void Function(String surfaceId, JsonMap definition) onAddOrUpdate;
@@ -70,19 +70,19 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
 class DeleteSurfaceTool extends AiTool<JsonMap> {
   /// Creates a [DeleteSurfaceTool].
   DeleteSurfaceTool({required this.onDelete})
-      : super(
-          name: 'deleteSurface',
-          description: 'Removes a UI surface that is no longer needed.',
-          parameters: S.object(
-            properties: {
-              'surfaceId': S.string(
-                description:
-                    'The unique identifier for the UI surface to remove.',
-              ),
-            },
-            required: ['surfaceId'],
-          ),
-        );
+    : super(
+        name: 'deleteSurface',
+        description: 'Removes a UI surface that is no longer needed.',
+        parameters: S.object(
+          properties: {
+            'surfaceId': S.string(
+              description:
+                  'The unique identifier for the UI surface to remove.',
+            ),
+          },
+          required: ['surfaceId'],
+        ),
+      );
 
   /// The callback to invoke when deleting a surface.
   final void Function(String surfaceId) onDelete;

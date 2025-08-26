@@ -12,14 +12,17 @@ void main() {
       String? calledSurfaceId;
       Map<String, Object?>? calledDefinition;
 
-      void fakeOnAddOrUpdate(String surfaceId, Map<String, Object?> definition) {
+      void fakeOnAddOrUpdate(
+        String surfaceId,
+        Map<String, Object?> definition,
+      ) {
         calledSurfaceId = surfaceId;
         calledDefinition = definition;
       }
 
       final tool = AddOrUpdateSurfaceTool(
         onAddOrUpdate: fakeOnAddOrUpdate,
-        catalog: Catalog([]),
+        catalog: const Catalog([]),
       );
 
       final args = {
@@ -27,7 +30,7 @@ void main() {
         'definition': {
           'root': 'rootWidget',
           'widgets': [
-            {'id': 'rootWidget', 'type': 'text', 'content': 'Hello'}
+            {'id': 'rootWidget', 'type': 'text', 'content': 'Hello'},
           ],
         },
       };
