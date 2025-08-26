@@ -53,7 +53,13 @@ class SurfaceRemoved extends GenUiUpdate {
   const SurfaceRemoved(super.surfaceId);
 }
 
-class GenUiManager {
+abstract interface class SurfaceBuilder {
+  Stream<GenUiUpdate> get updates;
+  ValueNotifier<UiDefinition?> surface(String surfaceId);
+  Catalog get catalog;
+}
+
+class GenUiManager implements SurfaceBuilder {
   GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};

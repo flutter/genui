@@ -47,6 +47,8 @@ class UiAgent {
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
 
+  SurfaceBuilder get builder => _genUiManager;
+
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
   final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
 

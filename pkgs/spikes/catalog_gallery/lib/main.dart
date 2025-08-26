@@ -101,7 +101,7 @@ class _CatalogViewState extends State<CatalogView> {
             style: const TextStyle(decoration: TextDecoration.underline),
           ),
           subtitle: GenUiSurface(
-            manager: _genUi,
+            builder: _genUi,
             surfaceId: surfaceId,
             onEvent: (event) {
               print('Event received: $event');

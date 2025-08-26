@@ -22,14 +22,14 @@ class GenUiSurface extends StatefulWidget {
   /// Creates a new [GenUiSurface].
   const GenUiSurface({
     super.key,
-    required this.manager,
+    required this.builder,
     required this.surfaceId,
     required this.onEvent,
     this.defaultBuilder,
   });
 
   /// The manager that holds the state of the UI.
-  final GenUiManager manager;
+  final SurfaceBuilder builder;
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;
@@ -59,7 +59,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.surfaceId != widget.surfaceId ||
-        oldWidget.manager != widget.manager) {
+        oldWidget.builder != widget.builder) {
       _init();
     }
   }
@@ -67,12 +67,12 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   void _init() {
     // Reset previous subscription for updates.
     _allUpdatesSubscription?.cancel();
-    _allUpdatesSubscription = widget.manager.updates.listen((update) {
+    _allUpdatesSubscription = widget.builder.updates.listen((update) {
       if (update.surfaceId == widget.surfaceId) _init();
     });
 
     // Update definition if it is changed.
-    final newDefinitionNotifier = widget.manager.surface(widget.surfaceId);
+    final newDefinitionNotifier = widget.builder.surface(widget.surfaceId);
     if (newDefinitionNotifier == _definitionNotifier) return;
     _definitionNotifier = newDefinitionNotifier;
     setState(() {});
@@ -124,7 +124,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    return widget.manager.catalog.buildWidget(
+    return widget.builder.catalog.buildWidget(
       data as JsonMap,
       (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,

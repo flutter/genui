@@ -10,41 +10,16 @@ class ChatMessageController {
 }
 
 class ChatMessage extends StatefulWidget {
-  const ChatMessage(this.controller, {super.key, required this.uiAgent});
+  const ChatMessage(this.controller, {super.key, required this.builder});
 
   final ChatMessageController controller;
-  final UiAgent uiAgent;
+  final SurfaceBuilder builder;
 
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }
 
 class _ChatMessageState extends State<ChatMessage> {
-  late final ValueNotifier<UiDefinition?>? _definition;
-
-  @override
-  void didUpdateWidget(covariant ChatMessage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller.surfaceId == widget.controller.surfaceId &&
-        oldWidget.controller.text == widget.controller.text &&
-        oldWidget.uiAgent == widget.uiAgent) {
-      return;
-    }
-    _init();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  void _init() {
-    final surfaceId = widget.controller.surfaceId;
-    if (surfaceId == null) return;
-    _definition = widget.uiAgent.surface(surfaceId);
-  }
-
   @override
   Widget build(BuildContext context) {
     final surfaceId = widget.controller.surfaceId;
@@ -52,9 +27,9 @@ class _ChatMessageState extends State<ChatMessage> {
     if (surfaceId == null) return Text(widget.controller.text ?? '');
 
     return GenUiSurface(
-      manager: manager,
+      builder: widget.builder,
       surfaceId: surfaceId,
-      onEvent: onEvent,
+      onEvent: (event) {},
     );
   }
 }
