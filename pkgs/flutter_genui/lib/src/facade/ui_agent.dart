@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
@@ -31,6 +33,17 @@ class UiAgent {
   final GenUiManager _genUiManager;
   late final AiClient _aiClient;
   final List<ChatMessage> _conversation = [];
+  late final StreamSubscription<GenUiUpdate> _subscription = _genUiManager
+      .updates
+      .listen((update) {
+        if (update is SurfaceAdded) {
+          onSurfaceAdded?.call(update);
+        } else if (update is SurfaceUpdated) {
+          onSurfaceUpdated?.call(update);
+        } else if (update is SurfaceRemoved) {
+          onSurfaceRemoved?.call(update);
+        }
+      });
 
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
   final ValueChanged<SurfaceUpdated>? onSurfaceUpdated;
@@ -44,6 +57,7 @@ class UiAgent {
   }
 
   void dispose() {
+    _subscription.cancel();
     _genUiManager.dispose();
   }
 }
