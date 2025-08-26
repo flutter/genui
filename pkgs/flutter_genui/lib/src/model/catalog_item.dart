@@ -32,6 +32,7 @@ class CatalogItem {
     required this.name,
     required this.dataSchema,
     required this.widgetBuilder,
+    this.exampleData,
   });
 
   /// The widget type name used in JSON, e.g., 'TextChatMessage'.
@@ -42,4 +43,7 @@ class CatalogItem {
 
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
+
+  /// Example data for this widget, for testing purposes.
+  final Map<String, Object?>? exampleData;
 }

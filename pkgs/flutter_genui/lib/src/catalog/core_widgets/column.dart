@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 // ignore_for_file: avoid_dynamic_calls
-
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -40,7 +40,7 @@ final _schema = S.object(
   },
 );
 
-extension type _ColumnData.fromMap(Map<String, Object?> _json) {
+extension type _ColumnData.fromMap(JsonMap _json) {
   factory _ColumnData({
     List<String> children = const [],
     double? spacing,
@@ -105,7 +105,7 @@ final column = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final columnData = _ColumnData.fromMap(data as Map<String, Object?>);
+        final columnData = _ColumnData.fromMap(data as JsonMap);
         final childrenIds = columnData.children;
         final spacing = columnData.spacing;
         final childrenWithSpacing = <Widget>[];
@@ -125,4 +125,51 @@ final column = CatalogItem(
           children: childrenWithSpacing,
         );
       },
+  exampleData: {
+    'root': 'advice_column',
+    'widgets': [
+      {
+        'id': 'advice_column',
+        'widget': {
+          'Column': {
+            'children': ['advice_text', 'advice_options', 'submit_button'],
+          },
+        },
+      },
+      {
+        'id': 'advice_text',
+        'widget': {
+          'Text': {'text': 'What kind of advice are you looking for?'},
+        },
+      },
+      {
+        'id': 'advice_options',
+        'widget': {
+          'RadioGroup': {
+            'labels': [
+              'Career',
+              'Personal',
+              'Financial',
+              'Health',
+              'Relationships',
+              'Other',
+            ],
+            'groupValue': '',
+          },
+        },
+      },
+      {
+        'id': 'submit_button',
+        'widget': {
+          'ElevatedButton': {'child': 'submit_button_text'},
+        },
+      },
+      {
+        'widget': {
+          'Text': {'text': 'Submit'},
+        },
+        'id': 'submit_button_text',
+      },
+    ],
+  },
 );

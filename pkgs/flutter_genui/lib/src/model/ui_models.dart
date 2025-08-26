@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../primitives/simple_items.dart';
+
 /// A data object that represents a user interaction event in the UI.
 ///
 /// This is used to send information from the app to the AI about user
 /// actions, such as tapping a button or entering text.
-extension type UiEvent.fromMap(Map<String, Object?> _json) {
+extension type UiEvent.fromMap(JsonMap _json) {
   /// The ID of the surface that this event originated from.
   String get surfaceId => _json['surfaceId'] as String;
 
@@ -27,15 +29,14 @@ extension type UiEvent.fromMap(Map<String, Object?> _json) {
   DateTime get timestamp => DateTime.parse(_json['timestamp'] as String);
 
   /// Converts this event to a map, suitable for JSON serialization.
-  Map<String, Object?> toMap() => _json;
+  JsonMap toMap() => _json;
 }
 
 /// A UI event that represents a user action.
 ///
 /// This is used for events that should trigger a submission to the AI, such as
 /// tapping a button.
-extension type UiActionEvent.fromMap(Map<String, Object?> _json)
-    implements UiEvent {
+extension type UiActionEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
   UiActionEvent({
     String? surfaceId,
@@ -57,8 +58,7 @@ extension type UiActionEvent.fromMap(Map<String, Object?> _json)
 ///
 /// This is used for events that should not trigger a submission to the AI, such
 /// as entering text in a text field.
-extension type UiChangeEvent.fromMap(Map<String, Object?> _json)
-    implements UiEvent {
+extension type UiChangeEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
   UiChangeEvent({
     String? surfaceId,
@@ -79,7 +79,7 @@ extension type UiChangeEvent.fromMap(Map<String, Object?> _json)
 /// A data object that represents the entire UI definition.
 ///
 /// This is the root object that defines a complete UI to be rendered.
-extension type UiDefinition.fromMap(Map<String, Object?> _json) {
+extension type UiDefinition.fromMap(JsonMap _json) {
   /// The ID of the surface that this UI belongs to.
   String get surfaceId => _json['surfaceId'] as String;
 
@@ -90,11 +90,11 @@ extension type UiDefinition.fromMap(Map<String, Object?> _json) {
   List<Object?> get widgetList => _json['widgets'] as List<Object?>;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
-  Map<String, Object?> get widgets {
+  JsonMap get widgets {
     final widgetById = <String, Object?>{};
 
     for (final widget in (_json['widgets'] as List<Object?>)) {
-      var typedWidget = widget as Map<String, Object?>;
+      var typedWidget = widget as JsonMap;
       widgetById[typedWidget['id'] as String] = typedWidget;
     }
 

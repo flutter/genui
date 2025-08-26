@@ -4,6 +4,8 @@
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 
+import '../primitives/simple_items.dart';
+
 /// Abstract base class for defining tools that an AI agent can invoke.
 ///
 /// An [AiTool] represents a capability that the AI can use to interact with the
@@ -18,9 +20,9 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 /// - An implementation of the [invoke] method to execute the tool's logic.
 ///
 /// The generic argument determines the return type of [invoke], and must extend
-/// a `Map<String, Object?>` because that's what is required by the Gemini tool
+/// a `Json` because that's what is required by the Gemini tool
 /// calling API.
-abstract class AiTool<T extends Map<String, Object?>> {
+abstract class AiTool<T extends JsonMap> {
   /// Creates an instance of [AiTool].
   ///
   /// - [name]: A unique identifier for the tool. This name is used by the AI to
@@ -78,14 +80,14 @@ abstract class AiTool<T extends Map<String, Object?>> {
   ///
   /// Returns a [Future] that completes with a map of results from the tool's
   /// execution. This result map will be sent back to the AI.
-  Future<T> invoke(Map<String, Object?> args);
+  Future<T> invoke(JsonMap args);
 }
 
 /// An [AiTool] that allows for dynamic invocation of a function.
 ///
 /// This class is useful for creating tools where the invocation logic is
 /// provided at runtime, for example, by a lambda or a closure.
-class DynamicAiTool<T extends Map<String, Object?>> extends AiTool<T> {
+class DynamicAiTool<T extends JsonMap> extends AiTool<T> {
   /// Creates a [DynamicAiTool].
   ///
   /// - [name]: The name of the tool.
@@ -107,10 +109,10 @@ class DynamicAiTool<T extends Map<String, Object?>> extends AiTool<T> {
   ///
   /// It takes a map of arguments (matching the [parameters] schema, if
   /// provided) and returns a [Future] that resolves to a map of results.
-  final Future<T> Function(Map<String, Object?> args) invokeFunction;
+  final Future<T> Function(JsonMap args) invokeFunction;
 
   @override
-  Future<T> invoke(Map<String, Object?> args) {
+  Future<T> invoke(JsonMap args) {
     return invokeFunction(args);
   }
 }

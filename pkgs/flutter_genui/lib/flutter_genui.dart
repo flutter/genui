@@ -13,7 +13,6 @@ export 'src/catalog/core_widgets/text.dart';
 export 'src/catalog/core_widgets/text_field.dart';
 export 'src/core/core_catalog.dart';
 export 'src/core/genui_manager.dart';
-export 'src/core/surface_manager.dart';
 export 'src/facade/genui_surface.dart';
 export 'src/facade/to_refactor/chat_widget.dart';
 export 'src/facade/to_refactor/conversation_widget.dart';

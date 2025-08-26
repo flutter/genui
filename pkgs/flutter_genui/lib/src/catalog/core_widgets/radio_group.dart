@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
+import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -23,7 +24,7 @@ final _schema = S.object(
   required: ['groupValue', 'labels'],
 );
 
-extension type _RadioGroupData.fromMap(Map<String, Object?> _json) {
+extension type _RadioGroupData.fromMap(JsonMap _json) {
   factory _RadioGroupData({
     required String groupValue,
     required List<String> labels,
@@ -93,6 +94,20 @@ class _RadioGroupState extends State<_RadioGroup> {
 final radioGroup = CatalogItem(
   name: 'RadioGroup',
   dataSchema: _schema,
+  exampleData: {
+    'root': 'radio_group',
+    'widgets': [
+      {
+        'id': 'radio_group',
+        'widget': {
+          'RadioGroup': {
+            'groupValue': 'Option 1',
+            'labels': ['Option 1', 'Option 2', 'Option 3'],
+          },
+        },
+      },
+    ],
+  },
   widgetBuilder:
       ({
         required data,
@@ -101,7 +116,7 @@ final radioGroup = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final radioData = _RadioGroupData.fromMap(data as Map<String, Object?>);
+        final radioData = _RadioGroupData.fromMap(data as JsonMap);
         return _RadioGroup(
           initialGroupValue: radioData.groupValue,
           labels: radioData.labels,

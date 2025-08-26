@@ -8,25 +8,78 @@ The Travel App is a demonstration of a generative UI application built using the
 
 ## Architecture
 
-The application is structured into several distinct layers, each with a specific responsibility.
+The application is structured into several distinct layers, each with a specific responsibility. The following diagram illustrates the high-level architecture and the relationships between the main components.
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace TravelApp {
+        class UILayer {
+            <<Component>>
+            main.dart
+        }
+        class AppLogic {
+            <<Component>>
+            main.dart
+        }
+        class GenUiSurface {
+            <<Widget>>
+        }
+    }
+
+    namespace flutter_genui {
+        class GenUiManager {
+            <<Component>>
+        }
+        class SurfaceManager {
+            <<Component>>
+        }
+        class AiClient {
+            <<Component>>
+        }
+        class WidgetCatalog {
+            <<Component>>
+        }
+    }
+
+    namespace Backend {
+        class LLM {
+            <<System>>
+        }
+    }
+
+    TravelApp.UILayer --o flutter_genui.GenUiManager : "Initializes and holds"
+    TravelApp.UILayer --> TravelApp.GenUiSurface : "Renders"
+    TravelApp.UILayer --> TravelApp.AppLogic : "Sends user input to"
+
+    TravelApp.AppLogic --> flutter_genui.AiClient : "Calls generateContent()"
+    TravelApp.AppLogic --> flutter_genui.SurfaceManager : "Executes UI tool calls"
+
+    flutter_genui.GenUiManager "1" *-- "1" flutter_genui.SurfaceManager : "Owns"
+    flutter_genui.GenUiManager "1" *-- "1" flutter_genui.WidgetCatalog : "Owns"
+
+    flutter_genui.SurfaceManager --> TravelApp.GenUiSurface : "Notifies of updates"
+    TravelApp.GenUiSurface --> flutter_genui.WidgetCatalog : "Uses to build widgets"
+
+    flutter_genui.AiClient --> Backend.LLM : "Communicates with"
+```
 
 ### 1. UI Layer (`main.dart`)
 
 This is the main entry point and the visible part of the application. Its responsibilities are:
 
-- **Initialization**: It initializes Firebase and Firebase App Check.
-- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar and a main content area where the dynamic UI is rendered. The `GenUiManager` provides the chat input field.
-- **State Management**: It holds and manages the lifecycle of the `GenUiManager`, which is the core of the app's logic.
+- **Initialization**: It initializes Firebase, the `GenUiManager`, and the `AiClient`.
+- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar and a `GenUiChat` widget that renders the conversation and the dynamic UI surfaces.
+- **State Management & App Logic**: It holds the core application logic. It manages the conversation history, sends prompts to the AI, and handles UI events returned from `GenUiSurface`.
 
-### 2. Conversation Management Layer ([`package:flutter_genui`](../../pkgs/flutter_genui/IMPLEMENTATION.md))
+### 2. UI State Management Layer ([`package:flutter_genui`](../../pkgs/flutter_genui/IMPLEMENTATION.md))
 
-The `GenUiManager` from the `flutter_genui` package is the central orchestrator of the application.
+The components from the `flutter_genui` package are the central orchestrators of the dynamic UI state.
 
-- **Conversation Flow**: It manages the back-and-forth between the user and the AI model.
-- **Prompt Handling**: It takes the user's text prompt, combines it with the conversation history and the system prompt, and sends it to the AI Client.
-- **UI Generation**: It receives a list of actions from the model, which are essentially instructions to `add`, `update`, or `delete` UI surfaces.
-- **Widget Rendering**: It uses a `SurfaceWidget` to recursively build the UI tree defined by the model's response. The `SurfaceWidget` looks up the requested widget in the `Catalog`, validates the provided data against the widget's schema, and uses the widget's builder function to create and display the Flutter widget.
-- **State Tracking**: It maintains the state of the rendered UI surfaces and the history of the conversation.
+- **`GenUiManager`**: A container that owns the `SurfaceManager` and `Catalog`. Its main role is to provide the UI manipulation tools (`addOrUpdateSurface`, `deleteSurface`) to the app logic.
+- **`SurfaceManager`**: The core state manager. It maintains the definitions for all active UI "surfaces" and notifies listening widgets (like `GenUiSurface`) when they change.
+- **`GenUiChat`**: A facade widget that renders a complete chat experience, including a text input field and the conversation history. It automatically listens to the `SurfaceManager` and displays any generated UI surfaces.
 
 ### 3. AI/Model Layer (`package:flutter_genui`)
 
@@ -39,6 +92,47 @@ This is the collection of predefined UI components that the AI can use to constr
 - **Definition**: The catalog is defined in `lib/src/catalog.dart` as a `Catalog` instance, which is a list of `CatalogItem`s.
 - **Custom Components**: The travel app defines several custom `CatalogItem`s in the `lib/src/catalog/` directory, such as `travel_carousel`, `itinerary_with_details`, and `filter_chip_group`.
 - **Standard Components**: It also uses standard, pre-built components from `flutter_genui` like `column`, `text`, `elevatedButton`, etc.
+
+## Data Flow: The Generative UI Cycle
+
+The diagram below shows the sequence of events from user input to UI rendering. The application logic in `main.dart` is responsible for driving this cycle.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant AppLogic as "App Logic (main.dart)"
+    participant AiClient
+    participant LLM
+    participant SurfaceManager
+    participant GenUiSurface
+
+    activate User
+    User->>AppLogic: Enters prompt "Find flights to Paris"
+    deactivate User
+
+    activate AppLogic
+    AppLogic->>AppLogic: Adds UserMessage to history
+    AppLogic->>AiClient: generateContent(conversation, uiTools)
+    activate AiClient
+    AiClient->>LLM: Sends prompt and tool schemas
+    activate LLM
+    LLM-->>AiClient: Responds with tool call
+    deactivate LLM
+    AiClient-->>AppLogic: Returns result
+    deactivate AiClient
+
+    AppLogic->>SurfaceManager: addOrUpdateSurface(def)
+    activate SurfaceManager
+    SurfaceManager->>SurfaceManager: Updates internal state
+    SurfaceManager-->>GenUiSurface: Notifies of state change
+    deactivate SurfaceManager
+
+    activate GenUiSurface
+    GenUiSurface->>GenUiSurface: Rebuilds with new UI
+    GenUiSurface-->>User: Displays new UI
+    deactivate GenUiSurface
+    deactivate AppLogic
+```
 
 ## Implementation Details
 
@@ -75,12 +169,44 @@ Each custom widget in `lib/src/catalog/` follows a consistent pattern:
 
 Widgets can be nested to create complex layouts. This is achieved by having a widget's schema accept the ID of another widget as a parameter (e.g., the `child` property of `itinerary_with_details`).
 
-The `widgetBuilder` for a container-like widget receives a `buildChild` function as an argument. It can call `buildChild(childId)` to recursively ask the `SurfaceWidget` to build and return the child widget, which is then placed in the parent's widget tree.
+The `widgetBuilder` for a container-like widget receives a `buildChild` function as an argument. It can call `buildChild(childId)` to recursively ask the `GenUiSurface` to build and return the child widget, which is then placed in the parent's widget tree.
+
+```mermaid
+graph TD
+    subgraph "UI Definition from LLM"
+        RootDef["root: 'itinerary_1'"]
+        WidgetsDef["widgets: [...]"]
+    end
+
+    subgraph "Rendered UI"
+        A(GenUiSurface) -- Renders --> B(ItineraryWithDetails Widget)
+        B -- contains --> C(Column Widget)
+        C -- contains --> D(Text Widget)
+        C -- contains --> E(TravelCarousel Widget)
+    end
+
+    subgraph "Recursive Build Process"
+        F["GenUiSurface.build<br>('itinerary_1')"] -->|Calls builder for Itinerary| G["ItineraryBuilder"]
+        G -->|"calls<br>buildChild('column_1')"| H["GenUiSurface.build<br>('column_1')"]
+        H -->|calls builder<br>for Column| I["ColumnBuilder"]
+        I -->|"calls<br>buildChild('text_1')"| J["...builds Text"]
+        I -->|"calls<br>buildChild('carousel_1')"| K["...builds TravelCarousel"]
+    end
+
+    RootDef --> F
+    WidgetsDef --> F
+
+    %% Add links from build process to rendered UI
+    F -- "creates" --> B
+    H -- "creates" --> C
+    J -- "creates" --> D
+    K -- "creates" --> E
+```
 
 ### User Interaction and Events
 
 The UI is not just for display; it's interactive. Widgets like `optionsFilterChip` and `filterChipGroup` can capture user input.
 
 - **Event Dispatching**: The `widgetBuilder` receives a `dispatchEvent` function. This function is called in response to user actions (like a button press or item selection), creating a `UiEvent` (`UiActionEvent` for submissions, `UiChangeEvent` for value changes).
-- **Event Handling**: The `GenUiManager` is wired to receive these events via the `UiEventManager`. The `UiEventManager` coalesces multiple `UiChangeEvent`s and sends them in a batch with the next `UiActionEvent`.
-- **Conversation Update**: The `GenUiManager` adds the event information (as `ToolResultPart`s) to the conversation history and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
+- **Event Handling**: The `onEvent` callback on the `GenUiChat` widget is triggered. The application logic in `main.dart` receives the event.
+- **Conversation Update**: The app logic processes the event, wraps the information into `ToolResultPart`s inside a new `UserMessage`, adds it to the conversation history, and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).

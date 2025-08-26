@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 
 import '../model/chat_message.dart';
+import '../primitives/simple_items.dart';
 import 'ai_client.dart';
 
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
@@ -26,17 +27,9 @@ class GeminiContentConverter {
         AssistantMessage() => ('model', _convertParts(message.parts)),
         ToolResponseMessage() => ('user', _convertParts(message.results)),
         UiResponseMessage() => (
-          'user',
-          [
-            firebase_ai.TextPart(
-              'The following is the current UI state that you have generated, '
-              'for your information. You should use this to inform your '
-              'decision about what to do next. The user is seeing this UI, '
-              'which is on a surface with ID "${message.surfaceId}".\n\n'
-              '${jsonEncode(message.definition)}',
-            ),
-          ],
-        ),
+          null,
+          <firebase_ai.Part>[],
+        ), // Not sent to model
         InternalMessage() => (null, <firebase_ai.Part>[]), // Not sent to model
       };
 
@@ -80,7 +73,7 @@ class GeminiContentConverter {
               part.callId,
               // The result from ToolResultPart is a JSON string, but
               // FunctionResponse expects a Map.
-              jsonDecode(part.result) as Map<String, Object?>,
+              jsonDecode(part.result) as JsonMap,
             ),
           );
         case ThinkingPart():

@@ -7,8 +7,9 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import '../../model/catalog_item.dart';
+import '../../primitives/simple_items.dart';
 
-extension type _TextData.fromMap(Map<String, Object?> _json) {
+extension type _TextData.fromMap(JsonMap _json) {
   factory _TextData({required String text}) =>
       _TextData.fromMap({'text': text});
 
@@ -33,7 +34,7 @@ final text = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final textData = _TextData.fromMap(data as Map<String, Object?>);
+        final textData = _TextData.fromMap(data as JsonMap);
         return Text(
           textData.text,
           style: Theme.of(context).textTheme.bodyMedium,

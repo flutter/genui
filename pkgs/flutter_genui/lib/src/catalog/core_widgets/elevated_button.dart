@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
+import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -21,7 +22,7 @@ final _schema = S.object(
   required: ['child'],
 );
 
-extension type _ElevatedButtonData.fromMap(Map<String, Object?> _json) {
+extension type _ElevatedButtonData.fromMap(JsonMap _json) {
   factory _ElevatedButtonData({required String child}) =>
       _ElevatedButtonData.fromMap({'child': child});
 
@@ -39,9 +40,7 @@ final elevatedButton = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final buttonData = _ElevatedButtonData.fromMap(
-          data as Map<String, Object?>,
-        );
+        final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
         return ElevatedButton(
           onPressed: () => dispatchEvent(

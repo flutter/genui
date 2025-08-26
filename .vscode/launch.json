@@ -15,6 +15,12 @@
             "cwd": "examples/minimal_genui",
             "request": "launch",
             "type": "dart",
+        },
+        {
+            "name": "catalog_gallery",
+            "cwd": "pkgs/spikes/catalog_gallery",
+            "request": "launch",
+            "type": "dart",
         }
     ]
 }

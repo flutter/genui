@@ -1,0 +1,26 @@
+name: catalog_gallery
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0-333.2.beta
+
+dependencies:
+  cupertino_icons: ^1.0.8
+  firebase_ai: ^3.0.0
+  firebase_core: ^4.0.0
+  flutter:
+    sdk: flutter
+  flutter_genui:
+    path: ../../flutter_genui
+  travel_app:
+    path: ../../../examples/travel_app
+
+dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+  uses-material-design: true

@@ -7,6 +7,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../primitives/logging.dart';
+import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
 import 'ui_event_manager.dart';
 
@@ -16,7 +17,7 @@ import 'ui_event_manager.dart';
 /// A [Catalog] serves two primary purposes:
 /// 1. It holds a list of [CatalogItem]s, which define the available widgets.
 /// 2. It provides a mechanism to build a Flutter widget from a JSON-like data
-///    structure (`Map<String, Object?>`).
+///    structure (`Json`).
 /// 3. It dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets, which can be provided to the AI model.
 class Catalog {
@@ -39,14 +40,12 @@ class Catalog {
   ///   value changes, back to the model.
   /// * [context]: The build context for the widget.
   Widget buildWidget(
-    Map<String, Object?>
-    data, // The actual deserialized JSON data for this layout
+    JsonMap data, // The actual deserialized JSON data for this layout
     Widget Function(String id) buildChild,
     DispatchEventCallback dispatchEvent,
     BuildContext context,
   ) {
-    final widgetType =
-        (data['widget'] as Map<String, Object?>).keys.firstOrNull;
+    final widgetType = (data['widget'] as JsonMap).keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
       genUiLogger.severe('Item $widgetType was not found in catalog');
@@ -55,7 +54,7 @@ class Catalog {
 
     genUiLogger.info('Building widget ${item.name} with id ${data['id']}');
     return item.widgetBuilder(
-      data: ((data as Map)['widget'] as Map<String, Object?>)[widgetType]!,
+      data: ((data as Map)['widget'] as JsonMap)[widgetType]!,
       id: data['id'] as String,
       buildChild: buildChild,
       dispatchEvent: dispatchEvent,

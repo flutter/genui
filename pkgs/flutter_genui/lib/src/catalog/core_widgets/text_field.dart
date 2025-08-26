@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
+import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -20,7 +21,7 @@ final _schema = S.object(
   },
 );
 
-extension type _TextFieldData.fromMap(Map<String, Object?> _json) {
+extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
     String? value,
     String? hintText,
@@ -101,9 +102,7 @@ final textField = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final textFieldData = _TextFieldData.fromMap(
-          data as Map<String, Object?>,
-        );
+        final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         return _TextField(
           initialValue: textFieldData.value,
           hintText: textFieldData.hintText,

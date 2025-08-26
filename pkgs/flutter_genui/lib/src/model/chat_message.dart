@@ -6,6 +6,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../primitives/simple_items.dart';
+
 /// A sealed class representing a part of a message.
 ///
 /// This allows for multi-modal content in a single message.
@@ -171,7 +173,7 @@ final class UiResponseMessage extends ChatMessage {
           ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
 
   /// The JSON definition of the UI.
-  final Map<String, Object?> definition;
+  final JsonMap definition;
 
   /// A unique key for the UI widget.
   final Key uiKey;

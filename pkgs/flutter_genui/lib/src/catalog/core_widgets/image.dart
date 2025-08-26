@@ -6,6 +6,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -26,7 +27,7 @@ final _schema = S.object(
   },
 );
 
-extension type _ImageData.fromMap(Map<String, Object?> _json) {
+extension type _ImageData.fromMap(JsonMap _json) {
   factory _ImageData({String? url, String? assetName, String? fit}) =>
       _ImageData.fromMap({'url': url, 'assetName': assetName, 'fit': fit});
 
@@ -48,7 +49,7 @@ final image = CatalogItem(
         required dispatchEvent,
         required context,
       }) {
-        final imageData = _ImageData.fromMap(data as Map<String, Object?>);
+        final imageData = _ImageData.fromMap(data as JsonMap);
 
         final url = imageData.url;
         final assetName = imageData.assetName;

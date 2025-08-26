@@ -1,6 +1,10 @@
+# These files are regularly auto-updated, but they should not be ignored:
+# **/project.pbxproj
+# **/settings.gradle.kts
+# **/build.gradle.kts
+
 # Miscellaneous
 *.class
-*.log
 *.pyc
 *.swp
 .DS_Store
@@ -11,7 +15,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-firepit-log.txt
+**/firepit-log.txt
+**/pglite-debug.log
 
 # Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
@@ -32,13 +37,13 @@ DEPS.md
 **/build/
 **/coverage/
 **/pubspec.lock
-generated_plugins.cmake
-GeneratedPluginRegistrant.h
-GeneratedPluginRegistrant.m
-GeneratedPluginRegistrant.swift
-GeneratedPluginRegistrant.java
-generated_plugin_registrant.cc
-generated_plugin_registrant.h
+**/generated_plugins.cmake
+**/GeneratedPluginRegistrant.*
+**/generated_plugin_registrant.*
+**/Podfile
+**/Podfile.lock
+**/Runner-Bridging-Header.h
+**/contents.xcworkspacedata
 
 # Symbolication related
 app.*.symbols
