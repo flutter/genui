@@ -42,6 +42,11 @@ class FakeAiClient implements AiClient {
   /// This can be used to wait for the response to be processed.
   Completer<void> responseCompleter = Completer<void>();
 
+  /// A future to be returned by [generateContent].
+  ///
+  /// If this is non-null, [generateContent] will return this future.
+  Future<dynamic>? generateContentFuture;
+
   @override
   Future<T?> generateContent<T extends Object>(
     List<genui.ChatMessage> conversation,
@@ -59,6 +64,9 @@ class FakeAiClient implements AiClient {
       }
       if (exception != null) {
         throw exception!;
+      }
+      if (generateContentFuture != null) {
+        return await generateContentFuture as T?;
       }
       return response as T?;
     } finally {
