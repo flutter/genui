@@ -30,8 +30,10 @@ void main() {
             }) => fakeModel,
       );
 
-      fakeModel.response =
-          GenerateContentResponse([], PromptFeedback(BlockReason.other, '', []));
+      fakeModel.response = GenerateContentResponse(
+        [],
+        PromptFeedback(BlockReason.other, '', []),
+      );
       final future = client.generateText([]);
       expect(client.activeRequests.value, 1);
 
