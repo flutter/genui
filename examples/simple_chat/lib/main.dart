@@ -119,14 +119,17 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) {
       return;
     }
-
-    await _uiAgent.sendRequest(UserMessage([TextPart(text)]));
+    _textController.clear();
 
     setState(() {
       _messages.add(MessageController(text: 'You: $text'));
     });
 
-    _textController.clear();
+    _scrollToBottom();
+
+    await _uiAgent.sendRequest(UserMessage([TextPart(text)]));
+
+    setState(() {});
     _scrollToBottom();
   }
 
