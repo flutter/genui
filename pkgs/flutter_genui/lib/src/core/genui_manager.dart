@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
+import '../model/catalog_item.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
@@ -58,6 +59,8 @@ class GenUiManager {
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
+
+  final valueStore = ValueStore();
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
