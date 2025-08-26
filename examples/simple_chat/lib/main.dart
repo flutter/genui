@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:simple_chat/message.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -36,7 +37,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final List<String> _messages = [];
+  final List<MessageViewController> _messages = [];
   final UiAgent _uiAgent = UiAgent(
     'You are a helpful assistant.',
     catalog: null,
@@ -66,7 +67,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];
-                  return ListTile(title: Text(message));
+                  return ListTile(
+                    title: MessageView(message, _uiAgent.builder),
+                  );
                 },
               ),
             ),

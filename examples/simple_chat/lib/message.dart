@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-class ChatMessageController {
-  ChatMessageController({this.text, this.surfaceId})
+class MessageViewController {
+  MessageViewController({this.text, this.surfaceId})
     : assert((surfaceId == null) != (text == null));
 
   final String? text;
   final String? surfaceId;
 }
 
-class ChatMessage extends StatefulWidget {
-  const ChatMessage(this.controller, {super.key, required this.builder});
+class MessageView extends StatefulWidget {
+  const MessageView(this.controller, this.builder, {super.key});
 
-  final ChatMessageController controller;
+  final MessageViewController controller;
   final SurfaceBuilder builder;
 
   @override
-  State<ChatMessage> createState() => _ChatMessageState();
+  State<MessageView> createState() => _MessageViewState();
 }
 
-class _ChatMessageState extends State<ChatMessage> {
+class _MessageViewState extends State<MessageView> {
   @override
   Widget build(BuildContext context) {
     final surfaceId = widget.controller.surfaceId;
