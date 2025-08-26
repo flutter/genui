@@ -45,7 +45,7 @@ final elevatedButton = CatalogItem(
         final child = buildChild(buttonData.child);
         return ElevatedButton(
           onPressed: () => dispatchEvent(
-            UiActionEvent(widgetId: id, eventType: 'onTap', value: null),
+            UiActionEvent(widgetId: id, eventType: 'onTap', value: values),
           ),
           child: child,
         );

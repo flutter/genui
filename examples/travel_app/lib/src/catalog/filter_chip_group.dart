@@ -74,7 +74,7 @@ final filterChipGroup = CatalogItem(
                     UiActionEvent(
                       widgetId: id,
                       eventType: 'submit',
-                      value: null,
+                      value: values,
                     ),
                   ),
                   child: Text(submitLabel),
