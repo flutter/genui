@@ -48,6 +48,7 @@ final filterChipGroup = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
+        required values,
       }) {
         final filterChipGroupData = _FilterChipGroupData.fromMap(
           data as Map<String, Object?>,
