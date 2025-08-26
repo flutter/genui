@@ -51,6 +51,11 @@ abstract interface class AiClient {
     List<ChatMessage> conversation, {
     Iterable<AiTool> additionalTools = const [],
   });
+
+  /// Number of requests being processed.
+  ValueListenable<int> get activeRequests;
+
+  void dispose();
 }
 
 /// An exception thrown by an [AiClient] or its subclasses.

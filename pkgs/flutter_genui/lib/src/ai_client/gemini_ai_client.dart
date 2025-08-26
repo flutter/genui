@@ -218,8 +218,15 @@ class GeminiAiClient implements AiClient {
     genUiLogger.info('Switched AI model to: ${newModel.displayName}');
   }
 
-  final ValueNotifier<int> _activeRequests = ValueNotifier(0);
+  @override
   ValueListenable<int> get activeRequests => _activeRequests;
+  final ValueNotifier<int> _activeRequests = ValueNotifier(0);
+
+  @override
+  void dispose() {
+    _model.dispose();
+    _activeRequests.dispose();
+  }
 
   /// Generates structured content based on the provided prompts and output
   /// schema.
@@ -253,14 +260,14 @@ class GeminiAiClient implements AiClient {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
-    // ignore: omit_local_variable_types, it is needed to resolve compile error
-    final T? result = await _generateContentWithRetries(
-      conversation,
-      outputSchema,
-      [...tools, ...additionalTools],
-    );
-    _activeRequests.value--;
-    return result;
+    try {
+      return await _generateContentWithRetries(conversation, outputSchema, [
+        ...tools,
+        ...additionalTools,
+      ]);
+    } finally {
+      _activeRequests.value--;
+    }
   }
 
   @override
@@ -269,12 +276,14 @@ class GeminiAiClient implements AiClient {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
-    final result = await _generateTextWithRetries(conversation, [
-      ...tools,
-      ...additionalTools,
-    ]);
-    _activeRequests.value--;
-    return result;
+    try {
+      return await _generateTextWithRetries(conversation, [
+        ...tools,
+        ...additionalTools,
+      ]);
+    } finally {
+      _activeRequests.value--;
+    }
   }
 
   /// The default factory function for creating a [GenerativeModel].
