@@ -47,6 +47,8 @@ class UiAgent {
 
   ValueListenable<int> get activeRequests => _aiClient.activeRequests;
 
+  //  TODO listen for conversation updates
+
   Future<void> sendRequest(UserMessage message) async {
     _conversation.add(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
