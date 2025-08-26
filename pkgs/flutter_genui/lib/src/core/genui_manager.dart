@@ -31,8 +31,11 @@ class GenUiManager {
   /// generate and modify the UI.
   List<AiTool> getTools() {
     return [
-      AddOrUpdateSurfaceTool(surfaceManager),
-      DeleteSurfaceTool(surfaceManager),
+      AddOrUpdateSurfaceTool(
+        onAddOrUpdate: surfaceManager.addOrUpdateSurface,
+        catalog: catalog,
+      ),
+      DeleteSurfaceTool(onDelete: surfaceManager.deleteSurface),
     ];
   }
 
