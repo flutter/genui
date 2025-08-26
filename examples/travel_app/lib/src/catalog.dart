@@ -22,13 +22,7 @@ import 'catalog/travel_icon.dart';
 /// experience, such as [travelCarousel], [itineraryItem], and
 /// [filterChipGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
-final catalog = Catalog([
-  elevatedButton,
-  column,
-  text,
-  checkboxGroup,
-  radioGroup,
-  textField,
+final catalog = Catalog.standard.copyWith([
   filterChipGroup,
   optionsFilterChip,
   travelCarousel,
@@ -37,6 +31,5 @@ final catalog = Catalog([
   tabbedSections,
   sectionHeader,
   trailhead,
-  image,
   travelIcon,
 ]);

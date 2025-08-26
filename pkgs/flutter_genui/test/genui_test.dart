@@ -13,7 +13,7 @@ void main() {
     testWidgets('buildWidget finds and builds the correct widget', (
       WidgetTester tester,
     ) async {
-      final catalog = Catalog([text]);
+      final catalog = Catalog.custom([text]);
       final data = {
         'id': 'text1',
         'widget': {
@@ -45,7 +45,7 @@ void main() {
     testWidgets('buildWidget returns empty container for unknown widget type', (
       WidgetTester tester,
     ) async {
-      final catalog = const Catalog([]);
+      final catalog = Catalog.custom([]);
       final data = {
         'id': 'text1',
         'widget': {
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('schema generation is correct', () {
-      final catalog = Catalog([text, elevatedButton]);
+      final catalog = Catalog.custom([text, elevatedButton]);
       final schema = catalog.schema as ObjectSchema;
 
       expect(schema.properties?.containsKey('id'), isTrue);

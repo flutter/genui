@@ -7,7 +7,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testCatalog = Catalog([elevatedButton, text]);
+  final testCatalog = Catalog.custom([elevatedButton, text]);
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,

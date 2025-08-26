@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
+import '../core/standard_catalog.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
@@ -22,10 +23,48 @@ import 'ui_event_manager.dart';
 ///    supported widgets, which can be provided to the AI model.
 class Catalog {
   /// Creates a new catalog with the given list of [items].
-  const Catalog(this.items);
+  const Catalog._(this.items);
+
+  /// Creates a new catalog with the given list of [items].
+  factory Catalog.custom(List<CatalogItem> items) {
+    return Catalog._(items);
+  }
+
+  /// A standard catalog of items sufficient for building simple interactive
+  /// UIs.
+  ///
+  /// For the full list of standard widgets, see [StandardCatalogItems].
+  static final Catalog standard = Catalog._(StandardCatalogItems.all);
 
   /// The list of [CatalogItem]s available in this catalog.
   final List<CatalogItem> items;
+
+  /// Returns a new [Catalog] containing the items from both this catalog and
+  /// the provided [items].
+  ///
+  /// If an item with the same name already exists in the catalog, it will be
+  /// replaced with the new item.
+  Catalog copyWith(List<CatalogItem> newItems) {
+    final updatedItems = List<CatalogItem>.from(items);
+    for (final item in newItems) {
+      final existingIndex = updatedItems.indexWhere((i) => i.name == item.name);
+      if (existingIndex != -1) {
+        updatedItems[existingIndex] = item;
+      } else {
+        updatedItems.add(item);
+      }
+    }
+    return Catalog._(updatedItems);
+  }
+
+  /// Returns a new [Catalog] instance containg the items from this catalog
+  /// with the specified items removed.
+  Catalog copyWithout(List<String> itemNames) {
+    final updatedItems = items
+        .where((item) => !itemNames.contains(item.name))
+        .toList();
+    return Catalog._(updatedItems);
+  }
 
   /// Builds a Flutter widget from a JSON-like data structure.
   ///

@@ -22,7 +22,7 @@ void main() {
 
       final tool = AddOrUpdateSurfaceTool(
         onAddOrUpdate: fakeOnAddOrUpdate,
-        catalog: const Catalog([]),
+        catalog: Catalog.custom([]),
       );
 
       final args = {
