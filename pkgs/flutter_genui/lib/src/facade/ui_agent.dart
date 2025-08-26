@@ -14,6 +14,8 @@ import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 
+const _maxConversationLength = 1000;
+
 /// Generic facade for GenUi package.
 class UiAgent {
   // This class limits functionality of the GenUi package.
@@ -43,6 +45,13 @@ class UiAgent {
         }
       });
 
+  void _addMessage(ChatMessage message) {
+    _conversation.add(message);
+    while (_conversation.length > _maxConversationLength) {
+      _conversation.removeAt(0);
+    }
+  }
+
   void _onActivityUpdates() {
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
@@ -62,7 +71,7 @@ class UiAgent {
   //  TODO: listen for conversation updates from surfaces
 
   Future<void> sendRequest(UserMessage message) async {
-    _conversation.add(message);
+    _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
   }
 
