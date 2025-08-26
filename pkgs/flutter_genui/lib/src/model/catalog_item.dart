@@ -5,13 +5,14 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
+import '../primitives/simple_items.dart';
 import 'ui_event_manager.dart';
 
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
 
 /// Storage for values by surfaceId.
-typedef ValueStore = Map<String, String>;
+typedef ValueStore = JsonMap;
 
 /// A callback that builds a widget for a catalog item.
 typedef CatalogWidgetBuilder =
@@ -49,5 +50,5 @@ class CatalogItem {
   final CatalogWidgetBuilder widgetBuilder;
 
   /// Example data for this widget, for testing purposes.
-  final Map<String, Object?>? exampleData;
+  final JsonMap? exampleData;
 }

@@ -60,6 +60,11 @@ class GenUiManager {
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
 
+  // TODO: revisit this implementation after discussion
+  // on go/gen-ui-surface-controller-proposal.
+  //
+  // TODO: consider to make it listenable by copying
+  // ValueListenable for lists from DevTools implementation.
   final valueStore = ValueStore();
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
