@@ -43,18 +43,11 @@ void main() {
       );
     });
 
-    test('toFirebaseAiContent converts UiResponseMessage to a TextPart', () {
+    test('toFirebaseAiContent ignores UiResponseMessage', () {
       final definition = {'root': 'a', 'widgets': <Object?>[]};
       final messages = [UiResponseMessage(definition: definition)];
       final result = converter.toFirebaseAiContent(messages);
-      expect(result, hasLength(1));
-      expect(result.first.role, 'user');
-      expect(result.first.parts, hasLength(1));
-      expect(result.first.parts.first, isA<firebase_ai.TextPart>());
-      expect(
-        (result.first.parts.first as firebase_ai.TextPart).text,
-        contains(jsonEncode(definition)),
-      );
+      expect(result, isEmpty);
     });
 
     test('toFirebaseAiContent ignores InternalMessage', () {

@@ -27,17 +27,9 @@ class GeminiContentConverter {
         AssistantMessage() => ('model', _convertParts(message.parts)),
         ToolResponseMessage() => ('user', _convertParts(message.results)),
         UiResponseMessage() => (
-          'user',
-          [
-            firebase_ai.TextPart(
-              'The following is the current UI state that you have generated, '
-              'for your information. You should use this to inform your '
-              'decision about what to do next. The user is seeing this UI, '
-              'which is on a surface with ID "${message.surfaceId}".\n\n'
-              '${jsonEncode(message.definition)}',
-            ),
-          ],
-        ),
+          null,
+          <firebase_ai.Part>[],
+        ), // Not sent to model
         InternalMessage() => (null, <firebase_ai.Part>[]), // Not sent to model
       };
 

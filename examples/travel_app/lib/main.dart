@@ -149,10 +149,35 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 
   Future<void> _triggerInference() async {
-    await _aiClient.generateContent(
+    final result = await _aiClient.generateContent(
       _conversation,
-      S.boolean(description: 'Successfully generated a response UI.'),
+      S.object(
+        properties: {
+          'result': S.boolean(
+            description: 'Successfully generated a response UI.',
+          ),
+          'message': S.string(
+            description:
+                'A message about what went wrong, or a message responding to '
+                'the request. Take into account any UI that has been '
+                "generated, so there's no need to duplicate requests or "
+                'information already present in the UI.',
+          ),
+        },
+        required: ['result'],
+      ),
     );
+    if (result == null) {
+      return;
+    }
+    final value =
+        (result as Map).cast<String, Object?>()['message'] as String? ?? '';
+    if (value.isNotEmpty) {
+      setState(() {
+        _conversation.add(AssistantMessage.text(value));
+      });
+    }
+    return;
   }
 
   void _onUiEvents(String surfaceId, List<UiEvent> events) {

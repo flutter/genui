@@ -504,7 +504,7 @@ class GeminiAiClient implements AiClient {
       );
       if (isForcedToolCalling && call.name == outputToolName) {
         try {
-          capturedResult = (call.args['parameters'] as JsonMap?)?['output'];
+          capturedResult = call.args['output'];
           genUiLogger.fine(
             'Captured final output from tool "$outputToolName".',
           );

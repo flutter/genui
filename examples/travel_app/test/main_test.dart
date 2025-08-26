@@ -30,6 +30,8 @@ void main() {
 
   testWidgets('Can send a prompt', (WidgetTester tester) async {
     final mockAiClient = FakeAiClient();
+    // The main app expects a JSON response from generateContent.
+    mockAiClient.response = {'result': true};
     await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
 
     await tester.enterText(find.byType(TextField), 'test prompt');

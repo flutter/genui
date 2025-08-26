@@ -60,29 +60,55 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class CatalogView extends StatelessWidget {
+class CatalogView extends StatefulWidget {
   const CatalogView({super.key, required this.catalog});
 
   final Catalog catalog;
 
   @override
+  State<CatalogView> createState() => _CatalogViewState();
+}
+
+class _CatalogViewState extends State<CatalogView> {
+  final _genUi = GenUiManager();
+  final surfaceIds = <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final items = widget.catalog.items.where(
+      (CatalogItem item) => item.exampleData != null,
+    );
+
+    for (final item in items) {
+      final data = item.exampleData!;
+      final surfaceId = item.name;
+      _genUi.addOrUpdateSurface(surfaceId, data);
+      surfaceIds.add(surfaceId);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: catalog.items
-          .where((CatalogItem item) => item.exampleData != null)
-          .map(
-            (CatalogItem item) => ListTile(
-              title: Text(item.name),
-              subtitle: item.widgetBuilder(
-                context: context,
-                data: item.exampleData!,
-                id: item.name,
-                buildChild: (String id) => const SizedBox.shrink(),
-                dispatchEvent: (UiEvent event) {},
-              ),
-            ),
-          )
-          .toList(),
+    return ListView.builder(
+      itemCount: surfaceIds.length,
+      itemBuilder: (BuildContext context, int index) {
+        final surfaceId = surfaceIds[index];
+        return ListTile(
+          title: Text(
+            '$surfaceId:',
+            style: const TextStyle(decoration: TextDecoration.underline),
+          ),
+          subtitle: GenUiSurface(
+            manager: _genUi,
+            surfaceId: surfaceId,
+            onEvent: (event) {
+              print('Event received: $event');
+            },
+          ),
+        );
+      },
     );
   }
 }
