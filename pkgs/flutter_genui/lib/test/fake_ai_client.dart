@@ -114,6 +114,16 @@ class FakeAiClient implements AiClient {
   void switchModel(AiModel model) {
     _model.value = model;
   }
+
+  @override
+  ValueListenable<int> get activeRequests => _activeRequests;
+  final ValueNotifier<int> _activeRequests = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    _model.dispose();
+    _activeRequests.dispose();
+  }
 }
 
 /// A fake implementation of [AiModel] for testing purposes.
