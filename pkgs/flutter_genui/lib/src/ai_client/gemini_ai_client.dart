@@ -10,14 +10,48 @@ import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
+import '../core/surface_controller.dart';
 import '../model/chat_message.dart' as msg;
 import '../model/tools.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'ai_client.dart';
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
+
+/// An abstract class representing a type of AI model.
+///
+/// This class provides a common interface for different AI models.
+abstract class AiModel {
+  /// The display name of the model used to select the model in the UI.
+  String get displayName;
+}
+
+/// An exception thrown by an [AiClient] or its subclasses.
+class AiClientException implements Exception {
+  /// Creates an [AiClientException] with the given [message].
+  AiClientException(this.message);
+
+  /// The message associated with the exception.
+  final String message;
+
+  @override
+  String toString() => '$AiClientException: $message';
+}
+
+extension ContentExtension on SurfaceController {
+  Content toContent() {
+    return Content('user', [
+      TextPart(
+        'The following is the current UI state that you have generated, '
+        'for your information. You should use this to inform your '
+        'decision about what to do next. The user is seeing this UI, '
+        'which is on a surface with ID "${definitionNotifier.value!.surfaceId}".\n\n'
+        '${jsonEncode(definitionNotifier.value!)}',
+      ),
+    ]);
+  }
+}
 
 /// A factory for creating a [GeminiGenerativeModelInterface].
 ///
@@ -30,70 +64,30 @@ typedef GenerativeModelFactory =
       ToolConfig? toolConfig,
     });
 
-/// An enum for the available Gemini models.
-enum GeminiModelType {
-  /// The Gemini 2.5 Flash model.
-  flash('gemini-2.5-flash', 'Gemini 2.5 Flash'),
-
-  /// The Gemini 2.5 Pro model.
-  pro('gemini-2.5-pro', 'Gemini 2.5 Pro');
-
-  /// Creates a [GeminiModelType] with the given [modelName] and [displayName].
-  const GeminiModelType(this.modelName, this.displayName);
-
-  /// The name of the model as known by the Gemini API.
-  final String modelName;
-
-  /// The human-readable name of the model.
-  final String displayName;
-}
-
-/// A class that represents a Gemini model.
-class GeminiModel extends AiModel {
-  /// Creates a new instance of [GeminiModel] as a specific [type].
-  GeminiModel(this.type);
-
-  /// The type of the model.
-  final GeminiModelType type;
-
-  @override
-  String get displayName => type.displayName;
-}
-
 /// A basic implementation of [AiClient] for accessing a Gemini model.
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
 /// including model selection, API keys, retry mechanisms, and tool
 /// configurations. It provides a [generateContent] method to interact with the
 /// AI model, supporting structured output and tool usage.
-class GeminiAiClient implements AiClient {
+class GeminiAiClient {
   /// Creates an [GeminiAiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
-  /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
   ///   used by tools.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
-  /// - [maxRetries]: Maximum number of retries for API calls on transient
-  ///   errors.
-  /// - [initialDelay]: Initial delay for the exponential backoff retry
-  ///   strategy.
   /// - [maxConcurrentJobs]: Intended for managing concurrent AI operations,
   ///   though not directly enforced by [generateContent] itself.
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
   GeminiAiClient({
-    GeminiModelType model = GeminiModelType.flash,
     this.systemInstruction,
-    this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
-    this.maxRetries = 8,
-    this.initialDelay = const Duration(seconds: 1),
-    this.minDelay = const Duration(seconds: 8),
     this.maxConcurrentJobs = 20,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
-  }) : _model = ValueNotifier(GeminiModel(model)) {
+  }) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -109,57 +103,6 @@ class GeminiAiClient implements AiClient {
 
   /// The system instruction to use for the AI model.
   final String? systemInstruction;
-
-  /// The name of the Gemini model to use.
-  ///
-  /// This identifier specifies which version or type of the generative AI model
-  /// will be invoked for content generation.
-  ///
-  /// Defaults to 'gemini-2.5-flash'.
-  final ValueNotifier<GeminiModel> _model;
-
-  @override
-  ValueListenable<AiModel> get model => _model;
-
-  @override
-  List<AiModel> get models =>
-      GeminiModelType.values.map(GeminiModel.new).toList();
-
-  /// The file system to use for accessing files.
-  ///
-  /// While not directly used by [GeminiAiClient]'s core content generation
-  /// logic, this [FileSystem] instance can be utilized by [AiTool]
-  /// implementations that require file read/write capabilities.
-  ///
-  /// Defaults to a [LocalFileSystem] instance, providing access to the local
-  /// machine's file system.
-  final FileSystem fileSystem;
-
-  /// The maximum number of retries to attempt when generating content.
-  ///
-  /// If an API call to the generative model fails with a transient error (like
-  /// [FirebaseAIException]), the client will attempt to retry the call up to
-  /// this many times.
-  ///
-  /// Defaults to 8 retries.
-  final int maxRetries;
-
-  /// The initial delay between retries in seconds.
-  ///
-  /// This duration is used for the first retry attempt. Subsequent retries
-  /// employ an exponential backoff strategy, where the delay doubles after each
-  /// failed attempt, up to the [maxRetries] limit.
-  ///
-  /// Defaults to 1 second.
-  final Duration initialDelay;
-
-  /// The minimum length of time to delay.
-  ///
-  /// Since the reset window for quota violations is 10 seconds, this shouldn't
-  /// be much less than that, or it will just wait longer.
-  ///
-  /// Defaults to 8 seconds.
-  final Duration minDelay;
 
   /// The maximum number of concurrent jobs to run.
   ///
@@ -206,18 +149,6 @@ class GeminiAiClient implements AiClient {
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
 
-  @override
-  void switchModel(AiModel newModel) {
-    if (newModel is! GeminiModel) {
-      throw ArgumentError(
-        'Invalid model type: ${newModel.runtimeType} supplied to '
-        '$GeminiAiClient.switchModel.',
-      );
-    }
-    _model.value = newModel;
-    genUiLogger.info('Switched AI model to: ${newModel.displayName}');
-  }
-
   /// Generates structured content based on the provided prompts and output
   /// schema.
   ///
@@ -243,27 +174,32 @@ class GeminiAiClient implements AiClient {
   ///   output `T`.
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
   ///   this specific call, in addition to the default [tools].
-  @override
   Future<T?> generateContent<T extends Object>(
-    List<msg.ChatMessage> conversation,
     dsb.Schema outputSchema, {
+    List<msg.ChatMessage>? conversation,
+    List<Content>? content,
     Iterable<AiTool> additionalTools = const [],
   }) async {
-    return await _generateContentWithRetries(conversation, outputSchema, [
-      ...tools,
-      ...additionalTools,
-    ]);
+    return await _generate(
+          outputSchema: outputSchema,
+          conversation: conversation,
+          content: content,
+          availableTools: [...tools, ...additionalTools],
+        )
+        as T?;
   }
 
-  @override
-  Future<String> generateText(
-    List<msg.ChatMessage> conversation, {
+  Future<String> generateText({
+    List<msg.ChatMessage>? conversation,
+    List<Content>? content,
     Iterable<AiTool> additionalTools = const [],
   }) async {
-    return await _generateTextWithRetries(conversation, [
-      ...tools,
-      ...additionalTools,
-    ]);
+    return await _generate(
+          conversation: conversation,
+          content: content,
+          availableTools: [...tools, ...additionalTools],
+        )
+        as String;
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -276,110 +212,14 @@ class GeminiAiClient implements AiClient {
     List<Tool>? tools,
     ToolConfig? toolConfig,
   }) {
-    final geminiModel = configuration._model.value;
     return GeminiGenerativeModel(
       FirebaseAI.googleAI().generativeModel(
-        model: geminiModel.type.modelName,
+        model: 'gemini-2.5-flash',
         systemInstruction: systemInstruction,
         tools: tools,
         toolConfig: toolConfig,
       ),
     );
-  }
-
-  Future<T?> _generateContentWithRetries<T extends Object>(
-    List<msg.ChatMessage> contents,
-    dsb.Schema outputSchema,
-    List<AiTool> availableTools,
-  ) async {
-    genUiLogger.fine('Generating content with retries.');
-    return _generateWithRetries<T?>(
-      (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-                outputSchema: outputSchema,
-              )
-              as T?,
-    );
-  }
-
-  Future<String> _generateTextWithRetries(
-    List<msg.ChatMessage> contents,
-    List<AiTool> availableTools,
-  ) async {
-    genUiLogger.fine('Generating text with retries.');
-    return _generateWithRetries<String>(
-      (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-              )
-              as String,
-    );
-  }
-
-  Future<T> _generateWithRetries<T>(
-    Future<T> Function(void Function() onSuccess) generationFunction,
-  ) async {
-    var attempts = 0;
-    var delay = initialDelay;
-    final maxTries = maxRetries + 1; // Retries plus the first attempt.
-    genUiLogger.fine('Starting generation with up to $maxRetries retries.');
-
-    Future<void> onFail(Exception exception) async {
-      attempts++;
-      if (attempts >= maxTries) {
-        genUiLogger.warning('Max retries of $maxRetries reached.');
-        throw exception;
-      }
-      // Make the delay at least minDelay long, since the reset window for
-      // exceeding the number of requests is 10 seconds long, and requesting it
-      // faster than that just means it makes us wait longer.
-      final waitTime = delay + minDelay;
-      genUiLogger.severe(
-        'Received exception, retrying in $waitTime. Attempt $attempts of '
-        '$maxTries. Exception: $exception',
-      );
-      await Future<void>.delayed(waitTime);
-      delay *= 2;
-    }
-
-    while (attempts < maxTries) {
-      try {
-        final result = await generationFunction(
-          // Reset the delay and attempts on success.
-          () {
-            delay = initialDelay;
-            attempts = 0;
-          },
-        );
-        genUiLogger.fine('Generation successful.');
-        return result;
-      } on FirebaseAIException catch (exception) {
-        if (exception.message.contains(
-          '${_model.value.type.modelName} is not found for API version',
-        )) {
-          // If the model is not found, then just throw an exception.
-          throw AiClientException(exception.message);
-        }
-        await onFail(exception);
-      } catch (exception, stack) {
-        genUiLogger.severe(
-          'Received '
-          '${exception.runtimeType}: $exception',
-          exception,
-          stack,
-        );
-        // For other exceptions, rethrow immediately.
-        rethrow;
-      }
-    }
-    // This line should be unreachable if maxRetries > 0, but is needed for
-    // static analysis.
-    throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
@@ -559,14 +399,21 @@ class GeminiAiClient implements AiClient {
 
   Future<Object?> _generate({
     // This list is modified to include tool calls and results.
-    required List<msg.ChatMessage> messages,
+    List<msg.ChatMessage>? conversation,
+    List<Content>? content,
     required List<AiTool> availableTools,
-    required void Function() onSuccess,
     dsb.Schema? outputSchema,
   }) async {
+    if (conversation != null && content != null) {
+      throw ArgumentError('Cannot provide both conversation and content.');
+    }
+    if (conversation == null && content == null) {
+      throw ArgumentError('Must provide either conversation or content.');
+    }
+
     final isForcedToolCalling = outputSchema != null;
     final converter = GeminiContentConverter();
-    final contents = converter.toFirebaseAiContent(messages);
+    final contents = content ?? converter.toFirebaseAiContent(conversation!);
     final adapter = GeminiSchemaAdapter();
 
     final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
@@ -610,14 +457,11 @@ class GeminiAiClient implements AiClient {
       genUiLogger.info(
         '''****** Performing Inference ******\n$concatenatedContents
 With functions:
-  '${allowedFunctionNames.join(', ')}',
-  ''',
+  ${allowedFunctionNames.join(', ')}''',
       );
       final inferenceStartTime = DateTime.now();
       final response = await model.generateContent(contents);
       final elapsed = DateTime.now().difference(inferenceStartTime);
-
-      onSuccess();
 
       if (response.usageMetadata != null) {
         inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
@@ -656,7 +500,7 @@ With functions:
             );
           }
           if (candidate.text != null) {
-            messages.add(msg.AssistantMessage.text(candidate.text!));
+            conversation?.add(msg.AssistantMessage.text(candidate.text!));
           }
           genUiLogger.fine(
             'Model returned text but no function calls with forced tool '
@@ -665,7 +509,7 @@ With functions:
           return null;
         } else {
           final text = candidate.text ?? '';
-          messages.add(msg.AssistantMessage.text(text));
+          conversation?.add(msg.AssistantMessage.text(text));
           genUiLogger.fine('Returning text response: "$text"');
           return text;
         }
@@ -701,7 +545,7 @@ With functions:
           .toList();
 
       if (assistantParts.isNotEmpty) {
-        messages.add(msg.AssistantMessage(assistantParts));
+        conversation?.add(msg.AssistantMessage(assistantParts));
         genUiLogger.fine(
           'Added assistant message with ${assistantParts.length} parts to '
           'conversation.',
@@ -720,7 +564,7 @@ With functions:
         }).toList();
 
         if (toolResponseParts.isNotEmpty) {
-          messages.add(msg.ToolResponseMessage(toolResponseParts));
+          conversation?.add(msg.ToolResponseMessage(toolResponseParts));
           genUiLogger.fine(
             'Added tool response message with ${toolResponseParts.length} '
             'parts to conversation.',

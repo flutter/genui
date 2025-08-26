@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/core/surface_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -23,14 +24,20 @@ void main() {
       UiEventCallback onEvent,
     ) async {
       final manager = GenUiManager(catalog: testCatalog);
-      manager.addOrUpdateSurface('testSurface', definition);
+      final addOrUpdateSurfaceTool = manager
+          .getTools()
+          .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 'testSurface',
+        'definition': definition,
+      });
+      final controller = manager.controllers['testSurface']!;
+      controller.onEvent = onEvent;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: GenUiSurface(
-              manager: manager,
-              surfaceId: 'testSurface',
-              onEvent: onEvent,
+              controller: controller,
             ),
           ),
         ),

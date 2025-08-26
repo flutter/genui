@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/genui_manager.dart';
+import '../../core/surface_controller.dart';
 import '../../core/widgets/chat_primitives.dart';
 import '../../model/chat_message.dart';
 import '../genui_surface.dart';
@@ -66,13 +67,16 @@ class ConversationWidget extends StatelessWidget {
               alignment: MainAxisAlignment.start,
             );
           case UiResponseMessage():
+            final controller = manager.controllers[message.surfaceId];
+            if (controller == null) {
+              return const SizedBox.shrink();
+            }
+            controller.onEvent = onEvent;
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: GenUiSurface(
                 key: message.uiKey,
-                manager: manager,
-                surfaceId: message.surfaceId,
-                onEvent: onEvent,
+                controller: controller,
               ),
             );
           case InternalMessage():

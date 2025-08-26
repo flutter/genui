@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _triggerInference() async {
     _chatController.setAiRequestSent();
     try {
-      final response = await _aiClient.generateText(
+      final response = await _aiClient.generateText(conversation: _conversation);
         List.of(_chatController.conversation.value),
       );
       _chatController.addMessage(AssistantMessage.text(response));

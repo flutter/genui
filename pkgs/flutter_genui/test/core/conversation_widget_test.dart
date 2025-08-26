@@ -4,15 +4,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/tools.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ConversationWidget', () {
     late GenUiManager manager;
+    late AiTool addOrUpdateSurfaceTool;
 
     setUp(() {
       manager = GenUiManager(catalog: coreCatalog);
+      addOrUpdateSurfaceTool = manager
+          .getTools()
+          .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
@@ -34,10 +39,10 @@ void main() {
           },
         ),
       ];
-      manager.addOrUpdateSurface(
-        's1',
-        (messages[1] as UiResponseMessage).definition,
-      );
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's1',
+        'definition': (messages[1] as UiResponseMessage).definition,
+      });
 
       await tester.pumpWidget(
         MaterialApp(
@@ -91,7 +96,10 @@ void main() {
           },
         ),
       ];
-      manager.addOrUpdateSurface('s1', messages[0].definition);
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's1',
+        'definition': messages[0].definition,
+      });
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

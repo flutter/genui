@@ -5,17 +5,19 @@
 import 'dart:async';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
+import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 
-import '../src/ai_client/ai_client.dart';
 import '../src/model/chat_message.dart' as genui;
 import '../src/model/tools.dart';
 
-/// A fake implementation of [AiClient] for testing purposes.
+/// A fake implementation of [GeminiAiClient] for testing purposes.
 ///
 /// This class allows for mocking the behavior of an AI client by providing
 /// canned responses or exceptions. It also tracks calls to its methods.
-class FakeAiClient implements AiClient {
+class FakeAiClient implements GeminiAiClient {
   /// The response to be returned by [generateContent].
   Object? response;
 
@@ -44,15 +46,16 @@ class FakeAiClient implements AiClient {
 
   @override
   Future<T?> generateContent<T extends Object>(
-    List<genui.ChatMessage> conversation,
-    Schema outputSchema, {
+    dsb.Schema outputSchema, {
+    List<genui.ChatMessage>? conversation,
+    List<Content>? content,
     Iterable<AiTool> additionalTools = const [],
   }) async {
     if (responseCompleter.isCompleted) {
       responseCompleter = Completer<void>();
     }
     generateContentCallCount++;
-    lastConversation = conversation;
+    lastConversation = conversation ?? [];
     try {
       if (preGenerateContent != null) {
         await preGenerateContent!();
@@ -69,15 +72,16 @@ class FakeAiClient implements AiClient {
   }
 
   @override
-  Future<String> generateText(
-    List<genui.ChatMessage> conversation, {
+  Future<String> generateText({
+    List<genui.ChatMessage>? conversation,
+    List<Content>? content,
     Iterable<AiTool> additionalTools = const [],
   }) async {
     if (responseCompleter.isCompleted) {
       responseCompleter = Completer<void>();
     }
     generateTextCallCount++;
-    lastConversation = conversation;
+    lastConversation = conversation ?? [];
     try {
       if (preGenerateContent != null) {
         await preGenerateContent!();
@@ -106,6 +110,28 @@ class FakeAiClient implements AiClient {
   void switchModel(AiModel model) {
     _model.value = model;
   }
+
+  @override
+  int inputTokenUsage = 0;
+
+  @override
+  int maxConcurrentJobs = 20;
+
+  @override
+  GenerativeModelFactory modelCreator =
+      GeminiAiClient.defaultGenerativeModelFactory;
+
+  @override
+  int outputTokenUsage = 0;
+
+  @override
+  String outputToolName = 'provideFinalOutput';
+
+  @override
+  String? systemInstruction;
+
+  @override
+  List<AiTool> tools = [];
 }
 
 /// A fake implementation of [AiModel] for testing purposes.

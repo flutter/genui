@@ -3,16 +3,24 @@
 // found in the LICENSE file.
 
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('GenUiChatController', () {
     late GenUiManager manager;
     late GenUiChatController controller;
+    late AiTool addOrUpdateSurfaceTool;
+    late AiTool deleteSurfaceTool;
 
     setUp(() {
       manager = GenUiManager();
       controller = GenUiChatController(manager: manager);
+      addOrUpdateSurfaceTool = manager
+          .getTools()
+          .firstWhere((tool) => tool.name == 'addOrUpdateSurface');
+      deleteSurfaceTool =
+          manager.getTools().firstWhere((tool) => tool.name == 'deleteSurface');
     });
 
     tearDown(() {
@@ -34,16 +42,19 @@ void main() {
     testWidgets('manager SurfaceAdded update adds a new surface message', (
       WidgetTester tester,
     ) async {
-      manager.addOrUpdateSurface('s2', {
-        'root': 'root',
-        'widgets': [
-          {
-            'id': 'root',
-            'widget': {
-              'text': {'text': 'Surface 2'},
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 's2',
+        'definition': {
+          'root': 'root',
+          'widgets': [
+            {
+              'id': 'root',
+              'widget': {
+                'text': {'text': 'Surface 2'},
+              },
             },
-          },
-        ],
+          ],
+        }
       });
       await tester.pumpAndSettle();
       expect(controller.conversation.value.length, 1);
@@ -55,20 +66,23 @@ void main() {
     testWidgets('manager SurfaceRemoved update removes a surface message', (
       WidgetTester tester,
     ) async {
-      manager.addOrUpdateSurface('main_surface', {
-        'root': 'root',
-        'widgets': [
-          {
-            'id': 'root',
-            'widget': {
-              'text': {'text': 'Hello!'},
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 'main_surface',
+        'definition': {
+          'root': 'root',
+          'widgets': [
+            {
+              'id': 'root',
+              'widget': {
+                'text': {'text': 'Hello!'},
+              },
             },
-          },
-        ],
+          ],
+        }
       });
       await tester.pumpAndSettle();
       expect(controller.conversation.value.length, 1);
-      manager.deleteSurface('main_surface');
+      await deleteSurfaceTool.invoke({'surfaceId': 'main_surface'});
       await tester.pumpAndSettle();
       expect(controller.conversation.value.length, 0);
     });
@@ -76,28 +90,34 @@ void main() {
     testWidgets('manager SurfaceUpdated update modifies a surface message', (
       WidgetTester tester,
     ) async {
-      manager.addOrUpdateSurface('main_surface', {
-        'root': 'root',
-        'widgets': [
-          {
-            'id': 'root',
-            'widget': {
-              'text': {'text': 'Hello!'},
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 'main_surface',
+        'definition': {
+          'root': 'root',
+          'widgets': [
+            {
+              'id': 'root',
+              'widget': {
+                'text': {'text': 'Hello!'},
+              },
             },
-          },
-        ],
+          ],
+        }
       });
       await tester.pumpAndSettle();
-      manager.addOrUpdateSurface('main_surface', {
-        'root': 'root',
-        'widgets': [
-          {
-            'id': 'root',
-            'widget': {
-              'text': {'text': 'Updated'},
+      await addOrUpdateSurfaceTool.invoke({
+        'surfaceId': 'main_surface',
+        'definition': {
+          'root': 'root',
+          'widgets': [
+            {
+              'id': 'root',
+              'widget': {
+                'text': {'text': 'Updated'},
+              },
             },
-          },
-        ],
+          ],
+        }
       });
       await tester.pumpAndSettle();
       expect(controller.conversation.value.length, 1);
