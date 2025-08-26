@@ -6,15 +6,14 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'core_catalog.dart';
-import 'ui_tools.dart';
 import 'surface_controller.dart';
+import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///

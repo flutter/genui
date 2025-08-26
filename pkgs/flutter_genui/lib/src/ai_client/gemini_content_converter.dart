@@ -8,7 +8,7 @@ import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 
 import '../model/chat_message.dart';
 import '../primitives/simple_items.dart';
-import 'ai_client.dart';
+import 'gemini_ai_client.dart';
 
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
 /// specific `Content` classes.

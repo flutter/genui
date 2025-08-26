@@ -46,7 +46,7 @@ class TravelApp extends StatelessWidget {
   ///
   /// If null, a default [GeminiAiClient] will be created by the
   /// [TravelPlannerPage].
-  final AiClient? aiClient;
+  final GeminiAiClient? aiClient;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class TravelPlannerPage extends StatefulWidget {
   ///
   /// If null, a default instance of [GeminiAiClient] will be created within
   /// the page's state.
-  final AiClient? aiClient;
+  final GeminiAiClient? aiClient;
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
@@ -91,7 +91,7 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final GenUiManager _genUiManager;
-  late final AiClient _aiClient;
+  late final GeminiAiClient _aiClient;
   late final UiEventManager _eventManager;
   final List<ChatMessage> _conversation = [];
 
@@ -109,7 +109,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _genUiManager.updates.listen((update) {
       setState(() {
         switch (update) {
-          case SurfaceAdded(:final surfaceId, :final definition, :final controller):
+          case SurfaceAdded(
+            :final surfaceId,
+            :final definition,
+            :final controller,
+          ):
             _conversation.add(
               UiResponseMessage(
                 definition: {
@@ -150,7 +154,6 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
 
   Future<void> _triggerInference() async {
     final result = await _aiClient.generateContent(
-      _conversation,
       S.object(
         properties: {
           'result': S.boolean(
@@ -166,6 +169,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         },
         required: ['result'],
       ),
+      conversation: _conversation,
     );
     if (result == null) {
       return;
@@ -231,35 +235,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             Text('Dynamic UI Demo'),
           ],
         ),
-        actions: [
-          ValueListenableBuilder<AiModel>(
-            valueListenable: _aiClient.model,
-            builder: (context, currentModel, child) {
-              return PopupMenuButton<AiModel>(
-                icon: const Icon(Icons.psychology_outlined),
-                onSelected: (AiModel value) {
-                  // Handle model selection
-                  _aiClient.switchModel(value);
-                },
-                itemBuilder: (BuildContext context) {
-                  return _aiClient.models.map((model) {
-                    return PopupMenuItem<AiModel>(
-                      value: model,
-                      child: Row(
-                        children: [
-                          Text(model.displayName),
-                          if (currentModel == model) const Icon(Icons.check),
-                        ],
-                      ),
-                    );
-                  }).toList();
-                },
-              );
-            },
-          ),
-          const Icon(Icons.person_outline),
-          const SizedBox(width: 8.0),
-        ],
+        actions: [const Icon(Icons.person_outline), const SizedBox(width: 8.0)],
       ),
       body: SafeArea(
         child: Center(

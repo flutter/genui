@@ -16,7 +16,7 @@ void main() {
       final mockAiClient = FakeAiClient();
       mockAiClient.response = _baliResponse;
 
-      runApp(app.TravelApp(aiClient: mockAiClient));
+      runApp(app.TravelApp(aiClient: fakeAiClient));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'Plan a trip to Bali');
       await tester.tap(find.byIcon(Icons.send));
