@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
+import 'package:flutter_genui/src/ai_client/firebase_ai_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../test_infra/utils.dart';
 
 void main() {
-  group('GeminiAiClient', () {
+  group('FirebaseAiClient', () {
     late FakeGenerativeModel fakeModel;
 
     setUp(() {
@@ -17,10 +17,10 @@ void main() {
     });
 
     test('activeRequests increments and decrements correctly', () async {
-      final client = GeminiAiClient(
+      final client = FirebaseAiClient(
         modelCreator:
             ({
-              required GeminiAiClient configuration,
+              required FirebaseAiClient configuration,
               Content? systemInstruction,
               List<Tool>? tools,
               ToolConfig? toolConfig,
@@ -31,7 +31,7 @@ void main() {
         [],
         PromptFeedback(BlockReason.other, '', []),
       );
-      final future = client.generateText([]);
+      final future = client.generateContent([]);
       expect(client.activeRequests.value, 1);
 
       await future;
@@ -40,10 +40,10 @@ void main() {
     });
 
     test('activeRequests decrements on error', () async {
-      final client = GeminiAiClient(
+      final client = FirebaseAiClient(
         modelCreator:
             ({
-              required GeminiAiClient configuration,
+              required FirebaseAiClient configuration,
               Content? systemInstruction,
               List<Tool>? tools,
               ToolConfig? toolConfig,
@@ -55,7 +55,7 @@ void main() {
 
       expect(client.activeRequests.value, 0);
 
-      final future = client.generateText([]);
+      final future = client.generateContent([]);
 
       expect(client.activeRequests.value, 1);
 

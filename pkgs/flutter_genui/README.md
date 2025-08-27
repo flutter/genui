@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     // 1. Create an AI Client
-    _aiClient = GeminiAiClient(
+    _aiClient = FirebaseAiClient(
       systemInstruction: 'You are a helpful AI assistant that builds UIs.',
     );
 

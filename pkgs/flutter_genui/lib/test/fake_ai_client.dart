@@ -19,14 +19,8 @@ class FakeAiClient implements AiClient {
   /// The response to be returned by [generateContent].
   Object? response;
 
-  /// The response to be returned by [generateText].
-  String? textResponse;
-
   /// The number of times [generateContent] has been called.
   int generateContentCallCount = 0;
-
-  /// The number of times [generateText] has been called.
-  int generateTextCallCount = 0;
 
   /// The last conversation passed to [generateContent].
   List<genui.ChatMessage> lastConversation = [];
@@ -34,7 +28,7 @@ class FakeAiClient implements AiClient {
   /// A function to be called before [generateContent] returns.
   Future<void> Function()? preGenerateContent;
 
-  /// An exception to be thrown by [generateContent] or [generateText].
+  /// An exception to be thrown by [generateContent].
   Exception? exception;
 
   /// A completer that completes when [generateContent] is finished.
@@ -48,9 +42,9 @@ class FakeAiClient implements AiClient {
   Future<dynamic>? generateContentFuture;
 
   @override
-  Future<T?> generateContent<T extends Object>(
-    List<genui.ChatMessage> conversation,
-    Schema outputSchema, {
+  Future<Object?> generateContent(
+    List<genui.ChatMessage> conversation, {
+    Schema? outputSchema,
     Iterable<AiTool> additionalTools = const [],
   }) async {
     if (responseCompleter.isCompleted) {
@@ -66,34 +60,9 @@ class FakeAiClient implements AiClient {
         throw exception!;
       }
       if (generateContentFuture != null) {
-        return await generateContentFuture as T?;
+        return await generateContentFuture;
       }
-      return response as T?;
-    } finally {
-      if (!responseCompleter.isCompleted) {
-        responseCompleter.complete();
-      }
-    }
-  }
-
-  @override
-  Future<String> generateText(
-    List<genui.ChatMessage> conversation, {
-    Iterable<AiTool> additionalTools = const [],
-  }) async {
-    if (responseCompleter.isCompleted) {
-      responseCompleter = Completer<void>();
-    }
-    generateTextCallCount++;
-    lastConversation = conversation;
-    try {
-      if (preGenerateContent != null) {
-        await preGenerateContent!();
-      }
-      if (exception != null) {
-        throw exception!;
-      }
-      return textResponse ?? '';
+      return response;
     } finally {
       if (!responseCompleter.isCompleted) {
         responseCompleter.complete();

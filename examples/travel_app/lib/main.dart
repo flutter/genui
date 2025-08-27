@@ -104,7 +104,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _eventManager = UiEventManager(callback: _onUiEvents);
     _aiClient =
         widget.aiClient ??
-        GeminiAiClient(
+        FirebaseAiClient(
           tools: _genUiManager.getTools(),
           systemInstruction: prompt,
         );
@@ -158,7 +158,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     try {
       final result = await _aiClient.generateContent(
         _conversation,
-        S.object(
+        outputSchema: S.object(
           properties: {
             'result': S.boolean(
               description: 'Successfully generated a response UI.',

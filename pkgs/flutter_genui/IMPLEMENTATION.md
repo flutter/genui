@@ -55,7 +55,7 @@ graph TD
 This layer is responsible for all communication with the generative AI model.
 
 - **`AiClient`**: An abstract interface defining the contract for a client that interacts with an AI model. This allows for different LLM backends to be implemented.
-- **`GeminiAiClient`**: The default implementation of `AiClient`. It handles the complexities of interacting with the Gemini API, including model configuration, retry logic with exponential backoff, and tool management. It supports two main generation modes:
+- **`FirebaseAiClient`**: The default implementation of `AiClient`. It handles the complexities of interacting with the Gemini API, including model configuration, and tool management. It supports two main generation modes:
   - `generateContent`: For generating structured data that conforms to a specific schema. This is used for UI generation, where the AI is forced to call a specific tool that returns the UI definition.
   - `generateText`: For generating free-form text responses.
 - **`AiTool`**: An abstract class for defining tools that the AI can invoke. These tools are the bridge between the AI and the application's capabilities. The `DynamicAiTool` provides a convenient way to create tools from simple functions.

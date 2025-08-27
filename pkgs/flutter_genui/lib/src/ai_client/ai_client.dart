@@ -32,23 +32,14 @@ abstract interface class AiClient {
   /// Switches the AI model to the given [model].
   void switchModel(AiModel model);
 
-  /// Generates content from the given [conversation] and returns an object of
-  /// type [T] that conforms to the given [outputSchema].
+  /// Generates content from the given [conversation] and returns an object that
+  /// conforms to the given [outputSchema].
   ///
   /// The [additionalTools] are added to the list of tools available to the
   /// AI model.
-  Future<T?> generateContent<T extends Object>(
-    List<ChatMessage> conversation,
-    Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const [],
-  });
-
-  /// Generates a text response from the given [conversation].
-  ///
-  /// The [additionalTools] are added to the list of tools available to the
-  /// AI model, but the model is not required to use them.
-  Future<String> generateText(
+  Future<Object?> generateContent(
     List<ChatMessage> conversation, {
+    Schema? outputSchema,
     Iterable<AiTool> additionalTools = const [],
   });
 

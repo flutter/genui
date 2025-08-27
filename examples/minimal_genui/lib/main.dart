@@ -57,7 +57,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late final GenUiManager _genUiManager;
-  late final GeminiAiClient _aiClient;
+  late final FirebaseAiClient _aiClient;
   late final GenUiChatController _chatController;
 
   @override
@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _genUiManager = GenUiManager();
     _chatController = GenUiChatController(manager: _genUiManager);
-    _aiClient = GeminiAiClient(
+    _aiClient = FirebaseAiClient(
       systemInstruction: _chatPrompt,
       tools: _genUiManager.getTools(),
     );
@@ -81,9 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _triggerInference() async {
     _chatController.setAiRequestSent();
     try {
-      final response = await _aiClient.generateText(
-        List.of(_chatController.conversation.value),
-      );
+      final response =
+          await _aiClient.generateContent(
+                List.of(_chatController.conversation.value),
+              )
+              as String;
       _chatController.addMessage(AssistantMessage.text(response));
     } finally {
       _chatController.setAiResponseReceived();

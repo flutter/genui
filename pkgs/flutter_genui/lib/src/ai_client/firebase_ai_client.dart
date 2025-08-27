@@ -5,8 +5,6 @@
 import 'dart:convert';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
-import 'package:file/file.dart';
-import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
@@ -24,7 +22,7 @@ import 'gemini_schema_adapter.dart';
 /// This is used to allow for custom model creation, for example, for testing.
 typedef GenerativeModelFactory =
     GeminiGenerativeModelInterface Function({
-      required GeminiAiClient configuration,
+      required FirebaseAiClient configuration,
       Content? systemInstruction,
       List<Tool>? tools,
       ToolConfig? toolConfig,
@@ -32,11 +30,11 @@ typedef GenerativeModelFactory =
 
 /// An enum for the available Gemini models.
 enum GeminiModelType {
-  /// The Gemini 2.5 Flash model.
-  flash('gemini-2.5-flash', 'Gemini 2.5 Flash'),
+  /// The Gemini 1.5 Flash model.
+  flash('gemini-1.5-flash', 'Gemini 1.5 Flash'),
 
-  /// The Gemini 2.5 Pro model.
-  pro('gemini-2.5-pro', 'Gemini 2.5 Pro');
+  /// The Gemini 1.5 Pro model.
+  pro('gemini-1.5-pro', 'Gemini 1.5 Pro');
 
   /// Creates a [GeminiModelType] with the given [modelName] and [displayName].
   const GeminiModelType(this.modelName, this.displayName);
@@ -63,33 +61,23 @@ class GeminiModel extends AiModel {
 /// A basic implementation of [AiClient] for accessing a Gemini model.
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
-/// including model selection, API keys, retry mechanisms, and tool
+/// including model selection, API keys, and tool
 /// configurations. It provides a [generateContent] method to interact with the
 /// AI model, supporting structured output and tool usage.
-class GeminiAiClient implements AiClient {
-  /// Creates an [GeminiAiClient] instance with specified configurations.
+class FirebaseAiClient implements AiClient {
+  /// Creates an [FirebaseAiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
-  /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
-  ///   used by tools.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
-  /// - [maxRetries]: Maximum number of retries for API calls on transient
-  ///   errors.
-  /// - [initialDelay]: Initial delay for the exponential backoff retry
-  ///   strategy.
   /// - [maxConcurrentJobs]: Intended for managing concurrent AI operations,
   ///   though not directly enforced by [generateContent] itself.
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
-  GeminiAiClient({
+  FirebaseAiClient({
     GeminiModelType model = GeminiModelType.flash,
     this.systemInstruction,
-    this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
-    this.maxRetries = 8,
-    this.initialDelay = const Duration(seconds: 1),
-    this.minDelay = const Duration(seconds: 8),
     this.maxConcurrentJobs = 20,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
@@ -115,7 +103,7 @@ class GeminiAiClient implements AiClient {
   /// This identifier specifies which version or type of the generative AI model
   /// will be invoked for content generation.
   ///
-  /// Defaults to 'gemini-2.5-flash'.
+  /// Defaults to 'gemini-1.5-flash'.
   final ValueNotifier<GeminiModel> _model;
 
   @override
@@ -125,46 +113,10 @@ class GeminiAiClient implements AiClient {
   List<AiModel> get models =>
       GeminiModelType.values.map(GeminiModel.new).toList();
 
-  /// The file system to use for accessing files.
-  ///
-  /// While not directly used by [GeminiAiClient]'s core content generation
-  /// logic, this [FileSystem] instance can be utilized by [AiTool]
-  /// implementations that require file read/write capabilities.
-  ///
-  /// Defaults to a [LocalFileSystem] instance, providing access to the local
-  /// machine's file system.
-  final FileSystem fileSystem;
-
-  /// The maximum number of retries to attempt when generating content.
-  ///
-  /// If an API call to the generative model fails with a transient error (like
-  /// [FirebaseAIException]), the client will attempt to retry the call up to
-  /// this many times.
-  ///
-  /// Defaults to 8 retries.
-  final int maxRetries;
-
-  /// The initial delay between retries in seconds.
-  ///
-  /// This duration is used for the first retry attempt. Subsequent retries
-  /// employ an exponential backoff strategy, where the delay doubles after each
-  /// failed attempt, up to the [maxRetries] limit.
-  ///
-  /// Defaults to 1 second.
-  final Duration initialDelay;
-
-  /// The minimum length of time to delay.
-  ///
-  /// Since the reset window for quota violations is 10 seconds, this shouldn't
-  /// be much less than that, or it will just wait longer.
-  ///
-  /// Defaults to 8 seconds.
-  final Duration minDelay;
-
   /// The maximum number of concurrent jobs to run.
   ///
   /// This property is intended for systems that might manage multiple
-  /// [GeminiAiClient] operations or other concurrent tasks. The
+  /// [FirebaseAiClient] operations or other concurrent tasks. The
   /// [generateContent] method itself is a single asynchronous operation and
   /// does not directly enforce this limit.
   ///
@@ -177,7 +129,7 @@ class GeminiAiClient implements AiClient {
   /// [GeminiGenerativeModelInterface] used for AI interactions. It allows for
   /// customization of the model setup, such as using different HTTP clients, or
   /// for providing mock models during testing. The factory receives this
-  /// [GeminiAiClient] instance as configuration.
+  /// [FirebaseAiClient] instance as configuration.
   ///
   /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
   /// [defaultGenerativeModelFactory].
@@ -211,7 +163,7 @@ class GeminiAiClient implements AiClient {
     if (newModel is! GeminiModel) {
       throw ArgumentError(
         'Invalid model type: ${newModel.runtimeType} supplied to '
-        '$GeminiAiClient.switchModel.',
+        'FirebaseAiClient.switchModel.',
       );
     }
     _model.value = newModel;
@@ -254,33 +206,200 @@ class GeminiAiClient implements AiClient {
   /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
   ///   this specific call, in addition to the default [tools].
   @override
-  Future<T?> generateContent<T extends Object>(
-    List<msg.ChatMessage> conversation,
-    dsb.Schema outputSchema, {
-    Iterable<AiTool> additionalTools = const [],
-  }) async {
-    _activeRequests.value++;
-    try {
-      return await _generateContentWithRetries(conversation, outputSchema, [
-        ...tools,
-        ...additionalTools,
-      ]);
-    } finally {
-      _activeRequests.value--;
-    }
-  }
-
-  @override
-  Future<String> generateText(
+  Future<Object?> generateContent(
     List<msg.ChatMessage> conversation, {
+    dsb.Schema? outputSchema,
     Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
     try {
-      return await _generateTextWithRetries(conversation, [
-        ...tools,
-        ...additionalTools,
-      ]);
+      final availableTools = [...tools, ...additionalTools];
+      final isForcedToolCalling = outputSchema != null;
+      final converter = GeminiContentConverter();
+      final contents = converter.toFirebaseAiContent(conversation);
+      final adapter = GeminiSchemaAdapter();
+
+      final (
+        :generativeAiTools,
+        :allowedFunctionNames,
+      ) = _setupToolsAndFunctions(
+        isForcedToolCalling: isForcedToolCalling,
+        availableTools: availableTools,
+        adapter: adapter,
+        outputSchema: outputSchema,
+      );
+
+      var toolUsageCycle = 0;
+      const maxToolUsageCycles = 40; // Safety break for tool loops
+      Object? capturedResult;
+
+      final model = modelCreator(
+        configuration: this,
+        systemInstruction: systemInstruction == null
+            ? null
+            : Content.system(systemInstruction!),
+        tools: generativeAiTools,
+        toolConfig: isForcedToolCalling
+            ? ToolConfig(
+                functionCallingConfig: FunctionCallingConfig.any(
+                  allowedFunctionNames.toSet(),
+                ),
+              )
+            : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
+      );
+
+      while (toolUsageCycle < maxToolUsageCycles) {
+        genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');
+        if (isForcedToolCalling && capturedResult != null) {
+          genUiLogger.fine('Captured result found, exiting tool usage loop.');
+          break;
+        }
+        toolUsageCycle++;
+
+        final concatenatedContents = contents
+            .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
+            .join('\n');
+
+        genUiLogger.info(
+          '****** Performing Inference ******\n'
+          '$concatenatedContents\n'
+          'With functions:\n'
+          '  ${allowedFunctionNames.join(', ')}',
+        );
+        final inferenceStartTime = DateTime.now();
+        final response = await model.generateContent(contents);
+        final elapsed = DateTime.now().difference(inferenceStartTime);
+
+        if (response.usageMetadata != null) {
+          inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
+          outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
+        }
+        genUiLogger.info(
+          '****** Completed Inference ******\n'
+          'Latency = ${elapsed.inMilliseconds}ms\n'
+          'Output tokens = '
+          '${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
+          'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
+        );
+
+        if (response.candidates.isEmpty) {
+          genUiLogger.warning(
+            'Response has no candidates: ${response.promptFeedback}',
+          );
+          return isForcedToolCalling ? null : '';
+        }
+
+        final candidate = response.candidates.first;
+        final functionCalls = candidate.content.parts
+            .whereType<FunctionCall>()
+            .toList();
+
+        if (functionCalls.isEmpty) {
+          genUiLogger.fine('Model response contained no function calls.');
+          if (isForcedToolCalling) {
+            genUiLogger.warning(
+              'Model did not call any function. FinishReason: '
+              '${candidate.finishReason}. Text: "${candidate.text}" ',
+            );
+            if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
+              genUiLogger.warning(
+                'Model returned direct text instead of a tool call. This might '
+                'be an error or unexpected AI behavior for forced tool '
+                'calling.',
+              );
+            }
+            if (candidate.text != null) {
+              conversation.add(msg.AssistantMessage.text(candidate.text!));
+            }
+            genUiLogger.fine(
+              'Model returned text but no function calls with forced tool '
+              'calling, so returning null.',
+            );
+            return null;
+          } else {
+            final text = candidate.text ?? '';
+            conversation.add(msg.AssistantMessage.text(text));
+            genUiLogger.fine('Returning text response: "$text"');
+            return text;
+          }
+        }
+
+        genUiLogger.fine(
+          'Model response contained ${functionCalls.length} function calls.',
+        );
+        final result = await _processFunctionCalls(
+          functionCalls: functionCalls,
+          isForcedToolCalling: isForcedToolCalling,
+          availableTools: availableTools,
+          capturedResult: capturedResult,
+        );
+        capturedResult = result.capturedResult;
+        final functionResponseParts = result.functionResponseParts;
+
+        final assistantParts = candidate.content.parts
+            .map((part) {
+              if (part is FunctionCall) {
+                return msg.ToolCallPart(
+                  id: part.name,
+                  toolName: part.name,
+                  arguments: part.args,
+                );
+              }
+              if (part is TextPart) {
+                return msg.TextPart(part.text);
+              }
+              return null;
+            })
+            .whereType<msg.MessagePart>()
+            .toList();
+
+        if (assistantParts.isNotEmpty) {
+          conversation.add(msg.AssistantMessage(assistantParts));
+          genUiLogger.fine(
+            'Added assistant message with ${assistantParts.length} parts to '
+            'conversation.',
+          );
+        }
+
+        if (functionResponseParts.isNotEmpty) {
+          contents.add(candidate.content);
+          contents.add(Content.functionResponses(functionResponseParts));
+
+          final toolResponseParts = functionResponseParts.map((response) {
+            return msg.ToolResultPart(
+              callId: response.name,
+              result: jsonEncode(response.response),
+            );
+          }).toList();
+
+          if (toolResponseParts.isNotEmpty) {
+            conversation.add(msg.ToolResponseMessage(toolResponseParts));
+            genUiLogger.fine(
+              'Added tool response message with ${toolResponseParts.length} '
+              'parts to conversation.',
+            );
+          }
+        }
+      }
+
+      if (isForcedToolCalling) {
+        if (toolUsageCycle >= maxToolUsageCycles) {
+          genUiLogger.severe(
+            'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. '
+            'No final output was produced.',
+            StackTrace.current,
+          );
+        }
+        genUiLogger.fine('Exited tool usage loop. Returning captured result.');
+        return capturedResult;
+      } else {
+        genUiLogger.severe(
+          'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. '
+          'No final output was produced.',
+          StackTrace.current,
+        );
+        return '';
+      }
     } finally {
       _activeRequests.value--;
     }
@@ -289,9 +408,9 @@ class GeminiAiClient implements AiClient {
   /// The default factory function for creating a [GenerativeModel].
   ///
   /// This function instantiates a standard [GenerativeModel] using the `model`
-  /// from the provided [GeminiAiClient] `configuration`.
+  /// from the provided [FirebaseAiClient] `configuration`.
   static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
-    required GeminiAiClient configuration,
+    required FirebaseAiClient configuration,
     Content? systemInstruction,
     List<Tool>? tools,
     ToolConfig? toolConfig,
@@ -305,101 +424,6 @@ class GeminiAiClient implements AiClient {
         toolConfig: toolConfig,
       ),
     );
-  }
-
-  Future<T?> _generateContentWithRetries<T extends Object>(
-    List<msg.ChatMessage> contents,
-    dsb.Schema outputSchema,
-    List<AiTool> availableTools,
-  ) async {
-    genUiLogger.fine('Generating content with retries.');
-    return _generateWithRetries<T?>(
-      (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-                outputSchema: outputSchema,
-              )
-              as T?,
-    );
-  }
-
-  Future<String> _generateTextWithRetries(
-    List<msg.ChatMessage> contents,
-    List<AiTool> availableTools,
-  ) async {
-    genUiLogger.fine('Generating text with retries.');
-    return _generateWithRetries<String>(
-      (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-              )
-              as String,
-    );
-  }
-
-  Future<T> _generateWithRetries<T>(
-    Future<T> Function(void Function() onSuccess) generationFunction,
-  ) async {
-    var attempts = 0;
-    var delay = initialDelay;
-    final maxTries = maxRetries + 1; // Retries plus the first attempt.
-    genUiLogger.fine('Starting generation with up to $maxRetries retries.');
-
-    Future<void> onFail(Exception exception) async {
-      attempts++;
-      if (attempts >= maxTries) {
-        genUiLogger.warning('Max retries of $maxRetries reached.');
-        throw exception;
-      }
-      // Make the delay at least minDelay long, since the reset window for
-      // exceeding the number of requests is 10 seconds long, and requesting it
-      // faster than that just means it makes us wait longer.
-      final waitTime = delay + minDelay;
-      genUiLogger.severe(
-        'Received exception, retrying in $waitTime. Attempt $attempts of '
-        '$maxTries. Exception: $exception',
-      );
-      await Future<void>.delayed(waitTime);
-      delay *= 2;
-    }
-
-    while (attempts < maxTries) {
-      try {
-        final result = await generationFunction(
-          // Reset the delay and attempts on success.
-          () {
-            delay = initialDelay;
-            attempts = 0;
-          },
-        );
-        genUiLogger.fine('Generation successful.');
-        return result;
-      } on FirebaseAIException catch (exception) {
-        if (exception.message.contains(
-          '${_model.value.type.modelName} is not found for API version',
-        )) {
-          // If the model is not found, then just throw an exception.
-          throw AiClientException(exception.message);
-        }
-        await onFail(exception);
-      } catch (exception, stack) {
-        genUiLogger.severe(
-          'Received '
-          '${exception.runtimeType}: $exception',
-          exception,
-          stack,
-        );
-        // For other exceptions, rethrow immediately.
-        rethrow;
-      }
-    }
-    // This line should be unreachable if maxRetries > 0, but is needed for
-    // static analysis.
-    throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
@@ -418,7 +442,11 @@ class GeminiAiClient implements AiClient {
         ? DynamicAiTool<JsonMap>(
             name: outputToolName,
             description:
-                '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
+                'Returns the final output. Call this function ONLY '
+                'when you have your complete structured output that '
+                'conforms to the required schema. Do not call this if you '
+                'need to use other tools first. You MUST call this tool '
+                'when you are done.',
             // Wrap the outputSchema in an object so that the output schema
             // isn't limited to objects.
             parameters: dsb.S.object(properties: {'output': outputSchema!}),
@@ -552,7 +580,7 @@ class GeminiAiClient implements AiClient {
         genUiLogger.fine('Invoking tool: ${aiTool.name}');
         toolResult = await aiTool.invoke(call.args);
         genUiLogger.info(
-          'Invoked tool ${aiTool.name} with args ${call.args}. ',
+          'Invoked tool ${aiTool.name} with args ${call.args}. '
           'Result: $toolResult',
         );
       } catch (exception, stack) {
@@ -575,197 +603,5 @@ class GeminiAiClient implements AiClient {
       functionResponseParts: functionResponseParts,
       capturedResult: capturedResult,
     );
-  }
-
-  Future<Object?> _generate({
-    // This list is modified to include tool calls and results.
-    required List<msg.ChatMessage> messages,
-    required List<AiTool> availableTools,
-    required void Function() onSuccess,
-    dsb.Schema? outputSchema,
-  }) async {
-    final isForcedToolCalling = outputSchema != null;
-    final converter = GeminiContentConverter();
-    final contents = converter.toFirebaseAiContent(messages);
-    final adapter = GeminiSchemaAdapter();
-
-    final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
-      isForcedToolCalling: isForcedToolCalling,
-      availableTools: availableTools,
-      adapter: adapter,
-      outputSchema: outputSchema,
-    );
-
-    var toolUsageCycle = 0;
-    const maxToolUsageCycles = 40; // Safety break for tool loops
-    Object? capturedResult;
-
-    final model = modelCreator(
-      configuration: this,
-      systemInstruction: systemInstruction == null
-          ? null
-          : Content.system(systemInstruction!),
-      tools: generativeAiTools,
-      toolConfig: isForcedToolCalling
-          ? ToolConfig(
-              functionCallingConfig: FunctionCallingConfig.any(
-                allowedFunctionNames.toSet(),
-              ),
-            )
-          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
-    );
-
-    while (toolUsageCycle < maxToolUsageCycles) {
-      genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');
-      if (isForcedToolCalling && capturedResult != null) {
-        genUiLogger.fine('Captured result found, exiting tool usage loop.');
-        break;
-      }
-      toolUsageCycle++;
-
-      final concatenatedContents = contents
-          .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
-          .join('\n');
-
-      genUiLogger.info(
-        '''****** Performing Inference ******\n$concatenatedContents
-With functions:
-  '${allowedFunctionNames.join(', ')}',
-  ''',
-      );
-      final inferenceStartTime = DateTime.now();
-      final response = await model.generateContent(contents);
-      final elapsed = DateTime.now().difference(inferenceStartTime);
-
-      onSuccess();
-
-      if (response.usageMetadata != null) {
-        inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
-        outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
-      }
-      genUiLogger.info(
-        '****** Completed Inference ******\n'
-        'Latency = ${elapsed.inMilliseconds}ms\n'
-        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
-        'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
-      );
-
-      if (response.candidates.isEmpty) {
-        genUiLogger.warning(
-          'Response has no candidates: ${response.promptFeedback}',
-        );
-        return isForcedToolCalling ? null : '';
-      }
-
-      final candidate = response.candidates.first;
-      final functionCalls = candidate.content.parts
-          .whereType<FunctionCall>()
-          .toList();
-
-      if (functionCalls.isEmpty) {
-        genUiLogger.fine('Model response contained no function calls.');
-        if (isForcedToolCalling) {
-          genUiLogger.warning(
-            'Model did not call any function. FinishReason: '
-            '${candidate.finishReason}. Text: "${candidate.text}" ',
-          );
-          if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
-            genUiLogger.warning(
-              'Model returned direct text instead of a tool call. This might '
-              'be an error or unexpected AI behavior for forced tool calling.',
-            );
-          }
-          if (candidate.text != null) {
-            messages.add(msg.AssistantMessage.text(candidate.text!));
-          }
-          genUiLogger.fine(
-            'Model returned text but no function calls with forced tool '
-            'calling, so returning null.',
-          );
-          return null;
-        } else {
-          final text = candidate.text ?? '';
-          messages.add(msg.AssistantMessage.text(text));
-          genUiLogger.fine('Returning text response: "$text"');
-          return text;
-        }
-      }
-
-      genUiLogger.fine(
-        'Model response contained ${functionCalls.length} function calls.',
-      );
-      final result = await _processFunctionCalls(
-        functionCalls: functionCalls,
-        isForcedToolCalling: isForcedToolCalling,
-        availableTools: availableTools,
-        capturedResult: capturedResult,
-      );
-      capturedResult = result.capturedResult;
-      final functionResponseParts = result.functionResponseParts;
-
-      final assistantParts = candidate.content.parts
-          .map((part) {
-            if (part is FunctionCall) {
-              return msg.ToolCallPart(
-                id: part.name,
-                toolName: part.name,
-                arguments: part.args,
-              );
-            }
-            if (part is TextPart) {
-              return msg.TextPart(part.text);
-            }
-            return null;
-          })
-          .whereType<msg.MessagePart>()
-          .toList();
-
-      if (assistantParts.isNotEmpty) {
-        messages.add(msg.AssistantMessage(assistantParts));
-        genUiLogger.fine(
-          'Added assistant message with ${assistantParts.length} parts to '
-          'conversation.',
-        );
-      }
-
-      if (functionResponseParts.isNotEmpty) {
-        contents.add(candidate.content);
-        contents.add(Content.functionResponses(functionResponseParts));
-
-        final toolResponseParts = functionResponseParts.map((response) {
-          return msg.ToolResultPart(
-            callId: response.name,
-            result: jsonEncode(response.response),
-          );
-        }).toList();
-
-        if (toolResponseParts.isNotEmpty) {
-          messages.add(msg.ToolResponseMessage(toolResponseParts));
-          genUiLogger.fine(
-            'Added tool response message with ${toolResponseParts.length} '
-            'parts to conversation.',
-          );
-        }
-      }
-    }
-
-    if (isForcedToolCalling) {
-      if (toolUsageCycle >= maxToolUsageCycles) {
-        genUiLogger.severe(
-          'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-          'No final output was produced.',
-          StackTrace.current,
-        );
-      }
-      genUiLogger.fine('Exited tool usage loop. Returning captured result.');
-      return capturedResult;
-    } else {
-      genUiLogger.severe(
-        'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-        'No final output was produced.',
-        StackTrace.current,
-      );
-      return '';
-    }
   }
 }
