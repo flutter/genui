@@ -113,7 +113,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         switch (update) {
           case SurfaceAdded(:final surfaceId, :final definition):
             _conversation.add(
-              UiResponseMessage(
+              AiUiMessage(
                 definition: {
                   'root': definition.root,
                   'widgets': definition.widgetList,
@@ -123,14 +123,14 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             );
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
-              (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
+              (m) => m is AiUiMessage && m.surfaceId == surfaceId,
             );
           case SurfaceUpdated(:final surfaceId, :final definition):
             final index = _conversation.lastIndexWhere(
-              (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
+              (m) => m is AiUiMessage && m.surfaceId == surfaceId,
             );
             if (index != -1) {
-              _conversation[index] = UiResponseMessage(
+              _conversation[index] = AiUiMessage(
                 definition: {
                   'root': definition.root,
                   'widgets': definition.widgetList,
@@ -181,7 +181,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           (result as Map).cast<String, Object?>()['message'] as String? ?? '';
       if (value.isNotEmpty) {
         setState(() {
-          _conversation.add(AiMessage.text(value));
+          _conversation.add(AiTextMessage.text(value));
         });
       }
     } finally {

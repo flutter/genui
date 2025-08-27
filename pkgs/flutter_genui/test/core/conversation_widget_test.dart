@@ -18,7 +18,7 @@ void main() {
     testWidgets('renders a list of messages', (WidgetTester tester) async {
       final messages = [
         UserMessage.text('Hello'),
-        UiResponseMessage(
+        AiUiMessage(
           surfaceId: 's1',
           definition: {
             'surfaceId': 's1',
@@ -34,10 +34,7 @@ void main() {
           },
         ),
       ];
-      manager.addOrUpdateSurface(
-        's1',
-        (messages[1] as UiResponseMessage).definition,
-      );
+      manager.addOrUpdateSurface('s1', (messages[1] as AiUiMessage).definition);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -75,7 +72,7 @@ void main() {
 
     testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
       final messages = [
-        UiResponseMessage(
+        AiUiMessage(
           surfaceId: 's1',
           definition: {
             'surfaceId': 's1',

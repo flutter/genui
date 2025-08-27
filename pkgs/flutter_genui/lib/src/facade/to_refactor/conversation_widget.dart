@@ -52,7 +52,7 @@ class ConversationWidget extends StatelessWidget {
                     icon: Icons.person,
                     alignment: MainAxisAlignment.end,
                   );
-          case AiMessage():
+          case AiTextMessage():
             final text = message.parts
                 .whereType<TextPart>()
                 .map((part) => part.text)
@@ -65,7 +65,7 @@ class ConversationWidget extends StatelessWidget {
               icon: Icons.smart_toy_outlined,
               alignment: MainAxisAlignment.start,
             );
-          case UiResponseMessage():
+          case AiUiMessage():
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: GenUiSurface(

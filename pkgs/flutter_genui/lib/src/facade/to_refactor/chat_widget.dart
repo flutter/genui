@@ -19,7 +19,7 @@ class GenUiChatController {
       final surfaceId = entry.key;
       final definition = entry.value.value;
       _surfaceIds.add(surfaceId);
-      return UiResponseMessage(
+      return AiUiMessage(
         definition: {
           'root': definition?.root,
           'widgets': definition?.widgetList,
@@ -51,7 +51,7 @@ class GenUiChatController {
           _surfaceIds.add(surfaceId);
           _conversation.value = [
             ...currentConversation,
-            UiResponseMessage(
+            AiUiMessage(
               definition: {
                 'root': definition.root,
                 'widgets': definition.widgetList,
@@ -63,15 +63,15 @@ class GenUiChatController {
       case SurfaceRemoved(:final surfaceId):
         _surfaceIds.remove(surfaceId);
         _conversation.value = currentConversation
-            .where((m) => !(m is UiResponseMessage && m.surfaceId == surfaceId))
+            .where((m) => !(m is AiUiMessage && m.surfaceId == surfaceId))
             .toList();
       case SurfaceUpdated(:final surfaceId, :final definition):
         final index = currentConversation.lastIndexWhere(
-          (m) => m is UiResponseMessage && m.surfaceId == surfaceId,
+          (m) => m is AiUiMessage && m.surfaceId == surfaceId,
         );
         if (index != -1) {
           final newConversation = [...currentConversation];
-          newConversation[index] = UiResponseMessage(
+          newConversation[index] = AiUiMessage(
             definition: {
               'root': definition.root,
               'widgets': definition.widgetList,
@@ -191,7 +191,7 @@ class _GenUiChatState extends State<GenUiChat> {
                         icon: Icons.person,
                         alignment: MainAxisAlignment.end,
                       );
-                    case AiMessage():
+                    case AiTextMessage():
                       final text = message.parts
                           .whereType<TextPart>()
                           .map((part) => part.text)
@@ -204,7 +204,7 @@ class _GenUiChatState extends State<GenUiChat> {
                         icon: Icons.smart_toy_outlined,
                         alignment: MainAxisAlignment.start,
                       );
-                    case UiResponseMessage():
+                    case AiUiMessage():
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: GenUiSurface(

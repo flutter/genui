@@ -48,8 +48,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(controller.conversation.value.length, 1);
       final lastMessage = controller.conversation.value.last;
-      expect(lastMessage, isA<UiResponseMessage>());
-      expect((lastMessage as UiResponseMessage).surfaceId, 's2');
+      expect(lastMessage, isA<AiUiMessage>());
+      expect((lastMessage as AiUiMessage).surfaceId, 's2');
     });
 
     testWidgets('manager SurfaceRemoved update removes a surface message', (
@@ -101,7 +101,7 @@ void main() {
       });
       await tester.pumpAndSettle();
       expect(controller.conversation.value.length, 1);
-      final message = controller.conversation.value.first as UiResponseMessage;
+      final message = controller.conversation.value.first as AiUiMessage;
       final widget = message.definition['widgets'] as List<Object?>;
       final root = widget.first as Map<String, Object?>;
       final textWidget = root['widget'] as Map<String, Object?>;

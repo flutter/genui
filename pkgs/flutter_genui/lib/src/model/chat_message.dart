@@ -129,7 +129,9 @@ final class InternalMessage extends ChatMessage {
   final String text;
 }
 
-/// A message representing a user's text prompt.
+/// A message representing a user's message.
+///
+/// It can be a text message, or selections in UI.
 final class UserMessage extends ChatMessage {
   /// Creates a [UserMessage] with the given [parts].
   const UserMessage(this.parts);
@@ -141,13 +143,13 @@ final class UserMessage extends ChatMessage {
   final List<MessagePart> parts;
 }
 
-/// A message representing a response from the AI.
-final class AiMessage extends ChatMessage {
-  /// Creates a [AiMessage] with the given [parts].
-  const AiMessage(this.parts);
+/// A message representing a text response from the AI.
+final class AiTextMessage extends ChatMessage {
+  /// Creates a [AiTextMessage] with the given [parts].
+  const AiTextMessage(this.parts);
 
-  /// Creates a [AiMessage] with the given [text].
-  factory AiMessage.text(String text) => AiMessage([TextPart(text)]);
+  /// Creates a [AiTextMessage] with the given [text].
+  factory AiTextMessage.text(String text) => AiTextMessage([TextPart(text)]);
 
   /// The parts of the AI's message.
   final List<MessagePart> parts;
@@ -163,9 +165,9 @@ final class ToolResponseMessage extends ChatMessage {
 }
 
 /// A message representing a UI response from the AI.
-final class UiResponseMessage extends ChatMessage {
-  /// Creates a [UiResponseMessage] with the given UI [definition].
-  UiResponseMessage({required this.definition, String? surfaceId})
+final class AiUiMessage extends ChatMessage {
+  /// Creates a [AiUiMessage] with the given UI [definition].
+  AiUiMessage({required this.definition, String? surfaceId})
     : uiKey = UniqueKey(),
       surfaceId =
           surfaceId ??
