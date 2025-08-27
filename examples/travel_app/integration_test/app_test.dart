@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,7 +16,7 @@ void main() {
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
       final mockAiClient = FakeAiClient();
-      mockAiClient.response = 'some text';
+      mockAiClient.response = jsonEncode(_baliResponse);
 
       runApp(app.TravelApp(aiClient: mockAiClient));
       await tester.pumpAndSettle();
