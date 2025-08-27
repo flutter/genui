@@ -82,7 +82,7 @@ AiClient(
   for brand and design consistency.  
 * **Interactive State Feedback:** Widget state changes are sent back to the LLM, enabling a
   true interactive loop where the UI influences the agent's next steps.  
-* **Firebase AI & Genkit Ready:** Designed to work seamlessly with Firebase AI Logic and the
+* **Firebase AI Logic & Genkit Ready:** Designed to work seamlessly with Firebase AI Logic and the
   Genkit framework.  
 * **Framework Agnostic:** Can be integrated into your agent library or LLM framework of choice.  
 * **JSON Based:** Uses a simple, open standard for UI definition—no proprietary formats.  
