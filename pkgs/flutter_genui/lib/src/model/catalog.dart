@@ -29,8 +29,7 @@ class Catalog {
     return Catalog._(items);
   }
 
-  /// A standard catalog of items sufficient for building simple interactive
-  /// UIs.
+  /// A catalog of simple items sufficient for building simple interactive UIs.
   ///
   /// For the full list of core widgets, see [CoreCatalogItems].
   static final Catalog core = Catalog._(CoreCatalogItems.all);

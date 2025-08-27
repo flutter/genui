@@ -37,7 +37,7 @@ class CoreCatalogItems {
   /// A widget that displays an image.
   static final CatalogItem image = image_item.image;
 
-  /// A list of all standard catalog items.
+  /// A list of all core catalog items.
   static final List<CatalogItem> all = [
     elevatedButton,
     column,
