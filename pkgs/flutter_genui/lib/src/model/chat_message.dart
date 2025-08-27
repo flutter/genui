@@ -149,7 +149,7 @@ final class AiMessage extends ChatMessage {
   /// Creates a [AiMessage] with the given [text].
   factory AiMessage.text(String text) => AiMessage([TextPart(text)]);
 
-  /// The parts of the assistant's message.
+  /// The parts of the AI's message.
   final List<MessagePart> parts;
 }
 
