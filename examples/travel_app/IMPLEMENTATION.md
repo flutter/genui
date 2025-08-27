@@ -53,7 +53,7 @@ classDiagram
     TravelApp.UILayer --> TravelApp.GenUiSurface : "Renders"
     TravelApp.UILayer --> TravelApp.AppLogic : "Sends user input to"
 
-    TravelApp.AppLogic --> flutter_genui.AiClient : "Calls generateContent()"
+    TravelApp.AppLogic --> flutter_genui.AiClient : "Calls generateText()"
     TravelApp.AppLogic --> flutter_genui.SurfaceManager : "Executes UI tool calls"
 
     flutter_genui.GenUiManager "1" *-- "1" flutter_genui.SurfaceManager : "Owns"

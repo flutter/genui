@@ -14,7 +14,7 @@ void main() {
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
       final mockAiClient = FakeAiClient();
-      mockAiClient.response = _baliResponse;
+      mockAiClient.response = 'some text';
 
       runApp(app.TravelApp(aiClient: mockAiClient));
       await tester.pumpAndSettle();

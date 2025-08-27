@@ -32,8 +32,8 @@ void main() {
 
   testWidgets('Can send a prompt', (WidgetTester tester) async {
     final mockAiClient = FakeAiClient();
-    // The main app expects a JSON response from generateContent.
-    mockAiClient.response = {'result': true};
+    // The main app expects a JSON response from generateText.
+    mockAiClient.response = 'result';
     await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
 
     await tester.enterText(find.byType(TextField), 'test prompt');
@@ -43,19 +43,19 @@ void main() {
     // Wait for the AI client to be called.
     await mockAiClient.responseCompleter.future;
 
-    expect(mockAiClient.generateContentCallCount, 1);
+    expect(mockAiClient.generateTextCallCount, 1);
     final lastMessage = mockAiClient.lastConversation.last;
-    expect(lastMessage, isA<UserMessage>());
+    expect(lastMessage, isA<AssistantMessage>());
     expect(
-      ((lastMessage as UserMessage).parts.last as TextPart).text,
-      'test prompt',
+      ((lastMessage as AssistantMessage).parts.last as TextPart).text,
+      'result',
     );
   });
 
   testWidgets('Shows spinner while thinking', (WidgetTester tester) async {
     final mockAiClient = FakeAiClient();
-    final completer = Completer<dynamic>();
-    mockAiClient.generateContentFuture = completer.future;
+    final completer = Completer<String>();
+    mockAiClient.generateTextFuture = completer.future;
     await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
 
     await tester.enterText(find.byType(TextField), 'test prompt');
@@ -69,7 +69,7 @@ void main() {
     expect(textField.enabled, isFalse);
 
     // Complete the response.
-    completer.complete({'result': true});
+    completer.complete('result');
     await tester.pumpAndSettle();
 
     // The spinner should be gone.

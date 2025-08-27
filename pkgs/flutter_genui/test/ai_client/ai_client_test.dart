@@ -4,12 +4,7 @@
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_ai/firebase_ai.dart'
-    show
-        Candidate,
-        Content,
-        FinishReason,
-        FunctionCall,
-        GenerateContentResponse;
+    show Candidate, Content, FunctionCall, GenerateContentResponse;
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
 import 'package:flutter_genui/src/ai_client/firebase_ai_client.dart';
@@ -60,15 +55,11 @@ void main() {
       }
     });
 
-    test('generateContent returns structured data', () async {
+    test('generateText returns text data', () async {
       client = createClient();
       fakeModel.response = GenerateContentResponse([
         Candidate(
-          Content.model([
-            FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
-            }),
-          ]),
+          Content.model([firebase_ai.TextPart('response text')]),
           [],
           null,
           null,
@@ -76,17 +67,14 @@ void main() {
         ),
       ], null);
 
-      final result =
-          await client.generateContent([
-                UserMessage.text('user prompt'),
-              ], outputSchema: S.object(properties: {'key': S.string()}))
-              as Map<String, Object?>?;
+      final result = await client.generateText([
+        UserMessage.text('user prompt'),
+      ]);
 
-      expect(result, isNotNull);
-      expect(result!['key'], 'value');
+      expect(result, 'response text');
     });
 
-    test('generateContent handles tool calls', () async {
+    test('generateText handles tool calls', () async {
       var toolCalled = false;
       final tool = DynamicAiTool(
         name: 'myTool',
@@ -113,11 +101,7 @@ void main() {
         // Second response: model returns final output
         GenerateContentResponse([
           Candidate(
-            Content.model([
-              FunctionCall('provideFinalOutput', {
-                'output': {'final': 'result'},
-              }),
-            ]),
+            Content.model([firebase_ai.TextPart('final result')]),
             [],
             null,
             null,
@@ -126,19 +110,16 @@ void main() {
         ], null),
       ];
 
-      final result =
-          await client.generateContent([
-                UserMessage.text('do something'),
-              ], outputSchema: S.object(properties: {'final': S.string()}))
-              as Map<String, Object?>?;
+      final result = await client.generateText([
+        UserMessage.text('do something'),
+      ]);
 
       expect(toolCalled, isTrue);
-      expect(result, isNotNull);
-      expect(result!['final'], 'result');
+      expect(result, 'final result');
       expect(fakeModel.generateContentCallCount, 2);
     });
 
-    test('generateContent handles tool exception', () async {
+    test('generateText handles tool exception', () async {
       final tool = DynamicAiTool(
         name: 'badTool',
         description: 'd',
@@ -159,11 +140,7 @@ void main() {
         ], null),
         GenerateContentResponse([
           Candidate(
-            Content.model([
-              FunctionCall('provideFinalOutput', {
-                'output': {'final': 'result'},
-              }),
-            ]),
+            Content.model([firebase_ai.TextPart('final result')]),
             [],
             null,
             null,
@@ -172,28 +149,25 @@ void main() {
         ], null),
       ];
 
-      final result =
-          await client.generateContent([
-                UserMessage.text('do something'),
-              ], outputSchema: S.object(properties: {'final': S.string()}))
-              as Map<String, Object?>?;
+      final result = await client.generateText([
+        UserMessage.text('do something'),
+      ]);
 
-      expect(result, isNotNull);
-      expect(result!['final'], 'result');
+      expect(result, 'final result');
     });
 
-    test('generateContent returns null if no candidates', () async {
+    test('generateText returns empty string if no candidates', () async {
       client = createClient();
       fakeModel.response = GenerateContentResponse([], null);
 
-      final result = await client.generateContent([
+      final result = await client.generateText([
         UserMessage.text('user prompt'),
-      ], outputSchema: S.object(properties: {}));
+      ]);
 
-      expect(result, isNull);
+      expect(result, '');
     });
 
-    test('generateContent throws on unknown tool call', () async {
+    test('generateText throws on unknown tool call', () async {
       client = createClient();
       fakeModel.response = GenerateContentResponse([
         Candidate(
@@ -206,57 +180,9 @@ void main() {
       ], null);
 
       expect(
-        () => client.generateContent([
-          UserMessage.text('user prompt'),
-        ], outputSchema: S.object(properties: {})),
+        () => client.generateText([UserMessage.text('user prompt')]),
         throwsA(isA<AiClientException>()),
       );
-    });
-
-    test('generateContent returns null on direct text response', () async {
-      client = createClient();
-      fakeModel.response = GenerateContentResponse([
-        Candidate(
-          Content.model([firebase_ai.TextPart('unexpected text')]),
-          [],
-          null,
-          FinishReason.stop,
-          null,
-        ),
-      ], null);
-
-      final result = await client.generateContent([
-        UserMessage.text('user prompt'),
-      ], outputSchema: S.object(properties: {}));
-
-      expect(result, isNull);
-    });
-
-    test('generateContent returns null on max tool cycles', () async {
-      final tool = DynamicAiTool(
-        name: 'loopTool',
-        description: 'd',
-        invokeFunction: (_) async => <String, Object?>{},
-        parameters: S.object(properties: {}),
-      );
-      client = createClient(tools: [tool]);
-
-      // Make the model call the tool repeatedly
-      fakeModel.response = GenerateContentResponse([
-        Candidate(
-          Content.model([FunctionCall('loopTool', {})]),
-          [],
-          null,
-          null,
-          null,
-        ),
-      ], null);
-
-      final result = await client.generateContent([
-        UserMessage.text('user prompt'),
-      ], outputSchema: S.object(properties: {}));
-
-      expect(result, isNull);
     });
 
     test('logging callback is called', () async {
@@ -272,11 +198,7 @@ void main() {
 
       fakeModel.response = GenerateContentResponse([
         Candidate(
-          Content.model([
-            FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
-            }),
-          ]),
+          Content.model([firebase_ai.TextPart('response')]),
           [],
           null,
           null,
@@ -284,9 +206,7 @@ void main() {
         ),
       ], null);
 
-      await client.generateContent([
-        UserMessage.text('user prompt'),
-      ], outputSchema: S.object(properties: {'key': S.string()}));
+      await client.generateText([UserMessage.text('user prompt')]);
 
       expect(logMessages, isNotEmpty);
     });

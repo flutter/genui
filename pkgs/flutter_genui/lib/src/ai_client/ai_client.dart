@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
 import '../model/chat_message.dart';
@@ -32,14 +31,12 @@ abstract interface class AiClient {
   /// Switches the AI model to the given [model].
   void switchModel(AiModel model);
 
-  /// Generates content from the given [conversation] and returns an object that
-  /// conforms to the given [outputSchema].
+  /// Generates content from the given [conversation] and returns a [String]
   ///
   /// The [additionalTools] are added to the list of tools available to the
   /// AI model.
-  Future<Object?> generateContent(
+  Future<String> generateText(
     List<ChatMessage> conversation, {
-    Schema? outputSchema,
     Iterable<AiTool> additionalTools = const [],
   });
 

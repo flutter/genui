@@ -31,7 +31,7 @@ void main() {
         [],
         PromptFeedback(BlockReason.other, '', []),
       );
-      final future = client.generateContent([]);
+      final future = client.generateText([]);
       expect(client.activeRequests.value, 1);
 
       await future;
@@ -55,7 +55,7 @@ void main() {
 
       expect(client.activeRequests.value, 0);
 
-      final future = client.generateContent([]);
+      final future = client.generateText([]);
 
       expect(client.activeRequests.value, 1);
 

@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
@@ -62,7 +61,7 @@ class GeminiModel extends AiModel {
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
 /// including model selection, API keys, and tool
-/// configurations. It provides a [generateContent] method to interact with the
+/// configurations. It provides a [generateText] method to interact with the
 /// AI model, supporting structured output and tool usage.
 class FirebaseAiClient implements AiClient {
   /// Creates an [FirebaseAiClient] instance with specified configurations.
@@ -70,17 +69,14 @@ class FirebaseAiClient implements AiClient {
   /// - [model]: The identifier of the generative AI model to use.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
   /// - [maxConcurrentJobs]: Intended for managing concurrent AI operations,
-  ///   though not directly enforced by [generateContent] itself.
+  ///   though not directly enforced by [generateText] itself.
   /// - [tools]: A list of default [AiTool]s available to the AI.
-  /// - [outputToolName]: The name of the internal tool used to force structured
-  ///   output from the AI.
   FirebaseAiClient({
     GeminiModelType model = GeminiModelType.flash,
     this.systemInstruction,
     this.modelCreator = defaultGenerativeModelFactory,
     this.maxConcurrentJobs = 20,
     this.tools = const <AiTool>[],
-    this.outputToolName = 'provideFinalOutput',
   }) : _model = ValueNotifier(GeminiModel(model)) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
@@ -117,7 +113,7 @@ class FirebaseAiClient implements AiClient {
   ///
   /// This property is intended for systems that might manage multiple
   /// [FirebaseAiClient] operations or other concurrent tasks. The
-  /// [generateContent] method itself is a single asynchronous operation and
+  /// [generateText] method itself is a single asynchronous operation and
   /// does not directly enforce this limit.
   ///
   /// Defaults to 20.
@@ -138,19 +134,9 @@ class FirebaseAiClient implements AiClient {
   /// The list of tools to configure by default for this AI instance.
   ///
   /// These [AiTool]s are made available to the AI during every
-  /// [generateContent] call, in addition to any tools passed directly to that
+  /// [generateText] call, in addition to any tools passed directly to that
   /// method.
   final List<AiTool> tools;
-
-  /// The name of an internal pseudo-tool used to retrieve the final structured
-  /// output from the AI.
-  ///
-  /// This only needs to be provided in case of name collision with another
-  /// tool. It is used internally to fetch the final output to return from the
-  /// [generateContent] method.
-  ///
-  /// Defaults to 'provideFinalOutput'.
-  final String outputToolName;
 
   /// The total number of input tokens used by this client.
   int inputTokenUsage = 0;
@@ -180,41 +166,14 @@ class FirebaseAiClient implements AiClient {
     _activeRequests.dispose();
   }
 
-  /// Generates structured content based on the provided prompts and output
-  /// schema.
-  ///
-  /// This method orchestrates the interaction with the generative AI model. It
-  /// sends the given [conversation] and an [outputSchema] that defines the
-  /// expected structure of the AI's response. The [conversation] is updated in
-  /// place with the results of the tool-calling conversation.
-  ///
-  /// The AI is configured to use "forced tool calling", meaning it's expected
-  /// to respond by either:
-  ///
-  /// 1. Calling one of the available [AiTool]s (from [tools] or
-  ///    [additionalTools]). If a tool is called, its `invoke` method is
-  ///    executed, and the result is sent back to the AI in a subsequent
-  ///    request.
-  /// 2. Calling a special internal tool (named by [outputToolName]) whose
-  ///    argument is the final structured data matching [outputSchema].
-  ///
-  /// - [conversation]: A list of [Content] objects representing the input to
-  ///   the AI. This list will be modified in place to include the tool calling
-  ///   conversation.
-  /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
-  ///   output `T`.
-  /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
-  ///   this specific call, in addition to the default [tools].
   @override
-  Future<Object?> generateContent(
+  Future<String> generateText(
     List<msg.ChatMessage> conversation, {
-    dsb.Schema? outputSchema,
     Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
     try {
       final availableTools = [...tools, ...additionalTools];
-      final isForcedToolCalling = outputSchema != null;
       final converter = GeminiContentConverter();
       final contents = converter.toFirebaseAiContent(conversation);
       final adapter = GeminiSchemaAdapter();
@@ -223,15 +182,12 @@ class FirebaseAiClient implements AiClient {
         :generativeAiTools,
         :allowedFunctionNames,
       ) = _setupToolsAndFunctions(
-        isForcedToolCalling: isForcedToolCalling,
         availableTools: availableTools,
         adapter: adapter,
-        outputSchema: outputSchema,
       );
 
       var toolUsageCycle = 0;
       const maxToolUsageCycles = 40; // Safety break for tool loops
-      Object? capturedResult;
 
       final model = modelCreator(
         configuration: this,
@@ -239,21 +195,13 @@ class FirebaseAiClient implements AiClient {
             ? null
             : Content.system(systemInstruction!),
         tools: generativeAiTools,
-        toolConfig: isForcedToolCalling
-            ? ToolConfig(
-                functionCallingConfig: FunctionCallingConfig.any(
-                  allowedFunctionNames.toSet(),
-                ),
-              )
-            : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
+        toolConfig: ToolConfig(
+          functionCallingConfig: FunctionCallingConfig.auto(),
+        ),
       );
 
       while (toolUsageCycle < maxToolUsageCycles) {
         genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');
-        if (isForcedToolCalling && capturedResult != null) {
-          genUiLogger.fine('Captured result found, exiting tool usage loop.');
-          break;
-        }
         toolUsageCycle++;
 
         final concatenatedContents = contents
@@ -286,7 +234,7 @@ class FirebaseAiClient implements AiClient {
           genUiLogger.warning(
             'Response has no candidates: ${response.promptFeedback}',
           );
-          return isForcedToolCalling ? null : '';
+          return '';
         }
 
         final candidate = response.candidates.first;
@@ -296,32 +244,10 @@ class FirebaseAiClient implements AiClient {
 
         if (functionCalls.isEmpty) {
           genUiLogger.fine('Model response contained no function calls.');
-          if (isForcedToolCalling) {
-            genUiLogger.warning(
-              'Model did not call any function. FinishReason: '
-              '${candidate.finishReason}. Text: "${candidate.text}" ',
-            );
-            if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
-              genUiLogger.warning(
-                'Model returned direct text instead of a tool call. This might '
-                'be an error or unexpected AI behavior for forced tool '
-                'calling.',
-              );
-            }
-            if (candidate.text != null) {
-              conversation.add(msg.AssistantMessage.text(candidate.text!));
-            }
-            genUiLogger.fine(
-              'Model returned text but no function calls with forced tool '
-              'calling, so returning null.',
-            );
-            return null;
-          } else {
-            final text = candidate.text ?? '';
-            conversation.add(msg.AssistantMessage.text(text));
-            genUiLogger.fine('Returning text response: "$text"');
-            return text;
-          }
+          final text = candidate.text ?? '';
+          conversation.add(msg.AssistantMessage.text(text));
+          genUiLogger.fine('Returning text response: "$text"');
+          return text;
         }
 
         genUiLogger.fine(
@@ -329,11 +255,8 @@ class FirebaseAiClient implements AiClient {
         );
         final result = await _processFunctionCalls(
           functionCalls: functionCalls,
-          isForcedToolCalling: isForcedToolCalling,
           availableTools: availableTools,
-          capturedResult: capturedResult,
         );
-        capturedResult = result.capturedResult;
         final functionResponseParts = result.functionResponseParts;
 
         final assistantParts = candidate.content.parts
@@ -382,24 +305,12 @@ class FirebaseAiClient implements AiClient {
         }
       }
 
-      if (isForcedToolCalling) {
-        if (toolUsageCycle >= maxToolUsageCycles) {
-          genUiLogger.severe(
-            'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. '
-            'No final output was produced.',
-            StackTrace.current,
-          );
-        }
-        genUiLogger.fine('Exited tool usage loop. Returning captured result.');
-        return capturedResult;
-      } else {
-        genUiLogger.severe(
-          'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. '
-          'No final output was produced.',
-          StackTrace.current,
-        );
-        return '';
-      }
+      genUiLogger.severe(
+        'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. '
+        'No final output was produced.',
+        StackTrace.current,
+      );
+      return '';
     } finally {
       _activeRequests.value--;
     }
@@ -428,35 +339,12 @@ class FirebaseAiClient implements AiClient {
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
   _setupToolsAndFunctions({
-    required bool isForcedToolCalling,
     required List<AiTool> availableTools,
     required GeminiSchemaAdapter adapter,
-    required dsb.Schema? outputSchema,
   }) {
-    genUiLogger.fine(
-      'Setting up tools'
-      '${isForcedToolCalling ? ' with forced tool calling' : ''}',
-    );
-    // Create an "output" tool that copies its args into the output.
-    final finalOutputAiTool = isForcedToolCalling
-        ? DynamicAiTool<JsonMap>(
-            name: outputToolName,
-            description:
-                'Returns the final output. Call this function ONLY '
-                'when you have your complete structured output that '
-                'conforms to the required schema. Do not call this if you '
-                'need to use other tools first. You MUST call this tool '
-                'when you are done.',
-            // Wrap the outputSchema in an object so that the output schema
-            // isn't limited to objects.
-            parameters: dsb.S.object(properties: {'output': outputSchema!}),
-            invokeFunction: (args) async => args, // Invoke is a pass-through
-          )
-        : null;
+    genUiLogger.fine('Setting up tools');
 
-    final allTools = isForcedToolCalling
-        ? [...availableTools, finalOutputAiTool!]
-        : availableTools;
+    final allTools = availableTools;
     genUiLogger.fine(
       'Available tools: ${allTools.map((t) => t.name).join(', ')}',
     );
@@ -538,9 +426,7 @@ class FirebaseAiClient implements AiClient {
   >
   _processFunctionCalls({
     required List<FunctionCall> functionCalls,
-    required bool isForcedToolCalling,
     required List<AiTool> availableTools,
-    Object? capturedResult,
   }) async {
     genUiLogger.fine(
       'Processing ${functionCalls.length} function calls from model.',
@@ -550,25 +436,6 @@ class FirebaseAiClient implements AiClient {
       genUiLogger.fine(
         'Processing function call: ${call.name} with args: ${call.args}',
       );
-      if (isForcedToolCalling && call.name == outputToolName) {
-        try {
-          capturedResult = call.args['output'];
-          genUiLogger.fine(
-            'Captured final output from tool "$outputToolName".',
-          );
-        } catch (exception, stack) {
-          genUiLogger.severe(
-            'Unable to read output: $call [${call.args}]',
-            exception,
-            stack,
-          );
-        }
-        genUiLogger.info(
-          '****** Gen UI Output ******.\n'
-          '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
-        );
-        break;
-      }
 
       final aiTool = availableTools.firstWhere(
         (t) => t.name == call.name || t.fullName == call.name,
@@ -599,9 +466,6 @@ class FirebaseAiClient implements AiClient {
       'Finished processing function calls. Returning '
       '${functionResponseParts.length} responses.',
     );
-    return (
-      functionResponseParts: functionResponseParts,
-      capturedResult: capturedResult,
-    );
+    return (functionResponseParts: functionResponseParts, capturedResult: null);
   }
 }

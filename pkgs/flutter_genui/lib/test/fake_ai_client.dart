@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
 import '../src/ai_client/ai_client.dart';
@@ -16,53 +15,52 @@ import '../src/model/tools.dart';
 /// This class allows for mocking the behavior of an AI client by providing
 /// canned responses or exceptions. It also tracks calls to its methods.
 class FakeAiClient implements AiClient {
-  /// The response to be returned by [generateContent].
-  Object? response;
+  /// The response to be returned by [generateText].
+  String? response;
 
-  /// The number of times [generateContent] has been called.
-  int generateContentCallCount = 0;
+  /// The number of times [generateText] has been called.
+  int generateTextCallCount = 0;
 
-  /// The last conversation passed to [generateContent].
+  /// The last conversation passed to [generateText].
   List<genui.ChatMessage> lastConversation = [];
 
-  /// A function to be called before [generateContent] returns.
-  Future<void> Function()? preGenerateContent;
+  /// A function to be called before [generateText] returns.
+  Future<void> Function()? preGenerateText;
 
-  /// An exception to be thrown by [generateContent].
+  /// An exception to be thrown by [generateText].
   Exception? exception;
 
-  /// A completer that completes when [generateContent] is finished.
+  /// A completer that completes when [generateText] is finished.
   ///
   /// This can be used to wait for the response to be processed.
   Completer<void> responseCompleter = Completer<void>();
 
-  /// A future to be returned by [generateContent].
+  /// A future to be returned by [generateText].
   ///
-  /// If this is non-null, [generateContent] will return this future.
-  Future<dynamic>? generateContentFuture;
+  /// If this is non-null, [generateText] will return this future.
+  Future<String>? generateTextFuture;
 
   @override
-  Future<Object?> generateContent(
+  Future<String> generateText(
     List<genui.ChatMessage> conversation, {
-    Schema? outputSchema,
     Iterable<AiTool> additionalTools = const [],
   }) async {
     if (responseCompleter.isCompleted) {
       responseCompleter = Completer<void>();
     }
-    generateContentCallCount++;
+    generateTextCallCount++;
     lastConversation = conversation;
     try {
-      if (preGenerateContent != null) {
-        await preGenerateContent!();
+      if (preGenerateText != null) {
+        await preGenerateText!();
       }
       if (exception != null) {
         throw exception!;
       }
-      if (generateContentFuture != null) {
-        return await generateContentFuture;
+      if (generateTextFuture != null) {
+        return await generateTextFuture!;
       }
-      return response;
+      return response ?? '';
     } finally {
       if (!responseCompleter.isCompleted) {
         responseCompleter.complete();
