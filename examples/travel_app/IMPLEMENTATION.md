@@ -83,7 +83,7 @@ The components from the `flutter_genui` package are the central orchestrators of
 
 ### 3. AI/Model Layer (`package:flutter_genui`)
 
-The `GeminiAiClient` class, also part of `flutter_genui`, abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
+The `FirebaseAiClient` class, also part of `flutter_genui`, abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
 
 ### 4. Widget Catalog (The "Tools")
 

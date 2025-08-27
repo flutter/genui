@@ -57,7 +57,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late final GenUiManager _genUiManager;
-  late final GeminiAiClient _aiClient;
+  late final FirebaseAiClient _aiClient;
   late final GenUiChatController _chatController;
 
   @override
@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _genUiManager = GenUiManager();
     _chatController = GenUiChatController(manager: _genUiManager);
-    _aiClient = GeminiAiClient(
+    _aiClient = FirebaseAiClient(
       systemInstruction: _chatPrompt,
       tools: _genUiManager.getTools(),
     );

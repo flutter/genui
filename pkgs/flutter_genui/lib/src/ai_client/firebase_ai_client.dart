@@ -5,8 +5,6 @@
 import 'dart:convert';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
-import 'package:file/file.dart';
-import 'package:file/local.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 
@@ -24,7 +22,7 @@ import 'gemini_schema_adapter.dart';
 /// This is used to allow for custom model creation, for example, for testing.
 typedef GenerativeModelFactory =
     GeminiGenerativeModelInterface Function({
-      required GeminiAiClient configuration,
+      required FirebaseAiClient configuration,
       Content? systemInstruction,
       List<Tool>? tools,
       ToolConfig? toolConfig,
@@ -32,11 +30,11 @@ typedef GenerativeModelFactory =
 
 /// An enum for the available Gemini models.
 enum GeminiModelType {
-  /// The Gemini 2.5 Flash model.
-  flash('gemini-2.5-flash', 'Gemini 2.5 Flash'),
+  /// The Gemini 1.5 Flash model.
+  flash('gemini-1.5-flash', 'Gemini 1.5 Flash'),
 
-  /// The Gemini 2.5 Pro model.
-  pro('gemini-2.5-pro', 'Gemini 2.5 Pro');
+  /// The Gemini 1.5 Pro model.
+  pro('gemini-1.5-pro', 'Gemini 1.5 Pro');
 
   /// Creates a [GeminiModelType] with the given [modelName] and [displayName].
   const GeminiModelType(this.modelName, this.displayName);
@@ -63,33 +61,23 @@ class GeminiModel extends AiModel {
 /// A basic implementation of [AiClient] for accessing a Gemini model.
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
-/// including model selection, API keys, retry mechanisms, and tool
+/// including model selection, API keys, and tool
 /// configurations. It provides a [generateContent] method to interact with the
 /// AI model, supporting structured output and tool usage.
-class GeminiAiClient implements AiClient {
-  /// Creates an [GeminiAiClient] instance with specified configurations.
+class FirebaseAiClient implements AiClient {
+  /// Creates an [FirebaseAiClient] instance with specified configurations.
   ///
   /// - [model]: The identifier of the generative AI model to use.
-  /// - [fileSystem]: The [FileSystem] instance for file operations, primarily
-  ///   used by tools.
   /// - [modelCreator]: A factory function to create the [GenerativeModel].
-  /// - [maxRetries]: Maximum number of retries for API calls on transient
-  ///   errors.
-  /// - [initialDelay]: Initial delay for the exponential backoff retry
-  ///   strategy.
   /// - [maxConcurrentJobs]: Intended for managing concurrent AI operations,
   ///   though not directly enforced by [generateContent] itself.
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
-  GeminiAiClient({
+  FirebaseAiClient({
     GeminiModelType model = GeminiModelType.flash,
     this.systemInstruction,
-    this.fileSystem = const LocalFileSystem(),
     this.modelCreator = defaultGenerativeModelFactory,
-    this.maxRetries = 8,
-    this.initialDelay = const Duration(seconds: 1),
-    this.minDelay = const Duration(seconds: 8),
     this.maxConcurrentJobs = 20,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
@@ -115,7 +103,7 @@ class GeminiAiClient implements AiClient {
   /// This identifier specifies which version or type of the generative AI model
   /// will be invoked for content generation.
   ///
-  /// Defaults to 'gemini-2.5-flash'.
+  /// Defaults to 'gemini-1.5-flash'.
   final ValueNotifier<GeminiModel> _model;
 
   @override
@@ -125,46 +113,10 @@ class GeminiAiClient implements AiClient {
   List<AiModel> get models =>
       GeminiModelType.values.map(GeminiModel.new).toList();
 
-  /// The file system to use for accessing files.
-  ///
-  /// While not directly used by [GeminiAiClient]'s core content generation
-  /// logic, this [FileSystem] instance can be utilized by [AiTool]
-  /// implementations that require file read/write capabilities.
-  ///
-  /// Defaults to a [LocalFileSystem] instance, providing access to the local
-  /// machine's file system.
-  final FileSystem fileSystem;
-
-  /// The maximum number of retries to attempt when generating content.
-  ///
-  /// If an API call to the generative model fails with a transient error (like
-  /// [FirebaseAIException]), the client will attempt to retry the call up to
-  /// this many times.
-  ///
-  /// Defaults to 8 retries.
-  final int maxRetries;
-
-  /// The initial delay between retries in seconds.
-  ///
-  /// This duration is used for the first retry attempt. Subsequent retries
-  /// employ an exponential backoff strategy, where the delay doubles after each
-  /// failed attempt, up to the [maxRetries] limit.
-  ///
-  /// Defaults to 1 second.
-  final Duration initialDelay;
-
-  /// The minimum length of time to delay.
-  ///
-  /// Since the reset window for quota violations is 10 seconds, this shouldn't
-  /// be much less than that, or it will just wait longer.
-  ///
-  /// Defaults to 8 seconds.
-  final Duration minDelay;
-
   /// The maximum number of concurrent jobs to run.
   ///
   /// This property is intended for systems that might manage multiple
-  /// [GeminiAiClient] operations or other concurrent tasks. The
+  /// [FirebaseAiClient] operations or other concurrent tasks. The
   /// [generateContent] method itself is a single asynchronous operation and
   /// does not directly enforce this limit.
   ///
@@ -177,7 +129,7 @@ class GeminiAiClient implements AiClient {
   /// [GeminiGenerativeModelInterface] used for AI interactions. It allows for
   /// customization of the model setup, such as using different HTTP clients, or
   /// for providing mock models during testing. The factory receives this
-  /// [GeminiAiClient] instance as configuration.
+  /// [FirebaseAiClient] instance as configuration.
   ///
   /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
   /// [defaultGenerativeModelFactory].
@@ -211,7 +163,7 @@ class GeminiAiClient implements AiClient {
     if (newModel is! GeminiModel) {
       throw ArgumentError(
         'Invalid model type: ${newModel.runtimeType} supplied to '
-        '$GeminiAiClient.switchModel.',
+        '$FirebaseAiClient.switchModel.',
       );
     }
     _model.value = newModel;
@@ -261,10 +213,13 @@ class GeminiAiClient implements AiClient {
   }) async {
     _activeRequests.value++;
     try {
-      return await _generateContentWithRetries(conversation, outputSchema, [
-        ...tools,
-        ...additionalTools,
-      ]);
+      return await _generate(
+            messages: conversation,
+            outputSchema: outputSchema,
+            availableTools: [...tools, ...additionalTools],
+            onSuccess: () {},
+          )
+          as T?;
     } finally {
       _activeRequests.value--;
     }
@@ -277,10 +232,12 @@ class GeminiAiClient implements AiClient {
   }) async {
     _activeRequests.value++;
     try {
-      return await _generateTextWithRetries(conversation, [
-        ...tools,
-        ...additionalTools,
-      ]);
+      return await _generate(
+            messages: conversation,
+            availableTools: [...tools, ...additionalTools],
+            onSuccess: () {},
+          )
+          as String;
     } finally {
       _activeRequests.value--;
     }
@@ -289,9 +246,9 @@ class GeminiAiClient implements AiClient {
   /// The default factory function for creating a [GenerativeModel].
   ///
   /// This function instantiates a standard [GenerativeModel] using the `model`
-  /// from the provided [GeminiAiClient] `configuration`.
+  /// from the provided [FirebaseAiClient] `configuration`.
   static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
-    required GeminiAiClient configuration,
+    required FirebaseAiClient configuration,
     Content? systemInstruction,
     List<Tool>? tools,
     ToolConfig? toolConfig,
@@ -305,101 +262,6 @@ class GeminiAiClient implements AiClient {
         toolConfig: toolConfig,
       ),
     );
-  }
-
-  Future<T?> _generateContentWithRetries<T extends Object>(
-    List<msg.ChatMessage> contents,
-    dsb.Schema outputSchema,
-    List<AiTool> availableTools,
-  ) async {
-    genUiLogger.fine('Generating content with retries.');
-    return _generateWithRetries<T?>(
-      (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-                outputSchema: outputSchema,
-              )
-              as T?,
-    );
-  }
-
-  Future<String> _generateTextWithRetries(
-    List<msg.ChatMessage> contents,
-    List<AiTool> availableTools,
-  ) async {
-    genUiLogger.fine('Generating text with retries.');
-    return _generateWithRetries<String>(
-      (onSuccess) async =>
-          await _generate(
-                messages: contents,
-                availableTools: availableTools,
-                onSuccess: onSuccess,
-              )
-              as String,
-    );
-  }
-
-  Future<T> _generateWithRetries<T>(
-    Future<T> Function(void Function() onSuccess) generationFunction,
-  ) async {
-    var attempts = 0;
-    var delay = initialDelay;
-    final maxTries = maxRetries + 1; // Retries plus the first attempt.
-    genUiLogger.fine('Starting generation with up to $maxRetries retries.');
-
-    Future<void> onFail(Exception exception) async {
-      attempts++;
-      if (attempts >= maxTries) {
-        genUiLogger.warning('Max retries of $maxRetries reached.');
-        throw exception;
-      }
-      // Make the delay at least minDelay long, since the reset window for
-      // exceeding the number of requests is 10 seconds long, and requesting it
-      // faster than that just means it makes us wait longer.
-      final waitTime = delay + minDelay;
-      genUiLogger.severe(
-        'Received exception, retrying in $waitTime. Attempt $attempts of '
-        '$maxTries. Exception: $exception',
-      );
-      await Future<void>.delayed(waitTime);
-      delay *= 2;
-    }
-
-    while (attempts < maxTries) {
-      try {
-        final result = await generationFunction(
-          // Reset the delay and attempts on success.
-          () {
-            delay = initialDelay;
-            attempts = 0;
-          },
-        );
-        genUiLogger.fine('Generation successful.');
-        return result;
-      } on FirebaseAIException catch (exception) {
-        if (exception.message.contains(
-          '${_model.value.type.modelName} is not found for API version',
-        )) {
-          // If the model is not found, then just throw an exception.
-          throw AiClientException(exception.message);
-        }
-        await onFail(exception);
-      } catch (exception, stack) {
-        genUiLogger.severe(
-          'Received '
-          '${exception.runtimeType}: $exception',
-          exception,
-          stack,
-        );
-        // For other exceptions, rethrow immediately.
-        rethrow;
-      }
-    }
-    // This line should be unreachable if maxRetries > 0, but is needed for
-    // static analysis.
-    throw StateError('Exceeded maximum retries without throwing an exception.');
   }
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
@@ -628,10 +490,7 @@ class GeminiAiClient implements AiClient {
           .join('\n');
 
       genUiLogger.info(
-        '''****** Performing Inference ******\n$concatenatedContents
-With functions:
-  '${allowedFunctionNames.join(', ')}',
-  ''',
+        '''****** Performing Inference ******\n$concatenatedContents\nWith functions:\n  ${allowedFunctionNames.join(', ')}''',
       );
       final inferenceStartTime = DateTime.now();
       final response = await model.generateContent(contents);

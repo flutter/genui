@@ -9,7 +9,7 @@ A Flutter package for building dynamic, conversational user interfaces powered b
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
 - **Conversational Flow**: Manage a back-and-forth conversation between the user and the AI, where the AI's responses are UI elements.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
-- **Extensible AI Client**: Abstract interface for connecting to different AI model backends. A ready-to-use `GeminiAiClient` for Firebase is included.
+- **Extensible AI Client**: Abstract interface for connecting to different AI model backends. A ready-to-use `FirebaseAiClient` for Firebase is included.
 - **Event Handling**: Capture user interactions (button clicks, text input) and send them back to the AI as context for the next turn in the conversation.
 - **Flexible UI Styles**: Supports both a free-form "flexible" layout and a traditional "chat" style interface.
 
@@ -21,7 +21,7 @@ The package is built around three main components:
 
 2. **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
-3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `GeminiAiClient` for interacting with Gemini models via the Firebase AI SDK.
+3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `FirebaseAiClient` for interacting with Gemini models via the Firebase AI SDK.
 
 ## Getting Started
 
@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     // 1. Create an AI Client
-    _aiClient = GeminiAiClient(
+    _aiClient = FirebaseAiClient(
       systemInstruction: 'You are a helpful AI assistant that builds UIs.',
     );
 

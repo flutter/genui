@@ -8,7 +8,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
-import '../ai_client/gemini_ai_client.dart';
+import '../ai_client/firebase_ai_client.dart';
 import '../core/genui_manager.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
@@ -26,7 +26,7 @@ class UiAgent {
     this.onSurfaceAdded,
     this.onSurfaceRemoved,
   }) : _genUiManager = GenUiManager(catalog: catalog) {
-    _aiClient = GeminiAiClient(
+    _aiClient = FirebaseAiClient(
       systemInstruction: '$instruction\n\n$_technicalPrompt',
       tools: _genUiManager.getTools(),
     );

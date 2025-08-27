@@ -13,7 +13,7 @@ import 'package:firebase_ai/firebase_ai.dart'
         GenerateContentResponse;
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
-import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
+import 'package:flutter_genui/src/ai_client/firebase_ai_client.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_genui/src/primitives/logging.dart';
@@ -25,14 +25,14 @@ import '../test_infra/utils.dart';
 void main() {
   group('AiClient', () {
     late FakeGenerativeModel fakeModel;
-    late GeminiAiClient client;
+    late FirebaseAiClient client;
 
     setUp(() {
       fakeModel = FakeGenerativeModel();
     });
 
-    GeminiAiClient createClient({List<AiTool> tools = const []}) {
-      return GeminiAiClient(
+    FirebaseAiClient createClient({List<AiTool> tools = const []}) {
+      return FirebaseAiClient(
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
               return fakeModel;
@@ -132,31 +132,6 @@ void main() {
       expect(toolCalled, isTrue);
       expect(result, isNotNull);
       expect(result!['final'], 'result');
-      expect(fakeModel.generateContentCallCount, 2);
-    });
-
-    test('generateContent retries on failure', () async {
-      client = createClient();
-      fakeModel.exception = FirebaseAIException('transient error');
-      fakeModel.response = GenerateContentResponse([
-        Candidate(
-          Content.model([
-            FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
-            }),
-          ]),
-          [],
-          null,
-          null,
-          null,
-        ),
-      ], null);
-
-      final result = await client.generateContent<Map<String, Object?>>([
-        UserMessage.text('user prompt'),
-      ], S.object(properties: {'key': S.string()}));
-
-      expect(result, isNotNull);
       expect(fakeModel.generateContentCallCount, 2);
     });
 
