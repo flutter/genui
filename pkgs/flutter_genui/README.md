@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
 
     // 2. Define a Catalog of widgets the AI can use
     // Start with the built-in catalog and add your own custom widgets.
-    final myCatalog = Catalog.standard.copyWith([
+    final myCatalog = Catalog.core.copyWith([
       // ... add your own custom CatalogItems
     ]);
 
