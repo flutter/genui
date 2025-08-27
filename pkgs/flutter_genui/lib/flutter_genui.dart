@@ -11,7 +11,7 @@ export 'src/catalog/core_widgets/image.dart';
 export 'src/catalog/core_widgets/radio_group.dart';
 export 'src/catalog/core_widgets/text.dart';
 export 'src/catalog/core_widgets/text_field.dart';
-export 'src/core/core_catalog.dart';
+export 'src/core/core_catalog.dart' hide coreItems;
 export 'src/core/genui_manager.dart';
 export 'src/facade/genui_surface.dart';
 export 'src/facade/to_refactor/chat_widget.dart';

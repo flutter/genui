@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
-import '../core/standard_catalog.dart';
+import '../core/core_catalog.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
@@ -32,7 +32,7 @@ class Catalog {
   /// A catalog of simple items sufficient for building simple interactive UIs.
   ///
   /// For the full list of core widgets, see [CoreCatalogItems].
-  static final Catalog core = Catalog._(CoreCatalogItems.all);
+  static final Catalog core = Catalog._(coreItems);
 
   /// The list of [CatalogItem]s available in this catalog.
   final List<CatalogItem> items;

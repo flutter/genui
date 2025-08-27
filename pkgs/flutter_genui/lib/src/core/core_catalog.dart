@@ -11,6 +11,19 @@ import '../catalog/core_widgets/text.dart' as text_item;
 import '../catalog/core_widgets/text_field.dart' as text_field_item;
 import '../model/catalog_item.dart';
 
+// A list of all core catalog items.
+//
+// Meant for use by this library only.
+final List<CatalogItem> coreItems = [
+  CoreCatalogItems.checkboxGroup,
+  CoreCatalogItems.column,
+  CoreCatalogItems.elevatedButton,
+  CoreCatalogItems.image,
+  CoreCatalogItems.radioGroup,
+  CoreCatalogItems.text,
+  CoreCatalogItems.textField,
+];
+
 /// A collection of standard catalog items that can be used to build simple
 /// interactive UIs.
 class CoreCatalogItems {
@@ -36,15 +49,4 @@ class CoreCatalogItems {
 
   /// A widget that displays an image.
   static final CatalogItem image = image_item.image;
-
-  /// A list of all core catalog items.
-  static final List<CatalogItem> all = [
-    elevatedButton,
-    column,
-    text,
-    checkboxGroup,
-    radioGroup,
-    textField,
-    image,
-  ];
 }
