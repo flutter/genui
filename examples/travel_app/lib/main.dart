@@ -155,7 +155,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
       _isThinking = true;
     });
     try {
-      final response = await _aiClient.generateText(_conversation);
+      final response = await _aiClient.generateText(List.from(_conversation));
       if (response.isNotEmpty) {
         setState(() {
           _conversation.add(AssistantMessage.text(response));
