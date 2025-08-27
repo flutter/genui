@@ -13,7 +13,7 @@ updates:
     # labels:
     #   - "autosubmit"
   - package-ecosystem: "pub"
-    directory: "pkgs/genui_client"
+    directory: "packages/genui_client"
     schedule:
       interval: "daily"
     labels:

@@ -1,32 +1,32 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "simple_chat",
-            "cwd": "examples/simple_chat",
-            "request": "launch",
-            "type": "dart",
-        },
-        {
-            "name": "travel_app",
-            "cwd": "examples/travel_app",
-            "request": "launch",
-            "type": "dart",
-        },
-        {
-            "name": "minimal_genui",
-            "cwd": "examples/minimal_genui",
-            "request": "launch",
-            "type": "dart",
-        },
-        {
-            "name": "catalog_gallery",
-            "cwd": "pkgs/spikes/catalog_gallery",
-            "request": "launch",
-            "type": "dart",
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "simple_chat",
+      "cwd": "examples/simple_chat",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "travel_app",
+      "cwd": "examples/travel_app",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "minimal_genui",
+      "cwd": "examples/minimal_genui",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "catalog_gallery",
+      "cwd": "packages/spikes/catalog_gallery",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
 }

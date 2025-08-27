@@ -1,5 +1,5 @@
 name: simple_chat
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -13,7 +13,7 @@ dependencies:
   firebase_ai: ^3.0.0
   firebase_core: ^4.0.0
   flutter_genui:
-    path: ../../pkgs/flutter_genui
+    path: ../../packages/flutter_genui
 
 dev_dependencies:
   flutter_test:

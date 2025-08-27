@@ -73,7 +73,7 @@ This is the main entry point and the visible part of the application. Its respon
 - **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar and a `GenUiChat` widget that renders the conversation and the dynamic UI surfaces.
 - **State Management & App Logic**: It holds the core application logic. It manages the conversation history, sends prompts to the AI, and handles UI events returned from `GenUiSurface`.
 
-### 2. UI State Management Layer ([`package:flutter_genui`](../../pkgs/flutter_genui/IMPLEMENTATION.md))
+### 2. UI State Management Layer ([`package:flutter_genui`](../../packages/flutter_genui/IMPLEMENTATION.md))
 
 The components from the `flutter_genui` package are the central orchestrators of the dynamic UI state.
 

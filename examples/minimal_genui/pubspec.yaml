@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_genui:
-    path: ../../pkgs/flutter_genui
+    path: ../../packages/flutter_genui
   logging: ^1.3.0
 
 dev_dependencies:
