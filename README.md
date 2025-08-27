@@ -8,7 +8,7 @@ generative UI to their applications.
 This is an experimental package, which means the API will change (sometimes drastically)
 or this package might be abandoned. Feedback very welcome!
 
-tldr:
+## TL;DR
 
 GenUI SDK for Flutter lets you replace static "walls of text" from your LLM with dynamic, interactive
 graphical UI.
