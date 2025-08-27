@@ -13,8 +13,8 @@ import '../model/catalog_item.dart';
 
 /// A collection of standard catalog items that can be used to build simple
 /// interactive UIs.
-class StandardCatalogItems {
-  StandardCatalogItems._();
+class CoreCatalogItems {
+  CoreCatalogItems._();
 
   /// A material design elevated button.
   static final CatalogItem elevatedButton = elevated_button_item.elevatedButton;

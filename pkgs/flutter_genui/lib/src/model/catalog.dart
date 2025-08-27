@@ -22,7 +22,6 @@ import 'ui_event_manager.dart';
 /// 3. It dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets, which can be provided to the AI model.
 class Catalog {
-  /// Creates a new catalog with the given list of [items].
   const Catalog._(this.items);
 
   /// Creates a new catalog with the given list of [items].
@@ -33,8 +32,8 @@ class Catalog {
   /// A standard catalog of items sufficient for building simple interactive
   /// UIs.
   ///
-  /// For the full list of standard widgets, see [StandardCatalogItems].
-  static final Catalog standard = Catalog._(StandardCatalogItems.all);
+  /// For the full list of core widgets, see [CoreCatalogItems].
+  static final Catalog core = Catalog._(CoreCatalogItems.all);
 
   /// The list of [CatalogItem]s available in this catalog.
   final List<CatalogItem> items;

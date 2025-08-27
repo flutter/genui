@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _genUiManager = GenUiManager(catalog: Catalog.standard);
+    _genUiManager = GenUiManager(catalog: Catalog.core);
     _chatController = GenUiChatController(manager: _genUiManager);
     _aiClient = GeminiAiClient(
       systemInstruction: _chatPrompt,
