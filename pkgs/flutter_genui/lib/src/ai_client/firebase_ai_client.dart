@@ -30,11 +30,11 @@ typedef GenerativeModelFactory =
 
 /// An enum for the available Gemini models.
 enum GeminiModelType {
-  /// The Gemini 1.5 Flash model.
-  flash('gemini-1.5-flash', 'Gemini 1.5 Flash'),
+  /// The Gemini 2.5 Flash model.
+  flash('gemini-2.5-flash', 'Gemini 2.5 Flash'),
 
-  /// The Gemini 1.5 Pro model.
-  pro('gemini-1.5-pro', 'Gemini 1.5 Pro');
+  /// The Gemini 2.5 Pro model.
+  pro('gemini-2.5-pro', 'Gemini 2.5 Pro');
 
   /// Creates a [GeminiModelType] with the given [modelName] and [displayName].
   const GeminiModelType(this.modelName, this.displayName);
@@ -103,7 +103,7 @@ class FirebaseAiClient implements AiClient {
   /// This identifier specifies which version or type of the generative AI model
   /// will be invoked for content generation.
   ///
-  /// Defaults to 'gemini-1.5-flash'.
+  /// Defaults to 'gemini-2.5-flash'.
   final ValueNotifier<GeminiModel> _model;
 
   @override
