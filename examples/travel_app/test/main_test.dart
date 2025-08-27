@@ -44,12 +44,8 @@ void main() {
     await mockAiClient.responseCompleter.future;
 
     expect(mockAiClient.generateTextCallCount, 1);
-    final lastMessage = mockAiClient.lastConversation.last;
-    expect(lastMessage, isA<AssistantMessage>());
-    expect(
-      ((lastMessage as AssistantMessage).parts.last as TextPart).text,
-      'result',
-    );
+    await tester.pumpAndSettle();
+    expect(find.text('result'), findsOneWidget);
   });
 
   testWidgets('Shows spinner while thinking', (WidgetTester tester) async {
