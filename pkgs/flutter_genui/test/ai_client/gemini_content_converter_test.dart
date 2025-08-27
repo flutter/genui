@@ -18,7 +18,7 @@ void main() {
       converter = GeminiContentConverter();
     });
 
-    test('toFirebaseAiContent converts UserMessage with TextPart', () {
+    test('toFirebaseAiContent converts $UserMessage with $TextPart', () {
       final messages = [UserMessage.text('Hello')];
       final result = converter.toFirebaseAiContent(messages);
 
@@ -29,7 +29,7 @@ void main() {
       expect((result.first.parts.first as firebase_ai.TextPart).text, 'Hello');
     });
 
-    test('toFirebaseAiContent converts AssistantMessage with TextPart', () {
+    test('toFirebaseAiContent converts $AiTextMessage with $TextPart', () {
       final messages = [AiTextMessage.text('Hi there')];
       final result = converter.toFirebaseAiContent(messages);
 
@@ -43,20 +43,20 @@ void main() {
       );
     });
 
-    test('toFirebaseAiContent ignores UiResponseMessage', () {
+    test('toFirebaseAiContent ignores $AiUiMessage', () {
       final definition = {'root': 'a', 'widgets': <Object?>[]};
       final messages = [AiUiMessage(definition: definition)];
       final result = converter.toFirebaseAiContent(messages);
       expect(result, isEmpty);
     });
 
-    test('toFirebaseAiContent ignores InternalMessage', () {
+    test('toFirebaseAiContent ignores $InternalMessage', () {
       final messages = [const InternalMessage('Thinking...')];
       final result = converter.toFirebaseAiContent(messages);
       expect(result, isEmpty);
     });
 
-    test('toFirebaseAiContent converts multi-part UserMessage', () {
+    test('toFirebaseAiContent converts multi-part $UserMessage', () {
       final messages = [
         UserMessage([
           const TextPart('Look at this image'),
@@ -72,7 +72,7 @@ void main() {
       expect(result.first.parts[1], isA<firebase_ai.InlineDataPart>());
     });
 
-    test('toFirebaseAiContent converts ImagePart from bytes', () {
+    test('toFirebaseAiContent converts $ImagePart from bytes', () {
       final bytes = Uint8List.fromList([1, 2, 3]);
       final messages = [
         UserMessage([ImagePart.fromBytes(bytes, mimeType: 'image/jpeg')]),
@@ -83,7 +83,7 @@ void main() {
       expect(part.bytes, bytes);
     });
 
-    test('toFirebaseAiContent converts ImagePart from base64', () {
+    test('toFirebaseAiContent converts $ImagePart from base64', () {
       const base64String = 'AQID'; // base64 for [1, 2, 3]
       final messages = [
         const UserMessage([
@@ -96,7 +96,7 @@ void main() {
       expect(part.bytes, base64.decode(base64String));
     });
 
-    test('toFirebaseAiContent converts ImagePart from URL', () {
+    test('toFirebaseAiContent converts $ImagePart from URL', () {
       final url = Uri.parse('http://example.com/image.jpg');
       final messages = [
         UserMessage([ImagePart.fromUrl(url)]),
@@ -106,7 +106,7 @@ void main() {
       expect(part.text, 'Image at $url');
     });
 
-    test('toFirebaseAiContent converts ToolCallPart', () {
+    test('toFirebaseAiContent converts $ToolCallPart', () {
       final messages = [
         const AiTextMessage([
           ToolCallPart(
@@ -122,7 +122,7 @@ void main() {
       expect(part.args, {'arg': 'value'});
     });
 
-    test('toFirebaseAiContent converts ToolResponseMessage', () {
+    test('toFirebaseAiContent converts $ToolResponseMessage', () {
       final messages = [
         ToolResponseMessage([
           ToolResultPart(callId: 'call1', result: jsonEncode({'data': 'ok'})),
@@ -135,7 +135,7 @@ void main() {
       expect(part.response, {'data': 'ok'});
     });
 
-    test('toFirebaseAiContent converts ThinkingPart', () {
+    test('toFirebaseAiContent converts $ThinkingPart', () {
       final messages = [
         const AiTextMessage([ThinkingPart('working on it')]),
       ];
