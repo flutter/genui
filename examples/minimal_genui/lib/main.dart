@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final response = await _aiClient.generateText(
         List.of(_chatController.conversation.value),
       );
-      _chatController.addMessage(AssistantMessage.text(response));
+      _chatController.addMessage(AiMessage.text(response));
     } finally {
       _chatController.setAiResponseReceived();
     }

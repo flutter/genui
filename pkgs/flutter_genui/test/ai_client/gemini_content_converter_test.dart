@@ -30,7 +30,7 @@ void main() {
     });
 
     test('toFirebaseAiContent converts AssistantMessage with TextPart', () {
-      final messages = [AssistantMessage.text('Hi there')];
+      final messages = [AiMessage.text('Hi there')];
       final result = converter.toFirebaseAiContent(messages);
 
       expect(result, hasLength(1));
@@ -108,7 +108,7 @@ void main() {
 
     test('toFirebaseAiContent converts ToolCallPart', () {
       final messages = [
-        const AssistantMessage([
+        const AiMessage([
           ToolCallPart(
             id: 'call1',
             toolName: 'doSomething',
@@ -137,7 +137,7 @@ void main() {
 
     test('toFirebaseAiContent converts ThinkingPart', () {
       final messages = [
-        const AssistantMessage([ThinkingPart('working on it')]),
+        const AiMessage([ThinkingPart('working on it')]),
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.TextPart;
@@ -149,7 +149,7 @@ void main() {
       () {
         final messages = [
           UserMessage.text('First message'),
-          AssistantMessage.text('Second message'),
+          AiMessage.text('Second message'),
           UserMessage.text('Third message'),
         ];
         final result = converter.toFirebaseAiContent(messages);

@@ -24,7 +24,7 @@ class GeminiContentConverter {
     for (final message in messages) {
       final (String? role, List<firebase_ai.Part> parts) = switch (message) {
         UserMessage() => ('user', _convertParts(message.parts)),
-        AssistantMessage() => ('model', _convertParts(message.parts)),
+        AiMessage() => ('model', _convertParts(message.parts)),
         ToolResponseMessage() => ('user', _convertParts(message.results)),
         UiResponseMessage() => (
           null,

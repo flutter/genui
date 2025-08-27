@@ -676,7 +676,7 @@ With functions:
             );
           }
           if (candidate.text != null) {
-            messages.add(msg.AssistantMessage.text(candidate.text!));
+            messages.add(msg.AiMessage.text(candidate.text!));
           }
           genUiLogger.fine(
             'Model returned text but no function calls with forced tool '
@@ -685,7 +685,7 @@ With functions:
           return null;
         } else {
           final text = candidate.text ?? '';
-          messages.add(msg.AssistantMessage.text(text));
+          messages.add(msg.AiMessage.text(text));
           genUiLogger.fine('Returning text response: "$text"');
           return text;
         }
@@ -721,7 +721,7 @@ With functions:
           .toList();
 
       if (assistantParts.isNotEmpty) {
-        messages.add(msg.AssistantMessage(assistantParts));
+        messages.add(msg.AiMessage(assistantParts));
         genUiLogger.fine(
           'Added assistant message with ${assistantParts.length} parts to '
           'conversation.',

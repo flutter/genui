@@ -191,7 +191,7 @@ class _GenUiChatState extends State<GenUiChat> {
                         icon: Icons.person,
                         alignment: MainAxisAlignment.end,
                       );
-                    case AssistantMessage():
+                    case AiMessage():
                       final text = message.parts
                           .whereType<TextPart>()
                           .map((part) => part.text)

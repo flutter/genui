@@ -142,13 +142,12 @@ final class UserMessage extends ChatMessage {
 }
 
 /// A message representing a response from the AI.
-final class AssistantMessage extends ChatMessage {
-  /// Creates a [AssistantMessage] with the given [parts].
-  const AssistantMessage(this.parts);
+final class AiMessage extends ChatMessage {
+  /// Creates a [AiMessage] with the given [parts].
+  const AiMessage(this.parts);
 
-  /// Creates a [AssistantMessage] with the given [text].
-  factory AssistantMessage.text(String text) =>
-      AssistantMessage([TextPart(text)]);
+  /// Creates a [AiMessage] with the given [text].
+  factory AiMessage.text(String text) => AiMessage([TextPart(text)]);
 
   /// The parts of the assistant's message.
   final List<MessagePart> parts;

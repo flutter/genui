@@ -181,7 +181,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           (result as Map).cast<String, Object?>()['message'] as String? ?? '';
       if (value.isNotEmpty) {
         setState(() {
-          _conversation.add(AssistantMessage.text(value));
+          _conversation.add(AiMessage.text(value));
         });
       }
     } finally {
