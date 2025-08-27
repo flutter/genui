@@ -44,7 +44,7 @@ class Catalog {
     Widget Function(String id) buildChild,
     DispatchEventCallback dispatchEvent,
     BuildContext context,
-    ValueStore valueStore,
+    JsonMap valueStore,
   ) {
     final widgetType = (data['widget'] as JsonMap).keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
