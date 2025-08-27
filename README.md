@@ -74,7 +74,7 @@ AiClient(
 // profit!
 ```
 
-# Key Features & Benefits
+## Key Features & Benefits
 
 * **Integrates with your LLM:** Works with your chosen LLM and backend to incorporate graphical
   UI responses alongside traditional text.  
