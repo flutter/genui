@@ -486,5 +486,12 @@ contain the other widgets.
 }
 ```
 
-When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it. When showing an itinerary, don't return it as text, use an ItineraryWithDetails widget.
+When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to
+supply them. Prefer to collect and show information by creating a UI for it.
+When showing an itinerary, don't return it as text, use an ItineraryWithDetails widget.
+
+# Final text output
+After calling tools to update the UI, you can optionally respond with a short
+message explaining what you've done, but be sure to avoid repetition with the
+content already displayed in the UI.
 ''';
