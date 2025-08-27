@@ -92,7 +92,7 @@ AiClient(
 * **Open Source:** Full transparency and community-driven improvement.  
 * **Any Model:** Can be integrated with any LLM that can generate structured JSON output.
 
-# Roadmap
+## Roadmap
 
 * **Genkit Integration:** Integration with Genkit (Target: Sept 2025).  
 * **Expanded LLM Framework Support:** Official support for additional LLM frameworks.  
