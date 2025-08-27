@@ -49,7 +49,7 @@ For a complete example, refer to [main.dart in the minimal_genui example](../../
    flutter_genui:
    git:
      url: https://github.com/flutter/genui.git
-     path: pkgs/flutter_genui
+     path: packages/flutter_genui
    ```
 
 - In the future: download from [pub.dev](https://pub.dev)! (We're not ready to publish this as a package until the API is more stable.)

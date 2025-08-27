@@ -5,14 +5,14 @@ generative UI to their applications.
 
 ## Packages
 
-| Package                                          | Description                                                                   | Version                                                                                                              |
-| ------------------------------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| [flutter_genui](pkgs/flutter_genui/)             | (work in progress) A framework to employ Generative UI.                       | [![pub package](https://img.shields.io/pub/v/flutter_genui.svg)](https://pub.dev/packages/flutter_genui)             |
-| [dart_schema_builder](pkgs/dart_schema_builder/) | (work in progress) A fully featured Dart JSON Schema package with validation. | [![pub package](https://img.shields.io/pub/v/dart_schema_builder.svg)](https://pub.dev/packages/dart_schema_builder) |
+| Package                                              | Description                                                                   | Version                                                                                                              |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [flutter_genui](packages/flutter_genui/)             | (work in progress) A framework to employ Generative UI.                       | [![pub package](https://img.shields.io/pub/v/flutter_genui.svg)](https://pub.dev/packages/flutter_genui)             |
+| [dart_schema_builder](packages/dart_schema_builder/) | (work in progress) A fully featured Dart JSON Schema package with validation. | [![pub package](https://img.shields.io/pub/v/dart_schema_builder.svg)](https://pub.dev/packages/dart_schema_builder) |
 
 ## Usage
 
-See [pkgs/flutter_genui/USAGE.md](pkgs/flutter_genui/USAGE.md).
+See [packages/flutter_genui/USAGE.md](packages/flutter_genui/USAGE.md).
 
 ## Contribute
 

@@ -1,5 +1,5 @@
 [{"event":"daemon.connected","params":{"version":"0.6.1","pid":53994}}]
-[{"event":"app.start","params":{"appId":"d30c7f91-3896-4930-95bf-003c477f3cc8","deviceId":"macos","directory":"/Users/gspencer/code/genui/pkgs/fcp_client/example","supportsRestart":true,"launchMode":"run","mode":"debug"}}]
+[{"event":"app.start","params":{"appId":"d30c7f91-3896-4930-95bf-003c477f3cc8","deviceId":"macos","directory":"/Users/gspencer/code/genui/packages/fcp_client/example","supportsRestart":true,"launchMode":"run","mode":"debug"}}]
 Launching lib/main.dart on macOS in debug mode...
 [{"event":"app.progress","params":{"appId":"d30c7f91-3896-4930-95bf-003c477f3cc8","id":"0","progressId":null,"message":"Building macOS application...","finished":false}}]
 [{"event":"app.progress","params":{"appId":"d30c7f91-3896-4930-95bf-003c477f3cc8","id":"0","progressId":null,"finished":true}}]
