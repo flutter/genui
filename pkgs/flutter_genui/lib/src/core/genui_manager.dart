@@ -58,6 +58,7 @@ abstract interface class SurfaceBuilder {
   Stream<GenUiUpdate> get updates;
   ValueNotifier<UiDefinition?> surface(String surfaceId);
   Catalog get catalog;
+  WidgetValueStore get valueStore;
 }
 
 class GenUiManager implements SurfaceBuilder {
@@ -66,6 +67,7 @@ class GenUiManager implements SurfaceBuilder {
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
 
+  @override
   final valueStore = WidgetValueStore();
 
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;

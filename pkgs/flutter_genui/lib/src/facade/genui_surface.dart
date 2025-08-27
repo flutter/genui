@@ -129,7 +129,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,
       context,
-      widget.manager.valueStore.forSurface(widget.surfaceId),
+      widget.builder.valueStore.forSurface(widget.surfaceId),
     );
   }
 
