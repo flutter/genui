@@ -57,7 +57,7 @@ class SurfaceRemoved extends GenUiUpdate {
 
 abstract interface class GenUiHost {
   /// Stream of updates for the surfaces managed by this builder.
-  Stream<GenUiUpdate> get aiMessages;
+  Stream<GenUiUpdate> get surfaceUpdates;
 
   /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId);
@@ -76,8 +76,8 @@ class GenUiManager implements GenUiHost {
   GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
-  final _aiMessages = StreamController<GenUiUpdate>.broadcast();
-  final _userMessages = StreamController<UserMessage>.broadcast();
+  final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
+  final _userInput = StreamController<UserMessage>.broadcast();
 
   @override
   final valueStore = WidgetValueStore();
@@ -85,7 +85,15 @@ class GenUiManager implements GenUiHost {
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
   @override
-  Stream<GenUiUpdate> get aiMessages => _aiMessages.stream;
+  Stream<GenUiUpdate> get surfaceUpdates => _surfaceUpdates.stream;
+
+  Stream<UserMessage> get userInput => _userInput.stream;
+
+  @override
+  void onSubmit(String surfaceId) {
+    final value = valueStore.forSurface(surfaceId);
+    _userInput.add(UserMessage([TextPart(value.toString())]));
+  }
 
   @override
   final Catalog catalog;
@@ -110,8 +118,8 @@ class GenUiManager implements GenUiHost {
   }
 
   void dispose() {
-    _aiMessages.close();
-    _userMessages.close();
+    _surfaceUpdates.close();
+    _userInput.close();
     for (final notifier in _surfaces.values) {
       notifier.dispose();
     }
@@ -127,10 +135,10 @@ class GenUiManager implements GenUiHost {
     notifier.value = uiDefinition;
     if (isNew) {
       genUiLogger.info('Adding surface $surfaceId');
-      _aiMessages.add(SurfaceAdded(surfaceId, uiDefinition));
+      _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
     } else {
       genUiLogger.info('Updating surface $surfaceId');
-      _aiMessages.add(SurfaceUpdated(surfaceId, uiDefinition));
+      _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
     }
   }
 
@@ -139,15 +147,7 @@ class GenUiManager implements GenUiHost {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);
       notifier?.dispose();
-      _aiMessages.add(SurfaceRemoved(surfaceId));
+      _surfaceUpdates.add(SurfaceRemoved(surfaceId));
     }
-  }
-
-  Stream<UserMessage> get userMessages => _userMessages.stream;
-
-  @override
-  void onSubmit(String surfaceId) {
-    final value = valueStore.forSurface(surfaceId);
-    _userMessages.add(UserMessage([TextPart(value.toString())]));
   }
 }

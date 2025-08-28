@@ -108,7 +108,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
           tools: _genUiManager.getTools(),
           systemInstruction: prompt,
         );
-    _genUiManager.aiMessages.listen((update) {
+    _genUiManager.surfaceUpdates.listen((update) {
       setState(() {
         switch (update) {
           case SurfaceAdded(:final surfaceId, :final definition):

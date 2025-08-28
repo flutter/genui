@@ -40,10 +40,8 @@ class UiAgent {
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
 
-    _aiMessageSubscription = _genUiManager.aiMessages.listen(_onAiMessage);
-    _userMessageSubscription = _genUiManager.userMessages.listen(
-      _onUserMessage,
-    );
+    _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
+    _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
   }
 
   final bool okToUpdateSurfaces;

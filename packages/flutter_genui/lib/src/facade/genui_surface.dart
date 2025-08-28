@@ -67,7 +67,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   void _init() {
     // Reset previous subscription for updates.
     _allUpdatesSubscription?.cancel();
-    _allUpdatesSubscription = widget.host.aiMessages.listen((update) {
+    _allUpdatesSubscription = widget.host.surfaceUpdates.listen((update) {
       if (update.surfaceId == widget.surfaceId) _init();
     });
 
