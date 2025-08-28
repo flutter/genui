@@ -112,11 +112,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
       setState(() {
         switch (update) {
           case SurfaceAdded(:final surfaceId, :final definition):
-            print('Conversation has ${_conversation.length} turns before add');
             _conversation.add(
               AiUiMessage(definition: definition, surfaceId: surfaceId),
             );
-            print('Conversation has ${_conversation.length} turns before add');
 
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
@@ -149,8 +147,6 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     setState(() {
       _isThinking = true;
     });
-    print('Trigger inference has ${_conversation.length} turns before add');
-
     try {
       final result = await _aiClient.generateContent(
         _conversation,
