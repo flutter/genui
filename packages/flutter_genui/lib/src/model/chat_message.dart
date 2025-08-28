@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../flutter_genui.dart';
 import '../primitives/simple_items.dart';
 
 /// A sealed class representing a part of a message.
@@ -169,16 +171,19 @@ final class AiUiMessage extends ChatMessage {
   /// Creates a [AiUiMessage] with the given UI [definition].
   AiUiMessage({required this.definition, String? surfaceId})
     : uiKey = UniqueKey(),
+      parts = [TextPart(definition.asContextDescriptionText())],
       surfaceId =
           surfaceId ??
           ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
 
   /// The JSON definition of the UI.
-  final JsonMap definition;
+  final UiDefinition definition;
 
   /// A unique key for the UI widget.
   final Key uiKey;
 
   /// The unique ID for this UI surface.
   final String surfaceId;
+
+  final List<MessagePart> parts;
 }

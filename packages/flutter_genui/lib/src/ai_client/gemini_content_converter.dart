@@ -19,14 +19,16 @@ import 'ai_client.dart';
 class GeminiContentConverter {
   /// Converts a list of `ChatMessage` objects to a list of
   /// `firebase_ai.Content` objects.
-  List<firebase_ai.Content> toFirebaseAiContent(List<ChatMessage> messages) {
+  List<firebase_ai.Content> toFirebaseAiContent(
+    Iterable<ChatMessage> messages,
+  ) {
     final result = <firebase_ai.Content>[];
     for (final message in messages) {
       final (String? role, List<firebase_ai.Part> parts) = switch (message) {
         UserMessage() => ('user', _convertParts(message.parts)),
         AiTextMessage() => ('model', _convertParts(message.parts)),
         ToolResponseMessage() => ('user', _convertParts(message.results)),
-        AiUiMessage() => (null, <firebase_ai.Part>[]), // Not sent to model
+        AiUiMessage() => ('model', _convertParts(message.parts)),
         InternalMessage() => (null, <firebase_ai.Part>[]), // Not sent to model
       };
 

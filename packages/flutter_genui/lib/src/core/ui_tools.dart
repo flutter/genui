@@ -60,7 +60,7 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
     final surfaceId = args['surfaceId'] as String;
     final definition = args['definition'] as JsonMap;
     onAddOrUpdate(surfaceId, definition);
-    return {'surfaceId': surfaceId, 'definition': definition};
+    return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
   }
 }
 

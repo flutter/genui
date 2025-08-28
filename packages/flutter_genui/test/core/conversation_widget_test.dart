@@ -20,7 +20,7 @@ void main() {
         UserMessage.text('Hello'),
         AiUiMessage(
           surfaceId: 's1',
-          definition: {
+          definition: UiDefinition.fromMap({
             'surfaceId': 's1',
             'root': 'r1',
             'widgets': [
@@ -31,10 +31,13 @@ void main() {
                 },
               },
             ],
-          },
+          }),
         ),
       ];
-      manager.addOrUpdateSurface('s1', (messages[1] as AiUiMessage).definition);
+      manager.addOrUpdateSurface(
+        's1',
+        (messages[1] as AiUiMessage).definition.toMap(),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -74,7 +77,7 @@ void main() {
       final messages = [
         AiUiMessage(
           surfaceId: 's1',
-          definition: {
+          definition: UiDefinition.fromMap({
             'surfaceId': 's1',
             'root': 'root',
             'widgets': [
@@ -85,10 +88,10 @@ void main() {
                 },
               },
             ],
-          },
+          }),
         ),
       ];
-      manager.addOrUpdateSurface('s1', messages[0].definition);
+      manager.addOrUpdateSurface('s1', messages[0].definition.toMap());
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

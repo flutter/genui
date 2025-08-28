@@ -1,6 +1,7 @@
 // Copyright 2025 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import 'dart:convert';
 
 import '../primitives/simple_items.dart';
 
@@ -89,6 +90,8 @@ extension type UiDefinition.fromMap(JsonMap _json) {
   /// The original list of widget definitions.
   List<Object?> get widgetList => _json['widgets'] as List<Object?>;
 
+  JsonMap toMap() => _json;
+
   /// A map of all widget definitions in the UI, keyed by their ID.
   JsonMap get widgets {
     final widgetById = <String, Object?>{};
@@ -99,5 +102,11 @@ extension type UiDefinition.fromMap(JsonMap _json) {
     }
 
     return widgetById;
+  }
+
+  /// Converts a UI definition into a blob of text
+  String asContextDescriptionText() {
+    final text = jsonEncode(this);
+    return 'A user interface is shown with the following content:\n$text.';
   }
 }
