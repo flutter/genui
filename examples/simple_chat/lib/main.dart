@@ -41,7 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // TODO: pass model from FirebaseAIService
   late final UiAgent _uiAgent = UiAgent(
     '''
-    You are a helpful assistant who chat with user,
+    You are a helpful assistant who chats with user,
     giving exactly one response for each user message.
     Your responses should contain acknowledgment
     of the user message.
