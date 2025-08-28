@@ -55,6 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _onSurfaceRemoved(SurfaceRemoved surface) {
     _messages.removeWhere((message) => message.surfaceId == surface.surfaceId);
+    setState(() {});
   }
 
   @override

@@ -34,16 +34,34 @@ class UiAgent {
   }
 
   final GenUiManager _genUiManager;
+
   late final AiClient _aiClient;
+
   final List<ChatMessage> _conversation = [];
+
   late final StreamSubscription<GenUiUpdate> _surfaceSubscription =
-      _genUiManager.updates.listen((update) {
-        if (update is SurfaceAdded) {
-          onSurfaceAdded?.call(update);
-        } else if (update is SurfaceRemoved) {
-          onSurfaceRemoved?.call(update);
-        }
-      });
+      _genUiManager.updates.listen(_onAiUiMessage);
+
+  void _onAiUiMessage(GenUiUpdate update) {
+    if (update is SurfaceAdded) {
+      final message = AiUiMessage(
+        definition: update.definition.widgets,
+        surfaceId: update.surfaceId,
+      );
+      _addMessage(message);
+      onSurfaceAdded?.call(update);
+    } else if (update is SurfaceRemoved) {
+      final message = AiUiMessage(definition: {}, surfaceId: update.surfaceId);
+      _addMessage(message);
+      onSurfaceRemoved?.call(update);
+    } else if (update is SurfaceUpdated) {
+      final message = AiUiMessage(
+        definition: update.definition.widgets,
+        surfaceId: update.surfaceId,
+      );
+      _addMessage(message);
+    }
+  }
 
   void _addMessage(ChatMessage message) {
     _conversation.add(message);
@@ -67,9 +85,6 @@ class UiAgent {
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
     return _genUiManager.surface(surfaceId);
   }
-
-  // TODO: listen for conversation updates from surfaces,
-  // and add them to the conversation history.
 
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
