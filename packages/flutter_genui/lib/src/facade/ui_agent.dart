@@ -31,6 +31,11 @@ class UiAgent {
       tools: _genUiManager.getTools(),
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
+
+    _aiMessageSubscription = _genUiManager.aiMessages.listen(_onAiMessage);
+    _userMessageSubscription = _genUiManager.userMessages.listen(
+      _onUserMessage,
+    );
   }
 
   final GenUiManager _genUiManager;
@@ -39,11 +44,9 @@ class UiAgent {
 
   final List<ChatMessage> _conversation = [];
 
-  late final StreamSubscription<GenUiUpdate> _aiMessageSubscription =
-      _genUiManager.aiMessages.listen(_onAiMessage);
+  late final StreamSubscription<GenUiUpdate> _aiMessageSubscription;
 
-  late final StreamSubscription<UserMessage> _userMessageSubscription =
-      _genUiManager.userMessages.listen(_onUserMessage);
+  late final StreamSubscription<UserMessage> _userMessageSubscription;
 
   void dispose() {
     _aiClient.activeRequests.removeListener(_onActivityUpdates);
@@ -58,6 +61,9 @@ class UiAgent {
   }
 
   void _onAiMessage(GenUiUpdate update) {
+    print(
+      '!!!!! AI message received: ${update.surfaceId}, ${update.runtimeType}',
+    );
     if (update is SurfaceAdded) {
       final message = AiUiMessage(
         definition: update.definition.widgets,

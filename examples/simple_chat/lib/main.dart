@@ -48,6 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   void _onSurfaceAdded(SurfaceAdded surface) {
+    print('!!!!! Surface added: ${surface.surfaceId}');
     _messages.add(MessageController(surfaceId: surface.surfaceId));
     setState(() {});
     _scrollToBottom();
