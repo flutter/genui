@@ -12,9 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_genui:
-    path: ../../flutter_genui
+    path: ../flutter_genui
   travel_app:
-    path: ../../../examples/travel_app
+    path: ../../examples/travel_app
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
