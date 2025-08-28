@@ -55,8 +55,10 @@ void main() {
       expect(result.first.role, 'model');
       expect(result.first.parts, hasLength(1));
       expect(result.first.parts.first, isA<firebase_ai.TextPart>());
-      expect((result.first.parts.first as firebase_ai.TextPart).text,
-          definition.asContextDescriptionText());
+      expect(
+        (result.first.parts.first as firebase_ai.TextPart).text,
+        definition.asContextDescriptionText(),
+      );
     });
 
     test('toFirebaseAiContent ignores $InternalMessage', () {

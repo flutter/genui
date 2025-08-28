@@ -2,13 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 import '../../flutter_genui.dart';
-import '../primitives/simple_items.dart';
 
 /// A sealed class representing a part of a message.
 ///
