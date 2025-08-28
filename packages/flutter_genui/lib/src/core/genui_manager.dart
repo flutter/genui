@@ -55,7 +55,7 @@ class SurfaceRemoved extends GenUiUpdate {
   const SurfaceRemoved(super.surfaceId);
 }
 
-abstract interface class SurfaceBuilder {
+abstract interface class GenUiHost {
   /// Stream of updates for the surfaces managed by this builder.
   Stream<GenUiUpdate> get aiMessages;
 
@@ -69,10 +69,10 @@ abstract interface class SurfaceBuilder {
   WidgetValueStore get valueStore;
 
   /// Handle submit from a surface.
-  void onSubmitAction(String surfaceId);
+  void onSubmit(String surfaceId);
 }
 
-class GenUiManager implements SurfaceBuilder {
+class GenUiManager implements GenUiHost {
   GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
@@ -145,7 +145,7 @@ class GenUiManager implements SurfaceBuilder {
   Stream<UserMessage> get userMessages => _userMessages.stream;
 
   @override
-  void onSubmitAction(String surfaceId) {
+  void onSubmit(String surfaceId) {
     print('!!!!! User submitted action for surface: $surfaceId');
     final value = valueStore.forSurface(surfaceId);
     _userMessages.add(UserMessage([TextPart(value.toString())]));

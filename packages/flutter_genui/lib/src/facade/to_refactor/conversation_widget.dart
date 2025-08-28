@@ -70,7 +70,7 @@ class ConversationWidget extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: GenUiSurface(
                 key: message.uiKey,
-                builder: manager,
+                host: manager,
                 surfaceId: message.surfaceId,
                 onEvent: onEvent,
               ),

@@ -209,7 +209,7 @@ class _GenUiChatState extends State<GenUiChat> {
                         padding: const EdgeInsets.all(16.0),
                         child: GenUiSurface(
                           key: message.uiKey,
-                          builder: widget.controller.manager,
+                          host: widget.controller.manager,
                           surfaceId: message.surfaceId,
                           onEvent: widget.onEvent,
                         ),
