@@ -117,11 +117,24 @@ class UiAgent {
   }
 }
 
-String _technicalPrompt = '''
-Use the provided tools to build and manage the user interface in response to the user's requests. Call the `addOrUpdateSurface` tool to show new content or update existing content. Use the `deleteSurface` tool to remove UI that is no longer relevant.
+/// Generates the technical prompt for the AI.
+///
+/// In future we may want to specify which surfaces can be updated/deleted.
+String _technicalPrompt({
+  required bool okToUpdate,
+  required bool okToDelete,
+  required bool okToCreate,
+}) {
+  return '''
+Use the provided tools to build and manage the user interface in response to the user's requests.
+
+Call the `addOrUpdateSurface` tool to show new content or update existing content.
+
+Use the `deleteSurface` tool to remove UI that is no longer relevant.
 
 When updating a surface, if you are adding new UI to an existing surface, you should usually create a container widget (like a Column) to hold both the existing and new UI, and set that container as the new root.
 
 When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
 providing information.
 ''';
+}
