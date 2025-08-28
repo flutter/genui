@@ -15,13 +15,16 @@ classDiagram
     direction TB
 
     namespace TravelApp {
-        class UILayer {
-            <<Component>>
-            main.dart
+        class TravelPlannerPage {
+            <<StatefulWidget>>
+            +build()
+            - _genUiManager
+            - _aiClient
+            - _conversation
+            - _triggerInference()
         }
-        class AppLogic {
-            <<Component>>
-            main.dart
+        class ConversationWidget {
+            <<Widget>>
         }
         class GenUiSurface {
             <<Widget>>
@@ -31,12 +34,12 @@ classDiagram
     namespace flutter_genui {
         class GenUiManager {
             <<Component>>
-        }
-        class SurfaceManager {
-            <<Component>>
+            +getTools()
+            +surfaceUpdates
         }
         class AiClient {
             <<Component>>
+            +generateContent()
         }
         class WidgetCatalog {
             <<Component>>
@@ -49,37 +52,33 @@ classDiagram
         }
     }
 
-    TravelApp.UILayer --o flutter_genui.GenUiManager : "Initializes and holds"
-    TravelApp.UILayer --> TravelApp.GenUiSurface : "Renders"
-    TravelApp.UILayer --> TravelApp.AppLogic : "Sends user input to"
+    TravelPlannerPage --o flutter_genui.GenUiManager : "Initializes and holds"
+    TravelPlannerPage --o flutter_genui.AiClient : "Initializes and holds"
+    TravelPlannerPage --> ConversationWidget : "Builds"
+    ConversationWidget --> GenUiSurface : "Renders AI UI messages"
 
-    TravelApp.AppLogic --> flutter_genui.AiClient : "Calls generateContent()"
-    TravelApp.AppLogic --> flutter_genui.SurfaceManager : "Executes UI tool calls"
+    TravelPlannerPage --> flutter_genui.AiClient : "Calls generateContent()"
 
-    flutter_genui.GenUiManager "1" *-- "1" flutter_genui.SurfaceManager : "Owns"
-    flutter_genui.GenUiManager "1" *-- "1" flutter_genui.WidgetCatalog : "Owns"
-
-    flutter_genui.SurfaceManager --> TravelApp.GenUiSurface : "Notifies of updates"
-    TravelApp.GenUiSurface --> flutter_genui.WidgetCatalog : "Uses to build widgets"
+    flutter_genui.GenUiManager --> TravelPlannerPage : "Notifies of updates via Stream"
+    GenUiSurface --> flutter_genui.WidgetCatalog : "Uses to build widgets"
 
     flutter_genui.AiClient --> Backend.LLM : "Communicates with"
 ```
 
 ### 1. UI Layer (`main.dart`)
 
-This is the main entry point and the visible part of the application. Its responsibilities are:
+This is the main entry point and the visible part of the application, primarily managed by the `TravelPlannerPage` widget. Its responsibilities are:
 
 - **Initialization**: It initializes Firebase, the `GenUiManager`, and the `AiClient`.
-- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar and a `GenUiChat` widget that renders the conversation and the dynamic UI surfaces.
-- **State Management & App Logic**: It holds the core application logic. It manages the conversation history, sends prompts to the AI, and handles UI events returned from `GenUiSurface`.
+- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar, a `ConversationWidget` to render the conversation history, and a custom chat input field.
+- **State Management & App Logic**: It holds the core application logic. It manages the `_conversation` history list, sends prompts to the AI via `_triggerInference`, and handles UI events returned from the `GenUiSurface` widgets.
 
 ### 2. UI State Management Layer ([`package:flutter_genui`](../../packages/flutter_genui/IMPLEMENTATION.md))
 
 The components from the `flutter_genui` package are the central orchestrators of the dynamic UI state.
 
-- **`GenUiManager`**: A container that owns the `SurfaceManager` and `Catalog`. Its main role is to provide the UI manipulation tools (`addOrUpdateSurface`, `deleteSurface`) to the app logic.
-- **`SurfaceManager`**: The core state manager. It maintains the definitions for all active UI "surfaces" and notifies listening widgets (like `GenUiSurface`) when they change.
-- **`GenUiChat`**: A facade widget that renders a complete chat experience, including a text input field and the conversation history. It automatically listens to the `SurfaceManager` and displays any generated UI surfaces.
+- **`GenUiManager`**: The core state manager. It maintains the definitions for all active UI "surfaces", provides the UI manipulation tools (`addOrUpdateSurface`, `deleteSurface`) to the app logic, and notifies listening widgets (like `TravelPlannerPage`) of changes via a stream.
+- **`ConversationWidget`**: A facade widget that renders a list of `ChatMessage`s. It is responsible for displaying the conversation history, including text messages and dynamically rendered UI surfaces via `GenUiSurface`.
 
 ### 3. AI/Model Layer (`package:flutter_genui`)
 
@@ -100,37 +99,41 @@ The diagram below shows the sequence of events from user input to UI rendering. 
 ```mermaid
 sequenceDiagram
     actor User
-    participant AppLogic as "App Logic (main.dart)"
+    participant AppLogic as "App Logic (TravelPlannerPage)"
     participant AiClient
     participant LLM
-    participant SurfaceManager
-    participant GenUiSurface
+    participant GenUiManager
+    participant ConversationWidget
 
     activate User
     User->>AppLogic: Enters prompt "Find flights to Paris"
     deactivate User
 
     activate AppLogic
-    AppLogic->>AppLogic: Adds UserMessage to history
-    AppLogic->>AiClient: generateContent(conversation, uiTools)
+    AppLogic->>AppLogic: Adds UserMessage to _conversation list
+    AppLogic->>AiClient: generateContent(_conversation, uiTools)
     activate AiClient
     AiClient->>LLM: Sends prompt and tool schemas
     activate LLM
-    LLM-->>AiClient: Responds with tool call
+    LLM-->>AiClient: Responds with tool call (e.g. addOrUpdateSurface)
     deactivate LLM
-    AiClient-->>AppLogic: Returns result
+    AiClient-->>AppLogic: Returns result (AI tool calls are executed internally)
     deactivate AiClient
 
-    AppLogic->>SurfaceManager: addOrUpdateSurface(def)
-    activate SurfaceManager
-    SurfaceManager->>SurfaceManager: Updates internal state
-    SurfaceManager-->>GenUiSurface: Notifies of state change
-    deactivate SurfaceManager
+    note right of AppLogic: The AiClient invokes the tool, which calls a method on GenUiManager.
+    
+    activate GenUiManager
+    GenUiManager->>GenUiManager: Updates internal state
+    GenUiManager-->>AppLogic: Notifies of state change via Stream
+    deactivate GenUiManager
 
-    activate GenUiSurface
-    GenUiSurface->>GenUiSurface: Rebuilds with new UI
-    GenUiSurface-->>User: Displays new UI
-    deactivate GenUiSurface
+    AppLogic->>AppLogic: Updates _conversation list with AiUiMessage
+    
+    activate ConversationWidget
+    AppLogic->>ConversationWidget: Rebuilds with new message list
+    ConversationWidget->>ConversationWidget: Renders new UI surface
+    ConversationWidget-->>User: Displays new UI
+    deactivate ConversationWidget
     deactivate AppLogic
 ```
 
@@ -208,5 +211,5 @@ graph TD
 The UI is not just for display; it's interactive. Widgets like `optionsFilterChip` and `filterChipGroup` can capture user input.
 
 - **Event Dispatching**: The `widgetBuilder` receives a `dispatchEvent` function. This function is called in response to user actions (like a button press or item selection), creating a `UiEvent` (`UiActionEvent` for submissions, `UiChangeEvent` for value changes).
-- **Event Handling**: The `onEvent` callback on the `GenUiChat` widget is triggered. The application logic in `main.dart` receives the event.
-- **Conversation Update**: The app logic processes the event, wraps the information into `ToolResultPart`s inside a new `UserMessage`, adds it to the conversation history, and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
+- **Event Handling**: The `onEvent` callback on the `GenUiSurface` widget is triggered. The application logic in `main.dart` receives the event via a `UiEventManager`.
+- **Conversation Update**: The app logic processes the event, wraps the information into a new `UserMessage`, adds it to the conversation history, and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
