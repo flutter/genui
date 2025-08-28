@@ -71,9 +71,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];
-                  return ListTile(
-                    title: MessageView(message, _uiAgent.builder),
-                  );
+                  return ListTile(title: MessageView(message, _uiAgent.host));
                 },
               ),
             ),
