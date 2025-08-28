@@ -16,10 +16,23 @@ import '../model/ui_models.dart';
 
 const _maxConversationLength = 1000;
 
-/// Generic facade for GenUi package.
+/// A high-level facade for the GenUI package.
+///
+/// This class simplifies the process of creating a generative UI by managing
+/// the conversation loop and the interaction with the AI. It encapsulates a
+/// [GenUiManager] and an [AiClient], providing a single entry point for
+
+/// sending user requests and receiving UI updates.
 class UiAgent {
-  // This class limits functionality of the GenUi package.
-  // with the plan to gradually extend it.
+  /// Creates a new [UiAgent].
+  ///
+  /// The [instruction] is a system prompt that guides the AI's behavior.
+  ///
+  /// The [catalog] defines the set of widgets available to the AI. If not
+  /// provided, a default catalog of core widgets is used.
+  ///
+  /// Callbacks like [onSurfaceAdded] and [onSurfaceDeleted] can be provided to
+  /// react to UI changes initiated by the AI.
   UiAgent(
     String instruction, {
     Catalog? catalog,
@@ -44,6 +57,7 @@ class UiAgent {
     _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
   }
 
+  /// Whether the AI is allowed to update existing surfaces.
   final bool okToUpdateSurfaces;
 
   final GenUiManager _genUiManager;
@@ -56,8 +70,10 @@ class UiAgent {
 
   late final StreamSubscription<UserMessage> _userMessageSubscription;
 
+  /// A callback for warnings that occur during the generative process.
   final ValueChanged<String>? onWarning;
 
+  /// Disposes of the resources used by this agent.
   void dispose() {
     _aiClient.activeRequests.removeListener(_onActivityUpdates);
     _aiMessageSubscription.cancel();
@@ -126,18 +142,26 @@ class UiAgent {
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
 
+  /// The host for the UI surfaces managed by this agent.
   GenUiHost get host => _genUiManager;
 
+  /// A callback for when a new surface is added by the AI.
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
+
+  /// A callback for when a surface is deleted by the AI.
   final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
 
+  /// A [ValueListenable] that indicates whether the agent is currently
+  /// processing a request.
   ValueListenable<bool> get isProcessing => _isProcessing;
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
+  /// Returns a [ValueNotifier] for the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
     return _genUiManager.surface(surfaceId);
   }
 
+  /// Sends a user message to the AI to generate a UI response.
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());

@@ -14,10 +14,10 @@ import 'ui_event_manager.dart';
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
 ///
-/// A [Catalog] serves two primary purposes:
+/// A [Catalog] serves three primary purposes:
 /// 1. It holds a list of [CatalogItem]s, which define the available widgets.
 /// 2. It provides a mechanism to build a Flutter widget from a JSON-like data
-///    structure (`Json`).
+///    structure ([JsonMap]).
 /// 3. It dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets, which can be provided to the AI model.
 class Catalog {

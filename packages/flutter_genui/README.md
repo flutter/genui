@@ -20,7 +20,7 @@ The package is built around three main components:
 
 2. **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
-3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `GeminiAiClient` for interacting with Gemini models via the Firebase AI SDK.
+3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `GeminiAiClient` for interacting with Gemini models via the [Firebase AI Logic SDK](https://pub.dev/packages/firebase_ai).
 
 ## Getting Started
 

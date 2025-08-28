@@ -55,24 +55,39 @@ class SurfaceRemoved extends GenUiUpdate {
   const SurfaceRemoved(super.surfaceId);
 }
 
+/// An interface for a class that hosts UI surfaces.
+///
+/// This is used by `GenUiSurface` to get the UI definition for a surface,
+/// listen for updates, and notify the host of user interactions.
 abstract interface class GenUiHost {
-  /// Stream of updates for the surfaces managed by this builder.
+  /// A stream of updates for the surfaces managed by this host.
   Stream<GenUiUpdate> get surfaceUpdates;
 
   /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId);
 
-  /// The catalog of UI components.
+  /// The catalog of UI components available to the AI.
   Catalog get catalog;
 
   /// The value store for submitting the widget state.
   WidgetValueStore get valueStore;
 
-  /// Handle submit from a surface.
+  /// A callback to handle a submit action from a surface.
   void onSubmitted(String surfaceId);
 }
 
+/// Manages the state of all dynamic UI surfaces.
+///
+/// This class is the core state manager for the dynamic UI. It maintains a map
+/// of all active UI "surfaces", where each surface is represented by a
+/// `UiDefinition`. It provides the tools (`addOrUpdateSurface`,
+/// `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream
+/// of `GenUiUpdate` events so that the application can react to changes.
 class GenUiManager implements GenUiHost {
+  /// Creates a new [GenUiManager].
+  ///
+  /// An optional [catalog] can be provided to define the set of widgets
+  /// available to the AI. If not provided, the `coreCatalog` is used.
   GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
@@ -82,11 +97,13 @@ class GenUiManager implements GenUiHost {
   @override
   final valueStore = WidgetValueStore();
 
+  /// A map of all the surfaces managed by this manager, keyed by surface ID.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
   @override
   Stream<GenUiUpdate> get surfaceUpdates => _surfaceUpdates.stream;
 
+  /// A stream of user input messages generated from UI interactions.
   Stream<UserMessage> get userInput => _userInput.stream;
 
   @override
@@ -117,6 +134,7 @@ class GenUiManager implements GenUiHost {
     return _surfaces.putIfAbsent(surfaceId, () => ValueNotifier(null));
   }
 
+  /// Disposes of the resources used by this manager.
   void dispose() {
     _surfaceUpdates.close();
     _userInput.close();
@@ -125,6 +143,10 @@ class GenUiManager implements GenUiHost {
     }
   }
 
+  /// Adds or updates a surface with the given [surfaceId] and [definition].
+  ///
+  /// If a surface with the given ID does not exist, a new one is created.
+  /// Otherwise, the existing surface is updated.
   void addOrUpdateSurface(String surfaceId, JsonMap definition) {
     final uiDefinition = UiDefinition.fromMap({
       'surfaceId': surfaceId,
@@ -142,6 +164,7 @@ class GenUiManager implements GenUiHost {
     }
   }
 
+  /// Deletes the surface with the given [surfaceId].
   void deleteSurface(String surfaceId) {
     if (_surfaces.containsKey(surfaceId)) {
       genUiLogger.info('Deleting surface $surfaceId');
