@@ -21,7 +21,6 @@ const _maxConversationLength = 1000;
 /// This class simplifies the process of creating a generative UI by managing
 /// the conversation loop and the interaction with the AI. It encapsulates a
 /// [GenUiManager] and an [AiClient], providing a single entry point for
-
 /// sending user requests and receiving UI updates.
 class UiAgent {
   /// Creates a new [UiAgent].
