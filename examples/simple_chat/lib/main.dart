@@ -43,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
     'You are a helpful assistant.',
     catalog: null,
     onSurfaceAdded: _onSurfaceAdded,
-    onSurfaceRemoved: _onSurfaceRemoved,
+    onSurfaceDeleted: _onSurfaceRemoved,
   );
   final ScrollController _scrollController = ScrollController();
 

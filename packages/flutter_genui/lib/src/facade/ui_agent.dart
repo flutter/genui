@@ -24,12 +24,18 @@ class UiAgent {
     String instruction, {
     Catalog? catalog,
     this.onSurfaceAdded,
-    this.onSurfaceRemoved,
+    this.onSurfaceDeleted,
     this.okToUpdateSurfaces = false,
     this.onWarning,
   }) : _genUiManager = GenUiManager(catalog: catalog) {
+    final technicalPrompt = _technicalPrompt(
+      okToUpdate: okToUpdateSurfaces,
+      okToDelete: onSurfaceDeleted != null,
+      okToAdd: onSurfaceAdded != null,
+    );
+
     _aiClient = GeminiAiClient(
-      systemInstruction: '$instruction\n\n$_technicalPrompt',
+      systemInstruction: '$instruction\n\n$technicalPrompt',
       tools: _genUiManager.getTools(),
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
@@ -69,17 +75,40 @@ class UiAgent {
 
   void _onAiMessage(GenUiUpdate update) {
     if (update is SurfaceAdded) {
+      if (onSurfaceAdded == null) {
+        onWarning?.call(
+          'AI attempted to add a surface (${update.surfaceId}), '
+          'but it is not allowed to add surfaces, '
+          'because onSurfaceAdded handler is not set.',
+        );
+        return;
+      }
+
       final message = AiUiMessage(
         definition: update.definition.widgets,
         surfaceId: update.surfaceId,
       );
       _addMessage(message);
-      onSurfaceAdded?.call(update);
+      onSurfaceAdded!.call(update);
     } else if (update is SurfaceRemoved) {
+      if (onSurfaceDeleted == null) {
+        onWarning?.call(
+          'AI attempted to remove a surface (${update.surfaceId}), '
+          'but onSurfaceDeleted handler is not set.',
+        );
+        return;
+      }
       final message = AiUiMessage(definition: {}, surfaceId: update.surfaceId);
       _addMessage(message);
-      onSurfaceRemoved?.call(update);
+      onSurfaceDeleted!.call(update);
     } else if (update is SurfaceUpdated) {
+      if (!okToUpdateSurfaces) {
+        onWarning?.call(
+          'AI attempted to update a surface (${update.surfaceId}), '
+          'but it is not allowed to update surfaces.',
+        );
+        return;
+      }
       final message = AiUiMessage(
         definition: update.definition.widgets,
         surfaceId: update.surfaceId,
@@ -102,7 +131,7 @@ class UiAgent {
   GenUiHost get host => _genUiManager;
 
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
-  final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
+  final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
 
   ValueListenable<bool> get isProcessing => _isProcessing;
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
@@ -123,16 +152,29 @@ class UiAgent {
 String _technicalPrompt({
   required bool okToUpdate,
   required bool okToDelete,
-  required bool okToCreate,
+  required bool okToAdd,
 }) {
+  var updateInstruction = okToUpdate
+      ? '''You can update existing surfaces using the `addOrUpdateSurface` tool.
+      When updating a surface, if you are adding new UI to an existing surface, you should usually create a container widget (like a Column) to hold both the existing and new UI, and set that container as the new root.'''
+      : 'Do not update existing surfaces.';
+
+  var deleteInstruction = okToDelete
+      ? 'Use the `deleteSurface` tool to remove UI that is no longer relevant.'
+      : 'Do not delete existing surfaces.';
+
+  var addInstruction = okToAdd
+      ? 'You can add new surfaces using the `addOrUpdateSurface` tool.'
+      : 'Do not add new surfaces.';
+
   return '''
 Use the provided tools to build and manage the user interface in response to the user's requests.
 
-Call the `addOrUpdateSurface` tool to show new content or update existing content.
+$updateInstruction
 
-Use the `deleteSurface` tool to remove UI that is no longer relevant.
+$deleteInstruction
 
-When updating a surface, if you are adding new UI to an existing surface, you should usually create a container widget (like a Column) to hold both the existing and new UI, and set that container as the new root.
+$addInstruction
 
 When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
 providing information.
