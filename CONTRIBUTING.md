@@ -25,11 +25,8 @@ we should do about each of them. Triage issues as follows:
 
 * Open the [list of untriaged issues][untriaged_list].
 * For each issue in the list, do one of:
-  * If it's not something to want to fix, close the issue while explaining the
-    reason why we do not intend to fix it.
-  * If it's something we want to fix, determine and assign a priority by
-    applying [P0][P0], [P1][P1], [P2][P2], or [P3][P3] priority level. If you
-    don't know, apply `P2`. If an issue is `P0` or `P1`, add it to a milestone.
+  * If we don't plan to fix the issue, close it with an explanation.
+  * If we plan to fix the issue, add the `triaged` label and assign a priority: [P0][P0], [P1][P1], [P2][P2], or [P3][P3]. If you don't know which priority to assign, apply `P2`. If an issue is `P0` or `P1`, add it to a milestone.
 
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
