@@ -25,6 +25,8 @@ class UiAgent {
     Catalog? catalog,
     this.onSurfaceAdded,
     this.onSurfaceRemoved,
+    this.okToUpdateSurfaces = false,
+    this.onWarning,
   }) : _genUiManager = GenUiManager(catalog: catalog) {
     _aiClient = GeminiAiClient(
       systemInstruction: '$instruction\n\n$_technicalPrompt',
@@ -38,6 +40,8 @@ class UiAgent {
     );
   }
 
+  final bool okToUpdateSurfaces;
+
   final GenUiManager _genUiManager;
 
   late final AiClient _aiClient;
@@ -47,6 +51,8 @@ class UiAgent {
   late final StreamSubscription<GenUiUpdate> _aiMessageSubscription;
 
   late final StreamSubscription<UserMessage> _userMessageSubscription;
+
+  final ValueChanged<String>? onWarning;
 
   void dispose() {
     _aiClient.activeRequests.removeListener(_onActivityUpdates);

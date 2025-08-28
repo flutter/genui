@@ -14,10 +14,10 @@ class MessageController {
 }
 
 class MessageView extends StatefulWidget {
-  const MessageView(this.controller, this.builder, {super.key});
+  const MessageView(this.controller, this.host, {super.key});
 
   final MessageController controller;
-  final GenUiHost builder;
+  final GenUiHost host;
 
   @override
   State<MessageView> createState() => _MessageViewState();
@@ -31,7 +31,7 @@ class _MessageViewState extends State<MessageView> {
     if (surfaceId == null) return Text(widget.controller.text ?? '');
 
     return GenUiSurface(
-      host: widget.builder,
+      host: widget.host,
       surfaceId: surfaceId,
       onEvent: (event) {},
     );
