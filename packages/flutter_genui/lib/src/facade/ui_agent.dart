@@ -58,12 +58,10 @@ class UiAgent {
 
   void _onUserMessage(UserMessage message) {
     _addMessage(message);
+    _aiClient.generateContent(_conversation, Schema.object());
   }
 
   void _onAiMessage(GenUiUpdate update) {
-    print(
-      '!!!!! AI message received: ${update.surfaceId}, ${update.runtimeType}',
-    );
     if (update is SurfaceAdded) {
       final message = AiUiMessage(
         definition: update.definition.widgets,
