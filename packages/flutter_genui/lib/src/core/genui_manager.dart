@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
+import '../model/chat_message.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
@@ -55,10 +56,20 @@ class SurfaceRemoved extends GenUiUpdate {
 }
 
 abstract interface class SurfaceBuilder {
+  /// Stream of updates for the surfaces managed by this builder.
   Stream<GenUiUpdate> get updates;
+
+  /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId);
+
+  /// The catalog of UI components.
   Catalog get catalog;
+
+  /// The value store for submitting the widget state.
   WidgetValueStore get valueStore;
+
+  /// Handle submit from a surface.
+  void onSubmitAction(String surfaceId);
 }
 
 class GenUiManager implements SurfaceBuilder {
@@ -66,6 +77,7 @@ class GenUiManager implements SurfaceBuilder {
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _updates = StreamController<GenUiUpdate>.broadcast();
+  final _userMessages = StreamController<UserMessage>.broadcast();
 
   @override
   final valueStore = WidgetValueStore();
@@ -128,5 +140,13 @@ class GenUiManager implements SurfaceBuilder {
       notifier?.dispose();
       _updates.add(SurfaceRemoved(surfaceId));
     }
+  }
+
+  Stream<UserMessage> get userMessages => _userMessages.stream;
+
+  @override
+  void onSubmitAction(String surfaceId) {
+    final value = valueStore.forSurface(surfaceId);
+    _userMessages.add(UserMessage([TextPart(value.toString())]));
   }
 }
