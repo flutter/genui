@@ -146,7 +146,6 @@ class GenUiManager implements GenUiHost {
 
   @override
   void onSubmit(String surfaceId) {
-    print('!!!!! User submitted action for surface: $surfaceId');
     final value = valueStore.forSurface(surfaceId);
     _userMessages.add(UserMessage([TextPart(value.toString())]));
   }
