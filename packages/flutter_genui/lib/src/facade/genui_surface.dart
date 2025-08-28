@@ -80,12 +80,12 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   /// Dispatches an event.
   void _dispatchEvent(UiEvent event) {
-    if (event.isAction) {
-      // The event comes in without a surfaceId, which we add here.
-      final eventMap = event.toMap();
-      eventMap['surfaceId'] = widget.surfaceId;
-      widget.onEvent(UiEvent.fromMap(eventMap));
+    // The event comes in without a surfaceId, which we add here.
+    final eventMap = event.toMap();
+    eventMap['surfaceId'] = widget.surfaceId;
+    widget.onEvent(UiEvent.fromMap(eventMap));
 
+    if (event.isAction) {
       widget.host.onSubmit(widget.surfaceId);
     }
   }
