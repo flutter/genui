@@ -39,10 +39,25 @@ class UiAgent {
 
   final List<ChatMessage> _conversation = [];
 
-  late final StreamSubscription<GenUiUpdate> _surfaceSubscription =
-      _genUiManager.updates.listen(_onAiUiMessage);
+  late final StreamSubscription<GenUiUpdate> _aiMessageSubscription =
+      _genUiManager.aiMessages.listen(_onAiMessage);
 
-  void _onAiUiMessage(GenUiUpdate update) {
+  late final StreamSubscription<UserMessage> _userMessageSubscription =
+      _genUiManager.userMessages.listen(_onUserMessage);
+
+  void dispose() {
+    _aiClient.activeRequests.removeListener(_onActivityUpdates);
+    _aiMessageSubscription.cancel();
+    _userMessageSubscription.cancel();
+    _genUiManager.dispose();
+    _aiClient.dispose();
+  }
+
+  void _onUserMessage(UserMessage message) {
+    _addMessage(message);
+  }
+
+  void _onAiMessage(GenUiUpdate update) {
     if (update is SurfaceAdded) {
       final message = AiUiMessage(
         definition: update.definition.widgets,
@@ -89,13 +104,6 @@ class UiAgent {
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
-  }
-
-  void dispose() {
-    _aiClient.activeRequests.removeListener(_onActivityUpdates);
-    _surfaceSubscription.cancel();
-    _genUiManager.dispose();
-    _aiClient.dispose();
   }
 }
 

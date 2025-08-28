@@ -67,7 +67,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   void _init() {
     // Reset previous subscription for updates.
     _allUpdatesSubscription?.cancel();
-    _allUpdatesSubscription = widget.builder.updates.listen((update) {
+    _allUpdatesSubscription = widget.builder.aiMessages.listen((update) {
       if (update.surfaceId == widget.surfaceId) _init();
     });
 
@@ -78,13 +78,16 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     setState(() {});
   }
 
-  /// Dispatches an event by calling the public [GenUiSurface.onEvent]
-  /// callback.
+  /// Dispatches an event.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
     eventMap['surfaceId'] = widget.surfaceId;
     widget.onEvent(UiEvent.fromMap(eventMap));
+
+    if (event is UiActionEvent) {
+      widget.builder.onSubmitAction(widget.surfaceId);
+    }
   }
 
   @override

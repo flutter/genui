@@ -57,7 +57,7 @@ class SurfaceRemoved extends GenUiUpdate {
 
 abstract interface class SurfaceBuilder {
   /// Stream of updates for the surfaces managed by this builder.
-  Stream<GenUiUpdate> get updates;
+  Stream<GenUiUpdate> get aiMessages;
 
   /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId);
@@ -85,7 +85,7 @@ class GenUiManager implements SurfaceBuilder {
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
   @override
-  Stream<GenUiUpdate> get updates => _updates.stream;
+  Stream<GenUiUpdate> get aiMessages => _updates.stream;
 
   @override
   final Catalog catalog;

@@ -27,7 +27,7 @@ class GenUiChatController {
         surfaceId: surfaceId,
       );
     }).toList();
-    _updateSubscription = manager.updates.listen(_onUpdate);
+    _updateSubscription = manager.aiMessages.listen(_onUpdate);
   }
 
   late final StreamSubscription<GenUiUpdate> _updateSubscription;
