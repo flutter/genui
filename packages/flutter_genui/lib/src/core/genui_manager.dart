@@ -69,7 +69,7 @@ abstract interface class GenUiHost {
   WidgetValueStore get valueStore;
 
   /// Handle submit from a surface.
-  void onUiAction(String surfaceId);
+  void onSubmitted(String surfaceId);
 }
 
 class GenUiManager implements GenUiHost {
@@ -90,7 +90,7 @@ class GenUiManager implements GenUiHost {
   Stream<UserMessage> get userInput => _userInput.stream;
 
   @override
-  void onUiAction(String surfaceId) {
+  void onSubmitted(String surfaceId) {
     final value = valueStore.forSurface(surfaceId);
     _userInput.add(UserMessage([TextPart(value.toString())]));
   }
