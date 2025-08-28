@@ -76,7 +76,7 @@ class GenUiManager implements GenUiHost {
   GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
-  final _updates = StreamController<GenUiUpdate>.broadcast();
+  final _aiMessages = StreamController<GenUiUpdate>.broadcast();
   final _userMessages = StreamController<UserMessage>.broadcast();
 
   @override
@@ -85,7 +85,7 @@ class GenUiManager implements GenUiHost {
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
   @override
-  Stream<GenUiUpdate> get aiMessages => _updates.stream;
+  Stream<GenUiUpdate> get aiMessages => _aiMessages.stream;
 
   @override
   final Catalog catalog;
@@ -110,7 +110,8 @@ class GenUiManager implements GenUiHost {
   }
 
   void dispose() {
-    _updates.close();
+    _aiMessages.close();
+    _userMessages.close();
     for (final notifier in _surfaces.values) {
       notifier.dispose();
     }
@@ -126,10 +127,10 @@ class GenUiManager implements GenUiHost {
     notifier.value = uiDefinition;
     if (isNew) {
       genUiLogger.info('Adding surface $surfaceId');
-      _updates.add(SurfaceAdded(surfaceId, uiDefinition));
+      _aiMessages.add(SurfaceAdded(surfaceId, uiDefinition));
     } else {
       genUiLogger.info('Updating surface $surfaceId');
-      _updates.add(SurfaceUpdated(surfaceId, uiDefinition));
+      _aiMessages.add(SurfaceUpdated(surfaceId, uiDefinition));
     }
   }
 
@@ -138,7 +139,7 @@ class GenUiManager implements GenUiHost {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);
       notifier?.dispose();
-      _updates.add(SurfaceRemoved(surfaceId));
+      _aiMessages.add(SurfaceRemoved(surfaceId));
     }
   }
 
