@@ -6,7 +6,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-import '../../flutter_genui.dart';
+import 'ui_models.dart';
 
 /// A sealed class representing a part of a message.
 ///
