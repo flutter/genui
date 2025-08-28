@@ -83,10 +83,10 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     if (event.isAction) {
       print('!!!!! It is submitting event: ${event.runtimeType}');
 
-      // // The event comes in without a surfaceId, which we add here.
-      // final eventMap = event.toMap();
-      // eventMap['surfaceId'] = widget.surfaceId;
-      // widget.onEvent(UiEvent.fromMap(eventMap));
+      // The event comes in without a surfaceId, which we add here.
+      final eventMap = event.toMap();
+      eventMap['surfaceId'] = widget.surfaceId;
+      widget.onEvent(UiEvent.fromMap(eventMap));
 
       widget.host.onSubmit(widget.surfaceId);
     }
