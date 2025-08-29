@@ -1,4 +1,4 @@
-# Contributing to Flutter GenUI
+# Contributing to GenUI for Flutter
 
 ## Guidelines
 
