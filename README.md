@@ -41,13 +41,13 @@ agent-based user experiences.
 ### Using GenUI SDK with Firebase AI Logic
 
 ```
-// Adding your widgets into the catalog
+// Adding your widgets into the catalog.
 final catalog = Catalog([
   ...coreCatalog.items,
   myCustomNewWidget,
 ]);
 
-/// Initializing the library
+/// Initializing the library.
 late final UiAgent _uiAgent = UiAgent(
   '''
   You are a bicycle maintenance assistant who is an expert in diagnosing issues and
@@ -59,7 +59,7 @@ late final UiAgent _uiAgent = UiAgent(
   onWarning: (value) => print('Warning from UiAgent: $value'),
 );
 
-// Get UI in response to an inference
+// Get UI in response to an inference.
 void _onSurfaceAdded(SurfaceAdded surface) {
   if (!mounted) return;
   setState(() {
@@ -68,7 +68,7 @@ void _onSurfaceAdded(SurfaceAdded surface) {
   _scrollToBottom();
 }
 
-// Render that UI
+// Render that UI.
 Widget build(BuildContext context) {
    if (type == MessageType.genUi) {
      return GenUiSurface(
