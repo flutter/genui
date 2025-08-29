@@ -122,8 +122,8 @@ final radioGroup = CatalogItem(
           initialGroupValue: radioData.groupValue,
           labels: radioData.labels,
           onChanged: (newValue) {
+            values[id] = newValue;
             if (newValue != null) {
-              values[id] = newValue;
               dispatchEvent(
                 UiChangeEvent(
                   widgetId: id,

@@ -73,7 +73,7 @@ abstract interface class GenUiHost {
   WidgetValueStore get valueStore;
 
   /// A callback to handle a submit action from a surface.
-  void handleSubmit(String surfaceId);
+  void handleAction(String surfaceId);
 }
 
 /// Manages the state of all dynamic UI surfaces.
@@ -107,7 +107,7 @@ class GenUiManager implements GenUiHost {
   Stream<UserMessage> get userInput => _userInput.stream;
   //
   @override
-  void handleSubmit(String surfaceId) {
+  void handleAction(String surfaceId) {
     final value = valueStore.forSurface(surfaceId);
     _userInput.add(UserMessage([TextPart(value.toString())]));
   }
