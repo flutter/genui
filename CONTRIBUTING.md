@@ -24,7 +24,7 @@ we should do about each of them. Triage issues as follows:
 
 Check that existing issues are labeled and organized appropriately:
 
-* Upgrade all [assigned P2/P3 issues][assiged_p2_p3_issues] to P1, or unassign
+* Upgrade all [assigned P2/P3 issues][assigned_p2_p3_issues] to P1, or unassign
   them.
 * Set a milestone to all [P0 and P1 issues][p0_p1_issues_without_milestone].
 * Add all [projectless open issues][projectless_open_issues] to the "genui" project.
@@ -43,7 +43,7 @@ empty as possible.
 
 [flutter_guidelines]: https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md
 [usage_md]: packages/flutter_genui/USAGE.md#configure-firebase
-[assiged_p2_p3_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP2%2CP3%20assignee%3A*
+[assigned_p2_p3_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP2%2CP3%20assignee%3A*
 [p0_p1_issues_without_milestone]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP1%2CP0%20no%3Amilestone
 [projectless_open_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20no%3Aproject
 [untriaged_list]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3
