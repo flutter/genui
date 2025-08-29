@@ -58,7 +58,7 @@ final image = CatalogItem(
         if (url != null && assetName != null) {
           throw Exception(
             'Image widget must have either a url or an assetName, but not '
-            'both.',
+            'both. Details: $imageData',
           );
         }
 
