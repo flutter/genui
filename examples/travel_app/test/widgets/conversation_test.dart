@@ -4,11 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:travel_app/src/widgets/conversation.dart';
 
 void main() {
-  group('ConversationWidget', () {
+  group('Conversation', () {
     late GenUiManager manager;
 
     setUp(() {
@@ -20,7 +20,7 @@ void main() {
         UserMessage.text('Hello'),
         AiUiMessage(
           surfaceId: 's1',
-          definition: {
+          definition: UiDefinition.fromMap({
             'surfaceId': 's1',
             'root': 'r1',
             'widgets': [
@@ -31,15 +31,18 @@ void main() {
                 },
               },
             ],
-          },
+          }),
         ),
       ];
-      manager.addOrUpdateSurface('s1', (messages[1] as AiUiMessage).definition);
+      manager.addOrUpdateSurface(
+        's1',
+        (messages[1] as AiUiMessage).definition.toMap(),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ConversationWidget(
+            body: Conversation(
               messages: messages,
               manager: manager,
               onEvent: (_) {},
@@ -58,7 +61,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ConversationWidget(
+            body: Conversation(
               messages: messages,
               manager: manager,
               onEvent: (_) {},
@@ -74,7 +77,7 @@ void main() {
       final messages = [
         AiUiMessage(
           surfaceId: 's1',
-          definition: {
+          definition: UiDefinition.fromMap({
             'surfaceId': 's1',
             'root': 'root',
             'widgets': [
@@ -85,14 +88,14 @@ void main() {
                 },
               },
             ],
-          },
+          }),
         ),
       ];
-      manager.addOrUpdateSurface('s1', messages[0].definition);
+      manager.addOrUpdateSurface('s1', messages[0].definition.toMap());
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ConversationWidget(
+            body: Conversation(
               messages: messages,
               manager: manager,
               onEvent: (_) {},
@@ -111,7 +114,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ConversationWidget(
+            body: Conversation(
               messages: messages,
               manager: manager,
               onEvent: (_) {},

@@ -6,9 +6,9 @@ export 'src/ai_client/ai_client.dart';
 export 'src/ai_client/gemini_ai_client.dart';
 export 'src/core/core_catalog.dart';
 export 'src/core/genui_manager.dart';
+export 'src/core/widgets/chat_primitives.dart';
 export 'src/facade/genui_surface.dart';
-export 'src/facade/to_refactor/chat_widget.dart';
-export 'src/facade/to_refactor/conversation_widget.dart';
+
 export 'src/facade/ui_agent.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
