@@ -59,7 +59,8 @@ late final UiAgent _uiAgent = UiAgent(
   onWarning: (value) => print('Warning from UiAgent: $value'),
 );
 
-// Get UI in response to an inference.
+// Put the surface, added by AI, to the list of messages that should be rendered,
+// trigger re-render, and scroll to bottom.
 void _onSurfaceAdded(SurfaceAdded surface) {
   if (!mounted) return;
   setState(() {
