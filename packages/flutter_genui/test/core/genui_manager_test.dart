@@ -33,7 +33,7 @@ void main() {
         ],
       };
 
-      final futureUpdate = manager.updates.first;
+      final futureUpdate = manager.surfaceUpdates.first;
 
       manager.addOrUpdateSurface('s1', definitionMap);
 
@@ -75,7 +75,7 @@ void main() {
         ],
       };
 
-      final futureUpdate = manager.updates.first;
+      final futureUpdate = manager.surfaceUpdates.first;
       manager.addOrUpdateSurface('s1', newDefinition);
       final update = await futureUpdate;
 
@@ -105,7 +105,7 @@ void main() {
       };
       manager.addOrUpdateSurface('s1', definition);
 
-      final futureUpdate = manager.updates.first;
+      final futureUpdate = manager.surfaceUpdates.first;
       manager.deleteSurface('s1');
       final update = await futureUpdate;
 
@@ -123,7 +123,7 @@ void main() {
 
     test('dispose() closes the updates stream', () async {
       var isClosed = false;
-      manager.updates.listen(
+      manager.surfaceUpdates.listen(
         null,
         onDone: () {
           isClosed = true;

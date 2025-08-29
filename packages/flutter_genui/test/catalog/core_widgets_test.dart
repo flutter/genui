@@ -28,7 +28,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: GenUiSurface(
-              builder: manager,
+              host: manager,
               surfaceId: 'testSurface',
               onEvent: onEvent,
             ),

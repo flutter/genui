@@ -40,10 +40,16 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<MessageController> _messages = [];
   // TODO: pass model from FirebaseAIService
   late final UiAgent _uiAgent = UiAgent(
-    'You are a helpful assistant.',
+    '''
+    You are a helpful assistant who chats with user,
+    giving exactly one response for each user message.
+    Your responses should contain acknowledgment
+    of the user message.
+    ''',
     catalog: null,
     onSurfaceAdded: _onSurfaceAdded,
-    onSurfaceRemoved: _onSurfaceRemoved,
+    // ignore: avoid_print
+    onWarning: (value) => print('Warning from UiAgent: $value'),
   );
   final ScrollController _scrollController = ScrollController();
 
@@ -51,10 +57,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _messages.add(MessageController(surfaceId: surface.surfaceId));
     setState(() {});
     _scrollToBottom();
-  }
-
-  void _onSurfaceRemoved(SurfaceRemoved surface) {
-    _messages.removeWhere((message) => message.surfaceId == surface.surfaceId);
   }
 
   @override
@@ -70,9 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];
-                  return ListTile(
-                    title: MessageView(message, _uiAgent.builder),
-                  );
+                  return ListTile(title: MessageView(message, _uiAgent.host));
                 },
               ),
             ),
@@ -143,6 +143,12 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _uiAgent.dispose();
+    super.dispose();
   }
 }
 

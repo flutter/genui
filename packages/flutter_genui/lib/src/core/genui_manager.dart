@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
+import '../model/chat_message.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
@@ -54,18 +55,29 @@ class SurfaceRemoved extends GenUiUpdate {
   const SurfaceRemoved(super.surfaceId);
 }
 
-abstract interface class SurfaceBuilder {
-  Stream<GenUiUpdate> get updates;
+abstract interface class GenUiHost {
+  /// Stream of updates for the surfaces managed by this builder.
+  Stream<GenUiUpdate> get surfaceUpdates;
+
+  /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId);
+
+  /// The catalog of UI components.
   Catalog get catalog;
+
+  /// The value store for submitting the widget state.
   WidgetValueStore get valueStore;
+
+  /// Handle submit from a surface.
+  void onSubmitted(String surfaceId);
 }
 
-class GenUiManager implements SurfaceBuilder {
+class GenUiManager implements GenUiHost {
   GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
-  final _updates = StreamController<GenUiUpdate>.broadcast();
+  final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
+  final _userInput = StreamController<UserMessage>.broadcast();
 
   @override
   final valueStore = WidgetValueStore();
@@ -73,7 +85,15 @@ class GenUiManager implements SurfaceBuilder {
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
 
   @override
-  Stream<GenUiUpdate> get updates => _updates.stream;
+  Stream<GenUiUpdate> get surfaceUpdates => _surfaceUpdates.stream;
+
+  Stream<UserMessage> get userInput => _userInput.stream;
+
+  @override
+  void onSubmitted(String surfaceId) {
+    final value = valueStore.forSurface(surfaceId);
+    _userInput.add(UserMessage([TextPart(value.toString())]));
+  }
 
   @override
   final Catalog catalog;
@@ -98,7 +118,8 @@ class GenUiManager implements SurfaceBuilder {
   }
 
   void dispose() {
-    _updates.close();
+    _surfaceUpdates.close();
+    _userInput.close();
     for (final notifier in _surfaces.values) {
       notifier.dispose();
     }
@@ -114,10 +135,10 @@ class GenUiManager implements SurfaceBuilder {
     notifier.value = uiDefinition;
     if (isNew) {
       genUiLogger.info('Adding surface $surfaceId');
-      _updates.add(SurfaceAdded(surfaceId, uiDefinition));
+      _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
     } else {
       genUiLogger.info('Updating surface $surfaceId');
-      _updates.add(SurfaceUpdated(surfaceId, uiDefinition));
+      _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
     }
   }
 
@@ -126,7 +147,7 @@ class GenUiManager implements SurfaceBuilder {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);
       notifier?.dispose();
-      _updates.add(SurfaceRemoved(surfaceId));
+      _surfaceUpdates.add(SurfaceRemoved(surfaceId));
     }
   }
 }

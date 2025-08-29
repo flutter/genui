@@ -35,7 +35,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: GenUiSurface(
-          builder: manager,
+          host: manager,
           surfaceId: 'testSurface',
           onEvent: (event) {},
         ),
@@ -71,7 +71,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: GenUiSurface(
-          builder: manager,
+          host: manager,
           surfaceId: 'testSurface',
           onEvent: (e) {
             event = e;

@@ -22,14 +22,14 @@ class GenUiSurface extends StatefulWidget {
   /// Creates a new [GenUiSurface].
   const GenUiSurface({
     super.key,
-    required this.builder,
+    required this.host,
     required this.surfaceId,
     required this.onEvent,
     this.defaultBuilder,
   });
 
   /// The manager that holds the state of the UI.
-  final SurfaceBuilder builder;
+  final GenUiHost host;
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;
@@ -59,7 +59,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.surfaceId != widget.surfaceId ||
-        oldWidget.builder != widget.builder) {
+        oldWidget.host != widget.host) {
       _init();
     }
   }
@@ -67,24 +67,27 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   void _init() {
     // Reset previous subscription for updates.
     _allUpdatesSubscription?.cancel();
-    _allUpdatesSubscription = widget.builder.updates.listen((update) {
+    _allUpdatesSubscription = widget.host.surfaceUpdates.listen((update) {
       if (update.surfaceId == widget.surfaceId) _init();
     });
 
     // Update definition if it is changed.
-    final newDefinitionNotifier = widget.builder.surface(widget.surfaceId);
+    final newDefinitionNotifier = widget.host.surface(widget.surfaceId);
     if (newDefinitionNotifier == _definitionNotifier) return;
     _definitionNotifier = newDefinitionNotifier;
     setState(() {});
   }
 
-  /// Dispatches an event by calling the public [GenUiSurface.onEvent]
-  /// callback.
+  /// Dispatches an event.
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
     eventMap['surfaceId'] = widget.surfaceId;
     widget.onEvent(UiEvent.fromMap(eventMap));
+
+    if (event.isAction) {
+      widget.host.onSubmitted(widget.surfaceId);
+    }
   }
 
   @override
@@ -124,12 +127,12 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    return widget.builder.catalog.buildWidget(
+    return widget.host.catalog.buildWidget(
       data as JsonMap,
       (String childId) => _buildWidget(definition, childId),
       _dispatchEvent,
       context,
-      widget.builder.valueStore.forSurface(widget.surfaceId),
+      widget.host.valueStore.forSurface(widget.surfaceId),
     );
   }
 

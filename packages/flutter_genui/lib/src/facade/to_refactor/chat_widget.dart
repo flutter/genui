@@ -21,7 +21,7 @@ class GenUiChatController {
       _surfaceIds.add(surfaceId);
       return AiUiMessage(definition: definition!, surfaceId: surfaceId);
     }).toList();
-    _updateSubscription = manager.updates.listen(_onUpdate);
+    _updateSubscription = manager.surfaceUpdates.listen(_onUpdate);
   }
 
   late final StreamSubscription<GenUiUpdate> _updateSubscription;
@@ -194,7 +194,7 @@ class _GenUiChatState extends State<GenUiChat> {
                         padding: const EdgeInsets.all(16.0),
                         child: GenUiSurface(
                           key: message.uiKey,
-                          builder: widget.controller.manager,
+                          host: widget.controller.manager,
                           surfaceId: message.surfaceId,
                           onEvent: widget.onEvent,
                         ),

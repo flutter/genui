@@ -24,27 +24,95 @@ class UiAgent {
     String instruction, {
     Catalog? catalog,
     this.onSurfaceAdded,
-    this.onSurfaceRemoved,
+    this.onSurfaceDeleted,
+    this.okToUpdateSurfaces = false,
+    this.onWarning,
   }) : _genUiManager = GenUiManager(catalog: catalog) {
+    final technicalPrompt = _technicalPrompt(
+      okToUpdate: okToUpdateSurfaces,
+      okToDelete: onSurfaceDeleted != null,
+      okToAdd: onSurfaceAdded != null,
+    );
+
     _aiClient = GeminiAiClient(
-      systemInstruction: '$instruction\n\n$_technicalPrompt',
+      systemInstruction: '$instruction\n\n$technicalPrompt',
       tools: _genUiManager.getTools(),
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
-
-    _surfaceSubscription = _genUiManager.updates.listen((update) {
-      if (update is SurfaceAdded) {
-        onSurfaceAdded?.call(update);
-      } else if (update is SurfaceRemoved) {
-        onSurfaceRemoved?.call(update);
-      }
-    });
+    _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
+    _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
   }
 
+  final bool okToUpdateSurfaces;
+
   final GenUiManager _genUiManager;
+
   late final AiClient _aiClient;
+
   final List<ChatMessage> _conversation = [];
-  late final StreamSubscription<GenUiUpdate> _surfaceSubscription;
+
+  late final StreamSubscription<GenUiUpdate> _aiMessageSubscription;
+
+  late final StreamSubscription<UserMessage> _userMessageSubscription;
+
+  final ValueChanged<String>? onWarning;
+
+  void dispose() {
+    _aiClient.activeRequests.removeListener(_onActivityUpdates);
+    _aiMessageSubscription.cancel();
+    _userMessageSubscription.cancel();
+    _genUiManager.dispose();
+    _aiClient.dispose();
+  }
+
+  void _onUserMessage(UserMessage message) {
+    _addMessage(message);
+    _aiClient.generateContent(_conversation, Schema.object());
+  }
+
+  void _onAiMessage(GenUiUpdate update) {
+    if (update is SurfaceAdded) {
+      if (onSurfaceAdded == null) {
+        onWarning?.call(
+          'AI attempted to add a surface (${update.surfaceId}), '
+          'but it is not allowed to add surfaces, '
+          'because onSurfaceAdded handler is not set.',
+        );
+        return;
+      }
+
+      final message = AiUiMessage(
+        definition: update.definition.widgets,
+        surfaceId: update.surfaceId,
+      );
+      _addMessage(message);
+      onSurfaceAdded!.call(update);
+    } else if (update is SurfaceRemoved) {
+      if (onSurfaceDeleted == null) {
+        onWarning?.call(
+          'AI attempted to remove a surface (${update.surfaceId}), '
+          'but onSurfaceDeleted handler is not set.',
+        );
+        return;
+      }
+      final message = AiUiMessage(definition: {}, surfaceId: update.surfaceId);
+      _addMessage(message);
+      onSurfaceDeleted!.call(update);
+    } else if (update is SurfaceUpdated) {
+      if (!okToUpdateSurfaces) {
+        onWarning?.call(
+          'AI attempted to update a surface (${update.surfaceId}), '
+          'but it is not allowed to update surfaces.',
+        );
+        return;
+      }
+      final message = AiUiMessage(
+        definition: update.definition.widgets,
+        surfaceId: update.surfaceId,
+      );
+      _addMessage(message);
+    }
+  }
 
   void _addMessage(ChatMessage message) {
     _conversation.add(message);
@@ -57,10 +125,10 @@ class UiAgent {
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
 
-  SurfaceBuilder get builder => _genUiManager;
+  GenUiHost get host => _genUiManager;
 
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
-  final ValueChanged<SurfaceRemoved>? onSurfaceRemoved;
+  final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
 
   ValueListenable<bool> get isProcessing => _isProcessing;
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
@@ -69,27 +137,43 @@ class UiAgent {
     return _genUiManager.surface(surfaceId);
   }
 
-  // TODO: listen for conversation updates from surfaces,
-  // and add them to the conversation history.
-
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
   }
-
-  void dispose() {
-    _aiClient.activeRequests.removeListener(_onActivityUpdates);
-    _surfaceSubscription.cancel();
-    _genUiManager.dispose();
-    _aiClient.dispose();
-  }
 }
 
-String _technicalPrompt = '''
-Use the provided tools to build and manage the user interface in response to the user's requests. Call the `addOrUpdateSurface` tool to show new content or update existing content. Use the `deleteSurface` tool to remove UI that is no longer relevant.
+/// Generates the technical prompt for the AI.
+///
+/// In future we may want to specify which surfaces can be updated/deleted.
+String _technicalPrompt({
+  required bool okToUpdate,
+  required bool okToDelete,
+  required bool okToAdd,
+}) {
+  var updateInstruction = okToUpdate
+      ? '''You can update existing surfaces using the `addOrUpdateSurface` tool.
+      When updating a surface, if you are adding new UI to an existing surface, you should usually create a container widget (like a Column) to hold both the existing and new UI, and set that container as the new root.'''
+      : 'Do not update existing surfaces.';
 
-When updating a surface, if you are adding new UI to an existing surface, you should usually create a container widget (like a Column) to hold both the existing and new UI, and set that container as the new root.
+  var deleteInstruction = okToDelete
+      ? 'Use the `deleteSurface` tool to remove UI that is no longer relevant.'
+      : 'Do not delete existing surfaces.';
+
+  var addInstruction = okToAdd
+      ? 'You can add new surfaces using the `addOrUpdateSurface` tool.'
+      : 'Do not add new surfaces.';
+
+  return '''
+Use the provided tools to build and manage the user interface in response to the user's requests.
+
+$updateInstruction
+
+$deleteInstruction
+
+$addInstruction
 
 When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
 providing information.
 ''';
+}
