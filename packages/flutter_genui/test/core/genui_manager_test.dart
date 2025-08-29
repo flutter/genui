@@ -5,7 +5,6 @@
 import 'package:flutter_genui/src/core/core_catalog.dart';
 import 'package:flutter_genui/src/core/genui_configuration.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
-import 'package:flutter_genui/src/model/ui_models.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
