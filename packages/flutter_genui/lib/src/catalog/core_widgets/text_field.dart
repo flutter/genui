@@ -120,7 +120,7 @@ final textField = CatalogItem(
           },
           onSubmitted: (newValue) {
             dispatchEvent(
-              UiActionEvent(
+              SubmitEvent(
                 widgetId: id,
                 eventType: 'onSubmitted',
                 value: newValue,

@@ -162,7 +162,7 @@ class _TravelCarouselItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           dispatchEvent(
-            UiActionEvent(
+            SubmitEvent(
               widgetId: widgetId,
               eventType: 'itemSelected',
               value: data.title,

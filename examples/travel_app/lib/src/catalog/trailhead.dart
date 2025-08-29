@@ -78,7 +78,7 @@ class _Trailhead extends StatelessWidget {
             label: Text(topic),
             onPressed: () {
               dispatchEvent(
-                UiActionEvent(
+                SubmitEvent(
                   widgetId: widgetId,
                   eventType: 'trailheadTopicSelected',
                   value: topic,

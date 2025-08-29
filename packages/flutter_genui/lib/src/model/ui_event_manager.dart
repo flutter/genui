@@ -30,7 +30,7 @@ class UiEventManager {
   /// sent to the AI client. Otherwise, the event is coalesced with other
   /// events for the same widget and event type.
   void add(UiEvent event) {
-    if (!event.isAction) {
+    if (!event.isSubmit) {
       // Coalesce events that don't signal a terminating action. Only the last
       // value for each event type matters.
       _coalescedEvents[event.surfaceId] ??= <String, Map<String, UiEvent>>{};

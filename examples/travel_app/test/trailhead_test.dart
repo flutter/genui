@@ -44,8 +44,8 @@ void main() {
       await tester.tap(find.text('Topic A'));
       await tester.pump();
 
-      expect(dispatchedEvent, isA<UiActionEvent>());
-      final actionEvent = dispatchedEvent as UiActionEvent;
+      expect(dispatchedEvent, isA<SubmitEvent>());
+      final actionEvent = dispatchedEvent as SubmitEvent;
       expect(actionEvent.widgetId, 'testId');
       expect(actionEvent.eventType, 'trailheadTopicSelected');
       expect(actionEvent.value, 'Topic A');

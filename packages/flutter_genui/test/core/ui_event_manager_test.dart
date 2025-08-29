@@ -35,7 +35,7 @@ void main() {
         timestamp: DateTime(2025, 1, 1, 0, 0, 2),
         value: 'b',
       );
-      final submitEvent = UiActionEvent(
+      final submitEvent = SubmitEvent(
         surfaceId: 's1',
         widgetId: 'w3',
         eventType: 'onTap',
@@ -77,7 +77,7 @@ void main() {
         timestamp: DateTime(2025, 1, 1, 0, 0, 1),
         value: 'b',
       );
-      final submitEvent = UiActionEvent(
+      final submitEvent = SubmitEvent(
         surfaceId: 's1',
         widgetId: 'w2',
         eventType: 'onTap',

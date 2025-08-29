@@ -21,7 +21,7 @@ extension type UiEvent.fromMap(JsonMap _json) {
   String get eventType => _json['eventType'] as String;
 
   /// Whether this event should trigger a submission to the AI.
-  bool get isAction => _json['isAction'] as bool;
+  bool get isSubmit => _json['isSubmit'] as bool;
 
   /// The value associated with the event, if any (e.g., the text in a
   /// `TextField`, or the value of a `Checkbox`).
@@ -34,13 +34,13 @@ extension type UiEvent.fromMap(JsonMap _json) {
   JsonMap toMap() => _json;
 }
 
-/// A UI event that represents a user action.
+/// A UI event that represents submit to the AI.
 ///
 /// This is used for events that should trigger a submission to the AI, such as
 /// tapping a button.
-extension type UiActionEvent.fromMap(JsonMap _json) implements UiEvent {
+extension type SubmitEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UiEvent] from a set of properties.
-  UiActionEvent({
+  SubmitEvent({
     String? surfaceId,
     required String widgetId,
     required String eventType,
@@ -51,7 +51,7 @@ extension type UiActionEvent.fromMap(JsonMap _json) implements UiEvent {
          'widgetId': widgetId,
          'eventType': eventType,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
-         'isAction': true,
+         'isSubmit': true,
          if (value != null) 'value': value,
        };
 }
@@ -73,7 +73,7 @@ extension type UiChangeEvent.fromMap(JsonMap _json) implements UiEvent {
          'widgetId': widgetId,
          'eventType': eventType,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
-         'isAction': false,
+         'isSubmit': false,
          if (value != null) 'value': value,
        };
 }

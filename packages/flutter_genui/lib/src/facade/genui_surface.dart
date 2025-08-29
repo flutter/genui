@@ -85,7 +85,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     eventMap['surfaceId'] = widget.surfaceId;
     widget.onEvent(UiEvent.fromMap(eventMap));
 
-    if (event.isAction) {
+    if (event.isSubmit) {
       widget.host.onSubmitted(widget.surfaceId);
     }
   }

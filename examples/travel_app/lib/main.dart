@@ -182,7 +182,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   }
 
   void _onUiEvents(String surfaceId, List<UiEvent> events) {
-    final actionEvent = events.firstWhere((e) => e.isAction);
+    final actionEvent = events.firstWhere((e) => e.isSubmit);
     final message = StringBuffer(
       'The user triggered the "${actionEvent.eventType}" event on widget '
       '"${actionEvent.widgetId}"',
@@ -193,7 +193,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     }
     message.write('.');
 
-    final changeEvents = events.where((e) => !e.isAction).toList();
+    final changeEvents = events.where((e) => !e.isSubmit).toList();
     if (changeEvents.isNotEmpty) {
       message.writeln(' Current values of other widgets:');
       for (final event in changeEvents) {

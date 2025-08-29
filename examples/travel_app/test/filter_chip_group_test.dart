@@ -49,9 +49,9 @@ void main() {
 
         // Verify that the submit event is dispatched on tap.
         await tester.tap(button);
-        expect(dispatchedEvent, isA<UiActionEvent>());
+        expect(dispatchedEvent, isA<SubmitEvent>());
         expect(dispatchedEvent?.eventType, 'submit');
-        expect((dispatchedEvent as UiActionEvent).widgetId, 'testId');
+        expect((dispatchedEvent as SubmitEvent).widgetId, 'testId');
       },
     );
 

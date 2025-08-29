@@ -9,7 +9,7 @@ void main() {
   group('UiEvent', () {
     test('can be created and read', () {
       final now = DateTime.now();
-      final event = UiActionEvent(
+      final event = SubmitEvent(
         surfaceId: 'testSurface',
         widgetId: 'testWidget',
         eventType: 'onTap',
@@ -20,7 +20,7 @@ void main() {
       expect(event.surfaceId, 'testSurface');
       expect(event.widgetId, 'testWidget');
       expect(event.eventType, 'onTap');
-      expect(event.isAction, isTrue);
+      expect(event.isSubmit, isTrue);
       expect(event.timestamp, now);
       expect(event.value, 'testValue');
     });
@@ -39,14 +39,14 @@ void main() {
       expect(event.surfaceId, 'testSurface');
       expect(event.widgetId, 'testWidget');
       expect(event.eventType, 'onTap');
-      expect(event.isAction, isFalse);
+      expect(event.isSubmit, isFalse);
       expect(event.timestamp, now);
       expect(event.value, 'testValue');
     });
 
     test('can be converted to map', () {
       final now = DateTime.now();
-      final event = UiActionEvent(
+      final event = SubmitEvent(
         surfaceId: 'testSurface',
         widgetId: 'testWidget',
         eventType: 'onTap',
