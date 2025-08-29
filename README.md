@@ -10,12 +10,12 @@ Feedback is very welcome.
 
 ## TL;DR
 
-GenUI SDK for Flutter lets you replace static "walls of text" from your LLM with dynamic, interactive
+GenUI SDK for Flutter lets you replace static "walls of text" from your LLM with dynamic, interactive,
 graphical UI.
 It uses a JSON-based format to compose UIs from your existing widget catalog, turning conversations or agent
 interactions into rich, intuitive experiences. State changes in the UI are fed back to the agent, creating a
 powerful, high-bandwidth interaction loop. The GenUI SDK for Flutter is easy to integrate into your Flutter
-application to significantly improve the usability and satisfaction of your Chatbots and next-generation
+application to significantly improve the usability and satisfaction of your chatbots and next-generation
 agent-based user experiences.
 
 ## Goals
@@ -25,7 +25,7 @@ agent-based user experiences.
 * Simple and easy to use by developers: Seamlessly integrate with your existing Flutter workflow,
   design systems, and widget catalogs.
 * Drive agent-human UX forward: Innovate ways to dramatically improve how users interact with their
-  LLMs and Agents. Radically simplifying the process of building UI-based agent interactions, by
+  LLMs and Agents. Radically simplify the process of building UI-based agent interactions, by
   eliminating custom middleware between the agent and the UI layer.
 
 ## Use cases
@@ -36,9 +36,9 @@ agent-based user experiences.
 * Create Dynamically Composed UIs: An agent can generate a complete form with sliders, date pickers,
   and text fields on the fly based on a user's request to "book a flight."
 
-## Quick sample
+## Example
 
-### Using GenUI SDK with Firebase AI Logic
+### Using the GenUI SDK with Firebase AI Logic
 
 ```
 // Adding your widgets into the catalog.
@@ -79,6 +79,37 @@ Widget build(BuildContext context) {
      );
    }
 }
+// initializing the library
+GenUiManager(catalog: catalog);
+
+// connecting to your LLM library
+AiClient(
+      systemInstruction:
+          '''You are a helpful assistant who speaks in the style of a pirate.
+
+           The user will ask questions, and you will respond by generating appropriate
+           UI elements. Typically, you will first elicit more information to
+           understand the user's needs, then you will start displaying information
+           and the user's plans.''',
+      modelCreator:
+          ({required configuration, systemInstruction, toolConfig, tools}) =>
+              FirebaseAI.googleAI().generativeModel(
+                model: 'gemini-2.5-flash',
+                configuration: configuration,
+                systemInstruction: systemInstruction,
+                tools: tools,
+              ),
+    ),
+
+// adding your widgets into the catalog
+
+// append to your system prompt
+
+// get UI in response to an inference
+
+// render that UI
+
+// done!
 ```
 
 ## Key Features & Benefits
