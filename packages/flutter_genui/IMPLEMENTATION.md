@@ -99,7 +99,7 @@ sequenceDiagram
     participant AiClient
     participant LLM
     participant GenUiManager
-    participant GenUiSurface as "GenUiSurface/Chat"
+    participant GenUiSurface as "GenUiSurface"
 
     AppLogic->>+UiAgent: Initializes UiAgent with an instruction
 
