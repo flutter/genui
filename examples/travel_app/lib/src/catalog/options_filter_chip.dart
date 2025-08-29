@@ -8,7 +8,6 @@ library;
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -104,7 +103,7 @@ class _OptionsFilterChip extends StatefulWidget {
   final Widget? iconChild;
   final DispatchEventCallback dispatchEvent;
 
-  final JsonMap values;
+  final Map<String, Object?> values;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
