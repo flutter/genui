@@ -1,4 +1,4 @@
-# Flutter Generative UI SDK (Flutter GenUI, flutter_genui)
+# Generative UI SDK for Flutter (flutter_genui)
 
 A Flutter library to enable developers to easily add interactive
 generative UI to their applications.
