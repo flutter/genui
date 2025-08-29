@@ -54,8 +54,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   void _onSurfaceAdded(SurfaceAdded surface) {
-    _messages.add(MessageController(surfaceId: surface.surfaceId));
-    setState(() {});
+    setState(() {
+      _messages.add(MessageController(surfaceId: surface.surfaceId));
+    });
     _scrollToBottom();
   }
 
@@ -128,9 +129,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     await _uiAgent.sendRequest(UserMessage([TextPart(text)]));
-
-    setState(() {});
-    _scrollToBottom();
   }
 
   void _scrollToBottom() {
