@@ -6,7 +6,3 @@ labels: current_sprint
 assignees: ''
 
 ---
-
-# Task
-
-# Dependencies
