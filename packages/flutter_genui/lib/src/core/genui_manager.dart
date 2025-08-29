@@ -105,7 +105,7 @@ class GenUiManager implements GenUiHost {
 
   /// A stream of user input messages generated from UI interactions.
   Stream<UserMessage> get userInput => _userInput.stream;
-
+  //
   @override
   void onSubmitted(String surfaceId) {
     final value = valueStore.forSurface(surfaceId);
