@@ -3,7 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter_genui/src/core/core_catalog.dart';
+import 'package:flutter_genui/src/core/genui_configuration.dart';
 import 'package:flutter_genui/src/core/genui_manager.dart';
+import 'package:flutter_genui/src/model/ui_models.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,7 +14,16 @@ void main() {
     late GenUiManager manager;
 
     setUp(() {
-      manager = GenUiManager(catalog: coreCatalog);
+      manager = GenUiManager(
+        catalog: coreCatalog,
+        configuration: const GenUiConfiguration(
+          actions: ActionsConfig(
+            allowCreate: true,
+            allowUpdate: true,
+            allowDelete: true,
+          ),
+        ),
+      );
     });
 
     tearDown(() {
@@ -44,8 +55,8 @@ void main() {
       final addedUpdate = update as SurfaceAdded;
       expect(addedUpdate.definition, isNotNull);
       expect(addedUpdate.definition.root, 'root');
-      expect(manager.surface('s1').value, isNotNull);
-      expect(manager.surface('s1').value!.root, 'root');
+      expect(manager.surfaces['s1']!.value, isNotNull);
+      expect(manager.surfaces['s1']!.value!.root, 'root');
     });
 
     test('addOrUpdateSurface updates an existing surface and fires '
@@ -88,7 +99,7 @@ void main() {
           'text': {'text': 'New'},
         },
       });
-      expect(manager.surface('s1').value, updatedDefinition);
+      expect(manager.surfaces['s1']!.value, updatedDefinition);
     });
 
     test('deleteSurface removes a surface and fires SurfaceRemoved', () async {
@@ -111,7 +122,7 @@ void main() {
 
       expect(update, isA<SurfaceRemoved>());
       expect(update.surfaceId, 's1');
-      expect(manager.surface('s1').value, isNull);
+      expect(manager.surfaces.containsKey('s1'), isFalse);
     });
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
