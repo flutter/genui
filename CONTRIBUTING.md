@@ -31,7 +31,7 @@ we should do about each of them. Triage issues as follows:
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
 
-[untriaged_list]: https://github.com/flutter/genui/issues?q=is%3Aissue+state%3Aopen+-label%3Atriaged
+[untriaged_list]: https://github.com/orgs/flutter/projects/222/views/6
 [P0]: https://github.com/flutter/genui/labels?q=P0
 [P1]: https://github.com/flutter/genui/labels?q=P1
 [P2]: https://github.com/flutter/genui/labels?q=P2
