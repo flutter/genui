@@ -22,7 +22,7 @@ class UiAgent {
   // with the plan to gradually extend it.
   UiAgent(
     String instruction, {
-    Catalog? catalog,
+    required Catalog catalog,
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
     this.okToUpdateSurfaces = false,

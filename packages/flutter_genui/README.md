@@ -51,21 +51,18 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    // 1. Create an AI Client
+    // 1. Create an AI Client.
     _aiClient = GeminiAiClient(
       systemInstruction: 'You are a helpful AI assistant that builds UIs.',
     );
 
-    // 2. Define a Catalog of widgets the AI can use
-    final myCatalog = Catalog([
-      // Use pre-built core widgets
-      columnCatalogItem,
-      text,
-      elevatedButtonCatalogItem,
+    // 2. Define a Catalog of widgets the AI can use.
+    // Start with the built-in catalog and add your own custom widgets.
+    final Catalog myCatalog = CoreCatalogItems.asCatalog().copyWith([
       // ... add your own custom CatalogItems
     ]);
 
-    // 3. Initialize the manager
+    // 3. Initialize the manager.
     _genUiManager = GenUiManager.chat(
       aiClient: _aiClient,
       catalog: myCatalog,

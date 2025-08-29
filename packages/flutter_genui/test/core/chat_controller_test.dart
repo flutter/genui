@@ -11,7 +11,7 @@ void main() {
     late GenUiChatController controller;
 
     setUp(() {
-      manager = GenUiManager();
+      manager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
       controller = GenUiChatController(manager: manager);
     });
 

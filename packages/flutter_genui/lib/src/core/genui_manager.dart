@@ -14,7 +14,6 @@ import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'core_catalog.dart';
 import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
@@ -73,7 +72,7 @@ abstract interface class GenUiHost {
 }
 
 class GenUiManager implements GenUiHost {
-  GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
+  GenUiManager({required this.catalog});
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();

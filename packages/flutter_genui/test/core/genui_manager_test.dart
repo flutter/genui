@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_genui/src/core/core_catalog.dart';
-import 'package:flutter_genui/src/core/genui_manager.dart';
-
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,7 +10,7 @@ void main() {
     late GenUiManager manager;
 
     setUp(() {
-      manager = GenUiManager(catalog: coreCatalog);
+      manager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
     });
 
     tearDown(() {

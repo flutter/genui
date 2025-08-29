@@ -17,18 +17,12 @@ import 'catalog/travel_icon.dart';
 /// Defines the collection of UI components that the generative AI model can use
 /// to construct the user interface for the travel app.
 ///
-/// This catalog includes a mix of standard widgets (like [column] and [text])
-/// and custom, domain-specific widgets tailored for a travel planning
-/// experience, such as [travelCarousel], [itineraryItem], and
-/// [filterChipGroup]. The AI selects from these components to build a dynamic
-/// and interactive UI in response to user prompts.
-final catalog = Catalog([
-  elevatedButton,
-  column,
-  text,
-  checkboxGroup,
-  radioGroup,
-  textField,
+/// This catalog includes a mix of core widgets (like [CoreCatalogItems.column]
+/// and [CoreCatalogItems.text]) and custom, domain-specific widgets tailored
+/// for a travel planning experience, such as [travelCarousel], [itineraryItem],
+/// and [filterChipGroup]. The AI selects from these components to build a
+/// dynamic and interactive UI in response to user prompts.
+final catalog = CoreCatalogItems.asCatalog().copyWith([
   filterChipGroup,
   optionsFilterChip,
   travelCarousel,
@@ -37,6 +31,5 @@ final catalog = Catalog([
   tabbedSections,
   sectionHeader,
   trailhead,
-  image,
   travelIcon,
 ]);
