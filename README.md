@@ -5,8 +5,8 @@ generative UI to their applications.
 
 ## Status: Highly Experimental
 
-This is an experimental package, which means the API will change (sometimes drastically)
-or this package might be abandoned. Feedback very welcome!
+This is a highly experimental package, which means the API will change (sometimes drastically).
+Feedback very welcome!
 
 ## TL;DR
 
