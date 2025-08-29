@@ -112,32 +112,14 @@ AiClient(
 // done!
 ```
 
-## Key Features & Benefits
+## Some things we're thinking about
 
-* **Integrates with your LLM:** Works with your chosen LLM and backend to incorporate graphical
-  UI responses alongside traditional text.  
-* **Leverages Your Widget Catalog:** Renders UI using your existing, beautifully crafted widgets
-  for brand and design consistency.  
-* **Interactive State Feedback:** Widget state changes are sent back to the LLM, enabling a
-  true interactive loop where the UI influences the agent's next steps.  
-* **Firebase AI Logic & Genkit Ready:** Designed to work seamlessly with Firebase AI Logic and the
-  Genkit framework.  
-* **Framework Agnostic:** Can be integrated into your agent library or LLM framework of choice.  
-* **JSON Based:** Uses a simple, open standard for UI definition—no proprietary formats.  
-* **Cross-Platform Flutter:** Works anywhere Flutter works (mobile, iOS, Android, Web, and more).  
-* **Widget Composition:** Supports nested layouts and composition of widgets for complex UIs.  
-* **Basic Layout:** LLM-driven basic layout generation.  
-* **Open Source:** Full transparency and community-driven improvement.  
-* **Any Model:** Can be integrated with any LLM that can generate structured JSON output.
-
-## Roadmap
-
-* **Genkit Integration:** Integration with Genkit.  
-* **Expanded LLM Framework Support:** Official support for additional LLM frameworks.  
-* **Streaming UI:** Support for progressively rendering UI components as they stream from the LLM.  
-* **Full-Screen Composition:** Enable LLM-driven composition and navigation of entire app screens.  
-* **A2A Agent Support:** Support for A2A agent interactions.  
-* **Dart Bytecode:** Future support for Dart Bytecode for even greater dynamism and flexibility.
+* Genkit Integration: Integration with Genkit.
+* Expanded LLM Framework Support: Official support for additional LLM frameworks.
+* Streaming UI: Support for progressively rendering UI components as they stream from the LLM.
+* Full-Screen Composition: Enable LLM-driven composition and navigation of entire app screens.
+* A2A Agent Support: Support for A2A agent interactions.
+* Dart Bytecode: Future support for Dart Bytecode for even greater dynamism and flexibility.
 
 ## Packages
 
