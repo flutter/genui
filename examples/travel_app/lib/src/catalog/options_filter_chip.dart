@@ -147,17 +147,10 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                           tempSelectedOption = newValue;
                         });
                         if (newValue != null) {
+                          widget.values[widget.widgetId] = newValue;
                           setState(() {
                             _currentChipLabel = newValue;
                           });
-
-                          widget.dispatchEvent(
-                            UiChangeEvent(
-                              widgetId: widget.widgetId,
-                              eventType: 'filterOptionSelected',
-                              value: newValue,
-                            ),
-                          );
                           Navigator.pop(context);
                         }
                       },
