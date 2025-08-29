@@ -65,9 +65,34 @@ class UiAgent {
     _aiClient.dispose();
   }
 
-  void _onUserMessage(UserMessage message) {
+  void _onUserMessage(UserMessage message) async {
     _addMessage(message);
-    _aiClient.generateContent(_conversation, Schema.object());
+
+    final result = await _aiClient.generateContent<Map<String, Object?>>(
+      _conversation,
+      S.object(
+        properties: {
+          'success': S.boolean(
+            description: 'Successfully generated a response UI.',
+          ),
+          'message': S.string(
+            description:
+                'A message about what went wrong, or a message responding to '
+                'the request. Take into account any UI that has been '
+                "generated, so there's no need to duplicate requests or "
+                'information already present in the UI.',
+          ),
+        },
+      ),
+    );
+    if (result == null) {
+      onWarning?.call('No result was returned by generateContent');
+    }
+    final success = result!['success'] as bool? ?? false;
+    if (!success) {
+      final message = result['message'] as String? ?? '';
+      onWarning?.call('generateContent failed with message: $message');
+    }
   }
 
   void _onAiMessage(GenUiUpdate update) {
@@ -82,7 +107,7 @@ class UiAgent {
       }
 
       final message = AiUiMessage(
-        definition: update.definition.widgets,
+        definition: update.definition,
         surfaceId: update.surfaceId,
       );
       _addMessage(message);
@@ -95,7 +120,10 @@ class UiAgent {
         );
         return;
       }
-      final message = AiUiMessage(definition: {}, surfaceId: update.surfaceId);
+      final message = AiUiMessage(
+        definition: UiDefinition.fromMap({}),
+        surfaceId: update.surfaceId,
+      );
       _addMessage(message);
       onSurfaceDeleted!.call(update);
     } else if (update is SurfaceUpdated) {
@@ -107,7 +135,7 @@ class UiAgent {
         return;
       }
       final message = AiUiMessage(
-        definition: update.definition.widgets,
+        definition: update.definition,
         surfaceId: update.surfaceId,
       );
       _addMessage(message);
@@ -167,11 +195,11 @@ String _technicalPrompt({
   return '''
 Use the provided tools to build and manage the user interface in response to the user's requests.
 
+$addInstruction
+
 $updateInstruction
 
 $deleteInstruction
-
-$addInstruction
 
 When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
 providing information.
