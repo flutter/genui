@@ -103,16 +103,7 @@ final checkboxGroup = CatalogItem(
         return _CheckboxGroup(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,
-          onChanged: (newValues) {
-            values[id] = newValues;
-            dispatchEvent(
-              UiChangeEvent(
-                widgetId: id,
-                eventType: 'onChanged',
-                value: newValues,
-              ),
-            );
-          },
+          onChanged: (newValues) => values[id] = newValues,
         );
       },
 );
