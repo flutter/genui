@@ -7,6 +7,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'src/widgets/conversation_widget.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
