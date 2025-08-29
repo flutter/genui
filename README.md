@@ -6,7 +6,7 @@ generative UI to their applications.
 ## Status: Highly Experimental
 
 This is a highly experimental package, which means the API will change (sometimes drastically).
-[Feedback is very welcome](https://github.com/flutter/genui/issues).
+[Feedback is very welcome](https://github.com/flutter/genui/issues/new/choose).
 
 ## TL;DR
 
