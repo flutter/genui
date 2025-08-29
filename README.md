@@ -47,7 +47,7 @@ final catalog = Catalog([
   myCustomNewWidget,
 ]);
 
-// Initializing the library
+/// Initializing the library
 late final UiAgent _uiAgent = UiAgent(
   '''
   You are a bicycle maintenance assistant who is an expert in diagnosing issues and
