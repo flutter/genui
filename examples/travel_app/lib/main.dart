@@ -405,7 +405,7 @@ following asset images:
 
 ${_imagesJson ?? ''}
 
-If there is no needed image in assets, use text description instead of images.
+If you can't find an appropriate image in the assets, use a text description instead.
 
 
 Here is an example of the arguments to the `addOrUpdateSurface` tool. Note that
