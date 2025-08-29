@@ -31,19 +31,20 @@ class UiAgent {
       tools: _genUiManager.getTools(),
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
+
+    _surfaceSubscription = _genUiManager.updates.listen((update) {
+      if (update is SurfaceAdded) {
+        onSurfaceAdded?.call(update);
+      } else if (update is SurfaceRemoved) {
+        onSurfaceRemoved?.call(update);
+      }
+    });
   }
 
   final GenUiManager _genUiManager;
   late final AiClient _aiClient;
   final List<ChatMessage> _conversation = [];
-  late final StreamSubscription<GenUiUpdate> _surfaceSubscription =
-      _genUiManager.updates.listen((update) {
-        if (update is SurfaceAdded) {
-          onSurfaceAdded?.call(update);
-        } else if (update is SurfaceRemoved) {
-          onSurfaceRemoved?.call(update);
-        }
-      });
+  late final StreamSubscription<GenUiUpdate> _surfaceSubscription;
 
   void _addMessage(ChatMessage message) {
     _conversation.add(message);
