@@ -7,12 +7,12 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'src/widgets/conversation_widget.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 import 'src/asset_images.dart';
 import 'src/catalog.dart';
+import 'src/widgets/conversation_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/src/widgets/conversation_widget.dart';
+import 'package:travel_app/src/widgets/conversation_widget.dart';
 
 void main() {
   group('ConversationWidget', () {
