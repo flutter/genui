@@ -101,7 +101,7 @@ Widget build(BuildContext context) {
 
 ## Roadmap
 
-* **Genkit Integration:** Integration with Genkit. 
+* **Genkit Integration:** Integration with Genkit.  
 * **Expanded LLM Framework Support:** Official support for additional LLM frameworks.  
 * **Streaming UI:** Support for progressively rendering UI components as they stream from the LLM.  
 * **Full-Screen Composition:** Enable LLM-driven composition and navigation of entire app screens.  
