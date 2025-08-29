@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:simple_chat/message.dart';
 import 'firebase_options.dart';
