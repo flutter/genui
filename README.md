@@ -79,37 +79,6 @@ Widget build(BuildContext context) {
      );
    }
 }
-// initializing the library
-GenUiManager(catalog: catalog);
-
-// connecting to your LLM library
-AiClient(
-      systemInstruction:
-          '''You are a helpful assistant who speaks in the style of a pirate.
-
-           The user will ask questions, and you will respond by generating appropriate
-           UI elements. Typically, you will first elicit more information to
-           understand the user's needs, then you will start displaying information
-           and the user's plans.''',
-      modelCreator:
-          ({required configuration, systemInstruction, toolConfig, tools}) =>
-              FirebaseAI.googleAI().generativeModel(
-                model: 'gemini-2.5-flash',
-                configuration: configuration,
-                systemInstruction: systemInstruction,
-                tools: tools,
-              ),
-    ),
-
-// adding your widgets into the catalog
-
-// append to your system prompt
-
-// get UI in response to an inference
-
-// render that UI
-
-// done!
 ```
 
 ## Some things we're thinking about
