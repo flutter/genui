@@ -16,7 +16,7 @@ The package is designed with a layered architecture, separating concerns to crea
 graph TD
     subgraph "Developer's Application"
         AppLogic["App Logic"]
-        UIWidgets["UI Widgets<br>(e.g., GenUiSurface, GenUiChat)"]
+        UIWidgets["UI Widgets<br>(e.g., GenUiSurface)"]
     end
 
     subgraph "flutter_genui Package"
@@ -86,7 +86,6 @@ This layer provides high-level widgets and controllers for easily building a gen
 
 - **`UiAgent`**: The primary entry point for the package. This facade class encapsulates the `GenUiManager` and `AiClient`, managing the conversation loop and orchestrating the entire generative UI process. The developer interacts with the `UiAgent` to send user messages and receive UI updates.
 - **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiHost` (typically the `GenUiManager`) for a specific `surfaceId` and rebuilds itself when the definition changes.
-- **`GenUiChat` and `ConversationWidget`**: Convenience widgets for building chat interfaces. They are currently in a `to_refactor` directory and will be updated to work more seamlessly with the `UiAgent`.
 
 ## How It Works: The Generative UI Cycle
 
@@ -103,7 +102,7 @@ sequenceDiagram
     participant GenUiSurface as "GenUiSurface/Chat"
 
     AppLogic->>+UiAgent: Initializes UiAgent with an instruction
-    
+
     User->>+AppLogic: Provides input (e.g., text prompt)
     AppLogic->>+UiAgent: Calls sendRequest(userMessage)
     UiAgent->>UiAgent: Manages conversation history
