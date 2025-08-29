@@ -9,8 +9,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 typedef UserPromptBuilder =
     Widget Function(BuildContext context, UserMessage message);
 
-class ConversationWidget extends StatelessWidget {
-  const ConversationWidget({
+class Conversation extends StatelessWidget {
+  const Conversation({
     super.key,
     required this.messages,
     required this.manager,
