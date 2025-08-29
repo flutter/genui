@@ -41,37 +41,43 @@ agent-based user experiences.
 ### Using GenUI SDK with Firebase AI Logic
 
 ```
-// initializing the library
-GenUiManager(catalog: catalog);
+// Adding your widgets into the catalog
+final catalog = Catalog([
+  ...coreCatalog.items,
+  myCustomNewWidget,
+]);
 
-// connecting to your LLM library
-AiClient(
-      systemInstruction:
-          '''You are a helpful assistant who speaks in the style of a pirate.
-    
-           The user will ask questions, and you will respond by generating appropriate
-           UI elements. Typically, you will first elicit more information to
-           understand the user's needs, then you will start displaying information
-           and the user's plans.''',
-      modelCreator:
-          ({required configuration, systemInstruction, toolConfig, tools}) =>
-              FirebaseAI.googleAI().generativeModel(
-                model: 'gemini-2.5-flash',
-                configuration: configuration,
-                systemInstruction: systemInstruction,
-                tools: tools,
-              ),
-    ),
+// Initializing the library
+late final UiAgent _uiAgent = UiAgent(
+  '''
+  You are a bicycle maintenance assistant who is an expert in diagnosing issues and
+  giving step-by-step instructions.
+  ''',
+  catalog: catalog,
+  onSurfaceAdded: _onSurfaceAdded,
+  // ignore: avoid_print
+  onWarning: (value) => print('Warning from UiAgent: $value'),
+);
 
-// adding your widgets into the catalog
+// Get UI in response to an inference
+void _onSurfaceAdded(SurfaceAdded surface) {
+  if (!mounted) return;
+  setState(() {
+    _messages.add(MessageController(surfaceId: surface.surfaceId));
+  });
+  _scrollToBottom();
+}
 
-// append to your system prompt
-
-// get UI in response to an inference
-
-// render that UI
-
-// profit!
+// Render that UI
+Widget build(BuildContext context) {
+   if (type == MessageType.genUi) {
+     return GenUiSurface(
+       host: _genUiManager,
+       surfaceId: _surfaceId,
+       onEvent: _handleEvent,
+     );
+   }
+}
 ```
 
 ## Key Features & Benefits
