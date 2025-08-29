@@ -8,10 +8,13 @@ import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:simple_chat/message.dart';
 import 'firebase_options.dart';
+import 'package:logging/logging.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  configureGenUiLogging(level: Level.ALL);
+
   runApp(const MyApp());
 }
 
@@ -38,7 +41,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
-  // TODO: pass model from FirebaseAIService
+  // TODO: Demonstrate how to create a GenerativeModel via
+  // FirebaseAI.googleAI().generativeModel and pass it as a dependency here.
   late final UiAgent _uiAgent = UiAgent(
     '''
     You are a helpful assistant who chats with user,
@@ -149,21 +153,5 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _uiAgent.dispose();
     super.dispose();
-  }
-}
-
-class FirebaseAIService {
-  late final GenerativeModel _model;
-  late final ChatSession _chat;
-
-  FirebaseAIService() {
-    _model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
-    _chat = _model.startChat();
-  }
-
-  Future<String> sendMessageStream(String message) async {
-    final prompt = Content.text(message);
-    final response = await _chat.sendMessage(prompt);
-    return response.text ?? 'Sorry, I could not process that.';
   }
 }
