@@ -8,6 +8,7 @@ library;
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
@@ -82,6 +83,7 @@ final optionsFilterChip = CatalogItem(
           iconChild: optionsFilterChipData.iconChild != null
               ? buildChild(optionsFilterChipData.iconChild!)
               : null,
+          values: values,
         );
       },
 );
@@ -92,6 +94,7 @@ class _OptionsFilterChip extends StatefulWidget {
     required this.options,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.values,
     this.iconChild,
   });
 
@@ -100,6 +103,8 @@ class _OptionsFilterChip extends StatefulWidget {
   final String widgetId;
   final Widget? iconChild;
   final DispatchEventCallback dispatchEvent;
+
+  final JsonMap values;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -145,6 +150,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                           setState(() {
                             _currentChipLabel = newValue;
                           });
+
                           widget.dispatchEvent(
                             UiChangeEvent(
                               widgetId: widget.widgetId,
