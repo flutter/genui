@@ -72,7 +72,7 @@ void _onSurfaceAdded(SurfaceAdded surface) {
 Widget build(BuildContext context) {
    if (type == MessageType.genUi) {
      return GenUiSurface(
-       host: _genUiManager,
+       host: _uiAgent.host,
        surfaceId: _surfaceId,
        onEvent: _handleEvent,
      );
