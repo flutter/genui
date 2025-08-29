@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/src/ai_client/gemini_content_converter.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
+import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -43,11 +44,21 @@ void main() {
       );
     });
 
-    test('toFirebaseAiContent ignores $AiUiMessage', () {
-      final definition = {'root': 'a', 'widgets': <Object?>[]};
+    test('toFirebaseAiContent converts $AiUiMessage', () {
+      final definition = UiDefinition.fromMap({
+        'root': 'a',
+        'widgets': <Object?>[],
+      });
       final messages = [AiUiMessage(definition: definition)];
       final result = converter.toFirebaseAiContent(messages);
-      expect(result, isEmpty);
+      expect(result, hasLength(1));
+      expect(result.first.role, 'model');
+      expect(result.first.parts, hasLength(1));
+      expect(result.first.parts.first, isA<firebase_ai.TextPart>());
+      expect(
+        (result.first.parts.first as firebase_ai.TextPart).text,
+        definition.asContextDescriptionText(),
+      );
     });
 
     test('toFirebaseAiContent ignores $InternalMessage', () {

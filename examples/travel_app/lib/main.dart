@@ -32,10 +32,6 @@ void main() async {
 /// This widget sets up the [MaterialApp], which configures the overall theme,
 /// title, and home page for the app. It serves as the main entry point for the
 /// user interface.
-///
-/// The [aiClient] parameter is optional and primarily used for testing
-/// purposes. If an [AiClient] is not provided, the [TravelPlannerPage] will
-/// instantiate its own default [GeminiAiClient].
 class TravelApp extends StatelessWidget {
   /// Creates a new [TravelApp].
   ///
@@ -64,10 +60,10 @@ class TravelApp extends StatelessWidget {
 
 /// The main page for the travel planner application.
 ///
-/// This stateful widget manages the core user interface, including the app bar,
-/// the conversation view powered by [GenUiManager], and the input field for
-/// user prompts. It also handles the initialization of the [AiClient] and the
-/// [GenUiManager].
+/// This stateful widget manages the core user interface and application logic.
+/// It initializes the [GenUiManager] and [AiClient], maintains the
+/// conversation history, and handles the interaction between the user, the AI,
+/// and the dynamically generated UI.
 ///
 /// The page allows users to interact with the generative AI to plan trips. It
 /// features a text field to send prompts, a view to display the dynamically
@@ -114,14 +110,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         switch (update) {
           case SurfaceAdded(:final surfaceId, :final definition):
             _conversation.add(
-              AiUiMessage(
-                definition: {
-                  'root': definition.root,
-                  'widgets': definition.widgetList,
-                },
-                surfaceId: surfaceId,
-              ),
+              AiUiMessage(definition: definition, surfaceId: surfaceId),
             );
+
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
               (m) => m is AiUiMessage && m.surfaceId == surfaceId,
@@ -132,10 +123,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             );
             if (index != -1) {
               _conversation[index] = AiUiMessage(
-                definition: {
-                  'root': definition.root,
-                  'widgets': definition.widgetList,
-                },
+                definition: definition,
                 surfaceId: surfaceId,
               );
             }

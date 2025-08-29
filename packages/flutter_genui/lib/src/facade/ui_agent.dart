@@ -16,10 +16,22 @@ import '../model/ui_models.dart';
 
 const _maxConversationLength = 1000;
 
-/// Generic facade for GenUi package.
+/// A high-level facade for the GenUI package.
+///
+/// This class simplifies the process of creating a generative UI by managing
+/// the conversation loop and the interaction with the AI. It encapsulates a
+/// [GenUiManager] and an [AiClient], providing a single entry point for
+/// sending user requests and receiving UI updates.
 class UiAgent {
-  // This class limits functionality of the GenUi package.
-  // with the plan to gradually extend it.
+  /// Creates a new [UiAgent].
+  ///
+  /// The [instruction] is a system prompt that guides the AI's behavior.
+  ///
+  /// The [catalog] defines the set of widgets available to the AI. If not
+  /// provided, a default catalog of core widgets is used.
+  ///
+  /// Callbacks like [onSurfaceAdded] and [onSurfaceDeleted] can be provided to
+  /// react to UI changes initiated by the AI.
   UiAgent(
     String instruction, {
     Catalog? catalog,
@@ -39,11 +51,11 @@ class UiAgent {
       tools: _genUiManager.getTools(),
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
-
     _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
     _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
   }
 
+  /// Whether the AI is allowed to update existing surfaces.
   final bool okToUpdateSurfaces;
 
   final GenUiManager _genUiManager;
@@ -56,8 +68,10 @@ class UiAgent {
 
   late final StreamSubscription<UserMessage> _userMessageSubscription;
 
+  /// A callback for warnings that occur during the generative process.
   final ValueChanged<String>? onWarning;
 
+  /// Disposes of the resources used by this agent.
   void dispose() {
     _aiClient.activeRequests.removeListener(_onActivityUpdates);
     _aiMessageSubscription.cancel();
@@ -66,9 +80,34 @@ class UiAgent {
     _aiClient.dispose();
   }
 
-  void _onUserMessage(UserMessage message) {
+  void _onUserMessage(UserMessage message) async {
     _addMessage(message);
-    _aiClient.generateContent(_conversation, Schema.object());
+
+    final result = await _aiClient.generateContent<Map<String, Object?>>(
+      _conversation,
+      S.object(
+        properties: {
+          'success': S.boolean(
+            description: 'Successfully generated a response UI.',
+          ),
+          'message': S.string(
+            description:
+                'A message about what went wrong, or a message responding to '
+                'the request. Take into account any UI that has been '
+                "generated, so there's no need to duplicate requests or "
+                'information already present in the UI.',
+          ),
+        },
+      ),
+    );
+    if (result == null) {
+      onWarning?.call('No result was returned by generateContent');
+    }
+    final success = result!['success'] as bool? ?? false;
+    if (!success) {
+      final message = result['message'] as String? ?? '';
+      onWarning?.call('generateContent failed with message: $message');
+    }
   }
 
   void _onAiMessage(GenUiUpdate update) {
@@ -83,7 +122,7 @@ class UiAgent {
       }
 
       final message = AiUiMessage(
-        definition: update.definition.widgets,
+        definition: update.definition,
         surfaceId: update.surfaceId,
       );
       _addMessage(message);
@@ -96,7 +135,10 @@ class UiAgent {
         );
         return;
       }
-      final message = AiUiMessage(definition: {}, surfaceId: update.surfaceId);
+      final message = AiUiMessage(
+        definition: UiDefinition.fromMap({}),
+        surfaceId: update.surfaceId,
+      );
       _addMessage(message);
       onSurfaceDeleted!.call(update);
     } else if (update is SurfaceUpdated) {
@@ -108,7 +150,7 @@ class UiAgent {
         return;
       }
       final message = AiUiMessage(
-        definition: update.definition.widgets,
+        definition: update.definition,
         surfaceId: update.surfaceId,
       );
       _addMessage(message);
@@ -126,18 +168,26 @@ class UiAgent {
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
 
+  /// The host for the UI surfaces managed by this agent.
   GenUiHost get host => _genUiManager;
 
+  /// A callback for when a new surface is added by the AI.
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
+
+  /// A callback for when a surface is deleted by the AI.
   final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
 
+  /// A [ValueListenable] that indicates whether the agent is currently
+  /// processing a request.
   ValueListenable<bool> get isProcessing => _isProcessing;
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
+  /// Returns a [ValueNotifier] for the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
     return _genUiManager.surface(surfaceId);
   }
 
+  /// Sends a user message to the AI to generate a UI response.
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
@@ -168,13 +218,16 @@ String _technicalPrompt({
   return '''
 Use the provided tools to build and manage the user interface in response to the user's requests.
 
+$addInstruction
+
 $updateInstruction
 
 $deleteInstruction
 
-$addInstruction
-
 When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
 providing information.
+
+After you have modified the UI, be sure to use the provideFinalOutput to give
+control back to the user so they can respond.
 ''';
 }

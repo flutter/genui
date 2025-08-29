@@ -255,7 +255,7 @@ class GeminiAiClient implements AiClient {
   ///   this specific call, in addition to the default [tools].
   @override
   Future<T?> generateContent<T extends Object>(
-    List<msg.ChatMessage> conversation,
+    Iterable<msg.ChatMessage> conversation,
     dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
@@ -272,7 +272,7 @@ class GeminiAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    List<msg.ChatMessage> conversation, {
+    Iterable<msg.ChatMessage> conversation, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
@@ -308,7 +308,7 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<T?> _generateContentWithRetries<T extends Object>(
-    List<msg.ChatMessage> contents,
+    Iterable<msg.ChatMessage> contents,
     dsb.Schema outputSchema,
     List<AiTool> availableTools,
   ) async {
@@ -326,7 +326,7 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<String> _generateTextWithRetries(
-    List<msg.ChatMessage> contents,
+    Iterable<msg.ChatMessage> contents,
     List<AiTool> availableTools,
   ) async {
     genUiLogger.fine('Generating text with retries.');
@@ -578,16 +578,18 @@ class GeminiAiClient implements AiClient {
   }
 
   Future<Object?> _generate({
-    // This list is modified to include tool calls and results.
-    required List<msg.ChatMessage> messages,
+    required Iterable<msg.ChatMessage> messages,
     required List<AiTool> availableTools,
     required void Function() onSuccess,
     dsb.Schema? outputSchema,
   }) async {
     final isForcedToolCalling = outputSchema != null;
     final converter = GeminiContentConverter();
-    final contents = converter.toFirebaseAiContent(messages);
     final adapter = GeminiSchemaAdapter();
+
+    // A local copy of the incoming messages which is updated with tool results
+    // as they are generated.
+    final mutableMessages = List.of(messages);
 
     final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
       isForcedToolCalling: isForcedToolCalling,
@@ -623,6 +625,7 @@ class GeminiAiClient implements AiClient {
       }
       toolUsageCycle++;
 
+      final contents = converter.toFirebaseAiContent(mutableMessages);
       final concatenatedContents = contents
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
           .join('\n');
@@ -676,7 +679,7 @@ With functions:
             );
           }
           if (candidate.text != null) {
-            messages.add(msg.AiTextMessage.text(candidate.text!));
+            mutableMessages.add(msg.AiTextMessage.text(candidate.text!));
           }
           genUiLogger.fine(
             'Model returned text but no function calls with forced tool '
@@ -685,7 +688,7 @@ With functions:
           return null;
         } else {
           final text = candidate.text ?? '';
-          messages.add(msg.AiTextMessage.text(text));
+          mutableMessages.add(msg.AiTextMessage.text(text));
           genUiLogger.fine('Returning text response: "$text"');
           return text;
         }
@@ -721,7 +724,7 @@ With functions:
           .toList();
 
       if (assistantParts.isNotEmpty) {
-        messages.add(msg.AiTextMessage(assistantParts));
+        mutableMessages.add(msg.AiTextMessage(assistantParts));
         genUiLogger.fine(
           'Added assistant message with ${assistantParts.length} parts to '
           'conversation.',
@@ -740,7 +743,7 @@ With functions:
         }).toList();
 
         if (toolResponseParts.isNotEmpty) {
-          messages.add(msg.ToolResponseMessage(toolResponseParts));
+          mutableMessages.add(msg.ToolResponseMessage(toolResponseParts));
           genUiLogger.fine(
             'Added tool response message with ${toolResponseParts.length} '
             'parts to conversation.',

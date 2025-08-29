@@ -7,25 +7,24 @@ A Flutter package for building dynamic, conversational user interfaces powered b
 ## Features
 
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
-- **Conversational Flow**: Manage a back-and-forth conversation between the user and the AI, where the AI's responses are UI elements.
+- **Simplified Conversation Flow**: A high-level `UiAgent` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
 - **Extensible AI Client**: Abstract interface for connecting to different AI model backends. A ready-to-use `GeminiAiClient` for Firebase is included.
 - **Event Handling**: Capture user interactions (button clicks, text input) and send them back to the AI as context for the next turn in the conversation.
-- **Flexible UI Styles**: Supports both a free-form "flexible" layout and a traditional "chat" style interface.
 
 ## Core Concepts
 
 The package is built around three main components:
 
-1. **`GenUiManager`**: The central orchestrator. It manages the conversation history, communicates with the AI client, processes the AI's UI-building instructions, and renders the resulting widgets.
+1. **`UiAgent`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
 
 2. **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
-3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `GeminiAiClient` for interacting with Gemini models via the Firebase AI SDK.
+3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `GeminiAiClient` for interacting with Gemini models via the [Firebase AI Logic SDK](https://pub.dev/packages/firebase_ai).
 
 ## Getting Started
 
-To use `flutter_genui`, you need to set up an `AiClient`, define a `Catalog` of widgets, and initialize the `GenUiManager`.
+To use `flutter_genui`, you need to initialize a `UiAgent`, provide it with a system prompt, and render the UI surfaces it manages.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -44,37 +43,34 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late final GenUiManager _genUiManager;
-  late final AiClient _aiClient;
+  late final UiAgent _uiAgent;
+  final List<GenUiUpdate> _updates = [];
 
   @override
   void initState() {
     super.initState();
 
-    // 1. Create an AI Client
-    _aiClient = GeminiAiClient(
-      systemInstruction: 'You are a helpful AI assistant that builds UIs.',
+    // 1. Create a UiAgent with a system instruction
+    _uiAgent = UiAgent(
+      'You are a helpful AI assistant that builds UIs.',
+      onSurfaceAdded: _onSurfaceAdded,
     );
+  }
 
-    // 2. Define a Catalog of widgets the AI can use
-    final myCatalog = Catalog([
-      // Use pre-built core widgets
-      columnCatalogItem,
-      text,
-      elevatedButtonCatalogItem,
-      // ... add your own custom CatalogItems
-    ]);
+  void _onSurfaceAdded(SurfaceAdded update) {
+    setState(() {
+      _updates.add(update);
+    });
+  }
 
-    // 3. Initialize the manager
-    _genUiManager = GenUiManager.chat(
-      aiClient: _aiClient,
-      catalog: myCatalog,
-    );
+  void _sendPrompt(String text) {
+    if (text.trim().isEmpty) return;
+    _uiAgent.sendRequest(UserMessage.text(text));
   }
 
   @override
   void dispose() {
-    _genUiManager.dispose();
+    _uiAgent.dispose();
     super.dispose();
   }
 
@@ -83,8 +79,27 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('GenUI Demo')),
-        // 4. Render the dynamic UI
-        body: _genUiManager.widget(),
+        body: Column(
+          children: [
+            Expanded(
+              // 2. Render the dynamic UI surfaces
+              child: ListView.builder(
+                itemCount: _updates.length,
+                itemBuilder: (context, index) {
+                  final update = _updates[index];
+                  return GenUiSurface(
+                    host: _uiAgent.host,
+                    surfaceId: update.surfaceId,
+                    onEvent: (event) {
+                      // 3. The UiAgent handles events automatically
+                    },
+                  );
+                },
+              ),
+            ),
+            // Your chat input widget would go here, calling _sendPrompt
+          ],
+        ),
       ),
     );
   }
@@ -93,14 +108,14 @@ class _MyAppState extends State<MyApp> {
 
 ## How It Works
 
-The interaction follows a cycle:
+The `UiAgent` manages the interaction cycle:
 
-1. **User Input**: The user provides a prompt (e.g., through a text field in the `GenUiChat` widget).
-2. **AI Invocation**: `GenUiManager` sends the conversation history (including the new prompt) to the `AiClient`.
-3. **AI Response**: The AI model processes the conversation and, guided by the schemas of the widgets in your `Catalog`, returns a structured response with instructions to `add`, `update`, or `delete` UI elements.
-4. **UI Rendering**: `GenUiManager` processes these instructions and rebuilds the UI using the appropriate widget builders from the `Catalog`.
-5. **User Interaction**: The user interacts with the newly generated UI. These interactions are captured as events.
-6. **Event Handling**: The events are sent back to the `GenUiManager`, added to the conversation history, and sent to the AI on the next turn, continuing the cycle.
+1. **User Input**: The user provides a prompt (e.g., through a text field). The app calls `uiAgent.sendRequest()`.
+2. **AI Invocation**: The `UiAgent` adds the user's message to its internal conversation history and sends it to the `AiClient`.
+3. **AI Response**: The AI model processes the conversation and, guided by the schemas of the widgets in your `Catalog`, returns a structured response with instructions to `add`, `update`, or `delete` UI elements by calling the appropriate tools.
+4. **UI State Update**: The `UiAgent` executes these tool calls, which updates the internal `GenUiManager`.
+5. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild to display the new UI.
+6. **User Interaction**: The user interacts with the newly generated UI. The `GenUiSurface` captures these events and forwards them to the `UiAgent`'s `GenUiManager`, which automatically creates a new `UserMessage` and restarts the cycle.
 
 ```mermaid
 graph TD
@@ -110,15 +125,21 @@ graph TD
     end
 
     subgraph "GenUI Framework"
-        GenUiManager("GenUiManager")
+        UiAgent("UiAgent")
         AiClient("AiClient")
-        UIRendering("UI Rendering")
+        GenUiManager("GenUiManager")
+        GenUiSurface("GenUiSurface")
     end
 
-    UserInput --> GenUiManager;
-    GenUiManager -- Sends prompt --> AiClient;
-    AiClient -- Returns instructions --> GenUiManager;
-    GenUiManager -- Rebuilds UI --> UIRendering;
-    UIRendering --> UserInteraction;
-    UserInteraction -- Creates event --> GenUiManager;
+    UserInput -- "calls sendRequest()" --> UiAgent;
+    UiAgent -- "manages conversation and sends prompt" --> AiClient;
+    AiClient -- "returns tool calls" --> UiAgent;
+    UiAgent -- "executes tools" --> GenUiManager;
+    GenUiManager -- "notifies of updates" --> GenUiSurface;
+    GenUiSurface -- "renders UI" --> UserInteraction;
+    UserInteraction -- "creates event" --> GenUiSurface;
+    GenUiSurface -- "sends event to host" --> GenUiManager;
+    GenUiManager -- "sends user input to" --> UiAgent;
 ```
+
+See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for more detailed information about the design.

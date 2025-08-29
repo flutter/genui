@@ -55,6 +55,7 @@ abstract interface class AiClient {
   /// Number of requests being processed.
   ValueListenable<int> get activeRequests;
 
+  /// Disposes of the resources used by this client.
   void dispose();
 }
 

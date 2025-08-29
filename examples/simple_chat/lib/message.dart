@@ -13,27 +13,18 @@ class MessageController {
   final String? surfaceId;
 }
 
-class MessageView extends StatefulWidget {
+class MessageView extends StatelessWidget {
   const MessageView(this.controller, this.host, {super.key});
 
   final MessageController controller;
   final GenUiHost host;
 
   @override
-  State<MessageView> createState() => _MessageViewState();
-}
-
-class _MessageViewState extends State<MessageView> {
-  @override
   Widget build(BuildContext context) {
-    final surfaceId = widget.controller.surfaceId;
+    final surfaceId = controller.surfaceId;
 
-    if (surfaceId == null) return Text(widget.controller.text ?? '');
+    if (surfaceId == null) return Text(controller.text ?? '');
 
-    return GenUiSurface(
-      host: widget.host,
-      surfaceId: surfaceId,
-      onEvent: (event) {},
-    );
+    return GenUiSurface(host: host, surfaceId: surfaceId, onEvent: (event) {});
   }
 }

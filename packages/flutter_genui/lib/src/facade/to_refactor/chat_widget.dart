@@ -19,13 +19,7 @@ class GenUiChatController {
       final surfaceId = entry.key;
       final definition = entry.value.value;
       _surfaceIds.add(surfaceId);
-      return AiUiMessage(
-        definition: {
-          'root': definition?.root,
-          'widgets': definition?.widgetList,
-        },
-        surfaceId: surfaceId,
-      );
+      return AiUiMessage(definition: definition!, surfaceId: surfaceId);
     }).toList();
     _updateSubscription = manager.surfaceUpdates.listen(_onUpdate);
   }
@@ -51,13 +45,7 @@ class GenUiChatController {
           _surfaceIds.add(surfaceId);
           _conversation.value = [
             ...currentConversation,
-            AiUiMessage(
-              definition: {
-                'root': definition.root,
-                'widgets': definition.widgetList,
-              },
-              surfaceId: surfaceId,
-            ),
+            AiUiMessage(definition: definition, surfaceId: surfaceId),
           ];
         }
       case SurfaceRemoved(:final surfaceId):
@@ -72,10 +60,7 @@ class GenUiChatController {
         if (index != -1) {
           final newConversation = [...currentConversation];
           newConversation[index] = AiUiMessage(
-            definition: {
-              'root': definition.root,
-              'widgets': definition.widgetList,
-            },
+            definition: definition,
             surfaceId: surfaceId,
           );
           _conversation.value = newConversation;
