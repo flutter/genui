@@ -56,7 +56,7 @@ void main() {
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
       final messages = [
-        const UserMessage([TextPart('Hello')]),
+        UserMessage([const TextPart('Hello')]),
       ];
       await tester.pumpWidget(
         MaterialApp(
@@ -109,7 +109,7 @@ void main() {
 
     testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
       final messages = [
-        const UserMessage([TextPart('Hello')]),
+        UserMessage(const [TextPart('Hello')]),
       ];
       await tester.pumpWidget(
         MaterialApp(

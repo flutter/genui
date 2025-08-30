@@ -60,28 +60,6 @@ extension type UiActionEvent.fromMap(JsonMap _json) implements UiEvent {
        };
 }
 
-/// A UI event that represents a change in the UI state.
-///
-/// This is used for events that should not trigger a submission to the AI, such
-/// as entering text in a text field.
-extension type UiChangeEvent.fromMap(JsonMap _json) implements UiEvent {
-  /// Creates a [UiEvent] from a set of properties.
-  UiChangeEvent({
-    String? surfaceId,
-    required String widgetId,
-    required String eventType,
-    DateTime? timestamp,
-    Object? value,
-  }) : _json = {
-         if (surfaceId != null) 'surfaceId': surfaceId,
-         'widgetId': widgetId,
-         'eventType': eventType,
-         'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
-         'isAction': false,
-         if (value != null) 'value': value,
-       };
-}
-
 /// A data object that represents the entire UI definition.
 ///
 /// This is the root object that defines a complete UI to be rendered.
