@@ -52,7 +52,7 @@ class UiAgent {
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
     _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
-    _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
+    _userMessageSubscription = _genUiManager.onSubmit.listen(_onUserMessage);
   }
 
   /// Whether the AI is allowed to update existing surfaces.

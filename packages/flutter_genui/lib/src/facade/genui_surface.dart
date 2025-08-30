@@ -17,14 +17,13 @@ typedef UiEventCallback = void Function(UiEvent event);
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
-/// It reports user interactions via the [onEvent] callback.
+/// It reports user interactions via the [host].
 class GenUiSurface extends StatefulWidget {
   /// Creates a new [GenUiSurface].
   const GenUiSurface({
     super.key,
     required this.host,
     required this.surfaceId,
-    required this.onEvent,
     this.defaultBuilder,
   });
 
@@ -33,9 +32,6 @@ class GenUiSurface extends StatefulWidget {
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;
-
-  /// A callback for when a user interacts with a widget.
-  final UiEventCallback onEvent;
 
   /// A builder for the widget to display when the surface has no definition.
   final WidgetBuilder? defaultBuilder;
@@ -83,11 +79,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
     eventMap['surfaceId'] = widget.surfaceId;
-    widget.onEvent(UiEvent.fromMap(eventMap));
-
-    if (event.isAction) {
-      widget.host.onSubmitted(widget.surfaceId);
-    }
+    widget.host.handleUiEvent(event);
   }
 
   @override
