@@ -12,9 +12,6 @@ import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
-/// A callback for when a user interacts with a widget.
-typedef UiEventCallback = void Function(UiEvent event);
-
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
 /// It reports user interactions via the [onEvent] callback.
@@ -24,7 +21,6 @@ class GenUiSurface extends StatefulWidget {
     super.key,
     required this.host,
     required this.surfaceId,
-    required this.onEvent,
     this.defaultBuilder,
   });
 
@@ -33,9 +29,6 @@ class GenUiSurface extends StatefulWidget {
 
   /// The ID of the surface that this UI belongs to.
   final String surfaceId;
-
-  /// A callback for when a user interacts with a widget.
-  final UiEventCallback onEvent;
 
   /// A builder for the widget to display when the surface has no definition.
   final WidgetBuilder? defaultBuilder;
@@ -76,18 +69,6 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     if (newDefinitionNotifier == _definitionNotifier) return;
     _definitionNotifier = newDefinitionNotifier;
     setState(() {});
-  }
-
-  /// Dispatches an event.
-  void _dispatchEvent(UiEvent event) {
-    // The event comes in without a surfaceId, which we add here.
-    final eventMap = event.toMap();
-    eventMap['surfaceId'] = widget.surfaceId;
-    widget.onEvent(UiEvent.fromMap(eventMap));
-
-    if (event.isAction) {
-      widget.host.handleAction(widget.surfaceId);
-    }
   }
 
   @override

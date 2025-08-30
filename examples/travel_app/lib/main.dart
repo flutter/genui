@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -89,16 +91,16 @@ class TravelPlannerPage extends StatefulWidget {
 class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final GenUiManager _genUiManager;
   late final AiClient _aiClient;
-  late final UiEventManager _eventManager;
   final List<ChatMessage> _conversation = [];
   final _textController = TextEditingController();
+  late final StreamSubscription<UserMessage> _userMessageSubscription;
   bool _isThinking = false;
 
   @override
   void initState() {
     super.initState();
     _genUiManager = GenUiManager(catalog: catalog);
-    _eventManager = UiEventManager(callback: _onUiEvents);
+    _userMessageSubscription = _genUiManager.userInput.listen(_onUiEvents);
     _aiClient =
         widget.aiClient ??
         GeminiAiClient(
@@ -181,34 +183,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     return;
   }
 
-  void _onUiEvents(String surfaceId, List<UiEvent> events) {
-    final actionEvent = events.firstWhere((e) => e.isAction);
-    final message = StringBuffer(
-      'The user triggered the "${actionEvent.eventType}" event on widget '
-      '"${actionEvent.widgetId}"',
-    );
-    final value = actionEvent.value;
-    if (value is String && value.isNotEmpty) {
-      message.write(' with value "$value"');
-    }
-    message.write('.');
-
-    final changeEvents = events.where((e) => !e.isAction).toList();
-    if (changeEvents.isNotEmpty) {
-      message.writeln(' Current values of other widgets:');
-      for (final event in changeEvents) {
-        message.writeln('- Widget "${event.widgetId}": ${event.value}');
-      }
-    }
-
+  void _onUiEvents(UserMessage userMessage) {
     setState(() {
-      _conversation.add(UserMessage.text(message.toString()));
+      _conversation.add(userMessage);
     });
     _triggerInference();
-  }
-
-  void _handleUiEvent(UiEvent event) {
-    _eventManager.add(event);
   }
 
   void _sendPrompt(String text) {
