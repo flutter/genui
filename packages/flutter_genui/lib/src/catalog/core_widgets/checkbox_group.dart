@@ -102,7 +102,12 @@ final checkboxGroup = CatalogItem(
         return _CheckboxGroup(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,
-          onChanged: (newValues) => values[id] = newValues,
+          onChanged: (newValues) {
+            values[id] = {
+              for (var i = 0; i < newValues.length; i++)
+                checkboxData.labels[i]: newValues[i],
+            };
+          },
         );
       },
 );

@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/primitives/simple_items.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -17,16 +18,23 @@ void main() {
       textField,
     ]);
 
+    UserMessage? message;
+    GenUiManager? manager;
+
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
       Map<String, Object?> definition,
     ) async {
-      final manager = GenUiManager(catalog: testCatalog);
-      manager.addOrUpdateSurface('testSurface', definition);
+      manager = GenUiManager(catalog: testCatalog);
+      manager!.addOrUpdateSurface('testSurface', definition);
+      message = null;
+      manager!.onSubmit.listen((userMessage) {
+        message = userMessage;
+      });
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: manager, surfaceId: 'testSurface'),
+            body: GenUiSurface(host: manager!, surfaceId: 'testSurface'),
           ),
         ),
       );
@@ -57,6 +65,8 @@ void main() {
 
       expect(find.text('Click Me'), findsOneWidget);
       await tester.tap(find.byType(ElevatedButton));
+      expect(message, isNotNull);
+      expect(message!.text, '{}');
     });
 
     testWidgets('CheckboxGroup renders and handles changes', (
@@ -84,7 +94,13 @@ void main() {
         find.byType(CheckboxListTile).first,
       );
       expect(firstCheckbox.value, isTrue);
+
       await tester.tap(find.text('B'));
+
+      expect(message, null);
+      expect(manager!.valueStore.forSurface('testSurface'), {
+        'checkboxes': {'A': true, 'B': true},
+      });
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -148,7 +164,11 @@ void main() {
       await pumpWidgetWithDefinition(tester, definition);
 
       expect(find.byType(RadioListTile<String>), findsNWidgets(2));
+
       await tester.tap(find.text('B'));
+
+      expect(message, null);
+      expect(manager!.valueStore.forSurface('testSurface'), {'radios': 'B'});
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
