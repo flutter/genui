@@ -11,6 +11,9 @@
 # calls for each one.
 set -e
 
+command -v dart >/dev/null 2>&1 || { echo >&2 "Error: 'dart' command not found. Please ensure the Dart SDK is installed and in your PATH."; exit 1; }
+command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not found. Please ensure the Flutter SDK is installed and in your PATH."; exit 1; }
+
 # --- 0. Run commands at the root project level ---
 echo "Running root-level commands..."
 echo "--------------------------------------------------"
@@ -26,44 +29,41 @@ dart format . || true
 echo "Root-level commands complete."
 echo ""
 
-# Save the current working directory to return to it after processing sub-projects.
-ROOT_DIR=$(pwd)
-
 # --- 1. Find all Flutter projects ---
 # We find all `pubspec.yaml` files and process each one.
 # The `find ... -print0 | while ...` construct safely handles file paths with spaces.
 echo "Searching for Flutter projects..."
 echo "=================================================="
-find . -name "pubspec.yaml" -print0 | while IFS= read -r -d '' pubspec_path; do
-    # Get the directory containing the pubspec.yaml file.
-    project_dir=$(dirname "$pubspec_path")
+find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -prune -o -name "pubspec.yaml" -print0 | while IFS= read -r -d '' pubspec_path; do
+    (
+        # Get the directory containing the pubspec.yaml file.
+        project_dir=$(dirname "$pubspec_path")
 
-    echo "Processing project in: $project_dir"
-    echo "--------------------------------------------------"
+        echo "Processing project in: $project_dir"
+        echo "--------------------------------------------------"
 
-    # Navigate into the project's directory.
-    cd "$project_dir"
+        # Navigate into the project's directory.
+        cd "$project_dir" || exit 1
 
-    # --- 2. For each project, run dart fix ---
-    echo "[1/3] Applying fixes with 'dart fix --apply'..."
-    # Allow this command to fail without stopping the script.
-    dart fix --apply || true
+        # --- 2. For each project, run dart fix ---
+        echo "[1/3] Applying fixes with 'dart fix --apply'..."
+        # Allow this command to fail without stopping the script.
+        dart fix --apply || true
 
-    # --- 3. For each project, run tests and analysis, letting them output naturally ---
-    echo "[2/3] Running tests with 'flutter test'..."
-    echo "--- flutter test: $project_dir ---"
-    # The '|| true' ensures that the script continues even if tests fail.
-    flutter test || true
+        # --- 3. For each project, run tests and analysis, letting them output naturally ---
+        echo "[2/3] Running tests with 'flutter test'..."
+        echo "--- flutter test: $project_dir ---"
+        # The '|| true' ensures that the script continues even if tests fail.
+        flutter test || true
 
-    echo "[3/3] Analyzing code with 'flutter analyze'..."
-    echo "--- flutter analyze: $project_dir ---"
-    # The '|| true' ensures that the script continues even if analysis finds issues.
-    flutter analyze || true
+        echo "[3/3] Analyzing code with 'flutter analyze'..."
+        echo "--- flutter analyze: $project_dir ---"
+        # The '|| true' ensures that the script continues even if analysis finds issues.
+        flutter analyze || true
 
-    # Return to the original root directory before processing the next project.
-    cd "$ROOT_DIR"
-    echo "Finished processing $project_dir."
-    echo ""
+        echo "Finished processing $project_dir."
+        echo ""
+    )
 done
 
 echo "=================================================="
