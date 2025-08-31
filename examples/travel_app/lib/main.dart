@@ -98,7 +98,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   void initState() {
     super.initState();
     _genUiManager = GenUiManager(
-      catalog: catalog,
+      catalog: travelAppCatalog,
       configuration: const GenUiConfiguration(
         actions: ActionsConfig(
           allowCreate: true,

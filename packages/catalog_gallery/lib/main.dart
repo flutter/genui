@@ -35,7 +35,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final Map<String, Catalog> catalogs = {
     'core catalog': coreCatalog,
-    'travel app catalog': travel_app.catalog,
+    'travel app catalog': travel_app.travelAppCatalog,
   };
 
   @override
