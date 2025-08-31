@@ -8,6 +8,7 @@ import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
+import 'genui_configuration.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
 ///
