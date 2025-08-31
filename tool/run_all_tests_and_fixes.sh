@@ -3,13 +3,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-
-# This script automates maintenance tasks for Flutter projects.
-# It runs root-level commands, then finds all nested Flutter projects
-# (identified by a pubspec.yaml file) to run fixes, tests, and analysis.
-
-# Exit immediately if a command exits with a non-zero status to prevent errors.
-# We will allow specific commands to fail by using '|| true'.
+# This script runs all automated fixes and tests for the repo, reporting all
+# errors that cannot be fixed automatically.
+#
+# This allows for more efficient use of LLM-based tools to fix errors by running
+# all the diagnostic tools up-front instead of relying on separate LLM tool
+# calls for each one.
 set -e
 
 # --- 0. Run commands at the root project level ---
