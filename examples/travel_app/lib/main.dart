@@ -97,7 +97,16 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   @override
   void initState() {
     super.initState();
-    _genUiManager = GenUiManager(catalog: catalog);
+    _genUiManager = GenUiManager(
+      catalog: catalog,
+      configuration: const GenUiConfiguration(
+        actions: ActionsConfig(
+          allowCreate: true,
+          allowUpdate: true,
+          allowDelete: true,
+        ),
+      ),
+    );
     _eventManager = UiEventManager(callback: _onUiEvents);
     _aiClient =
         widget.aiClient ??
