@@ -8,7 +8,6 @@ import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
-import 'genui_configuration.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
 ///
@@ -21,51 +20,51 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
     required Catalog catalog,
     required this.configuration,
   }) : super(
-          name: 'addOrUpdateSurface',
-          description:
-              'Adds a new UI surface or updates an existing one. Use this to '
-              'display new content or change what is currently visible. You are '
-              'only able to use the `action` types that are available.',
-          parameters: S.object(
-            properties: {
-              'action': S.string(
-                description:
-                    'The action to perform. You must choose from the available '
-                    'actions. If you choose the `add` action, you must choose a '
-                    'new unique surfaceId. If you choose the `update` action, '
-                    'you must choose an existing surfaceId.',
-                enumValues: [
-                  if (configuration.actions.allowCreate) 'add',
-                  if (configuration.actions.allowUpdate) 'update',
-                ],
-              ),
-              'surfaceId': S.string(
-                description:
-                    'The unique identifier for the UI surface to create or '
-                    'modify.',
-              ),
-              'definition': S.object(
-                properties: {
-                  'root': S.string(
-                    description:
-                        'The ID of the root widget. This ID must correspond to '
-                        'the ID of one of the widgets in the `widgets` list.',
-                  ),
-                  'widgets': S.list(
-                    items: catalog.schema,
-                    description: 'A list of widget definitions.',
-                    minItems: 1,
-                  ),
-                },
-                description:
-                    'A schema for a simple UI tree to be rendered by '
-                    'Flutter.',
-                required: ['root', 'widgets'],
-              ),
-            },
-            required: ['action', 'surfaceId', 'definition'],
-          ),
-        );
+         name: 'addOrUpdateSurface',
+         description:
+             'Adds a new UI surface or updates an existing one. Use this to '
+             'display new content or change what is currently visible. You are '
+             'only able to use the `action` types that are available.',
+         parameters: S.object(
+           properties: {
+             'action': S.string(
+               description:
+                   'The action to perform. You must choose from the available '
+                   'actions. If you choose the `add` action, you must choose a '
+                   'new unique surfaceId. If you choose the `update` action, '
+                   'you must choose an existing surfaceId.',
+               enumValues: [
+                 if (configuration.actions.allowCreate) 'add',
+                 if (configuration.actions.allowUpdate) 'update',
+               ],
+             ),
+             'surfaceId': S.string(
+               description:
+                   'The unique identifier for the UI surface to create or '
+                   'modify.',
+             ),
+             'definition': S.object(
+               properties: {
+                 'root': S.string(
+                   description:
+                       'The ID of the root widget. This ID must correspond to '
+                       'the ID of one of the widgets in the `widgets` list.',
+                 ),
+                 'widgets': S.list(
+                   items: catalog.schema,
+                   description: 'A list of widget definitions.',
+                   minItems: 1,
+                 ),
+               },
+               description:
+                   'A schema for a simple UI tree to be rendered by '
+                   'Flutter.',
+               required: ['root', 'widgets'],
+             ),
+           },
+           required: ['action', 'surfaceId', 'definition'],
+         ),
+       );
 
   /// The callback to invoke when adding or updating a surface.
   final void Function(String surfaceId, JsonMap definition) onAddOrUpdate;

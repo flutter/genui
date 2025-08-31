@@ -21,7 +21,7 @@ void main() {
         calledDefinition = definition;
       }
 
-            final tool = AddOrUpdateSurfaceTool(
+      final tool = AddOrUpdateSurfaceTool(
         onAddOrUpdate: fakeOnAddOrUpdate,
         catalog: const Catalog([]),
         configuration: const GenUiConfiguration(),

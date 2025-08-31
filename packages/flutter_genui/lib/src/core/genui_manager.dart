@@ -127,7 +127,8 @@ class GenUiManager implements GenUiHost {
   /// generate and modify the UI.
   List<AiTool> getTools() {
     return [
-      if (configuration.actions.allowCreate || configuration.actions.allowUpdate)
+      if (configuration.actions.allowCreate ||
+          configuration.actions.allowUpdate)
         AddOrUpdateSurfaceTool(
           onAddOrUpdate: addOrUpdateSurface,
           catalog: catalog,
