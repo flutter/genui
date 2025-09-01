@@ -9,12 +9,23 @@ import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
 import '../ai_client/gemini_ai_client.dart';
+import '../core/genui_configuration.dart';
 import '../core/genui_manager.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 
 const _maxConversationLength = 1000;
+
+const _genuiSystemPromptFragment = '''
+Use the provided tools to build and manage the user interface in response to the user's requests.
+
+When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
+providing information.
+
+After you have modified the UI, be sure to use the provideFinalOutput to give
+control back to the user so they can respond.
+''';
 
 /// A high-level facade for the GenUI package.
 ///
@@ -37,26 +48,20 @@ class UiAgent {
     Catalog? catalog,
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
-    this.okToUpdateSurfaces = false,
     this.onWarning,
-  }) : _genUiManager = GenUiManager(catalog: catalog) {
-    final technicalPrompt = _technicalPrompt(
-      okToUpdate: okToUpdateSurfaces,
-      okToDelete: onSurfaceDeleted != null,
-      okToAdd: onSurfaceAdded != null,
-    );
-
+    GenUiConfiguration configuration = const GenUiConfiguration(),
+  }) : _genUiManager = GenUiManager(
+         catalog: catalog,
+         configuration: configuration,
+       ) {
     _aiClient = GeminiAiClient(
-      systemInstruction: '$instruction\n\n$technicalPrompt',
+      systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
       tools: _genUiManager.getTools(),
     );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
     _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
     _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
   }
-
-  /// Whether the AI is allowed to update existing surfaces.
-  final bool okToUpdateSurfaces;
 
   final GenUiManager _genUiManager;
 
@@ -142,7 +147,7 @@ class UiAgent {
       _addMessage(message);
       onSurfaceDeleted!.call(update);
     } else if (update is SurfaceUpdated) {
-      if (!okToUpdateSurfaces) {
+      if (!_genUiManager.configuration.actions.allowUpdate) {
         onWarning?.call(
           'AI attempted to update a surface (${update.surfaceId}), '
           'but it is not allowed to update surfaces.',
@@ -192,42 +197,4 @@ class UiAgent {
     _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
   }
-}
-
-/// Generates the technical prompt for the AI.
-///
-/// In future we may want to specify which surfaces can be updated/deleted.
-String _technicalPrompt({
-  required bool okToUpdate,
-  required bool okToDelete,
-  required bool okToAdd,
-}) {
-  var updateInstruction = okToUpdate
-      ? '''You can update existing surfaces using the `addOrUpdateSurface` tool.
-      When updating a surface, if you are adding new UI to an existing surface, you should usually create a container widget (like a Column) to hold both the existing and new UI, and set that container as the new root.'''
-      : 'Do not update existing surfaces.';
-
-  var deleteInstruction = okToDelete
-      ? 'Use the `deleteSurface` tool to remove UI that is no longer relevant.'
-      : 'Do not delete existing surfaces.';
-
-  var addInstruction = okToAdd
-      ? 'You can add new surfaces using the `addOrUpdateSurface` tool.'
-      : 'Do not add new surfaces.';
-
-  return '''
-Use the provided tools to build and manage the user interface in response to the user's requests.
-
-$addInstruction
-
-$updateInstruction
-
-$deleteInstruction
-
-When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
-providing information.
-
-After you have modified the UI, be sure to use the provideFinalOutput to give
-control back to the user so they can respond.
-''';
 }
