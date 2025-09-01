@@ -19,12 +19,13 @@ import 'gemini_schema_adapter.dart';
 /// A factory for creating a [GeminiGenerativeModelInterface].
 ///
 /// This is used to allow for custom model creation, for example, for testing.
-typedef GenerativeModelFactory = GeminiGenerativeModelInterface Function({
-  required FirebaseAiClient configuration,
-  Content? systemInstruction,
-  List<Tool>? tools,
-  ToolConfig? toolConfig,
-});
+typedef GenerativeModelFactory =
+    GeminiGenerativeModelInterface Function({
+      required FirebaseAiClient configuration,
+      Content? systemInstruction,
+      List<Tool>? tools,
+      ToolConfig? toolConfig,
+    });
 
 /// A basic implementation of [AiClient] for accessing a Gemini model.
 ///
@@ -116,21 +117,17 @@ class FirebaseAiClient implements AiClient {
   @override
   Future<T?> generateContent<T extends Object>(
     Iterable<msg.ChatMessage> conversation,
-    dsb.Schema outputSchema,
-    {
+    dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
-  }
-  ) async {
+  }) async {
     _activeRequests.value++;
     try {
       return await _generate(
-        messages: conversation,
-        outputSchema: outputSchema,
-        availableTools: [
-          ...tools,
-          ...additionalTools,
-        ],
-      ) as T?;
+            messages: conversation,
+            outputSchema: outputSchema,
+            availableTools: [...tools, ...additionalTools],
+          )
+          as T?;
     } finally {
       _activeRequests.value--;
     }
@@ -138,20 +135,16 @@ class FirebaseAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    Iterable<msg.ChatMessage> conversation,
-    {
+    Iterable<msg.ChatMessage> conversation, {
     Iterable<AiTool> additionalTools = const [],
-  }
-  ) async {
+  }) async {
     _activeRequests.value++;
     try {
       return await _generate(
-        messages: conversation,
-        availableTools: [
-          ...tools,
-          ...additionalTools,
-        ],
-      ) as String;
+            messages: conversation,
+            availableTools: [...tools, ...additionalTools],
+          )
+          as String;
     } finally {
       _activeRequests.value--;
     }
@@ -178,7 +171,7 @@ class FirebaseAiClient implements AiClient {
   }
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
-      _setupToolsAndFunctions({
+  _setupToolsAndFunctions({
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
     required GeminiSchemaAdapter adapter,
@@ -281,10 +274,9 @@ class FirebaseAiClient implements AiClient {
   }
 
   Future<
-      ({
-        List<FunctionResponse> functionResponseParts,
-        Object? capturedResult
-      })> _processFunctionCalls({
+    ({List<FunctionResponse> functionResponseParts, Object? capturedResult})
+  >
+  _processFunctionCalls({
     required List<FunctionCall> functionCalls,
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
@@ -379,8 +371,9 @@ class FirebaseAiClient implements AiClient {
 
     final model = modelCreator(
       configuration: this,
-      systemInstruction:
-          systemInstruction == null ? null : Content.system(systemInstruction!),
+      systemInstruction: systemInstruction == null
+          ? null
+          : Content.system(systemInstruction!),
       tools: generativeAiTools,
       toolConfig: isForcedToolCalling
           ? ToolConfig(
@@ -433,8 +426,9 @@ With functions:
       }
 
       final candidate = response.candidates.first;
-      final functionCalls =
-          candidate.content.parts.whereType<FunctionCall>().toList();
+      final functionCalls = candidate.content.parts
+          .whereType<FunctionCall>()
+          .toList();
 
       if (functionCalls.isEmpty) {
         genUiLogger.fine('Model response contained no function calls.');
@@ -516,7 +510,7 @@ With functions:
         if (toolResponseParts.isNotEmpty) {
           mutableMessages.add(msg.ToolResponseMessage(toolResponseParts));
           genUiLogger.fine(
-            'Added tool response message with ${toolResponseParts.length} ' 
+            'Added tool response message with ${toolResponseParts.length} '
             'parts to conversation.',
           );
         }

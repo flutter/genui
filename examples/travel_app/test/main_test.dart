@@ -11,8 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/main.dart' as app;
 
 void main() {
-  
-
   testWidgets('Can send a prompt', (WidgetTester tester) async {
     final mockAiClient = FakeAiClient();
     // The main app expects a JSON response from generateContent.

@@ -34,8 +34,8 @@ void main() {
       return FirebaseAiClient(
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
-          return fakeModel;
-        },
+              return fakeModel;
+            },
         tools: tools,
       );
     }

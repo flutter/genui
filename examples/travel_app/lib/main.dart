@@ -234,11 +234,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             Text('Dynamic UI Demo'),
           ],
         ),
-        actions: [
-          
-          const Icon(Icons.person_outline),
-          const SizedBox(width: 8.0),
-        ],
+        actions: [const Icon(Icons.person_outline), const SizedBox(width: 8.0)],
       ),
       body: SafeArea(
         child: Center(
