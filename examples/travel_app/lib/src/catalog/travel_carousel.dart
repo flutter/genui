@@ -130,7 +130,7 @@ class _TravelCarousel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (title != null)
+        if (title != null) ...[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
@@ -138,6 +138,8 @@ class _TravelCarousel extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
+          const SizedBox(height: 16.0),
+        ],
         SizedBox(
           height: 220,
           child: ScrollConfiguration(

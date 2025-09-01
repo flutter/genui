@@ -386,6 +386,8 @@ use something like a TravelCarousel to show options, rather than a full
 ItineraryWithDetails. If the followup question seems to be a departure from
 the previous context, 'add' a new surface rather than updating an existing one.
 
+When the user requests information with a "research" intent rather than a "booking" intent, you should respond with additional information, but not change any existing search UIs or itineraries. E.g. if the user clicks on a card about a specific temple or type of food etc. To display this type of information, consider using the information_card. Always show this information by adding additional surfaces rather than modifying existing surfaces.
+
 # UI style
 
 When generating content to go inside ItineraryWithDetails, use
