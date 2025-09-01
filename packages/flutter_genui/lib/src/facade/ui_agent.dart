@@ -57,10 +57,11 @@ class UiAgent {
     GenUiConfiguration configuration = const GenUiConfiguration(),
     AiClient? aiClient,
   }) : _genUiManager = GenUiManager(
-          catalog: catalog,
-          configuration: configuration,
-        ) {
-    _aiClient = aiClient ??
+         catalog: catalog,
+         configuration: configuration,
+       ) {
+    _aiClient =
+        aiClient ??
         GeminiAiClient(
           systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
           tools: _genUiManager.getTools(),
