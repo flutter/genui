@@ -61,12 +61,6 @@ class FirebaseAiClient implements AiClient {
   /// The system instruction to use for the AI model.
   final String? systemInstruction;
 
-  @override
-  ValueListenable<AiModel> get model => throw UnimplementedError();
-
-  @override
-  List<AiModel> get models => [];
-
   /// The list of tools to configure by default for this AI instance.
   ///
   /// These [AiTool]s are made available to the AI during every
@@ -101,9 +95,6 @@ class FirebaseAiClient implements AiClient {
 
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
-
-  @override
-  void switchModel(AiModel newModel) {}
 
   @override
   ValueListenable<int> get activeRequests => _activeRequests;

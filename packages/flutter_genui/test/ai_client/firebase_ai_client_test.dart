@@ -284,5 +284,37 @@ void main() {
 
       expect(logMessages, isNotEmpty);
     });
+
+    test('activeRequests increments and decrements correctly', () async {
+      client = createClient();
+
+      fakeModel.response = GenerateContentResponse(
+        [],
+        firebase_ai.PromptFeedback(firebase_ai.BlockReason.other, '', []),
+      );
+      final future = client.generateText([]);
+      expect(client.activeRequests.value, 1);
+
+      await future;
+
+      expect(client.activeRequests.value, 0);
+    });
+
+    test('activeRequests decrements on error', () async {
+      client = createClient();
+
+      final exception = Exception('Test Exception');
+      fakeModel.exception = exception;
+
+      expect(client.activeRequests.value, 0);
+
+      final future = client.generateText([]);
+
+      expect(client.activeRequests.value, 1);
+
+      await expectLater(future, throwsA(isA<Exception>()));
+
+      expect(client.activeRequests.value, 0);
+    });
   });
 }
