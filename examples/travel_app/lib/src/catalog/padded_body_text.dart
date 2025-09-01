@@ -32,7 +32,9 @@ final paddedBodyText = CatalogItem(
         required context,
         required values,
       }) {
-        final textData = _PaddedBodyTextData.fromMap(data as Map<String, Object?>);
+        final textData = _PaddedBodyTextData.fromMap(
+          data as Map<String, Object?>,
+        );
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(

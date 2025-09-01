@@ -21,11 +21,10 @@ extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
   factory _InputGroupData({
     required String submitLabel,
     required List<String> children,
-  }) =>
-      _InputGroupData.fromMap({
-        'submitLabel': submitLabel,
-        'children': children,
-      });
+  }) => _InputGroupData.fromMap({
+    'submitLabel': submitLabel,
+    'children': children,
+  });
 
   String get submitLabel => _json['submitLabel'] as String;
   List<String> get children => (_json['children'] as List).cast<String>();
@@ -42,49 +41,51 @@ extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
 final inputGroup = CatalogItem(
   name: 'InputGroup',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final inputGroupData =
-        _InputGroupData.fromMap(data as Map<String, Object?>);
-    final submitLabel = inputGroupData.submitLabel;
-    final children = inputGroupData.children;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final inputGroupData = _InputGroupData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final submitLabel = inputGroupData.submitLabel;
+        final children = inputGroupData.children;
 
-    return Card(
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              runSpacing: 16.0,
-              spacing: 8.0,
-              children: children.map(buildChild).toList(),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () => dispatchEvent(
-                UiActionEvent(
-                  widgetId: id,
-                  eventType: 'submit',
-                  value: values,
+        return Card(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  runSpacing: 16.0,
+                  spacing: 8.0,
+                  children: children.map(buildChild).toList(),
                 ),
-              ),
-              child: Text(submitLabel),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
-              ),
+                const SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () => dispatchEvent(
+                    UiActionEvent(
+                      widgetId: id,
+                      eventType: 'submit',
+                      value: values,
+                    ),
+                  ),
+                  child: Text(submitLabel),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  },
+          ),
+        );
+      },
 );

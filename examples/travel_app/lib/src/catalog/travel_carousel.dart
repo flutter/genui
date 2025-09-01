@@ -43,42 +43,43 @@ final _schema = S.object(
 final travelCarousel = CatalogItem(
   name: 'TravelCarousel',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final carouselData =
-        _TravelCarouselData.fromMap((data as Map).cast<String, Object?>());
-    final items = carouselData.items;
-    return _TravelCarousel(
-      title: carouselData.title,
-      items: items
-          .map(
-            (e) => _TravelCarouselItemData(
-              title: e.title,
-              imageChild: buildChild(e.imageChildId),
-            ),
-          )
-          .toList(),
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final carouselData = _TravelCarouselData.fromMap(
+          (data as Map).cast<String, Object?>(),
+        );
+        final items = carouselData.items;
+        return _TravelCarousel(
+          title: carouselData.title,
+          items: items
+              .map(
+                (e) => _TravelCarouselItemData(
+                  title: e.title,
+                  imageChild: buildChild(e.imageChildId),
+                ),
+              )
+              .toList(),
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
   factory _TravelCarouselData({
     String? title,
     required List<Map<String, Object>> items,
-  }) =>
-      _TravelCarouselData.fromMap({
-        if (title != null) 'title': title,
-        'items': items,
-      });
+  }) => _TravelCarouselData.fromMap({
+    if (title != null) 'title': title,
+    'items': items,
+  });
 
   String? get title => _json['title'] as String?;
   Iterable<_TravelCarouselItemSchemaData> get items => (_json['items'] as List)
@@ -89,15 +90,15 @@ extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
 }
 
 extension type _TravelCarouselItemSchemaData.fromMap(
-    Map<String, Object?> _json) {
+  Map<String, Object?> _json
+) {
   factory _TravelCarouselItemSchemaData({
     required String title,
     required String imageChildId,
-  }) =>
-      _TravelCarouselItemSchemaData.fromMap({
-        'title': title,
-        'imageChildId': imageChildId,
-      });
+  }) => _TravelCarouselItemSchemaData.fromMap({
+    'title': title,
+    'imageChildId': imageChildId,
+  });
 
   String get title => _json['title'] as String;
   String get imageChildId => _json['imageChildId'] as String;
@@ -106,9 +107,9 @@ extension type _TravelCarouselItemSchemaData.fromMap(
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
 }
 
 class _TravelCarousel extends StatelessWidget {
@@ -199,8 +200,7 @@ class _TravelCarouselItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child:
-                  SizedBox(height: 150, width: 190, child: data.imageChild),
+              child: SizedBox(height: 150, width: 190, child: data.imageChild),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

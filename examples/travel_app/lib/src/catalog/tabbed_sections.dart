@@ -25,9 +25,7 @@ final _schema = S.object(
 );
 
 extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
-  factory _TabbedSectionsData({
-    required List<Map<String, Object?>> sections,
-  }) =>
+  factory _TabbedSectionsData({required List<Map<String, Object?>> sections}) =>
       _TabbedSectionsData.fromMap({'sections': sections});
 
   Iterable<_TabSectionItemData> get sections => (_json['sections'] as List)
@@ -53,30 +51,29 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
 final tabbedSections = CatalogItem(
   name: 'TabbedSections',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final tabbedSectionsData =
-        _TabbedSectionsData.fromMap(data as Map<String, Object?>);
-    final sections = tabbedSectionsData.sections
-        .map(
-          (section) => _TabSectionData(
-            title: section.title,
-            childId: section.childId,
-          ),
-        )
-        .toList();
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final tabbedSectionsData = _TabbedSectionsData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final sections = tabbedSectionsData.sections
+            .map(
+              (section) => _TabSectionData(
+                title: section.title,
+                childId: section.childId,
+              ),
+            )
+            .toList();
 
-    return _TabbedSections(
-      sections: sections,
-      buildChild: buildChild,
-    );
-  },
+        return _TabbedSections(sections: sections, buildChild: buildChild);
+      },
 );
 
 class _TabSectionData {
@@ -87,10 +84,7 @@ class _TabSectionData {
 }
 
 class _TabbedSections extends StatefulWidget {
-  const _TabbedSections({
-    required this.sections,
-    required this.buildChild,
-  });
+  const _TabbedSections({required this.sections, required this.buildChild});
 
   final List<_TabSectionData> sections;
   final Widget Function(String id) buildChild;
@@ -127,8 +121,9 @@ class _TabbedSectionsState extends State<_TabbedSections>
       children: [
         TabBar(
           controller: _tabController,
-          tabs:
-              widget.sections.map((section) => Tab(text: section.title)).toList(),
+          tabs: widget.sections
+              .map((section) => Tab(text: section.title))
+              .toList(),
         ),
         IndexedStack(
           index: _selectedIndex,

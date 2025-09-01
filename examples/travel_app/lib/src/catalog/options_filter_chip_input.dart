@@ -83,12 +83,11 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
     required String chipLabel,
     required List<String> options,
     String? iconName,
-  }) =>
-      _OptionsFilterChipInputData.fromMap({
-        'chipLabel': chipLabel,
-        'options': options,
-        if (iconName != null) 'iconName': iconName,
-      });
+  }) => _OptionsFilterChipInputData.fromMap({
+    'chipLabel': chipLabel,
+    'options': options,
+    if (iconName != null) 'iconName': iconName,
+  });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
@@ -110,29 +109,37 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
 final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final optionsFilterChipData =
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final optionsFilterChipData =
         _OptionsFilterChipInputData.fromMap(data as Map<String, Object?>);
+    IconData? icon;
+    if (optionsFilterChipData.iconName != null) {
+      try {
+        icon = _iconFor(
+          TravelIcon.values.byName(optionsFilterChipData.iconName!),
+        );
+      } catch (e) {
+        // Invalid icon name, default to no icon.
+        // Consider logging this error.
+        icon = null;
+      }
+    }
     return _OptionsFilterChip(
       initialChipLabel: optionsFilterChipData.chipLabel,
       options: optionsFilterChipData.options,
       widgetId: id,
       dispatchEvent: dispatchEvent,
-      icon: optionsFilterChipData.iconName != null
-          ? _iconFor(
-              TravelIcon.values
-                  .byName(optionsFilterChipData.iconName!),
-            )
-          : null,
+      icon: icon,
     );
-  },
+      },
 );
 
 class _OptionsFilterChip extends StatefulWidget {

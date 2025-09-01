@@ -8,9 +8,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
-    'label': S.string(
-      description: 'The label for the text input chip.',
-    ),
+    'label': S.string(description: 'The label for the text input chip.'),
     'initialValue': S.string(
       description: 'The initial value for the text input.',
     ),
@@ -19,10 +17,7 @@ final _schema = S.object(
 );
 
 extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
-  factory _TextInputChipData({
-    required String label,
-    String? initialValue,
-  }) =>
+  factory _TextInputChipData({required String label, String? initialValue}) =>
       _TextInputChipData.fromMap({
         'label': label,
         if (initialValue != null) 'initialValue': initialValue,
@@ -35,23 +30,25 @@ extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
 final textInputChip = CatalogItem(
   name: 'TextInputChip',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final textInputChipData =
-        _TextInputChipData.fromMap(data as Map<String, Object?>);
-    return _TextInputChip(
-      label: textInputChipData.label,
-      initialValue: textInputChipData.initialValue,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final textInputChipData = _TextInputChipData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _TextInputChip(
+          label: textInputChipData.label,
+          initialValue: textInputChipData.initialValue,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 class _TextInputChip extends StatefulWidget {
@@ -99,9 +96,7 @@ class _TextInputChipState extends State<_TextInputChip> {
                 children: [
                   TextField(
                     controller: _textController,
-                    decoration: InputDecoration(
-                      labelText: widget.label,
-                    ),
+                    decoration: InputDecoration(labelText: widget.label),
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
