@@ -21,7 +21,7 @@ final _schema = S.object(
     ),
     'detailText': S.string(description: 'The detail text for the item.'),
   },
-  required: ['title', 'subtitle', 'detailText'],
+  required: ['title', 'subtitle', 'detailText', 'imageChildId'],
 );
 
 extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {

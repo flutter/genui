@@ -400,13 +400,21 @@ providing information. The `FilterChipGroup` has a submit button, but if you
 are not using that, you can use an `ElevatedButton`. Only use `OptionsFilterChip`
 widgets inside of a `FilterChipGroup`.
 
-If you need to use any images, try to find the most relevant ones from the
-following asset images:
+# Images
+
+If you need to use any images, find the most relevant ones from the following
+list of asset images:
 
 ${_imagesJson ?? ''}
 
-If you can't find an appropriate image in the assets, use a text description instead.
+- If you can't find a good image in this list, just try to choose one from the
+list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
+It is fine if the image is irrelevant, as long as it is from the list.
 
+- Use assetName for images from the list only - NEVER use `url` and reference
+images from wikipedia or other sites.
+
+# Example
 
 Here is an example of the arguments to the `addOrUpdateSurface` tool. Note that
 the `root` widget ID must be present in the `widgets` list, and it should
@@ -502,5 +510,5 @@ contain the other widgets.
 }
 ```
 
-When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it. When showing an itinerary, don't return it as text, use an ItineraryWithDetails widget.
+When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it.
 ''';
