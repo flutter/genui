@@ -71,8 +71,7 @@ final _schema = S.object(
           '''The list of options that the user can choose from. There should be at least three of these.''',
       items: S.string(),
     ),
-    'iconName': S.enumString(
-      values: TravelIcon.values.map((e) => e.name).toList(),
+    'iconName': S.string(
       description: 'An icon to display on the left of the chip.',
     ),
   },
@@ -170,7 +169,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
       avatar: widget.icon != null ? Icon(widget.icon) : null,
       label: Text(_currentChipLabel),
       selected: false,
-      shape: RoundedRectangle-Border(borderRadius: BorderRadius.circular(20.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
         showModalBottomSheet<void>(
           context: context,
