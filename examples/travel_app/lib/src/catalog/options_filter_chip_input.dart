@@ -2,12 +2,62 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'filter_chip_group.dart';
+/// @docImport 'input_group.dart';
 library;
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+
+enum TravelIcon {
+  location,
+  hotel,
+  restaurant,
+  airport,
+  train,
+  car,
+  date,
+  time,
+  calendar,
+  people,
+  person,
+  family,
+  wallet,
+  receipt,
+}
+
+IconData _iconFor(TravelIcon icon) {
+  switch (icon) {
+    case TravelIcon.location:
+      return Icons.location_on;
+    case TravelIcon.hotel:
+      return Icons.hotel;
+    case TravelIcon.restaurant:
+      return Icons.restaurant;
+    case TravelIcon.airport:
+      return Icons.airplanemode_active;
+    case TravelIcon.train:
+      return Icons.train;
+    case TravelIcon.car:
+      return Icons.directions_car;
+    case TravelIcon.date:
+      return Icons.date_range;
+    case TravelIcon.time:
+      return Icons.access_time;
+    case TravelIcon.calendar:
+      return Icons.calendar_today;
+    case TravelIcon.people:
+      return Icons.people;
+    case TravelIcon.person:
+      return Icons.person;
+    case TravelIcon.family:
+      return Icons.family_restroom;
+    case TravelIcon.wallet:
+      return Icons.account_balance_wallet;
+    case TravelIcon.receipt:
+      return Icons.receipt;
+  }
+}
 
 final _schema = S.object(
   properties: {
@@ -21,30 +71,29 @@ final _schema = S.object(
           '''The list of options that the user can choose from. There should be at least three of these.''',
       items: S.string(),
     ),
-    'iconChild': S.string(
-      description:
-          'An icon to display on the left of the chip. '
-          'This should be an icon widget. Always use this if there is a '
-          'relevant icon.',
+    'iconName': S.enumString(
+      values: TravelIcon.values.map((e) => e.name).toList(),
+      description: 'An icon to display on the left of the chip.',
     ),
   },
   required: ['chipLabel', 'options'],
 );
 
-extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
-  factory _OptionsFilterChipData({
+extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
+  factory _OptionsFilterChipInputData({
     required String chipLabel,
     required List<String> options,
-    String? iconChild,
-  }) => _OptionsFilterChipData.fromMap({
-    'chipLabel': chipLabel,
-    'options': options,
-    if (iconChild != null) 'iconChild': iconChild,
-  });
+    String? iconName,
+  }) =>
+      _OptionsFilterChipInputData.fromMap({
+        'chipLabel': chipLabel,
+        'options': options,
+        if (iconName != null) 'iconName': iconName,
+      });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
-  String? get iconChild => _json['iconChild'] as String?;
+  String? get iconName => _json['iconName'] as String?;
 }
 
 /// An interactive chip that allows the user to select a single option from a
@@ -55,35 +104,36 @@ extension type _OptionsFilterChipData.fromMap(Map<String, Object?> _json) {
 /// modal bottom sheet containing a list of radio buttons for the available
 /// options.
 ///
-/// It is typically used within a [filterChipGroup] to manage multiple facets of
+/// It is typically used within a [inputGroup] to manage multiple facets of
 /// a user's query. When an option is selected, it dispatches a [UiChangeEvent],
 /// which informs the AI of the user's choice, allowing it to refine its
 /// subsequent responses.
-final optionsFilterChip = CatalogItem(
-  name: 'OptionsFilterChip',
+final optionsFilterChipInput = CatalogItem(
+  name: 'OptionsFilterChipInput',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final optionsFilterChipData = _OptionsFilterChipData.fromMap(
-          data as Map<String, Object?>,
-        );
-        return _OptionsFilterChip(
-          initialChipLabel: optionsFilterChipData.chipLabel,
-          options: optionsFilterChipData.options,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          iconChild: optionsFilterChipData.iconChild != null
-              ? buildChild(optionsFilterChipData.iconChild!)
-              : null,
-        );
-      },
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required values,
+  }) {
+    final optionsFilterChipData =
+        _OptionsFilterChipInputData.fromMap(data as Map<String, Object?>);
+    return _OptionsFilterChip(
+      initialChipLabel: optionsFilterChipData.chipLabel,
+      options: optionsFilterChipData.options,
+      widgetId: id,
+      dispatchEvent: dispatchEvent,
+      icon: optionsFilterChipData.iconName != null
+          ? _iconFor(
+              TravelIcon.values
+                  .byName(optionsFilterChipData.iconName!),
+            )
+          : null,
+    );
+  },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
@@ -92,13 +142,13 @@ class _OptionsFilterChip extends StatefulWidget {
     required this.options,
     required this.widgetId,
     required this.dispatchEvent,
-    this.iconChild,
+    this.icon,
   });
 
   final String initialChipLabel;
   final List<String> options;
   final String widgetId;
-  final Widget? iconChild;
+  final IconData? icon;
   final DispatchEventCallback dispatchEvent;
 
   @override
@@ -117,10 +167,10 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      avatar: widget.iconChild,
+      avatar: widget.icon != null ? Icon(widget.icon) : null,
       label: Text(_currentChipLabel),
       selected: false,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      shape: RoundedRectangle-Border(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
         showModalBottomSheet<void>(
           context: context,

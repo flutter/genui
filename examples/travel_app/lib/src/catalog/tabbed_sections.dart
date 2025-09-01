@@ -20,10 +20,6 @@ final _schema = S.object(
         required: ['title', 'child'],
       ),
     ),
-    'height': S.number(
-      description:
-          'The fixed height for the content area of the tabbed sections.',
-    ),
   },
   required: ['sections'],
 );
@@ -31,13 +27,12 @@ final _schema = S.object(
 extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
   factory _TabbedSectionsData({
     required List<Map<String, Object?>> sections,
-    double? height,
-  }) => _TabbedSectionsData.fromMap({'sections': sections, 'height': height});
+  }) =>
+      _TabbedSectionsData.fromMap({'sections': sections});
 
   Iterable<_TabSectionItemData> get sections => (_json['sections'] as List)
       .cast<Map<String, Object?>>()
       .map<_TabSectionItemData>(_TabSectionItemData.fromMap);
-  double? get height => (_json['height'] as num?)?.toDouble();
 }
 
 extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
@@ -58,34 +53,30 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
 final tabbedSections = CatalogItem(
   name: 'TabbedSections',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final tabbedSectionsData = _TabbedSectionsData.fromMap(
-          data as Map<String, Object?>,
-        );
-        final sections = tabbedSectionsData.sections
-            .map(
-              (section) => _TabSectionData(
-                title: section.title,
-                childId: section.childId,
-              ),
-            )
-            .toList();
-        final height = tabbedSectionsData.height;
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required values,
+  }) {
+    final tabbedSectionsData =
+        _TabbedSectionsData.fromMap(data as Map<String, Object?>);
+    final sections = tabbedSectionsData.sections
+        .map(
+          (section) => _TabSectionData(
+            title: section.title,
+            childId: section.childId,
+          ),
+        )
+        .toList();
 
-        return _TabbedSections(
-          sections: sections,
-          buildChild: buildChild,
-          height: height,
-        );
-      },
+    return _TabbedSections(
+      sections: sections,
+      buildChild: buildChild,
+    );
+  },
 );
 
 class _TabSectionData {
@@ -95,44 +86,57 @@ class _TabSectionData {
   _TabSectionData({required this.title, required this.childId});
 }
 
-class _TabbedSections extends StatelessWidget {
+class _TabbedSections extends StatefulWidget {
   const _TabbedSections({
     required this.sections,
     required this.buildChild,
-    this.height,
   });
 
   final List<_TabSectionData> sections;
   final Widget Function(String id) buildChild;
-  final double? height;
+
+  @override
+  State<_TabbedSections> createState() => _TabbedSectionsState();
+}
+
+class _TabbedSectionsState extends State<_TabbedSections>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: widget.sections.length, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        _selectedIndex = _tabController.index;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: sections.length,
-      child: Column(
-        children: [
-          TabBar(
-            tabs: sections.map((section) => Tab(text: section.title)).toList(),
-          ),
-          height != null
-              ? SizedBox(
-                  height: height,
-                  child: TabBarView(
-                    children: sections
-                        .map((section) => buildChild(section.childId))
-                        .toList(),
-                  ),
-                )
-              : Expanded(
-                  child: TabBarView(
-                    children: sections
-                        .map((section) => buildChild(section.childId))
-                        .toList(),
-                  ),
-                ),
-        ],
-      ),
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          tabs:
+              widget.sections.map((section) => Tab(text: section.title)).toList(),
+        ),
+        IndexedStack(
+          index: _selectedIndex,
+          children: widget.sections
+              .map((section) => widget.buildChild(section.childId))
+              .toList(),
+        ),
+      ],
     );
   }
 }
