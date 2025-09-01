@@ -18,13 +18,17 @@ import '../model/ui_models.dart';
 const _maxConversationLength = 1000;
 
 const _genuiSystemPromptFragment = '''
-Use the provided tools to build and manage the user interface in response to the user's requests.
 
-When you are asking for information from the user, you should always include at least one submit button of some kind or another submitting element (like carousel) so that the user can indicate that they are done
-providing information.
+# Outputing UI information
 
-After you have modified the UI, be sure to use the provideFinalOutput to give
-control back to the user so they can respond.
+Use the provided tools to respond to the user using rich UI elements.
+
+Important considerations:
+- When you are asking for information from the user, you should always include
+  at least one submit button of some kind or another submitting element so that
+  the user can indicate that they are done providing information.
+- After you have modified the UI, be sure to use the provideFinalOutput to give
+  control back to the user so they can respond.
 ''';
 
 /// A high-level facade for the GenUI package.
@@ -120,8 +124,7 @@ class UiAgent {
       if (onSurfaceAdded == null) {
         onWarning?.call(
           'AI attempted to add a surface (${update.surfaceId}), '
-          'but it is not allowed to add surfaces, '
-          'because onSurfaceAdded handler is not set.',
+          'but onSurfaceAdded handler is not set.',
         );
         return;
       }
@@ -147,13 +150,6 @@ class UiAgent {
       _addMessage(message);
       onSurfaceDeleted!.call(update);
     } else if (update is SurfaceUpdated) {
-      if (!_genUiManager.configuration.actions.allowUpdate) {
-        onWarning?.call(
-          'AI attempted to update a surface (${update.surfaceId}), '
-          'but it is not allowed to update surfaces.',
-        );
-        return;
-      }
       final message = AiUiMessage(
         definition: update.definition,
         surfaceId: update.surfaceId,

@@ -41,7 +41,9 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
              'surfaceId': S.string(
                description:
                    'The unique identifier for the UI surface to create or '
-                   'modify.',
+                   'update. If you are adding a new surface this *must* be a '
+                   'new, unique identified that has never been used for any '
+                   'existing surfaces shown in the context.',
              ),
              'definition': S.object(
                properties: {
