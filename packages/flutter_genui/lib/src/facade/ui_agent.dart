@@ -52,16 +52,19 @@ class UiAgent {
     Catalog? catalog,
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
+    this.onTextResponse,
     this.onWarning,
     GenUiConfiguration configuration = const GenUiConfiguration(),
+    AiClient? aiClient,
   }) : _genUiManager = GenUiManager(
-         catalog: catalog,
-         configuration: configuration,
-       ) {
-    _aiClient = GeminiAiClient(
-      systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
-      tools: _genUiManager.getTools(),
-    );
+          catalog: catalog,
+          configuration: configuration,
+        ) {
+    _aiClient = aiClient ??
+        GeminiAiClient(
+          systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
+          tools: _genUiManager.getTools(),
+        );
     _aiClient.activeRequests.addListener(_onActivityUpdates);
     _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
     _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
@@ -111,11 +114,16 @@ class UiAgent {
     );
     if (result == null) {
       onWarning?.call('No result was returned by generateContent');
+      return;
     }
-    final success = result!['success'] as bool? ?? false;
+    final success = result['success'] as bool? ?? false;
+    final messageText = result['message'] as String? ?? '';
     if (!success) {
-      final message = result['message'] as String? ?? '';
-      onWarning?.call('generateContent failed with message: $message');
+      onWarning?.call('generateContent failed with message: $messageText');
+    }
+    if (messageText.isNotEmpty) {
+      onTextResponse?.call(messageText);
+      _addMessage(AiTextMessage.text(messageText));
     }
   }
 
@@ -177,6 +185,9 @@ class UiAgent {
 
   /// A callback for when a surface is deleted by the AI.
   final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
+
+  /// A callback for when a text response is received from the AI.
+  final ValueChanged<String>? onTextResponse;
 
   /// A [ValueListenable] that indicates whether the agent is currently
   /// processing a request.

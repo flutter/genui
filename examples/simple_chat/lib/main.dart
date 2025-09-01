@@ -51,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
     ''',
     catalog: null,
     onSurfaceAdded: _onSurfaceAdded,
+    onTextResponse: _onTextResponse,
     // ignore: avoid_print
     onWarning: (value) => print('Warning from UiAgent: $value'),
   );
@@ -60,6 +61,14 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
     setState(() {
       _messages.add(MessageController(surfaceId: surface.surfaceId));
+    });
+    _scrollToBottom();
+  }
+
+  void _onTextResponse(String text) {
+    if (!mounted) return;
+    setState(() {
+      _messages.add(MessageController(text: 'AI: $text'));
     });
     _scrollToBottom();
   }
