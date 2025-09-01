@@ -118,27 +118,28 @@ final optionsFilterChipInput = CatalogItem(
         required context,
         required values,
       }) {
-        final optionsFilterChipData =
-        _OptionsFilterChipInputData.fromMap(data as Map<String, Object?>);
-    IconData? icon;
-    if (optionsFilterChipData.iconName != null) {
-      try {
-        icon = _iconFor(
-          TravelIcon.values.byName(optionsFilterChipData.iconName!),
+        final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
+          data as Map<String, Object?>,
         );
-      } catch (e) {
-        // Invalid icon name, default to no icon.
-        // Consider logging this error.
-        icon = null;
-      }
-    }
-    return _OptionsFilterChip(
-      initialChipLabel: optionsFilterChipData.chipLabel,
-      options: optionsFilterChipData.options,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-      icon: icon,
-    );
+        IconData? icon;
+        if (optionsFilterChipData.iconName != null) {
+          try {
+            icon = _iconFor(
+              TravelIcon.values.byName(optionsFilterChipData.iconName!),
+            );
+          } catch (e) {
+            // Invalid icon name, default to no icon.
+            // Consider logging this error.
+            icon = null;
+          }
+        }
+        return _OptionsFilterChip(
+          initialChipLabel: optionsFilterChipData.chipLabel,
+          options: optionsFilterChipData.options,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+          icon: icon,
+        );
       },
 );
 
