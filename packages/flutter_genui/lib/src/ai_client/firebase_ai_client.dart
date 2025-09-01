@@ -13,7 +13,18 @@ import '../model/tools.dart';
 import '../primitives/logging.dart';
 import 'ai_client.dart';
 import 'gemini_content_converter.dart';
+import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
+
+/// A factory for creating a [GeminiGenerativeModelInterface].
+///
+/// This is used to allow for custom model creation, for example, for testing.
+typedef GenerativeModelFactory = GeminiGenerativeModelInterface Function({
+  required FirebaseAiClient configuration,
+  Content? systemInstruction,
+  List<Tool>? tools,
+  ToolConfig? toolConfig,
+});
 
 /// A basic implementation of [AiClient] for accessing a Gemini model.
 ///
@@ -31,6 +42,7 @@ class FirebaseAiClient implements AiClient {
     this.systemInstruction,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
+    this.modelCreator = defaultGenerativeModelFactory,
   }) {
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
@@ -71,6 +83,18 @@ class FirebaseAiClient implements AiClient {
   /// Defaults to 'provideFinalOutput'.
   final String outputToolName;
 
+  /// A function to use for creating the model itself.
+  ///
+  /// This factory function is responsible for instantiating the
+  /// [GeminiGenerativeModelInterface] used for AI interactions. It allows for
+  /// customization of the model setup, such as using different HTTP clients, or
+  /// for providing mock models during testing. The factory receives this
+  /// [FirebaseAiClient] instance as configuration.
+  ///
+  /// Defaults to a wrapper for the regular [GenerativeModel] constructor,
+  /// [defaultGenerativeModelFactory].
+  final GenerativeModelFactory modelCreator;
+
   /// The total number of input tokens used by this client.
   int inputTokenUsage = 0;
 
@@ -89,37 +113,14 @@ class FirebaseAiClient implements AiClient {
     _activeRequests.dispose();
   }
 
-  /// Generates structured content based on the provided prompts and output
-  /// schema.
-  ///
-  /// This method orchestrates the interaction with the generative AI model. It
-  /// sends the given [conversation] and an [outputSchema] that defines the
-  /// expected structure of the AI's response. The [conversation] is updated in
-  /// place with the results of the tool-calling conversation.
-  ///
-  /// The AI is configured to use "forced tool calling", meaning it's expected
-  /// to respond by either:
-  ///
-  /// 1. Calling one of the available [AiTool]s (from [tools] or
-  ///    [additionalTools]). If a tool is called, its `invoke` method is
-  ///    executed, and the result is sent back to the AI in a subsequent
-  ///    request.
-  /// 2. Calling a special internal tool (named by [outputToolName]) whose
-  ///    argument is the final structured data matching [outputSchema].
-  ///
-  /// - [conversation]: A list of [Content] objects representing the input to
-  ///   the AI. This list will be modified in place to include the tool calling
-  ///   conversation.
-  /// - [outputSchema]: A [dsb.Schema] defining the structure of the desired
-  ///   output `T`.
-  /// - [additionalTools]: A list of [AiTool]s to make available to the AI for
-  ///   this specific call, in addition to the default [tools].
   @override
   Future<T?> generateContent<T extends Object>(
     Iterable<msg.ChatMessage> conversation,
-    dsb.Schema outputSchema, {
+    dsb.Schema outputSchema,
+    {
     Iterable<AiTool> additionalTools = const [],
-  }) async {
+  }
+  ) async {
     _activeRequests.value++;
     try {
       return await _generate(
@@ -137,9 +138,11 @@ class FirebaseAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    Iterable<msg.ChatMessage> conversation, {
+    Iterable<msg.ChatMessage> conversation,
+    {
     Iterable<AiTool> additionalTools = const [],
-  }) async {
+  }
+  ) async {
     _activeRequests.value++;
     try {
       return await _generate(
@@ -152,6 +155,26 @@ class FirebaseAiClient implements AiClient {
     } finally {
       _activeRequests.value--;
     }
+  }
+
+  /// The default factory function for creating a [GenerativeModel].
+  ///
+  /// This function instantiates a standard [GenerativeModel] using the `model`
+  /// from the provided [FirebaseAiClient] `configuration`.
+  static GeminiGenerativeModelInterface defaultGenerativeModelFactory({
+    required FirebaseAiClient configuration,
+    Content? systemInstruction,
+    List<Tool>? tools,
+    ToolConfig? toolConfig,
+  }) {
+    return GeminiGenerativeModel(
+      FirebaseAI.googleAI().generativeModel(
+        model: 'gemini-2.5-flash',
+        systemInstruction: systemInstruction,
+        tools: tools,
+        toolConfig: toolConfig,
+      ),
+    );
   }
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
@@ -257,7 +280,11 @@ class FirebaseAiClient implements AiClient {
     );
   }
 
-  Future<({List<FunctionResponse> functionResponseParts, Object? capturedResult})> _processFunctionCalls({
+  Future<
+      ({
+        List<FunctionResponse> functionResponseParts,
+        Object? capturedResult
+      })> _processFunctionCalls({
     required List<FunctionCall> functionCalls,
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
@@ -350,8 +377,8 @@ class FirebaseAiClient implements AiClient {
     const maxToolUsageCycles = 40; // Safety break for tool loops
     Object? capturedResult;
 
-    final model = FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-2.5-flash',
+    final model = modelCreator(
+      configuration: this,
       systemInstruction:
           systemInstruction == null ? null : Content.system(systemInstruction!),
       tools: generativeAiTools,
@@ -489,7 +516,7 @@ With functions:
         if (toolResponseParts.isNotEmpty) {
           mutableMessages.add(msg.ToolResponseMessage(toolResponseParts));
           genUiLogger.fine(
-            'Added tool response message with ${toolResponseParts.length} '
+            'Added tool response message with ${toolResponseParts.length} ' 
             'parts to conversation.',
           );
         }
