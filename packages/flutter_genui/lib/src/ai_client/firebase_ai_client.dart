@@ -117,9 +117,8 @@ class FirebaseAiClient implements AiClient {
   @override
   Future<T?> generateContent<T extends Object>(
     Iterable<msg.ChatMessage> conversation,
-    dsb.Schema outputSchema,
-    {
-    Iterable<AiTool> additionalTools = const {},
+    dsb.Schema outputSchema, {
+    Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
     try {
@@ -138,9 +137,8 @@ class FirebaseAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    Iterable<msg.ChatMessage> conversation,
-    {
-    Iterable<AiTool> additionalTools = const {},
+    Iterable<msg.ChatMessage> conversation, {
+    Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
     try {
@@ -169,7 +167,7 @@ class FirebaseAiClient implements AiClient {
     );
     // Create an "output" tool that copies its args into the output.
     final finalOutputAiTool = isForcedToolCalling
-        ? DynamicAiTool<JsonMap>(
+        ? DynamicAiTool<Map<String, Object?>>(
             name: outputToolName,
             description:
                 '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
@@ -212,8 +210,7 @@ class FirebaseAiClient implements AiClient {
         if (result.errors.isNotEmpty) {
           genUiLogger.warning(
             'Errors adapting parameters for tool ${tool.name}: '
-            '${result.errors.join('
-')}',
+            '${result.errors.join('\n')}',
           );
         }
         adaptedParameters = result.schema;
@@ -245,9 +242,10 @@ class FirebaseAiClient implements AiClient {
         ? [Tool.functionDeclarations(functionDeclarations)]
         : null;
 
-    final allowedFunctionNames = <String>
-      ..addAll(uniqueAiToolsByName.keys)
-      ..addAll(toolFullNames);
+    final allowedFunctionNames = <String>{
+      ...uniqueAiToolsByName.keys,
+      ...toolFullNames,
+    };
 
     genUiLogger.fine(
       'Allowed function names for model: ${allowedFunctionNames.join(', ')}',
@@ -259,8 +257,7 @@ class FirebaseAiClient implements AiClient {
     );
   }
 
-  Future<({List<FunctionResponse> functionResponseParts, Object? capturedResult})>
-      _processFunctionCalls({
+  Future<({List<FunctionResponse> functionResponseParts, Object? capturedResult})> _processFunctionCalls({
     required List<FunctionCall> functionCalls,
     required bool isForcedToolCalling,
     required List<AiTool> availableTools,
@@ -278,7 +275,7 @@ class FirebaseAiClient implements AiClient {
         try {
           capturedResult = call.args['output'];
           genUiLogger.fine(
-            'Captured final output from tool "outputToolName".',
+            'Captured final output from tool "$outputToolName".',
           );
         } catch (exception, stack) {
           genUiLogger.severe(
@@ -288,7 +285,7 @@ class FirebaseAiClient implements AiClient {
           );
         }
         genUiLogger.info(
-          '****** Gen UI Output ******.\n' 
+          '****** Gen UI Output ******.\n'
           '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
         );
         break;
@@ -299,7 +296,7 @@ class FirebaseAiClient implements AiClient {
         orElse: () =>
             throw AiClientException('Unknown tool ${call.name} called.'),
       );
-      JsonMap toolResult;
+      Map<String, Object?> toolResult;
       try {
         genUiLogger.fine('Invoking tool: ${aiTool.name}');
         toolResult = await aiTool.invoke(call.args);
@@ -320,7 +317,7 @@ class FirebaseAiClient implements AiClient {
       functionResponseParts.add(FunctionResponse(call.name, toolResult));
     }
     genUiLogger.fine(
-      'Finished processing function calls. Returning ' 
+      'Finished processing function calls. Returning '
       '${functionResponseParts.length} responses.',
     );
     return (
@@ -395,9 +392,9 @@ With functions:
         outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
       }
       genUiLogger.info(
-        '****** Completed Inference ******\n' 
-        'Latency = ${elapsed.inMilliseconds}ms\n' 
-        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n' 
+        '****** Completed Inference ******\n'
+        'Latency = ${elapsed.inMilliseconds}ms\n'
+        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
         'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
       );
 
@@ -409,7 +406,7 @@ With functions:
       }
 
       final candidate = response.candidates.first;
-      final functionCalls = 
+      final functionCalls =
           candidate.content.parts.whereType<FunctionCall>().toList();
 
       if (functionCalls.isEmpty) {
@@ -492,7 +489,7 @@ With functions:
         if (toolResponseParts.isNotEmpty) {
           mutableMessages.add(msg.ToolResponseMessage(toolResponseParts));
           genUiLogger.fine(
-            'Added tool response message with ${toolResponseParts.length} ' 
+            'Added tool response message with ${toolResponseParts.length} '
             'parts to conversation.',
           );
         }

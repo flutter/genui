@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 export 'src/ai_client/ai_client.dart';
-export 'src/ai_client/gemini_ai_client.dart';
+export 'src/ai_client/firebase_ai_client.dart';
 export 'src/catalog/core_widgets/checkbox_group.dart';
 export 'src/catalog/core_widgets/column.dart';
 export 'src/catalog/core_widgets/elevated_button.dart';
