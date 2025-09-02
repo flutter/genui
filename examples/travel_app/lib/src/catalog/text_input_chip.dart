@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
-  description:
-      'An input chip used to ask the user to enter free text, e.g. to select a destination. This should only be used inside an InputGroup.',
+  description: 'An input chip used to ask the user to enter free text, e.g. to '
+      'select a destination. This should only be used inside an InputGroup.',
   properties: {
     'label': S.string(description: 'The label for the text input chip.'),
     'initialValue': S.string(

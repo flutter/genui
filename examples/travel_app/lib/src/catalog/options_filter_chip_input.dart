@@ -60,8 +60,8 @@ IconData _iconFor(TravelIcon icon) {
 }
 
 final _schema = S.object(
-  description:
-      'A chip used to choose from a set of mutually exclusive options. This *must* be placed inside an InputGroup.',
+  description: 'A chip used to choose from a set of mutually exclusive '
+      'options. This *must* be placed inside an InputGroup.',
   properties: {
     'chipLabel': S.string(
       description:

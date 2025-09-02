@@ -10,8 +10,8 @@ final _schema = S.object(
   properties: {
     'submitLabel': S.string(description: 'The label for the submit button.'),
     'children': S.list(
-      description:
-          'A list of widget IDs for the input children, which must be input types such as OptionsFilterChipInput.',
+      description: 'A list of widget IDs for the input children, which must '
+          'be input types such as OptionsFilterChipInput.',
       items: S.string(),
     ),
   },
