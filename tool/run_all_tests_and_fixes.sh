@@ -22,6 +22,22 @@ command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not f
 FAILURE_LOG=$(mktemp)
 trap 'rm -f "$FAILURE_LOG"' EXIT
 
+run_project_step() {
+    local project_dir="$1"
+    local description="$2"
+    local step_num="$3"
+    shift 3
+    local cmd_str="$*"
+
+    echo "[$step_num/3] $description..."
+    echo "To rerun this command:"
+    echo "cd \"$project_dir\" && $cmd_str"
+    if ! "$@"; then
+        echo "'$cmd_str' failed in $project_dir" >> "$FAILURE_LOG"
+    fi
+}
+
+
 # --- 0. Run commands at the root project level ---
 echo "Running root-level commands..."
 echo "--------------------------------------------------"
@@ -46,7 +62,7 @@ echo ""
 # The `find ... -print0 | while ...` construct safely handles file paths with spaces.
 echo "Searching for Flutter projects..."
 echo "=================================================="
-find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0 | while IFS= read -r -d '' pubspec_path; do
+find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -path "./melos_tool" -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0 | while IFS= read -r -d '' pubspec_path; do
     (
         # Get the directory containing the pubspec.yaml file.
         project_dir=$(dirname "$pubspec_path")
@@ -57,27 +73,11 @@ find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -
         # Navigate into the project's directory.
         cd "$project_dir" || exit 1
 
-        # --- 2. For each project, run dart fix ---
-        echo "[1/3] Applying fixes with 'dart fix --apply'..."
-        echo "To rerun this command:"
-        echo "cd \"$project_dir\" && dart fix --apply"
-        # Log failures without stopping the script.
-        dart fix --apply || echo "dart fix --apply failed in $project_dir" >> "$FAILURE_LOG"
-
-        # --- 3. For each project, run tests and analysis, letting them output naturally ---
-        echo "[2/3] Running tests with 'flutter test'..."
-        echo "--- flutter test: $project_dir ---"
-        echo "To rerun this command:"
-        echo "cd \"$project_dir\" && flutter test"
-        # Log failures without stopping the script.
-        flutter test || echo "flutter test failed in $project_dir" >> "$FAILURE_LOG"
-
-        echo "[3/3] Analyzing code with 'flutter analyze'..."
-        echo "--- flutter analyze: $project_dir ---"
-        echo "To rerun this command:"
-        echo "cd \"$project_dir\" && flutter analyze"
-        # Log failures without stopping the script.
-        flutter analyze || echo "flutter analyze failed in $project_dir" >> "$FAILURE_LOG"
+        run_project_step "$project_dir" "Applying fixes with 'dart fix --apply'" 1 dart fix --apply
+        echo ""
+        run_project_step "$project_dir" "Running tests with 'flutter test'" 2 flutter test
+        echo ""
+        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 3 flutter analyze
 
         echo "Finished processing $project_dir."
         echo ""
