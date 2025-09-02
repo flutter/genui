@@ -41,7 +41,7 @@ class TravelApp extends StatelessWidget {
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default [GeminiAiClient] will be created by the
+  /// If null, a default [FirebaseAiClient] will be created by the
   /// [TravelPlannerPage].
   final AiClient? aiClient;
 
@@ -73,12 +73,12 @@ class TravelPlannerPage extends StatefulWidget {
   ///
   /// An optional [aiClient] can be provided, which is useful for testing
   /// or using a custom AI client implementation. If not provided, a default
-  /// [GeminiAiClient] is created.
+  /// [FirebaseAiClient] is created.
   const TravelPlannerPage({this.aiClient, super.key});
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default instance of [GeminiAiClient] will be created within
+  /// If null, a default instance of [FirebaseAiClient] will be created within
   /// the page's state.
   final AiClient? aiClient;
 
@@ -102,7 +102,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _eventManager = UiEventManager(callback: _onUiEvents);
     _aiClient =
         widget.aiClient ??
-        GeminiAiClient(
+        FirebaseAiClient(
           tools: _genUiManager.getTools(),
           systemInstruction: prompt,
         );
@@ -252,35 +252,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             Text('Agentic Travel Inc.'),
           ],
         ),
-        actions: [
-          ValueListenableBuilder<AiModel>(
-            valueListenable: _aiClient.model,
-            builder: (context, currentModel, child) {
-              return PopupMenuButton<AiModel>(
-                icon: const Icon(Icons.psychology_outlined),
-                onSelected: (AiModel value) {
-                  // Handle model selection
-                  _aiClient.switchModel(value);
-                },
-                itemBuilder: (BuildContext context) {
-                  return _aiClient.models.map((model) {
-                    return PopupMenuItem<AiModel>(
-                      value: model,
-                      child: Row(
-                        children: [
-                          Text(model.displayName),
-                          if (currentModel == model) const Icon(Icons.check),
-                        ],
-                      ),
-                    );
-                  }).toList();
-                },
-              );
-            },
-          ),
-          const Icon(Icons.person_outline),
-          const SizedBox(width: 8.0),
-        ],
+        actions: [const Icon(Icons.person_outline), const SizedBox(width: 8.0)],
       ),
       body: SafeArea(
         child: Center(
