@@ -8,6 +8,7 @@ library;
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 final _schema = S.object(
   properties: {
@@ -19,7 +20,9 @@ final _schema = S.object(
           "typically be 'cover'.  Be sure to create an Image widget with a "
           'matching ID.',
     ),
-    'detailText': S.string(description: 'The detail text for the item.'),
+    'detailText': S.string(
+        description:
+            'The detail text for the item. This supports markdown.'),
   },
   required: ['title', 'subtitle', 'detailText', 'imageChildId'],
 );
@@ -120,7 +123,11 @@ class _ItineraryItem extends StatelessWidget {
                   const SizedBox(height: 4.0),
                   Text(subtitle, style: theme.textTheme.bodySmall),
                   const SizedBox(height: 8.0),
-                  Text(detailText, style: theme.textTheme.bodyMedium),
+                  MarkdownBody(
+                    data: detailText,
+                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                        .copyWith(p: theme.textTheme.bodyMedium),
+                  ),
                 ],
               ),
             ),
