@@ -31,7 +31,9 @@ class Conversation extends StatelessWidget {
       if (showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage && message is! ToolResponseMessage;
+      return message is! InternalMessage &&
+          message is! ToolResponseMessage &&
+          message is! UserUiInteractionMessage;
     }).toList();
     return ListView.builder(
       itemCount: renderedMessages.length,
@@ -74,6 +76,13 @@ class Conversation extends StatelessWidget {
             );
           case InternalMessage():
             return InternalMessageWidget(content: message.text);
+          case UserUiInteractionMessage():
+            return InternalMessageWidget(
+              content: message.parts
+                  .whereType<TextPart>()
+                  .map((part) => part.text)
+                  .join('\n'),
+            );
           case ToolResponseMessage():
             return InternalMessageWidget(content: message.results.toString());
         }
