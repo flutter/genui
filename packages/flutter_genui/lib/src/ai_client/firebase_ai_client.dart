@@ -347,7 +347,7 @@ class FirebaseAiClient implements AiClient {
 
     // A local copy of the incoming messages which is updated with tool results
     // as they are generated.
-    final mutableContent = converter.toFirebaseAiContent(messages).toList();
+    final mutableContent = converter.toFirebaseAiContent(messages);
 
     final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
       isForcedToolCalling: isForcedToolCalling,
