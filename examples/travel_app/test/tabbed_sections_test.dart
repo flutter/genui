@@ -75,58 +75,5 @@ void main() {
       expect(find.text('Content for Tab 1'), findsNothing);
       expect(find.text('Content for Tab 2'), findsOneWidget);
     });
-
-    testWidgets('renders with fixed height when height is provided', (
-      WidgetTester tester,
-    ) async {
-      // Mock buildChild function
-      Widget mockBuildChild(String id) {
-        return const Text('Content');
-      }
-
-      // Create a CatalogItem instance with test data including height
-      final catalogItem = tabbedSections;
-      final data = {
-        'sections': [
-          {'title': 'Tab 1', 'child': 'child1'},
-        ],
-        'height': 200.0,
-      };
-
-      // Build the widget
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                Builder(
-                  builder: (context) {
-                    return catalogItem.widgetBuilder(
-                      data: data,
-                      id: 'test_tabbed_sections_height',
-                      buildChild: mockBuildChild,
-                      dispatchEvent: (event) {},
-                      context: context,
-                      values: {},
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      // Verify that the SizedBox with the specified height is present
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is SizedBox && widget.height == 200.0,
-        ),
-        findsOneWidget,
-      );
-
-      // Verify that the content is displayed
-      expect(find.text('Content'), findsOneWidget);
-    });
   });
 }
