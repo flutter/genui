@@ -10,6 +10,9 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
+    'title': S.string(
+      description: 'An optional title to display above the carousel.',
+    ),
     'items': S.list(
       description: 'A list of items to display in the carousel.',
       items: S.object(
@@ -49,10 +52,12 @@ final travelCarousel = CatalogItem(
         required context,
         required values,
       }) {
-        final items = _TravelCarouselItemListData.fromMap(
+        final carouselData = _TravelCarouselData.fromMap(
           (data as Map).cast<String, Object?>(),
-        ).items;
+        );
+        final items = carouselData.items;
         return _TravelCarousel(
+          title: carouselData.title,
           items: items
               .map(
                 (e) => _TravelCarouselItemData(
@@ -67,11 +72,16 @@ final travelCarousel = CatalogItem(
       },
 );
 
-extension type _TravelCarouselItemListData.fromMap(Map<String, Object?> _json) {
-  factory _TravelCarouselItemListData({
+extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
+  factory _TravelCarouselData({
+    String? title,
     required List<Map<String, Object>> items,
-  }) => _TravelCarouselItemListData.fromMap({'items': items});
+  }) => _TravelCarouselData.fromMap({
+    if (title != null) 'title': title,
+    'items': items,
+  });
 
+  String? get title => _json['title'] as String?;
   Iterable<_TravelCarouselItemSchemaData> get items => (_json['items'] as List)
       .cast<Map<String, Object?>>()
       .map<_TravelCarouselItemSchemaData>(
@@ -104,35 +114,52 @@ class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
 
 class _TravelCarousel extends StatelessWidget {
   const _TravelCarousel({
+    this.title,
     required this.items,
     required this.widgetId,
     required this.dispatchEvent,
   });
 
+  final String? title;
   final List<_TravelCarouselItemData> items;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 220,
-      child: ScrollConfiguration(
-        behavior: _DesktopAndWebScrollBehavior(),
-        child: ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          scrollDirection: Axis.horizontal,
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            return _TravelCarouselItem(
-              data: items[index],
-              widgetId: widgetId,
-              dispatchEvent: dispatchEvent,
-            );
-          },
-          separatorBuilder: (context, index) => const SizedBox(width: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              title!,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+          const SizedBox(height: 16.0),
+        ],
+        SizedBox(
+          height: 220,
+          child: ScrollConfiguration(
+            behavior: _DesktopAndWebScrollBehavior(),
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return _TravelCarouselItem(
+                  data: items[index],
+                  widgetId: widgetId,
+                  dispatchEvent: dispatchEvent,
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(width: 16),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

@@ -11,25 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/main.dart' as app;
 
 void main() {
-  testWidgets('Can switch models', (WidgetTester tester) async {
-    final mockAiClient = FakeAiClient();
-    await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
-
-    expect(find.text('mock1'), findsNothing);
-    expect(find.text('mock2'), findsNothing);
-
-    await tester.tap(find.byIcon(Icons.psychology_outlined));
-    await tester.pumpAndSettle();
-
-    expect(find.text('mock1'), findsOneWidget);
-    expect(find.text('mock2'), findsOneWidget);
-
-    await tester.tap(find.text('mock2'));
-    await tester.pumpAndSettle();
-
-    expect(mockAiClient.model.value.displayName, 'mock2');
-  });
-
   testWidgets('Can send a prompt', (WidgetTester tester) async {
     final mockAiClient = FakeAiClient();
     // The main app expects a JSON response from generateContent.

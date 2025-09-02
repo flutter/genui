@@ -40,7 +40,7 @@ agent-based user experiences.
 
 ### Using the GenUI SDK with Firebase AI Logic
 
-```
+```dart
 // Adding your widgets into the catalog.
 final catalog = Catalog([
   ...coreCatalog.items,
@@ -98,12 +98,12 @@ Widget build(BuildContext context) {
 
 ## Some things we're thinking about
 
-* ** Genkit Integration:** Integration with Genkit.
-* ** Expanded LLM Framework Support:** Official support for additional LLM frameworks.
-* ** Streaming UI:** Support for progressively rendering UI components as they stream from the LLM.
-* ** Full-Screen Composition:** Enable LLM-driven composition and navigation of entire app screens.
-* ** A2A Agent Support:** Support for A2A agent interactions.
-* ** Dart Bytecode:** Future support for Dart Bytecode for even greater dynamism and flexibility.
+* **Genkit Integration:** Integration with Genkit.
+* **Expanded LLM Framework Support:** Official support for additional LLM frameworks.
+* **Streaming UI:** Support for progressively rendering UI components as they stream from the LLM.
+* **Full-Screen Composition:** Enable LLM-driven composition and navigation of entire app screens.
+* **A2A Agent Support:** Support for A2A agent interactions.
+* **Dart Bytecode:** Future support for Dart Bytecode for even greater dynamism and flexibility.
 
 ## Packages
 

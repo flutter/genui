@@ -90,7 +90,7 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
     case 'stretch':
       return CrossAxisAlignment.stretch;
     default:
-      return CrossAxisAlignment.center;
+      return CrossAxisAlignment.start;
   }
 }
 

@@ -8,7 +8,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
-import '../ai_client/gemini_ai_client.dart';
+import '../ai_client/firebase_ai_client.dart';
 import '../core/genui_configuration.dart';
 import '../core/genui_manager.dart';
 import '../model/catalog.dart';
@@ -62,7 +62,7 @@ class UiAgent {
        ) {
     _aiClient =
         aiClient ??
-        GeminiAiClient(
+        FirebaseAiClient(
           systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
           tools: _genUiManager.getTools(),
         );

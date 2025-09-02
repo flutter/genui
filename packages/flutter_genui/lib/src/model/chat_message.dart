@@ -143,6 +143,22 @@ final class UserMessage extends ChatMessage {
   final List<MessagePart> parts;
 }
 
+/// A message representing a user's interaction with the UI.
+///
+/// This is intended for internal use and is not typically displayed to the
+/// user.
+final class UserUiInteractionMessage extends ChatMessage {
+  /// Creates a [UserUiInteractionMessage] with the given [parts].
+  const UserUiInteractionMessage(this.parts);
+
+  /// Creates a [UserUiInteractionMessage] with the given [text].
+  factory UserUiInteractionMessage.text(String text) =>
+      UserUiInteractionMessage([TextPart(text)]);
+
+  /// The parts of the user's message.
+  final List<MessagePart> parts;
+}
+
 /// A message representing a text response from the AI.
 final class AiTextMessage extends ChatMessage {
   /// Creates a [AiTextMessage] with the given [parts].

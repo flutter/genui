@@ -17,6 +17,7 @@ class Conversation extends StatelessWidget {
     required this.onEvent,
     this.userPromptBuilder,
     this.showInternalMessages = false,
+    this.scrollController,
   });
 
   final List<ChatMessage> messages;
@@ -24,6 +25,7 @@ class Conversation extends StatelessWidget {
   final GenUiManager manager;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +33,12 @@ class Conversation extends StatelessWidget {
       if (showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage && message is! ToolResponseMessage;
+      return message is! InternalMessage &&
+          message is! ToolResponseMessage &&
+          message is! UserUiInteractionMessage;
     }).toList();
     return ListView.builder(
+      controller: scrollController,
       itemCount: renderedMessages.length,
       itemBuilder: (context, index) {
         final message = renderedMessages[index];
@@ -74,6 +79,13 @@ class Conversation extends StatelessWidget {
             );
           case InternalMessage():
             return InternalMessageWidget(content: message.text);
+          case UserUiInteractionMessage():
+            return InternalMessageWidget(
+              content: message.parts
+                  .whereType<TextPart>()
+                  .map((part) => part.text)
+                  .join('\n'),
+            );
           case ToolResponseMessage():
             return InternalMessageWidget(content: message.results.toString());
         }
