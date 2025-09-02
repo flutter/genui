@@ -23,15 +23,16 @@ command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not f
 FAILURE_LOG=$(mktemp)
 trap 'rm -f "$FAILURE_LOG"' EXIT
 
+readonly PROJECT_TOTAL_STEPS=3
+
 run_project_step() {
     local project_dir="$1"
     local description="$2"
     local step_num="$3"
-    local total_steps="$4"
-    shift 4
-    local cmd_str="$*"
+    shift 3
+    local cmd_str=$(printf '%q ' "$@"); cmd_str=${cmd_str% }
 
-    echo "[$step_num/$total_steps] $description..."
+    echo "[$step_num/$PROJECT_TOTAL_STEPS] $description..."
     echo "To rerun this command:"
     echo "cd \"$project_dir\" && $cmd_str"
     if ! "$@"; then
@@ -75,11 +76,11 @@ find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -pat
         # Navigate into the project's directory.
         cd "$project_dir" || exit 1
 
-        run_project_step "$project_dir" "Applying fixes with 'dart fix --apply'" 1 3 dart fix --apply
+        run_project_step "$project_dir" "Applying fixes with 'dart fix --apply'" 1 dart fix --apply
         echo ""
-        run_project_step "$project_dir" "Running tests with 'flutter test'" 2 3 flutter test
+        run_project_step "$project_dir" "Running tests with 'flutter test'" 2 flutter test
         echo ""
-        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 3 3 flutter analyze
+        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 3 flutter analyze
 
         echo "Finished processing $project_dir."
         echo ""
