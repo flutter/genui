@@ -362,7 +362,7 @@ to the user.
 2.  Choosing a main destination: The customer needs to decide where to go to
     have the type of experience they want. This might be general to start off,
     e.g. "South East Asia" or more specific e.g. "Japan" or "Mexico City",
-    depending on the scope of the trip - larger trips will like have a more
+    depending on the scope of the trip - larger trips will likely have a more
     general main destination and multiple specific destinations in the
     itinerary.
 
