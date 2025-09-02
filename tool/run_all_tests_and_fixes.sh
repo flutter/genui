@@ -27,12 +27,16 @@ echo "Running root-level commands..."
 echo "--------------------------------------------------"
 # Check if the copyright tool exists before running
 if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
+    echo "Running copyright fix. To rerun:"
+    echo "dart run tool/fix_copyright/bin/fix_copyright.dart --force"
     # Allow this command to fail without stopping the script.
     dart run tool/fix_copyright/bin/fix_copyright.dart --force || echo "Copyright fix failed" >> "$FAILURE_LOG"
 else
     echo "Warning: Copyright tool not found. Skipping."
 fi
 # Allow this command to fail without stopping the script.
+echo "Running dart format. To rerun:"
+echo "dart format ."
 dart format . || echo "dart format failed" >> "$FAILURE_LOG"
 echo "Root-level commands complete."
 echo ""
@@ -55,17 +59,23 @@ find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -
 
         # --- 2. For each project, run dart fix ---
         echo "[1/3] Applying fixes with 'dart fix --apply'..."
+        echo "To rerun this command:"
+        echo "cd \"$project_dir\" && dart fix --apply"
         # Allow this command to fail without stopping the script.
         dart fix --apply || echo "dart fix --apply failed in $project_dir" >> "$FAILURE_LOG"
 
         # --- 3. For each project, run tests and analysis, letting them output naturally ---
         echo "[2/3] Running tests with 'flutter test'..."
         echo "--- flutter test: $project_dir ---"
+        echo "To rerun this command:"
+        echo "cd \"$project_dir\" && flutter test"
         # The '|| true' ensures that the script continues even if tests fail.
         flutter test || echo "flutter test failed in $project_dir" >> "$FAILURE_LOG"
 
         echo "[3/3] Analyzing code with 'flutter analyze'..."
         echo "--- flutter analyze: $project_dir ---"
+        echo "To rerun this command:"
+        echo "cd \"$project_dir\" && flutter analyze"
         # The '|| true' ensures that the script continues even if analysis finds issues.
         flutter analyze || echo "flutter analyze failed in $project_dir" >> "$FAILURE_LOG"
 
@@ -79,7 +89,7 @@ echo "      All projects have been processed."
 echo "=================================================="
 
 if [ -s "$FAILURE_LOG" ]; then
-  echo "Errors occurred:" >&2
+  echo "Tooling errors occurred:" >&2
   cat "$FAILURE_LOG" >&2
   exit 1
 fi
