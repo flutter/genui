@@ -356,7 +356,7 @@ to the user.
     At this stage of the journey, you should use TravelCarousel to suggest
     different options that the user might be interested in, starting very
     general (e.g. "Relaxing beach holiday", "Snow trip",
-    Cultural excursion") and then gradually honing in to more specific
+    "Cultural excursion") and then gradually honing in to more specific
     ideas e.g. "A journey through the best art galleries of Europe").
 
 2.  Choosing a main destination: The customer needs to decide where to go to
