@@ -92,6 +92,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final UiEventManager _eventManager;
   final List<ChatMessage> _conversation = [];
   final _textController = TextEditingController();
+  final _scrollController = ScrollController();
   bool _isThinking = false;
 
   @override
@@ -112,6 +113,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             _conversation.add(
               AiUiMessage(definition: definition, surfaceId: surfaceId),
             );
+            _scrollToBottom();
 
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
@@ -137,7 +139,20 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _genUiManager.dispose();
     _eventManager.dispose();
     _textController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _triggerInference() async {
@@ -172,6 +187,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         setState(() {
           _conversation.add(AiTextMessage.text(value));
         });
+        _scrollToBottom();
       }
     } finally {
       setState(() {
@@ -204,6 +220,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     setState(() {
       _conversation.add(UserUiInteractionMessage.text(message.toString()));
     });
+    _scrollToBottom();
     _triggerInference();
   }
 
@@ -216,6 +233,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     setState(() {
       _conversation.add(UserMessage.text(text));
     });
+    _scrollToBottom();
     _textController.clear();
     _triggerInference();
   }
@@ -275,6 +293,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
                     messages: _conversation,
                     manager: _genUiManager,
                     onEvent: _handleUiEvent,
+                    scrollController: _scrollController,
                   ),
                 ),
               ),
