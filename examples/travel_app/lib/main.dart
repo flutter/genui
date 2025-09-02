@@ -388,7 +388,7 @@ to the user.
     Then, when the user clicks search, you should update the surface to have
     a Column with the existing OptionsFilterChipInput, a
     ItineraryWithDetails containing the full itinerary, and a Trailhead
-    containing some options of specific details to book e.g. "Book accomodation in Kyoto", "Train options from Tokyo to Osaka".
+    containing some options of specific details to book e.g. "Book accommodation in Kyoto", "Train options from Tokyo to Osaka".
     
     Note that during this step, the user may change their search parameters and
     resubmit, in which case you should regenerate the itinerary to match their
