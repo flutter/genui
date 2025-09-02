@@ -3,16 +3,24 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# Move to the repository root to ensure paths are correct.
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+cd -- "$SCRIPT_DIR/.."
+
+set -e
+
+command -v dart >/dev/null 2>&1 || { echo >&2 "Error: 'dart' command not found. Please ensure the Dart SDK is installed and in your PATH."; exit 1; }
+command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not found. Please ensure the Flutter SDK is installed and in your PATH."; exit 1; }
+
 # This script runs all automated fixes and tests for the repo, reporting all
 # errors that cannot be fixed automatically.
 #
 # This allows for more efficient use of LLM-based tools to fix errors by running
 # all the diagnostic tools up-front instead of relying on separate LLM tool
 # calls for each one.
-set -e
 
-command -v dart >/dev/null 2>&1 || { echo >&2 "Error: 'dart' command not found. Please ensure the Dart SDK is installed and in your PATH."; exit 1; }
-command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not found. Please ensure the Flutter SDK is installed and in your PATH."; exit 1; }
+FAILURE_LOG=$(mktemp)
+trap 'rm -f "$FAILURE_LOG"' EXIT
 
 # --- 0. Run commands at the root project level ---
 echo "Running root-level commands..."
@@ -20,12 +28,12 @@ echo "--------------------------------------------------"
 # Check if the copyright tool exists before running
 if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     # Allow this command to fail without stopping the script.
-    dart run tool/fix_copyright/bin/fix_copyright.dart --force || true
+    dart run tool/fix_copyright/bin/fix_copyright.dart --force || echo "Copyright fix failed" >> "$FAILURE_LOG"
 else
     echo "Warning: Copyright tool not found. Skipping."
 fi
 # Allow this command to fail without stopping the script.
-dart format . || true
+dart format . || echo "dart format failed" >> "$FAILURE_LOG"
 echo "Root-level commands complete."
 echo ""
 
@@ -48,18 +56,18 @@ find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -
         # --- 2. For each project, run dart fix ---
         echo "[1/3] Applying fixes with 'dart fix --apply'..."
         # Allow this command to fail without stopping the script.
-        dart fix --apply || true
+        dart fix --apply || echo "dart fix --apply failed in $project_dir" >> "$FAILURE_LOG"
 
         # --- 3. For each project, run tests and analysis, letting them output naturally ---
         echo "[2/3] Running tests with 'flutter test'..."
         echo "--- flutter test: $project_dir ---"
         # The '|| true' ensures that the script continues even if tests fail.
-        flutter test || true
+        flutter test || echo "flutter test failed in $project_dir" >> "$FAILURE_LOG"
 
         echo "[3/3] Analyzing code with 'flutter analyze'..."
         echo "--- flutter analyze: $project_dir ---"
         # The '|| true' ensures that the script continues even if analysis finds issues.
-        flutter analyze || true
+        flutter analyze || echo "flutter analyze failed in $project_dir" >> "$FAILURE_LOG"
 
         echo "Finished processing $project_dir."
         echo ""
@@ -70,3 +78,8 @@ echo "=================================================="
 echo "      All projects have been processed."
 echo "=================================================="
 
+if [ -s "$FAILURE_LOG" ]; then
+  echo "Errors occurred:" >&2
+  cat "$FAILURE_LOG" >&2
+  exit 1
+fi
