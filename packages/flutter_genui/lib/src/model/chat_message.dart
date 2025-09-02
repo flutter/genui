@@ -145,7 +145,8 @@ final class UserMessage extends ChatMessage {
 
 /// A message representing a user's interaction with the UI.
 ///
-/// This is intended for internal use and is not typically displayed to the user.
+/// This is intended for internal use and is not typically displayed to the
+/// user.
 final class UserUiInteractionMessage extends ChatMessage {
   /// Creates a [UserUiInteractionMessage] with the given [parts].
   const UserUiInteractionMessage(this.parts);

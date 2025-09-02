@@ -129,8 +129,9 @@ class _ItineraryWithDetails extends StatelessWidget {
                           ),
                           const SizedBox(height: 16.0),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
                             child: Text(
                               title,
                               style: Theme.of(context).textTheme.headlineMedium,
@@ -145,7 +146,7 @@ class _ItineraryWithDetails extends StatelessWidget {
                       top: 16.0,
                       right: 16.0,
                       child: Material(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withAlpha((255 * 0.8).round()),
                         shape: const CircleBorder(),
                         clipBehavior: Clip.antiAlias,
                         child: IconButton(
