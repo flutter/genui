@@ -29,12 +29,12 @@ echo "--------------------------------------------------"
 if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     echo "Running copyright fix. To rerun:"
     echo "dart run tool/fix_copyright/bin/fix_copyright.dart --force"
-    # Allow this command to fail without stopping the script.
+    # Log failures without stopping the script.
     dart run tool/fix_copyright/bin/fix_copyright.dart --force || echo "Copyright fix failed" >> "$FAILURE_LOG"
 else
     echo "Warning: Copyright tool not found. Skipping."
 fi
-# Allow this command to fail without stopping the script.
+# Log failures without stopping the script.
 echo "Running dart format. To rerun:"
 echo "dart format ."
 dart format . || echo "dart format failed" >> "$FAILURE_LOG"
@@ -46,7 +46,7 @@ echo ""
 # The `find ... -print0 | while ...` construct safely handles file paths with spaces.
 echo "Searching for Flutter projects..."
 echo "=================================================="
-find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -prune -o -name "pubspec.yaml" -print0 | while IFS= read -r -d '' pubspec_path; do
+find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0 | while IFS= read -r -d '' pubspec_path; do
     (
         # Get the directory containing the pubspec.yaml file.
         project_dir=$(dirname "$pubspec_path")
@@ -61,7 +61,7 @@ find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -
         echo "[1/3] Applying fixes with 'dart fix --apply'..."
         echo "To rerun this command:"
         echo "cd \"$project_dir\" && dart fix --apply"
-        # Allow this command to fail without stopping the script.
+        # Log failures without stopping the script.
         dart fix --apply || echo "dart fix --apply failed in $project_dir" >> "$FAILURE_LOG"
 
         # --- 3. For each project, run tests and analysis, letting them output naturally ---
@@ -69,14 +69,14 @@ find . -path ./build -prune -o -path ./.dart_tool -prune -o -path ./melos_tool -
         echo "--- flutter test: $project_dir ---"
         echo "To rerun this command:"
         echo "cd \"$project_dir\" && flutter test"
-        # The '|| true' ensures that the script continues even if tests fail.
+        # Log failures without stopping the script.
         flutter test || echo "flutter test failed in $project_dir" >> "$FAILURE_LOG"
 
         echo "[3/3] Analyzing code with 'flutter analyze'..."
         echo "--- flutter analyze: $project_dir ---"
         echo "To rerun this command:"
         echo "cd \"$project_dir\" && flutter analyze"
-        # The '|| true' ensures that the script continues even if analysis finds issues.
+        # Log failures without stopping the script.
         flutter analyze || echo "flutter analyze failed in $project_dir" >> "$FAILURE_LOG"
 
         echo "Finished processing $project_dir."
