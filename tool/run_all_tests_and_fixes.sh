@@ -8,6 +8,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 cd -- "$SCRIPT_DIR/.."
 
 set -e
+set -o pipefail
 
 command -v dart >/dev/null 2>&1 || { echo >&2 "Error: 'dart' command not found. Please ensure the Dart SDK is installed and in your PATH."; exit 1; }
 command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not found. Please ensure the Flutter SDK is installed and in your PATH."; exit 1; }
@@ -26,14 +27,15 @@ run_project_step() {
     local project_dir="$1"
     local description="$2"
     local step_num="$3"
-    shift 3
+    local total_steps="$4"
+    shift 4
     local cmd_str="$*"
 
-    echo "[$step_num/3] $description..."
+    echo "[$step_num/$total_steps] $description..."
     echo "To rerun this command:"
     echo "cd \"$project_dir\" && $cmd_str"
     if ! "$@"; then
-        echo "'$cmd_str' failed in $project_dir" >> "$FAILURE_LOG"
+        echo "'$cmd_str' failed in \"$project_dir\"" >> "$FAILURE_LOG"
     fi
 }
 
@@ -46,14 +48,14 @@ if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     echo "Running copyright fix. To rerun:"
     echo "dart run tool/fix_copyright/bin/fix_copyright.dart --force"
     # Log failures without stopping the script.
-    dart run tool/fix_copyright/bin/fix_copyright.dart --force || echo "Copyright fix failed" >> "$FAILURE_LOG"
+    dart run tool/fix_copyright/bin/fix_copyright.dart --force || echo "'dart run tool/fix_copyright/bin/fix_copyright.dart --force' failed" >> "$FAILURE_LOG"
 else
     echo "Warning: Copyright tool not found. Skipping."
 fi
 # Log failures without stopping the script.
 echo "Running dart format. To rerun:"
 echo "dart format ."
-dart format . || echo "dart format failed" >> "$FAILURE_LOG"
+dart format . || echo "'dart format .' failed" >> "$FAILURE_LOG"
 echo "Root-level commands complete."
 echo ""
 
@@ -73,11 +75,11 @@ find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -pat
         # Navigate into the project's directory.
         cd "$project_dir" || exit 1
 
-        run_project_step "$project_dir" "Applying fixes with 'dart fix --apply'" 1 dart fix --apply
+        run_project_step "$project_dir" "Applying fixes with 'dart fix --apply'" 1 3 dart fix --apply
         echo ""
-        run_project_step "$project_dir" "Running tests with 'flutter test'" 2 flutter test
+        run_project_step "$project_dir" "Running tests with 'flutter test'" 2 3 flutter test
         echo ""
-        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 3 flutter analyze
+        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 3 3 flutter analyze
 
         echo "Finished processing $project_dir."
         echo ""
