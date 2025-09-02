@@ -451,8 +451,8 @@ With functions:
       );
       mutableContent.add(candidate.content);
       genUiLogger.fine(
-        'Added assistant message with ${candidate.content.parts.length} parts to '
-        'conversation.',
+        'Added assistant message with ${candidate.content.parts.length} '
+        'parts to conversation.',
       );
 
       final result = await _processFunctionCalls(
@@ -467,7 +467,7 @@ With functions:
       if (functionResponseParts.isNotEmpty) {
         mutableContent.add(Content.functionResponses(functionResponseParts));
         genUiLogger.fine(
-          'Added tool response message with ${functionResponseParts.length} ' 
+          'Added tool response message with ${functionResponseParts.length} '
           'parts to conversation.',
         );
       }
