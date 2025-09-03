@@ -127,7 +127,7 @@ class _ItineraryItem extends StatelessWidget {
                   const SizedBox(height: 8.0),
                   MarkdownBody(
                     data: detailText,
-                    styleSheet: markdownStyleSheet(context),
+                    styleSheet: getMarkdownStyleSheet(context),
                   ),
                 ],
               ),

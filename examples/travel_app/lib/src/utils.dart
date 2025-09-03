@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-MarkdownStyleSheet markdownStyleSheet(BuildContext context) {
+MarkdownStyleSheet getMarkdownStyleSheet(BuildContext context) {
   final theme = Theme.of(context);
   return MarkdownStyleSheet.fromTheme(
     theme,

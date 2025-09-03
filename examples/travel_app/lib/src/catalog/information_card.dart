@@ -60,10 +60,9 @@ final informationCard = CatalogItem(
         final cardData = _InformationCardData.fromMap(
           data as Map<String, Object?>,
         );
-        Widget? imageChild;
-        if (cardData.imageChildId != null) {
-          imageChild = buildChild(cardData.imageChildId!);
-        }
+        final imageChild = cardData.imageChildId != null
+            ? buildChild(cardData.imageChildId!)
+            : null;
         return Container(
           constraints: const BoxConstraints(maxWidth: 400),
           child: Card(
@@ -94,7 +93,7 @@ final informationCard = CatalogItem(
                       const SizedBox(height: 8.0),
                       MarkdownBody(
                         data: cardData.body,
-                        styleSheet: markdownStyleSheet(context),
+                        styleSheet: getMarkdownStyleSheet(context),
                       ),
                     ],
                   ),

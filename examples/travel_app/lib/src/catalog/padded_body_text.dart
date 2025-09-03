@@ -42,7 +42,7 @@ final paddedBodyText = CatalogItem(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: MarkdownBody(
             data: textData.text,
-            styleSheet: markdownStyleSheet(context),
+            styleSheet: getMarkdownStyleSheet(context),
           ),
         );
       },

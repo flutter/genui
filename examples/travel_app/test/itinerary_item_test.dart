@@ -94,7 +94,13 @@ void main() {
 
         expect(find.text(testTitle), findsOneWidget);
         expect(find.text(testSubtitle), findsOneWidget);
-        expect(find.text(testDetailText), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(MarkdownBody),
+            matching: find.byType(RichText),
+          ),
+          findsOneWidget,
+        );
         expect(find.byType(Image), findsNothing);
       });
     });
