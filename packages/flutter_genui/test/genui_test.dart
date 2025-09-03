@@ -13,7 +13,7 @@ void main() {
     testWidgets('buildWidget finds and builds the correct widget', (
       WidgetTester tester,
     ) async {
-      final catalog = Catalog([text]);
+      final catalog = Catalog([CoreCatalogItems.text]);
       final data = {
         'id': 'text1',
         'widget': {
@@ -87,7 +87,10 @@ void main() {
     });
 
     test('schema generation is correct', () {
-      final catalog = Catalog([text, elevatedButton]);
+      final catalog = Catalog([
+        CoreCatalogItems.text,
+        CoreCatalogItems.elevatedButton,
+      ]);
       final schema = catalog.schema as ObjectSchema;
 
       expect(schema.properties?.containsKey('id'), isTrue);

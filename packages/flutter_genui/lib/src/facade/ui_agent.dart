@@ -49,7 +49,7 @@ class UiAgent {
   /// react to UI changes initiated by the AI.
   UiAgent(
     String instruction, {
-    Catalog? catalog,
+    required Catalog catalog,
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
     this.onTextResponse,

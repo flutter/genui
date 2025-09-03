@@ -43,6 +43,7 @@ typedef CatalogWidgetBuilder =
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.
+@immutable
 class CatalogItem {
   /// Creates a new [CatalogItem].
   const CatalogItem({

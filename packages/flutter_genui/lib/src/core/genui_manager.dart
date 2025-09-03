@@ -87,12 +87,13 @@ abstract interface class GenUiHost {
 class GenUiManager implements GenUiHost {
   /// Creates a new [GenUiManager].
   ///
-  /// An optional [catalog] can be provided to define the set of widgets
-  /// available to the AI. If not provided, the `coreCatalog` is used.
+  /// The [catalog] defines the set of widgets available to the AI.
+  /// [CoreCatalogItems.asCatalog] can be called to construct a catalog of
+  /// widgets that can power simple UIs.
   GenUiManager({
-    Catalog? catalog,
+    required this.catalog,
     this.configuration = const GenUiConfiguration(),
-  }) : catalog = catalog ?? coreCatalog;
+  });
 
   final GenUiConfiguration configuration;
 
