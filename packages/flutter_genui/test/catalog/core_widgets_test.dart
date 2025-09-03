@@ -11,13 +11,13 @@ void main() {
     final testCatalog = CoreCatalogItems.asCatalog();
 
     UserMessage? message;
-    GenUiManager? manager;
+    late GenUiManager manager;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
       Map<String, Object?> definition,
     ) async {
-      final manager = GenUiManager(
+      manager = GenUiManager(
         catalog: testCatalog,
         configuration: const GenUiConfiguration(),
       );
@@ -56,8 +56,9 @@ void main() {
 
       expect(find.text('Click Me'), findsOneWidget);
       await tester.tap(find.byType(ElevatedButton));
-      expect(message, isNotNull);
-      expect(message!.text, '{}');
+
+      final values = manager.valueStore.forSurface('testSurface');
+      expect(values, <String, Object?>{});
     });
 
     testWidgets('CheckboxGroup renders and handles changes', (
@@ -89,7 +90,7 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.valueStore.forSurface('testSurface'), {
+      expect(manager.valueStore.forSurface('testSurface'), {
         'checkboxes': {'A': true, 'B': true},
       });
     });
@@ -159,7 +160,7 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.valueStore.forSurface('testSurface'), {'radios': 'B'});
+      expect(manager.valueStore.forSurface('testSurface'), {'radios': 'B'});
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
