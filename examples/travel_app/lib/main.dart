@@ -2,16 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/flutter_genui.dart' hide ChatMessage, TextPart;
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 import 'src/asset_images.dart';
 import 'src/catalog.dart';
+import 'src/gemini_client.dart';
+import 'src/turn.dart';
 import 'src/widgets/conversation.dart';
 
 void main() async {
@@ -34,16 +36,7 @@ void main() async {
 /// user interface.
 class TravelApp extends StatelessWidget {
   /// Creates a new [TravelApp].
-  ///
-  /// The optional [aiClient] can be used to inject a specific AI client,
-  /// which is useful for testing with a mock implementation.
-  const TravelApp({this.aiClient, super.key});
-
-  /// The AI client to use for the application.
-  ///
-  /// If null, a default [FirebaseAiClient] will be created by the
-  /// [TravelPlannerPage].
-  final AiClient? aiClient;
+  const TravelApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +46,7 @@ class TravelApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: TravelPlannerPage(aiClient: aiClient),
+      home: const TravelPlannerPage(),
     );
   }
 }
@@ -70,17 +63,7 @@ class TravelApp extends StatelessWidget {
 /// generated UI, and a menu to switch between different AI models.
 class TravelPlannerPage extends StatefulWidget {
   /// Creates a new [TravelPlannerPage].
-  ///
-  /// An optional [aiClient] can be provided, which is useful for testing
-  /// or using a custom AI client implementation. If not provided, a default
-  /// [FirebaseAiClient] is created.
-  const TravelPlannerPage({this.aiClient, super.key});
-
-  /// The AI client to use for the application.
-  ///
-  /// If null, a default instance of [FirebaseAiClient] will be created within
-  /// the page's state.
-  final AiClient? aiClient;
+  const TravelPlannerPage({super.key});
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
@@ -88,9 +71,9 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final GenUiManager _genUiManager;
-  late final AiClient _aiClient;
+  late final GeminiClient _geminiClient;
   late final UiEventManager _eventManager;
-  final List<ChatMessage> _conversation = [];
+  final List<Turn> _conversation = [];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isThinking = false;
@@ -109,31 +92,29 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
       ),
     );
     _eventManager = UiEventManager(callback: _onUiEvents);
-    _aiClient =
-        widget.aiClient ??
-        FirebaseAiClient(
-          tools: _genUiManager.getTools(),
-          systemInstruction: prompt,
-        );
+    _geminiClient = GeminiClient(
+      tools: _genUiManager.getTools(),
+      systemInstruction: prompt,
+    );
     _genUiManager.surfaceUpdates.listen((update) {
       setState(() {
         switch (update) {
           case SurfaceAdded(:final surfaceId, :final definition):
             _conversation.add(
-              AiUiMessage(definition: definition, surfaceId: surfaceId),
+              GenUiTurn(definition: definition, surfaceId: surfaceId),
             );
             _scrollToBottom();
 
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
-              (m) => m is AiUiMessage && m.surfaceId == surfaceId,
+              (m) => m is GenUiTurn && m.surfaceId == surfaceId,
             );
           case SurfaceUpdated(:final surfaceId, :final definition):
             final index = _conversation.lastIndexWhere(
-              (m) => m is AiUiMessage && m.surfaceId == surfaceId,
+              (m) => m is GenUiTurn && m.surfaceId == surfaceId,
             );
             if (index != -1) {
-              _conversation[index] = AiUiMessage(
+              _conversation[index] = GenUiTurn(
                 definition: definition,
                 surfaceId: surfaceId,
               );
@@ -169,32 +150,18 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
       _isThinking = true;
     });
     try {
-      final result = await _aiClient.generateContent(
-        _conversation,
-        S.object(
-          properties: {
-            'result': S.boolean(
-              description: 'Successfully generated a response UI.',
-            ),
-            'message': S.string(
-              description:
-                  'A message about what went wrong, or a message responding to '
-                  'the request. Take into account any UI that has been '
-                  "generated, so there's no need to duplicate requests or "
-                  'information already present in the UI.',
-            ),
-          },
-          required: ['result'],
-        ),
-      );
-      if (result == null) {
-        return;
-      }
-      final value =
-          (result as Map).cast<String, Object?>()['message'] as String? ?? '';
+      final contentHistory = _conversation
+          .map((turn) => turn.toContent())
+          .whereType<Content>()
+          .toList();
+      final result = await _geminiClient.generate(contentHistory);
+      final value = result.candidates.first.content.parts
+          .whereType<TextPart>()
+          .map((part) => part.text)
+          .join('');
       if (value.isNotEmpty) {
         setState(() {
-          _conversation.add(AiTextMessage.text(value));
+          _conversation.add(AiTextTurn(value));
         });
         _scrollToBottom();
       }
@@ -227,7 +194,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     }
 
     setState(() {
-      _conversation.add(UserUiInteractionMessage.text(message.toString()));
+      _conversation.add(UserUiInteractionTurn(message.toString()));
     });
     _scrollToBottom();
     _triggerInference();
@@ -240,7 +207,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   void _sendPrompt(String text) {
     if (_isThinking || text.trim().isEmpty) return;
     setState(() {
-      _conversation.add(UserMessage.text(text));
+      _conversation.add(UserTurn(text));
     });
     _scrollToBottom();
     _textController.clear();

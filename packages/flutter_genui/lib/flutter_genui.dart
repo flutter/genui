@@ -4,6 +4,7 @@
 
 export 'src/ai_client/ai_client.dart';
 export 'src/ai_client/firebase_ai_client.dart';
+export 'src/ai_client/gemini_schema_adapter.dart';
 export 'src/catalog/core_widgets/checkbox_group.dart';
 export 'src/catalog/core_widgets/column.dart';
 export 'src/catalog/core_widgets/elevated_button.dart';
@@ -21,6 +22,7 @@ export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_box.dart';
 export 'src/model/chat_message.dart';
+export 'src/model/tools.dart';
 export 'src/model/ui_event_manager.dart';
 export 'src/model/ui_models.dart';
 export 'src/primitives/logging.dart';

@@ -3,92 +3,53 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-
 import 'package:flutter_genui/flutter_genui.dart';
 
-typedef UserPromptBuilder =
-    Widget Function(BuildContext context, UserMessage message);
+import '../turn.dart';
+import 'ai_response.dart';
+import 'ui_response.dart';
+import 'user_prompt.dart';
 
+/// A widget that displays a conversation between a user and an AI.
 class Conversation extends StatelessWidget {
+  /// Creates a new [Conversation] widget.
   const Conversation({
-    super.key,
     required this.messages,
     required this.manager,
     required this.onEvent,
-    this.userPromptBuilder,
-    this.showInternalMessages = false,
     this.scrollController,
+    super.key,
   });
 
-  final List<ChatMessage> messages;
-  final UiEventCallback onEvent;
+  /// The list of messages in the conversation.
+  final List<Turn> messages;
+
+  /// The [GenUiManager] that manages the UI surfaces.
   final GenUiManager manager;
-  final UserPromptBuilder? userPromptBuilder;
-  final bool showInternalMessages;
+
+  /// A callback that is called when a UI event occurs.
+  final void Function(UiEvent) onEvent;
+
+  /// The scroll controller for the conversation view.
   final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
-    final renderedMessages = messages.where((message) {
-      if (showInternalMessages) {
-        return true;
-      }
-      return message is! InternalMessage &&
-          message is! ToolResponseMessage &&
-          message is! UserUiInteractionMessage;
-    }).toList();
     return ListView.builder(
       controller: scrollController,
-      itemCount: renderedMessages.length,
+      itemCount: messages.length,
       itemBuilder: (context, index) {
-        final message = renderedMessages[index];
-        switch (message) {
-          case UserMessage():
-            return userPromptBuilder != null
-                ? userPromptBuilder!(context, message)
-                : ChatMessageWidget(
-                    text: message.parts
-                        .whereType<TextPart>()
-                        .map((part) => part.text)
-                        .join('\n'),
-                    icon: Icons.person,
-                    alignment: MainAxisAlignment.end,
-                  );
-          case AiTextMessage():
-            final text = message.parts
-                .whereType<TextPart>()
-                .map((part) => part.text)
-                .join('\n');
-            if (text.trim().isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return ChatMessageWidget(
-              text: text,
-              icon: Icons.smart_toy_outlined,
-              alignment: MainAxisAlignment.start,
-            );
-          case AiUiMessage():
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GenUiSurface(
-                key: message.uiKey,
-                host: manager,
-                surfaceId: message.surfaceId,
-                onEvent: onEvent,
-              ),
-            );
-          case InternalMessage():
-            return InternalMessageWidget(content: message.text);
-          case UserUiInteractionMessage():
-            return InternalMessageWidget(
-              content: message.parts
-                  .whereType<TextPart>()
-                  .map((part) => part.text)
-                  .join('\n'),
-            );
-          case ToolResponseMessage():
-            return InternalMessageWidget(content: message.results.toString());
-        }
+        final message = messages[index];
+        return switch (message) {
+          UserTurn() => UserPrompt(message: message.text),
+          UserUiInteractionTurn() => UserPrompt(message: message.text),
+          GenUiTurn() => UiResponse(
+              surfaceId: message.surfaceId,
+              manager: manager,
+              onEvent: onEvent,
+            ),
+          AiTextTurn() => AiResponse(message: message.text),
+        };
       },
     );
   }

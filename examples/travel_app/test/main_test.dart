@@ -15,7 +15,7 @@ void main() {
     final mockAiClient = FakeAiClient();
     // The main app expects a JSON response from generateContent.
     mockAiClient.response = {'result': true};
-    await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
+    await tester.pumpWidget(const app.TravelApp());
 
     await tester.enterText(find.byType(TextField), 'test prompt');
     await tester.tap(find.byIcon(Icons.send));
@@ -37,7 +37,7 @@ void main() {
     final mockAiClient = FakeAiClient();
     final completer = Completer<dynamic>();
     mockAiClient.generateContentFuture = completer.future;
-    await tester.pumpWidget(app.TravelApp(aiClient: mockAiClient));
+    await tester.pumpWidget(const app.TravelApp());
 
     await tester.enterText(find.byType(TextField), 'test prompt');
     await tester.tap(find.byIcon(Icons.send));

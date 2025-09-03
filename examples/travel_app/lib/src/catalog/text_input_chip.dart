@@ -8,8 +8,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
   description:
-      'An input chip used to ask the user to enter free text, e.g. to '
-      'select a destination. This should only be used inside an InputGroup.',
+      'An input chip where the user enters free text, e.g. to '
+      'select a destination. This must only be used inside an InputGroup.',
   properties: {
     'label': S.string(description: 'The label for the text input chip.'),
     'initialValue': S.string(
