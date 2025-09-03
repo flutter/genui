@@ -7,7 +7,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/information_card.dart';
 import 'catalog/input_group.dart';
-import 'catalog/itinerary_item.dart';
+import 'catalog/itinerary_day.dart';
+import 'catalog/itinerary_entry.dart';
 import 'catalog/itinerary_with_details.dart';
 import 'catalog/options_filter_chip_input.dart';
 import 'catalog/padded_body_text.dart';
@@ -22,7 +23,7 @@ import 'catalog/travel_carousel.dart';
 ///
 /// This catalog includes a mix of standard widgets (like [column] and [text])
 /// and custom, domain-specific widgets tailored for a travel planning
-/// experience, such as [travelCarousel], [itineraryItem], and
+/// experience, such as [travelCarousel], [itineraryDay], and
 /// [inputGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
 final travelAppCatalog = Catalog([
@@ -32,7 +33,8 @@ final travelAppCatalog = Catalog([
   checkboxFilterChipsInput,
   travelCarousel,
   itineraryWithDetails,
-  itineraryItem,
+  itineraryDay,
+  itineraryEntry,
   tabbedSections,
   sectionHeader,
   trailhead,

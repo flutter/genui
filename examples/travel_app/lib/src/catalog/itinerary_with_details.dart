@@ -13,9 +13,7 @@ import '../widgets/dismiss_notification.dart';
 
 final _schema = S.object(
   description:
-      'Widget to show an itinerary or a plan for travel. Use this only for '
-      'refined plans where you have already shown the user filter options '
-      'etc.',
+      'Widget to show an itinerary or a plan for travel. This should contain a list of ItineraryDay widgets.',
   properties: {
     'title': S.string(description: 'The title of the itinerary.'),
     'subheading': S.string(description: 'The subheading of the itinerary.'),
@@ -27,7 +25,7 @@ final _schema = S.object(
     ),
     'child': S.string(
       description:
-          '''The ID of a child widget to display in a modal. This should typically be a Column which contains a sequence of ItineraryItems, Text, TravelCarousel etc. Most of the content should be the trip details shown in ItineraryItems, but try to break it up with other elements showing related content. If there are multiple sections to the itinerary, you can use the TabbedSections to break them up.''',
+          '''The ID of a child widget to display in a modal. This should typically be a Column which contains a sequence of ItineraryDays.''',
     ),
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],
