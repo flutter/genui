@@ -184,7 +184,7 @@ class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
                           UiChangeEvent(
                             widgetId: widget.widgetId,
                             eventType: 'filterOptionsSelected',
-                            value: _selectedOptions,
+                            value: tempSelectedOptions,
                           ),
                         );
                       },

@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/checkbox_filter_chips_input.dart';
 
 void main() {
-  testWidgets('CheckboxFilterChipsInput golden test', (
+  testWidgets('CheckboxFilterChipsInput widget test', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
