@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
+import '../utils.dart';
+
 final _schema = S.object(
   properties: {
     'title': S.string(description: 'The title of the itinerary item.'),
@@ -21,8 +23,8 @@ final _schema = S.object(
           'matching ID.',
     ),
     'detailText': S.string(
-        description:
-            'The detail text for the item. This supports markdown.'),
+      description: 'The detail text for the item. This supports markdown.',
+    ),
   },
   required: ['title', 'subtitle', 'detailText', 'imageChildId'],
 );
@@ -125,8 +127,7 @@ class _ItineraryItem extends StatelessWidget {
                   const SizedBox(height: 8.0),
                   MarkdownBody(
                     data: detailText,
-                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                        .copyWith(p: theme.textTheme.bodyMedium),
+                    styleSheet: markdownStyleSheet(context),
                   ),
                 ],
               ),

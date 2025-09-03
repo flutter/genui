@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
+import '../utils.dart';
+
 final _schema = S.object(
   properties: {
     'imageChildId': S.string(
@@ -58,12 +60,10 @@ final informationCard = CatalogItem(
         final cardData = _InformationCardData.fromMap(
           data as Map<String, Object?>,
         );
-        final imageChild = cardData.imageChildId != null
-            ? buildChild(cardData.imageChildId!)
-            : null;
-        final markdownStyle = MarkdownStyleSheet.fromTheme(Theme.of(context))
-            // ignore: lines_longer_than_80_chars
-            .copyWith(p: Theme.of(context).textTheme.bodyMedium);
+        Widget? imageChild;
+        if (cardData.imageChildId != null) {
+          imageChild = buildChild(cardData.imageChildId!);
+        }
         return Container(
           constraints: const BoxConstraints(maxWidth: 400),
           child: Card(
@@ -94,7 +94,7 @@ final informationCard = CatalogItem(
                       const SizedBox(height: 8.0),
                       MarkdownBody(
                         data: cardData.body,
-                        styleSheet: markdownStyle,
+                        styleSheet: markdownStyleSheet(context),
                       ),
                     ],
                   ),

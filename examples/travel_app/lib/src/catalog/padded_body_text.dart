@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
+import '../utils.dart';
+
 extension type _PaddedBodyTextData.fromMap(Map<String, Object?> _json) {
   factory _PaddedBodyTextData({required String text}) =>
       _PaddedBodyTextData.fromMap({'text': text});
@@ -24,24 +26,24 @@ final paddedBodyText = CatalogItem(
     },
     required: ['text'],
   ),
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final textData = _PaddedBodyTextData.fromMap(
-      data as Map<String, Object?>,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: MarkdownBody(
-        data: textData.text,
-        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-            .copyWith(p: Theme.of(context).textTheme.bodyMedium),
-      ),
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final textData = _PaddedBodyTextData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: MarkdownBody(
+            data: textData.text,
+            styleSheet: markdownStyleSheet(context),
+          ),
+        );
+      },
 );

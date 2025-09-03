@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:travel_app/src/catalog/itinerary_item.dart';
@@ -15,7 +16,7 @@ void main() {
       await mockNetworkImagesFor(() async {
         const testTitle = 'Test Title';
         const testSubtitle = 'Test Subtitle';
-        const testDetailText = 'Test Detail Text';
+        const testDetailText = 'Test **Detail** Text';
 
         await tester.pumpWidget(
           MaterialApp(
@@ -50,7 +51,13 @@ void main() {
 
         expect(find.text(testTitle), findsOneWidget);
         expect(find.text(testSubtitle), findsOneWidget);
-        expect(find.text(testDetailText), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(MarkdownBody),
+            matching: find.byType(RichText),
+          ),
+          findsOneWidget,
+        );
         expect(find.byType(Image), findsOneWidget);
       });
     });
