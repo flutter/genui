@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:firebase_ai/firebase_ai.dart' as fai;
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/ai_client/gemini_schema_adapter.dart';
 
 class GeminiClient {
   GeminiClient({required this.tools, required String systemInstruction}) {
@@ -19,6 +21,7 @@ class GeminiClient {
           developer.log(
             'Errors adapting parameters for tool ${tool.name}: '
             '${result.errors.join('\n')}',
+            name: 'GeminiClient',
           );
         }
         adaptedParameters = result.schema;
@@ -32,6 +35,11 @@ class GeminiClient {
         ),
       );
     }
+
+    developer.log(
+      'Registered tools: ${functionDeclarations.map((d) => d.name).join(', ')}',
+      name: 'GeminiClient',
+    );
 
     _model = fai.FirebaseAI.googleAI().generativeModel(
       model: 'gemini-2.5-flash',
@@ -53,9 +61,33 @@ class GeminiClient {
     while (toolUsageCycle < maxToolUsageCycles) {
       toolUsageCycle++;
 
-      final response = await _model.generateContent(history);
+      final concatenatedContents = mutableHistory
+          .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
+          .join('\n');
+
+      developer.log(
+        '****** Performing Inference ******\n$concatenatedContents\n'
+        'With functions:\n'
+        '  ${tools.map((t) => t.name).join(', ')}',
+        name: 'GeminiClient',
+      );
+
+      final inferenceStartTime = DateTime.now();
+      final response = await _model.generateContent(mutableHistory);
+      final elapsed = DateTime.now().difference(inferenceStartTime);
+
       final candidate = response.candidates.first;
       final content = candidate.content;
+
+      developer.log(
+        '****** Completed Inference ******\n'
+        'Latency = ${elapsed.inMilliseconds}ms\n'
+        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
+        'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}\n'
+        '${const JsonEncoder.withIndent('  ').convert(content.toJson())}',
+        name: 'GeminiClient',
+      );
+
       mutableHistory.add(content);
 
       final functionCalls = content.parts

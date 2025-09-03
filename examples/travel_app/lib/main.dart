@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart' hide ChatMessage, TextPart;
 import 'package:logging/logging.dart';
@@ -414,10 +414,10 @@ because it avoids confusing the conversation with many versions of the same
 itinerary etc.
 
 When processing a user message or event, you should add or update one surface
-and then call provideFinalOutput to return control to the user. Never continue
-to add or update surfaces until you receive another user event. If the last
-entry in the context is a functionResponse, just call provideFinalOutput
-immediately - don't try to update the UI. 
+and then output an explanatory message to return control to the user. Never
+continue to add or update surfaces until you receive another user event.
+If the last entry in the context is a functionResponse from addOrUpdateSurface,
+*do not* call addOrUpdateSurface again - just return.
 
 # UI style
 
