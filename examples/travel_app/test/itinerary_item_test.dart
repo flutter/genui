@@ -51,13 +51,8 @@ void main() {
 
         expect(find.text(testTitle), findsOneWidget);
         expect(find.text(testSubtitle), findsOneWidget);
-        expect(
-          find.descendant(
-            of: find.byType(MarkdownBody),
-            matching: find.byType(RichText),
-          ),
-          findsOneWidget,
-        );
+        expect(find.byType(MarkdownBody), findsOneWidget);
+        expect(find.text('Test Detail Text'), findsOneWidget);
         expect(find.byType(Image), findsOneWidget);
       });
     });
@@ -94,13 +89,8 @@ void main() {
 
         expect(find.text(testTitle), findsOneWidget);
         expect(find.text(testSubtitle), findsOneWidget);
-        expect(
-          find.descendant(
-            of: find.byType(MarkdownBody),
-            matching: find.byType(RichText),
-          ),
-          findsOneWidget,
-        );
+        expect(find.byType(MarkdownBody), findsOneWidget);
+        expect(find.text(testDetailText), findsOneWidget);
         expect(find.byType(Image), findsNothing);
       });
     });
