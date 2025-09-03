@@ -4,6 +4,7 @@
 
 import 'package:flutter_genui/flutter_genui.dart';
 
+import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/information_card.dart';
 import 'catalog/input_group.dart';
 import 'catalog/itinerary_item.dart';
@@ -28,6 +29,7 @@ final travelAppCatalog = Catalog([
   column,
   inputGroup,
   optionsFilterChipInput,
+  checkboxFilterChipsInput,
   travelCarousel,
   itineraryWithDetails,
   itineraryItem,
