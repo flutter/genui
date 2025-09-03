@@ -16,6 +16,8 @@ import 'src/gemini_client.dart';
 import 'src/turn.dart';
 import 'src/widgets/conversation.dart';
 
+final _logger = Logger('TravelApp');
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -26,7 +28,20 @@ void main() async {
   );
   _imagesJson = await assetImageCatalogJson();
   configureGenUiLogging(level: Level.ALL);
+  _configureLogging();
   runApp(const TravelApp());
+}
+
+void _configureLogging() {
+  hierarchicalLoggingEnabled = true;
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    // ignore: avoid_print
+    print(
+      '[${record.level.name}] ${record.time}: '
+      '${record.loggerName}: ${record.message}',
+    );
+  });
 }
 
 /// The root widget for the travel application.
@@ -353,6 +368,7 @@ to the user.
 3.  Create an initial itinerary, which will be iterated over in subsequent
     steps. This involves planning out each day of the trip, including the
     specific locations and draft activities. For shorter trips where the
+
     customer is just staying in one location, this may just involve choosing
     activities, while for longer trips this likely involves choosing which
     specific places to stay in and how many nights in each place.

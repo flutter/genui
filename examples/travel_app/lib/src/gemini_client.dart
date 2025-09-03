@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:developer' as developer;
 
 import 'package:firebase_ai/firebase_ai.dart' as fai;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/ai_client/gemini_schema_adapter.dart';
+import 'package:logging/logging.dart';
 
 class GeminiClient {
   GeminiClient({required this.tools, required String systemInstruction}) {
@@ -18,10 +18,9 @@ class GeminiClient {
       if (tool.parameters != null) {
         final result = adapter.adapt(tool.parameters!);
         if (result.errors.isNotEmpty) {
-          developer.log(
+          _logger.warning(
             'Errors adapting parameters for tool ${tool.name}: '
             '${result.errors.join('\n')}',
-            name: 'GeminiClient',
           );
         }
         adaptedParameters = result.schema;
@@ -36,13 +35,12 @@ class GeminiClient {
       );
     }
 
-    developer.log(
+    _logger.info(
       'Registered tools: ${functionDeclarations.map((d) => d.name).join(', ')}',
-      name: 'GeminiClient',
     );
 
     _model = fai.FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-2.5-flash',
+      model: 'gemini-pro',
       systemInstruction: fai.Content.system(systemInstruction),
       tools: [fai.Tool.functionDeclarations(functionDeclarations)],
     );
@@ -50,6 +48,7 @@ class GeminiClient {
 
   late final fai.GenerativeModel _model;
   final List<AiTool> tools;
+  final _logger = Logger('GeminiClient');
 
   Future<fai.GenerateContentResponse> generate(
     Iterable<fai.Content> history,
@@ -65,11 +64,10 @@ class GeminiClient {
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
           .join('\n');
 
-      developer.log(
+      _logger.info(
         '****** Performing Inference ******\n$concatenatedContents\n'
         'With functions:\n'
         '  ${tools.map((t) => t.name).join(', ')}',
-        name: 'GeminiClient',
       );
 
       final inferenceStartTime = DateTime.now();
@@ -78,17 +76,15 @@ class GeminiClient {
 
       final candidate = response.candidates.first;
       final content = candidate.content;
+      mutableHistory.add(content);
 
-      developer.log(
+      _logger.info(
         '****** Completed Inference ******\n'
         'Latency = ${elapsed.inMilliseconds}ms\n'
         'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
         'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}\n'
         '${const JsonEncoder.withIndent('  ').convert(content.toJson())}',
-        name: 'GeminiClient',
       );
-
-      mutableHistory.add(content);
 
       final functionCalls = content.parts
           .whereType<fai.FunctionCall>()
