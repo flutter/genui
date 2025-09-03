@@ -254,7 +254,6 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
                   child: Conversation(
                     messages: _conversation,
                     manager: _genUiManager,
-                    onEvent: _handleUiEvent,
                     scrollController: _scrollController,
                   ),
                 ),

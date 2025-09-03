@@ -66,9 +66,13 @@ class UiAgent {
           systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
           tools: _genUiManager.getTools(),
         );
-    _aiClient.activeRequests.addListener(_onActivityUpdates);
-    _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
-    _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
+    _aiClient.activeRequests.addListener(_handleActivityUpdates);
+    _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(
+      _handleAiMessage,
+    );
+    _userMessageSubscription = _genUiManager.onSubmit.listen(
+      _handleUserMessage,
+    );
   }
 
   final GenUiManager _genUiManager;

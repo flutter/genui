@@ -106,9 +106,7 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
 /// options.
 ///
 /// It is typically used within a [inputGroup] to manage multiple facets of
-/// a user's query. When an option is selected, it dispatches a [UiChangeEvent],
-/// which informs the AI of the user's choice, allowing it to refine its
-/// subsequent responses.
+/// a user's query.
 final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
@@ -142,6 +140,7 @@ final optionsFilterChipInput = CatalogItem(
           widgetId: id,
           dispatchEvent: dispatchEvent,
           icon: icon,
+          values: values,
         );
       },
 );
