@@ -1,4 +1,4 @@
-# Contributing to Flutter GenUI
+# Contributing to GenUI for Flutter
 
 ## Guidelines
 
@@ -31,7 +31,7 @@ we should do about each of them. Triage issues as follows:
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
 
-[untriaged_list]: https://github.com/flutter/genui/issues?q=is%3Aissue+state%3Aopen+-label%3Atriaged
+[untriaged_list]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3
 [P0]: https://github.com/flutter/genui/labels?q=P0
 [P1]: https://github.com/flutter/genui/labels?q=P1
 [P2]: https://github.com/flutter/genui/labels?q=P2

@@ -55,16 +55,11 @@ final image = CatalogItem(
         final url = imageData.url;
         final assetName = imageData.assetName;
 
-        if (url != null && assetName != null) {
+        if ((url == null) == (assetName == null)) {
           throw Exception(
-            'Image widget must have either a url or an assetName, but not '
-            'both.',
-          );
-        }
-
-        if (url == null && assetName == null) {
-          throw Exception(
-            'Image widget must have either a url or an assetName.',
+            'Image widget must have either a url or an assetName, '
+            'but not both. '
+            'Details: $imageData',
           );
         }
 

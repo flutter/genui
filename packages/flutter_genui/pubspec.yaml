@@ -19,7 +19,7 @@ dependencies:
   dart_schema_builder:
     path: ../dart_schema_builder
   file: ^7.0.1
-  firebase_ai: ^3.0.0
+  firebase_ai: ^3.2.0
   firebase_app_check: ^0.4.0
   firebase_auth: ^6.0.0
   firebase_core: ^4.0.0

@@ -102,35 +102,11 @@ class FakeAiClient implements AiClient {
   }
 
   @override
-  ValueListenable<AiModel> get model => _model;
-  final ValueNotifier<AiModel> _model = ValueNotifier<AiModel>(
-    FakeAiModel('mock1'),
-  );
-
-  @override
-  List<AiModel> get models => [FakeAiModel('mock1'), FakeAiModel('mock2')];
-
-  @override
-  void switchModel(AiModel model) {
-    _model.value = model;
-  }
-
-  @override
   ValueListenable<int> get activeRequests => _activeRequests;
   final ValueNotifier<int> _activeRequests = ValueNotifier<int>(0);
 
   @override
   void dispose() {
-    _model.dispose();
     _activeRequests.dispose();
   }
-}
-
-/// A fake implementation of [AiModel] for testing purposes.
-class FakeAiModel extends AiModel {
-  /// Creates a new [FakeAiModel].
-  FakeAiModel(this.displayName);
-
-  @override
-  final String displayName;
 }

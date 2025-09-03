@@ -5,10 +5,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/catalog/filter_chip_group.dart';
+import 'package:travel_app/src/catalog/input_group.dart';
 
 void main() {
-  group('filterChipGroup', () {
+  group('inputGroup', () {
     testWidgets(
       'renders children and dispatches submit event on button press',
       (WidgetTester tester) async {
@@ -25,7 +25,7 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return filterChipGroup.widgetBuilder(
+                  return inputGroup.widgetBuilder(
                     data: data,
                     id: 'testId',
                     buildChild: buildChild,
@@ -65,7 +65,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return filterChipGroup.widgetBuilder(
+                return inputGroup.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),

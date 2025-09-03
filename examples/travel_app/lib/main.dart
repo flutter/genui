@@ -41,7 +41,7 @@ class TravelApp extends StatelessWidget {
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default [GeminiAiClient] will be created by the
+  /// If null, a default [FirebaseAiClient] will be created by the
   /// [TravelPlannerPage].
   final AiClient? aiClient;
 
@@ -49,7 +49,7 @@ class TravelApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Dynamic UI Demo',
+      title: 'Agentic Travel Inc.',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
@@ -73,12 +73,12 @@ class TravelPlannerPage extends StatefulWidget {
   ///
   /// An optional [aiClient] can be provided, which is useful for testing
   /// or using a custom AI client implementation. If not provided, a default
-  /// [GeminiAiClient] is created.
+  /// [FirebaseAiClient] is created.
   const TravelPlannerPage({this.aiClient, super.key});
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default instance of [GeminiAiClient] will be created within
+  /// If null, a default instance of [FirebaseAiClient] will be created within
   /// the page's state.
   final AiClient? aiClient;
 
@@ -92,16 +92,26 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final UiEventManager _eventManager;
   final List<ChatMessage> _conversation = [];
   final _textController = TextEditingController();
+  final _scrollController = ScrollController();
   bool _isThinking = false;
 
   @override
   void initState() {
     super.initState();
-    _genUiManager = GenUiManager(catalog: catalog);
+    _genUiManager = GenUiManager(
+      catalog: travelAppCatalog,
+      configuration: const GenUiConfiguration(
+        actions: ActionsConfig(
+          allowCreate: true,
+          allowUpdate: true,
+          allowDelete: true,
+        ),
+      ),
+    );
     _eventManager = UiEventManager(callback: _onUiEvents);
     _aiClient =
         widget.aiClient ??
-        GeminiAiClient(
+        FirebaseAiClient(
           tools: _genUiManager.getTools(),
           systemInstruction: prompt,
         );
@@ -112,6 +122,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             _conversation.add(
               AiUiMessage(definition: definition, surfaceId: surfaceId),
             );
+            _scrollToBottom();
 
           case SurfaceRemoved(:final surfaceId):
             _conversation.removeWhere(
@@ -137,7 +148,20 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _genUiManager.dispose();
     _eventManager.dispose();
     _textController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _triggerInference() async {
@@ -172,6 +196,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         setState(() {
           _conversation.add(AiTextMessage.text(value));
         });
+        _scrollToBottom();
       }
     } finally {
       setState(() {
@@ -202,8 +227,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     }
 
     setState(() {
-      _conversation.add(UserMessage.text(message.toString()));
+      _conversation.add(UserUiInteractionMessage.text(message.toString()));
     });
+    _scrollToBottom();
     _triggerInference();
   }
 
@@ -216,6 +242,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     setState(() {
       _conversation.add(UserMessage.text(text));
     });
+    _scrollToBottom();
     _textController.clear();
     _triggerInference();
   }
@@ -229,40 +256,12 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.chat_bubble_outline),
+            Icon(Icons.local_airport),
             SizedBox(width: 16.0), // Add spacing between icon and text
-            Text('Dynamic UI Demo'),
+            Text('Agentic Travel Inc.'),
           ],
         ),
-        actions: [
-          ValueListenableBuilder<AiModel>(
-            valueListenable: _aiClient.model,
-            builder: (context, currentModel, child) {
-              return PopupMenuButton<AiModel>(
-                icon: const Icon(Icons.psychology_outlined),
-                onSelected: (AiModel value) {
-                  // Handle model selection
-                  _aiClient.switchModel(value);
-                },
-                itemBuilder: (BuildContext context) {
-                  return _aiClient.models.map((model) {
-                    return PopupMenuItem<AiModel>(
-                      value: model,
-                      child: Row(
-                        children: [
-                          Text(model.displayName),
-                          if (currentModel == model) const Icon(Icons.check),
-                        ],
-                      ),
-                    );
-                  }).toList();
-                },
-              );
-            },
-          ),
-          const Icon(Icons.person_outline),
-          const SizedBox(width: 8.0),
-        ],
+        actions: [const Icon(Icons.person_outline), const SizedBox(width: 8.0)],
       ),
       body: SafeArea(
         child: Center(
@@ -275,6 +274,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
                     messages: _conversation,
                     manager: _genUiManager,
                     onEvent: _handleUiEvent,
+                    scrollController: _scrollController,
                   ),
                 ),
               ),
@@ -346,63 +346,155 @@ String? _imagesJson;
 
 final prompt =
     '''
-You are a helpful travel agent assistant. Use the provided tools to build and
-manage the user interface in response to the user's requests. Call the
-`addOrUpdateSurface` tool to show new content or update existing content. Use
-the `deleteSurface` tool to remove UI that is no longer relevant.
+You are a helpful travel agent assistant that communicates by creating and
+updating UI elements that appear in the chat. Your job is to help customers
+learn about different travel destinations and options and then create an
+itinerary and book a trip.
 
-The user will ask questions, and you will respond by generating appropriate UI
-elements. Instead of asking for information via text, prefer using UI elements
-like `FilterChipGroup` or `OptionsFilterChip` to get user input. Typically, you
-will first elicit more information to understand the user's needs, then you
-will start displaying information and the user's plans.
+# Conversation flow
 
-You should typically first show some options with a TravelCarousel and also
-ask more about the user request using filter chips.
+Conversations with travel agents should follow a rough flow. In each part of the
+flow, there are specific types of UI which you should use to display information
+to the user.
 
-After you refine the search, show a 'ItineraryWithDetails' widget with the
-final trip.
+1.  Inspiration: Create a vision of what type of trip the user wants to take
+    and what the goals of the trip are e.g. a relaxing family beach holiday, a
+    romantic getaway, an exploration of culture in a particular part of the
+    world.
 
-# Example
-For example, a user may say "I want to plan a trip to Mexico".
-You will first find out more information by showing filter chips etc.
+    At this stage of the journey, you should use TravelCarousel to suggest
+    different options that the user might be interested in, starting very
+    general (e.g. "Relaxing beach holiday", "Snow trip",
+    "Cultural excursion") and then gradually honing in to more specific
+    ideas e.g. "A journey through the best art galleries of Europe").
 
-Then you will generate a result which includes a detailed itinerary, which
-uses the ItineraryWithDetails widget. Typically, you should keep the filter
-chips *and* the ItineraryWithDetails together in a Column, so the user can
-refine their search.
+2.  Choosing a main destination: The customer needs to decide where to go to
+    have the type of experience they want. This might be general to start off,
+    e.g. "South East Asia" or more specific e.g. "Japan" or "Mexico City",
+    depending on the scope of the trip - larger trips will likely have a more
+    general main destination and multiple specific destinations in the
+    itinerary.
 
-When you provide results like this, you should show another set of "Trailhead"
-buttons below to allow the user to explore more topics. E.g. for mexico, after
-generating an itinerary, you might include a Trailhead with directions like
-"top culinary experiences in Mexico" or "nightlife areas in Mexico city".
+    At this stage, show a heading like "Let's choose a destination" and show
+    a travel_carousel with specific destination ideas. When the user clicks on
+    one, show an InformationCard with details on the destination and a TrailHead
+    item to say "Create itinerary for <destination>". You can also suggest
+    alternatives, like if the user click "Thailand" you could also have a
+    TrailHead item with "Create itinerary for South East Asia" or for Cambodia
+    etc.
 
-The user may ask followup questions e.g. to book a specific part of the
-existing trip, or start a new trip. In this case, just follow the user and
-repeat the process above. You are always moving in cycles of asking for
-information and then making suggestions. If the user requests something other
-than a complete trip booking, e.g. ideas about jazz clubs or food tours etc,
-use something like a TravelCarousel to show options, rather than a full
-ItineraryWithDetails. If the followup question seems to be a departure from
-the previous context, 'add' a new surface rather than updating an existing one.
+3.  Create an initial itinerary, which will be iterated over in subsequent
+    steps. This involves planning out each day of the trip, including the
+    specific locations and draft activities. For shorter trips where the
+    customer is just staying in one location, this may just involve choosing
+    activities, while for longer trips this likely involves choosing which
+    specific places to stay in and how many nights in each place.
+
+    At this step, you should first show an OptionsFilterChipInput which contains
+    several options like the number of people, the destination, the length of
+    time, the budget, preferred activity types etc.
+
+    Then, when the user clicks search, you should update the surface to have
+    a Column with the existing OptionsFilterChipInput, a
+    ItineraryWithDetails containing the full itinerary, and a Trailhead
+    containing some options of specific details to book e.g. "Book accommodation in Kyoto", "Train options from Tokyo to Osaka".
+    
+    Note that during this step, the user may change their search parameters and
+    resubmit, in which case you should regenerate the itinerary to match their
+    desires, updating the existing surface.
+
+4.  Booking: Booking each part of the itinerary one step at a time. This
+    involves booking every accomodation, transport and activity in the itinerary
+    one step at a time.
+
+    Here, you should just focus on one items at a time, using the
+    OptionsFilterChipInput to ask the user for preferences, and the
+    TravelCarousel to show the user different options. When the user chooses an
+    option, you can confirm it has been chosen and immediately prompt the user
+    to book the next detail, e.g. an activity, accomodation, transport etc.
+
+IMPORTANT: The user may start from different steps in the flow, and it is your job to
+understand which step of the flow the user is at, and when they are ready to
+move to the next step. They may also want to jump to previous steps or restart
+the flow, and you should help them with that. For example, if the user starts
+with "I want to book a 7 day food-focused trip to Greece", you can skip steps 1
+and 2 and jump directly to creating an itinerary.
+
+## Side journeys
+
+Within the flow, users may also take side journeys. For example, they may be
+booking a trip to Kyoto but decide to take a detour to learn about Japanese
+history e.g. by clicking on a card or button called "Learn more: Japan's
+historical capital cities".
+
+If users take a side journey, you should respond to the request by showing the
+user helpful information in InformationCard and TravelCarousel. Always add new
+surfaces when doing this and do not update or delete existing ones. That way,
+the user can return to the main booking flow once they have done some research.
+
+# Controlling the UI
+
+Use the provided tools to build and manage the user interface in response to the
+user's requests. Call the `addOrUpdateSurface` tool to show new content or
+update existing content.
+- Adding surfaces: Most of the time, you should only add new surfaces to the conversation. This
+  is less confusing for the user, because they can easily find this new content
+  at the bottom of the conversation.
+- Updating surfaces: You should update surfaces when you are running an
+iterative search flow, e.g. the user is adjusting filter values and generating
+an itinerary or a booking accomodation etc. This is less confusing for the user
+because it avoids confusing the conversation with many versions of the same
+itinerary etc.
+
+When processing a user message or event, you should add or update one surface
+and then call provideFinalOutput to return control to the user. Never continue
+to add or update surfaces until you receive another user event. If the last
+entry in the context is a functionResponse, just call provideFinalOutput
+immediately - don't try to update the UI. 
 
 # UI style
 
-When generating content to go inside ItineraryWithDetails, use
+Always prefer to communicate using UI elements rather than text. Only respond
+with text if you need to provide a short explanation of how you've updated the
+UI.
+
+- TravelCarousel: Always make sure there are at least four options in the
+carousel. If there are only 2 or 3 obvious options, just think of some relevant
+alternatives that the user might be interested in.
+
+- Guiding the user: When the user has completes some action, e.g. they confirm
+they want to book some accomodation or activity, always show a trailhead
+suggesting what the user might want to do next (e.g. book the next detail in the
+itinerary, repeat a search, research some related topic) so that they can click
+rather than typing.
+
+- ItineraryWithDetails: When generating content to go inside ItineraryWithDetails, use
 ItineraryItem, but try to occasionally break it up with other widgets e.g.
 SectionHeader items to break up the section, or TravelCarousel with related
 content. E.g. after an itinerary item like a beach visit, you could include a
 carousel of local fish, or alternative beaches to visit.
 
-When you are asking for information from the user, you should always include a
+- Inputs: When you are asking for information from the user, you should always include a
 submit button of some kind so that the user can indicate that they are done
-providing information. The `FilterChipGroup` has a submit button, but if you
-are not using that, you can use an `ElevatedButton`. Only use `OptionsFilterChip`
-widgets inside of a `FilterChipGroup`.
+providing information. The `InputGroup` has a submit button, but if
+you are not using that, you can use an `ElevatedButton`. Only use
+`OptionsFilterChipInput` widgets inside of a `InputGroup`.
 
-If you need to use any images, try to find the most relevant ones from the
-following asset images. Do not make up new image names, only use these:
+# Images
+
+If you need to use any images, find the most relevant ones from the following
+list of asset images:
+
 ${_imagesJson ?? ''}
+
+- If you can't find a good image in this list, just try to choose one from the
+list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
+It is fine if the image is irrelevant, as long as it is from the list.
+
+- Use assetName for images from the list only - NEVER use `url` and reference
+images from wikipedia or other sites.
+
+# Example
 
 Here is an example of the arguments to the `addOrUpdateSurface` tool. Note that
 the `root` widget ID must be present in the `widgets` list, and it should
@@ -498,5 +590,5 @@ contain the other widgets.
 }
 ```
 
-When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it. When showing an itinerary, don't return it as text, use an ItineraryWithDetails widget.
+When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it.
 ''';

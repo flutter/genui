@@ -3,12 +3,19 @@
 // found in the LICENSE file.
 
 export 'src/ai_client/ai_client.dart';
-export 'src/ai_client/gemini_ai_client.dart';
+export 'src/ai_client/firebase_ai_client.dart';
+export 'src/catalog/core_widgets/checkbox_group.dart';
+export 'src/catalog/core_widgets/column.dart';
+export 'src/catalog/core_widgets/elevated_button.dart';
+export 'src/catalog/core_widgets/image.dart';
+export 'src/catalog/core_widgets/radio_group.dart';
+export 'src/catalog/core_widgets/text.dart';
+export 'src/catalog/core_widgets/text_field.dart';
 export 'src/core/core_catalog.dart';
+export 'src/core/genui_configuration.dart';
 export 'src/core/genui_manager.dart';
+export 'src/core/genui_surface.dart';
 export 'src/core/widgets/chat_primitives.dart';
-export 'src/facade/genui_surface.dart';
-
 export 'src/facade/ui_agent.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
