@@ -46,7 +46,6 @@ void main() {
   });
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
-    UiEvent? event;
     final manager = GenUiManager(
       catalog: testCatalog,
       configuration: const GenUiConfiguration(),

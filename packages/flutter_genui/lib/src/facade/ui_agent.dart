@@ -19,7 +19,7 @@ const _maxConversationLength = 1000;
 
 const _genuiSystemPromptFragment = '''
 
-# Outputing UI information
+# Outputting UI information
 
 Use the provided tools to respond to the user using rich UI elements.
 
