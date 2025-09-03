@@ -42,8 +42,8 @@ agent-based user experiences.
 
 ```dart
 // Adding your widgets into the catalog.
-final catalog = Catalog([
-  ...coreCatalog.items,
+// Start with the built-in catalog and add your own custom widgets.
+final catalog = CoreCatalogItems.asCatalog().copyWith([
   myCustomNewWidget,
 ]);
 
