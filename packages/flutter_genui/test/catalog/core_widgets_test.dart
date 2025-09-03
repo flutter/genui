@@ -24,12 +24,11 @@ void main() {
       WidgetTester tester,
       Map<String, Object?> definition,
     ) async {
-      manager = GenUiManager(catalog: testCatalog);
-      manager!.addOrUpdateSurface('testSurface', definition);
-      message = null;
-      manager!.onSubmit.listen((userMessage) {
-        message = userMessage;
-      });
+      final manager = GenUiManager(
+        catalog: testCatalog,
+        configuration: const GenUiConfiguration(),
+      );
+      manager.addOrUpdateSurface('testSurface', definition);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

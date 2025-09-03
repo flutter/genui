@@ -8,12 +8,11 @@ import 'package:firebase_ai/firebase_ai.dart'
         Candidate,
         Content,
         FinishReason,
-        FirebaseAIException,
         FunctionCall,
         GenerateContentResponse;
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/src/ai_client/ai_client.dart';
-import 'package:flutter_genui/src/ai_client/gemini_ai_client.dart';
+import 'package:flutter_genui/src/ai_client/firebase_ai_client.dart';
 import 'package:flutter_genui/src/model/chat_message.dart';
 import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_genui/src/primitives/logging.dart';
@@ -25,14 +24,14 @@ import '../test_infra/utils.dart';
 void main() {
   group('AiClient', () {
     late FakeGenerativeModel fakeModel;
-    late GeminiAiClient client;
+    late FirebaseAiClient client;
 
     setUp(() {
       fakeModel = FakeGenerativeModel();
     });
 
-    GeminiAiClient createClient({List<AiTool> tools = const []}) {
-      return GeminiAiClient(
+    FirebaseAiClient createClient({List<AiTool> tools = const []}) {
+      return FirebaseAiClient(
         modelCreator:
             ({required configuration, systemInstruction, tools, toolConfig}) {
               return fakeModel;
@@ -66,7 +65,7 @@ void main() {
       fakeModel.response = GenerateContentResponse([
         Candidate(
           Content.model([
-            FunctionCall('provideFinalOutput', {
+            const FunctionCall('provideFinalOutput', {
               'output': {'key': 'value'},
             }),
           ]),
@@ -102,7 +101,7 @@ void main() {
         // First response: model calls the tool
         GenerateContentResponse([
           Candidate(
-            Content.model([FunctionCall('myTool', {})]),
+            Content.model([const FunctionCall('myTool', {})]),
             [],
             null,
             null,
@@ -113,7 +112,7 @@ void main() {
         GenerateContentResponse([
           Candidate(
             Content.model([
-              FunctionCall('provideFinalOutput', {
+              const FunctionCall('provideFinalOutput', {
                 'output': {'final': 'result'},
               }),
             ]),
@@ -135,31 +134,6 @@ void main() {
       expect(fakeModel.generateContentCallCount, 2);
     });
 
-    test('generateContent retries on failure', () async {
-      client = createClient();
-      fakeModel.exception = FirebaseAIException('transient error');
-      fakeModel.response = GenerateContentResponse([
-        Candidate(
-          Content.model([
-            FunctionCall('provideFinalOutput', {
-              'output': {'key': 'value'},
-            }),
-          ]),
-          [],
-          null,
-          null,
-          null,
-        ),
-      ], null);
-
-      final result = await client.generateContent<Map<String, Object?>>([
-        UserMessage.text('user prompt'),
-      ], S.object(properties: {'key': S.string()}));
-
-      expect(result, isNotNull);
-      expect(fakeModel.generateContentCallCount, 2);
-    });
-
     test('generateContent handles tool exception', () async {
       final tool = DynamicAiTool(
         name: 'badTool',
@@ -172,7 +146,7 @@ void main() {
       fakeModel.responses = [
         GenerateContentResponse([
           Candidate(
-            Content.model([FunctionCall('badTool', {})]),
+            Content.model([const FunctionCall('badTool', {})]),
             [],
             null,
             null,
@@ -182,7 +156,7 @@ void main() {
         GenerateContentResponse([
           Candidate(
             Content.model([
-              FunctionCall('provideFinalOutput', {
+              const FunctionCall('provideFinalOutput', {
                 'output': {'final': 'result'},
               }),
             ]),
@@ -217,7 +191,7 @@ void main() {
       client = createClient();
       fakeModel.response = GenerateContentResponse([
         Candidate(
-          Content.model([FunctionCall('unknownTool', {})]),
+          Content.model([const FunctionCall('unknownTool', {})]),
           [],
           null,
           null,
@@ -237,7 +211,7 @@ void main() {
       client = createClient();
       fakeModel.response = GenerateContentResponse([
         Candidate(
-          Content.model([firebase_ai.TextPart('unexpected text')]),
+          Content.model([const firebase_ai.TextPart('unexpected text')]),
           [],
           null,
           FinishReason.stop,
@@ -264,7 +238,7 @@ void main() {
       // Make the model call the tool repeatedly
       fakeModel.response = GenerateContentResponse([
         Candidate(
-          Content.model([FunctionCall('loopTool', {})]),
+          Content.model([const FunctionCall('loopTool', {})]),
           [],
           null,
           null,
@@ -293,7 +267,7 @@ void main() {
       fakeModel.response = GenerateContentResponse([
         Candidate(
           Content.model([
-            FunctionCall('provideFinalOutput', {
+            const FunctionCall('provideFinalOutput', {
               'output': {'key': 'value'},
             }),
           ]),
@@ -309,6 +283,38 @@ void main() {
       ], S.object(properties: {'key': S.string()}));
 
       expect(logMessages, isNotEmpty);
+    });
+
+    test('activeRequests increments and decrements correctly', () async {
+      client = createClient();
+
+      fakeModel.response = GenerateContentResponse(
+        [],
+        firebase_ai.PromptFeedback(firebase_ai.BlockReason.other, '', []),
+      );
+      final future = client.generateText([]);
+      expect(client.activeRequests.value, 1);
+
+      await future;
+
+      expect(client.activeRequests.value, 0);
+    });
+
+    test('activeRequests decrements on error', () async {
+      client = createClient();
+
+      final exception = Exception('Test Exception');
+      fakeModel.exception = exception;
+
+      expect(client.activeRequests.value, 0);
+
+      final future = client.generateText([]);
+
+      expect(client.activeRequests.value, 1);
+
+      await expectLater(future, throwsA(isA<Exception>()));
+
+      expect(client.activeRequests.value, 0);
     });
   });
 }

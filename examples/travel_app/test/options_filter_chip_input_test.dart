@@ -5,26 +5,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/catalog/options_filter_chip.dart';
+import 'package:travel_app/src/catalog/options_filter_chip_input.dart';
 
 void main() {
-  group('optionsFilterChip', () {
+  group('optionsFilterChipInput', () {
     testWidgets('renders correctly and handles selection with an icon', (
       WidgetTester tester,
     ) async {
       final data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
-        'iconChild': 'iconId',
+        'iconName': 'wallet',
       };
 
       UiEvent? dispatchedEvent;
-      Widget buildChild(String id) {
-        if (id == 'iconId') {
-          return const Icon(Icons.attach_money);
-        }
-        return const SizedBox.shrink();
-      }
 
       final values = <String, Object?>{};
 
@@ -33,10 +27,10 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return optionsFilterChip.widgetBuilder(
+                return optionsFilterChipInput.widgetBuilder(
                   data: data,
                   id: 'testId',
-                  buildChild: buildChild,
+                  buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (event) {
                     dispatchedEvent = event;
                   },
@@ -52,7 +46,7 @@ void main() {
       // Check initial state.
       expect(find.byType(FilterChip), findsOneWidget);
       expect(find.text('Price'), findsOneWidget);
-      expect(find.byIcon(Icons.attach_money), findsOneWidget);
+      expect(find.byIcon(Icons.account_balance_wallet), findsOneWidget);
 
       // Tap the chip to open the modal bottom sheet.
       await tester.tap(find.byType(FilterChip));
@@ -94,7 +88,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return optionsFilterChip.widgetBuilder(
+                return optionsFilterChipInput.widgetBuilder(
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),

@@ -8,30 +8,11 @@ import 'package:flutter/foundation.dart';
 import '../model/chat_message.dart';
 import '../model/tools.dart';
 
-/// An abstract class representing a type of AI model.
-///
-/// This class provides a common interface for different AI models.
-abstract class AiModel {
-  /// The display name of the model used to select the model in the UI.
-  String get displayName;
-}
-
 /// An abstract class for a client that interacts with an AI model.
 ///
 /// This class defines the interface for sending requests to an AI model and
 /// receiving responses.
 abstract interface class AiClient {
-  /// A [ValueListenable] for the currently selected AI model.
-  ///
-  /// This allows the UI to listen for changes to the selected model.
-  ValueListenable<AiModel> get model;
-
-  /// The list of available AI models.
-  List<AiModel> get models;
-
-  /// Switches the AI model to the given [model].
-  void switchModel(AiModel model);
-
   /// Generates content from the given [conversation] and returns an object of
   /// type [T] that conforms to the given [outputSchema].
   ///

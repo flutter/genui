@@ -109,37 +109,53 @@ class _ItineraryWithDetails extends StatelessWidget {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
           ),
+          clipBehavior: Clip.antiAlias,
+          backgroundColor: Colors.transparent,
+
           builder: (BuildContext context) {
             return FractionallySizedBox(
               heightFactor: 0.9,
               child: Scaffold(
-                appBar: AppBar(
-                  leading: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-                body: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        height: 200, // You can adjust this height as needed
-                        child: imageChild,
+                body: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            height: 200, // You can adjust this height as needed
+                            child: imageChild,
+                          ),
+                          const SizedBox(height: 16.0),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Text(
+                              title,
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          child,
+                        ],
                       ),
-                      const SizedBox(height: 16.0),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          title,
-                          style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    Positioned(
+                      top: 16.0,
+                      right: 16.0,
+                      child: Material(
+                        color: Colors.white.withAlpha((255 * 0.8).round()),
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
-                      const SizedBox(height: 16.0),
-                      child,
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter_genui/src/core/genui_configuration.dart';
 import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_genui/src/model/catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +24,7 @@ void main() {
       final tool = AddOrUpdateSurfaceTool(
         onAddOrUpdate: fakeOnAddOrUpdate,
         catalog: const Catalog([]),
+        configuration: const GenUiConfiguration(),
       );
 
       final args = {

@@ -15,6 +15,7 @@ import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'core_catalog.dart';
+import 'genui_configuration.dart';
 import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
@@ -88,7 +89,12 @@ class GenUiManager implements GenUiHost {
   ///
   /// An optional [catalog] can be provided to define the set of widgets
   /// available to the AI. If not provided, the `coreCatalog` is used.
-  GenUiManager({Catalog? catalog}) : catalog = catalog ?? coreCatalog;
+  GenUiManager({
+    Catalog? catalog,
+    this.configuration = const GenUiConfiguration(),
+  }) : catalog = catalog ?? coreCatalog;
+
+  final GenUiConfiguration configuration;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
@@ -122,11 +128,15 @@ class GenUiManager implements GenUiHost {
   /// generate and modify the UI.
   List<AiTool> getTools() {
     return [
-      AddOrUpdateSurfaceTool(
-        onAddOrUpdate: addOrUpdateSurface,
-        catalog: catalog,
-      ),
-      DeleteSurfaceTool(onDelete: deleteSurface),
+      if (configuration.actions.allowCreate ||
+          configuration.actions.allowUpdate)
+        AddOrUpdateSurfaceTool(
+          onAddOrUpdate: addOrUpdateSurface,
+          catalog: catalog,
+          configuration: configuration,
+        ),
+      if (configuration.actions.allowDelete)
+        DeleteSurfaceTool(onDelete: deleteSurface),
     ];
   }
 

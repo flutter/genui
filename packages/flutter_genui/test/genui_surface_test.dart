@@ -12,7 +12,10 @@ void main() {
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(catalog: testCatalog);
+    final manager = GenUiManager(
+      catalog: testCatalog,
+      configuration: const GenUiConfiguration(),
+    );
     final definition = {
       'root': 'root',
       'widgets': [
@@ -43,7 +46,11 @@ void main() {
   });
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
-    final manager = GenUiManager(catalog: testCatalog);
+    UiEvent? event;
+    final manager = GenUiManager(
+      catalog: testCatalog,
+      configuration: const GenUiConfiguration(),
+    );
     final definition = {
       'root': 'root',
       'widgets': [
