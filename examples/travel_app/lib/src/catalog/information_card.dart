@@ -18,7 +18,8 @@ final _schema = S.object(
     'title': S.string(description: 'The title of the card.'),
     'subtitle': S.string(description: 'The subtitle of the card.'),
     'body': S.string(
-        description: 'The body text of the card. This supports markdown.'),
+      description: 'The body text of the card. This supports markdown.',
+    ),
   },
   required: ['title', 'body'],
 );
@@ -29,13 +30,12 @@ extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
     required String title,
     String? subtitle,
     required String body,
-  }) =>
-      _InformationCardData.fromMap({
-        if (imageChildId != null) 'imageChildId': imageChildId,
-        'title': title,
-        if (subtitle != null) 'subtitle': subtitle,
-        'body': body,
-      });
+  }) => _InformationCardData.fromMap({
+    if (imageChildId != null) 'imageChildId': imageChildId,
+    'title': title,
+    if (subtitle != null) 'subtitle': subtitle,
+    'body': body,
+  });
 
   String? get imageChildId => _json['imageChildId'] as String?;
   String get title => _json['title'] as String;
@@ -46,62 +46,62 @@ extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
 final informationCard = CatalogItem(
   name: 'InformationCard',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final cardData = _InformationCardData.fromMap(
-      data as Map<String, Object?>,
-    );
-    final imageChild =
-        cardData.imageChildId != null ? buildChild(cardData.imageChildId!) : null;
-    final markdownStyle = MarkdownStyleSheet.fromTheme(Theme.of(context))
-        // ignore: lines_longer_than_80_chars
-        .copyWith(
-      p: Theme.of(context).textTheme.bodyMedium,
-    );
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 400),
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (imageChild != null)
-              SizedBox(
-                width: double.infinity,
-                height: 200,
-                child: imageChild,
-              ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    cardData.title,
-                    style: Theme.of(context).textTheme.headlineSmall,
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final cardData = _InformationCardData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final imageChild = cardData.imageChildId != null
+            ? buildChild(cardData.imageChildId!)
+            : null;
+        final markdownStyle = MarkdownStyleSheet.fromTheme(Theme.of(context))
+            // ignore: lines_longer_than_80_chars
+            .copyWith(p: Theme.of(context).textTheme.bodyMedium);
+        return Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (imageChild != null)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 200,
+                    child: imageChild,
                   ),
-                  if (cardData.subtitle != null)
-                    Text(
-                      cardData.subtitle!,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  const SizedBox(height: 8.0),
-                  MarkdownBody(
-                    data: cardData.body,
-                    styleSheet: markdownStyle,
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        cardData.title,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      if (cardData.subtitle != null)
+                        Text(
+                          cardData.subtitle!,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      const SizedBox(height: 8.0),
+                      MarkdownBody(
+                        data: cardData.body,
+                        styleSheet: markdownStyle,
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  },
+          ),
+        );
+      },
 );
