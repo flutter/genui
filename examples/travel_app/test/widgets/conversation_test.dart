@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:travel_app/src/turn.dart';
 import 'package:travel_app/src/widgets/conversation.dart';
 
 void main() {
@@ -16,27 +17,28 @@ void main() {
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
+      final definition = UiDefinition.fromMap({
+        'surfaceId': 's1',
+        'root': 'r1',
+        'widgets': [
+          {
+            'id': 'r1',
+            'widget': {
+              'Text': {'text': 'Hi there!'},
+            },
+          },
+        ],
+      });
       final messages = [
-        UserMessage.text('Hello'),
-        AiUiMessage(
+        const UserTurn('Hello'),
+        GenUiTurn(
           surfaceId: 's1',
-          definition: UiDefinition.fromMap({
-            'surfaceId': 's1',
-            'root': 'r1',
-            'widgets': [
-              {
-                'id': 'r1',
-                'widget': {
-                  'Text': {'text': 'Hi there!'},
-                },
-              },
-            ],
-          }),
+          definition: definition,
         ),
       ];
       manager.addOrUpdateSurface(
         's1',
-        (messages[1] as AiUiMessage).definition.toMap(),
+        definition.toMap(),
       );
 
       await tester.pumpWidget(
@@ -56,7 +58,7 @@ void main() {
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
       final messages = [
-        const UserMessage([TextPart('Hello')]),
+        const UserTurn('Hello'),
       ];
       await tester.pumpWidget(
         MaterialApp(
@@ -74,24 +76,25 @@ void main() {
     });
 
     testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
+      final definition = UiDefinition.fromMap({
+        'surfaceId': 's1',
+        'root': 'root',
+        'widgets': [
+          {
+            'id': 'root',
+            'widget': {
+              'Text': {'text': 'UI Content'},
+            },
+          },
+        ],
+      });
       final messages = [
-        AiUiMessage(
+        GenUiTurn(
           surfaceId: 's1',
-          definition: UiDefinition.fromMap({
-            'surfaceId': 's1',
-            'root': 'root',
-            'widgets': [
-              {
-                'id': 'root',
-                'widget': {
-                  'Text': {'text': 'UI Content'},
-                },
-              },
-            ],
-          }),
+          definition: definition,
         ),
       ];
-      manager.addOrUpdateSurface('s1', messages[0].definition.toMap());
+      manager.addOrUpdateSurface('s1', definition.toMap());
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -105,27 +108,6 @@ void main() {
       );
       expect(find.byType(GenUiSurface), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
-    });
-
-    testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
-      final messages = [
-        const UserMessage([TextPart('Hello')]),
-      ];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Conversation(
-              messages: messages,
-              manager: manager,
-              onEvent: (_) {},
-              userPromptBuilder: (context, message) =>
-                  const Text('Custom User Prompt'),
-            ),
-          ),
-        ),
-      );
-      expect(find.text('Custom User Prompt'), findsOneWidget);
-      expect(find.text('Hello'), findsNothing);
     });
   });
 }
