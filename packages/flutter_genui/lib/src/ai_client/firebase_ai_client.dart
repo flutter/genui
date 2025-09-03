@@ -347,7 +347,7 @@ class FirebaseAiClient implements AiClient {
 
     // A local copy of the incoming messages which is updated with tool results
     // as they are generated.
-    final mutableMessages = List.of(messages);
+    final mutableContent = converter.toFirebaseAiContent(messages);
 
     final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
       isForcedToolCalling: isForcedToolCalling,
@@ -383,8 +383,7 @@ class FirebaseAiClient implements AiClient {
       }
       toolUsageCycle++;
 
-      final contents = converter.toFirebaseAiContent(mutableMessages);
-      final concatenatedContents = contents
+      final concatenatedContents = mutableContent
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
           .join('\n');
 
@@ -395,7 +394,7 @@ With functions:
   ''',
       );
       final inferenceStartTime = DateTime.now();
-      final response = await model.generateContent(contents);
+      final response = await model.generateContent(mutableContent);
       final elapsed = DateTime.now().difference(inferenceStartTime);
 
       if (response.usageMetadata != null) {
@@ -434,9 +433,6 @@ With functions:
               'be an error or unexpected AI behavior for forced tool calling.',
             );
           }
-          if (candidate.text != null) {
-            mutableMessages.add(msg.AiTextMessage.text(candidate.text!));
-          }
           genUiLogger.fine(
             'Model returned text but no function calls with forced tool '
             'calling, so returning null.',
@@ -444,7 +440,7 @@ With functions:
           return null;
         } else {
           final text = candidate.text ?? '';
-          mutableMessages.add(msg.AiTextMessage.text(text));
+          mutableContent.add(candidate.content);
           genUiLogger.fine('Returning text response: "$text"');
           return text;
         }
@@ -453,6 +449,12 @@ With functions:
       genUiLogger.fine(
         'Model response contained ${functionCalls.length} function calls.',
       );
+      mutableContent.add(candidate.content);
+      genUiLogger.fine(
+        'Added assistant message with ${candidate.content.parts.length} '
+        'parts to conversation.',
+      );
+
       final result = await _processFunctionCalls(
         functionCalls: functionCalls,
         isForcedToolCalling: isForcedToolCalling,
@@ -462,49 +464,12 @@ With functions:
       capturedResult = result.capturedResult;
       final functionResponseParts = result.functionResponseParts;
 
-      final assistantParts = candidate.content.parts
-          .map((part) {
-            if (part is FunctionCall) {
-              return msg.ToolCallPart(
-                id: part.name,
-                toolName: part.name,
-                arguments: part.args,
-              );
-            }
-            if (part is TextPart) {
-              return msg.TextPart(part.text);
-            }
-            return null;
-          })
-          .whereType<msg.MessagePart>()
-          .toList();
-
-      if (assistantParts.isNotEmpty) {
-        mutableMessages.add(msg.AiTextMessage(assistantParts));
-        genUiLogger.fine(
-          'Added assistant message with ${assistantParts.length} parts to '
-          'conversation.',
-        );
-      }
-
       if (functionResponseParts.isNotEmpty) {
-        contents.add(candidate.content);
-        contents.add(Content.functionResponses(functionResponseParts));
-
-        final toolResponseParts = functionResponseParts.map((response) {
-          return msg.ToolResultPart(
-            callId: response.name,
-            result: jsonEncode(response.response),
-          );
-        }).toList();
-
-        if (toolResponseParts.isNotEmpty) {
-          mutableMessages.add(msg.ToolResponseMessage(toolResponseParts));
-          genUiLogger.fine(
-            'Added tool response message with ${toolResponseParts.length} '
-            'parts to conversation.',
-          );
-        }
+        mutableContent.add(Content.functionResponses(functionResponseParts));
+        genUiLogger.fine(
+          'Added tool response message with ${functionResponseParts.length} '
+          'parts to conversation.',
+        );
       }
     }
 
