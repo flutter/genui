@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -143,7 +141,6 @@ void main() {
     testWidgets('RadioGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
       final definition = {
         'root': 'radios',
         'widgets': [
