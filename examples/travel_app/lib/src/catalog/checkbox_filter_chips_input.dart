@@ -70,9 +70,9 @@ extension type _CheckboxFilterChipsInputData.fromMap(
 /// options.
 ///
 /// It is typically used within a [inputGroup] to manage multiple facets of
-/// a user's query. When an option is selected, it dispatches a [UiChangeEvent],
-/// which informs the AI of the user's choice, allowing it to refine its
-/// subsequent responses.
+/// a user's query. When an option is selected, it dispatches a
+/// [UiChangeEvent], which informs the AI of the user's choice, allowing it to
+/// refine its subsequent responses.
 final checkboxFilterChipsInput = CatalogItem(
   name: 'CheckboxFilterChipsInput',
   dataSchema: _schema,

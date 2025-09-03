@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'itinerary_item.dart';
+/// @docImport 'itinerary_entry.dart';
 library;
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
@@ -19,15 +19,14 @@ final _schema = S.object(
     'subheading': S.string(description: 'The subheading of the itinerary.'),
     'imageChildId': S.string(
       description:
-          'The ID of the Image widget to display. The Image fit should '
-          "typically be 'cover'.  Be sure to create an Image widget with a "
-          'matching ID.',
+          'The ID of the Image widget to display. The Image fit '
+          "should typically be 'cover'. Be sure to create an Image widget "
+          'with a matching ID.',
     ),
     'child': S.string(
       description:
-          'The ID of a child widget to display in a modal. This should typically '
-          'be a Column which contains a sequence of ItineraryDays.'
-          '',
+          'The ID of a child widget to display in a modal. This should '
+          'typically be a Column which contains a sequence of ItineraryDays.',
     ),
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],

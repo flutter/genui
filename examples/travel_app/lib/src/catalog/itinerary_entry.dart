@@ -30,8 +30,8 @@ final _schema = S.object(
     'status': S.string(
       description:
           'The booking status of the itinerary entry. '
-          'Use "noBookingRequired" for activities that do not require a booking, '
-          'like visiting a public park. '
+          'Use "noBookingRequired" for activities that do not require a '
+          'booking, like visiting a public park. '
           'Use "choiceRequired" when the user needs to make a decision, '
           'like selecting a specific hotel or flight. '
           'Use "chosen" after the user has made a selection and the booking '
