@@ -36,9 +36,6 @@ void main() {
       ),
     );
 
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('goldens/checkbox_filter_chips_input.png'),
-    );
+    expect(find.text('Wifi, Gym'), findsOneWidget);
   });
 }

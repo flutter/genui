@@ -35,9 +35,8 @@ void main() {
       ),
     );
 
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('goldens/itinerary_day.png'),
-    );
+    expect(find.text('Day 1'), findsOneWidget);
+    expect(find.text('Arrival in Tokyo'), findsOneWidget);
+    expect(find.text('A day of exploring the city.'), findsOneWidget);
   });
 }

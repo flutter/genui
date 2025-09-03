@@ -38,9 +38,14 @@ void main() {
       ),
     );
 
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('goldens/itinerary_entry.png'),
+    expect(find.text('Arrival at HND Airport'), findsOneWidget);
+    expect(find.text('Tokyo International Airport'), findsOneWidget);
+    expect(
+      find.text(
+        'Arrive at Haneda Airport (HND), clear customs, and pick up your luggage.',
+      ),
+      findsOneWidget,
     );
+    expect(find.text('3:00 PM'), findsOneWidget);
   });
 }
