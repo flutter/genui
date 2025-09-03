@@ -25,7 +25,9 @@ final _schema = S.object(
     ),
     'child': S.string(
       description:
-          '''The ID of a child widget to display in a modal. This should typically be a Column which contains a sequence of ItineraryDays.''',
+          'The ID of a child widget to display in a modal. This should typically '
+          'be a Column which contains a sequence of ItineraryDays.'
+          '',
     ),
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],
@@ -37,13 +39,12 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
     required String subheading,
     required String imageChildId,
     required String child,
-  }) =>
-      _ItineraryWithDetailsData.fromMap({
-        'title': title,
-        'subheading': subheading,
-        'imageChildId': imageChildId,
-        'child': child,
-      });
+  }) => _ItineraryWithDetailsData.fromMap({
+    'title': title,
+    'subheading': subheading,
+    'imageChildId': imageChildId,
+    'child': child,
+  });
 
   String get title => _json['title'] as String;
   String get subheading => _json['subheading'] as String;
@@ -63,26 +64,28 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 final itineraryWithDetails = CatalogItem(
   name: 'ItineraryWithDetails',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final itineraryWithDetailsData =
-        _ItineraryWithDetailsData.fromMap(data as Map<String, Object?>);
-    final child = buildChild(itineraryWithDetailsData.child);
-    final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final child = buildChild(itineraryWithDetailsData.child);
+        final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
-    return _ItineraryWithDetails(
-      title: itineraryWithDetailsData.title,
-      subheading: itineraryWithDetailsData.subheading,
-      imageChild: imageChild,
-      child: child,
-    );
-  },
+        return _ItineraryWithDetails(
+          title: itineraryWithDetailsData.title,
+          subheading: itineraryWithDetailsData.subheading,
+          imageChild: imageChild,
+          child: child,
+        );
+      },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {
@@ -138,8 +141,9 @@ class _ItineraryWithDetails extends StatelessWidget {
                               ),
                               child: Text(
                                 title,
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium,
                               ),
                             ),
                             const SizedBox(height: 16.0),

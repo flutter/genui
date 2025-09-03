@@ -2,28 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-library;
-
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 import '../widgets/dismiss_notification.dart';
 
-enum ItineraryEntryType {
-  accomodation,
-  transport,
-  activity,
-}
+enum ItineraryEntryType { accomodation, transport, activity }
 
-enum ItineraryEntryStatus {
-  noBookingRequired,
-  choiceRequired,
-  chosen,
-}
+enum ItineraryEntryStatus { noBookingRequired, choiceRequired, chosen }
 
 final _schema = S.object(
-  description: 'A specific activity within a day in an itinerary. '
+  description:
+      'A specific activity within a day in an itinerary. '
       'This should be nested inside an ItineraryDay.',
   properties: {
     'title': S.string(description: 'The title of the itinerary entry.'),
@@ -37,10 +28,14 @@ final _schema = S.object(
       enumValues: ItineraryEntryType.values.map((e) => e.name).toList(),
     ),
     'status': S.string(
-      description: 'The booking status of the itinerary entry. '
-          'Use "noBookingRequired" for activities that do not require a booking, like visiting a public park. '
-          'Use "choiceRequired" when the user needs to make a decision, like selecting a specific hotel or flight. '
-          'Use "chosen" after the user has made a selection and the booking is confirmed.',
+      description:
+          'The booking status of the itinerary entry. '
+          'Use "noBookingRequired" for activities that do not require a booking, '
+          'like visiting a public park. '
+          'Use "choiceRequired" when the user needs to make a decision, '
+          'like selecting a specific hotel or flight. '
+          'Use "chosen" after the user has made a selection and the booking '
+          'is confirmed.',
       enumValues: ItineraryEntryStatus.values.map((e) => e.name).toList(),
     ),
   },
@@ -57,17 +52,16 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
     String? totalCost,
     required String type,
     required String status,
-  }) =>
-      _ItineraryEntryData.fromMap({
-        'title': title,
-        if (subtitle != null) 'subtitle': subtitle,
-        'bodyText': bodyText,
-        if (address != null) 'address': address,
-        'time': time,
-        if (totalCost != null) 'totalCost': totalCost,
-        'type': type,
-        'status': status,
-      });
+  }) => _ItineraryEntryData.fromMap({
+    'title': title,
+    if (subtitle != null) 'subtitle': subtitle,
+    'bodyText': bodyText,
+    if (address != null) 'address': address,
+    'time': time,
+    if (totalCost != null) 'totalCost': totalCost,
+    'type': type,
+    'status': status,
+  });
 
   String get title => _json['title'] as String;
   String? get subtitle => _json['subtitle'] as String?;
@@ -84,29 +78,31 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
 final itineraryEntry = CatalogItem(
   name: 'ItineraryEntry',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final itineraryEntryData =
-        _ItineraryEntryData.fromMap(data as Map<String, Object?>);
-    return _ItineraryEntry(
-      title: itineraryEntryData.title,
-      subtitle: itineraryEntryData.subtitle,
-      bodyText: itineraryEntryData.bodyText,
-      address: itineraryEntryData.address,
-      time: itineraryEntryData.time,
-      totalCost: itineraryEntryData.totalCost,
-      type: itineraryEntryData.type,
-      status: itineraryEntryData.status,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final itineraryEntryData = _ItineraryEntryData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _ItineraryEntry(
+          title: itineraryEntryData.title,
+          subtitle: itineraryEntryData.subtitle,
+          bodyText: itineraryEntryData.bodyText,
+          address: itineraryEntryData.address,
+          time: itineraryEntryData.time,
+          totalCost: itineraryEntryData.totalCost,
+          type: itineraryEntryData.type,
+          status: itineraryEntryData.status,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+        );
+      },
 );
 
 class _ItineraryEntry extends StatelessWidget {
@@ -202,8 +198,11 @@ class _ItineraryEntry extends StatelessWidget {
                       const Icon(Icons.location_on, size: 16.0),
                       const SizedBox(width: 4.0),
                       Expanded(
-                          child: Text(address!,
-                              style: theme.textTheme.bodyMedium)),
+                        child: Text(
+                          address!,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
                     ],
                   ),
                 ],

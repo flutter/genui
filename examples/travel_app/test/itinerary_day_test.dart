@@ -4,27 +4,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/catalog/checkbox_filter_chips_input.dart';
+import 'package:travel_app/src/catalog/itinerary_day.dart';
 
 void main() {
-  testWidgets('CheckboxFilterChipsInput golden test', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('ItineraryDay golden test', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: Builder(
             builder: (context) {
               return Center(
-                child: checkboxFilterChipsInput.widgetBuilder(
+                child: itineraryDay.widgetBuilder(
                   data: {
-                    'chipLabel': 'Amenities',
-                    'options': ['Wifi', 'Pool', 'Gym'],
-                    'initialOptions': ['Wifi', 'Gym'],
-                    'iconName': 'hotel',
+                    'title': 'Day 1',
+                    'subtitle': 'Arrival in Tokyo',
+                    'description': 'A day of exploring the city.',
+                    'imageChildId': 'tokyo_image',
+                    'children': <String>[],
                   },
                   id: 'test',
-                  buildChild: (_) => const SizedBox(),
+                  buildChild: (_) => const Placeholder(),
                   dispatchEvent: (_) {},
                   context: context,
                   values: {},
@@ -38,7 +37,7 @@ void main() {
 
     await expectLater(
       find.byType(MaterialApp),
-      matchesGoldenFile('goldens/checkbox_filter_chips_input.png'),
+      matchesGoldenFile('goldens/itinerary_day.png'),
     );
   });
 }

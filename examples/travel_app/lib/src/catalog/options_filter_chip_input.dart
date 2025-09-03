@@ -32,7 +32,8 @@ final _schema = S.object(
     ),
     'initialValue': S.string(
       description:
-          'The name of the option that should be selected initially. This option must exist in the "options" list.',
+          'The name of the option that should be selected initially. This '
+          'option must exist in the "options" list.',
     ),
   },
   required: ['chipLabel', 'options'],
@@ -44,13 +45,12 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
     required List<String> options,
     String? iconName,
     String? initialValue,
-  }) =>
-      _OptionsFilterChipInputData.fromMap({
-        'chipLabel': chipLabel,
-        'options': options,
-        if (iconName != null) 'iconName': iconName,
-        if (initialValue != null) 'initialValue': initialValue,
-      });
+  }) => _OptionsFilterChipInputData.fromMap({
+    'chipLabel': chipLabel,
+    'options': options,
+    if (iconName != null) 'iconName': iconName,
+    if (initialValue != null) 'initialValue': initialValue,
+  });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();

@@ -31,10 +31,9 @@ final _schema = S.object(
     ),
     'initialOptions': S.list(
       description:
-          'The names of the options that should be selected initially. These options must exist in the "options" list.',
-      items: S.string(
-        description: 'An option from the "options" list.',
-      ),
+          'The names of the options that should be selected '
+          'initially. These options must exist in the "options" list.',
+      items: S.string(description: 'An option from the "options" list.'),
     ),
   },
   required: ['chipLabel', 'options'],
@@ -160,7 +159,7 @@ class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            List<String> tempSelectedOptions = List.from(_selectedOptions);
+            var tempSelectedOptions = List<String>.from(_selectedOptions);
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(

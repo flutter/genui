@@ -10,15 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
-  description: 'A container for a single day in an itinerary. '
+  description:
+      'A container for a single day in an itinerary. '
       'It should contain a list of ItineraryEntry widgets. '
       'This should be nested inside an ItineraryWithDetails.',
   properties: {
     'title': S.string(description: 'The title for the day, e.g., "Day 1".'),
-    'subtitle':
-        S.string(description: 'The subtitle for the day, e.g., "Arrival in Tokyo".'),
-    'description':
-        S.string(description: 'A short description of the day\'s plan.'),
+    'subtitle': S.string(
+      description: 'The subtitle for the day, e.g., "Arrival in Tokyo".',
+    ),
+    'description': S.string(
+      description: 'A short description of the day\'s plan.',
+    ),
     'imageChildId': S.string(
       description:
           'The ID of the Image widget to display. The Image fit should '
@@ -40,14 +43,13 @@ extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
     required String description,
     required String imageChildId,
     required List<String> children,
-  }) =>
-      _ItineraryDayData.fromMap({
-        'title': title,
-        'subtitle': subtitle,
-        'description': description,
-        'imageChildId': imageChildId,
-        'children': children,
-      });
+  }) => _ItineraryDayData.fromMap({
+    'title': title,
+    'subtitle': subtitle,
+    'description': description,
+    'imageChildId': imageChildId,
+    'children': children,
+  });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
@@ -59,24 +61,26 @@ extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
 final itineraryDay = CatalogItem(
   name: 'ItineraryDay',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required values,
-  }) {
-    final itineraryDayData =
-        _ItineraryDayData.fromMap(data as Map<String, Object?>);
-    return _ItineraryDay(
-      title: itineraryDayData.title,
-      subtitle: itineraryDayData.subtitle,
-      description: itineraryDayData.description,
-      imageChild: buildChild(itineraryDayData.imageChildId),
-      children: itineraryDayData.children.map(buildChild).toList(),
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required values,
+      }) {
+        final itineraryDayData = _ItineraryDayData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _ItineraryDay(
+          title: itineraryDayData.title,
+          subtitle: itineraryDayData.subtitle,
+          description: itineraryDayData.description,
+          imageChild: buildChild(itineraryDayData.imageChildId),
+          children: itineraryDayData.children.map(buildChild).toList(),
+        );
+      },
 );
 
 class _ItineraryDay extends StatelessWidget {
