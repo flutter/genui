@@ -39,7 +39,7 @@ class Catalog {
     return Catalog(itemsByName.values);
   }
 
-  /// Returns a new [Catalog] instance containg the items from this catalog
+  /// Returns a new [Catalog] instance containing the items from this catalog
   /// with the specified items removed.
   Catalog copyWithout(Iterable<String> itemNames) {
     final namesToRemove = itemNames.toSet();
