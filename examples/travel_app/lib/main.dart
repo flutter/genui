@@ -395,13 +395,9 @@ to the user.
     of time, the budget, preferred activity types etc.
 
     Then, when the user clicks search, you should update the surface to have
-    a Column with the existing inputGroup, an itineraryWithDetails, and a
-    trailhead containing some options of specific details to book e.g. "Book
-    accommodation in Kyoto", "Train options from Tokyo to Osaka". If the
-    itinerary is long, consider splitting it up with tabbedSections, e.g. one
-    section for each day, or one section for each location but only do
-    this if each section will have at least 3 items in it, and there will be no
-    more than 4 tabs.
+    a Column with the existing inputGroup, an itineraryWithDetails. When
+    creating the itinerary, include all necessary `itineraryEntry` items for
+    hotels and transport with generic details and a status of `choiceRequired`.
     
     Note that during this step, the user may change their search parameters and
     resubmit, in which case you should regenerate the itinerary to match their
@@ -416,9 +412,9 @@ to the user.
     the user different options. When the user chooses an option, you can confirm
     it has been chosen and immediately prompt the user to book the next detail,
     e.g. an activity, accomodation, transport etc. When a booking is confirmed,
-    update the original `itineraryWithDetails` to reflect the booking. For
-    example, you could add an `itineraryEntry` with the type `accomodation` and
-    details like "Booked: Hilton Tokyo, 1 King Bed Room, 2 adults".
+    update the original `itineraryWithDetails` to reflect the booking by
+    updating the relevant `itineraryEntry` to have the status `chosen` and
+    including the booking details in the `bodyText`.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
@@ -572,10 +568,19 @@ contain the other widgets.
             "title": "Day 1",
             "subtitle": "Arrival and Exploration",
             "description": "Your first day in Mexico City will be focused on settling in and exploring the historic center.",
+            "imageChildId": "day1_image",
             "children": [
               "day1_entry1",
               "day1_entry2"
             ]
+          }
+        }
+      },
+      {
+        "id": "day1_image",
+        "widget": {
+          "Image": {
+            "assetName": "assets/travel_images/mexico_city.jpg"
           }
         }
       },
@@ -586,7 +591,8 @@ contain the other widgets.
             "type": "transport",
             "title": "Arrival at MEX Airport",
             "time": "2:00 PM",
-            "bodyText": "Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage."
+            "bodyText": "Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage.",
+            "status": "noBookingRequired"
           }
         }
       },
@@ -599,7 +605,8 @@ contain the other widgets.
             "subtitle": "Historic Center",
             "time": "4:00 PM - 6:00 PM",
             "address": "Plaza de la Constitución S/N, Centro Histórico, Ciudad de México",
-            "bodyText": "Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace."
+            "bodyText": "Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace.",
+            "status": "noBookingRequired"
           }
         }
       }

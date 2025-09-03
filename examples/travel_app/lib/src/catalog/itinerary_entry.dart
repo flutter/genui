@@ -8,10 +8,18 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+import '../widgets/dismiss_notification.dart';
+
 enum ItineraryEntryType {
   accomodation,
   transport,
   activity,
+}
+
+enum ItineraryEntryStatus {
+  noBookingRequired,
+  choiceRequired,
+  chosen,
 }
 
 final _schema = S.object(
@@ -28,8 +36,15 @@ final _schema = S.object(
       description: 'The type of the itinerary entry.',
       enumValues: ItineraryEntryType.values.map((e) => e.name).toList(),
     ),
+    'status': S.string(
+      description: 'The booking status of the itinerary entry. '
+          'Use "noBookingRequired" for activities that do not require a booking, like visiting a public park. '
+          'Use "choiceRequired" when the user needs to make a decision, like selecting a specific hotel or flight. '
+          'Use "chosen" after the user has made a selection and the booking is confirmed.',
+      enumValues: ItineraryEntryStatus.values.map((e) => e.name).toList(),
+    ),
   },
-  required: ['title', 'bodyText', 'time', 'type'],
+  required: ['title', 'bodyText', 'time', 'type', 'status'],
 );
 
 extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
@@ -41,6 +56,7 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
     required String time,
     String? totalCost,
     required String type,
+    required String status,
   }) =>
       _ItineraryEntryData.fromMap({
         'title': title,
@@ -50,6 +66,7 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
         'time': time,
         if (totalCost != null) 'totalCost': totalCost,
         'type': type,
+        'status': status,
       });
 
   String get title => _json['title'] as String;
@@ -60,6 +77,8 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
   String? get totalCost => _json['totalCost'] as String?;
   ItineraryEntryType get type =>
       ItineraryEntryType.values.byName(_json['type'] as String);
+  ItineraryEntryStatus get status =>
+      ItineraryEntryStatus.values.byName(_json['status'] as String);
 }
 
 final itineraryEntry = CatalogItem(
@@ -83,6 +102,9 @@ final itineraryEntry = CatalogItem(
       time: itineraryEntryData.time,
       totalCost: itineraryEntryData.totalCost,
       type: itineraryEntryData.type,
+      status: itineraryEntryData.status,
+      widgetId: id,
+      dispatchEvent: dispatchEvent,
     );
   },
 );
@@ -95,6 +117,9 @@ class _ItineraryEntry extends StatelessWidget {
   final String time;
   final String? totalCost;
   final ItineraryEntryType type;
+  final ItineraryEntryStatus status;
+  final String widgetId;
+  final DispatchEventCallback dispatchEvent;
 
   const _ItineraryEntry({
     required this.title,
@@ -104,6 +129,9 @@ class _ItineraryEntry extends StatelessWidget {
     required this.time,
     this.totalCost,
     required this.type,
+    required this.status,
+    required this.widgetId,
+    required this.dispatchEvent,
   });
 
   IconData _getIconForType(ItineraryEntryType type) {
@@ -131,7 +159,30 @@ class _ItineraryEntry extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: theme.textTheme.titleMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(title, style: theme.textTheme.titleMedium),
+                    ),
+                    if (status == ItineraryEntryStatus.chosen)
+                      const Icon(Icons.check_circle, color: Colors.green)
+                    else if (status == ItineraryEntryStatus.choiceRequired)
+                      FilledButton(
+                        onPressed: () {
+                          dispatchEvent(
+                            UiActionEvent(
+                              widgetId: widgetId,
+                              eventType: 'seeOptions',
+                              value: 'Choose options in order to book $title',
+                            ),
+                          );
+                          DismissNotification().dispatch(context);
+                        },
+                        child: const Text('Choose'),
+                      ),
+                  ],
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4.0),
                   Text(subtitle!, style: theme.textTheme.bodySmall),
