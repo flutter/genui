@@ -401,7 +401,8 @@ to the user.
     itinerary is long, consider splitting it up with tabbedSections, e.g. one
     section for each day, or one section for each location but only do
     this if each section will have at least 3 items in it, and there will be no
-    more than 4 tabs.
+    more than 4 tabs. Always try to include "actions" in the itinerary items,
+    to help the user proceed to booking.
     
     Note that during this step, the user may change their search parameters and
     resubmit, in which case you should regenerate the itinerary to match their
@@ -411,11 +412,15 @@ to the user.
     involves booking every accomodation, transport and activity in the itinerary
     one step at a time.
 
-    Here, you should just focus on one items at a time, using an inputGroup with
-    chips to ask the user for preferences, and the
-    travelCarousel to show the user different options. When the user chooses an
-    option, you can confirm it has been chosen and immediately prompt the user
-    to book the next detail, e.g. an activity, accomodation, transport etc.
+    Here, you should just focus on one items at a time, using an `inputGroup`
+    with chips to ask the user for preferences, and the `travelCarousel` to show
+    the user different options. When the user chooses an option, you can confirm
+    it has been chosen and immediately prompt the user to book the next detail,
+    e.g. an activity, accomodation, transport etc. When a booking is confirmed,
+    update the original `itineraryWithDetails` to reflect the booking. For
+    example, you could add an `itineraryItem` with the text "Booked: Hilton
+    Tokyo, 1 King Bed Room, 2 adults", or if each `itineraryItem` covers an
+    entire day, you could just add a paragraph describing the booked item.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to

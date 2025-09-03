@@ -9,6 +9,8 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+import '../widgets/dismiss_notification.dart';
+
 final _schema = S.object(
   description:
       'Widget to show an itinerary or a plan for travel. Use this only for '
@@ -37,12 +39,13 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
     required String subheading,
     required String imageChildId,
     required String child,
-  }) => _ItineraryWithDetailsData.fromMap({
-    'title': title,
-    'subheading': subheading,
-    'imageChildId': imageChildId,
-    'child': child,
-  });
+  }) =>
+      _ItineraryWithDetailsData.fromMap({
+        'title': title,
+        'subheading': subheading,
+        'imageChildId': imageChildId,
+        'child': child,
+      });
 
   String get title => _json['title'] as String;
   String get subheading => _json['subheading'] as String;
@@ -62,28 +65,26 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 final itineraryWithDetails = CatalogItem(
   name: 'ItineraryWithDetails',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
-          data as Map<String, Object?>,
-        );
-        final child = buildChild(itineraryWithDetailsData.child);
-        final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required values,
+  }) {
+    final itineraryWithDetailsData =
+        _ItineraryWithDetailsData.fromMap(data as Map<String, Object?>);
+    final child = buildChild(itineraryWithDetailsData.child);
+    final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
-        return _ItineraryWithDetails(
-          title: itineraryWithDetailsData.title,
-          subheading: itineraryWithDetailsData.subheading,
-          imageChild: imageChild,
-          child: child,
-        );
-      },
+    return _ItineraryWithDetails(
+      title: itineraryWithDetailsData.title,
+      subheading: itineraryWithDetailsData.subheading,
+      imageChild: imageChild,
+      child: child,
+    );
+  },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {
@@ -111,51 +112,58 @@ class _ItineraryWithDetails extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           backgroundColor: Colors.transparent,
-
           builder: (BuildContext context) {
-            return FractionallySizedBox(
-              heightFactor: 0.9,
-              child: Scaffold(
-                body: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 200, // You can adjust this height as needed
-                            child: imageChild,
-                          ),
-                          const SizedBox(height: 16.0),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
+            return NotificationListener<DismissNotification>(
+              onNotification: (notification) {
+                Navigator.of(context).pop();
+                return true;
+              },
+              child: FractionallySizedBox(
+                heightFactor: 0.9,
+                child: Scaffold(
+                  body: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height:
+                                  200, // You can adjust this height as needed
+                              child: imageChild,
                             ),
-                            child: Text(
-                              title,
-                              style: Theme.of(context).textTheme.headlineMedium,
+                            const SizedBox(height: 16.0),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: Text(
+                                title,
+                                style:
+                                    Theme.of(context).textTheme.headlineMedium,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          child,
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      top: 16.0,
-                      right: 16.0,
-                      child: Material(
-                        color: Colors.white.withAlpha((255 * 0.8).round()),
-                        shape: const CircleBorder(),
-                        clipBehavior: Clip.antiAlias,
-                        child: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.of(context).pop(),
+                            const SizedBox(height: 16.0),
+                            child,
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 16.0,
+                        right: 16.0,
+                        child: Material(
+                          color: Colors.white.withAlpha((255 * 0.8).round()),
+                          shape: const CircleBorder(),
+                          clipBehavior: Clip.antiAlias,
+                          child: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

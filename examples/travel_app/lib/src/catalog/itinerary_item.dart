@@ -9,6 +9,8 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+import '../widgets/dismiss_notification.dart';
+
 final _schema = S.object(
   properties: {
     'title': S.string(description: 'The title of the itinerary item.'),
@@ -20,6 +22,10 @@ final _schema = S.object(
           'matching ID.',
     ),
     'detailText': S.string(description: 'The detail text for the item.'),
+    'actions': S.list(
+      description: 'A list of actions the user can take related to this item.',
+      items: S.string(),
+    ),
   },
   required: ['title', 'subtitle', 'detailText', 'imageChildId'],
 );
@@ -30,17 +36,21 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
     required String subtitle,
     String? imageChildId,
     required String detailText,
-  }) => _ItineraryItemData.fromMap({
-    'title': title,
-    'subtitle': subtitle,
-    'imageChildId': imageChildId,
-    'detailText': detailText,
-  });
+    List<String>? actions,
+  }) =>
+      _ItineraryItemData.fromMap({
+        'title': title,
+        'subtitle': subtitle,
+        'imageChildId': imageChildId,
+        'detailText': detailText,
+        if (actions != null) 'actions': actions,
+      });
 
   String get title => _json['title'] as String;
   String get subtitle => _json['subtitle'] as String;
   String? get imageChildId => _json['imageChildId'] as String?;
   String get detailText => _json['detailText'] as String;
+  List<String> get actions => (_json['actions'] as List?)?.cast<String>() ?? [];
 }
 
 /// A widget that displays a single, distinct event or activity within a larger
@@ -57,27 +67,28 @@ extension type _ItineraryItemData.fromMap(Map<String, Object?> _json) {
 final itineraryItem = CatalogItem(
   name: 'ItineraryItem',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final itineraryItemData = _ItineraryItemData.fromMap(
-          data as Map<String, Object?>,
-        );
-        return _ItineraryItem(
-          title: itineraryItemData.title,
-          subtitle: itineraryItemData.subtitle,
-          imageChild: itineraryItemData.imageChildId != null
-              ? buildChild(itineraryItemData.imageChildId!)
-              : null,
-          detailText: itineraryItemData.detailText,
-        );
-      },
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required values,
+  }) {
+    final itineraryItemData =
+        _ItineraryItemData.fromMap(data as Map<String, Object?>);
+    return _ItineraryItem(
+      title: itineraryItemData.title,
+      subtitle: itineraryItemData.subtitle,
+      imageChild: itineraryItemData.imageChildId != null
+          ? buildChild(itineraryItemData.imageChildId!)
+          : null,
+      detailText: itineraryItemData.detailText,
+      actions: itineraryItemData.actions,
+      widgetId: id,
+      dispatchEvent: dispatchEvent,
+    );
+  },
 );
 
 class _ItineraryItem extends StatelessWidget {
@@ -85,12 +96,18 @@ class _ItineraryItem extends StatelessWidget {
   final String subtitle;
   final Widget? imageChild;
   final String detailText;
+  final List<String> actions;
+  final String widgetId;
+  final DispatchEventCallback dispatchEvent;
 
   const _ItineraryItem({
     required this.title,
     required this.subtitle,
     required this.imageChild,
     required this.detailText,
+    required this.actions,
+    required this.widgetId,
+    required this.dispatchEvent,
   });
 
   @override
@@ -121,6 +138,28 @@ class _ItineraryItem extends StatelessWidget {
                   Text(subtitle, style: theme.textTheme.bodySmall),
                   const SizedBox(height: 8.0),
                   Text(detailText, style: theme.textTheme.bodyMedium),
+                  if (actions.isNotEmpty) ...[
+                    const SizedBox(height: 8.0),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 4.0,
+                      children: actions.map((action) {
+                        return ActionChip(
+                          label: Text(action),
+                          onPressed: () {
+                            DismissNotification().dispatch(context);
+                            dispatchEvent(
+                              UiActionEvent(
+                                widgetId: widgetId,
+                                eventType: 'actionSelected',
+                                value: action,
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ],
               ),
             ),
