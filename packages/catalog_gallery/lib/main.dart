@@ -34,7 +34,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final Map<String, Catalog> catalogs = {
-    'core catalog': coreCatalog,
+    'core catalog': CoreCatalogItems.asCatalog(),
     'travel app catalog': travel_app.travelAppCatalog,
   };
 
@@ -70,7 +70,7 @@ class CatalogView extends StatefulWidget {
 }
 
 class _CatalogViewState extends State<CatalogView> {
-  final _genUi = GenUiManager();
+  final _genUi = GenUiManager(catalog: CoreCatalogItems.asCatalog());
   final surfaceIds = <String>[];
 
   @override

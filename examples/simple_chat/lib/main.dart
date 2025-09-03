@@ -49,7 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
     Your responses should contain acknowledgment
     of the user message.
     ''',
-    catalog: null,
+    catalog: CoreCatalogItems.asCatalog(),
     onSurfaceAdded: _onSurfaceAdded,
     onTextResponse: _onTextResponse,
     // ignore: avoid_print
