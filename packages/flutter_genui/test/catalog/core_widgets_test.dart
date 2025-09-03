@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,20 +12,25 @@ void main() {
   group('Core Widgets', () {
     final testCatalog = CoreCatalogItems.asCatalog();
 
+    UserMessage? message;
+    GenUiManager? manager;
+
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
       Map<String, Object?> definition,
-      UiEventCallback onEvent,
     ) async {
-      final manager = GenUiManager(
+      message = null;
+      manager?.dispose();
+      manager = GenUiManager(
         catalog: testCatalog,
         configuration: const GenUiConfiguration(),
       );
-      manager.addOrUpdateSurface('testSurface', definition);
+      manager!.onSubmit.listen((event) => message = event);
+      manager!.addOrUpdateSurface('testSurface', definition);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: manager, surfaceId: 'testSurface'),
+            body: GenUiSurface(host: manager!, surfaceId: 'testSurface'),
           ),
         ),
       );
@@ -32,7 +39,6 @@ void main() {
     testWidgets('ElevatedButton renders and handles taps', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
       final definition = {
         'root': 'button',
         'widgets': [
@@ -51,20 +57,18 @@ void main() {
         ],
       };
 
-      await pumpWidgetWithDefinition(tester, definition, (e) => event = e);
+      await pumpWidgetWithDefinition(tester, definition);
 
       expect(find.text('Click Me'), findsOneWidget);
-      await tester.tap(find.byType(ElevatedButton));
 
-      expect(event, isNotNull);
-      expect(event!.widgetId, 'button');
-      expect(event!.eventType, 'onTap');
+      expect(message, null);
+      await tester.tap(find.byType(ElevatedButton));
+      expect(message, isNotNull);
     });
 
     testWidgets('CheckboxGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
       final definition = {
         'root': 'checkboxes',
         'widgets': [
@@ -80,19 +84,20 @@ void main() {
         ],
       };
 
-      await pumpWidgetWithDefinition(tester, definition, (e) => event = e);
+      await pumpWidgetWithDefinition(tester, definition);
 
       expect(find.byType(CheckboxListTile), findsNWidgets(2));
       final firstCheckbox = tester.widget<CheckboxListTile>(
         find.byType(CheckboxListTile).first,
       );
       expect(firstCheckbox.value, isTrue);
+
       await tester.tap(find.text('B'));
 
-      expect(event, isNotNull);
-      expect(event!.widgetId, 'checkboxes');
-      expect(event!.eventType, 'onChanged');
-      expect(event!.value, [true, true]);
+      expect(message, null);
+      expect(manager!.valueStore.forSurface('testSurface'), {
+        'checkboxes': {'A': true, 'B': true},
+      });
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -123,7 +128,7 @@ void main() {
         ],
       };
 
-      await pumpWidgetWithDefinition(tester, definition, (e) {});
+      await pumpWidgetWithDefinition(tester, definition);
 
       expect(find.text('First'), findsOneWidget);
       expect(find.text('Second'), findsOneWidget);
@@ -154,21 +159,18 @@ void main() {
         ],
       };
 
-      await pumpWidgetWithDefinition(tester, definition, (e) => event = e);
+      await pumpWidgetWithDefinition(tester, definition);
 
       expect(find.byType(RadioListTile<String>), findsNWidgets(2));
       await tester.tap(find.text('B'));
 
-      expect(event, isNotNull);
-      expect(event!.widgetId, 'radios');
-      expect(event!.eventType, 'onChanged');
-      expect(event!.value, 'B');
+      expect(message, null);
+      expect(manager!.valueStore.forSurface('testSurface'), {'radios': 'B'});
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
       WidgetTester tester,
     ) async {
-      UiEvent? event;
       final definition = {
         'root': 'field',
         'widgets': [
@@ -181,7 +183,7 @@ void main() {
         ],
       };
 
-      await pumpWidgetWithDefinition(tester, definition, (e) => event = e);
+      await pumpWidgetWithDefinition(tester, definition);
 
       final textFieldFinder = find.byType(TextField);
       expect(find.widgetWithText(TextField, 'initial'), findsOneWidget);
@@ -190,18 +192,14 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(event, isNotNull);
-      expect(event!.widgetId, 'field');
-      expect(event!.eventType, 'onChanged');
-      expect(event!.value, 'new value');
+      expect(manager!.valueStore.forSurface('testSurface'), {
+        'field': 'new value',
+      });
 
       // Test onSubmitted
-      event = null;
+      expect(message, null);
       await tester.testTextInput.receiveAction(TextInputAction.done);
-      expect(event, isNotNull);
-      expect(event!.widgetId, 'field');
-      expect(event!.eventType, 'onSubmitted');
-      expect(event!.value, 'new value');
+      expect(message, isNotNull);
     });
   });
 }
