@@ -20,6 +20,8 @@ void main() {
 
       UiEvent? dispatchedEvent;
 
+      final values = <String, Object?>{};
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -33,7 +35,7 @@ void main() {
                     dispatchedEvent = event;
                   },
                   context: context,
-                  values: {},
+                  values: values,
                 );
               },
             ),
@@ -66,12 +68,9 @@ void main() {
       // Check if the chip label is updated.
       expect(find.text('\$\$'), findsOneWidget);
 
-      // Check if the event was dispatched.
-      expect(dispatchedEvent, isA<UiChangeEvent>());
-      final changeEvent = dispatchedEvent as UiChangeEvent;
-      expect(changeEvent.widgetId, 'testId');
-      expect(changeEvent.eventType, 'filterOptionSelected');
-      expect(changeEvent.value, '\$\$');
+      expect(dispatchedEvent, null);
+      final value = values['testId'];
+      expect(value, '\$\$');
     });
 
     testWidgets('renders correctly and handles selection without an icon', (
@@ -83,7 +82,7 @@ void main() {
       };
 
       UiEvent? dispatchedEvent;
-
+      final values = <String, Object?>{};
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -97,7 +96,7 @@ void main() {
                     dispatchedEvent = event;
                   },
                   context: context,
-                  values: {},
+                  values: values,
                 );
               },
             ),
@@ -121,12 +120,9 @@ void main() {
       // Check if the chip label is updated.
       expect(find.text('\$\$\$'), findsOneWidget);
 
-      // Check if the event was dispatched.
-      expect(dispatchedEvent, isA<UiChangeEvent>());
-      final changeEvent = dispatchedEvent as UiChangeEvent;
-      expect(changeEvent.widgetId, 'testId');
-      expect(changeEvent.eventType, 'filterOptionSelected');
-      expect(changeEvent.value, '\$\$\$');
+      expect(dispatchedEvent, null);
+      final value = values['testId'];
+      expect(value, '\$\$\$');
     });
   });
 }

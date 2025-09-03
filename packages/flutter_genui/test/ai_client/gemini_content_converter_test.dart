@@ -97,8 +97,8 @@ void main() {
     test('toFirebaseAiContent converts $ImagePart from base64', () {
       const base64String = 'AQID'; // base64 for [1, 2, 3]
       final messages = [
-        const UserMessage([
-          ImagePart.fromBase64(base64String, mimeType: 'image/png'),
+        UserMessage([
+          const ImagePart.fromBase64(base64String, mimeType: 'image/png'),
         ]),
       ];
       final result = converter.toFirebaseAiContent(messages);

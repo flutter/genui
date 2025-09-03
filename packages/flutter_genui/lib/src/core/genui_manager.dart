@@ -70,11 +70,11 @@ abstract interface class GenUiHost {
   /// The catalog of UI components available to the AI.
   Catalog get catalog;
 
-  /// The value store for submitting the widget state.
+  /// The value store for storing the widget state.
   WidgetValueStore get valueStore;
 
-  /// A callback to handle a submit action from a surface.
-  void onSubmitted(String surfaceId);
+  /// A callback to handle an action from a surface.
+  void handleUiEvent(UiEvent event);
 }
 
 /// Manages the state of all dynamic UI surfaces.
@@ -99,7 +99,7 @@ class GenUiManager implements GenUiHost {
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
-  final _userInput = StreamController<UserMessage>.broadcast();
+  final _onSubmit = StreamController<UserMessage>.broadcast();
 
   @override
   final valueStore = WidgetValueStore();
@@ -111,12 +111,13 @@ class GenUiManager implements GenUiHost {
   Stream<GenUiUpdate> get surfaceUpdates => _surfaceUpdates.stream;
 
   /// A stream of user input messages generated from UI interactions.
-  Stream<UserMessage> get userInput => _userInput.stream;
+  Stream<UserMessage> get onSubmit => _onSubmit.stream;
 
   @override
-  void onSubmitted(String surfaceId) {
-    final value = valueStore.forSurface(surfaceId);
-    _userInput.add(UserMessage([TextPart(value.toString())]));
+  void handleUiEvent(UiEvent event) {
+    if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
+    final value = valueStore.forSurface(event.surfaceId);
+    _onSubmit.add(UserMessage([TextPart(value.toString())]));
   }
 
   @override
@@ -148,7 +149,7 @@ class GenUiManager implements GenUiHost {
   /// Disposes of the resources used by this manager.
   void dispose() {
     _surfaceUpdates.close();
-    _userInput.close();
+    _onSubmit.close();
     for (final notifier in _surfaces.values) {
       notifier.dispose();
     }

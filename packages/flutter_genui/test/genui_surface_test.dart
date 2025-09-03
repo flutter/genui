@@ -40,11 +40,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(
-          host: manager,
-          surfaceId: 'testSurface',
-          onEvent: (event) {},
-        ),
+        home: GenUiSurface(host: manager, surfaceId: 'testSurface'),
       ),
     );
 
@@ -53,7 +49,6 @@ void main() {
   });
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
-    UiEvent? event;
     final manager = GenUiManager(
       catalog: testCatalog,
       configuration: const GenUiConfiguration(),
@@ -79,21 +74,10 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(
-          host: manager,
-          surfaceId: 'testSurface',
-          onEvent: (e) {
-            event = e;
-          },
-        ),
+        home: GenUiSurface(host: manager, surfaceId: 'testSurface'),
       ),
     );
 
     await tester.tap(find.byType(ElevatedButton));
-
-    expect(event, isNotNull);
-    expect(event!.surfaceId, 'testSurface');
-    expect(event!.widgetId, 'root');
-    expect(event!.eventType, 'onTap');
   });
 }

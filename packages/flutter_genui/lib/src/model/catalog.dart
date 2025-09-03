@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
-import 'ui_event_manager.dart';
+import 'ui_models.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
@@ -39,7 +39,7 @@ class Catalog {
     return Catalog(itemsByName.values);
   }
 
-  /// Returns a new [Catalog] instance containg the items from this catalog
+  /// Returns a new [Catalog] instance containing the items from this catalog
   /// with the specified items removed.
   Catalog copyWithout(Iterable<String> itemNames) {
     final namesToRemove = itemNames.toSet();

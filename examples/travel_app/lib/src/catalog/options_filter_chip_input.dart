@@ -106,9 +106,7 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
 /// options.
 ///
 /// It is typically used within a [inputGroup] to manage multiple facets of
-/// a user's query. When an option is selected, it dispatches a [UiChangeEvent],
-/// which informs the AI of the user's choice, allowing it to refine its
-/// subsequent responses.
+/// a user's query.
 final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
@@ -142,6 +140,7 @@ final optionsFilterChipInput = CatalogItem(
           widgetId: id,
           dispatchEvent: dispatchEvent,
           icon: icon,
+          values: values,
         );
       },
 );
@@ -152,6 +151,7 @@ class _OptionsFilterChip extends StatefulWidget {
     required this.options,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.values,
     this.icon,
   });
 
@@ -160,6 +160,7 @@ class _OptionsFilterChip extends StatefulWidget {
   final String widgetId;
   final IconData? icon;
   final DispatchEventCallback dispatchEvent;
+  final Map<String, Object?> values;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
@@ -201,17 +202,11 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                         setModalState(() {
                           tempSelectedOption = newValue;
                         });
+                        widget.values[widget.widgetId] = newValue;
                         if (newValue != null) {
                           setState(() {
                             _currentChipLabel = newValue;
                           });
-                          widget.dispatchEvent(
-                            UiChangeEvent(
-                              widgetId: widget.widgetId,
-                              eventType: 'filterOptionSelected',
-                              value: newValue,
-                            ),
-                          );
                           Navigator.pop(context);
                         }
                       },

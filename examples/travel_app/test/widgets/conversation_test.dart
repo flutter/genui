@@ -42,11 +42,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Conversation(
-              messages: messages,
-              manager: manager,
-              onEvent: (_) {},
-            ),
+            body: Conversation(messages: messages, manager: manager),
           ),
         ),
       );
@@ -56,16 +52,12 @@ void main() {
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
       final messages = [
-        const UserMessage([TextPart('Hello')]),
+        UserMessage([const TextPart('Hello')]),
       ];
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Conversation(
-              messages: messages,
-              manager: manager,
-              onEvent: (_) {},
-            ),
+            body: Conversation(messages: messages, manager: manager),
           ),
         ),
       );
@@ -95,11 +87,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Conversation(
-              messages: messages,
-              manager: manager,
-              onEvent: (_) {},
-            ),
+            body: Conversation(messages: messages, manager: manager),
           ),
         ),
       );
@@ -109,7 +97,7 @@ void main() {
 
     testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
       final messages = [
-        const UserMessage([TextPart('Hello')]),
+        UserMessage(const [TextPart('Hello')]),
       ];
       await tester.pumpWidget(
         MaterialApp(
@@ -117,7 +105,6 @@ void main() {
             body: Conversation(
               messages: messages,
               manager: manager,
-              onEvent: (_) {},
               userPromptBuilder: (context, message) =>
                   const Text('Custom User Prompt'),
             ),

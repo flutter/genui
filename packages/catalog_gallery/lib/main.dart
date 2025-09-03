@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:travel_app/travel_app.dart' as travel_app;
@@ -72,6 +74,10 @@ class CatalogView extends StatefulWidget {
 class _CatalogViewState extends State<CatalogView> {
   final _genUi = GenUiManager(catalog: CoreCatalogItems.asCatalog());
   final surfaceIds = <String>[];
+  late final StreamSubscription<UserMessage> _subscription = _genUi.onSubmit
+      .listen((update) {
+        print('Submit: ${update.text}');
+      });
 
   @override
   void initState() {
@@ -100,15 +106,15 @@ class _CatalogViewState extends State<CatalogView> {
             '$surfaceId:',
             style: const TextStyle(decoration: TextDecoration.underline),
           ),
-          subtitle: GenUiSurface(
-            host: _genUi,
-            surfaceId: surfaceId,
-            onEvent: (event) {
-              print('Event received: $event');
-            },
-          ),
+          subtitle: GenUiSurface(host: _genUi, surfaceId: surfaceId),
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

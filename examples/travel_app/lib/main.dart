@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -89,7 +91,7 @@ class TravelPlannerPage extends StatefulWidget {
 class _TravelPlannerPageState extends State<TravelPlannerPage> {
   late final GenUiManager _genUiManager;
   late final AiClient _aiClient;
-  late final UiEventManager _eventManager;
+  late final StreamSubscription<UserMessage> _userMessageSubscription;
   final List<ChatMessage> _conversation = [];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
@@ -108,7 +110,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
         ),
       ),
     );
-    _eventManager = UiEventManager(callback: _onUiEvents);
+    _userMessageSubscription = _genUiManager.onSubmit.listen(
+      _handleUserMessageFromUi,
+    );
     _aiClient =
         widget.aiClient ??
         FirebaseAiClient(
@@ -146,7 +150,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
   @override
   void dispose() {
     _genUiManager.dispose();
-    _eventManager.dispose();
+    _userMessageSubscription.cancel();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -206,35 +210,12 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     return;
   }
 
-  void _onUiEvents(String surfaceId, List<UiEvent> events) {
-    final actionEvent = events.firstWhere((e) => e.isAction);
-    final message = StringBuffer(
-      'The user triggered the "${actionEvent.eventType}" event on widget '
-      '"${actionEvent.widgetId}"',
-    );
-    final value = actionEvent.value;
-    if (value is String && value.isNotEmpty) {
-      message.write(' with value "$value"');
-    }
-    message.write('.');
-
-    final changeEvents = events.where((e) => !e.isAction).toList();
-    if (changeEvents.isNotEmpty) {
-      message.writeln(' Current values of other widgets:');
-      for (final event in changeEvents) {
-        message.writeln('- Widget "${event.widgetId}": ${event.value}');
-      }
-    }
-
+  void _handleUserMessageFromUi(UserMessage message) {
     setState(() {
       _conversation.add(UserUiInteractionMessage.text(message.toString()));
     });
     _scrollToBottom();
     _triggerInference();
-  }
-
-  void _handleUiEvent(UiEvent event) {
-    _eventManager.add(event);
   }
 
   void _sendPrompt(String text) {
@@ -273,7 +254,6 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
                   child: Conversation(
                     messages: _conversation,
                     manager: _genUiManager,
-                    onEvent: _handleUiEvent,
                     scrollController: _scrollController,
                   ),
                 ),
@@ -398,7 +378,7 @@ to the user.
     a Column with the existing OptionsFilterChipInput, a
     ItineraryWithDetails containing the full itinerary, and a Trailhead
     containing some options of specific details to book e.g. "Book accommodation in Kyoto", "Train options from Tokyo to Osaka".
-    
+
     Note that during this step, the user may change their search parameters and
     resubmit, in which case you should regenerate the itinerary to match their
     desires, updating the existing surface.
@@ -450,7 +430,7 @@ When processing a user message or event, you should add or update one surface
 and then call provideFinalOutput to return control to the user. Never continue
 to add or update surfaces until you receive another user event. If the last
 entry in the context is a functionResponse, just call provideFinalOutput
-immediately - don't try to update the UI. 
+immediately - don't try to update the UI.
 
 # UI style
 

@@ -19,7 +19,7 @@ const _maxConversationLength = 1000;
 
 const _genuiSystemPromptFragment = '''
 
-# Outputing UI information
+# Outputting UI information
 
 Use the provided tools to respond to the user using rich UI elements.
 
@@ -66,9 +66,13 @@ class UiAgent {
           systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
           tools: _genUiManager.getTools(),
         );
-    _aiClient.activeRequests.addListener(_onActivityUpdates);
-    _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(_onAiMessage);
-    _userMessageSubscription = _genUiManager.userInput.listen(_onUserMessage);
+    _aiClient.activeRequests.addListener(_handleActivityUpdates);
+    _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(
+      _handleAiMessage,
+    );
+    _userMessageSubscription = _genUiManager.onSubmit.listen(
+      _handleUserMessage,
+    );
   }
 
   final GenUiManager _genUiManager;
@@ -86,14 +90,14 @@ class UiAgent {
 
   /// Disposes of the resources used by this agent.
   void dispose() {
-    _aiClient.activeRequests.removeListener(_onActivityUpdates);
+    _aiClient.activeRequests.removeListener(_handleActivityUpdates);
     _aiMessageSubscription.cancel();
     _userMessageSubscription.cancel();
     _genUiManager.dispose();
     _aiClient.dispose();
   }
 
-  void _onUserMessage(UserMessage message) async {
+  void _handleUserMessage(UserMessage message) async {
     _addMessage(message);
 
     final result = await _aiClient.generateContent<Map<String, Object?>>(
@@ -128,7 +132,7 @@ class UiAgent {
     }
   }
 
-  void _onAiMessage(GenUiUpdate update) {
+  void _handleAiMessage(GenUiUpdate update) {
     if (update is SurfaceAdded) {
       if (onSurfaceAdded == null) {
         onWarning?.call(
@@ -174,7 +178,7 @@ class UiAgent {
     }
   }
 
-  void _onActivityUpdates() {
+  void _handleActivityUpdates() {
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
 

@@ -50,6 +50,7 @@ final textInputChip = CatalogItem(
           initialValue: textInputChipData.initialValue,
           widgetId: id,
           dispatchEvent: dispatchEvent,
+          values: values,
         );
       },
 );
@@ -60,12 +61,14 @@ class _TextInputChip extends StatefulWidget {
     this.initialValue,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.values,
   });
 
   final String label;
   final String? initialValue;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
+  final Map<String, Object?> values;
 
   @override
   State<_TextInputChip> createState() => _TextInputChipState();
@@ -106,16 +109,10 @@ class _TextInputChipState extends State<_TextInputChip> {
                     onPressed: () {
                       final newValue = _textController.text;
                       if (newValue.isNotEmpty) {
+                        widget.values[widget.widgetId] = newValue;
                         setState(() {
                           _currentValue = newValue;
                         });
-                        widget.dispatchEvent(
-                          UiChangeEvent(
-                            widgetId: widget.widgetId,
-                            eventType: 'textInputChanged',
-                            value: newValue,
-                          ),
-                        );
                         Navigator.pop(context);
                       }
                     },
