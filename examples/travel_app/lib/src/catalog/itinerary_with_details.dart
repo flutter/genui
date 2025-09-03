@@ -13,7 +13,8 @@ import '../widgets/dismiss_notification.dart';
 
 final _schema = S.object(
   description:
-      'Widget to show an itinerary or a plan for travel. This should contain a list of ItineraryDay widgets.',
+      'Widget to show an itinerary or a plan for travel. This should contain '
+      'a list of ItineraryDay widgets.',
   properties: {
     'title': S.string(description: 'The title of the itinerary.'),
     'subheading': S.string(description: 'The subheading of the itinerary.'),
@@ -58,8 +59,7 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 /// prominent image to give the user a quick overview of the proposed trip.
 ///
 /// When tapped, it presents a modal bottom sheet containing the detailed
-/// breakdown of the itinerary, which is typically composed of a `Column` of
-/// [itineraryItem] widgets and other supplemental content.
+/// breakdown of the itinerary.
 final itineraryWithDetails = CatalogItem(
   name: 'ItineraryWithDetails',
   dataSchema: _schema,

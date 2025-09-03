@@ -404,14 +404,14 @@ to the user.
     desires, updating the existing surface.
 
 4.  Booking: Booking each part of the itinerary one step at a time. This
-    involves booking every accomodation, transport and activity in the itinerary
+    involves booking every accommodation, transport and activity in the itinerary
     one step at a time.
 
-    Here, you should just focus on one items at a time, using an `inputGroup`
+    Here, you should just focus on one item at a time, using an `inputGroup`
     with chips to ask the user for preferences, and the `travelCarousel` to show
     the user different options. When the user chooses an option, you can confirm
     it has been chosen and immediately prompt the user to book the next detail,
-    e.g. an activity, accomodation, transport etc. When a booking is confirmed,
+    e.g. an activity, accommodation, transport etc. When a booking is confirmed,
     update the original `itineraryWithDetails` to reflect the booking by
     updating the relevant `itineraryEntry` to have the status `chosen` and
     including the booking details in the `bodyText`.

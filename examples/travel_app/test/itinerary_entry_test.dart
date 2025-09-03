@@ -42,7 +42,8 @@ void main() {
     expect(find.text('Tokyo International Airport'), findsOneWidget);
     expect(
       find.text(
-        'Arrive at Haneda Airport (HND), clear customs, and pick up your luggage.',
+        'Arrive at Haneda Airport (HND), clear customs, and pick up your '
+        'luggage.',
       ),
       findsOneWidget,
     );

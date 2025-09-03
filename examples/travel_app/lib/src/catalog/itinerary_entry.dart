@@ -8,7 +8,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 import '../widgets/dismiss_notification.dart';
 
-enum ItineraryEntryType { accomodation, transport, activity }
+enum ItineraryEntryType { accommodation, transport, activity }
 
 enum ItineraryEntryStatus { noBookingRequired, choiceRequired, chosen }
 
@@ -132,7 +132,7 @@ class _ItineraryEntry extends StatelessWidget {
 
   IconData _getIconForType(ItineraryEntryType type) {
     switch (type) {
-      case ItineraryEntryType.accomodation:
+      case ItineraryEntryType.accommodation:
         return Icons.hotel;
       case ItineraryEntryType.transport:
         return Icons.train;

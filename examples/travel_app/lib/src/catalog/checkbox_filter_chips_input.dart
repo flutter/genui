@@ -65,7 +65,8 @@ extension type _CheckboxFilterChipsInputData.fromMap(
 /// predefined list.
 ///
 /// This widget is a key component for gathering user preferences. It displays a
-/// category (e.g., "Amenities," "Dietary Restrictions") and, when tapped, presents a
+/// category (e.g., "Amenities," "Dietary Restrictions") and, when tapped,
+/// presents a
 /// modal bottom sheet containing a list of checkboxes for the available
 /// options.
 ///
@@ -177,7 +178,7 @@ class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
                           }
                         });
                         setState(() {
-                          _selectedOptions = tempSelectedOptions;
+                          _selectedOptions = List.from(tempSelectedOptions);
                         });
                         widget.dispatchEvent(
                           UiChangeEvent(
