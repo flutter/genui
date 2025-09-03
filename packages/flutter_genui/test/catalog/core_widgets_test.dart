@@ -8,14 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Core Widgets', () {
-    final testCatalog = Catalog([
-      elevatedButton,
-      text,
-      checkboxGroup,
-      column,
-      radioGroup,
-      textField,
-    ]);
+    final testCatalog = CoreCatalogItems.asCatalog();
 
     UserMessage? message;
     GenUiManager? manager;
