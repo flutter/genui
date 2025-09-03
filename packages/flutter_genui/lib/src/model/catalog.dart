@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
-import 'ui_event_manager.dart';
+import 'ui_models.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.

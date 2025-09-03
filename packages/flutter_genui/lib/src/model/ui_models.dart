@@ -6,6 +6,13 @@ import 'dart:convert';
 
 import '../primitives/simple_items.dart';
 
+/// A callback that is called when events are sent.
+typedef SendEventsCallback =
+    void Function(String surfaceId, List<UiEvent> events);
+
+/// A callback that is called when an event is dispatched.
+typedef DispatchEventCallback = void Function(UiEvent event);
+
 /// A data object that represents a user interaction event in the UI.
 ///
 /// This is used to send information from the app to the AI about user
