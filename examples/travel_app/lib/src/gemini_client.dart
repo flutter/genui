@@ -36,11 +36,11 @@ class GeminiClient {
     }
 
     _logger.info(
-      'Registered tools: ${functionDeclarations.map((d) => d.name).join(', ')}',
+      'Registered tools: ${functionDeclarations.map((d) => d.toJson()).join(', ')}',
     );
 
     _model = fai.FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-pro',
+      model: 'gemini-2.5-flash',
       systemInstruction: fai.Content.system(systemInstruction),
       tools: [fai.Tool.functionDeclarations(functionDeclarations)],
     );
