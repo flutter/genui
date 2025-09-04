@@ -1,5 +1,6 @@
-import 'package:hotel_tool/hotel_tool.dart' as hotel_tool;
+import 'package:hotel_tool/hotel_tool.dart';
+import 'api_key.dart';
 
-void main(List<String> arguments) {
-  print('Hello world: ${hotel_tool.calculate()}!');
+Future<void> main(List<String> arguments) async {
+  final connect = SerpConnect(apiKey);
 }

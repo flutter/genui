@@ -7,9 +7,9 @@ environment:
   sdk: ^3.10.0-75.1.beta
 
 dependencies:
+  cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
