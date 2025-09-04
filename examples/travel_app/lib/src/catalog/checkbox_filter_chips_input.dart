@@ -108,6 +108,7 @@ final checkboxFilterChipsInput = CatalogItem(
           dispatchEvent: dispatchEvent,
           icon: icon,
           initialOptions: checkboxFilterChipsData.initialOptions,
+          values: values,
         );
       },
 );
@@ -118,6 +119,7 @@ class _CheckboxFilterChip extends StatefulWidget {
     required this.options,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.values,
     this.icon,
     this.initialOptions,
   });
@@ -128,6 +130,7 @@ class _CheckboxFilterChip extends StatefulWidget {
   final IconData? icon;
   final DispatchEventCallback dispatchEvent;
   final List<String>? initialOptions;
+  final Map<String, Object?> values;
 
   @override
   State<_CheckboxFilterChip> createState() => _CheckboxFilterChipState();
@@ -180,13 +183,7 @@ class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
                         setState(() {
                           _selectedOptions = List.from(tempSelectedOptions);
                         });
-                        widget.dispatchEvent(
-                          UiChangeEvent(
-                            widgetId: widget.widgetId,
-                            eventType: 'filterOptionsSelected',
-                            value: tempSelectedOptions,
-                          ),
-                        );
+                        widget.values[widget.widgetId] = tempSelectedOptions;
                       },
                     );
                   }).toList(),
