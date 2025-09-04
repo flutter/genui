@@ -1,5 +1,6 @@
 name: hotel_tool
 description: A tool to checkout a hotel.
+publish_to: "none"
 version: 0.0.1
 
 environment:
@@ -7,6 +8,10 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  dart_schema_builder:
+    path: ../../dart_schema_builder
+  flutter_genui:
+    path: ../../flutter_genui
   http: ^1.5.0
   path: ^1.9.0
 
