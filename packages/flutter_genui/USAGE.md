@@ -142,7 +142,7 @@ If something is unclear or missing, please [create an issue](https://github.com/
 
 ### Higher minimum macOS version is required
 
-If you are getting the error similar to below, re-clone the repo, and then rerun `tool/refresh_firebase_template.sh`.
+If you are getting the error similar to one below, re-clone the repo, and then rerun your copy of `tool/refresh_firebase_template.sh`.
 
 ```
 The pod "Firebase/CoreOnly" required by the plugin "firebase_app_check" requires a higher minimum macOS deployment version than the plugin's reported minimum version.
