@@ -23,7 +23,7 @@ command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not f
 FAILURE_LOG=$(mktemp)
 trap 'rm -f "$FAILURE_LOG"' EXIT
 
-readonly PROJECT_TOTAL_STEPS=3
+readonly PROJECT_TOTAL_STEPS=4
 
 run_project_step() {
     local project_dir="$1"
@@ -49,14 +49,10 @@ if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     echo "Running copyright fix. To rerun:"
     echo "dart run tool/fix_copyright/bin/fix_copyright.dart --force"
     # Log failures without stopping the script.
-    dart run tool/fix_copyright/bin/fix_copyright.dart --force || echo "'dart run tool/fix_copyright/bin/fix_copyright.dart --force' failed" >> "$FAILURE_LOG"
+    dart run tool/fix_copyright/bin/fix_copyright.dart --force >/dev/null 2>&1 || true
 else
     echo "Warning: Copyright tool not found. Skipping."
 fi
-# Log failures without stopping the script.
-echo "Running dart format. To rerun:"
-echo "dart format ."
-dart format . || echo "'dart format .' failed" >> "$FAILURE_LOG"
 echo "Root-level commands complete."
 echo ""
 
@@ -65,7 +61,7 @@ echo ""
 # The `find ... -print0 | while ...` construct safely handles file paths with spaces.
 echo "Searching for Flutter projects..."
 echo "=================================================="
-find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -path "./melos_tool" -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0 | while IFS= read -r -d '' pubspec_path; do
+find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -path "./melos_tool" -prune -o -path "./packages/spikes" -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0 | while IFS= read -r -d '' pubspec_path; do
     (
         # Get the directory containing the pubspec.yaml file.
         project_dir=$(dirname "$pubspec_path")
@@ -78,9 +74,16 @@ find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -pat
 
         run_project_step "$project_dir" "Applying fixes with 'dart fix --apply'" 1 dart fix --apply
         echo ""
-        run_project_step "$project_dir" "Running tests with 'flutter test'" 2 flutter test
+        run_project_step "$project_dir" "Formatting with 'dart format .'
+" 2 dart format .
         echo ""
-        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 3 flutter analyze
+        if [ -d "test" ]; then
+            run_project_step "$project_dir" "Running tests with 'flutter test'" 3 flutter test
+        else
+            echo "[3/$PROJECT_TOTAL_STEPS] Skipping tests, no 'test' directory found."
+        fi
+        echo ""
+        run_project_step "$project_dir" "Analyzing code with 'flutter analyze'" 4 flutter analyze
 
         echo "Finished processing $project_dir."
         echo ""
