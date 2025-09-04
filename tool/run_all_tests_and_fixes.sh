@@ -21,7 +21,8 @@ command -v flutter >/dev/null 2>&1 || { echo >&2 "Error: 'flutter' command not f
 # calls for each one.
 
 FAILURE_LOG=$(mktemp)
-trap 'rm -f "$FAILURE_LOG"' EXIT
+LOG_DIR=$(mktemp -d)
+trap 'rm -f "$FAILURE_LOG"; rm -rf "$LOG_DIR"' EXIT
 
 readonly PROJECT_TOTAL_STEPS=4
 
@@ -40,32 +41,9 @@ run_project_step() {
     fi
 }
 
-
-# --- 0. Run commands at the root project level ---
-echo "Running root-level commands..."
-echo "--------------------------------------------------"
-# Check if the copyright tool exists before running
-if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
-    echo "Running copyright fix. To rerun:"
-    echo "dart run tool/fix_copyright/bin/fix_copyright.dart --force"
-    # Log failures without stopping the script.
-    dart run tool/fix_copyright/bin/fix_copyright.dart --force >/dev/null 2>&1 || true
-else
-    echo "Warning: Copyright tool not found. Skipping."
-fi
-echo "Root-level commands complete."
-echo ""
-
-# --- 1. Find all Flutter projects ---
-# We find all `pubspec.yaml` files and process each one.
-# The `find ... -print0 | while ...` construct safely handles file paths with spaces.
-echo "Searching for Flutter projects..."
-echo "=================================================="
-find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -path "./melos_tool" -prune -o -path "./packages/spikes" -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0 | while IFS= read -r -d '' pubspec_path; do
+process_project() {
+    local project_dir="$1"
     (
-        # Get the directory containing the pubspec.yaml file.
-        project_dir=$(dirname "$pubspec_path")
-
         echo "Processing project in: $project_dir"
         echo "--------------------------------------------------"
 
@@ -88,11 +66,59 @@ find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -pat
         echo "Finished processing $project_dir."
         echo ""
     )
+}
+
+# --- 0. Run commands at the root project level ---
+echo "Running root-level commands..."
+echo "--------------------------------------------------"
+# Check if the copyright tool exists before running
+if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
+    echo "Running copyright fix. To rerun:"
+    echo "dart run tool/fix_copyright/bin/fix_copyright.dart --force"
+    # Log failures without stopping the script.
+    dart run tool/fix_copyright/bin/fix_copyright.dart --force >/dev/null 2>&1 || true
+else
+    echo "Warning: Copyright tool not found. Skipping."
+fi
+echo "Root-level commands complete."
+echo ""
+
+# --- 1. Find all Flutter projects ---
+# We find all `pubspec.yaml` files and process each one.
+# The `find ... -print0 | while ...` construct safely handles file paths with spaces.
+echo "Searching for Flutter projects..."
+echo "=================================================="
+
+# Collect all project directories first to process them in a stable order.
+project_dirs=()
+while IFS= read -r -d '' pubspec_path; do
+    project_dirs+=("$(dirname "$pubspec_path")")
+done < <(find . -name "build" -type d -prune -o -name ".dart_tool" -type d -prune -o -path "./melos_tool" -prune -o -path "./packages/spikes" -prune -o -name "pubspec.yaml" -exec grep -q 'sdk: flutter' {} \; -print0)
+
+# Run processing in parallel for each project.
+pids=()
+log_files=()
+for i in "${!project_dirs[@]}"; do
+    project_dir="${project_dirs[$i]}"
+    log_file="$LOG_DIR/project_$i.log"
+    log_files+=("$log_file")
+
+    # Run the processing in the background, redirecting output to the log file.
+    process_project "$project_dir" > "$log_file" 2>&1 &
+    pids+=($!)
 done
 
+# Wait for all background jobs to complete.
+echo "Running tests and analysis for ${#project_dirs[@]} projects in parallel..."
+wait "${pids[@]}"
+echo "All projects have been processed."
 echo "=================================================="
-echo "      All projects have been processed."
-echo "=================================================="
+echo ""
+
+# Print the logs from each project in the original order.
+for log_file in "${log_files[@]}"; do
+    cat "$log_file"
+done
 
 if [ -s "$FAILURE_LOG" ]; then
   echo "Tooling errors occurred:" >&2
