@@ -132,7 +132,7 @@ For a complete example, refer to [main.dart in the minimal_genui example](../../
 
 ## Enhance to GenUI Application
 
-Get inspired by our examples. The [`minimal_genui`](../../examples/minimal_genui/) example is a great starting point. You can find other examples under development in the [`examples/`](../../examples/) directory. Most will require you to [configure Firebase](#configure-firebase) first.
+Get inspired by our examples. Most will require you to [configure Firebase](#configure-firebase) first.
 
 Then apply what you learned to your app!
 
