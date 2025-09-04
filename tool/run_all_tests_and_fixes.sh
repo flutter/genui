@@ -56,7 +56,7 @@ process_project() {
 " 2 dart format .
         echo ""
         if [ -d "test" ]; then
-            run_project_step "$project_dir" "Running tests with 'flutter test'" 3 flutter test
+            run_project_step "$project_dir" "Running tests with 'flutter test'" 3 flutter test --reporter=failures-only
         else
             echo "[3/$PROJECT_TOTAL_STEPS] Skipping tests, no 'test' directory found."
         fi
