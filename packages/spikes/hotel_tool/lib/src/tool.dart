@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
@@ -18,6 +21,21 @@ typedef BookHotelCallback =
       DateTime checkOut,
       int guests,
     );
+
+final searchHotelTool = SearchHotelTool(onSearch: _onSearch);
+
+Future<JsonMap> _onSearch(
+  String query,
+  DateTime checkIn,
+  DateTime checkOut,
+  int guests,
+) async {
+  await Future<void>.delayed(const Duration(seconds: 1));
+  final content = await File(
+    'assets/results/search_results.json',
+  ).readAsString();
+  return jsonDecode(content) as JsonMap;
+}
 
 /// An [AiTool] for searching and booking hotels.
 class SearchHotelTool extends AiTool<JsonMap> {
