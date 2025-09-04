@@ -212,7 +212,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
 
   void _handleUserMessageFromUi(UserMessage message) {
     setState(() {
-      _conversation.add(UserUiInteractionMessage.text(message.toString()));
+      _conversation.add(UserUiInteractionMessage.text(message.text));
     });
     _scrollToBottom();
     _triggerInference();

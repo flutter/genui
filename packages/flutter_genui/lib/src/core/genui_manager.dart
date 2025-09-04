@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
@@ -116,8 +117,11 @@ class GenUiManager implements GenUiHost {
   @override
   void handleUiEvent(UiEvent event) {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
-    final value = valueStore.forSurface(event.surfaceId);
-    _onSubmit.add(UserMessage([TextPart(value.toString())]));
+    final stateValue = valueStore.forSurface(event.surfaceId);
+    final eventString =
+        'Action: ${jsonEncode(event.value)}\n'
+        'Current state: ${jsonEncode(stateValue)}';
+    _onSubmit.add(UserMessage([TextPart(eventString)]));
   }
 
   @override
