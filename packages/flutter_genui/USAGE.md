@@ -137,3 +137,15 @@ Get inspired by our examples. The [`minimal_genui`](../../examples/minimal_genui
 Then apply what you learned to your app!
 
 If something is unclear or missing, please [create an issue](https://github.com/flutter/genui/issues/new/choose).
+
+## Troubleshooting
+
+### Higher minimum macOS version is required
+
+If you are getting the error similar to below, re-clone the repo, and then rerun `tool/refresh_firebase_template.sh`.
+
+```
+The pod "Firebase/CoreOnly" required by the plugin "firebase_app_check" requires a higher minimum macOS deployment version than the plugin's reported minimum version.
+To build, remove the plugin "firebase_app_check", or contact the plugin's developers for assistance.
+Error: Error running pod install
+```
