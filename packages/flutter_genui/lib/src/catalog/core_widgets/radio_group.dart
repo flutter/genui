@@ -8,7 +8,6 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
-import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -121,18 +120,7 @@ final radioGroup = CatalogItem(
         return _RadioGroup(
           initialGroupValue: radioData.groupValue,
           labels: radioData.labels,
-          onChanged: (newValue) {
-            if (newValue != null) {
-              values[id] = newValue;
-              dispatchEvent(
-                UiChangeEvent(
-                  widgetId: id,
-                  eventType: 'onChanged',
-                  value: newValue,
-                ),
-              );
-            }
-          },
+          onChanged: (newValue) => values[id] = newValue,
         );
       },
 );

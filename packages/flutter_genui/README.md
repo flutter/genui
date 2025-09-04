@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> {
     // 1. Create a UiAgent with a system instruction
     _uiAgent = UiAgent(
       'You are a helpful AI assistant that builds UIs.',
+      catalog: CoreCatalogItems.asCatalog(),
       onSurfaceAdded: _onSurfaceAdded,
     );
   }

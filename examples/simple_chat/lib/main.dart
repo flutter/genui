@@ -49,15 +49,15 @@ class _ChatScreenState extends State<ChatScreen> {
     Your responses should contain acknowledgment
     of the user message.
     ''',
-    catalog: null,
-    onSurfaceAdded: _onSurfaceAdded,
+    catalog: CoreCatalogItems.asCatalog(),
+    onSurfaceAdded: _handleSurfaceAdded,
     onTextResponse: _onTextResponse,
     // ignore: avoid_print
     onWarning: (value) => print('Warning from UiAgent: $value'),
   );
   final ScrollController _scrollController = ScrollController();
 
-  void _onSurfaceAdded(SurfaceAdded surface) {
+  void _handleSurfaceAdded(SurfaceAdded surface) {
     if (!mounted) return;
     setState(() {
       _messages.add(MessageController(surfaceId: surface.surfaceId));

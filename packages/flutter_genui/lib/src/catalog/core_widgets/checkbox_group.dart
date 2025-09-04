@@ -6,7 +6,6 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
-import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -104,14 +103,10 @@ final checkboxGroup = CatalogItem(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,
           onChanged: (newValues) {
-            values[id] = newValues;
-            dispatchEvent(
-              UiChangeEvent(
-                widgetId: id,
-                eventType: 'onChanged',
-                value: newValues,
-              ),
-            );
+            values[id] = {
+              for (var i = 0; i < newValues.length; i++)
+                checkboxData.labels[i]: newValues[i],
+            };
           },
         );
       },

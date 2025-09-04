@@ -6,7 +6,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../primitives/simple_items.dart';
-import 'ui_event_manager.dart';
+import 'ui_models.dart';
 
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
@@ -43,6 +43,7 @@ typedef CatalogWidgetBuilder =
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.
+@immutable
 class CatalogItem {
   /// Creates a new [CatalogItem].
   const CatalogItem({

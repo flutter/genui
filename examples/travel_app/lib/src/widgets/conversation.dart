@@ -14,14 +14,12 @@ class Conversation extends StatelessWidget {
     super.key,
     required this.messages,
     required this.manager,
-    required this.onEvent,
     this.userPromptBuilder,
     this.showInternalMessages = false,
     this.scrollController,
   });
 
   final List<ChatMessage> messages;
-  final UiEventCallback onEvent;
   final GenUiManager manager;
   final UserPromptBuilder? userPromptBuilder;
   final bool showInternalMessages;
@@ -74,7 +72,6 @@ class Conversation extends StatelessWidget {
                 key: message.uiKey,
                 host: manager,
                 surfaceId: message.surfaceId,
-                onEvent: onEvent,
               ),
             );
           case InternalMessage():

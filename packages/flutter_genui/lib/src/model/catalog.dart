@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
-import 'ui_event_manager.dart';
+import 'ui_models.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
@@ -20,12 +20,34 @@ import 'ui_event_manager.dart';
 ///    structure ([JsonMap]).
 /// 3. It dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets, which can be provided to the AI model.
+@immutable
 class Catalog {
-  /// Creates a new catalog with the given list of [items].
+  /// Creates a new catalog with the given list of items.
   const Catalog(this.items);
 
   /// The list of [CatalogItem]s available in this catalog.
-  final List<CatalogItem> items;
+  final Iterable<CatalogItem> items;
+
+  /// Returns a new [Catalog] containing the items from both this catalog and
+  /// the provided [items].
+  ///
+  /// If an item with the same name already exists in the catalog, it will be
+  /// replaced with the new item.
+  Catalog copyWith(List<CatalogItem> newItems) {
+    final itemsByName = {for (final item in items) item.name: item};
+    itemsByName.addAll({for (final item in newItems) item.name: item});
+    return Catalog(itemsByName.values);
+  }
+
+  /// Returns a new [Catalog] instance containing the items from this catalog
+  /// with the specified items removed.
+  Catalog copyWithout(Iterable<String> itemNames) {
+    final namesToRemove = itemNames.toSet();
+    final updatedItems = items
+        .where((item) => !namesToRemove.contains(item.name))
+        .toList();
+    return Catalog(updatedItems);
+  }
 
   /// Builds a Flutter widget from a JSON-like data structure.
   ///

@@ -25,6 +25,6 @@ class MessageView extends StatelessWidget {
 
     if (surfaceId == null) return Text(controller.text ?? '');
 
-    return GenUiSurface(host: host, surfaceId: surfaceId, onEvent: (event) {});
+    return GenUiSurface(host: host, surfaceId: surfaceId);
   }
 }

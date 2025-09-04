@@ -134,13 +134,19 @@ final class InternalMessage extends ChatMessage {
 /// It can be a text message, or selections in UI.
 final class UserMessage extends ChatMessage {
   /// Creates a [UserMessage] with the given [parts].
-  const UserMessage(this.parts);
+  UserMessage(this.parts);
 
   /// Creates a [UserMessage] with the given [text].
   factory UserMessage.text(String text) => UserMessage([TextPart(text)]);
 
   /// The parts of the user's message.
   final List<MessagePart> parts;
+
+  /// The text content of the user's message.
+  late final String text = parts
+      .whereType<TextPart>()
+      .map((p) => p.text)
+      .join('\n');
 }
 
 /// A message representing a user's interaction with the UI.
