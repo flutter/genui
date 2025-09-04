@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'itinerary_item.dart';
+/// @docImport 'itinerary_day.dart';
+/// @docImport 'itinerary_entry.dart';
 library;
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
@@ -31,7 +32,7 @@ extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
 ///
 /// It displays a prominent title and an optional subtitle, helping to organize
 /// longer sequences of widgets, such as a detailed travel itinerary composed of
-/// multiple [itineraryItem] widgets. Its primary role is to improve the
+/// multiple [itineraryDay] widgets. Its primary role is to improve the
 /// structure and scannability of the UI.
 final sectionHeader = CatalogItem(
   name: 'SectionHeader',
