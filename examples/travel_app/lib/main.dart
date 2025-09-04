@@ -255,6 +255,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
                     messages: _conversation,
                     manager: _genUiManager,
                     scrollController: _scrollController,
+                    emptyState: _SuggestedPrompts(onSend: _sendPrompt),
                   ),
                 ),
               ),
@@ -265,6 +266,54 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
                   isThinking: _isThinking,
                   onSend: _sendPrompt,
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestedPrompts extends StatelessWidget {
+  const _SuggestedPrompts({required this.onSend});
+
+  final void Function(String) onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    const prompts = [
+      'plan an adventure trip in the mountains',
+      '4 day getaway to hawaii',
+      'southern europe family holiday',
+    ];
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 350),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Let's plan your dream vacation",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 16.0,
+                runSpacing: 16.0,
+                alignment: WrapAlignment.center,
+                children: prompts.map((prompt) {
+                  return ActionChip(
+                    label: Text(prompt),
+                    onPressed: () => onSend(prompt),
+                  );
+                }).toList(),
               ),
             ],
           ),
