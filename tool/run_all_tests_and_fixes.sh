@@ -96,6 +96,7 @@ if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     # Log failures without stopping the script.
     dart run tool/fix_copyright/bin/fix_copyright.dart --force >/dev/null 2>&1 || true
 else
+
     echo "### Skipping copyright fix: tool not found."
 fi
 echo "---"
