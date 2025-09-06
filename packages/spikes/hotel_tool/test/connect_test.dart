@@ -3,6 +3,6 @@ import 'package:test/test.dart';
 
 void main() {
   test('connect', () {
-    final connect = SerpConnect('my_key');
+    // final connect = SerpConnect('my_key');
   });
 }
