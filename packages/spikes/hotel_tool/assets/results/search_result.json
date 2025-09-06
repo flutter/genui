@@ -1,0 +1,3377 @@
+{
+    "search_metadata": {
+        "id": "68b9f66b271332abc50feb51",
+        "status": "Success",
+        "json_endpoint": "https://serpapi.com/searches/f3da336441f49460/68b9f66b271332abc50feb51.json",
+        "created_at": "2025-09-04T20:28:27.441Z",
+        "processed_at": "2025-09-04T20:28:27.442Z",
+        "google_hotels_url": "https://www.google.com/_/TravelFrontendUi/data/batchexecute?rpcids=AtySUc&source-path=/travel/search&hl=en&gl=us&rt=c&soc-app=162&soc-platform=1&soc-device=1",
+        "raw_html_file": "https://serpapi.com/searches/f3da336441f49460/68b9f66b271332abc50feb51.html",
+        "prettify_html_file": "https://serpapi.com/searches/f3da336441f49460/68b9f66b271332abc50feb51.prettify",
+        "total_time_taken": {
+            "float": 1.5421812534332275
+        }
+    },
+    "search_parameters": {
+        "engine": "google_hotels",
+        "q": "Molokai, Hawaii",
+        "gl": "us",
+        "hl": "en",
+        "currency": "USD",
+        "check_in_date": "2025-09-15",
+        "check_out_date": "2025-09-16",
+        "adults": 2,
+        "children": 0
+    },
+    "search_information": {
+        "total_results": 4591
+    },
+    "brands": [
+        {
+            "id": 28,
+            "name": "Hilton Honors",
+            "children": [
+                {
+                    "id": 95,
+                    "name": "Hilton Grand Vacations"
+                }
+            ]
+        },
+        {
+            "id": 46,
+            "name": "Marriott Bonvoy",
+            "children": [
+                {
+                    "id": 3,
+                    "name": "Ritz-Carlton Hotel Company"
+                },
+                {
+                    "id": 39,
+                    "name": "Westin Hotels & Resorts"
+                }
+            ]
+        }
+    ],
+    "ads": [
+        {
+            "name": "Hotel Moloka'i",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQDRoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YASABEgLrk_D_BwE&category=acrcp_v1_48&sig=AOD64_3PYLN31JIakrDc2SMLD3MmmUvRxQ&adurl=",
+            "property_token": "CgsIre-Xr5HYj7ibARAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgsIre-Xr5HYj7ibARAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.078799999999998,
+                "longitude": -156.995959
+            },
+            "hotel_class": 3,
+            "thumbnail": "https://lh3.googleusercontent.com/proxy/t8RloimpqgXrqBHbHyQnK0u19ONb7v9nfXISVNbEjcDCGgEYp6us6O5cFzyd29y9E6P_FBrrS1RFeNVwvYZ1jdw3QtdfjBeMIgDZawo1Y1jUaH5opfZds72B_m_klldeNGXmNeYxEDsNJOp9h87kJ1rC9x5s9A=w197-h150-k-no",
+            "overall_rating": 4.3,
+            "reviews": 446,
+            "price": "$274",
+            "extracted_price": 274,
+            "amenities": [
+                "Pool",
+                "Pet-friendly",
+                "Kid-friendly",
+                "Restaurant",
+                "Bar",
+                "Airport shuttle",
+                "Outdoor pool",
+                "Air conditioning"
+            ]
+        },
+        {
+            "name": "Aston Kaanapali Shores",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQDxoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YAiABEgI8i_D_BwE&category=acrcp_v1_48&sig=AOD64_0KSjjywWWO6wkS_EivvCBDtbmEJg&adurl=",
+            "property_token": "CgsIoaK-9dP2kf61ARAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgsIoaK-9dP2kf61ARAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.949284000000002,
+                "longitude": -156.68919499999998
+            },
+            "hotel_class": 3,
+            "thumbnail": "https://lh3.googleusercontent.com/proxy/9_i-uBKg1v6_hmaJBOc8A36JRvRnLojsAYLs4x9TOT8PRdH18LSMYwrrVpgux-ST0SsiUtmgKFibfeiHJ2kLO7hC6NxiF4mbhbZPDnw7VSC0nFDU092cyF2qzqAHaftfll4p2RqwznDk-drw4hHsPoLbuPZY3xE=w225-h150-k-no",
+            "overall_rating": 4.3,
+            "reviews": 2646,
+            "price": "$226",
+            "extracted_price": 226,
+            "amenities": [
+                "Hot tub",
+                "Beach access",
+                "Spa",
+                "Pool",
+                "Kid-friendly",
+                "Restaurant",
+                "Bar",
+                "Fitness center",
+                "Wi-Fi",
+                "Outdoor pool",
+                "Air conditioning"
+            ],
+            "free_cancellation": true
+        },
+        {
+            "name": "Napili Shores Maui by Outrigger",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQBRoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YAyABEgIe6PD_BwE&category=acrcp_v1_48&sig=AOD64_1Zc5pPb9UN59abB4oJbsEORHHSzw&adurl=",
+            "property_token": "CgoIhK-__6flo416EAE",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgoIhK-__6flo416EAE&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.992442,
+                "longitude": -156.66692899999998
+            },
+            "hotel_class": 3,
+            "thumbnail": "https://lh3.googleusercontent.com/proxy/pFY4l6W5sVSEH8K7W117x2QZpofqkgeCFOJ_zPZImspMU4RAS8UThfmQ4wM2tmFXtf_aIYjFxk0W8Zcw6oHrUT2lefJxCH_1SnDjyRvrNJnhpzQfKbDKi3D7DiGITLD4l1EoVfboBdnd0RUqzUgPM407FNDIQBQ=w235-h150-k-no",
+            "overall_rating": 4.5,
+            "reviews": 1157,
+            "price": "$312",
+            "extracted_price": 312,
+            "amenities": [
+                "Hot tub",
+                "Beach access",
+                "Pool",
+                "Kid-friendly",
+                "Restaurant",
+                "Outdoor pool",
+                "Air conditioning"
+            ]
+        },
+        {
+            "name": "Napili Sunset Beach Front Resort",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQCRoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YBCABEgJtU_D_BwE&category=acrcp_v1_48&sig=AOD64_2Vq19h4FdjwvBb8Tcg61uTEfUUZg&adurl=",
+            "property_token": "CgsIrI2g2LfW2LuDARAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgsIrI2g2LfW2LuDARAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.994457,
+                "longitude": -156.666008
+            },
+            "hotel_class": 2,
+            "thumbnail": "https://lh6.googleusercontent.com/proxy/sPUKjuqxG5xZbdvRZb3krwQY96-Ew9xQROMDugbewiW2JTYFoxciJpWTBnoowRnGnipNSBoirpJaHzlbyZ65_CPrnGWxg1RS5rHhuPqWtw7iDafaHCDsI1tOOgazCBDbZM2TSMQSR5nZCwUDlETaozDiPxROyw=w224-h150-k-no",
+            "overall_rating": 4.5,
+            "reviews": 297,
+            "price": "$333",
+            "extracted_price": 333,
+            "amenities": [
+                "Beach access",
+                "Pool",
+                "Pet-friendly",
+                "Kid-friendly",
+                "Outdoor pool"
+            ]
+        },
+        {
+            "name": "Napili Village Hotel",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQAxoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YBSABEgK5S_D_BwE&category=acrcp_v1_48&sig=AOD64_30J1aTPcl1_8yTvWRb4Qfi8bxOiQ&adurl=",
+            "property_token": "CgsIzdKPn4ihzaD4ARAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgsIzdKPn4ihzaD4ARAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.994825,
+                "longitude": -156.665642
+            },
+            "hotel_class": 3,
+            "thumbnail": "https://lh3.googleusercontent.com/proxy/kEGJXiCMFVl7HWBzOBhTb-oZyXkjR9bqnKP2xiL_QURM6fEH3MwP7aaGg49tOIZuCXv0dE-vbDG-dR82ua4a7mOzgLRWS8EYuUFgdEPZnMLzf89-gar5sGgrgFnGbkY9pXUwSZI7MXMzfxBi2drO8ZlZyYN_BzQ=w200-h150-k-no",
+            "overall_rating": 4.1,
+            "reviews": 91,
+            "price": "$244",
+            "extracted_price": 244,
+            "amenities": [
+                "Beach access",
+                "Pool",
+                "Outdoor pool",
+                "Air conditioning"
+            ]
+        },
+        {
+            "name": "Maui Kai Condos - Official Site",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQCxoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YBiABEgKXpvD_BwE&category=acrcp_v1_48&sig=AOD64_0WssMoR2Xn98hl3rwsNbo_LU4-tw&adurl=",
+            "property_token": "CgsI_YL8kaeCgPSQARAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgsI_YL8kaeCgPSQARAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.947758,
+                "longitude": -156.691719
+            },
+            "hotel_class": 3,
+            "thumbnail": "https://lh6.googleusercontent.com/proxy/Sc7FD3OjxbLB_HmcqAmnxirJ8Y6_6jgrXZdnp_BVtAgO156CbhQTZGeNRuOFBZP0Po0fANofhgH06O3RY2C3wH3OZrmRJsoo0UkUw0h_hMYH91i1nPi2G2qbr10O9V2Oo9YTq37TRu9kobFCFXvoaU9gV8M-xA=w224-h150-k-no",
+            "overall_rating": 4.6,
+            "reviews": 261,
+            "price": "$513",
+            "extracted_price": 513,
+            "amenities": [
+                "Hot tub",
+                "Beach access",
+                "Pool",
+                "Kid-friendly",
+                "Golf",
+                "Outdoor pool"
+            ]
+        },
+        {
+            "name": "Hilton Vacation Club Ka'anapali Beach Maui",
+            "source": "Booking.com",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_184.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQARoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YByABEgL8QvD_BwE&category=acrcp_v1_48&sig=AOD64_0oFoXdR99LKvqw6ukPTCGCdpsglg&adurl=",
+            "property_token": "CgoIgoDEqvC5gKZIEAE",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgoIgoDEqvC5gKZIEAE&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.948631,
+                "longitude": -156.690743
+            },
+            "hotel_class": 4,
+            "thumbnail": "https://lh3.googleusercontent.com/proxy/LD36mfpG6_RK9VyFfA3RpTsI8-jN5DH2FmtwUMPQjxFGLxPJhXEB8DsPfzVGL_-pLGwsqLrW0zF6wwubp1gemDlboZZm0ikDEg6S_1ELzn40kupby5oXmXxXE51UKrCO3xUoceWgTWrAUtdmZoWyqiFyELwSeg=w225-h150-k-no",
+            "overall_rating": 4.3,
+            "reviews": 2789,
+            "price": "$385",
+            "extracted_price": 385,
+            "amenities": [
+                "Hot tub",
+                "Beach access",
+                "Pool",
+                "Kid-friendly",
+                "Restaurant",
+                "Bar",
+                "Fitness center",
+                "Outdoor pool",
+                "Air conditioning"
+            ]
+        },
+        {
+            "name": "Montage Kapalua Bay",
+            "source": "Priceline",
+            "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_220.png",
+            "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwjfjYuD-b-PAxXNbUcBHYN3NhAYACICCAEQBxoCcXU&co=1&ase=2&gclid=EAIaIQobChMI342Lg_m_jwMVzW1HAR2DdzYQEA0YCCABEgJ8mfD_BwE&category=acrcp_v1_48&sig=AOD64_06PRPQHqLhqZVzw3-GIPVcF0sg9g&adurl=",
+            "property_token": "CgoIvOHFkt2S18xgEAE",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=CgoIvOHFkt2S18xgEAE&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.001587999999998,
+                "longitude": -156.664512
+            },
+            "hotel_class": 5,
+            "thumbnail": "https://lh5.googleusercontent.com/proxy/pMpD4ciEEmbC8wAcPKIWHRlcChz6N7_uE2GBlld7l2AlEWfstH9sUodUinakVknwwP3iBCu1sz759zVmuXK8boUG_FL8M1ZwnpDExN9kJ4ICBOpAqb9YcWtuQD_QQNsMO2as67rq4DlIVL909_XXrQCezRKe7k0=w208-h150-k-no",
+            "overall_rating": 4.7,
+            "reviews": 971,
+            "price": "$1,251",
+            "extracted_price": 1251,
+            "amenities": [
+                "Hot tub",
+                "Beach access",
+                "Spa",
+                "Pool",
+                "Kid-friendly",
+                "Restaurant",
+                "Bar",
+                "Room service",
+                "Golf",
+                "Fitness center",
+                "Outdoor pool",
+                "Air conditioning"
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "type": "hotel",
+            "name": "Hotel Moloka'i",
+            "description": "Oceanfront property offering traditional island-themed rooms, as well as an outdoor pool.",
+            "link": "http://www.hotelmolokai.com/",
+            "property_token": "ChgIre-Xr5HYj7ibARoLL2cvMXRmeDUzMDcQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgIre-Xr5HYj7ibARoLL2cvMXRmeDUzMDcQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.0787998,
+                "longitude": -156.9959587
+            },
+            "check_in_time": "3:00 PM",
+            "check_out_time": "10:00 AM",
+            "rate_per_night": {
+                "lowest": "$274",
+                "extracted_lowest": 274
+            },
+            "total_rate": {
+                "lowest": "$274",
+                "extracted_lowest": 274
+            },
+            "nearby_places": [
+                {
+                    "name": "Kamakou Preserve",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Daniel K. Inouye International Airport"
+                },
+                {
+                    "name": "Big Daddy's Restaurant",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "5 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/B3cOFakDnt7QVqlr4z_a2hto7LCjiDCAoNYlcvxI3Fdwse-hRhVnGo0KsrWTuhnEAkhPq_QLeYKLsbQGtMosOHs2BGZVvTISjOLS9ltHpiMlW8sBPXeycWMB3_A0sub8TUqxii0gsxcNv1Dj9tMWOrDisXHZIms=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902832/d0662248_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipN9TkFNKN4hpzVOI960klp9DFviKEwfPviSQzqA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipN9TkFNKN4hpzVOI960klp9DFviKEwfPviSQzqA=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipNqWOegcrhtBWp6e9HWRGEbKFM9aoydS6s3O9SH=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipNqWOegcrhtBWp6e9HWRGEbKFM9aoydS6s3O9SH=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipORXQreE6cBlPQ3DExu9BqBCLJpGxyA27vJKT9q=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipORXQreE6cBlPQ3DExu9BqBCLJpGxyA27vJKT9q=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPOpUmGheD2yEv4HdtAiq9DuUfzULNEMDosweMw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPOpUmGheD2yEv4HdtAiq9DuUfzULNEMDosweMw=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPbVed75O5vOp646p8F-0TZPUl9kqUQ4E2eU0W9=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPbVed75O5vOp646p8F-0TZPUl9kqUQ4E2eU0W9=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPTgl5sjL_brw1l1iVbD0P4ogjhe8S2rY65ROJy=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPTgl5sjL_brw1l1iVbD0P4ogjhe8S2rY65ROJy=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMELy8WXPf0rppwegcAtEm0-1VB9E9DBUm7FuMc=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMELy8WXPf0rppwegcAtEm0-1VB9E9DBUm7FuMc=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMnkbTkI3PsSt_Pr-YxEqEfPIwyGVGoV-ZnGCqB=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMnkbTkI3PsSt_Pr-YxEqEfPIwyGVGoV-ZnGCqB=s10000"
+                }
+            ],
+            "overall_rating": 4.3,
+            "reviews": 446,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 258
+                },
+                {
+                    "stars": 4,
+                    "count": 120
+                },
+                {
+                    "stars": 3,
+                    "count": 38
+                },
+                {
+                    "stars": 2,
+                    "count": 20
+                },
+                {
+                    "stars": 1,
+                    "count": 10
+                }
+            ],
+            "location_rating": 3.1,
+            "reviews_breakdown": [
+                {
+                    "name": "Dining",
+                    "description": "Food and Beverage",
+                    "total_mentioned": 82,
+                    "positive": 66,
+                    "negative": 8,
+                    "neutral": 8
+                },
+                {
+                    "name": "Bar",
+                    "description": "Bar or lounge",
+                    "total_mentioned": 57,
+                    "positive": 40,
+                    "negative": 8,
+                    "neutral": 9
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 113,
+                    "positive": 96,
+                    "negative": 15,
+                    "neutral": 2
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 124,
+                    "positive": 93,
+                    "negative": 24,
+                    "neutral": 7
+                },
+                {
+                    "name": "Nightlife",
+                    "description": "Nightlife",
+                    "total_mentioned": 40,
+                    "positive": 38,
+                    "negative": 2,
+                    "neutral": 0
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 58,
+                    "positive": 35,
+                    "negative": 17,
+                    "neutral": 6
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Air conditioning",
+                "Pet-friendly",
+                "Bar",
+                "Restaurant",
+                "Kitchen in some rooms",
+                "Airport shuttle",
+                "Full-service laundry",
+                "Accessible",
+                "Kid-friendly"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Moloka‘i Shores",
+            "description": "Oceanfront, Polynesian-style condos include full kitchens & private lanais, with a pool & BBQ area.",
+            "link": "https://www.castleresorts.com/molokai/molokai-shores-hotel/",
+            "property_token": "ChcIt-LMpJePi89nGgsvZy8xdG0wdGNtMRAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChcIt-LMpJePi89nGgsvZy8xdG0wdGNtMRAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.0811729,
+                "longitude": -157.003601
+            },
+            "check_in_time": "3:00 PM",
+            "check_out_time": "11:00 AM",
+            "rate_per_night": {
+                "lowest": "$211",
+                "extracted_lowest": 211
+            },
+            "total_rate": {
+                "lowest": "$211",
+                "extracted_lowest": 211
+            },
+            "nearby_places": [
+                {
+                    "name": "Kamakou Preserve",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "10 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Daniel K. Inouye International Airport"
+                },
+                {
+                    "name": "Big Daddy's Restaurant",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "5 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/QxxySeEBf-5-dcwI5fAtWlMELS40k77ZTLSzflvCP00-3vcvhqFSCqX1iI9e4pYtwIvb0ubbYU8bD2HNSZ2gZgmSkyHXbvD2i7l-4Ga9Auk7nnoCHmK6TzZtiYGWPErWBSG-Q1sb6x_gfYyBwpzci1Hjst8rD98=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902835/77b2ab1d_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/nHxCNs94wvkObaAQrd0oeUGxn9z3lOga7KLitLPYP-v6DlTp66H-mhuN6yjt8zLAN97Ezitxv2oP8zwauPzzMJq_ljRDrsDeS6yT0RdnhKmLLKjnm5BvXMvUCBPvGNPIFu5xfpAoJlEHXM7F5gCzvtR6LbBGyw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100110000/100100300/100100261/767fee7a_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/pDjqAA5wWScnlNQIssIcSRW2nZuq4Znay4hpYWFxAS_j1P_htMJLYJ-BpMj9qy10loQeiobBzHS4WEV676e7ftZKL2Ac9g_-eJEN3shsniCrdBu1taKs7sZmjKgkVunySa1VbH1eYa5YMI3WXPc-QEiSyqagzdQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100110000/100100300/100100261/a96d1f4e_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMfbDRoZblO7kfYUGsl5YzlOOIQQ_N8WD82s1s=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMfbDRoZblO7kfYUGsl5YzlOOIQQ_N8WD82s1s=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/KGD2gRG6Yax5AWEJcE4tCvDEJbef142n1XjyE6LEv5IEBUOGa9xqgVoHFqXAIJ1LFYZ5CUDqoTg3hf-BzCYjBLNbZIYl-yp5-9j0PIeS45BHOLnGfM3iMhgNjFGb7M5Rp74wWBMruRCxM7UWR5YESvLgBhzoCA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/100000000/99270000/99261200/99261163/72363e83_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/J96tb9j4zIS6jSwfDnWb6cw6lzQVNHUEZ-CUy0GzlzDBYrzVBx_SiXz8FhfjEwHPHwwDSXmFeMMov41Fd7U6caSFOnZz_LWg-MfVIIlm-RrkoARvAq8Pb0RSYADudKiOXYg11IxQCnggcuCS_mhksSfcrD5JlPw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/20000/14300/14275/9f80b7dd_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/kDZqisDTWBaC-EQSxZsmjza4US4bU7_tMcLjkNNB4KkCQtsyJirQZI_QONsOyniPBTKC_YfXi3EJCwycdvFMhmlrkhkoQl0cJ0wkT8qOC773mEE25LF_ciwL1N9A5smyqv3u2EmnP6eDgOJnOEp5iHAwM8_PkA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/6d/58/6d58d057c1a3a41e35ef8fcd61561920ea1c96a3.jpeg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/ieGAo57lvh9JiguSjIztRAQeO9MpLypJkQYABL0aJJsMRTJB7Hf4Z4Q4sxyZUuD0kU0jLY9iVvqCo1AI9I6ljEurLhDQcDKIzUb0kbyYwRxweEW-T0MTPlJqv6fWJY0N4o5Snxokw8ymA2VttFusxfrV_QN9cA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/100000000/99270000/99261200/99261163/3438f1ba_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/pHCP8pJv-86y3qPGAxuwJthuW5j2Y5d1xykKmYxmrX6zGtDbgTOqj86PdFCuKkABWECHzIGeMtqoukzl7N0vaCjoGpMoQh6QPx-slilIR6OM3TSCVxshCgzZAqVSunLKhQuqrEb22PEvgwjg_J_T2JzWrn4RDQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100110000/100100300/100100261/ac0999e9_z.jpg"
+                }
+            ],
+            "overall_rating": 4.1,
+            "reviews": 194,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 97
+                },
+                {
+                    "stars": 4,
+                    "count": 54
+                },
+                {
+                    "stars": 3,
+                    "count": 20
+                },
+                {
+                    "stars": 2,
+                    "count": 7
+                },
+                {
+                    "stars": 1,
+                    "count": 16
+                }
+            ],
+            "location_rating": 2.7,
+            "reviews_breakdown": [
+                {
+                    "name": "Cleanliness",
+                    "description": "Cleanliness",
+                    "total_mentioned": 22,
+                    "positive": 8,
+                    "negative": 13,
+                    "neutral": 1
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 29,
+                    "positive": 18,
+                    "negative": 7,
+                    "neutral": 4
+                },
+                {
+                    "name": "Location",
+                    "description": "Location",
+                    "total_mentioned": 23,
+                    "positive": 19,
+                    "negative": 2,
+                    "neutral": 2
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 15,
+                    "positive": 5,
+                    "negative": 8,
+                    "neutral": 2
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 22,
+                    "positive": 16,
+                    "negative": 5,
+                    "neutral": 1
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 17,
+                    "positive": 12,
+                    "negative": 1,
+                    "neutral": 4
+                }
+            ],
+            "amenities": [
+                "Breakfast",
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Air conditioning",
+                "Pet-friendly",
+                "Beach access",
+                "Kitchen",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Pu'u O Hoku Ranch",
+            "link": "http://www.puuohoku.com/",
+            "property_token": "ChgI6Pqz29z358jPARoLL2cvMXRqM2w5MW0QAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgI6Pqz29z358jPARoLL2cvMXRqM2w5MW0QAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.1441955,
+                "longitude": -156.7348426
+            },
+            "nearby_places": [
+                {
+                    "name": "Hālawa Valley",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport"
+                },
+                {
+                    "name": "The Plantation House"
+                }
+            ],
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPt0P72_VMmelRUUksgRuoLP0Ho8EFN4JODEgTl=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPt0P72_VMmelRUUksgRuoLP0Ho8EFN4JODEgTl=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nogVVQkpb8quzZjA_7ZWugOgnb19Z_Ub2wG4sJSeGzSs0YubeXmKJWxNVzJTam3GyOjTDC9zbEu-gv9cQEzEfZKj94p6whTKuzUMYcsJiuYXDtPoscxWzRPBUxT1THSA13SoUX6=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgID4gaPyCQ=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOIBqNxRobbT38EKHPHDxxThUBmPUia8IuW3-Ut=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOIBqNxRobbT38EKHPHDxxThUBmPUia8IuW3-Ut=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipN2eXMXhV6PTZnygK_PqP29GkhTTZhE-mqQsjV8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipN2eXMXhV6PTZnygK_PqP29GkhTTZhE-mqQsjV8=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipNGkDVDJtATltRL3R_JrUbbna3dK3TfwxKiWp0D=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipNGkDVDJtATltRL3R_JrUbbna3dK3TfwxKiWp0D=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipO-KwwYlfWmWivcVhKp1XZ4acL_N20LrueF1K1y=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipO-KwwYlfWmWivcVhKp1XZ4acL_N20LrueF1K1y=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPA3gJspJ-3XZh5gtLPgdD0vpHax0L0WjXaa_RP=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPA3gJspJ-3XZh5gtLPgdD0vpHax0L0WjXaa_RP=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMB-dUPxzZM_w4SI8kt-BNM4X4evgh04rIDZ83z=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMB-dUPxzZM_w4SI8kt-BNM4X4evgh04rIDZ83z=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOz1UWwlf1OYemOqP1Fb9EdBSA2ezO61c-RR7_v=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOz1UWwlf1OYemOqP1Fb9EdBSA2ezO61c-RR7_v=s10000"
+                }
+            ],
+            "overall_rating": 4.8,
+            "reviews": 61,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 54
+                },
+                {
+                    "stars": 4,
+                    "count": 6
+                },
+                {
+                    "stars": 3,
+                    "count": 0
+                },
+                {
+                    "stars": 2,
+                    "count": 0
+                },
+                {
+                    "stars": 1,
+                    "count": 1
+                }
+            ],
+            "location_rating": 1.7,
+            "reviews_breakdown": [
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 17,
+                    "positive": 16,
+                    "negative": 1,
+                    "neutral": 0
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 11,
+                    "positive": 9,
+                    "negative": 0,
+                    "neutral": 2
+                }
+            ],
+            "amenities": [
+                "Kid-friendly"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Ka Hale Mala Bed & Breakfast",
+            "description": "Basic 4-room apartment B&B with private entrance, BBQ & garden, plus airport pick-up.",
+            "link": "https://bnbmolokai.com/",
+            "property_token": "ChgI6P-ChsDW37ozGgwvZy8xaGRfX2o5emcQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgI6P-ChsDW37ozGgwvZy8xaGRfX2o5emcQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.0677488,
+                "longitude": -156.9521634
+            },
+            "nearby_places": [
+                {
+                    "name": "One Ali’i Park",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "3 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport"
+                },
+                {
+                    "name": "Big Daddy's Restaurant",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "10 min"
+                        }
+                    ]
+                }
+            ],
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipO6m0tEa2wz9FdDjawpY5iwrpwid7nBxTkoYy8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipO6m0tEa2wz9FdDjawpY5iwrpwid7nBxTkoYy8=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMlwA2Mdw7_OfWzB32PM6sPwYOczpFDGLXSNUE=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMlwA2Mdw7_OfWzB32PM6sPwYOczpFDGLXSNUE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOrh7JoG0MtrrsNSdlS01n36d2xpy23wLX9fAM=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOrh7JoG0MtrrsNSdlS01n36d2xpy23wLX9fAM=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipM3M2WcW6EdXZVqO-R2PxwGm_--0SAnImy_OlU=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipM3M2WcW6EdXZVqO-R2PxwGm_--0SAnImy_OlU=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPHUV1K474kEGS8-be_KyACJyejq6TbeeABzlc=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPHUV1K474kEGS8-be_KyACJyejq6TbeeABzlc=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipP9NSu78m7YRqzNADyLTcd2VAs9zUzAZ6D_zJM=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipP9NSu78m7YRqzNADyLTcd2VAs9zUzAZ6D_zJM=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPtMG24c0ZPgzhpB8lI4t39OX771bfqiO1OUlU=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPtMG24c0ZPgzhpB8lI4t39OX771bfqiO1OUlU=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOlU9VTTWuXOfthheP0C3MvYnRgSxu5JPjM2fY=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOlU9VTTWuXOfthheP0C3MvYnRgSxu5JPjM2fY=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOFK1TvjJlpIEtBL0zcH_HGlEjXZqKWxbMpldk=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOFK1TvjJlpIEtBL0zcH_HGlEjXZqKWxbMpldk=s10000"
+                }
+            ],
+            "overall_rating": 3.9,
+            "reviews": 12,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 8
+                },
+                {
+                    "stars": 4,
+                    "count": 0
+                },
+                {
+                    "stars": 3,
+                    "count": 1
+                },
+                {
+                    "stars": 2,
+                    "count": 1
+                },
+                {
+                    "stars": 1,
+                    "count": 2
+                }
+            ],
+            "location_rating": 1.8,
+            "amenities": [
+                "Free breakfast",
+                "Free Wi-Fi",
+                "Free parking",
+                "Kitchen",
+                "Accessible",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Molokai Wavecrest",
+            "link": "http://wavecrestaoao.com/",
+            "property_token": "ChkIuauO5pKQn8ldGg0vZy8xMWNuOWs4YnptEAE",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChkIuauO5pKQn8ldGg0vZy8xMWNuOWs4YnptEAE&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.054315499999998,
+                "longitude": -156.8407287
+            },
+            "check_in_time": "3:00 PM",
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kahului Airport"
+                },
+                {
+                    "name": "Monkeypod Kitchen by Merriman - Kaanapali, Maui"
+                }
+            ],
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npSf4ZebaqIkD8rIneOUKocZICDk9LH4SVn7Aosd1SUyXbXpZa46FfbJiMcNe5w3U5jGzc9UD6HESxAcLJ_nXJW1n8WRXBcPeEVIALTFNU7SaKflbJAgivHexWPTXF3WKVgiCE=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIDsqOCHWA=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nruYot1n2MCP8FvK63A9Cr_cGnuMsz0Vr-LuUEekY8K_OSUHaFraOsYgHPgskQoS1br3L4z3Hqj9mrI65P7bJkN6kuuBN6GOSRrNOeDvglSXg0fyhRzvQrSXm1JjEHlCScjyw5Uzw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIDxhvy06wE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr5ancJxcumfnoffJUmV4zUJKCdzXnqBRVS5B6jrCRt0CwSr1xrpbBMC-Q5OLeD5cLEw7mcfZ4v9DXMDBahEgTX2E25n7bVw0n-PNbQfUEFcqOUFPVwLHg5OLzESST4wdyqbckREw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIClyr7i3wE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrpDxwkwWZl3HdL1MjkVQGjbUMwhNlEaPrxiLEW6pjs4lKaecBMfNcRZfWoRNoPIUKoWWF-9Gk8SHKqL3tOg1X5QTp7roTeH9T-SeXcEkm3_tXP8v9fShwV6ZXhk4rCckj5O3MA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIClyr68Sg=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrKQJnAo-i-DMCNeDvC2mpQXMoQyshkI8vd53q_iBrz1m2g2wMmvNtexF0CfSroJWXADAloz7wsbhOsrxMUULTmSiUfaRzt7knxg2yYOZq3jnTVwrcjRFGRKQA8iYksr5eMIEvd-yA4Do8C=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhBJNNbH6sqtbtm2Z28Z5pgJ=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npH3jaIjaZD5liTCTmXRpaC-jki_UnLBritIGo4xG4h-Cdmex-rBys6hNsnkeBQuG0wmAwLqVYKdpBPedJOY-jmF6ap9rkByP7JwxnASFJMsYiVVTrBzCqBnzWDnjb2AfiFBYpZ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIClyr6CNw=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrUNOnfHaguAAht6jTapaNoKJ4DYOPiA3KXAHyRPkITFWoCgUIAVVjYDNXQAR7AO1IFVV31he_if6fzWwj0xKRDqthwNC3dIyzhP7XmrNy5btvRZAlPSFtwd8yCC5Hf7DAPFo8O=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEMLbtYDk77rNUQ=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npBhYeUBIj6UVRn6ijUBWH8X2o0IgwYZ-aS-5C6Ke8VtdhGwS4MppbIuVW-LN8Y-050xqKAhBqr1kTMvfQ-S5vhRuP0MYO72ZA4tOs-xzfj8lf1YCdNNVROcEVNTwRIp6nosyr8pg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIDxhvyMtAE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4noYAuczvFeWT0Tc2_lBo6Ctee_d4dPKeEnsCdLVpHi7ITnLz_VTPlePtvPGpUVi-axp3o6Z7o2pjIQgtu3QfnrXDLx6490_V4Pyh5PgXOoL_gLWhoR-OtuktLj0FSSpOreXtU8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIC4t4apew=s10000"
+                }
+            ],
+            "overall_rating": 4.6,
+            "reviews": 52,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 37
+                },
+                {
+                    "stars": 4,
+                    "count": 11
+                },
+                {
+                    "stars": 3,
+                    "count": 2
+                },
+                {
+                    "stars": 2,
+                    "count": 1
+                },
+                {
+                    "stars": 1,
+                    "count": 1
+                }
+            ],
+            "location_rating": 1.7,
+            "reviews_breakdown": [
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 11,
+                    "positive": 10,
+                    "negative": 1,
+                    "neutral": 0
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 10,
+                    "positive": 9,
+                    "negative": 0,
+                    "neutral": 1
+                }
+            ],
+            "amenities": [
+                "Kid-friendly"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Wavecrest A109",
+            "property_token": "ChoItOLW_LWM7bm_ARoNL2cvMTFqenE3bHNmcxAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChoItOLW_LWM7bm_ARoNL2cvMTFqenE3bHNmcxAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.0559442,
+                "longitude": -156.8392307
+            },
+            "check_in_time": "3:00 PM",
+            "nearby_places": [
+                {
+                    "name": "Kahului Airport"
+                },
+                {
+                    "name": "Monkeypod Kitchen by Merriman - Kaanapali, Maui"
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/1TwQ3mRtM3AqruZlJX6FTYvuHeWAy0TfqYhu5Bu7K4iLouYXAD3eYcglMMsP1Oi-baC7oT6E5EipInnUE5vjygdaxtrzmk9TXpBU7ewWsUADdnTlNk3kqZheLKUcg7jSmybwwvq-hoTSy26wDgVPgl_zWTTjgg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/42563cb6_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/GAUIexjnaM0Pp3XIMayU-mxrqjVTUj6JMDwfvyrZTQOSklluKRsZg2ZcYUrlJq699KlQC-xN0-Q4sHJ29FhPiufOO5CM4mRQWfccqPx5tzjcArdp2X1ePrHrGVXNuaUlCzYFxDn943grgQUmIhaYFATjcyQeAbw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/334a2713_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/yKxyn_SSgnIRr_Nr6RQJRmfMiHyb6bx3U5AbbhH2591RvKMwNdgaIDtt3FX5DJCZ-eXQvZflefrNg-pNRMhbgxCsBDrJy7d4f4uIqPvPdnva7hx5C_4d244ZkkmJJYFGsIMWujPZzC3mV7W8_YbbFRnXRF8AKoI=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/03bd9daa_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/tA9bKaHqMp3o1ValiFLQeMBXCP1yXU8N7XnTgbj4QzGqTX_T63lVaH7qPmMxFZw9uLTbwLn7450ZFA7Nt8EPXlcq-QgY608ZOyaRDsCjjBZf-fPdn3L-gWW9VVBGTS6u4cnQM2OBRwfWAUwvmzfMfz4W7r1QQv8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/w899h568x1y1-7ee29021_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/zv8Zvz5D3M4eeF1oO1w8atXg2PwPyo_6cfu9biC-uJMvHJNUHNBtyJ14F6MZZsFEKaQONM9ebICi_-4xrxfA7xU7YqHi0Q-cUbAs9ljnzOoiJ0cuZ1QdrDfuIRcQTchtrUBbjNymevNTFlDyFdvAk95upGLsbQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/w898h599x1y1-e102b111_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/gnR9dNZot71zXzUt1mHp2o_DEws4liPfGMcb6cu4oit0YgLTr7fCDsbAomKsZPeshlX5e3ArPwIGS84MOfdDWgaHqU6mQNgjo37OFCQmIjYXUiJqx9WNwESMm7gctqDyZ_lSu80mM_8hsrhAKh8NMl4HEZK7IEg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/w855h599x1y1-4878ec57_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/ToAoOgRx2-vf_U0wuV-LUBQD_38NTyqRzGPPx-yDG7Gwqi5aldsN-SlKyZuEdpp2e94MEXoOETgIguSUXW3ljYGFJKIKn51xRWueUCHyGQylOqKEB0T-pzFLEBT8A2WVM19Eck4nyw2P7Nm1WmEmmMIq3gid7VQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/03684d12_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/W_7rvRUIHbKPvKTw_XMUBL0hgCuU5V9bZafC_KitNO889r_8IICAWpAY5gS6K0VriGk0xbeLuVEjg8Z9MTqAk5YWpiIbIRNMAv48baSvE1QrEqvoY9KpL4x3_g0X1N07B69qaVoBRBUL_89TmAdo9AIslTYjkaY=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/w898h599x1y1-af6729dc_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/SU9sJVW5-6VeQm54-9AhaGNzZ6yDRv14dtN8kGhVk0Kf7ZNRI-3y40gdoMmNR3u2_BVu6b0S61izY0HOrsrrjaIxQGNQrLseybZofNkV5f-PwB-9lwLcrIWGND26Z6pT4ROWUa1pAYUSmPJW0tUPpp-e59jiyw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902839/a7c73fc1_z.jpg"
+                }
+            ],
+            "overall_rating": 5,
+            "reviews": 1,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 1
+                },
+                {
+                    "stars": 4,
+                    "count": 0
+                },
+                {
+                    "stars": 3,
+                    "count": 0
+                },
+                {
+                    "stars": 2,
+                    "count": 0
+                },
+                {
+                    "stars": 1,
+                    "count": 0
+                }
+            ],
+            "location_rating": 1.8,
+            "amenities": [
+                "Free Wi-Fi",
+                "Parking",
+                "Pool",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Ke Nani Kai",
+            "link": "http://kenanikai.com/",
+            "property_token": "ChgIxe2M5NaBk9-nARoLL2cvMXRmM3psN3YQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgIxe2M5NaBk9-nARoLL2cvMXRmM3psN3YQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.1863896,
+                "longitude": -157.243372
+            },
+            "check_in_time": "3:00 PM",
+            "nearby_places": [
+                {
+                    "name": "Papohaku Beach Park",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "4 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Daniel K. Inouye International Airport"
+                },
+                {
+                    "name": "Sea House Restaurant"
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/8cwo_siiGaI_8h5A9e1dd4KL7pLVK3ZOg--9WrZAzoAxiTEWZG-omC_QWgwSJRBq5-0CXvr92ZdkWR582YShgg748bAE9sIzldtUM8whTuvNC4pZ6dti9XKYP3FjvZTNFw9dk73lIpcIaFcpMsF_jHbEjRV0zA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/3e/c8/3ec83f8fb1877703b89434732aa9b373b92a19b4.jpeg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/OehAvt8vwuAQLjjoaDvSIZIoVcmvZXbdtDV6-EkbJExlBKa8jN4xfLyAuFY1RTL4USSKf8us-YGHHccZeGeyKyiOg8ZWvHReVn1xt3LYaLbYIVUQpo2HLaqZb_qhKi0I5wlEGccaycO4CKi2Xzw7lk8VyOCea2A=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902833/f1692e6f_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/lR3oxEmzGSWuDm7h1KfqeqCkM56SQOyuF9rlrbryS2XZrSHSyJmwnkQC8MJa1qbWaJXSMYYVoEZYAuLskZQEVDWqdmkQFGFpqq_okWpKcVQ1vp7_j_1oON34wyXKPUWvCrFQkW7ETdfnflzmv2WfYgfYBFmwOw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902833/50bf0eaf_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/H_yVw7lXFPmGmPXRyatPB6R4f9xxeXmkEfcTSwogfkqThNCTperQwEEgeP9LPkZhhi02duau08TQZqxXDFulmqdLekdgbl696oYbDcHruyUvylF1qIfDrkchQg_S1r_iIrmoCllFBoZc99dYf3LWYRQ4HxB3pA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/01/11/2c/d0/molokai.jpg?w=2100&h=1400&s=1"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/CorixPBeuJgUzR2Q31kXS0LuPSaxVrmfYBuOl5CuxvwUMrQZxbHXWPjaRJG3PbTZJ7VBItYTJ0jynL0VQm343HeSFcz3qToD1QD6M7jun05WtAlq8W3Sk8e2sCiRfxEFesf8Nil3YsucUR48yU_49IqiRm1oVXk=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/101000000/100910000/100902900/100902833/2696cc71_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/ewae9oPErOn_pF_ZQHsTxn6lo3OmyManMCwfQBQgwtKBdrprH7kOMe5Os4ItKogXLXReU7Qfppi3y6ZBataGihzh3Gv_DMH4dFrxPOCz4U5pEnNFfvw1qQpkyfNHz2OCrWWj4RH0Y4XfV0TubamieatxH1yuBHQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/d2/07/f3/beach.jpg?w=1400&h=1200&s=1"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/SWo3jjgdNo4-V5mBPuVOIFMUrirGr6xJMnlDtQ-7CTyuFS-wxv5BIwVwLlsvn4XRYoOHhCakXhNUKqs_3WTyCzEIrVS5x27yKW3WaZC2DklKr--e0mnbYYqpc72GUecHnYSSSeNcXjU8ETqZHCATq9_i9CDRBg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/f3/ca/f3ca8cea9f399f612dae960ff564e4a563b02d24.jpeg"
+                }
+            ],
+            "overall_rating": 4.2,
+            "reviews": 101,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 58
+                },
+                {
+                    "stars": 4,
+                    "count": 21
+                },
+                {
+                    "stars": 3,
+                    "count": 13
+                },
+                {
+                    "stars": 2,
+                    "count": 1
+                },
+                {
+                    "stars": 1,
+                    "count": 8
+                }
+            ],
+            "location_rating": 2.2,
+            "reviews_breakdown": [
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 21,
+                    "positive": 15,
+                    "negative": 4,
+                    "neutral": 2
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 17,
+                    "positive": 11,
+                    "negative": 2,
+                    "neutral": 4
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 22,
+                    "positive": 14,
+                    "negative": 6,
+                    "neutral": 2
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Golf",
+                "Accessible",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Kaluakoi Villas",
+            "property_token": "ChcI1oqOj4yknK12GgsvZy8xdGYzemw3dxAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChcI1oqOj4yknK12GgsvZy8xdGYzemw3dxAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.185890399999998,
+                "longitude": -157.2453548
+            },
+            "check_in_time": "3:00 PM",
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Papohaku Beach Park",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "4 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Daniel K. Inouye International Airport"
+                },
+                {
+                    "name": "Ganotisi's Pacific Rim Cuisine"
+                }
+            ],
+            "hotel_class": "2-star hotel",
+            "extracted_hotel_class": 2,
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrckwolz6SV0F3RKAjmkLBJvOBSs5ewyexC-Tj3L-I6Q6N6w_CfTOE6S2xZB-SXhTA1Daf5OQ1HaAjPBr_89Tjiuy8ZXh7a5jbIgOuYHPktAsAdqNOjLeMTkuriuTNs-HDSvZ5p5RVeH-E=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhB-YGVwgdPYXfCpIQCCJGBR=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npTtg4ifB0JzAhZocb2fY8E9QDc_H29f76hRNOh747wgLnpIdlfbx7JdX0wQlojUqZLos5gidDPeKfSYxdAZmQbuC4C5kI3JzgjLve2DwZIxpZjmyhmbZIKYZYL1lCRqKtekowG_BTGDaQ_=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhBHQBtuFJXXpcP3GyiLUT6p=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrdRfXE3jswnYzM87-46kCuKdVR6iskQNyXiIxgfpscp94kKjGeMksMBdmA_6zt2ows_-qxWJgNfKG3Di4BM3NKn7CUOVRD6oFsdeEkAPdrqZ2rbHB3iuMhtxatQ9TsmUTxqRlYvJEM_BA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhC2osVg6--BZe7NE40gfyoq=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqqmZ3QU3ABt3-IuoVfhR6WWpIHMzb2lW1WwO6LKs50RwSXAy-4ANi5ujyKOHPuiekSdCRhNWkgCfvUJc96jd3Bky4MhIOeXWxTQergtfCV0tvSUbjQGYKWAIjbpiRAkN4Ipy79pw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICcltGywAE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npS24J2SpSdLDQa5R4zgWA2BuGUYbnslvN7d6kRAc8fYd-zYzTgtxu1A4eW_jCkJJcRDxn9X36OURjgHvCR6ugsKYI3cETmEn6CjtB9-7I5phBCaLPk9EN6sHgrFT44hhtRCGeKuA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIDsmJeDhAE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqP91LEBqL6YdU1rO_8g4-I2xuzMpjETDghIep_x9lMr-hZz0SZtxZWSAuLafyA5e2stmc4x_QWEZPd0MzEb74njUs9-5ZrbmrfSlSu6JCP6_WrQhXYPMnOI97P0JpzZan0KR17=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIDE4dyIaQ=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqVJbAa-A-7j9q7Cmv6O6MIHRuKTMHSJ1ziKQ6qNP8Fw6Zo46YpslSPuSetXfng_02dDfDi-1QyfNKrVKdpm2bmtCBJvGBznvB-n3YTAYZrPFrUxydHpdWsY9QRKtv7XwlCzQmt=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICcltGyoAE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npRgH-voYuBKcW0ddbpFnXO7cA7DSpc-U0ID4cIt_lzXgVDDgeyuGcHmqj9gS0NCpDzR2w_ZJTvEGOFzCYdbpoCTRX0tuCYo3J8kXKCeqXq4EpIyZUPLTSur2Lagg0M_nqcxlwO=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIDxv7SUmQE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr1Rn_Lidk9A1z3Qc0xt2BH4ncPoqFxTQAO0jZiPZZBZRYleNarq8j8gHIXa0POfftUdwB_U4Xe10T-1TJ2FFVLPm0WCJ_yGKvj6AOZMYGo_5d7Zd2fLMwdyP6RloyE11IlqZxo=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICEpO2udw=s10000"
+                }
+            ],
+            "overall_rating": 4.3,
+            "reviews": 66,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 39
+                },
+                {
+                    "stars": 4,
+                    "count": 15
+                },
+                {
+                    "stars": 3,
+                    "count": 8
+                },
+                {
+                    "stars": 2,
+                    "count": 2
+                },
+                {
+                    "stars": 1,
+                    "count": 2
+                }
+            ],
+            "location_rating": 2.3,
+            "reviews_breakdown": [
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 14,
+                    "positive": 11,
+                    "negative": 0,
+                    "neutral": 3
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 10,
+                    "positive": 6,
+                    "negative": 1,
+                    "neutral": 3
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Kitchen",
+                "Golf",
+                "Kid-friendly"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Montage Kapalua Bay",
+            "description": "Sleek beachfront resort with condos, refined dining & a day spa, plus an outdoor pool with cabanas.",
+            "link": "https://www.montage.com/kapaluabay/",
+            "property_token": "ChgIvOHFkt2S18xgGgwvZy8xcTZjbTNsODgQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgIvOHFkt2S18xgGgwvZy8xcTZjbTNsODgQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.0015878,
+                "longitude": -156.66451229999998
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "11:00 AM",
+            "rate_per_night": {
+                "lowest": "$1,433",
+                "extracted_lowest": 1433
+            },
+            "total_rate": {
+                "lowest": "$1,433",
+                "extracted_lowest": 1433
+            },
+            "nearby_places": [
+                {
+                    "name": "Kapalua Coastal Trail",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "L. Honoapi'ilani Rd./Napili Kai",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "8 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "59 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "2 hr 14 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Sea House Restaurant",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "8 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "5-star hotel",
+            "extracted_hotel_class": 5,
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPph8CPlUrlvKEHZkc0eCUiPAzOAjpmrRl7T5M=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPph8CPlUrlvKEHZkc0eCUiPAzOAjpmrRl7T5M=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipN6tR4bwuAbO2RN28uZ4i5rCimy01YDcvYTqvA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipN6tR4bwuAbO2RN28uZ4i5rCimy01YDcvYTqvA=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipNSepDKMRINWbBbu0J4wUsLE3tPDnNk8V4thSw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipNSepDKMRINWbBbu0J4wUsLE3tPDnNk8V4thSw=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPiyCSbmliJDBAGjfWhwEeFULU1HTt50tkDt5A=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPiyCSbmliJDBAGjfWhwEeFULU1HTt50tkDt5A=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOXLzek5BqbQt63txwRox7KTE-n16ruhznye8k=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOXLzek5BqbQt63txwRox7KTE-n16ruhznye8k=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/yEa0hj4Rv4zNbfOJWET4Y_QMv6RK8alWun9J5YHpUNhQuxem5XuEMXUzDvkfB4mQODcwVrJSZxEJkPsUrBFFsVbDucwS_I5CUI3X54cwCvVfzqs4O00RenQnVBQOqtyjHilpussYIopgekS3_R1qMfqyalgl2Q=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://www.iceportal.com/data/2813-123232-f73039587_XXLejpg/United-States-of-America/Hawaii/Lahaina/Montage-Kapalua-Bay/Photo/Montage-Kapalua-Bay-Lahaina-Undefined-MKB-Architectural-Cliff-House-Day-Model-Facing-Cove.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/gXF-S6JhzM2Sz_r20z6tXRgn7aHU08Mx9cbLP_zFCAEvxqeOubyz_xrAiBOlBGgFpKuyRKTDobz8r5CLd4cw28NmbkE88g6wJzh3p-aHmGY4kp33iOGpv_5rqMkL8eklkoQzUqAXna5T9tWa5XqbVEWaXnw9I8I=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://i.giatamedia.com/m.php?m=AQABAAAAla4KALT6VgUEADBYpgXdGaFt37dGlaQ_B8I"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/VOm2SQQ2kCudnvKkHrNQq7TkIcuijqnJi8-OFTfAkcdJGpT9t7FUhDljwM-QUqrMUaCzEkzBbEDg7G9LmmItnHQWuWbfVg9WiapRieEdyXMoFgFkbXdYQoS8wjX6NV-xZ-lFganUK9GZpvaEIW8eaimWvl5FuQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://www.iceportal.com/data/2813-123232-f73397587_XXLejpg/United-States-of-America/Hawaii/Lahaina/Montage-Kapalua-Bay/Photo/Montage-Kapalua-Bay-Lahaina-Undefined-SR-Lanai-View.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipNl56Bqwcur2n1w5L2pbktSngwFwmBK8SmDZO0=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipNl56Bqwcur2n1w5L2pbktSngwFwmBK8SmDZO0=s10000"
+                }
+            ],
+            "overall_rating": 4.7,
+            "reviews": 971,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 800
+                },
+                {
+                    "stars": 4,
+                    "count": 121
+                },
+                {
+                    "stars": 3,
+                    "count": 21
+                },
+                {
+                    "stars": 2,
+                    "count": 11
+                },
+                {
+                    "stars": 1,
+                    "count": 18
+                }
+            ],
+            "location_rating": 3.6,
+            "reviews_breakdown": [
+                {
+                    "name": "Wellness",
+                    "description": "Wellness",
+                    "total_mentioned": 35,
+                    "positive": 32,
+                    "negative": 1,
+                    "neutral": 2
+                },
+                {
+                    "name": "Spa",
+                    "description": "Spa",
+                    "total_mentioned": 29,
+                    "positive": 26,
+                    "negative": 1,
+                    "neutral": 2
+                },
+                {
+                    "name": "Bar",
+                    "description": "Bar or lounge",
+                    "total_mentioned": 44,
+                    "positive": 32,
+                    "negative": 5,
+                    "neutral": 7
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 173,
+                    "positive": 154,
+                    "negative": 12,
+                    "neutral": 7
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 88,
+                    "positive": 77,
+                    "negative": 7,
+                    "neutral": 4
+                },
+                {
+                    "name": "Couples",
+                    "description": "Couple friendly",
+                    "total_mentioned": 15,
+                    "positive": 13,
+                    "negative": 0,
+                    "neutral": 2
+                }
+            ],
+            "amenities": [
+                "Breakfast",
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Fitness center",
+                "Spa",
+                "Beach access",
+                "Bar",
+                "Restaurant",
+                "Room service",
+                "Kitchen",
+                "Golf",
+                "Full-service laundry",
+                "Accessible",
+                "Business center",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Sands of Kahana",
+            "description": "Tropical-inspired apartments with full kitchens in a modern resort with 2 pools & relaxed dining.",
+            "link": "http://www.sandsofkahanaresort.com/",
+            "property_token": "ChgIu6_Uz__i_Le3ARoLL2cvMXRneHRyeTIQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgIu6_Uz__i_Le3ARoLL2cvMXRneHRyeTIQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9701661,
+                "longitude": -156.6790211
+            },
+            "check_in_time": "3:00 PM",
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kapalua Bay Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "8 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "L. Honoapi'ilani Rd./Valley Isle Resort",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "3 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "53 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 55 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Miso Phat Sushi Lahaina",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "2 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/ACN0KtfY4geVzRRvVU9uFAITdHGjzjx5z3YkVXMFrkJVOFvIqCIQaCLE50biw9FFirstzNNOwd-X6EDIOJ9tu_qvnwLJB_bIiNeVKcdWlueXNJMdNgLYH87W6GuCkIM8KdN3nbQhXLmP7whVG9lO9qYmGIwa7-A=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/85000000/84080000/84071300/84071269/3e399273_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/pVRf4hLxcM3X7aDzHWD17U855enR4PmjyaeO5-3ftNHWFemBSngwehy0SitBdtoY-1AGJu2VPM-wf-fyOSCduI-GSupKwt_F7rpI6xgBt8Z90lYf-iRLuBM0hvaYRPSThCaLJ-WzVZ5r8duWcuWDINgHRe72Yg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/520000/517100/517013/afb9c98b_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/RQUUHZwUbMU55vGVURa9XvDMcsSqhMMnkC_leAMfpVbh1DO-vYFI_T1O4xEQQUnZ7gdMt3-f36qNMvR-ZNKi4m4EQFQPiSfP2Knqa8Tx4D0wkEeP5bjNPGoPK4eQlQcGDE3T3ktWlCn2Bc_UBTg4MJ4ToOlXifo=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/72000000/71920000/71917900/71917811/a6d2531f_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/wwRLmD5KWvGnEwKnTg-eQ1U1XsHrzGxP10C98SD1CYyW89DNlA0KagRu-YvWgjT6G2RbxhkinrdMex0KKdcaR9CJAEi73BwP6jAF6spyFLbP5BtXSANeyJ-J6UC0WFx-1Uz16AT7XykAMlrib75NztJI2b2sieM=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/118000000/117790000/117789100/117789037/732237d3_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/hesbaCeSZJ8e9GTb_NMU8o9ZRlBq7kdLun4rLgIsb-IRK0Swa-is7G2Vmb8pmCbGD_zNsz9sF3GORNFXHGzV7ymEidTeQQ40jJfudh93ohUSuuxmny_dE7e01V8dWqt4lsDLd8MLOgkDBgPNcTL3pwqQXK7ZAg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/73000000/72280000/72275300/72275235/3f9bb187_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/M4B2YA5Zy5X_YL1-4Th1u5_5RjqzBg-41UQGNR7yHFjbwyyM6uiR3KGrZB3Sjtkrk0r6RUVusGRSBpy37qZDzCON5UnvutpbPJ3IurTY-tZc3f2e27IlnhJzOF6fINFMECu-XheeRX8Q8jx0nhUHk3dCi9bXxek=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/52000000/51650000/51648200/51648121/77a045bf_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/32iDr49JmvYfaU89nkbeCiaW-o4pxmcNi28C-7OxcloQ-MWypwRPg56g8umbHoKgvbnoTSDZ-zjSH4h639evFWNcB6lFTpI_vK0HsxOZKDkY1304Co5qTFiQGcgKftIdsf14-7L_M6Ggvo7mt7rfNGS00xqjFg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/520000/517100/517013/4e8c5d98_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/-hMrBndi9dLnH7hvBPj8S67XEF6ed9XCERWz0UhyKIEAbV3DAblDL-bFJ29MGXB_lnS6b-z9eXrtN37oqxNhiJSJJHehjMyW208p0tb7YIeJW2l0gSrsUjlgKETZbGLhOpVK1GDWthORCuP2OXTKf8ZiniTt5Qw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/7c/bd/7cbd10992f5b66fe297099e94814f9b115cc4d21.jpeg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/0y8ygcDXdwVl5lAbEb211ke5X78C8QZkTX89A1yBXO98kcFD4CVO1G7aJ-JImXOHKbLapXJqLbhOARgPiwYtWGi4-ioPvCRveoBmvMVq70IOQ9XRFsB_Ne8cL3MJQTEBN9JcYKqGlT0qmscyfckCzI5eFZY7NA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://www.iceportal.com/data/2813-94752-f61958781_XXLejpg/United-States-of-America/Hawaii/Lahaina/The-Sands-of-Kahana-Vacation-Club/Photo/The-Sands-of-Kahana-Vacation-Club-Lahaina-Undefined.jpg"
+                }
+            ],
+            "overall_rating": 4.4,
+            "reviews": 1398,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 839
+                },
+                {
+                    "stars": 4,
+                    "count": 383
+                },
+                {
+                    "stars": 3,
+                    "count": 96
+                },
+                {
+                    "stars": 2,
+                    "count": 32
+                },
+                {
+                    "stars": 1,
+                    "count": 48
+                }
+            ],
+            "location_rating": 4.1,
+            "reviews_breakdown": [
+                {
+                    "name": "Bar",
+                    "description": "Bar or lounge",
+                    "total_mentioned": 75,
+                    "positive": 56,
+                    "negative": 12,
+                    "neutral": 7
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 304,
+                    "positive": 258,
+                    "negative": 22,
+                    "neutral": 24
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 311,
+                    "positive": 230,
+                    "negative": 54,
+                    "neutral": 27
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 247,
+                    "positive": 130,
+                    "negative": 77,
+                    "neutral": 40
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 189,
+                    "positive": 134,
+                    "negative": 47,
+                    "neutral": 8
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 148,
+                    "positive": 116,
+                    "negative": 20,
+                    "neutral": 12
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Fitness center",
+                "Beach access",
+                "Bar",
+                "Restaurant",
+                "Kitchen",
+                "Accessible",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Hilton Vacation Club Ka'anapali Beach Maui",
+            "description": "Fully equipped suites in a beachside venue with a waterslide & pool bar, plus gardens & cafes.",
+            "link": "https://www.hilton.com/en/hotels/jhmkagv-hilton-vacation-club-kaanapali-beach-maui/?SEO_id=GMB-AMER-HH-JHMKAGV&y_source=1_MTAwNDI0MjAzNC03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
+            "property_token": "ChkIgoDEqvC5gKZIGg0vZy8xMWI2MnZ3Z21sEAE",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChkIgoDEqvC5gKZIGg0vZy8xMWI2MnZ3Z21sEAE&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.948631499999998,
+                "longitude": -156.69074329999998
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "10:00 AM",
+            "rate_per_night": {
+                "lowest": "$379",
+                "extracted_lowest": 379
+            },
+            "total_rate": {
+                "lowest": "$379",
+                "extracted_lowest": 379
+            },
+            "deal": "29% less than usual",
+            "deal_description": "Great Deal",
+            "nearby_places": [
+                {
+                    "name": "Kaanapali Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "8 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Honokowai Shopping Center (to Lahaina)",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "5 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "51 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 49 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Sergio's Cantina",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "7 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "4-star hotel",
+            "extracted_hotel_class": 4,
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipN5hhzfvpsbmXNQnNMbiV3fOhluOQYx8vhxRHeR=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipN5hhzfvpsbmXNQnNMbiV3fOhluOQYx8vhxRHeR=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4noUVaWI-R3AYCCZP3SZqNS2E3pl4xV1YqAe2E2rTP2BFIFHPVcyJgy1tTBBc6pkNHbf-3B63izU0sQMt0m-71AZH25SdxsEVjvcxULQlPGUF0cmiys0FxUvUEw-ZfhXoYeSRp_T=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICc3f-cIQ=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipN2hoM1JN1yGgYb0SN76bLuZdDso3saqmhlTUDX=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipN2hoM1JN1yGgYb0SN76bLuZdDso3saqmhlTUDX=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPYqxKPhcJr5GZyUXeWCYceWpjV7jnbRz2YLfpN=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPYqxKPhcJr5GZyUXeWCYceWpjV7jnbRz2YLfpN=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipN8-YMO55v2x88rpmo_k60J1G8SIWUPnUsYg5gD=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipN8-YMO55v2x88rpmo_k60J1G8SIWUPnUsYg5gD=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPU52xMB8I_HK4UDI6nsZPvJZzS_TnpPsWEczhx=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPU52xMB8I_HK4UDI6nsZPvJZzS_TnpPsWEczhx=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPVFVvZ3QkANrfZ4NAeUJVZ0eoJ-xjUR7HcIEmW=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPVFVvZ3QkANrfZ4NAeUJVZ0eoJ-xjUR7HcIEmW=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMakmomsdtYDA9zhzkeCd5coXAYIGENFK4kEHf-=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMakmomsdtYDA9zhzkeCd5coXAYIGENFK4kEHf-=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMRKFhdRgoI3RPWeBe1jNhaL6lxHtROtMsxFkNw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMRKFhdRgoI3RPWeBe1jNhaL6lxHtROtMsxFkNw=s10000"
+                }
+            ],
+            "overall_rating": 4.3,
+            "reviews": 2789,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 1656
+                },
+                {
+                    "stars": 4,
+                    "count": 722
+                },
+                {
+                    "stars": 3,
+                    "count": 230
+                },
+                {
+                    "stars": 2,
+                    "count": 71
+                },
+                {
+                    "stars": 1,
+                    "count": 110
+                }
+            ],
+            "location_rating": 4.1,
+            "reviews_breakdown": [
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 659,
+                    "positive": 496,
+                    "negative": 100,
+                    "neutral": 63
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 541,
+                    "positive": 427,
+                    "negative": 87,
+                    "neutral": 27
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 395,
+                    "positive": 336,
+                    "negative": 31,
+                    "neutral": 28
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 449,
+                    "positive": 323,
+                    "negative": 89,
+                    "neutral": 37
+                },
+                {
+                    "name": "Pool",
+                    "description": "Pool",
+                    "total_mentioned": 244,
+                    "positive": 230,
+                    "negative": 3,
+                    "neutral": 11
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 293,
+                    "positive": 207,
+                    "negative": 46,
+                    "neutral": 40
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Fitness center",
+                "Beach access",
+                "Bar",
+                "Restaurant",
+                "Kitchen in some rooms",
+                "Accessible",
+                "Business center",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Kahana Village Beachfront Rentals",
+            "description": "Oceanfront vacation condo rentals offering a pool, weekly events, BBQ grills, beach towels & chairs.",
+            "link": "https://www.kahanavillage.com/",
+            "property_token": "ChcIhfv65-jXnc0DGgsvZy8xdHpsejVkeRAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChcIhfv65-jXnc0DGgsvZy8xdHpsejVkeRAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9764791,
+                "longitude": -156.67789639999998
+            },
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kapalua Bay Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "7 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "L. Honoapi'ilani Rd./Kahana Outrigger",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "2 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "53 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 56 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Captain Jack's Island Grill",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "2 min"
+                        }
+                    ]
+                }
+            ],
+            "images": [
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/yUG87syIlEKqsFEeCHWlnTb9ue-ZVXG9-pJVWbb949C4cSPNzKR5Ek1J_ka6fK7yklvS1wfmsH8BztW9nOFRAPkYap0MYGKhgLSfrojBBb16oo5vtn2WG9RAJskOxBX-UmILbrGdecymGbAPNyX9mMKnziHvNV0=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/113000000/112080000/112071600/112071580/2b9dd070_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/hhXTqSztzCtbVN7ycE0-DrmWhNCpK-L6gZiDr1Xf5IsQuZzJcGSG7b7082Cufz6nXwldW-KM9yz5AzFDsGTpURPwaL5SJ6ZEc-fg4u-UeqscikkGov7UfeVY3qfEyzCV2VyOgA_uwJh1NB7oEHUs86pF3xYMvg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/94000000/93240000/93230900/93230834/a3f0180e_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/0NITnZEiANgUwOglIV-wWTLL-7jKXO7aXvj-1zycksSV1app4LHv6vtAyWVeoIxxNaWozPNv78AGAOfJc6NgHmVgsIfYfvYChNpxsLMwohiZY9Onk8dNjkCQnythJwhk-jTYkXU4ws0oHfKicZ87oB554SK4K1o=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/113000000/112080000/112071600/112071580/65fa4d47_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/L7BBCvv58tGp6ScQciDKXQpTCgEmDAzZNe1P5eot57lfmTSQa-vVC6V0lS70eczijHqr5GZIjOJ8CkEKZi5goCcfHyxg7UH5kt2WBH38IjUFWb8ntXDGqj2mThiDd-0bcryygh0Tc_TMHKvizkJyKDIIMOp6RPY=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0e/40/c4/bc/kahana-village.jpg?w=1300&h=900&s=1"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/10v5JywxkeZzIKbCH6N1AsRA42kjquNUIM7Q2xjdo1vVddrRZZirJWmn0OXvmlGUXQws7m7Dx3a2Ud-0jPQHJ8ZtY_QOUWWxD4kyj_yg-FETIbE5LSpXOx1BuL65DAWdQhm1M5jE6_2EnLTIEDRNkEGSNJvgwls=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/117000000/116940000/116932700/116932658/95eeaef8_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/BIQ6_DnSjYYe1wZgZ2HFzUcSVklHHEeEb4IdLk9PxiGB00euSLXUMp4-pqLDiwRI-Vvp1siU31ev_mHi1GieSw0g7WmsMuuJt6dgm4M5y8oE4ADv1isMGMiihTuU9d5pdwBpWBq0incOPJ-jNjP_HGufrAcuVw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/117000000/116940000/116932700/116932658/b7458cae_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/8sVb8CJ2i6Uq_QjmZyNdSNAHDlz8J0YNG_LdHfdhYqbCI_AR01zSfgpQs9iFLrxBZO_eoZEaFwBwH31iHPSI_vQQIjH5vZ3X5iMhhM3ClX-zfe-PSa24nXjqXxPNh_nww-O6CUqa-k55DoTsDCvYep3FwHEB2w=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/113000000/112080000/112071600/112071580/af66d2bc_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/cmhAvElHdjtoEZODuIm7SyAHfAsKIilpcjiaYUjh7IGM9UPdLDsf7eyTu_g92EoBmfbV3ckvVqUzte1jDBTy58Db7nnLxfI4I-DeaMH7ZqHNwehMpcdMVxLFZVHAZ1yzBwerddXWGAr_CR-2K0vq65-9XuEoGVY=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/114000000/113300000/113299300/113299225/580c968c_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/94RbTIRRK1xMSOhpPj2AJYVAfMAcyzxzjuycg5MHNoeui8Yb11QZG4AHzsJKhH6FUnMaQlDKy51aTUGIGH0qx54ZcGRHq-Bm6Y2ehS9YCnImYsU-vIRHyCPaKOoqnLKnBC3K7dGuNrOvDUApgsEI8ciTI05ePUg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/94000000/93240000/93230900/93230834/28dd55ae_z.jpg"
+                }
+            ],
+            "overall_rating": 4.7,
+            "reviews": 265,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 213
+                },
+                {
+                    "stars": 4,
+                    "count": 36
+                },
+                {
+                    "stars": 3,
+                    "count": 5
+                },
+                {
+                    "stars": 2,
+                    "count": 4
+                },
+                {
+                    "stars": 1,
+                    "count": 7
+                }
+            ],
+            "location_rating": 3.2,
+            "reviews_breakdown": [
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 68,
+                    "positive": 66,
+                    "negative": 0,
+                    "neutral": 2
+                },
+                {
+                    "name": "Location",
+                    "description": "Location",
+                    "total_mentioned": 49,
+                    "positive": 47,
+                    "negative": 1,
+                    "neutral": 1
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 44,
+                    "positive": 39,
+                    "negative": 0,
+                    "neutral": 5
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 45,
+                    "positive": 43,
+                    "negative": 1,
+                    "neutral": 1
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 40,
+                    "positive": 33,
+                    "negative": 5,
+                    "neutral": 2
+                },
+                {
+                    "name": "Family",
+                    "description": "Family friendly",
+                    "total_mentioned": 30,
+                    "positive": 26,
+                    "negative": 2,
+                    "neutral": 2
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Beach access",
+                "Kitchen",
+                "Full-service laundry",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "vacation rental",
+            "name": "1-bedroom condo in Maunaloa, just 10 minutes from the beach",
+            "property_token": "ChoQmpTP1tuN352vARoNL2cvMTF3bWh4NnF6MhAC",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChoQmpTP1tuN352vARoNL2cvMTF3bWh4NnF6MhAC&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.16901969909668,
+                "longitude": -157.2120361328125
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "11:00 AM",
+            "rate_per_night": {
+                "lowest": "$316",
+                "extracted_lowest": 316
+            },
+            "total_rate": {
+                "lowest": "$316",
+                "extracted_lowest": 316
+            },
+            "prices": [
+                {
+                    "source": "Vrbo.com",
+                    "logo": "https://www.gstatic.com/travel-hotels/branding/icon_1850600648__vrbo.com%2528ROW%2529.png",
+                    "num_guests": 4,
+                    "rate_per_night": {
+                        "lowest": "$316",
+                        "extracted_lowest": 316
+                    }
+                }
+            ],
+            "nearby_places": [
+                {
+                    "name": "Daniel K. Inouye International Airport"
+                },
+                {
+                    "name": "Lunchbox"
+                }
+            ],
+            "images": [
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/ZnkLYhFSKwHDJ4YAcEYfz1m_MBnGJSQBFmlltlpWGoQWrvlCzMD5ZfH_tvIiKbwKhEZzDn6k-jwS2A3NiZQXza0E3ZlkqPdu8rVBEHB8zVUAyvy3mY9bn7Rex1KMC0QQpJ4Q8enta5fAN-mYnSUdMdgBe9q57Lg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.staticontent.com/media/pictures/e8656601-2f04-4d34-a065-8f7f8cecf11c"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/M-9aT8XdcjQqo0--rFOk56WqyVl-DUJeLZlVf33BxjlIybL2uIXijmFkMDnlgvhKM50djGTU6KIw2jlcKbpgJ_N3A_VYqljALQ5plytzO28kYQSybsftW5GyoADkXEbirXGuvhHKJtW_Ax-qkYuCjzFFKmtxDQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/96000000/95270000/95268000/95267932/w826h683x99y0-6e61f1d1.jpg?impolicy=ccrop&w=1000&h=666&q=medium"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/igSQ2gXXqh5vqGJysF-SRYHktrjpH9DSrroU2P9Osn_PbQipUeZujjh87HqM4jbIIzDNpNeEaSWA6GQkEjOXW2f_GNRElNy8VpeP5Y_a2Sug8H_QlkAzq-hXkgOxxNKYta8qLSN0008FgegZC13aArhN084UyPQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/96000000/95270000/95268000/95267932/w698h683x163y0-f9769edf.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/nWdN09b-V1aOKiBfVlZovE7Dqkl8yuu0tOO2gky5R0sZeeVdRO2pj3qdwJl5OzE7hzD6gF6WvxORUCGNTOas9CtcjY_L1budXcOCpOdoDmbihWo6Z1S6wa4yLp87DaLmIevlv9_y2umu3F8QQHw--sM8Hgrd4NU=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.staticontent.com/media/pictures/5b092ffd-16d0-4f60-9cc8-17a4e21a1f6f"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/SY0Vc6s3pdGLSRj_GYR-cKDgt05TUlurgJdOAOqbJYBxwIRZ9y9Os2u8c9aemAQgNC2owtetpug1pIC0NzfO_iAcEgtT8wSXa2PHwbOLo4A4FsjnD6PNuLcMJHJS8ORTYap75eN0GnvfzGNS1K-Oz0qUaj4IZeg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/96000000/95270000/95268000/95267932/w556h683x234y0-5914fc75.jpg?impolicy=ccrop&w=1000&h=666&q=medium"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/f-5h5tfXHctj13f1iMLR8k_OLSH4e4RXt-iLcW72nnkXax85QQc7IR4qxIgH8FUV9tYDXRPOXmwdNA4bVdjd9sPLHDf7lj5mbYA4P8JjjhoIKFQuGtuC62rpMrxti_RDlITosSGDC39nHtcBdrderUPThzI1-A=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/96000000/95270000/95268000/95267932/w916h683x53y0-c1a19c2f_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/8ISAXaddiw-VKLz10ROgeiB2ZYayD8q7nBYI0XhIyNM472s4VKDK-djgbNVtbQCr5MoljVbHYoYA_Y5A3tVC3oxRIZlEGc9KUjLw6R7cKgct-W3X7ZIYs7VK3VhOWSotNm1J7CVXrYM_xsvhUbqD45TifOc3eg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/96000000/95270000/95268000/95267932/w698h683x163y0-f9769edf.jpg?impolicy=ccrop&w=1000&h=666&q=medium"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/kPqehfm9ibmaL3u7j0tG7s0AGWPRlV0VxbXC6KRMBBhpbhigJ00ecG-_oDClCY5mwJSaoCnCYd7sj9KKct2Oqb3sDA26c56c7nkiLeU-tHtXQR9KeITO8EczQyCpeCGr9sYZFpzf7fs2EPtXtuBNAkempUBmvEM=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/96000000/95270000/95268000/95267932/w919h683x60y0-43afd96c.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/mukxaG5kw5V5DlEeeIEoE4pzqZ5VW8R6sxX5irdQEdjMMNY14YkaHWMZ0gWfQgekcVRN_xs6AQWkXcCM1A-3Xe9KKt8kpgYiNFJJDZ8nibZ3mzTJzKIKBB6h-7sx1ZeHZR0JM5Qvqg55nBRzs7PfFdWuDN_j7Q=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/96000000/95270000/95268000/95267932/w556h683x234y0-5914fc75.jpg"
+                }
+            ],
+            "overall_rating": 5,
+            "reviews": 2,
+            "location_rating": 2.2,
+            "amenities": [
+                "Kitchen",
+                "Microwave",
+                "Oven stove",
+                "Smoke-free",
+                "Washer"
+            ],
+            "excluded_amenities": [
+                "No indoor pool",
+                "No outdoor pool",
+                "Not pet-friendly",
+                "No parking",
+                "No Wi-Fi"
+            ],
+            "essential_info": [
+                "Entire apartment",
+                "Sleeps 4",
+                "1 bedroom",
+                "1 bathroom",
+                "1 bed"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Kahana Sunset",
+            "description": "Simple condos with kitchens & porches in a beachfront hotel offering an outdoor pool & free Wi-Fi.",
+            "link": "https://www.kahanasunset.com/?utm_source=google&utm_medium=organic&utm_campaign=gmblisting",
+            "property_token": "ChcI4-nysarVkrscGgsvZy8xdGQ1OHYyZxAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChcI4-nysarVkrscGgsvZy8xdGQ1OHYyZxAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9845606,
+                "longitude": -156.6714692
+            },
+            "check_in_time": "3:00 PM",
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kapalua Bay Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "5 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahana Sunset",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "3 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "55 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 58 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Joey's Kitchen Napili",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "3 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "10 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/MUXKNgHlg874zNNCe8rPVFjibKFqpQ2UoE5X_Hn69B2U7mUU_iO-ECIpkiYNtXsAp7vWhxoNBUd9Nx6Kt0gpXhdm-VpC5oBTfFod00B8RFzrArnFh_qlsswfgL2ulofu8NSSPoe0_t7XA8l_bVYrcLB0sQU71g=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/04/4e/17/ad/view-from-d-building.jpg?w=1900&h=1400&s=1"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipM0AM79CV2kZiH1KBPBH-cr3DVMrYwzDYF1W1xi=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipM0AM79CV2kZiH1KBPBH-cr3DVMrYwzDYF1W1xi=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nor4gR_7KaRoeZgQwuNZlT0eS8xJR6yaGgaccKkR_ujtsZtblIlBVcR8L3J-hXmv3avV0Whk6xaXxzG7RdbNSzyKmpT4KLWqghC_Xjfof9RmlN9GGAgA39pHqtcQTvtgnG2VR8uUZyTIigm=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhADydVgTQFnTWgLCxsAAEM0=s10000"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/peomjEhcHq1LCKbEnRP1Wly8iQQV-HqyifGO_QR_klca0q3Cqjqe8yOzvOuyaJRzPm88hVZkT86IKhAsq_ZKOKMii3BqVqxSQB5HofPyyUOSchrO8WZeyKjcAQiBfmv5sROuFURezpgpO9MlwLUqCssZyS0RIg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/116000000/115830000/115822100/115822085/3ca120c0_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqC4pUMfN46VgUCWedyRnl1fH1nZrcQE3h4YjRrcKfogfEW3_0ApXj7TSvBYmyf_pNPxgy8qyQwF_0PHqLQukEtgwzjyxtZpBJTRwJP4dp7gjmLTW5nv18f8PsSnoJae_2YSx-vOx_SjWw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhC7IBAqK_sNpi8rnidpwHUm=s10000"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/1QxW1kohRQ2e1PoG3t2XiYEz0pbi4ETAzy3jVALCpAfFH8OLm5rn-X2jydEzpUlsG8wITDmy_JuPSw_VBHZzgkekfMvymSNjUvIS1jWif4Q7P5mJqhqFnoShHVYRIAr6n_d7YwJZsDbzfJ-HHkbioqS_nntq2w=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/114000000/113270000/113266400/113266379/578f76b5_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/dshlNwCLmllgAzvaCLA-Iv9Sg56ExLDlFJ4-ihNIWFG02Ewil70HIjM0hmb4FOAcCbdKjqh-B_oW-ttEjNKOwZm-daJVTokigvjvfQOjhbNlomIaVQiYDMMSq_703Xygioo4tCbxc3pJaOMYRfZAXVPN0_3ZzQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/67000000/66700000/66700000/66699905/29e761e0_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/AqenudW3yCRFqpNZFsmMTvAyWjGx5_aNcKcjAISdKkoISxRij4GH6C2l1U-5Q1q0duaST1bC7QxxV8r6bPxuGtl10G0HpU5dy2FKwNvpvhLowsQlAwfPdfnPV71w0BndHjSQXrQVk0cCCHFB35EP4-YylghzsA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/109000000/108440000/108434600/108434571/3c17afb2_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/t8nVl3vlRuhDGmDJBIxs9bxEAxeKZ1Yii_mpzQynAoNRJgFKZmZ0ZLeUJIr19B8coa6ASRCbsBdXFoRLG6V3P6QEyCYrCbi_uGU6I96Bbp2G-dI9rkY1Va5aHtIkJPrdTL91B1Xqyd7g9iA7cOEUMHPlsa-kRQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/114000000/113270000/113266400/113266379/15b84c7a_z.jpg"
+                }
+            ],
+            "overall_rating": 4.5,
+            "reviews": 356,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 249
+                },
+                {
+                    "stars": 4,
+                    "count": 73
+                },
+                {
+                    "stars": 3,
+                    "count": 20
+                },
+                {
+                    "stars": 2,
+                    "count": 7
+                },
+                {
+                    "stars": 1,
+                    "count": 7
+                }
+            ],
+            "location_rating": 4.0,
+            "reviews_breakdown": [
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 125,
+                    "positive": 105,
+                    "negative": 10,
+                    "neutral": 10
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 65,
+                    "positive": 59,
+                    "negative": 2,
+                    "neutral": 4
+                },
+                {
+                    "name": "Pool",
+                    "description": "Pool",
+                    "total_mentioned": 49,
+                    "positive": 47,
+                    "negative": 2,
+                    "neutral": 0
+                },
+                {
+                    "name": "Location",
+                    "description": "Location",
+                    "total_mentioned": 53,
+                    "positive": 49,
+                    "negative": 2,
+                    "neutral": 2
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 46,
+                    "positive": 24,
+                    "negative": 12,
+                    "neutral": 10
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 66,
+                    "positive": 51,
+                    "negative": 12,
+                    "neutral": 3
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Beach access",
+                "Kitchen in some rooms",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Kahana Beach Resort",
+            "description": "Casual apartments with kitchens in an beachfront hotel with an outdoor pool & a hot tub.",
+            "link": "http://www.kahanabeach.com/",
+            "property_token": "ChgIw_rw3tWU7fToARoLL2cvMXZxbWpsOHIQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgIw_rw3tWU7fToARoLL2cvMXZxbWpsOHIQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9692361,
+                "longitude": -156.680175
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kaanapali Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "L. Honoapi'ilani Rd./Pohaku Park",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "3 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "52 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 56 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Miso Phat Sushi Lahaina",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "4 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/empg0Qrnf6ymbPUKcT2_c_METnTdqkVpPD7GdzLJ4KCYHdW7y2j9ylSzkSZoBecv8EOh4LfHlliuMo8RdJP2FZ_eOe7UOxSYDe6mMXRFnrk-QS6DTm7wuWnXKtfvK9hcccPxLp4PL0JHC_AiTEFbwmOT3Qq7aQ4=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/20000/13100/13039/19d3719a_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/ERYuatPUsn79AqhZWUMdTCxjWg-TKiaEtXnxrfJ3b3llJySZddptpKSVskIjQ4_fxBGudVZcZJlHckQkc2sUpfo1ykdlqZltrTsq8UL3l-PH5ys-wq-mhIhpMFf2a27ULjEjfNsKuPSbBNx_ztC6pCpeATwqAd4=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/20000/13100/13039/dcf5fb23_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/zu1epx3KR1LQ61qrAfI94iLMCh3mRnHY0LCbpwATzxvZsZQ4M4xDXtjTho-J6s2NSco_rjNzwSAiVWTEPapgScZZ6Z1WLvJ0EaSNGugqb7axi3zJbr6CIa5nk5zlA1yx_0varVLhrpLPdp7f6HNeIOKRJywM1pg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/20000/13100/13039/5fab9da5_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/UKFIsn6sx8Dsdesd3C37fj-N378AOXen1e6ZVhavvDBRs1bz2p0A9zspMhwaMx-yxXvv0Qn_evfCkFUM_shu-09tHdCHGphAqbVz0b7d2-nq019PlOybpmQY4ltU5x5y1O8p3b1H3c7kkpaW1oXpFU9xabJqPw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2b/d6/72/cc/caption.jpg?w=2100&h=1400&s=1"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/ndGD5c2QvnQhltt6ebVTMMmpM7yhRs5_FgPzK9KH3Kcx9ZKXkRNAJpDhniTTlbAac4c6wkz6HvY4jB-f55v8_R5XNsjLmc93uRvLEJaqvJNgy1KXwk7gi212xdG8URuq4IAq2m3syTIqm8tF8RHCMpYTp2ajcA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/20000/13100/13039/bdf6c03c_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/otP5fCbKUTdxG3lhVeQRift1jLshbQn0dB7POsyr31sSYL6BSIHwF2VZJMjroQVMu2eAXxVRkq7Gq3GiBvP7QP_eLLfX_HYvnQ7TA28UcTcsuE5UIaHBKP9GqMabXWmhXc5eYG9NG1vXfMDr6FEtt1V4kHm0GMk=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/97/db/97db4784b3b35f3ac0e73b96e03a4d8892f7e034.JPEG"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/jlTLJqbIqqUSl9WVGUHaEYMX13qZ9gs74PP3dMN_Bl96CdSVECDJUcMIjmmGhCzF2dMjzmisnM-l6LftQkxuv7krwcYKe_Y33fwl-QMcgQXusBn1soGMM14E-qw3qmPtOmE4Bpcv_rzS1hRrUJ6C0Phg1KT8xc8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/1000000/20000/13100/13039/390a5d47_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4non9NI3xyO0zwjCxa8Q8VAGP1I9OB1OFi_scOqhaJ97kKFbfhWhBTz2lrJyQlJYDLMkdBxErk0SaNBtEfQzJv9mvbmnsq8S0pc4i_-s9609-q_K-TAFksrSypr2VNjkpEz15zWlsg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICM_PCD5wE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nprTC_5zFKusV10ZdvNF8_ORTzxP-JN2QajWbSXn2pm-fiahSxEv2njHwv0wdV9d3wHrnDVYgLtyM_2g80WrW5iM5SSEbf-nSHycFCxZ1k61OQrXAInLpOQtJTyAjHYwvIKccJq=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICn3LW2MQ=s10000"
+                }
+            ],
+            "overall_rating": 4.2,
+            "reviews": 554,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 286
+                },
+                {
+                    "stars": 4,
+                    "count": 155
+                },
+                {
+                    "stars": 3,
+                    "count": 62
+                },
+                {
+                    "stars": 2,
+                    "count": 21
+                },
+                {
+                    "stars": 1,
+                    "count": 30
+                }
+            ],
+            "location_rating": 3.9,
+            "reviews_breakdown": [
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 121,
+                    "positive": 82,
+                    "negative": 26,
+                    "neutral": 13
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 140,
+                    "positive": 119,
+                    "negative": 9,
+                    "neutral": 12
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 96,
+                    "positive": 64,
+                    "negative": 27,
+                    "neutral": 5
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 122,
+                    "positive": 86,
+                    "negative": 24,
+                    "neutral": 12
+                },
+                {
+                    "name": "Bathroom",
+                    "description": "Bathroom and toiletries",
+                    "total_mentioned": 57,
+                    "positive": 31,
+                    "negative": 19,
+                    "neutral": 7
+                },
+                {
+                    "name": "Location",
+                    "description": "Location",
+                    "total_mentioned": 81,
+                    "positive": 69,
+                    "negative": 3,
+                    "neutral": 9
+                }
+            ],
+            "amenities": [
+                "Breakfast",
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Beach access",
+                "Kitchen",
+                "Accessible",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Napili Village Hotel",
+            "link": "https://www.napilivillagehotel.com/",
+            "property_token": "ChoIzdKPn4ihzaD4ARoNL2cvMTFqOGQ0N2wyNhAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChoIzdKPn4ihzaD4ARoNL2cvMTFqOGQ0N2wyNhAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9948251,
+                "longitude": -156.66564219999998
+            },
+            "check_in_time": "2:00 PM",
+            "check_out_time": "11:00 AM",
+            "rate_per_night": {
+                "lowest": "$226",
+                "extracted_lowest": 226
+            },
+            "total_rate": {
+                "lowest": "$226",
+                "extracted_lowest": 226
+            },
+            "deal": "24% less than usual",
+            "deal_description": "Deal",
+            "nearby_places": [
+                {
+                    "name": "Kapalua Coastal Trail",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "L. Honoapi'ilani Rd./Napili Village",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "1 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "58 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "2 hr 6 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "The Gazebo",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "5 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/rABkHBmO5vWs-Q8w3I7-OKuxxe3MaxE5VqJs2exbiLGZ6a3pJINUmlkWuUkP-WvQw_Zucypw5ElHaHNKdiJEL3iyfLsYrDj2017Ouf68tB8KHU7DbWeT5uwMUVBVzQyIDyWNYtiKn733CZmsOdaauS4kBPDmpw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/104000000/103030000/103028100/103028003/7e303d36_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq8QgzAhFlE6r3wyY5RJ_Qqm0l0MXCJVKfAhLkkjqNJm5NEdrGRPiOkyQUgQytjYAc_w73fylMQ1FmIQc7xHTAiE3vddM0Rds9LXqwXGgEFYQxE6_nG6FflU60-dpRyL8KJei42LQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICuhaiPrwE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPdKE30BwKfqG_BAIt6bIjB2bgw4TblhGxmEsav=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPdKE30BwKfqG_BAIt6bIjB2bgw4TblhGxmEsav=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOJdbGdwlQ7MIevmVERQC0I93-3IpleiGbW3-ra=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOJdbGdwlQ7MIevmVERQC0I93-3IpleiGbW3-ra=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOA80PJbPVgJYqtrS6sNxQei1RW3BjPM6DhQwsi=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOA80PJbPVgJYqtrS6sNxQei1RW3BjPM6DhQwsi=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipO3lyi3l4Uo9HYovzbtb38kg1-sDVbGl6DYdTP3=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipO3lyi3l4Uo9HYovzbtb38kg1-sDVbGl6DYdTP3=s10000"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/ZyrgTube8aMC3XvxUJedRHLyIrBUP_C0ID2flhtrk1LousXZLaYo1Iax8ch74FuNwQeRBZGksNZt8CMMuw-0M1wPdTNa76wIvNRZwmhLXJ14J5JZml_7nTyY0-Myiqnf8C69RmhaBIFyAnL626BWPEWAa-_9Ilk=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/104000000/103030000/103028100/103028003/433e354f_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPzdsyn2GLILw9VqYfHaFR5J0pjkyhhlQlXRIaG=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPzdsyn2GLILw9VqYfHaFR5J0pjkyhhlQlXRIaG=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipNEBqPiefR8eU2MzSRfVPb_5btbD3QbtzpaCvx9=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipNEBqPiefR8eU2MzSRfVPb_5btbD3QbtzpaCvx9=s10000"
+                }
+            ],
+            "overall_rating": 4.1,
+            "reviews": 91,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 54
+                },
+                {
+                    "stars": 4,
+                    "count": 18
+                },
+                {
+                    "stars": 3,
+                    "count": 5
+                },
+                {
+                    "stars": 2,
+                    "count": 2
+                },
+                {
+                    "stars": 1,
+                    "count": 12
+                }
+            ],
+            "location_rating": 3.9,
+            "reviews_breakdown": [
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 32,
+                    "positive": 20,
+                    "negative": 7,
+                    "neutral": 5
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 29,
+                    "positive": 26,
+                    "negative": 1,
+                    "neutral": 2
+                },
+                {
+                    "name": "TV",
+                    "description": "Room entertainment",
+                    "total_mentioned": 7,
+                    "positive": 2,
+                    "negative": 3,
+                    "neutral": 2
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 28,
+                    "positive": 18,
+                    "negative": 7,
+                    "neutral": 3
+                },
+                {
+                    "name": "Bathroom",
+                    "description": "Bathroom and toiletries",
+                    "total_mentioned": 10,
+                    "positive": 1,
+                    "negative": 6,
+                    "neutral": 3
+                },
+                {
+                    "name": "Cleanliness",
+                    "description": "Cleanliness",
+                    "total_mentioned": 22,
+                    "positive": 11,
+                    "negative": 8,
+                    "neutral": 3
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Air conditioning",
+                "Beach access",
+                "Kitchen",
+                "Accessible",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Aston Kaanapali Shores",
+            "description": "Oceanfront property with casual rooms & suites, plus a restaurant, 2 pools & a day spa.",
+            "link": "http://astonkaanapalishoresresort.com/",
+            "property_token": "ChgIoaK-9dP2kf61ARoLL2cvMXRkeHFwYnMQAQ",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChgIoaK-9dP2kf61ARoLL2cvMXRkeHFwYnMQAQ&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9492838,
+                "longitude": -156.68919499999998
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "11:00 AM",
+            "rate_per_night": {
+                "lowest": "$236",
+                "extracted_lowest": 236
+            },
+            "total_rate": {
+                "lowest": "$236",
+                "extracted_lowest": 236
+            },
+            "deal": "38% less than usual",
+            "deal_description": "Great Deal",
+            "nearby_places": [
+                {
+                    "name": "Kaanapali Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "7 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Honokowai Shopping Center (to Kapalua)",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "2 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "50 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 47 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Sergio's Cantina",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "3 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npRoYgM1QmwNZpnQO3uRy8tltloGIFmwMjEd9hMW1-oigqeGsSiQ6rqOGrFZkdnNDS9FLG5zj3jeD5eQVfwFvdMFvlYgyFgmdVhPuFPPZKhSitwCWJnBFAoxzxCMyEvw3TrU3WP=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgICau5365wE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/T9-p7KVxgGgK73sop0jFRW1WttAY9LQa2_1EIJJrlr66L_Q0aTieIUf7aBLfeOS8UZb8ofREPNh5qjt8vI8K6Nxz_tmCkMo334FyRe8zn0qsjlPPBdbfzfZ-ryErOqOyE2v0obL67posmtl640iXCGeqHXg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://i.giatamedia.com/m.php?m=AQABAAAAla4KAK2jawcFABPm6YnVSERwkgb45DV-n8o"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npkWOqexNnrlQ9dxS6RhB-utoRP15SDOi9EHLzqPBGDoWk7GZyTBtGN5FxMafhALPInC64TFU5ptH4vF_4Pu6bDfDdUM0mo0YmG6wpXTEJtlA0pXEqv4Elcw0Vc4vZDT90thdRvbGbh1Uk=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIABIhDUK-e4S3s1AMbSlTpwqM6p=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipOV8YnfAoZfstIRWaxx3CDoVwX6Lp-ocFQZhRh-=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipOV8YnfAoZfstIRWaxx3CDoVwX6Lp-ocFQZhRh-=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipMYKrXgAhLNQ1hR7HXmSNy17AIAZCBsLiar14li=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipMYKrXgAhLNQ1hR7HXmSNy17AIAZCBsLiar14li=s10000"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/p/AF1QipPgGWjvPAsyF9jOqnjUtBfOS7wb_L1t4ZNO-a2m=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/AF1QipPgGWjvPAsyF9jOqnjUtBfOS7wb_L1t4ZNO-a2m=s10000"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/KKY3X-DX4Mr-fiZkgYIkewtlbLKpKqoy03wWhb8Wp5eE9jtHOmn41PXGLYeXxCpmIdVychnSZvTSj3hg_kTbSQ76_wFg-Wy7Ds6GfDfkSa7v8bujjMNJn0JSuZhgcpCqdKzTnoYo6r2plZ4VEb3gfkzEH7k=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/118000000/117900000/117893100/117893013/c3e2ea5b_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/oSpBa6EA09fkby8YAfOdDNLWQmLmlzMrg_mv4_iBLONcSBOgHYCkmuZY2gGuwVK_ylFpjgT28iunkAppkhn9enwv_l48quTYP35DsL50skfj68fW6gE1jIQKDBldZmvvfF6jyHi2-4fwOMEXjA3CQxKXP10cMQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/16000000/15490000/15489000/15488961/fb1e570f_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/7tb1ZnPwDj0lD0HITeOutg0R926ImUK4x2pgiRZNcxGiYSZEa50hl_KnQ4sRb0ypvdA4kaOX691lVYSAMMQIfwMIjnW0pBTpHQC3z3mS-JlO_S2ZpzidtX4Neav6zf2S3XgNUc95q4t4RlaaOWv1bpYoMbIKkCg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/c1/bd/c1bde9380c960d1de9bf803fee47afc464f34a39.JPEG"
+                }
+            ],
+            "overall_rating": 4.3,
+            "reviews": 2646,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 1500
+                },
+                {
+                    "stars": 4,
+                    "count": 780
+                },
+                {
+                    "stars": 3,
+                    "count": 226
+                },
+                {
+                    "stars": 2,
+                    "count": 70
+                },
+                {
+                    "stars": 1,
+                    "count": 70
+                }
+            ],
+            "location_rating": 4.3,
+            "reviews_breakdown": [
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 743,
+                    "positive": 558,
+                    "negative": 126,
+                    "neutral": 59
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 483,
+                    "positive": 384,
+                    "negative": 52,
+                    "neutral": 47
+                },
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 579,
+                    "positive": 461,
+                    "negative": 83,
+                    "neutral": 35
+                },
+                {
+                    "name": "Nature",
+                    "description": "Nature and outdoor activities",
+                    "total_mentioned": 499,
+                    "positive": 349,
+                    "negative": 75,
+                    "neutral": 75
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 367,
+                    "positive": 246,
+                    "negative": 81,
+                    "neutral": 40
+                },
+                {
+                    "name": "Pool",
+                    "description": "Pool",
+                    "total_mentioned": 258,
+                    "positive": 232,
+                    "negative": 10,
+                    "neutral": 16
+                }
+            ],
+            "amenities": [
+                "Breakfast ($)",
+                "Wi-Fi ($)",
+                "Parking ($)",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Fitness center",
+                "Spa",
+                "Beach access",
+                "Bar",
+                "Restaurant",
+                "Kitchen in some rooms",
+                "Accessible",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Kahana Falls",
+            "description": "Bright rooms & suites in a laid-back resort with a pool, hot tub & koi pond, as well as a BBQ area.",
+            "link": "http://www.kahanafalls.com/",
+            "property_token": "ChcIvOHR-YropvhUGgsvZy8xdGg4N2JsahAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChcIvOHR-YropvhUGgsvZy8xdGg4N2JsahAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.969274199999997,
+                "longitude": -156.6789298
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "10:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kaanapali Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "L. Honoapi'ilani Rd./Valley Isle Resort",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "4 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "52 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 57 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Miso Phat Sushi Lahaina",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "3 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/1OYQI7hg5okpT6_V7JA360jWZLHAETaMm5DT8e9UsYbcS1FWpr-6E8Y6QlrUS7A7Z-vyNqUoLVOgdnB554yqkne12JmHQJBIW6TYFe8z3oWEEz4haCvvCwtFTu9IX_sOHvJ7OHrE5WXpNAhvNtrXCy2oLpJGSw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/3f/ab/c8/an-overlook-of-the-resort.jpg?w=1600&h=1100&s=1"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/0YPBRSgY4A0LNzAVwyDSbKsHNqO8kp1kYkTnLFCfpgBU9HQ0MpUFl4ItUPxvO8avqQFv02G4ZyKWQYWJS2qks0KnoZPp3BtDMAvb9zGYCA7MlVDA3E_7RA7DFQ0VdCj8psPE3DqGlVRaHgnxdhYF9EGPwNab2R8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/f9/3a/f93a2d1f627790af71048d4bdc43e156b60eb00f.jpeg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/30QCej_F75ukyHWcTEsTfRIU55iuuL9AB5L29msflg4Rx0xLSLVcOkH19kxCcCFBFp5I8AK8Rho8aKQnJ2GCnApGoUkJBm5lMrFeDBIaH7Np7qAEZrpvdNznqkkTgTAdqFypSlvFb3NtL0ycX5Wx8Wxr8g7gpzs=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/2000000/1800000/1797300/1797282/ccd6a14e_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/hLkQx-a9-B62gJZFtS5CYzMEpJXogtj5k6YMkquid_GEFRIrZN6-AH1Qxrnh2DUoBciam4XpuEH26fityGWyC4kKbjWITzYL18vjkUX0dGAhD-kVX3n9eg1K5oQAj6RLc6fp_NROXZepQJbRX8pVQbMjS9Sphw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://cdn.worldota.net/t/1024x768/content/bd/4b/bd4b70aa2690dd8d1e4747517a0278eeeaa4d1df.jpeg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4non-gsaA_ULEtoM0W2gja7VjQPtTpg5XqZ_W31pkyclU37ydX6iXa56kFCqmJy_qD1DKay2ycH_LKSX29s8D0AU66f9uXJRJ-aCmdsqEidkzGHriqfQludaNLLQzZ2KTeMyO5rR1w=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://lh5.googleusercontent.com/p/CIHM0ogKEICAgIC13M6xnAE=s10000"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/hOeFmhHEC3pswY8qgDnRbsd5_U3IbU7TF7j-EB1CfNqH1n-ipk15OpVbevlstkQ6McnV7CpPddxxOdB0Pcow7CiJozgrg2umZQEdpOFbGZsWE5MmnG2Hkql3vEMzMPFVGxtooB_yEzj6ptx2EBS1tdzrmNQ1dA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/2000000/1800000/1797300/1797282/ed805e92_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/87JWEWsHwIySjF-7d5smpEqovP8opu2WbPDbArRVd0IptNt3jetvIhs9sNLzos42bQLwsqGExIhwjfK38S8jHArvzdA88xV80-Ca3FXQLboj2c5iEHtGG4F5O7pWY3SaS-8moZVRwo02QjJhGo-A-dy-O6f__w=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/2000000/1800000/1797300/1797282/e476c12d_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/ShKF5NsDUV464ldi2HOp-QPuYlDpy-mjwq7zBzYZxWyNKF_N9h6QUpfFsv9OsK6rrPO4squKp-7xU3CdApoIt_w_EYfT3r0Ty9BZc1-UOaZI6nyjJgil3MDKL02G4GOf8RwkAyCroOm6wA0Lvpyh55YBT0NqlQ=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/2000000/1800000/1797300/1797282/333cf681_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/L_gVvZZUpTpPV6D7QNsusw3gD2oNNMnPJwTnio5vNofyxUN_qlZR_9QZxm5znh3SN0rFM5Jv6jLd8oGqKmQ2cptO9HqXlpP01I08b0tsvgBPzrT-qWhQSqyjvugqaE-F4LgrGizIKJbme8VdYeFjhpuNvxXTQA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/3f/ab/bf/fun-amenities-at-kahana.jpg?w=1400&h=1100&s=1"
+                }
+            ],
+            "overall_rating": 4.2,
+            "reviews": 595,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 319
+                },
+                {
+                    "stars": 4,
+                    "count": 155
+                },
+                {
+                    "stars": 3,
+                    "count": 72
+                },
+                {
+                    "stars": 2,
+                    "count": 22
+                },
+                {
+                    "stars": 1,
+                    "count": 27
+                }
+            ],
+            "location_rating": 4.1,
+            "reviews_breakdown": [
+                {
+                    "name": "Service",
+                    "description": "Service",
+                    "total_mentioned": 155,
+                    "positive": 129,
+                    "negative": 20,
+                    "neutral": 6
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 203,
+                    "positive": 138,
+                    "negative": 43,
+                    "neutral": 22
+                },
+                {
+                    "name": "Bathroom",
+                    "description": "Bathroom and toiletries",
+                    "total_mentioned": 80,
+                    "positive": 47,
+                    "negative": 23,
+                    "neutral": 10
+                },
+                {
+                    "name": "Fitness",
+                    "description": "Fitness",
+                    "total_mentioned": 109,
+                    "positive": 85,
+                    "negative": 14,
+                    "neutral": 10
+                },
+                {
+                    "name": "Cleanliness",
+                    "description": "Cleanliness",
+                    "total_mentioned": 98,
+                    "positive": 64,
+                    "negative": 28,
+                    "neutral": 6
+                },
+                {
+                    "name": "Location",
+                    "description": "Location",
+                    "total_mentioned": 103,
+                    "positive": 87,
+                    "negative": 7,
+                    "neutral": 9
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Fitness center",
+                "Beach access",
+                "Restaurant",
+                "Kitchen in some rooms",
+                "Golf",
+                "Accessible",
+                "Business center",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "hotel",
+            "name": "Kahana Villa",
+            "link": "http://kahanavillavc.com/",
+            "property_token": "ChcI3-yPtK-lo6w8GgsvZy8xdGN3ZzV3cRAB",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChcI3-yPtK-lo6w8GgsvZy8xdGN3ZzV3cRAB&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 20.9687172,
+                "longitude": -156.6799464
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "11:00 AM",
+            "nearby_places": [
+                {
+                    "name": "Kaanapali Beach",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "9 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kahului Airport",
+                    "transportations": [
+                        {
+                            "type": "Taxi",
+                            "duration": "52 min"
+                        },
+                        {
+                            "type": "Public transport",
+                            "duration": "1 hr 55 min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Miso Phat Sushi Lahaina",
+                    "transportations": [
+                        {
+                            "type": "Walking",
+                            "duration": "4 min"
+                        }
+                    ]
+                }
+            ],
+            "hotel_class": "3-star hotel",
+            "extracted_hotel_class": 3,
+            "images": [
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/gJhs392-LDuG3Gx9COV_DN-uzYIwArcPTmga6W4aD-ZVfarfMPt7OkPDcJp-q9qjVwRXuXTJNI_rN4zvhAR2TOtoBQhBGPYOkGXyYwK1exoun9CgU0YzsYuvQag4JnwfjBuSgmitBZuX6XUHkozL0uyJ_D0phg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/3000000/2680000/2673500/2673451/06c3152b_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/KS8iV0gEAwEIjbK9pTgeA21nNy5c9zNLFdtp7PeV7InzF8-FcTvPvq5Wd4zW6rfykuWcBxlzc__bjQEDMjkP-Cl1ANllSamjpgAM76yerzkLgYHv2azui4AVy7IAaeRGfVFsvTsrqFpF1w9LlFbbJxyD4CKLZDA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/3000000/2680000/2673500/2673451/aa039294_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/xPUiFs319vRltjHbYGy-E46OEiykYdFYKOOUE1zCMiwcUcjtEK_3zIlJseaBlTvVE-9yafCBSQJF4rFt5FUdzzUvO5u4bPjhb0jIj26gCVzjbjKtJELbKtRLkqsnvrlAFAkBHrrJVdBpG-xC54S9hkiNnt4U3A=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/16000000/15490000/15480300/15480276/40d9f263_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/tMMut2lXrC2P3UMEYKIqNezz-DLfDTC3w6A0PXIgGuX6bwmW3hOjHLBgN0xHXzdNeefpzD67JLCt91pOD-5FF0D-OvMt2hknEbWypB46bLxncpJcp4HSuIoG_ZfwqBzMQPj7RF01zf7msZXDGzsbjVGomDeaHw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/73000000/72280000/72274700/72274683/6452d593_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/-hWeF7KO7OiClntlhjJj9kfUbj4Y6B1RaKewHyzoHZ8kpvqICyhBHX8G5ysBTZ9DQbgHe5Z6aQUyRSZpycaFPycbYX6SOtpJ7Oc44Q86Fb5FJotxPNdZ9Tgw1xB8QB5Ud-PuhsaNozt__dhw2Sg1iJsjOKh7QrM=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://d2hyz2bfif3cr8.cloudfront.net/imageRepo/1/0/32/458/724/1_Bedroom_Loft_Area_P.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/noewxM4bm2XEd6Oi8DZIBWeSmA9k-PgSiOaYM12H0-UnW__uxkefuEXA1-_GxPN7YvDOmRmlZqxJioQ-cF6w5XlEKuim7zmOqJZB1zJgT0BXcm7Zvzb0uDwdHb4X59czhy92b-dU24vSy4u_MYeYrG8wfH5WiA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/107000000/106250000/106241400/106241315/2a0161a6_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/rFuv5qnBbjMDVTn2BHYP2763OucHbZToHcdBEkhbtJ7QA_CKo6Q0DQhVTssmmDaC97yQyQdYKKZvCGjnY2p7lMbDo2Lcj65OWXB9egudJDiIBoM7Md4MjBvTXNW4uY1oBN1_T2hcQfndgPOAY6C3m5lu9IKIwA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/17/03/8d/ab/rainbow-from-lanai-to.jpg?w=1900&h=1400&s=1"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/FSiI17rge303dFVPfiBQwVyah99_yOka1uWadrzblVEnxFdVcJNcfRhX0lshp__lOBTYmL6X-8Is5_iJmaCX75E7_U0Aj0VBF8A_FiMy_W4dSjZCMrJ6KPHswcQwT9rZCVtmpNPQaQxT8FlkKJ1H0ALqDlrNEg=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/16000000/15490000/15480300/15480276/f3192d66_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/sGtcWPNTohYNYyMPfgpCMT0SIq9K2mFHeqq2rjgszCQD1P6iZArZkM-7IOfrY_AjyfqhHq0qAvlXdqy5lTWnNQx8O0wyf-9z1keHfXv9GRnxgIt7wZ2oFbmaKvyy8y5OG_uRhAkkPuJeFDjvSMTKlN7gQLpEtw=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/104000000/103440000/103430200/103430101/31e0e28f_z.jpg"
+                }
+            ],
+            "overall_rating": 4.3,
+            "reviews": 407,
+            "ratings": [
+                {
+                    "stars": 5,
+                    "count": 222
+                },
+                {
+                    "stars": 4,
+                    "count": 124
+                },
+                {
+                    "stars": 3,
+                    "count": 36
+                },
+                {
+                    "stars": 2,
+                    "count": 11
+                },
+                {
+                    "stars": 1,
+                    "count": 14
+                }
+            ],
+            "location_rating": 3.9,
+            "reviews_breakdown": [
+                {
+                    "name": "Location",
+                    "description": "Location",
+                    "total_mentioned": 80,
+                    "positive": 71,
+                    "negative": 2,
+                    "neutral": 7
+                },
+                {
+                    "name": "Room",
+                    "description": "Room amenities",
+                    "total_mentioned": 67,
+                    "positive": 32,
+                    "negative": 22,
+                    "neutral": 13
+                },
+                {
+                    "name": "Bathroom",
+                    "description": "Bathroom and toiletries",
+                    "total_mentioned": 41,
+                    "positive": 23,
+                    "negative": 11,
+                    "neutral": 7
+                },
+                {
+                    "name": "Property",
+                    "description": "Property",
+                    "total_mentioned": 85,
+                    "positive": 66,
+                    "negative": 10,
+                    "neutral": 9
+                },
+                {
+                    "name": "Kitchen",
+                    "description": "Kitchen",
+                    "total_mentioned": 44,
+                    "positive": 32,
+                    "negative": 10,
+                    "neutral": 2
+                },
+                {
+                    "name": "Cleanliness",
+                    "description": "Cleanliness",
+                    "total_mentioned": 57,
+                    "positive": 45,
+                    "negative": 9,
+                    "neutral": 3
+                }
+            ],
+            "amenities": [
+                "Free Wi-Fi",
+                "Free parking",
+                "Outdoor pool",
+                "Hot tub",
+                "Air conditioning",
+                "Beach access",
+                "Kitchen",
+                "Golf",
+                "Accessible",
+                "Kid-friendly",
+                "Smoke-free property"
+            ]
+        },
+        {
+            "type": "vacation rental",
+            "name": "Tranquility on West Moloka'i",
+            "property_token": "ChoQ19OwxZenk4zmARoNL2cvMTF3MWRfODQzNxAC",
+            "serpapi_property_details_link": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&property_token=ChoQ19OwxZenk4zmARoNL2cvMTF3MWRfODQzNxAC&q=Molokai%2C+Hawaii",
+            "gps_coordinates": {
+                "latitude": 21.18609619140625,
+                "longitude": -157.2435302734375
+            },
+            "check_in_time": "4:00 PM",
+            "check_out_time": "10:00 AM",
+            "rate_per_night": {
+                "lowest": "$344",
+                "extracted_lowest": 344
+            },
+            "total_rate": {
+                "lowest": "$344",
+                "extracted_lowest": 344
+            },
+            "prices": [
+                {
+                    "source": "Expedia.com",
+                    "logo": "https://www.gstatic.com/travel-hotels/branding/384478467102568077.png",
+                    "num_guests": 4,
+                    "rate_per_night": {
+                        "lowest": "$344",
+                        "extracted_lowest": 344
+                    }
+                }
+            ],
+            "nearby_places": [
+                {
+                    "name": "Daniel K. Inouye International Airport"
+                },
+                {
+                    "name": "Ganotisi's Pacific Rim Cuisine"
+                }
+            ],
+            "images": [
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/1NGjmdtsWi3rUwNKQCaiTFsc43K6YLVTsknky87-O8WSPcuIxiNz38bquXxgMchpmD10UJthMND_wyX_jvkjjnEbOuc0BlCAaTHkp-RrBFrbq3TW5p1Vk8plPTedeIqWAqHUUuYvCq1sU3dOiRmQmqDR3Vvu_lM=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/94000000/93530000/93524300/93524291/1b5c49b8.jpg"
+                },
+                {
+                    "thumbnail": "https://lh5.googleusercontent.com/proxy/sB9fnXRj59htBj20CdUW2SdGRFoFSI5IxHUbjhiZ3wu-CTG9ENA0X0CpG1wFRUr2ogX-4vV3m4fEU4-3sMn_MsZ4ePxwrEG6r0nHwdJYVkHS_R5CydCnkL9i1d_QUM2Ainum-zxoqAxaGrEeqlNRPggEj41Xig=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/94000000/93530000/93524300/93524291/91001475_z.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/ccUj2xENR-3JZkU6s8Tqk64N98nK_LgEgipQPRkbJEmbCYxYvqV3enZFNz7LspFjmFKLkOq9K98QspcoSwpxUg8iYhFXuEN6N8wUz2UFG1CiY1gFeHQCF4cpF1TcmndQVCh8d2BcgTlK_ETOSLdVRTuYlXumUlU=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/94000000/93530000/93524300/93524291/48132fa1.jpg?impolicy=ccrop&w=1000&h=666&q=medium"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/TAcY2Y8k4Ze-xDpj7-RQPk7kML-6TwGmRqTDVKUKupRSTDH2nOIJYui_zB45yy3EiyqRsVIFVnx9bhDVcSMmJ3owr69-m_RGyLDKtUe1rOk_NABW3WGJcxAdkI7yxGNC5p-Eu184qGeFrwKQ1vZDXlgQDKbC7Q=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/94000000/93530000/93524300/93524291/03d855e9.jpg?impolicy=ccrop&w=1000&h=666&q=medium"
+                },
+                {
+                    "thumbnail": "https://lh4.googleusercontent.com/proxy/vOaqPsMwfKTzRjXP1UAT_U9JbpRTOEJW4sAcFj2lBJE2CjmBW2wCajIEP6P_0OYHMr96yVCyXoFzWRe4OpYuXs8_K89v4Qd8XI2AiDt2qOhK76ExgDC9aBS962Q7VNOpIslOusseiPcy8v-t2Sf6bYI1iwyVLh8=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/94000000/93530000/93524300/93524291/57136db7.jpg?impolicy=ccrop&w=1000&h=666&q=medium"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/zuKoRZki1DVJPASjxZJdg3LYCeSF0HDTfjan5bNLvFGTkAZSUEmt8fWJlT3VXN4dwwVNNtSsMntVYgC5HHk5w8yTj3em3f3n5oxf56HOwnHIkClG9PWV76Ixs5zOw-GFEZ-pBJlW_xW_m-nTgxQarccDb5gsXRo=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.staticontent.com/media/pictures/b6a24818-ec2e-4f63-a67e-68ba4f30cba9"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/F-P56aq2RDKqLYxcToRFWMXyQf89x63l_xg4nzVAb8_fbRveJGAgy85njSFCdIzoQd_xW_B_OacqWt04d-TOg966SDUfxVkpvBU0IH89_Apb66zJaw8e9j4nQBxMs98AFBNaRmFcLOnEsa3_YpNWm4VTgnf0ero=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/94000000/93530000/93524300/93524291/57136db7.jpg"
+                },
+                {
+                    "thumbnail": "https://lh6.googleusercontent.com/proxy/Egt-kbL0z8YgUiFv4NEl_AsLp4_u8NVodSOlJ2jCsjxhpPAa3Wg3gUsP5tY5Ptknxeqo1hezIkgsQ0PIG20vOjrDeOt5UjUfAhF1Lqcbz-PqIBqkZOSlxWfa_QyYGxwg5UhKlHu8guxxZTOxXTbuNqEouvTOaGc=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://media.vrbo.com/lodging/94000000/93530000/93524300/93524291/32c47385.jpg"
+                },
+                {
+                    "thumbnail": "https://lh3.googleusercontent.com/proxy/4PHAua6MRYzDRGufYcSmgnsTwGAEDyDi6QL4I2SsfiRbrXFugPQsK51JddbpojprZyzOojjrvEzea0pClcS_PrVblojFGDYaYX-T3yANqLQhRMNw4dthW9hd7skGKRSlKl68d_iAcVAhzrdELvmfmQTnq6OlTA=s287-w287-h192-n-k-no-v1",
+                    "original_image": "https://images.trvl-media.com/lodging/94000000/93530000/93524300/93524291/649bac96_z.jpg"
+                }
+            ],
+            "overall_rating": 4.9058824,
+            "reviews": 17,
+            "location_rating": 2.3,
+            "amenities": [
+                "Balcony",
+                "Hot tub",
+                "Ironing board",
+                "Kitchen",
+                "Microwave",
+                "Outdoor grill",
+                "Oven stove",
+                "Patio",
+                "Smoke-free",
+                "Cable TV",
+                "Washer",
+                "Free parking",
+                "Free Wi-Fi"
+            ],
+            "excluded_amenities": [
+                "No indoor pool",
+                "No outdoor pool",
+                "Not pet-friendly"
+            ],
+            "essential_info": [
+                "Entire apartment",
+                "Sleeps 4",
+                "1 bedroom",
+                "1 bathroom",
+                "2 beds"
+            ]
+        }
+    ],
+    "serpapi_pagination": {
+        "current_from": 1,
+        "current_to": 20,
+        "next_page_token": "CBI=",
+        "next": "https://serpapi.com/search.json?adults=2&check_in_date=2025-09-15&check_out_date=2025-09-16&children=0&currency=USD&engine=google_hotels&gl=us&hl=en&next_page_token=CBI%3D&q=Molokai%2C+Hawaii"
+    }
+}
