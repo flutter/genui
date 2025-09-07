@@ -212,7 +212,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
 
   void _handleUserMessageFromUi(UserMessage message) {
     setState(() {
-      _conversation.add(UserUiInteractionMessage.text(message.toString()));
+      _conversation.add(UserUiInteractionMessage.text(message.text));
     });
     _scrollToBottom();
     _triggerInference();
@@ -370,28 +370,32 @@ to the user.
     activities, while for longer trips this likely involves choosing which
     specific places to stay in and how many nights in each place.
 
-    At this step, you should first show an OptionsFilterChipInput which contains
-    several options like the number of people, the destination, the length of
-    time, the budget, preferred activity types etc.
+    At this step, you should first show an inputGroup which contains
+    several input chips like the number of people, the destination, the length
+    of time, the budget, preferred activity types etc.
 
     Then, when the user clicks search, you should update the surface to have
-    a Column with the existing OptionsFilterChipInput, a
-    ItineraryWithDetails containing the full itinerary, and a Trailhead
-    containing some options of specific details to book e.g. "Book accommodation in Kyoto", "Train options from Tokyo to Osaka".
-
+<<<<<<< HEAD
+    a Column with the existing inputGroup, an itineraryWithDetails. When
+    creating the itinerary, include all necessary `itineraryEntry` items for
+    hotels and transport with generic details and a status of `choiceRequired`.
+    
     Note that during this step, the user may change their search parameters and
     resubmit, in which case you should regenerate the itinerary to match their
     desires, updating the existing surface.
 
 4.  Booking: Booking each part of the itinerary one step at a time. This
-    involves booking every accomodation, transport and activity in the itinerary
+    involves booking every accommodation, transport and activity in the itinerary
     one step at a time.
 
-    Here, you should just focus on one items at a time, using the
-    OptionsFilterChipInput to ask the user for preferences, and the
-    TravelCarousel to show the user different options. When the user chooses an
-    option, you can confirm it has been chosen and immediately prompt the user
-    to book the next detail, e.g. an activity, accomodation, transport etc.
+    Here, you should just focus on one item at a time, using an `inputGroup`
+    with chips to ask the user for preferences, and the `travelCarousel` to show
+    the user different options. When the user chooses an option, you can confirm
+    it has been chosen and immediately prompt the user to book the next detail,
+    e.g. an activity, accommodation, transport etc. When a booking is confirmed,
+    update the original `itineraryWithDetails` to reflect the booking by
+    updating the relevant `itineraryEntry` to have the status `chosen` and
+    including the booking details in the `bodyText`.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
@@ -448,17 +452,22 @@ suggesting what the user might want to do next (e.g. book the next detail in the
 itinerary, repeat a search, research some related topic) so that they can click
 rather than typing.
 
-- ItineraryWithDetails: When generating content to go inside ItineraryWithDetails, use
-ItineraryItem, but try to occasionally break it up with other widgets e.g.
-SectionHeader items to break up the section, or TravelCarousel with related
-content. E.g. after an itinerary item like a beach visit, you could include a
-carousel of local fish, or alternative beaches to visit.
+- Itinerary Structure: Itineraries have a three-level structure. The root is
+`itineraryWithDetails`, which provides an overview. Inside the modal view of an
+`itineraryWithDetails`, you should use one or more `itineraryDay` widgets to
+represent each day of the trip. Each `itineraryDay` should then contain a list
+of `itineraryEntry` widgets, which represent specific activities, bookings, or
+transport for that day.
 
 - Inputs: When you are asking for information from the user, you should always include a
 submit button of some kind so that the user can indicate that they are done
 providing information. The `InputGroup` has a submit button, but if
 you are not using that, you can use an `ElevatedButton`. Only use
 `OptionsFilterChipInput` widgets inside of a `InputGroup`.
+
+- State management: Try to maintain state by being aware of the user's
+  selections and preferences and setting them in the initial value fields of
+  input elements when updating surfaces or generating new ones.
 
 # Images
 
@@ -528,9 +537,7 @@ contain the other widgets.
         "widget": {
           "Column": {
             "children": [
-              "day1",
-              "day2",
-              "day3"
+              "day1"
             ]
           }
         }
@@ -538,30 +545,49 @@ contain the other widgets.
       {
         "id": "day1",
         "widget": {
-          "ItineraryItem": {
-            "title": "Day 1: Arrival and Exploration",
-            "subtitle": "Arrival and Zocalo",
-            "detailText": "Arrive at Mexico City International Airport (MEX) and check into your hotel. In the afternoon, explore the Zocalo, the main square of Mexico City."
+          "ItineraryDay": {
+            "title": "Day 1",
+            "subtitle": "Arrival and Exploration",
+            "description": "Your first day in Mexico City will be focused on settling in and exploring the historic center.",
+            "imageChildId": "day1_image",
+            "children": [
+              "day1_entry1",
+              "day1_entry2"
+            ]
           }
         }
       },
       {
-        "id": "day2",
+        "id": "day1_image",
         "widget": {
-          "ItineraryItem": {
-            "title": "Day 2: Teotihuacan",
-            "subtitle": "Ancient pyramids",
-            "detailText": "Visit the ancient city of Teotihuacan and climb the Pyramids of the Sun and Moon."
+          "Image": {
+            "assetName": "assets/travel_images/mexico_city.jpg"
           }
         }
       },
       {
-        "id": "day3",
+        "id": "day1_entry1",
         "widget": {
-          "ItineraryItem": {
-            "title": "Day 3: Frida Kahlo Museum",
-            "subtitle": "Casa Azul",
-            "detailText": "Explore the life and art of Frida Kahlo at her former home, the Casa Azul."
+          "ItineraryEntry": {
+            "type": "transport",
+            "title": "Arrival at MEX Airport",
+            "time": "2:00 PM",
+            "bodyText": "Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage.",
+            "status": "noBookingRequired"
+          }
+        }
+      },
+      {
+        "id": "day1_entry2",
+        "widget": {
+          "ItineraryEntry": {
+            "type": "activity",
+            "title": "Explore the Zocalo",
+            "subtitle": "Historic Center",
+            "time": "4:00 PM - 6:00 PM",
+            "address": "Plaza de la Constitución S/N, Centro Histórico, Ciudad de México",
+            "bodyText": "Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace.",
+            "status": "noBookingRequired"
           }
         }
       }

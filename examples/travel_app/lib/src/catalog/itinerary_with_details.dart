@@ -2,30 +2,32 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'itinerary_item.dart';
+/// @docImport 'itinerary_entry.dart';
 library;
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+import '../widgets/dismiss_notification.dart';
+
 final _schema = S.object(
   description:
-      'Widget to show an itinerary or a plan for travel. Use this only for '
-      'refined plans where you have already shown the user filter options '
-      'etc.',
+      'Widget to show an itinerary or a plan for travel. This should contain '
+      'a list of ItineraryDay widgets.',
   properties: {
     'title': S.string(description: 'The title of the itinerary.'),
     'subheading': S.string(description: 'The subheading of the itinerary.'),
     'imageChildId': S.string(
       description:
-          'The ID of the Image widget to display. The Image fit should '
-          "typically be 'cover'.  Be sure to create an Image widget with a "
-          'matching ID.',
+          'The ID of the Image widget to display. The Image fit '
+          "should typically be 'cover'. Be sure to create an Image widget "
+          'with a matching ID.',
     ),
     'child': S.string(
       description:
-          '''The ID of a child widget to display in a modal. This should typically be a Column which contains a sequence of ItineraryItems, Text, TravelCarousel etc. Most of the content should be the trip details shown in ItineraryItems, but try to break it up with other elements showing related content. If there are multiple sections to the itinerary, you can use the TabbedSections to break them up.''',
+          'The ID of a child widget to display in a modal. This should '
+          'typically be a Column which contains a sequence of ItineraryDays.',
     ),
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],
@@ -57,8 +59,7 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 /// prominent image to give the user a quick overview of the proposed trip.
 ///
 /// When tapped, it presents a modal bottom sheet containing the detailed
-/// breakdown of the itinerary, which is typically composed of a `Column` of
-/// [itineraryItem] widgets and other supplemental content.
+/// breakdown of the itinerary.
 final itineraryWithDetails = CatalogItem(
   name: 'ItineraryWithDetails',
   dataSchema: _schema,
@@ -111,51 +112,59 @@ class _ItineraryWithDetails extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           backgroundColor: Colors.transparent,
-
           builder: (BuildContext context) {
-            return FractionallySizedBox(
-              heightFactor: 0.9,
-              child: Scaffold(
-                body: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 200, // You can adjust this height as needed
-                            child: imageChild,
-                          ),
-                          const SizedBox(height: 16.0),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
+            return NotificationListener<DismissNotification>(
+              onNotification: (notification) {
+                Navigator.of(context).pop();
+                return true;
+              },
+              child: FractionallySizedBox(
+                heightFactor: 0.9,
+                child: Scaffold(
+                  body: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height:
+                                  200, // You can adjust this height as needed
+                              child: imageChild,
                             ),
-                            child: Text(
-                              title,
-                              style: Theme.of(context).textTheme.headlineMedium,
+                            const SizedBox(height: 16.0),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: Text(
+                                title,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          child,
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      top: 16.0,
-                      right: 16.0,
-                      child: Material(
-                        color: Colors.white.withAlpha((255 * 0.8).round()),
-                        shape: const CircleBorder(),
-                        clipBehavior: Clip.antiAlias,
-                        child: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.of(context).pop(),
+                            const SizedBox(height: 16.0),
+                            child,
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 16.0,
+                        right: 16.0,
+                        child: Material(
+                          color: Colors.white.withAlpha((255 * 0.8).round()),
+                          shape: const CircleBorder(),
+                          clipBehavior: Clip.antiAlias,
+                          child: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

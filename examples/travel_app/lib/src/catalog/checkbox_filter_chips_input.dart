@@ -13,63 +13,67 @@ import 'common.dart';
 
 final _schema = S.object(
   description:
-      'A chip used to choose from a set of mutually exclusive '
-      'options. This *must* be placed inside an InputGroup.',
+      'A chip used to choose from a set of options where *more than one* '
+      'option can be chosen. This *must* be placed inside an InputGroup.',
   properties: {
     'chipLabel': S.string(
       description:
-          'The title of the filter chip e.g. "budget" or "activity type" '
-          'etc',
+          'The title of the filter chip e.g. "amenities" or "dietary '
+          'restrictions" etc',
     ),
     'options': S.list(
-      description:
-          '''The list of options that the user can choose from. There should be at least three of these.''',
+      description: '''The list of options that the user can choose from.''',
       items: S.string(),
     ),
     'iconName': S.string(
       description: 'An icon to display on the left of the chip.',
       enumValues: TravelIcon.values.map((e) => e.name).toList(),
     ),
-    'initialValue': S.string(
+    'initialOptions': S.list(
       description:
-          'The name of the option that should be selected initially. This '
-          'option must exist in the "options" list.',
+          'The names of the options that should be selected '
+          'initially. These options must exist in the "options" list.',
+      items: S.string(description: 'An option from the "options" list.'),
     ),
   },
   required: ['chipLabel', 'options'],
 );
 
-extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
-  factory _OptionsFilterChipInputData({
+extension type _CheckboxFilterChipsInputData.fromMap(
+  Map<String, Object?> _json
+) {
+  factory _CheckboxFilterChipsInputData({
     required String chipLabel,
     required List<String> options,
     String? iconName,
-    String? initialValue,
-  }) => _OptionsFilterChipInputData.fromMap({
+    List<String>? initialOptions,
+  }) => _CheckboxFilterChipsInputData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
     if (iconName != null) 'iconName': iconName,
-    if (initialValue != null) 'initialValue': initialValue,
+    if (initialOptions != null) 'initialOptions': initialOptions,
   });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
   String? get iconName => _json['iconName'] as String?;
-  String? get initialValue => _json['initialValue'] as String?;
+  List<String> get initialOptions =>
+      (_json['initialOptions'] as List?)?.cast<String>() ?? [];
 }
 
-/// An interactive chip that allows the user to select a single option from a
+/// An interactive chip that allows the user to select multiple options from a
 /// predefined list.
 ///
 /// This widget is a key component for gathering user preferences. It displays a
-/// category (e.g., "Budget," "Activity Type") and, when tapped, presents a
-/// modal bottom sheet containing a list of radio buttons for the available
+/// category (e.g., "Amenities," "Dietary Restrictions") and, when tapped,
+/// presents a
+/// modal bottom sheet containing a list of checkboxes for the available
 /// options.
 ///
 /// It is typically used within a [inputGroup] to manage multiple facets of
 /// a user's query.
-final optionsFilterChipInput = CatalogItem(
-  name: 'OptionsFilterChipInput',
+final checkboxFilterChipsInput = CatalogItem(
+  name: 'CheckboxFilterChipsInput',
   dataSchema: _schema,
   widgetBuilder:
       ({
@@ -80,14 +84,14 @@ final optionsFilterChipInput = CatalogItem(
         required context,
         required values,
       }) {
-        final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
+        final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
           data as Map<String, Object?>,
         );
         IconData? icon;
-        if (optionsFilterChipData.iconName != null) {
+        if (checkboxFilterChipsData.iconName != null) {
           try {
             icon = iconFor(
-              TravelIcon.values.byName(optionsFilterChipData.iconName!),
+              TravelIcon.values.byName(checkboxFilterChipsData.iconName!),
             );
           } catch (e) {
             // Invalid icon name, default to no icon.
@@ -95,27 +99,27 @@ final optionsFilterChipInput = CatalogItem(
             icon = null;
           }
         }
-        return _OptionsFilterChip(
-          initialChipLabel: optionsFilterChipData.chipLabel,
-          options: optionsFilterChipData.options,
+        return _CheckboxFilterChip(
+          initialChipLabel: checkboxFilterChipsData.chipLabel,
+          options: checkboxFilterChipsData.options,
           widgetId: id,
           dispatchEvent: dispatchEvent,
           icon: icon,
-          initialValue: optionsFilterChipData.initialValue,
+          initialOptions: checkboxFilterChipsData.initialOptions,
           values: values,
         );
       },
 );
 
-class _OptionsFilterChip extends StatefulWidget {
-  const _OptionsFilterChip({
+class _CheckboxFilterChip extends StatefulWidget {
+  const _CheckboxFilterChip({
     required this.initialChipLabel,
     required this.options,
     required this.widgetId,
     required this.dispatchEvent,
     required this.values,
     this.icon,
-    this.initialValue,
+    this.initialOptions,
   });
 
   final String initialChipLabel;
@@ -123,56 +127,61 @@ class _OptionsFilterChip extends StatefulWidget {
   final String widgetId;
   final IconData? icon;
   final DispatchEventCallback dispatchEvent;
-  final String? initialValue;
+  final List<String>? initialOptions;
   final Map<String, Object?> values;
 
   @override
-  State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
+  State<_CheckboxFilterChip> createState() => _CheckboxFilterChipState();
 }
 
-class _OptionsFilterChipState extends State<_OptionsFilterChip> {
-  late String _currentChipLabel;
+class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
+  late List<String> _selectedOptions;
 
   @override
   void initState() {
     super.initState();
-    _currentChipLabel = widget.initialValue ?? widget.initialChipLabel;
+    _selectedOptions = widget.initialOptions ?? [];
+  }
+
+  String get _chipLabel {
+    if (_selectedOptions.isEmpty) {
+      return widget.initialChipLabel;
+    }
+    return _selectedOptions.join(', ');
   }
 
   @override
   Widget build(BuildContext context) {
     return FilterChip(
       avatar: widget.icon != null ? Icon(widget.icon) : null,
-      label: Text(_currentChipLabel),
+      label: Text(_chipLabel),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            String? tempSelectedOption = _currentChipLabel;
+            var tempSelectedOptions = List<String>.from(_selectedOptions);
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: widget.options.map((option) {
-                    return RadioListTile<String>(
+                    return CheckboxListTile(
                       title: Text(option),
-                      value: option,
-                      // ignore: deprecated_member_use
-                      groupValue: tempSelectedOption,
-                      // ignore: deprecated_member_use
-                      onChanged: (String? newValue) {
+                      value: tempSelectedOptions.contains(option),
+                      onChanged: (bool? newValue) {
                         setModalState(() {
-                          tempSelectedOption = newValue;
+                          if (newValue == true) {
+                            tempSelectedOptions.add(option);
+                          } else {
+                            tempSelectedOptions.remove(option);
+                          }
                         });
-                        widget.values[widget.widgetId] = newValue;
-                        if (newValue != null) {
-                          setState(() {
-                            _currentChipLabel = newValue;
-                          });
-                          Navigator.pop(context);
-                        }
+                        setState(() {
+                          _selectedOptions = List.from(tempSelectedOptions);
+                        });
+                        widget.values[widget.widgetId] = tempSelectedOptions;
                       },
                     );
                   }).toList(),
