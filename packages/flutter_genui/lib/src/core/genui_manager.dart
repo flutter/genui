@@ -21,7 +21,7 @@ import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
-/// This class has three subclasses: [SurfaceAdded], [SurfaceUpdated], and
+/// This class has three subclasses: [SurfaceAdded], [SurfaceChanged], and
 /// [SurfaceRemoved].
 sealed class GenUiUpdate {
   /// Creates a [GenUiUpdate] for the given [surfaceId].
@@ -42,10 +42,10 @@ class SurfaceAdded extends GenUiUpdate {
 }
 
 /// Fired when an existing surface is modified.
-class SurfaceUpdated extends GenUiUpdate {
-  /// Creates a [SurfaceUpdated] event for the given [surfaceId] and
+class SurfaceChanged extends GenUiUpdate {
+  /// Creates a [SurfaceChanged] event for the given [surfaceId] and
   /// [definition].
-  const SurfaceUpdated(super.surfaceId, this.definition);
+  const SurfaceChanged(super.surfaceId, this.definition);
 
   /// The new definition of the surface.
   final UiDefinition definition;
@@ -119,7 +119,8 @@ class GenUiManager implements GenUiHost {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
     final stateValue = valueStore.forSurface(event.surfaceId);
     final eventString =
-        'Action: ${jsonEncode(event.value)}\n'
+        'Action: ${jsonEncode(event.value)}
+'
         'Current state: ${jsonEncode(stateValue)}';
     _onSubmit.add(UserMessage([TextPart(eventString)]));
   }
@@ -164,19 +165,55 @@ class GenUiManager implements GenUiHost {
   /// If a surface with the given ID does not exist, a new one is created.
   /// Otherwise, the existing surface is updated.
   void addOrUpdateSurface(String surfaceId, JsonMap definition) {
-    final uiDefinition = UiDefinition.fromMap({
-      'surfaceId': surfaceId,
-      ...definition,
-    });
+    final action = definition['action'] as String? ?? 'replace';
     final notifier = surface(surfaceId); // Gets or creates the notifier.
     final isNew = notifier.value == null;
-    notifier.value = uiDefinition;
+
     if (isNew) {
+      final uiDefinition = UiDefinition.fromMap({
+        'surfaceId': surfaceId,
+        ...definition,
+      });
+      notifier.value = uiDefinition;
       genUiLogger.info('Adding surface $surfaceId');
       _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
     } else {
-      genUiLogger.info('Updating surface $surfaceId');
-      _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
+      switch (action) {
+        case 'replace':
+          final uiDefinition = UiDefinition.fromMap({
+            'surfaceId': surfaceId,
+            ...definition,
+          });
+          notifier.value = uiDefinition;
+          genUiLogger.info('Replacing surface $surfaceId');
+          _surfaceUpdates.add(SurfaceChanged(surfaceId, uiDefinition));
+        case 'update':
+          final currentDefinition = notifier.value!;
+          assert(
+            definition['root'] == currentDefinition.root,
+            'The root widget ID must be the same for update actions.',
+          );
+          final newWidgetsList = definition['widgets'] as List<Object?>;
+          final newWidgetsMap = <String, JsonMap>{};
+          for (final widget in newWidgetsList) {
+            final typedWidget = widget as JsonMap;
+            newWidgetsMap[typedWidget['id'] as String] = typedWidget;
+          }
+
+          final updatedWidgets = {...currentDefinition.widgets, ...newWidgetsMap};
+
+          // TODO(andrewkolb): Prune orphaned widgets.
+          final uiDefinition = UiDefinition.fromMap({
+            'surfaceId': surfaceId,
+            'root': currentDefinition.root,
+            'widgets': updatedWidgets.values.toList(),
+          });
+          notifier.value = uiDefinition;
+          genUiLogger.info('Updating surface $surfaceId');
+          _surfaceUpdates.add(SurfaceChanged(surfaceId, uiDefinition));
+        default:
+          throw ArgumentError('Invalid action: $action');
+      }
     }
   }
 

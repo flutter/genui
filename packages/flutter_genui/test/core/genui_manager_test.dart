@@ -26,7 +26,8 @@ void main() {
       manager.dispose();
     });
 
-    test('addOrUpdateSurface adds a new surface and fires SurfaceAdded with '
+    test(
+        'addOrUpdateSurface adds a new surface and fires SurfaceAdded with '
         'definition', () async {
       final definitionMap = {
         'root': 'root',
@@ -55,15 +56,16 @@ void main() {
       expect(manager.surfaces['s1']!.value!.root, 'root');
     });
 
-    test('addOrUpdateSurface updates an existing surface and fires '
-        'SurfaceUpdated', () async {
+    test(
+        'addOrUpdateSurface with "replace" action updates an existing surface '
+        'and fires SurfaceChanged', () async {
       final oldDefinition = {
         'root': 'root',
         'widgets': [
           {
             'id': 'root',
             'widget': {
-              'text': {'text': 'Old'},
+              'Text': {'text': 'Old'},
             },
           },
         ],
@@ -71,12 +73,13 @@ void main() {
       manager.addOrUpdateSurface('s1', oldDefinition);
 
       final newDefinition = {
+        'action': 'replace',
         'root': 'root',
         'widgets': [
           {
             'id': 'root',
             'widget': {
-              'text': {'text': 'New'},
+              'Text': {'text': 'New'},
             },
           },
         ],
@@ -86,16 +89,61 @@ void main() {
       manager.addOrUpdateSurface('s1', newDefinition);
       final update = await futureUpdate;
 
-      expect(update, isA<SurfaceUpdated>());
+      expect(update, isA<SurfaceChanged>());
       expect(update.surfaceId, 's1');
-      final updatedDefinition = (update as SurfaceUpdated).definition;
-      expect(updatedDefinition.widgets['root'], {
-        'id': 'root',
-        'widget': {
-          'text': {'text': 'New'},
-        },
-      });
-      expect(manager.surfaces['s1']!.value, updatedDefinition);
+      final changedUpdate = update as SurfaceChanged;
+      expect(changedUpdate.definition.widgets['root']!['widget']['Text'],
+          {'text': 'New'});
+      expect(manager.surfaces['s1']!.value, changedUpdate.definition);
+    });
+
+    test(
+        'addOrUpdateSurface with "update" action updates an existing surface '
+        'and fires SurfaceChanged', () async {
+      final oldDefinition = {
+        'root': 'root',
+        'widgets': [
+          {
+            'id': 'root',
+            'widget': {
+              'Text': {'text': 'Old'},
+            },
+          },
+          {
+            'id': 'child',
+            'widget': {
+              'Text': {'text': 'Child'},
+            },
+          },
+        ],
+      };
+      manager.addOrUpdateSurface('s1', oldDefinition);
+
+      final newDefinition = {
+        'action': 'update',
+        'root': 'root',
+        'widgets': [
+          {
+            'id': 'root',
+            'widget': {
+              'Text': {'text': 'New'},
+            },
+          },
+        ],
+      };
+
+      final futureUpdate = manager.surfaceUpdates.first;
+      manager.addOrUpdateSurface('s1', newDefinition);
+      final update = await futureUpdate;
+
+      expect(update, isA<SurfaceChanged>());
+      expect(update.surfaceId, 's1');
+      final changedUpdate = update as SurfaceChanged;
+      expect(changedUpdate.definition.widgets['root']!['widget']['Text'],
+          {'text': 'New'});
+      expect(changedUpdate.definition.widgets['child']!['widget']['Text'],
+          {'text': 'Child'});
+      expect(manager.surfaces['s1']!.value, changedUpdate.definition);
     });
 
     test('deleteSurface removes a surface and fires SurfaceRemoved', () async {
@@ -105,7 +153,7 @@ void main() {
           {
             'id': 'root',
             'widget': {
-              'text': {'text': 'Hello'},
+              'Text': {'text': 'Hello'},
             },
           },
         ],

@@ -162,7 +162,7 @@ class UiAgent {
       );
       _addMessage(message);
       onSurfaceDeleted!.call(update);
-    } else if (update is SurfaceUpdated) {
+    } else if (update is SurfaceChanged) {
       final message = AiUiMessage(
         definition: update.definition,
         surfaceId: update.surfaceId,

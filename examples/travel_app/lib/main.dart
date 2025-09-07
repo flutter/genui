@@ -132,7 +132,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
             _conversation.removeWhere(
               (m) => m is AiUiMessage && m.surfaceId == surfaceId,
             );
-          case SurfaceUpdated(:final surfaceId, :final definition):
+          case SurfaceChanged(:final surfaceId, :final definition):
             final index = _conversation.lastIndexWhere(
               (m) => m is AiUiMessage && m.surfaceId == surfaceId,
             );
@@ -375,7 +375,6 @@ to the user.
     of time, the budget, preferred activity types etc.
 
     Then, when the user clicks search, you should update the surface to have
-<<<<<<< HEAD
     a Column with the existing inputGroup, an itineraryWithDetails. When
     creating the itinerary, include all necessary `itineraryEntry` items for
     hotels and transport with generic details and a status of `choiceRequired`.
@@ -424,11 +423,15 @@ update existing content.
 - Adding surfaces: Most of the time, you should only add new surfaces to the conversation. This
   is less confusing for the user, because they can easily find this new content
   at the bottom of the conversation.
-- Updating surfaces: You should update surfaces when you are running an
-iterative search flow, e.g. the user is adjusting filter values and generating
-an itinerary or a booking accomodation etc. This is less confusing for the user
-because it avoids confusing the conversation with many versions of the same
-itinerary etc.
+- Updating surfaces: You should update surfaces when you want to make small
+  changes to an existing surface, for example, when you are running an
+  iterative search flow, e.g. the user is adjusting filter values and
+  generating an itinerary or a booking accomodation etc. This is less confusing
+  for the user because it avoids confusing the conversation with many versions
+  of the same itinerary etc.
+- Replacing surfaces: You should replace surfaces when you want to completely
+  change the content of a surface, for example, when you are starting a new
+  search or moving to a different part of the conversation flow.
 
 When processing a user message or event, you should add or update one surface
 and then call provideFinalOutput to return control to the user. Never continue
