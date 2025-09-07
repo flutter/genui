@@ -29,7 +29,6 @@ TOOL_DIR=$(dirname "$0")
 PROJECT_ID="fluttergenui"
 
 EXAMPLES=(
-    "minimal_genui"
     "simple_chat"
     "travel_app"
 )

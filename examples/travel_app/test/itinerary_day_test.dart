@@ -10,6 +10,39 @@ import 'package:travel_app/src/catalog/itinerary_day.dart';
 
 void main() {
   group('ItineraryDay', () {
+    testWidgets('renders correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return Center(
+                  child: itineraryDay.widgetBuilder(
+                    data: {
+                      'title': 'Day 1',
+                      'subtitle': 'Arrival in Tokyo',
+                      'description': 'A day of exploring the city.',
+                      'imageChildId': 'tokyo_image',
+                      'children': <String>[],
+                    },
+                    id: 'test',
+                    buildChild: (_) => const Placeholder(),
+                    dispatchEvent: (_) {},
+                    context: context,
+                    values: {},
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Day 1'), findsOneWidget);
+      expect(find.text('Arrival in Tokyo'), findsOneWidget);
+      expect(find.text('A day of exploring the city.'), findsOneWidget);
+    });
+
     testWidgets('renders correctly with markdown', (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         const testTitle = 'Test Title';

@@ -37,6 +37,9 @@ If `flutterfire configure` fails, try one or all of these:
    </dict>
    ```
 
+1. Every time you clone your repo, re-run `flutterfire configure`, or take advantage of
+`tool/refresh_firebase_template.sh`.
+
 ### Employ `flutter_genui`
 
 For a complete example, refer to [main.dart in the minimal_genui example](../../examples/minimal_genui/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
@@ -132,8 +135,20 @@ For a complete example, refer to [main.dart in the minimal_genui example](../../
 
 ## Enhance to GenUI Application
 
-Get inspired by our examples. The [`minimal_genui`](../../examples/minimal_genui/) example is a great starting point. You can find other examples under development in the [`examples/`](../../examples/) directory. Most will require you to [configure Firebase](#configure-firebase) first.
+Get inspired by our examples. Most will require you to [configure Firebase](#configure-firebase) first.
 
 Then apply what you learned to your app!
 
 If something is unclear or missing, please [create an issue](https://github.com/flutter/genui/issues/new/choose).
+
+## Troubleshooting
+
+### Higher minimum macOS version is required
+
+If you are getting the error similar to one below, re-clone your repo.
+
+```
+The pod "Firebase/CoreOnly" required by the plugin "firebase_app_check" requires a higher minimum macOS deployment version than the plugin's reported minimum version.
+To build, remove the plugin "firebase_app_check", or contact the plugin's developers for assistance.
+Error: Error running pod install
+```
