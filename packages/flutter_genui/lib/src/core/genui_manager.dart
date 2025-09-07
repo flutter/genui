@@ -119,8 +119,7 @@ class GenUiManager implements GenUiHost {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
     final stateValue = valueStore.forSurface(event.surfaceId);
     final eventString =
-        'Action: ${jsonEncode(event.value)}
-'
+        'Action: ${jsonEncode(event.value)}\\n'
         'Current state: ${jsonEncode(stateValue)}';
     _onSubmit.add(UserMessage([TextPart(eventString)]));
   }
@@ -200,7 +199,10 @@ class GenUiManager implements GenUiHost {
             newWidgetsMap[typedWidget['id'] as String] = typedWidget;
           }
 
-          final updatedWidgets = {...currentDefinition.widgets, ...newWidgetsMap};
+          final updatedWidgets = {
+            ...currentDefinition.widgets,
+            ...newWidgetsMap,
+          };
 
           // TODO(andrewkolb): Prune orphaned widgets.
           final uiDefinition = UiDefinition.fromMap({

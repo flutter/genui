@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/primitives/simple_items.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -26,8 +27,7 @@ void main() {
       manager.dispose();
     });
 
-    test(
-        'addOrUpdateSurface adds a new surface and fires SurfaceAdded with '
+    test('addOrUpdateSurface adds a new surface and fires SurfaceAdded with '
         'definition', () async {
       final definitionMap = {
         'root': 'root',
@@ -56,8 +56,7 @@ void main() {
       expect(manager.surfaces['s1']!.value!.root, 'root');
     });
 
-    test(
-        'addOrUpdateSurface with "replace" action updates an existing surface '
+    test('addOrUpdateSurface with "replace" action updates an existing surface '
         'and fires SurfaceChanged', () async {
       final oldDefinition = {
         'root': 'root',
@@ -92,13 +91,15 @@ void main() {
       expect(update, isA<SurfaceChanged>());
       expect(update.surfaceId, 's1');
       final changedUpdate = update as SurfaceChanged;
-      expect(changedUpdate.definition.widgets['root']!['widget']['Text'],
-          {'text': 'New'});
+      expect(
+        ((changedUpdate.definition.widgets['root']! as JsonMap)['widget']
+            as JsonMap)['Text'],
+        {'text': 'New'},
+      );
       expect(manager.surfaces['s1']!.value, changedUpdate.definition);
     });
 
-    test(
-        'addOrUpdateSurface with "update" action updates an existing surface '
+    test('addOrUpdateSurface with "update" action updates an existing surface '
         'and fires SurfaceChanged', () async {
       final oldDefinition = {
         'root': 'root',
@@ -139,10 +140,16 @@ void main() {
       expect(update, isA<SurfaceChanged>());
       expect(update.surfaceId, 's1');
       final changedUpdate = update as SurfaceChanged;
-      expect(changedUpdate.definition.widgets['root']!['widget']['Text'],
-          {'text': 'New'});
-      expect(changedUpdate.definition.widgets['child']!['widget']['Text'],
-          {'text': 'Child'});
+      expect(
+        ((changedUpdate.definition.widgets['root']! as JsonMap)['widget']
+            as JsonMap)['Text'],
+        {'text': 'New'},
+      );
+      expect(
+        ((changedUpdate.definition.widgets['child']! as JsonMap)['widget']
+            as JsonMap)['Text'],
+        {'text': 'Child'},
+      );
       expect(manager.surfaces['s1']!.value, changedUpdate.definition);
     });
 

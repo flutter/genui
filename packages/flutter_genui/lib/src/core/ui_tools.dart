@@ -31,35 +31,38 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
                description:
                    'The action to perform. You must choose from the available '
                    'actions.\n'
-                   '- `add`: Creates a new surface. You must choose a new, ' 
-                   'unique `surfaceId`.\n' 
-                   '- `update`: Updates an existing surface by adding or ' 
-                   'replacing individual widgets. This is efficient for small ' 
-                   'changes, as it preserves the rest of the widget tree. The ' 
-                   '`root` widget ID must be the same as the original ' 
-                   'surface.\n' 
-                   '- `replace`: Replaces the entire content of an existing ' 
-                   'surface. This is for when the entire UI needs to be ' 
+                   '- `add`: Creates a new surface. You must choose a new, '
+                   'unique `surfaceId`.\n'
+                   '- `update`: Updates an existing surface by adding or '
+                   'replacing individual widgets. This is efficient for small '
+                   'changes, as it preserves the rest of the widget tree. The '
+                   '`root` widget ID must be the same as the original '
+                   'surface.\n'
+                   '- `replace`: Replaces the entire content of an existing '
+                   'surface. This is for when the entire UI needs to be '
                    'changed.',
                enumValues: [
                  if (configuration.actions.allowCreate) 'add',
-                 if (configuration.actions.allowUpdate) ...['update', 'replace']
+                 if (configuration.actions.allowUpdate) ...[
+                   'update',
+                   'replace',
+                 ],
                ],
              ),
              'surfaceId': S.string(
                description:
-                   'The unique identifier for the UI surface to create or ' 
-                   'update. If you are adding a new surface this *must* be a ' 
-                   'new, unique identified that has never been used for any ' 
+                   'The unique identifier for the UI surface to create or '
+                   'update. If you are adding a new surface this *must* be a '
+                   'new, unique identified that has never been used for any '
                    'existing surfaces shown in the context.',
              ),
              'definition': S.object(
                properties: {
                  'root': S.string(
                    description:
-                       'The ID of the root widget. This ID must correspond to ' 
-                       'the ID of one of the widgets in the `widgets` list. ' 
-                       'For `update` actions, this must be the same as the ' 
+                       'The ID of the root widget. This ID must correspond to '
+                       'the ID of one of the widgets in the `widgets` list. '
+                       'For `update` actions, this must be the same as the '
                        'original surface.',
                  ),
                  'widgets': S.list(
@@ -69,7 +72,7 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
                  ),
                },
                description:
-                   'A schema for a simple UI tree to be rendered by ' 
+                   'A schema for a simple UI tree to be rendered by '
                    'Flutter.',
                required: ['root', 'widgets'],
              ),
