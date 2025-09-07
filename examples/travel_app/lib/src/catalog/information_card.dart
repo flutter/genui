@@ -5,6 +5,9 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+import '../utils.dart';
 
 final _schema = S.object(
   properties: {
@@ -16,7 +19,9 @@ final _schema = S.object(
     ),
     'title': S.string(description: 'The title of the card.'),
     'subtitle': S.string(description: 'The subtitle of the card.'),
-    'body': S.string(description: 'The body text of the card.'),
+    'body': S.string(
+      description: 'The body text of the card. This supports markdown.',
+    ),
   },
   required: ['title', 'body'],
 );
@@ -86,9 +91,9 @@ final informationCard = CatalogItem(
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       const SizedBox(height: 8.0),
-                      Text(
-                        cardData.body,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      MarkdownBody(
+                        data: cardData.body,
+                        styleSheet: getMarkdownStyleSheet(context),
                       ),
                     ],
                   ),

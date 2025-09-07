@@ -5,7 +5,9 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
+import '../utils.dart';
 import '../widgets/dismiss_notification.dart';
 
 enum ItineraryEntryType { accommodation, transport, activity }
@@ -19,7 +21,9 @@ final _schema = S.object(
   properties: {
     'title': S.string(description: 'The title of the itinerary entry.'),
     'subtitle': S.string(description: 'The subtitle of the itinerary entry.'),
-    'bodyText': S.string(description: 'The body text for the entry.'),
+    'bodyText': S.string(
+      description: 'The body text for the entry. This supports markdown.',
+    ),
     'address': S.string(description: 'The address for the entry.'),
     'time': S.string(description: 'The time for the entry (formatted string).'),
     'totalCost': S.string(description: 'The total cost for the entry.'),
@@ -217,7 +221,10 @@ class _ItineraryEntry extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 8.0),
-                Text(bodyText, style: theme.textTheme.bodyMedium),
+                MarkdownBody(
+                  data: bodyText,
+                  styleSheet: getMarkdownStyleSheet(context),
+                ),
               ],
             ),
           ),

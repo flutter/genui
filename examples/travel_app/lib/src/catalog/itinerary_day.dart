@@ -8,6 +8,9 @@ library;
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+import '../utils.dart';
 
 final _schema = S.object(
   description:
@@ -20,7 +23,8 @@ final _schema = S.object(
       description: 'The subtitle for the day, e.g., "Arrival in Tokyo".',
     ),
     'description': S.string(
-      description: 'A short description of the day\'s plan.',
+      description:
+          'A short description of the day\'s plan. This supports markdown.',
     ),
     'imageChildId': S.string(
       description:
@@ -133,7 +137,10 @@ class _ItineraryDay extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8.0),
-            Text(description, style: theme.textTheme.bodyMedium),
+            MarkdownBody(
+              data: description,
+              styleSheet: getMarkdownStyleSheet(context),
+            ),
             const SizedBox(height: 8.0),
             const Divider(),
             ...children,

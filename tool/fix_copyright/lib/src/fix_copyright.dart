@@ -269,6 +269,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       headerPattern:
           r'''(?<header><\?xml\s+(?:version="1.0"\s+encoding="utf-8"|encoding="utf-8"\s+version="1.0")[^>]*\?>\n|)''',
     ),
+    'yaml': generateInfo(prefix: '# '),
     // 'frag': generateInfo(
     //   prefix: '// ',
     //   header: '#version 320 es\n',
