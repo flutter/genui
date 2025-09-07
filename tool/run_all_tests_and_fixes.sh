@@ -47,10 +47,7 @@ run_project_step() {
     echo "### [$step_num/$PROJECT_TOTAL_STEPS] $description"
     echo "> To rerun this command:"
     echo "> 
-> 
 > (cd \"$project_dir\" && $cmd_str_for_display)
-> 
-> 
 > "
     if ! "${cmd_to_run[@]}"; then
         echo "'(cd \"$project_dir\" && $cmd_str_to_run)' failed" >> "$FAILURE_LOG"
@@ -91,10 +88,7 @@ if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     echo "### Running copyright fix"
     echo "> To rerun this command:"
     echo "> 
-> 
 > dart run tool/fix_copyright/bin/fix_copyright.dart --force
-> 
-> 
 > "
     # Log failures without stopping the script.
     dart run tool/fix_copyright/bin/fix_copyright.dart --force >/dev/null 2>&1 || true
@@ -109,8 +103,7 @@ echo ""
 # --- 1. Find all Flutter projects ---
 # We find all `pubspec.yaml` files and process each one.
 # The `find ... -print0 | while ...` construct safely handles file paths with spaces.
-echo "## Searching for Flutter projects"
-echo "=================================================="
+echo "Searching for Flutter projects..."
 
 # Collect all project directories first to process them in a stable order.
 project_dirs=()
