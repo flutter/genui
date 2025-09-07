@@ -27,11 +27,12 @@ void main() {
             body: Builder(
               builder: (context) {
                 final widget = catalog.buildWidget(
-                  data,
-                  (_) => const SizedBox(),
-                  (UiEvent event) {},
-                  context,
-                  {},
+                  data: data,
+                  buildChild: (_) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  context: context,
+                  values: {},
+                  isPending: false,
                 );
                 expect(widget, isA<Text>());
                 expect((widget as Text).data, 'hello');
@@ -70,11 +71,12 @@ void main() {
             body: Builder(
               builder: (context) {
                 final widget = catalog.buildWidget(
-                  data,
-                  (_) => const SizedBox(),
-                  (UiEvent event) {},
-                  context,
-                  {},
+                  data: data,
+                  buildChild: (_) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  context: context,
+                  values: {},
+                  isPending: false,
                 );
                 expect(widget, isA<Container>());
                 return widget;

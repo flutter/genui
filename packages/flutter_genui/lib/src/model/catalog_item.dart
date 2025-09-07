@@ -40,6 +40,8 @@ typedef CatalogWidgetBuilder =
       required BuildContext context,
       // The current values of all widgets on the surface.
       required JsonMap values,
+      // Whether there is a pending request.
+      required bool isPending,
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.

@@ -41,6 +41,7 @@ final textInputChip = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final textInputChipData = _TextInputChipData.fromMap(
           data as Map<String, Object?>,

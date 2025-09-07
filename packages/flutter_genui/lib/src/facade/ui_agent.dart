@@ -65,6 +65,11 @@ class UiAgent {
     _aiClient.dispose();
   }
 
+  /// Clears all pending requests.
+  void clearPendingRequests() {
+    _genUiManager.clearPendingRequests();
+  }
+
   void _handleUserMessage(UserMessage message) async {
     _addMessage(message);
 
@@ -147,8 +152,19 @@ class UiAgent {
   }
 
   void _handleActivityUpdates() {
+    if (_aiClient.activeRequests.value > 0) {
+      final requestId = _genUiManager.startRequest();
+      _activeRequestIds.add(requestId);
+    } else {
+      for (final requestId in _activeRequestIds) {
+        _genUiManager.endRequest(requestId);
+      }
+      _activeRequestIds.clear();
+    }
     _isProcessing.value = _aiClient.activeRequests.value > 0;
   }
+
+  final _activeRequestIds = <String>{};
 
   /// The host for the UI surfaces managed by this agent.
   GenUiHost get host => _genUiManager;
@@ -176,5 +192,32 @@ class UiAgent {
   Future<void> sendRequest(UserMessage message) async {
     _addMessage(message);
     await _aiClient.generateContent(List.of(_conversation), Schema.object());
+  }
+
+  /// Replaces the conversation history from [index] onwards with [message],
+  /// and triggers a new request to the AI.
+  Future<void> replaceHistoryAndSendRequest(int index, UserMessage message) {
+    var count = 0;
+    var forkIndex = -1;
+    for (var i = 0; i < _conversation.length; i++) {
+      final msg = _conversation[i];
+      if (msg is UserMessage || msg is AiTextMessage || msg is AiUiMessage) {
+        if (count == index) {
+          forkIndex = i;
+          break;
+        }
+        count++;
+      }
+    }
+
+    if (forkIndex != -1) {
+      _conversation.removeRange(forkIndex, _conversation.length);
+    } else {
+      onWarning?.call(
+        'Could not find message at index $index to fork conversation.',
+      );
+    }
+
+    return sendRequest(message);
   }
 }

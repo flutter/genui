@@ -90,6 +90,7 @@ final itineraryEntry = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final itineraryEntryData = _ItineraryEntryData.fromMap(
           data as Map<String, Object?>,

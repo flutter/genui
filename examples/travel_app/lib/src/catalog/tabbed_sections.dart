@@ -59,6 +59,7 @@ final tabbedSections = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final tabbedSectionsData = _TabbedSectionsData.fromMap(
           data as Map<String, Object?>,

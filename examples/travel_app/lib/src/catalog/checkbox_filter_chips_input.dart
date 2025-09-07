@@ -83,6 +83,7 @@ final checkboxFilterChipsInput = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
           data as Map<String, Object?>,

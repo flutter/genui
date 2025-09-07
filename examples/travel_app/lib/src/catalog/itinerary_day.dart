@@ -73,6 +73,7 @@ final itineraryDay = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final itineraryDayData = _ItineraryDayData.fromMap(
           data as Map<String, Object?>,

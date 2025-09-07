@@ -34,6 +34,7 @@ void main() {
                     },
                     context: context,
                     values: {},
+                    isPending: false,
                   );
                 },
               ),
@@ -72,6 +73,7 @@ void main() {
                   dispatchEvent: (UiEvent _) {},
                   context: context,
                   values: {},
+                  isPending: false,
                 );
               },
             ),

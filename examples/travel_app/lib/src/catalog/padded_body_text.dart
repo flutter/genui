@@ -34,6 +34,7 @@ final paddedBodyText = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final textData = _PaddedBodyTextData.fromMap(
           data as Map<String, Object?>,

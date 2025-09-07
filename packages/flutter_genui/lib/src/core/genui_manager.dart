@@ -6,11 +6,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
+import '../model/request_context.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
@@ -65,6 +67,9 @@ abstract interface class GenUiHost {
   /// A stream of updates for the surfaces managed by this host.
   Stream<GenUiUpdate> get surfaceUpdates;
 
+  /// A [ValueNotifier] for the set of surfaces that are currently pending.
+  ValueNotifier<Map<String, RequestContext>> get pendingRequests;
+
   /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId);
 
@@ -101,6 +106,7 @@ class GenUiManager implements GenUiHost {
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
   final _onSubmit = StreamController<UserMessage>.broadcast();
+  final _pendingRequests = ValueNotifier<Map<String, RequestContext>>({});
 
   @override
   final valueStore = WidgetValueStore();
@@ -113,6 +119,37 @@ class GenUiManager implements GenUiHost {
 
   /// A stream of user input messages generated from UI interactions.
   Stream<UserMessage> get onSubmit => _onSubmit.stream;
+
+  @override
+  ValueNotifier<Map<String, RequestContext>> get pendingRequests =>
+      _pendingRequests;
+
+  /// Starts a new request and returns its ID.
+  String startRequest({String? surfaceId, String? widgetId}) {
+    final requestId = const Uuid().v4();
+    final requestContext = RequestContext(
+      requestId: requestId,
+      surfaceId: surfaceId,
+      widgetId: widgetId,
+      requestTime: DateTime.now(),
+    );
+    _pendingRequests.value = {
+      ..._pendingRequests.value,
+      requestId: requestContext,
+    };
+    return requestId;
+  }
+
+  /// Ends the request with the given [requestId].
+  void endRequest(String requestId) {
+    _pendingRequests.value = Map.from(_pendingRequests.value)
+      ..remove(requestId);
+  }
+
+  /// Clears all pending requests.
+  void clearPendingRequests() {
+    _pendingRequests.value = {};
+  }
 
   @override
   void handleUiEvent(UiEvent event) {

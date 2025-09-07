@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
-
+import '../model/request_context.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
@@ -79,7 +79,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     // The event comes in without a surfaceId, which we add here.
     final eventMap = event.toMap();
     eventMap['surfaceId'] = widget.surfaceId;
-    widget.host.handleUiEvent(event);
+    widget.host.handleUiEvent(UiEvent.fromMap(eventMap));
   }
 
   @override
@@ -89,21 +89,30 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return const SizedBox.shrink();
     }
 
-    return ValueListenableBuilder<UiDefinition?>(
-      valueListenable: notifier,
-      builder: (context, definition, child) {
-        genUiLogger.info('Building surface ${widget.surfaceId}');
-        if (definition == null) {
-          genUiLogger.info('Surface ${widget.surfaceId} has no definition.');
-          return widget.defaultBuilder?.call(context) ??
-              const SizedBox.shrink();
-        }
-        final rootId = definition.root;
-        if (definition.widgets.isEmpty) {
-          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
-          return const SizedBox.shrink();
-        }
-        return _buildWidget(definition, rootId);
+    return ValueListenableBuilder<Map<String, RequestContext>>(
+      valueListenable: widget.host.pendingRequests,
+      builder: (context, pendingRequests, child) {
+        return ValueListenableBuilder<UiDefinition?>(
+          valueListenable: notifier,
+          builder: (context, definition, child) {
+            genUiLogger.info('Building surface ${widget.surfaceId}');
+            if (definition == null) {
+              genUiLogger.info(
+                'Surface ${widget.surfaceId} has no definition.',
+              );
+              return widget.defaultBuilder?.call(context) ??
+                  const SizedBox.shrink();
+            }
+            final rootId = definition.root;
+            if (definition.widgets.isEmpty) {
+              genUiLogger.warning(
+                'Surface ${widget.surfaceId} has no widgets.',
+              );
+              return const SizedBox.shrink();
+            }
+            return _buildWidget(definition, rootId, pendingRequests.isNotEmpty);
+          },
+        );
       },
     );
   }
@@ -112,7 +121,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   /// It reads a widget definition and its current state from
   /// `widget.definition`
   /// and constructs the corresponding Flutter widget.
-  Widget _buildWidget(UiDefinition definition, String widgetId) {
+  Widget _buildWidget(
+    UiDefinition definition,
+    String widgetId,
+    bool isPending,
+  ) {
     var data = definition.widgets[widgetId];
     if (data == null) {
       genUiLogger.severe('Widget with id: $widgetId not found.');
@@ -120,11 +133,13 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     }
 
     return widget.host.catalog.buildWidget(
-      data as JsonMap,
-      (String childId) => _buildWidget(definition, childId),
-      _dispatchEvent,
-      context,
-      widget.host.valueStore.forSurface(widget.surfaceId),
+      data: data as JsonMap,
+      buildChild: (String childId) =>
+          _buildWidget(definition, childId, isPending),
+      dispatchEvent: _dispatchEvent,
+      context: context,
+      values: widget.host.valueStore.forSurface(widget.surfaceId),
+      isPending: isPending,
     );
   }
 

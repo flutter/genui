@@ -61,13 +61,14 @@ class Catalog {
   /// * [dispatchEvent]: A callback to send UI events, like button presses or
   ///   value changes, back to the model.
   /// * [context]: The build context for the widget.
-  Widget buildWidget(
-    JsonMap data, // The actual deserialized JSON data for this layout
-    Widget Function(String id) buildChild,
-    DispatchEventCallback dispatchEvent,
-    BuildContext context,
-    JsonMap valueStore,
-  ) {
+  Widget buildWidget({
+    required JsonMap data, // The actual deserialized JSON data for this layout
+    required Widget Function(String id) buildChild,
+    required DispatchEventCallback dispatchEvent,
+    required BuildContext context,
+    required JsonMap values,
+    required bool isPending,
+  }) {
     final widgetType = (data['widget'] as JsonMap).keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
@@ -82,7 +83,8 @@ class Catalog {
       buildChild: buildChild,
       dispatchEvent: dispatchEvent,
       context: context,
-      values: valueStore,
+      values: values,
+      isPending: isPending,
     );
   }
 

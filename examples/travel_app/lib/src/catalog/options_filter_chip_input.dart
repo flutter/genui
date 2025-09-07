@@ -79,6 +79,7 @@ final optionsFilterChipInput = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
           data as Map<String, Object?>,

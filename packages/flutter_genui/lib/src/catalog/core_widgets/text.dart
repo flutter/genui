@@ -34,6 +34,7 @@ final text = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final textData = _TextData.fromMap(data as JsonMap);
         return Text(

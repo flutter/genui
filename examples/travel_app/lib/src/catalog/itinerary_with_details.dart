@@ -71,6 +71,7 @@ final itineraryWithDetails = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
           data as Map<String, Object?>,

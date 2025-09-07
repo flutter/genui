@@ -49,6 +49,7 @@ final image = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
 

@@ -40,13 +40,20 @@ final elevatedButton = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
         return ElevatedButton(
-          onPressed: () => dispatchEvent(
-            UiActionEvent(widgetId: id, eventType: 'onTap', value: values),
-          ),
+          onPressed: isPending
+              ? null
+              : () => dispatchEvent(
+                  UiActionEvent(
+                    widgetId: id,
+                    eventType: 'onTap',
+                    value: values,
+                  ),
+                ),
           child: child,
         );
       },

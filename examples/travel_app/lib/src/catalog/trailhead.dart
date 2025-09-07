@@ -43,6 +43,7 @@ final trailhead = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final trailheadData = _TrailheadData.fromMap(
           data as Map<String, Object?>,

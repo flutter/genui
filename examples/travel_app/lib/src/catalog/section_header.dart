@@ -45,6 +45,7 @@ final sectionHeader = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final sectionHeaderData = _SectionHeaderData.fromMap(
           data as Map<String, Object?>,

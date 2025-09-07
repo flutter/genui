@@ -56,6 +56,7 @@ final informationCard = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final cardData = _InformationCardData.fromMap(
           data as Map<String, Object?>,

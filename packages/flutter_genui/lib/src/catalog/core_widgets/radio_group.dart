@@ -38,11 +38,13 @@ class _RadioGroup extends StatefulWidget {
     required this.initialGroupValue,
     required this.labels,
     required this.onChanged,
+    required this.isPending,
   });
 
   final String initialGroupValue;
   final List<String> labels;
   final void Function(String?) onChanged;
+  final bool isPending;
 
   @override
   State<_RadioGroup> createState() => _RadioGroupState();
@@ -83,7 +85,7 @@ class _RadioGroupState extends State<_RadioGroup> {
           // ignore: deprecated_member_use
           groupValue: _groupValue,
           // ignore: deprecated_member_use
-          onChanged: changedCallback,
+          onChanged: widget.isPending ? null : changedCallback,
         );
       }).toList(),
     );
@@ -115,12 +117,14 @@ final radioGroup = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final radioData = _RadioGroupData.fromMap(data as JsonMap);
         return _RadioGroup(
           initialGroupValue: radioData.groupValue,
           labels: radioData.labels,
           onChanged: (newValue) => values[id] = newValue,
+          isPending: isPending,
         );
       },
 );

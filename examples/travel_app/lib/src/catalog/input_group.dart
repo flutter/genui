@@ -51,6 +51,7 @@ final inputGroup = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final inputGroupData = _InputGroupData.fromMap(
           data as Map<String, Object?>,

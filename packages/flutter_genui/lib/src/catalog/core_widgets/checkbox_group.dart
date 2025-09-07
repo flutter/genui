@@ -37,11 +37,13 @@ class _CheckboxGroup extends StatefulWidget {
     required this.initialValues,
     required this.labels,
     required this.onChanged,
+    required this.isPending,
   });
 
   final List<bool> initialValues;
   final List<String> labels;
   final void Function(List<bool>) onChanged;
+  final bool isPending;
 
   @override
   State<_CheckboxGroup> createState() => _CheckboxGroupState();
@@ -72,13 +74,15 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
           CheckboxListTile(
             title: Text(widget.labels[i]),
             value: _values[i],
-            onChanged: (bool? newValue) {
-              if (newValue == null) return;
-              setState(() {
-                _values[i] = newValue;
-              });
-              widget.onChanged(_values);
-            },
+            onChanged: widget.isPending
+                ? null
+                : (bool? newValue) {
+                    if (newValue == null) return;
+                    setState(() {
+                      _values[i] = newValue;
+                    });
+                    widget.onChanged(_values);
+                  },
             controlAffinity: ListTileControlAffinity.leading,
           ),
       ],
@@ -97,6 +101,7 @@ final checkboxGroup = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final checkboxData = _CheckboxGroupData.fromMap(data as JsonMap);
         return _CheckboxGroup(
@@ -108,6 +113,7 @@ final checkboxGroup = CatalogItem(
                 checkboxData.labels[i]: newValues[i],
             };
           },
+          isPending: isPending,
         );
       },
 );

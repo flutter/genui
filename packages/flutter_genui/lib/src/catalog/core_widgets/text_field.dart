@@ -44,6 +44,7 @@ class _TextField extends StatefulWidget {
     this.obscureText = false,
     required this.onChanged,
     required this.onSubmitted,
+    required this.isPending,
   });
 
   final String initialValue;
@@ -51,6 +52,7 @@ class _TextField extends StatefulWidget {
   final bool obscureText;
   final void Function(String) onChanged;
   final void Function(String) onSubmitted;
+  final bool isPending;
 
   @override
   State<_TextField> createState() => _TextFieldState();
@@ -85,8 +87,8 @@ class _TextFieldState extends State<_TextField> {
       controller: _controller,
       decoration: InputDecoration(hintText: widget.hintText),
       obscureText: widget.obscureText,
-      onChanged: widget.onChanged,
-      onSubmitted: widget.onSubmitted,
+      onChanged: widget.isPending ? null : widget.onChanged,
+      onSubmitted: widget.isPending ? null : widget.onSubmitted,
     );
   }
 }
@@ -102,6 +104,7 @@ final textField = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         return _TextField(
@@ -118,6 +121,7 @@ final textField = CatalogItem(
               ),
             );
           },
+          isPending: isPending,
         );
       },
 );

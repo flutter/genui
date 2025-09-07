@@ -105,6 +105,7 @@ final column = CatalogItem(
         required dispatchEvent,
         required context,
         required values,
+        required isPending,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         final childrenIds = columnData.children;
