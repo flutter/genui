@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_genui/flutter_genui.dart';
 
-typedef UserPromptBuilder = Widget Function(
-    BuildContext context, UserMessage message);
+typedef UserPromptBuilder =
+    Widget Function(BuildContext context, UserMessage message);
 
 class Conversation extends StatelessWidget {
   /// Creates a new [Conversation] widget.
@@ -38,11 +38,13 @@ class Conversation extends StatelessWidget {
   List<ChatMessage> get renderedMessages => showInternalMessages
       ? messages
       : messages
-          .where((m) =>
-              !(m is InternalMessage ||
-              m is UserUiInteractionMessage ||
-              m is ToolResponseMessage))
-          .toList();
+            .where(
+              (m) =>
+                  !(m is InternalMessage ||
+                      m is UserUiInteractionMessage ||
+                      m is ToolResponseMessage),
+            )
+            .toList();
 
   @override
   Widget build(BuildContext context) {
@@ -151,10 +153,7 @@ class ChatMessageWidget extends StatelessWidget {
 /// A widget that displays an internal message.
 class InternalMessageWidget extends StatelessWidget {
   /// Creates a new [InternalMessageWidget].
-  const InternalMessageWidget({
-    required this.content,
-    super.key,
-  });
+  const InternalMessageWidget({required this.content, super.key});
 
   /// The content of the message.
   final String content;
