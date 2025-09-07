@@ -31,7 +31,7 @@ run_project_step() {
     local description="$2"
     local step_num="$3"
     shift 3
-    local cmd_to_run=("$@")
+    local cmd_to_run=($@)
     local cmd_str_to_run=$(printf '%q ' "${cmd_to_run[@]}"); cmd_str_to_run=${cmd_str_to_run% }
 
     # Create a version of the command for display, removing the reporter flag.
@@ -46,9 +46,12 @@ run_project_step() {
     echo ""
     echo "### [$step_num/$PROJECT_TOTAL_STEPS] $description"
     echo "> To rerun this command:"
-    echo "> \`\`\`"
-    echo "> (cd \"$project_dir\" && $cmd_str_for_display)"
-    echo "> \`\`\`"
+    echo "> 
+> 
+> (cd \"$project_dir\" && $cmd_str_for_display)
+> 
+> 
+> "
     if ! "${cmd_to_run[@]}"; then
         echo "'(cd \"$project_dir\" && $cmd_str_to_run)' failed" >> "$FAILURE_LOG"
     fi
@@ -147,8 +150,10 @@ done
 if [ -s "$FAILURE_LOG" ]; then
   echo ""
   echo "## Tooling errors occurred:" >&2
-  echo '\`\`\`' >&2
+  echo '
+```' >&2
   cat "$FAILURE_LOG" >&2
-  echo '\`\`\`' >&2
+  echo '
+```' >&2
   exit 1
 fi
