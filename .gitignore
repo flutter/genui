@@ -62,3 +62,4 @@ app.*.map.json
 **/firebase.json
 **/GoogleService-Info.plist
 **/.firebase
+**/.firebaserc
