@@ -30,12 +30,23 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
              'action': S.string(
                description:
                    'The action to perform. You must choose from the available '
-                   'actions. If you choose the `add` action, you must choose a '
-                   'new unique surfaceId. If you choose the `update` action, '
-                   'you must choose an existing surfaceId.',
+                   'actions.\n'
+                   '- `add`: Creates a new surface. You must choose a new, '
+                   'unique `surfaceId`.\n'
+                   '- `update`: Updates an existing surface by adding or '
+                   'replacing individual widgets. This is efficient for small '
+                   'changes, as it preserves the rest of the widget tree. The '
+                   '`root` widget ID must be the same as the original '
+                   'surface.\n'
+                   '- `replace`: Replaces the entire content of an existing '
+                   'surface. This is for when the entire UI needs to be '
+                   'changed.',
                enumValues: [
                  if (configuration.actions.allowCreate) 'add',
-                 if (configuration.actions.allowUpdate) 'update',
+                 if (configuration.actions.allowUpdate) ...[
+                   'update',
+                   'replace',
+                 ],
                ],
              ),
              'surfaceId': S.string(
@@ -50,7 +61,9 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
                  'root': S.string(
                    description:
                        'The ID of the root widget. This ID must correspond to '
-                       'the ID of one of the widgets in the `widgets` list.',
+                       'the ID of one of the widgets in the `widgets` list. '
+                       'For `update` actions, this must be the same as the '
+                       'original surface.',
                  ),
                  'widgets': S.list(
                    items: catalog.schema,
@@ -78,6 +91,8 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args['surfaceId'] as String;
     final definition = args['definition'] as JsonMap;
+    final action = args['action'] as String;
+    definition['action'] = action;
     onAddOrUpdate(surfaceId, definition);
     return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
   }

@@ -28,6 +28,7 @@ void main() {
       );
 
       final args = {
+        'action': 'add',
         'surfaceId': 'testSurface',
         'definition': {
           'root': 'rootWidget',

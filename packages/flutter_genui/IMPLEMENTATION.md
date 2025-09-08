@@ -61,7 +61,7 @@ This layer is responsible for all communication with the generative AI model.
 
 This is the central nervous system of the package, orchestrating the state of all generated UI surfaces.
 
-- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It provides the tools (`addOrUpdateSurface`, `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also acts as the `GenUiHost` for the `GenUiSurface` widget.
+- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It provides the tools (`addOrUpdateSurface`, `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceChanged`, `SurfaceRemoved`) so that the application can react to changes. It also acts as the `GenUiHost` for the `GenUiSurface` widget.
 - **`ui_tools.dart`**: Contains the `AddOrUpdateSurfaceTool` and `DeleteSurfaceTool` classes that wrap the `GenUiManager`'s methods, making them available to the AI.
 
 ### 3. UI Model Layer (`lib/src/model/`)

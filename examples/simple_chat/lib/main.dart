@@ -48,6 +48,11 @@ class _ChatScreenState extends State<ChatScreen> {
     giving exactly one response for each user message.
     Your responses should contain acknowledgment
     of the user message.
+
+    When controlling the UI, you can add, update and replace surfaces.
+    - Use 'add' to create new surfaces.
+    - Use 'update' to make small changes to existing surfaces.
+    - Use 'replace' to completely change the content of a surface.
     ''',
     catalog: CoreCatalogItems.asCatalog(),
     onSurfaceAdded: _handleSurfaceAdded,
