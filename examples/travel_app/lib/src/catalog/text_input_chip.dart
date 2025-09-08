@@ -85,7 +85,8 @@ class _TextInputChipState extends State<_TextInputChip> {
 
   @override
   Widget build(BuildContext context) {
-    final currentValue = widget.values[widget.widgetId] as String?;
+    final value = widget.values[widget.widgetId];
+    final currentValue = value is String ? value : null;
     final text = currentValue ?? widget.label;
     return FilterChip(
       label: Text(text),
