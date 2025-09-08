@@ -80,7 +80,9 @@ class _TextInputChipState extends State<_TextInputChip> {
   @override
   void initState() {
     super.initState();
-    _textController.text = widget.initialValue ?? '';
+    if (widget.values[widget.widgetId] == null && widget.initialValue != null) {
+      widget.values[widget.widgetId] = widget.initialValue;
+    }
   }
 
   @override
@@ -112,9 +114,11 @@ class _TextInputChipState extends State<_TextInputChip> {
                       final newValue = _textController.text;
                       if (newValue.isNotEmpty) {
                         widget.values[widget.widgetId] = newValue;
-                        setState(() {});
-                        Navigator.pop(context);
+                      } else {
+                        widget.values.remove(widget.widgetId);
                       }
+                      setState(() {});
+                      Navigator.pop(context);
                     },
                     child: const Text('Done'),
                   ),
