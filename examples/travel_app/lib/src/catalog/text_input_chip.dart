@@ -86,6 +86,12 @@ class _TextInputChipState extends State<_TextInputChip> {
   }
 
   @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final value = widget.values[widget.widgetId];
     final currentValue = value is String ? value : null;
@@ -112,12 +118,13 @@ class _TextInputChipState extends State<_TextInputChip> {
                   ElevatedButton(
                     onPressed: () {
                       final newValue = _textController.text;
-                      if (newValue.isNotEmpty) {
-                        widget.values[widget.widgetId] = newValue;
-                      } else {
-                        widget.values.remove(widget.widgetId);
-                      }
-                      setState(() {});
+                      setState(() {
+                        if (newValue.isNotEmpty) {
+                          widget.values[widget.widgetId] = newValue;
+                        } else {
+                          widget.values.remove(widget.widgetId);
+                        }
+                      });
                       Navigator.pop(context);
                     },
                     child: const Text('Done'),
