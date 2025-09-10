@@ -63,9 +63,6 @@ class _MyAppState extends State<MyApp> {
       genUiManager: genUiManager,
       aiClient: aiClient,
       onSurfaceAdded: _onSurfaceAdded,
-      onSurfaceDeleted: (_) {},
-      onTextResponse: (_) {},
-      onWarning: (_) {},
     );
   }
 

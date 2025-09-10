@@ -85,9 +85,6 @@ For a complete example, refer to [main.dart in the simple_chat example](../../ex
        genUiManager: genUiManager,
        aiClient: aiClient,
        onSurfaceAdded: _onSurfaceAdded,
-       onSurfaceDeleted: (_) {},
-       onTextResponse: (_) {},
-       onWarning: (_) {},
      );
    }
    ```
