@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -19,6 +20,11 @@ import 'src/widgets/conversation.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance.activate(
+    appleProvider: AppleProvider.debug,
+    androidProvider: AndroidProvider.debug,
+    webProvider: ReCaptchaV3Provider('debug'),
+  );
   _imagesJson = await assetImageCatalogJson();
   configureGenUiLogging(level: Level.ALL);
   runApp(const TravelApp());
