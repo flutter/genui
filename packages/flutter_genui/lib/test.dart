@@ -5,4 +5,4 @@
 /// A library for providing test implementations of GenUI classes.
 library;
 
-export 'test/fake_ai_client.dart';
+export 'src/test/fake_ai_client.dart';
