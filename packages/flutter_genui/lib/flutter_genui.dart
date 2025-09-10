@@ -10,6 +10,7 @@ export 'src/catalog/core_widgets/image.dart';
 export 'src/catalog/core_widgets/radio_group.dart';
 export 'src/catalog/core_widgets/text.dart';
 export 'src/catalog/core_widgets/text_field.dart';
+export 'src/catalog/gallery/gallery_app.dart';
 export 'src/core/core_catalog.dart';
 export 'src/core/genui_configuration.dart';
 export 'src/core/genui_manager.dart';

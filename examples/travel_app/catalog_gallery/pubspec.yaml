@@ -1,0 +1,23 @@
+name: catalog_gallery
+description: "Gallery for the catalog of widgets."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+environment:
+  sdk: ^3.10.0-162.1.beta
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_genui:
+    path: ../../../packages/flutter_genui
+  travel_app:
+    path: ../../travel_app
+
+dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
