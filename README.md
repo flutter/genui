@@ -114,11 +114,11 @@ Widget build(BuildContext context) {
 
 ## Packages
 
-| Package                                              | Description                                                                   | Version                                                                                                              |
-| ---------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| [flutter_genui](packages/flutter_genui/)             | (work in progress) A framework to employ Generative UI.                       | [![pub package](https://img.shields.io/pub/v/flutter_genui.svg)](https://pub.dev/packages/flutter_genui)             |
-| [flutter_genui_firebase_ai](packages/flutter_genui_firebase_ai/) | (work in progress) Firebase AI integration for flutter_genui. | [![pub package](https://img.shields.io/pub/v/flutter_genui_firebase_ai.svg)](https://pub.dev/packages/flutter_genui_firebase_ai) |
-| [dart_schema_builder](packages/dart_schema_builder/) | (work in progress) A fully featured Dart JSON Schema package with validation. | [![pub package](https://img.shields.io/pub/v/dart_schema_builder.svg)](https://pub.dev/packages/dart_schema_builder) |
+| Package                                              | Description                                                                   |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------- |
+| [flutter_genui](packages/flutter_genui/)             | (work in progress) A framework to employ Generative UI.                       |
+| [flutter_genui_firebase_ai](packages/flutter_genui_firebase_ai/) | (work in progress) Firebase AI integration for flutter_genui.     |
+| [dart_schema_builder](packages/dart_schema_builder/) | (work in progress) A fully featured Dart JSON Schema package with validation. |
 
 ## Usage
 
