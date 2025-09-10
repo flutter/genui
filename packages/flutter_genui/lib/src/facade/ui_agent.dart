@@ -26,10 +26,10 @@ class UiAgent {
   /// Callbacks like [onSurfaceAdded] and [onSurfaceDeleted] can be provided to
   /// react to UI changes initiated by the AI.
   UiAgent({
-    required this.onSurfaceAdded,
-    required this.onSurfaceDeleted,
-    required this.onTextResponse,
-    required this.onWarning,
+    this.onSurfaceAdded,
+    this.onSurfaceDeleted,
+    this.onTextResponse,
+    this.onWarning,
     required GenUiManager genUiManager,
     required AiClient aiClient,
   }) : _genUiManager = genUiManager,

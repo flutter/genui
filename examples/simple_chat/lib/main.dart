@@ -64,7 +64,6 @@ class _ChatScreenState extends State<ChatScreen> {
       genUiManager: _genUiManager,
       aiClient: aiClient,
       onSurfaceAdded: _handleSurfaceAdded,
-      onSurfaceDeleted: (_) {},
       onTextResponse: _onTextResponse,
       // ignore: avoid_print
       onWarning: (value) => print('Warning from UiAgent: $value'),
