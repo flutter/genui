@@ -2,10 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-name: flutter_genui
-description: Generates and displays generative user interfaces (GenUI) in Flutter using AI.
+name: flutter_genui_firebase_ai
+description: Integration package for flutter_genui and Firebase AI Logic.
 version: 0.1.0
-homepage: https://github.com/flutter/genui/packages/flutter_genui
+homepage: https://github.com/flutter/genui/packages/flutter_genui_firebase_ai
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
 publish_to: none
@@ -15,21 +15,16 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  collection: ^1.19.1
   dart_schema_builder:
     path: ../dart_schema_builder
-  file: ^7.0.1
+  firebase_ai: ^3.2.0
   flutter:
     sdk: flutter
-  json_rpc_2: ^4.0.0
-  logging: ^1.3.0
-  meta: ^1.16.0
-  platform: ^3.1.6
-  stream_channel: ^2.1.4
-  url_launcher: ^6.2.6
+  flutter_genui:
+    path: ../flutter_genui
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
-  network_image_mock: ^2.1.1
+  logging: ^1.3.0

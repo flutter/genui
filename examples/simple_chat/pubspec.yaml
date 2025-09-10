@@ -14,10 +14,11 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  firebase_ai: ^3.0.0
   firebase_core: ^4.0.0
   flutter_genui:
     path: ../../packages/flutter_genui
+  flutter_genui_firebase_ai:
+    path: ../../packages/flutter_genui_firebase_ai
   logging: ^1.3.0
 
 dev_dependencies:

@@ -5,10 +5,7 @@
 import 'dart:convert';
 
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
-
-import '../model/chat_message.dart';
-import '../primitives/simple_items.dart';
-import 'ai_client.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
 /// specific `Content` classes.

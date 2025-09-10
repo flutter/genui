@@ -11,15 +11,12 @@ import 'package:firebase_ai/firebase_ai.dart'
         FunctionCall,
         GenerateContentResponse;
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
-import 'package:flutter_genui/src/ai_client/ai_client.dart';
-import 'package:flutter_genui/src/ai_client/firebase_ai_client.dart';
-import 'package:flutter_genui/src/model/chat_message.dart';
-import 'package:flutter_genui/src/model/tools.dart';
-import 'package:flutter_genui/src/primitives/logging.dart';
+import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
 
-import '../test_infra/utils.dart';
+import 'test_infra/utils.dart';
 
 void main() {
   group('AiClient', () {

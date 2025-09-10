@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter_genui/src/ai_client/gemini_generative_model.dart';
+import 'package:flutter_genui_firebase_ai/src/gemini_generative_model.dart';
 
 // A fake GenerativeModel that doesn't extend or implement the real one,
 // to work around the final class restriction.

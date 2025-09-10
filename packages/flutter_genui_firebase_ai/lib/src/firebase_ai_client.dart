@@ -7,11 +7,8 @@ import 'dart:convert';
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
-import '../model/chat_message.dart' as msg;
-import '../model/tools.dart';
-import '../primitives/logging.dart';
-import 'ai_client.dart';
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';
 import 'gemini_schema_adapter.dart';
@@ -107,7 +104,7 @@ class FirebaseAiClient implements AiClient {
 
   @override
   Future<T?> generateContent<T extends Object>(
-    Iterable<msg.ChatMessage> conversation,
+    Iterable<ChatMessage> conversation,
     dsb.Schema outputSchema, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
@@ -126,7 +123,7 @@ class FirebaseAiClient implements AiClient {
 
   @override
   Future<String> generateText(
-    Iterable<msg.ChatMessage> conversation, {
+    Iterable<ChatMessage> conversation, {
     Iterable<AiTool> additionalTools = const [],
   }) async {
     _activeRequests.value++;
@@ -337,7 +334,7 @@ class FirebaseAiClient implements AiClient {
   }
 
   Future<Object?> _generate({
-    required Iterable<msg.ChatMessage> messages,
+    required Iterable<ChatMessage> messages,
     required List<AiTool> availableTools,
     dsb.Schema? outputSchema,
   }) async {
