@@ -6,7 +6,10 @@ import 'dart:async';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
-import '../../flutter_genui.dart';
+
+import '../ai_client/ai_client.dart';
+import '../model/chat_message.dart';
+import '../model/tools.dart';
 
 /// A fake [AiClient] for use in tests.
 class FakeAiClient implements AiClient {
