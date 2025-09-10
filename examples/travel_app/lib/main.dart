@@ -26,12 +26,21 @@ void main() async {
 
 /// The root widget for the travel application.
 ///
-/// This widget sets up the [MaterialApp], which infigures the overall theme,
+/// This widget sets up the [MaterialApp], which configures the overall theme,
 /// title, and home page for the app. It serves as the main entry point for the
 /// user interface.
 class TravelApp extends StatelessWidget {
   /// Creates a new [TravelApp].
-  const TravelApp({super.key});
+  ///
+  /// The optional [aiClient] can be used to inject a specific AI client,
+  /// which is useful for testing with a mock implementation.
+  const TravelApp({this.aiClient, super.key});
+
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default [FirebaseAiClient] will be created by the
+  /// [TravelPlannerPage].
+  final AiClient? aiClient;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +50,7 @@ class TravelApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const TravelPlannerPage(),
+      home: TravelPlannerPage(aiClient: aiClient),
     );
   }
 }
@@ -58,7 +67,17 @@ class TravelApp extends StatelessWidget {
 /// generated UI, and a menu to switch between different AI models.
 class TravelPlannerPage extends StatefulWidget {
   /// Creates a new [TravelPlannerPage].
-  const TravelPlannerPage({super.key});
+  ///
+  /// An optional [aiClient] can be provided, which is useful for testing
+  /// or using a custom AI client implementation. If not provided, a default
+  /// [FirebaseAiClient] is created.
+  const TravelPlannerPage({this.aiClient, super.key});
+
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default instance of [FirebaseAiClient] will be created within
+  /// the page's state.
+  final AiClient? aiClient;
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
@@ -89,10 +108,12 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _userMessageSubscription = _genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
-    _aiClient = FirebaseAiClient(
-      tools: _genUiManager.getTools(),
-      systemInstruction: prompt,
-    );
+    _aiClient =
+        widget.aiClient ??
+        FirebaseAiClient(
+          tools: _genUiManager.getTools(),
+          systemInstruction: prompt,
+        );
     _genUiManager.surfaceUpdates.listen((update) {
       setState(() {
         switch (update) {
