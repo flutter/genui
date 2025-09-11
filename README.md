@@ -95,7 +95,7 @@ This UI is not being generated in form of code, rather its generated in runtime 
 
 <img src="misc/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
 
-*This screenshot highlights the core implementation of traditional LLM Based UI vs GenUI Based UI.*
+*This screenshot highlights the core implementation of traditional LLM-based UI vs. GenUI-based UI.*
 
 
 ## Implementation goals
