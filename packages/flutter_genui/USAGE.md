@@ -153,6 +153,19 @@ If something is unclear or missing, please [create an issue](https://github.com/
 
 ## Troubleshooting
 
+### Configure logging
+
+To observe interaction between app and agent, enable logging:
+
+```dart
+final logger = configureGenUiLogging(level: Level.ALL);
+logger.onRecord.listen((record) {
+  print(
+    '${record.loggerName}: ${record.message}',
+  );
+});
+```
+
 ### Higher minimum macOS version is required
 
 If you are getting the error similar to one below, re-clone your repo.

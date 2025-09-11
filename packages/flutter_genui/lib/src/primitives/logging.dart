@@ -11,7 +11,7 @@ final genUiLogger = Logger('GenUI');
 ///
 /// This function should be called by applications using the GenUI package to
 /// configure the desired log level and to listen for log messages.
-void configureGenUiLogging({
+Logger configureGenUiLogging({
   Level level = Level.INFO,
   void Function(Level, String)? logCallback,
 }) {
@@ -36,4 +36,6 @@ void configureGenUiLogging({
       }
     }
   });
+
+  return genUiLogger;
 }

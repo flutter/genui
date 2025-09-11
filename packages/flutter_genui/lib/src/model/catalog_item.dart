@@ -63,5 +63,9 @@ class CatalogItem {
   final CatalogWidgetBuilder widgetBuilder;
 
   /// Example data for this widget, for testing purposes.
+  ///
+  /// To catch real data returned by the AI,
+  /// [configure logging](https://github.com/flutter/genui/blob/main/packages/flutter_genui/USAGE.md#configure-logging)
+  /// to Level.ALL and search for the string `"definition": {` in the logs.
   final JsonMap? exampleData;
 }
