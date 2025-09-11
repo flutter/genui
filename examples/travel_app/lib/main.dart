@@ -54,8 +54,8 @@ class TravelApp extends StatelessWidget {
   }
 }
 
-class _TravelAppBody extends StatefulWidget {
-  const _TravelAppBody(this.aiClient);
+class _TravelAppBody extends StatelessWidget {
+  _TravelAppBody(this.aiClient);
 
   /// The AI client to use for the application.
   ///
@@ -64,37 +64,36 @@ class _TravelAppBody extends StatefulWidget {
   final AiClient? aiClient;
 
   @override
-  State<_TravelAppBody> createState() => __TravelAppBodyState();
-}
-
-class __TravelAppBodyState extends State<_TravelAppBody> {
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: const Icon(Icons.menu),
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(Icons.local_airport),
-            SizedBox(width: 16.0), // Add spacing between icon and text
-            Text('Agentic Travel Inc.'),
+    final tabs = {
+      'Travel': TravelPlannerPage(aiClient: aiClient),
+      'Catalog': CatalogView(catalog: travelAppCatalog),
+    };
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          leading: const Icon(Icons.menu),
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.local_airport),
+              SizedBox(width: 16.0), // Add spacing between icon and text
+              Text('Agentic Travel Inc.'),
+            ],
+          ),
+          actions: [
+            const Icon(Icons.person_outline),
+            const SizedBox(width: 8.0),
           ],
+          bottom: TabBar(
+            tabs: tabs.entries.map((entry) => Tab(text: entry.key)).toList(),
+          ),
         ),
-        actions: [const Icon(Icons.person_outline), const SizedBox(width: 8.0)],
-        bottom: const TabBar(
-          tabs: [
-            Tab(text: 'Travel'),
-            Tab(text: 'Catalog'),
-          ],
+        body: TabBarView(
+          children: tabs.entries.map((entry) => entry.value).toList(),
         ),
-      ),
-      body: TabBarView(
-        children: [
-          TravelPlannerPage(aiClient: widget.aiClient),
-          CatalogView(catalog: travelAppCatalog),
-        ],
       ),
     );
   }

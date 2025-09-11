@@ -9,6 +9,10 @@ import '../core/genui_surface.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 
+/// A widget that displays a catalog of items using GenUI surfaces.
+///
+/// In order for a catalog item to be displayed, it must have example data
+/// defined.
 class CatalogView extends StatefulWidget {
   const CatalogView({required this.catalog});
 
