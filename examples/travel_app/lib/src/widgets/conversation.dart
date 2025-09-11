@@ -42,16 +42,16 @@ class Conversation extends StatelessWidget {
         final message = renderedMessages[index];
         switch (message) {
           case UserMessage():
-            return userPromptBuilder != null
-                ? userPromptBuilder!(context, message)
-                : ChatMessageWidget(
-                    text: message.parts
-                        .whereType<TextPart>()
-                        .map((part) => part.text)
-                        .join('\n'),
-                    icon: Icons.person,
-                    alignment: MainAxisAlignment.end,
-                  );
+          return userPromptBuilder != null
+              ? userPromptBuilder!(context, message)
+              : ChatMessageWidget(
+                  text: message.parts
+                      .whereType<TextPart>()
+                      .map((part) => part.text)
+                      .join('\n'),
+                  icon: Icons.person,
+                  alignment: MainAxisAlignment.end,
+                );
           case AiTextMessage():
             final text = message.parts
                 .whereType<TextPart>()
