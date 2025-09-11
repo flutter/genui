@@ -67,7 +67,7 @@ class _TravelAppBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final tabs = {
       'Travel': TravelPlannerPage(aiClient: aiClient),
-      'Catalog': CatalogView(catalog: travelAppCatalog),
+      'Widget Catalog': CatalogView(catalog: travelAppCatalog),
     };
     return DefaultTabController(
       length: tabs.length,
