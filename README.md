@@ -91,7 +91,7 @@ Here's how it works in practice, but please be advised it's labelled as "Highly 
 *The GIF above shows how GenUI enables dynamic, interactive UI generation — instead of text descriptions or code from a traditional AI coding agent.*
 
 ### Core Difference
-This UI is not being generated in form of code, rather its generated in runtime based on widget catalog provided by the developers in their project (application catalog) plus combining the genui catalog (standard catalog).
+This UI is not generated in the form of code; rather, it's generated at runtime based on a widget catalog from the developers' project (application catalog) combined with the genui catalog (standard catalog).
 
 <img src="misc/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
 
