@@ -10,9 +10,6 @@ environment:
   sdk: ^3.9.0-333.2.beta
 
 dependencies:
-  cupertino_icons: ^1.0.8
-  firebase_ai: ^3.0.0
-  firebase_core: ^4.0.0
   flutter:
     sdk: flutter
   flutter_genui:

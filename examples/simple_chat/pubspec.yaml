@@ -13,7 +13,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
   firebase_core: ^4.0.0
   flutter_genui:
     path: ../../packages/flutter_genui
