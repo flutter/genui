@@ -12,7 +12,7 @@ import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
 import 'src/catalog.dart';
-import 'src/travel_page.dart';
+import 'src/travel_planner_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
