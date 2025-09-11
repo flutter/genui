@@ -9,10 +9,10 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
-import 'src/asset_images.dart';
 import 'src/chats/inline_chat_travel_planner.dart';
 import 'src/chats/no_chat_travel_planner.dart';
 import 'src/chats/side_chat_travel_planner.dart';
+import 'src/controllers/travel_planner_canvas_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  await assetImageCatalogJson();
+  await TravelPlannerCanvasController.initializeAssetImages();
   configureGenUiLogging(level: Level.ALL);
   runApp(const TravelApp());
 }

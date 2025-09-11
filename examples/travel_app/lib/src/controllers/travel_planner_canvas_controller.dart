@@ -7,14 +7,26 @@ import 'dart:async';
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+import '../asset_images.dart';
 import '../catalog.dart';
+
+/// Global variable to store the asset images JSON for prompt injection
+String? _imagesJson;
 
 /// Controller for managing travel planner canvas state and interactions.
 ///
-/// This class manages the state of UI surfaces and text messages for the
-/// travel planner application. It handles communication with the AI client
-/// and provides streams for UI updates.
+/// This class extracts the core logic from the original TravelPlannerPage
+/// to make it reusable across different UI layouts (inline chat, side chat, no
+/// chat).
+/// It maintains the same approach as the legacy code without external
+/// dependencies.
 class TravelPlannerCanvasController {
+  /// Initializes the asset images JSON for use in prompts.
+  /// This should be called once at app startup, similar to main.dart.
+  static Future<void> initializeAssetImages() async {
+    _imagesJson = await assetImageCatalogJson();
+  }
+
   /// Creates a new [TravelPlannerCanvasController].
   ///
   /// [enableChatOutput] determines whether the AI can output text messages
@@ -22,7 +34,7 @@ class TravelPlannerCanvasController {
   ///
   /// Optional [genUiManager] and [aiClient] can be provided for testing.
   TravelPlannerCanvasController({
-    required this.enableChatOutput,
+    this.enableChatOutput = true,
     GenUiManager? genUiManager,
     AiClient? aiClient,
   }) {
@@ -39,134 +51,126 @@ class TravelPlannerCanvasController {
           ),
         );
 
+    _userMessageSubscription = _genUiManager.onSubmit.listen(
+      _handleUserMessageFromUi,
+    );
+
     _aiClient =
         aiClient ??
         FirebaseAiClient(
           tools: _genUiManager.getTools(),
-          systemInstruction: _buildSystemPrompt(),
+          systemInstruction: _getPrompt(),
         );
 
-    _initialize();
+    _genUiManager.surfaceUpdates.listen((update) {
+      switch (update) {
+        case SurfaceAdded(:final surfaceId, :final definition):
+          _conversation.add(
+            AiUiMessage(definition: definition, surfaceId: surfaceId),
+          );
+          _limitSurfaces();
+          _notifyListeners();
+
+        case SurfaceRemoved(:final surfaceId):
+          _conversation.removeWhere(
+            (m) => m is AiUiMessage && m.surfaceId == surfaceId,
+          );
+          _notifyListeners();
+
+        case SurfaceUpdated(:final surfaceId, :final definition):
+          final index = _conversation.lastIndexWhere(
+            (m) => m is AiUiMessage && m.surfaceId == surfaceId,
+          );
+          if (index != -1) {
+            _conversation[index] = AiUiMessage(
+              definition: definition,
+              surfaceId: surfaceId,
+            );
+            _notifyListeners();
+          }
+      }
+    });
   }
 
   final bool enableChatOutput;
   late final GenUiManager _genUiManager;
   late final AiClient _aiClient;
-
-  /// The GenUiManager instance used by this controller.
-  GenUiManager get genUiManager => _genUiManager;
   late final StreamSubscription<UserMessage> _userMessageSubscription;
 
-  final List<ChatMessage> _persistentTextMessages = [];
-  final List<AiUiMessage> _surfaces = [];
+  final List<ChatMessage> _conversation = [];
+  bool _isThinking = false;
 
+  // Stream controllers for reactive updates
   final _surfacesController =
       StreamController<Iterable<AiUiMessage>>.broadcast();
   final _textMessagesController =
       StreamController<Iterable<ChatMessage>>.broadcast();
   final _isThinkingController = StreamController<bool>.broadcast();
 
-  bool _isThinking = false;
-
-  /// A stream of UI surfaces to render.
+  /// Stream of UI surfaces to render
   Stream<Iterable<AiUiMessage>> get surfaces => _surfacesController.stream;
 
-  /// A stream of text messages to render in chat.
+  /// Stream of text messages to render in chat
   Stream<Iterable<ChatMessage>> get textMessages =>
       _textMessagesController.stream;
 
-  /// A stream indicating whether the LLM is currently processing.
+  /// Stream indicating whether the LLM is currently processing
   Stream<bool> get isThinking => _isThinkingController.stream;
 
-  /// Current list of surfaces.
-  Iterable<AiUiMessage> get currentSurfaces => List.unmodifiable(_surfaces);
+  /// The GenUiManager instance used by this controller
+  GenUiManager get genUiManager => _genUiManager;
 
-  /// Current list of text messages.
+  /// Current list of surfaces
+  Iterable<AiUiMessage> get currentSurfaces =>
+      _conversation.whereType<AiUiMessage>();
+
+  /// Current list of text messages
   Iterable<ChatMessage> get currentTextMessages =>
-      List.unmodifiable(_persistentTextMessages);
+      _conversation.where((m) => m is! AiUiMessage);
 
-  /// Current thinking state.
+  /// Current thinking state
   bool get currentIsThinking => _isThinking;
 
-  void _initialize() {
-    _userMessageSubscription = _genUiManager.onSubmit.listen(
-      _handleUserMessageFromUi,
-    );
-
-    _genUiManager.surfaceUpdates.listen((update) {
-      switch (update) {
-        case SurfaceAdded(:final surfaceId, :final definition):
-          _surfaces.add(
-            AiUiMessage(definition: definition, surfaceId: surfaceId),
-          );
-          _limitSurfaces();
-          _surfacesController.add(currentSurfaces);
-
-        case SurfaceRemoved(:final surfaceId):
-          _surfaces.removeWhere((m) => m.surfaceId == surfaceId);
-          _surfacesController.add(currentSurfaces);
-
-        case SurfaceUpdated(:final surfaceId, :final definition):
-          final index = _surfaces.lastIndexWhere(
-            (m) => m.surfaceId == surfaceId,
-          );
-          if (index != -1) {
-            _surfaces[index] = AiUiMessage(
-              definition: definition,
-              surfaceId: surfaceId,
-            );
-            _surfacesController.add(currentSurfaces);
-          }
-      }
-    });
-
-    // Emit initial empty states
-    _surfacesController.add(currentSurfaces);
-    _textMessagesController.add(currentTextMessages);
-    _isThinkingController.add(_isThinking);
+  void dispose() {
+    _genUiManager.dispose();
+    _userMessageSubscription.cancel();
+    _surfacesController.close();
+    _textMessagesController.close();
+    _isThinkingController.close();
   }
 
-  /// Limits the number of surfaces to a maximum of 4, removing oldest first.
+  /// Sends a user text message and triggers AI inference
+  void sendUserTextMessage(String message) {
+    if (_isThinking || message.trim().isEmpty) return;
+
+    _conversation.add(UserMessage.text(message));
+    _notifyListeners();
+    _triggerInference();
+  }
+
+  void _handleUserMessageFromUi(UserMessage message) {
+    _conversation.add(UserUiInteractionMessage.text(message.text));
+    _notifyListeners();
+    _triggerInference();
+  }
+
+  /// Limits surfaces to 4 maximum, removing oldest first
   void _limitSurfaces() {
-    while (_surfaces.length > 4) {
-      final oldestSurface = _surfaces.removeAt(0);
+    final surfaces = _conversation.whereType<AiUiMessage>().toList();
+    while (surfaces.length > 4) {
+      final oldestSurface = surfaces.removeAt(0);
+      _conversation.removeWhere(
+        (m) => m is AiUiMessage && m.surfaceId == oldestSurface.surfaceId,
+      );
       _genUiManager.deleteSurface(oldestSurface.surfaceId);
     }
   }
 
-  /// Sends a user text message.
-  void sendUserTextMessage(String message) {
-    if (_isThinking || message.trim().isEmpty) return;
-
-    final userMessage = UserMessage.text(message);
-    _persistentTextMessages.add(userMessage);
-    _textMessagesController.add(currentTextMessages);
-
-    _triggerInference(userMessage);
-  }
-
-  void _handleUserMessageFromUi(UserMessage message) {
-    final uiInteractionMessage = UserUiInteractionMessage.text(message.text);
-    _persistentTextMessages.add(uiInteractionMessage);
-    _textMessagesController.add(currentTextMessages);
-
-    _triggerInference(uiInteractionMessage);
-  }
-
-  Future<void> _triggerInference(ChatMessage triggeringEvent) async {
-    _setThinking(true);
+  Future<void> _triggerInference() async {
+    _isThinking = true;
+    _isThinkingController.add(_isThinking);
 
     try {
-      // Build conversation in the specified order:
-      // 1. Persistent text messages (already seen by LLM)
-      // 2. Current surfaces
-      // 3. The triggering event
-      final conversation = <ChatMessage>[
-        ..._persistentTextMessages.where((m) => m != triggeringEvent),
-        ..._surfaces,
-        triggeringEvent,
-      ];
-
       final schema = enableChatOutput
           ? S.object(
               properties: {
@@ -192,39 +196,45 @@ class TravelPlannerCanvasController {
               required: ['result'],
             );
 
-      final result = await _aiClient.generateContent(conversation, schema);
+      final result = await _aiClient.generateContent(_conversation, schema);
 
-      if (result == null) {
-        return;
-      }
+      if (result == null) return;
 
       if (enableChatOutput) {
         final message =
             (result as Map).cast<String, Object?>()['message'] as String? ?? '';
         if (message.isNotEmpty) {
-          _persistentTextMessages.add(AiTextMessage.text(message));
-          _textMessagesController.add(currentTextMessages);
+          _conversation.add(AiTextMessage.text(message));
+          _notifyListeners();
         }
       }
     } finally {
-      _setThinking(false);
+      _isThinking = false;
+      _isThinkingController.add(_isThinking);
     }
   }
 
-  void _setThinking(bool thinking) {
-    _isThinking = thinking;
-    _isThinkingController.add(_isThinking);
+  void _notifyListeners() {
+    _surfacesController.add(currentSurfaces);
+    _textMessagesController.add(currentTextMessages);
   }
 
-  String _buildSystemPrompt() {
-    final basePrompt = '''
+  String _getPrompt() {
+    final basePrompt =
+        '''
 You are a helpful travel agent assistant that communicates by creating and
-updating UI elements. Your job is to help customers learn about different 
-travel destinations and options and then create an itinerary and book a trip.
+updating UI elements${enableChatOutput ? ' that appear in the chat' : ''}. Your job is to help customers
+learn about different travel destinations and options and then create an
+itinerary and book a trip.
 
 # Surface Management
 
-You should maintain a focused set of UI surfaces. Follow these rules:
+${enableChatOutput ? '' : '''
+IMPORTANT: You communicate ONLY through UI surfaces. You cannot send text messages - all 
+communication must be through creating, updating, or deleting UI elements. 
+Make sure your UI is self-explanatory and guides the user clearly.
+
+'''}You should maintain a focused set of UI surfaces. Follow these rules:
 - Keep a MAXIMUM of 4 surfaces active at any time
 - Delete irrelevant or outdated surfaces to make room for new ones
 - Prioritize the most recent and relevant surfaces for the current conversation
@@ -233,25 +243,7 @@ When managing surfaces:
 - Delete old surfaces that are no longer relevant to the current flow
 - Update existing surfaces when iterating on the same content (e.g., refining an itinerary)
 - Add new surfaces for new topics or when exploring side journeys
-''';
 
-    final chatSection = enableChatOutput
-        ? '''
-# Communication Style
-
-You can communicate through both UI surfaces and text messages. Use text messages 
-for brief explanations, confirmations, or when you need to provide context about 
-the UI you've created. Always prefer UI over text when possible.
-'''
-        : '''
-# Communication Style
-
-You communicate ONLY through UI surfaces. You cannot send text messages - all 
-communication must be through creating, updating, or deleting UI elements. 
-Make sure your UI is self-explanatory and guides the user clearly.
-''';
-
-    final remainingPrompt = '''
 # Conversation flow
 
 Conversations with travel agents should follow a rough flow. In each part of the
@@ -324,6 +316,32 @@ the flow, and you should help them with that. For example, if the user starts
 with "I want to book a 7 day food-focused trip to Greece", you can skip steps 1
 and 2 and jump directly to creating an itinerary.
 
+## Side journeys
+
+Within the flow, users may also take side journeys. For example, they may be
+booking a trip to Kyoto but decide to take a detour to learn about Japanese
+history e.g. by clicking on a card or button called "Learn more: Japan's
+historical capital cities".
+
+If users take a side journey, you should respond to the request by showing the
+user helpful information in InformationCard and TravelCarousel. Always add new
+surfaces when doing this and do not update or delete existing ones. That way,
+the user can return to the main booking flow once they have done some research.
+
+# Controlling the UI
+
+Use the provided tools to build and manage the user interface in response to the
+user's requests. Call the `addOrUpdateSurface` tool to show new content or
+update existing content.
+- Adding surfaces: Most of the time, you should only add new surfaces to the conversation. This
+  is less confusing for the user, because they can easily find this new content
+  at the bottom of the conversation.
+- Updating surfaces: You should update surfaces when you are running an
+iterative search flow, e.g. the user is adjusting filter values and generating
+an itinerary or a booking accomodation etc. This is less confusing for the user
+because it avoids confusing the conversation with many versions of the same
+itinerary etc.
+
 When processing a user message or event, you should add or update one surface
 and then call provideFinalOutput to return control to the user. Never continue
 to add or update surfaces until you receive another user event. If the last
@@ -332,9 +350,7 @@ immediately - don't try to update the UI.
 
 # UI style
 
-Always prefer to communicate using UI elements rather than text. Only respond
-with text if you need to provide a short explanation of how you've updated the
-UI.
+Always prefer to communicate using UI elements rather than text. ${enableChatOutput ? 'Only respond with text if you need to provide a short explanation of how you\'ve updated the UI.' : ''}
 
 - TravelCarousel: Always make sure there are at least four options in the
 carousel. If there are only 2 or 3 obvious options, just think of some relevant
@@ -346,18 +362,40 @@ suggesting what the user might want to do next (e.g. book the next detail in the
 itinerary, repeat a search, research some related topic) so that they can click
 rather than typing.
 
+- Itinerary Structure: Itineraries have a three-level structure. The root is
+`itineraryWithDetails`, which provides an overview. Inside the modal view of an
+`itineraryWithDetails`, you should use one or more `itineraryDay` widgets to
+represent each day of the trip. Each `itineraryDay` should then contain a list
+of `itineraryEntry` widgets, which represent specific activities, bookings, or
+transport for that day.
+
+- Inputs: When you are asking for information from the user, you should always include a
+submit button of some kind so that the user can indicate that they are done
+providing information. The `InputGroup` has a submit button, but if
+you are not using that, you can use an `ElevatedButton`. Only use
+`OptionsFilterChipInput` widgets inside of a `InputGroup`.
+
+- State management: Try to maintain state by being aware of the user's
+  selections and preferences and setting them in the initial value fields of
+  input elements when updating surfaces or generating new ones.
+
+# Images
+
+If you need to use any images, find the most relevant ones from the following
+list of asset images:
+
+${_imagesJson ?? ''}
+
+- If you can't find a good image in this list, just try to choose one from the
+list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
+It is fine if the image is irrelevant, as long as it is from the list.
+
+- Use assetName for images from the list only - NEVER use `url` and reference
+images from wikipedia or other sites.
+
 When updating or showing UIs, **ALWAYS** use the addOrUpdateSurface tool to supply them. Prefer to collect and show information by creating a UI for it.
 ''';
 
-    return basePrompt + chatSection + remainingPrompt;
-  }
-
-  /// Disposes of resources used by this controller.
-  void dispose() {
-    _userMessageSubscription.cancel();
-    _surfacesController.close();
-    _textMessagesController.close();
-    _isThinkingController.close();
-    _genUiManager.dispose();
+    return basePrompt;
   }
 }

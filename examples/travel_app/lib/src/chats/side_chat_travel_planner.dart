@@ -213,10 +213,8 @@ class _SideChatTravelPlannerState extends State<SideChatTravelPlanner> {
                                       ],
                                     ),
                                   )
-                                : ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      maxWidth: 800,
-                                    ),
+                                : Padding(
+                                    padding: const EdgeInsets.only(bottom: 40),
                                     child: Conversation(
                                       messages: _surfaces,
                                       manager: _controller.genUiManager,
@@ -299,10 +297,13 @@ class _SideChatTravelPlannerState extends State<SideChatTravelPlanner> {
                                     ],
                                   ),
                                 )
-                              : Conversation(
-                                  messages: _textMessages,
-                                  manager: _controller.genUiManager,
-                                  scrollController: _chatScrollController,
+                              : Padding(
+                                  padding: const EdgeInsets.only(bottom: 60),
+                                  child: Conversation(
+                                    messages: _textMessages,
+                                    manager: _controller.genUiManager,
+                                    scrollController: _chatScrollController,
+                                  ),
                                 ),
                         ),
                       ],

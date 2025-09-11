@@ -8,6 +8,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+import '../asset_images.dart';
 import '../catalog.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/conversation.dart';
@@ -54,6 +55,7 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
   @override
   void initState() {
     super.initState();
+    _initializeAssetImages();
     _genUiManager = GenUiManager(
       catalog: travelAppCatalog,
       configuration: const GenUiConfiguration(
@@ -108,6 +110,10 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initializeAssetImages() async {
+    _imagesJson ??= await assetImageCatalogJson();
   }
 
   void _scrollToBottom() {
@@ -228,7 +234,10 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
   }
 }
 
-final prompt = '''
+String? _imagesJson;
+
+final prompt =
+    '''
 You are a helpful travel agent assistant that communicates by creating and
 updating UI elements that appear in the chat. Your job is to help customers
 learn about different travel destinations and options and then create an
@@ -373,8 +382,16 @@ you are not using that, you can use an `ElevatedButton`. Only use
 
 # Images
 
-Use appropriate asset images from the travel_images directory. Use assetName 
-for images from the asset catalog only - NEVER use `url` and reference
+If you need to use any images, find the most relevant ones from the following
+list of asset images:
+
+${_imagesJson ?? ''}
+
+- If you can't find a good image in this list, just try to choose one from the
+list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
+It is fine if the image is irrelevant, as long as it is from the list.
+
+- Use assetName for images from the list only - NEVER use `url` and reference
 images from wikipedia or other sites.
 
 # Example
