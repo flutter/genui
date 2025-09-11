@@ -9,38 +9,16 @@ import '../core/genui_surface.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 
-class CatalogGalleryApp extends StatelessWidget {
-  const CatalogGalleryApp(this.catalog, {super.key});
+class CatalogView extends StatefulWidget {
+  const CatalogView({required this.catalog});
 
   final Catalog catalog;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Catalog items that has "exampleData" field set'),
-        ),
-        body: _CatalogView(catalog: catalog),
-      ),
-    );
-  }
+  State<CatalogView> createState() => _CatalogViewState();
 }
 
-class _CatalogView extends StatefulWidget {
-  const _CatalogView({required this.catalog});
-
-  final Catalog catalog;
-
-  @override
-  State<_CatalogView> createState() => _CatalogViewState();
-}
-
-class _CatalogViewState extends State<_CatalogView> {
+class _CatalogViewState extends State<CatalogView> {
   late final GenUiManager _genUi;
   final surfaceIds = <String>[];
 

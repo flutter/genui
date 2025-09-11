@@ -9,7 +9,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter_genui/flutter_genui_dev.dart';
+import 'package:catalog_gallery/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:travel_app/travel_app.dart';
