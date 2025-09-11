@@ -82,7 +82,7 @@ Widget build(BuildContext context) {
 ```
 
 ## Look & Feel
-Here's how it works in practice, but please be advised its labelled as "Highly Experimental".
+Here's how it works in practice, but please be advised it's labelled as "Highly Experimental".
 
 ### Interactive [Travel App Example](examples/travel_app/)
 
