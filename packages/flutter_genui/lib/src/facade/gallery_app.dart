@@ -4,10 +4,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../../core/genui_manager.dart';
-import '../../core/genui_surface.dart';
-import '../../model/catalog.dart';
-import '../../model/catalog_item.dart';
+import '../core/genui_manager.dart';
+import '../core/genui_surface.dart';
+import '../model/catalog.dart';
+import '../model/catalog_item.dart';
 
 class CatalogGalleryApp extends StatelessWidget {
   const CatalogGalleryApp(this.catalog, {super.key});
