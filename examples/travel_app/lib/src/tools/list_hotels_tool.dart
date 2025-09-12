@@ -129,26 +129,26 @@ class ListHotelsTool extends AiTool<Map<String, Object?>> {
     final search = HotelSearch.fromJson(args);
     return onListHotels(search).toJson();
   }
+}
 
-  static HotelSearchResult onListHotels(HotelSearch search) {
-    // Mock implementation
-    return HotelSearchResult(
-      listings: [
-        HotelListing(
-          name: 'The Grand Flutter Hotel',
-          location: 'Mountain View, CA',
-          pricePerNight: 250.0,
-          listingId: '1',
-          images: ['assets/travel_images/brooklyn_bridge_new_york.jpg'],
-        ),
-        HotelListing(
-          name: 'The Dart Inn',
-          location: 'Sunnyvale, CA',
-          pricePerNight: 150.0,
-          listingId: '2',
-          images: ['assets/travel_images/eiffel_tower_construction_1888.jpg'],
-        ),
-      ],
-    );
-  }
+HotelSearchResult onListHotels(HotelSearch search) {
+  // Mock implementation
+  return HotelSearchResult(
+    listings: [
+      HotelListing(
+        name: 'The Grand Flutter Hotel',
+        location: 'Mountain View, CA',
+        pricePerNight: 250.0,
+        listingId: '1',
+        images: ['assets/travel_images/brooklyn_bridge_new_york.jpg'],
+      ),
+      HotelListing(
+        name: 'The Dart Inn',
+        location: 'Sunnyvale, CA',
+        pricePerNight: 150.0,
+        listingId: '2',
+        images: ['assets/travel_images/eiffel_tower_construction_1888.jpg'],
+      ),
+    ],
+  );
 }
