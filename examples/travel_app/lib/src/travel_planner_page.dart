@@ -330,6 +330,10 @@ to the user.
     involves booking every accommodation, transport and activity in the itinerary
     one step at a time.
 
+    When booking accommodation, you should use the `listHotels` tool to search
+    for hotels. You can then show the user the different options in a
+    `travelCarousel`.
+
     Here, you should just focus on one item at a time, using an `inputGroup`
     with chips to ask the user for preferences, and the `travelCarousel` to show
     the user different options. When the user chooses an option, you can confirm
