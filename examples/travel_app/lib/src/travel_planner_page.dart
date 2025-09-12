@@ -46,7 +46,8 @@ class TravelPlannerPage extends StatefulWidget {
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
 }
 
-class _TravelPlannerPageState extends State<TravelPlannerPage> {
+class _TravelPlannerPageState extends State<TravelPlannerPage>
+    with AutomaticKeepAliveClientMixin {
   late final GenUiManager _genUiManager;
   late final AiClient _aiClient;
   late final StreamSubscription<UserMessage> _userMessageSubscription;
@@ -214,6 +215,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _ChatInput extends StatelessWidget {
