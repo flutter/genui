@@ -11,6 +11,7 @@ import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 
 import 'asset_images.dart';
 import 'catalog.dart';
+import 'tools/list_hotels_tool.dart';
 import 'widgets/conversation.dart';
 
 Future<void> loadImagesJson() async {
@@ -70,10 +71,38 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     _userMessageSubscription = _genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
+    final tools = _genUiManager.getTools();
+    tools.add(
+      ListHotelsTool(
+        onListHotels: (search) {
+          // Mock implementation
+          return HotelSearchResult(
+            listings: [
+              HotelListing(
+                name: 'The Grand Flutter Hotel',
+                location: 'Mountain View, CA',
+                pricePerNight: 250.0,
+                listingId: '1',
+                images: ['assets/travel_images/brooklyn_bridge_new_york.jpg'],
+              ),
+              HotelListing(
+                name: 'The Dart Inn',
+                location: 'Sunnyvale, CA',
+                pricePerNight: 150.0,
+                listingId: '2',
+                images: [
+                  'assets/travel_images/eiffel_tower_construction_1888.jpg'
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
     _aiClient =
         widget.aiClient ??
         FirebaseAiClient(
-          tools: _genUiManager.getTools(),
+          tools: tools,
           systemInstruction: prompt,
         );
     _genUiManager.surfaceUpdates.listen((update) {
