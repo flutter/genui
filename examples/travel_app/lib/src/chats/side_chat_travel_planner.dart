@@ -21,7 +21,11 @@ class SideChatTravelPlanner extends StatefulWidget {
   ///
   /// An optional [aiClient] can be provided for testing. If not provided,
   /// a default controller will be created with chat output enabled.
-  const SideChatTravelPlanner({this.aiClient, super.key});
+  const SideChatTravelPlanner({this.aiClient, this.controller, super.key});
+
+  /// Optional parameter that could be used for writing test, as of now we're
+  /// initalizing the controller in the [_SideChatTravelPlannerState] itself
+  final TravelPlannerCanvasController? controller;
 
   /// The AI client to use for the application.
   ///
@@ -50,10 +54,12 @@ class _SideChatTravelPlannerState extends State<SideChatTravelPlanner> {
   @override
   void initState() {
     super.initState();
-    _controller = TravelPlannerCanvasController(
-      enableChatOutput: true,
-      aiClient: widget.aiClient,
-    );
+    _controller =
+        widget.controller ??
+        TravelPlannerCanvasController(
+          enableChatOutput: true,
+          aiClient: widget.aiClient,
+        );
 
     _surfacesSubscription = _controller.surfaces.listen((surfaces) {
       setState(() {

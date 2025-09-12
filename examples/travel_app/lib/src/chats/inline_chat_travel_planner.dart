@@ -16,13 +16,18 @@ import '../widgets/drawer.dart';
 ///
 /// This page displays both UI surfaces and text messages in a single
 /// conversation view, similar to a traditional chat interface.
-/// It uses a [TravelPlannerCanvasController] to manage state and AI interactions.
+/// It uses a [TravelPlannerCanvasController] to manage state and
+/// AI interactions.
 class InlineChatTravelPlanner extends StatefulWidget {
   /// Creates a new [InlineChatTravelPlanner].
   ///
   /// An optional [aiClient] can be provided for testing. If not provided,
   /// a default controller will be created with chat output enabled.
-  const InlineChatTravelPlanner({this.aiClient, super.key});
+  const InlineChatTravelPlanner({this.aiClient, this.controller, super.key});
+
+  /// Optional parameter that could be used for writing test, as of now we're
+  /// initalizing the controller in the [_InlineChatTravelPlannerState] itself
+  final TravelPlannerCanvasController? controller;
 
   /// The AI client to use for the application.
   ///
@@ -50,10 +55,12 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
   @override
   void initState() {
     super.initState();
-    _controller = TravelPlannerCanvasController(
-      enableChatOutput: true,
-      aiClient: widget.aiClient,
-    );
+    _controller =
+        widget.controller ??
+        TravelPlannerCanvasController(
+          enableChatOutput: true,
+          aiClient: widget.aiClient,
+        );
 
     // Listen to controller streams and merge surfaces and text messages
     _surfacesSubscription = _controller.surfaces.listen((surfaces) {
