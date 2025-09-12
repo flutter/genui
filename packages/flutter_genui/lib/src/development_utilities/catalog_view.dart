@@ -8,15 +8,17 @@ import '../core/genui_manager.dart';
 import '../core/genui_surface.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
+import '../model/chat_message.dart';
 
 /// A widget that displays a catalog of items using GenUI surfaces.
 ///
 /// In order for a catalog item to be displayed, it must have example data
 /// defined.
 class CatalogView extends StatefulWidget {
-  const CatalogView({required this.catalog});
+  const CatalogView({this.onSubmit, required this.catalog});
 
   final Catalog catalog;
+  final ValueChanged<UserMessage>? onSubmit;
 
   @override
   State<CatalogView> createState() => _CatalogViewState();
@@ -31,7 +33,7 @@ class _CatalogViewState extends State<CatalogView> {
     super.initState();
 
     _genUi = GenUiManager(catalog: widget.catalog);
-    _genUi.onSubmit.listen(onData);
+    if (widget.onSubmit != null) _genUi.onSubmit.listen(widget.onSubmit);
 
     final items = widget.catalog.items.where(
       (CatalogItem item) => item.exampleData != null,
