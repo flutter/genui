@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/chats/no_chat_travel_planner.dart';
-import 'package:travel_app/src/controllers/travel_planner_canvas_controller.dart';
 
 void main() {
   group('NoChatTravelPlanner', () {
@@ -39,14 +38,7 @@ void main() {
       mockAiClient.response = {'result': true};
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: NoChatTravelPlanner(
-            controller: TravelPlannerCanvasController(
-              enableChatOutput: false,
-              aiClient: mockAiClient,
-            ),
-          ),
-        ),
+        MaterialApp(home: NoChatTravelPlanner(aiClient: mockAiClient)),
       );
 
       // Tap a suggestion chip
@@ -66,14 +58,7 @@ void main() {
       mockAiClient.generateContentFuture = completer.future;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: NoChatTravelPlanner(
-            controller: TravelPlannerCanvasController(
-              enableChatOutput: false,
-              aiClient: mockAiClient,
-            ),
-          ),
-        ),
+        MaterialApp(home: NoChatTravelPlanner(aiClient: mockAiClient)),
       );
 
       // Tap a suggestion chip to trigger thinking state

@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/chats/side_chat_travel_planner.dart';
-import 'package:travel_app/src/controllers/travel_planner_canvas_controller.dart';
 
 void main() {
   group('SideChatTravelPlanner', () {
@@ -35,14 +34,7 @@ void main() {
       mockAiClient.response = {'result': true, 'message': 'Hello from AI!'};
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SideChatTravelPlanner(
-            controller: TravelPlannerCanvasController(
-              enableChatOutput: true,
-              aiClient: mockAiClient,
-            ),
-          ),
-        ),
+        MaterialApp(home: SideChatTravelPlanner(aiClient: mockAiClient)),
       );
 
       // Enter text and send
@@ -63,14 +55,7 @@ void main() {
       mockAiClient.generateContentFuture = completer.future;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SideChatTravelPlanner(
-            controller: TravelPlannerCanvasController(
-              enableChatOutput: true,
-              aiClient: mockAiClient,
-            ),
-          ),
-        ),
+        MaterialApp(home: SideChatTravelPlanner(aiClient: mockAiClient)),
       );
 
       // Send a message to trigger thinking state

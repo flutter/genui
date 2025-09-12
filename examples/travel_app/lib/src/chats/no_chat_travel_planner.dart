@@ -19,14 +19,14 @@ import '../widgets/drawer.dart';
 class NoChatTravelPlanner extends StatefulWidget {
   /// Creates a new [NoChatTravelPlanner].
   ///
-  /// An optional [controller] can be provided for testing. If not provided,
+  /// An optional [aiClient] can be provided for testing. If not provided,
   /// a default controller will be created with chat output disabled.
-  const NoChatTravelPlanner({this.controller, super.key});
+  const NoChatTravelPlanner({this.aiClient, super.key});
 
-  /// The controller to use for managing state.
+  /// The AI client to use for the application.
   ///
   /// If null, a default controller with chat output disabled will be created.
-  final TravelPlannerCanvasController? controller;
+  final AiClient? aiClient;
 
   @override
   State<NoChatTravelPlanner> createState() => _NoChatTravelPlannerState();
@@ -46,9 +46,10 @@ class _NoChatTravelPlannerState extends State<NoChatTravelPlanner> {
   @override
   void initState() {
     super.initState();
-    _controller =
-        widget.controller ??
-        TravelPlannerCanvasController(enableChatOutput: false);
+    _controller = TravelPlannerCanvasController(
+      enableChatOutput: false,
+      aiClient: widget.aiClient,
+    );
 
     _surfacesSubscription = _controller.surfaces.listen((surfaces) {
       setState(() {
@@ -75,10 +76,8 @@ class _NoChatTravelPlannerState extends State<NoChatTravelPlanner> {
     _textController.dispose();
     _scrollController.dispose();
 
-    // Only dispose controller if we created it
-    if (widget.controller == null) {
-      _controller.dispose();
-    }
+    // Always dispose controller since we always create it
+    _controller.dispose();
 
     super.dispose();
   }

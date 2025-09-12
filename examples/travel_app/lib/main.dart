@@ -56,8 +56,8 @@ class TravelApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => InlineChatTravelPlanner(aiClient: aiClient),
-        '/side-chat': (context) => const SideChatTravelPlanner(),
-        '/no-chat': (context) => const NoChatTravelPlanner(),
+        '/side-chat': (context) => SideChatTravelPlanner(aiClient: aiClient),
+        '/no-chat': (context) => NoChatTravelPlanner(aiClient: aiClient),
       },
     );
   }
