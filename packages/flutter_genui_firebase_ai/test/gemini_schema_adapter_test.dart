@@ -4,7 +4,7 @@
 
 import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
-import 'package:flutter_genui/src/ai_client/gemini_schema_adapter.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

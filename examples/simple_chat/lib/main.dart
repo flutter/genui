@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:simple_chat/message.dart';
 import 'firebase_options.dart';
 import 'package:logging/logging.dart';
@@ -40,22 +41,34 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
-  // TODO: Demonstrate how to create a GenerativeModel via
-  // FirebaseAI.googleAI().generativeModel and pass it as a dependency here.
-  late final UiAgent _uiAgent = UiAgent(
-    '''
+  late final GenUiManager _genUiManager;
+  late final UiAgent _uiAgent;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    const instruction = '''
     You are a helpful assistant who chats with user,
     giving exactly one response for each user message.
     Your responses should contain acknowledgment
     of the user message.
-    ''',
-    catalog: CoreCatalogItems.asCatalog(),
-    onSurfaceAdded: _handleSurfaceAdded,
-    onTextResponse: _onTextResponse,
-    // ignore: avoid_print
-    onWarning: (value) => print('Warning from UiAgent: $value'),
-  );
-  final ScrollController _scrollController = ScrollController();
+    ''';
+    final catalog = CoreCatalogItems.asCatalog();
+    _genUiManager = GenUiManager(catalog: catalog);
+    final aiClient = FirebaseAiClient(
+      systemInstruction: '$instruction\n\n${GenUiPromptFragments.basicChat}',
+      tools: _genUiManager.getTools(),
+    );
+    _uiAgent = UiAgent(
+      genUiManager: _genUiManager,
+      aiClient: aiClient,
+      onSurfaceAdded: _handleSurfaceAdded,
+      onTextResponse: _onTextResponse,
+      // ignore: avoid_print
+      onWarning: (value) => print('Warning from UiAgent: $value'),
+    );
+  }
 
   void _handleSurfaceAdded(SurfaceAdded surface) {
     if (!mounted) return;

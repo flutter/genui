@@ -4,12 +4,14 @@ A Flutter package for building dynamic, conversational user interfaces powered b
 
 `flutter_genui` allows you to create applications where the UI is not static or predefined, but is instead constructed by an AI in real-time based on a conversation with the user. This enables highly flexible, context-aware, and interactive user experiences.
 
+This package provides the core functionality for GenUI. For a concrete implementation that uses Firebase AI, see the `flutter_genui_firebase_ai` package.
+
 ## Features
 
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
 - **Simplified Conversation Flow**: A high-level `UiAgent` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
-- **Extensible AI Client**: Abstract interface for connecting to different AI model backends. A ready-to-use `GeminiAiClient` for Firebase is included.
+- **Extensible AI Client**: Abstract interface for connecting to different AI model backends.
 - **Event Handling**: Capture user interactions (button clicks, text input) and send them back to the AI as context for the next turn in the conversation.
 
 ## Core Concepts
@@ -20,7 +22,7 @@ The package is built around three main components:
 
 2. **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
-3. **`AiClient`**: An interface for communicating with a generative AI model. The package includes `GeminiAiClient` for interacting with Gemini models via the [Firebase AI Logic SDK](https://pub.dev/packages/firebase_ai).
+3. **`AiClient`**: An interface for communicating with a generative AI model. For a concrete implementation, see `FirebaseAiClient` in the `flutter_genui_firebase_ai` package.
 
 ## Getting Started
 
@@ -29,6 +31,7 @@ To use `flutter_genui`, you need to initialize a `UiAgent`, provide it with a sy
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 
 void main() {
   // Initialize Firebase, etc.
@@ -51,9 +54,14 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     // 1. Create a UiAgent with a system instruction
+    final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+    final aiClient = FirebaseAiClient(
+      systemInstruction: 'You are a helpful AI assistant that builds UIs.',
+      tools: genUiManager.getTools(),
+    );
     _uiAgent = UiAgent(
-      'You are a helpful AI assistant that builds UIs.',
-      catalog: CoreCatalogItems.asCatalog(),
+      genUiManager: genUiManager,
+      aiClient: aiClient,
       onSurfaceAdded: _onSurfaceAdded,
     );
   }

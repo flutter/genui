@@ -8,28 +8,11 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
-import '../ai_client/firebase_ai_client.dart';
-import '../core/genui_configuration.dart';
 import '../core/genui_manager.dart';
-import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 
 const _maxConversationLength = 1000;
-
-const _genuiSystemPromptFragment = '''
-
-# Outputting UI information
-
-Use the provided tools to respond to the user using rich UI elements.
-
-Important considerations:
-- When you are asking for information from the user, you should always include
-  at least one submit button of some kind or another submitting element so that
-  the user can indicate that they are done providing information.
-- After you have modified the UI, be sure to use the provideFinalOutput to give
-  control back to the user so they can respond.
-''';
 
 /// A high-level facade for the GenUI package.
 ///
@@ -40,32 +23,17 @@ Important considerations:
 class UiAgent {
   /// Creates a new [UiAgent].
   ///
-  /// The [instruction] is a system prompt that guides the AI's behavior.
-  ///
-  /// The [catalog] defines the set of widgets available to the AI. If not
-  /// provided, a default catalog of core widgets is used.
-  ///
   /// Callbacks like [onSurfaceAdded] and [onSurfaceDeleted] can be provided to
   /// react to UI changes initiated by the AI.
-  UiAgent(
-    String instruction, {
-    required Catalog catalog,
+  UiAgent({
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
     this.onTextResponse,
     this.onWarning,
-    GenUiConfiguration configuration = const GenUiConfiguration(),
-    AiClient? aiClient,
-  }) : _genUiManager = GenUiManager(
-         catalog: catalog,
-         configuration: configuration,
-       ) {
-    _aiClient =
-        aiClient ??
-        FirebaseAiClient(
-          systemInstruction: '$instruction\n\n$_genuiSystemPromptFragment',
-          tools: _genUiManager.getTools(),
-        );
+    required GenUiManager genUiManager,
+    required AiClient aiClient,
+  }) : _genUiManager = genUiManager,
+       _aiClient = aiClient {
     _aiClient.activeRequests.addListener(_handleActivityUpdates);
     _aiMessageSubscription = _genUiManager.surfaceUpdates.listen(
       _handleAiMessage,

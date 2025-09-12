@@ -6,9 +6,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
-import 'package:flutter_genui/src/ai_client/gemini_content_converter.dart';
-import 'package:flutter_genui/src/model/chat_message.dart';
-import 'package:flutter_genui/src/model/ui_models.dart';
+import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

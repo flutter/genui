@@ -6,6 +6,8 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/flutter_genui_dev.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';

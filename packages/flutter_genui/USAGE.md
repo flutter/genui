@@ -42,17 +42,21 @@ If `flutterfire configure` fails, try one or all of these:
 
 ### Employ `flutter_genui`
 
-For a complete example, refer to [main.dart in the minimal_genui example](../../examples/minimal_genui/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
+For a complete example, refer to [main.dart in the simple_chat example](../../examples/simple_chat/lib/main.dart). The following steps outline the details of setting up your project to use `flutter_genui`:
 
-1. In your `pubspec.yaml` file, add `flutter_genui` to the `dependencies` section with one of the following options:
+1. In your `pubspec.yaml` file, add `flutter_genui` and `flutter_genui_firebase_ai` to the `dependencies` section with one of the following options:
 
    - Reference the github project directly:
 
    ```yaml
    flutter_genui:
-   git:
-     url: https://github.com/flutter/genui.git
-     path: packages/flutter_genui
+     git:
+       url: https://github.com/flutter/genui.git
+       path: packages/flutter_genui
+   flutter_genui_firebase_ai:
+     git:
+       url: https://github.com/flutter/genui.git
+       path: packages/flutter_genui_firebase_ai
    ```
 
    - In the future: download from [pub.dev](https://pub.dev)! (We're not ready to publish this as a package until the API is more stable.)
@@ -72,8 +76,14 @@ For a complete example, refer to [main.dart in the minimal_genui example](../../
    @override
    void initState() {
      super.initState();
+     final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+     final aiClient = FirebaseAiClient(
+       systemInstruction: 'You are a helpful AI assistant.',
+       tools: genUiManager.getTools(),
+     );
      uiAgent = UiAgent(
-       'You are a helpful AI assistant.',
+       genUiManager: genUiManager,
+       aiClient: aiClient,
        onSurfaceAdded: _onSurfaceAdded,
      );
    }
