@@ -5,6 +5,24 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
+class HotelSearchResult {
+  final List<HotelListing> listings;
+
+  HotelSearchResult({required this.listings});
+
+  static HotelSearchResult fromJson(JsonMap json) {
+    return HotelSearchResult(
+      listings: (json['listings'] as List)
+          .map((e) => HotelListing.fromJson(e as JsonMap))
+          .toList(),
+    );
+  }
+
+  JsonMap toJson() {
+    return {'listings': listings.map((e) => e.toJson()).toList()};
+  }
+}
+
 class HotelListing {
   final String name;
   final String location;
@@ -76,67 +94,39 @@ class HotelSearch {
 /// An [AiTool] for listing hotels.
 class ListHotelsTool extends AiTool<Map<String, Object?>> {
   /// Creates a [ListHotelsTool].
-  ListHotelsTool({
-    required this.onListHotels,
-    required Catalog catalog,
-    required this.configuration,
-  }) : super(
-         name: 'listHotels',
-         description: 'Lists hotels based on the provided criteria.',
-         parameters: S.object(
-           properties: {
-             'action': S.string(
-               description:
-                   'The action to perform. You must choose from the available '
-                   'actions. If you choose the `add` action, you must choose a '
-                   'new unique surfaceId. If you choose the `update` action, '
-                   'you must choose an existing surfaceId.',
-               enumValues: [
-                 if (configuration.actions.allowCreate) 'add',
-                 if (configuration.actions.allowUpdate) 'update',
-               ],
-             ),
-             'surfaceId': S.string(
-               description:
-                   'The unique identifier for the UI surface to create or '
-                   'update. If you are adding a new surface this *must* be a '
-                   'new, unique identified that has never been used for any '
-                   'existing surfaces shown in the context.',
-             ),
-             'definition': S.object(
-               properties: {
-                 'root': S.string(
-                   description:
-                       'The ID of the root widget. This ID must correspond to '
-                       'the ID of one of the widgets in the `widgets` list.',
-                 ),
-                 'widgets': S.list(
-                   items: catalog.schema,
-                   description: 'A list of widget definitions.',
-                   minItems: 1,
-                 ),
-               },
-               description:
-                   'A schema for a simple UI tree to be rendered by '
-                   'Flutter.',
-               required: ['root', 'widgets'],
-             ),
-           },
-           required: ['action', 'surfaceId', 'definition'],
-         ),
-       );
+  ListHotelsTool({required this.onListHotels})
+    : super(
+        name: 'listHotels',
+        description: 'Lists hotels based on the provided criteria.',
+        parameters: S.object(
+          properties: {
+            'query': S.string(
+              description: 'The search query, e.g., "hotels in Paris".',
+            ),
+            'checkIn': S.string(
+              description: 'The check-in date in ISO 8601 format (YYYY-MM-DD).',
+              format: 'date',
+            ),
+            'checkOut': S.string(
+              description:
+                  'The check-out date in ISO 8601 format (YYYY-MM-DD).',
+              format: 'date',
+            ),
+            'guests': S.integer(
+              description: 'The number of guests.',
+              minimum: 1,
+            ),
+          },
+          required: ['query', 'checkIn', 'checkOut', 'guests'],
+        ),
+      );
 
-  /// The callback to invoke when listing hotels.
-  final void Function(HotelSearch search) onListHotels;
-
-  /// The configuration of the Gen UI system.
-  final GenUiConfiguration configuration;
+  /// The callback to invoke when searching hotels.
+  final HotelSearchResult Function(HotelSearch search) onListHotels;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final surfaceId = args['surfaceId'] as String;
-    final definition = args['definition'] as JsonMap;
-    onAddOrUpdate(surfaceId, definition);
-    return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
+    final search = HotelSearch.fromJson(args);
+    return onListHotels(search).toJson();
   }
 }
