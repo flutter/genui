@@ -6,7 +6,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/flutter_genui_dev.dart';
 
+import '../catalog.dart';
 import '../controllers/travel_planner_canvas_controller.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/conversation.dart';
@@ -18,7 +20,7 @@ import '../widgets/drawer.dart';
 /// conversation view, similar to a traditional chat interface.
 /// It uses a [TravelPlannerCanvasController] to manage state and
 /// AI interactions.
-class InlineChatTravelPlanner extends StatefulWidget {
+class InlineChatTravelPlanner extends StatelessWidget {
   /// Creates a new [InlineChatTravelPlanner].
   ///
   /// An optional [aiClient] can be provided for testing. If not provided,
@@ -26,7 +28,7 @@ class InlineChatTravelPlanner extends StatefulWidget {
   const InlineChatTravelPlanner({this.aiClient, this.controller, super.key});
 
   /// Optional parameter that could be used for writing test, as of now we're
-  /// initalizing the controller in the [_InlineChatTravelPlannerState] itself
+  /// initalizing the controller in the [_InlineChatTravelPlannerBody] itself
   final TravelPlannerCanvasController? controller;
 
   /// The AI client to use for the application.
@@ -35,11 +37,63 @@ class InlineChatTravelPlanner extends StatefulWidget {
   final AiClient? aiClient;
 
   @override
-  State<InlineChatTravelPlanner> createState() =>
-      _InlineChatTravelPlannerState();
+  Widget build(BuildContext context) {
+    final tabs = {
+      'Travel': _InlineChatTravelPlannerBody(
+        aiClient: aiClient,
+        controller: controller,
+        key: key,
+      ),
+      'Widget Catalog': CatalogView(catalog: travelAppCatalog),
+    };
+
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        drawer: const TravelAppDrawer(),
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.local_airport),
+              SizedBox(width: 16.0), // Add spacing between icon and text
+              Text('Travel Inc. - Inline Chat'),
+            ],
+          ),
+          actions: [
+            const Icon(Icons.person_outline),
+            const SizedBox(width: 8.0),
+          ],
+          bottom: TabBar(
+            tabs: tabs.entries.map((entry) => Tab(text: entry.key)).toList(),
+          ),
+        ),
+        body: TabBarView(
+          children: tabs.entries.map((entry) => entry.value).toList(),
+        ),
+      ),
+    );
+  }
 }
 
-class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
+class _InlineChatTravelPlannerBody extends StatefulWidget {
+  const _InlineChatTravelPlannerBody({
+    super.key,
+    this.controller,
+    this.aiClient,
+  });
+
+  final TravelPlannerCanvasController? controller;
+  final AiClient? aiClient;
+
+  @override
+  State<_InlineChatTravelPlannerBody> createState() =>
+      __InlineChatTravelPlannerBodyState();
+}
+
+class __InlineChatTravelPlannerBodyState
+    extends State<_InlineChatTravelPlannerBody> {
   late final TravelPlannerCanvasController _controller;
   late final StreamSubscription<Iterable<AiUiMessage>> _surfacesSubscription;
   late final StreamSubscription<Iterable<ChatMessage>>
@@ -123,44 +177,29 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(Icons.local_airport),
-            SizedBox(width: 16.0), // Add spacing between icon and text
-            Flexible(child: Text('Travel Inc. - Inline Chat')),
+    return SafeArea(
+      child: Center(
+        child: Column(
+          children: [
+            Expanded(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1000),
+                child: Conversation(
+                  messages: _conversation,
+                  manager: _controller.genUiManager,
+                  scrollController: _scrollController,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ChatInput(
+                controller: _textController,
+                isThinking: _isThinking,
+                onSend: _sendPrompt,
+              ),
+            ),
           ],
-        ),
-        actions: [const Icon(Icons.person_outline), const SizedBox(width: 8.0)],
-      ),
-      drawer: const TravelAppDrawer(),
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            children: [
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1000),
-                  child: Conversation(
-                    messages: _conversation,
-                    manager: _controller.genUiManager,
-                    scrollController: _scrollController,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ChatInput(
-                  controller: _textController,
-                  isThinking: _isThinking,
-                  onSend: _sendPrompt,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

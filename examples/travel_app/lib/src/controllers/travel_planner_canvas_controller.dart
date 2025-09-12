@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 
 import '../asset_images.dart';
 import '../catalog.dart';
