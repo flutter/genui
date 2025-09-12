@@ -87,7 +87,7 @@ Widget build(BuildContext context) {
 
 <img src="misc/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
 
-*The GIF above shows how GenUI enables dynamic, interactive UI generation - instead of text descriptions or being a traditional code generator integrated in AI coding agent.*
+*The GIF above shows how GenUI enables dynamic, interactive UI generation — instead of text descriptions or code from a traditional AI coding agent.*
 
 ### Core Difference
 This UI is not generated in the form of code; rather, it's generated at runtime based on a widget catalog from the developers' project.
