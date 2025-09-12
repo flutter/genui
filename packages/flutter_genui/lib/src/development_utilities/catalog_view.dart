@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async' show StreamSubscription;
+
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
@@ -27,13 +29,16 @@ class CatalogView extends StatefulWidget {
 class _CatalogViewState extends State<CatalogView> {
   late final GenUiManager _genUi;
   final surfaceIds = <String>[];
+  late final StreamSubscription<UserMessage> _subscription;
 
   @override
   void initState() {
     super.initState();
 
     _genUi = GenUiManager(catalog: widget.catalog);
-    if (widget.onSubmit != null) _genUi.onSubmit.listen(widget.onSubmit);
+    if (widget.onSubmit != null) {
+      _subscription = _genUi.onSubmit.listen(widget.onSubmit);
+    }
 
     final items = widget.catalog.items.where(
       (CatalogItem item) => item.exampleData != null,
@@ -45,6 +50,13 @@ class _CatalogViewState extends State<CatalogView> {
       _genUi.addOrUpdateSurface(surfaceId, data);
       surfaceIds.add(surfaceId);
     }
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    _genUi.dispose();
+    super.dispose();
   }
 
   @override
