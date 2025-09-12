@@ -82,7 +82,6 @@ Widget build(BuildContext context) {
 ```
 
 ## Look & Feel
-Here's how it works in practice, but please be advised its labelled as "Highly Experimental".
 
 ### Interactive [Travel App Example](examples/travel_app/)
 
@@ -91,11 +90,9 @@ Here's how it works in practice, but please be advised its labelled as "Highly E
 *The GIF above shows how GenUI enables dynamic, interactive UI generation - instead of text descriptions or being a traditional code generator integrated in AI coding agent.*
 
 ### Core Difference
-This UI is not being generated in form of code, rather its generated in runtime based on widget catalog provided by the developers in their project (application catalog) plus combining the genui catalog (standard catalog).
+This UI is not generated in the form of code; rather, it's generated at runtime based on a widget catalog from the developers' project.
 
 <img src="misc/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
-
-*This screenshot highlights the core implementation of traditional LLM Based UI vs GenUI Based UI.*
 
 
 ## Implementation goals
