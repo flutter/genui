@@ -6,13 +6,14 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/flutter_genui_dev.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:logging/logging.dart';
 
 import 'firebase_options.dart';
-import 'src/catalog.dart';
-import 'src/travel_planner_page.dart';
+import 'src/chats/inline_chat_travel_planner.dart';
+import 'src/chats/no_chat_travel_planner.dart';
+import 'src/chats/side_chat_travel_planner.dart';
+import 'src/controllers/travel_planner_canvas_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,7 @@ void main() async {
     androidProvider: AndroidProvider.debug,
     webProvider: ReCaptchaV3Provider('debug'),
   );
-  await loadImagesJson();
+  await TravelPlannerCanvasController.initializeAssetImages();
   configureGenUiLogging(level: Level.ALL);
   runApp(const TravelApp());
 }
@@ -39,6 +40,10 @@ class TravelApp extends StatelessWidget {
   /// which is useful for testing with a mock implementation.
   const TravelApp({this.aiClient, super.key});
 
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default [FirebaseAiClient] will be created by the
+  /// travel planner screens.
   final AiClient? aiClient;
 
   @override
@@ -49,52 +54,12 @@ class TravelApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: _TravelAppBody(aiClient),
-    );
-  }
-}
-
-class _TravelAppBody extends StatelessWidget {
-  _TravelAppBody(this.aiClient);
-
-  /// The AI client to use for the application.
-  ///
-  /// If null, a default [FirebaseAiClient] will be created by the
-  /// [TravelPlannerPage].
-  final AiClient? aiClient;
-
-  @override
-  Widget build(BuildContext context) {
-    final tabs = {
-      'Travel': TravelPlannerPage(aiClient: aiClient),
-      'Widget Catalog': CatalogView(catalog: travelAppCatalog),
-    };
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          leading: const Icon(Icons.menu),
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.local_airport),
-              SizedBox(width: 16.0), // Add spacing between icon and text
-              Text('Agentic Travel Inc.'),
-            ],
-          ),
-          actions: [
-            const Icon(Icons.person_outline),
-            const SizedBox(width: 8.0),
-          ],
-          bottom: TabBar(
-            tabs: tabs.entries.map((entry) => Tab(text: entry.key)).toList(),
-          ),
-        ),
-        body: TabBarView(
-          children: tabs.entries.map((entry) => entry.value).toList(),
-        ),
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => InlineChatTravelPlanner(aiClient: aiClient),
+        '/side-chat': (context) => SideChatTravelPlanner(aiClient: aiClient),
+        '/no-chat': (context) => NoChatTravelPlanner(aiClient: aiClient),
+      },
     );
   }
 }
