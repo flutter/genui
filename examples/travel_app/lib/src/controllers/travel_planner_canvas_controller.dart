@@ -131,6 +131,9 @@ class TravelPlannerCanvasController {
   /// Current thinking state
   bool get currentIsThinking => _isThinking;
 
+  /// Current list of all messages
+  Iterable<ChatMessage> get conversation => List.unmodifiable(_conversation);
+
   void dispose() {
     _genUiManager.dispose();
     _userMessageSubscription.cancel();

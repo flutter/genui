@@ -49,7 +49,7 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
 
-  List<ChatMessage> _allMessages = [];
+  List<ChatMessage> _conversation = [];
   bool _isThinking = false;
 
   @override
@@ -100,10 +100,7 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
 
   /// Rebuilds the combined message list from surfaces and text messages
   void _rebuildAllMessages() {
-    _allMessages = [
-      ..._controller.currentTextMessages,
-      ..._controller.currentSurfaces,
-    ];
+    _conversation = _controller.conversation.toList();
   }
 
   void _scrollToBottom() {
@@ -148,7 +145,7 @@ class _InlineChatTravelPlannerState extends State<InlineChatTravelPlanner> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1000),
                   child: Conversation(
-                    messages: _allMessages,
+                    messages: _conversation,
                     manager: _controller.genUiManager,
                     scrollController: _scrollController,
                   ),
