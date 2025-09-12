@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/chats/no_chat_travel_planner.dart';
+import 'package:travel_app/src/controllers/travel_planner_canvas_controller.dart';
 
 void main() {
   group('NoChatTravelPlanner', () {
@@ -143,6 +144,28 @@ void main() {
       for (final chip in chips) {
         expect(chip.onPressed, isNotNull);
       }
+    });
+
+    testWidgets('accepts external controller for testing', (
+      WidgetTester tester,
+    ) async {
+      final mockAiClient = FakeAiClient();
+      mockAiClient.response = {'result': true};
+
+      final testController = TravelPlannerCanvasController(
+        enableChatOutput: false,
+        aiClient: mockAiClient,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: NoChatTravelPlanner(controller: testController)),
+      );
+
+      // Should work with external controller
+      expect(find.text('Travel Inc. - Canvas'), findsOneWidget);
+
+      // Clean up
+      testController.dispose();
     });
   });
 }

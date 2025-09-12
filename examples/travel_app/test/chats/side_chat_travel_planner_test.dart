@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/chats/side_chat_travel_planner.dart';
+import 'package:travel_app/src/controllers/travel_planner_canvas_controller.dart';
 
 void main() {
   group('SideChatTravelPlanner', () {
@@ -108,6 +109,28 @@ void main() {
 
       // Should show drawer
       expect(find.byType(Drawer), findsOneWidget);
+    });
+
+    testWidgets('accepts external controller for testing', (
+      WidgetTester tester,
+    ) async {
+      final mockAiClient = FakeAiClient();
+      mockAiClient.response = {'result': true};
+
+      final testController = TravelPlannerCanvasController(
+        enableChatOutput: true,
+        aiClient: mockAiClient,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(home: SideChatTravelPlanner(controller: testController)),
+      );
+
+      // Should work with external controller
+      expect(find.text('Travel Inc. - Side Chat'), findsOneWidget);
+
+      // Clean up
+      testController.dispose();
     });
   });
 }
