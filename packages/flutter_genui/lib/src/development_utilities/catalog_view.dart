@@ -29,7 +29,7 @@ class CatalogView extends StatefulWidget {
 class _CatalogViewState extends State<CatalogView> {
   late final GenUiManager _genUi;
   final surfaceIds = <String>[];
-  late final StreamSubscription<UserMessage> _subscription;
+  late final StreamSubscription<UserMessage>? _subscription;
 
   @override
   void initState() {
@@ -54,7 +54,7 @@ class _CatalogViewState extends State<CatalogView> {
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _subscription?.cancel();
     _genUi.dispose();
     super.dispose();
   }
