@@ -31,6 +31,7 @@ class _CatalogViewState extends State<CatalogView> {
     super.initState();
 
     _genUi = GenUiManager(catalog: widget.catalog);
+    _genUi.onSubmit.listen(onData);
 
     final items = widget.catalog.items.where(
       (CatalogItem item) => item.exampleData != null,
