@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/tools/listHotelsTool.dart';
+import 'package:travel_app/src/tools/list_hotels_tool.dart';
 
 void main() {
   group('ListHotelsTool', () {
