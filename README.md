@@ -1,3 +1,5 @@
+not for merge
+
 # Generative UI SDK for Flutter (flutter_genui)
 
 A Flutter library to enable developers to easily add interactive
@@ -91,16 +93,16 @@ Widget build(BuildContext context) {
 ## Implementation goals
 
 * **Integrate with your LLM:** Work with your chosen LLM and backend to incorporate graphical
-  UI responses alongside traditional text.  
+  UI responses alongside traditional text.
 * **Leverage Your Widget Catalog:** Render UI using your existing, beautifully crafted widgets
-  for brand and design consistency.  
+  for brand and design consistency.
 * **Interactive State Feedback:** Widget state changes are sent back to the LLM, enabling a
-  true interactive loop where the UI influences the agent's next steps.  
-* **Framework Agnostic:** Be integrated into your agent library or LLM framework of choice.  
-* **JSON Based:** Use a simple, open standard for UI definition—no proprietary formats.  
-* **Cross-Platform Flutter:** Work anywhere Flutter works (mobile, iOS, Android, Web, and more).  
-* **Widget Composition:** Support nested layouts and composition of widgets for complex UIs.  
-* **Basic Layout:** LLM-driven basic layout generation.  
+  true interactive loop where the UI influences the agent's next steps.
+* **Framework Agnostic:** Be integrated into your agent library or LLM framework of choice.
+* **JSON Based:** Use a simple, open standard for UI definition—no proprietary formats.
+* **Cross-Platform Flutter:** Work anywhere Flutter works (mobile, iOS, Android, Web, and more).
+* **Widget Composition:** Support nested layouts and composition of widgets for complex UIs.
+* **Basic Layout:** LLM-driven basic layout generation.
 * **Any Model:** Integrate with any LLM that can generate structured JSON output.
 
 ## Some things we're thinking about
