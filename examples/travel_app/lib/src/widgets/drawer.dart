@@ -5,9 +5,6 @@ class TravelAppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currenRoute = ModalRoute.of(context)!.settings;
-    final currentPath = currenRoute.name;
-
     return Drawer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,44 +28,38 @@ class TravelAppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.chat),
             title: const Text('Inline Chat'),
-            selected: currentPath == '/',
-            onTap: () {
-              final selected = currentPath == '/';
-              if (selected) {
-                Navigator.pop(context);
-                return;
-              }
-              Navigator.pushReplacementNamed(context, '/');
-            },
+            selected: _isSelected(context, path: '/'),
+            onTap: () => _tapIsSelected(context, path: '/'),
           ),
           ListTile(
             leading: const Icon(Icons.view_sidebar),
             title: const Text('Side Chat'),
-            selected: currentPath == '/side-chat',
-            onTap: () {
-              final selected = currentPath == '/side-chat';
-              if (selected) {
-                Navigator.pop(context);
-                return;
-              }
-              Navigator.pushReplacementNamed(context, '/side-chat');
-            },
+            selected: _isSelected(context, path: '/side-chat'),
+            onTap: () => _tapIsSelected(context, path: '/side-chat'),
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),
             title: const Text('Canvas Only'),
-            selected: currentPath == '/no-chat',
-            onTap: () {
-              final selected = currentPath == '/no-chat';
-              if (selected) {
-                Navigator.pop(context);
-                return;
-              }
-              Navigator.pushReplacementNamed(context, '/no-chat');
-            },
+            selected: _isSelected(context, path: '/no-chat'),
+            onTap: () => _tapIsSelected(context, path: '/no-chat'),
           ),
         ],
       ),
     );
+  }
+
+  void _tapIsSelected(BuildContext context, {required String path}) {
+    final isSelected = _isSelected(context, path: path);
+    if (isSelected) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacementNamed(context, path);
+    }
+  }
+
+  bool _isSelected(BuildContext context, {required String path}) {
+    final currentRoute = ModalRoute.of(context)!.settings;
+    final currentPath = currentRoute.name;
+    return currentPath == path;
   }
 }
