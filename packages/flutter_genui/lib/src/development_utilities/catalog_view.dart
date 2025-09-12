@@ -38,6 +38,8 @@ class _CatalogViewState extends State<CatalogView> {
     _genUi = GenUiManager(catalog: widget.catalog);
     if (widget.onSubmit != null) {
       _subscription = _genUi.onSubmit.listen(widget.onSubmit);
+    } else {
+      _subscription = null;
     }
 
     final items = widget.catalog.items.where(
