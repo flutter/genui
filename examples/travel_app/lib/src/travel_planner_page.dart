@@ -188,6 +188,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SafeArea(
       child: Center(
         child: Column(
@@ -376,7 +377,7 @@ update existing content.
   at the bottom of the conversation.
 - Updating surfaces: You should update surfaces when you are running an
 iterative search flow, e.g. the user is adjusting filter values and generating
-an itinerary or a booking accomodation etc. This is less confusing for the user
+an itinerary or a booking accommodation etc. This is less confusing for the user
 because it avoids confusing the conversation with many versions of the same
 itinerary etc.
 
@@ -397,7 +398,7 @@ carousel. If there are only 2 or 3 obvious options, just think of some relevant
 alternatives that the user might be interested in.
 
 - Guiding the user: When the user has completes some action, e.g. they confirm
-they want to book some accomodation or activity, always show a trailhead
+they want to book some accommodation or activity, always show a trailhead
 suggesting what the user might want to do next (e.g. book the next detail in the
 itinerary, repeat a search, research some related topic) so that they can click
 rather than typing.
