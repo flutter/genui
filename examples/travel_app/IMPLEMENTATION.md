@@ -99,12 +99,12 @@ This is the collection of predefined UI components that the AI can use to constr
 
 - **Definition**: The catalog is defined in `lib/src/catalog.dart` as a `Catalog` instance, which is a list of `CatalogItem`s.
 - **Custom Components**: The travel app defines several custom `CatalogItem`s in the `lib/src/catalog/` directory. Key components include:
-  - `travelCarousel`: For displaying a horizontal list of selectable options.
-  - `itineraryWithDetails`, `itineraryDay`, `itineraryEntry`: For building structured travel plans.
-  - `inputGroup`: A container for grouping various input widgets.
-  - `optionsFilterChipInput`, `checkboxFilterChipsInput`, `textInputChip`: Different types of input chips for user selections.
-  - `informationCard`: For displaying detailed information about a topic.
-  - `trailhead`: For suggesting follow-up prompts to the user.
+  - `TravelCarousel`: For displaying a horizontal list of selectable options.
+  - `ItineraryWithDetails`, `ItineraryDay`, `ItineraryEntry`: For building structured travel plans.
+  - `InputGroup`: A container for grouping various input widgets.
+  - `OptionsFilterChipInput`, `CheckboxFilterChipsInput`, `TextInputChip`: Different types of input chips for user selections.
+  - `InformationCard`: For displaying detailed information about a topic.
+  - `Trailhead`: For suggesting follow-up prompts to the user.
 - **Standard Components**: It also uses standard, pre-built components from `flutter_genui` like `column`, `text`, `image`, etc.
 
 ## Data Flow: The Generative UI Cycle
