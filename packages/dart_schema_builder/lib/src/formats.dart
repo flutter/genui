@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 
 typedef FormatValidator = bool Function(String);
 
+final _emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
 final Map<String, FormatValidator> formatValidators = {
   'date-time': (value) {
     try {
@@ -31,11 +33,7 @@ final Map<String, FormatValidator> formatValidators = {
       return false;
     }
   },
-  'email': (value) {
-    return RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-    ).hasMatch(value);
-  },
+  'email': (value) => _emailRegex.hasMatch(value),
   'ipv4': (value) {
     final parts = value.split('.');
     if (parts.length != 4) return false;
