@@ -11,7 +11,8 @@ import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 
 import 'asset_images.dart';
 import 'catalog.dart';
-import 'tools/list_hotels_tool.dart';
+import 'tools/hotels/hotel_service.dart';
+import 'tools/hotels/list_hotels_tool.dart';
 import 'widgets/conversation.dart';
 
 Future<void> loadImagesJson() async {
@@ -73,7 +74,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
       _handleUserMessageFromUi,
     );
     final tools = _genUiManager.getTools();
-    tools.add(ListHotelsTool(onListHotels: onListHotels));
+    tools.add(ListHotelsTool(onListHotels: HotelService.instance.onListHotels));
     _aiClient =
         widget.aiClient ??
         FirebaseAiClient(tools: tools, systemInstruction: prompt);

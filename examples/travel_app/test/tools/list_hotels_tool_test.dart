@@ -3,7 +3,15 @@
 // found in the LICENSE file.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/tools/list_hotels_tool.dart';
+import 'package:travel_app/src/tools/hotels/list_hotels_tool.dart';
+import 'package:travel_app/src/tools/hotels/model.dart';
+
+final _hotelSearch = HotelSearch(
+  query: 'hotels in New York',
+  checkIn: DateTime.parse('2025-10-01T00:00:00.000'),
+  checkOut: DateTime.parse('2025-10-05T00:00:00.000'),
+  guests: 2,
+);
 
 void main() {
   group('ListHotelsTool', () {
@@ -85,12 +93,13 @@ void main() {
               pricePerNight: 299.99,
               images: ['image1.jpg', 'image2.jpg'],
               listingId: '12345',
+              search: _hotelSearch,
             ),
           ],
         );
 
         final tool = ListHotelsTool(
-          onListHotels: (search) {
+          onListHotels: (search) async {
             expect(search.query, 'hotels in New York');
             expect(search.checkIn, DateTime.parse('2025-10-01T00:00:00.000'));
             expect(search.checkOut, DateTime.parse('2025-10-05T00:00:00.000'));

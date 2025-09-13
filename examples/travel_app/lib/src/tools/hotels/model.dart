@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 class HotelSearchResult {
@@ -29,6 +28,7 @@ class HotelListing {
   final double pricePerNight;
   final List<String> images;
   final String listingId;
+  final HotelSearch search;
 
   HotelListing({
     required this.name,
@@ -36,6 +36,7 @@ class HotelListing {
     required this.pricePerNight,
     required this.listingId,
     required this.images,
+    required this.search,
   });
 
   static HotelListing fromJson(JsonMap json) {
@@ -45,6 +46,7 @@ class HotelListing {
       pricePerNight: (json['pricePerNight'] as num).toDouble(),
       images: List<String>.from(json['images'] as List),
       listingId: json['listingId'] as String,
+      search: HotelSearch.fromJson(json['search'] as JsonMap),
     );
   }
 
@@ -89,66 +91,4 @@ class HotelSearch {
       'guests': guests,
     };
   }
-}
-
-/// An [AiTool] for listing hotels.
-class ListHotelsTool extends AiTool<Map<String, Object?>> {
-  /// Creates a [ListHotelsTool].
-  ListHotelsTool({required this.onListHotels})
-    : super(
-        name: 'listHotels',
-        description: 'Lists hotels based on the provided criteria.',
-        parameters: S.object(
-          properties: {
-            'query': S.string(
-              description: 'The search query, e.g., "hotels in Paris".',
-            ),
-            'checkIn': S.string(
-              description: 'The check-in date in ISO 8601 format (YYYY-MM-DD).',
-              format: 'date',
-            ),
-            'checkOut': S.string(
-              description:
-                  'The check-out date in ISO 8601 format (YYYY-MM-DD).',
-              format: 'date',
-            ),
-            'guests': S.integer(
-              description: 'The number of guests.',
-              minimum: 1,
-            ),
-          },
-          required: ['query', 'checkIn', 'checkOut', 'guests'],
-        ),
-      );
-
-  /// The callback to invoke when searching hotels.
-  final HotelSearchResult Function(HotelSearch search) onListHotels;
-
-  @override
-  Future<JsonMap> invoke(JsonMap args) async {
-    final search = HotelSearch.fromJson(args);
-    return onListHotels(search).toJson();
-  }
-}
-
-HotelSearchResult onListHotels(HotelSearch search) {
-  // Mock implementation
-  return HotelSearchResult(
-    listings: [
-      HotelListing(
-        name: 'The Grand Flutter Hotel',
-        location: 'Mountain View, CA',
-        pricePerNight: 250.0,
-        listingId: '1',
-        images: ['assets/travel_images/brooklyn_bridge_new_york.jpg'],
-      ),
-      HotelListing(
-        name: 'The Dart Inn',
-        location: 'Sunnyvale, CA',
-        pricePerNight: 150.0,
-        listingId: '2',
-        images: ['assets/travel_images/eiffel_tower_construction_1888.jpg'],
-      ),
-    ],
-  );
 }
