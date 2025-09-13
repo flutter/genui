@@ -13,8 +13,8 @@ class BookingService {
   BookingService._();
 
   final Map<String, Listing> listings = {};
-  final _random = Random();
 
+  final _random = Random();
   String _generateListingId() => _random.nextInt(1000000000).toString();
 
   T _rememberListing<T extends Listing>(T listing) {
