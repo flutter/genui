@@ -88,6 +88,20 @@ Widget build(BuildContext context) {
 }
 ```
 
+## Look & Feel
+
+### Interactive [Travel App Example](examples/travel_app/)
+
+<img src="misc/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
+
+*The GIF above shows how GenUI enables dynamic, interactive UI generation — instead of text descriptions or code from a traditional AI coding agent.*
+
+### Core Difference
+This UI is not generated in the form of code; rather, it's generated at runtime based on a widget catalog from the developers' project.
+
+<img src="misc/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
+
+
 ## Implementation goals
 
 * **Integrate with your LLM:** Work with your chosen LLM and backend to incorporate graphical
