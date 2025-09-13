@@ -42,16 +42,19 @@ class _CatalogViewState extends State<CatalogView> {
       _subscription = null;
     }
 
-    final items = widget.catalog.items.where(
-      (CatalogItem item) => item.exampleData != null,
-    );
+    final examples = <String, ExampleBuilderCallback>{};
 
-    for (final item in items) {
-      for (final data in item.exampleData) {
-        final surfaceId = item.name;
-        _genUi.addOrUpdateSurface(surfaceId, data());
-        surfaceIds.add(surfaceId);
+    for (final item in widget.catalog.items) {
+      for (var d = 0; d < item.exampleData.length; d++) {
+        final indexPart = item.exampleData.length > 1 ? '-$d' : '';
+        examples['${item.name}$indexPart'] = item.exampleData[d];
       }
+    }
+
+    for (final item in examples.entries) {
+      final surfaceId = item.key;
+      _genUi.addOrUpdateSurface(surfaceId, item.value());
+      surfaceIds.add(surfaceId);
     }
   }
 
