@@ -36,3 +36,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/travel_images/
+    - assets/hotel_service
+/

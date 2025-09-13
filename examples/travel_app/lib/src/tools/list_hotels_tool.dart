@@ -140,14 +140,14 @@ HotelSearchResult onListHotels(HotelSearch search) {
         location: 'Mountain View, CA',
         pricePerNight: 250.0,
         listingId: '1',
-        images: ['assets/travel_images/brooklyn_bridge_new_york.jpg'],
+        images: ['assets/hotel_service/the_grand_flutter_hotel.png'],
       ),
       HotelListing(
         name: 'The Dart Inn',
         location: 'Sunnyvale, CA',
         pricePerNight: 150.0,
         listingId: '2',
-        images: ['assets/travel_images/eiffel_tower_construction_1888.jpg'],
+        images: ['assets/hotel_service/dart_inn.png'],
       ),
     ],
   );
