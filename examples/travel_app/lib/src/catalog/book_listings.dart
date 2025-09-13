@@ -64,12 +64,12 @@ final listingsBooker = CatalogItem(
           .listingId;
 
       return {
-        'root': 'book_listings',
+        'root': 'listings_booker',
         'widgets': [
           {
-            'id': 'book_listings',
+            'id': 'listings_booker',
             'widget': {
-              'BookListings': {
+              'ListingsBooker': {
                 'listingIds': [listingId1, listingId2],
                 'itineraryName': 'Dart and Flutter deep dive.',
               },
