@@ -125,7 +125,7 @@ class _ListingsBooker extends StatelessWidget {
                               listing.images.first,
                               width: 80,
                               height: 80,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           )
                         : Container(
@@ -142,11 +142,15 @@ class _ListingsBooker extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(listing.name,
-                              style: Theme.of(context).textTheme.titleLarge),
+                          Text(
+                            listing.name,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                           const SizedBox(height: 4),
-                          Text(listing.location,
-                              style: Theme.of(context).textTheme.bodyMedium),
+                          Text(
+                            listing.location,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ],
                       ),
                     ),
@@ -161,19 +165,27 @@ class _ListingsBooker extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Check-in',
-                            style: Theme.of(context).textTheme.bodySmall),
-                        Text(dateFormat.format(checkIn),
-                            style: Theme.of(context).textTheme.bodyLarge),
+                        Text(
+                          'Check-in',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        Text(
+                          dateFormat.format(checkIn),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('Check-out',
-                            style: Theme.of(context).textTheme.bodySmall),
-                        Text(dateFormat.format(checkOut),
-                            style: Theme.of(context).textTheme.bodyLarge),
+                        Text(
+                          'Check-out',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        Text(
+                          dateFormat.format(checkOut),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                       ],
                     ),
                   ],
@@ -182,20 +194,28 @@ class _ListingsBooker extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Duration of stay:',
-                        style: Theme.of(context).textTheme.bodyMedium),
-                    Text('${duration.inDays} nights',
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    Text(
+                      'Duration of stay:',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    Text(
+                      '${duration.inDays} nights',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total price:',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    Text('\$${totalPrice.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Subtotal:',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      '\$${totalPrice.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ],
                 ),
               ],
