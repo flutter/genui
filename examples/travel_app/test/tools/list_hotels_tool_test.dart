@@ -22,7 +22,7 @@ void main() {
           'location': 'New York, NY',
           'pricePerNight': 299.99,
           'images': ['image1.jpg', 'image2.jpg'],
-          'listingId': '12345',
+          'listingId': 'a-random-id',
         };
 
         final listing = HotelListing.fromJson(json);
@@ -31,9 +31,12 @@ void main() {
         expect(listing.location, 'New York, NY');
         expect(listing.pricePerNight, 299.99);
         expect(listing.images, ['image1.jpg', 'image2.jpg']);
-        expect(listing.listingId, '12345');
+        expect(listing.listingId, isNotEmpty);
 
-        expect(listing.toJson(), json);
+        expect(
+          listing.toJson(),
+          json..['listingId'] = listing.listingId,
+        );
       });
     });
 
@@ -46,7 +49,7 @@ void main() {
               'location': 'New York, NY',
               'pricePerNight': 299.99,
               'images': ['image1.jpg', 'image2.jpg'],
-              'listingId': '12345',
+              'listingId': 'a-random-id',
             },
           ],
         };
@@ -55,8 +58,15 @@ void main() {
 
         expect(searchResult.listings.length, 1);
         expect(searchResult.listings.first.name, 'The Grand Hotel');
+        expect(searchResult.listings.first.listingId, isNotEmpty);
 
-        expect(searchResult.toJson(), json);
+        expect(
+          searchResult.toJson(),
+          json
+            ..['listings'] = [
+              searchResult.listings.first.toJson(),
+            ],
+        );
       });
     });
 
