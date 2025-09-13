@@ -74,7 +74,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
       _handleUserMessageFromUi,
     );
     final tools = _genUiManager.getTools();
-    tools.add(ListHotelsTool(onListHotels: HotelService.instance.onListHotels));
+    tools.add(ListHotelsTool(onListHotels: HotelService.instance.listHotels));
     _aiClient =
         widget.aiClient ??
         FirebaseAiClient(tools: tools, systemInstruction: prompt);
