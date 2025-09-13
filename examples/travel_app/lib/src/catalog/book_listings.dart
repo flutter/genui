@@ -44,6 +44,9 @@ final bookListings = CatalogItem(
         );
         return _BookListings(listingIds: bookListingsData.listingIds);
       },
+  exampleData: {
+    'listingIds': ['123', '456'],
+  },
 );
 
 class _BookListings extends StatelessWidget {
