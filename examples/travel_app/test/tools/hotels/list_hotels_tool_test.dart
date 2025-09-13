@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:travel_app/src/tools/hotels/list_hotels_tool.dart';
-import 'package:travel_app/src/tools/hotels/model.dart';
+import 'package:travel_app/src/tools/booking/list_hotels_tool.dart';
+import 'package:travel_app/src/tools/booking/model.dart';
 
 final _hotelSearch = HotelSearch(
   query: 'hotels in New York',

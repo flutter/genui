@@ -6,18 +6,18 @@ import 'dart:math';
 
 import 'model.dart';
 
-/// A mock hotel service to simulate hotel listings.
-class HotelService {
-  static HotelService instance = HotelService._();
+/// A mock booking service to simulate hotel listings and bookings.
+class BookingService {
+  static BookingService instance = BookingService._();
 
-  HotelService._();
+  BookingService._();
 
-  final Map<String, HotelListing> listings = {};
+  final Map<String, Listing> listings = {};
   final _random = Random();
 
   String _generateListingId() => _random.nextInt(1000000000).toString();
 
-  HotelListing _rememberListing(HotelListing listing) {
+  T _rememberListing<T extends Listing>(T listing) {
     listings[listing.listingId] = listing;
     return listing;
   }

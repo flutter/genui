@@ -22,13 +22,19 @@ class HotelSearchResult {
   }
 }
 
-class HotelListing {
+abstract class Listing {
+  String get listingId;
+}
+
+class HotelListing implements Listing {
   final String name;
   final String location;
   final double pricePerNight;
   final List<String> images;
-  final String listingId;
   final HotelSearch search;
+
+  @override
+  final String listingId;
 
   HotelListing({
     required this.name,
