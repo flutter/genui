@@ -17,15 +17,15 @@ final _schema = S.object(
   required: ['listingIds'],
 );
 
-extension type _BookListingsData.fromMap(Map<String, Object?> _json) {
-  factory _BookListingsData({required List<String> listingIds}) =>
-      _BookListingsData.fromMap({'listingIds': listingIds});
+extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
+  factory _ListingsBookerData({required List<String> listingIds}) =>
+      _ListingsBookerData.fromMap({'listingIds': listingIds});
 
   List<String> get listingIds => (_json['listingIds'] as List).cast<String>();
 }
 
-final bookListings = CatalogItem(
-  name: 'BookListings',
+final listingsBooker = CatalogItem(
+  name: 'ListingsBooker',
   dataSchema: _schema,
   widgetBuilder:
       ({
@@ -36,10 +36,10 @@ final bookListings = CatalogItem(
         required context,
         required values,
       }) {
-        final bookListingsData = _BookListingsData.fromMap(
+        final listingsBookerData = _ListingsBookerData.fromMap(
           data as Map<String, Object?>,
         );
-        return _BookListings(listingIds: bookListingsData.listingIds);
+        return _ListingsBooker(listingIds: listingsBookerData.listingIds);
       },
   exampleData: [
     () {
@@ -81,10 +81,10 @@ final bookListings = CatalogItem(
   ],
 );
 
-class _BookListings extends StatelessWidget {
+class _ListingsBooker extends StatelessWidget {
   final List<String> listingIds;
 
-  const _BookListings({required this.listingIds});
+  const _ListingsBooker({required this.listingIds});
 
   @override
   Widget build(BuildContext context) {
