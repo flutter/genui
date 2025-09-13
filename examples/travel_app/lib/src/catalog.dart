@@ -4,6 +4,7 @@
 
 import 'package:flutter_genui/flutter_genui.dart';
 
+import 'catalog/book_listings.dart';
 import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/information_card.dart';
 import 'catalog/input_group.dart';
@@ -40,4 +41,5 @@ final travelAppCatalog = CoreCatalogItems.asCatalog().copyWith([
   paddedBodyText,
   textInputChip,
   informationCard,
+  listingsBooker,
 ]);
