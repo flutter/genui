@@ -33,16 +33,13 @@ void main() {
         expect(listing.images, ['image1.jpg', 'image2.jpg']);
         expect(listing.listingId, isNotEmpty);
 
-        expect(
-          listing.toJson(),
-          json..['listingId'] = listing.listingId,
-        );
+        expect(listing.toJson(), json..['listingId'] = listing.listingId);
       });
     });
 
     group('HotelSearchResult', () {
       test('fromJson and toJson', () {
-        final json = {
+        final json = <String, Object?>{
           'listings': [
             {
               'name': 'The Grand Hotel',
@@ -62,10 +59,7 @@ void main() {
 
         expect(
           searchResult.toJson(),
-          json
-            ..['listings'] = [
-              searchResult.listings.first.toJson(),
-            ],
+          json..['listings'] = [searchResult.listings.first.toJson()],
         );
       });
     });
