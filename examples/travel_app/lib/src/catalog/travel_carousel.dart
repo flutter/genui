@@ -87,7 +87,8 @@ final travelCarousel = CatalogItem(
           'widget': {
             'Text': {
               'text':
-                  "Let's plan your dream trip to Greece! What kind of experience"
+                  "Let's plan your dream trip to Greece! "
+                  'What kind of experience'
                   ' are you looking for?',
             },
           },
