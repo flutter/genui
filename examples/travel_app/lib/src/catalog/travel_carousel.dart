@@ -70,89 +70,91 @@ final travelCarousel = CatalogItem(
           dispatchEvent: dispatchEvent,
         );
       },
-  exampleData: {
-    'root': 'greece_inspiration_column',
-    'widgets': [
-      {
-        'id': 'greece_inspiration_column',
-        'widget': {
-          'Column': {
-            'children': ['inspiration_title', 'inspiration_carousel'],
+  exampleData: [
+    () => {
+      'root': 'greece_inspiration_column',
+      'widgets': [
+        {
+          'id': 'greece_inspiration_column',
+          'widget': {
+            'Column': {
+              'children': ['inspiration_title', 'inspiration_carousel'],
+            },
           },
         },
-      },
-      {
-        'id': 'inspiration_title',
-        'widget': {
-          'Text': {
-            'text':
-                "Let's plan your dream trip to Greece! What kind of experience"
-                ' are you looking for?',
+        {
+          'id': 'inspiration_title',
+          'widget': {
+            'Text': {
+              'text':
+                  "Let's plan your dream trip to Greece! What kind of experience"
+                  ' are you looking for?',
+            },
           },
         },
-      },
-      {
-        'widget': {
-          'TravelCarousel': {
-            'items': [
-              {
-                'title': 'Relaxing Beach Holiday',
-                'imageChildId': 'santorini_beach_image',
-              },
-              {
-                'imageChildId': 'akrotiri_fresco_image',
-                'title': 'Cultural Exploration',
-              },
-              {
-                'imageChildId': 'santorini_caldera_image',
-                'title': 'Adventure & Outdoors',
-              },
-              {'title': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
-            ],
+        {
+          'widget': {
+            'TravelCarousel': {
+              'items': [
+                {
+                  'title': 'Relaxing Beach Holiday',
+                  'imageChildId': 'santorini_beach_image',
+                },
+                {
+                  'imageChildId': 'akrotiri_fresco_image',
+                  'title': 'Cultural Exploration',
+                },
+                {
+                  'imageChildId': 'santorini_caldera_image',
+                  'title': 'Adventure & Outdoors',
+                },
+                {'title': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
+              ],
+            },
+          },
+          'id': 'inspiration_carousel',
+        },
+        {
+          'id': 'santorini_beach_image',
+          'widget': {
+            'Image': {
+              'fit': 'cover',
+              'assetName': 'assets/travel_images/santorini_panorama.jpg',
+            },
           },
         },
-        'id': 'inspiration_carousel',
-      },
-      {
-        'id': 'santorini_beach_image',
-        'widget': {
-          'Image': {
-            'fit': 'cover',
-            'assetName': 'assets/travel_images/santorini_panorama.jpg',
+        {
+          'id': 'akrotiri_fresco_image',
+          'widget': {
+            'Image': {
+              'fit': 'cover',
+              'assetName':
+                  'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
+            },
           },
         },
-      },
-      {
-        'id': 'akrotiri_fresco_image',
-        'widget': {
-          'Image': {
-            'fit': 'cover',
-            'assetName':
-                'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
+        {
+          'id': 'santorini_caldera_image',
+          'widget': {
+            'Image': {
+              'assetName': 'assets/travel_images/santorini_from_space.jpg',
+              'fit': 'cover',
+            },
           },
         },
-      },
-      {
-        'id': 'santorini_caldera_image',
-        'widget': {
-          'Image': {
-            'assetName': 'assets/travel_images/santorini_from_space.jpg',
-            'fit': 'cover',
+        {
+          'widget': {
+            'Image': {
+              'fit': 'cover',
+              'assetName':
+                  'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
+            },
           },
+          'id': 'greece_food_image',
         },
-      },
-      {
-        'widget': {
-          'Image': {
-            'fit': 'cover',
-            'assetName':
-                'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
-          },
-        },
-        'id': 'greece_food_image',
-      },
-    ],
-  },
+      ],
+    },
+  ],
 );
 
 extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {

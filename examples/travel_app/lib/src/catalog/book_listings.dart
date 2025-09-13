@@ -12,10 +12,7 @@ import '../tools/booking/model.dart';
 final _schema = S.object(
   description: 'A widget to check out set of listings.',
   properties: {
-    'listingIds': S.list(
-      description: 'A items to checkout.',
-      items: S.string(),
-    ),
+    'listingIds': S.list(description: 'Items to checkout.', items: S.string()),
   },
   required: ['listingIds'],
 );
@@ -44,9 +41,44 @@ final bookListings = CatalogItem(
         );
         return _BookListings(listingIds: bookListingsData.listingIds);
       },
-  exampleData: {
-    'listingIds': ['123', '456'],
-  },
+  exampleData: [
+    () {
+      final start1 = DateTime.now().add(const Duration(days: 5));
+      final end1 = start1.add(const Duration(days: 2));
+      final start2 = end1.add(const Duration(days: 1));
+      final end2 = start2.add(const Duration(days: 2));
+
+      final listingId1 = BookingService.instance
+          .listHotelsSync(
+            HotelSearch(query: '', checkIn: start1, checkOut: end1, guests: 1),
+          )
+          .listings
+          .first
+          .listingId;
+      final listingId2 = BookingService.instance
+          .listHotelsSync(
+            HotelSearch(query: '', checkIn: start2, checkOut: end2, guests: 1),
+          )
+          .listings
+          .last
+          .listingId;
+
+      return {
+        'root': 'book_listings',
+        'widgets': [
+          {
+            'id': 'book_listings',
+            'widget': {
+              'BookListings': {
+                'listingIds': [listingId1, listingId2],
+                'itineraryName': 'Dart and Flutter deep dive.',
+              },
+            },
+          },
+        ],
+      };
+    },
+  ],
 );
 
 class _BookListings extends StatelessWidget {

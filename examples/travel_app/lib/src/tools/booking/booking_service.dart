@@ -23,6 +23,13 @@ class BookingService {
   }
 
   Future<HotelSearchResult> listHotels(HotelSearch search) async {
+    // ignore: inference_failure_on_instance_creation
+    await Future.delayed(const Duration(milliseconds: 100));
+    return listHotelsSync(search);
+  }
+
+  /// Synchronous version for example data generation.
+  HotelSearchResult listHotelsSync(HotelSearch search) {
     // Mock implementation
     return HotelSearchResult(
       listings: [

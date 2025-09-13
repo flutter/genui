@@ -47,10 +47,11 @@ class _CatalogViewState extends State<CatalogView> {
     );
 
     for (final item in items) {
-      final data = item.exampleData!;
-      final surfaceId = item.name;
-      _genUi.addOrUpdateSurface(surfaceId, data);
-      surfaceIds.add(surfaceId);
+      for (final data in item.exampleData) {
+        final surfaceId = item.name;
+        _genUi.addOrUpdateSurface(surfaceId, data());
+        surfaceIds.add(surfaceId);
+      }
     }
   }
 

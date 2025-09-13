@@ -11,6 +11,9 @@ import 'ui_models.dart';
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
 
+/// A callback that builds a child widget for a catalog item.
+typedef ExampleBuilderCallback = JsonMap Function();
+
 /// Store for widget values by surfaceId.
 class WidgetValueStore {
   final Map<String, JsonMap> _values = {};
@@ -50,7 +53,7 @@ class CatalogItem {
     required this.name,
     required this.dataSchema,
     required this.widgetBuilder,
-    this.exampleData,
+    this.exampleData = const [],
   });
 
   /// The widget type name used in JSON, e.g., 'TextChatMessage'.
@@ -62,10 +65,10 @@ class CatalogItem {
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
 
-  /// Example data for this widget, for testing purposes.
+  /// List of examples for this widget, for testing purposes.
   ///
   /// To catch real data returned by the AI,
   /// [configure logging](https://github.com/flutter/genui/blob/main/packages/flutter_genui/USAGE.md#configure-logging)
   /// to Level.ALL and search for the string `"definition": {` in the logs.
-  final JsonMap? exampleData;
+  final List<ExampleBuilderCallback> exampleData;
 }
