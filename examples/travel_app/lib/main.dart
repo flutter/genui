@@ -74,7 +74,7 @@ class _TravelAppBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final tabs = {
       'Travel': TravelPlannerPage(aiClient: aiClient),
-      'Widget Catalog': CatalogView(catalog: travelAppCatalog),
+      'Widget Catalog': const CatalogTab(),
     };
     return DefaultTabController(
       length: tabs.length,
@@ -104,4 +104,23 @@ class _TravelAppBody extends StatelessWidget {
       ),
     );
   }
+}
+
+class CatalogTab extends StatefulWidget {
+  const CatalogTab({super.key});
+
+  @override
+  State<CatalogTab> createState() => _CatalogTabState();
+}
+
+class _CatalogTabState extends State<CatalogTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return CatalogView(catalog: travelAppCatalog);
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

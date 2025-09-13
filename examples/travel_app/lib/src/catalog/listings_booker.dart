@@ -96,133 +96,168 @@ class _ListingsBooker extends StatelessWidget {
         .cast<HotelListing>()
         .toList();
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: listings.length,
-      itemBuilder: (context, index) {
-        final listing = listings[index];
-        final checkIn = listing.search.checkIn;
-        final checkOut = listing.search.checkOut;
-        final duration = checkOut.difference(checkIn);
-        final totalPrice = duration.inDays * listing.pricePerNight;
-        final dateFormat = DateFormat.yMMMd();
+    final grandTotal = listings.fold<double>(
+      0.0,
+      (sum, listing) {
+        final duration =
+            listing.search.checkOut.difference(listing.search.checkIn);
+        return sum + (duration.inDays * listing.pricePerNight);
+      },
+    );
 
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: listings.length,
+          itemBuilder: (context, index) {
+            final listing = listings[index];
+            final checkIn = listing.search.checkIn;
+            final checkOut = listing.search.checkOut;
+            final duration = checkOut.difference(checkIn);
+            final totalPrice = duration.inDays * listing.pricePerNight;
+            final dateFormat = DateFormat.yMMMd();
+
+            return Card(
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    listing.images.isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.asset(
-                              listing.images.first,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.contain,
-                            ),
-                          )
-                        : Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Icon(Icons.hotel, color: Colors.grey[400]),
-                          ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            listing.name,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            listing.location,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Check-in',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        Text(
-                          dateFormat.format(checkIn),
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        listing.images.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.asset(
+                                  listing.images.first,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Icon(Icons.hotel,
+                                    color: Colors.grey[400]),
+                              ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(listing.name,
+                                  style:
+                                      Theme.of(context).textTheme.titleLarge),
+                              const SizedBox(height: 4),
+                              Text(listing.location,
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Check-out',
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Check-in',
+                                style: Theme.of(context).textTheme.bodySmall),
+                            Text(dateFormat.format(checkIn),
+                                style: Theme.of(context).textTheme.bodyLarge),
+                          ],
                         ),
-                        Text(
-                          dateFormat.format(checkOut),
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('Check-out',
+                                style: Theme.of(context).textTheme.bodySmall),
+                            Text(dateFormat.format(checkOut),
+                                style: Theme.of(context).textTheme.bodyLarge),
+                          ],
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Duration of stay:',
+                            style: Theme.of(context).textTheme.bodyMedium),
+                        Text('${duration.inDays} nights',
+                            style: Theme.of(context).textTheme.bodyMedium),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Total price:',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        Text('\$${totalPrice.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.titleMedium),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Duration of stay:',
-                      style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Divider(),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Grand Total:',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  Text(
+                    '\$${grandTotal.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement booking logic.
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    Text(
-                      '${duration.inDays} nights',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
+                  ),
+                  child: const Text('Book'),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Subtotal:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      '\$${totalPrice.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
