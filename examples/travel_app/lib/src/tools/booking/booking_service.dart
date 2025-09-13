@@ -35,21 +35,21 @@ class BookingService {
       listings: [
         _rememberListing(
           HotelListing(
-            name: 'The Grand Flutter Hotel',
-            location: 'Mountain View, CA',
-            pricePerNight: 250.0,
+            name: 'The Dart Inn',
+            location: 'Sunnyvale, CA',
+            pricePerNight: 150.0,
             listingId: _generateListingId(),
-            images: ['assets/travel_images/brooklyn_bridge_new_york.jpg'],
+            images: ['assets/booking_service/dart_inn.png'],
             search: search,
           ),
         ),
         _rememberListing(
           HotelListing(
-            name: 'The Dart Inn',
-            location: 'Sunnyvale, CA',
-            pricePerNight: 150.0,
+            name: 'The Grand Flutter Hotel',
+            location: 'Mountain View, CA',
+            pricePerNight: 250.0,
             listingId: _generateListingId(),
-            images: ['assets/travel_images/eiffel_tower_construction_1888.jpg'],
+            images: ['assets/booking_service/the_grand_flutter_hotel.png'],
             search: search,
           ),
         ),

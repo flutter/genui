@@ -36,3 +36,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/travel_images/
+    - assets/booking_service/

@@ -31,6 +31,7 @@ final travelAppCatalog = CoreCatalogItems.asCatalog().copyWith([
   inputGroup,
   optionsFilterChipInput,
   checkboxFilterChipsInput,
+  listingsBooker,
   travelCarousel,
   itineraryWithDetails,
   itineraryDay,
@@ -41,5 +42,4 @@ final travelAppCatalog = CoreCatalogItems.asCatalog().copyWith([
   paddedBodyText,
   textInputChip,
   informationCard,
-  listingsBooker,
 ]);
