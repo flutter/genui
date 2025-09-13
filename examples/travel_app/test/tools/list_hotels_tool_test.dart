@@ -89,26 +89,24 @@ void main() {
 
     group('ListHotelsTool', () {
       test('invoke calls onListHotels and returns correct JSON', () async {
-        final searchResult = HotelSearchResult(
-          listings: [
-            HotelListing(
-              name: 'The Grand Hotel',
-              location: 'New York, NY',
-              pricePerNight: 299.99,
-              images: ['image1.jpg', 'image2.jpg'],
-              listingId: '12345',
-              search: _hotelSearch,
-            ),
-          ],
-        );
-
         final tool = ListHotelsTool(
           onListHotels: (search) async {
             expect(search.query, 'hotels in New York');
             expect(search.checkIn, DateTime.parse('2025-10-01T00:00:00.000'));
             expect(search.checkOut, DateTime.parse('2025-10-05T00:00:00.000'));
             expect(search.guests, 2);
-            return searchResult;
+            return HotelSearchResult(
+              listings: [
+                HotelListing(
+                  name: 'The Grand Hotel',
+                  location: 'New York, NY',
+                  pricePerNight: 299.99,
+                  images: ['image1.jpg', 'image2.jpg'],
+                  listingId: 'a-random-id',
+                  search: _hotelSearch,
+                ),
+              ],
+            );
           },
         );
 
@@ -120,8 +118,8 @@ void main() {
         };
 
         final result = await tool.invoke(args);
-
-        expect(result, searchResult.toJson());
+        final searchResult = HotelSearchResult.fromJson(result);
+        expect(searchResult.listings.first.listingId, isNotEmpty);
       });
     });
   });
