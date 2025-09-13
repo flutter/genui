@@ -15,7 +15,7 @@ class HotelService {
   final Map<String, HotelListing> _listings = {};
   final _random = Random();
 
-  String _generateListingId() => _random.nextInt(1000000).toString();
+  String _generateListingId() => _random.nextInt(1000000000).toString();
 
   HotelListing _rememberListing(HotelListing listing) {
     _listings[listing.listingId] = listing;
