@@ -105,6 +105,18 @@ class _ListingsBooker extends StatefulWidget {
 class _ListingsBookerState extends State<_ListingsBooker> {
   bool _isBooking = false;
 
+  Future<void> _book() async {
+    setState(() {
+      _isBooking = true;
+    });
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        _isBooking = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final listings = widget.listingIds
@@ -113,12 +125,14 @@ class _ListingsBookerState extends State<_ListingsBooker> {
         .cast<HotelListing>()
         .toList();
 
-    final grandTotal = listings.fold<double>(0.0, (sum, listing) {
-      final duration = listing.search.checkOut.difference(
-        listing.search.checkIn,
-      );
-      return sum + (duration.inDays * listing.pricePerNight);
-    });
+    final grandTotal = listings.fold<double>(
+      0.0,
+      (sum, listing) {
+        final duration =
+            listing.search.checkOut.difference(listing.search.checkIn);
+        return sum + (duration.inDays * listing.pricePerNight);
+      },
+    );
 
     return Column(
       children: [
@@ -135,10 +149,8 @@ class _ListingsBookerState extends State<_ListingsBooker> {
             final dateFormat = DateFormat.yMMMd();
 
             return Card(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -164,25 +176,21 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                   color: Colors.grey[200],
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
-                                child: Icon(
-                                  Icons.hotel,
-                                  color: Colors.grey[400],
-                                ),
+                                child: Icon(Icons.hotel,
+                                    color: Colors.grey[400]),
                               ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                listing.name,
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
+                              Text(listing.name,
+                                  style:
+                                      Theme.of(context).textTheme.titleLarge),
                               const SizedBox(height: 4),
-                              Text(
-                                listing.location,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
+                              Text(listing.location,
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
                             ],
                           ),
                         ),
@@ -197,27 +205,19 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Check-in',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Text(
-                              dateFormat.format(checkIn),
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
+                            Text('Check-in',
+                                style: Theme.of(context).textTheme.bodySmall),
+                            Text(dateFormat.format(checkIn),
+                                style: Theme.of(context).textTheme.bodyLarge),
                           ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              'Check-out',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Text(
-                              dateFormat.format(checkOut),
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
+                            Text('Check-out',
+                                style: Theme.of(context).textTheme.bodySmall),
+                            Text(dateFormat.format(checkOut),
+                                style: Theme.of(context).textTheme.bodyLarge),
                           ],
                         ),
                       ],
@@ -226,28 +226,20 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Duration of stay:',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          '${duration.inDays} nights',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                        Text('Duration of stay:',
+                            style: Theme.of(context).textTheme.bodyMedium),
+                        Text('${duration.inDays} nights',
+                            style: Theme.of(context).textTheme.bodyMedium),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Total price:',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(
-                          '\$${totalPrice.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                        Text('Total price:',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        Text('\$${totalPrice.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.titleMedium),
                       ],
                     ),
                   ],
@@ -279,24 +271,22 @@ class _ListingsBookerState extends State<_ListingsBooker> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    _isBooking = true;
-                    setState(() {});
-                    await Future<void>.delayed(
-                      const Duration(milliseconds: 300),
-                    );
-                    widget.dispatchEvent(
-                      UiActionEvent(
-                        eventType: 'booked',
-                        widgetId: widget.widgetId,
-                      ),
-                    );
-                    if (mounted) {
-                      _isBooking = false;
-                      setState(() {});
-                    }
-                  },
-                  child: const Text('Book'),
+                  onPressed: _isBooking ? null : _book,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _isBooking
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text('Book'),
                 ),
               ),
             ],
