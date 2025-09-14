@@ -15,7 +15,7 @@ class BookingService {
   final Map<String, Listing> listings = {};
 
   final _random = Random();
-  String _generatelistingSelectionId() =>
+  String _generateListingSelectionId() =>
       _random.nextInt(1000000000).toString();
 
   T _rememberListing<T extends Listing>(T listing) {
@@ -29,6 +29,14 @@ class BookingService {
     return listHotelsSync(search);
   }
 
+  Future<void> bookSelections(
+    List<String> listingSelectionIds,
+    String paymentMethodId,
+  ) async {
+    // ignore: inference_failure_on_instance_creation
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+
   /// Synchronous version for example data generation.
   HotelSearchResult listHotelsSync(HotelSearch search) {
     // Mock implementation
@@ -39,7 +47,7 @@ class BookingService {
             name: 'The Dart Inn',
             location: 'Sunnyvale, CA',
             pricePerNight: 150.0,
-            listingSelectionId: _generatelistingSelectionId(),
+            listingSelectionId: _generateListingSelectionId(),
             images: ['assets/booking_service/dart_inn.png'],
             search: search,
           ),
@@ -49,7 +57,7 @@ class BookingService {
             name: 'The Grand Flutter Hotel',
             location: 'Mountain View, CA',
             pricePerNight: 250.0,
-            listingSelectionId: _generatelistingSelectionId(),
+            listingSelectionId: _generateListingSelectionId(),
             images: ['assets/booking_service/the_grand_flutter_hotel.png'],
             search: search,
           ),

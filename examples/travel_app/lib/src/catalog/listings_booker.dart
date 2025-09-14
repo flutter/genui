@@ -108,11 +108,13 @@ class CreditCard {
   final String cardholderName;
   final String cardNumber;
   final String expiryDate;
+  final String paymentMethodId;
 
   CreditCard({
     required this.cardholderName,
     required this.cardNumber,
     required this.expiryDate,
+    required this.paymentMethodId,
   });
 }
 
@@ -188,16 +190,12 @@ class _CustomRadioState<T> extends State<_CustomRadio<T>> {
 class _ListingsBookerState extends State<_ListingsBooker> {
   BookingStatus _bookingStatus = BookingStatus.initial;
   CreditCard? _selectedCard;
-  late final List<HotelListing> _listings;
+  late final List<HotelListing> _selections;
 
   @override
   void initState() {
     super.initState();
-    print(
-      '!!!! Existing Listing ids: ${BookingService.instance.listings.keys}',
-    );
-    print('!!!! Recieved Listing ids: ${widget.listingSelectionIds}');
-    _listings = widget.listingSelectionIds
+    _selections = widget.listingSelectionIds
         .map((id) => BookingService.instance.listings[id])
         .whereType<HotelListing>()
         .toList();
@@ -208,11 +206,13 @@ class _ListingsBookerState extends State<_ListingsBooker> {
       cardholderName: 'John Doe',
       cardNumber: '**** **** **** 1234',
       expiryDate: '12/25',
+      paymentMethodId: 'pm_1',
     ),
     CreditCard(
       cardholderName: 'Jane Doe',
       cardNumber: '**** **** **** 5678',
       expiryDate: '08/26',
+      paymentMethodId: 'pm_2',
     ),
   ];
 
@@ -220,7 +220,10 @@ class _ListingsBookerState extends State<_ListingsBooker> {
     setState(() {
       _bookingStatus = BookingStatus.inProgress;
     });
-    await Future<void>.delayed(const Duration(seconds: 2));
+    await BookingService.instance.bookSelections(
+      _selections.map((e) => e.listingSelectionId).toList(),
+      _selectedCard!.paymentMethodId,
+    );
     if (mounted) {
       setState(() {
         _bookingStatus = BookingStatus.done;
@@ -230,7 +233,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
 
   @override
   Widget build(BuildContext context) {
-    final grandTotal = _listings.fold<double>(0.0, (sum, listing) {
+    final grandTotal = _selections.fold<double>(0.0, (sum, listing) {
       final duration = listing.search.checkOut.difference(
         listing.search.checkIn,
       );
@@ -251,9 +254,9 @@ class _ListingsBookerState extends State<_ListingsBooker> {
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _listings.length,
+          itemCount: _selections.length,
           itemBuilder: (context, index) {
-            final listing = _listings[index];
+            final listing = _selections[index];
             final checkIn = listing.search.checkIn;
             final checkOut = listing.search.checkOut;
             final duration = checkOut.difference(checkIn);
@@ -304,7 +307,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                             TextButton(
                               onPressed: () {
                                 setState(() {
-                                  _listings.remove(listing);
+                                  _selections.remove(listing);
                                 });
                               },
                               child: const Text('Remove'),
