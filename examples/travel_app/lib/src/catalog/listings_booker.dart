@@ -218,8 +218,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
   Widget build(BuildContext context) {
     final listings = _listingIds
         .map((id) => BookingService.instance.listings[id])
-        .where((listing) => listing != null)
-        .cast<HotelListing>()
+        .whereType<HotelListing>()
         .toList();
 
     final grandTotal = listings.fold<double>(0.0, (sum, listing) {
