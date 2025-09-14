@@ -15,15 +15,22 @@ final _schema = S.object(
   description: 'A widget to check out set of listings.',
   properties: {
     'listingIds': S.list(description: 'Items to checkout.', items: S.string()),
+    'itineraryName': S.string(description: 'The name of the itinerary.'),
   },
   required: ['listingIds'],
 );
 
 extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
-  factory _ListingsBookerData({required List<String> listingIds}) =>
-      _ListingsBookerData.fromMap({'listingIds': listingIds});
+  factory _ListingsBookerData({
+    required List<String> listingIds,
+    required String itineraryName,
+  }) => _ListingsBookerData.fromMap({
+    'listingIds': listingIds,
+    'itineraryName': itineraryName,
+  });
 
   List<String> get listingIds => (_json['listingIds'] as List).cast<String>();
+  String get itineraryName => _json['itineraryName'] as String;
 }
 
 final listingsBooker = CatalogItem(
@@ -43,6 +50,7 @@ final listingsBooker = CatalogItem(
         );
         return _ListingsBooker(
           listingIds: listingsBookerData.listingIds,
+          itineraryName: listingsBookerData.itineraryName,
           dispatchEvent: dispatchEvent,
           widgetId: id,
         );
@@ -77,7 +85,7 @@ final listingsBooker = CatalogItem(
             'widget': {
               'ListingsBooker': {
                 'listingIds': [listingId1, listingId2],
-                'itineraryName': 'Dart and Flutter deep dive.',
+                'itineraryName': 'Dart and Flutter deep dive',
               },
             },
           },
@@ -103,11 +111,13 @@ class CreditCard {
 
 class _ListingsBooker extends StatefulWidget {
   final List<String> listingIds;
+  final String itineraryName;
   final DispatchEventCallback dispatchEvent;
   final String widgetId;
 
   const _ListingsBooker({
     required this.listingIds,
+    required this.itineraryName,
     required this.dispatchEvent,
     required this.widgetId,
   });
@@ -223,6 +233,13 @@ class _ListingsBookerState extends State<_ListingsBooker> {
 
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Check out "${widget.itineraryName}"',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
