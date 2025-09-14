@@ -107,14 +107,17 @@ final travelCarousel = CatalogItem(
                 {
                   'title': 'Relaxing Beach Holiday',
                   'imageChildId': 'santorini_beach_image',
+                  'listingSelectionId': '12345',
                 },
                 {
                   'imageChildId': 'akrotiri_fresco_image',
                   'title': 'Cultural Exploration',
+                  'listingSelectionId': '12346',
                 },
                 {
                   'imageChildId': 'santorini_caldera_image',
                   'title': 'Adventure & Outdoors',
+                  'listingSelectionId': '12347',
                 },
                 {'title': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
               ],

@@ -345,7 +345,7 @@ to the user.
     including the booking details in the `bodyText`.
 
     When booking accommodation, you should use the `listHotels` tool to search
-    for hotels, and remember the listingSelectionId of the selected hotel. You can then show the user the different options in a
+    for hotels, and then pass the listingSelectionId to `travelCarousel` of the selected hotel. You can then show the user the different options in a
     `travelCarousel`. When user selects a hotel, remember the listingSelectionId for the next step.
 
     After selecting hotel, suggest the user to check out the
