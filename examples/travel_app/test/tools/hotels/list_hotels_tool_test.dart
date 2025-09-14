@@ -22,7 +22,7 @@ void main() {
           'location': 'New York, NY',
           'pricePerNight': 299.99,
           'images': ['image1.jpg', 'image2.jpg'],
-          'listingId': 'a-random-id',
+          'listingSelectionId': 'a-random-id',
           'search': _hotelSearch.toJson(),
         };
 
@@ -32,9 +32,12 @@ void main() {
         expect(listing.location, 'New York, NY');
         expect(listing.pricePerNight, 299.99);
         expect(listing.images, ['image1.jpg', 'image2.jpg']);
-        expect(listing.listingId, isNotEmpty);
+        expect(listing.listingSelectionId, isNotEmpty);
 
-        expect(listing.toJson(), json..['listingId'] = listing.listingId);
+        expect(
+          listing.toJson(),
+          json..['listingSelectionId'] = listing.listingSelectionId,
+        );
       });
     });
 
@@ -47,7 +50,7 @@ void main() {
               'location': 'New York, NY',
               'pricePerNight': 299.99,
               'images': ['image1.jpg', 'image2.jpg'],
-              'listingId': 'a-random-id',
+              'listingSelectionId': 'a-random-id',
               'search': _hotelSearch.toJson(),
             },
           ],
@@ -57,7 +60,7 @@ void main() {
 
         expect(searchResult.listings.length, 1);
         expect(searchResult.listings.first.name, 'The Grand Hotel');
-        expect(searchResult.listings.first.listingId, isNotEmpty);
+        expect(searchResult.listings.first.listingSelectionId, isNotEmpty);
 
         expect(
           searchResult.toJson(),
@@ -104,7 +107,7 @@ void main() {
                   location: 'New York, NY',
                   pricePerNight: 299.99,
                   images: ['image1.jpg', 'image2.jpg'],
-                  listingId: 'a-random-id',
+                  listingSelectionId: 'a-random-id',
                   search: _hotelSearch,
                 ),
               ],
@@ -121,7 +124,7 @@ void main() {
 
         final result = await tool.invoke(args);
         final searchResult = HotelSearchResult.fromJson(result);
-        expect(searchResult.listings.first.listingId, isNotEmpty);
+        expect(searchResult.listings.first.listingSelectionId, isNotEmpty);
       });
     });
   });

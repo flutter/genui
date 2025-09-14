@@ -23,8 +23,9 @@ final _schema = S.object(
                 'The ID of the Image widget to display as the carousel item '
                 'image. Be sure to create Image widgets with matching IDs.',
           ),
-          'listingId': S.string(
-            description: 'An optional ID of the listing that this item '
+          'listingSelectionId': S.string(
+            description:
+                'An optional ID of the listing that this item '
                 'represents. This is useful when the carousel is used to show '
                 'a list of hotels or other bookable items.',
           ),
@@ -68,7 +69,7 @@ final travelCarousel = CatalogItem(
                 (e) => _TravelCarouselItemData(
                   title: e.title,
                   imageChild: buildChild(e.imageChildId),
-                  listingId: e.listingId,
+                  listingSelectionId: e.listingSelectionId,
                 ),
               )
               .toList(),
@@ -187,16 +188,16 @@ extension type _TravelCarouselItemSchemaData.fromMap(
   factory _TravelCarouselItemSchemaData({
     required String title,
     required String imageChildId,
-    String? listingId,
+    String? listingSelectionId,
   }) => _TravelCarouselItemSchemaData.fromMap({
     'title': title,
     'imageChildId': imageChildId,
-    if (listingId != null) 'listingId': listingId,
+    if (listingSelectionId != null) 'listingSelectionId': listingSelectionId,
   });
 
   String get title => _json['title'] as String;
   String get imageChildId => _json['imageChildId'] as String;
-  String? get listingId => _json['listingId'] as String?;
+  String? get listingSelectionId => _json['listingSelectionId'] as String?;
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
@@ -262,12 +263,12 @@ class _TravelCarousel extends StatelessWidget {
 class _TravelCarouselItemData {
   final String title;
   final Widget imageChild;
-  final String? listingId;
+  final String? listingSelectionId;
 
   _TravelCarouselItemData({
     required this.title,
     required this.imageChild,
-    this.listingId,
+    this.listingSelectionId,
   });
 }
 
@@ -294,7 +295,8 @@ class _TravelCarouselItem extends StatelessWidget {
               eventType: 'itemSelected',
               value: {
                 'title': data.title,
-                if (data.listingId != null) 'listingId': data.listingId,
+                if (data.listingSelectionId != null)
+                  'listingSelectionId': data.listingSelectionId,
               },
             ),
           );

@@ -14,25 +14,26 @@ import '../tools/booking/model.dart';
 final _schema = S.object(
   description: 'A widget to check out set of listings.',
   properties: {
-    'listingIds': S.list(
+    'listingSelectionIds': S.list(
       description: 'Listings to checkout.',
       items: S.string(),
     ),
     'itineraryName': S.string(description: 'The name of the itinerary.'),
   },
-  required: ['listingIds'],
+  required: ['listingSelectionIds'],
 );
 
 extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
   factory _ListingsBookerData({
-    required List<String> listingIds,
+    required List<String> listingSelectionIds,
     required String itineraryName,
   }) => _ListingsBookerData.fromMap({
-    'listingIds': listingIds,
+    'listingSelectionIds': listingSelectionIds,
     'itineraryName': itineraryName,
   });
 
-  List<String> get listingIds => (_json['listingIds'] as List).cast<String>();
+  List<String> get listingSelectionIds =>
+      (_json['listingSelectionIds'] as List).cast<String>();
   String get itineraryName => _json['itineraryName'] as String;
 }
 
@@ -52,7 +53,7 @@ final listingsBooker = CatalogItem(
           data as Map<String, Object?>,
         );
         return _ListingsBooker(
-          listingIds: listingsBookerData.listingIds,
+          listingSelectionIds: listingsBookerData.listingSelectionIds,
           itineraryName: listingsBookerData.itineraryName,
           dispatchEvent: dispatchEvent,
           widgetId: id,
@@ -65,20 +66,20 @@ final listingsBooker = CatalogItem(
       final start2 = end1.add(const Duration(days: 1));
       final end2 = start2.add(const Duration(days: 2));
 
-      final listingId1 = BookingService.instance
+      final listingSelectionId1 = BookingService.instance
           .listHotelsSync(
             HotelSearch(query: '', checkIn: start1, checkOut: end1, guests: 1),
           )
           .listings
           .first
-          .listingId;
-      final listingId2 = BookingService.instance
+          .listingSelectionId;
+      final listingSelectionId2 = BookingService.instance
           .listHotelsSync(
             HotelSearch(query: '', checkIn: start2, checkOut: end2, guests: 1),
           )
           .listings
           .last
-          .listingId;
+          .listingSelectionId;
 
       return {
         'root': 'listings_booker',
@@ -87,7 +88,10 @@ final listingsBooker = CatalogItem(
             'id': 'listings_booker',
             'widget': {
               'ListingsBooker': {
-                'listingIds': [listingId1, listingId2],
+                'listingSelectionIds': [
+                  listingSelectionId1,
+                  listingSelectionId2,
+                ],
                 'itineraryName': 'Dart and Flutter deep dive',
               },
             },
@@ -113,13 +117,13 @@ class CreditCard {
 }
 
 class _ListingsBooker extends StatefulWidget {
-  final List<String> listingIds;
+  final List<String> listingSelectionIds;
   final String itineraryName;
   final DispatchEventCallback dispatchEvent;
   final String widgetId;
 
   const _ListingsBooker({
-    required this.listingIds,
+    required this.listingSelectionIds,
     required this.itineraryName,
     required this.dispatchEvent,
     required this.widgetId,
@@ -192,8 +196,8 @@ class _ListingsBookerState extends State<_ListingsBooker> {
     print(
       '!!!! Existing Listing ids: ${BookingService.instance.listings.keys}',
     );
-    print('!!!! Recieved Listing ids: ${widget.listingIds}');
-    _listings = widget.listingIds
+    print('!!!! Recieved Listing ids: ${widget.listingSelectionIds}');
+    _listings = widget.listingSelectionIds
         .map((id) => BookingService.instance.listings[id])
         .whereType<HotelListing>()
         .toList();
@@ -312,7 +316,10 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                   UiActionEvent(
                                     eventType: 'Modify',
                                     widgetId: widget.widgetId,
-                                    value: {'listingId': listing.listingId},
+                                    value: {
+                                      'listingSelectionId':
+                                          listing.listingSelectionId,
+                                    },
                                   ),
                                 );
                               },

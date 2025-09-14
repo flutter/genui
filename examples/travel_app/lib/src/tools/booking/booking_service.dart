@@ -15,10 +15,11 @@ class BookingService {
   final Map<String, Listing> listings = {};
 
   final _random = Random();
-  String _generateListingId() => _random.nextInt(1000000000).toString();
+  String _generatelistingSelectionId() =>
+      _random.nextInt(1000000000).toString();
 
   T _rememberListing<T extends Listing>(T listing) {
-    listings[listing.listingId] = listing;
+    listings[listing.listingSelectionId] = listing;
     return listing;
   }
 
@@ -38,7 +39,7 @@ class BookingService {
             name: 'The Dart Inn',
             location: 'Sunnyvale, CA',
             pricePerNight: 150.0,
-            listingId: _generateListingId(),
+            listingSelectionId: _generatelistingSelectionId(),
             images: ['assets/booking_service/dart_inn.png'],
             search: search,
           ),
@@ -48,7 +49,7 @@ class BookingService {
             name: 'The Grand Flutter Hotel',
             location: 'Mountain View, CA',
             pricePerNight: 250.0,
-            listingId: _generateListingId(),
+            listingSelectionId: _generatelistingSelectionId(),
             images: ['assets/booking_service/the_grand_flutter_hotel.png'],
             search: search,
           ),

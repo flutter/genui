@@ -23,7 +23,7 @@ class HotelSearchResult {
 }
 
 abstract class Listing {
-  String get listingId;
+  String get listingSelectionId;
 }
 
 class HotelListing implements Listing {
@@ -34,13 +34,13 @@ class HotelListing implements Listing {
   final HotelSearch search;
 
   @override
-  final String listingId;
+  final String listingSelectionId;
 
   HotelListing({
     required this.name,
     required this.location,
     required this.pricePerNight,
-    required this.listingId,
+    required this.listingSelectionId,
     required this.images,
     required this.search,
   });
@@ -51,7 +51,7 @@ class HotelListing implements Listing {
       location: json['location'] as String,
       pricePerNight: (json['pricePerNight'] as num).toDouble(),
       images: List<String>.from(json['images'] as List),
-      listingId: json['listingId'] as String,
+      listingSelectionId: json['listingSelectionId'] as String,
       search: HotelSearch.fromJson(json['search'] as JsonMap),
     );
   }
@@ -62,7 +62,7 @@ class HotelListing implements Listing {
       'location': location,
       'pricePerNight': pricePerNight,
       'images': images,
-      'listingId': listingId,
+      'listingSelectionId': listingSelectionId,
       'search': search.toJson(),
     };
   }
