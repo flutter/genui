@@ -105,16 +105,16 @@ class _ListingsBooker extends StatefulWidget {
 }
 
 class _ListingsBookerState extends State<_ListingsBooker> {
-  bool _isBooking = false;
+  BookingStatus _bookingStatus = BookingStatus.initial;
 
   Future<void> _book() async {
     setState(() {
-      _isBooking = true;
+      _bookingStatus = BookingStatus.inProgress;
     });
     await Future<void>.delayed(const Duration(seconds: 2));
     if (mounted) {
       setState(() {
-        _isBooking = false;
+        _bookingStatus = BookingStatus.done;
       });
     }
   }
@@ -290,26 +290,27 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                 ],
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isBooking ? null : _book,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isBooking
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Book'),
-                ),
-              ),
-            ],
+                          SizedBox(
+                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              onPressed:
+                                                  _bookingStatus == BookingStatus.initial ? _book : null,
+                                              style: ElevatedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              child: switch (_bookingStatus) {
+                                                BookingStatus.initial => const Text('Book'),
+                                                BookingStatus.inProgress => const SizedBox(
+                                                    height: 24,
+                                                    width: 24,
+                                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                                  ),
+                                                BookingStatus.done => const Icon(Icons.check, size: 24),
+                                              },
+                                            ),                          ),            ],
           ),
         ),
       ],
