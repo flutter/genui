@@ -380,37 +380,43 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                 }).toList(),
               ),
               const SizedBox(height: _spacing * 2),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed:
-                      _selectedCard != null &&
-                          _bookingStatus == BookingStatus.initial
-                      ? _book
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: switch (_bookingStatus) {
-                    BookingStatus.initial => const Text('Book'),
-                    BookingStatus.inProgress => const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    BookingStatus.done => const Icon(Icons.check, size: 24),
-                  },
-                ),
-              ),
+              const SubmitButton(),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class SubmitButton extends StatelessWidget {
+  const SubmitButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed:
+            _selectedCard != null && _bookingStatus == BookingStatus.initial
+            ? _book
+            : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: switch (_bookingStatus) {
+          BookingStatus.initial => const Text('Book'),
+          BookingStatus.inProgress => const SizedBox(
+            height: 24,
+            width: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          BookingStatus.done => const Icon(Icons.check, size: 24),
+        },
+      ),
     );
   }
 }
