@@ -335,12 +335,6 @@ to the user.
     involves booking every accommodation, transport and activity in the itinerary
     one step at a time.
 
-    When booking accommodation, you should use the `listHotels` tool to search
-    for hotels. You can then show the user the different options in a
-    `travelCarousel`.
-
-    When user selected hotel, remember listingId of the hotel and then use it to pass to `listingsBooker` at the end of the flow.
-
     Here, you should just focus on one item at a time, using an `inputGroup`
     with chips to ask the user for preferences, and the `travelCarousel` to show
     the user different options. When the user chooses an option, you can confirm
@@ -350,8 +344,12 @@ to the user.
     updating the relevant `itineraryEntry` to have the status `chosen` and
     including the booking details in the `bodyText`.
 
-    When the user is ready to check out, suggest the user to check out the
-    itinerary and use `listingsBooker`, passing previously remembered listingId's.
+    When booking accommodation, you should use the `listHotels` tool to search
+    for hotels, and remember the listingId of the selected hotel. You can then show the user the different options in a
+    `travelCarousel`.
+
+    After selecting hotel, suggest the user to check out the
+    itinerary and use `listingsBooker`, passing previously remembered listingId.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
