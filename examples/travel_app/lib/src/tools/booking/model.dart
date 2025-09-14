@@ -31,7 +31,7 @@ class HotelListing implements Listing {
   final String location;
   final double pricePerNight;
   final List<String> images;
-  final HotelSearch search;
+  final HotelSearch? search;
 
   @override
   final String listingId;
@@ -42,7 +42,7 @@ class HotelListing implements Listing {
     required this.pricePerNight,
     required this.listingId,
     required this.images,
-    required this.search,
+    this.search,
   });
 
   static HotelListing fromJson(JsonMap json) {
@@ -52,7 +52,8 @@ class HotelListing implements Listing {
       pricePerNight: (json['pricePerNight'] as num).toDouble(),
       images: List<String>.from(json['images'] as List),
       listingId: json['listingId'] as String,
-      search: HotelSearch.fromJson(json['search'] as JsonMap),
+      search:
+          json['search'] != null ? HotelSearch.fromJson(json['search'] as JsonMap) : null,
     );
   }
 
@@ -63,6 +64,7 @@ class HotelListing implements Listing {
       'pricePerNight': pricePerNight,
       'images': images,
       'listingId': listingId,
+      if (search != null) 'search': search!.toJson(),
     };
   }
 }
