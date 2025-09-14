@@ -246,7 +246,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                   listing.images.first,
                                   width: 80,
                                   height: 80,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 ),
                               )
                             : Container(
@@ -348,83 +348,82 @@ class _ListingsBookerState extends State<_ListingsBooker> {
             );
           },
         ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Select Payment Method',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Column(
-                  children: _creditCards.map(
-                    (card) {
-                      return ListTile(
-                        leading: _CustomRadio<CreditCard>(
-                          value: card,
-                          groupValue: _selectedCard,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCard = value;
-                            });
-                          },
-                        ),
-                        title: Text(card.cardholderName),
-                        subtitle: Text(
-                          '${card.cardNumber}\nExpires: ${card.expiryDate}',
-                        ),
-                      );
-                    },
-                  ).toList(),
-                ),
-                const Divider(),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Grand Total:',
-                      style: Theme.of(context).textTheme.headlineSmall,
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Select Payment Method',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              Column(
+                children: _creditCards.map((card) {
+                  return ListTile(
+                    leading: _CustomRadio<CreditCard>(
+                      value: card,
+                      groupValue: _selectedCard,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCard = value;
+                        });
+                      },
                     ),
-                    Text(
-                      '\$${grandTotal.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    title: Text(card.cardholderName),
+                    subtitle: Text(
+                      '${card.cardNumber}\nExpires: ${card.expiryDate}',
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _selectedCard != null &&
-                            _bookingStatus == BookingStatus.initial
-                        ? _book
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: switch (_bookingStatus) {
-                      BookingStatus.initial => const Text('Book'),
-                      BookingStatus.inProgress => const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      BookingStatus.done => const Icon(Icons.check, size: 24),
-                    },
+                  );
+                }).toList(),
+              ),
+              const Divider(),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Grand Total:',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
+                  Text(
+                    '\$${grandTotal.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed:
+                      _selectedCard != null &&
+                          _bookingStatus == BookingStatus.initial
+                      ? _book
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: switch (_bookingStatus) {
+                    BookingStatus.initial => const Text('Book'),
+                    BookingStatus.inProgress => const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    BookingStatus.done => const Icon(Icons.check, size: 24),
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      );
-    }
+        ),
+      ],
+    );
   }
+}
