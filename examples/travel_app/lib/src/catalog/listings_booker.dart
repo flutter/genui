@@ -212,6 +212,8 @@ class _ListingsBookerState extends State<_ListingsBooker> {
       return sum + (duration.inDays * listing.pricePerNight);
     });
 
+    const _spacing = 10.0;
+
     return Column(
       children: [
         ListView.builder(
@@ -239,28 +241,15 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        listing.images.isNotEmpty
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.asset(
-                                  listing.images.first,
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.contain,
-                                ),
-                              )
-                            : Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Icon(
-                                  Icons.hotel,
-                                  color: Colors.grey[400],
-                                ),
-                              ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset(
+                            listing.images.first,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
@@ -280,9 +269,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    const Divider(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: _spacing),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -314,7 +301,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: _spacing),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -328,7 +315,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: _spacing / 2),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -353,11 +340,26 @@ class _ListingsBookerState extends State<_ListingsBooker> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Grand Total:',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  Text(
+                    '\$${grandTotal.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+              const Divider(),
+              const SizedBox(height: _spacing),
               Text(
                 'Select Payment Method',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: _spacing),
               Column(
                 children: _creditCards.map((card) {
                   return ListTile(
@@ -377,22 +379,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                   );
                 }).toList(),
               ),
-              const Divider(),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Grand Total:',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  Text(
-                    '\$${grandTotal.toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: _spacing * 2),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
