@@ -23,6 +23,7 @@ void main() {
           'pricePerNight': 299.99,
           'images': ['image1.jpg', 'image2.jpg'],
           'listingId': 'a-random-id',
+          'search': _hotelSearch.toJson(),
         };
 
         final listing = HotelListing.fromJson(json);
@@ -47,6 +48,7 @@ void main() {
               'pricePerNight': 299.99,
               'images': ['image1.jpg', 'image2.jpg'],
               'listingId': 'a-random-id',
+              'search': _hotelSearch.toJson(),
             },
           ],
         };
