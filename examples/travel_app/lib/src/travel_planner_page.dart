@@ -349,6 +349,9 @@ to the user.
     updating the relevant `itineraryEntry` to have the status `chosen` and
     including the booking details in the `bodyText`.
 
+    When the user is ready to check out, suggest the user to check out the
+    itinerary and use `listingsBooker` for the checkout.
+
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
 move to the next step. They may also want to jump to previous steps or restart
