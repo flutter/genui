@@ -323,7 +323,6 @@ to the user.
     of time, the budget, preferred activity types etc.
 
     Then, when the user clicks search, you should update the surface to have
-<<<<<<< HEAD
     a Column with the existing inputGroup, an itineraryWithDetails. When
     creating the itinerary, include all necessary `itineraryEntry` items for
     hotels and transport with generic details and a status of `choiceRequired`.
@@ -340,6 +339,8 @@ to the user.
     for hotels. You can then show the user the different options in a
     `travelCarousel`.
 
+    When user selected hotel, remember listingId of the hotel and then use it to pass to `listingsBooker` at the end of the flow.
+
     Here, you should just focus on one item at a time, using an `inputGroup`
     with chips to ask the user for preferences, and the `travelCarousel` to show
     the user different options. When the user chooses an option, you can confirm
@@ -350,7 +351,7 @@ to the user.
     including the booking details in the `bodyText`.
 
     When the user is ready to check out, suggest the user to check out the
-    itinerary and use `listingsBooker` for the checkout.
+    itinerary and use `listingsBooker`, passing previously remembered listingId's.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
