@@ -14,7 +14,10 @@ import '../tools/booking/model.dart';
 final _schema = S.object(
   description: 'A widget to check out set of listings.',
   properties: {
-    'listingIds': S.list(description: 'Items to checkout.', items: S.string()),
+    'listingIds': S.list(
+      description: 'Listings to checkout.',
+      items: S.string(),
+    ),
     'itineraryName': S.string(description: 'The name of the itinerary.'),
   },
   required: ['listingIds'],
@@ -181,12 +184,19 @@ class _CustomRadioState<T> extends State<_CustomRadio<T>> {
 class _ListingsBookerState extends State<_ListingsBooker> {
   BookingStatus _bookingStatus = BookingStatus.initial;
   CreditCard? _selectedCard;
-  late final List<String> _listingIds;
+  late final List<HotelListing> _listings;
 
   @override
   void initState() {
     super.initState();
-    _listingIds = List.from(widget.listingIds);
+    print(
+      '!!!! Existing Listing ids: ${BookingService.instance.listings.keys}',
+    );
+    print('!!!! Recieved Listing ids: ${widget.listingIds}');
+    _listings = widget.listingIds
+        .map((id) => BookingService.instance.listings[id])
+        .whereType<HotelListing>()
+        .toList();
   }
 
   final _creditCards = [
@@ -216,12 +226,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
 
   @override
   Widget build(BuildContext context) {
-    final listings = _listingIds
-        .map((id) => BookingService.instance.listings[id])
-        .whereType<HotelListing>()
-        .toList();
-
-    final grandTotal = listings.fold<double>(0.0, (sum, listing) {
+    final grandTotal = _listings.fold<double>(0.0, (sum, listing) {
       final duration = listing.search.checkOut.difference(
         listing.search.checkIn,
       );
@@ -242,9 +247,9 @@ class _ListingsBookerState extends State<_ListingsBooker> {
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: listings.length,
+          itemCount: _listings.length,
           itemBuilder: (context, index) {
-            final listing = listings[index];
+            final listing = _listings[index];
             final checkIn = listing.search.checkIn;
             final checkOut = listing.search.checkOut;
             final duration = checkOut.difference(checkIn);
@@ -295,7 +300,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                             TextButton(
                               onPressed: () {
                                 setState(() {
-                                  _listingIds.remove(listing.listingId);
+                                  _listings.remove(listing);
                                 });
                               },
                               child: const Text('Remove'),

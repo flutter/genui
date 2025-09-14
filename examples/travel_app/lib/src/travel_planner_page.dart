@@ -346,10 +346,11 @@ to the user.
 
     When booking accommodation, you should use the `listHotels` tool to search
     for hotels, and remember the listingId of the selected hotel. You can then show the user the different options in a
-    `travelCarousel`.
+    `travelCarousel`. When user selects a hotel, remember the listingId for the next step.
 
     After selecting hotel, suggest the user to check out the
-    itinerary and use `listingsBooker`, passing previously remembered listingId.
+    itinerary and use `listingsBooker`, passing previously remembered listingId
+    to the parameter listingIds.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
