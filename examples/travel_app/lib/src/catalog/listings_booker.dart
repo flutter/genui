@@ -274,6 +274,31 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                             ],
                           ),
                         ),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _listingIds.remove(listing.listingId);
+                                });
+                              },
+                              child: const Text('Remove'),
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: () {
+                                widget.dispatchEvent(
+                                  UiActionEvent(
+                                    eventType: 'Modify',
+                                    widgetId: widget.widgetId,
+                                    value: {'listingId': listing.listingId},
+                                  ),
+                                );
+                              },
+                              child: const Text('Modify'),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: spacing),
@@ -333,33 +358,6 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         Text(
                           '\$${totalPrice.toStringAsFixed(2)}',
                           style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _listingIds.remove(listing.listingId);
-                            });
-                          },
-                          child: const Text('Remove'),
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          onPressed: () {
-                            widget.dispatchEvent(
-                              UiActionEvent(
-                                eventType: 'Modify',
-                                widgetId: widget.widgetId,
-                                value: {'listingId': listing.listingId},
-                              ),
-                            );
-                          },
-                          child: const Text('Modify'),
                         ),
                       ],
                     ),
