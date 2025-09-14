@@ -116,17 +116,13 @@ final travelCarousel = CatalogItem(
       {
         'id': 'santorini_beach_image',
         'widget': {
-          'Image': {
-            'fit': 'cover',
-            'assetName': 'assets/travel_images/santorini_panorama.jpg',
-          },
+          'Image': {'assetName': 'assets/travel_images/santorini_panorama.jpg'},
         },
       },
       {
         'id': 'akrotiri_fresco_image',
         'widget': {
           'Image': {
-            'fit': 'cover',
             'assetName':
                 'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
           },
@@ -137,14 +133,12 @@ final travelCarousel = CatalogItem(
         'widget': {
           'Image': {
             'assetName': 'assets/travel_images/santorini_from_space.jpg',
-            'fit': 'cover',
           },
         },
       },
       {
         'widget': {
           'Image': {
-            'fit': 'cover',
             'assetName':
                 'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
           },

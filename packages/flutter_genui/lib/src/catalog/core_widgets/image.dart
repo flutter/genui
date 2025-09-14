@@ -20,22 +20,15 @@ final _schema = S.object(
           'The name of the asset to display. Only '
           'one of assetName or url may be specified.',
     ),
-    'fit': S.string(
-      description: 'How the image should be inscribed into the box.',
-      enumValues: BoxFit.values.map((e) => e.name).toList(),
-    ),
   },
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({String? url, String? assetName, String? fit}) =>
-      _ImageData.fromMap({'url': url, 'assetName': assetName, 'fit': fit});
+  factory _ImageData({String? url, String? assetName}) =>
+      _ImageData.fromMap({'url': url, 'assetName': assetName});
 
   String? get url => _json['url'] as String?;
   String? get assetName => _json['assetName'] as String?;
-  BoxFit? get fit => _json['fit'] != null
-      ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
-      : null;
 }
 
 final image = CatalogItem(
@@ -64,11 +57,11 @@ final image = CatalogItem(
         }
 
         if (url != null) {
-          return Image.network(url, fit: imageData.fit);
+          return Image.network(url, fit: BoxFit.contain);
         }
 
         if (assetName != null) {
-          return Image.asset(assetName, fit: imageData.fit);
+          return Image.asset(assetName, fit: BoxFit.contain);
         }
 
         return const SizedBox();

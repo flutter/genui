@@ -92,17 +92,13 @@ const Map<String, Object> _baliResponse = {
           {
             'id': 'bali_memorial_image',
             'widget': {
-              'Image': {
-                'fit': 'cover',
-                'assetName': 'assets/travel_images/bali_memorial.jpg',
-              },
+              'Image': {'assetName': 'assets/travel_images/bali_memorial.jpg'},
             },
           },
           {
             'id': 'nyepi_festival_image',
             'widget': {
               'Image': {
-                'fit': 'cover',
                 'assetName': 'assets/travel_images/nyepi_festival_bali.jpg',
               },
             },
@@ -112,7 +108,6 @@ const Map<String, Object> _baliResponse = {
               'Image': {
                 'assetName':
                     'assets/travel_images/kata_noi_beach_phuket_thailand.jpg',
-                'fit': 'cover',
               },
             },
             'id': 'kata_noi_beach_image',
