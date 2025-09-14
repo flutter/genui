@@ -212,7 +212,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
       return sum + (duration.inDays * listing.pricePerNight);
     });
 
-    const _spacing = 10.0;
+    const spacing = 10.0;
 
     return Column(
       children: [
@@ -269,7 +269,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: _spacing),
+                    const SizedBox(height: spacing),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -301,7 +301,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: _spacing),
+                    const SizedBox(height: spacing),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -315,7 +315,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: _spacing / 2),
+                    const SizedBox(height: spacing / 2),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -354,12 +354,12 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                 ],
               ),
               const Divider(),
-              const SizedBox(height: _spacing),
+              const SizedBox(height: spacing),
               Text(
                 'Select Payment Method',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: _spacing),
+              const SizedBox(height: spacing),
               Column(
                 children: _creditCards.map((card) {
                   return ListTile(
@@ -379,8 +379,12 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: _spacing * 2),
-              const SubmitButton(),
+              const SizedBox(height: spacing * 2),
+              BookButton(
+                bookingStatus: _bookingStatus,
+                selectedCard: _selectedCard,
+                onPressed: _book,
+              ),
             ],
           ),
         ),
@@ -389,31 +393,42 @@ class _ListingsBookerState extends State<_ListingsBooker> {
   }
 }
 
-class SubmitButton extends StatelessWidget {
-  const SubmitButton({super.key});
+class BookButton extends StatelessWidget {
+  final BookingStatus bookingStatus;
+  final CreditCard? selectedCard;
+  final VoidCallback? onPressed;
+
+  const BookButton({
+    required this.bookingStatus,
+    required this.selectedCard,
+    required this.onPressed,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed:
-            _selectedCard != null && _bookingStatus == BookingStatus.initial
-            ? _book
-            : null,
+            selectedCard != null && bookingStatus == BookingStatus.initial
+                ? onPressed
+                : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
-        child: switch (_bookingStatus) {
+        child: switch (bookingStatus) {
           BookingStatus.initial => const Text('Book'),
           BookingStatus.inProgress => const SizedBox(
-            height: 24,
-            width: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           BookingStatus.done => const Icon(Icons.check, size: 24),
         },
       ),
