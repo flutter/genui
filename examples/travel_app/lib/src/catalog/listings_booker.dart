@@ -89,6 +89,18 @@ final listingsBooker = CatalogItem(
 
 enum BookingStatus { initial, inProgress, done }
 
+class CreditCard {
+  final String cardholderName;
+  final String cardNumber;
+  final String expiryDate;
+
+  CreditCard({
+    required this.cardholderName,
+    required this.cardNumber,
+    required this.expiryDate,
+  });
+}
+
 class _ListingsBooker extends StatefulWidget {
   final List<String> listingIds;
   final DispatchEventCallback dispatchEvent;
@@ -104,8 +116,74 @@ class _ListingsBooker extends StatefulWidget {
   State<_ListingsBooker> createState() => _ListingsBookerState();
 }
 
+class _CustomRadio<T> extends StatefulWidget {
+  final T value;
+  final T? groupValue;
+  final ValueChanged<T?>? onChanged;
+
+  const _CustomRadio({
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+  });
+
+  @override
+  State<_CustomRadio<T>> createState() => _CustomRadioState<T>();
+}
+
+class _CustomRadioState<T> extends State<_CustomRadio<T>> {
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.value == widget.groupValue;
+    return InkWell(
+      onTap: () {
+        if (widget.onChanged != null) {
+          widget.onChanged!(widget.value);
+        }
+      },
+      child: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+            width: 2,
+          ),
+        ),
+        child: isSelected
+            ? Center(
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+}
+
 class _ListingsBookerState extends State<_ListingsBooker> {
   BookingStatus _bookingStatus = BookingStatus.initial;
+  CreditCard? _selectedCard;
+
+  final _creditCards = [
+    CreditCard(
+      cardholderName: 'John Doe',
+      cardNumber: '**** **** **** 1234',
+      expiryDate: '12/25',
+    ),
+    CreditCard(
+      cardholderName: 'Jane Doe',
+      cardNumber: '**** **** **** 5678',
+      expiryDate: '08/26',
+    ),
+  ];
 
   Future<void> _book() async {
     setState(() {
@@ -270,50 +348,81 @@ class _ListingsBookerState extends State<_ListingsBooker> {
             );
           },
         ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const Divider(),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Grand Total:',
-                    style: Theme.of(context).textTheme.headlineSmall,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Payment Method',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  children: _creditCards.map(
+                    (card) {
+                      return ListTile(
+                        leading: _CustomRadio<CreditCard>(
+                          value: card,
+                          groupValue: _selectedCard,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCard = value;
+                            });
+                          },
+                        ),
+                        title: Text(card.cardholderName),
+                        subtitle: Text(
+                          '${card.cardNumber}\nExpires: ${card.expiryDate}',
+                        ),
+                      );
+                    },
+                  ).toList(),
+                ),
+                const Divider(),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Grand Total:',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    Text(
+                      '\$${grandTotal.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _selectedCard != null &&
+                            _bookingStatus == BookingStatus.initial
+                        ? _book
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: switch (_bookingStatus) {
+                      BookingStatus.initial => const Text('Book'),
+                      BookingStatus.inProgress => const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      BookingStatus.done => const Icon(Icons.check, size: 24),
+                    },
                   ),
-                  Text(
-                    '\$${grandTotal.toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                                            child: ElevatedButton(
-                                              onPressed:
-                                                  _bookingStatus == BookingStatus.initial ? _book : null,
-                                              style: ElevatedButton.styleFrom(
-                                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                              child: switch (_bookingStatus) {
-                                                BookingStatus.initial => const Text('Book'),
-                                                BookingStatus.inProgress => const SizedBox(
-                                                    height: 24,
-                                                    width: 24,
-                                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                                  ),
-                                                BookingStatus.done => const Icon(Icons.check, size: 24),
-                                              },
-                                            ),                          ),            ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    }
   }
-}
