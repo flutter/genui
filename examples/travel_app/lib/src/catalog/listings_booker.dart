@@ -171,6 +171,13 @@ class _CustomRadioState<T> extends State<_CustomRadio<T>> {
 class _ListingsBookerState extends State<_ListingsBooker> {
   BookingStatus _bookingStatus = BookingStatus.initial;
   CreditCard? _selectedCard;
+  late final List<String> _listingIds;
+
+  @override
+  void initState() {
+    super.initState();
+    _listingIds = List.from(widget.listingIds);
+  }
 
   final _creditCards = [
     CreditCard(
@@ -199,7 +206,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
 
   @override
   Widget build(BuildContext context) {
-    final listings = widget.listingIds
+    final listings = _listingIds
         .map((id) => BookingService.instance.listings[id])
         .where((listing) => listing != null)
         .cast<HotelListing>()
@@ -329,6 +336,33 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                         ),
                       ],
                     ),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _listingIds.remove(listing.listingId);
+                            });
+                          },
+                          child: const Text('Remove'),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton(
+                          onPressed: () {
+                            widget.dispatchEvent(
+                              UiActionEvent(
+                                eventType: 'Modify',
+                                widgetId: widget.widgetId,
+                                value: {'listingId': listing.listingId},
+                              ),
+                            );
+                          },
+                          child: const Text('Modify'),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -380,7 +414,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                 }).toList(),
               ),
               const SizedBox(height: spacing * 2),
-              BookButton(
+              _BookButton(
                 bookingStatus: _bookingStatus,
                 selectedCard: _selectedCard,
                 onPressed: _book,
@@ -393,44 +427,56 @@ class _ListingsBookerState extends State<_ListingsBooker> {
   }
 }
 
-class BookButton extends StatelessWidget {
+class _BookButton extends StatelessWidget {
   final BookingStatus bookingStatus;
   final CreditCard? selectedCard;
   final VoidCallback? onPressed;
 
-  const BookButton({
+  const _BookButton({
     required this.bookingStatus,
     required this.selectedCard,
     required this.onPressed,
-    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
+      child: _SubmitButton(
         onPressed:
             selectedCard != null && bookingStatus == BookingStatus.initial
-                ? onPressed
-                : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
+            ? onPressed
+            : null,
         child: switch (bookingStatus) {
           BookingStatus.initial => const Text('Book'),
           BookingStatus.inProgress => const SizedBox(
-              height: 24,
-              width: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+            height: 24,
+            width: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
           BookingStatus.done => const Icon(Icons.check, size: 24),
         },
+      ),
+    );
+  }
+}
+
+class _SubmitButton extends StatelessWidget {
+  const _SubmitButton({this.onPressed, required this.child});
+
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: child,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
