@@ -6,7 +6,7 @@ import 'dart:math';
 
 import 'model.dart';
 
-/// A mock booking service to simulate hotel listings and bookings.
+/// A fake booking service to simulate hotel listings and bookings.
 class BookingService {
   static BookingService instance = BookingService._();
 
