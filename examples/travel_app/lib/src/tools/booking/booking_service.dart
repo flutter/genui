@@ -58,7 +58,7 @@ class BookingService {
             location: 'Mountain View, CA',
             pricePerNight: 250.0,
             listingSelectionId: _generateListingSelectionId(),
-            images: ['assets/booking_service/the_grand_flutter_hotel.png'],
+            images: ['assets/booking_service/the_grand_flutter_hotel.jpeg'],
             search: search,
           ),
         ),

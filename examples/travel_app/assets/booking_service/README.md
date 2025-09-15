@@ -13,6 +13,7 @@ A beautiful, modern hotel named **'The Dart Inn'**. It features sleek, minimalis
 -   **Style:** Photorealistic, high-resolution, architectural photography.
 -   **Inspiration:** Use the Dart language logo for color and style inspiration.
 -   **Application:** The image is for a mobile app. Details should be clear but not overly complex, with the hotel name and any logos being large and easily visible.
+-   **Format:** 1:1 aspect ratio.
 
 ## The Grand Flutter Hotel
 
@@ -25,3 +26,4 @@ A stunning, vibrant hotel called **'The Grand Flutter Hotel'**. The architecture
 -   **Style:** Photorealistic, high-resolution, capturing a feeling of beauty and innovation.
 -   **Inspiration:** Use the Flutter logo for color and style inspiration.
 -   **Application:** The image is for a mobile app. Details should be clear but not overly complex, with the hotel name and any logos being large and easily visible.
+-   **Format:** 1:1 aspect ratio.
