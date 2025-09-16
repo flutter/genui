@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GCliff',
+      title: 'Gemini CLI with Flutter Framework Gen UI',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
@@ -47,10 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _start() async {
     final question = 'What is the capital of France?';
-
+    _updateStatus('Asking: $question');
     await _gcli.ask(question);
-    _status.value += 'Asked: $question';
-    setState(() {});
+
+    // setState(() {});
   }
 
   @override
@@ -76,11 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _start,
-        tooltip: 'Start',
-        child: const Icon(Icons.add),
       ),
     );
   }

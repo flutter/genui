@@ -5,18 +5,17 @@ import 'package:flutter/foundation.dart';
 
 class GCliProcess {
   final ValueChanged<String> update;
-  Process? _process;
 
   GCliProcess(this.update);
 
   Future<void> ask(String question) async {
     try {
-      final process = _process = await Process.start(
+      final process = await Process.start(
         includeParentEnvironment: true,
         mode: ProcessStartMode.normal,
         runInShell: true,
         'gemini',
-        [question],
+        [question, '--prompt-interactive'],
       );
 
       update('pid: ${process.pid}');
