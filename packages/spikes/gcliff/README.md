@@ -1,4 +1,4 @@
-# Gemini CLI with Flutter Framework GenUI
+# Gemini CLI with Flutter Framework
 
 
 
