@@ -35,8 +35,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final _status = ValueNotifier<String>('');
   final _scrollController = ScrollController();
 
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
   Future<void> _start() async {
     await _process.run();
+    setState(() {});
   }
 
   @override
