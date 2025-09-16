@@ -29,8 +29,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _process = GCliProcess();
-  var _status = '';
+  late final _process = GCliProcess(_status);
+  final _status = ValueNotifier<String>('');
 
   Future<void> _start() async {
     await _process.run();
@@ -43,7 +43,17 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('GCliff'),
       ),
-      body: Center(child: Text(_status)),
+      body: Center(
+        child: ValueListenableBuilder<String>(
+          valueListenable: _status,
+          builder: (context, value, child) {
+            return Text(
+              value,
+              style: Theme.of(context).textTheme.headlineMedium,
+            );
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _start,
         tooltip: 'Start',
