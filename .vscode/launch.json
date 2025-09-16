@@ -21,6 +21,12 @@
       "cwd": "packages/catalog_gallery",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "gcliff",
+      "cwd": "packages/spikes/gcliff",
+      "request": "launch",
+      "type": "dart"
     }
   ]
 }

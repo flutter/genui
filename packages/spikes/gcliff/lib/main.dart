@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'process.dart';
@@ -31,6 +33,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late final _process = GCliProcess(_status);
   final _status = ValueNotifier<String>('');
+  final _scrollController = ScrollController();
 
   Future<void> _start() async {
     await _process.run();
@@ -44,14 +47,18 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('GCliff'),
       ),
       body: Center(
-        child: ValueListenableBuilder<String>(
-          valueListenable: _status,
-          builder: (context, value, child) {
-            return Text(
-              value,
-              style: Theme.of(context).textTheme.headlineMedium,
-            );
-          },
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: ValueListenableBuilder<String>(
+            valueListenable: _status,
+            builder: (context, value, child) {
+              unawaited(_scheduleScrollToBottom(_scrollController));
+              return Text(
+                value,
+                style: Theme.of(context).textTheme.headlineMedium,
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -61,4 +68,17 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+Future<void> _scheduleScrollToBottom(ScrollController controller) async {
+  await Future.delayed(const Duration(milliseconds: 100));
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (controller.hasClients) {
+      controller.animateTo(
+        controller.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  });
 }
