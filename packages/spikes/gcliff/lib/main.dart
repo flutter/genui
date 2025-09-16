@@ -47,17 +47,19 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('GCliff'),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: ValueListenableBuilder<String>(
-            valueListenable: _status,
-            builder: (context, value, child) {
-              unawaited(_scheduleScrollToBottom(_scrollController));
-              return Text(
-                value,
-                style: Theme.of(context).textTheme.headlineMedium,
-              );
-            },
+        child: SelectionArea(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: ValueListenableBuilder<String>(
+              valueListenable: _status,
+              builder: (context, value, child) {
+                unawaited(_scheduleScrollToBottom(_scrollController));
+                return Text(
+                  value,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                );
+              },
+            ),
           ),
         ),
       ),

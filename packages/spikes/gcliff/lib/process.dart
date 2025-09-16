@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 class GCliProcess {
   final ValueNotifier<String> status;
+  ProcessResult? _process;
+
   GCliProcess(this.status);
 
   void _updateStatus(String update) {
@@ -11,14 +13,16 @@ class GCliProcess {
   }
 
   Future<void> run() async {
-    final result = await Process.run('echo', ['Hello, World!']);
+    final process = _process = await Process.run('gemini', [
+      'hello',
+    ], runInShell: true);
 
-    if (result.exitCode == 0) {
+    if (process.exitCode == 0) {
       _updateStatus('Command executed successfully.');
-      _updateStatus('Output:\n${result.stdout}');
+      _updateStatus('Output:\n${process.stdout}');
     } else {
-      _updateStatus('Command failed with exit code ${result.exitCode}');
-      _updateStatus('Error:\n${result.stderr}');
+      _updateStatus('Command failed with exit code ${process.exitCode}');
+      _updateStatus('Error:\n${process.stderr}');
     }
   }
 }
