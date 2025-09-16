@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late final _process = GCliProcess(_status);
+  late final _gcli = GCliProcess(_updateStatus);
   final _status = ValueNotifier<String>('');
   final _scrollController = ScrollController();
 
@@ -41,8 +41,15 @@ class _MyHomePageState extends State<MyHomePage> {
     _start();
   }
 
+  void _updateStatus(String update) {
+    _status.value += '\n$update';
+  }
+
   Future<void> _start() async {
-    await _process.run();
+    final question = 'What is the capital of France?';
+
+    await _gcli.ask(question);
+    _status.value += 'Asked: $question';
     setState(() {});
   }
 

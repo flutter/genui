@@ -4,43 +4,51 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 class GCliProcess {
-  final ValueNotifier<String> status;
+  final ValueChanged<String> update;
   Process? _process;
 
-  GCliProcess(this.status);
+  GCliProcess(this.update);
 
-  void _updateStatus(String update) {
-    status.value += '\n$update';
-  }
-
-  Future<void> run() async {
+  Future<void> ask(String question) async {
     try {
       final process = _process = await Process.start(
-        'gemini',
-        [],
+        includeParentEnvironment: true,
+        mode: ProcessStartMode.normal,
         runInShell: true,
+        'gemini',
+        [question],
       );
 
-      _updateStatus('pid: ${process.pid}');
+      update('pid: ${process.pid}');
 
       // Read output from the tool
-      process.stdout.listen((event) {
-        _updateStatus('Stdout: ${event.toString()}');
+      _subscribe(process.stdout, (message) {
+        update('Stdout: $message');
       });
 
-      // Handle potential errors from the tool
-      process.stderr.listen((event) {
-        _updateStatus('Stderr: ${event.toString()}');
+      // Handle errors from the tool
+      _subscribe(process.stderr, (message) {
+        update('Stderr: $message');
       });
 
       // Write input to the tool
-      process.stdin.writeln('some command');
+      // process.stdin.writeln('some command');
 
       final code = await process.exitCode;
 
-      _updateStatus('Process exited with code $code');
+      update('Process exited with code $code');
     } catch (e) {
-      _updateStatus('Failed to start process: $e');
+      update('Failed to start process: $e');
     }
+  }
+
+  static void _subscribe(
+    Stream<List<int>> stream,
+    void Function(String) onMessage,
+  ) {
+    stream
+        .transform(utf8.decoder) // Decode bytes to UTF-8 strings
+        .transform(const LineSplitter()) // Split the string stream into lines
+        .listen(onMessage);
   }
 }
