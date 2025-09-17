@@ -7,11 +7,12 @@ class GCliProcess {
   final ValueChanged<String> update;
 
   GCliProcess(this.update);
-TERM=vt100
+
   Future<void> ask(String question) async {
     try {
       final process = await Process.start(
         includeParentEnvironment: true,
+        environment: {...Platform.environment, 'TERM': 'vt100'},
         mode: ProcessStartMode.normal,
         runInShell: true,
         'gemini',
