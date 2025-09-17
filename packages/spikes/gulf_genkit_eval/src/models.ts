@@ -25,6 +25,11 @@ export const modelsToTest: ModelConfiguration[] = [
         config: { reasoning_effort: 'minimal' },
     },
     {
+        model: googleAI.model('gemini-2.5-pro'),
+        name: 'gemini-2.5-pro (thinking: 1000)',
+        config: { thinkingConfig: { thinkingBudget: 1000 } },
+    },
+    {
         model: googleAI.model('gemini-2.5-flash'),
         name: 'gemini-2.5-flash (thinking: 0)',
         config: { thinkingConfig: { thinkingBudget: 0 } },

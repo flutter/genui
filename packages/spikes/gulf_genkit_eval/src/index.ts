@@ -150,29 +150,44 @@ async function main() {
     }
 
     console.log('\n--- Summary ---');
-    console.log('Model'.padEnd(40), 'Prompt Name'.padEnd(30), 'Latency (ms)'.padEnd(15), 'Val Failure Count'.padEnd(20), 'Status');
-    console.log('-'.repeat(115));
-    let totalFailures = 0;
-    let totalValidationErrors = 0;
-    for (const result of results) {
-        if (result.error) {
-            totalFailures++;
+    for (const modelName in resultsByModel) {
+        console.log(`\n----------------------------------------`);
+        console.log(`Model: ${modelName}`);
+        console.log(`----------------------------------------`);
+        const header = `${'Prompt Name'.padEnd(30)}${'Latency (ms)'.padEnd(15)}${'Val Failure Count'.padEnd(20)}${'Status'}`;
+        const divider = '-'.repeat(header.length);
+        console.log(header);
+        console.log(divider);
+
+        let modelFailures = 0;
+        let modelValidationFailures = 0;
+
+        for (const result of resultsByModel[modelName]) {
+            if (result.error) {
+                modelFailures++;
+            }
+            const validationFailureCount = result.validationResults?.length || 0;
+            modelValidationFailures += validationFailureCount;
+
+            const promptName = result.prompt.name.padEnd(30);
+            const latency = `${result.latency}ms`.padEnd(15);
+            const valFailureCount = validationFailureCount.toString().padEnd(20);
+            const statusContent = result.error ? 'FAILED' : '';
+            const status = statusContent.padEnd(8);
+            console.log(`${promptName}${latency}${valFailureCount}${status}`);
         }
-        totalValidationErrors += result.validationResults?.length || 0;
-        const modelName = result.modelName.padEnd(40);
-        const promptName = result.prompt.name.padEnd(30);
-        const latency = (result.latency + 'ms').padEnd(15);
-        const valFailureCount = (result.validationResults?.length || 0).toString().padEnd(20);
-        const status = result.error ? 'FAILED' : 'PASSED';
-        console.log(`${modelName}${promptName}${latency}${valFailureCount}${status}`);
+        console.log(divider);
+        console.log(`Total failures: ${modelFailures}`);
+        console.log(`Total validation failures: ${modelValidationFailures}`);
     }
-    console.log('-'.repeat(115));
-    const totalsLabel = 'Totals:'.padEnd(40);
-    const emptyPrompt = ''.padEnd(30);
-    const emptyLatency = ''.padEnd(15);
-    const totalValidationErrorsStr = totalValidationErrors.toString().padEnd(20);
-    const totalFailuresStr = `${totalFailures} failures`;
-    console.log(`${totalsLabel}${emptyPrompt}${emptyLatency}${totalValidationErrorsStr}${totalFailuresStr}`);
+
+    console.log('\n--- Overall Summary ---');
+    const totalTests = results.length;
+    const totalFailures = results.filter(r => r.error).length;
+    const totalPassed = totalTests - totalFailures;
+    console.log(`Total tests run: ${totalTests}`);
+    console.log(`Total passed: ${totalPassed}`);
+    console.log(`Total failed: ${totalFailures}`);
 }
 
 
