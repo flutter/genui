@@ -39,7 +39,7 @@ final _schema = S.object(
                 'a list of hotels or other bookable items.',
           ),
         },
-        required: ['title', 'imageChildId'],
+        required: ['description', 'imageChildId'],
       ),
     ),
   },
