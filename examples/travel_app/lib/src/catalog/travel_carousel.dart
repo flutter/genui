@@ -23,7 +23,9 @@ final _schema = S.object(
           'description': S.string(
             description:
                 'The short description of the carousel item. '
-                'It may include the price and location if applicable.',
+                'It may include the price and location if applicable. '
+                'It should be very concise. '
+                'Example: "The Dart Inn in Sunnyvale, CA for \$150"',
           ),
           'imageChildId': S.string(
             description:
@@ -74,7 +76,7 @@ final travelCarousel = CatalogItem(
           items: items
               .map(
                 (e) => _TravelCarouselItemData(
-                  title: e.description,
+                  description: e.description,
                   imageChild: buildChild(e.imageChildId),
                   listingSelectionId: e.listingSelectionId,
                 ),
@@ -159,7 +161,7 @@ class _TravelCarousel extends StatelessWidget {
           const SizedBox(height: 16.0),
         ],
         SizedBox(
-          height: 250,
+          height: 240,
           child: ScrollConfiguration(
             behavior: _DesktopAndWebScrollBehavior(),
             child: ListView.separated(
@@ -183,12 +185,12 @@ class _TravelCarousel extends StatelessWidget {
 }
 
 class _TravelCarouselItemData {
-  final String title;
+  final String description;
   final Widget imageChild;
   final String? listingSelectionId;
 
   _TravelCarouselItemData({
-    required this.title,
+    required this.description,
     required this.imageChild,
     this.listingSelectionId,
   });
@@ -216,7 +218,7 @@ class _TravelCarouselItem extends StatelessWidget {
               widgetId: widgetId,
               eventType: 'itemSelected',
               value: {
-                'title': data.title,
+                'description': data.description,
                 if (data.listingSelectionId != null)
                   'listingSelectionId': data.listingSelectionId,
               },
@@ -231,13 +233,14 @@ class _TravelCarouselItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.0),
               child: SizedBox(height: 150, width: 190, child: data.imageChild),
             ),
-            Padding(
+            Container(
+              height: 90,
               padding: const EdgeInsets.all(8.0),
+              alignment: Alignment.center,
               child: Text(
-                data.title,
+                data.description,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
-
                 softWrap: true,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -270,12 +273,12 @@ JsonMap _hotelExample() {
           'TravelCarousel': {
             'items': [
               {
-                'title': hotel1.description,
+                'description': hotel1.description,
                 'imageChildId': 'image_1',
                 'listingSelectionId': '12345',
               },
               {
-                'title': hotel2.description,
+                'description': hotel2.description,
                 'imageChildId': 'image_2',
                 'listingSelectionId': '12346',
               },
@@ -327,21 +330,21 @@ JsonMap _inspirationExample() => {
         'TravelCarousel': {
           'items': [
             {
-              'title': 'Relaxing Beach Holiday',
+              'description': 'Relaxing Beach Holiday',
               'imageChildId': 'santorini_beach_image',
               'listingSelectionId': '12345',
             },
             {
               'imageChildId': 'akrotiri_fresco_image',
-              'title': 'Cultural Exploration',
+              'description': 'Cultural Exploration',
               'listingSelectionId': '12346',
             },
             {
               'imageChildId': 'santorini_caldera_image',
-              'title': 'Adventure & Outdoors',
+              'description': 'Adventure & Outdoors',
               'listingSelectionId': '12347',
             },
-            {'title': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
+            {'description': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
           ],
         },
       },

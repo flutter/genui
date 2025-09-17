@@ -50,7 +50,7 @@ class HotelListing implements Listing {
   });
 
   late final String description =
-      '$name in $location\n\$${pricePerNight.ceil()} per night';
+      '$name in $location, \$${pricePerNight.ceil()}';
 
   static HotelListing fromJson(JsonMap json) {
     return HotelListing(
