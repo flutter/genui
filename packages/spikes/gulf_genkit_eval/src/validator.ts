@@ -69,17 +69,26 @@ function validateBeginRendering(data: any, errors: string[]) {
 function validateComponent(component: any, allIds: Set<string>, errors: string[]) {
     if (!component.id) {
         errors.push(`Component is missing an 'id'.`);
-        return; // Can't validate further without an ID
+        return; 
     }
-    if (!component.type) {
-        errors.push(`Component '${component.id}' is missing a 'type'.`);
+    if (!component.componentProperties) {
+        errors.push(`Component '${component.id}' is missing 'componentProperties'.`);
         return;
     }
 
+    const componentTypes = Object.keys(component.componentProperties);
+    if (componentTypes.length !== 1) {
+        errors.push(`Component '${component.id}' must have exactly one property in 'componentProperties', but found ${componentTypes.length}.`);
+        return;
+    }
+
+    const componentType = componentTypes[0];
+    const properties = component.componentProperties[componentType];
+
     const checkRequired = (props: string[]) => {
         for (const prop of props) {
-            if (component[prop] === undefined) {
-                errors.push(`Component '${component.id}' of type '${component.type}' is missing required property '${prop}'.`);
+            if (properties[prop] === undefined) {
+                errors.push(`Component '${component.id}' of type '${componentType}' is missing required property '${prop}'.`);
             }
         }
     };
@@ -92,7 +101,7 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
         }
     };
 
-    switch (component.type) {
+    switch (componentType) {
         case 'Heading':
         case 'Text':
         case 'Image':
@@ -111,28 +120,28 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
         case 'Column':
         case 'List':
             checkRequired(['children']);
-            if (component.children) {
-                const hasExplicit = !!component.children.explicitList;
-                const hasTemplate = !!component.children.template;
+            if (properties.children) {
+                const hasExplicit = !!properties.children.explicitList;
+                const hasTemplate = !!properties.children.template;
                 if ((hasExplicit && hasTemplate) || (!hasExplicit && !hasTemplate)) {
                     errors.push(`Component '${component.id}' must have either 'explicitList' or 'template' in children, but not both or neither.`);
                 }
                 if (hasExplicit) {
-                    checkRefs(component.children.explicitList);
+                    checkRefs(properties.children.explicitList);
                 }
                 if (hasTemplate) {
-                    checkRefs([component.children.template?.componentId]);
+                    checkRefs([properties.children.template?.componentId]);
                 }
             }
             break;
         case 'Card':
             checkRequired(['child']);
-            checkRefs([component.child]);
+            checkRefs([properties.child]);
             break;
         case 'Tabs':
             checkRequired(['tabItems']);
-            if (component.tabItems && Array.isArray(component.tabItems)) {
-                component.tabItems.forEach((tab: any) => {
+            if (properties.tabItems && Array.isArray(properties.tabItems)) {
+                properties.tabItems.forEach((tab: any) => {
                     if (!tab.title) {
                         errors.push(`Tab item in component '${component.id}' is missing a 'title'.`);
                     }
@@ -145,12 +154,15 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
             break;
         case 'Modal':
             checkRequired(['entryPointChild', 'contentChild']);
-            checkRefs([component.entryPointChild, component.contentChild]);
+            checkRefs([properties.entryPointChild, properties.contentChild]);
             break;
         case 'Button':
             checkRequired(['label', 'action']);
             break;
         case 'Divider':
+            // No required properties
             break;
+        default:
+            errors.push(`Unknown component type '${componentType}' in component '${component.id}'.`);
     }
 }
