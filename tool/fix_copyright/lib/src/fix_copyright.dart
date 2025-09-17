@@ -232,6 +232,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
 
   return <String, CopyrightInfo>{
     'dart': generateInfo(prefix: '// '),
+    'cmake': generateInfo(prefix: '# '),
     'java': generateInfo(prefix: '// '),
     'h': generateInfo(prefix: '// '),
     'm': generateInfo(prefix: '// '),
