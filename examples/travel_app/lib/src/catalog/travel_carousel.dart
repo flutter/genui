@@ -155,7 +155,7 @@ class _TravelCarousel extends StatelessWidget {
           const SizedBox(height: 16.0),
         ],
         SizedBox(
-          height: 220,
+          height: 250,
           child: ScrollConfiguration(
             behavior: _DesktopAndWebScrollBehavior(),
             child: ListView.separated(
@@ -231,8 +231,11 @@ class _TravelCarouselItem extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 data.title,
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
-                maxLines: 1,
+
+                softWrap: true,
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -248,10 +251,13 @@ JsonMap _hotelExample() {
     HotelSearch(
       query: '',
       checkIn: DateTime.now(),
-      checkOut: DateTime.now().add(Duration(days: 7)),
+      checkOut: DateTime.now().add(const Duration(days: 7)),
       guests: 2,
     ),
   );
+  final hotel1 = hotels.listings[0];
+  final hotel2 = hotels.listings[1];
+
   return {
     'root': 'hotel_carousel',
     'widgets': [
@@ -260,13 +266,13 @@ JsonMap _hotelExample() {
           'TravelCarousel': {
             'items': [
               {
-                'title': 'Relaxing Beach Holiday',
+                'title': hotel1.description,
                 'imageChildId': 'image_1',
                 'listingSelectionId': '12345',
               },
               {
+                'title': hotel2.description,
                 'imageChildId': 'image_2',
-                'title': 'Cultural Exploration',
                 'listingSelectionId': '12346',
               },
             ],
@@ -277,20 +283,13 @@ JsonMap _hotelExample() {
       {
         'id': 'image_1',
         'widget': {
-          'Image': {
-            'fit': 'cover',
-            'assetName': 'assets/travel_images/santorini_panorama.jpg',
-          },
+          'Image': {'fit': 'cover', 'assetName': hotel1.images[0]},
         },
       },
       {
         'id': 'image_2',
         'widget': {
-          'Image': {
-            'fit': 'cover',
-            'assetName':
-                'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
-          },
+          'Image': {'fit': 'cover', 'assetName': hotel2.images[0]},
         },
       },
     ],

@@ -54,11 +54,11 @@ class BookingService {
         ),
         _rememberListing(
           HotelListing(
-            name: 'The Grand Flutter Hotel',
+            name: 'The Flutter Hotel',
             location: 'Mountain View, CA',
             pricePerNight: 250.0,
             listingSelectionId: _generateListingSelectionId(),
-            images: ['assets/booking_service/the_grand_flutter_hotel.jpeg'],
+            images: ['assets/booking_service/flutter_hotel.jpeg'],
             search: search,
           ),
         ),

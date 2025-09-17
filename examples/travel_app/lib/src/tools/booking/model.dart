@@ -49,6 +49,9 @@ class HotelListing implements Listing {
     required this.search,
   });
 
+  late final String description =
+      '$name in $location\n\$${pricePerNight.ceil()} per night';
+
   static HotelListing fromJson(JsonMap json) {
     return HotelListing(
       name: json['name'] as String,
@@ -73,7 +76,7 @@ class HotelListing implements Listing {
 
   JsonMap toAiInput() {
     return {
-      'description': '$name\n$location\n\$$pricePerNight',
+      'description': description,
       'images': images,
       'listingSelectionId': listingSelectionId,
     };
