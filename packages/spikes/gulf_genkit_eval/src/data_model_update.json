@@ -1,6 +1,6 @@
 {
-  "title": "DataModelUpdate Message",
-  "description": "A schema for a DataModelUpdate message in the A2A streaming UI protocol. This message sets or replaces a part of the data model at a specified path with new content.",
+  "title": "Data model update",
+  "description": "Sets or replaces a part of the data model at a specified path with new content.",
   "type": "object",
   "properties": {
     "path": {
