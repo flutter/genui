@@ -20,7 +20,11 @@ final _schema = S.object(
       description: 'A list of items to display in the carousel.',
       items: S.object(
         properties: {
-          'title': S.string(description: 'The title of the carousel item.'),
+          'description': S.string(
+            description:
+                'The short description of the carousel item. '
+                'It may include the price and location if applicable.',
+          ),
           'imageChildId': S.string(
             description:
                 'The ID of the Image widget to display as the carousel item '
@@ -70,7 +74,7 @@ final travelCarousel = CatalogItem(
           items: items
               .map(
                 (e) => _TravelCarouselItemData(
-                  title: e.title,
+                  title: e.description,
                   imageChild: buildChild(e.imageChildId),
                   listingSelectionId: e.listingSelectionId,
                 ),
@@ -104,16 +108,16 @@ extension type _TravelCarouselItemSchemaData.fromMap(
   Map<String, Object?> _json
 ) {
   factory _TravelCarouselItemSchemaData({
-    required String title,
+    required String description,
     required String imageChildId,
     String? listingSelectionId,
   }) => _TravelCarouselItemSchemaData.fromMap({
-    'title': title,
+    'description': description,
     'imageChildId': imageChildId,
     if (listingSelectionId != null) 'listingSelectionId': listingSelectionId,
   });
 
-  String get title => _json['title'] as String;
+  String get description => _json['description'] as String;
   String get imageChildId => _json['imageChildId'] as String;
   String? get listingSelectionId => _json['listingSelectionId'] as String?;
 }
