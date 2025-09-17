@@ -252,6 +252,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       header: '<!DOCTYPE HTML>\n',
       headerPattern: r'(?<header><!DOCTYPE\s+HTML[^>]*>\n)?',
     ),
+    'js': generateInfo(prefix: '// '),
     'java': generateInfo(prefix: '// '),
     'kt': generateInfo(prefix: '// '),
     'm': generateInfo(prefix: '// '),
@@ -263,6 +264,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
           r'(?<header>#!/usr/bin/env bash\n|#!/bin/sh\n|#!/bin/bash\n)',
     ),
     'swift': generateInfo(prefix: '// '),
+    'ts': generateInfo(prefix: '// '),
     'xml': generateInfo(
       prefix: '<!-- ',
       suffix: ' -->',
