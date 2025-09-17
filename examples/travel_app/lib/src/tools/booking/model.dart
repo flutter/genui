@@ -20,6 +20,10 @@ class HotelSearchResult {
   JsonMap toJson() {
     return {'listings': listings.map((e) => e.toJson()).toList()};
   }
+
+  JsonMap toAiInput() {
+    return {'listings': listings.map((e) => e.toAiInput()).toList()};
+  }
 }
 
 abstract class Listing {
@@ -64,6 +68,14 @@ class HotelListing implements Listing {
       'images': images,
       'listingSelectionId': listingSelectionId,
       'search': search.toJson(),
+    };
+  }
+
+  JsonMap toAiInput() {
+    return {
+      'description': '$name\n$location\n\$$pricePerNight',
+      'images': images,
+      'listingSelectionId': listingSelectionId,
     };
   }
 }
