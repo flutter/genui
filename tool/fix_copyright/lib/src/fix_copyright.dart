@@ -231,29 +231,19 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
 
   return <String, CopyrightInfo>{
-    'dart': generateInfo(prefix: '// '),
-    'java': generateInfo(prefix: '// '),
-    'h': generateInfo(prefix: '// '),
-    'm': generateInfo(prefix: '// '),
-    'cpp': generateInfo(prefix: '// '),
-    'cc': generateInfo(prefix: '// '),
-    'c': generateInfo(prefix: '// '),
-    'kt': generateInfo(prefix: '// '),
-    'swift': generateInfo(prefix: '// '),
-    'gradle': generateInfo(prefix: '// '),
-    'gn': generateInfo(prefix: '# '),
-    'sh': generateInfo(
-      prefix: '# ',
-      header: '#!/usr/bin/env bash\n',
-      headerPattern:
-          r'(?<header>#!/usr/bin/env bash\n|#!/bin/sh\n|#!/bin/bash\n)',
-    ),
     'bat': generateInfo(
       prefix: 'REM ',
       header: '@ECHO off\n',
       headerPattern: r'(?<header>@ECHO off\n)',
     ),
-    'ps1': generateInfo(prefix: '# '),
+    'c': generateInfo(prefix: '// '),
+    'cc': generateInfo(prefix: '// '),
+    'cmake': generateInfo(prefix: '# '),
+    'cpp': generateInfo(prefix: '// '),
+    'dart': generateInfo(prefix: '// '),
+    'gn': generateInfo(prefix: '# '),
+    'gradle': generateInfo(prefix: '// '),
+    'h': generateInfo(prefix: '// '),
     'html': generateInfo(
       prefix: '<!-- ',
       suffix: ' -->',
@@ -262,6 +252,19 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       header: '<!DOCTYPE HTML>\n',
       headerPattern: r'(?<header><!DOCTYPE\s+HTML[^>]*>\n)?',
     ),
+    'js': generateInfo(prefix: '// '),
+    'java': generateInfo(prefix: '// '),
+    'kt': generateInfo(prefix: '// '),
+    'm': generateInfo(prefix: '// '),
+    'ps1': generateInfo(prefix: '# '),
+    'sh': generateInfo(
+      prefix: '# ',
+      header: '#!/usr/bin/env bash\n',
+      headerPattern:
+          r'(?<header>#!/usr/bin/env bash\n|#!/bin/sh\n|#!/bin/bash\n)',
+    ),
+    'swift': generateInfo(prefix: '// '),
+    'ts': generateInfo(prefix: '// '),
     'xml': generateInfo(
       prefix: '<!-- ',
       suffix: ' -->',
@@ -270,11 +273,6 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
           r'''(?<header><\?xml\s+(?:version="1.0"\s+encoding="utf-8"|encoding="utf-8"\s+version="1.0")[^>]*\?>\n|)''',
     ),
     'yaml': generateInfo(prefix: '# '),
-    // 'frag': generateInfo(
-    //   prefix: '// ',
-    //   header: '#version 320 es\n',
-    //   headerPattern: r'#version 320 es(\n)+',
-    // ),
   };
 }
 

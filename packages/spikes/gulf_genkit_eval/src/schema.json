@@ -1,0 +1,451 @@
+{
+  "title": "A2A Streaming Protocol Message",
+  "description": "A schema for a single message in the A2A streaming UI protocol. The stream is a series of these objects, formatted as JSONL. The 'messageType' property determines which other properties are relevant. A StreamHeader message is always the first message in the stream.",
+  "type": "object",
+  "properties": {
+    "messageType": {
+      "type": "string",
+      "description": "The type of this message. This determines which other fields are relevant.",
+      "enum": [
+        "StreamHeader",
+        "ComponentUpdate",
+        "DataModelUpdate",
+        "UIRoot"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "For 'StreamHeader' type: The version of the protocol."
+    },
+    "components": {
+      "type": "array",
+      "description": "For 'ComponentUpdate' type: A flat list of all component instances available for rendering. Components reference each other by ID.",
+      "items": {
+        "description": "A specific instance of a ComponentType with its own unique ID and properties. Only provide properties relevant to the component's 'type'.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for this component instance."
+          },
+          "type": {
+            "description": "The set of supported component types.",
+            "type": "string",
+            "enum": [
+              "Heading",
+              "Text",
+              "Image",
+              "Video",
+              "AudioPlayer",
+              "Row",
+              "Column",
+              "List",
+              "Card",
+              "Tabs",
+              "Divider",
+              "Modal",
+              "Button",
+              "CheckBox",
+              "TextField",
+              "DateTimeInput",
+              "MultipleChoice",
+              "Slider"
+            ]
+          },
+          "value": {
+            "type": "object",
+            "description": "For types with input/output data ('Heading', 'Text', 'Image', 'Video', 'AudioPlayer', 'TextField', 'CheckBox', 'DateTimeInput', 'MultipleChoice', 'Slider'): A dynamic value. Define EXACTLY ONE of the following properties to bind the component's value.",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "A string path to data in the model (e.g., '/user/name')."
+              },
+              "literalString": {
+                "type": "string",
+                "description": "A literal string value."
+              },
+              "literalNumber": {
+                "type": "number",
+                "description": "A literal number value."
+              },
+              "literalBoolean": {
+                "type": "boolean",
+                "description": "A literal boolean value."
+              },
+              "literalArray": {
+                "type": "array",
+                "description": "A literal array value.",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "description": "For 'Heading' type: The semantic importance level."
+          },
+          "description": {
+            "type": "string",
+            "description": "For 'AudioPlayer' or 'TextField' types: A label, title, or placeholder text."
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "default": "vertical",
+            "description": "For 'List' type: The direction of the list."
+          },
+          "children": {
+            "type": "object",
+            "description": "*Required* for 'Row', 'Column', or 'List' types: The children. Define EITHER 'explicitList' OR 'template'. This can be an explicit list of IDs or a template with a data binding to a list in the data model.",
+            "properties": {
+              "explicitList": {
+                "type": "array",
+                "description": "An explicit list of component instance IDs.",
+                "items": {
+                  "type": "string",
+                  "description": "A reference to a component instance by its unique ID."
+                }
+              },
+              "template": {
+                "type": "object",
+                "description": "A template to be rendered for each item in a data-bound list.",
+                "properties": {
+                  "componentId": {
+                    "type": "string",
+                    "description": "The ID of the component (from the main 'components' list) to use as a template for each item."
+                  },
+                  "dataBinding": {
+                    "type": "string",
+                    "description": "A data binding reference to a list within the data model. Represent as a string data path (e.g., '/user/posts')."
+                  }
+                },
+                "required": [
+                  "componentId",
+                  "dataBinding"
+                ]
+              }
+            }
+          },
+          "distribution": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end",
+              "spaceBetween",
+              "spaceAround",
+              "spaceEvenly"
+            ],
+            "description": "For 'Row' or 'Column' types: Distribution of items along the main axis."
+          },
+          "alignment": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end",
+              "stretch"
+            ],
+            "description": "For 'Row', 'Column', or 'List' types: Alignment of items/child along the cross axis."
+          },
+          "child": {
+            "type": "string",
+            "description": "For 'Card' types: A reference to a component instance by its unique ID."
+          },
+          "tabItems": {
+            "type": "array",
+            "description": "For 'Tabs' type: The list of tabs, each with a title and a child component ID.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "The title of the tab."
+                },
+                "child": {
+                  "type": "string",
+                  "description": "A reference to a component instance by its unique ID."
+                }
+              },
+              "required": [
+                "title",
+                "child"
+              ]
+            }
+          },
+          "axis": {
+            "type": "string",
+            "enum": [
+              "horizontal",
+              "vertical"
+            ],
+            "default": "horizontal",
+            "description": "For 'Divider' type: The orientation."
+          },
+          "color": {
+            "type": "string",
+            "description": "For 'Divider' type: The color of the divider (e.g., hex code or semantic name)."
+          },
+          "thickness": {
+            "type": "number",
+            "default": 1,
+            "description": "For 'Divider' type: The thickness of the divider."
+          },
+          "entryPointChild": {
+            "type": "string",
+            "description": "For 'Modal' type: The ID of the component to display in the main layout (e.g., a button) that triggers the modal."
+          },
+          "contentChild": {
+            "type": "string",
+            "description": "For 'Modal' type: The ID of the component to display as the modal's content."
+          },
+          "label": {
+            "type": "string",
+            "description": "For 'Button' or 'CheckBox' types: The text label."
+          },
+          "action": {
+            "type": "object",
+            "description": "For 'Button' type: Represents a user-initiated action.",
+            "properties": {
+              "action": {
+                "type": "string",
+                "description": "A unique name identifying the action to be handled by the application logic (e.g., 'submitForm', 'generateDog')."
+              },
+              "staticContext": {
+                "description": "A plain JSON object of static, literal values to be passed along with the action.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "type": "array"
+                  }
+                ]
+              },
+              "dynamicContext": {
+                "type": "array",
+                "description": "A key-value map of data bindings to be resolved at the moment the action is triggered.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key name for this context value."
+                    },
+                    "value": {
+                      "type": "object",
+                      "description": "The dynamic value. Define EXACTLY ONE of the following properties.",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "A string path to data in the model (e.g., '/user/name')."
+                        },
+                        "literalString": {
+                          "type": "string"
+                        },
+                        "literalNumber": {
+                          "type": "number"
+                        },
+                        "literalBoolean": {
+                          "type": "boolean"
+                        },
+                        "literalObject": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "object"
+                            },
+                            {
+                              "type": "array"
+                            }
+                          ]
+                        },
+                        "literalArray": {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "object"
+                              },
+                              {
+                                "type": "array"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "textFieldType": {
+            "type": "string",
+            "enum": [
+              "shortText",
+              "number",
+              "date",
+              "longText"
+            ],
+            "description": "For 'TextField' type: The type of data expected in the text field."
+          },
+          "validationRegexp": {
+            "type": "string",
+            "description": "For 'TextField' type: A regex string to validate the input."
+          },
+          "enableDate": {
+            "type": "boolean",
+            "default": true,
+            "description": "For 'DateTimeInput' type: Allow date selection."
+          },
+          "enableTime": {
+            "type": "boolean",
+            "default": false,
+            "description": "For 'DateTimeInput' type: Allow time selection."
+          },
+          "outputFormat": {
+            "type": "string",
+            "description": "For 'DateTimeInput' type: The string format for the output (e.g., 'YYYY-MM-DD')."
+          },
+          "options": {
+            "type": "array",
+            "description": "For 'MultipleChoice' type: A list of options.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "maxAllowedSelections": {
+            "type": "integer",
+            "default": 1,
+            "description": "For 'MultipleChoice' type: The maximum number of items that can be selected. 1 implies radio buttons."
+          },
+          "min_value": {
+            "type": "number",
+            "default": 0,
+            "description": "For 'Slider' type: The minimum value of the slider."
+          },
+          "max_value": {
+            "type": "number",
+            "default": 100,
+            "description": "For 'Slider' type: The maximum value of the slider."
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "For 'DataModelUpdate' type: A flat list of all data nodes, representing a tree structure. Nodes reference each other by ID.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for this data node."
+          },
+          "value": {
+            "description": "The primitive value (string, number, boolean, null) of this node. Use 'children' or 'items' for non-primitive types."
+          },
+          "children": {
+            "description": "For object-like nodes: An object mapping string keys to the IDs of child nodes.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "root": {
+      "type": "string",
+      "description": "For 'UIRoot' type: The ID of the root component from which rendering should begin. This is a reference to a component instance by its unique ID."
+    },
+    "dataModelRoot": {
+      "type": "string",
+      "description": "For 'UIRoot' type: The ID of the root node of the data model. This is a reference to a node in 'dataModelNodes' by its unique ID."
+    }
+  },
+  "required": [
+    "messageType"
+  ]
+}

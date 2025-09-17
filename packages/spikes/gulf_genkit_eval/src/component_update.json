@@ -1,0 +1,329 @@
+{
+  "title": "ComponentUpdate Message",
+  "description": "A schema for a ComponentUpdate message in the A2A streaming UI protocol.",
+  "type": "object",
+  "properties": {
+    "components": {
+      "type": "array",
+      "description": "A flat list of all component instances available for rendering. Components reference each other by ID. This property is REQUIRED.",
+      "items": {
+        "description": "A specific instance of a ComponentType with its own unique ID and properties. Only provide properties relevant to the component's 'type'.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for this component instance. This property is REQUIRED."
+          },
+          "type": {
+            "description": "The set of supported component types. This property is REQUIRED.",
+            "type": "string",
+            "enum": [
+              "Heading",
+              "Text",
+              "Image",
+              "Video",
+              "AudioPlayer",
+              "Row",
+              "Column",
+              "List",
+              "Card",
+              "Tabs",
+              "Divider",
+              "Modal",
+              "Button",
+              "CheckBox",
+              "TextField",
+              "DateTimeInput",
+              "MultipleChoice",
+              "Slider"
+            ]
+          },
+          "value": {
+            "type": "object",
+            "description": "For 'Heading', 'Text', 'Image', 'Video', 'AudioPlayer', 'TextField', 'CheckBox', 'DateTimeInput', 'MultipleChoice', 'Slider' types, this property is REQUIRED. It represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "A string path to data in the model (e.g., '/user/name')."
+              },
+              "literalString": {
+                "type": "string",
+                "description": "A literal string value."
+              },
+              "literalNumber": {
+                "type": "number",
+                "description": "A literal number value."
+              },
+              "literalBoolean": {
+                "type": "boolean",
+                "description": "A literal boolean value."
+              },
+              "literalArray": {
+                "type": "array",
+                "description": "A literal array value.",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "description": "For 'Heading' type: The semantic importance level."
+          },
+          "description": {
+            "type": "string",
+            "description": "For 'AudioPlayer' or 'TextField' types: A label, title, or placeholder text."
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "default": "vertical",
+            "description": "For 'List' type: The direction of the list."
+          },
+          "children": {
+            "type": "object",
+            "description": "For 'Row', 'Column', or 'List' types, this property is REQUIRED. It defines the children of the container. You MUST define EITHER 'explicitList' OR 'template', but not both.",
+            "properties": {
+              "explicitList": {
+                "type": "array",
+                "description": "An explicit list of component instance IDs.",
+                "items": {
+                  "type": "string",
+                  "description": "A reference to a component instance by its unique ID."
+                }
+              },
+              "template": {
+                "type": "object",
+                "description": "A template to be rendered for each item in a data-bound list.",
+                "properties": {
+                  "componentId": {
+                    "type": "string",
+                    "description": "The ID of the component (from the main 'components' list) to use as a template for each item. This is REQUIRED for a template."
+                  },
+                  "dataBinding": {
+                    "type": "string",
+                    "description": "A data binding reference to a list within the data model (e.g., '/user/posts'). This is REQUIRED for a template."
+                  }
+                },
+                "required": [
+                  "componentId",
+                  "dataBinding"
+                ]
+              }
+            }
+          },
+          "distribution": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end",
+              "spaceBetween",
+              "spaceAround",
+              "spaceEvenly"
+            ],
+            "description": "For 'Row' or 'Column' types: Distribution of items along the main axis."
+          },
+          "alignment": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end",
+              "stretch"
+            ],
+            "description": "For 'Row', 'Column', or 'List' types: Alignment of items/child along the cross axis."
+          },
+          "child": {
+            "type": "string",
+            "description": "For 'Card' type, this property is REQUIRED. It is a reference to a single component instance by its unique ID."
+          },
+          "tabItems": {
+            "type": "array",
+            "description": "For 'Tabs' type, this property is REQUIRED. It is a list of tabs, each with a title and a child component ID.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "The title of the tab. This is REQUIRED for each tab item."
+                },
+                "child": {
+                  "type": "string",
+                  "description": "A reference to a component instance by its unique ID. This is REQUIRED for each tab item."
+                }
+              },
+              "required": [
+                "title",
+                "child"
+              ]
+            }
+          },
+          "axis": {
+            "type": "string",
+            "enum": [
+              "horizontal",
+              "vertical"
+            ],
+            "default": "horizontal",
+            "description": "For 'Divider' type: The orientation."
+          },
+          "color": {
+            "type": "string",
+            "description": "For 'Divider' type: The color of the divider (e.g., hex code or semantic name)."
+          },
+          "thickness": {
+            "type": "number",
+            "default": 1,
+            "description": "For 'Divider' type: The thickness of the divider."
+          },
+          "entryPointChild": {
+            "type": "string",
+            "description": "For 'Modal' type, this property is REQUIRED. It is the ID of the component (e.g., a button) that triggers the modal."
+          },
+          "contentChild": {
+            "type": "string",
+            "description": "For 'Modal' type, this property is REQUIRED. It is the ID of the component to display as the modal's content."
+          },
+          "label": {
+            "type": "string",
+            "description": "For 'Button' or 'CheckBox' types, this property is REQUIRED. It is the text label."
+          },
+          "action": {
+            "type": "object",
+            "description": "For 'Button' type, this property is REQUIRED. It represents a user-initiated action.",
+            "properties": {
+              "action": {
+                "type": "string",
+                "description": "A unique name identifying the action (e.g., 'submitForm'). This is REQUIRED for an action."
+              },
+              "context": {
+                "type": "array",
+                "description": "A key-value map of data bindings to be resolved when the action is triggered.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key name for this context value."
+                    },
+                    "value": {
+                      "type": "object",
+                      "description": "The dynamic value. Define EXACTLY ONE of the nested properties.",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "A string path to data in the model (e.g., '/user/name')."
+                        },
+                        "componentId": {
+                          "type": "string",
+                          "description": "The ID of a component which is relevant to this action, e.g. a textField with contents that is being submitted."
+                        },
+                        "literalString": {
+                          "type": "string"
+                        },
+                        "literalNumber": {
+                          "type": "number"
+                        },
+                        "literalBoolean": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "textFieldType": {
+            "type": "string",
+            "enum": [
+              "shortText",
+              "number",
+              "date",
+              "longText"
+            ],
+            "description": "For 'TextField' type: The type of data expected."
+          },
+          "validationRegexp": {
+            "type": "string",
+            "description": "For 'TextField' type: A regex string to validate the input."
+          },
+          "enableDate": {
+            "type": "boolean",
+            "default": true,
+            "description": "For 'DateTimeInput' type: Allow date selection."
+          },
+          "enableTime": {
+            "type": "boolean",
+            "default": false,
+            "description": "For 'DateTimeInput' type: Allow time selection."
+          },
+          "outputFormat": {
+            "type": "string",
+            "description": "For 'DateTimeInput' type: The string format for the output (e.g., 'YYYY-MM-DD')."
+          },
+          "options": {
+            "type": "array",
+            "description": "For 'MultipleChoice' type: A list of options.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "maxAllowedSelections": {
+            "type": "integer",
+            "default": 1,
+            "description": "For 'MultipleChoice' type: The maximum number of items that can be selected. 1 implies radio buttons."
+          },
+          "min_value": {
+            "type": "number",
+            "default": 0,
+            "description": "For 'Slider' type: The minimum value."
+          },
+          "max_value": {
+            "type": "number",
+            "default": 100,
+            "description": "For 'Slider' type: The maximum value."
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      }
+    }
+  },
+  "required": [
+    "components"
+  ]
+}
