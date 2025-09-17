@@ -8,13 +8,15 @@ void main() {
   runApp(const MyApp());
 }
 
+const _title = 'Gemini CLI with Flutter Framework Gen UI';
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gemini CLI with Flutter Framework Gen UI',
+      title: _title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
@@ -49,8 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final question = 'What is the capital of France?';
     _updateStatus('Asking: $question');
     await _gcli.ask(question);
-
-    // setState(() {});
+    _updateStatus('Done');
   }
 
   @override
@@ -58,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('GCliff'),
+        title: const Text(_title),
       ),
       body: Center(
         child: SelectionArea(

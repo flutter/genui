@@ -23,7 +23,7 @@
       "type": "dart"
     },
     {
-      "name": "gcliff",
+      "name": "Gemini Cliff",
       "cwd": "packages/spikes/gcliff",
       "request": "launch",
       "type": "dart"

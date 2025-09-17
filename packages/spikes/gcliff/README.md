@@ -1,6 +1,1 @@
-# Gemini CLI with Flutter Framework GenUI
-
-
-
-
-
+# Gemini Cliff

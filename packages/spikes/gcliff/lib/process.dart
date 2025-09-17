@@ -7,7 +7,7 @@ class GCliProcess {
   final ValueChanged<String> update;
 
   GCliProcess(this.update);
-
+TERM=vt100
   Future<void> ask(String question) async {
     try {
       final process = await Process.start(
@@ -15,7 +15,7 @@ class GCliProcess {
         mode: ProcessStartMode.normal,
         runInShell: true,
         'gemini',
-        [question, '--prompt-interactive'],
+        [question],
       );
 
       update('pid: ${process.pid}');
@@ -29,9 +29,6 @@ class GCliProcess {
       _subscribe(process.stderr, (message) {
         update('Stderr: $message');
       });
-
-      // Write input to the tool
-      // process.stdin.writeln('some command');
 
       final code = await process.exitCode;
 
