@@ -30,96 +30,43 @@ Future<int> fixCopyrights(
   void stdErr(String message) =>
       (error ?? stderr.writeln as LogFunction).call(message);
 
-  final Set<String> submodulePaths;
+  String getExtension(File file) {
+    final pathExtension = path.extension(file.path);
+    return pathExtension.isNotEmpty ? pathExtension.substring(1) : '';
+  }
+
   final gitRootResult = await processManager.run([
     'git',
     'rev-parse',
     '--show-toplevel',
   ]);
   if (gitRootResult.exitCode != 0) {
-    stdErr('Warning: not a git repository. Cannot check for submodules.');
-    submodulePaths = <String>{};
-  } else {
-    final repoRoot = gitRootResult.stdout.toString().trim();
-    final result = await processManager.run([
-      'git',
-      'submodule',
-      'status',
-      '--recursive',
-    ], workingDirectory: repoRoot);
-    if (result.exitCode == 0) {
-      submodulePaths = result.stdout
-          .toString()
-          .split('\n')
-          .where((line) => line.trim().isNotEmpty)
-          .map((line) {
-            final parts = line.trim().split(RegExp(r'\s+'));
-            if (parts.length > 1) {
-              return path.canonicalize(path.join(repoRoot, parts[1]));
-            }
-            return null;
-          })
-          .whereType<String>()
-          .toSet();
-    } else {
-      submodulePaths = <String>{};
-      stdErr(
-        'Warning: could not get submodule status. '
-        'Not skipping any submodules.',
-      );
-    }
+    stdErr(
+      'Error: not a git repository. '
+      'This tool only works within a git repository.',
+    );
+    return 1;
+  }
+  final repoRoot = gitRootResult.stdout.toString().trim();
+
+  final gitFilesResult = await processManager.run([
+    'git',
+    'ls-files',
+    ...paths,
+  ], workingDirectory: repoRoot);
+
+  if (gitFilesResult.exitCode != 0) {
+    stdErr('Error running "git ls-files":\n${gitFilesResult.stderr}');
+    return 1;
   }
 
-  String getExtension(File file) {
-    final pathExtension = path.extension(file.path);
-    return pathExtension.isNotEmpty ? pathExtension.substring(1) : '';
-  }
-
-  Iterable<File> matchingFiles(Directory dir) {
-    final files = <File>[];
-    final directories = <Directory>[dir];
-    while (directories.isNotEmpty) {
-      final currentDir = directories.removeAt(0);
-      if (submodulePaths.contains(path.canonicalize(currentDir.path))) {
-        stdLog('Skipping submodule: ${currentDir.path}');
-        continue;
-      }
-      try {
-        for (final entity in currentDir.listSync()) {
-          if (entity is File) {
-            if (extensionMap.containsKey(getExtension(entity))) {
-              files.add(entity.absolute);
-            }
-          } else if (entity is Directory) {
-            directories.add(entity);
-          }
-        }
-      } on FileSystemException catch (e) {
-        stdErr('Could not list directory ${currentDir.path}: $e');
-      }
-    }
-    return files;
-  }
-
-  final rest = paths.isEmpty ? <String>['.'] : paths;
-
-  final files = <File>[];
-  for (final fileOrDir in rest) {
-    switch (fileSystem.typeSync(fileOrDir)) {
-      case FileSystemEntityType.directory:
-        files.addAll(matchingFiles(fileSystem.directory(fileOrDir)));
-        break;
-      case FileSystemEntityType.file:
-        files.add(fileSystem.file(fileOrDir));
-        break;
-      case FileSystemEntityType.link:
-      case FileSystemEntityType.notFound:
-      case FileSystemEntityType.pipe:
-      case FileSystemEntityType.unixDomainSock:
-        // We don't care about these, just ignore them.
-        break;
-    }
-  }
+  final files = gitFilesResult.stdout
+      .toString()
+      .split('\n')
+      .where((line) => line.trim().isNotEmpty)
+      .map((filePath) => fileSystem.file(path.join(repoRoot, filePath)))
+      .where((file) => extensionMap.containsKey(getExtension(file)))
+      .toList();
 
   final nonCompliantFiles = <File>[];
   for (final file in files) {
