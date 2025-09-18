@@ -74,7 +74,7 @@
               "Image": {
                 "type": "object",
                 "properties": {
-                  "src": {
+                  "url": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -89,13 +89,13 @@
                   }
                 },
                 "required": [
-                  "src"
+                  "url"
                 ]
               },
               "Video": {
                 "type": "object",
                 "properties": {
-                  "src": {
+                  "url": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -110,13 +110,13 @@
                   }
                 },
                 "required": [
-                  "src"
+                  "url"
                 ]
               },
               "AudioPlayer": {
                 "type": "object",
                 "properties": {
-                  "src": {
+                  "url": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -129,7 +129,7 @@
                       }
                     }
                   },
-                  "title": {
+                  "description": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -145,7 +145,7 @@
                   }
                 },
                 "required": [
-                  "src"
+                  "url"
                 ]
               },
               "Row": {
@@ -512,7 +512,7 @@
                       }
                     }
                   },
-                  "checked": {
+                  "value": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -527,7 +527,7 @@
                 },
                 "required": [
                   "label",
-                  "checked"
+                  "value"
                 ]
               },
               "TextField": {
@@ -560,7 +560,7 @@
                     },
                     "description": "A label, title, or placeholder text."
                   },
-                  "textFieldType": {
+                  "type": {
                     "type": "string",
                     "enum": [
                       "shortText",
@@ -575,13 +575,13 @@
                   }
                 },
                 "required": [
-                  "text"
+                  "label"
                 ]
               },
               "DateTimeInput": {
                 "type": "object",
                 "properties": {
-                  "datetime": {
+                  "value": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -608,13 +608,13 @@
                   }
                 },
                 "required": [
-                  "datetime"
+                  "value"
                 ]
               },
               "MultipleChoice": {
                 "type": "object",
                 "properties": {
-                  "selection": {
+                  "selections": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -663,13 +663,13 @@
                   }
                 },
                 "required": [
-                  "selection"
+                  "selections"
                 ]
               },
               "Slider": {
                 "type": "object",
                 "properties": {
-                  "number": {
+                  "value": {
                     "type": "object",
                     "properties": {
                       "path": {
@@ -691,7 +691,7 @@
                   }
                 },
                 "required": [
-                  "number"
+                  "value"
                 ]
               }
             }

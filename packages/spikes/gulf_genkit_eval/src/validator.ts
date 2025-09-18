@@ -58,6 +58,12 @@ function validateDataModelUpdate(data: any, errors: string[]) {
     if (data.contents === undefined) {
         errors.push("DataModelUpdate must have a 'contents' property.");
     }
+    const allowed = ['path', 'contents'];
+    for (const key in data) {
+        if (!allowed.includes(key)) {
+            errors.push(`DataModelUpdate has unexpected property: ${key}`);
+        }
+    }
 }
 
 function validateBeginRendering(data: any, errors: string[]) {
@@ -109,28 +115,28 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
             checkRequired(['text']);
             break;
         case 'Image':
-            checkRequired(['src']);
+            checkRequired(['url']);
             break;
         case 'Video':
-            checkRequired(['src']);
+            checkRequired(['url']);
             break;
         case 'AudioPlayer':
-            checkRequired(['src']);
+            checkRequired(['url']);
             break;
         case 'TextField':
-            checkRequired(['text']);
+            checkRequired(['label']);
             break;
         case 'DateTimeInput':
-            checkRequired(['datetime']);
+            checkRequired(['value']);
             break;
         case 'MultipleChoice':
-            checkRequired(['selection']);
+            checkRequired(['selections']);
             break;
         case 'Slider':
-            checkRequired(['number']);
+            checkRequired(['value']);
             break;
         case 'CheckBox':
-            checkRequired(['checked', 'label']);
+            checkRequired(['value', 'label']);
             break;
         case 'Row':
         case 'Column':
