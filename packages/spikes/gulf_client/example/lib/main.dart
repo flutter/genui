@@ -120,19 +120,17 @@ class _ExampleViewState extends State<ExampleView> {
       children,
     ) {
       final text = properties['text'] as String? ?? '';
-      final level = properties['level'] as String?;
+      final level = (component.componentProperties as HeadingProperties).level;
       TextStyle? style;
-      if (level != null) {
-        style = switch (level) {
-          '1' => Theme.of(context).textTheme.headlineSmall,
-          '2' => Theme.of(context).textTheme.titleLarge,
-          '3' => Theme.of(context).textTheme.titleMedium,
-          '4' => Theme.of(context).textTheme.bodyLarge,
-          '5' => Theme.of(context).textTheme.bodyMedium,
-          '6' => Theme.of(context).textTheme.bodySmall,
-          _ => Theme.of(context).textTheme.bodyMedium,
-        };
-      }
+      style = switch (level) {
+        '1' => Theme.of(context).textTheme.headlineSmall,
+        '2' => Theme.of(context).textTheme.titleLarge,
+        '3' => Theme.of(context).textTheme.titleMedium,
+        '4' => Theme.of(context).textTheme.bodyLarge,
+        '5' => Theme.of(context).textTheme.bodyMedium,
+        '6' => Theme.of(context).textTheme.bodySmall,
+        _ => Theme.of(context).textTheme.bodyMedium,
+      };
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
         child: Text(text, style: style),
