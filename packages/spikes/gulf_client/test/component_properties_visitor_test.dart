@@ -28,9 +28,7 @@ void main() {
 
     test('visit TextProperties with bound value', () {
       fakeInterpreter.onResolveDataBinding('path.to.text', 'World');
-      const properties = TextProperties(
-        text: BoundValue(path: 'path.to.text'),
-      );
+      const properties = TextProperties(text: BoundValue(path: 'path.to.text'));
       final result = visitor.visit(properties, null);
       expect(result, {'text': 'World'});
     });

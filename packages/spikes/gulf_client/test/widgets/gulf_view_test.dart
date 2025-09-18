@@ -154,14 +154,12 @@ void main() {
         ),
       );
 
-      streamController.add(
-        '''
+      streamController.add('''
         {"componentUpdate": { "components": [
           {"id": "root", "componentProperties": {"Card": {"child": "text_child"}}},
           {"id": "text_child", "componentProperties": {"Text": {"text": {"literalString": "Card Text"}}}}
         ]}}
-        ''',
-      );
+        ''');
       streamController.add('{"beginRendering": {"root": "root"}}');
       await tester.pumpAndSettle();
 

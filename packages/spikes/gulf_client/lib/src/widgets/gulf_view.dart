@@ -72,9 +72,7 @@ class _GulfViewState extends State<GulfView> {
   @override
   Widget build(BuildContext context) {
     if (widget.interpreter.error != null) {
-      return Center(
-        child: Text('Error: ${widget.interpreter.error}'),
-      );
+      return Center(child: Text('Error: ${widget.interpreter.error}'));
     }
     if (!widget.interpreter.isReadyToRender) {
       return const Center(child: CircularProgressIndicator());
@@ -141,10 +139,10 @@ class _LayoutEngine extends StatelessWidget {
           .toList();
     } else if (properties is ModalProperties) {
       children['entryPointChild'] = [
-        _buildNode(context, properties.entryPointChild, newVisited)
+        _buildNode(context, properties.entryPointChild, newVisited),
       ];
       children['contentChild'] = [
-        _buildNode(context, properties.contentChild, newVisited)
+        _buildNode(context, properties.contentChild, newVisited),
       ];
     }
 

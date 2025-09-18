@@ -575,8 +575,12 @@ class BoundValue extends Equatable {
   final bool? literalBoolean;
 
   @override
-  List<Object?> get props =>
-      [path, literalString, literalNumber, literalBoolean];
+  List<Object?> get props => [
+    path,
+    literalString,
+    literalNumber,
+    literalBoolean,
+  ];
 }
 
 /// The children of a component.

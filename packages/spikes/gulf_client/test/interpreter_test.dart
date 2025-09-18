@@ -118,8 +118,9 @@ void main() {
       {"dataModelUpdate": {"path": "user.addresses[0].street", "contents": "123 Main St"}}
       ''';
       interpreter.processMessage(message);
-      final address =
-          interpreter.resolveDataBinding('user.addresses[0].street');
+      final address = interpreter.resolveDataBinding(
+        'user.addresses[0].street',
+      );
       expect(address, '123 Main St');
 
       const message2 = '''
