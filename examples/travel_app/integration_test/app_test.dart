@@ -74,16 +74,16 @@ const Map<String, Object> _baliResponse = {
               'TravelCarousel': {
                 'items': [
                   {
-                    'imageChild': 'bali_memorial_image',
+                    'imageChildId': 'bali_memorial_image',
                     'title': 'Cultural Immersion',
                   },
                   {
-                    'imageChild': 'nyepi_festival_image',
+                    'imageChildId': 'nyepi_festival_image',
                     'title': 'Festivals and Traditions',
                   },
                   {
                     'title': 'Beach Relaxation',
-                    'imageChild': 'kata_noi_beach_image',
+                    'imageChildId': 'kata_noi_beach_image',
                   },
                 ],
               },
@@ -94,7 +94,7 @@ const Map<String, Object> _baliResponse = {
             'widget': {
               'Image': {
                 'fit': 'cover',
-                'assetName': 'assets/travel_images/bali_memorial.jpg',
+                'location': 'assets/travel_images/bali_memorial.jpg',
               },
             },
           },
@@ -103,19 +103,19 @@ const Map<String, Object> _baliResponse = {
             'widget': {
               'Image': {
                 'fit': 'cover',
-                'assetName': 'assets/travel_images/nyepi_festival_bali.jpg',
+                'location': 'assets/travel_images/nyepi_festival_bali.jpg',
               },
             },
           },
           {
+            'id': 'kata_noi_beach_image',
             'widget': {
               'Image': {
-                'assetName':
-                    'assets/travel_images/kata_noi_beach_phuket_thailand.jpg',
                 'fit': 'cover',
+                'location':
+                    'assets/travel_images/kata_noi_beach_phuket_thailand.jpg',
               },
             },
-            'id': 'kata_noi_beach_image',
           },
           {
             'widget': {

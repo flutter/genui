@@ -435,7 +435,7 @@ ${_imagesJson ?? ''}
 list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
 It is fine if the image is irrelevant, as long as it is from the list.
 
-- Use assetName for images from the list only - NEVER use `url` and reference
+- Use location for images from the list only - NEVER use `url` and reference
 images from wikipedia or other sites.
 
 # Example
@@ -483,7 +483,7 @@ contain the other widgets.
         "id": "mexico_city_image",
         "widget": {
           "Image": {
-            "assetName": "assets/travel_images/mexico_city.jpg"
+            "location": "assets/travel_images/mexico_city.jpg"
           }
         }
       },
@@ -516,7 +516,7 @@ contain the other widgets.
         "id": "day1_image",
         "widget": {
           "Image": {
-            "assetName": "assets/travel_images/mexico_city.jpg"
+            "location": "assets/travel_images/mexico_city.jpg"
           }
         }
       },

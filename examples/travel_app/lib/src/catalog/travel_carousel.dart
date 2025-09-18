@@ -130,7 +130,7 @@ final travelCarousel = CatalogItem(
           'widget': {
             'Image': {
               'fit': 'cover',
-              'assetName': 'assets/travel_images/santorini_panorama.jpg',
+              'location': 'assets/travel_images/santorini_panorama.jpg',
             },
           },
         },
@@ -139,7 +139,7 @@ final travelCarousel = CatalogItem(
           'widget': {
             'Image': {
               'fit': 'cover',
-              'assetName':
+              'location':
                   'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
             },
           },
@@ -148,7 +148,7 @@ final travelCarousel = CatalogItem(
           'id': 'santorini_caldera_image',
           'widget': {
             'Image': {
-              'assetName': 'assets/travel_images/santorini_from_space.jpg',
+              'location': 'assets/travel_images/santorini_from_space.jpg',
               'fit': 'cover',
             },
           },
@@ -157,7 +157,7 @@ final travelCarousel = CatalogItem(
           'widget': {
             'Image': {
               'fit': 'cover',
-              'assetName':
+              'location':
                   'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
             },
           },

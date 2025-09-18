@@ -10,16 +10,7 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'url': S.string(
-      description:
-          'The URL of the image to display. Only one '
-          'of url or assetName may be specified.',
-    ),
-    'assetName': S.string(
-      description:
-          'The name of the asset to display. Only '
-          'one of assetName or url may be specified.',
-    ),
+    'location': S.string(description: 'Asset path or network URL.'),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
@@ -28,11 +19,10 @@ final _schema = S.object(
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({String? url, String? assetName, String? fit}) =>
-      _ImageData.fromMap({'url': url, 'assetName': assetName, 'fit': fit});
+  factory _ImageData({required String location, String? fit}) =>
+      _ImageData.fromMap({'location': location, 'fit': fit});
 
-  String? get url => _json['url'] as String?;
-  String? get assetName => _json['assetName'] as String?;
+  String get location => _json['location'] as String;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -52,25 +42,13 @@ final image = CatalogItem(
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
 
-        final url = imageData.url;
-        final assetName = imageData.assetName;
+        final location = imageData.location;
+        final fit = imageData.fit;
 
-        if ((url == null) == (assetName == null)) {
-          throw Exception(
-            'Image widget must have either a url or an assetName, '
-            'but not both. '
-            'Details: $imageData',
-          );
+        if (location.startsWith('assets/')) {
+          return Image.asset(location, fit: fit);
+        } else {
+          return Image.network(location, fit: fit);
         }
-
-        if (url != null) {
-          return Image.network(url, fit: imageData.fit);
-        }
-
-        if (assetName != null) {
-          return Image.asset(assetName, fit: imageData.fit);
-        }
-
-        return const SizedBox();
       },
 );
