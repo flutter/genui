@@ -15,7 +15,7 @@ void main() {
   const year = '2025';
   const copyright =
       '''
-// Copyright $year The Flutter Authors. All rights reserved.
+// Copyright $year The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.''';
   String getBadCopyright({String prefix = '//'}) =>
@@ -278,7 +278,7 @@ $prefix found in the LICENSE file.''';
   test('updates an xml file', () async {
     const xmlPreamble = '<?xml version="1.0" encoding="utf-8"?>\n<root/>';
     const xmlCopyright = '''
-<!-- Copyright 2025 The Flutter Authors. All rights reserved.
+<!-- Copyright 2025 The Flutter Authors.
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file. -->''';
     final testFile = fileSystem.file('test.xml')
