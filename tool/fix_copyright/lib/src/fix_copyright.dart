@@ -173,7 +173,7 @@ Future<int> fixCopyrights(
         contents = contents.trimLeft();
         var newContents = '';
         if (fileHeader != null) {
-          final String copyrightBlock =
+          final copyrightBlock =
               '${info.copyright}${info.trailingBlank ? '\n\n' : '\n'}';
           newContents = '$fileHeader$copyrightBlock$contents';
         } else {
@@ -228,6 +228,7 @@ class CopyrightInfo {
     return RegExp(
       '^(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
+      multiLine: true,
     );
   }
 
@@ -323,7 +324,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       isParagraph: true,
       trailingBlank: false,
       header: '<!DOCTYPE HTML>\n',
-      headerPattern: r'(?<header><!DOCTYPE\s+HTML[^>]*>\n)?',
+      headerPattern: r'(?<header><!DOCTYPE\s+HTML[^>]*>\n?)?',
     ),
     'js': generateInfo(prefix: '// '),
     'java': generateInfo(prefix: '// '),
@@ -338,7 +339,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       suffix: ' -->',
       isParagraph: true,
       headerPattern:
-          r'''(?<header><\?xml\s+(?:version="1.0"\s+encoding="utf-8"|encoding="utf-8"\s+version="1.0")[^>]*\?>\n|)''',
+          r'''(?<header><\?xml\s+(?:version="1.0"\s+encoding="utf-8"|encoding="utf-8"\s+version="1.0")[^>]*\?>\n?|)''',
     ),
     'yaml': generateInfo(prefix: '# '),
   };
