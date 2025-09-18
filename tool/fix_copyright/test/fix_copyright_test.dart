@@ -43,6 +43,13 @@ $prefix found in the LICENSE file.''';
   late List<String> error;
   late FakeProcessManager processManager;
 
+  void mockGitLsFiles({List<String> paths = const [], required String stdout}) {
+    processManager.mockCommands.add(MockCommand(
+      command: ['git', 'ls-files', ...paths],
+      stdout: stdout,
+    ));
+  }
+
   setUp(() {
     fileSystem = MemoryFileSystem();
     log = <String>[];
@@ -73,10 +80,7 @@ $prefix found in the LICENSE file.''';
   }
 
   test('updates a file with an incorrect date', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright());
     final result = await runFixCopyrights(paths: ['test.dart']);
@@ -90,10 +94,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with an incorrect date when forced', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright());
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
@@ -107,10 +108,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with a non-matching copyright', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(wrongCopyright);
     final result = await runFixCopyrights(paths: ['test.dart']);
@@ -124,10 +122,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with a non-matching copyright when forced', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(wrongCopyright);
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
@@ -141,10 +136,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with no copyright', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(randomPreamble);
     final result = await runFixCopyrights(paths: ['test.dart']);
@@ -158,10 +150,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with no copyright when forced', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(randomPreamble);
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
@@ -178,10 +167,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a shell script with a shebang and bad copyright', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.sh'],
-      stdout: 'test.sh',
-    ));
+    mockGitLsFiles(paths: ['test.sh'], stdout: 'test.sh');
     final testFile = fileSystem.file('test.sh')
       ..writeAsStringSync(
         '$bashShebang\n${getBadCopyright(prefix: '#')}\n$randomShellPreamble',
@@ -201,10 +187,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with an unrecognized shebang', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.sh'],
-      stdout: 'test.sh',
-    ));
+    mockGitLsFiles(paths: ['test.sh'], stdout: 'test.sh');
     final testFile = fileSystem.file('test.sh')
       ..writeAsStringSync(
         '$badShebang\n${getBadCopyright(prefix: "#")}\n$randomPreamble',
@@ -224,10 +207,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('does not update a file that is OK', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync('$copyright\n\n$randomPreamble');
     final result = await runFixCopyrights(paths: ['test.dart']);
@@ -241,10 +221,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a directory of files', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files'],
-      stdout: 'test1.dart\ntest2.dart\ntest3.dart\ntest4.dart',
-    ));
+    mockGitLsFiles(stdout: 'test1.dart\ntest2.dart\ntest3.dart\ntest4.dart');
     final testFile1 = fileSystem.file('test1.dart')
       ..writeAsStringSync(getBadCopyright());
     final testFile2 = fileSystem.file('test2.dart')
@@ -273,10 +250,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('does not update an empty file', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')..writeAsStringSync('');
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
     expect(result, equals(0));
@@ -286,10 +260,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with case-insensitive copyright', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright().toLowerCase());
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
@@ -303,10 +274,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates a file with windows line endings', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.dart'],
-      stdout: 'test.dart',
-    ));
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
     final testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright().replaceAll('\n', '\r\n'));
     final result = await runFixCopyrights(paths: ['test.dart'], force: true);
@@ -320,10 +288,7 @@ $prefix found in the LICENSE file.''';
   });
 
   test('updates an xml file', () async {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', 'test.xml'],
-      stdout: 'test.xml',
-    ));
+    mockGitLsFiles(paths: ['test.xml'], stdout: 'test.xml');
     const xmlPreamble = '<?xml version="1.0" encoding="utf-8"?>\n<root/>';
     const xmlCopyright = '''
 <!-- Copyright 2025 The Flutter Authors.
