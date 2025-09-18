@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../core/interpreter.dart';
 import '../core/widget_registry.dart';
 import '../models/component.dart';
+import 'component_properties_visitor.dart';
 import 'gulf_provider.dart';
 
 /// The main entry point for rendering a UI from the GULF Streaming Protocol.
@@ -136,52 +137,8 @@ class _LayoutEngine extends StatelessWidget {
       children['child'] = [_buildNode(context, properties.child, newVisited)];
     }
 
-    final resolvedProperties = <String, Object?>{};
-    // TODO(gspencergoog): find a more generic way to do this.
-    if (properties is TextProperties) {
-      resolvedProperties['text'] = _resolveValue(properties.text, null);
-    } else if (properties is HeadingProperties) {
-      resolvedProperties['text'] = _resolveValue(properties.text, null);
-      resolvedProperties['level'] = properties.level;
-    } else if (properties is ImageProperties) {
-      resolvedProperties['url'] = _resolveValue(properties.url, null);
-    } else if (properties is VideoProperties) {
-      resolvedProperties['url'] = _resolveValue(properties.url, null);
-    } else if (properties is AudioPlayerProperties) {
-      resolvedProperties['url'] = _resolveValue(properties.url, null);
-      resolvedProperties['description'] = _resolveValue(
-        properties.description,
-        null,
-      );
-    } else if (properties is ButtonProperties) {
-      resolvedProperties['label'] = _resolveValue(properties.label, null);
-      resolvedProperties['action'] = properties.action;
-    } else if (properties is CheckBoxProperties) {
-      resolvedProperties['label'] = _resolveValue(properties.label, null);
-      resolvedProperties['value'] = _resolveValue(properties.value, null);
-    } else if (properties is TextFieldProperties) {
-      resolvedProperties['text'] = _resolveValue(properties.text, null);
-      resolvedProperties['label'] = _resolveValue(properties.label, null);
-      resolvedProperties['type'] = properties.type;
-      resolvedProperties['validationRegexp'] = properties.validationRegexp;
-    } else if (properties is DateTimeInputProperties) {
-      resolvedProperties['value'] = _resolveValue(properties.value, null);
-      resolvedProperties['enableDate'] = properties.enableDate;
-      resolvedProperties['enableTime'] = properties.enableTime;
-      resolvedProperties['outputFormat'] = properties.outputFormat;
-    } else if (properties is MultipleChoiceProperties) {
-      resolvedProperties['selections'] = _resolveValue(
-        properties.selections,
-        null,
-      );
-      resolvedProperties['options'] = properties.options;
-      resolvedProperties['maxAllowedSelections'] =
-          properties.maxAllowedSelections;
-    } else if (properties is SliderProperties) {
-      resolvedProperties['value'] = _resolveValue(properties.value, null);
-      resolvedProperties['minValue'] = properties.minValue;
-      resolvedProperties['maxValue'] = properties.maxValue;
-    }
+    final visitor = ComponentPropertiesVisitor(interpreter);
+    final resolvedProperties = visitor.visit(properties, null);
 
     return builder(context, component, resolvedProperties, children);
   }
@@ -212,15 +169,11 @@ class _LayoutEngine extends StatelessWidget {
       );
     }
     final children = data.map((Object? itemData) {
-      final resolvedProperties = <String, Object?>{};
-      final templateProperties = templateComponent.componentProperties;
-      if (templateProperties is TextProperties) {
-        resolvedProperties['text'] = _resolveValue(
-          templateProperties.text,
-          itemData as Map<String, Object?>,
-        );
-      }
-      // TODO(gspencer): Add all other properties types here.
+      final visitor = ComponentPropertiesVisitor(interpreter);
+      final resolvedProperties = visitor.visit(
+        templateComponent.componentProperties,
+        itemData as Map<String, Object?>,
+      );
       final itemChildren = <String, List<Widget>>{};
       final itemBuilder = registry.getBuilder(
         templateComponent.componentProperties.runtimeType.toString(),

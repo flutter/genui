@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../utils/json_utils.dart';
+
 /// An exception that is thrown when an unknown component type is encountered.
 class UnknownComponentException implements Exception {
   UnknownComponentException(this.type);
@@ -25,7 +27,7 @@ class Component {
   factory Component.fromJson(Map<String, dynamic> json) {
     return Component(
       id: json['id'] as String,
-      weight: (json['weight'] as num?)?.toDouble(),
+      weight: JsonUtils.parseDouble(json['weight']),
       componentProperties: ComponentProperties.fromJson(
         json['componentProperties'] as Map<String, dynamic>,
       ),
@@ -291,7 +293,7 @@ class DividerProperties implements ComponentProperties {
     return DividerProperties(
       axis: json['axis'] as String?,
       color: json['color'] as String?,
-      thickness: (json['thickness'] as num?)?.toDouble(),
+      thickness: JsonUtils.parseDouble(json['thickness']),
     );
   }
 
@@ -463,8 +465,8 @@ class SliderProperties implements ComponentProperties {
   factory SliderProperties.fromJson(Map<String, dynamic> json) {
     return SliderProperties(
       value: BoundValue.fromJson(json['value'] as Map<String, dynamic>),
-      minValue: (json['minValue'] as num?)?.toDouble(),
-      maxValue: (json['maxValue'] as num?)?.toDouble(),
+      minValue: JsonUtils.parseDouble(json['minValue']),
+      maxValue: JsonUtils.parseDouble(json['maxValue']),
     );
   }
 
@@ -491,7 +493,7 @@ class BoundValue {
     return BoundValue(
       path: json['path'] as String?,
       literalString: json['literalString'] as String?,
-      literalNumber: (json['literalNumber'] as num?)?.toDouble(),
+      literalNumber: JsonUtils.parseDouble(json['literalNumber']),
       literalBoolean: json['literalBoolean'] as bool?,
     );
   }
