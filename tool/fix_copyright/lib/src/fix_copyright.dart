@@ -19,7 +19,6 @@ Future<int> fixCopyrights(
   required bool force,
   required String year,
   required List<String> paths,
-  bool skipSubmodules = true,
   ProcessManager processManager = const LocalProcessManager(),
   LogFunction? log,
   LogFunction? error,
@@ -32,47 +31,43 @@ Future<int> fixCopyrights(
       (error ?? stderr.writeln as LogFunction).call(message);
 
   final Set<String> submodulePaths;
-  if (skipSubmodules) {
-    final gitRootResult = await processManager.run([
-      'git',
-      'rev-parse',
-      '--show-toplevel',
-    ]);
-    if (gitRootResult.exitCode != 0) {
-      stdErr('Warning: not a git repository. Cannot check for submodules.');
-      submodulePaths = <String>{};
-    } else {
-      final repoRoot = gitRootResult.stdout.toString().trim();
-      final result = await processManager.run([
-        'git',
-        'submodule',
-        'status',
-        '--recursive',
-      ], workingDirectory: repoRoot);
-      if (result.exitCode == 0) {
-        submodulePaths = result.stdout
-            .toString()
-            .split('\n')
-            .where((line) => line.trim().isNotEmpty)
-            .map((line) {
-              final parts = line.trim().split(RegExp(r'\s+'));
-              if (parts.length > 1) {
-                return path.canonicalize(path.join(repoRoot, parts[1]));
-              }
-              return null;
-            })
-            .whereType<String>()
-            .toSet();
-      } else {
-        submodulePaths = <String>{};
-        stdErr(
-          'Warning: could not get submodule status. '
-          'Not skipping any submodules.',
-        );
-      }
-    }
-  } else {
+  final gitRootResult = await processManager.run([
+    'git',
+    'rev-parse',
+    '--show-toplevel',
+  ]);
+  if (gitRootResult.exitCode != 0) {
+    stdErr('Warning: not a git repository. Cannot check for submodules.');
     submodulePaths = <String>{};
+  } else {
+    final repoRoot = gitRootResult.stdout.toString().trim();
+    final result = await processManager.run([
+      'git',
+      'submodule',
+      'status',
+      '--recursive',
+    ], workingDirectory: repoRoot);
+    if (result.exitCode == 0) {
+      submodulePaths = result.stdout
+          .toString()
+          .split('\n')
+          .where((line) => line.trim().isNotEmpty)
+          .map((line) {
+            final parts = line.trim().split(RegExp(r'\s+'));
+            if (parts.length > 1) {
+              return path.canonicalize(path.join(repoRoot, parts[1]));
+            }
+            return null;
+          })
+          .whereType<String>()
+          .toSet();
+    } else {
+      submodulePaths = <String>{};
+      stdErr(
+        'Warning: could not get submodule status. '
+        'Not skipping any submodules.',
+      );
+    }
   }
 
   String getExtension(File file) {
@@ -85,8 +80,7 @@ Future<int> fixCopyrights(
     final directories = <Directory>[dir];
     while (directories.isNotEmpty) {
       final currentDir = directories.removeAt(0);
-      if (skipSubmodules &&
-          submodulePaths.contains(path.canonicalize(currentDir.path))) {
+      if (submodulePaths.contains(path.canonicalize(currentDir.path))) {
         stdLog('Skipping submodule: ${currentDir.path}');
         continue;
       }
