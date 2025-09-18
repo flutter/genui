@@ -1,0 +1,25 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: example
+description: A simple example for the gulf_client package.
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  gulf_client:
+    path: ../
+
+dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

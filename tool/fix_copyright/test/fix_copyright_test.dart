@@ -67,7 +67,6 @@ $prefix found in the LICENSE file.''';
       force: force,
       year: year,
       paths: paths,
-      skipSubmodules: skipSubmodules,
       processManager: processManager,
       log: log.add,
       error: error.add,

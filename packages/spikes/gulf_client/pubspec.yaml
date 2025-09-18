@@ -1,0 +1,28 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: gulf_client
+description: A simplified client for the GULF Streaming UI Protocol.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  build_runner: ^2.8.0
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter
+  freezed: ^3.2.3
+  json_serializable: ^6.11.1
+
+flutter:
