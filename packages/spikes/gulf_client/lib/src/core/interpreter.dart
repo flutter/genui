@@ -26,9 +26,8 @@ class GulfInterpreter with ChangeNotifier {
   final Stream<String> stream;
 
   final Map<String, Component> _components = {};
-  final Map<String, DataModelNode> _dataModelNodes = {};
+  Map<String, dynamic> _dataModel = {};
   String? _rootComponentId;
-  String? _dataModelRootId;
   bool _isReadyToRender = false;
 
   /// Whether the interpreter has received enough information to render the UI.
@@ -54,60 +53,62 @@ class GulfInterpreter with ChangeNotifier {
         }
         break;
       case DataModelUpdate():
-        for (final node in message.nodes) {
-          _dataModelNodes[node.id] = node;
-        }
+        _updateDataModel(message.path, message.contents);
         notifyListeners();
         break;
-      case UiRoot():
+      case BeginRendering():
         _rootComponentId = message.root;
-        _dataModelRootId = message.dataModelRoot;
         _isReadyToRender = true;
         notifyListeners();
         break;
     }
   }
 
+  void _updateDataModel(String? path, dynamic contents) {
+    if (path == null || path.isEmpty) {
+      _dataModel = contents as Map<String, dynamic>;
+      return;
+    }
+
+    final segments = path.split('.');
+    var currentLevel = _dataModel;
+
+    for (var i = 0; i < segments.length - 1; i++) {
+      final segment = segments[i];
+      if (!currentLevel.containsKey(segment) || currentLevel[segment] is! Map) {
+        currentLevel[segment] = <String, dynamic>{};
+      }
+      currentLevel = currentLevel[segment] as Map<String, dynamic>;
+    }
+
+    currentLevel[segments.last] = contents;
+  }
+
   /// Retrieves a component by its [id].
   Component? getComponent(String id) => _components[id];
 
-  /// Retrieves a data model node by its [id].
-  DataModelNode? getDataNode(String id) => _dataModelNodes[id];
-
   /// Resolves a data binding path to a value in the data model.
   Object? resolveDataBinding(String path) {
-    if (_dataModelRootId == null) {
+    if (path.isEmpty) {
       return null;
     }
-    final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
-    var currentNode = _dataModelNodes[_dataModelRootId];
-    for (final segment in pathSegments) {
-      if (currentNode == null) {
-        return null;
-      }
-      if (currentNode.children != null &&
-          currentNode.children!.containsKey(segment)) {
-        currentNode = _dataModelNodes[currentNode.children![segment]];
+    final segments = path.split('.').where((s) => s.isNotEmpty).toList();
+    dynamic currentValue = _dataModel;
+    for (final segment in segments) {
+      if (currentValue is Map<String, dynamic> &&
+          currentValue.containsKey(segment)) {
+        currentValue = currentValue[segment];
+      } else if (currentValue is List) {
+        final index = int.tryParse(segment);
+        if (index != null && index >= 0 && index < currentValue.length) {
+          currentValue = currentValue[index];
+        } else {
+          return null;
+        }
       } else {
         return null;
       }
     }
-
-    if (currentNode?.items != null) {
-      final resolvedItems = <Map<String, dynamic>>[];
-      for (final itemId in currentNode!.items!) {
-        final itemNode = _dataModelNodes[itemId];
-        if (itemNode?.children != null) {
-          final resolvedItem = <String, dynamic>{};
-          itemNode!.children!.forEach((key, valueId) {
-            resolvedItem[key] = _dataModelNodes[valueId]?.value;
-          });
-          resolvedItems.add(resolvedItem);
-        }
-      }
-      return resolvedItems;
-    }
-
-    return currentNode?.value;
+    return currentValue;
   }
 }
