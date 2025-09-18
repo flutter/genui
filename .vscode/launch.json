@@ -21,6 +21,15 @@
       "cwd": "packages/catalog_gallery",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "fix_copyright",
+      "request": "launch",
+      "program": "bin/fix_copyright.dart",
+      "cwd": "tool/fix_copyright",
+      "args": ["--force", "${workspaceFolder}"],
+      "type": "dart",
+      "console": "debugConsole"
     }
   ]
 }
