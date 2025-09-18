@@ -58,7 +58,7 @@ class BookingService {
             location: 'Mountain View, CA',
             pricePerNight: 250.0,
             listingSelectionId: _generateListingSelectionId(),
-            images: ['assets/booking_service/flutter_hotel.jpeg'],
+            images: ['assets/booking_service/flutter_hotel.png'],
             search: search,
           ),
         ),
