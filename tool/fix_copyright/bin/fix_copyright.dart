@@ -39,6 +39,11 @@ Future<int> main(List<String> arguments) async {
     help: 'Set the year to use for the copyright year.',
   );
   argParser.addFlag(
+    'skip-submodules',
+    defaultsTo: true,
+    help: 'Skip git submodules when fixing copyrights.',
+  );
+  argParser.addFlag(
     'help',
     negatable: false,
     help: 'Print help for this command.',
@@ -71,6 +76,7 @@ Future<int> main(List<String> arguments) async {
     force: parsedArguments['force'] as bool,
     year: parsedArguments['year']! as String,
     paths: parsedArguments.rest,
+    skipSubmodules: parsedArguments['skip-submodules'] as bool,
   );
   exit(exitCode);
 }

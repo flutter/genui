@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file/file.dart';
+import 'package:process/process.dart';
 
 typedef LogFunction = void Function(String);
 
@@ -18,6 +19,8 @@ Future<int> fixCopyrights(
   required bool force,
   required String year,
   required List<String> paths,
+  bool skipSubmodules = true,
+  ProcessManager processManager = const LocalProcessManager(),
   LogFunction? log,
   LogFunction? error,
 }) async {
@@ -28,17 +31,80 @@ Future<int> fixCopyrights(
   void stdErr(String message) =>
       (error ?? stderr.writeln as LogFunction).call(message);
 
+  final Set<String> submodulePaths;
+  if (skipSubmodules) {
+    final gitRootResult = await processManager.run([
+      'git',
+      'rev-parse',
+      '--show-toplevel',
+    ]);
+    if (gitRootResult.exitCode != 0) {
+      stdErr('Warning: not a git repository. Cannot check for submodules.');
+      submodulePaths = <String>{};
+    } else {
+      final repoRoot = gitRootResult.stdout.toString().trim();
+      final result = await processManager.run([
+        'git',
+        'submodule',
+        'status',
+        '--recursive',
+      ], workingDirectory: repoRoot);
+      if (result.exitCode == 0) {
+        submodulePaths = result.stdout
+            .toString()
+            .split('\n')
+            .where((line) => line.trim().isNotEmpty)
+            .map((line) {
+              final parts = line.trim().split(RegExp(r'\s+'));
+              if (parts.length > 1) {
+                return path.canonicalize(path.join(repoRoot, parts[1]));
+              }
+              return null;
+            })
+            .whereType<String>()
+            .toSet();
+      } else {
+        submodulePaths = <String>{};
+        stdErr(
+          'Warning: could not get submodule status. '
+          'Not skipping any submodules.',
+        );
+      }
+    }
+  } else {
+    submodulePaths = <String>{};
+  }
+
   String getExtension(File file) {
     final pathExtension = path.extension(file.path);
     return pathExtension.isNotEmpty ? pathExtension.substring(1) : '';
   }
 
   Iterable<File> matchingFiles(Directory dir) {
-    return dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((File file) => extensionMap.containsKey(getExtension(file)))
-        .map((File file) => file.absolute);
+    final files = <File>[];
+    final directories = <Directory>[dir];
+    while (directories.isNotEmpty) {
+      final currentDir = directories.removeAt(0);
+      if (skipSubmodules &&
+          submodulePaths.contains(path.canonicalize(currentDir.path))) {
+        stdLog('Skipping submodule: ${currentDir.path}');
+        continue;
+      }
+      try {
+        for (final entity in currentDir.listSync()) {
+          if (entity is File) {
+            if (extensionMap.containsKey(getExtension(entity))) {
+              files.add(entity.absolute);
+            }
+          } else if (entity is Directory) {
+            directories.add(entity);
+          }
+        }
+      } on FileSystemException catch (e) {
+        stdErr('Could not list directory ${currentDir.path}: $e');
+      }
+    }
+    return files;
   }
 
   final rest = paths.isEmpty ? <String>['.'] : paths;
@@ -74,42 +140,49 @@ Future<int> fixCopyrights(
       }
       final info = extensionMap[extension]!;
       final inputFile = file.absolute;
-      var originalContents = inputFile.readAsStringSync();
+      final originalContents = inputFile.readAsStringSync();
       if (_hasCorrectLicense(originalContents, info)) {
         continue;
       }
 
-      // If a sort-of correct copyright is there, but just doesn't have the
-      // right case, date, spacing, license type or trailing newline, then
-      // remove it.
-      var newContents = originalContents.replaceFirst(
-        RegExp(info.copyrightPattern, caseSensitive: false, multiLine: true),
-        '',
-      );
-      // Strip any matching header from the existing file, and replace it with
-      // the correct combined copyright and the header that was matched.
-      if ((info.headerPattern ?? info.header) != null) {
-        final match = RegExp(
-          info.headerPattern ?? '(?<header>${RegExp.escape(info.header!)})',
-          caseSensitive: false,
-        ).firstMatch(newContents);
-        if (match != null) {
-          final header = match.namedGroup('header') ?? '';
-          newContents = newContents.substring(match.end);
-          newContents =
-              '$header${info.copyright}\n${info.trailingBlank ? '\n' : ''}'
-              '$newContents';
-        } else {
-          newContents = '${info.combined}$newContents';
+      nonCompliantFiles.add(file);
+
+      if (force) {
+        var contents = originalContents.replaceAll('\r\n', '\n');
+        String? fileHeader;
+        if (info.headerPattern != null) {
+          final match = RegExp(
+            info.headerPattern!,
+            caseSensitive: false,
+          ).firstMatch(contents);
+          if (match != null && match.start == 0) {
+            fileHeader = match.group(0);
+            contents = contents.substring(match.end);
+          }
         }
-      } else {
-        newContents = '${info.combined}$newContents';
-      }
-      if (newContents != originalContents) {
-        if (force) {
+
+        contents = contents.trimLeft();
+
+        // If a sort-of correct copyright is there, but just doesn't have the
+        // right case, date, spacing, license type or trailing newline, then
+        // remove it.
+        contents = contents.replaceFirst(
+          RegExp(info.copyrightPattern, caseSensitive: false, multiLine: true),
+          '',
+        );
+        contents = contents.trimLeft();
+        var newContents = '';
+        if (fileHeader != null) {
+          final String copyrightBlock =
+              '${info.copyright}${info.trailingBlank ? '\n\n' : '\n'}';
+          newContents = '$fileHeader$copyrightBlock$contents';
+        } else {
+          newContents = '${info.combined}$contents';
+        }
+
+        if (newContents != originalContents.replaceAll('\r\n', '\n')) {
           inputFile.writeAsStringSync(newContents);
         }
-        nonCompliantFiles.add(file);
       }
     } on FileSystemException catch (e) {
       stdErr('Could not process file ${file.path}: $e');
@@ -153,7 +226,7 @@ class CopyrightInfo {
 
   RegExp get pattern {
     return RegExp(
-      '${headerPattern ?? (header != null ? RegExp.escape(header!) : '')}'
+      '^(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
     );
   }
@@ -240,7 +313,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     'cc': generateInfo(prefix: '// '),
     'cmake': generateInfo(prefix: '# '),
     'cpp': generateInfo(prefix: '// '),
-    'dart': generateInfo(prefix: '// '),
+    'dart': generateInfo(prefix: '// ', headerPattern: r'(?<header>#!.*\n?)'),
     'gn': generateInfo(prefix: '# '),
     'gradle': generateInfo(prefix: '// '),
     'h': generateInfo(prefix: '// '),
@@ -257,12 +330,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     'kt': generateInfo(prefix: '// '),
     'm': generateInfo(prefix: '// '),
     'ps1': generateInfo(prefix: '# '),
-    'sh': generateInfo(
-      prefix: '# ',
-      header: '#!/usr/bin/env bash\n',
-      headerPattern:
-          r'(?<header>#!/usr/bin/env bash\n|#!/bin/sh\n|#!/bin/bash\n)',
-    ),
+    'sh': generateInfo(prefix: '# ', headerPattern: r'(?<header>#!.*\n?)'),
     'swift': generateInfo(prefix: '// '),
     'ts': generateInfo(prefix: '// '),
     'xml': generateInfo(
@@ -278,7 +346,10 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
 
 bool _hasCorrectLicense(String rawContents, CopyrightInfo info) {
   // Normalize line endings.
-  final contents = rawContents.replaceAll('\r\n', '\n');
+  var contents = rawContents.replaceAll('\r\n', '\n');
   // Ignore empty files.
-  return contents.isEmpty || contents.startsWith(info.pattern);
+  if (contents.isEmpty) {
+    return true;
+  }
+  return info.pattern.hasMatch(contents);
 }
