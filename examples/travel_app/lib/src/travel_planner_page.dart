@@ -435,6 +435,8 @@ ${_imagesJson ?? ''}
 list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
 It is fine if the image is irrelevant, as long as it is from the list.
 
+- Image location always should be an asset path (e.g. assets/...).
+
 # Example
 
 Here is an example of the arguments to the `addOrUpdateSurface` tool. Note that
