@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gulf_client/src/core/interpreter.dart';
+import 'package:gulf_client/src/models/component.dart';
 
 void main() {
   group('GulfInterpreter', () {
@@ -26,8 +27,7 @@ void main() {
       tester,
     ) async {
       streamController.add(
-        '{"messageType": "ComponentUpdate", "runtimeType": "componentUpdate", '
-        '"components": [{"id": "root", "type": "Column"}]}',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {}}}}]}}''',
       );
       await tester.pump();
       expect(interpreter.getComponent('root'), isNotNull);
@@ -36,18 +36,16 @@ void main() {
 
     testWidgets('processes DataModelUpdate and buffers nodes', (tester) async {
       streamController.add(
-        '{"messageType": "DataModelUpdate", "runtimeType": "dataModelUpdate", '
-        '"nodes": [{"id": "data_root", "value": "test"}]}',
+        '{"dataModelUpdate": {"path": "user.name", "contents": "John Doe"}}',
       );
       await tester.pump();
-      expect(interpreter.getDataNode('data_root'), isNotNull);
+      expect(interpreter.resolveDataBinding('user.name'), 'John Doe');
     });
 
-    testWidgets('processes UIRoot and sets isReadyToRender', (tester) async {
-      streamController.add(
-        '{"messageType": "UIRoot", "runtimeType": "uiRoot", "root": "root", '
-        '"dataModelRoot": "data_root"}',
-      );
+    testWidgets('processes BeginRendering and sets isReadyToRender', (
+      tester,
+    ) async {
+      streamController.add('{"beginRendering": {"root": "root"}}');
       await tester.pump();
       expect(interpreter.isReadyToRender, isTrue);
       expect(interpreter.rootComponentId, 'root');
@@ -57,10 +55,7 @@ void main() {
       var callCount = 0;
       interpreter.addListener(() => callCount++);
 
-      streamController.add(
-        '{"messageType": "UIRoot", "runtimeType": "uiRoot", "root": "root", '
-        '"dataModelRoot": "data_root"}',
-      );
+      streamController.add('{"beginRendering": {"root": "root"}}');
       await tester.pump();
       expect(callCount, 1);
     });
@@ -74,7 +69,7 @@ void main() {
     });
 
     test('throws an exception for unknown message type', () {
-      const malformedJson = '{"messageType": "UnknownType"}';
+      const malformedJson = '{"unknownType": {}}';
       expect(
         () => interpreter.processMessage(malformedJson),
         throwsA(isA<Exception>()),
@@ -83,49 +78,38 @@ void main() {
 
     test('handles malformed JSON gracefully', () {
       expect(
-        () => interpreter.processMessage('{"messageType": "ComponentUpdate",'),
+        () => interpreter.processMessage('{"componentUpdate":'),
         throwsA(isA<FormatException>()),
       );
     });
 
     test('correctly processes a valid JSONL stream', () async {
+      streamController.add('{"streamHeader": {"version": "1.0.0"}}');
       streamController.add(
-        '{"messageType": "StreamHeader", "version": "1.0.0"}',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {}}}}]}}''',
       );
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", '
-        '"type": "Column"}]}',
+        '''{"dataModelUpdate": {"path": "user", "contents": {"name": "test_user"}}}''',
       );
-      streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", '
-        '"children": {"user": "user_node"}}, {"id": "user_node", '
-        '"value": "test_user"}]}',
-      );
-      streamController.add(
-        '{"messageType": "UIRoot", "root": "root", '
-        '"dataModelRoot": "data_root"}',
-      );
+      streamController.add('{"beginRendering": {"root": "root"}}');
       await streamController.close();
 
       expect(interpreter.isReadyToRender, isTrue);
       expect(interpreter.rootComponentId, 'root');
-      expect(interpreter.getComponent('root')?.type, 'Column');
-      expect(interpreter.resolveDataBinding('/user'), 'test_user');
+      final component = interpreter.getComponent('root');
+      expect(component, isNotNull);
+      expect(component?.componentProperties, isA<ColumnProperties>());
+      expect(interpreter.resolveDataBinding('user.name'), 'test_user');
     });
 
     test('resolveDataBinding returns null for invalid path', () async {
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", '
-        '"children": {"user": "user_node"}}, {"id": "user_node", '
-        '"value": "test_user"}]}',
+        '''{"dataModelUpdate": {"path": "user", "contents": {"name": "test_user"}}}''',
       );
-      streamController.add(
-        '{"messageType": "UIRoot", "root": "root", '
-        '"dataModelRoot": "data_root"}',
-      );
+      streamController.add('{"beginRendering": {"root": "root"}}');
       await streamController.close();
 
-      expect(interpreter.resolveDataBinding('/invalid/path'), isNull);
+      expect(interpreter.resolveDataBinding('invalid.path'), isNull);
     });
   });
 }

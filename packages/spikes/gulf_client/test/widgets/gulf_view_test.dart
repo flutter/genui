@@ -17,10 +17,20 @@ void main() {
     setUp(() {
       streamController = StreamController<String>();
       registry = WidgetRegistry();
-      registry.register('Text', (context, component, properties, children) {
+      registry.register('TextProperties', (
+        context,
+        component,
+        properties,
+        children,
+      ) {
         return Text(properties['text'] as String? ?? '');
       });
-      registry.register('Column', (context, component, properties, children) {
+      registry.register('ColumnProperties', (
+        context,
+        component,
+        properties,
+        children,
+      ) {
         return Column(children: children['children'] ?? []);
       });
       interpreter = GulfInterpreter(stream: streamController.stream);
@@ -43,12 +53,10 @@ void main() {
       );
 
       streamController.add(
-        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Text", "value": {"literalString": "Hello"}}]}''',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Text": {"text": {"literalString": "Hello"}}}}]}}''',
       );
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(find.text('Hello'), findsOneWidget);
     });
@@ -61,12 +69,10 @@ void main() {
       );
 
       streamController.add(
-        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Column", "children": {"explicitList": ["root"]}}]}''',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {"explicitList": ["root"]}}}}]}}''',
       );
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(
         find.textContaining('Error: cyclical layout detected'),
@@ -82,15 +88,13 @@ void main() {
       );
 
       streamController.add(
-        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "MissingWidget"}]}''',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"MissingWidget": {}}}]}}''',
       );
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('Error: unknown component type'),
+        find.textContaining('Unknown component type: MissingWidget'),
         findsOneWidget,
       );
     });
@@ -102,10 +106,8 @@ void main() {
         ),
       );
 
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(find.textContaining('Error: component not found'), findsOneWidget);
     });
@@ -118,22 +120,20 @@ void main() {
       );
 
       streamController.add(
-        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Text", "value": {"path": "/greeting"}}]}''',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Text": {"text": {"path": "greeting"}}}}]}}''',
       );
       streamController.add(
-        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"greeting": "greeting_node"}}, {"id": "greeting_node", "value": "Initial"}]}''',
+        '{"dataModelUpdate": {"path": "greeting", "contents": "Initial"}}',
       );
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(find.text('Initial'), findsOneWidget);
 
       streamController.add(
-        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "greeting_node", "value": "Updated"}]}''',
+        '{"dataModelUpdate": {"path": "greeting", "contents": "Updated"}}',
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Updated'), findsOneWidget);
     });

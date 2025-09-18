@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Action;
 import 'package:gulf_client/gulf_client.dart';
 
 void main() {
@@ -12,31 +12,31 @@ void main() {
 }
 
 const String _sampleJsonl = r'''
-{"messageType": "StreamHeader", "version": "1.0.0"}
-{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Column", "children": {"explicitList": ["profile_card"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "profile_card", "type": "Card", "child": "card_content"}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "card_content", "type": "Column", "children": {"explicitList": ["header_row", "bio_text", "stats_row", "interaction_row"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "header_row", "type": "Row", "alignment": "center", "children": {"explicitList": ["avatar", "name_column"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "avatar", "type": "Image", "value": {"literalString": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=128"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "name_column", "type": "Column", "alignment": "start", "children": {"explicitList": ["name_text", "handle_text"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "name_text", "type": "Text", "level": 3, "value": {"literalString": "Flutter Fan"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "handle_text", "type": "Text", "level": 5, "value": {"literalString": "@flutterdev"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "bio_text", "type": "Text", "level": 4, "value": {"literalString": "Building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase."}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "stats_row", "type": "Row", "distribution": "spaceAround", "children": {"explicitList": ["followers_stat", "following_stat", "likes_stat"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "followers_stat", "type": "Column", "children": {"explicitList": ["followers_count", "followers_label"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "followers_count", "type": "Text", "level": 4, "value": {"literalString": "1.2M"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "followers_label", "type": "Text", "level": 6, "value": {"literalString": "Followers"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "following_stat", "type": "Column", "children": {"explicitList": ["following_count", "following_label"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "following_count", "type": "Text", "level": 4, "value": {"literalString": "280"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "following_label", "type": "Text", "level": 6, "value": {"literalString": "Following"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "likes_stat", "type": "Column", "children": {"explicitList": ["likes_count", "likes_label"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "likes_count", "type": "Text", "level": 4, "value": {"literalString": "10M"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "likes_label", "type": "Text", "level": 6, "value": {"literalString": "Likes"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "interaction_row", "type": "Row", "children": {"explicitList": ["follow_button", "message_field"]}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "follow_button", "type": "Button", "label": "Follow", "action": {"action": "follow_user"}}]}
-{"messageType": "ComponentUpdate", "components": [{"id": "message_field", "type": "TextField", "description": "Send a message..."}]}
-{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root"}]}
-{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}
+{"streamHeader": {"version": "1.0.0"}}
+{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {"explicitList": ["profile_card"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "profile_card", "componentProperties": {"Card": {"child": "card_content"}}}]}}
+{"componentUpdate": {"components": [{"id": "card_content", "componentProperties": {"Column": {"children": {"explicitList": ["header_row", "bio_text", "stats_row", "interaction_row"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "header_row", "componentProperties": {"Row": {"alignment": "center", "children": {"explicitList": ["avatar", "name_column"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "avatar", "componentProperties": {"Image": {"url": {"literalString": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=128"}}}}]}}
+{"componentUpdate": {"components": [{"id": "name_column", "componentProperties": {"Column": {"alignment": "start", "children": {"explicitList": ["name_text", "handle_text"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "name_text", "componentProperties": {"Heading": {"level": "3", "text": {"literalString": "Flutter Fan"}}}}]}}
+{"componentUpdate": {"components": [{"id": "handle_text", "componentProperties": {"Text": {"text": {"literalString": "@flutterdev"}}}}]}}
+{"componentUpdate": {"components": [{"id": "bio_text", "componentProperties": {"Text": {"text": {"literalString": "Building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase."}}}}]}}
+{"componentUpdate": {"components": [{"id": "stats_row", "componentProperties": {"Row": {"distribution": "spaceAround", "children": {"explicitList": ["followers_stat", "following_stat", "likes_stat"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "followers_stat", "componentProperties": {"Column": {"children": {"explicitList": ["followers_count", "followers_label"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "followers_count", "componentProperties": {"Text": {"text": {"literalString": "1.2M"}}}}]}}
+{"componentUpdate": {"components": [{"id": "followers_label", "componentProperties": {"Text": {"text": {"literalString": "Followers"}}}}]}}
+{"componentUpdate": {"components": [{"id": "following_stat", "componentProperties": {"Column": {"children": {"explicitList": ["following_count", "following_label"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "following_count", "componentProperties": {"Text": {"text": {"literalString": "280"}}}}]}}
+{"componentUpdate": {"components": [{"id": "following_label", "componentProperties": {"Text": {"text": {"literalString": "Following"}}}}]}}
+{"componentUpdate": {"components": [{"id": "likes_stat", "componentProperties": {"Column": {"children": {"explicitList": ["likes_count", "likes_label"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "likes_count", "componentProperties": {"Text": {"text": {"literalString": "10M"}}}}]}}
+{"componentUpdate": {"components": [{"id": "likes_label", "componentProperties": {"Text": {"text": {"literalString": "Likes"}}}}]}}
+{"componentUpdate": {"components": [{"id": "interaction_row", "componentProperties": {"Row": {"children": {"explicitList": ["follow_button", "message_field"]}}}}]}}
+{"componentUpdate": {"components": [{"id": "follow_button", "componentProperties": {"Button": {"label": {"literalString": "Follow"}, "action": {"action": "follow_user"}}}}]}}
+{"componentUpdate": {"components": [{"id": "message_field", "componentProperties": {"TextField": {"label": {"literalString": "Send a message..."}}}}}]}}
+{"dataModelUpdate": {"contents": {}}}
+{"beginRendering": {"root": "root"}}
 ''';
 
 class ExampleApp extends StatelessWidget {
@@ -68,7 +68,12 @@ class _ExampleViewState extends State<ExampleView> {
   @override
   void initState() {
     super.initState();
-    registry.register('Column', (context, component, properties, children) {
+    registry.register('ColumnProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: _getMainAxisAlignment(
@@ -80,7 +85,12 @@ class _ExampleViewState extends State<ExampleView> {
         children: children['children'] ?? [],
       );
     });
-    registry.register('Row', (context, component, properties, children) {
+    registry.register('RowProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
       return Row(
         mainAxisAlignment: _getMainAxisAlignment(
           properties['distribution'] as String?,
@@ -91,18 +101,35 @@ class _ExampleViewState extends State<ExampleView> {
         children: children['children'] ?? [],
       );
     });
-    registry.register('Text', (context, component, properties, children) {
-      final text = component.value?.literalString ?? '';
-      final level = component.level;
+    registry.register('TextProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final text = properties['text'] as String? ?? '';
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+        child: Text(text),
+      );
+    });
+    registry.register('HeadingProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final text = properties['text'] as String? ?? '';
+      final level = properties['level'] as String?;
       TextStyle? style;
       if (level != null) {
         style = switch (level) {
-          1 => Theme.of(context).textTheme.headlineSmall,
-          2 => Theme.of(context).textTheme.titleLarge,
-          3 => Theme.of(context).textTheme.titleMedium,
-          4 => Theme.of(context).textTheme.bodyLarge,
-          5 => Theme.of(context).textTheme.bodyMedium,
-          6 => Theme.of(context).textTheme.bodySmall,
+          '1' => Theme.of(context).textTheme.headlineSmall,
+          '2' => Theme.of(context).textTheme.titleLarge,
+          '3' => Theme.of(context).textTheme.titleMedium,
+          '4' => Theme.of(context).textTheme.bodyLarge,
+          '5' => Theme.of(context).textTheme.bodyMedium,
+          '6' => Theme.of(context).textTheme.bodySmall,
           _ => Theme.of(context).textTheme.bodyMedium,
         };
       }
@@ -111,8 +138,13 @@ class _ExampleViewState extends State<ExampleView> {
         child: Text(text, style: style),
       );
     });
-    registry.register('Image', (context, component, properties, children) {
-      final url = component.value?.literalString;
+    registry.register('ImageProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final url = properties['url'] as String?;
       if (url == null) {
         return const Padding(
           padding: EdgeInsets.all(8.0),
@@ -124,7 +156,12 @@ class _ExampleViewState extends State<ExampleView> {
         child: Image.network(url, width: 64, height: 64),
       );
     });
-    registry.register('Card', (context, component, properties, children) {
+    registry.register('CardProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
       return Card(
         margin: const EdgeInsets.all(8.0),
         child: Padding(
@@ -133,28 +170,39 @@ class _ExampleViewState extends State<ExampleView> {
         ),
       );
     });
-    registry.register('Button', (context, component, properties, children) {
+    registry.register('ButtonProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final action = properties['action'] as Action;
       return ElevatedButton(
         onPressed: () {
-          GulfProvider.of(
-            context,
-          )?.onEvent?.call({'action': component.action?.action});
+          GulfProvider.of(context)?.onEvent?.call({'action': action.action});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Event: ${component.action?.action}'),
+              content: Text('Event: ${action.action}'),
               duration: const Duration(seconds: 1),
             ),
           );
         },
-        child: Text(component.label ?? ''),
+        child: Text(properties['label'] as String? ?? ''),
       );
     });
-    registry.register('TextField', (context, component, properties, children) {
+    registry.register('TextFieldProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: TextField(
-            decoration: InputDecoration(hintText: component.description),
+            decoration: InputDecoration(
+              hintText: properties['label'] as String?,
+            ),
           ),
         ),
       );

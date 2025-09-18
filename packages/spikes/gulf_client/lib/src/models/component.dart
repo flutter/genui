@@ -2,6 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// An exception that is thrown when an unknown component type is encountered.
+class UnknownComponentException implements Exception {
+  UnknownComponentException(this.type);
+
+  /// The unknown component type.
+  final String type;
+
+  @override
+  String toString() => 'Unknown component type: $type';
+}
+
+/// A component in the UI.
 class Component {
   const Component({
     required this.id,
@@ -9,6 +21,7 @@ class Component {
     required this.componentProperties,
   });
 
+  /// Creates a [Component] from a JSON object.
   factory Component.fromJson(Map<String, dynamic> json) {
     return Component(
       id: json['id'] as String,
@@ -19,12 +32,19 @@ class Component {
     );
   }
 
+  /// The unique ID of the component.
   final String id;
+
+  /// The weight of the component in a layout.
   final double? weight;
+
+  /// The properties of the component.
   final ComponentProperties componentProperties;
 }
 
+/// A sealed class for the properties of a component.
 sealed class ComponentProperties {
+  /// Creates a [ComponentProperties] from a JSON object.
   factory ComponentProperties.fromJson(Map<String, dynamic> json) {
     final type = json.keys.first;
     final properties = json[type] as Map<String, dynamic>;
@@ -66,11 +86,18 @@ sealed class ComponentProperties {
       case 'Slider':
         return SliderProperties.fromJson(properties);
       default:
-        throw Exception('Unknown component type: $type');
+        throw UnknownComponentException(type);
     }
   }
 }
 
+/// An interface for components that have children.
+abstract class HasChildren {
+  /// The children of the component.
+  Children get children;
+}
+
+/// The properties for a heading component.
 class HeadingProperties implements ComponentProperties {
   const HeadingProperties({required this.text, required this.level});
 
@@ -81,10 +108,14 @@ class HeadingProperties implements ComponentProperties {
     );
   }
 
+  /// The text of the heading.
   final BoundValue text;
+
+  /// The level of the heading.
   final String level;
 }
 
+/// The properties for a text component.
 class TextProperties implements ComponentProperties {
   const TextProperties({required this.text});
 
@@ -94,9 +125,11 @@ class TextProperties implements ComponentProperties {
     );
   }
 
+  /// The text of the component.
   final BoundValue text;
 }
 
+/// The properties for an image component.
 class ImageProperties implements ComponentProperties {
   const ImageProperties({required this.url});
 
@@ -106,9 +139,11 @@ class ImageProperties implements ComponentProperties {
     );
   }
 
+  /// The URL of the image.
   final BoundValue url;
 }
 
+/// The properties for a video component.
 class VideoProperties implements ComponentProperties {
   const VideoProperties({required this.url});
 
@@ -118,9 +153,11 @@ class VideoProperties implements ComponentProperties {
     );
   }
 
+  /// The URL of the video.
   final BoundValue url;
 }
 
+/// The properties for an audio player component.
 class AudioPlayerProperties implements ComponentProperties {
   const AudioPlayerProperties({required this.url, this.description});
 
@@ -133,11 +170,15 @@ class AudioPlayerProperties implements ComponentProperties {
     );
   }
 
+  /// The URL of the audio.
   final BoundValue url;
+
+  /// The description of the audio.
   final BoundValue? description;
 }
 
-class RowProperties implements ComponentProperties {
+/// The properties for a row component.
+class RowProperties implements ComponentProperties, HasChildren {
   const RowProperties({
     required this.children,
     this.distribution,
@@ -152,12 +193,18 @@ class RowProperties implements ComponentProperties {
     );
   }
 
+  @override
   final Children children;
+
+  /// The distribution of the children in the row.
   final String? distribution;
+
+  /// The alignment of the children in the row.
   final String? alignment;
 }
 
-class ColumnProperties implements ComponentProperties {
+/// The properties for a column component.
+class ColumnProperties implements ComponentProperties, HasChildren {
   const ColumnProperties({
     required this.children,
     this.distribution,
@@ -172,12 +219,18 @@ class ColumnProperties implements ComponentProperties {
     );
   }
 
+  @override
   final Children children;
+
+  /// The distribution of the children in the column.
   final String? distribution;
+
+  /// The alignment of the children in the column.
   final String? alignment;
 }
 
-class ListProperties implements ComponentProperties {
+/// The properties for a list component.
+class ListProperties implements ComponentProperties, HasChildren {
   const ListProperties({
     required this.children,
     this.direction,
@@ -192,11 +245,17 @@ class ListProperties implements ComponentProperties {
     );
   }
 
+  @override
   final Children children;
+
+  /// The direction of the list.
   final String? direction;
+
+  /// The alignment of the children in the list.
   final String? alignment;
 }
 
+/// The properties for a card component.
 class CardProperties implements ComponentProperties {
   const CardProperties({required this.child});
 
@@ -204,9 +263,11 @@ class CardProperties implements ComponentProperties {
     return CardProperties(child: json['child'] as String);
   }
 
+  /// The child of the card.
   final String child;
 }
 
+/// The properties for a tabs component.
 class TabsProperties implements ComponentProperties {
   const TabsProperties({required this.tabItems});
 
@@ -218,9 +279,11 @@ class TabsProperties implements ComponentProperties {
     );
   }
 
+  /// The items in the tab bar.
   final List<TabItem> tabItems;
 }
 
+/// The properties for a divider component.
 class DividerProperties implements ComponentProperties {
   const DividerProperties({this.axis, this.color, this.thickness});
 
@@ -232,11 +295,17 @@ class DividerProperties implements ComponentProperties {
     );
   }
 
+  /// The axis of the divider.
   final String? axis;
+
+  /// The color of the divider.
   final String? color;
+
+  /// The thickness of the divider.
   final double? thickness;
 }
 
+/// The properties for a modal component.
 class ModalProperties implements ComponentProperties {
   const ModalProperties({
     required this.entryPointChild,
@@ -250,10 +319,14 @@ class ModalProperties implements ComponentProperties {
     );
   }
 
+  /// The child that triggers the modal.
   final String entryPointChild;
+
+  /// The child that is displayed in the modal.
   final String contentChild;
 }
 
+/// The properties for a button component.
 class ButtonProperties implements ComponentProperties {
   const ButtonProperties({required this.label, required this.action});
 
@@ -264,10 +337,14 @@ class ButtonProperties implements ComponentProperties {
     );
   }
 
+  /// The label of the button.
   final BoundValue label;
+
+  /// The action to perform when the button is tapped.
   final Action action;
 }
 
+/// The properties for a checkbox component.
 class CheckBoxProperties implements ComponentProperties {
   const CheckBoxProperties({required this.label, required this.value});
 
@@ -278,10 +355,14 @@ class CheckBoxProperties implements ComponentProperties {
     );
   }
 
+  /// The label of the checkbox.
   final BoundValue label;
+
+  /// The value of the checkbox.
   final BoundValue value;
 }
 
+/// The properties for a text field component.
 class TextFieldProperties implements ComponentProperties {
   const TextFieldProperties({
     this.text,
@@ -301,12 +382,20 @@ class TextFieldProperties implements ComponentProperties {
     );
   }
 
+  /// The text of the text field.
   final BoundValue? text;
+
+  /// The label of the text field.
   final BoundValue label;
+
+  /// The type of the text field.
   final String? type;
+
+  /// The validation regular expression for the text field.
   final String? validationRegexp;
 }
 
+/// The properties for a date/time input component.
 class DateTimeInputProperties implements ComponentProperties {
   const DateTimeInputProperties({
     required this.value,
@@ -324,12 +413,20 @@ class DateTimeInputProperties implements ComponentProperties {
     );
   }
 
+  /// The value of the date/time input.
   final BoundValue value;
+
+  /// Whether to enable the date picker.
   final bool? enableDate;
+
+  /// Whether to enable the time picker.
   final bool? enableTime;
+
+  /// The output format of the date/time input.
   final String? outputFormat;
 }
 
+/// The properties for a multiple choice component.
 class MultipleChoiceProperties implements ComponentProperties {
   const MultipleChoiceProperties({
     required this.selections,
@@ -349,11 +446,17 @@ class MultipleChoiceProperties implements ComponentProperties {
     );
   }
 
+  /// The selected values.
   final BoundValue selections;
+
+  /// The options for the multiple choice component.
   final List<Option>? options;
+
+  /// The maximum number of allowed selections.
   final int? maxAllowedSelections;
 }
 
+/// The properties for a slider component.
 class SliderProperties implements ComponentProperties {
   const SliderProperties({required this.value, this.minValue, this.maxValue});
 
@@ -365,11 +468,17 @@ class SliderProperties implements ComponentProperties {
     );
   }
 
+  /// The value of the slider.
   final BoundValue value;
+
+  /// The minimum value of the slider.
   final double? minValue;
+
+  /// The maximum value of the slider.
   final double? maxValue;
 }
 
+/// A value that can be either a literal or a data binding.
 class BoundValue {
   const BoundValue({
     this.path,
@@ -387,12 +496,20 @@ class BoundValue {
     );
   }
 
+  /// The path to the value in the data model.
   final String? path;
+
+  /// The literal string value.
   final String? literalString;
+
+  /// The literal number value.
   final double? literalNumber;
+
+  /// The literal boolean value.
   final bool? literalBoolean;
 }
 
+/// The children of a component.
 class Children {
   const Children({this.explicitList, this.template});
 
@@ -407,10 +524,14 @@ class Children {
     );
   }
 
+  /// The explicit list of children.
   final List<String>? explicitList;
+
+  /// The template for the children.
   final Template? template;
 }
 
+/// A template for a list of children.
 class Template {
   const Template({required this.componentId, required this.dataBinding});
 
@@ -421,10 +542,14 @@ class Template {
     );
   }
 
+  /// The ID of the component to use as a template.
   final String componentId;
+
+  /// The data binding for the template.
   final String dataBinding;
 }
 
+/// An item in a tab bar.
 class TabItem {
   const TabItem({required this.title, required this.child});
 
@@ -435,10 +560,14 @@ class TabItem {
     );
   }
 
+  /// The title of the tab.
   final BoundValue title;
+
+  /// The child of the tab.
   final String child;
 }
 
+/// An action to perform when a widget is interacted with.
 class Action {
   const Action({required this.action, this.context});
 
@@ -451,10 +580,14 @@ class Action {
     );
   }
 
+  /// The name of the action.
   final String action;
+
+  /// The context of the action.
   final List<ContextItem>? context;
 }
 
+/// An item in the context of an action.
 class ContextItem {
   const ContextItem({required this.key, required this.value});
 
@@ -465,10 +598,14 @@ class ContextItem {
     );
   }
 
+  /// The key of the context item.
   final String key;
+
+  /// The value of the context item.
   final BoundValue value;
 }
 
+/// An option in a multiple choice component.
 class Option {
   const Option({required this.label, required this.value});
 
@@ -479,6 +616,9 @@ class Option {
     );
   }
 
+  /// The label of the option.
   final BoundValue label;
+
+  /// The value of the option.
   final String value;
 }

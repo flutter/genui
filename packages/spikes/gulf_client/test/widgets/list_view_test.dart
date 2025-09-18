@@ -17,10 +17,20 @@ void main() {
     setUp(() {
       streamController = StreamController<String>();
       registry = WidgetRegistry();
-      registry.register('Text', (context, component, properties, children) {
+      registry.register('TextProperties', (
+        context,
+        component,
+        properties,
+        children,
+      ) {
         return Text(properties['text'] as String? ?? '');
       });
-      registry.register('ListView', (context, component, properties, children) {
+      registry.register('ListProperties', (
+        context,
+        component,
+        properties,
+        children,
+      ) {
         return ListView(children: children['children'] ?? []);
       });
       interpreter = GulfInterpreter(stream: streamController.stream);
@@ -36,24 +46,16 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "ListView", "children": {"template": {"componentId": "template", "dataBinding": "/items"}}}]}',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"List": {"children": {"template": {"componentId": "template", "dataBinding": "items"}}}}}]}}''',
       );
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "template", "type": "Text", "value": {"path": "/text"}}]}',
+        '''{"componentUpdate": {"components": [{"id": "template", "componentProperties": {"Text": {"text": {"path": "text"}}}}]}}''',
       );
       streamController.add(
-        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"items": "items_node"}}, {"id": "items_node", "items": ["item1", "item2"]}]}''',
+        '''{"dataModelUpdate": {"path": "items", "contents": [{"text": "Item 1"}, {"text": "Item 2"}]}}''',
       );
-      streamController.add(
-        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "item1", "children": {"text": "text1"}}, {"id": "text1", "value": "Item 1"}]}''',
-      );
-      streamController.add(
-        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "item2", "children": {"text": "text2"}}, {"id": "text2", "value": "Item 2"}]}''',
-      );
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(find.text('Item 1'), findsOneWidget);
       expect(find.text('Item 2'), findsOneWidget);
@@ -71,18 +73,16 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "ListView", "children": {"template": {"componentId": "template", "dataBinding": "/items"}}}]}',
+        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"List": {"children": {"template": {"componentId": "template", "dataBinding": "items"}}}}}]}}''',
       );
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "template", "type": "Text", "value": {"path": "/text"}}]}',
+        '''{"componentUpdate": {"components": [{"id": "template", "componentProperties": {"Text": {"text": {"path": "text"}}}}]}}''',
       );
       streamController.add(
-        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"items": "items_node"}}, {"id": "items_node", "value": "not a list"}]}''',
+        '{"dataModelUpdate": {"path": "items", "contents": "not a list"}}',
       );
-      streamController.add(
-        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
-      );
-      await tester.pump();
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
 
       expect(find.byType(SizedBox), findsOneWidget);
       expect(find.textContaining('Item'), findsNothing);

@@ -4,57 +4,69 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gulf_client/src/models/component.dart';
-import 'package:gulf_client/src/models/data_node.dart';
 import 'package:gulf_client/src/models/stream_message.dart';
 
 void main() {
   group('GULF Models', () {
-    test('Component can be serialized and deserialized', () {
-      const component = Component(
-        id: 'test',
-        type: 'Text',
-        value: Value(literalString: 'Hello'),
+    test('ComponentUpdate can be deserialized', () {
+      final json = {
+        'componentUpdate': {
+          'components': [
+            {
+              'id': 'test',
+              'componentProperties': {
+                'Text': {
+                  'text': {'literalString': 'Hello'},
+                },
+              },
+            },
+          ],
+        },
+      };
+      final message = GulfStreamMessage.fromJson(json);
+      expect(message, isA<ComponentUpdate>());
+      final componentUpdate = message as ComponentUpdate;
+      expect(componentUpdate.components.length, 1);
+      expect(componentUpdate.components.first.id, 'test');
+      expect(
+        componentUpdate.components.first.componentProperties,
+        isA<TextProperties>(),
       );
-      final json = component.toJson();
-      final newComponent = Component.fromJson(json);
-      expect(newComponent, component);
+      final textProperties =
+          componentUpdate.components.first.componentProperties
+              as TextProperties;
+      expect(textProperties.text.literalString, 'Hello');
     });
 
-    test('DataModelNode can be serialized and deserialized', () {
-      const node = DataModelNode(id: 'root', children: {'user': 'user_node'});
-      final json = node.toJson();
-      final newNode = DataModelNode.fromJson(json);
-      expect(newNode, node);
+    test('DataModelUpdate can be deserialized', () {
+      final json = {
+        'dataModelUpdate': {'path': 'user.name', 'contents': 'John Doe'},
+      };
+      final message = GulfStreamMessage.fromJson(json);
+      expect(message, isA<DataModelUpdate>());
+      final dataModelUpdate = message as DataModelUpdate;
+      expect(dataModelUpdate.path, 'user.name');
+      expect(dataModelUpdate.contents, 'John Doe');
     });
 
-    test('GulfStreamMessage can be serialized and deserialized', () {
-      const message = StreamHeader(version: '1.0.0');
-      final json = message.toJson();
-      final newMessage = GulfStreamMessage.fromJson(json);
-      expect(newMessage, message);
+    test('BeginRendering can be deserialized', () {
+      final json = {
+        'beginRendering': {'root': 'root_id'},
+      };
+      final message = GulfStreamMessage.fromJson(json);
+      expect(message, isA<BeginRendering>());
+      final beginRendering = message as BeginRendering;
+      expect(beginRendering.root, 'root_id');
     });
 
-    test('ComponentUpdate can be serialized and deserialized', () {
-      const message = ComponentUpdate(
-        components: [Component(id: 'test', type: 'Text')],
-      );
-      final json = message.toJson();
-      final newMessage = GulfStreamMessage.fromJson(json);
-      expect(newMessage, message);
-    });
-
-    test('DataModelUpdate can be serialized and deserialized', () {
-      const message = DataModelUpdate(nodes: [DataModelNode(id: 'root')]);
-      final json = message.toJson();
-      final newMessage = GulfStreamMessage.fromJson(json);
-      expect(newMessage, message);
-    });
-
-    test('UiRoot can be serialized and deserialized', () {
-      const message = UiRoot(root: 'root', dataModelRoot: 'data_root');
-      final json = message.toJson();
-      final newMessage = GulfStreamMessage.fromJson(json);
-      expect(newMessage, message);
+    test('StreamHeader can be deserialized', () {
+      final json = {
+        'streamHeader': {'version': '1.0.0'},
+      };
+      final message = GulfStreamMessage.fromJson(json);
+      expect(message, isA<StreamHeader>());
+      final streamHeader = message as StreamHeader;
+      expect(streamHeader.version, '1.0.0');
     });
   });
 }

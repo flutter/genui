@@ -70,6 +70,11 @@ class _GulfViewState extends State<GulfView> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.interpreter.error != null) {
+      return Center(
+        child: Text('Error: ${widget.interpreter.error}'),
+      );
+    }
     if (!widget.interpreter.isReadyToRender) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -113,17 +118,13 @@ class _LayoutEngine extends StatelessWidget {
     final builder = registry.getBuilder(properties.runtimeType.toString());
     if (builder == null) {
       return Text(
-        'Error: unknown component type ${properties.runtimeType.toString()}',
+        'Error: Unknown component type: ${properties.runtimeType.toString()}',
       );
     }
 
-    // This is a bit of a hack to get the children of a component.
-    // We should probably have a more generic way of doing this.
     final children = <String, List<Widget>>{};
-    if (properties is RowProperties ||
-        properties is ColumnProperties ||
-        properties is ListProperties) {
-      final childrenProp = (properties as dynamic).children as Children;
+    if (properties is HasChildren) {
+      final childrenProp = (properties as HasChildren).children;
       if (childrenProp.explicitList != null) {
         children['children'] = childrenProp.explicitList!
             .map((id) => _buildNode(context, id, newVisited))
@@ -136,7 +137,7 @@ class _LayoutEngine extends StatelessWidget {
     }
 
     final resolvedProperties = <String, Object?>{};
-    // TODO(gspencer): find a more generic way to do this.
+    // TODO(gspencergoog): find a more generic way to do this.
     if (properties is TextProperties) {
       resolvedProperties['text'] = _resolveValue(properties.text, null);
     } else if (properties is HeadingProperties) {
@@ -190,8 +191,8 @@ class _LayoutEngine extends StatelessWidget {
     Component component,
     Set<String> visited,
   ) {
-    final properties = component.componentProperties as dynamic;
-    final template = properties.children.template as Template;
+    final properties = component.componentProperties as HasChildren;
+    final template = properties.children.template!;
     final data = interpreter.resolveDataBinding(template.dataBinding);
     if (data is! List) {
       return const SizedBox.shrink();
@@ -210,15 +211,24 @@ class _LayoutEngine extends StatelessWidget {
         'Error: unknown component type ${properties.runtimeType.toString()}',
       );
     }
-    final children = data.map((itemData) {
+    final children = data.map((Object? itemData) {
       final resolvedProperties = <String, Object?>{};
+      final templateProperties = templateComponent.componentProperties;
+      if (templateProperties is TextProperties) {
+        resolvedProperties['text'] = _resolveValue(
+          templateProperties.text,
+          itemData as Map<String, Object?>,
+        );
+      }
+      // TODO(gspencer): Add all other properties types here.
       final itemChildren = <String, List<Widget>>{};
       final itemBuilder = registry.getBuilder(
         templateComponent.componentProperties.runtimeType.toString(),
       );
       if (itemBuilder == null) {
         return Text(
-          'Error: unknown component type ${templateComponent.componentProperties.runtimeType.toString()}',
+          'Error: Unknown component type: '
+          '${templateComponent.componentProperties.runtimeType.toString()}',
         );
       }
       return itemBuilder(
@@ -243,7 +253,7 @@ class _LayoutEngine extends StatelessWidget {
       return value.literalBoolean;
     } else if (value.path != null) {
       if (itemData != null) {
-        return itemData[value.path!.substring(1)];
+        return itemData[value.path!];
       } else {
         return interpreter.resolveDataBinding(value.path!);
       }

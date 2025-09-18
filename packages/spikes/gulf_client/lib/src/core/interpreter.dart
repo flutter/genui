@@ -7,7 +7,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import '../models/component.dart';
-import '../models/data_node.dart';
 import '../models/stream_message.dart';
 
 /// A client-side interpreter for the GULF Streaming UI Protocol.
@@ -30,37 +29,48 @@ class GulfInterpreter with ChangeNotifier {
   String? _rootComponentId;
   bool _isReadyToRender = false;
 
+  String? _error;
+
   /// Whether the interpreter has received enough information to render the UI.
   bool get isReadyToRender => _isReadyToRender;
 
   /// The ID of the root component in the UI.
   String? get rootComponentId => _rootComponentId;
 
+  /// An error message, if any error has occurred.
+  String? get error => _error;
+
   /// Processes a single JSONL message from the stream.
   void processMessage(String jsonl) {
     if (jsonl.isEmpty) {
       return;
     }
-    final json = jsonDecode(jsonl) as Map<String, Object?>;
-    final message = GulfStreamMessage.fromJson(json);
-    switch (message) {
-      case StreamHeader():
-        // Nothing to do for now.
-        break;
-      case ComponentUpdate():
-        for (final component in message.components) {
-          _components[component.id] = component;
-        }
-        break;
-      case DataModelUpdate():
-        _updateDataModel(message.path, message.contents);
-        notifyListeners();
-        break;
-      case BeginRendering():
-        _rootComponentId = message.root;
-        _isReadyToRender = true;
-        notifyListeners();
-        break;
+    try {
+      final json = jsonDecode(jsonl) as Map<String, Object?>;
+      final message = GulfStreamMessage.fromJson(json);
+      switch (message) {
+        case StreamHeader():
+          // Nothing to do for now.
+          break;
+        case ComponentUpdate():
+          for (final component in message.components) {
+            _components[component.id] = component;
+          }
+          break;
+        case DataModelUpdate():
+          _updateDataModel(message.path, message.contents);
+          notifyListeners();
+          break;
+        case BeginRendering():
+          _rootComponentId = message.root;
+          _isReadyToRender = true;
+          notifyListeners();
+          break;
+      }
+    } on UnknownComponentException catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      debugPrint('Error: $e');
     }
   }
 

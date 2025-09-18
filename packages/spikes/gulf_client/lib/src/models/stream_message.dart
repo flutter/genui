@@ -4,7 +4,9 @@
 
 import 'component.dart';
 
+/// A sealed class for all messages in the GULF Streaming UI Protocol.
 sealed class GulfStreamMessage {
+  /// Creates a [GulfStreamMessage] from a JSON object.
   factory GulfStreamMessage.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('streamHeader')) {
       return StreamHeader.fromJson(
@@ -30,19 +32,26 @@ sealed class GulfStreamMessage {
   }
 }
 
+/// A message that contains the version of the protocol.
 class StreamHeader implements GulfStreamMessage {
+  /// Creates a [StreamHeader].
   const StreamHeader({required this.version});
 
+  /// Creates a [StreamHeader] from a JSON object.
   factory StreamHeader.fromJson(Map<String, dynamic> json) {
     return StreamHeader(version: json['version'] as String);
   }
 
+  /// The version of the protocol.
   final String version;
 }
 
+/// A message that signals the client to begin rendering the UI.
 class BeginRendering implements GulfStreamMessage {
+  /// Creates a [BeginRendering].
   const BeginRendering({required this.root, this.styles});
 
+  /// Creates a [BeginRendering] from a JSON object.
   factory BeginRendering.fromJson(Map<String, dynamic> json) {
     return BeginRendering(
       root: json['root'] as String,
@@ -50,13 +59,19 @@ class BeginRendering implements GulfStreamMessage {
     );
   }
 
+  /// The ID of the root component.
   final String root;
+
+  /// The styles for the UI.
   final Map<String, dynamic>? styles;
 }
 
+/// A message that contains a list of components to update.
 class ComponentUpdate implements GulfStreamMessage {
+  /// Creates a [ComponentUpdate].
   const ComponentUpdate({required this.components});
 
+  /// Creates a [ComponentUpdate] from a JSON object.
   factory ComponentUpdate.fromJson(Map<String, dynamic> json) {
     return ComponentUpdate(
       components: (json['components'] as List<dynamic>)
@@ -65,12 +80,16 @@ class ComponentUpdate implements GulfStreamMessage {
     );
   }
 
+  /// The list of components to update.
   final List<Component> components;
 }
 
+/// A message that contains a data model update.
 class DataModelUpdate implements GulfStreamMessage {
+  /// Creates a [DataModelUpdate].
   const DataModelUpdate({this.path, required this.contents});
 
+  /// Creates a [DataModelUpdate] from a JSON object.
   factory DataModelUpdate.fromJson(Map<String, dynamic> json) {
     return DataModelUpdate(
       path: json['path'] as String?,
@@ -78,6 +97,9 @@ class DataModelUpdate implements GulfStreamMessage {
     );
   }
 
+  /// The path to the data to update.
   final String? path;
+
+  /// The new contents of the data.
   final dynamic contents;
 }

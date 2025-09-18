@@ -11,7 +11,6 @@ library;
 export 'src/core/interpreter.dart';
 export 'src/core/widget_registry.dart';
 export 'src/models/component.dart';
-export 'src/models/data_node.dart';
 export 'src/models/stream_message.dart';
 export 'src/widgets/gulf_provider.dart';
 export 'src/widgets/gulf_view.dart';
