@@ -463,9 +463,6 @@
                                   "type": "string",
                                   "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                                 },
-                                "componentId": {
-                                  "type": "string"
-                                },
                                 "literalString": {
                                   "type": "string",
                                   "description": "A fixed, hardcoded string value."
