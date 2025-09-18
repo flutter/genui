@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../models/component.dart';
 import '../core/interpreter.dart';
+import '../models/component.dart';
 
 /// A visitor that resolves the properties of a [Component].
 class ComponentPropertiesVisitor {
@@ -13,7 +13,7 @@ class ComponentPropertiesVisitor {
   /// The interpreter to use for resolving data bindings.
   final GulfInterpreter interpreter;
 
-  /// Resolves the properties of a [component].
+  /// Resolves the properties of a [Component].
   Map<String, Object?> visit(
     ComponentProperties properties,
     Map<String, dynamic>? itemData,
@@ -67,7 +67,6 @@ class ComponentPropertiesVisitor {
       TabsProperties() => {},
       DividerProperties() => {},
       ModalProperties() => {},
-      _ => {},
     };
   }
 

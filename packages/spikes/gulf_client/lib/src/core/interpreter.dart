@@ -25,7 +25,7 @@ class GulfInterpreter with ChangeNotifier {
   final Stream<String> stream;
 
   final Map<String, Component> _components = {};
-  Map<String, dynamic> _dataModel = {};
+  Map<String, Object?> _dataModel = {};
   String? _rootComponentId;
   bool _isReadyToRender = false;
 
@@ -76,22 +76,68 @@ class GulfInterpreter with ChangeNotifier {
 
   void _updateDataModel(String? path, dynamic contents) {
     if (path == null || path.isEmpty) {
-      _dataModel = contents as Map<String, dynamic>;
+      if (contents is Map<String, Object?>) {
+        _dataModel = contents;
+      } else if (contents is Map) {
+        _dataModel = contents.cast<String, Object?>();
+      } else {
+        _error = 'Data model root must be a JSON object.';
+      }
       return;
     }
 
-    final segments = path.split('.');
-    var currentLevel = _dataModel;
+    final segments = path
+        .split(RegExp(r'\.|\[|\]'))
+        .where((s) => s.isNotEmpty)
+        .toList();
+    if (segments.isEmpty) return;
+
+    Object? current = _dataModel;
 
     for (var i = 0; i < segments.length - 1; i++) {
       final segment = segments[i];
-      if (!currentLevel.containsKey(segment) || currentLevel[segment] is! Map) {
-        currentLevel[segment] = <String, dynamic>{};
+      final nextSegment = segments[i + 1];
+      final nextIsIndex = int.tryParse(nextSegment) != null;
+
+      final index = int.tryParse(segment);
+      if (index != null && current is List) {
+        // Current segment is an index, and we are traversing a list.
+        while (current.length <= index) {
+          current.add(null);
+        }
+        if (current[index] == null ||
+            (nextIsIndex && current[index] is! List) ||
+            (!nextIsIndex && current[index] is! Map)) {
+          current[index] = nextIsIndex ? <Object?>[] : <String, Object?>{};
+        }
+        current = current[index];
+      } else if (current is Map<String, Object?>) {
+        // Current segment is a key, and we are traversing a map.
+        final key = segment;
+        if (!current.containsKey(key) ||
+            (nextIsIndex && current[key] is! List) ||
+            (!nextIsIndex && current[key] is! Map)) {
+          current[key] = nextIsIndex ? <Object?>[] : <String, Object?>{};
+        }
+        current = current[key];
+      } else {
+        // Path is invalid for the current data model structure.
+        return;
       }
-      currentLevel = currentLevel[segment] as Map<String, dynamic>;
     }
 
-    currentLevel[segments.last] = contents;
+    final lastSegment = segments.last;
+    final lastIndex = int.tryParse(lastSegment);
+
+    if (lastIndex != null && current is List) {
+      final index = lastIndex;
+      while (current.length <= index) {
+        current.add(null);
+      }
+      current[index] = contents;
+    } else if (current is Map<String, Object?>) {
+      current[lastSegment] = contents;
+    }
   }
 
   /// Retrieves a component by its [id].
@@ -102,21 +148,28 @@ class GulfInterpreter with ChangeNotifier {
     if (path.isEmpty) {
       return null;
     }
-    final segments = path.split('.').where((s) => s.isNotEmpty).toList();
+    final segments = path
+        .split(RegExp(r'\.|\[|\]'))
+        .where((s) => s.isNotEmpty)
+        .toList();
     dynamic currentValue = _dataModel;
     for (final segment in segments) {
-      if (currentValue is Map<String, dynamic> &&
-          currentValue.containsKey(segment)) {
-        currentValue = currentValue[segment];
-      } else if (currentValue is List) {
-        final index = int.tryParse(segment);
-        if (index != null && index >= 0 && index < currentValue.length) {
+      if (currentValue == null) {
+        return null;
+      }
+
+      final index = int.tryParse(segment);
+      if (index != null && currentValue is List) {
+        if (index >= 0 && index < currentValue.length) {
           currentValue = currentValue[index];
         } else {
-          return null;
+          return null; // Index out of bounds.
         }
+      } else if (currentValue is Map<String, Object?> &&
+          currentValue.containsKey(segment)) {
+        currentValue = currentValue[segment];
       } else {
-        return null;
+        return null; // Path segment doesn't match data structure.
       }
     }
     return currentValue;

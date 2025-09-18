@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:equatable/equatable.dart';
+
 import '../utils/json_utils.dart';
 
 /// An exception that is thrown when an unknown component type is encountered.
@@ -16,7 +18,7 @@ class UnknownComponentException implements Exception {
 }
 
 /// A component in the UI.
-class Component {
+class Component extends Equatable {
   const Component({
     required this.id,
     this.weight,
@@ -42,10 +44,15 @@ class Component {
 
   /// The properties of the component.
   final ComponentProperties componentProperties;
+
+  @override
+  List<Object?> get props => [id, weight, componentProperties];
 }
 
 /// A sealed class for the properties of a component.
-sealed class ComponentProperties {
+sealed class ComponentProperties extends Equatable {
+  const ComponentProperties();
+
   /// Creates a [ComponentProperties] from a JSON object.
   factory ComponentProperties.fromJson(Map<String, dynamic> json) {
     final type = json.keys.first;
@@ -91,6 +98,9 @@ sealed class ComponentProperties {
         throw UnknownComponentException(type);
     }
   }
+
+  @override
+  List<Object?> get props => [];
 }
 
 /// An interface for components that have children.
@@ -100,7 +110,7 @@ abstract class HasChildren {
 }
 
 /// The properties for a heading component.
-class HeadingProperties implements ComponentProperties {
+class HeadingProperties extends ComponentProperties {
   const HeadingProperties({required this.text, required this.level});
 
   factory HeadingProperties.fromJson(Map<String, dynamic> json) {
@@ -115,10 +125,13 @@ class HeadingProperties implements ComponentProperties {
 
   /// The level of the heading.
   final String level;
+
+  @override
+  List<Object?> get props => [text, level];
 }
 
 /// The properties for a text component.
-class TextProperties implements ComponentProperties {
+class TextProperties extends ComponentProperties {
   const TextProperties({required this.text});
 
   factory TextProperties.fromJson(Map<String, dynamic> json) {
@@ -129,10 +142,13 @@ class TextProperties implements ComponentProperties {
 
   /// The text of the component.
   final BoundValue text;
+
+  @override
+  List<Object?> get props => [text];
 }
 
 /// The properties for an image component.
-class ImageProperties implements ComponentProperties {
+class ImageProperties extends ComponentProperties {
   const ImageProperties({required this.url});
 
   factory ImageProperties.fromJson(Map<String, dynamic> json) {
@@ -143,10 +159,13 @@ class ImageProperties implements ComponentProperties {
 
   /// The URL of the image.
   final BoundValue url;
+
+  @override
+  List<Object?> get props => [url];
 }
 
 /// The properties for a video component.
-class VideoProperties implements ComponentProperties {
+class VideoProperties extends ComponentProperties {
   const VideoProperties({required this.url});
 
   factory VideoProperties.fromJson(Map<String, dynamic> json) {
@@ -157,10 +176,13 @@ class VideoProperties implements ComponentProperties {
 
   /// The URL of the video.
   final BoundValue url;
+
+  @override
+  List<Object?> get props => [url];
 }
 
 /// The properties for an audio player component.
-class AudioPlayerProperties implements ComponentProperties {
+class AudioPlayerProperties extends ComponentProperties {
   const AudioPlayerProperties({required this.url, this.description});
 
   factory AudioPlayerProperties.fromJson(Map<String, dynamic> json) {
@@ -177,10 +199,13 @@ class AudioPlayerProperties implements ComponentProperties {
 
   /// The description of the audio.
   final BoundValue? description;
+
+  @override
+  List<Object?> get props => [url, description];
 }
 
 /// The properties for a row component.
-class RowProperties implements ComponentProperties, HasChildren {
+class RowProperties extends ComponentProperties implements HasChildren {
   const RowProperties({
     required this.children,
     this.distribution,
@@ -203,10 +228,13 @@ class RowProperties implements ComponentProperties, HasChildren {
 
   /// The alignment of the children in the row.
   final String? alignment;
+
+  @override
+  List<Object?> get props => [children, distribution, alignment];
 }
 
 /// The properties for a column component.
-class ColumnProperties implements ComponentProperties, HasChildren {
+class ColumnProperties extends ComponentProperties implements HasChildren {
   const ColumnProperties({
     required this.children,
     this.distribution,
@@ -229,10 +257,13 @@ class ColumnProperties implements ComponentProperties, HasChildren {
 
   /// The alignment of the children in the column.
   final String? alignment;
+
+  @override
+  List<Object?> get props => [children, distribution, alignment];
 }
 
 /// The properties for a list component.
-class ListProperties implements ComponentProperties, HasChildren {
+class ListProperties extends ComponentProperties implements HasChildren {
   const ListProperties({
     required this.children,
     this.direction,
@@ -255,10 +286,13 @@ class ListProperties implements ComponentProperties, HasChildren {
 
   /// The alignment of the children in the list.
   final String? alignment;
+
+  @override
+  List<Object?> get props => [children, direction, alignment];
 }
 
 /// The properties for a card component.
-class CardProperties implements ComponentProperties {
+class CardProperties extends ComponentProperties {
   const CardProperties({required this.child});
 
   factory CardProperties.fromJson(Map<String, dynamic> json) {
@@ -267,10 +301,13 @@ class CardProperties implements ComponentProperties {
 
   /// The child of the card.
   final String child;
+
+  @override
+  List<Object?> get props => [child];
 }
 
 /// The properties for a tabs component.
-class TabsProperties implements ComponentProperties {
+class TabsProperties extends ComponentProperties {
   const TabsProperties({required this.tabItems});
 
   factory TabsProperties.fromJson(Map<String, dynamic> json) {
@@ -283,10 +320,13 @@ class TabsProperties implements ComponentProperties {
 
   /// The items in the tab bar.
   final List<TabItem> tabItems;
+
+  @override
+  List<Object?> get props => [tabItems];
 }
 
 /// The properties for a divider component.
-class DividerProperties implements ComponentProperties {
+class DividerProperties extends ComponentProperties {
   const DividerProperties({this.axis, this.color, this.thickness});
 
   factory DividerProperties.fromJson(Map<String, dynamic> json) {
@@ -305,10 +345,13 @@ class DividerProperties implements ComponentProperties {
 
   /// The thickness of the divider.
   final double? thickness;
+
+  @override
+  List<Object?> get props => [axis, color, thickness];
 }
 
 /// The properties for a modal component.
-class ModalProperties implements ComponentProperties {
+class ModalProperties extends ComponentProperties {
   const ModalProperties({
     required this.entryPointChild,
     required this.contentChild,
@@ -326,10 +369,13 @@ class ModalProperties implements ComponentProperties {
 
   /// The child that is displayed in the modal.
   final String contentChild;
+
+  @override
+  List<Object?> get props => [entryPointChild, contentChild];
 }
 
 /// The properties for a button component.
-class ButtonProperties implements ComponentProperties {
+class ButtonProperties extends ComponentProperties {
   const ButtonProperties({required this.label, required this.action});
 
   factory ButtonProperties.fromJson(Map<String, dynamic> json) {
@@ -344,10 +390,13 @@ class ButtonProperties implements ComponentProperties {
 
   /// The action to perform when the button is tapped.
   final Action action;
+
+  @override
+  List<Object?> get props => [label, action];
 }
 
 /// The properties for a checkbox component.
-class CheckBoxProperties implements ComponentProperties {
+class CheckBoxProperties extends ComponentProperties {
   const CheckBoxProperties({required this.label, required this.value});
 
   factory CheckBoxProperties.fromJson(Map<String, dynamic> json) {
@@ -362,10 +411,13 @@ class CheckBoxProperties implements ComponentProperties {
 
   /// The value of the checkbox.
   final BoundValue value;
+
+  @override
+  List<Object?> get props => [label, value];
 }
 
 /// The properties for a text field component.
-class TextFieldProperties implements ComponentProperties {
+class TextFieldProperties extends ComponentProperties {
   const TextFieldProperties({
     this.text,
     required this.label,
@@ -395,10 +447,13 @@ class TextFieldProperties implements ComponentProperties {
 
   /// The validation regular expression for the text field.
   final String? validationRegexp;
+
+  @override
+  List<Object?> get props => [text, label, type, validationRegexp];
 }
 
 /// The properties for a date/time input component.
-class DateTimeInputProperties implements ComponentProperties {
+class DateTimeInputProperties extends ComponentProperties {
   const DateTimeInputProperties({
     required this.value,
     this.enableDate,
@@ -426,10 +481,13 @@ class DateTimeInputProperties implements ComponentProperties {
 
   /// The output format of the date/time input.
   final String? outputFormat;
+
+  @override
+  List<Object?> get props => [value, enableDate, enableTime, outputFormat];
 }
 
 /// The properties for a multiple choice component.
-class MultipleChoiceProperties implements ComponentProperties {
+class MultipleChoiceProperties extends ComponentProperties {
   const MultipleChoiceProperties({
     required this.selections,
     this.options,
@@ -456,10 +514,13 @@ class MultipleChoiceProperties implements ComponentProperties {
 
   /// The maximum number of allowed selections.
   final int? maxAllowedSelections;
+
+  @override
+  List<Object?> get props => [selections, options, maxAllowedSelections];
 }
 
 /// The properties for a slider component.
-class SliderProperties implements ComponentProperties {
+class SliderProperties extends ComponentProperties {
   const SliderProperties({required this.value, this.minValue, this.maxValue});
 
   factory SliderProperties.fromJson(Map<String, dynamic> json) {
@@ -478,10 +539,13 @@ class SliderProperties implements ComponentProperties {
 
   /// The maximum value of the slider.
   final double? maxValue;
+
+  @override
+  List<Object?> get props => [value, minValue, maxValue];
 }
 
 /// A value that can be either a literal or a data binding.
-class BoundValue {
+class BoundValue extends Equatable {
   const BoundValue({
     this.path,
     this.literalString,
@@ -509,10 +573,14 @@ class BoundValue {
 
   /// The literal boolean value.
   final bool? literalBoolean;
+
+  @override
+  List<Object?> get props =>
+      [path, literalString, literalNumber, literalBoolean];
 }
 
 /// The children of a component.
-class Children {
+class Children extends Equatable {
   const Children({this.explicitList, this.template});
 
   factory Children.fromJson(Map<String, dynamic> json) {
@@ -531,10 +599,13 @@ class Children {
 
   /// The template for the children.
   final Template? template;
+
+  @override
+  List<Object?> get props => [explicitList, template];
 }
 
 /// A template for a list of children.
-class Template {
+class Template extends Equatable {
   const Template({required this.componentId, required this.dataBinding});
 
   factory Template.fromJson(Map<String, dynamic> json) {
@@ -549,10 +620,13 @@ class Template {
 
   /// The data binding for the template.
   final String dataBinding;
+
+  @override
+  List<Object?> get props => [componentId, dataBinding];
 }
 
 /// An item in a tab bar.
-class TabItem {
+class TabItem extends Equatable {
   const TabItem({required this.title, required this.child});
 
   factory TabItem.fromJson(Map<String, dynamic> json) {
@@ -567,10 +641,13 @@ class TabItem {
 
   /// The child of the tab.
   final String child;
+
+  @override
+  List<Object?> get props => [title, child];
 }
 
 /// An action to perform when a widget is interacted with.
-class Action {
+class Action extends Equatable {
   const Action({required this.action, this.context});
 
   factory Action.fromJson(Map<String, dynamic> json) {
@@ -587,10 +664,13 @@ class Action {
 
   /// The context of the action.
   final List<ContextItem>? context;
+
+  @override
+  List<Object?> get props => [action, context];
 }
 
 /// An item in the context of an action.
-class ContextItem {
+class ContextItem extends Equatable {
   const ContextItem({required this.key, required this.value});
 
   factory ContextItem.fromJson(Map<String, dynamic> json) {
@@ -605,10 +685,13 @@ class ContextItem {
 
   /// The value of the context item.
   final BoundValue value;
+
+  @override
+  List<Object?> get props => [key, value];
 }
 
 /// An option in a multiple choice component.
-class Option {
+class Option extends Equatable {
   const Option({required this.label, required this.value});
 
   factory Option.fromJson(Map<String, dynamic> json) {
@@ -623,4 +706,7 @@ class Option {
 
   /// The value of the option.
   final String value;
+
+  @override
+  List<Object?> get props => [label, value];
 }

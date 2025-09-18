@@ -12,6 +12,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  equatable: ^2.0.7
   flutter:
     sdk: flutter
   freezed_annotation: ^3.1.0

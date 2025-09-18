@@ -193,24 +193,4 @@ class _LayoutEngine extends StatelessWidget {
     }).toList();
     return builder(context, component, {}, {'children': children});
   }
-
-  Object? _resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
-    if (value == null) {
-      return null;
-    }
-    if (value.literalString != null) {
-      return value.literalString;
-    } else if (value.literalNumber != null) {
-      return value.literalNumber;
-    } else if (value.literalBoolean != null) {
-      return value.literalBoolean;
-    } else if (value.path != null) {
-      if (itemData != null) {
-        return itemData[value.path!];
-      } else {
-        return interpreter.resolveDataBinding(value.path!);
-      }
-    }
-    return null;
-  }
 }

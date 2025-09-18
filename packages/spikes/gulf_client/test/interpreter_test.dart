@@ -111,5 +111,33 @@ void main() {
 
       expect(interpreter.resolveDataBinding('invalid.path'), isNull);
     });
+
+    test('handles data model updates with array paths', () {
+      final interpreter = GulfInterpreter(stream: const Stream.empty());
+      const message = '''
+      {"dataModelUpdate": {"path": "user.addresses[0].street", "contents": "123 Main St"}}
+      ''';
+      interpreter.processMessage(message);
+      final address =
+          interpreter.resolveDataBinding('user.addresses[0].street');
+      expect(address, '123 Main St');
+
+      const message2 = '''
+      {"dataModelUpdate": {"path": "user.addresses[1]", "contents": {"street": "456 Oak Ave"}}}
+      ''';
+      interpreter.processMessage(message2);
+      final street = interpreter.resolveDataBinding('user.addresses[1].street');
+      expect(street, '456 Oak Ave');
+    });
+
+    test('sets error when root data model is not a map', () {
+      final interpreter = GulfInterpreter(stream: const Stream.empty());
+      const message = '''
+      {"dataModelUpdate": {"contents": "not a map"}}
+      ''';
+      interpreter.processMessage(message);
+      expect(interpreter.error, isNotNull);
+      expect(interpreter.error, 'Data model root must be a JSON object.');
+    });
   });
 }
