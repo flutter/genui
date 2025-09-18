@@ -131,24 +131,31 @@ async function main() {
 
     console.log('\n--- Generation Results ---');
     for (const modelName in resultsByModel) {
-        console.log(`\n----------------------------------------`);
-        console.log(`Model: ${modelName}`);
-        console.log(`----------------------------------------`);
         for (const result of resultsByModel[modelName]) {
-            console.log(`\nQuery: ${result.prompt.name}`);
-            console.log(`Latency: ${result.latency}ms`);
-            if (result.component) {
-                const hasValidationFailures = result.validationResults.length > 0;
-                if (hasValidationFailures) {
-                    console.log('Validation Failures:');
-                    result.validationResults.forEach(failure => console.log(`- ${failure}`));
-                    console.log('Generated schema:');
-                    console.log(JSON.stringify(result.component, null, 2));
-                } else if (verbose) {
-                    console.log(JSON.stringify(result.component, null, 2));
+            const hasError = !!result.error;
+            const hasValidationFailures = result.validationResults.length > 0;
+            const hasComponent = !!result.component;
+
+            if (hasError || hasValidationFailures || (verbose && hasComponent)) {
+                console.log(`\n----------------------------------------`);
+                console.log(`Model: ${modelName}`);
+                console.log(`----------------------------------------`);
+                console.log(`\nQuery: ${result.prompt.name}`);
+
+                if (hasError) {
+                    console.error('Error generating component:', result.error);
+                } else if (hasComponent) {
+                    if (hasValidationFailures) {
+                        console.log('Validation Failures:');
+                        result.validationResults.forEach(failure => console.log(`- ${failure}`));
+                    }
+                    if (verbose) {
+                        if (hasValidationFailures) {
+                            console.log('Generated schema:');
+                        }
+                        console.log(JSON.stringify(result.component, null, 2));
+                    }
                 }
-            } else {
-                console.error('Error generating component:', result.error);
             }
         }
     }
