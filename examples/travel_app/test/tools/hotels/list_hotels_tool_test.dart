@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -123,8 +123,9 @@ void main() {
         };
 
         final result = await tool.invoke(args);
-        final searchResult = HotelSearchResult.fromJson(result);
-        expect(searchResult.listings.first.listingSelectionId, isNotEmpty);
+        final listings = result['listings'] as List<dynamic>;
+        final listing = listings.first as Map<String, dynamic>;
+        expect(listing['listingSelectionId'], isNotEmpty);
       });
     });
   });

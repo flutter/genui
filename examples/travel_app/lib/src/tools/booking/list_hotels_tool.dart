@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -43,6 +43,6 @@ class ListHotelsTool extends AiTool<Map<String, Object?>> {
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final search = HotelSearch.fromJson(args);
-    return (await onListHotels(search)).toJson();
+    return (await onListHotels(search)).toAiInput();
   }
 }

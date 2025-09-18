@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -38,7 +38,7 @@ void main() {
     // Create test files
     fileSystem.file('compliant.dart').createSync();
     fileSystem.file('compliant.dart').writeAsStringSync('''
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -77,7 +77,7 @@ void main() {}
 
   test('--force updates non-compliant files', () async {
     final compliantContent = '''
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -92,7 +92,7 @@ void main() {}
     final incorrectYearFile = fileSystem.file('incorrect_year.dart')
       ..createSync()
       ..writeAsStringSync('''
-// Copyright 2020 The Flutter Authors. All rights reserved.
+// Copyright 2020 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -124,7 +124,7 @@ void main() {}
       ..createSync()
       ..writeAsStringSync('''
 #!/bin/bash
-# Copyright 2020 The Flutter Authors. All rights reserved.
+# Copyright 2020 The Flutter Authors.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 echo "Hello"
@@ -179,7 +179,7 @@ echo "Hello"
     fileSystem.file('compliant.dart')
       ..createSync()
       ..writeAsStringSync('''
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -218,7 +218,7 @@ void main() {}
       ..createSync()
       ..writeAsStringSync('''
 <!DOCTYPE html>
-<!-- Copyright 2025 The Flutter Authors. All rights reserved.
+<!-- Copyright 2025 The Flutter Authors.
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file. -->
 <html>

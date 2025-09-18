@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -183,7 +183,7 @@ Map<String, CopyrightInfo> _generateExtensionMap(String year) {
     String suffix = '',
     required bool isParagraph,
   }) {
-    return '''${prefix}Copyright $year The Flutter Authors. All rights reserved.${isParagraph ? '' : suffix}
+    return '''${prefix}Copyright $year The Flutter Authors.${isParagraph ? '' : suffix}
 ${isParagraph ? '' : prefix}Use of this source code is governed by a BSD-style license that can be${isParagraph ? '' : suffix}
 ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
@@ -196,7 +196,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     final escapedSuffix = RegExp.escape(suffix);
 
     return '($escapedPrefix'
-        r'Copyright (\d+) ([\w ]+)\.?\s+All rights reserved.'
+        r'Copyright (\d+) ([\w ]+)\.?(?:\s*All rights reserved.)?'
         '(?:$escapedSuffix)?\\n'
         '(?:$escapedPrefix)?'
         r'Use of this source code is governed by a [-\w]+ license that can be'

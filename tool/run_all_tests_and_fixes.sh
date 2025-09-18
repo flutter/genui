@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2025 The Flutter Authors. All rights reserved.
+# Copyright 2025 The Flutter Authors.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -46,7 +46,7 @@ run_project_step() {
     echo ""
     echo "### [$step_num/$PROJECT_TOTAL_STEPS] $description"
     echo "> To rerun this command:"
-    echo "> 
+    echo ">
 > (cd \"$project_dir\" && $cmd_str_for_display)
 > "
     if ! "${cmd_to_run[@]}"; then
@@ -87,7 +87,7 @@ echo "---"
 if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     echo "### Running copyright fix"
     echo "> To rerun this command:"
-    echo "> 
+    echo ">
 > dart run tool/fix_copyright/bin/fix_copyright.dart --force
 > "
     # Log failures without stopping the script.
