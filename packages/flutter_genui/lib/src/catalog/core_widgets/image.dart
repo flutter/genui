@@ -10,7 +10,10 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'location': S.string(description: 'Asset path or network URL.'),
+    'location': S.string(
+      description:
+          'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
+    ),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),

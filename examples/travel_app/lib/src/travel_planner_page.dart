@@ -435,9 +435,6 @@ ${_imagesJson ?? ''}
 list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
 It is fine if the image is irrelevant, as long as it is from the list.
 
-- Use location for images from the list only - NEVER use `url` and reference
-images from wikipedia or other sites.
-
 # Example
 
 Here is an example of the arguments to the `addOrUpdateSurface` tool. Note that
