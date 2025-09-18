@@ -109,27 +109,80 @@ class _LayoutEngine extends StatelessWidget {
       return const Text('Error: component not found');
     }
 
-    if (component.children?.template != null) {
-      return _buildNodeWithTemplate(context, component, newVisited);
-    }
-
-    final builder = registry.getBuilder(component.type);
+    final properties = component.componentProperties;
+    final builder = registry.getBuilder(properties.runtimeType.toString());
     if (builder == null) {
-      return Text('Error: unknown component type ${component.type}');
+      return Text(
+        'Error: unknown component type ${properties.runtimeType.toString()}',
+      );
     }
 
-    final properties = _resolveProperties(component, null);
+    // This is a bit of a hack to get the children of a component.
+    // We should probably have a more generic way of doing this.
     final children = <String, List<Widget>>{};
-    if (component.child != null) {
-      children['child'] = [_buildNode(context, component.child!, newVisited)];
-    }
-    if (component.children?.explicitList != null) {
-      children['children'] = component.children!.explicitList!
-          .map((id) => _buildNode(context, id, newVisited))
-          .toList();
+    if (properties is RowProperties ||
+        properties is ColumnProperties ||
+        properties is ListProperties) {
+      final childrenProp = (properties as dynamic).children as Children;
+      if (childrenProp.explicitList != null) {
+        children['children'] = childrenProp.explicitList!
+            .map((id) => _buildNode(context, id, newVisited))
+            .toList();
+      } else if (childrenProp.template != null) {
+        return _buildNodeWithTemplate(context, component, newVisited);
+      }
+    } else if (properties is CardProperties) {
+      children['child'] = [_buildNode(context, properties.child, newVisited)];
     }
 
-    return builder(context, component, properties, children);
+    final resolvedProperties = <String, Object?>{};
+    // TODO(gspencer): find a more generic way to do this.
+    if (properties is TextProperties) {
+      resolvedProperties['text'] = _resolveValue(properties.text, null);
+    } else if (properties is HeadingProperties) {
+      resolvedProperties['text'] = _resolveValue(properties.text, null);
+      resolvedProperties['level'] = properties.level;
+    } else if (properties is ImageProperties) {
+      resolvedProperties['url'] = _resolveValue(properties.url, null);
+    } else if (properties is VideoProperties) {
+      resolvedProperties['url'] = _resolveValue(properties.url, null);
+    } else if (properties is AudioPlayerProperties) {
+      resolvedProperties['url'] = _resolveValue(properties.url, null);
+      resolvedProperties['description'] = _resolveValue(
+        properties.description,
+        null,
+      );
+    } else if (properties is ButtonProperties) {
+      resolvedProperties['label'] = _resolveValue(properties.label, null);
+      resolvedProperties['action'] = properties.action;
+    } else if (properties is CheckBoxProperties) {
+      resolvedProperties['label'] = _resolveValue(properties.label, null);
+      resolvedProperties['value'] = _resolveValue(properties.value, null);
+    } else if (properties is TextFieldProperties) {
+      resolvedProperties['text'] = _resolveValue(properties.text, null);
+      resolvedProperties['label'] = _resolveValue(properties.label, null);
+      resolvedProperties['type'] = properties.type;
+      resolvedProperties['validationRegexp'] = properties.validationRegexp;
+    } else if (properties is DateTimeInputProperties) {
+      resolvedProperties['value'] = _resolveValue(properties.value, null);
+      resolvedProperties['enableDate'] = properties.enableDate;
+      resolvedProperties['enableTime'] = properties.enableTime;
+      resolvedProperties['outputFormat'] = properties.outputFormat;
+    } else if (properties is MultipleChoiceProperties) {
+      resolvedProperties['selections'] = _resolveValue(
+        properties.selections,
+        null,
+      );
+      resolvedProperties['options'] = properties.options;
+      resolvedProperties['maxAllowedSelections'] =
+          properties.maxAllowedSelections;
+    } else if (properties is SliderProperties) {
+      resolvedProperties['value'] = _resolveValue(properties.value, null);
+      resolvedProperties['minValue'] = properties.minValue;
+      resolvedProperties['maxValue'] = properties.maxValue;
+    }
+
+    return builder(context, component, resolvedProperties, children);
   }
 
   Widget _buildNodeWithTemplate(
@@ -137,7 +190,8 @@ class _LayoutEngine extends StatelessWidget {
     Component component,
     Set<String> visited,
   ) {
-    final template = component.children!.template!;
+    final properties = component.componentProperties as dynamic;
+    final template = properties.children.template as Template;
     final data = interpreter.resolveDataBinding(template.dataBinding);
     if (data is! List) {
       return const SizedBox.shrink();
@@ -150,26 +204,34 @@ class _LayoutEngine extends StatelessWidget {
     if (templateComponent == null) {
       return const Text('Error: template component not found');
     }
-    final builder = registry.getBuilder(component.type);
+    final builder = registry.getBuilder(properties.runtimeType.toString());
     if (builder == null) {
-      return Text('Error: unknown component type ${component.type}');
+      return Text(
+        'Error: unknown component type ${properties.runtimeType.toString()}',
+      );
     }
     final children = data.map((itemData) {
-      final properties = _resolveProperties(
-        templateComponent,
-        itemData as Map<String, dynamic>,
-      );
+      final resolvedProperties = <String, Object?>{};
       final itemChildren = <String, List<Widget>>{};
-      final itemBuilder = registry.getBuilder(templateComponent.type);
+      final itemBuilder = registry.getBuilder(
+        templateComponent.componentProperties.runtimeType.toString(),
+      );
       if (itemBuilder == null) {
-        return Text('Error: unknown component type ${templateComponent.type}');
+        return Text(
+          'Error: unknown component type ${templateComponent.componentProperties.runtimeType.toString()}',
+        );
       }
-      return itemBuilder(context, templateComponent, properties, itemChildren);
+      return itemBuilder(
+        context,
+        templateComponent,
+        resolvedProperties,
+        itemChildren,
+      );
     }).toList();
     return builder(context, component, {}, {'children': children});
   }
 
-  Object? _resolveValue(Value? value, Map<String, dynamic>? itemData) {
+  Object? _resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
     if (value == null) {
       return null;
     }
@@ -179,10 +241,6 @@ class _LayoutEngine extends StatelessWidget {
       return value.literalNumber;
     } else if (value.literalBoolean != null) {
       return value.literalBoolean;
-    } else if (value.literalObject != null) {
-      return value.literalObject;
-    } else if (value.literalArray != null) {
-      return value.literalArray;
     } else if (value.path != null) {
       if (itemData != null) {
         return itemData[value.path!.substring(1)];
@@ -191,32 +249,5 @@ class _LayoutEngine extends StatelessWidget {
       }
     }
     return null;
-  }
-
-  Map<String, Object?> _resolveProperties(
-    Component component,
-    Map<String, dynamic>? itemData,
-  ) {
-    final properties = <String, Object?>{};
-    final componentJson = component.toJson();
-
-    for (final entry in componentJson.entries) {
-      final key = entry.key;
-      final value = entry.value;
-
-      if (value == null) {
-        continue;
-      }
-
-      if (key == 'value') {
-        properties['text'] = _resolveValue(
-          Value.fromJson(value as Map<String, dynamic>),
-          itemData,
-        );
-      } else {
-        properties[key] = value;
-      }
-    }
-    return properties;
   }
 }
