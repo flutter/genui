@@ -1,61 +1,40 @@
-# **`gulf_client` Design Document**
+# GULF Client Implementation Details
 
-## **1. Overview**
+This document describes the purpose, design, and implementation of the GULF (Generative UI Language Framework) client, a Flutter package for rendering dynamic user interfaces from a streaming, JSONL-based format.
 
-This document outlines the detailed design for a new Flutter package, `gulf_client`. The purpose of this package is to provide a client-side implementation for the "GULF Streaming UI Protocol". It will be responsible for parsing a JSONL stream of UI commands, managing state, and rendering a dynamic Flutter UI.
+## 1. Purpose
 
-The design is heavily inspired by the existing `gulf_client` package but is architected from the ground up to specifically support the semantics and schema of the GULF protocol. The core goal is to create a robust, maintainable, and performant client that enables progressive UI rendering directly from an AI-generated stream.
+The primary purpose of the GULF client is to enable the creation of server-driven user interfaces in a Flutter application. An LLM or other backend service can generate a UI definition in a simple, line-delimited JSON (JSONL) format, which is then streamed to the client. The client interprets this stream and renders a native Flutter UI, allowing for highly dynamic and flexible applications where the UI can be changed without shipping a new version of the client application.
 
-## **2. Detailed Analysis of the Goal**
+The protocol is designed to be "LLM-friendly," meaning its structure is straightforward and declarative, making it easy for a generative model to produce.
 
-The primary goal is to build a Flutter package that can interpret and render a UI defined a simplified GULF protocol. This protocol differs significantly from the GenUI Streaming Protocol (GULF) implemented by the `gulf_client`.
+## 2. Design Rationale and Context
 
-### **Key Requirements & Protocol Features**
+The GULF protocol and this client were designed to support several key requirements for building dynamic, AI-driven UIs.
 
-- **JSONL Stream Processing:** The client must be able to consume a stream of JSONL objects, parsing each line as a distinct message.
-- **Progressive Rendering:** The UI should be rendered incrementally as component and data model definitions arrive. The client should not wait for the entire stream to finish before displaying the UI.
-- **LLM-Friendly "Property Bag" Schema:** The client's data models must conform to the GULF protocol's schema, which uses a single "property bag" structure for all components and a discriminator field (`type` or `messageType`) to differentiate them.
-- **Decoupled UI and Data:** The protocol separates the UI structure (`components`) from the application data (`dataModelNodes`). The client must manage these two models independently and link them via data bindings.
-- **Flattened Adjacency List Model:** Both the UI tree and the data model tree are represented as flattened maps of nodes, where relationships are defined by ID references. The client must be able to reconstruct these hierarchical relationships.
-- **Data Binding:** The client must resolve data bindings specified in component properties (e.g., `value: { "path": "/user/name" }`) by looking up the corresponding data in the data model tree.
+*   **JSONL Stream Processing:** The client must consume a stream of JSONL objects, parsing each line as a distinct message.
+*   **Progressive Rendering:** The UI should render incrementally as component and data model definitions arrive, without waiting for the entire stream to finish.
+*   **LLM-Friendly "Property Bag" Schema:** The protocol uses a single "property bag" structure for all components, making it simple for generative models to create valid UI definitions.
+*   **Decoupled UI and Data:** The protocol separates the UI structure (`components`) from the application data (`dataModelNodes`), allowing them to be managed and updated independently.
+*   **Flattened Adjacency List Model:** The UI and data trees are represented as flattened maps of nodes, where relationships are defined by ID references. The client is responsible for reconstructing these hierarchies.
+*   **Data Binding:** The client must resolve data bindings in component properties (e.g., `value: { "path": "/user/name" }`) by looking up the corresponding data in the data model.
 
-### **Comparison with `gulf_client`**
+### Alternatives Considered
 
-Understanding the differences with the existing `gulf_client` is crucial for this refactor:
+During the design phase, adapting a generic JSON-to-Widget library was considered but ultimately rejected. No existing library was designed to handle the specific JSONL streaming, progressive rendering, and flattened data model semantics of the GULF protocol. The required adaptation layer would have effectively become a custom interpreter anyway, adding an unnecessary dependency. A bespoke client implementation was chosen for a cleaner and more efficient result.
 
-| Feature              | `gulf_client` (GULF)                               | `gulf_client` (GULF Protocol)                      | Rationale for New Implementation                                                                                                        |
-| :------------------- | :------------------------------------------------- | :------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
-| **UI Definition**    | Client-defined `WidgetCatalog` sent to server.     | Server-streamed `Component` definitions.           | The fundamental contract is inverted. GULF has no concept of a client-side catalog, making the `gulf_client`'s core logic incompatible. |
-| **Component Schema** | Each widget has a unique, strictly defined schema. | A single "property bag" schema for all components. | Requires a completely different approach to deserialization and property resolution.                                                    |
-| **State/Data Model** | A single, simple `initialState` JSON object.       | A flattened, tree-like `dataModelNodes` structure. | The data model is more complex and requires a dedicated engine to traverse and resolve paths.                                           |
-| **Message Types**    | `Layout`, `LayoutRoot`, `StateUpdate`.             | `ComponentUpdate`, `DataModelUpdate`, `UIRoot`.    | The stream's message semantics are different, requiring new parsing and handling logic.                                                 |
+## 3. Core Concepts & Design
 
-Given these fundamental differences, a new, purpose-built implementation is necessary to ensure a clean, maintainable, and accurate client for the GULF protocol.
+The framework is built on a few core concepts that separate the UI definition from its concrete implementation.
 
-## **3. Alternatives Considered**
+*   **Streaming UI Definition (JSONL):** The UI is not defined in a single, large file. Instead, it's described by a stream of small, atomic JSON messages, each on a new line. This allows the UI to be built and updated incrementally as data arrives from the server, improving perceived performance.
+*   **Component Tree:** The UI is represented as a tree of abstract `Component`s. Each component has a unique `id`, a `type` (e.g., "Column", "Text"), and properties. Components reference each other by their IDs to form a hierarchy (e.g., a "Column" component has a `children` property listing the IDs of its child components).
+*   **Decoupled Data Model:** The application's state is held in a `DataModelNode` tree, separate from the component tree. This separation of concerns allows the UI and the data to be updated independently. Components can bind to data nodes using a simple path syntax (e.g., `"/user/name"`).
+*   **Extensible Widget Registry:** The client itself does not contain any Flutter widget implementations for the component types. Instead, it uses a `WidgetRegistry`. The developer using the package must provide concrete `CatalogWidgetBuilder` functions that map a component `type` (e.g., "Card") to a Flutter `Widget` (e.g., a `Card` widget). This makes the renderer fully extensible and customizable.
 
-### **Alternative 1: Adapt the existing `gulf_client`**
+## 4. Architecture
 
-- **Description:** Modify the `gulf_client` to support both GULF and the GULF protocol, likely through extensive conditional logic.
-- **Pros:** Potential for some code reuse in the widget building and rendering layers.
-- **Cons:** The core architectural differences (especially the catalog-based approach vs. the streamed-component approach) are too significant. The codebase would become convoluted with `if (protocol == 'SGULF')` checks, making it difficult to maintain and debug. The data model and message parsing logic are entirely different and would require separate pathways anyway.
-- **Decision:** Rejected. The cost of maintaining a complex, multi-protocol client outweighs the benefits of minimal code reuse. A clean slate is preferable.
-
-### **Alternative 2: Use a generic JSON-to-Widget library**
-
-- **Description:** Find a third-party library that can render Flutter widgets from a generic JSON schema and build an adaptation layer on top of it.
-- **Pros:** Could potentially save time on the widget-building logic itself.
-- **Cons:** No existing library is designed to handle the specific JSONL streaming, progressive rendering, and flattened data model semantics of the GULF protocol. The adaptation layer would need to manage the stream, buffer nodes, reconstruct the tree, and resolve data bindings, effectively becoming a custom interpreter anyway. This adds an unnecessary dependency and couples our implementation to the limitations of the generic library.
-- **Decision:** Rejected. The GULF protocol is specialized enough to warrant a bespoke client implementation for a clean and efficient result.
-
-## **4. Detailed Design**
-
-The `gulf_client` will be architected around a few core components that work together to process the stream and render the UI.
-
-### **4.1. Project Structure**
-
-The package will be organized as follows:
-
+### Project Structure
 ```txt
 packages/spikes/gulf_client/
 ├── lib/
@@ -73,12 +52,12 @@ packages/spikes/gulf_client/
 │   │       └── gulf_view.dart       # Main rendering widget
 │   └── pubspec.yaml
 └── example/
-    └── ... (A simple example app similar to gulf_client's)
+    └── ... (A simple example app)
 ```
 
-### **4.2. Core Components & Data Flow**
+### Data Flow
 
-The data will flow from the stream through the `GulfInterpreter`, which will then be consumed by the `GulfView` to build the widget tree.
+The data flows in one direction, from the server stream to the final rendered Flutter widgets.
 
 ```mermaid
 sequenceDiagram
@@ -105,105 +84,79 @@ sequenceDiagram
     GulfView-->>-FlutterEngine: Return final Widget tree for rendering
 ```
 
-### **4.3. Class Definitions**
+The core components are:
+1.  **Input Stream (`Stream<String>`):** A stream of JSONL strings is the raw input.
+2.  **`GulfInterpreter`:** This class is the core of the client. It consumes the stream, parses each JSONL message, and maintains the state of the component tree and the data model in simple `Map`s. It acts as the central state store.
+3.  **`ChangeNotifier`:** The interpreter uses Flutter's `ChangeNotifier` mixin to notify listeners whenever the UI state changes (e.g., a new component is added or the root is set).
+4.  **`GulfView`:** This is the main Flutter widget. It listens to the `GulfInterpreter`. When notified, it rebuilds its child widget tree.
+5.  **`_LayoutEngine`:** A private, internal class that recursively walks the component tree, starting from the root component ID provided by the interpreter.
+6.  **`WidgetRegistry`:** For each component it encounters, the `_LayoutEngine` looks up the corresponding builder function in the `WidgetRegistry` provided by the developer.
+7.  **Flutter Widgets:** The builder function is executed, which returns a concrete Flutter widget. The engine assembles these widgets into the final tree that gets rendered on the screen.
+8.  **`GulfProvider`:** An `InheritedWidget` is used to pass down event handlers (like button press callbacks) to the deeply nested widgets without "prop drilling."
 
-#### **`GulfInterpreter` (`interpreter.dart`)**
+## 5. Protocol Details
 
-This will be the heart of the client. It consumes the raw JSONL stream and makes sense of it.
+The client processes four types of messages, defined in `stream_message.dart`.
 
-- **Class:** `class GulfInterpreter with ChangeNotifier`
-- **Inputs:** `Stream<String> stream`
-- **State:**
-  - `Map<String, Component> components = {}`
-  - `Map<String, DataModelNode> dataModelNodes = {}`
-  - `String? rootComponentId`
-  - `String? dataModelRootId`
-  - `bool isReadyToRender = false`
-- **Logic:**
-  - The constructor will listen to the input stream.
-  - A `processMessage(String jsonl)` method will parse the JSON and deserialize it into an `GulfStreamMessage` object.
-  - It will use a `switch` statement on `message.messageType` to delegate to private handler methods:
-    - `_handleComponentUpdate(message)`: Iterates through `message.components` and adds them to the `_components` map.
-    - `_handleDataModelUpdate(message)`: Iterates through `message.nodes` and adds them to the `_dataModelNodes` map.
-    - `_handleUIRoot(message)`: Sets `_rootComponentId` and `_dataModelRootId`. Sets `isReadyToRender = true`.
-  - After any state change, it will call `notifyListeners()`.
-- **Public API:**
-  - `Component? getComponent(String id)`
-  - `DataModelNode? getDataNode(String id)`
-  - `Object? resolveDataBinding(String path)`: A crucial method that traverses the data model tree starting from `dataModelRootId` to find the value at the given path.
+*   `{"messageType": "StreamHeader", "version": "1.0.0"}`
+    *   **Purpose:** The first message in any stream. It identifies the protocol and version.
+*   `{"messageType": "ComponentUpdate", "components": [...]}`
+    *   **Purpose:** Adds or updates one or more components in the UI tree. The `components` value is a list of `Component` objects. This is how the UI is built and modified.
+*   `{"messageType": "DataModelUpdate", "nodes": [...]}`
+    *   **Purpose:** Adds or updates one or more nodes in the data model.
+*   `{"messageType": "UIRoot", "root": "root_id", "dataModelRoot": "data_root_id"}`
+    *   **Purpose:** Signals to the client that it has enough information to perform the initial render. It specifies the ID of the root component for the UI tree and the root of the data model.
 
-#### **Data Models (`models/*.dart`)**
+## 6. Key Implementation Components
 
-These will be simple, immutable data classes created using the `freezed` package to represent the JSON structures from the protocol. This provides value equality, `copyWith`, and exhaustive `when` methods for free.
+### `GulfInterpreter` (The State Manager)
 
-- **`GulfStreamMessage`**: A freezed union type to represent the different message types.
+This class is the heart of the client, consuming the raw JSONL stream and managing the canonical UI and data state.
 
-  ```dart
-  @freezed
-  class GulfStreamMessage with _$GulfStreamMessage {
-    const factory GulfStreamMessage.streamHeader({required String version}) = _StreamHeader;
-    const factory GulfStreamMessage.componentUpdate({required List<Component> components}) = _ComponentUpdate;
-    // ... etc.
-  }
-  ```
+-   **Input:** Takes a `Stream<String>` of JSONL messages.
+-   **State:** Maintains two primary data structures:
+    -   `_components`: A `Map<String, Component>` storing all UI components by their ID.
+    -   `_dataModelNodes`: A `Map<String, DataModelNode>` storing all data nodes by their ID.
+-   **Logic:**
+    1.  Listens to the stream and calls `processMessage` for each line.
+    2.  Deserializes the JSON into a `GulfStreamMessage` object.
+    3.  Updates the `_components` or `_dataModelNodes` maps based on the message type.
+    4.  When a `UIRoot` message is received, it sets the `_rootComponentId` and a flag `_isReadyToRender`.
+    5.  Calls `notifyListeners()` to signal to `GulfView` that it's time to update.
+-   **Public API:**
+    - `Component? getComponent(String id)`
+    - `DataModelNode? getDataNode(String id)`
+    - `Object? resolveDataBinding(String path)`: Traverses the data model tree to find the value at the given path.
 
-- **`Component`**: A freezed class representing the component "property bag". All properties from the schema will be fields here, most of them nullable.
-- **`DataModelNode`**: A freezed class representing a node in the data model tree.
+### `WidgetRegistry` (The Extension Point)
 
-#### **`WidgetRegistry` (`widget_registry.dart`)**
+-   This is a simple class holding a `Map<String, CatalogWidgetBuilder>`.
+-   The `register(String type, CatalogWidgetBuilder builder)` method allows the application developer to associate a component type string with a function that builds a Flutter widget.
+-   The `getBuilder(String type)` method is used by the layout engine to retrieve the correct builder during the rendering process.
 
-This class maps a component `type` string to a function that builds a Flutter `Widget`.
+### `GulfView` & `_LayoutEngine` (The Rendering Pipeline)
 
-- **Class:** `class WidgetRegistry`
-- **State:** `Map<String, CatalogWidgetBuilder> _builders = {}`
-- **Logic:**
-  - `register(String type, CatalogWidgetBuilder builder)`: Adds a builder to the map.
-  - `getBuilder(String type)`: Retrieves a builder.
-- **Note:** Unlike `gulf_client`, this registry does _not_ build a `WidgetCatalog` object, as that concept doesn't exist in the GULF protocol. It is purely a client-side mapping.
+-   **`GulfView`** is a `StatefulWidget` that:
+    1.  Listens to the `GulfInterpreter` for changes.
+    2.  Calls `setState()` in response to notifications, triggering a rebuild.
+    3.  Renders a `CircularProgressIndicator` until `interpreter.isReadyToRender` is true.
+    4.  Once ready, it renders the `_LayoutEngine`, wrapping it in a `GulfProvider` to make the `onEvent` callback available.
 
-#### **`GulfView` (`gulf_view.dart`)**
+-   **`_LayoutEngine`** is a `StatelessWidget` that performs the recursive build:
+    1.  The `build` method starts the process by calling `_buildNode` with the root component ID.
+    2.  The `_buildNode(String componentId)` method:
+        a. Fetches the `Component` from the interpreter using its ID.
+        b. Looks up the `CatalogWidgetBuilder` from the `WidgetRegistry` using the component's `type`.
+        c. Resolves all properties for the component. This involves checking if a value is a literal (e.g., `"literalString": "Hello"`) or a data binding (`"path": "/user/name"`) and resolving it if necessary.
+        d. Recursively calls `_buildNode` for all child component IDs (found in `component.child` or `component.children.explicitList`).
+        e. Handles templated lists (defined in `component.children.template`) by iterating over a list from the data model and building a widget for each item.
+        f. Finally, it calls the retrieved builder function, passing it the `BuildContext`, the original `Component`, the resolved properties, and a map of the already-built child widgets.
 
-This is the main `StatefulWidget` that developers will use. It orchestrates the rendering process.
+## 7. Example Usage (`example/lib/main.dart`)
 
-- **Class:** `class GulfView extends StatefulWidget`
-- **Inputs:**
-  - `GulfInterpreter interpreter`
-  - `WidgetRegistry registry`
-  - `ValueChanged<Event>? onEvent`
-- **Logic:**
-  - Its `State` object will listen to the `interpreter`. When the interpreter notifies, `setState` is called to trigger a rebuild.
-  - The `build` method will check `interpreter.isReadyToRender`. If false, it shows a `CircularProgressIndicator`.
-  - If ready, it will start the recursive build process, beginning with `_buildNode(context, interpreter.rootComponentId)`.
-  - It will wrap the entire tree in an `GulfProvider` to make the `onEvent` callback available to descendant widgets (like buttons).
+The example demonstrates how to use the client:
 
-#### **Layout and Data Binding Engine (Private methods in `_GulfViewState`)**
-
-- **`_buildNode(BuildContext context, String componentId)`**:
-  1.  Gets the `Component` object from the interpreter.
-  2.  Gets the `WidgetBuilder` from the registry.
-  3.  Resolves all properties for the component. This involves checking for data bindings in properties like `value`.
-  4.  Recursively builds all child widgets specified by ID in properties like `child` or `children.explicitList`.
-  5.  Calls the retrieved `WidgetBuilder` with the resolved properties and built children.
-- **`_resolveProperties(Component component)`**:
-  1.  Creates a mutable copy of the component's properties.
-  2.  For each property, checks if it's a data binding (e.g., `value.path` is not null).
-  3.  If it is, it calls `interpreter.resolveDataBinding(path)` to get the real value.
-  4.  It replaces the binding object with the resolved value in the property map.
-  5.  Returns the fully resolved map of properties.
-
-## **5. Summary of Design**
-
-The proposed design establishes a clean, reactive architecture for a Flutter client that implements the GULF Streaming UI Protocol.
-
-- **`GulfInterpreter`** acts as the "brain", processing the stream and managing the canonical UI and data state.
-- **`GulfView`** acts as the "renderer", listening to the interpreter and translating its state into a Flutter widget tree.
-- **`WidgetRegistry`** provides the necessary mapping from abstract component types to concrete Flutter widgets.
-- **Immutable Data Models** (using `freezed`) ensure predictable state management and reduce bugs.
-
-This approach directly addresses the requirements of the GULF protocol, including its streaming nature, LLM-friendly schema, and decoupled data model, while following Dart and Flutter best practices.
-
-## **6. References**
-
-- [GenUI Streaming Protocol](./packages/spikes/gulf_client/docs/GenUI_Streaming_Protocol.md)
-- [freezed package](https://pub.dev/packages/freezed)
-- [State management in Flutter](https://docs.flutter.dev/data-and-backend/state-mgmt/simple)
+1.  **Create a `WidgetRegistry`:** An instance is created in the `_ExampleViewState`.
+2.  **Register Builders:** In `initState`, builders for "Column", "Row", "Text", "Image", etc., are registered. Each builder is a function that takes the component metadata and returns a configured Flutter widget.
+3.  **Instantiate `GulfInterpreter`:** When the user clicks "Render JSONL", a new `GulfInterpreter` is created and fed the lines from the text field via a `StreamController`.
+4.  **Use `GulfView`:** The `GulfView` widget is placed in the widget tree, and is passed the `interpreter` and the `registry`. It automatically listens and renders the UI when the interpreter is ready.
