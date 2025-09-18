@@ -196,7 +196,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     final escapedSuffix = RegExp.escape(suffix);
 
     return '($escapedPrefix'
-        r'Copyright (\d+) ([\w ]+)\.?(\s+All rights reserved.)?'
+        r'Copyright (\d+) ([\w ]+)\.?(?:\s*All rights reserved.)?'
         '(?:$escapedSuffix)?\\n'
         '(?:$escapedPrefix)?'
         r'Use of this source code is governed by a [-\w]+ license that can be'

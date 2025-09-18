@@ -16,8 +16,8 @@ void main() {
       await mockNetworkImagesFor(() async {
         final data = {
           'items': [
-            {'title': 'Item 1', 'imageChildId': 'imageId1'},
-            {'title': 'Item 2', 'imageChildId': 'imageId2'},
+            {'description': 'Item 1', 'imageChildId': 'imageId1'},
+            {'description': 'Item 2', 'imageChildId': 'imageId2'},
           ],
         };
         UiEvent? dispatchedEvent;
@@ -58,7 +58,7 @@ void main() {
         final actionEvent = dispatchedEvent as UiActionEvent;
         expect(actionEvent.widgetId, 'testId');
         expect(actionEvent.eventType, 'itemSelected');
-        expect(actionEvent.value, {'title': 'Item 1'});
+        expect(actionEvent.value, {'description': 'Item 1'});
       });
     });
 
@@ -69,11 +69,11 @@ void main() {
         final data = {
           'items': [
             {
-              'title': 'Item 1',
+              'description': 'Item 1',
               'imageChildId': 'imageId1',
               'listingSelectionId': 'listing1',
             },
-            {'title': 'Item 2', 'imageChildId': 'imageId2'},
+            {'description': 'Item 2', 'imageChildId': 'imageId2'},
           ],
         };
         UiEvent? dispatchedEvent;
@@ -108,7 +108,7 @@ void main() {
 
         final actionEvent = dispatchedEvent as UiActionEvent;
         expect(actionEvent.value, {
-          'title': 'Item 1',
+          'description': 'Item 1',
           'listingSelectionId': 'listing1',
         });
       });

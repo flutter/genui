@@ -123,8 +123,9 @@ void main() {
         };
 
         final result = await tool.invoke(args);
-        final searchResult = HotelSearchResult.fromJson(result);
-        expect(searchResult.listings.first.listingSelectionId, isNotEmpty);
+        final listings = result['listings'] as List<dynamic>;
+        final listing = listings.first as Map<String, dynamic>;
+        expect(listing['listingSelectionId'], isNotEmpty);
       });
     });
   });

@@ -43,6 +43,6 @@ class ListHotelsTool extends AiTool<Map<String, Object?>> {
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final search = HotelSearch.fromJson(args);
-    return (await onListHotels(search)).toJson();
+    return (await onListHotels(search)).toAiInput();
   }
 }
