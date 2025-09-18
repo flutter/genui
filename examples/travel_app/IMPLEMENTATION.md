@@ -67,34 +67,49 @@ classDiagram
 
 ### 1. UI Layer (`main.dart`)
 
-This is the main entry point and the visible part of the application, primarily managed by the `TravelPlannerPage` widget. Its responsibilities are:
+This is the main entry point for the application. Its responsibilities are:
 
-- **Initialization**: It initializes Firebase, the `GenUiManager`, and the `AiClient`.
-- **UI Scaffolding**: It provides the basic structure of the app, which consists of an app bar, a `ConversationWidget` to render the conversation history, and a custom chat input field.
-- **State Management & App Logic**: It holds the core application logic. It manages the `_conversation` history list, sends prompts to the AI via `_triggerInference`, and handles UI events returned from the `GenUiSurface` widgets.
+- **Initialization**: It initializes Firebase and loads the asset image catalog.
+- **UI Scaffolding**: It sets up the root `MaterialApp` and a `Scaffold` with a `TabBar`. The app has two main tabs:
+  - **"Travel"**: This tab contains the `TravelPlannerPage`, which is the primary interface for the conversational travel agent.
+  - **"Widget Catalog"**: This tab displays a `CatalogView` from the `flutter_genui_dev` package, allowing developers to browse and inspect all the available UI components in the app's catalog.
 
-### 2. UI State Management Layer ([`package:flutter_genui`](../../packages/flutter_genui/IMPLEMENTATION.md))
+### 2. App Logic (`lib/src/travel_planner_page.dart`)
+
+The core application logic resides in the `TravelPlannerPage` widget. Its responsibilities are:
+
+- **Initialization**: It initializes the `GenUiManager` and the `AiClient`.
+- **State Management**: It manages the `_conversation` history list, sends prompts to the AI via `_triggerInference`, and handles UI events returned from the `GenUiSurface` widgets.
+- **UI Rendering**: It provides the structure for the chat interface, which consists of a `Conversation` widget to render the conversation history and a custom chat input field.
+
+### 3. UI State Management Layer ([`package:flutter_genui`](../../packages/flutter_genui/IMPLEMENTATION.md))
 
 The components from the `flutter_genui` package are the central orchestrators of the dynamic UI state.
 
 - **`GenUiManager`**: The core state manager. It maintains the definitions for all active UI "surfaces", provides the UI manipulation tools (`addOrUpdateSurface`, `deleteSurface`) to the app logic, and notifies listening widgets (like `TravelPlannerPage`) of changes via a stream.
-- **`ConversationWidget`**: A facade widget that renders a list of `ChatMessage`s. It is responsible for displaying the conversation history, including text messages and dynamically rendered UI surfaces via `GenUiSurface`.
+- **`Conversation` widget**: A widget defined in the app (`lib/src/widgets/conversation.dart`) that renders a list of `ChatMessage`s. It is responsible for displaying the conversation history, including text messages and dynamically rendered UI surfaces via `GenUiSurface`.
 
-### 3. AI/Model Layer (`package:flutter_genui`)
+### 4. AI/Model Layer (`package:flutter_genui_firebase_ai`)
 
-The `GeminiAiClient` class, also part of `flutter_genui`, abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
+The `FirebaseAiClient` class, from the `flutter_genui_firebase_ai` package, abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
 
-### 4. Widget Catalog (The "Tools")
+### 5. Widget Catalog (The "Tools")
 
 This is the collection of predefined UI components that the AI can use to construct the interface. It acts as the "API" that the AI targets.
 
 - **Definition**: The catalog is defined in `lib/src/catalog.dart` as a `Catalog` instance, which is a list of `CatalogItem`s.
-- **Custom Components**: The travel app defines several custom `CatalogItem`s in the `lib/src/catalog/` directory, such as `travel_carousel`, `itinerary_with_details`, and `filter_chip_group`.
-- **Standard Components**: It also uses standard, pre-built components from `flutter_genui` like `column`, `text`, `elevatedButton`, etc.
+- **Custom Components**: The travel app defines several custom `CatalogItem`s in the `lib/src/catalog/` directory. Key components include:
+  - `TravelCarousel`: For displaying a horizontal list of selectable options.
+  - `ItineraryWithDetails`, `ItineraryDay`, `ItineraryEntry`: For building structured travel plans.
+  - `InputGroup`: A container for grouping various input widgets.
+  - `OptionsFilterChipInput`, `CheckboxFilterChipsInput`, `TextInputChip`: Different types of input chips for user selections.
+  - `InformationCard`: For displaying detailed information about a topic.
+  - `Trailhead`: For suggesting follow-up prompts to the user.
+- **Standard Components**: It also uses standard, pre-built components from `flutter_genui` like `column`, `text`, `image`, etc.
 
 ## Data Flow: The Generative UI Cycle
 
-The diagram below shows the sequence of events from user input to UI rendering. The application logic in `main.dart` is responsible for driving this cycle.
+The diagram below shows the sequence of events from user input to UI rendering. The application logic in `lib/src/travel_planner_page.dart` is responsible for driving this cycle.
 
 ```mermaid
 sequenceDiagram
@@ -121,14 +136,14 @@ sequenceDiagram
     deactivate AiClient
 
     note right of AppLogic: The AiClient invokes the tool, which calls a method on GenUiManager.
-    
+
     activate GenUiManager
     GenUiManager->>GenUiManager: Updates internal state
     GenUiManager-->>AppLogic: Notifies of state change via Stream
     deactivate GenUiManager
 
     AppLogic->>AppLogic: Updates _conversation list with AiUiMessage
-    
+
     activate ConversationWidget
     AppLogic->>ConversationWidget: Rebuilds with new message list
     ConversationWidget->>ConversationWidget: Renders new UI surface
@@ -141,7 +156,7 @@ sequenceDiagram
 
 ### The System Prompt
 
-The interaction with the model is heavily guided by a detailed **system prompt** defined in `main.dart`. This prompt is critical to the application's success. It instructs the model on:
+The interaction with the model is heavily guided by a detailed **system prompt** defined in `lib/src/travel_planner_page.dart`. This prompt is critical to the application's success. It instructs the model on:
 
 - **Persona**: To act as a helpful travel agent.
 - **Conversation Flow**: To first ask clarifying questions and then present results.
@@ -208,8 +223,8 @@ graph TD
 
 ### User Interaction and Events
 
-The UI is not just for display; it's interactive. Widgets like `optionsFilterChip` and `filterChipGroup` can capture user input.
+The UI is not just for display; it's interactive. Widgets like `InputGroup`, `OptionsFilterChipInput`, and `TravelCarousel` can capture user input.
 
-- **Event Dispatching**: The `widgetBuilder` receives a `dispatchEvent` function. This function is called in response to user actions (like a button press or item selection), creating a `UiEvent` (`UiActionEvent` for submissions, `UiChangeEvent` for value changes).
-- **Event Handling**: The `onEvent` callback on the `GenUiSurface` widget is triggered. The application logic in `main.dart` receives the event via a `UiEventManager`.
-- **Conversation Update**: The app logic processes the event, wraps the information into a new `UserMessage`, adds it to the conversation history, and sends it to the model on the next turn. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
+- **Event Dispatching**: The `widgetBuilder` for each catalog item receives a `dispatchEvent` function. This function is called in response to user actions (like a button press or item selection), creating a `UiEvent` (e.g., `UiActionEvent`).
+- **Event Handling**: The `TravelPlannerPage` listens to the `genUiManager.onSubmit` stream. When an event is dispatched from a widget, the `GenUiManager` processes it and emits a `UserMessage` on this stream.
+- **Conversation Update**: The `TravelPlannerPage`'s stream listener (`_handleUserMessageFromUi`) receives the `UserMessage`, adds it to the conversation history, and triggers a new inference call to the model. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).

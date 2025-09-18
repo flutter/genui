@@ -10,6 +10,7 @@ import 'catalog/input_group.dart';
 import 'catalog/itinerary_day.dart';
 import 'catalog/itinerary_entry.dart';
 import 'catalog/itinerary_with_details.dart';
+import 'catalog/listings_booker.dart';
 import 'catalog/options_filter_chip_input.dart';
 import 'catalog/padded_body_text.dart';
 import 'catalog/section_header.dart';
@@ -30,6 +31,7 @@ final travelAppCatalog = CoreCatalogItems.asCatalog().copyWith([
   inputGroup,
   optionsFilterChipInput,
   checkboxFilterChipsInput,
+  listingsBooker,
   travelCarousel,
   itineraryWithDetails,
   itineraryDay,

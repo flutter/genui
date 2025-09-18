@@ -58,7 +58,59 @@ void main() {
         final actionEvent = dispatchedEvent as UiActionEvent;
         expect(actionEvent.widgetId, 'testId');
         expect(actionEvent.eventType, 'itemSelected');
-        expect(actionEvent.value, 'Item 1');
+        expect(actionEvent.value, {'title': 'Item 1'});
+      });
+    });
+
+    testWidgets('builds correctly and handles tap with listingSelectionId', (
+      WidgetTester tester,
+    ) async {
+      await mockNetworkImagesFor(() async {
+        final data = {
+          'items': [
+            {
+              'title': 'Item 1',
+              'imageChildId': 'imageId1',
+              'listingSelectionId': 'listing1',
+            },
+            {'title': 'Item 2', 'imageChildId': 'imageId2'},
+          ],
+        };
+        UiEvent? dispatchedEvent;
+
+        Widget buildChild(String id) {
+          return Image.network('https://example.com/image.jpg');
+        }
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return travelCarousel.widgetBuilder(
+                    data: data,
+                    id: 'testId',
+                    buildChild: buildChild,
+                    dispatchEvent: (event) {
+                      dispatchedEvent = event;
+                    },
+                    context: context,
+                    values: {},
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Item 1'));
+        await tester.pump();
+
+        final actionEvent = dispatchedEvent as UiActionEvent;
+        expect(actionEvent.value, {
+          'title': 'Item 1',
+          'listingSelectionId': 'listing1',
+        });
       });
     });
 

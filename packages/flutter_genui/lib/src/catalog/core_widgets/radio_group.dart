@@ -93,20 +93,22 @@ class _RadioGroupState extends State<_RadioGroup> {
 final radioGroup = CatalogItem(
   name: 'RadioGroup',
   dataSchema: _schema,
-  exampleData: {
-    'root': 'radio_group',
-    'widgets': [
-      {
-        'id': 'radio_group',
-        'widget': {
-          'RadioGroup': {
-            'groupValue': 'Option 1',
-            'labels': ['Option 1', 'Option 2', 'Option 3'],
+  exampleData: [
+    () => {
+      'root': 'radio_group',
+      'widgets': [
+        {
+          'id': 'radio_group',
+          'widget': {
+            'RadioGroup': {
+              'groupValue': 'Option 1',
+              'labels': ['Option 1', 'Option 2', 'Option 3'],
+            },
           },
         },
-      },
-    ],
-  },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

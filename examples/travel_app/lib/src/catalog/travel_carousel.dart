@@ -23,6 +23,12 @@ final _schema = S.object(
                 'The ID of the Image widget to display as the carousel item '
                 'image. Be sure to create Image widgets with matching IDs.',
           ),
+          'listingSelectionId': S.string(
+            description:
+                'An optional ID of the listing that this item '
+                'represents. This is useful when the carousel is used to show '
+                'a list of hotels or other bookable items.',
+          ),
         },
         required: ['title', 'imageChildId'],
       ),
@@ -63,6 +69,7 @@ final travelCarousel = CatalogItem(
                 (e) => _TravelCarouselItemData(
                   title: e.title,
                   imageChild: buildChild(e.imageChildId),
+                  listingSelectionId: e.listingSelectionId,
                 ),
               )
               .toList(),
@@ -70,6 +77,95 @@ final travelCarousel = CatalogItem(
           dispatchEvent: dispatchEvent,
         );
       },
+  exampleData: [
+    () => {
+      'root': 'greece_inspiration_column',
+      'widgets': [
+        {
+          'id': 'greece_inspiration_column',
+          'widget': {
+            'Column': {
+              'children': ['inspiration_title', 'inspiration_carousel'],
+            },
+          },
+        },
+        {
+          'id': 'inspiration_title',
+          'widget': {
+            'Text': {
+              'text':
+                  "Let's plan your dream trip to Greece! "
+                  'What kind of experience'
+                  ' are you looking for?',
+            },
+          },
+        },
+        {
+          'widget': {
+            'TravelCarousel': {
+              'items': [
+                {
+                  'title': 'Relaxing Beach Holiday',
+                  'imageChildId': 'santorini_beach_image',
+                  'listingSelectionId': '12345',
+                },
+                {
+                  'imageChildId': 'akrotiri_fresco_image',
+                  'title': 'Cultural Exploration',
+                  'listingSelectionId': '12346',
+                },
+                {
+                  'imageChildId': 'santorini_caldera_image',
+                  'title': 'Adventure & Outdoors',
+                  'listingSelectionId': '12347',
+                },
+                {'title': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
+              ],
+            },
+          },
+          'id': 'inspiration_carousel',
+        },
+        {
+          'id': 'santorini_beach_image',
+          'widget': {
+            'Image': {
+              'fit': 'cover',
+              'assetName': 'assets/travel_images/santorini_panorama.jpg',
+            },
+          },
+        },
+        {
+          'id': 'akrotiri_fresco_image',
+          'widget': {
+            'Image': {
+              'fit': 'cover',
+              'assetName':
+                  'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
+            },
+          },
+        },
+        {
+          'id': 'santorini_caldera_image',
+          'widget': {
+            'Image': {
+              'assetName': 'assets/travel_images/santorini_from_space.jpg',
+              'fit': 'cover',
+            },
+          },
+        },
+        {
+          'widget': {
+            'Image': {
+              'fit': 'cover',
+              'assetName':
+                  'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
+            },
+          },
+          'id': 'greece_food_image',
+        },
+      ],
+    },
+  ],
 );
 
 extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
@@ -95,13 +191,16 @@ extension type _TravelCarouselItemSchemaData.fromMap(
   factory _TravelCarouselItemSchemaData({
     required String title,
     required String imageChildId,
+    String? listingSelectionId,
   }) => _TravelCarouselItemSchemaData.fromMap({
     'title': title,
     'imageChildId': imageChildId,
+    if (listingSelectionId != null) 'listingSelectionId': listingSelectionId,
   });
 
   String get title => _json['title'] as String;
   String get imageChildId => _json['imageChildId'] as String;
+  String? get listingSelectionId => _json['listingSelectionId'] as String?;
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
@@ -167,8 +266,13 @@ class _TravelCarousel extends StatelessWidget {
 class _TravelCarouselItemData {
   final String title;
   final Widget imageChild;
+  final String? listingSelectionId;
 
-  _TravelCarouselItemData({required this.title, required this.imageChild});
+  _TravelCarouselItemData({
+    required this.title,
+    required this.imageChild,
+    this.listingSelectionId,
+  });
 }
 
 class _TravelCarouselItem extends StatelessWidget {
@@ -192,7 +296,11 @@ class _TravelCarouselItem extends StatelessWidget {
             UiActionEvent(
               widgetId: widgetId,
               eventType: 'itemSelected',
-              value: data.title,
+              value: {
+                'title': data.title,
+                if (data.listingSelectionId != null)
+                  'listingSelectionId': data.listingSelectionId,
+              },
             ),
           );
         },

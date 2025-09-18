@@ -126,51 +126,53 @@ final column = CatalogItem(
           children: childrenWithSpacing,
         );
       },
-  exampleData: {
-    'root': 'advice_column',
-    'widgets': [
-      {
-        'id': 'advice_column',
-        'widget': {
-          'Column': {
-            'children': ['advice_text', 'advice_options', 'submit_button'],
+  exampleData: [
+    () => {
+      'root': 'advice_column',
+      'widgets': [
+        {
+          'id': 'advice_column',
+          'widget': {
+            'Column': {
+              'children': ['advice_text', 'advice_options', 'submit_button'],
+            },
           },
         },
-      },
-      {
-        'id': 'advice_text',
-        'widget': {
-          'Text': {'text': 'What kind of advice are you looking for?'},
-        },
-      },
-      {
-        'id': 'advice_options',
-        'widget': {
-          'RadioGroup': {
-            'labels': [
-              'Career',
-              'Personal',
-              'Financial',
-              'Health',
-              'Relationships',
-              'Other',
-            ],
-            'groupValue': '',
+        {
+          'id': 'advice_text',
+          'widget': {
+            'Text': {'text': 'What kind of advice are you looking for?'},
           },
         },
-      },
-      {
-        'id': 'submit_button',
-        'widget': {
-          'ElevatedButton': {'child': 'submit_button_text'},
+        {
+          'id': 'advice_options',
+          'widget': {
+            'RadioGroup': {
+              'labels': [
+                'Career',
+                'Personal',
+                'Financial',
+                'Health',
+                'Relationships',
+                'Other',
+              ],
+              'groupValue': '',
+            },
+          },
         },
-      },
-      {
-        'widget': {
-          'Text': {'text': 'Submit'},
+        {
+          'id': 'submit_button',
+          'widget': {
+            'ElevatedButton': {'child': 'submit_button_text'},
+          },
         },
-        'id': 'submit_button_text',
-      },
-    ],
-  },
+        {
+          'widget': {
+            'Text': {'text': 'Submit'},
+          },
+          'id': 'submit_button_text',
+        },
+      ],
+    },
+  ],
 );
