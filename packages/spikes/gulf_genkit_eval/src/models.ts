@@ -25,6 +25,11 @@ export const modelsToTest: ModelConfiguration[] = [
         config: { reasoning_effort: 'minimal' },
     },
     {
+        model: openAI.model('gpt-4.1'),
+        name: 'gpt-4.1',
+        config: {},
+    },
+    {
         model: googleAI.model('gemini-2.5-pro'),
         name: 'gemini-2.5-pro (thinking: 1000)',
         config: { thinkingConfig: { thinkingBudget: 1000 } },
@@ -41,12 +46,12 @@ export const modelsToTest: ModelConfiguration[] = [
     },
     {
         model: claude4Sonnet,
-        name: 'claude-3-sonnet-20240229',
+        name: 'claude-3-sonnet',
         config: {},
     },
     {
         model: claude35Haiku,
-        name: 'claude-3-haiku-20240307',
+        name: 'claude-3-haiku',
         config: {},
     },
 ];

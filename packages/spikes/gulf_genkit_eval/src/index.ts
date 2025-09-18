@@ -182,12 +182,21 @@ async function main() {
     }
 
     console.log('\n--- Overall Summary ---');
-    const totalTests = results.length;
-    const totalFailures = results.filter(r => r.error).length;
-    const totalPassed = totalTests - totalFailures;
-    console.log(`Total tests run: ${totalTests}`);
-    console.log(`Total passed: ${totalPassed}`);
-    console.log(`Total failed: ${totalFailures}`);
+    const totalModelApiFailures = results.filter(r => r.error).length;
+    const totalValidationFailures = results.reduce((acc, r) => acc + r.validationResults.length, 0);
+    const testsWithAnyFailure = results.filter(r => r.error || r.validationResults.length > 0).length;
+    const modelsWithFailures = [...new Set(
+        results
+            .filter(r => r.error || r.validationResults.length > 0)
+            .map(r => r.modelName)
+    )].join(', ');
+
+    console.log(`Number of model API failures: ${totalModelApiFailures}`);
+    console.log(`Number of validation failures in total: ${totalValidationFailures}`);
+    console.log(`Number of tests with either a model failure or at least 1 validation failure: ${testsWithAnyFailure}`);
+    if (modelsWithFailures) {
+        console.log(`Models with at least one failure: ${modelsWithFailures}`);
+    }
 }
 
 

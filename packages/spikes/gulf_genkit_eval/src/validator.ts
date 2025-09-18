@@ -103,18 +103,34 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
 
     switch (componentType) {
         case 'Heading':
+            checkRequired(['text']);
+            break;
         case 'Text':
+            checkRequired(['text']);
+            break;
         case 'Image':
+            checkRequired(['src']);
+            break;
         case 'Video':
+            checkRequired(['src']);
+            break;
         case 'AudioPlayer':
+            checkRequired(['src']);
+            break;
         case 'TextField':
+            checkRequired(['text']);
+            break;
         case 'DateTimeInput':
+            checkRequired(['datetime']);
+            break;
         case 'MultipleChoice':
+            checkRequired(['selection']);
+            break;
         case 'Slider':
-            checkRequired(['value']);
+            checkRequired(['number']);
             break;
         case 'CheckBox':
-            checkRequired(['value', 'label']);
+            checkRequired(['checked', 'label']);
             break;
         case 'Row':
         case 'Column':

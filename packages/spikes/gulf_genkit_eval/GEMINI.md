@@ -19,7 +19,7 @@ For each component in the `components` array, the following rules apply based on
     *   A component must have an `id` and a `type`.
 
 *   **Value Components** (`Heading`, `Text`, `Image`, `Video`, `AudioPlayer`, `TextField`, `CheckBox`, `DateTimeInput`, `MultipleChoice`, `Slider`):
-    *   **Required**: Must have a `value` property.
+    *   **Required**: Must have a `text`, `src`, `checked`, `datetime`, `selection`, or `number` property, depending on the component type. Each of these properties is an object that must contain *either* a `path` *or* a literal value (e.g., `literalString`, `literalBoolean`).
 
 *   **Container Components** (`Row`, `Column`, `List`):
     *   **Required**: Must have a `children` property.
@@ -39,7 +39,7 @@ For each component in the `components` array, the following rules apply based on
     *   **Required**: Must have `label` and `action` properties.
 
 *   **CheckBox**:
-    *   **Required**: Must have `label` and `value` properties.
+    *   **Required**: Must have `label` and `checked` properties.
 
 ## `DataModelUpdate` Message Rules
 

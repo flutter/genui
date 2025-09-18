@@ -21,28 +21,16 @@
               "Heading": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "text": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   },
@@ -59,143 +47,105 @@
                   }
                 },
                 "required": [
-                  "value"
+                  "text"
                 ]
               },
               "Text": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "text": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   }
                 },
                 "required": [
-                  "value"
+                  "text"
                 ]
               },
               "Image": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "src": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   }
                 },
                 "required": [
-                  "value"
+                  "src"
                 ]
               },
               "Video": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "src": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   }
                 },
                 "required": [
-                  "value"
+                  "src"
                 ]
               },
               "AudioPlayer": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "src": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   },
-                  "description": {
-                    "type": "string",
+                  "title": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
+                      },
+                      "literalString": {
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
+                      }
+                    },
                     "description": "A label, title, or placeholder text."
                   }
                 },
                 "required": [
-                  "value"
+                  "src"
                 ]
               },
               "Row": {
@@ -403,7 +353,17 @@
                       "type": "object",
                       "properties": {
                         "title": {
-                          "type": "string",
+                          "type": "object",
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
+                            },
+                            "literalString": {
+                              "type": "string",
+                              "description": "A fixed, hardcoded string value."
+                            }
+                          },
                           "description": "The title of the tab."
                         },
                         "child": {
@@ -466,7 +426,17 @@
                 "type": "object",
                 "properties": {
                   "label": {
-                    "type": "string"
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
+                      },
+                      "literalString": {
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
+                      }
+                    }
                   },
                   "action": {
                     "type": "object",
@@ -490,13 +460,15 @@
                               "description": "The dynamic value. Define EXACTLY ONE of the nested properties.",
                               "properties": {
                                 "path": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                                 },
                                 "componentId": {
                                   "type": "string"
                                 },
                                 "literalString": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "A fixed, hardcoded string value."
                                 },
                                 "literalNumber": {
                                   "type": "number"
@@ -528,69 +500,64 @@
                 "type": "object",
                 "properties": {
                   "label": {
-                    "type": "string"
-                  },
-                  "value": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
+                      }
+                    }
+                  },
+                  "checked": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalBoolean": {
                         "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
                       }
                     }
                   }
                 },
                 "required": [
                   "label",
-                  "value"
+                  "checked"
                 ]
               },
               "TextField": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "text": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   },
-                  "description": {
-                    "type": "string",
+                  "label": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
+                      },
+                      "literalString": {
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
+                      }
+                    },
                     "description": "A label, title, or placeholder text."
                   },
                   "textFieldType": {
@@ -608,34 +575,22 @@
                   }
                 },
                 "required": [
-                  "value"
+                  "text"
                 ]
               },
               "DateTimeInput": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "datetime": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
+                        "type": "string",
+                        "description": "A fixed, hardcoded string value."
                       }
                     }
                   },
@@ -653,28 +608,18 @@
                   }
                 },
                 "required": [
-                  "value"
+                  "datetime"
                 ]
               },
               "MultipleChoice": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "selection": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
-                      },
-                      "literalString": {
-                        "type": "string"
-                      },
-                      "literalNumber": {
-                        "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalArray": {
                         "type": "array",
@@ -690,7 +635,17 @@
                       "type": "object",
                       "properties": {
                         "label": {
-                          "type": "string"
+                          "type": "object",
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
+                            },
+                            "literalString": {
+                              "type": "string",
+                              "description": "A fixed, hardcoded string value."
+                            }
+                          }
                         },
                         "value": {
                           "type": "string"
@@ -708,48 +663,35 @@
                   }
                 },
                 "required": [
-                  "value"
+                  "selection"
                 ]
               },
               "Slider": {
                 "type": "object",
                 "properties": {
-                  "value": {
+                  "number": {
                     "type": "object",
-                    "description": "Represents a dynamic value. Define EXACTLY ONE of the nested properties to bind the component's value.",
                     "properties": {
                       "path": {
                         "type": "string",
-                        "description": "A string path to data in the model (e.g., '/user/name')."
-                      },
-                      "literalString": {
-                        "type": "string"
+                        "description": "A data binding reference to a location in the data model (e.g., '/user/name')."
                       },
                       "literalNumber": {
                         "type": "number"
-                      },
-                      "literalBoolean": {
-                        "type": "boolean"
-                      },
-                      "literalArray": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
                       }
                     }
                   },
-                  "min_value": {
+                  "minValue": {
                     "type": "number",
                     "default": 0
                   },
-                  "max_value": {
+                  "maxValue": {
                     "type": "number",
                     "default": 100
                   }
                 },
                 "required": [
-                  "value"
+                  "number"
                 ]
               }
             }
