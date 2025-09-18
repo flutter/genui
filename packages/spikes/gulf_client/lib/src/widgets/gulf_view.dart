@@ -135,6 +135,17 @@ class _LayoutEngine extends StatelessWidget {
       }
     } else if (properties is CardProperties) {
       children['child'] = [_buildNode(context, properties.child, newVisited)];
+    } else if (properties is TabsProperties) {
+      children['children'] = properties.tabItems
+          .map((item) => _buildNode(context, item.child, newVisited))
+          .toList();
+    } else if (properties is ModalProperties) {
+      children['entryPointChild'] = [
+        _buildNode(context, properties.entryPointChild, newVisited)
+      ];
+      children['contentChild'] = [
+        _buildNode(context, properties.contentChild, newVisited)
+      ];
     }
 
     final visitor = ComponentPropertiesVisitor(interpreter);

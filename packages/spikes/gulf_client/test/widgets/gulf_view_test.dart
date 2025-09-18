@@ -137,5 +137,36 @@ void main() {
 
       expect(find.text('Updated'), findsOneWidget);
     });
+
+    testWidgets('builds card with child', (tester) async {
+      registry.register('CardProperties', (
+        context,
+        component,
+        properties,
+        children,
+      ) {
+        return Card(child: children['child']!.first);
+      });
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: GulfView(interpreter: interpreter, registry: registry),
+        ),
+      );
+
+      streamController.add(
+        '''
+        {"componentUpdate": { "components": [
+          {"id": "root", "componentProperties": {"Card": {"child": "text_child"}}},
+          {"id": "text_child", "componentProperties": {"Text": {"text": {"literalString": "Card Text"}}}}
+        ]}}
+        ''',
+      );
+      streamController.add('{"beginRendering": {"root": "root"}}');
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.text('Card Text'), findsOneWidget);
+    });
   });
 }
