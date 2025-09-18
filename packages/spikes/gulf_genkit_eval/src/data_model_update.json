@@ -1,6 +1,6 @@
 {
   "title": "Data model update",
-  "description": "Sets or replaces a part of the data model at a specified path with new content.",
+  "description": "Sets or replaces the data model at a specified path with new content.",
   "type": "object",
   "properties": {
     "path": {
