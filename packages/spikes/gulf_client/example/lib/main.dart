@@ -34,7 +34,7 @@ const String _sampleJsonl = r'''
 {"componentUpdate": {"components": [{"id": "likes_label", "componentProperties": {"Text": {"text": {"literalString": "Likes"}}}}]}}
 {"componentUpdate": {"components": [{"id": "interaction_row", "componentProperties": {"Row": {"children": {"explicitList": ["follow_button", "message_field"]}}}}]}}
 {"componentUpdate": {"components": [{"id": "follow_button", "componentProperties": {"Button": {"label": {"literalString": "Follow"}, "action": {"action": "follow_user"}}}}]}}
-{"componentUpdate": {"components": [{"id": "message_field", "componentProperties": {"TextField": {"label": {"literalString": "Send a message..."}}}}}]}}
+{"componentUpdate": {"components": [{"id": "message_field", "componentProperties": {"TextField": {"label": {"literalString": "Send a message..."}}}}]}}
 {"dataModelUpdate": {"contents": {}}}
 {"beginRendering": {"root": "root"}}
 ''';
