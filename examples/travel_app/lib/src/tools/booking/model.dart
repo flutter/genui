@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,6 +19,10 @@ class HotelSearchResult {
 
   JsonMap toJson() {
     return {'listings': listings.map((e) => e.toJson()).toList()};
+  }
+
+  JsonMap toAiInput() {
+    return {'listings': listings.map((e) => e.toAiInput()).toList()};
   }
 }
 
@@ -45,6 +49,9 @@ class HotelListing implements Listing {
     required this.search,
   });
 
+  late final String description =
+      '$name in $location, \$${pricePerNight.ceil()}';
+
   static HotelListing fromJson(JsonMap json) {
     return HotelListing(
       name: json['name'] as String,
@@ -64,6 +71,14 @@ class HotelListing implements Listing {
       'images': images,
       'listingSelectionId': listingSelectionId,
       'search': search.toJson(),
+    };
+  }
+
+  JsonMap toAiInput() {
+    return {
+      'description': description,
+      'images': images,
+      'listingSelectionId': listingSelectionId,
     };
   }
 }

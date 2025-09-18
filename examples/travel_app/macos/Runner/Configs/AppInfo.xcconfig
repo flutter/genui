@@ -11,4 +11,4 @@ PRODUCT_NAME = genui_client
 PRODUCT_BUNDLE_IDENTIFIER = dev.flutter.genui.genuiClient
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 dev.flutter.genui. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 dev.flutter.genui.

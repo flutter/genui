@@ -1,9 +1,9 @@
-# Copyright 2025 The Flutter Authors. All rights reserved.
+# Copyright 2025 The Flutter Authors.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
 name: catalog_gallery
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -19,7 +19,6 @@ dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
-
 
 flutter:
   uses-material-design: true
