@@ -42,7 +42,7 @@ class GulfInterpreter with ChangeNotifier {
     if (jsonl.isEmpty) {
       return;
     }
-    final json = jsonDecode(jsonl);
+    final json = jsonDecode(jsonl) as Map<String, Object?>;
     final message = GulfStreamMessage.fromJson(json);
     switch (message) {
       case StreamHeader():

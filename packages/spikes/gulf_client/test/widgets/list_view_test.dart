@@ -42,16 +42,16 @@ void main() {
         '{"messageType": "ComponentUpdate", "components": [{"id": "template", "type": "Text", "value": {"path": "/text"}}]}',
       );
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"items": "items_node"}}, {"id": "items_node", "items": ["item1", "item2"]}]}',
+        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"items": "items_node"}}, {"id": "items_node", "items": ["item1", "item2"]}]}''',
       );
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "item1", "children": {"text": "text1"}}, {"id": "text1", "value": "Item 1"}]}',
+        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "item1", "children": {"text": "text1"}}, {"id": "text1", "value": "Item 1"}]}''',
       );
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "item2", "children": {"text": "text2"}}, {"id": "text2", "value": "Item 2"}]}',
+        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "item2", "children": {"text": "text2"}}, {"id": "text2", "value": "Item 2"}]}''',
       );
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 
@@ -77,10 +77,10 @@ void main() {
         '{"messageType": "ComponentUpdate", "components": [{"id": "template", "type": "Text", "value": {"path": "/text"}}]}',
       );
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"items": "items_node"}}, {"id": "items_node", "value": "not a list"}]}',
+        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"items": "items_node"}}, {"id": "items_node", "value": "not a list"}]}''',
       );
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 

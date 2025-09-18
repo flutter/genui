@@ -169,60 +169,54 @@ class _LayoutEngine extends StatelessWidget {
     return builder(context, component, {}, {'children': children});
   }
 
+  Object? _resolveValue(Value? value, Map<String, dynamic>? itemData) {
+    if (value == null) {
+      return null;
+    }
+    if (value.literalString != null) {
+      return value.literalString;
+    } else if (value.literalNumber != null) {
+      return value.literalNumber;
+    } else if (value.literalBoolean != null) {
+      return value.literalBoolean;
+    } else if (value.literalObject != null) {
+      return value.literalObject;
+    } else if (value.literalArray != null) {
+      return value.literalArray;
+    } else if (value.path != null) {
+      if (itemData != null) {
+        return itemData[value.path!.substring(1)];
+      } else {
+        return interpreter.resolveDataBinding(value.path!);
+      }
+    }
+    return null;
+  }
+
   Map<String, Object?> _resolveProperties(
     Component component,
     Map<String, dynamic>? itemData,
   ) {
     final properties = <String, Object?>{};
+    final componentJson = component.toJson();
 
-    void resolveValue(String key, Value? value) {
+    for (final entry in componentJson.entries) {
+      final key = entry.key;
+      final value = entry.value;
+
       if (value == null) {
-        return;
+        continue;
       }
-      if (value.literalString != null) {
-        properties[key] = value.literalString;
-      } else if (value.literalNumber != null) {
-        properties[key] = value.literalNumber;
-      } else if (value.literalBoolean != null) {
-        properties[key] = value.literalBoolean;
-      } else if (value.literalObject != null) {
-        properties[key] = value.literalObject;
-      } else if (value.literalArray != null) {
-        properties[key] = value.literalArray;
-      } else if (value.path != null) {
-        if (itemData != null) {
-          properties[key] = itemData[value.path!.substring(1)];
-        } else {
-          properties[key] = interpreter.resolveDataBinding(value.path!);
-        }
+
+      if (key == 'value') {
+        properties['text'] = _resolveValue(
+          Value.fromJson(value as Map<String, dynamic>),
+          itemData,
+        );
+      } else {
+        properties[key] = value;
       }
     }
-
-    resolveValue('text', component.value);
-    properties['level'] = component.level;
-    properties['description'] = component.description;
-    properties['direction'] = component.direction;
-    properties['distribution'] = component.distribution;
-    properties['alignment'] = component.alignment;
-    properties['child'] = component.child;
-    properties['tabItems'] = component.tabItems;
-    properties['axis'] = component.axis;
-    properties['color'] = component.color;
-    properties['thickness'] = component.thickness;
-    properties['entryPointChild'] = component.entryPointChild;
-    properties['contentChild'] = component.contentChild;
-    properties['label'] = component.label;
-    properties['action'] = component.action;
-    properties['textFieldType'] = component.textFieldType;
-    properties['validationRegexp'] = component.validationRegexp;
-    properties['enableDate'] = component.enableDate;
-    properties['enableTime'] = component.enableTime;
-    properties['outputFormat'] = component.outputFormat;
-    properties['options'] = component.options;
-    properties['maxAllowedSelections'] = component.maxAllowedSelections;
-    properties['min_value'] = component.minValue;
-    properties['max_value'] = component.maxValue;
-
     return properties;
   }
 }

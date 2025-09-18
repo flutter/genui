@@ -43,10 +43,10 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Text", "value": {"literalString": "Hello"}}]}',
+        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Text", "value": {"literalString": "Hello"}}]}''',
       );
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 
@@ -61,10 +61,10 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Column", "children": {"explicitList": ["root"]}}]}',
+        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Column", "children": {"explicitList": ["root"]}}]}''',
       );
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 
@@ -82,10 +82,10 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "MissingWidget"}]}',
+        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "MissingWidget"}]}''',
       );
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 
@@ -103,7 +103,7 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 
@@ -118,20 +118,20 @@ void main() {
       );
 
       streamController.add(
-        '{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Text", "value": {"path": "/greeting"}}]}',
+        '''{"messageType": "ComponentUpdate", "components": [{"id": "root", "type": "Text", "value": {"path": "/greeting"}}]}''',
       );
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"greeting": "greeting_node"}}, {"id": "greeting_node", "value": "Initial"}]}',
+        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "data_root", "children": {"greeting": "greeting_node"}}, {"id": "greeting_node", "value": "Initial"}]}''',
       );
       streamController.add(
-        '{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}',
+        '''{"messageType": "UIRoot", "root": "root", "dataModelRoot": "data_root"}''',
       );
       await tester.pump();
 
       expect(find.text('Initial'), findsOneWidget);
 
       streamController.add(
-        '{"messageType": "DataModelUpdate", "nodes": [{"id": "greeting_node", "value": "Updated"}]}',
+        '''{"messageType": "DataModelUpdate", "nodes": [{"id": "greeting_node", "value": "Updated"}]}''',
       );
       await tester.pump();
 
