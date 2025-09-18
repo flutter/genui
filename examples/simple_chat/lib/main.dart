@@ -48,16 +48,16 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    const instruction = '''
-    You are a helpful assistant who chats with user,
-    giving exactly one response for each user message.
-    Your responses should contain acknowledgment
-    of the user message.
-    ''';
     final catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
     final aiClient = FirebaseAiClient(
-      systemInstruction: '$instruction\n\n${GenUiPromptFragments.basicChat}',
+      systemInstruction:
+          'You are a helpful assistant who chats with a user, '
+          'giving exactly one response for each user message. '
+          'Your responses should contain acknowledgment '
+          'of the user message.'
+          '\n\n'
+          '${GenUiPromptFragments.basicChat}',
       tools: _genUiManager.getTools(),
     );
     _uiAgent = UiAgent(
