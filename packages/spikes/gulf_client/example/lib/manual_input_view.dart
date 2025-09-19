@@ -108,10 +108,7 @@ class _ManualInputViewState extends State<ManualInputView>
                   ? const Center(
                       child: Text('Submit JSONL to see the rendered UI.'),
                     )
-                  : GulfView(
-                      interpreter: interpreter!,
-                      registry: registry,
-                    ),
+                  : GulfView(interpreter: interpreter!, registry: registry),
             ),
           ),
         ],
