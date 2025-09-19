@@ -48,10 +48,9 @@ void registerGulfWidgets(WidgetRegistry registry) {
     final text = properties['text'] as String? ?? '';
     TextStyle? style;
     if (component.id.contains('name')) {
-      style = Theme.of(context)
-          .textTheme
-          .titleMedium
-          ?.copyWith(fontWeight: FontWeight.bold);
+      style = Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold);
     } else if (component.id.contains('detail')) {
       style = Theme.of(context).textTheme.bodyMedium;
     }
@@ -101,6 +100,28 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: Image.network(url, width: 64, height: 64),
     );
   });
+  registry.register('VideoProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Icon(Icons.videocam),
+    );
+  });
+  registry.register('AudioPlayerProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Icon(Icons.audiotrack),
+    );
+  });
   registry.register('CardProperties', (
     context,
     component,
@@ -109,14 +130,59 @@ void registerGulfWidgets(WidgetRegistry registry) {
   ) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(8.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: children['child']?.first,
       ),
+    );
+  });
+  registry.register('TabsProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    // This is a simplified version of Tabs. A real implementation would
+    // need a TabController.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: children['children'] ?? [],
+    );
+  });
+  registry.register('DividerProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return const Divider();
+  });
+  registry.register('ModalProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return ElevatedButton(
+      onPressed: () {
+        showDialog<void>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: children['contentChild']?.first,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: children['entryPointChild']?.first,
     );
   });
   registry.register('ButtonProperties', (
@@ -139,6 +205,18 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: Text(properties['label'] as String? ?? ''),
     );
   });
+  registry.register('CheckBoxProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return CheckboxListTile(
+      title: Text(properties['label'] as String? ?? ''),
+      value: properties['value'] as bool? ?? false,
+      onChanged: (value) {},
+    );
+  });
   registry.register('TextFieldProperties', (
     context,
     component,
@@ -152,6 +230,53 @@ void registerGulfWidgets(WidgetRegistry registry) {
           decoration: InputDecoration(hintText: properties['label'] as String?),
         ),
       ),
+    );
+  });
+  registry.register('DateTimeInputProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return ElevatedButton(
+      onPressed: () {
+        showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+        );
+      },
+      child: const Text('Select Date'),
+    );
+  });
+  registry.register('MultipleChoiceProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    final options = properties['options'] as List<Option>? ?? [];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: options.map((option) {
+        return CheckboxListTile(
+          title: Text(option.label.literalString ?? ''),
+          value: false,
+          onChanged: (value) {},
+        );
+      }).toList(),
+    );
+  });
+  registry.register('SliderProperties', (
+    context,
+    component,
+    properties,
+    children,
+  ) {
+    return Slider(
+      value: properties['value'] as double? ?? 0.0,
+      onChanged: (value) {},
     );
   });
   registry.register('ListProperties', (
