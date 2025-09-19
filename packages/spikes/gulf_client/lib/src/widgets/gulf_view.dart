@@ -90,9 +90,14 @@ class _GulfViewState extends State<GulfView> {
       interpreter: widget.interpreter,
       onEvent: widget.onEvent,
       onDataModelUpdate: widget.onDataModelUpdate,
-      child: _LayoutEngine(
-        interpreter: widget.interpreter,
-        registry: widget.registry,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _LayoutEngine(
+            interpreter: widget.interpreter,
+            registry: widget.registry,
+          ),
+        ),
       ),
     );
   }

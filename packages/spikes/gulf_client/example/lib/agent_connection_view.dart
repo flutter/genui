@@ -29,6 +29,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   GulfInterpreter? interpreter;
   GulfAgentConnector? _connector;
   AgentCard? _agentCard;
+  bool _messageSent = false;
   final registry = WidgetRegistry();
   final _urlController = TextEditingController(text: 'http://localhost:10002');
   final _messageController = TextEditingController(
@@ -42,6 +43,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   void initState() {
     super.initState();
     registerGulfWidgets(registry);
+    _fetchCard();
   }
 
   @override
@@ -77,6 +79,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
         // Create the interpreter once we have a valid connector
         interpreter?.dispose();
         interpreter = GulfInterpreter(stream: newConnector.stream);
+        _messageSent = false;
       });
     } catch (e) {
       if (!mounted) return;
@@ -97,6 +100,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
     final message = _messageController.text;
     setState(() {
       _chatHistory.add(_ChatMessage(text: message, isUser: true));
+      _messageSent = true;
     });
     _connector!.connectAndSend(
       message,
@@ -151,22 +155,17 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
           Expanded(
             child: Card(
               elevation: 2,
-              child: interpreter == null
+              child: interpreter == null || !_messageSent
                   ? const Center(child: Text('Send a message to see the UI.'))
-                  : SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GulfView(
-                          interpreter: interpreter!,
-                          registry: registry,
-                          onEvent: (event) {
-                            _connector?.sendEvent(event);
-                          },
-                          onDataModelUpdate: (path, value) {
-                            interpreter!.updateData(path, value);
-                          },
-                        ),
-                      ),
+                  : GulfView(
+                      interpreter: interpreter!,
+                      registry: registry,
+                      onEvent: (event) {
+                        _connector?.sendEvent(event);
+                      },
+                      onDataModelUpdate: (path, value) {
+                        interpreter!.updateData(path, value);
+                      },
                     ),
             ),
           ),
@@ -230,7 +229,9 @@ class _ChatHistory extends StatelessWidget {
                       padding: EdgeInsets.only(right: 8.0),
                       child: Icon(Icons.smart_toy),
                     ),
-                  Flexible(child: GptMarkdown(message.text)),
+                  Flexible(
+                    child: SelectionArea(child: GptMarkdown(message.text)),
+                  ),
                   if (message.isUser)
                     const Padding(
                       padding: EdgeInsets.only(left: 8.0),

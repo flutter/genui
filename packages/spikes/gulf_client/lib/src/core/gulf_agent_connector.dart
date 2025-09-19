@@ -36,6 +36,7 @@ class GulfAgentConnector {
   final _controller = StreamController<String>.broadcast();
   late A2AClient _client;
   String? _taskId;
+  String? _contextId;
 
   /// The stream of GULF protocol lines.
   Stream<String> get stream => _controller.stream;
@@ -60,6 +61,13 @@ class GulfAgentConnector {
     final message = A2AMessage()
       ..role = 'user'
       ..parts = [A2ATextPart()..text = messageText];
+
+    if (_taskId != null) {
+      message.referenceTaskIds = [_taskId!];
+    }
+    if (_contextId != null) {
+      message.contextId = _contextId;
+    }
 
     final payload = A2AMessageSendParams()..message = message;
     payload.extensions = [
@@ -88,6 +96,7 @@ class GulfAgentConnector {
       final result = response.result;
       if (result is A2ATask) {
         _taskId = result.id;
+        _contextId = result.contextId;
       }
 
       A2AMessage? message;
@@ -135,13 +144,16 @@ class GulfAgentConnector {
     final message = A2AMessage()
       ..role = 'user'
       ..parts = [dataPart]
+      ..contextId = _contextId
       ..referenceTaskIds = [_taskId!];
 
     final payload = A2AMessageSendParams()..message = message;
 
     try {
       await _client.sendMessage(payload);
-      _log.fine('Successfully sent event for task $_taskId');
+      _log.fine(
+        'Successfully sent event for task $_taskId (context $_contextId)',
+      );
     } catch (e) {
       _log.severe('Error sending event: $e');
     }
