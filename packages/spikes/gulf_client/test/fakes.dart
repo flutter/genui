@@ -14,6 +14,11 @@ class FakeGulfInterpreter extends ChangeNotifier implements GulfInterpreter {
   }
 
   @override
+  void updateData(String path, dynamic value) {
+    _data[path] = value;
+  }
+
+  @override
   Object? resolveDataBinding(String path) {
     return _data[path];
   }

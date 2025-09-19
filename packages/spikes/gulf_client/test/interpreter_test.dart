@@ -127,6 +127,16 @@ void main() {
       expect(street, '456 Oak Ave');
     });
 
+    test('updateData updates the data model and notifies listeners', () {
+      var callCount = 0;
+      interpreter.addListener(() => callCount++);
+
+      interpreter.updateData('user.name', 'Jane Doe');
+
+      expect(interpreter.resolveDataBinding('user.name'), 'Jane Doe');
+      expect(callCount, 1);
+    });
+
     test('sets error when root data model is not a map', () {
       final interpreter = GulfInterpreter(stream: const Stream.empty());
       const message = '''

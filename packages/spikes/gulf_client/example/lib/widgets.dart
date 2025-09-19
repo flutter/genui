@@ -4,6 +4,9 @@
 
 import 'package:flutter/material.dart' hide Action;
 import 'package:gulf_client/gulf_client.dart';
+import 'package:logging/logging.dart';
+
+final _log = Logger('gulf.example.widgets');
 
 void registerGulfWidgets(WidgetRegistry registry) {
   registry.register('ColumnProperties', (
@@ -194,7 +197,14 @@ void registerGulfWidgets(WidgetRegistry registry) {
     final action = properties['action'] as Action;
     return ElevatedButton(
       onPressed: () {
-        GulfProvider.of(context)?.onEvent?.call({'action': action.action});
+        _log.info(
+          'Button ${component.id} pressed. Firing event: ${action.action}',
+        );
+        GulfProvider.of(context)?.onEvent?.call({
+          'action': action.action,
+          'sourceComponentId': component.id,
+          'context': action.context,
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Event: ${action.action}'),
@@ -211,10 +221,9 @@ void registerGulfWidgets(WidgetRegistry registry) {
     properties,
     children,
   ) {
-    return CheckboxListTile(
-      title: Text(properties['label'] as String? ?? ''),
-      value: properties['value'] as bool? ?? false,
-      onChanged: (value) {},
+    return _Checkbox(
+      properties: properties,
+      component: component,
     );
   });
   registry.register('TextFieldProperties', (
@@ -256,16 +265,9 @@ void registerGulfWidgets(WidgetRegistry registry) {
     properties,
     children,
   ) {
-    final options = properties['options'] as List<Option>? ?? [];
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: options.map((option) {
-        return CheckboxListTile(
-          title: Text(option.label.literalString ?? ''),
-          value: false,
-          onChanged: (value) {},
-        );
-      }).toList(),
+    return _MultipleChoice(
+      properties: properties,
+      component: component,
     );
   });
   registry.register('SliderProperties', (
@@ -274,9 +276,9 @@ void registerGulfWidgets(WidgetRegistry registry) {
     properties,
     children,
   ) {
-    return Slider(
-      value: properties['value'] as double? ?? 0.0,
-      onChanged: (value) {},
+    return _Slider(
+      properties: properties,
+      component: component,
     );
   });
   registry.register('ListProperties', (
@@ -299,6 +301,176 @@ void registerGulfWidgets(WidgetRegistry registry) {
       children: children['children'] ?? [],
     );
   });
+}
+
+class _Checkbox extends StatefulWidget {
+  const _Checkbox({required this.properties, required this.component});
+  final Map<String, Object?> properties;
+  final Component component;
+
+  @override
+  State<_Checkbox> createState() => _CheckboxState();
+}
+
+class _CheckboxState extends State<_Checkbox> {
+  bool? _value;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _value = widget.properties['value'] as bool? ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final properties = widget.properties;
+    final path =
+        (widget.component.componentProperties as CheckBoxProperties).value.path;
+    return CheckboxListTile(
+      title: Text(properties['label'] as String? ?? ''),
+      value: _value,
+      onChanged: (value) {
+        _log.info(
+          'Checkbox ${widget.component.id} changed to $value. '
+          'Updating path: $path',
+        );
+        setState(() {
+          _value = value;
+        });
+        if (path != null) {
+          GulfProvider.of(context)?.onDataModelUpdate?.call(path, value);
+        }
+        GulfProvider.of(context)?.onEvent?.call({
+          'action': 'checkbox_change',
+          'sourceComponentId': widget.component.id,
+          'context': {
+            'value': value,
+          },
+        });
+      },
+    );
+  }
+}
+
+class _MultipleChoice extends StatefulWidget {
+  const _MultipleChoice({required this.properties, required this.component});
+  final Map<String, Object?> properties;
+  final Component component;
+
+  @override
+  State<_MultipleChoice> createState() => _MultipleChoiceState();
+}
+
+class _MultipleChoiceState extends State<_MultipleChoice> {
+  List<String> _selectedValues = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final selections = widget.properties['selections'] as List<dynamic>?;
+    _selectedValues = selections?.map((e) => e.toString()).toList() ?? [];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final properties = widget.properties;
+    final options = properties['options'] as List<Option>? ?? [];
+    final path =
+        (widget.component.componentProperties as MultipleChoiceProperties)
+            .selections
+            .path;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: options.map((option) {
+        final isSelected = _selectedValues.contains(option.value);
+        return CheckboxListTile(
+          title: Text(option.label.literalString ?? ''),
+          value: isSelected,
+          onChanged: (value) {
+            _log.info(
+              'MultipleChoice ${widget.component.id} option ${option.value} '
+              'changed to $value.',
+            );
+            setState(() {
+              if (value == true) {
+                _selectedValues.add(option.value);
+              } else {
+                _selectedValues.remove(option.value);
+              }
+            });
+            if (path != null) {
+              _log.info(
+                'Updating path $path with new values: $_selectedValues',
+              );
+              GulfProvider.of(context)
+                  ?.onDataModelUpdate
+                  ?.call(path, _selectedValues);
+            }
+            GulfProvider.of(context)?.onEvent?.call({
+              'action': 'multiple_choice_change',
+              'sourceComponentId': widget.component.id,
+              'context': {
+                'selections': _selectedValues,
+              },
+            });
+          },
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _Slider extends StatefulWidget {
+  const _Slider({required this.properties, required this.component});
+  final Map<String, Object?> properties;
+  final Component component;
+
+  @override
+  State<_Slider> createState() => _SliderState();
+}
+
+class _SliderState extends State<_Slider> {
+  double? _value;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _value = widget.properties['value'] as double? ?? 0.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final properties = widget.properties;
+    final path =
+        (widget.component.componentProperties as SliderProperties).value.path;
+    return Slider(
+      value: _value!,
+      min: properties['minValue'] as double? ?? 0.0,
+      max: properties['maxValue'] as double? ?? 100.0,
+      onChanged: (value) {
+        setState(() {
+          _value = value;
+        });
+      },
+      onChangeEnd: (value) {
+        _log.info(
+          'Slider ${widget.component.id} changed to $value. '
+          'Updating path: $path',
+        );
+        if (path != null) {
+          GulfProvider.of(context)?.onDataModelUpdate?.call(path, value);
+        }
+        GulfProvider.of(context)?.onEvent?.call({
+          'action': 'slider_change',
+          'sourceComponentId': widget.component.id,
+          'context': {
+            'value': value,
+          },
+        });
+      },
+    );
+  }
 }
 
 MainAxisAlignment getMainAxisAlignment(String? alignment) {

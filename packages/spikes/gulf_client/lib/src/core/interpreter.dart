@@ -97,6 +97,11 @@ class GulfInterpreter with ChangeNotifier {
     }
   }
 
+  void updateData(String path, dynamic value) {
+    _updateDataModel(path, value);
+    notifyListeners();
+  }
+
   void _updateDataModel(String? path, dynamic contents) {
     _log.finer('Updating data model at path "$path" with contents: $contents');
     if (path == null || path.isEmpty || path == '/') {

@@ -29,6 +29,7 @@ class GulfView extends StatefulWidget {
     required this.interpreter,
     required this.registry,
     this.onEvent,
+    this.onDataModelUpdate,
   });
 
   /// The interpreter that processes the GULF stream.
@@ -40,6 +41,10 @@ class GulfView extends StatefulWidget {
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
   final ValueChanged<Map<String, dynamic>>? onEvent;
+
+  /// A callback function that is invoked when the data model is updated by a
+  /// widget.
+  final void Function(String path, dynamic value)? onDataModelUpdate;
 
   @override
   State<GulfView> createState() => _GulfViewState();
@@ -83,6 +88,7 @@ class _GulfViewState extends State<GulfView> {
     }
     return GulfProvider(
       onEvent: widget.onEvent,
+      onDataModelUpdate: widget.onDataModelUpdate,
       child: _LayoutEngine(
         interpreter: widget.interpreter,
         registry: widget.registry,

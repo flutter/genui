@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a/a2a.dart' hide Logger;
+import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
 final _log = Logger('GulfAgentConnector');
@@ -35,6 +36,7 @@ class GulfAgentConnector {
 
   final _controller = StreamController<String>.broadcast();
   late A2AClient _client;
+  String? _contextId;
 
   /// The stream of GULF protocol lines.
   Stream<String> get stream => _controller.stream;
@@ -82,6 +84,9 @@ class GulfAgentConnector {
 
       final response = event as A2ASendStreamMessageSuccessResponse;
       final result = response.result;
+      if (result is A2ATask) {
+        _contextId = result.contextId;
+      }
 
       A2AMessage? message;
       if (result is A2ATask) {
@@ -102,6 +107,34 @@ class GulfAgentConnector {
           }
         }
       }
+    }
+  }
+
+  /// Sends an event to the agent.
+  Future<void> sendEvent(Map<String, dynamic> event) async {
+    final eventUrl = url.replace(path: '/event');
+    final clientEvent = {
+      'actionName': event['action'],
+      'sourceComponentId': event['sourceComponentId'],
+      'timestamp': DateTime.now().toIso8601String(),
+      'resolvedContext': event['context'],
+      'contextId': _contextId,
+    };
+
+    const encoder = JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(clientEvent);
+    _log.fine('Sending client event:\n$prettyJson');
+
+    final response = await http.post(
+      eventUrl,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(clientEvent),
+    );
+
+    if (response.statusCode != 200) {
+      _log.severe(
+        'Error sending event: ${response.statusCode} ${response.body}',
+      );
     }
   }
 

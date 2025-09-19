@@ -11,11 +11,20 @@ import 'package:flutter/material.dart';
 /// constructors.
 class GulfProvider extends InheritedWidget {
   /// Creates an [GulfProvider] that provides callbacks to its descendants.
-  const GulfProvider({super.key, required super.child, this.onEvent});
+  const GulfProvider({
+    super.key,
+    required super.child,
+    this.onEvent,
+    this.onDataModelUpdate,
+  });
 
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
   final ValueChanged<Map<String, dynamic>>? onEvent;
+
+  /// A callback function that is invoked when the data model is updated by a
+  /// widget.
+  final void Function(String path, dynamic value)? onDataModelUpdate;
 
   /// Retrieves the [GulfProvider] from the given [context].
   static GulfProvider? of(BuildContext context) {
@@ -24,6 +33,7 @@ class GulfProvider extends InheritedWidget {
 
   @override
   bool updateShouldNotify(GulfProvider oldWidget) {
-    return onEvent != oldWidget.onEvent;
+    return onEvent != oldWidget.onEvent ||
+        onDataModelUpdate != oldWidget.onDataModelUpdate;
   }
 }

@@ -136,6 +136,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
               hintText: 'Enter message to agent',
               labelText: 'Message',
             ),
+            onSubmitted: (_) => _sendMessage(),
           ),
           const SizedBox(height: 8),
           ElevatedButton(
@@ -154,6 +155,12 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                         child: GulfView(
                           interpreter: interpreter!,
                           registry: registry,
+                          onEvent: (event) {
+                            _connector?.sendEvent(event);
+                          },
+                          onDataModelUpdate: (path, value) {
+                            interpreter!.updateData(path, value);
+                          },
                         ),
                       ),
                     ),
