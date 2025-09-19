@@ -5,8 +5,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2a/a2a.dart';
-import 'package:flutter/foundation.dart';
+import 'package:a2a/a2a.dart' hide Logger;
+import 'package:logging/logging.dart';
+
+final _log = Logger('GulfAgentConnector');
 
 /// A class to hold the agent card details.
 class AgentCard {
@@ -65,13 +67,13 @@ class GulfAgentConnector {
     await for (final event in events) {
       const encoder = JsonEncoder.withIndent('  ');
       final prettyJson = encoder.convert(event.toJson());
-      debugPrint('Received A2A event:\n$prettyJson');
+      _log.fine('Received A2A event:\n$prettyJson');
 
       if (event.isError) {
         final errorResponse = event as A2AJSONRPCErrorResponseS;
         final code = errorResponse.error?.rpcErrorCode;
         final errorMessage = 'A2A Error: $code';
-        debugPrint(errorMessage);
+        _log.severe(errorMessage);
         if (!_controller.isClosed) {
           _controller.addError(errorMessage);
         }
@@ -93,7 +95,7 @@ class GulfAgentConnector {
       if (message != null) {
         const encoder = JsonEncoder.withIndent('  ');
         final prettyJson = encoder.convert(message.toJson());
-        debugPrint('Received A2A Message:\n$prettyJson');
+        _log.fine('Received A2A Message:\n$prettyJson');
         for (final part in message.parts ?? []) {
           if (part is A2ADataPart) {
             _processGulfMessages(part.data);
@@ -104,30 +106,46 @@ class GulfAgentConnector {
   }
 
   void _processGulfMessages(Map<String, dynamic> data) {
+    _log.finer('Processing gulf messages from data part: $data');
     if (data.containsKey('gulfMessages')) {
       final messages = data['gulfMessages'] as List;
+      _log.finer('Found ${messages.length} GULF messages.');
       for (final message in messages) {
         final jsonMessage = _transformMessage(message as Map<String, dynamic>);
         if (jsonMessage != null && !_controller.isClosed) {
+          _log.finest(
+            'Transformed and adding message to stream: '
+            '${jsonEncode(jsonMessage)}',
+          );
           _controller.add(jsonEncode(jsonMessage));
+        } else {
+          _log.warning('Transformed message is null or controller is closed.');
         }
       }
+    } else {
+      _log.warning('A2A data part did not contain "gulfMessages" key.');
     }
   }
 
   Map<String, dynamic>? _transformMessage(Map<String, dynamic> message) {
+    _log.finest('Transforming message: $message');
     if (message.containsKey('version')) {
+      _log.finest('Identified as streamHeader');
       return {'streamHeader': message};
     }
     if (message.containsKey('components')) {
+      _log.finest('Identified as componentUpdate');
       return {'componentUpdate': message};
     }
     if (message.containsKey('contents')) {
+      _log.finest('Identified as dataModelUpdate');
       return {'dataModelUpdate': message};
     }
     if (message.containsKey('root')) {
+      _log.finest('Identified as beginRendering');
       return {'beginRendering': message};
     }
+    _log.warning('Unknown message type for transform: $message');
     return null;
   }
 

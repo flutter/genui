@@ -94,7 +94,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('Unknown component type: MissingWidget'),
+        find.textContaining('Unknown component: MissingWidget'),
         findsOneWidget,
       );
     });

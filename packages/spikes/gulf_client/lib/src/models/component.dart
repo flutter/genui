@@ -14,7 +14,7 @@ class UnknownComponentException implements Exception {
   final String type;
 
   @override
-  String toString() => 'Unknown component type: $type';
+  String toString() => 'Unknown component: $type';
 }
 
 /// A component in the UI.

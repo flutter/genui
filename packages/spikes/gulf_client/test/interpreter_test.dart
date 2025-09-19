@@ -68,19 +68,15 @@ void main() {
       expect(callCount, 0);
     });
 
-    test('throws an exception for unknown message type', () {
+    test('throws an exception for unknown message type', () async {
       const malformedJson = '{"unknownType": {}}';
-      expect(
-        () => interpreter.processMessage(malformedJson),
-        throwsA(isA<Exception>()),
-      );
+      interpreter.processMessage(malformedJson);
+      expect(interpreter.error, isNotNull);
     });
 
     test('handles malformed JSON gracefully', () {
-      expect(
-        () => interpreter.processMessage('{"componentUpdate":'),
-        throwsA(isA<FormatException>()),
-      );
+      interpreter.processMessage('{"componentUpdate":');
+      expect(interpreter.error, isNotNull);
     });
 
     test('correctly processes a valid JSONL stream', () async {

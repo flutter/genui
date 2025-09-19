@@ -2,8 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:logging/logging.dart';
+
 import '../core/interpreter.dart';
 import '../models/component.dart';
+
+final _log = Logger('ComponentPropertiesVisitor');
 
 /// A visitor that resolves the properties of a [Component].
 class ComponentPropertiesVisitor {
@@ -18,6 +22,7 @@ class ComponentPropertiesVisitor {
     ComponentProperties properties,
     Map<String, dynamic>? itemData,
   ) {
+    _log.finer('Visiting ${properties.runtimeType} with itemData: $itemData');
     return switch (properties) {
       TextProperties() => {'text': _resolveValue(properties.text, itemData)},
       HeadingProperties() => {
@@ -74,6 +79,7 @@ class ComponentPropertiesVisitor {
     if (value == null) {
       return null;
     }
+    _log.finest('Resolving bound value: $value with itemData: $itemData');
     if (value.literalString != null) {
       return value.literalString;
     } else if (value.literalNumber != null) {
@@ -81,11 +87,19 @@ class ComponentPropertiesVisitor {
     } else if (value.literalBoolean != null) {
       return value.literalBoolean;
     } else if (value.path != null) {
+      Object? resolvedValue;
       if (itemData != null) {
-        return itemData[value.path!];
+        resolvedValue = itemData[value.path!];
+        _log.finest(
+          'Resolved path "${value.path}" from itemData to: $resolvedValue',
+        );
       } else {
-        return interpreter.resolveDataBinding(value.path!);
+        resolvedValue = interpreter.resolveDataBinding(value.path!);
+        _log.finest(
+          'Resolved path "${value.path}" from interpreter to: $resolvedValue',
+        );
       }
+      return resolvedValue;
     }
     return null;
   }

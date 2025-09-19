@@ -3,11 +3,15 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+
 import '../core/interpreter.dart';
 import '../core/widget_registry.dart';
 import '../models/component.dart';
 import 'component_properties_visitor.dart';
 import 'gulf_provider.dart';
+
+final _log = Logger('GulfView');
 
 /// The main entry point for rendering a UI from the GULF Streaming Protocol.
 ///
@@ -103,21 +107,28 @@ class _LayoutEngine extends StatelessWidget {
     String componentId, [
     Set<String> visited = const {},
   ]) {
+    _log.finer('Building node for componentId: $componentId');
     if (visited.contains(componentId)) {
+      _log.severe('Cyclical layout detected for componentId: $componentId');
       return const Text('Error: cyclical layout detected');
     }
     final newVisited = {...visited, componentId};
 
     final component = interpreter.getComponent(componentId);
     if (component == null) {
+      _log.severe('Component not found for id: $componentId');
       return const Text('Error: component not found');
     }
 
     final properties = component.componentProperties;
     final builder = registry.getBuilder(properties.runtimeType.toString());
     if (builder == null) {
+      _log.severe(
+        'Builder not found for component type: ${properties.runtimeType}',
+      );
       return Text(
-        'Error: Unknown component type: ${properties.runtimeType.toString()}',
+        'Error building node: Unknown component type: '
+        '${properties.runtimeType}',
       );
     }
 
@@ -157,27 +168,44 @@ class _LayoutEngine extends StatelessWidget {
     Component component,
     Set<String> visited,
   ) {
+    _log.finer('Building node with template for component: ${component.id}');
     final properties = component.componentProperties as HasChildren;
     final template = properties.children.template!;
+    _log.finer(
+      'Template componentId: ${template.componentId}, '
+      'dataBinding: ${template.dataBinding}',
+    );
     final data = interpreter.resolveDataBinding(template.dataBinding);
     if (data is! List) {
+      _log.warning(
+        'Template data binding "${template.dataBinding}" did not resolve to a '
+        'List. Resolved to: $data',
+      );
       return const SizedBox.shrink();
     }
 
     if (data.isEmpty) {
+      _log.info(
+        'Template data for "${template.dataBinding}" is an empty list. '
+        'Rendering nothing.',
+      );
       return const SizedBox.shrink();
     }
+    _log.finer('Template data has ${data.length} items.');
     final templateComponent = interpreter.getComponent(template.componentId);
     if (templateComponent == null) {
+      _log.severe('Template component not found: ${template.componentId}');
       return const Text('Error: template component not found');
     }
     final builder = registry.getBuilder(properties.runtimeType.toString());
     if (builder == null) {
       return Text(
-        'Error: unknown component type ${properties.runtimeType.toString()}',
+        'Error: unknown component type '
+        '${properties.runtimeType}',
       );
     }
     final children = data.map((Object? itemData) {
+      _log.finest('Building template item with data: $itemData');
       final visitor = ComponentPropertiesVisitor(interpreter);
       final resolvedProperties = visitor.visit(
         templateComponent.componentProperties,
@@ -189,8 +217,8 @@ class _LayoutEngine extends StatelessWidget {
       );
       if (itemBuilder == null) {
         return Text(
-          'Error: Unknown component type: '
-          '${templateComponent.componentProperties.runtimeType.toString()}',
+          'Error building template: Unknown component type: '
+          '${templateComponent.componentProperties.runtimeType}',
         );
       }
       return itemBuilder(
