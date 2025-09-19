@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import '../core/interpreter.dart';
 
 /// An [InheritedWidget] that provides GULF-related data to the widget tree.
 ///
@@ -14,9 +15,13 @@ class GulfProvider extends InheritedWidget {
   const GulfProvider({
     super.key,
     required super.child,
+    required this.interpreter,
     this.onEvent,
     this.onDataModelUpdate,
   });
+
+  /// The interpreter that processes the GULF stream.
+  final GulfInterpreter interpreter;
 
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
@@ -34,6 +39,7 @@ class GulfProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(GulfProvider oldWidget) {
     return onEvent != oldWidget.onEvent ||
-        onDataModelUpdate != oldWidget.onDataModelUpdate;
+        onDataModelUpdate != oldWidget.onDataModelUpdate ||
+        interpreter != oldWidget.interpreter;
   }
 }

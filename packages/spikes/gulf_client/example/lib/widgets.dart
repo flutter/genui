@@ -200,10 +200,18 @@ void registerGulfWidgets(WidgetRegistry registry) {
         _log.info(
           'Button ${component.id} pressed. Firing event: ${action.action}',
         );
+        final interpreter = GulfProvider.of(context)!.interpreter;
+        final visitor = ComponentPropertiesVisitor(interpreter);
+        final resolvedContext = <String, dynamic>{};
+        if (action.context != null) {
+          for (final item in action.context!) {
+            resolvedContext[item.key] = visitor.resolveValue(item.value, null);
+          }
+        }
         GulfProvider.of(context)?.onEvent?.call({
           'action': action.action,
           'sourceComponentId': component.id,
-          'context': action.context,
+          'context': resolvedContext,
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -221,10 +229,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
     properties,
     children,
   ) {
-    return _Checkbox(
-      properties: properties,
-      component: component,
-    );
+    return _Checkbox(properties: properties, component: component);
   });
   registry.register('TextFieldProperties', (
     context,
@@ -265,10 +270,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
     properties,
     children,
   ) {
-    return _MultipleChoice(
-      properties: properties,
-      component: component,
-    );
+    return _MultipleChoice(properties: properties, component: component);
   });
   registry.register('SliderProperties', (
     context,
@@ -276,10 +278,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
     properties,
     children,
   ) {
-    return _Slider(
-      properties: properties,
-      component: component,
-    );
+    return _Slider(properties: properties, component: component);
   });
   registry.register('ListProperties', (
     context,
@@ -343,9 +342,7 @@ class _CheckboxState extends State<_Checkbox> {
         GulfProvider.of(context)?.onEvent?.call({
           'action': 'checkbox_change',
           'sourceComponentId': widget.component.id,
-          'context': {
-            'value': value,
-          },
+          'context': {'value': value},
         });
       },
     );
@@ -367,7 +364,10 @@ class _MultipleChoiceState extends State<_MultipleChoice> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final selections = widget.properties['selections'] as List<dynamic>?;
+
+    final selections = widget.properties['selections'] is List
+        ? widget.properties['selections'] as List<dynamic>? ?? []
+        : null;
     _selectedValues = selections?.map((e) => e.toString()).toList() ?? [];
   }
 
@@ -403,16 +403,14 @@ class _MultipleChoiceState extends State<_MultipleChoice> {
               _log.info(
                 'Updating path $path with new values: $_selectedValues',
               );
-              GulfProvider.of(context)
-                  ?.onDataModelUpdate
-                  ?.call(path, _selectedValues);
+              GulfProvider.of(
+                context,
+              )?.onDataModelUpdate?.call(path, _selectedValues);
             }
             GulfProvider.of(context)?.onEvent?.call({
               'action': 'multiple_choice_change',
               'sourceComponentId': widget.component.id,
-              'context': {
-                'selections': _selectedValues,
-              },
+              'context': {'selections': _selectedValues},
             });
           },
         );
@@ -464,9 +462,7 @@ class _SliderState extends State<_Slider> {
         GulfProvider.of(context)?.onEvent?.call({
           'action': 'slider_change',
           'sourceComponentId': widget.component.id,
-          'context': {
-            'value': value,
-          },
+          'context': {'value': value},
         });
       },
     );

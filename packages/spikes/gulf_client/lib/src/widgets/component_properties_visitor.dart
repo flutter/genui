@@ -24,44 +24,44 @@ class ComponentPropertiesVisitor {
   ) {
     _log.finer('Visiting ${properties.runtimeType} with itemData: $itemData');
     return switch (properties) {
-      TextProperties() => {'text': _resolveValue(properties.text, itemData)},
+      TextProperties() => {'text': resolveValue(properties.text, itemData)},
       HeadingProperties() => {
-        'text': _resolveValue(properties.text, itemData),
+        'text': resolveValue(properties.text, itemData),
         'level': properties.level,
       },
-      ImageProperties() => {'url': _resolveValue(properties.url, itemData)},
-      VideoProperties() => {'url': _resolveValue(properties.url, itemData)},
+      ImageProperties() => {'url': resolveValue(properties.url, itemData)},
+      VideoProperties() => {'url': resolveValue(properties.url, itemData)},
       AudioPlayerProperties() => {
-        'url': _resolveValue(properties.url, itemData),
-        'description': _resolveValue(properties.description, itemData),
+        'url': resolveValue(properties.url, itemData),
+        'description': resolveValue(properties.description, itemData),
       },
       ButtonProperties() => {
-        'label': _resolveValue(properties.label, itemData),
+        'label': resolveValue(properties.label, itemData),
         'action': properties.action,
       },
       CheckBoxProperties() => {
-        'label': _resolveValue(properties.label, itemData),
-        'value': _resolveValue(properties.value, itemData),
+        'label': resolveValue(properties.label, itemData),
+        'value': resolveValue(properties.value, itemData),
       },
       TextFieldProperties() => {
-        'text': _resolveValue(properties.text, itemData),
-        'label': _resolveValue(properties.label, itemData),
+        'text': resolveValue(properties.text, itemData),
+        'label': resolveValue(properties.label, itemData),
         'type': properties.type,
         'validationRegexp': properties.validationRegexp,
       },
       DateTimeInputProperties() => {
-        'value': _resolveValue(properties.value, itemData),
+        'value': resolveValue(properties.value, itemData),
         'enableDate': properties.enableDate,
         'enableTime': properties.enableTime,
         'outputFormat': properties.outputFormat,
       },
       MultipleChoiceProperties() => {
-        'selections': _resolveValue(properties.selections, itemData),
+        'selections': resolveValue(properties.selections, itemData),
         'options': properties.options,
         'maxAllowedSelections': properties.maxAllowedSelections,
       },
       SliderProperties() => {
-        'value': _resolveValue(properties.value, itemData),
+        'value': resolveValue(properties.value, itemData),
         'minValue': properties.minValue,
         'maxValue': properties.maxValue,
       },
@@ -75,7 +75,7 @@ class ComponentPropertiesVisitor {
     };
   }
 
-  Object? _resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
+  Object? resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
     if (value == null) {
       return null;
     }

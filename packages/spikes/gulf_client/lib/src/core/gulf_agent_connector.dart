@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a/a2a.dart' hide Logger;
-import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
 final _log = Logger('GulfAgentConnector');
@@ -36,7 +35,7 @@ class GulfAgentConnector {
 
   final _controller = StreamController<String>.broadcast();
   late A2AClient _client;
-  String? _contextId;
+  String? _taskId;
 
   /// The stream of GULF protocol lines.
   Stream<String> get stream => _controller.stream;
@@ -85,7 +84,7 @@ class GulfAgentConnector {
       final response = event as A2ASendStreamMessageSuccessResponse;
       final result = response.result;
       if (result is A2ATask) {
-        _contextId = result.contextId;
+        _taskId = result.id;
       }
 
       A2AMessage? message;
@@ -112,29 +111,33 @@ class GulfAgentConnector {
 
   /// Sends an event to the agent.
   Future<void> sendEvent(Map<String, dynamic> event) async {
-    final eventUrl = url.replace(path: '/event');
+    if (_taskId == null) {
+      _log.severe('Cannot send event, no active task ID.');
+      return;
+    }
+
     final clientEvent = {
       'actionName': event['action'],
       'sourceComponentId': event['sourceComponentId'],
       'timestamp': DateTime.now().toIso8601String(),
       'resolvedContext': event['context'],
-      'contextId': _contextId,
     };
 
-    const encoder = JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(clientEvent);
-    _log.fine('Sending client event:\n$prettyJson');
+    _log.finest('Sending client event: $clientEvent');
 
-    final response = await http.post(
-      eventUrl,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(clientEvent),
-    );
+    final dataPart = A2ADataPart()..data = {'gulfEvent': clientEvent};
+    final message = A2AMessage()
+      ..role = 'user'
+      ..parts = [dataPart]
+      ..referenceTaskIds = [_taskId!];
 
-    if (response.statusCode != 200) {
-      _log.severe(
-        'Error sending event: ${response.statusCode} ${response.body}',
-      );
+    final payload = A2AMessageSendParams()..message = message;
+
+    try {
+      await _client.sendMessage(payload);
+      _log.fine('Successfully sent event for task $_taskId');
+    } catch (e) {
+      _log.severe('Error sending event: $e');
     }
   }
 

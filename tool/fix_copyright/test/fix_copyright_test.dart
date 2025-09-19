@@ -44,10 +44,9 @@ $prefix found in the LICENSE file.''';
   late FakeProcessManager processManager;
 
   void mockGitLsFiles({List<String> paths = const [], required String stdout}) {
-    processManager.mockCommands.add(MockCommand(
-      command: ['git', 'ls-files', ...paths],
-      stdout: stdout,
-    ));
+    processManager.mockCommands.add(
+      MockCommand(command: ['git', 'ls-files', ...paths], stdout: stdout),
+    );
   }
 
   setUp(() {
@@ -310,7 +309,6 @@ found in the LICENSE file. -->''';
       ),
     );
   });
-
 }
 
 class MockCommand {

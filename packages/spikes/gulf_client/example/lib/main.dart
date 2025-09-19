@@ -37,9 +37,7 @@ class ExampleApp extends StatelessWidget {
             textStyle: textTheme.headlineSmall,
             fontWeight: FontWeight.bold,
           ),
-          titleLarge: GoogleFonts.lora(
-            textStyle: textTheme.titleLarge,
-          ),
+          titleLarge: GoogleFonts.lora(textStyle: textTheme.titleLarge),
         ),
       ),
       home: DefaultTabController(

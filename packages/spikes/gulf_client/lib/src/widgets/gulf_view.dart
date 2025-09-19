@@ -87,6 +87,7 @@ class _GulfViewState extends State<GulfView> {
       return const Center(child: CircularProgressIndicator());
     }
     return GulfProvider(
+      interpreter: widget.interpreter,
       onEvent: widget.onEvent,
       onDataModelUpdate: widget.onDataModelUpdate,
       child: _LayoutEngine(
@@ -163,7 +164,7 @@ class _LayoutEngine extends StatelessWidget {
           properties.child,
           itemData: itemData,
           visited: newVisited,
-        )
+        ),
       ];
     } else if (properties is TabsProperties) {
       children['children'] = properties.tabItems
@@ -272,7 +273,7 @@ class _LayoutEngine extends StatelessWidget {
             templateProperties.child,
             itemData: itemData,
             visited: visited,
-          )
+          ),
         ];
       }
 
