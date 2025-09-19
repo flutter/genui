@@ -75,23 +75,33 @@ class _TextInputChip extends StatefulWidget {
 }
 
 class _TextInputChipState extends State<_TextInputChip> {
-  late String _currentValue;
   final TextEditingController _textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _currentValue = widget.initialValue ?? widget.label;
-    _textController.text = widget.initialValue ?? '';
+    if (widget.values[widget.widgetId] == null && widget.initialValue != null) {
+      widget.values[widget.widgetId] = widget.initialValue;
+    }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final value = widget.values[widget.widgetId];
+    final currentValue = value is String ? value : null;
+    final text = currentValue ?? widget.label;
     return FilterChip(
-      label: Text(_currentValue),
+      label: Text(text),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
+        _textController.text = currentValue ?? '';
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
@@ -108,13 +118,14 @@ class _TextInputChipState extends State<_TextInputChip> {
                   ElevatedButton(
                     onPressed: () {
                       final newValue = _textController.text;
-                      if (newValue.isNotEmpty) {
-                        widget.values[widget.widgetId] = newValue;
-                        setState(() {
-                          _currentValue = newValue;
-                        });
-                        Navigator.pop(context);
-                      }
+                      setState(() {
+                        if (newValue.isNotEmpty) {
+                          widget.values[widget.widgetId] = newValue;
+                        } else {
+                          widget.values.remove(widget.widgetId);
+                        }
+                      });
+                      Navigator.pop(context);
                     },
                     child: const Text('Done'),
                   ),
