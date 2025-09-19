@@ -104,9 +104,10 @@ class _LayoutEngine extends StatelessWidget {
 
   Widget _buildNode(
     BuildContext context,
-    String componentId, [
+    String componentId, {
+    Map<String, Object?>? itemData,
     Set<String> visited = const {},
-  ]) {
+  }) {
     _log.finer('Building node for componentId: $componentId');
     if (visited.contains(componentId)) {
       _log.severe('Cyclical layout detected for componentId: $componentId');
@@ -137,28 +138,59 @@ class _LayoutEngine extends StatelessWidget {
       final childrenProp = (properties as HasChildren).children;
       if (childrenProp.explicitList != null) {
         children['children'] = childrenProp.explicitList!
-            .map((id) => _buildNode(context, id, newVisited))
+            .map(
+              (id) => _buildNode(
+                context,
+                id,
+                itemData: itemData,
+                visited: newVisited,
+              ),
+            )
             .toList();
       } else if (childrenProp.template != null) {
         return _buildNodeWithTemplate(context, component, newVisited);
       }
     } else if (properties is CardProperties) {
-      children['child'] = [_buildNode(context, properties.child, newVisited)];
+      children['child'] = [
+        _buildNode(
+          context,
+          properties.child,
+          itemData: itemData,
+          visited: newVisited,
+        )
+      ];
     } else if (properties is TabsProperties) {
       children['children'] = properties.tabItems
-          .map((item) => _buildNode(context, item.child, newVisited))
+          .map(
+            (item) => _buildNode(
+              context,
+              item.child,
+              itemData: itemData,
+              visited: newVisited,
+            ),
+          )
           .toList();
     } else if (properties is ModalProperties) {
       children['entryPointChild'] = [
-        _buildNode(context, properties.entryPointChild, newVisited),
+        _buildNode(
+          context,
+          properties.entryPointChild,
+          itemData: itemData,
+          visited: newVisited,
+        ),
       ];
       children['contentChild'] = [
-        _buildNode(context, properties.contentChild, newVisited),
+        _buildNode(
+          context,
+          properties.contentChild,
+          itemData: itemData,
+          visited: newVisited,
+        ),
       ];
     }
 
     final visitor = ComponentPropertiesVisitor(interpreter);
-    final resolvedProperties = visitor.visit(properties, null);
+    final resolvedProperties = visitor.visit(properties, itemData);
 
     return builder(context, component, resolvedProperties, children);
   }
@@ -212,6 +244,32 @@ class _LayoutEngine extends StatelessWidget {
         itemData as Map<String, Object?>,
       );
       final itemChildren = <String, List<Widget>>{};
+      final templateProperties = templateComponent.componentProperties;
+      if (templateProperties is HasChildren) {
+        final childrenProp = (templateProperties as HasChildren).children;
+        if (childrenProp.explicitList != null) {
+          itemChildren['children'] = childrenProp.explicitList!
+              .map(
+                (id) => _buildNode(
+                  context,
+                  id,
+                  itemData: itemData,
+                  visited: visited,
+                ),
+              )
+              .toList();
+        }
+      } else if (templateProperties is CardProperties) {
+        itemChildren['child'] = [
+          _buildNode(
+            context,
+            templateProperties.child,
+            itemData: itemData,
+            visited: visited,
+          )
+        ];
+      }
+
       final itemBuilder = registry.getBuilder(
         templateComponent.componentProperties.runtimeType.toString(),
       );

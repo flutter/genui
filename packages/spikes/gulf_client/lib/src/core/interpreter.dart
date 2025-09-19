@@ -114,7 +114,7 @@ class GulfInterpreter with ChangeNotifier {
     }
 
     final segments = path
-        .split(RegExp(r'\.|\[|\]'))
+        .split(RegExp(r'\/|\.|\[|\]'))
         .where((s) => s.isNotEmpty)
         .toList();
     if (segments.isEmpty) return;
@@ -178,7 +178,7 @@ class GulfInterpreter with ChangeNotifier {
       return null;
     }
     final segments = path
-        .split(RegExp(r'\.|\[|\]'))
+        .split(RegExp(r'\/|\.|\[|\]'))
         .where((s) => s.isNotEmpty)
         .toList();
     dynamic currentValue = _dataModel;
