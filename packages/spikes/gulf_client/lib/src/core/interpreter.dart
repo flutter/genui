@@ -18,11 +18,12 @@ class GulfInterpreter with ChangeNotifier {
   /// Creates an [GulfInterpreter] that processes the given [stream] of JSONL
   /// messages.
   GulfInterpreter({required this.stream}) {
-    stream.listen(processMessage);
+    _subscription = stream.listen(processMessage);
   }
 
   /// The input stream of raw JSONL strings from the server.
   final Stream<String> stream;
+  StreamSubscription<String>? _subscription;
 
   final Map<String, Component> _components = {};
   Map<String, Object?> _dataModel = {};
@@ -173,5 +174,11 @@ class GulfInterpreter with ChangeNotifier {
       }
     }
     return currentValue;
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }

@@ -3,34 +3,23 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 
-const String _sampleJsonl = r'''
-{"streamHeader": {"version": "1.0.0"}}
-{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {"explicitList": ["profile_card"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "profile_card", "componentProperties": {"Card": {"child": "card_content"}}}]}}
-{"componentUpdate": {"components": [{"id": "card_content", "componentProperties": {"Column": {"children": {"explicitList": ["header_row", "bio_text", "stats_row", "interaction_row"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "header_row", "componentProperties": {"Row": {"alignment": "center", "children": {"explicitList": ["avatar", "name_column"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "avatar", "componentProperties": {"Image": {"url": {"literalString": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=128"}}}}]}}
-{"componentUpdate": {"components": [{"id": "name_column", "componentProperties": {"Column": {"alignment": "start", "children": {"explicitList": ["name_text", "handle_text"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "name_text", "componentProperties": {"Heading": {"level": "3", "text": {"literalString": "Flutter Fan"}}}}]}}
-{"componentUpdate": {"components": [{"id": "handle_text", "componentProperties": {"Text": {"text": {"literalString": "@flutterdev"}}}}]}}
-{"componentUpdate": {"components": [{"id": "bio_text", "componentProperties": {"Text": {"text": {"literalString": "Building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase."}}}}]}}
-{"componentUpdate": {"components": [{"id": "stats_row", "componentProperties": {"Row": {"distribution": "spaceAround", "children": {"explicitList": ["followers_stat", "following_stat", "likes_stat"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "followers_stat", "componentProperties": {"Column": {"children": {"explicitList": ["followers_count", "followers_label"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "followers_count", "componentProperties": {"Text": {"text": {"literalString": "1.2M"}}}}]}}
-{"componentUpdate": {"components": [{"id": "followers_label", "componentProperties": {"Text": {"text": {"literalString": "Followers"}}}}]}}
-{"componentUpdate": {"components": [{"id": "following_stat", "componentProperties": {"Column": {"children": {"explicitList": ["following_count", "following_label"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "following_count", "componentProperties": {"Text": {"text": {"literalString": "280"}}}}]}}
-{"componentUpdate": {"components": [{"id": "following_label", "componentProperties": {"Text": {"text": {"literalString": "Following"}}}}]}}
-{"componentUpdate": {"components": [{"id": "likes_stat", "componentProperties": {"Column": {"children": {"explicitList": ["likes_count", "likes_label"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "likes_count", "componentProperties": {"Text": {"text": {"literalString": "10M"}}}}]}}
-{"componentUpdate": {"components": [{"id": "likes_label", "componentProperties": {"Text": {"text": {"literalString": "Likes"}}}}]}}
-{"componentUpdate": {"components": [{"id": "interaction_row", "componentProperties": {"Row": {"children": {"explicitList": ["follow_button", "message_field"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "follow_button", "componentProperties": {"Button": {"label": {"literalString": "Follow"}, "action": {"action": "follow_user"}}}}]}}
-{"componentUpdate": {"components": [{"id": "message_field", "componentProperties": {"TextField": {"label": {"literalString": "Send a message..."}}}}]}}
-{"dataModelUpdate": {"contents": {}}}
-{"beginRendering": {"root": "root"}}
-''';
+import 'package:a2a/a2a.dart';
+import 'package:flutter/foundation.dart';
+
+/// A class to hold the agent card details.
+class AgentCard {
+  AgentCard({
+    required this.name,
+    required this.description,
+    required this.version,
+  });
+
+  final String name;
+  final String description;
+  final String version;
+}
 
 /// Connects to a GULF Agent endpoint and streams the GULF protocol lines.
 class GulfAgentConnector {
@@ -40,25 +29,92 @@ class GulfAgentConnector {
   /// The URL of the GULF Agent.
   final Uri url;
 
-  final _controller = StreamController<String>();
+  final _controller = StreamController<String>.broadcast();
+  A2AClient? _client;
 
   /// The stream of GULF protocol lines.
   Stream<String> get stream => _controller.stream;
 
-  /// Connects to the agent and starts streaming data.
-  Future<void> connect() async {
-    final lines = _sampleJsonl.split('\n');
-    Future.microtask(() async {
-      for (final line in lines) {
-        if (line.trim().isNotEmpty && !_controller.isClosed) {
-          _controller.add(line);
-          await Future.delayed(const Duration(milliseconds: 10));
+  /// Fetches the agent card.
+  Future<AgentCard> getAgentCard() async {
+    _client = A2AClient(url.toString());
+    // Allow time for the agent card to be fetched.
+    //await Future.delayed(const Duration(seconds: 1));
+    final card = await _client!.getAgentCard();
+    return AgentCard(
+      name: card.name,
+      description: card.description,
+      version: card.version,
+    );
+  }
+
+  /// Connects to the agent and sends a message.
+  Future<void> connectAndSend(String messageText) async {
+    if (_client == null) {
+      _controller.addError('Client not initialized. Call getAgentCard first.');
+      _controller.close();
+      return;
+    }
+
+    final message = A2AMessage()
+      ..role = 'user'
+      ..parts = [A2ATextPart()..text = messageText];
+
+    final payload = A2AMessageSendParams()..message = message;
+
+    final events = _client!.sendMessageStream(payload);
+
+    await for (final event in events) {
+      if (event.isError) {
+        final errorResponse = event as A2AJSONRPCErrorResponseS;
+        final code = errorResponse.error?.rpcErrorCode;
+        final errorMessage = 'A2A Error: $code';
+        debugPrint(errorMessage);
+        if (!_controller.isClosed) {
+          _controller.addError(errorMessage);
+        }
+        continue;
+      }
+
+      final response = event as A2ASendStreamMessageSuccessResponse;
+      final result = response.result;
+
+      if (result is A2AMessage) {
+        for (final part in result.parts ?? []) {
+          if (part is A2ADataPart) {
+            _processGulfMessages(part.data);
+          }
         }
       }
-      if (!_controller.isClosed) {
-        _controller.close();
+    }
+  }
+
+  void _processGulfMessages(Map<String, dynamic> data) {
+    if (data.containsKey('gulfMessages')) {
+      final messages = data['gulfMessages'] as List;
+      for (final message in messages) {
+        final jsonMessage = _transformMessage(message as Map<String, dynamic>);
+        if (jsonMessage != null && !_controller.isClosed) {
+          _controller.add(jsonEncode(jsonMessage));
+        }
       }
-    });
+    }
+  }
+
+  Map<String, dynamic>? _transformMessage(Map<String, dynamic> message) {
+    if (message.containsKey('version')) {
+      return {'streamHeader': message};
+    }
+    if (message.containsKey('components')) {
+      return {'componentUpdate': message};
+    }
+    if (message.containsKey('contents')) {
+      return {'dataModelUpdate': message};
+    }
+    if (message.containsKey('root')) {
+      return {'beginRendering': message};
+    }
+    return null;
   }
 
   /// Closes the connection to the agent.

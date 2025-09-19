@@ -48,7 +48,8 @@ class ExampleApp extends StatelessWidget {
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
-          appBar: AppBar(title: const Text('GULF Client Example'),
+          appBar: AppBar(
+            title: const Text('GULF Client Example'),
             bottom: const TabBar(
               tabs: [
                 Tab(text: 'Manual Input'),
@@ -57,10 +58,7 @@ class ExampleApp extends StatelessWidget {
             ),
           ),
           body: const TabBarView(
-            children: [
-              ManualInputView(),
-              AgentConnectionView(),
-            ],
+            children: [ManualInputView(), AgentConnectionView()],
           ),
         ),
       ),
@@ -360,8 +358,13 @@ class AgentConnectionView extends StatefulWidget {
 class _AgentConnectionViewState extends State<AgentConnectionView> {
   GulfInterpreter? interpreter;
   GulfAgentConnector? _connector;
+  AgentCard? _agentCard;
   final registry = WidgetRegistry();
-  final _textController = TextEditingController(text: 'http://localhost:8080');
+  final _urlController = TextEditingController(text: 'http://localhost:10002');
+  final _messageController = TextEditingController(
+    text:
+        'Provide me a list of great italian restaurants in New York in lower manhattan',
+  );
 
   @override
   void initState() {
@@ -371,30 +374,54 @@ class _AgentConnectionViewState extends State<AgentConnectionView> {
 
   @override
   void dispose() {
-    _textController.dispose();
+    _urlController.dispose();
+    _messageController.dispose();
     _connector?.dispose();
+    interpreter?.dispose();
     super.dispose();
   }
 
-  void _connect() {
-    final url = Uri.tryParse(_textController.text);
+  Future<void> _fetchCard() async {
+    final url = Uri.tryParse(_urlController.text);
     if (url == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid URL')),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid URL')));
       return;
     }
 
+    // Clean up previous connections
     _connector?.dispose();
+    interpreter?.dispose();
+
     final newConnector = GulfAgentConnector(url: url);
-    final newInterpreter = GulfInterpreter(stream: newConnector.stream);
+    try {
+      final card = await newConnector.getAgentCard();
+      if (!mounted) return;
+      setState(() {
+        _connector = newConnector;
+        _agentCard = card;
+        // Create the interpreter once we have a valid connector
+        interpreter = GulfInterpreter(stream: newConnector.stream);
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error fetching agent card: $e')));
+    }
+  }
 
-    setState(() {
-      _connector = newConnector;
-      interpreter = newInterpreter;
-    });
-
-    newConnector.connect();
+  void _sendMessage() {
+    if (_connector == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fetch agent card first')),
+      );
+      return;
+    }
+    _connector!.connectAndSend(_messageController.text);
   }
 
   @override
@@ -405,7 +432,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextField(
-            controller: _textController,
+            controller: _urlController,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               hintText: 'Enter agent URL',
@@ -414,17 +441,47 @@ class _AgentConnectionViewState extends State<AgentConnectionView> {
           ),
           const SizedBox(height: 8),
           ElevatedButton(
-            onPressed: _connect,
-            child: const Text('Connect'),
+            onPressed: _fetchCard,
+            child: const Text('Fetch Agent Card'),
+          ),
+          if (_agentCard != null)
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Name: ${_agentCard!.name}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text('Description: ${_agentCard!.description}'),
+                    Text('Version: ${_agentCard!.version}'),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _messageController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Enter message to agent',
+              labelText: 'Message',
+            ),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _sendMessage,
+            child: const Text('Send Message'),
           ),
           const Divider(height: 20, thickness: 2),
           Expanded(
             child: Card(
               elevation: 2,
               child: interpreter == null
-                  ? const Center(
-                      child: Text('Connect to an agent to see the UI.'),
-                    )
+                  ? const Center(child: Text('Send a message to see the UI.'))
                   : SingleChildScrollView(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
