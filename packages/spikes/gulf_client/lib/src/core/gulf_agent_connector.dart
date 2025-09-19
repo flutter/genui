@@ -53,7 +53,10 @@ class GulfAgentConnector {
   }
 
   /// Connects to the agent and sends a message.
-  Future<void> connectAndSend(String messageText) async {
+  Future<void> connectAndSend(
+    String messageText, {
+    void Function(String)? onResponse,
+  }) async {
     final message = A2AMessage()
       ..role = 'user'
       ..parts = [A2ATextPart()..text = messageText];
@@ -103,6 +106,9 @@ class GulfAgentConnector {
         for (final part in message.parts ?? []) {
           if (part is A2ADataPart) {
             _processGulfMessages(part.data);
+          }
+          if (part is A2ATextPart) {
+            onResponse?.call(part.text);
           }
         }
       }

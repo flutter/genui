@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart' hide Action;
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:gulf_client/gulf_client.dart';
 
 import 'widgets.dart';
@@ -12,6 +13,12 @@ class AgentConnectionView extends StatefulWidget {
 
   @override
   State<AgentConnectionView> createState() => _AgentConnectionViewState();
+}
+
+class _ChatMessage {
+  const _ChatMessage({required this.text, required this.isUser});
+  final String text;
+  final bool isUser;
 }
 
 class _AgentConnectionViewState extends State<AgentConnectionView>
@@ -29,6 +36,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
         'Provide me a list of great italian restaurants in New York in lower '
         'manhattan',
   );
+  final List<_ChatMessage> _chatHistory = [];
 
   @override
   void initState() {
@@ -86,7 +94,19 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
       );
       return;
     }
-    _connector!.connectAndSend(_messageController.text);
+    final message = _messageController.text;
+    setState(() {
+      _chatHistory.add(_ChatMessage(text: message, isUser: true));
+    });
+    _connector!.connectAndSend(
+      message,
+      onResponse: (response) {
+        setState(() {
+          _chatHistory.add(_ChatMessage(text: response, isUser: false));
+        });
+      },
+    );
+    _messageController.clear();
   }
 
   @override
@@ -128,22 +148,6 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                 ),
               ),
             ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _messageController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter message to agent',
-              labelText: 'Message',
-            ),
-            onSubmitted: (_) => _sendMessage(),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: _sendMessage,
-            child: const Text('Send Message'),
-          ),
-          const Divider(height: 20, thickness: 2),
           Expanded(
             child: Card(
               elevation: 2,
@@ -166,8 +170,78 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                     ),
             ),
           ),
+          const Divider(height: 20, thickness: 2),
+          Expanded(child: _ChatHistory(chatHistory: _chatHistory)),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter message to agent',
+                    labelText: 'Message',
+                  ),
+                  onSubmitted: (_) => _sendMessage(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: _sendMessage,
+                child: const Text('Send'),
+              ),
+            ],
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _ChatHistory extends StatelessWidget {
+  const _ChatHistory({required this.chatHistory});
+
+  final List<_ChatMessage> chatHistory;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: chatHistory.length,
+      itemBuilder: (context, index) {
+        final message = chatHistory[index];
+        return Padding(
+          padding: EdgeInsetsDirectional.only(
+            start: message.isUser ? 16.0 : 0,
+            end: message.isUser ? 0 : 16.0,
+          ),
+          child: Card(
+            color: message.isUser
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.secondaryContainer,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(8.0),
+              child: Row(
+                mainAxisAlignment: message.isUser
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
+                children: [
+                  if (!message.isUser)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Icon(Icons.smart_toy),
+                    ),
+                  Flexible(child: GptMarkdown(message.text)),
+                  if (message.isUser)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Icon(Icons.person),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -23,7 +23,10 @@ class ExampleApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepOrange,
+          secondaryContainer: Colors.blueGrey[100],
+        ),
         textTheme: GoogleFonts.montserratTextTheme(textTheme).copyWith(
           displayLarge: GoogleFonts.lora(
             textStyle: textTheme.displayLarge,

@@ -339,11 +339,6 @@ class _CheckboxState extends State<_Checkbox> {
         if (path != null) {
           GulfProvider.of(context)?.onDataModelUpdate?.call(path, value);
         }
-        GulfProvider.of(context)?.onEvent?.call({
-          'action': 'checkbox_change',
-          'sourceComponentId': widget.component.id,
-          'context': {'value': value},
-        });
       },
     );
   }
@@ -407,11 +402,6 @@ class _MultipleChoiceState extends State<_MultipleChoice> {
                 context,
               )?.onDataModelUpdate?.call(path, _selectedValues);
             }
-            GulfProvider.of(context)?.onEvent?.call({
-              'action': 'multiple_choice_change',
-              'sourceComponentId': widget.component.id,
-              'context': {'selections': _selectedValues},
-            });
           },
         );
       }).toList(),
@@ -434,7 +424,12 @@ class _SliderState extends State<_Slider> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _value = widget.properties['value'] as double? ?? 0.0;
+    final value = widget.properties['value'];
+    if (value is num) {
+      _value = value.toDouble();
+    } else {
+      _value = 0.0;
+    }
   }
 
   @override
@@ -442,10 +437,17 @@ class _SliderState extends State<_Slider> {
     final properties = widget.properties;
     final path =
         (widget.component.componentProperties as SliderProperties).value.path;
+    final minValue = properties['minValue'] is num
+        ? (properties['minValue'] as num).toDouble()
+        : 0.0;
+    final maxValue = properties['maxValue'] is num
+        ? (properties['maxValue'] as num).toDouble()
+        : 100.0;
+    final value = _value?.clamp(minValue, maxValue) ?? 0;
     return Slider(
-      value: _value!,
-      min: properties['minValue'] as double? ?? 0.0,
-      max: properties['maxValue'] as double? ?? 100.0,
+      value: value,
+      min: minValue,
+      max: maxValue,
       onChanged: (value) {
         setState(() {
           _value = value;
@@ -459,11 +461,6 @@ class _SliderState extends State<_Slider> {
         if (path != null) {
           GulfProvider.of(context)?.onDataModelUpdate?.call(path, value);
         }
-        GulfProvider.of(context)?.onEvent?.call({
-          'action': 'slider_change',
-          'sourceComponentId': widget.component.id,
-          'context': {'value': value},
-        });
       },
     );
   }
