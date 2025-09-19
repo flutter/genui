@@ -94,6 +94,7 @@ class _ManualInputViewState extends State<ManualInputView> {
     final jsonl = _textController.text;
     if (jsonl.trim().isEmpty) {
       setState(() {
+        interpreter?.dispose();
         interpreter = null;
       });
       return;
@@ -103,6 +104,7 @@ class _ManualInputViewState extends State<ManualInputView> {
     final newInterpreter = GulfInterpreter(stream: streamController.stream);
 
     setState(() {
+      interpreter?.dispose();
       interpreter = newInterpreter;
     });
 
@@ -363,7 +365,8 @@ class _AgentConnectionViewState extends State<AgentConnectionView> {
   final _urlController = TextEditingController(text: 'http://localhost:10002');
   final _messageController = TextEditingController(
     text:
-        'Provide me a list of great italian restaurants in New York in lower manhattan',
+        'Provide me a list of great italian restaurants in New York in lower '
+        'manhattan',
   );
 
   @override
@@ -403,6 +406,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView> {
         _connector = newConnector;
         _agentCard = card;
         // Create the interpreter once we have a valid connector
+        interpreter?.dispose();
         interpreter = GulfInterpreter(stream: newConnector.stream);
       });
     } catch (e) {

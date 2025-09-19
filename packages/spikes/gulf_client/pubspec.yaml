@@ -16,7 +16,7 @@ dependencies:
     # TODO: Update this to depend on the pub package after
     # https://github.com/shamblett/a2a/pull/39 is merged and published.
     git:
-      url: git@github.com:jacobsimionato/shamblett-a2a.git
+      url: https://github.com/jacobsimionato/shamblett-a2a.git
       ref: client-extensions
   equatable: ^2.0.7
   flutter:
