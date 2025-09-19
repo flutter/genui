@@ -45,22 +45,37 @@ class ExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('GULF Client Example')),
-        body: const ExampleView(),
+      home: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(title: const Text('GULF Client Example'),
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Manual Input'),
+                Tab(text: 'Agent Connection'),
+              ],
+            ),
+          ),
+          body: const TabBarView(
+            children: [
+              ManualInputView(),
+              AgentConnectionView(),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class ExampleView extends StatefulWidget {
-  const ExampleView({super.key});
+class ManualInputView extends StatefulWidget {
+  const ManualInputView({super.key});
 
   @override
-  State<ExampleView> createState() => _ExampleViewState();
+  State<ManualInputView> createState() => _ManualInputViewState();
 }
 
-class _ExampleViewState extends State<ExampleView> {
+class _ManualInputViewState extends State<ManualInputView> {
   GulfInterpreter? interpreter;
   final registry = WidgetRegistry();
   final _textController = TextEditingController();
@@ -68,6 +83,99 @@ class _ExampleViewState extends State<ExampleView> {
   @override
   void initState() {
     super.initState();
+    _registerWidgets();
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  void _renderJsonl() {
+    final jsonl = _textController.text;
+    if (jsonl.trim().isEmpty) {
+      setState(() {
+        interpreter = null;
+      });
+      return;
+    }
+
+    final streamController = StreamController<String>();
+    final newInterpreter = GulfInterpreter(stream: streamController.stream);
+
+    setState(() {
+      interpreter = newInterpreter;
+    });
+
+    final lines = jsonl.split('\n');
+    for (final line in lines) {
+      if (line.trim().isNotEmpty) {
+        streamController.add(line);
+      }
+    }
+    streamController.close();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _textController,
+            maxLines: 8,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Enter JSONL here',
+              labelText: 'JSONL Input',
+            ),
+            style: const TextStyle(fontFamily: 'monospace'),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  _textController.text = _sampleJsonl;
+                },
+                child: const Text('Load Sample'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: _renderJsonl,
+                child: const Text('Render JSONL'),
+              ),
+            ],
+          ),
+          const Divider(height: 20, thickness: 2),
+          Expanded(
+            child: Card(
+              elevation: 2,
+              child: interpreter == null
+                  ? const Center(
+                      child: Text('Submit JSONL to see the rendered UI.'),
+                    )
+                  : SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GulfView(
+                          interpreter: interpreter!,
+                          registry: registry,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _registerWidgets() {
     registry.register('ColumnProperties', (
       context,
       component,
@@ -207,10 +315,270 @@ class _ExampleViewState extends State<ExampleView> {
     });
   }
 
+  MainAxisAlignment _getMainAxisAlignment(String? alignment) {
+    switch (alignment) {
+      case 'start':
+        return MainAxisAlignment.start;
+      case 'end':
+        return MainAxisAlignment.end;
+      case 'center':
+        return MainAxisAlignment.center;
+      case 'spaceBetween':
+        return MainAxisAlignment.spaceBetween;
+      case 'spaceAround':
+        return MainAxisAlignment.spaceAround;
+      case 'spaceEvenly':
+        return MainAxisAlignment.spaceEvenly;
+      default:
+        return MainAxisAlignment.start;
+    }
+  }
+
+  CrossAxisAlignment _getCrossAxisAlignment(String? alignment) {
+    switch (alignment) {
+      case 'start':
+        return CrossAxisAlignment.start;
+      case 'end':
+        return CrossAxisAlignment.end;
+      case 'center':
+        return CrossAxisAlignment.center;
+      case 'stretch':
+        return CrossAxisAlignment.stretch;
+      default:
+        return CrossAxisAlignment.center;
+    }
+  }
+}
+
+class AgentConnectionView extends StatefulWidget {
+  const AgentConnectionView({super.key});
+
+  @override
+  State<AgentConnectionView> createState() => _AgentConnectionViewState();
+}
+
+class _AgentConnectionViewState extends State<AgentConnectionView> {
+  GulfInterpreter? interpreter;
+  GulfAgentConnector? _connector;
+  final registry = WidgetRegistry();
+  final _textController = TextEditingController(text: 'http://localhost:8080');
+
+  @override
+  void initState() {
+    super.initState();
+    _registerWidgets();
+  }
+
   @override
   void dispose() {
     _textController.dispose();
+    _connector?.dispose();
     super.dispose();
+  }
+
+  void _connect() {
+    final url = Uri.tryParse(_textController.text);
+    if (url == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid URL')),
+      );
+      return;
+    }
+
+    _connector?.dispose();
+    final newConnector = GulfAgentConnector(url: url);
+    final newInterpreter = GulfInterpreter(stream: newConnector.stream);
+
+    setState(() {
+      _connector = newConnector;
+      interpreter = newInterpreter;
+    });
+
+    newConnector.connect();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _textController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Enter agent URL',
+              labelText: 'Agent URL',
+            ),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _connect,
+            child: const Text('Connect'),
+          ),
+          const Divider(height: 20, thickness: 2),
+          Expanded(
+            child: Card(
+              elevation: 2,
+              child: interpreter == null
+                  ? const Center(
+                      child: Text('Connect to an agent to see the UI.'),
+                    )
+                  : SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GulfView(
+                          interpreter: interpreter!,
+                          registry: registry,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _registerWidgets() {
+    registry.register('ColumnProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: _getMainAxisAlignment(
+          properties['distribution'] as String?,
+        ),
+        crossAxisAlignment: _getCrossAxisAlignment(
+          properties['alignment'] as String?,
+        ),
+        children: children['children'] ?? [],
+      );
+    });
+    registry.register('RowProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      return Row(
+        mainAxisAlignment: _getMainAxisAlignment(
+          properties['distribution'] as String?,
+        ),
+        crossAxisAlignment: _getCrossAxisAlignment(
+          properties['alignment'] as String?,
+        ),
+        children: children['children'] ?? [],
+      );
+    });
+    registry.register('TextProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final text = properties['text'] as String? ?? '';
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+        child: Text(text),
+      );
+    });
+    registry.register('HeadingProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final text = properties['text'] as String? ?? '';
+      final level = (component.componentProperties as HeadingProperties).level;
+      TextStyle? style;
+      style = switch (level) {
+        '1' => Theme.of(context).textTheme.headlineSmall,
+        '2' => Theme.of(context).textTheme.titleLarge,
+        '3' => Theme.of(context).textTheme.titleMedium,
+        '4' => Theme.of(context).textTheme.bodyLarge,
+        '5' => Theme.of(context).textTheme.bodyMedium,
+        '6' => Theme.of(context).textTheme.bodySmall,
+        _ => Theme.of(context).textTheme.bodyMedium,
+      };
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+        child: Text(text, style: style),
+      );
+    });
+    registry.register('ImageProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final url = properties['url'] as String?;
+      if (url == null) {
+        return const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Icon(Icons.broken_image),
+        );
+      }
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.network(url, width: 64, height: 64),
+      );
+    });
+    registry.register('CardProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      return Card(
+        margin: const EdgeInsets.all(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: children['child']?.first,
+        ),
+      );
+    });
+    registry.register('ButtonProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      final action = properties['action'] as Action;
+      return ElevatedButton(
+        onPressed: () {
+          GulfProvider.of(context)?.onEvent?.call({'action': action.action});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Event: ${action.action}'),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        },
+        child: Text(properties['label'] as String? ?? ''),
+      );
+    });
+    registry.register('TextFieldProperties', (
+      context,
+      component,
+      properties,
+      children,
+    ) {
+      return Expanded(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: properties['label'] as String?,
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   MainAxisAlignment _getMainAxisAlignment(String? alignment) {
@@ -242,94 +610,8 @@ class _ExampleViewState extends State<ExampleView> {
         return CrossAxisAlignment.center;
       case 'stretch':
         return CrossAxisAlignment.stretch;
-      // Flutter no longer supports baseline alignment for all widgets.
-      // case 'baseline':
-      //   return CrossAxisAlignment.baseline;
       default:
         return CrossAxisAlignment.center;
     }
-  }
-
-  void _renderJsonl() {
-    final jsonl = _textController.text;
-    if (jsonl.trim().isEmpty) {
-      setState(() {
-        interpreter = null;
-      });
-      return;
-    }
-
-    final streamController = StreamController<String>();
-    final newInterpreter = GulfInterpreter(stream: streamController.stream);
-
-    setState(() {
-      interpreter = newInterpreter;
-    });
-
-    final lines = jsonl.split('\n');
-    for (final line in lines) {
-      if (line.trim().isNotEmpty) {
-        streamController.add(line);
-      }
-    }
-    streamController.close();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _textController,
-            maxLines: 8,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter JSONL here',
-              labelText: 'JSONL Input',
-            ),
-            style: const TextStyle(fontFamily: 'monospace'),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () {
-                  _textController.text = _sampleJsonl;
-                },
-                child: const Text('Load Sample'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _renderJsonl,
-                child: const Text('Render JSONL'),
-              ),
-            ],
-          ),
-          const Divider(height: 20, thickness: 2),
-          Expanded(
-            child: Card(
-              elevation: 2,
-              child: interpreter == null
-                  ? const Center(
-                      child: Text('Submit JSONL to see the rendered UI.'),
-                    )
-                  : SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GulfView(
-                          interpreter: interpreter!,
-                          registry: registry,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

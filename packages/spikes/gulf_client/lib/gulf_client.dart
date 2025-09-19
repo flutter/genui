@@ -10,6 +10,7 @@ library;
 
 export 'src/core/interpreter.dart';
 export 'src/core/widget_registry.dart';
+export 'src/core/gulf_agent_connector.dart';
 export 'src/models/component.dart';
 export 'src/models/stream_message.dart';
 export 'src/widgets/gulf_provider.dart';
