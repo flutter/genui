@@ -60,13 +60,12 @@ class GulfAgentConnector {
       'https://github.com/a2aproject/a2a-samples/extensions/gulfui/v7',
     ];
 
-    print('sendMessageStream');
     final events = _client.sendMessageStream(payload);
 
     await for (final event in events) {
       const encoder = JsonEncoder.withIndent('  ');
       final prettyJson = encoder.convert(event.toJson());
-      debugPrint('Received A2A Message:\n$prettyJson');
+      debugPrint('Received A2A event:\n$prettyJson');
 
       if (event.isError) {
         final errorResponse = event as A2AJSONRPCErrorResponseS;
@@ -82,11 +81,20 @@ class GulfAgentConnector {
       final response = event as A2ASendStreamMessageSuccessResponse;
       final result = response.result;
 
-      if (result is A2AMessage) {
+      A2AMessage? message;
+      if (result is A2ATask) {
+        message = result.status?.message;
+      } else if (result is A2AMessage) {
+        message = result;
+      } else if (result is A2ATaskStatusUpdateEvent) {
+        message = result.status?.message;
+      }
+
+      if (message != null) {
         const encoder = JsonEncoder.withIndent('  ');
-        final prettyJson = encoder.convert(result.toJson());
+        final prettyJson = encoder.convert(message.toJson());
         debugPrint('Received A2A Message:\n$prettyJson');
-        for (final part in result.parts ?? []) {
+        for (final part in message.parts ?? []) {
           if (part is A2ADataPart) {
             _processGulfMessages(part.data);
           }
