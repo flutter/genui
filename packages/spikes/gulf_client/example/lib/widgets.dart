@@ -46,9 +46,18 @@ void registerGulfWidgets(WidgetRegistry registry) {
     children,
   ) {
     final text = properties['text'] as String? ?? '';
+    TextStyle? style;
+    if (component.id.contains('name')) {
+      style = Theme.of(context)
+          .textTheme
+          .titleMedium
+          ?.copyWith(fontWeight: FontWeight.bold);
+    } else if (component.id.contains('detail')) {
+      style = Theme.of(context).textTheme.bodyMedium;
+    }
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
-      child: Text(text),
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+      child: Text(text, style: style),
     );
   });
   registry.register('HeadingProperties', (
@@ -99,6 +108,10 @@ void registerGulfWidgets(WidgetRegistry registry) {
     children,
   ) {
     return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       margin: const EdgeInsets.all(8.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),

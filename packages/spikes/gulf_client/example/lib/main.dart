@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gulf_client/gulf_client.dart';
 
 import 'agent_connection_view.dart';
@@ -18,7 +19,29 @@ class ExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        textTheme: GoogleFonts.montserratTextTheme(textTheme).copyWith(
+          displayLarge: GoogleFonts.lora(
+            textStyle: textTheme.displayLarge,
+            fontWeight: FontWeight.bold,
+          ),
+          displayMedium: GoogleFonts.lora(
+            textStyle: textTheme.displayMedium,
+            fontWeight: FontWeight.bold,
+          ),
+          headlineSmall: GoogleFonts.lora(
+            textStyle: textTheme.headlineSmall,
+            fontWeight: FontWeight.bold,
+          ),
+          titleLarge: GoogleFonts.lora(
+            textStyle: textTheme.titleLarge,
+          ),
+        ),
+      ),
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
