@@ -24,23 +24,24 @@ class AgentCard {
 /// Connects to a GULF Agent endpoint and streams the GULF protocol lines.
 class GulfAgentConnector {
   /// Creates a [GulfAgentConnector] that connects to the given [url].
-  GulfAgentConnector({required this.url});
+  GulfAgentConnector({required this.url}) {
+    _client = A2AClient(url.toString());
+  }
 
   /// The URL of the GULF Agent.
   final Uri url;
 
   final _controller = StreamController<String>.broadcast();
-  A2AClient? _client;
+  late A2AClient _client;
 
   /// The stream of GULF protocol lines.
   Stream<String> get stream => _controller.stream;
 
   /// Fetches the agent card.
   Future<AgentCard> getAgentCard() async {
-    _client = A2AClient(url.toString());
     // Allow time for the agent card to be fetched.
     //await Future.delayed(const Duration(seconds: 1));
-    final card = await _client!.getAgentCard();
+    final card = await _client.getAgentCard();
     return AgentCard(
       name: card.name,
       description: card.description,
@@ -50,21 +51,23 @@ class GulfAgentConnector {
 
   /// Connects to the agent and sends a message.
   Future<void> connectAndSend(String messageText) async {
-    if (_client == null) {
-      _controller.addError('Client not initialized. Call getAgentCard first.');
-      _controller.close();
-      return;
-    }
-
     final message = A2AMessage()
       ..role = 'user'
       ..parts = [A2ATextPart()..text = messageText];
 
     final payload = A2AMessageSendParams()..message = message;
+    payload.extensions = [
+      'https://github.com/a2aproject/a2a-samples/extensions/gulfui/v7',
+    ];
 
-    final events = _client!.sendMessageStream(payload);
+    print('sendMessageStream');
+    final events = _client.sendMessageStream(payload);
 
     await for (final event in events) {
+      const encoder = JsonEncoder.withIndent('  ');
+      final prettyJson = encoder.convert(event.toJson());
+      debugPrint('Received A2A Message:\n$prettyJson');
+
       if (event.isError) {
         final errorResponse = event as A2AJSONRPCErrorResponseS;
         final code = errorResponse.error?.rpcErrorCode;
@@ -80,6 +83,9 @@ class GulfAgentConnector {
       final result = response.result;
 
       if (result is A2AMessage) {
+        const encoder = JsonEncoder.withIndent('  ');
+        final prettyJson = encoder.convert(result.toJson());
+        debugPrint('Received A2A Message:\n$prettyJson');
         for (final part in result.parts ?? []) {
           if (part is A2ADataPart) {
             _processGulfMessages(part.data);
