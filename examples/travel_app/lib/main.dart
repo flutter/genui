@@ -34,6 +34,8 @@ void main() async {
   runApp(const TravelApp());
 }
 
+const _title = 'Agentic Travel Inc';
+
 /// The root widget for the travel application.
 ///
 /// This widget sets up the [MaterialApp], which configures the overall theme,
@@ -52,7 +54,7 @@ class TravelApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Agentic Travel Inc.',
+      title: _title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
@@ -87,7 +89,7 @@ class _TravelAppBody extends StatelessWidget {
             children: <Widget>[
               Icon(Icons.local_airport),
               SizedBox(width: 16.0), // Add spacing between icon and text
-              Text('Agentic Travel Inc.'),
+              Text(_title),
             ],
           ),
           actions: [
