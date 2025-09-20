@@ -493,7 +493,7 @@ class TextFieldProperties extends ComponentProperties {
   final String? validationRegexp;
 
   @override
-  List<Object?> get props => [text, label, componentType, validationRegexp];
+  List<Object?> get props => [text, label, type, validationRegexp];
 
   @override
   String get componentType => 'TextField';

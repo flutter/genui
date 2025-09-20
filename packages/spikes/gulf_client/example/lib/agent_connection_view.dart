@@ -56,8 +56,8 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   }
 
   void _sendMessage(AgentState agentState) {
+    if (!mounted) return;
     if (agentState.connector == null) {
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fetch agent card first')),
       );

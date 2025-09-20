@@ -76,50 +76,56 @@ class GulfAgentConnector {
 
     final events = _client.sendMessageStream(payload);
 
-    await for (final event in events) {
-      const encoder = JsonEncoder.withIndent('  ');
-      final prettyJson = encoder.convert(event.toJson());
-      _log.fine('Received A2A event:\n$prettyJson');
-
-      if (event.isError) {
-        final errorResponse = event as A2AJSONRPCErrorResponseS;
-        final code = errorResponse.error?.rpcErrorCode;
-        final errorMessage = 'A2A Error: $code';
-        _log.severe(errorMessage);
-        if (!_controller.isClosed) {
-          _controller.addError(errorMessage);
-        }
-        continue;
-      }
-
-      final response = event as A2ASendStreamMessageSuccessResponse;
-      final result = response.result;
-      if (result is A2ATask) {
-        _taskId = result.id;
-        _contextId = result.contextId;
-      }
-
-      A2AMessage? message;
-      if (result is A2ATask) {
-        message = result.status?.message;
-      } else if (result is A2AMessage) {
-        message = result;
-      } else if (result is A2ATaskStatusUpdateEvent) {
-        message = result.status?.message;
-      }
-
-      if (message != null) {
+    try {
+      await for (final event in events) {
         const encoder = JsonEncoder.withIndent('  ');
-        final prettyJson = encoder.convert(message.toJson());
-        _log.fine('Received A2A Message:\n$prettyJson');
-        for (final part in message.parts ?? []) {
-          if (part is A2ADataPart) {
-            _processGulfMessages(part.data);
+        final prettyJson = encoder.convert(event.toJson());
+        _log.fine('Received A2A event:\n$prettyJson');
+
+        if (event.isError) {
+          final errorResponse = event as A2AJSONRPCErrorResponseS;
+          final code = errorResponse.error?.rpcErrorCode;
+          final errorMessage = 'A2A Error: $code';
+          _log.severe(errorMessage);
+          if (!_controller.isClosed) {
+            _controller.addError(errorMessage);
           }
-          if (part is A2ATextPart) {
-            onResponse?.call(part.text);
+          continue;
+        }
+
+        final response = event as A2ASendStreamMessageSuccessResponse;
+        final result = response.result;
+        if (result is A2ATask) {
+          _taskId = result.id;
+          _contextId = result.contextId;
+        }
+
+        A2AMessage? message;
+        if (result is A2ATask) {
+          message = result.status?.message;
+        } else if (result is A2AMessage) {
+          message = result;
+        } else if (result is A2ATaskStatusUpdateEvent) {
+          message = result.status?.message;
+        }
+
+        if (message != null) {
+          const encoder = JsonEncoder.withIndent('  ');
+          final prettyJson = encoder.convert(message.toJson());
+          _log.fine('Received A2A Message:\n$prettyJson');
+          for (final part in message.parts ?? []) {
+            if (part is A2ADataPart) {
+              _processGulfMessages(part.data);
+            }
+            if (part is A2ATextPart) {
+              onResponse?.call(part.text);
+            }
           }
         }
+      }
+    } finally {
+      if (!_controller.isClosed) {
+        _controller.close();
       }
     }
   }

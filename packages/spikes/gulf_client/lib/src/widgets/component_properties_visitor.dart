@@ -59,7 +59,7 @@ class ComponentPropertiesVisitor {
       TextFieldProperties() => {
         'text': resolveValue(properties.text, itemData),
         'label': resolveValue(properties.label, itemData),
-        'type': properties.componentType,
+        'type': properties.type,
         'validationRegexp': properties.validationRegexp,
       },
       DateTimeInputProperties() => {
