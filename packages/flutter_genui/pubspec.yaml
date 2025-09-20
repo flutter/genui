@@ -20,6 +20,7 @@ dependencies:
     path: ../dart_schema_builder
   flutter:
     sdk: flutter
+  intl: any
   logging: ^1.3.0
 
 dev_dependencies:

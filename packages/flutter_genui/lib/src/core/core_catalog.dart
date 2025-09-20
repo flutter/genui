@@ -4,6 +4,7 @@
 
 import '../catalog/core_widgets/checkbox_group.dart' as checkbox_group_item;
 import '../catalog/core_widgets/column.dart' as column_item;
+import '../catalog/core_widgets/date_picker.dart' as date_picker_item;
 import '../catalog/core_widgets/elevated_button.dart' as elevated_button_item;
 import '../catalog/core_widgets/image.dart' as image_item;
 import '../catalog/core_widgets/radio_group.dart' as radio_group_item;
@@ -38,6 +39,9 @@ class CoreCatalogItems {
   /// A widget that displays an image.
   static final CatalogItem image = image_item.image;
 
+  /// A material design date picker.
+  static final CatalogItem datePicker = date_picker_item.datePicker;
+
   /// Creates a catalog containing all core catalog items.
   static Catalog asCatalog() {
     return Catalog([
@@ -48,6 +52,7 @@ class CoreCatalogItems {
       radioGroup,
       textField,
       image,
+      datePicker,
     ]);
   }
 }
