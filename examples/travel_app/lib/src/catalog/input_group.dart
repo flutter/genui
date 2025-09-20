@@ -49,7 +49,12 @@ final inputGroup = CatalogItem(
           'id': 'input_group',
           'widget': {
             'Column': {
-              'children': ['check_in', 'check_out'],
+              'children': [
+                'check_in',
+                'check_out',
+                'text_input1',
+                'text_input2',
+              ],
             },
           },
         },
@@ -69,6 +74,21 @@ final inputGroup = CatalogItem(
               'value': '2026-07-24',
               'hintText': 'Select check out date',
             },
+          },
+        },
+        {
+          'id': 'text_input1',
+          'widget': {
+            'TextInputChip': {
+              'initialValue': 'John Doe',
+              'label': 'Enter your name',
+            },
+          },
+        },
+        {
+          'id': 'text_input2',
+          'widget': {
+            'TextInputChip': {'label': 'Enter your friend\'s name'},
           },
         },
       ],

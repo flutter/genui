@@ -41,7 +41,7 @@ final textInputChip = CatalogItem(
           'id': 'text_input',
           'widget': {
             'TextInputChip': {
-              'initial_value': 'John Doe',
+              'initialValue': 'John Doe',
               'label': 'Enter your name',
             },
           },
