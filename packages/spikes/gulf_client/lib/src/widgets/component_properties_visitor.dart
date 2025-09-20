@@ -17,12 +17,25 @@ class ComponentPropertiesVisitor {
   /// The interpreter to use for resolving data bindings.
   final GulfInterpreter interpreter;
 
+  Map<String, dynamic> _resolveAction(
+    Action action,
+    Map<String, dynamic>? itemData,
+  ) {
+    final resolvedContext = <String, dynamic>{};
+    if (action.context != null) {
+      for (final item in action.context!) {
+        resolvedContext[item.key] = resolveValue(item.value, itemData);
+      }
+    }
+    return {'action': action.action, 'context': resolvedContext};
+  }
+
   /// Resolves the properties of a [Component].
   Map<String, Object?> visit(
     ComponentProperties properties,
     Map<String, dynamic>? itemData,
   ) {
-    _log.finer('Visiting ${properties.runtimeType} with itemData: $itemData');
+    _log.finer('Visiting ${properties.componentType} with itemData: $itemData');
     return switch (properties) {
       TextProperties() => {'text': resolveValue(properties.text, itemData)},
       HeadingProperties() => {
@@ -37,7 +50,7 @@ class ComponentPropertiesVisitor {
       },
       ButtonProperties() => {
         'label': resolveValue(properties.label, itemData),
-        'action': properties.action,
+        'action': _resolveAction(properties.action, itemData),
       },
       CheckBoxProperties() => {
         'label': resolveValue(properties.label, itemData),
@@ -46,7 +59,7 @@ class ComponentPropertiesVisitor {
       TextFieldProperties() => {
         'text': resolveValue(properties.text, itemData),
         'label': resolveValue(properties.label, itemData),
-        'type': properties.type,
+        'type': properties.componentType,
         'validationRegexp': properties.validationRegexp,
       },
       DateTimeInputProperties() => {

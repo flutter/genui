@@ -9,12 +9,7 @@ import 'package:logging/logging.dart';
 final _log = Logger('gulf.example.widgets');
 
 void registerGulfWidgets(WidgetRegistry registry) {
-  registry.register('ColumnProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Column', (context, component, properties, children) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: getMainAxisAlignment(
@@ -26,12 +21,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       children: children['children'] ?? [],
     );
   });
-  registry.register('RowProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Row', (context, component, properties, children) {
     return Row(
       mainAxisAlignment: getMainAxisAlignment(
         properties['distribution'] as String?,
@@ -42,12 +32,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       children: children['children'] ?? [],
     );
   });
-  registry.register('TextProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Text', (context, component, properties, children) {
     final text = properties['text'] as String? ?? '';
     TextStyle? style;
     if (component.id.contains('name')) {
@@ -62,12 +47,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: Text(text, style: style),
     );
   });
-  registry.register('HeadingProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Heading', (context, component, properties, children) {
     final text = properties['text'] as String? ?? '';
     final level = (component.componentProperties as HeadingProperties).level;
     TextStyle? style;
@@ -85,12 +65,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: Text(text, style: style),
     );
   });
-  registry.register('ImageProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Image', (context, component, properties, children) {
     final url = properties['url'] as String?;
     if (url == null) {
       return const Padding(
@@ -103,34 +78,19 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: Image.network(url, width: 64, height: 64),
     );
   });
-  registry.register('VideoProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Video', (context, component, properties, children) {
     return const Padding(
       padding: EdgeInsets.all(8.0),
       child: Icon(Icons.videocam),
     );
   });
-  registry.register('AudioPlayerProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('AudioPlayer', (context, component, properties, children) {
     return const Padding(
       padding: EdgeInsets.all(8.0),
       child: Icon(Icons.audiotrack),
     );
   });
-  registry.register('CardProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Card', (context, component, properties, children) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -141,12 +101,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       ),
     );
   });
-  registry.register('TabsProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Tabs', (context, component, properties, children) {
     // This is a simplified version of Tabs. A real implementation would
     // need a TabController.
     return Column(
@@ -154,20 +109,10 @@ void registerGulfWidgets(WidgetRegistry registry) {
       children: children['children'] ?? [],
     );
   });
-  registry.register('DividerProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Divider', (context, component, properties, children) {
     return const Divider();
   });
-  registry.register('ModalProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Modal', (context, component, properties, children) {
     return ElevatedButton(
       onPressed: () {
         showDialog<void>(
@@ -188,34 +133,21 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: children['entryPointChild']?.first,
     );
   });
-  registry.register('ButtonProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
-    final action = properties['action'] as Action;
+  registry.register('Button', (context, component, properties, children) {
+    final action = properties['action'] as Map<String, dynamic>;
+    final actionName = action['action'] as String;
+    final resolvedContext = action['context'] as Map<String, dynamic>;
     return ElevatedButton(
       onPressed: () {
-        _log.info(
-          'Button ${component.id} pressed. Firing event: ${action.action}',
-        );
-        final interpreter = GulfProvider.of(context)!.interpreter;
-        final visitor = ComponentPropertiesVisitor(interpreter);
-        final resolvedContext = <String, dynamic>{};
-        if (action.context != null) {
-          for (final item in action.context!) {
-            resolvedContext[item.key] = visitor.resolveValue(item.value, null);
-          }
-        }
+        _log.info('Button ${component.id} pressed. Firing event: $actionName');
         GulfProvider.of(context)?.onEvent?.call({
-          'action': action.action,
+          'action': actionName,
           'sourceComponentId': component.id,
           'context': resolvedContext,
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Event: ${action.action}'),
+            content: Text('Event: $actionName'),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -223,20 +155,10 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: Text(properties['label'] as String? ?? ''),
     );
   });
-  registry.register('CheckBoxProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('CheckBox', (context, component, properties, children) {
     return _Checkbox(properties: properties, component: component);
   });
-  registry.register('TextFieldProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('TextField', (context, component, properties, children) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -246,7 +168,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       ),
     );
   });
-  registry.register('DateTimeInputProperties', (
+  registry.register('DateTimeInput', (
     context,
     component,
     properties,
@@ -264,7 +186,7 @@ void registerGulfWidgets(WidgetRegistry registry) {
       child: const Text('Select Date'),
     );
   });
-  registry.register('MultipleChoiceProperties', (
+  registry.register('MultipleChoice', (
     context,
     component,
     properties,
@@ -272,20 +194,10 @@ void registerGulfWidgets(WidgetRegistry registry) {
   ) {
     return _MultipleChoice(properties: properties, component: component);
   });
-  registry.register('SliderProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('Slider', (context, component, properties, children) {
     return _Slider(properties: properties, component: component);
   });
-  registry.register('ListProperties', (
-    context,
-    component,
-    properties,
-    children,
-  ) {
+  registry.register('List', (context, component, properties, children) {
     final direction = properties['direction'] as String?;
     if (direction == 'horizontal') {
       return SingleChildScrollView(

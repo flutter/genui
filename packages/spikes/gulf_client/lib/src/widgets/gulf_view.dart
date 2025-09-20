@@ -134,14 +134,14 @@ class _LayoutEngine extends StatelessWidget {
     }
 
     final properties = component.componentProperties;
-    final builder = registry.getBuilder(properties.runtimeType.toString());
+    final builder = registry.getBuilder(properties.componentType);
     if (builder == null) {
       _log.severe(
-        'Builder not found for component type: ${properties.runtimeType}',
+        'Builder not found for component type: ${properties.componentType}',
       );
       return Text(
         'Error building node: Unknown component type: '
-        '${properties.runtimeType}',
+        '${properties.componentType}',
       );
     }
 
@@ -241,11 +241,13 @@ class _LayoutEngine extends StatelessWidget {
       _log.severe('Template component not found: ${template.componentId}');
       return const Text('Error: template component not found');
     }
-    final builder = registry.getBuilder(properties.runtimeType.toString());
+    final builder = registry.getBuilder(
+      component.componentProperties.componentType,
+    );
     if (builder == null) {
       return Text(
         'Error: unknown component type '
-        '${properties.runtimeType}',
+        '${component.componentProperties.componentType}',
       );
     }
     final children = data.map((Object? itemData) {
@@ -283,12 +285,12 @@ class _LayoutEngine extends StatelessWidget {
       }
 
       final itemBuilder = registry.getBuilder(
-        templateComponent.componentProperties.runtimeType.toString(),
+        templateComponent.componentProperties.componentType,
       );
       if (itemBuilder == null) {
         return Text(
           'Error building template: Unknown component type: '
-          '${templateComponent.componentProperties.runtimeType}',
+          '${templateComponent.componentProperties.componentType}',
         );
       }
       return itemBuilder(
