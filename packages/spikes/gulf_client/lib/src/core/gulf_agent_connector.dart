@@ -125,7 +125,7 @@ class GulfAgentConnector {
       }
     } finally {
       if (!_controller.isClosed) {
-        _controller.close();
+        unawaited(_controller.close());
       }
     }
   }
