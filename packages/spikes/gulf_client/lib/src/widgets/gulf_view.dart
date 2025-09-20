@@ -90,13 +90,11 @@ class _GulfViewState extends State<GulfView> {
       interpreter: widget.interpreter,
       onEvent: widget.onEvent,
       onDataModelUpdate: widget.onDataModelUpdate,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _LayoutEngine(
-            interpreter: widget.interpreter,
-            registry: widget.registry,
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _LayoutEngine(
+          interpreter: widget.interpreter,
+          registry: widget.registry,
         ),
       ),
     );
@@ -219,6 +217,19 @@ class _LayoutEngine extends StatelessWidget {
       'Template componentId: ${template.componentId}, '
       'dataBinding: ${template.dataBinding}',
     );
+    final templateComponent = interpreter.getComponent(template.componentId);
+    if (templateComponent == null) {
+      _log.severe('Template component not found: ${template.componentId}');
+      return const Text('Error: template component not found');
+    }
+
+    if (visited.contains(template.componentId)) {
+      _log.severe(
+          'Cyclical layout detected for componentId: ${template.componentId}');
+      return const Text('Error: cyclical layout detected');
+    }
+    final newVisited = {...visited, template.componentId};
+
     final data = interpreter.resolveDataBinding(template.dataBinding);
     if (data is! List) {
       _log.warning(
@@ -236,11 +247,6 @@ class _LayoutEngine extends StatelessWidget {
       return const SizedBox.shrink();
     }
     _log.finer('Template data has ${data.length} items.');
-    final templateComponent = interpreter.getComponent(template.componentId);
-    if (templateComponent == null) {
-      _log.severe('Template component not found: ${template.componentId}');
-      return const Text('Error: template component not found');
-    }
     final builder = registry.getBuilder(
       component.componentProperties.componentType,
     );
@@ -268,7 +274,7 @@ class _LayoutEngine extends StatelessWidget {
                   context,
                   id,
                   itemData: itemData,
-                  visited: visited,
+                  visited: newVisited,
                 ),
               )
               .toList();
@@ -279,7 +285,7 @@ class _LayoutEngine extends StatelessWidget {
             context,
             templateProperties.child,
             itemData: itemData,
-            visited: visited,
+            visited: newVisited,
           ),
         ];
       }

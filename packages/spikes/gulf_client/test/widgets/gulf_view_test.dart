@@ -17,7 +17,7 @@ void main() {
     setUp(() {
       streamController = StreamController<String>();
       registry = WidgetRegistry();
-      registry.register('TextProperties', (
+      registry.register('Text', (
         context,
         component,
         properties,
@@ -25,7 +25,7 @@ void main() {
       ) {
         return Text(properties['text'] as String? ?? '');
       });
-      registry.register('ColumnProperties', (
+      registry.register('Column', (
         context,
         component,
         properties,
@@ -139,7 +139,7 @@ void main() {
     });
 
     testWidgets('builds card with child', (tester) async {
-      registry.register('CardProperties', (
+      registry.register('Card', (
         context,
         component,
         properties,

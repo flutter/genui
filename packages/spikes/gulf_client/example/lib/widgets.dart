@@ -10,7 +10,9 @@ final _log = Logger('gulf.example.widgets');
 
 void registerGulfWidgets(WidgetRegistry registry) {
   registry.register('Column', (context, component, properties, children) {
-    return Column(
+    final isRoot =
+        GulfProvider.of(context)!.interpreter.rootComponentId == component.id;
+    final column = Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: getMainAxisAlignment(
         properties['distribution'] as String?,
@@ -20,6 +22,10 @@ void registerGulfWidgets(WidgetRegistry registry) {
       ),
       children: children['children'] ?? [],
     );
+    if (isRoot) {
+      return SingleChildScrollView(child: column);
+    }
+    return column;
   });
   registry.register('Row', (context, component, properties, children) {
     return Row(

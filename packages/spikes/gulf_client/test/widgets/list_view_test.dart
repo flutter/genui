@@ -17,7 +17,7 @@ void main() {
     setUp(() {
       streamController = StreamController<String>();
       registry = WidgetRegistry();
-      registry.register('TextProperties', (
+      registry.register('Text', (
         context,
         component,
         properties,
@@ -25,7 +25,7 @@ void main() {
       ) {
         return Text(properties['text'] as String? ?? '');
       });
-      registry.register('ListProperties', (
+      registry.register('List', (
         context,
         component,
         properties,
