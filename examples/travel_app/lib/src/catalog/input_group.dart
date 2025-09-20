@@ -61,19 +61,13 @@ final inputGroup = CatalogItem(
         {
           'id': 'check_in',
           'widget': {
-            'DateInputChip': {
-              'value': '2026-07-22',
-              'hintText': 'Select check in date',
-            },
+            'DateInputChip': {'value': '2026-07-22', 'label': 'Check-in date'},
           },
         },
         {
           'id': 'check_out',
           'widget': {
-            'DateInputChip': {
-              'value': '2026-07-24',
-              'hintText': 'Select check out date',
-            },
+            'DateInputChip': {'label': 'Check-out date'},
           },
         },
         {

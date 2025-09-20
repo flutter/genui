@@ -14,30 +14,24 @@ final _schema = S.object(
     'value': S.string(
       description: 'The initial date of the date picker in yyyy-mm-dd format.',
     ),
-    'hintText': S.string(description: 'Hint text for the date picker.'),
+    'label': S.string(description: 'Label for the date picker.'),
   },
 );
 
 extension type _DatePickerData.fromMap(JsonMap _json) {
-  factory _DatePickerData({String? value, String? hintText}) =>
-      _DatePickerData.fromMap({'value': value, 'hintText': hintText});
+  factory _DatePickerData({String? value, String? label}) =>
+      _DatePickerData.fromMap({'value': value, 'label': label});
 
   String? get value => _json['value'] as String?;
-  String? get hintText => _json['hintText'] as String?;
+  String? get label => _json['label'] as String?;
 }
 
 class _DatePicker extends StatefulWidget {
-  const _DatePicker({
-    this.initialValue,
-    this.hintText,
-    required this.onChanged,
-    required this.onSubmitted,
-  });
+  const _DatePicker({this.initialValue, this.label, required this.onChanged});
 
   final String? initialValue;
-  final String? hintText;
+  final String? label;
   final void Function(String) onChanged;
-  final void Function(String) onSubmitted;
 
   @override
   State<_DatePicker> createState() => _DatePickerState();
@@ -70,7 +64,7 @@ class _DatePickerState extends State<_DatePicker> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime(1700),
       lastDate: DateTime(2101),
     );
     if (picked != null && picked != _selectedDate) {
@@ -79,19 +73,21 @@ class _DatePickerState extends State<_DatePicker> {
       });
       final formattedDate = DateFormat('yyyy-MM-dd').format(picked);
       widget.onChanged(formattedDate);
-      widget.onSubmitted(formattedDate);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => _selectDate(context),
-      child: Text(
-        _selectedDate == null
-            ? widget.hintText ?? 'Select date'
-            : DateFormat.yMMMd().format(_selectedDate!),
-      ),
+    final text = _selectedDate == null
+        ? widget.label ?? 'Date'
+        : '${widget.label}: ${DateFormat.yMMMd().format(_selectedDate!)}';
+    return FilterChip(
+      label: Text(text),
+      selected: false,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      onSelected: (bool selected) {
+        _selectDate(context);
+      },
     );
   }
 }
@@ -107,8 +103,8 @@ final dateInputChip = CatalogItem(
           'id': 'date_picker',
           'widget': {
             'DateInputChip': {
-              'value': '2025-07-22',
-              'hintText': 'Select your birth date',
+              'value': '1871-07-22',
+              'label': 'Your birth date',
             },
           },
         },
@@ -128,11 +124,8 @@ final dateInputChip = CatalogItem(
         final datePickerData = _DatePickerData.fromMap(data as JsonMap);
         return _DatePicker(
           initialValue: datePickerData.value,
-          hintText: datePickerData.hintText,
+          label: datePickerData.label,
           onChanged: (newValue) => values[id] = newValue,
-          onSubmitted: (newValue) {
-            values[id] = newValue;
-          },
         );
       },
 );
