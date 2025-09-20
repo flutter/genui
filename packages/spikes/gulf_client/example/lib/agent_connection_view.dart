@@ -5,7 +5,9 @@
 import 'package:flutter/material.dart' hide Action;
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:gulf_client/gulf_client.dart';
+import 'package:provider/provider.dart';
 
+import 'agent_state.dart';
 import 'widgets.dart';
 
 class AgentConnectionView extends StatefulWidget {
@@ -20,12 +22,8 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   @override
   bool get wantKeepAlive => true;
 
-  GulfInterpreter? interpreter;
-  GulfAgentConnector? _connector;
-  AgentCard? _agentCard;
   bool _messageSent = false;
   final registry = WidgetRegistry();
-  final _urlController = TextEditingController(text: 'http://localhost:10002');
   final _messageController = TextEditingController(
     text:
         'Provide me a list of great italian restaurants in New York in lower '
@@ -37,54 +35,16 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   void initState() {
     super.initState();
     registerGulfWidgets(registry);
-    _fetchCard();
   }
 
   @override
   void dispose() {
-    _urlController.dispose();
     _messageController.dispose();
-    _connector?.dispose();
-    interpreter?.dispose();
     super.dispose();
   }
 
-  Future<void> _fetchCard() async {
-    final url = Uri.tryParse(_urlController.text);
-    if (url == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid URL')));
-      return;
-    }
-
-    // Clean up previous connections
-    _connector?.dispose();
-    interpreter?.dispose();
-
-    final newConnector = GulfAgentConnector(url: url);
-    try {
-      final card = await newConnector.getAgentCard();
-      if (!mounted) return;
-      setState(() {
-        _connector = newConnector;
-        _agentCard = card;
-        // Create the interpreter once we have a valid connector
-        interpreter?.dispose();
-        interpreter = GulfInterpreter(stream: newConnector.stream);
-        _messageSent = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error fetching agent card: $e')));
-    }
-  }
-
-  void _sendMessage() {
-    if (_connector == null) {
+  void _sendMessage(AgentState agentState) {
+    if (agentState.connector == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fetch agent card first')),
@@ -96,7 +56,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
       _chatHistory.add(ChatMessage(text: message, isUser: true));
       _messageSent = true;
     });
-    _connector!.connectAndSend(
+    agentState.connector!.connectAndSend(
       message,
       onResponse: (response) {
         setState(() {
@@ -110,25 +70,13 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final agentState = context.watch<AgentState>();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
-            controller: _urlController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter agent URL',
-              labelText: 'Agent URL',
-            ),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: _fetchCard,
-            child: const Text('Fetch Agent Card'),
-          ),
-          if (_agentCard != null)
+          if (agentState.agentCard != null)
             Card(
               margin: const EdgeInsets.symmetric(vertical: 8.0),
               child: Padding(
@@ -137,11 +85,11 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Name: ${_agentCard!.name}',
+                      'Name: ${agentState.agentCard!.name}',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    Text('Description: ${_agentCard!.description}'),
-                    Text('Version: ${_agentCard!.version}'),
+                    Text('Description: ${agentState.agentCard!.description}'),
+                    Text('Version: ${agentState.agentCard!.version}'),
                   ],
                 ),
               ),
@@ -149,16 +97,16 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
           Expanded(
             child: Card(
               elevation: 2,
-              child: interpreter == null || !_messageSent
+              child: agentState.interpreter == null || !_messageSent
                   ? const Center(child: Text('Send a message to see the UI.'))
                   : GulfView(
-                      interpreter: interpreter!,
+                      interpreter: agentState.interpreter!,
                       registry: registry,
                       onEvent: (event) {
-                        _connector?.sendEvent(event);
+                        agentState.connector?.sendEvent(event);
                       },
                       onDataModelUpdate: (path, value) {
-                        interpreter!.updateData(path, value);
+                        agentState.interpreter!.updateData(path, value);
                       },
                     ),
             ),
@@ -175,12 +123,12 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                     hintText: 'Enter message to agent',
                     labelText: 'Message',
                   ),
-                  onSubmitted: (_) => _sendMessage(),
+                  onSubmitted: (_) => _sendMessage(agentState),
                 ),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed: _sendMessage,
+                onPressed: () => _sendMessage(agentState),
                 child: const Text('Send'),
               ),
             ],
