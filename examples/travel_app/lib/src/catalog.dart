@@ -5,6 +5,7 @@
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog/checkbox_filter_chips_input.dart';
+import 'catalog/date_input_chip.dart' as date_input_chip;
 import 'catalog/information_card.dart';
 import 'catalog/input_group.dart';
 import 'catalog/itinerary_day.dart';
@@ -28,6 +29,7 @@ import 'catalog/travel_carousel.dart';
 /// and [inputGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
 final travelAppCatalog = CoreCatalogItems.asCatalog().copyWith([
+  dateInputChip,
   inputGroup,
   optionsFilterChipInput,
   checkboxFilterChipsInput,
