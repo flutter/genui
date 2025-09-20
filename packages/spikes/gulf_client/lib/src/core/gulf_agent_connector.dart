@@ -148,6 +148,9 @@ class GulfAgentConnector {
       ..referenceTaskIds = [_taskId!];
 
     final payload = A2AMessageSendParams()..message = message;
+    payload.extensions = [
+      'https://github.com/a2aproject/a2a-samples/extensions/gulfui/v7',
+    ];
 
     try {
       await _client.sendMessage(payload);
