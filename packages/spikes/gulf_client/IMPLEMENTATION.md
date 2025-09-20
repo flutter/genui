@@ -46,10 +46,12 @@ packages/spikes/gulf_client/
 │   │   │   ├── interpreter.dart    # GulfInterpreter class
 │   │   │   └── widget_registry.dart # WidgetRegistry class
 │   │   ├── models/
+│   │   │   ├── chat_message.dart   # Chat message data model
 │   │   │   ├── component.dart      # Component data models
 │   │   │   └── stream_message.dart # GulfStreamMessage and related classes
 │   │   ├── utils/
-│   │   │   └── json_utils.dart     # JSON parsing utilities
+│   │   │   ├── json_utils.dart     # JSON parsing utilities
+│   │   │   └── logger.dart         # Logging utilities
 │   │   └── widgets/
 │   │       ├── component_properties_visitor.dart # Resolves component properties
 │   │       ├── gulf_provider.dart   # InheritedWidget for event handling
@@ -179,7 +181,7 @@ Connects to a GULF Agent endpoint, which is a server that speaks the A2A (Agent-
 
 ## 7. Example Usage (`example/lib/main.dart`)
 
-The example demonstrates how to use the client in two ways: `ManualInputView` and `AgentConnectionView`.
+The example demonstrates how to use the client in two ways: `ManualInputView` and `AgentConnectionView`. The application state is managed by an `AgentState` class, which is a `ChangeNotifier` that is provided to the widget tree using the `provider` package.
 
 ### `ManualInputView`
 
@@ -190,8 +192,8 @@ The example demonstrates how to use the client in two ways: `ManualInputView` an
 
 ### `AgentConnectionView`
 
-1.  **Instantiate `GulfAgentConnector`**: When the user provides a URL and clicks "Fetch Agent Card", a `GulfAgentConnector` is created.
-2.  **Fetch Agent Card**: The connector fetches metadata about the agent.
-3.  **Create `GulfInterpreter`**: Once the agent card is fetched, a `GulfInterpreter` is created with the stream provided by the `GulfAgentConnector`.
+1.  **`AgentState`**: The `AgentState` class holds the `GulfAgentConnector`, `GulfInterpreter`, and `AgentCard`. It is provided to the widget tree using `ChangeNotifierProvider`.
+2.  **Instantiate `GulfAgentConnector`**: The `AgentState` class creates a `GulfAgentConnector` and fetches the agent card when it is initialized.
+3.  **`SettingsView`**: A separate settings view allows the user to change the agent URL and re-fetch the agent card.
 4.  **Send Message**: The user can send a message to the agent, which will then start streaming back the GULF UI definition.
-5.  **Use `GulfView`**: As with the manual view, a `GulfView` widget is used to render the UI from the interpreter.
+5.  **Use `GulfView`**: The `AgentConnectionView` consumes the `AgentState` to get the `GulfInterpreter` and `WidgetRegistry`, and then uses the `GulfView` widget to render the UI.

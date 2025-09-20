@@ -102,6 +102,7 @@ sealed class ComponentProperties extends Equatable {
   @override
   List<Object?> get props => [];
 
+  /// The type of the component.
   String get componentType;
 }
 

@@ -46,6 +46,10 @@ class GulfInterpreter with ChangeNotifier {
   String? get error => _error;
 
   /// Processes a single JSONL message from the stream.
+  ///
+  /// This method is called for each line in the input stream. It parses the
+  /// JSON, determines the message type, and updates the interpreter's state
+  /// accordingly.
   void processMessage(String jsonl) {
     if (jsonl.isEmpty) {
       return;
@@ -97,6 +101,10 @@ class GulfInterpreter with ChangeNotifier {
     }
   }
 
+  /// Updates the data model at the given [path] with the given [value].
+  ///
+  /// This method is used to update the data model from the client-side, for
+  /// example when a user interacts with a form field.
   void updateData(String path, dynamic value) {
     _updateDataModel(path, value);
     notifyListeners();

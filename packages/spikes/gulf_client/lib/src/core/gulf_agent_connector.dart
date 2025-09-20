@@ -12,18 +12,27 @@ final _log = Logger('GulfAgentConnector');
 
 /// A class to hold the agent card details.
 class AgentCard {
+  /// Creates a new [AgentCard] instance.
   AgentCard({
     required this.name,
     required this.description,
     required this.version,
   });
 
+  /// The name of the agent.
   final String name;
+
+  /// A description of the agent.
   final String description;
+
+  /// The version of the agent.
   final String version;
 }
 
 /// Connects to a GULF Agent endpoint and streams the GULF protocol lines.
+///
+/// This class handles the communication with a GULF agent, including fetching
+/// the agent card, sending messages, and receiving the GULF protocol stream.
 class GulfAgentConnector {
   /// Creates a [GulfAgentConnector] that connects to the given [url].
   GulfAgentConnector({required this.url}) {
@@ -39,9 +48,14 @@ class GulfAgentConnector {
   String? _contextId;
 
   /// The stream of GULF protocol lines.
+  ///
+  /// This stream emits the JSONL messages from the GULF protocol.
   Stream<String> get stream => _controller.stream;
 
   /// Fetches the agent card.
+  ///
+  /// The agent card contains metadata about the agent, such as its name,
+  /// description, and version.
   Future<AgentCard> getAgentCard() async {
     // Allow time for the agent card to be fetched.
     //await Future.delayed(const Duration(seconds: 1));
@@ -54,6 +68,8 @@ class GulfAgentConnector {
   }
 
   /// Connects to the agent and sends a message.
+  ///
+  /// The [onResponse] callback is invoked when the agent sends a text response.
   Future<void> connectAndSend(
     String messageText, {
     void Function(String)? onResponse,
@@ -131,6 +147,9 @@ class GulfAgentConnector {
   }
 
   /// Sends an event to the agent.
+  ///
+  /// This is used to send user interaction events to the agent, such as
+  /// button clicks or form submissions.
   Future<void> sendEvent(Map<String, dynamic> event) async {
     if (_taskId == null) {
       _log.severe('Cannot send event, no active task ID.');
@@ -213,7 +232,12 @@ class GulfAgentConnector {
   }
 
   /// Closes the connection to the agent.
+  ///
+  /// This should be called when the connector is no longer needed to release
+  /// resources.
   void dispose() {
-    _controller.close();
+    if (!_controller.isClosed) {
+      _controller.close();
+    }
   }
 }

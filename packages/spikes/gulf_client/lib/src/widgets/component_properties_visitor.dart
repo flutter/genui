@@ -88,6 +88,10 @@ class ComponentPropertiesVisitor {
     };
   }
 
+  /// Resolves a [BoundValue] to its concrete value.
+  ///
+  /// If the value is a literal, it is returned directly. If it is a data
+  /// binding, the value is resolved from the data model.
   Object? resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
     if (value == null) {
       return null;

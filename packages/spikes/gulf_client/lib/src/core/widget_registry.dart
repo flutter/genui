@@ -27,6 +27,9 @@ typedef CatalogWidgetBuilder =
 /// This allows the simple GULF client to be extended with custom widget
 /// implementations.
 class WidgetRegistry {
+  /// Creates a new [WidgetRegistry].
+  WidgetRegistry();
+
   final Map<String, CatalogWidgetBuilder> _builders = {};
 
   /// Registers a widget builder for a given [type].

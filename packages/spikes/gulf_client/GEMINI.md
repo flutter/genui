@@ -23,6 +23,10 @@ The client's architecture is centered around a few key classes:
 
 The data flows in one direction: from the server stream (either from a manual source or the `GulfAgentConnector`), through the `GulfInterpreter`, to the `GulfView`, which uses the `WidgetRegistry` to build and render the final Flutter widget tree.
 
+The example application uses the `provider` package for state management. An `AgentState` class, which is a `ChangeNotifier`, holds the `GulfAgentConnector`, `GulfInterpreter`, and `AgentCard`. This state is provided to the widget tree using `ChangeNotifierProvider`, and widgets that need to access the state can do so using `context.watch<AgentState>()`.
+
+For more detailed information on the architecture and implementation, see the `IMPLEMENTATION.md` file.
+
 ## Building and Running
 
 This is a Dart package, so there isn't a main application to run directly. However, the `example` directory contains a complete Flutter application that demonstrates how to use the `gulf_client` package.
