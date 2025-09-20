@@ -18,7 +18,7 @@
     },
     {
       "name": "catalog_gallery",
-      "cwd": "packages/catalog_gallery",
+      "cwd": "examples/catalog_gallery",
       "request": "launch",
       "type": "dart"
     },
@@ -27,7 +27,10 @@
       "request": "launch",
       "program": "bin/fix_copyright.dart",
       "cwd": "tool/fix_copyright",
-      "args": ["--force", "${workspaceFolder}"],
+      "args": [
+        "--force",
+        "${workspaceFolder}"
+      ],
       "type": "dart",
       "console": "debugConsole"
     }
