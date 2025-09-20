@@ -15,12 +15,6 @@ class AgentConnectionView extends StatefulWidget {
   State<AgentConnectionView> createState() => _AgentConnectionViewState();
 }
 
-class _ChatMessage {
-  const _ChatMessage({required this.text, required this.isUser});
-  final String text;
-  final bool isUser;
-}
-
 class _AgentConnectionViewState extends State<AgentConnectionView>
     with AutomaticKeepAliveClientMixin {
   @override
@@ -37,7 +31,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
         'Provide me a list of great italian restaurants in New York in lower '
         'manhattan',
   );
-  final List<_ChatMessage> _chatHistory = [];
+  final List<ChatMessage> _chatHistory = [];
 
   @override
   void initState() {
@@ -99,14 +93,14 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
     }
     final message = _messageController.text;
     setState(() {
-      _chatHistory.add(_ChatMessage(text: message, isUser: true));
+      _chatHistory.add(ChatMessage(text: message, isUser: true));
       _messageSent = true;
     });
     _connector!.connectAndSend(
       message,
       onResponse: (response) {
         setState(() {
-          _chatHistory.add(_ChatMessage(text: response, isUser: false));
+          _chatHistory.add(ChatMessage(text: response, isUser: false));
         });
       },
     );
@@ -200,7 +194,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
 class _ChatHistory extends StatelessWidget {
   const _ChatHistory({required this.chatHistory});
 
-  final List<_ChatMessage> chatHistory;
+  final List<ChatMessage> chatHistory;
 
   @override
   Widget build(BuildContext context) {

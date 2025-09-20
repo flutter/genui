@@ -11,6 +11,7 @@ library;
 export 'src/core/gulf_agent_connector.dart';
 export 'src/core/interpreter.dart';
 export 'src/core/widget_registry.dart';
+export 'src/models/chat_message.dart';
 export 'src/models/component.dart';
 export 'src/models/stream_message.dart';
 export 'src/utils/logger.dart';
