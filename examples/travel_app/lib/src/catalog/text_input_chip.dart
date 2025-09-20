@@ -33,6 +33,22 @@ extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
 final textInputChip = CatalogItem(
   name: 'TextInputChip',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'text_input',
+      'widgets': [
+        {
+          'id': 'text_input',
+          'widget': {
+            'TextInputChip': {
+              'initial_value': 'John Doe',
+              'label': 'Enter your name',
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

@@ -6,16 +6,13 @@
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:intl/intl.dart';
-
-import '../../../../../packages/flutter_genui/lib/src/model/catalog_item.dart';
-import '../../../../../packages/flutter_genui/lib/src/primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
     'value': S.string(
       description: 'The initial date of the date picker in yyyy-mm-dd format.',
-      format: 'date',
     ),
     'hintText': S.string(description: 'Hint text for the date picker.'),
   },
@@ -99,8 +96,8 @@ class _DatePickerState extends State<_DatePicker> {
   }
 }
 
-final datePicker = CatalogItem(
-  name: 'DatePicker',
+final dateInputChip = CatalogItem(
+  name: 'DateInputChip',
   dataSchema: _schema,
   exampleData: [
     () => {
@@ -109,7 +106,7 @@ final datePicker = CatalogItem(
         {
           'id': 'date_picker',
           'widget': {
-            'DatePicker': {
+            'DateInputChip': {
               'value': '2025-07-22',
               'hintText': 'Select your birth date',
             },

@@ -41,6 +41,39 @@ extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
 /// to process the current selections from all the child chips at once, which
 /// is useful for refining a search or query with multiple parameters.
 final inputGroup = CatalogItem(
+  exampleData: [
+    () => {
+      'root': 'input_group',
+      'widgets': [
+        {
+          'id': 'input_group',
+          'widget': {
+            'Column': {
+              'children': ['check_in', 'check_out'],
+            },
+          },
+        },
+        {
+          'id': 'check_in',
+          'widget': {
+            'DateInputChip': {
+              'value': '2026-07-22',
+              'hintText': 'Select check in date',
+            },
+          },
+        },
+        {
+          'id': 'check_out',
+          'widget': {
+            'DateInputChip': {
+              'value': '2026-07-24',
+              'hintText': 'Select check out date',
+            },
+          },
+        },
+      ],
+    },
+  ],
   name: 'InputGroup',
   dataSchema: _schema,
   widgetBuilder:

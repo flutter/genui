@@ -6,6 +6,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/date_input_chip.dart' as date_input_chip;
+import 'catalog/date_input_chip.dart';
 import 'catalog/information_card.dart';
 import 'catalog/input_group.dart';
 import 'catalog/itinerary_day.dart';
