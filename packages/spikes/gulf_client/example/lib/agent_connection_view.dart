@@ -30,6 +30,7 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
         'manhattan',
   );
   final List<ChatMessage> _chatHistory = [];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -40,7 +41,18 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   void _sendMessage(AgentState agentState) {
@@ -56,12 +68,14 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
       _chatHistory.add(ChatMessage(text: message, isUser: true));
       _messageSent = true;
     });
+    _scrollToBottom();
     agentState.connector!.connectAndSend(
       message,
       onResponse: (response) {
         setState(() {
           _chatHistory.add(ChatMessage(text: response, isUser: false));
         });
+        _scrollToBottom();
       },
     );
     _messageController.clear();
@@ -112,7 +126,12 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
             ),
           ),
           const Divider(height: 20, thickness: 2),
-          Expanded(child: _ChatHistory(chatHistory: _chatHistory)),
+          Expanded(
+            child: _ChatHistory(
+              chatHistory: _chatHistory,
+              scrollController: _scrollController,
+            ),
+          ),
           Row(
             children: [
               Expanded(
@@ -140,13 +159,18 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
 }
 
 class _ChatHistory extends StatelessWidget {
-  const _ChatHistory({required this.chatHistory});
+  const _ChatHistory({
+    required this.chatHistory,
+    required this.scrollController,
+  });
 
   final List<ChatMessage> chatHistory;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      controller: scrollController,
       itemCount: chatHistory.length,
       itemBuilder: (context, index) {
         final message = chatHistory[index];

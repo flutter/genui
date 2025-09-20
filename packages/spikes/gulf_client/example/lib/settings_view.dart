@@ -14,9 +14,7 @@ class SettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     final agentState = context.watch<AgentState>();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

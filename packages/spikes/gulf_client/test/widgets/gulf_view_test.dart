@@ -17,20 +17,10 @@ void main() {
     setUp(() {
       streamController = StreamController<String>();
       registry = WidgetRegistry();
-      registry.register('Text', (
-        context,
-        component,
-        properties,
-        children,
-      ) {
+      registry.register('Text', (context, component, properties, children) {
         return Text(properties['text'] as String? ?? '');
       });
-      registry.register('Column', (
-        context,
-        component,
-        properties,
-        children,
-      ) {
+      registry.register('Column', (context, component, properties, children) {
         return Column(children: children['children'] ?? []);
       });
       interpreter = GulfInterpreter(stream: streamController.stream);
@@ -139,12 +129,7 @@ void main() {
     });
 
     testWidgets('builds card with child', (tester) async {
-      registry.register('Card', (
-        context,
-        component,
-        properties,
-        children,
-      ) {
+      registry.register('Card', (context, component, properties, children) {
         return Card(child: children['child']!.first);
       });
 

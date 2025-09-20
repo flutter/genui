@@ -225,7 +225,8 @@ class _LayoutEngine extends StatelessWidget {
 
     if (visited.contains(template.componentId)) {
       _log.severe(
-          'Cyclical layout detected for componentId: ${template.componentId}');
+        'Cyclical layout detected for componentId: ${template.componentId}',
+      );
       return const Text('Error: cyclical layout detected');
     }
     final newVisited = {...visited, template.componentId};
