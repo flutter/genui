@@ -11,7 +11,7 @@ void main() {
   testWidgets('DateInputChip catalog item builds and responds to taps', (
     WidgetTester tester,
   ) async {
-    final Map<String, Object?> values = {};
+    final values = <String, Object?>{};
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -50,7 +50,7 @@ void main() {
   testWidgets('DateInputChip selects date when no initial value', (
     WidgetTester tester,
   ) async {
-    final Map<String, Object?> values = {};
+    final values = <String, Object?>{};
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -84,7 +84,8 @@ void main() {
     final now = DateTime.now();
     final expectedDate = DateTime(now.year, now.month, 10);
     final formatted =
-        '${expectedDate.year}-${expectedDate.month.toString().padLeft(2, '0')}-10';
+        '${expectedDate.year}-${expectedDate.month.toString().padLeft(2, '0')}'
+        '-10';
     expect(values['test_chip'], formatted);
 
     final month = DateFormat.MMM().format(expectedDate);

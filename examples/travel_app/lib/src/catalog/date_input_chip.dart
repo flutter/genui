@@ -64,22 +64,6 @@ class _DateInputChipState extends State<_DateInputChip> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1700),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-      final formattedDate = DateFormat('yyyy-MM-dd').format(picked);
-      widget.onChanged(formattedDate);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final text = _selectedDate == null
@@ -106,8 +90,9 @@ class _DateInputChipState extends State<_DateInputChip> {
                         setState(() {
                           _selectedDate = newDate;
                         });
-                        final formattedDate =
-                            DateFormat('yyyy-MM-dd').format(newDate);
+                        final formattedDate = DateFormat(
+                          'yyyy-MM-dd',
+                        ).format(newDate);
                         widget.onChanged(formattedDate);
                         Navigator.pop(context);
                       },
