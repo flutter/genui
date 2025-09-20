@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../model/catalog_item.dart';
-import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -94,7 +93,7 @@ class _DatePickerState extends State<_DatePicker> {
       child: Text(
         _selectedDate == null
             ? widget.hintText ?? 'Select date'
-            : DateFormat('yyyy-MM-dd').format(_selectedDate!),
+            : DateFormat.yMMMd().format(_selectedDate!),
       ),
     );
   }
@@ -135,13 +134,7 @@ final datePicker = CatalogItem(
           hintText: datePickerData.hintText,
           onChanged: (newValue) => values[id] = newValue,
           onSubmitted: (newValue) {
-            dispatchEvent(
-              UiActionEvent(
-                widgetId: id,
-                eventType: 'onSubmitted',
-                value: newValue,
-              ),
-            );
+            values[id] = newValue;
           },
         );
       },
