@@ -26,18 +26,22 @@ extension type _DatePickerData.fromMap(JsonMap _json) {
   String? get label => _json['label'] as String?;
 }
 
-class _DatePicker extends StatefulWidget {
-  const _DatePicker({this.initialValue, this.label, required this.onChanged});
+class _DateInputChip extends StatefulWidget {
+  const _DateInputChip({
+    this.initialValue,
+    this.label,
+    required this.onChanged,
+  });
 
   final String? initialValue;
   final String? label;
   final void Function(String) onChanged;
 
   @override
-  State<_DatePicker> createState() => _DatePickerState();
+  State<_DateInputChip> createState() => _DateInputChipState();
 }
 
-class _DatePickerState extends State<_DatePicker> {
+class _DateInputChipState extends State<_DateInputChip> {
   DateTime? _selectedDate;
 
   @override
@@ -49,7 +53,7 @@ class _DatePickerState extends State<_DatePicker> {
   }
 
   @override
-  void didUpdateWidget(_DatePicker oldWidget) {
+  void didUpdateWidget(_DateInputChip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != oldWidget.initialValue) {
       if (widget.initialValue != null) {
@@ -86,7 +90,34 @@ class _DatePickerState extends State<_DatePicker> {
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
-        _selectDate(context);
+        showModalBottomSheet<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return SizedBox(
+              height: 300,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: CalendarDatePicker(
+                      initialDate: _selectedDate ?? DateTime.now(),
+                      firstDate: DateTime(1700),
+                      lastDate: DateTime(2101),
+                      onDateChanged: (newDate) {
+                        setState(() {
+                          _selectedDate = newDate;
+                        });
+                        final formattedDate =
+                            DateFormat('yyyy-MM-dd').format(newDate);
+                        widget.onChanged(formattedDate);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -122,7 +153,7 @@ final dateInputChip = CatalogItem(
         required values,
       }) {
         final datePickerData = _DatePickerData.fromMap(data as JsonMap);
-        return _DatePicker(
+        return _DateInputChip(
           initialValue: datePickerData.value,
           label: datePickerData.label,
           onChanged: (newValue) => values[id] = newValue,

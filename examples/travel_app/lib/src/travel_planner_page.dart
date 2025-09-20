@@ -339,18 +339,12 @@ to the user.
     with chips to ask the user for preferences, and the `travelCarousel` to show
     the user different options. When the user chooses an option, you can confirm
     it has been chosen and immediately prompt the user to book the next detail,
-    e.g. an activity, accommodation, transport etc. When a booking is confirmed,
+    e.g. an activity, hotels, transport etc. When a booking is confirmed,
     update the original `itineraryWithDetails` to reflect the booking by
     updating the relevant `itineraryEntry` to have the status `chosen` and
     including the booking details in the `bodyText`.
 
-    When booking accommodation, you should use the `listHotels` tool to search
-    for hotels, and then pass the listingSelectionId to `travelCarousel` of the selected hotel. You can then show the user the different options in a
-    `travelCarousel`. When user selects a hotel, remember the listingSelectionId for the next step.
-
-    After selecting hotel, suggest the user to check out the
-    itinerary and use `listingsBooker`, passing previously remembered listingSelectionId
-    to the parameter listingSelectionIds.
+    When booking a hotel, use inputGroup, providing initial values for check-in and check-out dates (nearest weekend). Then use the `listHotels` tool to search for hotels and pass the values listingSelectionId to `travelCarousel` to show the user different options. When user selects a hotel, pass the listingSelectionId of the selected hotel the parameter listingSelectionIds of `listingsBooker`.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
@@ -416,7 +410,7 @@ transport for that day.
 
 - Inputs: When you are asking for information from the user, you should always include a
 submit button of some kind so that the user can indicate that they are done
-providing information. The `InputGroup` has a submit button, but if
+providing information. Suggest initial values for number of people and travel dates (e.g. 2 gußests, dates of nearest weekend). The `InputGroup` has a submit button, but if
 you are not using that, you can use an `ElevatedButton`. Only use
 `OptionsFilterChipInput` widgets inside of a `InputGroup`.
 

@@ -34,7 +34,7 @@ class BookingService {
     String paymentMethodId,
   ) async {
     // ignore: inference_failure_on_instance_creation
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 400));
   }
 
   /// Synchronous version for example data generation.
