@@ -221,7 +221,7 @@ In addition to using the catalog of widgets in `CoreCatalogItems`, you can creat
 
 #### Import \`dart\_schema\_builder
 
-Add the dart\_schema\_builder package as a dependency in pubspec.yaml. Use the same commit reference as the one for `flutter_genui`. 
+Add the `dart_schema_builder` package as a dependency in `pubspec.yaml`. Use the same commit reference as the one for `flutter_genui`. 
 
 ```yaml
 dart_schema_builder:
@@ -266,7 +266,6 @@ final riddleCard = CatalogItem(
         required context,
         required values,
       }) {
-        // final cardData = _RiddleCardData.fromMap(data as Map<String, Object?>);
         final json = data as Map<String, Object?>;
         final question = json['question'] as String;
         final answer = json['answer'] as String;
@@ -274,7 +273,7 @@ final riddleCard = CatalogItem(
         return Container(
           constraints: const BoxConstraints(maxWidth: 400),
           decoration: BoxDecoration(border: Border.all()),
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -314,7 +313,7 @@ final aiClient = FirebaseAiClient(
 
 ## Next steps
 
-Check out the [examples](http://../examples) included in this repo! The [travel app](http://../examples/travel_app) shows how to define your own widget `Catalog` that the agent can use to generate domain-specific UI.
+Check out the [examples](../examples) included in this repo! The [travel app](../examples/travel_app) shows how to define your own widget `Catalog` that the agent can use to generate domain-specific UI.
 
 If something is unclear or missing, please [create an issue](https://github.com/flutter/genui/issues/new/choose).
 
