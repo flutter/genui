@@ -107,7 +107,8 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                  'Description: ${agentState.agentCard!.description}'),
+                                'Description: ${agentState.agentCard!.description}',
+                              ),
                               Text('Version: ${agentState.agentCard!.version}'),
                             ],
                           ),
