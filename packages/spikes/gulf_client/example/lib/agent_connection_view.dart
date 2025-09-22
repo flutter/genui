@@ -85,15 +85,16 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
   Widget build(BuildContext context) {
     super.build(context);
     final agentState = context.watch<AgentState>();
+    final card = agentState.agentCard;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (agentState.agentCard != null)
+          if (card != null)
             Row(
               children: [
-                Text('Agent Connected: ${agentState.agentCard!.name}'),
+                Text('Agent Connected: ${card.name}'),
                 IconButton(
                   icon: const Icon(Icons.info),
                   onPressed: () {
@@ -101,15 +102,13 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text(agentState.agentCard!.name),
+                          title: Text(card.name),
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                'Description: ${agentState.agentCard!.description}',
-                              ),
-                              Text('Version: ${agentState.agentCard!.version}'),
+                              Text('Description: ${card.description}'),
+                              Text('Version: ${card.version}'),
                             ],
                           ),
                           actions: [
