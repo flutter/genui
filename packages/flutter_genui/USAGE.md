@@ -313,7 +313,7 @@ final aiClient = FirebaseAiClient(
 
 ## Next steps
 
-Check out the [examples](../examples) included in this repo! The [travel app](../examples/travel_app) shows how to define your own widget `Catalog` that the agent can use to generate domain-specific UI.
+Check out the [examples](../../examples) included in this repo! The [travel app](../../examples/travel_app) shows how to define your own widget `Catalog` that the agent can use to generate domain-specific UI.
 
 If something is unclear or missing, please [create an issue](https://github.com/flutter/genui/issues/new/choose).
 
