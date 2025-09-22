@@ -410,7 +410,7 @@ transport for that day.
 
 - Inputs: When you are asking for information from the user, you should always include a
 submit button of some kind so that the user can indicate that they are done
-providing information. Suggest initial values for number of people and travel dates (e.g. 2 gußests, dates of nearest weekend). The `InputGroup` has a submit button, but if
+providing information. Suggest initial values for number of people and travel dates (e.g. 2 guests, dates of nearest weekend). The `InputGroup` has a submit button, but if
 you are not using that, you can use an `ElevatedButton`. Only use
 `OptionsFilterChipInput` widgets inside of a `InputGroup`.
 
