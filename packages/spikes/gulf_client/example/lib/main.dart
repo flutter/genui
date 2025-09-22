@@ -55,30 +55,32 @@ class ExampleApp extends StatelessWidget {
               builder: (context) {
                 return DefaultTabController(
                   length: 2,
-                  child: Scaffold(
-                    appBar: AppBar(
-                      title: const Text('GULF Client Example'),
-                      actions: [
-                        IconButton(
-                          icon: const Icon(Icons.settings),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (context) => const SettingsView(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                      bottom: const TabBar(
-                        tabs: [
-                          Tab(text: 'Agent Connection'),
-                          Tab(text: 'Manual Input'),
+                  child: SafeArea(
+                    child: Scaffold(
+                      appBar: AppBar(
+                        title: const Text('GULF Client Example'),
+                        actions: [
+                          IconButton(
+                            icon: const Icon(Icons.settings),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (context) => const SettingsView(),
+                                ),
+                              );
+                            },
+                          ),
                         ],
+                        bottom: const TabBar(
+                          tabs: [
+                            Tab(text: 'Agent Connection'),
+                            Tab(text: 'Manual Input'),
+                          ],
+                        ),
                       ),
-                    ),
-                    body: const TabBarView(
-                      children: [AgentConnectionView(), ManualInputView()],
+                      body: const TabBarView(
+                        children: [AgentConnectionView(), ManualInputView()],
+                      ),
                     ),
                   ),
                 );

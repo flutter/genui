@@ -91,22 +91,38 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (agentState.agentCard != null)
-            Card(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Name: ${agentState.agentCard!.name}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text('Description: ${agentState.agentCard!.description}'),
-                    Text('Version: ${agentState.agentCard!.version}'),
-                  ],
+            Row(
+              children: [
+                Text('Agent Connected: ${agentState.agentCard!.name}'),
+                IconButton(
+                  icon: const Icon(Icons.info),
+                  onPressed: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text(agentState.agentCard!.name),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                  'Description: ${agentState.agentCard!.description}'),
+                              Text('Version: ${agentState.agentCard!.version}'),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
-              ),
+              ],
             ),
           Expanded(
             child: Card(
