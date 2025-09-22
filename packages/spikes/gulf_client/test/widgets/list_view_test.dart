@@ -17,20 +17,10 @@ void main() {
     setUp(() {
       streamController = StreamController<String>();
       registry = WidgetRegistry();
-      registry.register('TextProperties', (
-        context,
-        component,
-        properties,
-        children,
-      ) {
+      registry.register('Text', (context, component, properties, children) {
         return Text(properties['text'] as String? ?? '');
       });
-      registry.register('ListProperties', (
-        context,
-        component,
-        properties,
-        children,
-      ) {
+      registry.register('List', (context, component, properties, children) {
         return ListView(children: children['children'] ?? []);
       });
       interpreter = GulfInterpreter(stream: streamController.stream);

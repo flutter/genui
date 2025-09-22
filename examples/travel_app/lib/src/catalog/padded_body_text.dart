@@ -5,7 +5,6 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../utils.dart';
 
@@ -40,10 +39,7 @@ final paddedBodyText = CatalogItem(
         );
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: MarkdownBody(
-            data: textData.text,
-            styleSheet: getMarkdownStyleSheet(context),
-          ),
+          child: MarkdownWidget(text: textData.text),
         );
       },
 );

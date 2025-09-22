@@ -3,11 +3,33 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 
-MarkdownStyleSheet getMarkdownStyleSheet(BuildContext context) {
-  final theme = Theme.of(context);
-  return MarkdownStyleSheet.fromTheme(
-    theme,
-  ).copyWith(p: theme.textTheme.bodyMedium);
+class MarkdownWidget extends StatelessWidget {
+  const MarkdownWidget({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    return GptMarkdownTheme(
+      gptThemeData: GptMarkdownThemeData(
+        brightness: theme.brightness,
+        highlightColor: theme.colorScheme.onSurfaceVariant.withAlpha(50),
+        h1: textTheme.headlineLarge,
+        h2: textTheme.headlineMedium,
+        h3: textTheme.headlineSmall,
+        h4: textTheme.titleLarge,
+        h5: textTheme.titleMedium,
+        h6: textTheme.titleSmall,
+        hrLineThickness: 1,
+        hrLineColor: theme.colorScheme.outline,
+        linkColor: Colors.blue,
+        linkHoverColor: Colors.red,
+      ),
+      child: GptMarkdown(text),
+    );
+  }
 }

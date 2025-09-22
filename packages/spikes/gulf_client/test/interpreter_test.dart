@@ -68,19 +68,15 @@ void main() {
       expect(callCount, 0);
     });
 
-    test('throws an exception for unknown message type', () {
+    test('throws an exception for unknown message type', () async {
       const malformedJson = '{"unknownType": {}}';
-      expect(
-        () => interpreter.processMessage(malformedJson),
-        throwsA(isA<Exception>()),
-      );
+      interpreter.processMessage(malformedJson);
+      expect(interpreter.error, isNotNull);
     });
 
     test('handles malformed JSON gracefully', () {
-      expect(
-        () => interpreter.processMessage('{"componentUpdate":'),
-        throwsA(isA<FormatException>()),
-      );
+      interpreter.processMessage('{"componentUpdate":');
+      expect(interpreter.error, isNotNull);
     });
 
     test('correctly processes a valid JSONL stream', () async {
@@ -129,6 +125,16 @@ void main() {
       interpreter.processMessage(message2);
       final street = interpreter.resolveDataBinding('user.addresses[1].street');
       expect(street, '456 Oak Ave');
+    });
+
+    test('updateData updates the data model and notifies listeners', () {
+      var callCount = 0;
+      interpreter.addListener(() => callCount++);
+
+      interpreter.updateData('user.name', 'Jane Doe');
+
+      expect(interpreter.resolveDataBinding('user.name'), 'Jane Doe');
+      expect(callCount, 1);
     });
 
     test('sets error when root data model is not a map', () {

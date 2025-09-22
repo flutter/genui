@@ -14,7 +14,7 @@ class UnknownComponentException implements Exception {
   final String type;
 
   @override
-  String toString() => 'Unknown component type: $type';
+  String toString() => 'Unknown component: $type';
 }
 
 /// A component in the UI.
@@ -101,6 +101,9 @@ sealed class ComponentProperties extends Equatable {
 
   @override
   List<Object?> get props => [];
+
+  /// The type of the component.
+  String get componentType;
 }
 
 /// An interface for components that have children.
@@ -128,6 +131,9 @@ class HeadingProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [text, level];
+
+  @override
+  String get componentType => 'Heading';
 }
 
 /// The properties for a text component.
@@ -145,6 +151,9 @@ class TextProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [text];
+
+  @override
+  String get componentType => 'Text';
 }
 
 /// The properties for an image component.
@@ -162,6 +171,9 @@ class ImageProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [url];
+
+  @override
+  String get componentType => 'Image';
 }
 
 /// The properties for a video component.
@@ -179,6 +191,9 @@ class VideoProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [url];
+
+  @override
+  String get componentType => 'Video';
 }
 
 /// The properties for an audio player component.
@@ -202,6 +217,9 @@ class AudioPlayerProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [url, description];
+
+  @override
+  String get componentType => 'AudioPlayer';
 }
 
 /// The properties for a row component.
@@ -231,6 +249,9 @@ class RowProperties extends ComponentProperties implements HasChildren {
 
   @override
   List<Object?> get props => [children, distribution, alignment];
+
+  @override
+  String get componentType => 'Row';
 }
 
 /// The properties for a column component.
@@ -260,6 +281,9 @@ class ColumnProperties extends ComponentProperties implements HasChildren {
 
   @override
   List<Object?> get props => [children, distribution, alignment];
+
+  @override
+  String get componentType => 'Column';
 }
 
 /// The properties for a list component.
@@ -289,6 +313,9 @@ class ListProperties extends ComponentProperties implements HasChildren {
 
   @override
   List<Object?> get props => [children, direction, alignment];
+
+  @override
+  String get componentType => 'List';
 }
 
 /// The properties for a card component.
@@ -304,6 +331,9 @@ class CardProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [child];
+
+  @override
+  String get componentType => 'Card';
 }
 
 /// The properties for a tabs component.
@@ -323,6 +353,9 @@ class TabsProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [tabItems];
+
+  @override
+  String get componentType => 'Tabs';
 }
 
 /// The properties for a divider component.
@@ -348,6 +381,9 @@ class DividerProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [axis, color, thickness];
+
+  @override
+  String get componentType => 'Divider';
 }
 
 /// The properties for a modal component.
@@ -372,6 +408,9 @@ class ModalProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [entryPointChild, contentChild];
+
+  @override
+  String get componentType => 'Modal';
 }
 
 /// The properties for a button component.
@@ -393,6 +432,9 @@ class ButtonProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [label, action];
+
+  @override
+  String get componentType => 'Button';
 }
 
 /// The properties for a checkbox component.
@@ -414,6 +456,9 @@ class CheckBoxProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [label, value];
+
+  @override
+  String get componentType => 'CheckBox';
 }
 
 /// The properties for a text field component.
@@ -450,6 +495,9 @@ class TextFieldProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [text, label, type, validationRegexp];
+
+  @override
+  String get componentType => 'TextField';
 }
 
 /// The properties for a date/time input component.
@@ -484,6 +532,9 @@ class DateTimeInputProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [value, enableDate, enableTime, outputFormat];
+
+  @override
+  String get componentType => 'DateTimeInput';
 }
 
 /// The properties for a multiple choice component.
@@ -517,6 +568,9 @@ class MultipleChoiceProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [selections, options, maxAllowedSelections];
+
+  @override
+  String get componentType => 'MultipleChoice';
 }
 
 /// The properties for a slider component.
@@ -542,6 +596,9 @@ class SliderProperties extends ComponentProperties {
 
   @override
   List<Object?> get props => [value, minValue, maxValue];
+
+  @override
+  String get componentType => 'Slider';
 }
 
 /// A value that can be either a literal or a data binding.

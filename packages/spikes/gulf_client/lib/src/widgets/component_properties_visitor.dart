@@ -2,8 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:logging/logging.dart';
+
 import '../core/interpreter.dart';
 import '../models/component.dart';
+
+final _log = Logger('ComponentPropertiesVisitor');
 
 /// A visitor that resolves the properties of a [Component].
 class ComponentPropertiesVisitor {
@@ -13,50 +17,64 @@ class ComponentPropertiesVisitor {
   /// The interpreter to use for resolving data bindings.
   final GulfInterpreter interpreter;
 
+  Map<String, dynamic> _resolveAction(
+    Action action,
+    Map<String, dynamic>? itemData,
+  ) {
+    final resolvedContext = <String, dynamic>{};
+    if (action.context != null) {
+      for (final item in action.context!) {
+        resolvedContext[item.key] = resolveValue(item.value, itemData);
+      }
+    }
+    return {'action': action.action, 'context': resolvedContext};
+  }
+
   /// Resolves the properties of a [Component].
   Map<String, Object?> visit(
     ComponentProperties properties,
     Map<String, dynamic>? itemData,
   ) {
+    _log.finer('Visiting ${properties.componentType} with itemData: $itemData');
     return switch (properties) {
-      TextProperties() => {'text': _resolveValue(properties.text, itemData)},
+      TextProperties() => {'text': resolveValue(properties.text, itemData)},
       HeadingProperties() => {
-        'text': _resolveValue(properties.text, itemData),
+        'text': resolveValue(properties.text, itemData),
         'level': properties.level,
       },
-      ImageProperties() => {'url': _resolveValue(properties.url, itemData)},
-      VideoProperties() => {'url': _resolveValue(properties.url, itemData)},
+      ImageProperties() => {'url': resolveValue(properties.url, itemData)},
+      VideoProperties() => {'url': resolveValue(properties.url, itemData)},
       AudioPlayerProperties() => {
-        'url': _resolveValue(properties.url, itemData),
-        'description': _resolveValue(properties.description, itemData),
+        'url': resolveValue(properties.url, itemData),
+        'description': resolveValue(properties.description, itemData),
       },
       ButtonProperties() => {
-        'label': _resolveValue(properties.label, itemData),
-        'action': properties.action,
+        'label': resolveValue(properties.label, itemData),
+        'action': _resolveAction(properties.action, itemData),
       },
       CheckBoxProperties() => {
-        'label': _resolveValue(properties.label, itemData),
-        'value': _resolveValue(properties.value, itemData),
+        'label': resolveValue(properties.label, itemData),
+        'value': resolveValue(properties.value, itemData),
       },
       TextFieldProperties() => {
-        'text': _resolveValue(properties.text, itemData),
-        'label': _resolveValue(properties.label, itemData),
+        'text': resolveValue(properties.text, itemData),
+        'label': resolveValue(properties.label, itemData),
         'type': properties.type,
         'validationRegexp': properties.validationRegexp,
       },
       DateTimeInputProperties() => {
-        'value': _resolveValue(properties.value, itemData),
+        'value': resolveValue(properties.value, itemData),
         'enableDate': properties.enableDate,
         'enableTime': properties.enableTime,
         'outputFormat': properties.outputFormat,
       },
       MultipleChoiceProperties() => {
-        'selections': _resolveValue(properties.selections, itemData),
+        'selections': resolveValue(properties.selections, itemData),
         'options': properties.options,
         'maxAllowedSelections': properties.maxAllowedSelections,
       },
       SliderProperties() => {
-        'value': _resolveValue(properties.value, itemData),
+        'value': resolveValue(properties.value, itemData),
         'minValue': properties.minValue,
         'maxValue': properties.maxValue,
       },
@@ -70,10 +88,15 @@ class ComponentPropertiesVisitor {
     };
   }
 
-  Object? _resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
+  /// Resolves a [BoundValue] to its concrete value.
+  ///
+  /// If the value is a literal, it is returned directly. If it is a data
+  /// binding, the value is resolved from the data model.
+  Object? resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
     if (value == null) {
       return null;
     }
+    _log.finest('Resolving bound value: $value with itemData: $itemData');
     if (value.literalString != null) {
       return value.literalString;
     } else if (value.literalNumber != null) {
@@ -81,11 +104,19 @@ class ComponentPropertiesVisitor {
     } else if (value.literalBoolean != null) {
       return value.literalBoolean;
     } else if (value.path != null) {
+      Object? resolvedValue;
       if (itemData != null) {
-        return itemData[value.path!];
+        resolvedValue = itemData[value.path!];
+        _log.finest(
+          'Resolved path "${value.path}" from itemData to: $resolvedValue',
+        );
       } else {
-        return interpreter.resolveDataBinding(value.path!);
+        resolvedValue = interpreter.resolveDataBinding(value.path!);
+        _log.finest(
+          'Resolved path "${value.path}" from interpreter to: $resolvedValue',
+        );
       }
+      return resolvedValue;
     }
     return null;
   }

@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:travel_app/src/catalog/itinerary_entry.dart';
 
 void main() {
@@ -85,7 +85,7 @@ void main() {
       expect(find.text(testTitle), findsOneWidget);
       expect(
         find.descendant(
-          of: find.byType(MarkdownBody),
+          of: find.byType(GptMarkdown),
           matching: find.byType(RichText),
         ),
         findsOneWidget,

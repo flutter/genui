@@ -3,11 +3,15 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+
 import '../core/interpreter.dart';
 import '../core/widget_registry.dart';
 import '../models/component.dart';
 import 'component_properties_visitor.dart';
 import 'gulf_provider.dart';
+
+final _log = Logger('GulfView');
 
 /// The main entry point for rendering a UI from the GULF Streaming Protocol.
 ///
@@ -25,6 +29,7 @@ class GulfView extends StatefulWidget {
     required this.interpreter,
     required this.registry,
     this.onEvent,
+    this.onDataModelUpdate,
   });
 
   /// The interpreter that processes the GULF stream.
@@ -36,6 +41,10 @@ class GulfView extends StatefulWidget {
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
   final ValueChanged<Map<String, dynamic>>? onEvent;
+
+  /// A callback function that is invoked when the data model is updated by a
+  /// widget.
+  final void Function(String path, dynamic value)? onDataModelUpdate;
 
   @override
   State<GulfView> createState() => _GulfViewState();
@@ -78,10 +87,15 @@ class _GulfViewState extends State<GulfView> {
       return const Center(child: CircularProgressIndicator());
     }
     return GulfProvider(
+      interpreter: widget.interpreter,
       onEvent: widget.onEvent,
-      child: _LayoutEngine(
-        interpreter: widget.interpreter,
-        registry: widget.registry,
+      onDataModelUpdate: widget.onDataModelUpdate,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _LayoutEngine(
+          interpreter: widget.interpreter,
+          registry: widget.registry,
+        ),
       ),
     );
   }
@@ -100,24 +114,32 @@ class _LayoutEngine extends StatelessWidget {
 
   Widget _buildNode(
     BuildContext context,
-    String componentId, [
+    String componentId, {
+    Map<String, Object?>? itemData,
     Set<String> visited = const {},
-  ]) {
+  }) {
+    _log.finer('Building node for componentId: $componentId');
     if (visited.contains(componentId)) {
+      _log.severe('Cyclical layout detected for componentId: $componentId');
       return const Text('Error: cyclical layout detected');
     }
     final newVisited = {...visited, componentId};
 
     final component = interpreter.getComponent(componentId);
     if (component == null) {
+      _log.severe('Component not found for id: $componentId');
       return const Text('Error: component not found');
     }
 
     final properties = component.componentProperties;
-    final builder = registry.getBuilder(properties.runtimeType.toString());
+    final builder = registry.getBuilder(properties.componentType);
     if (builder == null) {
+      _log.severe(
+        'Builder not found for component type: ${properties.componentType}',
+      );
       return Text(
-        'Error: Unknown component type: ${properties.runtimeType.toString()}',
+        'Error building node: Unknown component type: '
+        '${properties.componentType}',
       );
     }
 
@@ -126,28 +148,59 @@ class _LayoutEngine extends StatelessWidget {
       final childrenProp = (properties as HasChildren).children;
       if (childrenProp.explicitList != null) {
         children['children'] = childrenProp.explicitList!
-            .map((id) => _buildNode(context, id, newVisited))
+            .map(
+              (id) => _buildNode(
+                context,
+                id,
+                itemData: itemData,
+                visited: newVisited,
+              ),
+            )
             .toList();
       } else if (childrenProp.template != null) {
         return _buildNodeWithTemplate(context, component, newVisited);
       }
     } else if (properties is CardProperties) {
-      children['child'] = [_buildNode(context, properties.child, newVisited)];
+      children['child'] = [
+        _buildNode(
+          context,
+          properties.child,
+          itemData: itemData,
+          visited: newVisited,
+        ),
+      ];
     } else if (properties is TabsProperties) {
       children['children'] = properties.tabItems
-          .map((item) => _buildNode(context, item.child, newVisited))
+          .map(
+            (item) => _buildNode(
+              context,
+              item.child,
+              itemData: itemData,
+              visited: newVisited,
+            ),
+          )
           .toList();
     } else if (properties is ModalProperties) {
       children['entryPointChild'] = [
-        _buildNode(context, properties.entryPointChild, newVisited),
+        _buildNode(
+          context,
+          properties.entryPointChild,
+          itemData: itemData,
+          visited: newVisited,
+        ),
       ];
       children['contentChild'] = [
-        _buildNode(context, properties.contentChild, newVisited),
+        _buildNode(
+          context,
+          properties.contentChild,
+          itemData: itemData,
+          visited: newVisited,
+        ),
       ];
     }
 
     final visitor = ComponentPropertiesVisitor(interpreter);
-    final resolvedProperties = visitor.visit(properties, null);
+    final resolvedProperties = visitor.visit(properties, itemData);
 
     return builder(context, component, resolvedProperties, children);
   }
@@ -157,40 +210,94 @@ class _LayoutEngine extends StatelessWidget {
     Component component,
     Set<String> visited,
   ) {
+    _log.finer('Building node with template for component: ${component.id}');
     final properties = component.componentProperties as HasChildren;
     final template = properties.children.template!;
+    _log.finer(
+      'Template componentId: ${template.componentId}, '
+      'dataBinding: ${template.dataBinding}',
+    );
+    final templateComponent = interpreter.getComponent(template.componentId);
+    if (templateComponent == null) {
+      _log.severe('Template component not found: ${template.componentId}');
+      return const Text('Error: template component not found');
+    }
+
+    if (visited.contains(template.componentId)) {
+      _log.severe(
+        'Cyclical layout detected for componentId: ${template.componentId}',
+      );
+      return const Text('Error: cyclical layout detected');
+    }
+    final newVisited = {...visited, template.componentId};
+
     final data = interpreter.resolveDataBinding(template.dataBinding);
     if (data is! List) {
+      _log.warning(
+        'Template data binding "${template.dataBinding}" did not resolve to a '
+        'List. Resolved to: $data',
+      );
       return const SizedBox.shrink();
     }
 
     if (data.isEmpty) {
+      _log.info(
+        'Template data for "${template.dataBinding}" is an empty list. '
+        'Rendering nothing.',
+      );
       return const SizedBox.shrink();
     }
-    final templateComponent = interpreter.getComponent(template.componentId);
-    if (templateComponent == null) {
-      return const Text('Error: template component not found');
-    }
-    final builder = registry.getBuilder(properties.runtimeType.toString());
+    _log.finer('Template data has ${data.length} items.');
+    final builder = registry.getBuilder(
+      component.componentProperties.componentType,
+    );
     if (builder == null) {
       return Text(
-        'Error: unknown component type ${properties.runtimeType.toString()}',
+        'Error: unknown component type '
+        '${component.componentProperties.componentType}',
       );
     }
     final children = data.map((Object? itemData) {
+      _log.finest('Building template item with data: $itemData');
       final visitor = ComponentPropertiesVisitor(interpreter);
       final resolvedProperties = visitor.visit(
         templateComponent.componentProperties,
         itemData as Map<String, Object?>,
       );
       final itemChildren = <String, List<Widget>>{};
+      final templateProperties = templateComponent.componentProperties;
+      if (templateProperties is HasChildren) {
+        final childrenProp = (templateProperties as HasChildren).children;
+        if (childrenProp.explicitList != null) {
+          itemChildren['children'] = childrenProp.explicitList!
+              .map(
+                (id) => _buildNode(
+                  context,
+                  id,
+                  itemData: itemData,
+                  visited: newVisited,
+                ),
+              )
+              .toList();
+        }
+      } else if (templateProperties is CardProperties) {
+        itemChildren['child'] = [
+          _buildNode(
+            context,
+            templateProperties.child,
+            itemData: itemData,
+            visited: newVisited,
+          ),
+        ];
+      }
+
       final itemBuilder = registry.getBuilder(
-        templateComponent.componentProperties.runtimeType.toString(),
+        templateComponent.componentProperties.componentType,
       );
       if (itemBuilder == null) {
         return Text(
-          'Error: Unknown component type: '
-          '${templateComponent.componentProperties.runtimeType.toString()}',
+          'Error building template: Unknown component type: '
+          '${templateComponent.componentProperties.componentType}',
         );
       }
       return itemBuilder(
