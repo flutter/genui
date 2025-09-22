@@ -31,29 +31,29 @@ To use the built-in `FirebaseAiClient` to connect to Gemini via Firebase AI Logi
 3. Follow the first three steps in [Firebase's Flutter Setup guide](https://firebase.google.com/docs/flutter/setup) to add Firebase to your app.
 4. In `pubspec.yaml`, add `flutter_genui` and `flutter_genui_firebase_ai` to the `dependencies` section. As of this writing, it's best to use pub's git dependency to refer directly to this project's source.
 
-```yaml
-dependencies:
-  # ...
-  flutter_genui:
-    git:
-      url: https://github.com/flutter/genui.git
-      path: packages/flutter_genui
-      ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
-  flutter_genui_firebase_ai:
-    git:
-      url: https://github.com/flutter/genui.git
-      path: packages/flutter_genui_firebase_ai
-```
+    ```yaml
+    dependencies:
+      # ...
+      flutter_genui:
+        git:
+          url: https://github.com/flutter/genui.git
+          path: packages/flutter_genui
+          ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+      flutter_genui_firebase_ai:
+        git:
+          url: https://github.com/flutter/genui.git
+          path: packages/flutter_genui_firebase_ai
+    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized, and then initialize Firebase.
 
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
-}
-```
+    ```dart
+    void main() async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      runApp(const MyApp());
+    }
+    ```
 
 #### Configure another agent provider
 
