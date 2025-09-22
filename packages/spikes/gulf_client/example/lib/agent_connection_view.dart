@@ -107,8 +107,11 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('Description: ${card.description}'),
-                              Text('Version: ${card.version}'),
+                              Text(
+                                'Description: '
+                                '${agentState.agentCard!.description}',
+                              ),
+                              Text('Version: ${agentState.agentCard!.version}'),
                             ],
                           ),
                           actions: [
@@ -212,7 +215,9 @@ class _ChatHistory extends StatelessWidget {
                       child: Icon(Icons.smart_toy),
                     ),
                   Flexible(
-                    child: SelectionArea(child: GptMarkdown(message.text)),
+                    child: SelectionArea(
+                      child: _MarkdownWidget(text: message.text),
+                    ),
                   ),
                   if (message.isUser)
                     const Padding(
@@ -225,6 +230,35 @@ class _ChatHistory extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _MarkdownWidget extends StatelessWidget {
+  const _MarkdownWidget({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    return GptMarkdownTheme(
+      gptThemeData: GptMarkdownThemeData(
+        brightness: theme.brightness,
+        highlightColor: theme.colorScheme.onSurfaceVariant.withAlpha(50),
+        h1: textTheme.headlineLarge,
+        h2: textTheme.headlineMedium,
+        h3: textTheme.headlineSmall,
+        h4: textTheme.titleLarge,
+        h5: textTheme.titleMedium,
+        h6: textTheme.titleSmall,
+        hrLineThickness: 1,
+        hrLineColor: theme.colorScheme.outline,
+        linkColor: Colors.blue,
+        linkHoverColor: Colors.red,
+      ),
+      child: GptMarkdown(text),
     );
   }
 }

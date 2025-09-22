@@ -5,7 +5,6 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../utils.dart';
 
@@ -91,10 +90,7 @@ final informationCard = CatalogItem(
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       const SizedBox(height: 8.0),
-                      MarkdownBody(
-                        data: cardData.body,
-                        styleSheet: getMarkdownStyleSheet(context),
-                      ),
+                      MarkdownWidget(text: cardData.body),
                     ],
                   ),
                 ),

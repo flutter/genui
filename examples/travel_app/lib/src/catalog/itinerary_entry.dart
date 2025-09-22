@@ -5,7 +5,6 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../utils.dart';
 import '../widgets/dismiss_notification.dart';
@@ -221,10 +220,7 @@ class _ItineraryEntry extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 8.0),
-                MarkdownBody(
-                  data: bodyText,
-                  styleSheet: getMarkdownStyleSheet(context),
-                ),
+                MarkdownWidget(text: bodyText),
               ],
             ),
           ),
