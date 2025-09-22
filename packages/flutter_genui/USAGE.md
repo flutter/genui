@@ -18,7 +18,7 @@ This guidance explains how to quickly get started with the
   It listens for updates from `UiAgent` and dynamically renders the generated
   UI.
 
-* **`Catalog`**: A registry of Flutter widgets that the AI is allowed to
+* **`Catalog`**: A catalog of Flutter widgets that the AI is allowed to
   generate. For each widget, you define a name, a schema that describes the data
   needed by the widget, and a builder function. The built-in `CoreCatalogItems`
   include widgets for rendering text, markdown, and images.
