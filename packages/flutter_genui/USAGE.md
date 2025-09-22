@@ -124,7 +124,7 @@ Next, use the following instructions to connect your app to your chosen agent pr
 
 ### 3\. Send messages and display the agent's responses
 
-Send a message to the agent using the `sendMessage` method in the `UiAgent` class.
+Send a message to the agent using the `sendRequest` method in the `UiAgent` class.
 
 To receive and display generated UI:
 
