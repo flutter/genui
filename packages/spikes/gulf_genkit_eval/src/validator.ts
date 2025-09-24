@@ -2,7 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export function validateSchema(data: any, schemaName: string): string[] {
+import { ComponentUpdateSchemaMatcher } from './component_update_schema_matcher';
+
+export function validateSchema(
+  data: any,
+  schemaName: string,
+  matchers?: ComponentUpdateSchemaMatcher[]
+): string[] {
   const errors: string[] = [];
 
   switch (schemaName) {
@@ -11,6 +17,14 @@ export function validateSchema(data: any, schemaName: string): string[] {
       break;
     case 'component_update.json':
       validateComponentUpdate(data, errors);
+      if (matchers) {
+        for (const matcher of matchers) {
+          const result = matcher.validate(data);
+          if (!result.success) {
+            errors.push(result.error!);
+          }
+        }
+      }
       break;
     case 'data_model_update.json':
       validateDataModelUpdate(data, errors);
@@ -76,7 +90,11 @@ function validateBeginRendering(data: any, errors: string[]) {
   }
 }
 
-function validateComponent(component: any, allIds: Set<string>, errors: string[]) {
+function validateComponent(
+  component: any,
+  allIds: Set<string>,
+  errors: string[]
+) {
   if (!component.id) {
     errors.push(`Component is missing an 'id'.`);
     return;
@@ -88,7 +106,9 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
 
   const componentTypes = Object.keys(component.componentProperties);
   if (componentTypes.length !== 1) {
-    errors.push(`Component '${component.id}' must have exactly one property in 'componentProperties', but found ${componentTypes.length}.`);
+    errors.push(
+      `Component '${component.id}' must have exactly one property in 'componentProperties', but found ${componentTypes.length}.`
+    );
     return;
   }
 
@@ -98,7 +118,9 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
   const checkRequired = (props: string[]) => {
     for (const prop of props) {
       if (properties[prop] === undefined) {
-        errors.push(`Component '${component.id}' of type '${componentType}' is missing required property '${prop}'.`);
+        errors.push(
+          `Component '${component.id}' of type '${componentType}' is missing required property '${prop}'.`
+        );
       }
     }
   };
@@ -106,7 +128,9 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
   const checkRefs = (ids: (string | undefined)[]) => {
     for (const id of ids) {
       if (id && !allIds.has(id)) {
-        errors.push(`Component '${component.id}' references non-existent component ID '${id}'.`);
+        errors.push(
+          `Component '${component.id}' references non-existent component ID '${id}'.`
+        );
       }
     }
   };
@@ -150,7 +174,9 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
         const hasExplicit = !!properties.children.explicitList;
         const hasTemplate = !!properties.children.template;
         if ((hasExplicit && hasTemplate) || (!hasExplicit && !hasTemplate)) {
-          errors.push(`Component '${component.id}' must have either 'explicitList' or 'template' in children, but not both or neither.`);
+          errors.push(
+            `Component '${component.id}' must have either 'explicitList' or 'template' in children, but not both or neither.`
+          );
         }
         if (hasExplicit) {
           checkRefs(properties.children.explicitList);
@@ -169,12 +195,16 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
       if (properties.tabItems && Array.isArray(properties.tabItems)) {
         properties.tabItems.forEach((tab: any) => {
           if (!tab.title) {
-            errors.push(`Tab item in component '${component.id}' is missing a 'title'.`);
+            errors.push(
+              `Tab item in component '${component.id}' is missing a 'title'.`
+            );
           }
           if (!tab.child) {
-            errors.push(`Tab item in component '${component.id}' is missing a 'child'.`);
+            errors.push(
+              `Tab item in component '${component.id}' is missing a 'child'.`
+            );
           }
-          checkRefs([tab.child])
+          checkRefs([tab.child]);
         });
       }
       break;
@@ -189,6 +219,8 @@ function validateComponent(component: any, allIds: Set<string>, errors: string[]
       // No required properties
       break;
     default:
-      errors.push(`Unknown component type '${componentType}' in component '${component.id}'.`);
+      errors.push(
+        `Unknown component type '${componentType}' in component '${component.id}'.`
+      );
   }
 }

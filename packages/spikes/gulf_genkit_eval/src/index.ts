@@ -97,7 +97,11 @@ async function main() {
           config: modelConfig.config,
           schema,
         }).then(component => {
-          const validationResults = validateSchema(component, prompt.schema);
+          const validationResults = validateSchema(
+            component,
+            prompt.schema,
+            prompt.matchers
+          );
           return {
             modelName: modelConfig.name,
             prompt,

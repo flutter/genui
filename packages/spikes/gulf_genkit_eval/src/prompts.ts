@@ -2,11 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import { ComponentUpdateSchemaMatcher } from './component_update_schema_matcher';
+
 export interface TestPrompt {
   promptText: string;
   description: string;
   name: string;
   schema: string;
+  matchers?: ComponentUpdateSchemaMatcher[];
 }
 
 export const prompts: TestPrompt[] = [
@@ -34,24 +37,55 @@ The dog generator is another card which is a form that generates a fictional dog
 - A divider
 - A section which shows the generated content
 `,
+    matchers: [
+      new ComponentUpdateSchemaMatcher('Card'),
+      new ComponentUpdateSchemaMatcher('Image'),
+      new ComponentUpdateSchemaMatcher('TextField', 'label', 'Dog breed name'),
+      new ComponentUpdateSchemaMatcher('TextField', 'label', 'Number of legs'),
+      new ComponentUpdateSchemaMatcher('Button', 'label', 'Generate'),
+      new ComponentUpdateSchemaMatcher('Divider'),
+    ],
   },
   {
     name: 'loginForm',
     description: 'A simple login form with username, password, a "remember me" checkbox, and a submit button.',
     schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a login form. It should have a "Login" heading, two text fields for username and password (bound to /login/username and /login/password), a checkbox for "Remember Me" (bound to /login/rememberMe), and a "Sign In" button. The button should trigger a 'login' action, passing the username, password, and rememberMe status in the dynamicContext.`
+    promptText: `Generate a JSON ComponentUpdate message for a login form. It should have a "Login" heading, two text fields for username and password (bound to /login/username and /login/password), a checkbox for "Remember Me" (bound to /login/rememberMe), and a "Sign In" button. The button should trigger a 'login' action, passing the username, password, and rememberMe status in the dynamicContext.`,
+    matchers: [
+      new ComponentUpdateSchemaMatcher('Heading', 'text', 'Login'),
+      new ComponentUpdateSchemaMatcher('TextField', 'label', 'username'),
+      new ComponentUpdateSchemaMatcher('TextField', 'label', 'password'),
+      new ComponentUpdateSchemaMatcher('CheckBox', 'label', 'Remember Me'),
+      new ComponentUpdateSchemaMatcher('Button', 'label', 'Sign In'),
+    ],
   },
   {
     name: 'productGallery',
     description: 'A gallery of products using a list with a template.',
     schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a product gallery. It should display a list of products from the data model at '/products'. Use a template for the list items. Each item should be a Card containing an Image (from '/products/item/imageUrl'), a Text component for the product name (from '/products/item/name'), and a Button labeled "Add to Cart". The button's action should be 'addToCart' and include a staticContext with the product ID, for example, 'productId': 'product123'. You should create a template component and then a list that uses it.`
+    promptText: `Generate a JSON ComponentUpdate message for a product gallery. It should display a list of products from the data model at '/products'. Use a template for the list items. Each item should be a Card containing an Image (from '/products/item/imageUrl'), a Text component for the product name (from '/products/item/name'), and a Button labeled "Add to Cart". The button's action should be 'addToCart' and include a staticContext with the product ID, for example, 'productId': 'product123'. You should create a template component and then a list that uses it.`,
+    matchers: [
+      new ComponentUpdateSchemaMatcher('List'),
+      new ComponentUpdateSchemaMatcher('Card'),
+      new ComponentUpdateSchemaMatcher('Image'),
+      new ComponentUpdateSchemaMatcher('Text', 'text', 'name'),
+      new ComponentUpdateSchemaMatcher('Button', 'label', 'Add to Cart'),
+    ],
   },
   {
     name: 'settingsPage',
     description: 'A settings page with tabs and a modal dialog.',
     schema: 'component_update.json',
-    promptText: `Generate a JSON ComponentUpdate message for a user settings page. Use a Tabs component with two tabs: "Profile" and "Notifications". The "Profile" tab should contain a simple column with a text field for the user's name. The "Notifications" tab should contain a checkbox for "Enable email notifications". Also, include a Modal component. The modal's entry point should be a button labeled "Delete Account", and its content should be a column with a confirmation text and two buttons: "Confirm Deletion" and "Cancel".`
+    promptText: `Generate a JSON ComponentUpdate message for a user settings page. Use a Tabs component with two tabs: "Profile" and "Notifications". The "Profile" tab should contain a simple column with a text field for the user's name. The "Notifications" tab should contain a checkbox for "Enable email notifications". Also, include a Modal component. The modal's entry point should be a button labeled "Delete Account", and its content should be a column with a confirmation text and two buttons: "Confirm Deletion" and "Cancel".`,
+    matchers: [
+      new ComponentUpdateSchemaMatcher('Tabs'),
+      new ComponentUpdateSchemaMatcher('TextField', 'label', 'name'),
+      new ComponentUpdateSchemaMatcher('CheckBox', 'label', 'Enable email notifications'),
+      new ComponentUpdateSchemaMatcher('Modal'),
+      new ComponentUpdateSchemaMatcher('Button', 'label', 'Delete Account'),
+      new ComponentUpdateSchemaMatcher('Button', 'label', 'Confirm Deletion'),
+      new ComponentUpdateSchemaMatcher('Button', 'label', 'Cancel'),
+    ],
   },
   {
     name: 'streamHeader',
