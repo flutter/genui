@@ -5,6 +5,8 @@
 import { googleAI } from '@genkit-ai/google-genai';
 import { openAI } from '@genkit-ai/compat-oai/openai';
 import { claude35Haiku, claude4Sonnet } from 'genkitx-anthropic';
+import { vertexAI } from '@genkit-ai/google-genai';
+import { vertexAIModelGarden, llama32 } from '@genkit-ai/vertexai/modelgarden';
 
 export interface ModelConfiguration {
   model: any;
@@ -24,27 +26,22 @@ export const modelsToTest: ModelConfiguration[] = [
     config: { reasoning_effort: 'minimal' },
   },
   {
-    model: openAI.model('gpt-5-nano'),
-    name: 'gpt-5-nano (reasoning: minimal)',
-    config: { reasoning_effort: 'minimal' },
-  },
-  {
     model: openAI.model('gpt-4.1'),
     name: 'gpt-4.1',
     config: {},
   },
   {
-    model: googleAI.model('gemini-2.5-pro'),
+    model: vertexAI.model('gemini-2.5-pro'),
     name: 'gemini-2.5-pro (thinking: 1000)',
     config: { thinkingConfig: { thinkingBudget: 1000 } },
   },
   {
-    model: googleAI.model('gemini-2.5-flash'),
+    model: vertexAI.model('gemini-2.5-flash'),
     name: 'gemini-2.5-flash (thinking: 0)',
     config: { thinkingConfig: { thinkingBudget: 0 } },
   },
   {
-    model: googleAI.model('gemini-2.5-flash-lite'),
+    model: vertexAI.model('gemini-2.5-flash-lite'),
     name: 'gemini-2.5-flash-lite (thinking: 0)',
     config: { thinkingConfig: { thinkingBudget: 0 } },
   },
