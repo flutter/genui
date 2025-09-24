@@ -258,7 +258,7 @@ In addition to using the catalog of widgets in `CoreCatalogItems`, you can
 create custom widgets for the agent to generate. Use the following
 instructions.
 
-#### Import `dart_schema_builder
+#### Import `dart_schema_builder`
 
 Add the `dart_schema_builder` package as a dependency in `pubspec.yaml`. Use the
 same commit reference as the one for `flutter_genui`.

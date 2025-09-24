@@ -1,0 +1,19 @@
+{
+  "guides": [
+    {
+      "name": "RiddleCard example",
+      "description": "Full example of using a custom widget in the catalog.",
+      "path": "examples/riddles.dart"
+    },
+    {
+      "name": "Connecting to an Agent Provider",
+      "description": "Instructions for connecting the app to an agent provider like Firebase AI Logic.",
+      "path": "docs/connect_to_agent_provider.md"
+    },
+    {
+      "name": "Creating a custom CatalogItem",
+      "description": "Instructions for creating your own widgets and adding them to an agent's catalog.",
+      "path": "docs/create_a_custom_catalogitem.md"
+    }
+  ]
+}
