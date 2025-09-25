@@ -21,18 +21,13 @@ Logic, follow these instructions:
 3. Follow the first three steps in
    [Firebase's Flutter Setup guide](https://firebase.google.com/docs/flutter/setup)
    to add Firebase to your app.
-4. In `pubspec.yaml`, add `flutter_genui` and `flutter_genui_firebase_ai` to the
-   `dependencies` section. As of this writing, it's best to use pub's git
-   dependency to refer directly to this project's source.
+4. In `pubspec.yaml`, add `flutter_genui_firebase_ai` to the `dependencies`
+   section. As of this writing, it's best to use pub's git dependency to refer
+   directly to this project's source.
 
     ```yaml
     dependencies:
       # ...
-      flutter_genui:
-        git:
-          url: https://github.com/flutter/genui.git
-          path: packages/flutter_genui
-          ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
       flutter_genui_firebase_ai:
         git:
           url: https://github.com/flutter/genui.git
