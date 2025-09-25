@@ -11,16 +11,9 @@ import { anthropic } from 'genkitx-anthropic';
 import { modelsToTest } from './models';
 import { prompts, TestPrompt } from './prompts';
 import { validateSchema } from './validator';
-import { vertexAI } from '@genkit-ai/google-genai';
-import { vertexAIModelGarden, llama32 } from '@genkit-ai/vertexai/modelgarden';
 
 const ai = genkit({
   plugins: [googleAI({ apiKey: process.env.GEMINI_API_KEY! }), openAI(), anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }),
-  vertexAI({ location: 'us-central1', apiKey: process.env.GEMINI_API_KEY! }),
-  vertexAIModelGarden({
-    location: 'us-central1',
-    models: [llama32],
-  }),
   ],
 });
 
