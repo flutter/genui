@@ -20,7 +20,7 @@ void main() async {
   await FirebaseAppCheck.instance.activate(
     appleProvider: AppleProvider.debug,
     androidProvider: AndroidProvider.debug,
-    webProvider: ReCaptchaV3Provider('debug'),
+    providerWeb: ReCaptchaV3Provider('debug'),
   );
   await loadImagesJson();
   final logger = configureGenUiLogging(level: Level.ALL);
