@@ -48,30 +48,32 @@ Let's define a schema for a user profile and then validate some data against it.
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 
 Future<void> main() async {
-  // 1. Define a schema for a 'User' object.
-  final userProfileSchema = ObjectSchema(
+  // 1. Define a schema for a 'User' object using the fluent API.
+  // A typedef `S` is available as a shortcut for `Schema`.
+  final userProfileSchema = S.object(
     title: 'User Profile',
     description: 'Schema for a user profile object',
     // 'username' and 'email' are mandatory.
     required: ['username', 'email'],
     properties: {
-      'username': StringSchema(
-        description: 'Must be 3-20 characters, lowercase letters and numbers only.',
+      'username': S.string(
+        description:
+            'Must be 3-20 characters, lowercase letters and numbers only.',
         minLength: 3,
         maxLength: 20,
-        pattern: r'^[a-z0-9]+',
+        pattern: r'^[a-z0-9]+$',
       ),
-      'email': StringSchema(
+      'email': S.string(
         description: 'A valid email address.',
         format: 'email', // Use the built-in format validator
       ),
-      'age': IntegerSchema(
+      'age': S.integer(
         description: 'Optional age, must be 18 or older.',
         minimum: 18,
       ),
-      'roles': ListSchema(
+      'roles': S.list(
         description: 'Optional list of user roles, must be unique.',
-        items: StringSchema(enumValues: ['admin', 'editor', 'viewer']),
+        items: S.string(enumValues: ['admin', 'editor', 'viewer']),
         uniqueItems: true,
       ),
     },
@@ -93,7 +95,7 @@ Future<void> main() async {
   final invalidUser = {
     'username': 'UPPERCASE', // Fails pattern (uppercase)
     'email': 'not-an-email', // Fails email format
-    'age': 17,               // Fails minimum age
+    'age': 17, // Fails minimum age
     'roles': ['admin', 'admin'], // Fails uniqueItems
     'extraField': 'not allowed' // Fails additionalProperties: false
   };
@@ -109,7 +111,8 @@ Future<void> main() async {
   print('\n--- Validating an incorrect user profile ---');
   final invalidResult = await userProfileSchema.validate(invalidUser);
   if (invalidResult.isNotEmpty) {
-    print('❌ Failure! The data is invalid. Found ${invalidResult.length} errors:');
+    print(
+        '❌ Failure! The data is invalid. Found ${invalidResult.length} errors:');
     for (final error in invalidResult) {
       // The toErrorString() method provides a human-readable summary.
       print('  - ${error.toErrorString()}');
