@@ -1,5 +1,15 @@
 # Genkit Flow
 
+## Setup
+
+To use the models, you need to set the following environment variables with your API keys:
+
+- `GEMINI_API_KEY`
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+
+You can set these in a `.env` file in the root of the project, or in your shell's configuration file (e.g., `.bashrc`, `.zshrc`).
+
 To run the flow, use the following command:
 
 ```bash
