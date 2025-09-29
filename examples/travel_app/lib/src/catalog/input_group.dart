@@ -123,7 +123,7 @@ final inputGroup = CatalogItem(
                     UiActionEvent(
                       widgetId: id,
                       eventType: 'submit',
-                      value: values,
+                      value: submitLabel,
                     ),
                   ),
                   child: Text(submitLabel),
