@@ -1,0 +1,233 @@
+# Overall goal
+Overall goal: Rearchitect the Gen UI package so that its schema, UI construction, and event handling approaches match GULF. GULF is a newly designed protocol which standardizes Gen UI structures.
+
+# Context
+
+## Gen UI SDK
+
+We have a Gen UI SDK and sample apps which were architectured with a structure that needs to be updated to support GULF. Gen UI SDK is at the following paths which will all need updating:
+  - flutter_genui SDK: packages/flutter_genui
+  - travel sample app: examples/travel_app
+  - simple sample app: examples/simple_chat
+  - gallery: examples/catalog_gallery
+
+## GULF client prototype
+
+We have a GULF prototype client at packages/spikes/gulf_client . It does not fully match the latest GULF schema, but it has some useful components that we can borrow and be inpsired by such as the data model handling implemented in packages/spikes/gulf_client/lib/src/core/interpreter.dart etc.
+
+## GULF specification
+
+The latest, up-to-date GULF specification is at the following:
+- temp/gulf_protocol.md - A description of GULF and how it works
+- temp/json/* - the exact JSON schemas to use in GULF
+
+# Overview of changes we want to make
+
+Systems that need updating are:
+- Overall updateComponent generation: the way that schemas are generated from a Catalog object and then in the various layers above that. We should make sure that when all the layers are put together, the resulting schemas perfectly match GULF.
+
+- Data model handling
+  - There should be a data model that can be updated and referred to.
+  - When binding to the data model, there should be a callback that is set up so when the data model changes, it triggers a widget rebuild.
+
+- Event handling
+  - Adopt the 'action' structure where buttons can have actions which refer to context from the data model and other literal values
+
+- CatalogItem definition
+  - There should be helpers to define and decode subschemas for special purposes e.g. for `action`, `stringReference`, `numberReference`, `booleanReference`, `componentReference`, `componentArrayReference` etc. There could be constants for each of these schemas that CatlogItem authors can use when creating the input schema for their CatalogItem. Then there could be special helpers for interpreting the data created by the LLM, e.g. `resolveStringReference(data: data['label'], dataModel:dataModel, statefulWidget:self)` where the self reference is used to call setState etc.
+
+- Ability to create a GULF custom Catalog JSON document from a Catalog object.
+  - The UI tools should accept a custom catalog JSON document and then "generate" the LLM schema by substituting it into the standard GULF schema
+
+# Detailed technical design of changes
+
+## Data Model Handling
+
+### Goal
+Replace the current `WidgetValueStore` with a centralized, observable `DataModel` that aligns with the GULF protocol. This new model will support **contextual data binding** (absolute vs. relative paths) and enable widgets to reactively and efficiently rebuild only when their specific underlying data changes.
+
+### Core Design Principles
+- **Decoupled State**: A single `DataModel` instance will be the source of truth for all dynamic UI state, completely separate from the component tree definition.
+- **Contextual Access**: Widgets will not access the `DataModel` directly. Instead, they will be given a `DataContext` object that represents their specific scope within the data model. This elegantly handles relative path resolution for templated lists.
+- **Granular Reactivity**: The `DataContext` will provide subscription methods that allow widgets to rebuild only when the data they care about has changed, preventing unnecessary rebuilds of the entire UI tree and maximizing performance.
+- **Simplified Schema Definition**: A utility class will provide pre-built, reusable schemas for common patterns like data binding and actions, improving consistency and developer experience.
+
+### API Definitions
+
+#### 1. `DataContext` (The Widget-Facing API)
+This is a lightweight view over the main `DataModel` that is aware of the widget's current data scope (e.g., `/` for the root, or `/users/1` for an item in a list).
+
+```dart
+import 'package:flutter/foundation.dart';
+
+/// A contextual view of the main DataModel, used by widgets to resolve
+/// relative and absolute paths.
+class DataContext {
+  final DataModel _dataModel;
+  final String _basePath; // e.g., "/", "/users/1"
+
+  DataContext(this._dataModel, this._basePath);
+
+  /// Subscribes to a path, resolving it against the current context.
+  ValueNotifier<T?> subscribe<T>(String relativeOrAbsolutePath) {
+    final absolutePath = _resolvePath(relativeOrAbsolutePath);
+    return _dataModel.subscribe<T>(absolutePath);
+  }
+
+  /// Gets a static value, resolving the path against the current context.
+  T? getValue<T>(String relativeOrAbsolutePath) {
+    final absolutePath = _resolvePath(relativeOrAbsolutePath);
+    return _dataModel.getValue<T>(absolutePath);
+  }
+  
+  /// Updates the data model, resolving the path against the current context.
+  void update(String relativeOrAbsolutePath, dynamic contents) {
+    final absolutePath = _resolvePath(relativeOrAbsolutePath);
+    _dataModel.update(absolutePath, contents);
+  }
+
+  /// Creates a new, nested DataContext for a child widget.
+  /// Used by list/template widgets for their children.
+  DataContext nested(String relativePath) {
+    final newBasePath = _resolvePath(relativePath);
+    return DataContext(_dataModel, newBasePath);
+  }
+
+  String _resolvePath(String path) {
+    if (path.startsWith('/')) {
+      return path; // It's an absolute path.
+    }
+    // Join _basePath and path to create the new absolute path.
+    // e.g., _basePath = "/users/1", path = "name" -> "/users/1/name"
+    return '$_basePath/$path';
+  }
+}
+```
+
+#### 2. `DataModel` (The Central Store)
+This class remains the central, non-contextual store for all data. Its API is primarily for internal use by the `GenUiManager` and `DataContext`.
+
+```dart
+import 'package:flutter/foundation.dart';
+
+/// Manages the application's dynamic data model and provides
+/// a subscription-based mechanism for reactive UI updates.
+class DataModel {
+  JsonMap _data = {};
+  final Map<String, ValueNotifier<dynamic>> _subscriptions = {};
+
+  /// Updates the data model at a specific absolute path and notifies all
+  /// relevant subscribers.
+  void update(String? absolutePath, dynamic contents) {
+    // 1. Update the internal _data map using a path parsing utility.
+    // 2. Notify all affected subscribers (e.g., an update to '/a/b'
+    //    must notify listeners for '/a/b', '/a', and '/').
+  }
+
+  /// Subscribes to a specific absolute path in the data model.
+  ValueNotifier<T?> subscribe<T>(String absolutePath) {
+    // Returns an existing ValueNotifier or creates a new one.
+  }
+
+  /// Retrieves a static, one-time value from the data model at the
+  /// specified absolute path without creating a subscription.
+  T? getValue<T>(String absolutePath) {
+    // Returns a value from the internal _data map.
+  }
+}
+```
+
+#### 3. `GulfSchemas` (Schema Utility)
+This utility class simplifies creating schemas for widget properties.
+
+```dart
+import 'package:dart_schema_builder/dart_schema_builder.dart';
+
+/// Provides a set of pre-defined, reusable schema objects for common
+/// GULF patterns, simplifying the creation of CatalogItem definitions.
+class GulfSchemas {
+  /// Schema for a value that can be either a literal string or a
+  /// data-bound path to a string in the DataModel.
+  static final Schema stringReference = S.object(properties: {
+    'path': S.string(description: "A relative or absolute path in the data model."),
+    'literalString': S.string(),
+  });
+
+  /// Schema for a value that can be either a literal number or a
+  /// data-bound path to a number in the DataModel.
+  static final Schema numberReference = S.object(properties: {
+    'path': S.string(description: "A relative or absolute path in the data model."),
+    'literalNumber': S.number(),
+  });
+
+  /// Schema for a value that can be either a literal boolean or a
+  /// data-bound path to a boolean in the DataModel.
+  static final Schema booleanReference = S.object(properties: {
+    'path': S.string(description: "A relative or absolute path in the data model."),
+    'literalBoolean': S.boolean(),
+  });
+
+  /// Schema for a property that holds a reference to a single child
+  /// component by its ID.
+  static final Schema componentReference = S.string();
+
+  /// Schema for a property that holds a list of child components,
+  /// either as an explicit list of IDs or a data-bound template.
+  static final Schema componentArrayReference = S.object(properties: {
+    'explicitList': S.array(items: componentReference),
+    'template': S.object(properties: {
+      'componentId': S.string(),
+      'dataBinding': S.string(),
+    }, required: ['componentId', 'dataBinding']),
+  });
+
+  /// Schema for a user-initiated action, including the action name
+  /// and a context map of key-value pairs.
+  static final Schema action = S.object(properties: {
+    'action': S.string(),
+    'context': S.array(items: S.object(properties: {
+      'key': S.string(),
+      'value': S.object(properties: {
+        'path': S.string(),
+        'literalString': S.string(),
+        'literalNumber': S.number(),
+        'literalBoolean': S.boolean(),
+      }),
+    }, required: ['key', 'value'])),
+  }, required: ['action']);
+}
+```
+
+### Implementation Plan
+
+#### Phase 1: `DataModel` and `DataContext` Implementation
+- **Task**: Create the `DataModel` and `DataContext` classes in `packages/flutter_genui/lib/src/model/`.
+- **Details**:
+  - Implement the `DataModel` class as the central store. Its methods (`update`, `subscribe`, `getValue`) will be designed to work with **absolute paths only**. The path utility must handle dot-notation and array indices (e.g., `users[0].name`).
+  - Implement the `DataContext` class as a wrapper around a `DataModel` instance. It will contain the path resolution logic (`_resolvePath`) to correctly handle relative (`name`) and absolute (`/user/name`) paths based on its `_basePath`.
+
+#### Phase 2: Integration with `GenUiManager`
+- **Task**: Replace `WidgetValueStore` with the new `DataModel`.
+- **Details**:
+  - The `GenUiManager` will own a single instance of `DataModel`.
+  - The `WidgetValueStore` class will be deleted.
+  - The `GenUiManager` will process `dataModelUpdate` messages by calling `dataModel.update()`.
+  - The `GenUiSurface` widget will be the entry point for the UI tree and will create the initial, root `DataContext(dataModel, "/")` to pass down to the first widget.
+
+#### Phase 3: Create Schema Utilities and Refactor `CatalogItem` API
+- **Task**: Create the `GulfSchemas` class and update the `CatalogItem` API.
+- **Details**:
+  - Create the `GulfSchemas` class with the complete, documented set of static schema definitions.
+  - Modify the `CatalogWidgetBuilder` typedef in `catalog_item.dart`: remove the `required JsonMap values` parameter and add `required DataContext dataContext`.
+
+#### Phase 4: Update Core and Example Widgets
+- **Task**: Refactor all widgets to use the new contextual, subscription-based model.
+- **Details**:
+  - Update all `dataSchema` definitions to use the helpers from `GulfSchemas` for consistency.
+  - **Standard Widgets (e.g., `Text`)**: Will receive the `dataContext` and use `dataContext.subscribe("path.from.json")` to get a `ValueNotifier`. The widget will then use a `ValueListenableBuilder` to reactively display the data.
+  - **Container/Template Widgets (e.g., `Column`, `List`)**: This is the key change. When a `Column` renders a list from a `template`, it will:
+    1. Get the list data path from its properties (e.g., `users`).
+    2. For each item in the list at index `i`, it will create a **new, nested context**: `final itemContext = dataContext.nested("users/$i");`
+    3. It will then call the child widget builder for the template, passing this new `itemContext`. This ensures any relative paths inside the template are resolved correctly (e.g., a `name` path inside the template will resolve to `/users/i/name`).
+  - **Input Widgets (e.g., `TextField`)**: Will use `dataContext.subscribe(...)` to display the current value and `dataContext.update("path.to.value", newValue)` in the `onChanged` callback to push changes back to the model.
+  - **Example Apps**: Refactor all custom widgets (e.g., `ItineraryEntry`) to use this new contextual and reactive pattern.
