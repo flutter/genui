@@ -122,20 +122,5 @@ void main() {
       expect(notifierA.value, {'b': 1});
       expect(notifierB.value, 1);
     });
-
-    test('clear removes all data and notifies subscribers', () {
-      dataModel.update('/a', 1);
-      final notifier = dataModel.subscribe<int>('/a');
-      var callCount = 0;
-      notifier.addListener(() {
-        callCount++;
-      });
-
-      dataModel.clear();
-
-      expect(dataModel.getValue<dynamic>('/'), <String, dynamic>{});
-      expect(notifier.value, null);
-      expect(callCount, 1);
-    });
   });
 }

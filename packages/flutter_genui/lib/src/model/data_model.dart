@@ -58,14 +58,6 @@ class DataModel {
   JsonMap _data = {};
   final Map<String, ValueNotifier<dynamic>> _subscriptions = {};
 
-  /// Clears all data from the model and notifies subscribers.
-  void clear() {
-    _data = {};
-    for (final path in _subscriptions.keys) {
-      _subscriptions[path]!.value = getValue<dynamic>(path);
-    }
-  }
-
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
   void update(String? absolutePath, dynamic contents) {
@@ -148,7 +140,7 @@ class DataModel {
     if (current is Map) {
       if (!current.containsKey(segment)) {
         // Check if the next segment is a list index
-        if (remaining.first.contains('[')) {
+        if (remaining.first.startsWith('[')) {
           current[segment] = <dynamic>[];
         } else {
           current[segment] = <String, dynamic>{};
