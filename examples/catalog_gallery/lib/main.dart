@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/flutter_genui_dev.dart';
 
 void main() {
   runApp(CatalogGalleryApp(CoreCatalogItems.asCatalog()));
