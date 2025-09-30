@@ -28,10 +28,7 @@ final _schema = S.object(
 );
 
 extension type _ElevatedButtonData.fromMap(JsonMap _json) {
-  factory _ElevatedButtonData({
-    required String child,
-    String? action,
-  }) =>
+  factory _ElevatedButtonData({required String child, String? action}) =>
       _ElevatedButtonData.fromMap({'child': child, 'action': action});
 
   String get child => _json['child'] as String;
