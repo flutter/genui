@@ -120,7 +120,7 @@ class _CatalogTabState extends State<CatalogTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return CatalogView(catalog: travelAppCatalog);
+    return DebugCatalogView(catalog: travelAppCatalog);
   }
 
   @override

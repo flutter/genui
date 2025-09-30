@@ -26,7 +26,7 @@ class CatalogGalleryApp extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Catalog items that has "exampleData" field set'),
         ),
-        body: CatalogView(catalog: catalog),
+        body: DebugCatalogView(catalog: catalog),
       ),
     );
   }
