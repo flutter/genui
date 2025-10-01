@@ -74,7 +74,7 @@ void main() {
             'id': 'checkboxes',
             'widget': {
               'CheckboxGroup': {
-                'values': [true, false],
+                'selectedValues': {'path': '/checkboxes'},
                 'labels': ['A', 'B'],
               },
             },
@@ -83,6 +83,10 @@ void main() {
       };
 
       await pumpWidgetWithDefinition(tester, definition);
+
+      manager!.dataModel.update('/checkboxes', ['A']);
+
+      await tester.pumpAndSettle();
 
       expect(find.byType(CheckboxListTile), findsNWidgets(2));
       final firstCheckbox = tester.widget<CheckboxListTile>(
@@ -93,7 +97,7 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.dataModel.getValue('checkboxes'), {'A': true, 'B': true});
+      expect(manager!.dataModel.getValue('/checkboxes'), ['A', 'B']);
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -146,7 +150,7 @@ void main() {
             'id': 'radios',
             'widget': {
               'RadioGroup': {
-                'groupValue': 'A',
+                'groupValue': {'path': '/radioValue'},
                 'labels': ['A', 'B'],
               },
             },
@@ -155,12 +159,15 @@ void main() {
       };
 
       await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModel.update('/radioValue', 'A');
+      await tester.pumpAndSettle();
 
       expect(find.byType(RadioListTile<String>), findsNWidgets(2));
       await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
 
       expect(message, null);
-      expect(manager!.dataModel.getValue('radios'), 'B');
+      expect(manager!.dataModel.getValue('/radioValue'), 'B');
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
