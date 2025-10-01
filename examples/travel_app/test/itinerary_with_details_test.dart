@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:travel_app/src/catalog/itinerary_with_details.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   group('ItineraryWithDetails', () {

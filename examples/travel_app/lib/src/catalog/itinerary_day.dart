@@ -38,14 +38,13 @@ extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
     required JsonMap description,
     required String imageChildId,
     required List<String> children,
-  }) =>
-      _ItineraryDayData.fromMap({
-        'title': title,
-        'subtitle': subtitle,
-        'description': description,
-        'imageChildId': imageChildId,
-        'children': children,
-      });
+  }) => _ItineraryDayData.fromMap({
+    'title': title,
+    'subtitle': subtitle,
+    'description': description,
+    'imageChildId': imageChildId,
+    'children': children,
+  });
 
   JsonMap get title => _json['title'] as JsonMap;
   JsonMap get subtitle => _json['subtitle'] as JsonMap;
@@ -57,56 +56,61 @@ extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
 final itineraryDay = CatalogItem(
   name: 'ItineraryDay',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final itineraryDayData = _ItineraryDayData.fromMap(
-      data as Map<String, Object?>,
-    );
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final itineraryDayData = _ItineraryDayData.fromMap(
+          data as Map<String, Object?>,
+        );
 
-    final titleRef = itineraryDayData.title;
-    final titleNotifier = (titleRef['path'] as String?) != null
-        ? dataContext.subscribe<String>(titleRef['path'] as String)
-        : ValueNotifier<String?>(titleRef['literalString'] as String?);
+        final titleRef = itineraryDayData.title;
+        final titleNotifier = (titleRef['path'] as String?) != null
+            ? dataContext.subscribe<String>(titleRef['path'] as String)
+            : ValueNotifier<String?>(titleRef['literalString'] as String?);
 
-    final subtitleRef = itineraryDayData.subtitle;
-    final subtitleNotifier = (subtitleRef['path'] as String?) != null
-        ? dataContext.subscribe<String>(subtitleRef['path'] as String)
-        : ValueNotifier<String?>(subtitleRef['literalString'] as String?);
+        final subtitleRef = itineraryDayData.subtitle;
+        final subtitleNotifier = (subtitleRef['path'] as String?) != null
+            ? dataContext.subscribe<String>(subtitleRef['path'] as String)
+            : ValueNotifier<String?>(subtitleRef['literalString'] as String?);
 
-    final descriptionRef = itineraryDayData.description;
-    final descriptionNotifier = (descriptionRef['path'] as String?) != null
-        ? dataContext.subscribe<String>(descriptionRef['path'] as String)
-        : ValueNotifier<String?>(descriptionRef['literalString'] as String?);
+        final descriptionRef = itineraryDayData.description;
+        final descriptionNotifier = (descriptionRef['path'] as String?) != null
+            ? dataContext.subscribe<String>(descriptionRef['path'] as String)
+            : ValueNotifier<String?>(
+                descriptionRef['literalString'] as String?,
+              );
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: titleNotifier,
-      builder: (context, title, child) {
         return ValueListenableBuilder<String?>(
-          valueListenable: subtitleNotifier,
-          builder: (context, subtitle, child) {
+          valueListenable: titleNotifier,
+          builder: (context, title, child) {
             return ValueListenableBuilder<String?>(
-              valueListenable: descriptionNotifier,
-              builder: (context, description, child) {
-                return _ItineraryDay(
-                  title: title ?? '',
-                  subtitle: subtitle ?? '',
-                  description: description ?? '',
-                  imageChild: buildChild(itineraryDayData.imageChildId),
-                  children: itineraryDayData.children.map(buildChild).toList(),
+              valueListenable: subtitleNotifier,
+              builder: (context, subtitle, child) {
+                return ValueListenableBuilder<String?>(
+                  valueListenable: descriptionNotifier,
+                  builder: (context, description, child) {
+                    return _ItineraryDay(
+                      title: title ?? '',
+                      subtitle: subtitle ?? '',
+                      description: description ?? '',
+                      imageChild: buildChild(itineraryDayData.imageChildId),
+                      children: itineraryDayData.children
+                          .map(buildChild)
+                          .toList(),
+                    );
+                  },
                 );
               },
             );
           },
         );
       },
-    );
-  },
 );
 
 class _ItineraryDay extends StatelessWidget {

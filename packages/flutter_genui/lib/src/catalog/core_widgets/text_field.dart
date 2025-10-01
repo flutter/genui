@@ -25,12 +25,11 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
     required JsonMap value,
     String? hintText,
     bool? obscureText,
-  }) =>
-      _TextFieldData.fromMap({
-        'value': value,
-        'hintText': hintText,
-        'obscureText': obscureText,
-      });
+  }) => _TextFieldData.fromMap({
+    'value': value,
+    'hintText': hintText,
+    'obscureText': obscureText,
+  });
 
   JsonMap get value => _json['value'] as JsonMap;
   String? get hintText => _json['hintText'] as String?;
@@ -68,7 +67,7 @@ class _TextFieldState extends State<_TextField> {
   @override
   void didUpdateWidget(_TextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialValue != oldWidget.initialValue) {
+    if (widget.initialValue != _controller.text) {
       _controller.text = widget.initialValue;
     }
   }
@@ -94,46 +93,47 @@ class _TextFieldState extends State<_TextField> {
 final textField = CatalogItem(
   name: 'TextField',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final textFieldData = _TextFieldData.fromMap(data as JsonMap);
-    final valueRef = textFieldData.value;
-    final path = valueRef['path'] as String?;
-    final literal = valueRef['literalString'] as String?;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final textFieldData = _TextFieldData.fromMap(data as JsonMap);
+        final valueRef = textFieldData.value;
+        final path = valueRef['path'] as String?;
+        final literal = valueRef['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
-        return _TextField(
-          initialValue: currentValue ?? '',
-          hintText: textFieldData.hintText,
-          obscureText: textFieldData.obscureText,
-          onChanged: (newValue) {
-            if (path != null) {
-              dataContext.update(path, newValue);
-            }
-          },
-          onSubmitted: (newValue) {
-            dispatchEvent(
-              UiActionEvent(
-                widgetId: id,
-                eventType: 'onSubmitted',
-                value: newValue,
-              ),
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _TextField(
+              initialValue: currentValue ?? '',
+              hintText: textFieldData.hintText,
+              obscureText: textFieldData.obscureText,
+              onChanged: (newValue) {
+                if (path != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+              onSubmitted: (newValue) {
+                dispatchEvent(
+                  UiActionEvent(
+                    widgetId: id,
+                    eventType: 'onSubmitted',
+                    value: newValue,
+                  ),
+                );
+              },
             );
           },
         );
       },
-    );
-  },
 );

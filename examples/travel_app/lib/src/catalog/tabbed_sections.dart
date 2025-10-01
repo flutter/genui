@@ -6,7 +6,6 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/model/gulf_schemas.dart';
-import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 final _schema = S.object(
   properties: {
@@ -34,9 +33,10 @@ extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
 }
 
 extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
-  factory _TabSectionItemData(
-          {required Map<String, Object?> title, required String child}) =>
-      _TabSectionItemData.fromMap({'title': title, 'child': child});
+  factory _TabSectionItemData({
+    required Map<String, Object?> title,
+    required String child,
+  }) => _TabSectionItemData.fromMap({'title': title, 'child': child});
 
   Map<String, Object?> get title => _json['title'] as Map<String, Object?>;
   String get childId => _json['child'] as String;
@@ -52,33 +52,35 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
 final tabbedSections = CatalogItem(
   name: 'TabbedSections',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final tabbedSectionsData =
-        _TabbedSectionsData.fromMap(data as Map<String, Object?>);
-    final sections = tabbedSectionsData.sections.map((section) {
-      final titleRef = section.title;
-      final path = titleRef['path'] as String?;
-      final literal = titleRef['literalString'] as String?;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final tabbedSectionsData = _TabbedSectionsData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final sections = tabbedSectionsData.sections.map((section) {
+          final titleRef = section.title;
+          final path = titleRef['path'] as String?;
+          final literal = titleRef['literalString'] as String?;
 
-      final titleNotifier = path != null
-          ? dataContext.subscribe<String>(path)
-          : ValueNotifier<String?>(literal);
+          final titleNotifier = path != null
+              ? dataContext.subscribe<String>(path)
+              : ValueNotifier<String?>(literal);
 
-      return _TabSectionData(
-        titleNotifier: titleNotifier,
-        childId: section.childId,
-      );
-    }).toList();
+          return _TabSectionData(
+            titleNotifier: titleNotifier,
+            childId: section.childId,
+          );
+        }).toList();
 
-    return _TabbedSections(sections: sections, buildChild: buildChild);
-  },
+        return _TabbedSections(sections: sections, buildChild: buildChild);
+      },
 );
 
 class _TabSectionData {

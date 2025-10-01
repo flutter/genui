@@ -61,9 +61,6 @@ class DataModel {
   /// The full contents of the data model.
   JsonMap get data => _data;
 
-  /// The full contents of the data model.
-  JsonMap get data => _data;
-
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
   void update(String? absolutePath, dynamic contents) {

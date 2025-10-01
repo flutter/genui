@@ -38,58 +38,58 @@ extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
 final sectionHeader = CatalogItem(
   name: 'SectionHeader',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final sectionHeaderData = _SectionHeaderData.fromMap(
-      data as Map<String, Object?>,
-    );
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final sectionHeaderData = _SectionHeaderData.fromMap(
+          data as Map<String, Object?>,
+        );
 
-    final titleRef = sectionHeaderData.title;
-    final titleNotifier = (titleRef['path'] as String?) != null
-        ? dataContext.subscribe<String>(titleRef['path'] as String)
-        : ValueNotifier<String?>(titleRef['literalString'] as String?);
+        final titleRef = sectionHeaderData.title;
+        final titleNotifier = (titleRef['path'] as String?) != null
+            ? dataContext.subscribe<String>(titleRef['path'] as String)
+            : ValueNotifier<String?>(titleRef['literalString'] as String?);
 
-    final subtitleRef = sectionHeaderData.subtitle;
-    final subtitleNotifier = (subtitleRef?['path'] as String?) != null
-        ? dataContext.subscribe<String>(subtitleRef!['path'] as String)
-        : ValueNotifier<String?>(subtitleRef?['literalString'] as String?);
+        final subtitleRef = sectionHeaderData.subtitle;
+        final subtitleNotifier = (subtitleRef?['path'] as String?) != null
+            ? dataContext.subscribe<String>(subtitleRef!['path'] as String)
+            : ValueNotifier<String?>(subtitleRef?['literalString'] as String?);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: titleNotifier,
-      builder: (context, title, _) {
         return ValueListenableBuilder<String?>(
-          valueListenable: subtitleNotifier,
-          builder: (context, subtitle, _) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title ?? '',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+          valueListenable: titleNotifier,
+          builder: (context, title, _) {
+            return ValueListenableBuilder<String?>(
+              valueListenable: subtitleNotifier,
+              builder: (context, subtitle, _) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title ?? '',
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      if (subtitle != null)
+                        Text(
+                          subtitle,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                         ),
+                    ],
                   ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                    ),
-                ],
-              ),
+                );
+              },
             );
           },
         );
       },
-    );
-  },
 );

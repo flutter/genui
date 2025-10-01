@@ -15,7 +15,7 @@ void main() {
       final data = {
         'topics': [
           {'literalString': 'Topic A'},
-          {'literalString': 'Topic B'}
+          {'literalString': 'Topic B'},
         ],
       };
       UiEvent? dispatchedEvent;

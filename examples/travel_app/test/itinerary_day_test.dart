@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:travel_app/src/catalog/itinerary_day.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   group('ItineraryDay', () {
@@ -23,7 +23,7 @@ void main() {
                       'title': {'literalString': 'Day 1'},
                       'subtitle': {'literalString': 'Arrival in Tokyo'},
                       'description': {
-                        'literalString': 'A day of exploring the city.'
+                        'literalString': 'A day of exploring the city.',
                       },
                       'imageChildId': 'tokyo_image',
                       'children': <String>[],

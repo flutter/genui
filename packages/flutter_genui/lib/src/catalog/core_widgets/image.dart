@@ -32,38 +32,39 @@ extension type _ImageData.fromMap(JsonMap _json) {
 final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final imageData = _ImageData.fromMap(data as JsonMap);
-    final locationRef = imageData.location;
-    final path = locationRef['path'] as String?;
-    final literal = locationRef['literalString'] as String?;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final imageData = _ImageData.fromMap(data as JsonMap);
+        final locationRef = imageData.location;
+        final path = locationRef['path'] as String?;
+        final literal = locationRef['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentLocation, child) {
-        final location = currentLocation;
-        if (location == null) {
-          return const SizedBox.shrink();
-        }
-        final fit = imageData.fit;
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentLocation, child) {
+            final location = currentLocation;
+            if (location == null) {
+              return const SizedBox.shrink();
+            }
+            final fit = imageData.fit;
 
-        if (location.startsWith('assets/')) {
-          return Image.asset(location, fit: fit);
-        } else {
-          return Image.network(location, fit: fit);
-        }
+            if (location.startsWith('assets/')) {
+              return Image.asset(location, fit: fit);
+            } else {
+              return Image.network(location, fit: fit);
+            }
+          },
+        );
       },
-    );
-  },
 );

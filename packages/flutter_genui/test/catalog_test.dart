@@ -5,7 +5,6 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/model/data_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
 
@@ -31,7 +30,7 @@ void main() {
               builder: (context) {
                 final widget = catalog.buildWidget(
                   data,
-                  (id) => Text(id), // Mock child builder
+                  Text.new, // Mock child builder
                   (UiEvent event) {},
                   context,
                   DataContext(DataModel(), '/'),

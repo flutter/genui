@@ -50,7 +50,7 @@ void main() {
             'id': 'text',
             'widget': {
               'Text': {
-                'text': {'literalString': 'Click Me'}
+                'text': {'literalString': 'Click Me'},
               },
             },
           },
@@ -66,9 +66,7 @@ void main() {
       expect(message, isNotNull);
     });
 
-    testWidgets('Text renders from data model', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('Text renders from data model', (WidgetTester tester) async {
       final definition = {
         'root': 'text',
         'widgets': [
@@ -143,7 +141,7 @@ void main() {
             'id': 'text1',
             'widget': {
               'Text': {
-                'text': {'literalString': 'First'}
+                'text': {'literalString': 'First'},
               },
             },
           },
@@ -151,7 +149,7 @@ void main() {
             'id': 'text2',
             'widget': {
               'Text': {
-                'text': {'literalString': 'Second'}
+                'text': {'literalString': 'Second'},
               },
             },
           },
@@ -211,7 +209,7 @@ void main() {
             'widget': {
               'TextField': {
                 'value': {'path': '/myValue'},
-                'hintText': 'hint'
+                'hintText': 'hint',
               },
             },
           },

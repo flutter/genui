@@ -34,55 +34,56 @@ final textInputChip = CatalogItem(
   dataSchema: _schema,
   exampleData: [
     () => {
-          'root': 'text_input',
-          'widgets': [
-            {
-              'id': 'text_input',
-              'widget': {
-                'TextInputChip': {
-                  'value': {'literalString': 'John Doe'},
-                  'label': 'Enter your name',
-                },
-              },
+      'root': 'text_input',
+      'widgets': [
+        {
+          'id': 'text_input',
+          'widget': {
+            'TextInputChip': {
+              'value': {'literalString': 'John Doe'},
+              'label': 'Enter your name',
             },
-          ],
+          },
         },
+      ],
+    },
   ],
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final textInputChipData = _TextInputChipData.fromMap(
-      data as Map<String, Object?>,
-    );
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final textInputChipData = _TextInputChipData.fromMap(
+          data as Map<String, Object?>,
+        );
 
-    final valueRef = textInputChipData.value;
-    final path = valueRef?['path'] as String?;
-    final literal = valueRef?['literalString'] as String?;
+        final valueRef = textInputChipData.value;
+        final path = valueRef?['path'] as String?;
+        final literal = valueRef?['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
-        return _TextInputChip(
-          label: textInputChipData.label,
-          value: currentValue,
-          onChanged: (newValue) {
-            if (path != null) {
-              dataContext.update(path, newValue);
-            }
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _TextInputChip(
+              label: textInputChipData.label,
+              value: currentValue,
+              onChanged: (newValue) {
+                if (path != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
           },
         );
       },
-    );
-  },
 );
 
 class _TextInputChip extends StatefulWidget {

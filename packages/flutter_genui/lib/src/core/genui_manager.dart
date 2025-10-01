@@ -117,7 +117,8 @@ class GenUiManager implements GenUiHost {
   @override
   void handleUiEvent(UiEvent event) {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
-    final eventString = 'Action: ${jsonEncode(event.value)}'
+    final eventString =
+        'Action: ${jsonEncode(event.value)}'
         'Current state: ${jsonEncode(dataModel.data)}';
     _onSubmit.add(UserMessage([TextPart(eventString)]));
   }

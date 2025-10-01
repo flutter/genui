@@ -3,11 +3,10 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:travel_app/src/catalog/itinerary_entry.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   group('ItineraryEntry', () {
@@ -22,12 +21,12 @@ void main() {
                     data: {
                       'title': {'literalString': 'Arrival at HND Airport'},
                       'subtitle': {
-                        'literalString': 'Tokyo International Airport'
+                        'literalString': 'Tokyo International Airport',
                       },
                       'bodyText': {
                         'literalString':
                             'Arrive at Haneda Airport (HND), clear customs, and '
-                            'pick up your luggage.'
+                            'pick up your luggage.',
                       },
                       'time': {'literalString': '3:00 PM'},
                       'type': 'transport',

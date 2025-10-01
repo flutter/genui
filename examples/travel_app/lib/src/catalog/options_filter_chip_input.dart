@@ -42,13 +42,12 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
     required List<String> options,
     String? iconName,
     JsonMap? value,
-  }) =>
-      _OptionsFilterChipInputData.fromMap({
-        'chipLabel': chipLabel,
-        'options': options,
-        if (iconName != null) 'iconName': iconName,
-        if (value != null) 'value': value,
-      });
+  }) => _OptionsFilterChipInputData.fromMap({
+    'chipLabel': chipLabel,
+    'options': options,
+    if (iconName != null) 'iconName': iconName,
+    if (value != null) 'value': value,
+  });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
@@ -69,53 +68,54 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
 final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
-      data as Map<String, Object?>,
-    );
-    IconData? icon;
-    if (optionsFilterChipData.iconName != null) {
-      try {
-        icon = iconFor(
-          TravelIcon.values.byName(optionsFilterChipData.iconName!),
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
+          data as Map<String, Object?>,
         );
-      } catch (e) {
-        icon = null;
-      }
-    }
+        IconData? icon;
+        if (optionsFilterChipData.iconName != null) {
+          try {
+            icon = iconFor(
+              TravelIcon.values.byName(optionsFilterChipData.iconName!),
+            );
+          } catch (e) {
+            icon = null;
+          }
+        }
 
-    final valueRef = optionsFilterChipData.value;
-    final path = valueRef?['path'] as String?;
-    final literal = valueRef?['literalString'] as String?;
+        final valueRef = optionsFilterChipData.value;
+        final path = valueRef?['path'] as String?;
+        final literal = valueRef?['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
-        return _OptionsFilterChip(
-          chipLabel: optionsFilterChipData.chipLabel,
-          options: optionsFilterChipData.options,
-          icon: icon,
-          value: currentValue,
-          onChanged: (newValue) {
-            if (path != null && newValue != null) {
-              dataContext.update(path, newValue);
-            }
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _OptionsFilterChip(
+              chipLabel: optionsFilterChipData.chipLabel,
+              options: optionsFilterChipData.options,
+              icon: icon,
+              value: currentValue,
+              onChanged: (newValue) {
+                if (path != null && newValue != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
           },
         );
       },
-    );
-  },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
@@ -151,7 +151,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            String? tempSelectedOption = widget.value;
+            var tempSelectedOption = widget.value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(

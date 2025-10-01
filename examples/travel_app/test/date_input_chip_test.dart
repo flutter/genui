@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_app/src/catalog/date_input_chip.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   testWidgets('DateInputChip catalog item builds with literal value', (
@@ -21,7 +21,7 @@ void main() {
               return dateInputChip.widgetBuilder(
                 data: {
                   'value': {'literalString': '2025-09-20'},
-                  'label': 'Test Date'
+                  'label': 'Test Date',
                 },
                 id: 'test_chip',
                 buildChild: (data) => const SizedBox(),
@@ -52,7 +52,7 @@ void main() {
               return dateInputChip.widgetBuilder(
                 data: {
                   'value': {'path': '/testDate'},
-                  'label': 'Test Date'
+                  'label': 'Test Date',
                 },
                 id: 'test_chip',
                 buildChild: (data) => const SizedBox(),
@@ -88,7 +88,7 @@ void main() {
               return dateInputChip.widgetBuilder(
                 data: {
                   'value': {'path': '/testDate'},
-                  'label': 'Test Date'
+                  'label': 'Test Date',
                 },
                 id: 'test_chip',
                 buildChild: (data) => const SizedBox(),
@@ -125,7 +125,7 @@ void main() {
               return dateInputChip.widgetBuilder(
                 data: {
                   'value': {'path': '/testDate'},
-                  'label': 'Test Date'
+                  'label': 'Test Date',
                 },
                 id: 'test_chip',
                 buildChild: (data) => const SizedBox(),

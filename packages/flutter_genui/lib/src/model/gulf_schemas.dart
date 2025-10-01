@@ -83,8 +83,12 @@ class GulfSchemas {
 
   /// Schema for a value that can be either a literal array of strings or a
   /// data-bound path to an array of strings in the DataModel.
-  static final Schema stringArrayReference = S.object(properties: {
-    'path': S.string(description: 'A relative or absolute path in the data model.'),
-    'literalStringArray': S.list(items: S.string()),
-  });
+  static final Schema stringArrayReference = S.object(
+    properties: {
+      'path': S.string(
+        description: 'A relative or absolute path in the data model.',
+      ),
+      'literalStringArray': S.list(items: S.string()),
+    },
+  );
 }

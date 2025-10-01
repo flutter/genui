@@ -19,39 +19,38 @@ extension type _PaddedBodyTextData.fromMap(Map<String, Object?> _json) {
 final paddedBodyText = CatalogItem(
   name: 'PaddedBodyText',
   dataSchema: S.object(
-    properties: {
-      'text': GulfSchemas.stringReference,
-    },
+    properties: {'text': GulfSchemas.stringReference},
     required: ['text'],
   ),
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final textData = _PaddedBodyTextData.fromMap(
-      data as Map<String, Object?>,
-    );
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final textData = _PaddedBodyTextData.fromMap(
+          data as Map<String, Object?>,
+        );
 
-    final textRef = textData.text;
-    final path = textRef['path'] as String?;
-    final literal = textRef['literalString'] as String?;
+        final textRef = textData.text;
+        final path = textRef['path'] as String?;
+        final literal = textRef['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, text, child) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: MarkdownWidget(text: text ?? ''),
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, text, child) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: MarkdownWidget(text: text ?? ''),
+            );
+          },
         );
       },
-    );
-  },
 );

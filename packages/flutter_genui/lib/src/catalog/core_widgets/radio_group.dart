@@ -24,8 +24,7 @@ extension type _RadioGroupData.fromMap(JsonMap _json) {
   factory _RadioGroupData({
     required JsonMap groupValue,
     required List<String> labels,
-  }) =>
-      _RadioGroupData.fromMap({'groupValue': groupValue, 'labels': labels});
+  }) => _RadioGroupData.fromMap({'groupValue': groupValue, 'labels': labels});
 
   JsonMap get groupValue => _json['groupValue'] as JsonMap;
   List<String> get labels => (_json['labels'] as List).cast<String>();
@@ -107,36 +106,37 @@ final radioGroup = CatalogItem(
       ],
     },
   ],
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final radioData = _RadioGroupData.fromMap(data as JsonMap);
-    final valueRef = radioData.groupValue;
-    final path = valueRef['path'] as String?;
-    final literal = valueRef['literalString'] as String?;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final radioData = _RadioGroupData.fromMap(data as JsonMap);
+        final valueRef = radioData.groupValue;
+        final path = valueRef['path'] as String?;
+        final literal = valueRef['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentGroupValue, child) {
-        return _RadioGroup(
-          initialGroupValue: currentGroupValue ?? '',
-          labels: radioData.labels,
-          onChanged: (newValue) {
-            if (path != null && newValue != null) {
-              dataContext.update(path, newValue);
-            }
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentGroupValue, child) {
+            return _RadioGroup(
+              initialGroupValue: currentGroupValue ?? '',
+              labels: radioData.labels,
+              onChanged: (newValue) {
+                if (path != null && newValue != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
           },
         );
       },
-    );
-  },
 );

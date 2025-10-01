@@ -58,7 +58,10 @@ void main() {
     testWidgets('renders correctly with no children', (
       WidgetTester tester,
     ) async {
-      final data = {'submitLabel': {'literalString': 'Submit'}, 'children': <String>[]};
+      final data = {
+        'submitLabel': {'literalString': 'Submit'},
+        'children': <String>[],
+      };
 
       await tester.pumpWidget(
         MaterialApp(

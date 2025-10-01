@@ -28,7 +28,7 @@ void main() {
                 'id': 'r1',
                 'widget': {
                   'Text': {
-                    'text': {'literalString': 'Hi there!'}
+                    'text': {'literalString': 'Hi there!'},
                   },
                 },
               },
@@ -80,7 +80,7 @@ void main() {
                 'id': 'root',
                 'widget': {
                   'Text': {
-                    'text': {'literalString': 'UI Content'}
+                    'text': {'literalString': 'UI Content'},
                   },
                 },
               },

@@ -36,24 +36,25 @@ extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
 final trailhead = CatalogItem(
   name: 'Trailhead',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final trailheadData = _TrailheadData.fromMap(
-      data as Map<String, Object?>,
-    );
-    return _Trailhead(
-      topics: trailheadData.topics,
-      widgetId: id,
-      dispatchEvent: dispatchEvent,
-      dataContext: dataContext,
-    );
-  },
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final trailheadData = _TrailheadData.fromMap(
+          data as Map<String, Object?>,
+        );
+        return _Trailhead(
+          topics: trailheadData.topics,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
+          dataContext: dataContext,
+        );
+      },
 );
 
 class _Trailhead extends StatelessWidget {

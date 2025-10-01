@@ -31,13 +31,12 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
     required JsonMap subheading,
     required String imageChildId,
     required String child,
-  }) =>
-      _ItineraryWithDetailsData.fromMap({
-        'title': title,
-        'subheading': subheading,
-        'imageChildId': imageChildId,
-        'child': child,
-      });
+  }) => _ItineraryWithDetailsData.fromMap({
+    'title': title,
+    'subheading': subheading,
+    'imageChildId': imageChildId,
+    'child': child,
+  });
 
   JsonMap get title => _json['title'] as JsonMap;
   JsonMap get subheading => _json['subheading'] as JsonMap;
@@ -56,47 +55,48 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 final itineraryWithDetails = CatalogItem(
   name: 'ItineraryWithDetails',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
-      data as Map<String, Object?>,
-    );
-    final child = buildChild(itineraryWithDetailsData.child);
-    final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
+          data as Map<String, Object?>,
+        );
+        final child = buildChild(itineraryWithDetailsData.child);
+        final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
-    final titleRef = itineraryWithDetailsData.title;
-    final titleNotifier = (titleRef['path'] as String?) != null
-        ? dataContext.subscribe<String>(titleRef['path'] as String)
-        : ValueNotifier<String?>(titleRef['literalString'] as String?);
+        final titleRef = itineraryWithDetailsData.title;
+        final titleNotifier = (titleRef['path'] as String?) != null
+            ? dataContext.subscribe<String>(titleRef['path'] as String)
+            : ValueNotifier<String?>(titleRef['literalString'] as String?);
 
-    final subheadingRef = itineraryWithDetailsData.subheading;
-    final subheadingNotifier = (subheadingRef['path'] as String?) != null
-        ? dataContext.subscribe<String>(subheadingRef['path'] as String)
-        : ValueNotifier<String?>(subheadingRef['literalString'] as String?);
+        final subheadingRef = itineraryWithDetailsData.subheading;
+        final subheadingNotifier = (subheadingRef['path'] as String?) != null
+            ? dataContext.subscribe<String>(subheadingRef['path'] as String)
+            : ValueNotifier<String?>(subheadingRef['literalString'] as String?);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: titleNotifier,
-      builder: (context, title, _) {
         return ValueListenableBuilder<String?>(
-          valueListenable: subheadingNotifier,
-          builder: (context, subheading, _) {
-            return _ItineraryWithDetails(
-              title: title ?? '',
-              subheading: subheading ?? '',
-              imageChild: imageChild,
-              child: child,
+          valueListenable: titleNotifier,
+          builder: (context, title, _) {
+            return ValueListenableBuilder<String?>(
+              valueListenable: subheadingNotifier,
+              builder: (context, subheading, _) {
+                return _ItineraryWithDetails(
+                  title: title ?? '',
+                  subheading: subheading ?? '',
+                  imageChild: imageChild,
+                  child: child,
+                );
+              },
             );
           },
         );
       },
-    );
-  },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {

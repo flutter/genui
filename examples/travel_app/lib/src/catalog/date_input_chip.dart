@@ -8,7 +8,6 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/src/model/gulf_schemas.dart';
-import 'package:flutter_genui/src/model/gulf_schemas.dart';
 import 'package:intl/intl.dart';
 
 final _schema = S.object(
@@ -113,50 +112,51 @@ final dateInputChip = CatalogItem(
   dataSchema: _schema,
   exampleData: [
     () => {
-          'root': 'date_picker',
-          'widgets': [
-            {
-              'id': 'date_picker',
-              'widget': {
-                'DateInputChip': {
-                  'value': {'literalString': '1871-07-22'},
-                  'label': 'Your birth date',
-                },
-              },
+      'root': 'date_picker',
+      'widgets': [
+        {
+          'id': 'date_picker',
+          'widget': {
+            'DateInputChip': {
+              'value': {'literalString': '1871-07-22'},
+              'label': 'Your birth date',
             },
-          ],
+          },
         },
+      ],
+    },
   ],
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final datePickerData = _DatePickerData.fromMap(data as JsonMap);
-    final valueRef = datePickerData.value;
-    final path = valueRef?['path'] as String?;
-    final literal = valueRef?['literalString'] as String?;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final datePickerData = _DatePickerData.fromMap(data as JsonMap);
+        final valueRef = datePickerData.value;
+        final path = valueRef?['path'] as String?;
+        final literal = valueRef?['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
-        return _DateInputChip(
-          initialValue: currentValue,
-          label: datePickerData.label,
-          onChanged: (newValue) {
-            if (path != null) {
-              dataContext.update(path, newValue);
-            }
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _DateInputChip(
+              initialValue: currentValue,
+              label: datePickerData.label,
+              onChanged: (newValue) {
+                if (path != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
           },
         );
       },
-    );
-  },
 );

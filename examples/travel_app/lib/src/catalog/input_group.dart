@@ -103,7 +103,7 @@ final inputGroup = CatalogItem(
         final inputGroupData = _InputGroupData.fromMap(
           data as Map<String, Object?>,
         );
-        
+
         final submitLabelRef = inputGroupData.submitLabel;
         final path = submitLabelRef['path'] as String?;
         final literal = submitLabelRef['literalString'] as String?;
@@ -143,7 +143,7 @@ final inputGroup = CatalogItem(
                         foregroundColor: Colors.white,
                       ),
                     );
-                  }
+                  },
                 ),
               ],
             ),

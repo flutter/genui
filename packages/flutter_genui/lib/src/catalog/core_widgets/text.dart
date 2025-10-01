@@ -9,7 +9,8 @@ import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
-  factory _TextData({required JsonMap text}) => _TextData.fromMap({'text': text});
+  factory _TextData({required JsonMap text}) =>
+      _TextData.fromMap({'text': text});
 
   JsonMap get text => _json['text'] as JsonMap;
 }
@@ -17,36 +18,35 @@ extension type _TextData.fromMap(JsonMap _json) {
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
-    properties: {
-      'text': GulfSchemas.stringReference,
-    },
+    properties: {'text': GulfSchemas.stringReference},
     required: ['text'],
   ),
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final textData = _TextData.fromMap(data as JsonMap);
-    final valueRef = textData.text;
-    final path = valueRef['path'] as String?;
-    final literal = valueRef['literalString'] as String?;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final textData = _TextData.fromMap(data as JsonMap);
+        final valueRef = textData.text;
+        final path = valueRef['path'] as String?;
+        final literal = valueRef['literalString'] as String?;
 
-    final notifier = path != null
-        ? dataContext.subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
-        return Text(
-          currentValue ?? '',
-          style: Theme.of(context).textTheme.bodyMedium,
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return Text(
+              currentValue ?? '',
+              style: Theme.of(context).textTheme.bodyMedium,
+            );
+          },
         );
       },
-    );
-  },
 );

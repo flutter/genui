@@ -18,11 +18,11 @@ void main() {
           'items': [
             {
               'description': {'literalString': 'Item 1'},
-              'imageChildId': 'imageId1'
+              'imageChildId': 'imageId1',
             },
             {
               'description': {'literalString': 'Item 2'},
-              'imageChildId': 'imageId2'
+              'imageChildId': 'imageId2',
             },
           ],
         };
@@ -81,7 +81,7 @@ void main() {
             },
             {
               'description': {'literalString': 'Item 2'},
-              'imageChildId': 'imageId2'
+              'imageChildId': 'imageId2',
             },
           ],
         };

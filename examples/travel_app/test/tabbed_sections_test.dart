@@ -28,11 +28,11 @@ void main() {
         'sections': [
           {
             'title': {'literalString': 'Tab 1'},
-            'child': 'child1'
+            'child': 'child1',
           },
           {
             'title': {'literalString': 'Tab 2'},
-            'child': 'child2'
+            'child': 'child2',
           },
         ],
       };

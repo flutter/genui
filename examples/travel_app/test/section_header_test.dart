@@ -13,7 +13,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final data = {
-        'title': {'literalString': 'Section Title'}
+        'title': {'literalString': 'Section Title'},
       };
 
       await tester.pumpWidget(
@@ -44,7 +44,7 @@ void main() {
     ) async {
       final data = {
         'title': {'literalString': 'Section Title'},
-        'subtitle': {'literalString': 'Section Subtitle'}
+        'subtitle': {'literalString': 'Section Subtitle'},
       };
 
       await tester.pumpWidget(
