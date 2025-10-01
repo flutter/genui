@@ -49,7 +49,9 @@ void main() {
           {
             'id': 'text',
             'widget': {
-              'Text': {'text': 'Click Me'},
+              'Text': {
+                'text': {'literalString': 'Click Me'}
+              },
             },
           },
         ],
@@ -62,6 +64,30 @@ void main() {
       expect(message, null);
       await tester.tap(find.byType(ElevatedButton));
       expect(message, isNotNull);
+    });
+
+    testWidgets('Text renders from data model', (
+      WidgetTester tester,
+    ) async {
+      final definition = {
+        'root': 'text',
+        'widgets': [
+          {
+            'id': 'text',
+            'widget': {
+              'Text': {
+                'text': {'path': '/myText'},
+              },
+            },
+          },
+        ],
+      };
+
+      await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModel.update('/myText', 'Hello from data model');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hello from data model'), findsOneWidget);
     });
 
     testWidgets('CheckboxGroup renders and handles changes', (
@@ -116,13 +142,17 @@ void main() {
           {
             'id': 'text1',
             'widget': {
-              'Text': {'text': 'First'},
+              'Text': {
+                'text': {'literalString': 'First'}
+              },
             },
           },
           {
             'id': 'text2',
             'widget': {
-              'Text': {'text': 'Second'},
+              'Text': {
+                'text': {'literalString': 'Second'}
+              },
             },
           },
         ],
@@ -179,13 +209,18 @@ void main() {
           {
             'id': 'field',
             'widget': {
-              'TextField': {'value': 'initial', 'hintText': 'hint'},
+              'TextField': {
+                'value': {'path': '/myValue'},
+                'hintText': 'hint'
+              },
             },
           },
         ],
       };
 
       await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModel.update('/myValue', 'initial');
+      await tester.pumpAndSettle();
 
       final textFieldFinder = find.byType(TextField);
       expect(find.widgetWithText(TextField, 'initial'), findsOneWidget);
@@ -194,7 +229,7 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(manager!.dataModel.getValue('field'), 'new value');
+      expect(manager!.dataModel.getValue('/myValue'), 'new value');
 
       // Test onSubmitted
       expect(message, null);

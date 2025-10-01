@@ -2,43 +2,51 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
-
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
-  factory _TextData({required String text}) =>
-      _TextData.fromMap({'text': text});
+  factory _TextData({required JsonMap text}) => _TextData.fromMap({'text': text});
 
-  String get text => _json['text'] as String;
+  JsonMap get text => _json['text'] as JsonMap;
 }
 
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
     properties: {
-      'text': S.string(
-        description: 'The text to display. This does *not* support markdown.',
-      ),
+      'text': GulfSchemas.stringReference,
     },
     required: ['text'],
   ),
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final textData = _TextData.fromMap(data as JsonMap);
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final textData = _TextData.fromMap(data as JsonMap);
+    final valueRef = textData.text;
+    final path = valueRef['path'] as String?;
+    final literal = valueRef['literalString'] as String?;
+
+    final notifier = path != null
+        ? dataContext.subscribe<String>(path)
+        : ValueNotifier<String?>(literal);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentValue, child) {
         return Text(
-          textData.text,
+          currentValue ?? '',
           style: Theme.of(context).textTheme.bodyMedium,
         );
       },
+    );
+  },
 );

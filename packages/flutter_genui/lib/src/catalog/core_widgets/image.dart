@@ -6,14 +6,12 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'location': S.string(
-      description:
-          'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
-    ),
+    'location': GulfSchemas.stringReference,
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
@@ -22,10 +20,10 @@ final _schema = S.object(
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({required String location, String? fit}) =>
+  factory _ImageData({required JsonMap location, String? fit}) =>
       _ImageData.fromMap({'location': location, 'fit': fit});
 
-  String get location => _json['location'] as String;
+  JsonMap get location => _json['location'] as JsonMap;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -34,18 +32,30 @@ extension type _ImageData.fromMap(JsonMap _json) {
 final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final imageData = _ImageData.fromMap(data as JsonMap);
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final imageData = _ImageData.fromMap(data as JsonMap);
+    final locationRef = imageData.location;
+    final path = locationRef['path'] as String?;
+    final literal = locationRef['literalString'] as String?;
 
-        final location = imageData.location;
+    final notifier = path != null
+        ? dataContext.subscribe<String>(path)
+        : ValueNotifier<String?>(literal);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentLocation, child) {
+        final location = currentLocation;
+        if (location == null) {
+          return const SizedBox.shrink();
+        }
         final fit = imageData.fit;
 
         if (location.startsWith('assets/')) {
@@ -54,4 +64,6 @@ final image = CatalogItem(
           return Image.network(location, fit: fit);
         }
       },
+    );
+  },
 );

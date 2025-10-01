@@ -2,18 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
-
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'value': S.string(description: 'The initial value of the text field.'),
+    'value': GulfSchemas.stringReference,
     'hintText': S.string(description: 'Hint text for the text field.'),
     'obscureText': S.boolean(
       description: 'Whether the text should be obscured.',
@@ -23,16 +22,17 @@ final _schema = S.object(
 
 extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
-    String? value,
+    required JsonMap value,
     String? hintText,
     bool? obscureText,
-  }) => _TextFieldData.fromMap({
-    'value': value,
-    'hintText': hintText,
-    'obscureText': obscureText,
-  });
+  }) =>
+      _TextFieldData.fromMap({
+        'value': value,
+        'hintText': hintText,
+        'obscureText': obscureText,
+      });
 
-  String get value => (_json['value'] as String?) ?? '';
+  JsonMap get value => _json['value'] as JsonMap;
   String? get hintText => _json['hintText'] as String?;
   bool get obscureText => (_json['obscureText'] as bool?) ?? false;
 }
@@ -94,21 +94,35 @@ class _TextFieldState extends State<_TextField> {
 final textField = CatalogItem(
   name: 'TextField',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final textFieldData = _TextFieldData.fromMap(data as JsonMap);
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final textFieldData = _TextFieldData.fromMap(data as JsonMap);
+    final valueRef = textFieldData.value;
+    final path = valueRef['path'] as String?;
+    final literal = valueRef['literalString'] as String?;
+
+    final notifier = path != null
+        ? dataContext.subscribe<String>(path)
+        : ValueNotifier<String?>(literal);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentValue, child) {
         return _TextField(
-          initialValue: textFieldData.value,
+          initialValue: currentValue ?? '',
           hintText: textFieldData.hintText,
           obscureText: textFieldData.obscureText,
-          onChanged: (newValue) => dataContext.update(id, newValue),
+          onChanged: (newValue) {
+            if (path != null) {
+              dataContext.update(path, newValue);
+            }
+          },
           onSubmitted: (newValue) {
             dispatchEvent(
               UiActionEvent(
@@ -120,4 +134,6 @@ final textField = CatalogItem(
           },
         );
       },
+    );
+  },
 );

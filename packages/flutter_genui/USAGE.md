@@ -307,7 +307,7 @@ final riddleCard = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final json = data as Map<String, Object?>;
         final question = json['question'] as String;

@@ -6,61 +6,62 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'values': S.list(
-      items: S.boolean(),
-      description: 'The values of the checkboxes.',
-    ),
+    'selectedValues': GulfSchemas.stringArrayReference,
     'labels': S.list(
       items: S.string(),
-      description: 'A list of labels for the checkboxes.',
+      description: 'A list of all available labels for the checkboxes.',
     ),
   },
-  required: ['values', 'labels'],
+  required: ['selectedValues', 'labels'],
 );
 
 extension type _CheckboxGroupData.fromMap(JsonMap _json) {
   factory _CheckboxGroupData({
-    required List<bool> values,
+    required JsonMap selectedValues,
     required List<String> labels,
-  }) => _CheckboxGroupData.fromMap({'values': values, 'labels': labels});
+  }) => _CheckboxGroupData.fromMap({
+    'selectedValues': selectedValues,
+    'labels': labels,
+  });
 
-  List<bool> get values => (_json['values'] as List).cast<bool>();
+  JsonMap get selectedValues => _json['selectedValues'] as JsonMap;
   List<String> get labels => (_json['labels'] as List).cast<String>();
 }
 
 class _CheckboxGroup extends StatefulWidget {
   const _CheckboxGroup({
-    required this.initialValues,
-    required this.labels,
+    required this.selectedValues,
+    required this.allLabels,
     required this.onChanged,
   });
 
-  final List<bool> initialValues;
-  final List<String> labels;
-  final void Function(List<bool>) onChanged;
+  final Set<String> selectedValues;
+  final List<String> allLabels;
+  final void Function(Set<String>) onChanged;
 
   @override
   State<_CheckboxGroup> createState() => _CheckboxGroupState();
 }
 
 class _CheckboxGroupState extends State<_CheckboxGroup> {
-  late List<bool> _values;
+  late Set<String> _selectedValues;
 
   @override
   void initState() {
     super.initState();
-    _values = List.from(widget.initialValues);
+    _selectedValues = Set.from(widget.selectedValues);
   }
 
   @override
   void didUpdateWidget(_CheckboxGroup oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialValues != oldWidget.initialValues) {
-      _values = List.from(widget.initialValues);
+    if (widget.selectedValues != oldWidget.selectedValues) {
+      _selectedValues = Set.from(widget.selectedValues);
     }
   }
 
@@ -68,16 +69,22 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (int i = 0; i < widget.labels.length; i++)
+        for (final label in widget.allLabels)
           CheckboxListTile(
-            title: Text(widget.labels[i]),
-            value: _values[i],
+            title: Text(label),
+            value: _selectedValues.contains(label),
             onChanged: (bool? newValue) {
               if (newValue == null) return;
+              final newSelectedValues = Set<String>.from(_selectedValues);
+              if (newValue) {
+                newSelectedValues.add(label);
+              } else {
+                newSelectedValues.remove(label);
+              }
               setState(() {
-                _values[i] = newValue;
+                _selectedValues = newSelectedValues;
               });
-              widget.onChanged(_values);
+              widget.onChanged(newSelectedValues);
             },
             controlAffinity: ListTileControlAffinity.leading,
           ),
@@ -99,14 +106,30 @@ final checkboxGroup = CatalogItem(
         required dataContext,
       }) {
         final checkboxData = _CheckboxGroupData.fromMap(data as JsonMap);
-        return _CheckboxGroup(
-          initialValues: checkboxData.values,
-          labels: checkboxData.labels,
-          onChanged: (newValues) {
-            dataContext.update(id, {
-              for (var i = 0; i < newValues.length; i++)
-                checkboxData.labels[i]: newValues[i],
-            });
+        final valuesRef = checkboxData.selectedValues;
+        final path = valuesRef['path'] as String?;
+        final literal = (valuesRef['literalStringArray'] as List?)
+            ?.cast<String>();
+
+        final notifier = path != null
+            ? dataContext.subscribe<List<dynamic>>(path)
+            : ValueNotifier<List<dynamic>?>(literal);
+
+        return ValueListenableBuilder<List<dynamic>?>(
+          valueListenable: notifier,
+          builder: (context, currentSelectedValues, child) {
+            final selectedValuesSet = (currentSelectedValues ?? [])
+                .cast<String>()
+                .toSet();
+            return _CheckboxGroup(
+              selectedValues: selectedValuesSet,
+              allLabels: checkboxData.labels,
+              onChanged: (newSelectedValues) {
+                if (path != null) {
+                  dataContext.update(path, newSelectedValues.toList());
+                }
+              },
+            );
           },
         );
       },
