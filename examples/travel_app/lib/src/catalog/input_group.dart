@@ -5,10 +5,11 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 final _schema = S.object(
   properties: {
-    'submitLabel': S.string(description: 'The label for the submit button.'),
+    'submitLabel': GulfSchemas.stringReference,
     'children': S.list(
       description:
           'A list of widget IDs for the input children, which must '
@@ -21,14 +22,14 @@ final _schema = S.object(
 
 extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
   factory _InputGroupData({
-    required String submitLabel,
+    required JsonMap submitLabel,
     required List<String> children,
   }) => _InputGroupData.fromMap({
     'submitLabel': submitLabel,
     'children': children,
   });
 
-  String get submitLabel => _json['submitLabel'] as String;
+  JsonMap get submitLabel => _json['submitLabel'] as JsonMap;
   List<String> get children => (_json['children'] as List).cast<String>();
 }
 
@@ -97,12 +98,19 @@ final inputGroup = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final inputGroupData = _InputGroupData.fromMap(
           data as Map<String, Object?>,
         );
-        final submitLabel = inputGroupData.submitLabel;
+        
+        final submitLabelRef = inputGroupData.submitLabel;
+        final path = submitLabelRef['path'] as String?;
+        final literal = submitLabelRef['literalString'] as String?;
+        final notifier = path != null
+            ? dataContext.subscribe<String>(path)
+            : ValueNotifier<String?>(literal);
+
         final children = inputGroupData.children;
 
         return Card(
@@ -118,19 +126,24 @@ final inputGroup = CatalogItem(
                   children: children.map(buildChild).toList(),
                 ),
                 const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () => dispatchEvent(
-                    UiActionEvent(
-                      widgetId: id,
-                      eventType: 'submit',
-                      value: values,
-                    ),
-                  ),
-                  child: Text(submitLabel),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                  ),
+                ValueListenableBuilder<String?>(
+                  valueListenable: notifier,
+                  builder: (context, submitLabel, child) {
+                    return ElevatedButton(
+                      onPressed: () => dispatchEvent(
+                        UiActionEvent(
+                          widgetId: id,
+                          eventType: 'submit',
+                          value: {},
+                        ),
+                      ),
+                      child: Text(submitLabel ?? ''),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                    );
+                  }
                 ),
               ],
             ),

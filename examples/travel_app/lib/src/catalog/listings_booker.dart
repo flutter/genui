@@ -5,6 +5,7 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 import 'package:intl/intl.dart';
 
@@ -18,7 +19,7 @@ final _schema = S.object(
       description: 'Listings to checkout.',
       items: S.string(),
     ),
-    'itineraryName': S.string(description: 'The name of the itinerary.'),
+    'itineraryName': GulfSchemas.stringReference,
   },
   required: ['listingSelectionIds'],
 );
@@ -26,39 +27,43 @@ final _schema = S.object(
 extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
   factory _ListingsBookerData({
     required List<String> listingSelectionIds,
-    required String itineraryName,
-  }) => _ListingsBookerData.fromMap({
-    'listingSelectionIds': listingSelectionIds,
-    'itineraryName': itineraryName,
-  });
+    required JsonMap itineraryName,
+  }) =>
+      _ListingsBookerData.fromMap({
+        'listingSelectionIds': listingSelectionIds,
+        'itineraryName': itineraryName,
+      });
 
   List<String> get listingSelectionIds =>
       (_json['listingSelectionIds'] as List).cast<String>();
-  String get itineraryName => _json['itineraryName'] as String;
+  JsonMap get itineraryName => _json['itineraryName'] as JsonMap;
 }
 
 final listingsBooker = CatalogItem(
   name: 'ListingsBooker',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final listingsBookerData = _ListingsBookerData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: ({ required data, required id, required buildChild, required dispatchEvent, required context, required dataContext, }) {
+    final listingsBookerData = _ListingsBookerData.fromMap(
+      data as Map<String, Object?>, 
+    );
+
+    final itineraryNameRef = listingsBookerData.itineraryName;
+    final itineraryNameNotifier = (itineraryNameRef['path'] as String?) != null
+        ? dataContext.subscribe<String>(itineraryNameRef['path'] as String)
+        : ValueNotifier<String?>(itineraryNameRef['literalString'] as String?);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: itineraryNameNotifier,
+      builder: (context, itineraryName, _) {
         return _ListingsBooker(
           listingSelectionIds: listingsBookerData.listingSelectionIds,
-          itineraryName: listingsBookerData.itineraryName,
+          itineraryName: itineraryName ?? '',
           dispatchEvent: dispatchEvent,
           widgetId: id,
         );
       },
+    );
+  },
   exampleData: [
     () {
       final start1 = DateTime.now().add(const Duration(days: 5));
@@ -92,7 +97,7 @@ final listingsBooker = CatalogItem(
                   listingSelectionId1,
                   listingSelectionId2,
                 ],
-                'itineraryName': 'Dart and Flutter deep dive',
+                'itineraryName': {'literalString': 'Dart and Flutter deep dive'},
               },
             },
           },
@@ -474,15 +479,15 @@ class _BookButton extends StatelessWidget {
       child: _SubmitButton(
         onPressed:
             selectedCard != null && bookingStatus == BookingStatus.initial
-            ? onPressed
-            : null,
+                ? onPressed
+                : null,
         child: switch (bookingStatus) {
           BookingStatus.initial => const Text('Book'),
           BookingStatus.inProgress => const SizedBox(
-            height: 24,
-            width: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           BookingStatus.done => const Icon(Icons.check, size: 24),
         },
       ),

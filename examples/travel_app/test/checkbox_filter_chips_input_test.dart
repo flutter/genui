@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/checkbox_filter_chips_input.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
   testWidgets('CheckboxFilterChipsInput widget test', (
@@ -20,14 +21,16 @@ void main() {
                   data: {
                     'chipLabel': 'Amenities',
                     'options': ['Wifi', 'Pool', 'Gym'],
-                    'initialOptions': ['Wifi', 'Gym'],
+                    'selectedOptions': {
+                      'literalStringArray': ['Wifi', 'Gym']
+                    },
                     'iconName': 'hotel',
                   },
                   id: 'test',
                   buildChild: (_) => const SizedBox(),
                   dispatchEvent: (_) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 ),
               );
             },

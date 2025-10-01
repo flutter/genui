@@ -7,22 +7,22 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
 import 'package:intl/intl.dart';
 
 final _schema = S.object(
   properties: {
-    'value': S.string(
-      description: 'The initial date of the date picker in yyyy-mm-dd format.',
-    ),
+    'value': GulfSchemas.stringReference,
     'label': S.string(description: 'Label for the date picker.'),
   },
 );
 
 extension type _DatePickerData.fromMap(JsonMap _json) {
-  factory _DatePickerData({String? value, String? label}) =>
+  factory _DatePickerData({JsonMap? value, String? label}) =>
       _DatePickerData.fromMap({'value': value, 'label': label});
 
-  String? get value => _json['value'] as String?;
+  JsonMap? get value => _json['value'] as JsonMap?;
   String? get label => _json['label'] as String?;
 }
 
@@ -113,35 +113,50 @@ final dateInputChip = CatalogItem(
   dataSchema: _schema,
   exampleData: [
     () => {
-      'root': 'date_picker',
-      'widgets': [
-        {
-          'id': 'date_picker',
-          'widget': {
-            'DateInputChip': {
-              'value': '1871-07-22',
-              'label': 'Your birth date',
+          'root': 'date_picker',
+          'widgets': [
+            {
+              'id': 'date_picker',
+              'widget': {
+                'DateInputChip': {
+                  'value': {'literalString': '1871-07-22'},
+                  'label': 'Your birth date',
+                },
+              },
             },
-          },
+          ],
         },
-      ],
-    },
   ],
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final datePickerData = _DatePickerData.fromMap(data as JsonMap);
+    final valueRef = datePickerData.value;
+    final path = valueRef?['path'] as String?;
+    final literal = valueRef?['literalString'] as String?;
 
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final datePickerData = _DatePickerData.fromMap(data as JsonMap);
+    final notifier = path != null
+        ? dataContext.subscribe<String>(path)
+        : ValueNotifier<String?>(literal);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentValue, child) {
         return _DateInputChip(
-          initialValue: datePickerData.value,
+          initialValue: currentValue,
           label: datePickerData.label,
-          onChanged: (newValue) => values[id] = newValue,
+          onChanged: (newValue) {
+            if (path != null) {
+              dataContext.update(path, newValue);
+            }
+          },
         );
       },
+    );
+  },
 );

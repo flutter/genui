@@ -5,22 +5,23 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 final _schema = S.object(
   properties: {
     'topics': S.list(
       description: 'A list of topics to display as chips.',
-      items: S.string(description: 'A topic to explore.'),
+      items: GulfSchemas.stringReference,
     ),
   },
   required: ['topics'],
 );
 
 extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
-  factory _TrailheadData({required List<String> topics}) =>
+  factory _TrailheadData({required List<JsonMap> topics}) =>
       _TrailheadData.fromMap({'topics': topics});
 
-  List<String> get topics => (_json['topics'] as List).cast<String>();
+  List<JsonMap> get topics => (_json['topics'] as List).cast<JsonMap>();
 }
 
 /// A widget that presents a list of suggested topics or follow-up questions to
@@ -35,24 +36,24 @@ extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
 final trailhead = CatalogItem(
   name: 'Trailhead',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final trailheadData = _TrailheadData.fromMap(
-          data as Map<String, Object?>,
-        );
-        return _Trailhead(
-          topics: trailheadData.topics,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-        );
-      },
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final trailheadData = _TrailheadData.fromMap(
+      data as Map<String, Object?>,
+    );
+    return _Trailhead(
+      topics: trailheadData.topics,
+      widgetId: id,
+      dispatchEvent: dispatchEvent,
+      dataContext: dataContext,
+    );
+  },
 );
 
 class _Trailhead extends StatelessWidget {
@@ -60,11 +61,13 @@ class _Trailhead extends StatelessWidget {
     required this.topics,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.dataContext,
   });
 
-  final List<String> topics;
+  final List<JsonMap> topics;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
+  final DataContext dataContext;
 
   @override
   Widget build(BuildContext context) {
@@ -73,16 +76,30 @@ class _Trailhead extends StatelessWidget {
       child: Wrap(
         spacing: 8.0,
         runSpacing: 8.0,
-        children: topics.map((topic) {
-          return InputChip(
-            label: Text(topic),
-            onPressed: () {
-              dispatchEvent(
-                UiActionEvent(
-                  widgetId: widgetId,
-                  eventType: 'trailheadTopicSelected',
-                  value: topic,
-                ),
+        children: topics.map((topicRef) {
+          final path = topicRef['path'] as String?;
+          final literal = topicRef['literalString'] as String?;
+          final notifier = path != null
+              ? dataContext.subscribe<String>(path)
+              : ValueNotifier<String?>(literal);
+
+          return ValueListenableBuilder<String?>(
+            valueListenable: notifier,
+            builder: (context, topic, child) {
+              if (topic == null) {
+                return const SizedBox.shrink();
+              }
+              return InputChip(
+                label: Text(topic),
+                onPressed: () {
+                  dispatchEvent(
+                    UiActionEvent(
+                      widgetId: widgetId,
+                      eventType: 'trailheadTopicSelected',
+                      value: topic,
+                    ),
+                  );
+                },
               );
             },
           );

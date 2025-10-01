@@ -5,6 +5,7 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 import '../utils.dart';
 import '../widgets/dismiss_notification.dart';
@@ -18,14 +19,12 @@ final _schema = S.object(
       'A specific activity within a day in an itinerary. '
       'This should be nested inside an ItineraryDay.',
   properties: {
-    'title': S.string(description: 'The title of the itinerary entry.'),
-    'subtitle': S.string(description: 'The subtitle of the itinerary entry.'),
-    'bodyText': S.string(
-      description: 'The body text for the entry. This supports markdown.',
-    ),
-    'address': S.string(description: 'The address for the entry.'),
-    'time': S.string(description: 'The time for the entry (formatted string).'),
-    'totalCost': S.string(description: 'The total cost for the entry.'),
+    'title': GulfSchemas.stringReference,
+    'subtitle': GulfSchemas.stringReference,
+    'bodyText': GulfSchemas.stringReference,
+    'address': GulfSchemas.stringReference,
+    'time': GulfSchemas.stringReference,
+    'totalCost': GulfSchemas.stringReference,
     'type': S.string(
       description: 'The type of the itinerary entry.',
       enumValues: ItineraryEntryType.values.map((e) => e.name).toList(),
@@ -47,31 +46,32 @@ final _schema = S.object(
 
 extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryEntryData({
-    required String title,
-    String? subtitle,
-    required String bodyText,
-    String? address,
-    required String time,
-    String? totalCost,
+    required JsonMap title,
+    JsonMap? subtitle,
+    required JsonMap bodyText,
+    JsonMap? address,
+    required JsonMap time,
+    JsonMap? totalCost,
     required String type,
     required String status,
-  }) => _ItineraryEntryData.fromMap({
-    'title': title,
-    if (subtitle != null) 'subtitle': subtitle,
-    'bodyText': bodyText,
-    if (address != null) 'address': address,
-    'time': time,
-    if (totalCost != null) 'totalCost': totalCost,
-    'type': type,
-    'status': status,
-  });
+  }) =>
+      _ItineraryEntryData.fromMap({
+        'title': title,
+        if (subtitle != null) 'subtitle': subtitle,
+        'bodyText': bodyText,
+        if (address != null) 'address': address,
+        'time': time,
+        if (totalCost != null) 'totalCost': totalCost,
+        'type': type,
+        'status': status,
+      });
 
-  String get title => _json['title'] as String;
-  String? get subtitle => _json['subtitle'] as String?;
-  String get bodyText => _json['bodyText'] as String;
-  String? get address => _json['address'] as String?;
-  String get time => _json['time'] as String;
-  String? get totalCost => _json['totalCost'] as String?;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap? get subtitle => _json['subtitle'] as JsonMap?;
+  JsonMap get bodyText => _json['bodyText'] as JsonMap;
+  JsonMap? get address => _json['address'] as JsonMap?;
+  JsonMap get time => _json['time'] as JsonMap;
+  JsonMap? get totalCost => _json['totalCost'] as JsonMap?;
   ItineraryEntryType get type =>
       ItineraryEntryType.values.byName(_json['type'] as String);
   ItineraryEntryStatus get status =>
@@ -81,32 +81,74 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
 final itineraryEntry = CatalogItem(
   name: 'ItineraryEntry',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final itineraryEntryData = _ItineraryEntryData.fromMap(
-          data as Map<String, Object?>,
-        );
-        return _ItineraryEntry(
-          title: itineraryEntryData.title,
-          subtitle: itineraryEntryData.subtitle,
-          bodyText: itineraryEntryData.bodyText,
-          address: itineraryEntryData.address,
-          time: itineraryEntryData.time,
-          totalCost: itineraryEntryData.totalCost,
-          type: itineraryEntryData.type,
-          status: itineraryEntryData.status,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-        );
-      },
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final itineraryEntryData = _ItineraryEntryData.fromMap(
+      data as Map<String, Object?>,
+    );
+
+    final titleNotifier = dataContext.subscribeToString(itineraryEntryData.title);
+    final subtitleNotifier =
+        dataContext.subscribeToString(itineraryEntryData.subtitle);
+    final bodyTextNotifier =
+        dataContext.subscribeToString(itineraryEntryData.bodyText);
+    final addressNotifier =
+        dataContext.subscribeToString(itineraryEntryData.address);
+    final timeNotifier = dataContext.subscribeToString(itineraryEntryData.time);
+    final totalCostNotifier =
+        dataContext.subscribeToString(itineraryEntryData.totalCost);
+
+    return ValueListenableBuilder(
+      valueListenable: titleNotifier,
+      builder: (context, title, _) => ValueListenableBuilder(
+        valueListenable: subtitleNotifier,
+        builder: (context, subtitle, _) => ValueListenableBuilder(
+          valueListenable: bodyTextNotifier,
+          builder: (context, bodyText, _) => ValueListenableBuilder(
+            valueListenable: addressNotifier,
+            builder: (context, address, _) => ValueListenableBuilder(
+              valueListenable: timeNotifier,
+              builder: (context, time, _) => ValueListenableBuilder(
+                valueListenable: totalCostNotifier,
+                builder: (context, totalCost, _) {
+                  return _ItineraryEntry(
+                    title: title ?? '',
+                    subtitle: subtitle,
+                    bodyText: bodyText ?? '',
+                    address: address,
+                    time: time ?? '',
+                    totalCost: totalCost,
+                    type: itineraryEntryData.type,
+                    status: itineraryEntryData.status,
+                    widgetId: id,
+                    dispatchEvent: dispatchEvent,
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
 );
+
+extension on DataContext {
+  ValueNotifier<String?> subscribeToString(JsonMap? ref) {
+    if (ref == null) return ValueNotifier<String?>(null);
+    final path = ref['path'] as String?;
+    final literal = ref['literalString'] as String?;
+    return path != null
+        ? subscribe<String>(path)
+        : ValueNotifier<String?>(literal);
+  }
+}
 
 class _ItineraryEntry extends StatelessWidget {
   final String title;

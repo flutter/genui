@@ -8,6 +8,7 @@ library;
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 import '../widgets/dismiss_notification.dart';
 
@@ -16,38 +17,30 @@ final _schema = S.object(
       'Widget to show an itinerary or a plan for travel. This should contain '
       'a list of ItineraryDay widgets.',
   properties: {
-    'title': S.string(description: 'The title of the itinerary.'),
-    'subheading': S.string(description: 'The subheading of the itinerary.'),
-    'imageChildId': S.string(
-      description:
-          'The ID of the Image widget to display. The Image fit '
-          "should typically be 'cover'. Be sure to create an Image widget "
-          'with a matching ID.',
-    ),
-    'child': S.string(
-      description:
-          'The ID of a child widget to display in a modal. This should '
-          'typically be a Column which contains a sequence of ItineraryDays.',
-    ),
+    'title': GulfSchemas.stringReference,
+    'subheading': GulfSchemas.stringReference,
+    'imageChildId': GulfSchemas.componentReference,
+    'child': GulfSchemas.componentReference,
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],
 );
 
 extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryWithDetailsData({
-    required String title,
-    required String subheading,
+    required JsonMap title,
+    required JsonMap subheading,
     required String imageChildId,
     required String child,
-  }) => _ItineraryWithDetailsData.fromMap({
-    'title': title,
-    'subheading': subheading,
-    'imageChildId': imageChildId,
-    'child': child,
-  });
+  }) =>
+      _ItineraryWithDetailsData.fromMap({
+        'title': title,
+        'subheading': subheading,
+        'imageChildId': imageChildId,
+        'child': child,
+      });
 
-  String get title => _json['title'] as String;
-  String get subheading => _json['subheading'] as String;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap get subheading => _json['subheading'] as JsonMap;
   String get imageChildId => _json['imageChildId'] as String;
   String get child => _json['child'] as String;
 }
@@ -63,28 +56,47 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
 final itineraryWithDetails = CatalogItem(
   name: 'ItineraryWithDetails',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
-          data as Map<String, Object?>,
-        );
-        final child = buildChild(itineraryWithDetailsData.child);
-        final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
+      data as Map<String, Object?>,
+    );
+    final child = buildChild(itineraryWithDetailsData.child);
+    final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
-        return _ItineraryWithDetails(
-          title: itineraryWithDetailsData.title,
-          subheading: itineraryWithDetailsData.subheading,
-          imageChild: imageChild,
-          child: child,
+    final titleRef = itineraryWithDetailsData.title;
+    final titleNotifier = (titleRef['path'] as String?) != null
+        ? dataContext.subscribe<String>(titleRef['path'] as String)
+        : ValueNotifier<String?>(titleRef['literalString'] as String?);
+
+    final subheadingRef = itineraryWithDetailsData.subheading;
+    final subheadingNotifier = (subheadingRef['path'] as String?) != null
+        ? dataContext.subscribe<String>(subheadingRef['path'] as String)
+        : ValueNotifier<String?>(subheadingRef['literalString'] as String?);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: titleNotifier,
+      builder: (context, title, _) {
+        return ValueListenableBuilder<String?>(
+          valueListenable: subheadingNotifier,
+          builder: (context, subheading, _) {
+            return _ItineraryWithDetails(
+              title: title ?? '',
+              subheading: subheading ?? '',
+              imageChild: imageChild,
+              child: child,
+            );
+          },
         );
       },
+    );
+  },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {
