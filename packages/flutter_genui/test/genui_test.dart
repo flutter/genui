@@ -5,6 +5,7 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/src/model/data_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
 
@@ -31,7 +32,7 @@ void main() {
                   (_) => const SizedBox(),
                   (UiEvent event) {},
                   context,
-                  {},
+                  DataContext(DataModel(), '/'),
                 );
                 expect(widget, isA<Text>());
                 expect((widget as Text).data, 'hello');
@@ -74,7 +75,7 @@ void main() {
                   (_) => const SizedBox(),
                   (UiEvent event) {},
                   context,
-                  {},
+                  DataContext(DataModel(), '/'),
                 );
                 expect(widget, isA<Container>());
                 return widget;

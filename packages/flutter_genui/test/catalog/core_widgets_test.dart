@@ -93,9 +93,7 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.valueStore.forSurface('testSurface'), {
-        'checkboxes': {'A': true, 'B': true},
-      });
+      expect(manager!.dataModel.getValue('checkboxes'), {'A': true, 'B': true});
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -162,7 +160,7 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.valueStore.forSurface('testSurface'), {'radios': 'B'});
+      expect(manager!.dataModel.getValue('radios'), 'B');
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
@@ -189,9 +187,7 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(manager!.valueStore.forSurface('testSurface'), {
-        'field': 'new value',
-      });
+      expect(manager!.dataModel.getValue('field'), 'new value');
 
       // Test onSubmitted
       expect(message, null);

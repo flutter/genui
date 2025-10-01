@@ -96,17 +96,17 @@ final checkboxGroup = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final checkboxData = _CheckboxGroupData.fromMap(data as JsonMap);
         return _CheckboxGroup(
           initialValues: checkboxData.values,
           labels: checkboxData.labels,
           onChanged: (newValues) {
-            values[id] = {
+            dataContext.update(id, {
               for (var i = 0; i < newValues.length; i++)
                 checkboxData.labels[i]: newValues[i],
-            };
+            });
           },
         );
       },

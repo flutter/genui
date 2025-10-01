@@ -33,7 +33,7 @@ final text = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final textData = _TextData.fromMap(data as JsonMap);
         return Text(

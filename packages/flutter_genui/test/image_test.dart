@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/src/catalog/core_widgets/image.dart';
+import 'package:flutter_genui/src/model/data_model.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -26,7 +27,7 @@ void main() {
                 buildChild: (String id) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 context: context,
-                values: {},
+                dataContext: DataContext(DataModel(), '/'),
               ),
             ),
           ),

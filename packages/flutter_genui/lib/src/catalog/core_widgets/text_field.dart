@@ -101,14 +101,14 @@ final textField = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         return _TextField(
           initialValue: textFieldData.value,
           hintText: textFieldData.hintText,
           obscureText: textFieldData.obscureText,
-          onChanged: (newValue) => values[id] = newValue,
+          onChanged: (newValue) => dataContext.update(id, newValue),
           onSubmitted: (newValue) {
             dispatchEvent(
               UiActionEvent(

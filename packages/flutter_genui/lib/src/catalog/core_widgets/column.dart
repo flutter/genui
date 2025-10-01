@@ -104,7 +104,7 @@ final column = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         final childrenIds = columnData.children;

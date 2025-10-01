@@ -41,7 +41,7 @@ final image = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
 
