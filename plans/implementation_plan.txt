@@ -172,7 +172,7 @@ class GulfSchemas {
   static final Schema componentReference = S.string();
 
   /// Schema for a property that holds a list of child components,
-  /// either as an explicit list of IDs or a data-bound template.
+  -  /// either as an explicit list of IDs or a data-bound template.
   static final Schema componentArrayReference = S.object(properties: {
     'explicitList': S.array(items: componentReference),
     'template': S.object(properties: {
@@ -231,3 +231,168 @@ class GulfSchemas {
     3. It will then call the child widget builder for the template, passing this new `itemContext`. This ensures any relative paths inside the template are resolved correctly (e.g., a `name` path inside the template will resolve to `/users/i/name`).
   - **Input Widgets (e.g., `TextField`)**: Will use `dataContext.subscribe(...)` to display the current value and `dataContext.update("path.to.value", newValue)` in the `onChanged` callback to push changes back to the model.
   - **Example Apps**: Refactor all custom widgets (e.g., `ItineraryEntry`) to use this new contextual and reactive pattern.
+
+---
+
+## Guide: Migrating a Widget to the New Data Model
+
+This guide outlines the steps to refactor a `CatalogItem` to use the new `DataContext` and reactive data-binding system. We will use the `TextField` widget as a running example.
+
+### Step 1: Update the Data Schema
+
+The first step is to update the `dataSchema` in your `CatalogItem` to use the predefined schemas from `GulfSchemas`. This ensures that any property that needs to be dynamic can accept either a literal value or a path to a value in the `DataModel`.
+
+**Before:**
+```dart
+final _schema = S.object(
+  properties: {
+    'value': S.string(description: 'The initial value of the text field.'),
+    // ... other properties
+  },
+);
+```
+
+**After:**
+```dart
+import 'package:flutter_genui/src/model/gulf_schemas.dart';
+
+final _schema = S.object(
+  properties: {
+    'value': GulfSchemas.stringReference, // Use the predefined schema
+    // ... other properties
+  },
+);
+```
+Use the appropriate schema for the data type: `stringReference`, `numberReference`, `booleanReference`, `stringArrayReference`, etc.
+
+### Step 2: Update the Data Class (Extension Type)
+
+Modify your data class to reflect the schema change. The property that was previously a simple type (e.g., `String`) will now be a `JsonMap`, representing the reference object.
+
+**Before:**
+```dart
+extension type _TextFieldData.fromMap(JsonMap _json) {
+  String get value => (_json['value'] as String?) ?? '';
+}
+```
+
+**After:**
+```dart
+extension type _TextFieldData.fromMap(JsonMap _json) {
+  JsonMap get value => _json['value'] as JsonMap;
+}
+```
+
+### Step 3: Refactor the Widget Builder
+
+This is the core of the migration. The `widgetBuilder` needs to be updated to resolve the data reference and react to changes.
+
+1.  **Remove the old `values` parameter** and ensure the builder accepts `required DataContext dataContext`.
+2.  **Resolve the data reference**: In the builder, get the reference object (the `JsonMap`) from your data class. Extract the `path` and the literal value (e.g., `literalString`).
+3.  **Create a `ValueNotifier`**:
+    *   If a `path` exists, call `dataContext.subscribe<T>(path)` to get a reactive `ValueNotifier`.
+    *   If a `literal` value exists, create a `ValueNotifier` manually: `ValueNotifier<T?>(literal)`.
+4.  **Wrap with `ValueListenableBuilder`**: Return a `ValueListenableBuilder` that listens to the notifier you just created.
+5.  **Build the widget**: Inside the `builder` of the `ValueListenableBuilder`, use the provided value to construct and return your actual widget.
+
+**Before:**
+```dart
+final textField = CatalogItem(
+  name: 'TextField',
+  dataSchema: _schema,
+  widgetBuilder: ({ data, id, ..., required WidgetValueStore values }) {
+    final textFieldData = _TextFieldData.fromMap(data as JsonMap);
+    return _TextField(
+      initialValue: values.getValue(id) ?? textFieldData.value,
+      onChanged: (newValue) => values.updateValue(id, newValue),
+      // ...
+    );
+  },
+);
+```
+
+**After:**
+```dart
+final textField = CatalogItem(
+  name: 'TextField',
+  dataSchema: _schema,
+  widgetBuilder: ({ data, id, ..., required DataContext dataContext }) {
+    final textFieldData = _TextFieldData.fromMap(data as JsonMap);
+    final valueRef = textFieldData.value;
+    final path = valueRef['path'] as String?;
+    final literal = valueRef['literalString'] as String?;
+
+    // Create the appropriate notifier
+    final notifier = path != null
+        ? dataContext.subscribe<String>(path)
+        : ValueNotifier<String?>(literal);
+
+    // Use ValueListenableBuilder to react to changes
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentValue, child) {
+        // Build the actual widget with the current value
+        return _TextField(
+          initialValue: currentValue ?? '',
+          hintText: textFieldData.hintText,
+          onChanged: (newValue) {
+            // Update the data model ONLY if bound to a path
+            if (path != null) {
+              dataContext.update(path, newValue);
+            }
+          },
+          // ...
+        );
+      },
+    );
+  },
+);
+```
+
+### Step 4: Update Widget Tests
+
+Your tests must be updated to reflect the new schema and to verify data binding.
+
+1.  **Update JSON Definitions**: In your test cases, change the widget definitions to use the new reference object structure.
+    *   `'value': 'initial'` becomes `'value': {'literalString': 'initial'}`.
+    *   For data-bound tests, use `'value': {'path': '/myValue'}`.
+
+2.  **Add Data Binding Tests**: Create new tests to verify that the widget correctly subscribes to and updates the `DataModel`.
+    *   Provide a definition with a `path`.
+    *   Pump the widget.
+    *   Use the `GenUiManager` instance to update the data model: `manager.dataModel.update('/myValue', 'new value')`.
+    *   Pump the widget again (`tester.pumpAndSettle()`).
+    *   Verify that the widget now displays the "new value".
+
+**Example Test:**
+```dart
+testWidgets('TextField renders from data model and updates it', (tester) async {
+  final definition = {
+    'root': 'field',
+    'widgets': [
+      {
+        'id': 'field',
+        'widget': {
+          'TextField': {
+            'value': {'path': '/myValue'}, // Use a path
+            'hintText': 'hint',
+          },
+        },
+      },
+    ],
+  };
+
+  // pumpWidgetWithDefinition is a test helper
+  await pumpWidgetWithDefinition(tester, definition);
+
+  // 1. Test initial value from data model
+  manager!.dataModel.update('/myValue', 'initial');
+  await tester.pumpAndSettle();
+  expect(find.widgetWithText(TextField, 'initial'), findsOneWidget);
+
+  // 2. Test updating the data model from the UI
+  await tester.enterText(find.byType(TextField), 'new value');
+  await tester.pump(); // Let the onChanged callback fire
+  expect(manager!.dataModel.getValue('/myValue'), 'new value');
+});
+```
