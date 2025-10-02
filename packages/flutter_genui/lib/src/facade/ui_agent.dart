@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/foundation.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../ai_client/ai_client.dart';
 import '../core/genui_manager.dart';

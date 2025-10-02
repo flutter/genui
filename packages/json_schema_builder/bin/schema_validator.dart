@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser()..addOption('schema', abbr: 's', mandatory: true);

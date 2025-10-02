@@ -18,8 +18,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_driver:
     sdk: flutter
-  dart_schema_builder:
-    path: ../../../dart_schema_builder
+  json_schema_builder:
+    path: ../../../json_schema_builder
 
 dev_dependencies:
   test: ^1.26.2

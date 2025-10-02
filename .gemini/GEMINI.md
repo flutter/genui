@@ -14,7 +14,7 @@ The project is structured as a monorepo containing several Dart and Flutter pack
 | ------------------------------------ | ----------------------------------------------------------------------- |
 | `packages/flutter_genui`             | The core framework for employing Generative UI.                         |
 | `packages/flutter_genui_firebase_ai` | Firebase AI integration for `flutter_genui`.                            |
-| `packages/dart_schema_builder`       | A Dart JSON Schema package with validation, used by the core framework. |
+| `packages/json_schema_builder`       | A Dart JSON Schema package with validation, used by the core framework. |
 
 ### Example Applications
 

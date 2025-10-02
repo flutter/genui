@@ -8,26 +8,26 @@ description: |
 Follow these steps to create your own, custom widgets and make them available
 to the agent for generation.
 
-## 1. Import `dart_schema_builder`
+## 1. Import `json_schema_builder`
 
-Add the `dart_schema_builder` package as a dependency in `pubspec.yaml`. Use the
+Add the `json_schema_builder` package as a dependency in `pubspec.yaml`. Use the
 same commit reference as the one for `flutter_genui`.
 
 ```yaml
-dart_schema_builder:
+json_schema_builder:
   git:
     url: https://github.com/flutter/genui.git
-    path: packages/dart_schema_builder
+    path: packages/json_schema_builder
     ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
 ```
 
 ## 2. Create the new widget's schema
 
 Each catalog item needs a schema that defines the data required to populate it.
-Using the `dart_schema_builder` package, define one for the new widget.
+Using the `json_schema_builder` package, define one for the new widget.
 
 ```dart
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 

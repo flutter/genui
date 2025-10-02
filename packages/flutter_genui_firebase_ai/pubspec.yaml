@@ -15,13 +15,13 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  dart_schema_builder:
-    path: ../dart_schema_builder
   firebase_ai: ^3.2.0
   flutter:
     sdk: flutter
   flutter_genui:
     path: ../flutter_genui
+  json_schema_builder:
+    path: ../json_schema_builder
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2

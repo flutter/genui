@@ -16,10 +16,10 @@ environment:
 
 dependencies:
   collection: ^1.19.1
-  dart_schema_builder:
-    path: ../dart_schema_builder
   flutter:
     sdk: flutter
+  json_schema_builder:
+    path: ../json_schema_builder
   logging: ^1.3.0
 
 dev_dependencies:
