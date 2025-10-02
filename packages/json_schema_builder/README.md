@@ -1,4 +1,4 @@
-# Dart Schema Builder
+# JSON Schema Builder
 
 A robust and developer-friendly Dart library for creating, validating, and working with JSON Schemas. `json_schema_builder` provides a fluent, type-safe API to define the structure of your data, ensuring its integrity and correctness throughout your application.
 

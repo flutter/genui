@@ -1,4 +1,4 @@
-# Dart Schema Builder Examples
+# JSON Schema Builder Examples
 
 This directory contains examples demonstrating how to use the `json_schema_builder` package.
 
