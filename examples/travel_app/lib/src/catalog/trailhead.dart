@@ -77,11 +77,7 @@ class _Trailhead extends StatelessWidget {
         spacing: 8.0,
         runSpacing: 8.0,
         children: topics.map((topicRef) {
-          final path = topicRef['path'] as String?;
-          final literal = topicRef['literalString'] as String?;
-          final notifier = path != null
-              ? dataContext.subscribe<String>(path)
-              : ValueNotifier<String?>(literal);
+          final notifier = dataContext.subscribeToString(topicRef);
 
           return ValueListenableBuilder<String?>(
             valueListenable: notifier,

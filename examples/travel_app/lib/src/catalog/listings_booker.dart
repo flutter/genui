@@ -53,13 +53,9 @@ final listingsBooker = CatalogItem(
           data as Map<String, Object?>,
         );
 
-        final itineraryNameRef = listingsBookerData.itineraryName;
-        final itineraryNameNotifier =
-            (itineraryNameRef['path'] as String?) != null
-            ? dataContext.subscribe<String>(itineraryNameRef['path'] as String)
-            : ValueNotifier<String?>(
-                itineraryNameRef['literalString'] as String?,
-              );
+        final itineraryNameNotifier = dataContext.subscribeToString(
+          listingsBookerData.itineraryName,
+        );
 
         return ValueListenableBuilder<String?>(
           valueListenable: itineraryNameNotifier,

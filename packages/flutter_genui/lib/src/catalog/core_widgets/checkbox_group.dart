@@ -5,6 +5,7 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/widget_utilities.dart';
 import '../../model/catalog_item.dart';
 import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
@@ -108,12 +109,7 @@ final checkboxGroup = CatalogItem(
         final checkboxData = _CheckboxGroupData.fromMap(data as JsonMap);
         final valuesRef = checkboxData.selectedValues;
         final path = valuesRef['path'] as String?;
-        final literal = (valuesRef['literalStringArray'] as List?)
-            ?.cast<String>();
-
-        final notifier = path != null
-            ? dataContext.subscribe<List<dynamic>>(path)
-            : ValueNotifier<List<dynamic>?>(literal);
+        final notifier = dataContext.subscribeToStringArray(valuesRef);
 
         return ValueListenableBuilder<List<dynamic>?>(
           valueListenable: notifier,

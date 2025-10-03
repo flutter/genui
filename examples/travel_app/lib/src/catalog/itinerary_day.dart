@@ -68,22 +68,15 @@ final itineraryDay = CatalogItem(
           data as Map<String, Object?>,
         );
 
-        final titleRef = itineraryDayData.title;
-        final titleNotifier = (titleRef['path'] as String?) != null
-            ? dataContext.subscribe<String>(titleRef['path'] as String)
-            : ValueNotifier<String?>(titleRef['literalString'] as String?);
-
-        final subtitleRef = itineraryDayData.subtitle;
-        final subtitleNotifier = (subtitleRef['path'] as String?) != null
-            ? dataContext.subscribe<String>(subtitleRef['path'] as String)
-            : ValueNotifier<String?>(subtitleRef['literalString'] as String?);
-
-        final descriptionRef = itineraryDayData.description;
-        final descriptionNotifier = (descriptionRef['path'] as String?) != null
-            ? dataContext.subscribe<String>(descriptionRef['path'] as String)
-            : ValueNotifier<String?>(
-                descriptionRef['literalString'] as String?,
-              );
+        final titleNotifier = dataContext.subscribeToString(
+          itineraryDayData.title,
+        );
+        final subtitleNotifier = dataContext.subscribeToString(
+          itineraryDayData.subtitle,
+        );
+        final descriptionNotifier = dataContext.subscribeToString(
+          itineraryDayData.description,
+        );
 
         return ValueListenableBuilder<String?>(
           valueListenable: titleNotifier,

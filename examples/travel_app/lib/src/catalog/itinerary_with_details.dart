@@ -69,15 +69,12 @@ final itineraryWithDetails = CatalogItem(
         final child = buildChild(itineraryWithDetailsData.child);
         final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
-        final titleRef = itineraryWithDetailsData.title;
-        final titleNotifier = (titleRef['path'] as String?) != null
-            ? dataContext.subscribe<String>(titleRef['path'] as String)
-            : ValueNotifier<String?>(titleRef['literalString'] as String?);
-
-        final subheadingRef = itineraryWithDetailsData.subheading;
-        final subheadingNotifier = (subheadingRef['path'] as String?) != null
-            ? dataContext.subscribe<String>(subheadingRef['path'] as String)
-            : ValueNotifier<String?>(subheadingRef['literalString'] as String?);
+        final titleNotifier = dataContext.subscribeToString(
+          itineraryWithDetailsData.title,
+        );
+        final subheadingNotifier = dataContext.subscribeToString(
+          itineraryWithDetailsData.subheading,
+        );
 
         return _ItineraryWithDetails(
           titleNotifier: titleNotifier,

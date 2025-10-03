@@ -100,13 +100,7 @@ final checkboxFilterChipsInput = CatalogItem(
         }
 
         final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-        final path = selectedOptionsRef['path'] as String?;
-        final literal = (selectedOptionsRef['literalStringArray'] as List?)
-            ?.cast<String>();
-
-        final notifier = path != null
-            ? dataContext.subscribe<List<dynamic>>(path)
-            : ValueNotifier<List<dynamic>?>(literal);
+        final notifier = dataContext.subscribeToStringArray(selectedOptionsRef);
 
         return ValueListenableBuilder<List<dynamic>?>(
           valueListenable: notifier,
@@ -120,6 +114,7 @@ final checkboxFilterChipsInput = CatalogItem(
               icon: icon,
               selectedOptions: selectedOptionsSet,
               onChanged: (newSelectedOptions) {
+                final path = selectedOptionsRef['path'] as String?;
                 if (path != null) {
                   dataContext.update(path, newSelectedOptions.toList());
                 }

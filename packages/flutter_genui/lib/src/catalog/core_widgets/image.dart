@@ -5,6 +5,7 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/widget_utilities.dart';
 import '../../model/catalog_item.dart';
 import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
@@ -42,13 +43,7 @@ final image = CatalogItem(
         required dataContext,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
-        final locationRef = imageData.location;
-        final path = locationRef['path'] as String?;
-        final literal = locationRef['literalString'] as String?;
-
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(imageData.location);
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

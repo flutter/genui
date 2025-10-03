@@ -5,6 +5,7 @@
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/widget_utilities.dart';
 import '../../model/catalog_item.dart';
 import '../../model/gulf_schemas.dart';
 import '../../model/ui_models.dart';
@@ -105,11 +106,7 @@ final textField = CatalogItem(
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         final valueRef = textFieldData.value;
         final path = valueRef['path'] as String?;
-        final literal = valueRef['literalString'] as String?;
-
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(valueRef);
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

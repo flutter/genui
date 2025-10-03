@@ -8,7 +8,9 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 /// GULF patterns, simplifying the creation of CatalogItem definitions.
 class GulfSchemas {
   /// Schema for a value that can be either a literal string or a
-  /// data-bound path to a string in the DataModel.
+  /// data-bound path to a string in the DataModel. If both path and
+  /// literalString are provided, the value at the path will be initialized
+  /// with the literalString.
   static final Schema stringReference = S.object(
     properties: {
       'path': S.string(
@@ -19,7 +21,9 @@ class GulfSchemas {
   );
 
   /// Schema for a value that can be either a literal number or a
-  /// data-bound path to a number in the DataModel.
+  /// data-bound path to a number in the DataModel. If both path and
+  /// literalNumber are provided, the value at the path will be initialized
+  /// with the literalNumber.
   static final Schema numberReference = S.object(
     properties: {
       'path': S.string(
@@ -30,7 +34,9 @@ class GulfSchemas {
   );
 
   /// Schema for a value that can be either a literal boolean or a
-  /// data-bound path to a boolean in the DataModel.
+  /// data-bound path to a boolean in the DataModel. If both path and
+  /// literalBoolean are provided, the value at the path will be initialized
+  /// with the literalBoolean.
   static final Schema booleanReference = S.object(
     properties: {
       'path': S.string(
@@ -82,7 +88,9 @@ class GulfSchemas {
   );
 
   /// Schema for a value that can be either a literal array of strings or a
-  /// data-bound path to an array of strings in the DataModel.
+  /// data-bound path to an array of strings in the DataModel. If both path and
+  /// literalStringArray are provided, the value at the path will be
+  /// initialized with the literalStringArray.
   static final Schema stringArrayReference = S.object(
     properties: {
       'path': S.string(

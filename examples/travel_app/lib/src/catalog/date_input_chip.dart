@@ -135,13 +135,8 @@ final dateInputChip = CatalogItem(
         required dataContext,
       }) {
         final datePickerData = _DatePickerData.fromMap(data as JsonMap);
-        final valueRef = datePickerData.value;
-        final path = valueRef?['path'] as String?;
-        final literal = valueRef?['literalString'] as String?;
-
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(datePickerData.value);
+        final path = datePickerData.value?['path'] as String?;
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

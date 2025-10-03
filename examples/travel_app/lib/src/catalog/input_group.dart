@@ -103,12 +103,9 @@ final inputGroup = CatalogItem(
           data as Map<String, Object?>,
         );
 
-        final submitLabelRef = inputGroupData.submitLabel;
-        final path = submitLabelRef['path'] as String?;
-        final literal = submitLabelRef['literalString'] as String?;
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(
+          inputGroupData.submitLabel,
+        );
 
         final children = inputGroupData.children;
 

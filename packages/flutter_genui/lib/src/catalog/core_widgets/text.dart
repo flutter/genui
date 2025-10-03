@@ -4,6 +4,7 @@
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import '../../core/widget_utilities.dart';
 import '../../model/catalog_item.dart';
 import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
@@ -31,13 +32,7 @@ final text = CatalogItem(
         required dataContext,
       }) {
         final textData = _TextData.fromMap(data as JsonMap);
-        final valueRef = textData.text;
-        final path = valueRef['path'] as String?;
-        final literal = valueRef['literalString'] as String?;
-
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(textData.text);
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

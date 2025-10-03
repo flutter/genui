@@ -64,14 +64,7 @@ final tabbedSections = CatalogItem(
           data as Map<String, Object?>,
         );
         final sections = tabbedSectionsData.sections.map((section) {
-          final titleRef = section.title;
-          final path = titleRef['path'] as String?;
-          final literal = titleRef['literalString'] as String?;
-
-          final titleNotifier = path != null
-              ? dataContext.subscribe<String>(path)
-              : ValueNotifier<String?>(literal);
-
+          final titleNotifier = dataContext.subscribeToString(section.title);
           return _TabSectionData(
             titleNotifier: titleNotifier,
             childId: section.childId,

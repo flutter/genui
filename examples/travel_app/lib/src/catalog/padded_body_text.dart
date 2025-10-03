@@ -34,13 +34,7 @@ final paddedBodyText = CatalogItem(
           data as Map<String, Object?>,
         );
 
-        final textRef = textData.text;
-        final path = textRef['path'] as String?;
-        final literal = textRef['literalString'] as String?;
-
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(textData.text);
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

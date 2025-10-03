@@ -61,26 +61,11 @@ final informationCard = CatalogItem(
             ? buildChild(cardData.imageChildId!)
             : null;
 
-        final titleRef = cardData.title;
-        final titlePath = titleRef['path'] as String?;
-        final titleLiteral = titleRef['literalString'] as String?;
-        final titleNotifier = titlePath != null
-            ? dataContext.subscribe<String>(titlePath)
-            : ValueNotifier<String?>(titleLiteral);
-
-        final subtitleRef = cardData.subtitle;
-        final subtitlePath = subtitleRef?['path'] as String?;
-        final subtitleLiteral = subtitleRef?['literalString'] as String?;
-        final subtitleNotifier = subtitlePath != null
-            ? dataContext.subscribe<String>(subtitlePath)
-            : ValueNotifier<String?>(subtitleLiteral);
-
-        final bodyRef = cardData.body;
-        final bodyPath = bodyRef['path'] as String?;
-        final bodyLiteral = bodyRef['literalString'] as String?;
-        final bodyNotifier = bodyPath != null
-            ? dataContext.subscribe<String>(bodyPath)
-            : ValueNotifier<String?>(bodyLiteral);
+        final titleNotifier = dataContext.subscribeToString(cardData.title);
+        final subtitleNotifier = dataContext.subscribeToString(
+          cardData.subtitle,
+        );
+        final bodyNotifier = dataContext.subscribeToString(cardData.body);
 
         return _InformationCard(
           imageChild: imageChild,

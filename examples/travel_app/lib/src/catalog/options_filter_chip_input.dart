@@ -92,11 +92,7 @@ final optionsFilterChipInput = CatalogItem(
 
         final valueRef = optionsFilterChipData.value;
         final path = valueRef?['path'] as String?;
-        final literal = valueRef?['literalString'] as String?;
-
-        final notifier = path != null
-            ? dataContext.subscribe<String>(path)
-            : ValueNotifier<String?>(literal);
+        final notifier = dataContext.subscribeToString(valueRef);
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

@@ -40,13 +40,31 @@ class OptionalValueBuilder<T> extends StatelessWidget {
   }
 }
 
+/// Extension methods for [DataContext] to simplify data binding.
 extension DataContextExtensions on DataContext {
-  ValueNotifier<String?> subscribeToString(JsonMap? ref) {
-    if (ref == null) return ValueNotifier<String?>(null);
+  ValueNotifier<T?> _subscribeToValue<T>(JsonMap? ref, String literalKey) {
+    if (ref == null) return ValueNotifier<T?>(null);
     final path = ref['path'] as String?;
-    final literal = ref['literalString'] as String?;
-    return path != null
-        ? subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
+    final literal = ref[literalKey];
+
+    if (path != null) {
+      if (literal != null) {
+        update(path, literal);
+      }
+      return subscribe<T>(path);
+    }
+
+    return ValueNotifier<T?>(literal as T?);
+  }
+
+  /// Subscribes to a string value, which can be a literal or a data-bound path.
+  ValueNotifier<String?> subscribeToString(JsonMap? ref) {
+    return _subscribeToValue<String>(ref, 'literalString');
+  }
+
+  /// Subscribes to a list of strings, which can be a literal or a data-bound
+  /// path.
+  ValueNotifier<List<dynamic>?> subscribeToStringArray(JsonMap? ref) {
+    return _subscribeToValue<List<dynamic>>(ref, 'literalStringArray');
   }
 }
