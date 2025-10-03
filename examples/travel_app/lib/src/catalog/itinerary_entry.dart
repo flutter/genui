@@ -111,37 +111,17 @@ final itineraryEntry = CatalogItem(
           itineraryEntryData.totalCost,
         );
 
-        return ValueListenableBuilder(
-          valueListenable: titleNotifier,
-          builder: (context, title, _) => ValueListenableBuilder(
-            valueListenable: subtitleNotifier,
-            builder: (context, subtitle, _) => ValueListenableBuilder(
-              valueListenable: bodyTextNotifier,
-              builder: (context, bodyText, _) => ValueListenableBuilder(
-                valueListenable: addressNotifier,
-                builder: (context, address, _) => ValueListenableBuilder(
-                  valueListenable: timeNotifier,
-                  builder: (context, time, _) => ValueListenableBuilder(
-                    valueListenable: totalCostNotifier,
-                    builder: (context, totalCost, _) {
-                      return _ItineraryEntry(
-                        title: title ?? '',
-                        subtitle: subtitle,
-                        bodyText: bodyText ?? '',
-                        address: address,
-                        time: time ?? '',
-                        totalCost: totalCost,
-                        type: itineraryEntryData.type,
-                        status: itineraryEntryData.status,
-                        widgetId: id,
-                        dispatchEvent: dispatchEvent,
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ),
+        return _ItineraryEntry(
+          titleNotifier: titleNotifier,
+          subtitleNotifier: subtitleNotifier,
+          bodyTextNotifier: bodyTextNotifier,
+          addressNotifier: addressNotifier,
+          timeNotifier: timeNotifier,
+          totalCostNotifier: totalCostNotifier,
+          type: itineraryEntryData.type,
+          status: itineraryEntryData.status,
+          widgetId: id,
+          dispatchEvent: dispatchEvent,
         );
       },
 );
@@ -158,24 +138,24 @@ extension on DataContext {
 }
 
 class _ItineraryEntry extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  final String bodyText;
-  final String? address;
-  final String time;
-  final String? totalCost;
+  final ValueNotifier<String?> titleNotifier;
+  final ValueNotifier<String?> subtitleNotifier;
+  final ValueNotifier<String?> bodyTextNotifier;
+  final ValueNotifier<String?> addressNotifier;
+  final ValueNotifier<String?> timeNotifier;
+  final ValueNotifier<String?> totalCostNotifier;
   final ItineraryEntryType type;
   final ItineraryEntryStatus status;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
 
   const _ItineraryEntry({
-    required this.title,
-    this.subtitle,
-    required this.bodyText,
-    this.address,
-    required this.time,
-    this.totalCost,
+    required this.titleNotifier,
+    required this.subtitleNotifier,
+    required this.bodyTextNotifier,
+    required this.addressNotifier,
+    required this.timeNotifier,
+    required this.totalCostNotifier,
     required this.type,
     required this.status,
     required this.widgetId,
@@ -211,65 +191,102 @@ class _ItineraryEntry extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(title, style: theme.textTheme.titleMedium),
+                      child: ValueListenableBuilder<String?>(
+                        valueListenable: titleNotifier,
+                        builder: (context, title, _) => Text(
+                          title ?? '',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                      ),
                     ),
                     if (status == ItineraryEntryStatus.chosen)
                       const Icon(Icons.check_circle, color: Colors.green)
                     else if (status == ItineraryEntryStatus.choiceRequired)
-                      FilledButton(
-                        onPressed: () {
-                          dispatchEvent(
-                            UiActionEvent(
-                              widgetId: widgetId,
-                              eventType: 'seeOptions',
-                              value: 'Choose options in order to book $title',
-                            ),
-                          );
-                          DismissNotification().dispatch(context);
-                        },
-                        child: const Text('Choose'),
+                      ValueListenableBuilder<String?>(
+                        valueListenable: titleNotifier,
+                        builder: (context, title, _) => FilledButton(
+                          onPressed: () {
+                            dispatchEvent(
+                              UiActionEvent(
+                                widgetId: widgetId,
+                                eventType: 'seeOptions',
+                                value:
+                                    'Choose options in order to book '
+                                    '${title ?? ''}',
+                              ),
+                            );
+                            DismissNotification().dispatch(context);
+                          },
+                          child: const Text('Choose'),
+                        ),
                       ),
                   ],
                 ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 4.0),
-                  Text(subtitle!, style: theme.textTheme.bodySmall),
-                ],
+                ValueListenableBuilder<String?>(
+                  valueListenable: subtitleNotifier,
+                  builder: (context, subtitle, _) {
+                    if (subtitle == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(subtitle, style: theme.textTheme.bodySmall),
+                    );
+                  },
+                ),
                 const SizedBox(height: 8.0),
                 Row(
                   children: [
                     const Icon(Icons.access_time, size: 16.0),
                     const SizedBox(width: 4.0),
-                    Text(time, style: theme.textTheme.bodyMedium),
+                    ValueListenableBuilder<String?>(
+                      valueListenable: timeNotifier,
+                      builder: (context, time, _) =>
+                          Text(time ?? '', style: theme.textTheme.bodyMedium),
+                    ),
                   ],
                 ),
-                if (address != null) ...[
-                  const SizedBox(height: 4.0),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on, size: 16.0),
-                      const SizedBox(width: 4.0),
-                      Expanded(
-                        child: Text(
-                          address!,
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                ValueListenableBuilder<String?>(
+                  valueListenable: addressNotifier,
+                  builder: (context, address, _) {
+                    if (address == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 16.0),
+                          const SizedBox(width: 4.0),
+                          Expanded(
+                            child: Text(
+                              address,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-                if (totalCost != null) ...[
-                  const SizedBox(height: 4.0),
-                  Row(
-                    children: [
-                      const Icon(Icons.attach_money, size: 16.0),
-                      const SizedBox(width: 4.0),
-                      Text(totalCost!, style: theme.textTheme.bodyMedium),
-                    ],
-                  ),
-                ],
+                    );
+                  },
+                ),
+                ValueListenableBuilder<String?>(
+                  valueListenable: totalCostNotifier,
+                  builder: (context, totalCost, _) {
+                    if (totalCost == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.attach_money, size: 16.0),
+                          const SizedBox(width: 4.0),
+                          Text(totalCost, style: theme.textTheme.bodyMedium),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 8.0),
-                MarkdownWidget(text: bodyText),
+                ValueListenableBuilder<String?>(
+                  valueListenable: bodyTextNotifier,
+                  builder: (context, bodyText, _) =>
+                      MarkdownWidget(text: bodyText ?? ''),
+                ),
               ],
             ),
           ),

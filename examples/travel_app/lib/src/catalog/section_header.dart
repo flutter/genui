@@ -60,35 +60,34 @@ final sectionHeader = CatalogItem(
             ? dataContext.subscribe<String>(subtitleRef!['path'] as String)
             : ValueNotifier<String?>(subtitleRef?['literalString'] as String?);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: titleNotifier,
-          builder: (context, title, _) {
-            return ValueListenableBuilder<String?>(
-              valueListenable: subtitleNotifier,
-              builder: (context, subtitle, _) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title ?? '',
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      if (subtitle != null)
-                        Text(
-                          subtitle,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                        ),
-                    ],
+        return Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ValueListenableBuilder<String?>(
+                valueListenable: titleNotifier,
+                builder: (context, title, _) => Text(
+                  title ?? '',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
-            );
-          },
+                ),
+              ),
+              ValueListenableBuilder<String?>(
+                valueListenable: subtitleNotifier,
+                builder: (context, subtitle, _) {
+                  if (subtitle == null) return const SizedBox.shrink();
+                  return Text(
+                    subtitle,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  );
+                },
+              ),
+            ],
+          ),
         );
       },
 );

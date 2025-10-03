@@ -79,34 +79,24 @@ final itineraryWithDetails = CatalogItem(
             ? dataContext.subscribe<String>(subheadingRef['path'] as String)
             : ValueNotifier<String?>(subheadingRef['literalString'] as String?);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: titleNotifier,
-          builder: (context, title, _) {
-            return ValueListenableBuilder<String?>(
-              valueListenable: subheadingNotifier,
-              builder: (context, subheading, _) {
-                return _ItineraryWithDetails(
-                  title: title ?? '',
-                  subheading: subheading ?? '',
-                  imageChild: imageChild,
-                  child: child,
-                );
-              },
-            );
-          },
+        return _ItineraryWithDetails(
+          titleNotifier: titleNotifier,
+          subheadingNotifier: subheadingNotifier,
+          imageChild: imageChild,
+          child: child,
         );
       },
 );
 
 class _ItineraryWithDetails extends StatelessWidget {
-  final String title;
-  final String subheading;
+  final ValueNotifier<String?> titleNotifier;
+  final ValueNotifier<String?> subheadingNotifier;
   final Widget imageChild;
   final Widget child;
 
   const _ItineraryWithDetails({
-    required this.title,
-    required this.subheading,
+    required this.titleNotifier,
+    required this.subheadingNotifier,
     required this.imageChild,
     required this.child,
   });
@@ -149,11 +139,14 @@ class _ItineraryWithDetails extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0,
                               ),
-                              child: Text(
-                                title,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium,
+                              child: ValueListenableBuilder<String?>(
+                                valueListenable: titleNotifier,
+                                builder: (context, title, _) => Text(
+                                  title ?? '',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16.0),
@@ -196,10 +189,19 @@ class _ItineraryWithDetails extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.headlineSmall),
-                  Text(
-                    subheading,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  ValueListenableBuilder<String?>(
+                    valueListenable: titleNotifier,
+                    builder: (context, title, _) => Text(
+                      title ?? '',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: subheadingNotifier,
+                    builder: (context, subheading, _) => Text(
+                      subheading ?? '',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
                 ],
               ),
