@@ -15,7 +15,6 @@ import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'core_catalog.dart';
 import 'genui_configuration.dart';
 import 'ui_tools.dart';
 
@@ -89,8 +88,6 @@ class GenUiManager implements GenUiHost {
   /// Creates a new [GenUiManager].
   ///
   /// The [catalog] defines the set of widgets available to the AI.
-  /// [CoreCatalogItems.asCatalog] can be called to construct a catalog of
-  /// widgets that can power simple UIs.
   GenUiManager({
     required this.catalog,
     this.configuration = const GenUiConfiguration(),
