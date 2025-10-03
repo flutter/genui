@@ -5,6 +5,8 @@
 /// @docImport 'input_group.dart';
 library;
 
+import 'dart:developer' as developer;
+
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -88,8 +90,11 @@ final checkboxFilterChipsInput = CatalogItem(
               TravelIcon.values.byName(checkboxFilterChipsData.iconName!),
             );
           } catch (e) {
-            // Invalid icon name, default to no icon.
-            // Consider logging this error.
+            developer.log(
+              'Invalid icon name: ${checkboxFilterChipsData.iconName}',
+              name: 'CheckboxFilterChipsInput',
+              error: e,
+            );
             icon = null;
           }
         }

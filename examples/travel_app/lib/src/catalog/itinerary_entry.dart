@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
@@ -126,17 +125,6 @@ final itineraryEntry = CatalogItem(
         );
       },
 );
-
-extension on DataContext {
-  ValueNotifier<String?> subscribeToString(JsonMap? ref) {
-    if (ref == null) return ValueNotifier<String?>(null);
-    final path = ref['path'] as String?;
-    final literal = ref['literalString'] as String?;
-    return path != null
-        ? subscribe<String>(path)
-        : ValueNotifier<String?>(literal);
-  }
-}
 
 class _ItineraryEntry extends StatelessWidget {
   final ValueNotifier<String?> titleNotifier;
@@ -290,28 +278,6 @@ class _ItineraryEntry extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class OptionalValueBuilder<T> extends StatelessWidget {
-  final ValueListenable<T?> listenable;
-  final Widget Function(BuildContext context, T value) builder;
-
-  const OptionalValueBuilder({
-    super.key,
-    required this.listenable,
-    required this.builder,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<T?>(
-      valueListenable: listenable,
-      builder: (context, value, _) {
-        if (value == null) return const SizedBox.shrink();
-        return builder(context, value);
-      },
     );
   }
 }

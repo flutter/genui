@@ -59,21 +59,12 @@ final travelCarousel = CatalogItem(
           (data as Map).cast<String, Object?>(),
         );
 
-        final titleRef = carouselData.title;
-        final titleNotifier = titleRef != null
-            ? (titleRef['path'] as String?) != null
-                  ? dataContext.subscribe<String>(titleRef['path'] as String)
-                  : ValueNotifier<String?>(titleRef['literalString'] as String?)
-            : ValueNotifier<String?>(null);
+        final titleNotifier = dataContext.subscribeToString(carouselData.title);
 
         final items = carouselData.items.map((item) {
-          final descriptionRef = item.description;
-          final descriptionNotifier =
-              (descriptionRef['path'] as String?) != null
-              ? dataContext.subscribe<String>(descriptionRef['path'] as String)
-              : ValueNotifier<String?>(
-                  descriptionRef['literalString'] as String?,
-                );
+          final descriptionNotifier = dataContext.subscribeToString(
+            item.description,
+          );
 
           return _TravelCarouselItemData(
             descriptionNotifier: descriptionNotifier,
