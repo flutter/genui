@@ -418,7 +418,7 @@ JsonMap _inspirationExample() => {
           },
         },
       },
-      'id': 'greece_food__image',
+      'id': 'greece_food_image',
     },
   ],
 };

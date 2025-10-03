@@ -56,9 +56,16 @@ final sectionHeader = CatalogItem(
             : ValueNotifier<String?>(titleRef['literalString'] as String?);
 
         final subtitleRef = sectionHeaderData.subtitle;
-        final subtitleNotifier = (subtitleRef?['path'] as String?) != null
-            ? dataContext.subscribe<String>(subtitleRef!['path'] as String)
-            : ValueNotifier<String?>(subtitleRef?['literalString'] as String?);
+        ValueNotifier<String?> subtitleNotifier;
+        if (subtitleRef != null) {
+          final path = subtitleRef['path'] as String?;
+          final literal = subtitleRef['literalString'] as String?;
+          subtitleNotifier = path != null
+              ? dataContext.subscribe<String>(path)
+              : ValueNotifier<String?>(literal);
+        } else {
+          subtitleNotifier = ValueNotifier<String?>(null);
+        }
 
         return Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),

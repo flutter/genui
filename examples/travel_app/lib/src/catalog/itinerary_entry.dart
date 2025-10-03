@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
@@ -222,10 +223,9 @@ class _ItineraryEntry extends StatelessWidget {
                       ),
                   ],
                 ),
-                ValueListenableBuilder<String?>(
-                  valueListenable: subtitleNotifier,
-                  builder: (context, subtitle, _) {
-                    if (subtitle == null) return const SizedBox.shrink();
+                OptionalValueBuilder(
+                  listenable: subtitleNotifier,
+                  builder: (context, subtitle) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(subtitle, style: theme.textTheme.bodySmall),
@@ -244,10 +244,9 @@ class _ItineraryEntry extends StatelessWidget {
                     ),
                   ],
                 ),
-                ValueListenableBuilder<String?>(
-                  valueListenable: addressNotifier,
-                  builder: (context, address, _) {
-                    if (address == null) return const SizedBox.shrink();
+                OptionalValueBuilder(
+                  listenable: addressNotifier,
+                  builder: (context, address) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Row(
@@ -265,10 +264,9 @@ class _ItineraryEntry extends StatelessWidget {
                     );
                   },
                 ),
-                ValueListenableBuilder<String?>(
-                  valueListenable: totalCostNotifier,
-                  builder: (context, totalCost, _) {
-                    if (totalCost == null) return const SizedBox.shrink();
+                OptionalValueBuilder(
+                  listenable: totalCostNotifier,
+                  builder: (context, totalCost) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Row(
@@ -292,6 +290,28 @@ class _ItineraryEntry extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class OptionalValueBuilder<T> extends StatelessWidget {
+  final ValueListenable<T?> listenable;
+  final Widget Function(BuildContext context, T value) builder;
+
+  const OptionalValueBuilder({
+    super.key,
+    required this.listenable,
+    required this.builder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<T?>(
+      valueListenable: listenable,
+      builder: (context, value, _) {
+        if (value == null) return const SizedBox.shrink();
+        return builder(context, value);
+      },
     );
   }
 }

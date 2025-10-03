@@ -88,6 +88,8 @@ final checkboxFilterChipsInput = CatalogItem(
               TravelIcon.values.byName(checkboxFilterChipsData.iconName!),
             );
           } catch (e) {
+            // Invalid icon name, default to no icon.
+            // Consider logging this error.
             icon = null;
           }
         }

@@ -97,11 +97,17 @@ class DataModel {
     if (path.startsWith('/')) {
       path = path.substring(1);
     }
-    return path.split('/');
+    final segments = <String>[];
+    final regExp = RegExp(r'([^/\[\]]+)|(\[\d+\])');
+    final matches = regExp.allMatches(path);
+    for (final match in matches) {
+      segments.add(match.group(0)!);
+    }
+    return segments;
   }
 
   dynamic _getValue(dynamic current, List<String> segments) {
-    if (segments.isEmpty || (segments.length == 1 && segments.first.isEmpty)) {
+    if (segments.isEmpty) {
       return current;
     }
 
@@ -110,10 +116,8 @@ class DataModel {
 
     if (current is Map) {
       return _getValue(current[segment], remaining);
-    } else if (current is List) {
-      final index = int.tryParse(
-        segment.replaceAll('[', '').replaceAll(']', ''),
-      );
+    } else if (current is List && segment.startsWith('[')) {
+      final index = int.tryParse(segment.substring(1, segment.length - 1));
       if (index != null && index >= 0 && index < current.length) {
         return _getValue(current[index], remaining);
       }
@@ -122,40 +126,42 @@ class DataModel {
   }
 
   void _updateValue(dynamic current, List<String> segments, dynamic value) {
-    if (segments.length == 1) {
-      final segment = segments.first;
-      if (current is Map) {
-        current[segment] = value;
-      } else if (current is List) {
-        final index = int.tryParse(
-          segment.replaceAll('[', '').replaceAll(']', ''),
-        );
-        if (index != null && index >= 0 && index < current.length) {
-          current[index] = value;
-        }
-      }
+    if (segments.isEmpty) {
       return;
     }
 
     final segment = segments.first;
     final remaining = segments.sublist(1);
 
-    if (current is Map) {
-      if (!current.containsKey(segment)) {
-        // Check if the next segment is a list index
-        if (remaining.first.startsWith('[')) {
-          current[segment] = <dynamic>[];
+    if (segment.startsWith('[')) {
+      final index = int.tryParse(segment.substring(1, segment.length - 1));
+      if (index != null && current is List && index >= 0) {
+        if (remaining.isEmpty) {
+          if (index < current.length) {
+            current[index] = value;
+          } else if (index == current.length) {
+            current.add(value);
+          }
         } else {
-          current[segment] = <String, dynamic>{};
+          if (index < current.length) {
+            _updateValue(current[index], remaining, value);
+          }
         }
       }
-      _updateValue(current[segment], remaining, value);
-    } else if (current is List) {
-      final index = int.tryParse(
-        segment.replaceAll('[', '').replaceAll(']', ''),
-      );
-      if (index != null && index >= 0 && index < current.length) {
-        _updateValue(current[index], remaining, value);
+    } else {
+      if (current is Map) {
+        if (remaining.isEmpty) {
+          current[segment] = value;
+        } else {
+          if (!current.containsKey(segment)) {
+            if (remaining.first.startsWith('[')) {
+              current[segment] = <dynamic>[];
+            } else {
+              current[segment] = <String, dynamic>{};
+            }
+          }
+          _updateValue(current[segment], remaining, value);
+        }
       }
     }
   }
@@ -179,7 +185,11 @@ class DataModel {
     var currentPath = '';
     for (final segment in segments) {
       if (segment.isEmpty) continue;
-      currentPath += '/$segment';
+      if (segment.startsWith('[')) {
+        currentPath += segment;
+      } else {
+        currentPath += '/$segment';
+      }
       paths.add(currentPath);
     }
     return paths;
