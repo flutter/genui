@@ -13,18 +13,18 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 final _schema = S.object(
   description: 'A widget to break up sections of a longer list of content.',
   properties: {
-    'title': S.string(description: 'The title of the section.'),
-    'subtitle': S.string(description: 'The subtitle of the section.'),
+    'title': GulfSchemas.stringReference,
+    'subtitle': GulfSchemas.stringReference,
   },
   required: ['title'],
 );
 
 extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
-  factory _SectionHeaderData({required String title, String? subtitle}) =>
+  factory _SectionHeaderData({required JsonMap title, JsonMap? subtitle}) =>
       _SectionHeaderData.fromMap({'title': title, 'subtitle': subtitle});
 
-  String get title => _json['title'] as String;
-  String? get subtitle => _json['subtitle'] as String?;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap? get subtitle => _json['subtitle'] as JsonMap?;
 }
 
 /// A presentational widget used to create visual and thematic separation within
@@ -44,10 +44,17 @@ final sectionHeader = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final sectionHeaderData = _SectionHeaderData.fromMap(
           data as Map<String, Object?>,
+        );
+
+        final titleNotifier = dataContext.subscribeToString(
+          sectionHeaderData.title,
+        );
+        final subtitleNotifier = dataContext.subscribeToString(
+          sectionHeaderData.subtitle,
         );
 
         return Padding(
@@ -55,19 +62,27 @@ final sectionHeader = CatalogItem(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                sectionHeaderData.title,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+              ValueListenableBuilder<String?>(
+                valueListenable: titleNotifier,
+                builder: (context, title, _) => Text(
+                  title ?? '',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              if (sectionHeaderData.subtitle != null)
-                Text(
-                  sectionHeaderData.subtitle!,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                ),
+              ValueListenableBuilder<String?>(
+                valueListenable: subtitleNotifier,
+                builder: (context, subtitle, _) {
+                  if (subtitle == null) return const SizedBox.shrink();
+                  return Text(
+                    subtitle,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  );
+                },
+              ),
             ],
           ),
         );

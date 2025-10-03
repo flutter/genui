@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../catalog/core_widgets/checkbox_group.dart' as checkbox_group_item;
-import '../catalog/core_widgets/column.dart' as column_item;
-import '../catalog/core_widgets/elevated_button.dart' as elevated_button_item;
-import '../catalog/core_widgets/image.dart' as image_item;
-import '../catalog/core_widgets/radio_group.dart' as radio_group_item;
-import '../catalog/core_widgets/text.dart' as text_item;
-import '../catalog/core_widgets/text_field.dart' as text_field_item;
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
+import 'core_widgets/checkbox_group.dart' as checkbox_group_item;
+import 'core_widgets/column.dart' as column_item;
+import 'core_widgets/elevated_button.dart' as elevated_button_item;
+import 'core_widgets/image.dart' as image_item;
+import 'core_widgets/radio_group.dart' as radio_group_item;
+import 'core_widgets/text.dart' as text_item;
+import 'core_widgets/text_field.dart' as text_field_item;
 
 /// A collection of standard catalog items that can be used to build simple
 /// interactive UIs.

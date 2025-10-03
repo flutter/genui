@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/section_header.dart';
 
@@ -11,7 +12,9 @@ void main() {
     testWidgets('renders title with a distinct style', (
       WidgetTester tester,
     ) async {
-      final data = {'title': 'Section Title'};
+      final data = {
+        'title': {'literalString': 'Section Title'},
+      };
 
       await tester.pumpWidget(
         MaterialApp(
@@ -24,7 +27,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),
@@ -39,7 +42,10 @@ void main() {
     testWidgets('renders title and subtitle with distinct styles', (
       WidgetTester tester,
     ) async {
-      final data = {'title': 'Section Title', 'subtitle': 'Section Subtitle'};
+      final data = {
+        'title': {'literalString': 'Section Title'},
+        'subtitle': {'literalString': 'Section Subtitle'},
+      };
 
       await tester.pumpWidget(
         MaterialApp(
@@ -52,7 +58,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),

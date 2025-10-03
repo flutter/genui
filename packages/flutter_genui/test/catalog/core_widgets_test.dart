@@ -49,7 +49,9 @@ void main() {
           {
             'id': 'text',
             'widget': {
-              'Text': {'text': 'Click Me'},
+              'Text': {
+                'text': {'literalString': 'Click Me'},
+              },
             },
           },
         ],
@@ -64,6 +66,28 @@ void main() {
       expect(message, isNotNull);
     });
 
+    testWidgets('Text renders from data model', (WidgetTester tester) async {
+      final definition = {
+        'root': 'text',
+        'widgets': [
+          {
+            'id': 'text',
+            'widget': {
+              'Text': {
+                'text': {'path': '/myText'},
+              },
+            },
+          },
+        ],
+      };
+
+      await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModel.update('/myText', 'Hello from data model');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hello from data model'), findsOneWidget);
+    });
+
     testWidgets('CheckboxGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
@@ -74,7 +98,7 @@ void main() {
             'id': 'checkboxes',
             'widget': {
               'CheckboxGroup': {
-                'values': [true, false],
+                'selectedValues': {'path': '/checkboxes'},
                 'labels': ['A', 'B'],
               },
             },
@@ -83,6 +107,10 @@ void main() {
       };
 
       await pumpWidgetWithDefinition(tester, definition);
+
+      manager!.dataModel.update('/checkboxes', ['A']);
+
+      await tester.pumpAndSettle();
 
       expect(find.byType(CheckboxListTile), findsNWidgets(2));
       final firstCheckbox = tester.widget<CheckboxListTile>(
@@ -93,9 +121,10 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.valueStore.forSurface('testSurface'), {
-        'checkboxes': {'A': true, 'B': true},
-      });
+      expect(manager!.dataModel.getValue<List<String>>('/checkboxes'), [
+        'A',
+        'B',
+      ]);
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -114,13 +143,17 @@ void main() {
           {
             'id': 'text1',
             'widget': {
-              'Text': {'text': 'First'},
+              'Text': {
+                'text': {'literalString': 'First'},
+              },
             },
           },
           {
             'id': 'text2',
             'widget': {
-              'Text': {'text': 'Second'},
+              'Text': {
+                'text': {'literalString': 'Second'},
+              },
             },
           },
         ],
@@ -148,7 +181,7 @@ void main() {
             'id': 'radios',
             'widget': {
               'RadioGroup': {
-                'groupValue': 'A',
+                'groupValue': {'path': '/radioValue'},
                 'labels': ['A', 'B'],
               },
             },
@@ -157,12 +190,15 @@ void main() {
       };
 
       await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModel.update('/radioValue', 'A');
+      await tester.pumpAndSettle();
 
       expect(find.byType(RadioListTile<String>), findsNWidgets(2));
       await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
 
       expect(message, null);
-      expect(manager!.valueStore.forSurface('testSurface'), {'radios': 'B'});
+      expect(manager!.dataModel.getValue<String>('/radioValue'), 'B');
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
@@ -174,13 +210,18 @@ void main() {
           {
             'id': 'field',
             'widget': {
-              'TextField': {'value': 'initial', 'hintText': 'hint'},
+              'TextField': {
+                'value': {'path': '/myValue'},
+                'hintText': 'hint',
+              },
             },
           },
         ],
       };
 
       await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModel.update('/myValue', 'initial');
+      await tester.pumpAndSettle();
 
       final textFieldFinder = find.byType(TextField);
       expect(find.widgetWithText(TextField, 'initial'), findsOneWidget);
@@ -189,9 +230,7 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(manager!.valueStore.forSurface('testSurface'), {
-        'field': 'new value',
-      });
+      expect(manager!.dataModel.getValue<String>('/myValue'), 'new value');
 
       // Test onSubmitted
       expect(message, null);

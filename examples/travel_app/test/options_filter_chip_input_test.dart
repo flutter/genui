@@ -12,15 +12,13 @@ void main() {
     testWidgets('renders correctly and handles selection with an icon', (
       WidgetTester tester,
     ) async {
+      final dataModel = DataModel();
       final data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
         'iconName': 'wallet',
+        'value': {'path': '/price'},
       };
-
-      UiEvent? dispatchedEvent;
-
-      final values = <String, Object?>{};
 
       await tester.pumpWidget(
         MaterialApp(
@@ -31,11 +29,9 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEvent = event;
-                  },
+                  dispatchEvent: (event) {},
                   context: context,
-                  values: values,
+                  dataContext: DataContext(dataModel, '/'),
                 );
               },
             ),
@@ -68,21 +64,20 @@ void main() {
       // Check if the chip label is updated.
       expect(find.text('\$\$'), findsOneWidget);
 
-      expect(dispatchedEvent, null);
-      final value = values['testId'];
-      expect(value, '\$\$');
+      // Check if the data model is updated.
+      expect(dataModel.getValue<String>('/price'), '\$\$');
     });
 
     testWidgets('renders correctly and handles selection without an icon', (
       WidgetTester tester,
     ) async {
+      final dataModel = DataModel();
       final data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
+        'value': {'path': '/price'},
       };
 
-      UiEvent? dispatchedEvent;
-      final values = <String, Object?>{};
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -92,11 +87,9 @@ void main() {
                   data: data,
                   id: 'testId',
                   buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEvent = event;
-                  },
+                  dispatchEvent: (event) {},
                   context: context,
-                  values: values,
+                  dataContext: DataContext(dataModel, '/'),
                 );
               },
             ),
@@ -120,9 +113,8 @@ void main() {
       // Check if the chip label is updated.
       expect(find.text('\$\$\$'), findsOneWidget);
 
-      expect(dispatchedEvent, null);
-      final value = values['testId'];
-      expect(value, '\$\$\$');
+      // Check if the data model is updated.
+      expect(dataModel.getValue<String>('/price'), '\$\$\$');
     });
   });
 }

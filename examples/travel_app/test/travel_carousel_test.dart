@@ -16,8 +16,14 @@ void main() {
       await mockNetworkImagesFor(() async {
         final data = {
           'items': [
-            {'description': 'Item 1', 'imageChildId': 'imageId1'},
-            {'description': 'Item 2', 'imageChildId': 'imageId2'},
+            {
+              'description': {'literalString': 'Item 1'},
+              'imageChildId': 'imageId1',
+            },
+            {
+              'description': {'literalString': 'Item 2'},
+              'imageChildId': 'imageId2',
+            },
           ],
         };
         UiEvent? dispatchedEvent;
@@ -39,7 +45,7 @@ void main() {
                       dispatchedEvent = event;
                     },
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),
@@ -69,11 +75,14 @@ void main() {
         final data = {
           'items': [
             {
-              'description': 'Item 1',
+              'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
               'listingSelectionId': 'listing1',
             },
-            {'description': 'Item 2', 'imageChildId': 'imageId2'},
+            {
+              'description': {'literalString': 'Item 2'},
+              'imageChildId': 'imageId2',
+            },
           ],
         };
         UiEvent? dispatchedEvent;
@@ -95,7 +104,7 @@ void main() {
                       dispatchedEvent = event;
                     },
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),
@@ -129,7 +138,7 @@ void main() {
                     buildChild: (_) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),

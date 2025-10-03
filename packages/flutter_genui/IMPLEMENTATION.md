@@ -24,7 +24,7 @@ graph TD
         GenUiManager["GenUiManager<br>(Manages Surfaces, Tools, State)"]
         AiClient["AiClient<br>(e.g., a Gemini client)"]
         Catalog["Widget Catalog"]
-        WidgetValueStore["WidgetValueStore"]
+        DataModel["DataModel"]
     end
 
     subgraph "Backend"
@@ -35,7 +35,7 @@ graph TD
     UiAgent -- "Encapsulates" --> GenUiManager
     UiAgent -- "Encapsulates" --> AiClient
 
-    GenUiManager -- "Owns" --> WidgetValueStore
+    GenUiManager -- "Owns" --> DataModel
 
     AppLogic -- "Sends User Input" --> UiAgent
     UiAgent -- "Manages Conversation &<br>Calls generateContent()" --> AiClient
@@ -46,7 +46,7 @@ graph TD
 
     GenUiManager -- "Notifies of updates" --> UIWidgets
     UIWidgets -- "Builds widgets using" --> Catalog
-    UIWidgets -- "Reads/writes state via" --> WidgetValueStore
+    UIWidgets -- "Reads/writes state via" --> DataModel
     UIWidgets -- "Sends UI events to" --> GenUiManager
 
     GenUiManager -- "Puts user input on stream" --> UiAgent
@@ -66,7 +66,7 @@ This layer is responsible for all communication with the generative AI model.
 
 This is the central nervous system of the package, orchestrating the state of all generated UI surfaces.
 
-- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). It provides the tools (`addOrUpdateSurface`, `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `WidgetValueStore` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiHost` for the `GenUiSurface` widget.
+- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). It provides the tools (`addOrUpdateSurface`, `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiHost` for the `GenUiSurface` widget.
 - **`ui_tools.dart`**: Contains the `AddOrUpdateSurfaceTool` and `DeleteSurfaceTool` classes that wrap the `GenUiManager`'s methods, making them available to the AI.
 
 ### 3. UI Model Layer (`lib/src/model/`)
@@ -76,7 +76,7 @@ This layer defines the data structures that represent the dynamic UI and the con
 - **`Catalog` and `CatalogItem`**: These classes define the registry of available UI components. The `Catalog` holds a list of `CatalogItem`s, and each `CatalogItem` defines a widget's name, its data schema, and a builder function to render it.
 - **`UiDefinition` and `UiEvent`**: `UiDefinition` represents a complete UI tree to be rendered, including the root widget and a map of all widget definitions. `UiEvent` is a data object representing a user interaction. `UiActionEvent` is a subtype used for events that should trigger a submission to the AI, like a button tap.
 - **`ChatMessage`**: A sealed class representing the different types of messages in a conversation: `UserMessage`, `AiTextMessage`, `ToolResponseMessage`, `AiUiMessage`, and `InternalMessage`.
-- **`WidgetValueStore`**: A simple key-value store that holds the state of individual widgets on a per-surface basis (e.g., the current text in a `TextField`, the selected value of a `RadioGroup`). This allows state to be preserved during rebuilds and accessed when an action is triggered.
+- **`DataModel` and `DataContext`**: The `DataModel` is a centralized, observable key-value store that holds the entire dynamic state of the UI. Widgets receive a `DataContext`, which is a view into the `DataModel` that understands the widget's current scope. This allows widgets to subscribe to changes in the data model and rebuild reactively. This separation of data and UI structure is a core principle of the architecture.
 
 ### 4. Widget Catalog Layer (`lib/src/catalog/`)
 
@@ -148,4 +148,4 @@ sequenceDiagram
 9. **UI Rendering**: A `GenUiSurface` widget listening to the `GenUiManager` (via the `GenUiHost` interface) receives the update and rebuilds, rendering the new UI based on the updated `UiDefinition`.
 10. **User Interaction**: The user interacts with the newly generated UI (e.g., clicks a submit button).
 11. **Event Dispatch**: The `GenUiSurface`'s `onEvent` callback is fired, which in turn calls `host.handleUiEvent()`.
-12. **Cycle Repeats**: The `GenUiManager`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `WidgetValueStore`) and emits it on its `onSubmit` stream. The `UiAgent` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.
+12. **Cycle Repeats**: The `GenUiManager`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `DataModel`) and emits it on its `onSubmit` stream. The `UiAgent` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.

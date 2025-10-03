@@ -17,19 +17,10 @@ final _schema = S.object(
       'It should contain a list of ItineraryEntry widgets. '
       'This should be nested inside an ItineraryWithDetails.',
   properties: {
-    'title': S.string(description: 'The title for the day, e.g., "Day 1".'),
-    'subtitle': S.string(
-      description: 'The subtitle for the day, e.g., "Arrival in Tokyo".',
-    ),
-    'description': S.string(
-      description:
-          'A short description of the day\'s plan. This supports markdown.',
-    ),
-    'imageChildId': S.string(
-      description:
-          'The ID of the Image widget to display. The Image fit should '
-          'typically be \'cover\'.',
-    ),
+    'title': GulfSchemas.stringReference,
+    'subtitle': GulfSchemas.stringReference,
+    'description': GulfSchemas.stringReference,
+    'imageChildId': GulfSchemas.componentReference,
     'children': S.list(
       description:
           'A list of widget IDs for the ItineraryEntry children for this day.',
@@ -41,9 +32,9 @@ final _schema = S.object(
 
 extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryDayData({
-    required String title,
-    required String subtitle,
-    required String description,
+    required JsonMap title,
+    required JsonMap subtitle,
+    required JsonMap description,
     required String imageChildId,
     required List<String> children,
   }) => _ItineraryDayData.fromMap({
@@ -54,9 +45,9 @@ extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
     'children': children,
   });
 
-  String get title => _json['title'] as String;
-  String get subtitle => _json['subtitle'] as String;
-  String get description => _json['description'] as String;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap get subtitle => _json['subtitle'] as JsonMap;
+  JsonMap get description => _json['description'] as JsonMap;
   String get imageChildId => _json['imageChildId'] as String;
   List<String> get children => (_json['children'] as List).cast<String>();
 }
@@ -71,17 +62,45 @@ final itineraryDay = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final itineraryDayData = _ItineraryDayData.fromMap(
           data as Map<String, Object?>,
         );
-        return _ItineraryDay(
-          title: itineraryDayData.title,
-          subtitle: itineraryDayData.subtitle,
-          description: itineraryDayData.description,
-          imageChild: buildChild(itineraryDayData.imageChildId),
-          children: itineraryDayData.children.map(buildChild).toList(),
+
+        final titleNotifier = dataContext.subscribeToString(
+          itineraryDayData.title,
+        );
+        final subtitleNotifier = dataContext.subscribeToString(
+          itineraryDayData.subtitle,
+        );
+        final descriptionNotifier = dataContext.subscribeToString(
+          itineraryDayData.description,
+        );
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: titleNotifier,
+          builder: (context, title, child) {
+            return ValueListenableBuilder<String?>(
+              valueListenable: subtitleNotifier,
+              builder: (context, subtitle, child) {
+                return ValueListenableBuilder<String?>(
+                  valueListenable: descriptionNotifier,
+                  builder: (context, description, child) {
+                    return _ItineraryDay(
+                      title: title ?? '',
+                      subtitle: subtitle ?? '',
+                      description: description ?? '',
+                      imageChild: buildChild(itineraryDayData.imageChildId),
+                      children: itineraryDayData.children
+                          .map(buildChild)
+                          .toList(),
+                    );
+                  },
+                );
+              },
+            );
+          },
         );
       },
 );

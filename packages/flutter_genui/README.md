@@ -12,17 +12,20 @@ This package provides the core functionality for GenUI. For a concrete implement
 - **Simplified Conversation Flow**: A high-level `UiAgent` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
 - **Extensible AI Client**: Abstract interface for connecting to different AI model backends.
-- **Event Handling**: Capture user interactions (button clicks, text input) and send them back to the AI as context for the next turn in the conversation.
+- **Event Handling**: Capture user interactions (button clicks, text input), update a client-side data model, and send the state back to the AI as context for the next turn in the conversation.
+- **Reactive UI**: Widgets automatically rebuild when the data they are bound to changes in the data model.
 
 ## Core Concepts
 
-The package is built around three main components:
+The package is built around four main components:
 
-1. **`UiAgent`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
+1.  **`UiAgent`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
 
-2. **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
+2.  **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
-3. **`AiClient`**: An interface for communicating with a generative AI model. For a concrete implementation, see `FirebaseAiClient` in the `flutter_genui_firebase_ai` package.
+3.  **`DataModel`**: A centralized, observable store for all dynamic UI state. Widgets are "bound" to data in this model. When data changes, only the widgets that depend on that specific piece of data are rebuilt.
+
+4.  **`AiClient`**: An interface for communicating with a generative AI model. For a concrete implementation, see `FirebaseAiClient` in the `flutter_genui_firebase_ai` package.
 
 ## Getting Started
 
@@ -122,9 +125,9 @@ The `UiAgent` manages the interaction cycle:
 1. **User Input**: The user provides a prompt (e.g., through a text field). The app calls `uiAgent.sendRequest()`.
 2. **AI Invocation**: The `UiAgent` adds the user's message to its internal conversation history and sends it to the `AiClient`.
 3. **AI Response**: The AI model processes the conversation and, guided by the schemas of the widgets in your `Catalog`, returns a structured response with instructions to `add`, `update`, or `delete` UI elements by calling the appropriate tools.
-4. **UI State Update**: The `UiAgent` executes these tool calls, which updates the internal `GenUiManager`.
-5. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild to display the new UI.
-6. **User Interaction**: The user interacts with the newly generated UI. The `GenUiSurface` captures these events and forwards them to the `UiAgent`'s `GenUiManager`, which automatically creates a new `UserMessage` and restarts the cycle.
+4. **UI State Update**: The `UiAgent` executes these tool calls, which updates the internal `GenUiManager` and its `DataModel`.
+5. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild to display the new UI. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
+6. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `UiAgent`'s `GenUiManager`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
 
 ```mermaid
 graph TD

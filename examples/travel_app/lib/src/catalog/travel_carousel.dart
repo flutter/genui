@@ -13,25 +13,13 @@ import '../tools/booking/model.dart';
 
 final _schema = S.object(
   properties: {
-    'title': S.string(
-      description: 'An optional title to display above the carousel.',
-    ),
+    'title': GulfSchemas.stringReference,
     'items': S.list(
       description: 'A list of items to display in the carousel.',
       items: S.object(
         properties: {
-          'description': S.string(
-            description:
-                'The short description of the carousel item. '
-                'It may include the price and location if applicable. '
-                'It should be very concise. '
-                'Example: "The Dart Inn in Sunnyvale, CA for \$150"',
-          ),
-          'imageChildId': S.string(
-            description:
-                'The ID of the Image widget to display as the carousel item '
-                'image. Be sure to create Image widgets with matching IDs.',
-          ),
+          'description': GulfSchemas.stringReference,
+          'imageChildId': GulfSchemas.componentReference,
           'listingSelectionId': S.string(
             description:
                 'An optional ID of the listing that this item '
@@ -65,25 +53,36 @@ final travelCarousel = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final carouselData = _TravelCarouselData.fromMap(
           (data as Map).cast<String, Object?>(),
         );
-        final items = carouselData.items;
-        return _TravelCarousel(
-          title: carouselData.title,
-          items: items
-              .map(
-                (e) => _TravelCarouselItemData(
-                  description: e.description,
-                  imageChild: buildChild(e.imageChildId),
-                  listingSelectionId: e.listingSelectionId,
-                ),
-              )
-              .toList(),
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
+
+        final titleNotifier = dataContext.subscribeToString(carouselData.title);
+
+        final items = carouselData.items.map((item) {
+          final descriptionNotifier = dataContext.subscribeToString(
+            item.description,
+          );
+
+          return _TravelCarouselItemData(
+            descriptionNotifier: descriptionNotifier,
+            imageChild: buildChild(item.imageChildId),
+            listingSelectionId: item.listingSelectionId,
+          );
+        }).toList();
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: titleNotifier,
+          builder: (context, title, _) {
+            return _TravelCarousel(
+              title: title,
+              items: items,
+              widgetId: id,
+              dispatchEvent: dispatchEvent,
+            );
+          },
         );
       },
   exampleData: [_inspirationExample, _hotelExample],
@@ -91,14 +90,14 @@ final travelCarousel = CatalogItem(
 
 extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
   factory _TravelCarouselData({
-    String? title,
-    required List<Map<String, Object>> items,
+    JsonMap? title,
+    required List<Map<String, Object?>> items,
   }) => _TravelCarouselData.fromMap({
     if (title != null) 'title': title,
     'items': items,
   });
 
-  String? get title => _json['title'] as String?;
+  JsonMap? get title => _json['title'] as JsonMap?;
   Iterable<_TravelCarouselItemSchemaData> get items => (_json['items'] as List)
       .cast<Map<String, Object?>>()
       .map<_TravelCarouselItemSchemaData>(
@@ -110,7 +109,7 @@ extension type _TravelCarouselItemSchemaData.fromMap(
   Map<String, Object?> _json
 ) {
   factory _TravelCarouselItemSchemaData({
-    required String description,
+    required JsonMap description,
     required String imageChildId,
     String? listingSelectionId,
   }) => _TravelCarouselItemSchemaData.fromMap({
@@ -119,7 +118,7 @@ extension type _TravelCarouselItemSchemaData.fromMap(
     if (listingSelectionId != null) 'listingSelectionId': listingSelectionId,
   });
 
-  String get description => _json['description'] as String;
+  JsonMap get description => _json['description'] as JsonMap;
   String get imageChildId => _json['imageChildId'] as String;
   String? get listingSelectionId => _json['listingSelectionId'] as String?;
 }
@@ -185,12 +184,12 @@ class _TravelCarousel extends StatelessWidget {
 }
 
 class _TravelCarouselItemData {
-  final String description;
+  final ValueNotifier<String?> descriptionNotifier;
   final Widget imageChild;
   final String? listingSelectionId;
 
   _TravelCarouselItemData({
-    required this.description,
+    required this.descriptionNotifier,
     required this.imageChild,
     this.listingSelectionId,
   });
@@ -218,7 +217,7 @@ class _TravelCarouselItem extends StatelessWidget {
               widgetId: widgetId,
               eventType: 'itemSelected',
               value: {
-                'description': data.description,
+                'description': data.descriptionNotifier.value,
                 if (data.listingSelectionId != null)
                   'listingSelectionId': data.listingSelectionId,
               },
@@ -237,13 +236,18 @@ class _TravelCarouselItem extends StatelessWidget {
               height: 90,
               padding: const EdgeInsets.all(8.0),
               alignment: Alignment.center,
-              child: Text(
-                data.description,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-                softWrap: true,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+              child: ValueListenableBuilder<String?>(
+                valueListenable: data.descriptionNotifier,
+                builder: (context, description, child) {
+                  return Text(
+                    description ?? '',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                    softWrap: true,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
               ),
             ),
           ],
@@ -273,12 +277,12 @@ JsonMap _hotelExample() {
           'TravelCarousel': {
             'items': [
               {
-                'description': hotel1.description,
+                'description': {'literalString': hotel1.description},
                 'imageChildId': 'image_1',
                 'listingSelectionId': '12345',
               },
               {
-                'description': hotel2.description,
+                'description': {'literalString': hotel2.description},
                 'imageChildId': 'image_2',
                 'listingSelectionId': '12346',
               },
@@ -290,13 +294,19 @@ JsonMap _hotelExample() {
       {
         'id': 'image_1',
         'widget': {
-          'Image': {'fit': 'cover', 'location': hotel1.images[0]},
+          'Image': {
+            'fit': 'cover',
+            'location': {'literalString': hotel1.images[0]},
+          },
         },
       },
       {
         'id': 'image_2',
         'widget': {
-          'Image': {'fit': 'cover', 'location': hotel2.images[0]},
+          'Image': {
+            'fit': 'cover',
+            'location': {'literalString': hotel2.images[0]},
+          },
         },
       },
     ],
@@ -318,10 +328,12 @@ JsonMap _inspirationExample() => {
       'id': 'inspiration_title',
       'widget': {
         'Text': {
-          'text':
-              "Let's plan your dream trip to Greece! "
-              'What kind of experience'
-              ' are you looking for?',
+          'text': {
+            'literalString':
+                "Let's plan your dream trip to Greece! "
+                'What kind of experience'
+                ' are you looking for?',
+          },
         },
       },
     },
@@ -330,21 +342,24 @@ JsonMap _inspirationExample() => {
         'TravelCarousel': {
           'items': [
             {
-              'description': 'Relaxing Beach Holiday',
+              'description': {'literalString': 'Relaxing Beach Holiday'},
               'imageChildId': 'santorini_beach_image',
               'listingSelectionId': '12345',
             },
             {
               'imageChildId': 'akrotiri_fresco_image',
-              'description': 'Cultural Exploration',
+              'description': {'literalString': 'Cultural Exploration'},
               'listingSelectionId': '12346',
             },
             {
               'imageChildId': 'santorini_caldera_image',
-              'description': 'Adventure & Outdoors',
+              'description': {'literalString': 'Adventure & Outdoors'},
               'listingSelectionId': '12347',
             },
-            {'description': 'Foodie Tour', 'imageChildId': 'greece_food_image'},
+            {
+              'description': {'literalString': 'Foodie Tour'},
+              'imageChildId': 'greece_food_image',
+            },
           ],
         },
       },
@@ -355,7 +370,9 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': 'assets/travel_images/santorini_panorama.jpg',
+          'location': {
+            'literalString': 'assets/travel_images/santorini_panorama.jpg',
+          },
         },
       },
     },
@@ -364,8 +381,10 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location':
-              'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
+          'location': {
+            'literalString':
+                'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
+          },
         },
       },
     },
@@ -373,7 +392,9 @@ JsonMap _inspirationExample() => {
       'id': 'santorini_caldera_image',
       'widget': {
         'Image': {
-          'location': 'assets/travel_images/santorini_from_space.jpg',
+          'location': {
+            'literalString': 'assets/travel_images/santorini_from_space.jpg',
+          },
           'fit': 'cover',
         },
       },
@@ -382,8 +403,10 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location':
-              'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
+          'location': {
+            'literalString':
+                'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
+          },
         },
       },
       'id': 'greece_food_image',

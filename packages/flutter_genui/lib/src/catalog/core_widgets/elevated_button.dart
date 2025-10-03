@@ -45,17 +45,13 @@ final elevatedButton = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
         return ElevatedButton(
           onPressed: () => dispatchEvent(
-            UiActionEvent(
-              widgetId: id,
-              eventType: 'onTap',
-              value: buttonData.action,
-            ),
+            UiActionEvent(widgetId: id, eventType: 'onTap', value: {}),
           ),
           child: child,
         );

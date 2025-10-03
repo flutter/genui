@@ -13,11 +13,13 @@ void main() {
     testWidgets('buildWidget finds and builds the correct widget', (
       WidgetTester tester,
     ) async {
-      final catalog = Catalog([CoreCatalogItems.text]);
+      final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
       final data = {
-        'id': 'text1',
+        'id': 'col1',
         'widget': {
-          'Text': {'text': 'hello'},
+          'Column': {
+            'children': ['text1'],
+          },
         },
       };
 
@@ -28,13 +30,13 @@ void main() {
               builder: (context) {
                 final widget = catalog.buildWidget(
                   data,
-                  (_) => const SizedBox(),
+                  Text.new, // Mock child builder
                   (UiEvent event) {},
                   context,
-                  {},
+                  DataContext(DataModel(), '/'),
                 );
-                expect(widget, isA<Text>());
-                expect((widget as Text).data, 'hello');
+                expect(widget, isA<Column>());
+                expect((widget as Column).children.length, 1);
                 return widget;
               },
             ),
@@ -74,7 +76,7 @@ void main() {
                   (_) => const SizedBox(),
                   (UiEvent event) {},
                   context,
-                  {},
+                  DataContext(DataModel(), '/'),
                 );
                 expect(widget, isA<Container>());
                 return widget;

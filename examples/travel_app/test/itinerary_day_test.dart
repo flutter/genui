@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -19,9 +20,11 @@ void main() {
                 return Center(
                   child: itineraryDay.widgetBuilder(
                     data: {
-                      'title': 'Day 1',
-                      'subtitle': 'Arrival in Tokyo',
-                      'description': 'A day of exploring the city.',
+                      'title': {'literalString': 'Day 1'},
+                      'subtitle': {'literalString': 'Arrival in Tokyo'},
+                      'description': {
+                        'literalString': 'A day of exploring the city.',
+                      },
                       'imageChildId': 'tokyo_image',
                       'children': <String>[],
                     },
@@ -29,7 +32,7 @@ void main() {
                     buildChild: (_) => const Placeholder(),
                     dispatchEvent: (_) {},
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   ),
                 );
               },
@@ -56,9 +59,9 @@ void main() {
                 builder: (context) {
                   return itineraryDay.widgetBuilder(
                     data: {
-                      'title': testTitle,
-                      'subtitle': testSubtitle,
-                      'description': testDescription,
+                      'title': {'literalString': testTitle},
+                      'subtitle': {'literalString': testSubtitle},
+                      'description': {'literalString': testDescription},
                       'imageChildId': 'image_child_id',
                       'children': <String>[],
                     },
@@ -73,7 +76,7 @@ void main() {
                     },
                     dispatchEvent: (event) {},
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),

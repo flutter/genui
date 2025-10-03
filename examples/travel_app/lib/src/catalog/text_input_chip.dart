@@ -12,22 +12,20 @@ final _schema = S.object(
       'select a destination. This should only be used inside an InputGroup.',
   properties: {
     'label': S.string(description: 'The label for the text input chip.'),
-    'initialValue': S.string(
-      description: 'The initial value for the text input.',
-    ),
+    'value': GulfSchemas.stringReference,
   },
   required: ['label'],
 );
 
 extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
-  factory _TextInputChipData({required String label, String? initialValue}) =>
+  factory _TextInputChipData({required String label, JsonMap? value}) =>
       _TextInputChipData.fromMap({
         'label': label,
-        if (initialValue != null) 'initialValue': initialValue,
+        if (value != null) 'value': value,
       });
 
   String get label => _json['label'] as String;
-  String? get initialValue => _json['initialValue'] as String?;
+  JsonMap? get value => _json['value'] as JsonMap?;
 }
 
 final textInputChip = CatalogItem(
@@ -41,7 +39,7 @@ final textInputChip = CatalogItem(
           'id': 'text_input',
           'widget': {
             'TextInputChip': {
-              'initialValue': 'John Doe',
+              'value': {'literalString': 'John Doe'},
               'label': 'Enter your name',
             },
           },
@@ -56,17 +54,29 @@ final textInputChip = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final textInputChipData = _TextInputChipData.fromMap(
           data as Map<String, Object?>,
         );
-        return _TextInputChip(
-          label: textInputChipData.label,
-          initialValue: textInputChipData.initialValue,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          values: values,
+
+        final valueRef = textInputChipData.value;
+        final path = valueRef?['path'] as String?;
+        final notifier = dataContext.subscribeToString(valueRef);
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _TextInputChip(
+              label: textInputChipData.label,
+              value: currentValue,
+              onChanged: (newValue) {
+                if (path != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
+          },
         );
       },
 );
@@ -74,37 +84,45 @@ final textInputChip = CatalogItem(
 class _TextInputChip extends StatefulWidget {
   const _TextInputChip({
     required this.label,
-    this.initialValue,
-    required this.widgetId,
-    required this.dispatchEvent,
-    required this.values,
+    this.value,
+    required this.onChanged,
   });
 
   final String label;
-  final String? initialValue;
-  final String widgetId;
-  final DispatchEventCallback dispatchEvent;
-  final Map<String, Object?> values;
+  final String? value;
+  final void Function(String) onChanged;
 
   @override
   State<_TextInputChip> createState() => _TextInputChipState();
 }
 
 class _TextInputChipState extends State<_TextInputChip> {
-  late String _currentValue;
-  final TextEditingController _textController = TextEditingController();
+  late final TextEditingController _textController;
 
   @override
   void initState() {
     super.initState();
-    _currentValue = widget.initialValue ?? widget.label;
-    _textController.text = widget.initialValue ?? '';
+    _textController = TextEditingController(text: widget.value ?? '');
+  }
+
+  @override
+  void didUpdateWidget(_TextInputChip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      _textController.text = widget.value ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      label: Text(_currentValue),
+      label: Text(widget.value ?? widget.label),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
@@ -125,10 +143,7 @@ class _TextInputChipState extends State<_TextInputChip> {
                     onPressed: () {
                       final newValue = _textController.text;
                       if (newValue.isNotEmpty) {
-                        widget.values[widget.widgetId] = newValue;
-                        setState(() {
-                          _currentValue = newValue;
-                        });
+                        widget.onChanged(newValue);
                         Navigator.pop(context);
                       }
                     },

@@ -104,7 +104,7 @@ final column = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         final childrenIds = columnData.children;
@@ -141,7 +141,11 @@ final column = CatalogItem(
         {
           'id': 'advice_text',
           'widget': {
-            'Text': {'text': 'What kind of advice are you looking for?'},
+            'Text': {
+              'text': {
+                'literalString': 'What kind of advice are you looking for?',
+              },
+            },
           },
         },
         {
@@ -156,7 +160,7 @@ final column = CatalogItem(
                 'Relationships',
                 'Other',
               ],
-              'groupValue': '',
+              'groupValue': {'literalString': ''},
             },
           },
         },
@@ -168,7 +172,9 @@ final column = CatalogItem(
         },
         {
           'widget': {
-            'Text': {'text': 'Submit'},
+            'Text': {
+              'text': {'literalString': 'Submit'},
+            },
           },
           'id': 'submit_button_text',
         },

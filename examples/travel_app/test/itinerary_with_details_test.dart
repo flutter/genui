@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:travel_app/src/catalog/itinerary_with_details.dart';
@@ -15,8 +16,8 @@ void main() {
       await mockNetworkImagesFor(() async {
         final catalogItem = itineraryWithDetails;
         final data = {
-          'title': 'Test Title',
-          'subheading': 'Test Subheading',
+          'title': {'literalString': 'Test Title'},
+          'subheading': {'literalString': 'Test Subheading'},
           'imageChildId': 'image_child_id',
           'child': 'child_widget_id',
         };
@@ -39,7 +40,7 @@ void main() {
                     },
                     dispatchEvent: (event) {},
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),
@@ -57,8 +58,8 @@ void main() {
       await mockNetworkImagesFor(() async {
         final catalogItem = itineraryWithDetails;
         final data = {
-          'title': 'Modal Title',
-          'subheading': 'Modal Subheading',
+          'title': {'literalString': 'Modal Title'},
+          'subheading': {'literalString': 'Modal Subheading'},
           'imageChildId': 'image_child_id',
           'child': 'modal_child_widget_id',
         };
@@ -81,7 +82,7 @@ void main() {
                     },
                     dispatchEvent: (event) {},
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),
