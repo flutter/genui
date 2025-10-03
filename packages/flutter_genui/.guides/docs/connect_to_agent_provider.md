@@ -94,7 +94,7 @@ To receive and display generated UI:
       // Send a message containing the user's text to the agent.
       void _sendMessage(String text) {
         if (text.trim().isEmpty) return;
-        uiAgent.sendRequest(UserMessage.text(text));
+        _uiAgent.sendRequest(UserMessage.text(text));
       }
 
       // A callback invoked by the [UiAgent] when a new UI surface is generated.
@@ -128,7 +128,7 @@ To receive and display generated UI:
                   itemBuilder: (context, index) {
                     // For each surface, create a GenUiSurface to display it.
                     final id = _surfaceIds[index];
-                    return GenUiSurface(host: uiAgent.host, surfaceId: id);
+                    return GenUiSurface(host: _uiAgent.host, surfaceId: id);
                   },
                 ),
               ),

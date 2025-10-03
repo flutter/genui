@@ -82,60 +82,73 @@ final informationCard = CatalogItem(
             ? dataContext.subscribe<String>(bodyPath)
             : ValueNotifier<String?>(bodyLiteral);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: titleNotifier,
-          builder: (context, title, child) {
-            return ValueListenableBuilder<String?>(
-              valueListenable: subtitleNotifier,
-              builder: (context, subtitle, child) {
-                return ValueListenableBuilder<String?>(
-                  valueListenable: bodyNotifier,
-                  builder: (context, body, child) {
-                    return Container(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: Card(
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (imageChild != null)
-                              SizedBox(
-                                width: double.infinity,
-                                height: 200,
-                                child: imageChild,
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    title ?? '',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineSmall,
-                                  ),
-                                  if (subtitle != null)
-                                    Text(
-                                      subtitle,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                  const SizedBox(height: 8.0),
-                                  MarkdownWidget(text: body ?? ''),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
+        return _InformationCard(
+          imageChild: imageChild,
+          titleNotifier: titleNotifier,
+          subtitleNotifier: subtitleNotifier,
+          bodyNotifier: bodyNotifier,
         );
       },
 );
+
+class _InformationCard extends StatelessWidget {
+  const _InformationCard({
+    this.imageChild,
+    required this.titleNotifier,
+    required this.subtitleNotifier,
+    required this.bodyNotifier,
+  });
+
+  final Widget? imageChild;
+  final ValueNotifier<String?> titleNotifier;
+  final ValueNotifier<String?> subtitleNotifier;
+  final ValueNotifier<String?> bodyNotifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 400),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (imageChild != null)
+              SizedBox(width: double.infinity, height: 200, child: imageChild),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ValueListenableBuilder<String?>(
+                    valueListenable: titleNotifier,
+                    builder: (context, title, _) => Text(
+                      title ?? '',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: subtitleNotifier,
+                    builder: (context, subtitle, _) {
+                      if (subtitle == null) return const SizedBox.shrink();
+                      return Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: bodyNotifier,
+                    builder: (context, body, _) =>
+                        MarkdownWidget(text: body ?? ''),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

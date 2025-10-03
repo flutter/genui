@@ -14,11 +14,13 @@ Add the `dart_schema_builder` package as a dependency in `pubspec.yaml`. Use the
 same commit reference as the one for `flutter_genui`.
 
 ```yaml
-dart_schema_builder:
-  git:
-    url: https://github.com/flutter/genui.git
-    path: packages/dart_schema_builder
-    ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+dependencies:
+  # ...
+  dart_schema_builder:
+    git:
+      url: https://github.com/flutter/genui.git
+      path: packages/dart_schema_builder
+      ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
 ```
 
 ## 2. Create the new widget's schema
@@ -33,8 +35,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
-    'question': S.string(description: 'The question part of a riddle.'),
-    'answer': S.string(description: 'The answer part of a riddle.'),
+    'question': GulfSchemas.stringReference,
+    'answer': GulfSchemas.stringReference,
   },
   required: ['question', 'answer'],
 );
@@ -53,33 +55,59 @@ answer for a riddle.
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required values,
-      }) {
-        final json = data as Map<String, Object?>;
-        final question = json['question'] as String;
-        final answer = json['answer'] as String;
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final json = data as Map<String, Object?>;
 
-        return Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          decoration: BoxDecoration(border: Border.all()),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(question, style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 8.0),
-              Text(answer, style: Theme.of(context).textTheme.headlineSmall),
-            ],
-          ),
+    // 1. Resolve the question reference
+    final questionRef = json['question'] as Map<String, Object?>;
+    final questionPath = questionRef['path'] as String?;
+    final questionLiteral = questionRef['literalString'] as String?;
+    final questionNotifier = questionPath != null
+        ? dataContext.subscribe<String>(questionPath)
+        : ValueNotifier<String?>(questionLiteral);
+
+    // 2. Resolve the answer reference
+    final answerRef = json['answer'] as Map<String, Object?>;
+    final answerPath = answerRef['path'] as String?;
+    final answerLiteral = answerRef['literalString'] as String?;
+    final answerNotifier = answerPath != null
+        ? dataContext.subscribe<String>(answerPath)
+        : ValueNotifier<String?>(answerLiteral);
+
+    // 3. Use ValueListenableBuilder to build the UI reactively
+    return ValueListenableBuilder<String?>(
+      valueListenable: questionNotifier,
+      builder: (context, question, _) {
+        return ValueListenableBuilder<String?>(
+          valueListenable: answerNotifier,
+          builder: (context, answer, _) {
+            return Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              decoration: BoxDecoration(border: Border.all()),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(question ?? '',
+                      style: Theme.of(context).textTheme.headlineMedium),
+                  const SizedBox(height: 8.0),
+                  Text(answer ?? '',
+                      style: Theme.of(context).textTheme.headlineSmall),
+                ],
+              ),
+            );
+          },
         );
       },
+    );
+  },
 );
 ```
 
@@ -90,6 +118,7 @@ Include your catalog items when instantiating `GenUiManager`.
 ```dart
 final genUiManager = GenUiManager(
   catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
+);
 ```
 
 ## 5. Update the system instruction to use the new widget
@@ -111,3 +140,27 @@ final aiClient = FirebaseAiClient(
   tools: genUiManager.getTools(),
 );
 ```
+
+## 6. Using the Data Model
+
+Your custom widget can also participate in the reactive data model. This allows the AI to create UIs where the state is centralized and can be updated dynamically.
+
+With the schema and widget builder defined as above, the AI can now generate a `RiddleCard` with either literal values:
+```json
+{
+  "RiddleCard": {
+    "question": { "literalString": "What has an eye, but cannot see?" },
+    "answer": { "literalString": "A needle." }
+  }
+}
+```
+...or with paths that bind to the data model:
+```json
+{
+  "RiddleCard": {
+    "question": { "path": "/riddle/currentQuestion" },
+    "answer": { "path": "/riddle/currentAnswer" }
+  }
+}
+```
+When a `path` is used, the `ValueListenableBuilder` in the widget will automatically listen for changes to that path in the `DataModel` and rebuild the widget whenever the data changes.
