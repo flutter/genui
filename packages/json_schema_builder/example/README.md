@@ -1,6 +1,6 @@
-# Dart Schema Builder Examples
+# JSON Schema Builder Examples
 
-This directory contains examples demonstrating how to use the `dart_schema_builder` package.
+This directory contains examples demonstrating how to use the `json_schema_builder` package.
 
 ## `build_and_validate_schema.dart`
 
@@ -15,7 +15,7 @@ This is a comprehensive example that shows how to:
 2. **Create valid and invalid data** to test against the schema.
 3. **Run the validator** and print the detailed, human-readable error messages for the invalid data.
 
-To run the example, execute the following command from the root of the `dart_schema_builder` package:
+To run the example, execute the following command from the root of the `json_schema_builder` package:
 
 ```shell
 dart run example/build_and_validate_schema.dart

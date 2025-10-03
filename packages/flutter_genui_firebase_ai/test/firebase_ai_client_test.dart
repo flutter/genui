@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:firebase_ai/firebase_ai.dart'
     show
         Candidate,
@@ -14,6 +13,7 @@ import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:logging/logging.dart';
 
 import 'test_infra/utils.dart';
