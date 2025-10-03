@@ -98,7 +98,7 @@ final radioGroup = CatalogItem(
           'id': 'radio_group',
           'widget': {
             'RadioGroup': {
-              'groupValue': 'Option 1',
+              'groupValue': {'literalString': 'Option 1'},
               'labels': ['Option 1', 'Option 2', 'Option 3'],
             },
           },

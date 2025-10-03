@@ -9,7 +9,6 @@ library;
 import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/model/gulf_schemas.dart';
 
 final _schema = S.object(
   description: 'A widget to break up sections of a longer list of content.',

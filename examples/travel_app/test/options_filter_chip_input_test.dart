@@ -65,7 +65,7 @@ void main() {
       expect(find.text('\$\$'), findsOneWidget);
 
       // Check if the data model is updated.
-      expect(dataModel.getValue('/price'), '\$\$');
+      expect(dataModel.getValue<String>('/price'), '\$\$');
     });
 
     testWidgets('renders correctly and handles selection without an icon', (
@@ -114,7 +114,7 @@ void main() {
       expect(find.text('\$\$\$'), findsOneWidget);
 
       // Check if the data model is updated.
-      expect(dataModel.getValue('/price'), '\$\$\$');
+      expect(dataModel.getValue<String>('/price'), '\$\$\$');
     });
   });
 }

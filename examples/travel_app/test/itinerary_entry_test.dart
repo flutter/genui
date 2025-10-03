@@ -25,8 +25,8 @@ void main() {
                       },
                       'bodyText': {
                         'literalString':
-                            'Arrive at Haneda Airport (HND), clear customs, and '
-                            'pick up your luggage.',
+                            'Arrive at Haneda Airport (HND), clear customs, '
+                            'and pick up your luggage.',
                       },
                       'time': {'literalString': '3:00 PM'},
                       'type': 'transport',

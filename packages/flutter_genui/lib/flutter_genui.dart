@@ -21,6 +21,7 @@ export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_message.dart';
 export 'src/model/data_model.dart';
+export 'src/model/gulf_schemas.dart';
 export 'src/model/tools.dart';
 export 'src/model/ui_models.dart';
 export 'src/primitives/logging.dart';

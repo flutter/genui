@@ -121,7 +121,10 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.dataModel.getValue('/checkboxes'), ['A', 'B']);
+      expect(manager!.dataModel.getValue<List<String>>('/checkboxes'), [
+        'A',
+        'B',
+      ]);
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -195,7 +198,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(message, null);
-      expect(manager!.dataModel.getValue('/radioValue'), 'B');
+      expect(manager!.dataModel.getValue<String>('/radioValue'), 'B');
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
@@ -227,7 +230,7 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(manager!.dataModel.getValue('/myValue'), 'new value');
+      expect(manager!.dataModel.getValue<String>('/myValue'), 'new value');
 
       // Test onSubmitted
       expect(message, null);

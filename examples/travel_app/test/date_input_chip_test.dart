@@ -108,7 +108,7 @@ void main() {
     await tester.tap(find.text('10'));
     await tester.pumpAndSettle();
 
-    expect(dataModel.getValue('/testDate'), '2025-09-10');
+    expect(dataModel.getValue<String>('/testDate'), '2025-09-10');
     expect(find.text('Test Date: Sep 10, 2025'), findsOneWidget);
   });
 
@@ -153,8 +153,9 @@ void main() {
     final now = DateTime.now();
     final expectedDate = DateTime(now.year, now.month, 10);
     final formatted =
-        '${expectedDate.year}-${expectedDate.month.toString().padLeft(2, '0')}-10';
-    expect(dataModel.getValue('/testDate'), formatted);
+        '${expectedDate.year}-'
+        '${expectedDate.month.toString().padLeft(2, '0')}-10';
+    expect(dataModel.getValue<String>('/testDate'), formatted);
 
     final month = DateFormat.MMM().format(expectedDate);
     expect(
