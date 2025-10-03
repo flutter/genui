@@ -46,8 +46,7 @@ run_project_step() {
     echo ""
     echo "### [$step_num/$PROJECT_TOTAL_STEPS] $description"
     echo "> To rerun this command:"
-    echo ">\n> (cd \"$project_dir\" && $cmd_str_for_display)
-> "
+    printf '>\n> (cd "%s" && %s)\n> \n' "$project_dir" "$cmd_str_for_display"
     if ! "${cmd_to_run[@]}"; then
         echo "'(cd \"$project_dir\" && $cmd_str_to_run)' failed" >> "$FAILURE_LOG"
     fi
@@ -125,15 +124,14 @@ if [ -f "tool/fix_copyright/bin/fix_copyright.dart" ]; then
     echo "## Running copyright fix"
     echo "---"
     echo "> To rerun this command:"
-    echo ">\n> dart run tool/fix_copyright/bin/fix_copyright.dart --force
-> "
+    printf '>\n> dart run tool/fix_copyright/bin/fix_copyright.dart --force\n> \n'
     # Log failures without stopping the script.
     dart run tool/fix_copyright/bin/fix_copyright.dart --force >/dev/null 2>&1 || true
     echo "---"
     echo "Copyright fix complete."
     echo ""
 else
-    echo "## Skipping copyright fix: tool not found."
+    echo "### Skipping copyright fix: tool not found."
     echo ""
 fi
 
