@@ -61,11 +61,12 @@ Logic, follow these instructions:
         git:
           url: https://github.com/flutter/genui.git
           path: packages/flutter_genui
-          ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+          ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
       flutter_genui_firebase_ai:
         git:
           url: https://github.com/flutter/genui.git
           path: packages/flutter_genui_firebase_ai
+          ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
     ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,
@@ -181,7 +182,7 @@ To receive and display generated UI:
       // Send a message containing the user's text to the agent.
       void _sendMessage(String text) {
         if (text.trim().isEmpty) return;
-        uiAgent.sendRequest(UserMessage.text(text));
+        _uiAgent.sendRequest(UserMessage.text(text));
       }
 
       // A callback invoked by the [UiAgent] when a new UI surface is generated.
@@ -215,7 +216,7 @@ To receive and display generated UI:
                   itemBuilder: (context, index) {
                     // For each surface, create a GenUiSurface to display it.
                     final id = _surfaceIds[index];
-                    return GenUiSurface(host: uiAgent.host, surfaceId: id);
+                    return GenUiSurface(host: _uiAgent.host, surfaceId: id);
                   },
                 ),
               ),
@@ -258,17 +259,19 @@ In addition to using the catalog of widgets in `CoreCatalogItems`, you can
 create custom widgets for the agent to generate. Use the following
 instructions.
 
-#### Import `dart_schema_builder
+#### Import `dart_schema_builder`
 
 Add the `dart_schema_builder` package as a dependency in `pubspec.yaml`. Use the
 same commit reference as the one for `flutter_genui`.
 
 ```yaml
-dart_schema_builder:
-  git:
-    url: https://github.com/flutter/genui.git
-    path: packages/dart_schema_builder
-    ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+dependencies:
+  # ...
+  dart_schema_builder:
+    git:
+      url: https://github.com/flutter/genui.git
+      path: packages/dart_schema_builder
+      ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
 ```
 
 #### Create the new widget's schema
@@ -337,6 +340,7 @@ Include your catalog items when instantiating `GenUiManager`.
 ```dart
 final genUiManager = GenUiManager(
   catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
+);
 ```
 
 #### Update the system instruction to use the new widget
@@ -355,6 +359,45 @@ final aiClient = FirebaseAiClient(
   tools: genUiManager.getTools(),
 );
 ```
+
+## Data Model and Data Binding
+
+A core concept in `flutter_genui` is the **`DataModel`**, a centralized, observable store for all dynamic UI state. Instead of widgets managing their own state, their state is stored in the `DataModel`.
+
+Widgets are "bound" to data in this model. When data in the model changes, only the widgets that depend on that specific piece of data are rebuilt. This is achieved through a `DataContext` object that is passed to each widget's builder function.
+
+### Binding to the Data Model
+
+To bind a widget's property to the data model, you use a special JSON object in the data sent from the AI. This object can contain either a `literalString` (for static values) or a `path` (to bind to a value in the data model).
+
+For example, to display a user's name in a `Text` widget, the AI would generate:
+
+```json
+{
+  "id": "user_name_text",
+  "widget": {
+    "Text": {
+      "text": { "path": "/user/name" }
+    }
+  }
+}
+```
+
+And the `DataModel` would contain:
+
+```json
+{
+  "user": {
+    "name": "Alice"
+  }
+}
+```
+
+### Updating the Data Model
+
+Input widgets, like `TextField`, update the `DataModel` directly. When the user types in a text field that is bound to `/user/name`, the `DataModel` is updated, and any other widgets bound to that same path will automatically rebuild to show the new value.
+
+This reactive data flow simplifies state management and creates a powerful, high-bandwidth interaction loop between the user, the UI, and the AI.
 
 ## Next steps
 

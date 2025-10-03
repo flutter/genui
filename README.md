@@ -13,7 +13,7 @@ This is a highly experimental package, which means the API will change (sometime
 Our goal for the GenUI SDK for Flutter is to help you replace static "walls of text" from your LLM with
 dynamic, interactive, graphical UI.
 It uses a JSON-based format to compose UIs from your existing widget catalog, turning conversations or agent
-interactions into rich, intuitive experiences. State changes in the UI are fed back to the agent, creating a
+interactions into rich, intuitive experiences. State changes in the UI update a client-side data model, which is fed back to the agent, creating a
 powerful, high-bandwidth interaction loop. The GenUI SDK for Flutter aims to be easy to integrate into your Flutter
 application to significantly improve the usability and satisfaction of your chatbots and next-generation
 agent-based user experiences.
