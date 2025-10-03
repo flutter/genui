@@ -46,6 +46,7 @@ interface InferenceResult {
   error: any;
   latency: number;
   validationResults: string[];
+  runNumber: number;
 }
 
 // Run the flow
@@ -63,21 +64,26 @@ async function main() {
   }, {} as Record<string, string | boolean>);
 
   const verbose = !!args.verbose;
+  const runsPerPrompt = parseInt(args['runs-per-prompt'] as string, 10) || 1;
 
   let filteredModels = modelsToTest;
   if (typeof args.model === 'string') {
-    filteredModels = modelsToTest.filter(m => m.name === args.model);
+    filteredModels = modelsToTest.filter(m =>
+      m.name.startsWith(args.model as string)
+    );
     if (filteredModels.length === 0) {
-      console.error(`Model "${args.model}" not found.`);
+      console.error(`No model found with prefix "${args.model}".`);
       process.exit(1);
     }
   }
 
   let filteredPrompts = prompts;
   if (typeof args.prompt === 'string') {
-    filteredPrompts = prompts.filter(p => p.name === args.prompt);
+    filteredPrompts = prompts.filter(p =>
+      p.name.startsWith(args.prompt as string)
+    );
     if (filteredPrompts.length === 0) {
-      console.error(`Prompt "${args.prompt}" not found.`);
+      console.error(`No prompt found with prefix "${args.prompt}".`);
       process.exit(1);
     }
   }
@@ -88,33 +94,41 @@ async function main() {
     const schemaString = fs.readFileSync(path.join(__dirname, prompt.schema), 'utf-8');
     const schema = JSON.parse(schemaString);
     for (const modelConfig of filteredModels) {
-      console.log(`Queueing generation for model: ${modelConfig.name}, prompt: ${prompt.name}`);
-      const startTime = Date.now();
-      generationPromises.push(
-        componentGeneratorFlow({
-          prompt: prompt.promptText,
-          model: modelConfig.model,
-          config: modelConfig.config,
-          schema,
-        }).then(component => {
-          const validationResults = validateSchema(component, prompt.schema);
-          return {
+      for (let i = 1; i <= runsPerPrompt; i++) {
+        console.log(`Queueing generation for model: ${modelConfig.name}, prompt: ${prompt.name} (run ${i})`);
+        const startTime = Date.now();
+        generationPromises.push(
+          componentGeneratorFlow({
+            prompt: prompt.promptText,
+            model: modelConfig.model,
+            config: modelConfig.config,
+            schema,
+          }).then(component => {
+            const validationResults = validateSchema(
+              component,
+              prompt.schema,
+              prompt.matchers
+            );
+            return {
+              modelName: modelConfig.name,
+              prompt,
+              component,
+              error: null,
+              latency: Date.now() - startTime,
+              validationResults,
+              runNumber: i,
+            };
+          }).catch(error => ({
             modelName: modelConfig.name,
             prompt,
-            component,
-            error: null,
+            component: null,
+            error,
             latency: Date.now() - startTime,
-            validationResults,
-          };
-        }).catch(error => ({
-          modelName: modelConfig.name,
-          prompt,
-          component: null,
-          error,
-          latency: Date.now() - startTime,
-          validationResults: [],
-        }))
-      );
+            validationResults: [],
+            runNumber: i,
+          }))
+        );
+      }
     }
   }
 
@@ -140,7 +154,7 @@ async function main() {
         console.log(`\n----------------------------------------`);
         console.log(`Model: ${modelName}`);
         console.log(`----------------------------------------`);
-        console.log(`\nQuery: ${result.prompt.name}`);
+        console.log(`\nQuery: ${result.prompt.name} (run ${result.runNumber})`);
 
         if (hasError) {
           console.error('Error generating component:', result.error);
@@ -165,46 +179,56 @@ async function main() {
     console.log(`\n----------------------------------------`);
     console.log(`Model: ${modelName}`);
     console.log(`----------------------------------------`);
-    const header = `${'Prompt Name'.padEnd(30)}${'Latency (ms)'.padEnd(15)}${'Val Failure Count'.padEnd(20)}${'Status'}`;
+    const header = `${'Prompt Name'.padEnd(40)}${'Avg Latency (ms)'.padEnd(20)}${'Failed Runs'.padEnd(15)}${'Tool Error Runs'.padEnd(20)}`;
     const divider = '-'.repeat(header.length);
     console.log(header);
     console.log(divider);
 
-    let modelFailures = 0;
-    let modelValidationFailures = 0;
-
-    for (const result of resultsByModel[modelName]) {
-      if (result.error) {
-        modelFailures++;
+    const promptsInModel = resultsByModel[modelName].reduce((acc, result) => {
+      if (!acc[result.prompt.name]) {
+        acc[result.prompt.name] = [];
       }
-      const validationFailureCount = result.validationResults?.length || 0;
-      modelValidationFailures += validationFailureCount;
+      acc[result.prompt.name].push(result);
+      return acc;
+    }, {} as Record<string, InferenceResult[]>);
 
-      const promptName = result.prompt.name.padEnd(30);
-      const latency = `${result.latency}ms`.padEnd(15);
-      const valFailureCount = validationFailureCount.toString().padEnd(20);
-      const statusContent = result.error ? 'FAILED' : '';
-      const status = statusContent.padEnd(8);
-      console.log(`${promptName}${latency}${valFailureCount}${status}`);
+    let totalModelFailedRuns = 0;
+
+    for (const promptName in promptsInModel) {
+      const runs = promptsInModel[promptName];
+      const totalRuns = runs.length;
+      const errorRuns = runs.filter(r => r.error).length;
+      const failedRuns = runs.filter(r => r.error || r.validationResults.length > 0).length;
+      const totalLatency = runs.reduce((acc, r) => acc + r.latency, 0);
+      const avgLatency = (totalLatency / totalRuns).toFixed(0);
+
+      totalModelFailedRuns += failedRuns;
+
+      const promptStr = promptName.padEnd(40);
+      const latencyStr = `${avgLatency}ms`.padEnd(20);
+      const failedRunsStr = failedRuns > 0 ? `${failedRuns} / ${totalRuns}`.padEnd(15) : ''.padEnd(15);
+      const errorRunsStr = errorRuns > 0 ? `${errorRuns} / ${totalRuns}`.padEnd(20) : ''.padEnd(20);
+
+      console.log(`${promptStr}${latencyStr}${failedRunsStr}${errorRunsStr}`);
     }
+
     console.log(divider);
-    console.log(`Total failures: ${modelFailures}`);
-    console.log(`Total validation failures: ${modelValidationFailures}`);
+    const totalRunsForModel = resultsByModel[modelName].length;
+    console.log(`Total failed runs: ${totalModelFailedRuns} / ${totalRunsForModel}`);
   }
 
   console.log('\n--- Overall Summary ---');
-  const totalModelApiFailures = results.filter(r => r.error).length;
-  const totalValidationFailures = results.reduce((acc, r) => acc + r.validationResults.length, 0);
-  const testsWithAnyFailure = results.filter(r => r.error || r.validationResults.length > 0).length;
+  const totalRuns = results.length;
+  const totalToolErrorRuns = results.filter(r => r.error).length;
+  const totalRunsWithAnyFailure = results.filter(r => r.error || r.validationResults.length > 0).length;
   const modelsWithFailures = [...new Set(
     results
       .filter(r => r.error || r.validationResults.length > 0)
       .map(r => r.modelName)
   )].join(', ');
 
-  console.log(`Number of model API failures: ${totalModelApiFailures}`);
-  console.log(`Number of validation failures in total: ${totalValidationFailures}`);
-  console.log(`Number of tests with either a model failure or at least 1 validation failure: ${testsWithAnyFailure}`);
+  console.log(`Number of tool error runs: ${totalToolErrorRuns} / ${totalRuns}`);
+  console.log(`Number of runs with any failure (tool error or validation): ${totalRunsWithAnyFailure} / ${totalRuns}`);
   if (modelsWithFailures) {
     console.log(`Models with at least one failure: ${modelsWithFailures}`);
   }
