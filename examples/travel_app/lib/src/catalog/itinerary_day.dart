@@ -89,40 +89,17 @@ final itineraryDay = CatalogItem(
           itineraryDayData.description,
         );
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: titleNotifier,
-          builder: (context, title, child) {
-            return ValueListenableBuilder<String?>(
-              valueListenable: subtitleNotifier,
-              builder: (context, subtitle, child) {
-                return ValueListenableBuilder<String?>(
-                  valueListenable: descriptionNotifier,
-                  builder: (context, description, child) {
-                    return _ItineraryDay(
-                      title: title ?? '',
-                      subtitle: subtitle ?? '',
-                      description: description ?? '',
-                      imageChild: buildChild(itineraryDayData.imageChildId),
-                      children: itineraryDayData.children
-                          .map(buildChild)
-                          .toList(),
-                    );
-                  },
-                );
-              },
-            );
-          },
+        return _ItineraryDay(
+          title: titleNotifier,
+          subtitle: subtitleNotifier,
+          description: descriptionNotifier,
+          imageChild: buildChild(itineraryDayData.imageChildId),
+          children: itineraryDayData.children.map(buildChild).toList(),
         );
       },
 );
 
 class _ItineraryDay extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String description;
-  final Widget imageChild;
-  final List<Widget> children;
-
   const _ItineraryDay({
     required this.title,
     required this.subtitle,
@@ -131,47 +108,51 @@ class _ItineraryDay extends StatelessWidget {
     required this.children,
   });
 
+  final ValueNotifier<String?> title;
+  final ValueNotifier<String?> subtitle;
+  final ValueNotifier<String?> description;
+  final Widget imageChild;
+  final List<Widget> children;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 200, width: double.infinity, child: imageChild),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: SizedBox(height: 80, width: 80, child: imageChild),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: theme.textTheme.headlineSmall),
-                      const SizedBox(height: 4.0),
-                      Text(subtitle, style: theme.textTheme.titleMedium),
-                    ],
+                ValueListenableBuilder<String?>(
+                  valueListenable: title,
+                  builder: (context, title, _) => Text(
+                    title ?? '',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
+                ),
+                ValueListenableBuilder<String?>(
+                  valueListenable: subtitle,
+                  builder: (context, subtitle, _) => Text(
+                    subtitle ?? '',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                ValueListenableBuilder<String?>(
+                  valueListenable: description,
+                  builder: (context, description, _) =>
+                      MarkdownWidget(text: description ?? ''),
                 ),
               ],
             ),
-            const SizedBox(height: 8.0),
-            MarkdownWidget(text: description),
-            const SizedBox(height: 8.0),
-            const Divider(),
-            ...children,
-          ],
-        ),
+          ),
+          ...children,
+        ],
       ),
     );
   }
