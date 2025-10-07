@@ -141,10 +141,20 @@ class DataModel {
             current[index] = value;
           } else if (index == current.length) {
             current.add(value);
+          } else {
+            throw ArgumentError(
+              'Index out of bounds for list update: index ($index) is greater '
+              'than list length (${current.length}).',
+            );
           }
         } else {
           if (index < current.length) {
             _updateValue(current[index], remaining, value);
+          } else {
+            throw ArgumentError(
+              'Index out of bounds for nested update: index ($index) is '
+              'greater than or equal to list length (${current.length}).',
+            );
           }
         }
       }

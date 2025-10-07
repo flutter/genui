@@ -117,7 +117,7 @@ final optionsFilterChipInput = CatalogItem(
       },
 );
 
-class _OptionsFilterChip extends StatefulWidget {
+class _OptionsFilterChip extends StatelessWidget {
   const _OptionsFilterChip({
     required this.chipLabel,
     required this.options,
@@ -132,17 +132,12 @@ class _OptionsFilterChip extends StatefulWidget {
   final String? value;
   final void Function(String?) onChanged;
 
-  @override
-  State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
-}
-
-class _OptionsFilterChipState extends State<_OptionsFilterChip> {
-  String get _currentChipLabel => widget.value ?? widget.chipLabel;
+  String get _currentChipLabel => value ?? chipLabel;
 
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      avatar: widget.icon != null ? Icon(widget.icon) : null,
+      avatar: icon != null ? Icon(icon) : null,
       label: Text(_currentChipLabel),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -150,12 +145,12 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            var tempSelectedOption = widget.value;
+            var tempSelectedOption = value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: widget.options.map((option) {
+                  children: options.map((option) {
                     return RadioListTile<String>(
                       title: Text(option),
                       value: option,
@@ -166,7 +161,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                         setModalState(() {
                           tempSelectedOption = newValue;
                         });
-                        widget.onChanged(newValue);
+                        onChanged(newValue);
                         if (newValue != null) {
                           Navigator.pop(context);
                         }
