@@ -10,7 +10,7 @@ final _schema = S.object(
   properties: {
     'topics': S.list(
       description: 'A list of topics to display as chips.',
-      items: GulfSchemas.stringReference,
+      items: GulfSchemas.stringReference(description: 'A topic to explore.'),
     ),
   },
   required: ['topics'],

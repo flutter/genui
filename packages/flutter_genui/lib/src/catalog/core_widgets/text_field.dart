@@ -13,7 +13,9 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'value': GulfSchemas.stringReference,
+    'value': GulfSchemas.stringReference(
+      description: 'The initial value of the text field.',
+    ),
     'hintText': S.string(description: 'Hint text for the text field.'),
     'obscureText': S.boolean(
       description: 'Whether the text should be obscured.',

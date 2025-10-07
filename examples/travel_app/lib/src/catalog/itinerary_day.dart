@@ -17,10 +17,21 @@ final _schema = S.object(
       'It should contain a list of ItineraryEntry widgets. '
       'This should be nested inside an ItineraryWithDetails.',
   properties: {
-    'title': GulfSchemas.stringReference,
-    'subtitle': GulfSchemas.stringReference,
-    'description': GulfSchemas.stringReference,
-    'imageChildId': GulfSchemas.componentReference,
+    'title': GulfSchemas.stringReference(
+      description: 'The title for the day, e.g., "Day 1".',
+    ),
+    'subtitle': GulfSchemas.stringReference(
+      description: 'The subtitle for the day, e.g., "Arrival in Tokyo".',
+    ),
+    'description': GulfSchemas.stringReference(
+      description:
+          'A short description of the day\'s plan. This supports markdown.',
+    ),
+    'imageChildId': GulfSchemas.componentReference(
+      description:
+          'The ID of the Image widget to display. The Image fit should '
+          'typically be \'cover\'.',
+    ),
     'children': S.list(
       description:
           'A list of widget IDs for the ItineraryEntry children for this day.',

@@ -16,9 +16,13 @@ final _schema = S.object(
           'card. The Image fit should typically be "cover". Be sure to create '
           'an Image widget with a matching ID.',
     ),
-    'title': GulfSchemas.stringReference,
-    'subtitle': GulfSchemas.stringReference,
-    'body': GulfSchemas.stringReference,
+    'title': GulfSchemas.stringReference(description: 'The title of the card.'),
+    'subtitle': GulfSchemas.stringReference(
+      description: 'The subtitle of the card.',
+    ),
+    'body': GulfSchemas.stringReference(
+      description: 'The body text of the card. This supports markdown.',
+    ),
   },
   required: ['title', 'body'],
 );

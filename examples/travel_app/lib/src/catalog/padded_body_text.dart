@@ -18,7 +18,11 @@ extension type _PaddedBodyTextData.fromMap(Map<String, Object?> _json) {
 final paddedBodyText = CatalogItem(
   name: 'PaddedBodyText',
   dataSchema: S.object(
-    properties: {'text': GulfSchemas.stringReference},
+    properties: {
+      'text': GulfSchemas.stringReference(
+        description: 'The text to display. This supports markdown.',
+      ),
+    },
     required: ['text'],
   ),
   widgetBuilder:

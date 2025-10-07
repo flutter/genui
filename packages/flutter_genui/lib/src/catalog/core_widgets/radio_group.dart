@@ -12,7 +12,9 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'groupValue': GulfSchemas.stringReference,
+    'groupValue': GulfSchemas.stringReference(
+      description: 'The currently selected value for a group of radio buttons.',
+    ),
     'labels': S.list(
       items: S.string(),
       description: 'A list of labels for the radio buttons.',

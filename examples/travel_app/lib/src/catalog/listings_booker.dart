@@ -17,7 +17,9 @@ final _schema = S.object(
       description: 'Listings to checkout.',
       items: S.string(),
     ),
-    'itineraryName': GulfSchemas.stringReference,
+    'itineraryName': GulfSchemas.stringReference(
+      description: 'The name of the itinerary.',
+    ),
   },
   required: ['listingSelectionIds'],
 );

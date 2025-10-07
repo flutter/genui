@@ -8,7 +8,9 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
-    'submitLabel': GulfSchemas.stringReference,
+    'submitLabel': GulfSchemas.stringReference(
+      description: 'The label for the submit button.',
+    ),
     'children': S.list(
       description:
           'A list of widget IDs for the input children, which must '

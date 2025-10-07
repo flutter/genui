@@ -31,7 +31,11 @@ final _schema = S.object(
       description: 'An icon to display on the left of the chip.',
       enumValues: TravelIcon.values.map((e) => e.name).toList(),
     ),
-    'selectedOptions': GulfSchemas.stringArrayReference,
+    'selectedOptions': GulfSchemas.stringArrayReference(
+      description:
+          'The names of the options that should be selected '
+          'initially. These options must exist in the "options" list.',
+    ),
   },
   required: ['chipLabel', 'options', 'selectedOptions'],
 );

@@ -33,8 +33,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
-    'question': GulfSchemas.stringReference,
-    'answer': GulfSchemas.stringReference,
+    'question': GulfSchemas.stringReference(description: 'The question part of a riddle.'),
+    'answer': GulfSchemas.stringReference(description: 'The answer part of a riddle.'),
   },
   required: ['question', 'answer'],
 );

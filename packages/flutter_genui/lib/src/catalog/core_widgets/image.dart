@@ -12,7 +12,10 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'location': GulfSchemas.stringReference,
+    'location': GulfSchemas.stringReference(
+      description:
+          'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
+    ),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),

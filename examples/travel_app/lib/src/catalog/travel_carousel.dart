@@ -13,13 +13,25 @@ import '../tools/booking/model.dart';
 
 final _schema = S.object(
   properties: {
-    'title': GulfSchemas.stringReference,
+    'title': GulfSchemas.stringReference(
+      description: 'An optional title to display above the carousel.',
+    ),
     'items': S.list(
       description: 'A list of items to display in the carousel.',
       items: S.object(
         properties: {
-          'description': GulfSchemas.stringReference,
-          'imageChildId': GulfSchemas.componentReference,
+          'description': GulfSchemas.stringReference(
+            description:
+                'The short description of the carousel item. '
+                'It may include the price and location if applicable. '
+                'It should be very concise. '
+                'Example: "The Dart Inn in Sunnyvale, CA for \$150"',
+          ),
+          'imageChildId': GulfSchemas.componentReference(
+            description:
+                'The ID of the Image widget to display as the carousel item '
+                'image. Be sure to create Image widgets with matching IDs.',
+          ),
           'listingSelectionId': S.string(
             description:
                 'An optional ID of the listing that this item '

@@ -16,10 +16,23 @@ final _schema = S.object(
       'Widget to show an itinerary or a plan for travel. This should contain '
       'a list of ItineraryDay widgets.',
   properties: {
-    'title': GulfSchemas.stringReference,
-    'subheading': GulfSchemas.stringReference,
-    'imageChildId': GulfSchemas.componentReference,
-    'child': GulfSchemas.componentReference,
+    'title': GulfSchemas.stringReference(
+      description: 'The title of the itinerary.',
+    ),
+    'subheading': GulfSchemas.stringReference(
+      description: 'The subheading of the itinerary.',
+    ),
+    'imageChildId': GulfSchemas.componentReference(
+      description:
+          'The ID of the Image widget to display. The Image fit '
+          "should typically be 'cover'. Be sure to create an Image widget "
+          'with a matching ID.',
+    ),
+    'child': GulfSchemas.componentReference(
+      description:
+          'The ID of a child widget to display in a modal. This should '
+          'typically be a Column which contains a sequence of ItineraryDays.',
+    ),
   },
   required: ['title', 'subheading', 'imageChildId', 'child'],
 );

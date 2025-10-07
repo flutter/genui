@@ -12,7 +12,9 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'selectedValues': GulfSchemas.stringArrayReference,
+    'selectedValues': GulfSchemas.stringArrayReference(
+      description: 'The values of the checkboxes.',
+    ),
     'labels': S.list(
       items: S.string(),
       description: 'A list of all available labels for the checkboxes.',

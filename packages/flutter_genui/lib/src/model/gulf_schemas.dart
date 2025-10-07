@@ -11,7 +11,8 @@ class GulfSchemas {
   /// data-bound path to a string in the DataModel. If both path and
   /// literalString are provided, the value at the path will be initialized
   /// with the literalString.
-  static final Schema stringReference = S.object(
+  static Schema stringReference({String? description}) => S.object(
+    description: description,
     properties: {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',
@@ -24,7 +25,8 @@ class GulfSchemas {
   /// data-bound path to a number in the DataModel. If both path and
   /// literalNumber are provided, the value at the path will be initialized
   /// with the literalNumber.
-  static final Schema numberReference = S.object(
+  static Schema numberReference({String? description}) => S.object(
+    description: description,
     properties: {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',
@@ -37,7 +39,8 @@ class GulfSchemas {
   /// data-bound path to a boolean in the DataModel. If both path and
   /// literalBoolean are provided, the value at the path will be initialized
   /// with the literalBoolean.
-  static final Schema booleanReference = S.object(
+  static Schema booleanReference({String? description}) => S.object(
+    description: description,
     properties: {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',
@@ -48,13 +51,15 @@ class GulfSchemas {
 
   /// Schema for a property that holds a reference to a single child
   /// component by its ID.
-  static final Schema componentReference = S.string();
+  static Schema componentReference({String? description}) =>
+      S.string(description: description);
 
   /// Schema for a property that holds a list of child components,
   /// either as an explicit list of IDs or a data-bound template.
-  static final Schema componentArrayReference = S.object(
+  static Schema componentArrayReference({String? description}) => S.object(
+    description: description,
     properties: {
-      'explicitList': S.list(items: componentReference),
+      'explicitList': S.list(items: componentReference()),
       'template': S.object(
         properties: {'componentId': S.string(), 'dataBinding': S.string()},
         required: ['componentId', 'dataBinding'],
@@ -64,7 +69,8 @@ class GulfSchemas {
 
   /// Schema for a user-initiated action, including the action name
   /// and a context map of key-value pairs.
-  static final Schema action = S.object(
+  static Schema action({String? description}) => S.object(
+    description: description,
     properties: {
       'action': S.string(),
       'context': S.list(
@@ -91,7 +97,8 @@ class GulfSchemas {
   /// data-bound path to an array of strings in the DataModel. If both path and
   /// literalStringArray are provided, the value at the path will be
   /// initialized with the literalStringArray.
-  static final Schema stringArrayReference = S.object(
+  static Schema stringArrayReference({String? description}) => S.object(
+    description: description,
     properties: {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',

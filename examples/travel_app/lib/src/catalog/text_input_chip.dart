@@ -12,7 +12,9 @@ final _schema = S.object(
       'select a destination. This should only be used inside an InputGroup.',
   properties: {
     'label': S.string(description: 'The label for the text input chip.'),
-    'value': GulfSchemas.stringReference,
+    'value': GulfSchemas.stringReference(
+      description: 'The initial value for the text input.',
+    ),
   },
   required: ['label'],
 );

@@ -12,8 +12,12 @@ final _schema = S.object(
       description: 'A list of sections to display as tabs.',
       items: S.object(
         properties: {
-          'title': GulfSchemas.stringReference,
-          'child': GulfSchemas.componentReference,
+          'title': GulfSchemas.stringReference(
+            description: 'The title of the tab.',
+          ),
+          'child': GulfSchemas.componentReference(
+            description: 'The ID of the child widget for the tab content.',
+          ),
         },
         required: ['title', 'child'],
       ),

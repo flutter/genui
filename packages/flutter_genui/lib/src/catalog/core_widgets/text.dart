@@ -20,7 +20,11 @@ extension type _TextData.fromMap(JsonMap _json) {
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
-    properties: {'text': GulfSchemas.stringReference},
+    properties: {
+      'text': GulfSchemas.stringReference(
+        description: 'The text to display. This does *not* support markdown.',
+      ),
+    },
     required: ['text'],
   ),
   widgetBuilder:
