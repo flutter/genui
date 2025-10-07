@@ -18,6 +18,10 @@ dependencies:
   collection: ^1.19.1
   flutter:
     sdk: flutter
+
+  # Reference via path instead of git to allow local development, after
+  # the packages are published.
+  # See https://github.com/flutter/genui/pull/353.
   json_schema_builder:
     git:
       url: https://github.com/flutter/genui.git
