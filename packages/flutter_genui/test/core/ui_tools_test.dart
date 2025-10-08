@@ -32,7 +32,10 @@ void main() {
         'definition': {
           'root': 'rootWidget',
           'widgets': [
-            {'id': 'rootWidget', 'type': 'text', 'content': 'Hello'},
+            {
+              'id': 'rootWidget',
+              'widget': {'text': 'Hello'},
+            },
           ],
         },
       };

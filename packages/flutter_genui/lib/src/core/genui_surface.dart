@@ -119,12 +119,15 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
+    final widgetData = (data as JsonMap)['widget'] as JsonMap;
+
     return widget.host.catalog.buildWidget(
-      data as JsonMap,
-      (String childId) => _buildWidget(definition, childId),
-      _dispatchEvent,
-      context,
-      widget.host.valueStore.forSurface(widget.surfaceId),
+      id: widgetId,
+      widgetData: widgetData,
+      buildChild: (String childId) => _buildWidget(definition, childId),
+      dispatchEvent: _dispatchEvent,
+      context: context,
+      valueStore: widget.host.valueStore.forSurface(widget.surfaceId),
     );
   }
 
