@@ -12,10 +12,10 @@ import 'schema_cache.dart';
 import 'utils.dart';
 
 class SchemaRegistry {
-  final SchemaCacheBase _schemaCache;
+  final SchemaCache _schemaCache;
   final Map<Uri, Schema> _schemas = {};
 
-  SchemaRegistry({SchemaCacheBase? schemaCache, LoggingContext? loggingContext})
+  SchemaRegistry({SchemaCache? schemaCache, LoggingContext? loggingContext})
     : _schemaCache = schemaCache ?? SchemaCache(loggingContext: loggingContext);
 
   void addSchema(Uri uri, Schema schema) {
