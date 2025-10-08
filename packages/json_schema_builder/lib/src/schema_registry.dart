@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'schema/schema.dart';
 import 'schema_cache.dart';
+
 import 'utils.dart';
 
 class SchemaRegistry {
