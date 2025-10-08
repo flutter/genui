@@ -19,19 +19,45 @@ import 'schema.dart';
 /// ```
 extension type ListSchema.fromMap(Map<String, Object?> _value)
     implements Schema {
+  /// Creates a JSON Schema definition for a [List].
   factory ListSchema({
     // Core keywords
     String? title,
     String? description,
     // List-specific keywords
+
+    /// The schema that all items in the list must match.
+    ///
+    /// If [prefixItems] is also present, this schema will only apply to items
+    /// after the ones matched by [prefixItems].
     Schema? items,
+
+    /// A list of schemas that must match the items in the list at the same
+    /// index.
     List<Schema>? prefixItems,
+
+    /// A schema that will be applied to all items that are not matched by
+    /// [items], [prefixItems], or [contains].
     Object? unevaluatedItems,
+
+    /// The schema that at least one item in the list must match.
     Schema? contains,
+
+    /// The minimum number of items that must match the [contains] schema.
+    ///
+    /// Defaults to 1.
     int? minContains,
+
+    /// The maximum number of items that can match the [contains] schema.
     int? maxContains,
+
+    /// The minimum number of items that the list must have.
     int? minItems,
+
+    /// The maximum number of items that the list can have.
     int? maxItems,
+
+    /// Whether all items in the list must be unique.
     bool? uniqueItems,
   }) => ListSchema.fromMap({
     'type': JsonType.list.typeName,

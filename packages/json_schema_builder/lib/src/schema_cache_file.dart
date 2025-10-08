@@ -4,7 +4,11 @@
 
 import 'dart:io';
 
+/// A schema cache that supports reading files from the local file system.
+///
+/// This implementation is used on platforms that have access to `dart:io`.
 class SchemaCacheFileLoader {
+  /// Creates a new file-aware schema cache.
   Future<String> getFile(Uri uri) async {
     assert(uri.scheme == 'file');
     final file = File.fromUri(uri);

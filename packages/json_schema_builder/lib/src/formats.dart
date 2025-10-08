@@ -4,8 +4,14 @@
 
 import 'package:intl/intl.dart';
 
+/// A function that validates a string against a format.
+///
+/// Returns `true` if the string is valid, and `false` otherwise.
 typedef FormatValidator = bool Function(String);
 
+/// A map of format names to their validation functions.
+///
+/// This is used to validate string formats like 'date-time', 'email', etc.
 final Map<String, FormatValidator> formatValidators = {
   'date-time': (value) {
     try {
