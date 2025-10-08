@@ -95,7 +95,7 @@ class Catalog {
   /// of the schemas from the [items] in the catalog. This is used to inform
   /// the generative AI model about the available UI components and their
   /// expected data structures.
-  Schema get schema {
+  Schema get definition {
     final componentProperties = {
       for (var item in items) item.name: item.dataSchema,
     };

@@ -95,7 +95,7 @@ void main() {
         CoreCatalogItems.text,
         CoreCatalogItems.elevatedButton,
       ]);
-      final schema = catalog.schema as ObjectSchema;
+      final schema = catalog.definition as ObjectSchema;
 
       expect(schema.properties?.containsKey('components'), isTrue);
       expect(schema.properties?.containsKey('styles'), isTrue);

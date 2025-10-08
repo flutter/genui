@@ -73,10 +73,15 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
                              '`{"TypeOfWidget": {"widget_property": "Value of '
                              'property"}}`',
                          anyOf: [
-                           for (var item in catalog.items)
+                           for (var entry
+                               in ((catalog.definition as ObjectSchema)
+                                           .properties!['components']!
+                                       as ObjectSchema)
+                                   .properties!
+                                   .entries)
                              Schema.object(
-                               properties: {item.name: item.dataSchema},
-                               required: [item.name],
+                               properties: {entry.key: entry.value},
+                               required: [entry.key],
                              ),
                          ],
                        ),
