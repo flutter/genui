@@ -63,12 +63,14 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
                        'id': S.string(),
                        'widget': Schema.combined(
                          description:
-                             'A wrapper object for a single widget definition. It MUST '
-                             'contain exactly one key, where the key is the name of a '
-                             'widget type (e.g., "Column", "Text", "ElevatedButton") from the '
-                             'list of allowed properties. The value is an object containing '
-                             'the definition of that widget using its properties. '
-                             'For example: `{"TypeOfWidget": {"widget_property": "Value of '
+                             'A wrapper object for a single widget '
+                             'definition. It MUST contain exactly one key, '
+                             'where the key is the name of a widget type '
+                             '(e.g., "Column", "Text", "ElevatedButton") from '
+                             'the list of allowed properties. The value is an '
+                             'object containing the definition of that widget '
+                             'using its properties. For example: '
+                             '`{"TypeOfWidget": {"widget_property": "Value of '
                              'property"}}`',
                          anyOf: [
                            for (var item in catalog.items)

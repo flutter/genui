@@ -52,10 +52,10 @@ class Catalog {
   /// Builds a Flutter widget from a JSON-like data structure.
   ///
   /// This method looks up the appropriate [CatalogItem] based on the `widget`
-  /// field in the [data] map and uses its `widgetBuilder` to construct the
-  /// widget.
+  /// field in the [widgetData] map and uses its `widgetBuilder` to construct
+  /// the widget.
   ///
-  /// * [data]: The deserialized JSON data for the widget to build.
+  /// * [widgetData]: The deserialized JSON data for the widget to build.
   /// * [buildChild]: A function that can be called to recursively build child
   ///   widgets by their ID.
   /// * [dispatchEvent]: A callback to send UI events, like button presses or
@@ -102,18 +102,23 @@ class Catalog {
     return S.object(
       title: 'A2UI Catalog Description Schema',
       description:
-          'A schema for a custom Catalog Description including A2UI components and styles.',
+          'A schema for a custom Catalog Description including A2UI '
+          'components and styles.',
       properties: {
         'components': S.object(
           title: 'A2UI Components',
           description:
-              'A schema that defines a catalog of A2UI components. Each key is a component name, and each value is the JSON schema for that component\'s properties.',
+              'A schema that defines a catalog of A2UI components. '
+              'Each key is a component name, and each value is the JSON '
+              'schema for that component\'s properties.',
           properties: componentProperties,
         ),
         'styles': S.object(
           title: 'A2UI Styles',
           description:
-              'A schema that defines a catalog of A2UI styles. Each key is a style name, and each value is the JSON schema for that style\'s properties.',
+              'A schema that defines a catalog of A2UI styles. Each key is a '
+              'style name, and each value is the JSON schema for that style\'s '
+              'properties.',
           properties: {},
         ),
       },
