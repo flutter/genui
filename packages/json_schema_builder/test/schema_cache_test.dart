@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:json_schema_builder/src/exceptions.dart';
+import 'package:json_schema_builder/src/logging_context.dart';
 import 'package:json_schema_builder/src/schema/schema.dart';
 import 'package:json_schema_builder/src/schema_cache.dart';
 import 'package:mockito/annotations.dart';
@@ -19,10 +21,15 @@ void main() {
   group('SchemaCache', () {
     late SchemaCache schemaCache;
     late MockClient mockHttpClient;
+    late LoggingContext loggingContext;
 
     setUp(() {
       mockHttpClient = MockClient();
-      schemaCache = SchemaCache(httpClient: mockHttpClient);
+      loggingContext = LoggingContext();
+      schemaCache = SchemaCache(
+        httpClient: mockHttpClient,
+        loggingContext: loggingContext,
+      );
     });
 
     test('fetches and caches a schema from a file URI', () async {
@@ -60,25 +67,22 @@ void main() {
       expect(cachedSchema, same(schema));
     });
 
-    test('returns null for unsupported URI schemes', () async {
+    test('throws for unsupported URI schemes', () async {
       final uri = Uri.parse('ftp://example.com/schema.json');
-      final schema = await schemaCache.get(uri);
-      expect(schema, isNull);
+      expect(() => schemaCache.get(uri), throwsA(isA<SchemaFetchException>()));
     });
 
-    test('returns null for non-existent file URI', () async {
+    test('throws for non-existent file URI', () async {
       final uri = Uri.parse('file:///non/existent/file.json');
-      final schema = await schemaCache.get(uri);
-      expect(schema, isNull);
+      expect(() => schemaCache.get(uri), throwsA(isA<SchemaFetchException>()));
     });
 
-    test('returns null for failed HTTP request', () async {
+    test('throws for failed HTTP request', () async {
       final uri = Uri.parse('http://example.com/schema.json');
       when(
         mockHttpClient.get(uri),
       ).thenAnswer((_) async => http.Response('Not Found', 404));
-      final schema = await schemaCache.get(uri);
-      expect(schema, isNull);
+      expect(() => schemaCache.get(uri), throwsA(isA<SchemaFetchException>()));
     });
   });
 }

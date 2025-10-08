@@ -35,7 +35,7 @@ void main() {
   // Exclude optional tests from the main suite.
   testFilePaths.removeAll(optionalTestFilePaths);
 
-  final schemaRegistry = SchemaRegistry();
+  final schemaRegistry = SchemaRegistry(loggingContext: LoggingContext());
   final remoteFiles = remoteDir
       .listSync(recursive: true)
       .where((entity) => entity is File && entity.path.endsWith('.json'))

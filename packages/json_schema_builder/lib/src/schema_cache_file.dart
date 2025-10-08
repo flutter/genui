@@ -7,14 +7,12 @@ import 'dart:io';
 import 'schema_cache_base.dart';
 
 class SchemaCache extends SchemaCacheBase {
-  SchemaCache({super.httpClient});
+  SchemaCache({super.httpClient, super.loggingContext});
 
   @override
   Future<String> getCachedFile(Uri uri) async {
-    if (uri.scheme == 'file') {
-      final file = File.fromUri(uri);
-      return file.readAsStringSync();
-    }
-    throw ArgumentError('Unsupported scheme: ${uri.scheme}');
+    assert(uri.scheme == 'file');
+    final file = File.fromUri(uri);
+    return file.readAsString();
   }
 }

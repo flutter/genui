@@ -5,7 +5,7 @@
 import 'schema_cache_base.dart';
 
 class SchemaCache extends SchemaCacheBase {
-  SchemaCache({super.httpClient});
+  SchemaCache({super.httpClient, super.loggingContext});
 
   @override
   Future<String> getCachedFile(Uri uri) async {

@@ -8,6 +8,7 @@ import 'package:characters/characters.dart';
 import 'package:decimal/decimal.dart';
 
 import 'constants.dart';
+import 'exceptions.dart';
 import 'formats.dart';
 import 'json_type.dart';
 import 'logging_context.dart';
@@ -27,12 +28,14 @@ class ValidationContext {
   final Uri? sourceUri;
   final SchemaRegistry schemaRegistry;
   final Map<String, bool> vocabularies;
+  final LoggingContext? loggingContext;
 
   ValidationContext(
     this.rootSchema, {
     this.strictFormat = false,
     this.sourceUri,
     required this.schemaRegistry,
+    this.loggingContext,
     this.vocabularies = const {
       'https://json-schema.org/draft/2020-12/vocab/core': true,
       'https://json-schema.org/draft/2020-12/vocab/applicator': true,
@@ -50,6 +53,7 @@ class ValidationContext {
     required this.sourceUri,
     required this.schemaRegistry,
     required this.vocabularies,
+    required this.loggingContext,
   });
 
   ValidationContext withSourceUri(Uri newSourceUri) {
@@ -59,6 +63,7 @@ class ValidationContext {
       sourceUri: newSourceUri,
       schemaRegistry: schemaRegistry,
       vocabularies: vocabularies,
+      loggingContext: loggingContext,
     );
   }
 
@@ -69,6 +74,7 @@ class ValidationContext {
       sourceUri: sourceUri,
       schemaRegistry: schemaRegistry,
       vocabularies: newVocabularies,
+      loggingContext: loggingContext,
     );
   }
 }
@@ -78,8 +84,7 @@ Future<ValidationResult> validateSubSchema(
   Object? data,
   List<String> currentPath,
   ValidationContext context,
-  List<Schema> dynamicScope,
-  LoggingContext? loggingContext, {
+  List<Schema> dynamicScope, {
   AnnotationSet? initialAnnotations,
 }) async {
   if (schema is bool) {
@@ -101,7 +106,6 @@ Future<ValidationResult> validateSubSchema(
       currentPath,
       context,
       dynamicScope,
-      loggingContext,
       initialAnnotations: initialAnnotations,
     );
   }
@@ -121,18 +125,26 @@ extension SchemaValidation on Schema {
     SchemaRegistry? schemaRegistry,
     LoggingContext? loggingContext,
   }) async {
-    final registry = schemaRegistry ?? SchemaRegistry();
-    final baseUri = sourceUri ?? Uri.parse('local://schema');
-    registry.addSchema(baseUri, this);
-    final context = ValidationContext(
-      this,
-      strictFormat: strictFormat,
-      sourceUri: baseUri,
-      schemaRegistry: registry,
-    );
-    final result = await validateSchema(data, [], context, [
-      this,
-    ], loggingContext);
+    final registry =
+        schemaRegistry ?? SchemaRegistry(loggingContext: loggingContext);
+    ValidationResult? result;
+    try {
+      final baseUri = sourceUri ?? Uri.parse('local://schema');
+      registry.addSchema(baseUri, this);
+      final context = ValidationContext(
+        this,
+        strictFormat: strictFormat,
+        sourceUri: baseUri,
+        schemaRegistry: registry,
+        loggingContext: loggingContext,
+      );
+      result = await validateSchema(data, [], context, [this]);
+    } finally {
+      if (schemaRegistry == null) {
+        // If we created our own, we need to dispose it.
+        registry.dispose();
+      }
+    }
     return result.errors;
   }
 
@@ -140,8 +152,7 @@ extension SchemaValidation on Schema {
     Object? data,
     List<String> currentPath,
     ValidationContext context,
-    List<Schema> dynamicScope,
-    LoggingContext? loggingContext, {
+    List<Schema> dynamicScope, {
     AnnotationSet? initialAnnotations,
   }) async {
     var currentContext = context;
@@ -155,7 +166,7 @@ extension SchemaValidation on Schema {
       }
     }
 
-    loggingContext?.log(
+    context.loggingContext?.log(
       'Validating ${currentContext.sourceUri}#${currentPath.join('/')} '
       'with schema $value',
     );
@@ -164,29 +175,39 @@ extension SchemaValidation on Schema {
     var allAnnotations = initialAnnotations ?? AnnotationSet.empty();
 
     if ($schema != null) {
-      final metaSchemaUri = Uri.parse($schema!);
-      final metaSchema = await currentContext.schemaRegistry.resolve(
-        metaSchemaUri,
-      );
-      if (metaSchema != null) {
-        final vocabulary = metaSchema.value['\$vocabulary'];
-        if (vocabulary is Map) {
-          currentContext = currentContext.withVocabularies(
-            vocabulary.cast<String, bool>(),
-          );
-        } else {
-          // If $vocabulary is not present, default to all vocabularies.
-          currentContext = currentContext.withVocabularies(const {
-            'https://json-schema.org/draft/2020-12/vocab/core': true,
-            'https://json-schema.org/draft/2020-12/vocab/applicator': true,
-            'https://json-schema.org/draft/2020-12/vocab/unevaluated': true,
-            'https://json-schema.org/draft/2020-12/vocab/validation': true,
-            'https://json-schema.org/draft/2020-12/vocab/meta-data': true,
-            'https://json-schema.org/draft/2020-12/vocab/format-annotation':
-                true,
-            'https://json-schema.org/draft/2020-12/vocab/content': true,
-          });
+      try {
+        final metaSchemaUri = Uri.parse($schema!);
+        final metaSchema = await currentContext.schemaRegistry.resolve(
+          metaSchemaUri,
+        );
+        if (metaSchema != null) {
+          final vocabulary = metaSchema.value['\$vocabulary'];
+          if (vocabulary is Map) {
+            currentContext = currentContext.withVocabularies(
+              vocabulary.cast<String, bool>(),
+            );
+          } else {
+            // If $vocabulary is not present, default to all vocabularies.
+            currentContext = currentContext.withVocabularies(const {
+              'https://json-schema.org/draft/2020-12/vocab/core': true,
+              'https://json-schema.org/draft/2020-12/vocab/applicator': true,
+              'https://json-schema.org/draft/2020-12/vocab/unevaluated': true,
+              'https://json-schema.org/draft/2020-12/vocab/validation': true,
+              'https://json-schema.org/draft/2020-12/vocab/meta-data': true,
+              'https://json-schema.org/draft/2020-12/vocab/format-annotation':
+                  true,
+              'https://json-schema.org/draft/2020-12/vocab/content': true,
+            });
+          }
         }
+      } on SchemaFetchException catch (e) {
+        errors.add(
+          ValidationError(
+            ValidationErrorType.refResolutionError,
+            path: currentPath,
+            details: 'Failed to resolve meta schema: ${e.uri}',
+          ),
+        );
       }
     }
 
@@ -203,7 +224,6 @@ extension SchemaValidation on Schema {
           currentPath,
           newContext,
           newDynamicScope,
-          loggingContext,
         );
         errors.addAll(refResult.errors);
         allAnnotations = allAnnotations.merge(refResult.annotations);
@@ -217,7 +237,6 @@ extension SchemaValidation on Schema {
             currentPath,
             currentContext,
             newDynamicScope,
-            loggingContext,
             initialAnnotations: allAnnotations,
           );
           errors.addAll(siblingResult.errors);
@@ -248,9 +267,8 @@ extension SchemaValidation on Schema {
           currentPath,
           newContext,
           newDynamicScope,
-          loggingContext,
         );
-        loggingContext?.log(
+        context.loggingContext?.log(
           'Annotations from $ref: ${refResult.annotations.evaluatedKeys}',
         );
         errors.addAll(refResult.errors);
@@ -265,7 +283,6 @@ extension SchemaValidation on Schema {
             currentPath,
             currentContext,
             newDynamicScope,
-            loggingContext,
             initialAnnotations: allAnnotations,
           );
           errors.addAll(siblingResult.errors);
@@ -291,7 +308,6 @@ extension SchemaValidation on Schema {
         currentPath,
         currentContext,
         newDynamicScope,
-        loggingContext,
       );
       if (ifResult.isValid) {
         allAnnotations = allAnnotations.merge(ifResult.annotations);
@@ -302,7 +318,6 @@ extension SchemaValidation on Schema {
             currentPath,
             currentContext,
             newDynamicScope,
-            loggingContext,
           );
           errors.addAll(thenResult.errors);
           if (thenResult.isValid) {
@@ -317,7 +332,6 @@ extension SchemaValidation on Schema {
             currentPath,
             currentContext,
             newDynamicScope,
-            loggingContext,
           );
           errors.addAll(elseResult.errors);
           if (elseResult.isValid) {
@@ -337,7 +351,6 @@ extension SchemaValidation on Schema {
           currentPath,
           currentContext,
           newDynamicScope,
-          loggingContext,
         );
         errors.addAll(result.errors);
         if (result.isValid) {
@@ -358,7 +371,6 @@ extension SchemaValidation on Schema {
           currentPath,
           currentContext,
           newDynamicScope,
-          loggingContext,
         );
         if (result.isValid) {
           passedCount++;
@@ -385,7 +397,6 @@ extension SchemaValidation on Schema {
           currentPath,
           currentContext,
           newDynamicScope,
-          loggingContext,
         );
         if (result.isValid) {
           passedCount++;
@@ -414,7 +425,6 @@ extension SchemaValidation on Schema {
         currentPath,
         currentContext,
         newDynamicScope,
-        loggingContext,
       );
       if (result.isValid) {
         errors.add(
@@ -458,7 +468,6 @@ extension SchemaValidation on Schema {
       currentPath,
       currentContext,
       newDynamicScope,
-      loggingContext,
     );
     errors.addAll(typeResult.errors);
     allAnnotations = allAnnotations.merge(typeResult.annotations);
@@ -466,7 +475,7 @@ extension SchemaValidation on Schema {
     // 5. Unevaluated Properties & Items
     if (data is Map<String, Object?>) {
       if (this[kUnevaluatedProperties] case final up?) {
-        loggingContext?.log(
+        context.loggingContext?.log(
           'Checking unevaluatedProperties. '
           'Annotations: ${allAnnotations.evaluatedKeys}',
         );
@@ -480,7 +489,6 @@ extension SchemaValidation on Schema {
               newPath,
               currentContext,
               newDynamicScope,
-              loggingContext,
             );
             errors.addAll(result.errors);
             if (result.isValid) {
@@ -503,7 +511,6 @@ extension SchemaValidation on Schema {
               newPath,
               currentContext,
               newDynamicScope,
-              loggingContext,
             );
             errors.addAll(result.errors);
             if (result.isValid) {
@@ -524,7 +531,6 @@ extension SchemaValidation on Schema {
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
-    LoggingContext? loggingContext,
   ) async {
     final actualType = getJsonType(data);
     final errors = <ValidationError>[];
@@ -569,7 +575,6 @@ extension SchemaValidation on Schema {
           currentPath,
           context,
           dynamicScope,
-          loggingContext,
         );
       case JsonType.list:
         return await (this as ListSchema).validateList(
@@ -577,7 +582,6 @@ extension SchemaValidation on Schema {
           currentPath,
           context,
           dynamicScope,
-          loggingContext,
         );
       case JsonType.string:
         {
@@ -710,7 +714,6 @@ extension SchemaValidation on Schema {
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
-    LoggingContext? loggingContext,
   ) async {
     final objectSchema = this as ObjectSchema;
     final errors = <ValidationError>[];
@@ -787,7 +790,6 @@ extension SchemaValidation on Schema {
             currentPath,
             context,
             dynamicScope,
-            loggingContext,
           );
           errors.addAll(result.errors);
           annotations = annotations.merge(result.annotations);
@@ -806,7 +808,6 @@ extension SchemaValidation on Schema {
             newPath,
             context,
             dynamicScope,
-            loggingContext,
           );
           errors.addAll(result.errors);
           annotations = annotations.merge(result.annotations);
@@ -826,7 +827,6 @@ extension SchemaValidation on Schema {
               newPath,
               context,
               dynamicScope,
-              loggingContext,
             );
             errors.addAll(result.errors);
             annotations = annotations.merge(result.annotations);
@@ -842,7 +842,6 @@ extension SchemaValidation on Schema {
           currentPath,
           context,
           dynamicScope,
-          loggingContext,
         );
         errors.addAll(result.errors);
         annotations = annotations.merge(result.annotations);
@@ -859,7 +858,6 @@ extension SchemaValidation on Schema {
           newPath,
           context,
           dynamicScope,
-          loggingContext,
         );
         if (!result.isValid) {
           errors.add(
@@ -884,7 +882,6 @@ extension SchemaValidation on Schema {
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
-    LoggingContext? loggingContext,
   ) async {
     final errors = <ValidationError>[];
     final evaluatedItems = <int>{};
@@ -945,7 +942,6 @@ extension SchemaValidation on Schema {
           currentPath,
           context,
           dynamicScope,
-          loggingContext,
         );
         if (result.isValid) {
           matches.add(i);
@@ -1007,7 +1003,6 @@ extension SchemaValidation on Schema {
           newPath,
           context,
           dynamicScope,
-          loggingContext,
         );
         errors.addAll(result.errors);
       }
@@ -1023,7 +1018,6 @@ extension SchemaValidation on Schema {
           newPath,
           context,
           dynamicScope,
-          loggingContext,
         );
         errors.addAll(result.errors);
       }
@@ -1058,9 +1052,13 @@ extension SchemaValidation on Schema {
   ) async {
     final baseUri = context.sourceUri!;
     final refUri = baseUri.resolve(ref);
-    final schema = await context.schemaRegistry.resolve(refUri);
-    if (schema == null) return null;
-    return (schema, refUri);
+    try {
+      final schema = await context.schemaRegistry.resolve(refUri);
+      if (schema == null) return null;
+      return (schema, refUri);
+    } on SchemaFetchException {
+      return null;
+    }
   }
 
   Future<(Schema, Uri)?> resolveDynamicRef(
