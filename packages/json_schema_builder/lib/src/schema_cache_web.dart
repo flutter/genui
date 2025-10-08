@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'schema/schema.dart';
 import 'schema_cache.dart';
 
-final class SchemaCache extends SchemaCacheInterface {
+class SchemaCache extends SchemaCacheInterface {
   final http.Client _httpClient;
   final Map<String, Schema> _cache = {};
 

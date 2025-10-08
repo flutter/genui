@@ -10,13 +10,14 @@ import 'package:http/http.dart' as http;
 import 'schema/schema.dart';
 import 'schema_cache.dart';
 
-final class SchemaCache extends SchemaCacheInterface {
+class SchemaCache extends SchemaCacheInterface {
   final http.Client _httpClient;
   final Map<String, Schema> _cache = {};
 
   SchemaCache({http.Client? httpClient})
     : _httpClient = httpClient ?? http.Client();
 
+  @override
   Future<Schema?> get(Uri uri) async {
     final uriString = uri.toString();
     if (_cache.containsKey(uriString)) {

@@ -7,7 +7,7 @@ import 'schema/schema.dart';
 
 export 'schema_cache_web.dart' if (dart.library.io) 'schema_cache_file.dart';
 
-abstract base class SchemaCacheInterface {
+abstract class SchemaCacheInterface {
   SchemaCacheInterface({http.Client? httpClient});
 
   Future<Schema?> get(Uri uri);
