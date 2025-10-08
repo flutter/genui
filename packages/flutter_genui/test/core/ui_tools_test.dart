@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_genui/src/core/genui_configuration.dart';
 import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_genui/src/model/catalog.dart';
+import 'package:flutter_genui/src/model/catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 void main() {
   group('AddOrUpdateSurfaceTool', () {
@@ -23,7 +26,23 @@ void main() {
 
       final tool = AddOrUpdateSurfaceTool(
         onAddOrUpdate: fakeOnAddOrUpdate,
-        catalog: const Catalog([]),
+        catalog: Catalog([
+          CatalogItem(
+            name: 'Text',
+            widgetBuilder:
+                ({
+                  required data,
+                  required id,
+                  required buildChild,
+                  required dispatchEvent,
+                  required context,
+                  required dataContext,
+                }) {
+                  return const Text('');
+                },
+            dataSchema: Schema.object(properties: {}),
+          ),
+        ]),
         configuration: const GenUiConfiguration(),
       );
 
@@ -34,7 +53,9 @@ void main() {
           'widgets': [
             {
               'id': 'rootWidget',
-              'widget': {'text': 'Hello'},
+              'widget': {
+                'Text': {'text': 'Hello'},
+              },
             },
           ],
         },
