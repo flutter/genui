@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart' show ObjectSchema;
+import 'package:json_schema_builder/json_schema_builder.dart' show ObjectSchema;
 
 import '../constants.dart';
 

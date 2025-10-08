@@ -13,7 +13,10 @@ void main() {
       WidgetTester tester,
     ) async {
       final data = {
-        'topics': ['Topic A', 'Topic B'],
+        'topics': [
+          {'literalString': 'Topic A'},
+          {'literalString': 'Topic B'},
+        ],
       };
       UiEvent? dispatchedEvent;
 
@@ -30,7 +33,7 @@ void main() {
                     dispatchedEvent = event;
                   },
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),
@@ -54,7 +57,7 @@ void main() {
     testWidgets('builds widget correctly with no topics', (
       WidgetTester tester,
     ) async {
-      final data = {'topics': <String>[]};
+      final data = {'topics': <Map<String, String>>[]};
 
       await tester.pumpWidget(
         MaterialApp(
@@ -67,7 +70,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),

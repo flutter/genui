@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
-
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../core/widget_utilities.dart';
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'groupValue': S.string(
+    'groupValue': GulfSchemas.stringReference(
       description: 'The currently selected value for a group of radio buttons.',
     ),
     'labels': S.list(
@@ -25,11 +25,11 @@ final _schema = S.object(
 
 extension type _RadioGroupData.fromMap(JsonMap _json) {
   factory _RadioGroupData({
-    required String groupValue,
+    required JsonMap groupValue,
     required List<String> labels,
   }) => _RadioGroupData.fromMap({'groupValue': groupValue, 'labels': labels});
 
-  String get groupValue => _json['groupValue'] as String;
+  JsonMap get groupValue => _json['groupValue'] as JsonMap;
   List<String> get labels => (_json['labels'] as List).cast<String>();
 }
 
@@ -101,7 +101,7 @@ final radioGroup = CatalogItem(
           'id': 'radio_group',
           'widget': {
             'RadioGroup': {
-              'groupValue': 'Option 1',
+              'groupValue': {'literalString': 'Option 1'},
               'labels': ['Option 1', 'Option 2', 'Option 3'],
             },
           },
@@ -116,13 +116,26 @@ final radioGroup = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final radioData = _RadioGroupData.fromMap(data as JsonMap);
-        return _RadioGroup(
-          initialGroupValue: radioData.groupValue,
-          labels: radioData.labels,
-          onChanged: (newValue) => values[id] = newValue,
+        final valueRef = radioData.groupValue;
+        final path = valueRef['path'] as String?;
+        final notifier = dataContext.subscribeToString(valueRef);
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentGroupValue, child) {
+            return _RadioGroup(
+              initialGroupValue: currentGroupValue ?? '',
+              labels: radioData.labels,
+              onChanged: (newValue) {
+                if (path != null && newValue != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
+          },
         );
       },
 );

@@ -3,12 +3,13 @@
 // found in the LICENSE file.
 
 import 'package:collection/collection.dart';
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
+import 'data_model.dart';
 import 'ui_models.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
@@ -67,7 +68,7 @@ class Catalog {
     required Widget Function(String id) buildChild,
     required DispatchEventCallback dispatchEvent,
     required BuildContext context,
-    required JsonMap valueStore,
+    required DataContext dataContext,
   }) {
     final widgetType = widgetData.keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
@@ -83,7 +84,7 @@ class Catalog {
       buildChild: buildChild,
       dispatchEvent: dispatchEvent,
       context: context,
-      values: valueStore,
+      dataContext: dataContext,
     );
   }
 

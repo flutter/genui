@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../utils.dart';
 
@@ -16,9 +16,11 @@ final _schema = S.object(
           'card. The Image fit should typically be "cover". Be sure to create '
           'an Image widget with a matching ID.',
     ),
-    'title': S.string(description: 'The title of the card.'),
-    'subtitle': S.string(description: 'The subtitle of the card.'),
-    'body': S.string(
+    'title': GulfSchemas.stringReference(description: 'The title of the card.'),
+    'subtitle': GulfSchemas.stringReference(
+      description: 'The subtitle of the card.',
+    ),
+    'body': GulfSchemas.stringReference(
       description: 'The body text of the card. This supports markdown.',
     ),
   },
@@ -28,9 +30,9 @@ final _schema = S.object(
 extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
   factory _InformationCardData({
     String? imageChildId,
-    required String title,
-    String? subtitle,
-    required String body,
+    required JsonMap title,
+    JsonMap? subtitle,
+    required JsonMap body,
   }) => _InformationCardData.fromMap({
     if (imageChildId != null) 'imageChildId': imageChildId,
     'title': title,
@@ -39,9 +41,9 @@ extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
   });
 
   String? get imageChildId => _json['imageChildId'] as String?;
-  String get title => _json['title'] as String;
-  String? get subtitle => _json['subtitle'] as String?;
-  String get body => _json['body'] as String;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap? get subtitle => _json['subtitle'] as JsonMap?;
+  JsonMap get body => _json['body'] as JsonMap;
 }
 
 final informationCard = CatalogItem(
@@ -54,7 +56,7 @@ final informationCard = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final cardData = _InformationCardData.fromMap(
           data as Map<String, Object?>,
@@ -62,41 +64,80 @@ final informationCard = CatalogItem(
         final imageChild = cardData.imageChildId != null
             ? buildChild(cardData.imageChildId!)
             : null;
-        return Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (imageChild != null)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 200,
-                    child: imageChild,
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cardData.title,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      if (cardData.subtitle != null)
-                        Text(
-                          cardData.subtitle!,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      const SizedBox(height: 8.0),
-                      MarkdownWidget(text: cardData.body),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+
+        final titleNotifier = dataContext.subscribeToString(cardData.title);
+        final subtitleNotifier = dataContext.subscribeToString(
+          cardData.subtitle,
+        );
+        final bodyNotifier = dataContext.subscribeToString(cardData.body);
+
+        return _InformationCard(
+          imageChild: imageChild,
+          titleNotifier: titleNotifier,
+          subtitleNotifier: subtitleNotifier,
+          bodyNotifier: bodyNotifier,
         );
       },
 );
+
+class _InformationCard extends StatelessWidget {
+  const _InformationCard({
+    this.imageChild,
+    required this.titleNotifier,
+    required this.subtitleNotifier,
+    required this.bodyNotifier,
+  });
+
+  final Widget? imageChild;
+  final ValueNotifier<String?> titleNotifier;
+  final ValueNotifier<String?> subtitleNotifier;
+  final ValueNotifier<String?> bodyNotifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 400),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (imageChild != null)
+              SizedBox(width: double.infinity, height: 200, child: imageChild),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ValueListenableBuilder<String?>(
+                    valueListenable: titleNotifier,
+                    builder: (context, title, _) => Text(
+                      title ?? '',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: subtitleNotifier,
+                    builder: (context, subtitle, _) {
+                      if (subtitle == null) return const SizedBox.shrink();
+                      return Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: bodyNotifier,
+                    builder: (context, body, _) =>
+                        MarkdownWidget(text: body ?? ''),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

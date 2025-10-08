@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:travel_app/src/catalog/itinerary_entry.dart';
@@ -19,12 +19,16 @@ void main() {
                 return Center(
                   child: itineraryEntry.widgetBuilder(
                     data: {
-                      'title': 'Arrival at HND Airport',
-                      'subtitle': 'Tokyo International Airport',
-                      'bodyText':
-                          'Arrive at Haneda Airport (HND), clear customs, and '
-                          'pick up your luggage.',
-                      'time': '3:00 PM',
+                      'title': {'literalString': 'Arrival at HND Airport'},
+                      'subtitle': {
+                        'literalString': 'Tokyo International Airport',
+                      },
+                      'bodyText': {
+                        'literalString':
+                            'Arrive at Haneda Airport (HND), clear customs, '
+                            'and pick up your luggage.',
+                      },
+                      'time': {'literalString': '3:00 PM'},
                       'type': 'transport',
                       'status': 'noBookingRequired',
                     },
@@ -32,7 +36,7 @@ void main() {
                     buildChild: (_) => const SizedBox(),
                     dispatchEvent: (_) {},
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   ),
                 );
               },
@@ -64,9 +68,9 @@ void main() {
               builder: (context) {
                 return itineraryEntry.widgetBuilder(
                   data: {
-                    'title': testTitle,
-                    'bodyText': testBodyText,
-                    'time': '10:00 AM',
+                    'title': {'literalString': testTitle},
+                    'bodyText': {'literalString': testBodyText},
+                    'time': {'literalString': '10:00 AM'},
                     'type': 'activity',
                     'status': 'noBookingRequired',
                   },
@@ -74,7 +78,7 @@ void main() {
                   buildChild: (id) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),

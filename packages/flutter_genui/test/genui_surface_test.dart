@@ -31,7 +31,9 @@ void main() {
         {
           'id': 'text',
           'widget': {
-            'Text': {'text': 'Hello'},
+            'Text': {
+              'text': {'literalString': 'Hello'},
+            },
           },
         },
       ],
@@ -65,7 +67,9 @@ void main() {
         {
           'id': 'text',
           'widget': {
-            'Text': {'text': 'Hello'},
+            'Text': {
+              'text': {'literalString': 'Hello'},
+            },
           },
         },
       ],

@@ -9,13 +9,12 @@ import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
 import '../model/catalog.dart';
-import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
+import '../model/data_model.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'core_catalog.dart';
 import 'genui_configuration.dart';
 import 'ui_tools.dart';
 
@@ -71,8 +70,8 @@ abstract interface class GenUiHost {
   /// The catalog of UI components available to the AI.
   Catalog get catalog;
 
-  /// The value store for storing the widget state.
-  WidgetValueStore get valueStore;
+  /// The data model for storing the UI state.
+  DataModel get dataModel;
 
   /// A callback to handle an action from a surface.
   void handleUiEvent(UiEvent event);
@@ -89,8 +88,6 @@ class GenUiManager implements GenUiHost {
   /// Creates a new [GenUiManager].
   ///
   /// The [catalog] defines the set of widgets available to the AI.
-  /// [CoreCatalogItems.asCatalog] can be called to construct a catalog of
-  /// widgets that can power simple UIs.
   GenUiManager({
     required this.catalog,
     this.configuration = const GenUiConfiguration(),
@@ -103,7 +100,7 @@ class GenUiManager implements GenUiHost {
   final _onSubmit = StreamController<UserMessage>.broadcast();
 
   @override
-  final valueStore = WidgetValueStore();
+  final dataModel = DataModel();
 
   /// A map of all the surfaces managed by this manager, keyed by surface ID.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
@@ -117,10 +114,9 @@ class GenUiManager implements GenUiHost {
   @override
   void handleUiEvent(UiEvent event) {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
-    final stateValue = valueStore.forSurface(event.surfaceId);
     final eventString =
         'Action: ${jsonEncode(event.value)}\n'
-        'Current state: ${jsonEncode(stateValue)}';
+        'Current state: ${jsonEncode(dataModel.data)}';
     _onSubmit.add(UserMessage([TextPart(eventString)]));
   }
 

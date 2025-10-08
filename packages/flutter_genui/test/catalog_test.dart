@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:logging/logging.dart';
 
 void main() {
@@ -13,11 +13,13 @@ void main() {
     testWidgets('buildWidget finds and builds the correct widget', (
       WidgetTester tester,
     ) async {
-      final catalog = Catalog([CoreCatalogItems.text]);
+      final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
       final data = {
-        'id': 'text1',
+        'id': 'col1',
         'widget': {
-          'Text': {'text': 'hello'},
+          'Column': {
+            'children': ['text1'],
+          },
         },
       };
 
@@ -29,12 +31,13 @@ void main() {
                 final widget = catalog.buildWidget(
                   id: data['id'] as String,
                   widgetData: data['widget'] as JsonMap,
-                  buildChild: (_) => const SizedBox(),
+                  buildChild: Text.new, // Mock child builder
                   dispatchEvent: (UiEvent event) {},
                   context: context,
-                  valueStore: const {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
-                expect((widget as Text).data, 'hello');
+                expect(widget, isA<Column>());
+                expect((widget as Column).children.length, 1);
                 return widget;
               },
             ),
@@ -75,7 +78,7 @@ void main() {
                   buildChild: (_) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},
                   context: context,
-                  valueStore: const {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
                 expect(widget, isA<Container>());
                 return widget;

@@ -5,9 +5,9 @@
 /// @docImport 'itinerary_entry.dart';
 library;
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../widgets/dismiss_notification.dart';
 
@@ -16,15 +16,19 @@ final _schema = S.object(
       'Widget to show an itinerary or a plan for travel. This should contain '
       'a list of ItineraryDay widgets.',
   properties: {
-    'title': S.string(description: 'The title of the itinerary.'),
-    'subheading': S.string(description: 'The subheading of the itinerary.'),
-    'imageChildId': S.string(
+    'title': GulfSchemas.stringReference(
+      description: 'The title of the itinerary.',
+    ),
+    'subheading': GulfSchemas.stringReference(
+      description: 'The subheading of the itinerary.',
+    ),
+    'imageChildId': GulfSchemas.componentReference(
       description:
           'The ID of the Image widget to display. The Image fit '
           "should typically be 'cover'. Be sure to create an Image widget "
           'with a matching ID.',
     ),
-    'child': S.string(
+    'child': GulfSchemas.componentReference(
       description:
           'The ID of a child widget to display in a modal. This should '
           'typically be a Column which contains a sequence of ItineraryDays.',
@@ -35,8 +39,8 @@ final _schema = S.object(
 
 extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryWithDetailsData({
-    required String title,
-    required String subheading,
+    required JsonMap title,
+    required JsonMap subheading,
     required String imageChildId,
     required String child,
   }) => _ItineraryWithDetailsData.fromMap({
@@ -46,8 +50,8 @@ extension type _ItineraryWithDetailsData.fromMap(Map<String, Object?> _json) {
     'child': child,
   });
 
-  String get title => _json['title'] as String;
-  String get subheading => _json['subheading'] as String;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap get subheading => _json['subheading'] as JsonMap;
   String get imageChildId => _json['imageChildId'] as String;
   String get child => _json['child'] as String;
 }
@@ -70,7 +74,7 @@ final itineraryWithDetails = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final itineraryWithDetailsData = _ItineraryWithDetailsData.fromMap(
           data as Map<String, Object?>,
@@ -78,9 +82,16 @@ final itineraryWithDetails = CatalogItem(
         final child = buildChild(itineraryWithDetailsData.child);
         final imageChild = buildChild(itineraryWithDetailsData.imageChildId);
 
+        final titleNotifier = dataContext.subscribeToString(
+          itineraryWithDetailsData.title,
+        );
+        final subheadingNotifier = dataContext.subscribeToString(
+          itineraryWithDetailsData.subheading,
+        );
+
         return _ItineraryWithDetails(
-          title: itineraryWithDetailsData.title,
-          subheading: itineraryWithDetailsData.subheading,
+          titleNotifier: titleNotifier,
+          subheadingNotifier: subheadingNotifier,
           imageChild: imageChild,
           child: child,
         );
@@ -88,14 +99,14 @@ final itineraryWithDetails = CatalogItem(
 );
 
 class _ItineraryWithDetails extends StatelessWidget {
-  final String title;
-  final String subheading;
+  final ValueNotifier<String?> titleNotifier;
+  final ValueNotifier<String?> subheadingNotifier;
   final Widget imageChild;
   final Widget child;
 
   const _ItineraryWithDetails({
-    required this.title,
-    required this.subheading,
+    required this.titleNotifier,
+    required this.subheadingNotifier,
     required this.imageChild,
     required this.child,
   });
@@ -138,11 +149,14 @@ class _ItineraryWithDetails extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0,
                               ),
-                              child: Text(
-                                title,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium,
+                              child: ValueListenableBuilder<String?>(
+                                valueListenable: titleNotifier,
+                                builder: (context, title, _) => Text(
+                                  title ?? '',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 16.0),
@@ -185,10 +199,19 @@ class _ItineraryWithDetails extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.headlineSmall),
-                  Text(
-                    subheading,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  ValueListenableBuilder<String?>(
+                    valueListenable: titleNotifier,
+                    builder: (context, title, _) => Text(
+                      title ?? '',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: subheadingNotifier,
+                    builder: (context, subheading, _) => Text(
+                      subheading ?? '',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
                 ],
               ),

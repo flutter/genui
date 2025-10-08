@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/flutter_genui_dev.dart';
 
 void main() {
   runApp(CatalogGalleryApp(CoreCatalogItems.asCatalog()));
@@ -26,7 +25,7 @@ class CatalogGalleryApp extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Catalog items that has "exampleData" field set'),
         ),
-        body: CatalogView(catalog: catalog),
+        body: DebugCatalogView(catalog: catalog),
       ),
     );
   }

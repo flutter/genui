@@ -5,9 +5,9 @@
 /// @docImport 'input_group.dart';
 library;
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'common.dart';
 
@@ -30,7 +30,7 @@ final _schema = S.object(
       description: 'An icon to display on the left of the chip.',
       enumValues: TravelIcon.values.map((e) => e.name).toList(),
     ),
-    'initialValue': S.string(
+    'value': GulfSchemas.stringReference(
       description:
           'The name of the option that should be selected initially. This '
           'option must exist in the "options" list.',
@@ -44,18 +44,18 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
     required String chipLabel,
     required List<String> options,
     String? iconName,
-    String? initialValue,
+    JsonMap? value,
   }) => _OptionsFilterChipInputData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
     if (iconName != null) 'iconName': iconName,
-    if (initialValue != null) 'initialValue': initialValue,
+    if (value != null) 'value': value,
   });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
   String? get iconName => _json['iconName'] as String?;
-  String? get initialValue => _json['initialValue'] as String?;
+  JsonMap? get value => _json['value'] as JsonMap?;
 }
 
 /// An interactive chip that allows the user to select a single option from a
@@ -78,7 +78,7 @@ final optionsFilterChipInput = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
           data as Map<String, Object?>,
@@ -90,59 +90,54 @@ final optionsFilterChipInput = CatalogItem(
               TravelIcon.values.byName(optionsFilterChipData.iconName!),
             );
           } catch (e) {
-            // Invalid icon name, default to no icon.
-            // Consider logging this error.
             icon = null;
           }
         }
-        return _OptionsFilterChip(
-          initialChipLabel: optionsFilterChipData.chipLabel,
-          options: optionsFilterChipData.options,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          icon: icon,
-          initialValue: optionsFilterChipData.initialValue,
-          values: values,
+
+        final valueRef = optionsFilterChipData.value;
+        final path = valueRef?['path'] as String?;
+        final notifier = dataContext.subscribeToString(valueRef);
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _OptionsFilterChip(
+              chipLabel: optionsFilterChipData.chipLabel,
+              options: optionsFilterChipData.options,
+              icon: icon,
+              value: currentValue,
+              onChanged: (newValue) {
+                if (path != null && newValue != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
+          },
         );
       },
 );
 
-class _OptionsFilterChip extends StatefulWidget {
+class _OptionsFilterChip extends StatelessWidget {
   const _OptionsFilterChip({
-    required this.initialChipLabel,
+    required this.chipLabel,
     required this.options,
-    required this.widgetId,
-    required this.dispatchEvent,
-    required this.values,
     this.icon,
-    this.initialValue,
+    this.value,
+    required this.onChanged,
   });
 
-  final String initialChipLabel;
+  final String chipLabel;
   final List<String> options;
-  final String widgetId;
   final IconData? icon;
-  final DispatchEventCallback dispatchEvent;
-  final String? initialValue;
-  final Map<String, Object?> values;
+  final String? value;
+  final void Function(String?) onChanged;
 
-  @override
-  State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
-}
-
-class _OptionsFilterChipState extends State<_OptionsFilterChip> {
-  late String _currentChipLabel;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentChipLabel = widget.initialValue ?? widget.initialChipLabel;
-  }
+  String get _currentChipLabel => value ?? chipLabel;
 
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      avatar: widget.icon != null ? Icon(widget.icon) : null,
+      avatar: icon != null ? Icon(icon) : null,
       label: Text(_currentChipLabel),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -150,12 +145,12 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            String? tempSelectedOption = _currentChipLabel;
+            var tempSelectedOption = value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: widget.options.map((option) {
+                  children: options.map((option) {
                     return RadioListTile<String>(
                       title: Text(option),
                       value: option,
@@ -166,11 +161,8 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                         setModalState(() {
                           tempSelectedOption = newValue;
                         });
-                        widget.values[widget.widgetId] = newValue;
+                        onChanged(newValue);
                         if (newValue != null) {
-                          setState(() {
-                            _currentChipLabel = newValue;
-                          });
                           Navigator.pop(context);
                         }
                       },

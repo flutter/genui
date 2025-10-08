@@ -4,10 +4,10 @@
 
 import 'dart:async';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'asset_images.dart';
 import 'catalog.dart';
@@ -413,6 +413,10 @@ submit button of some kind so that the user can indicate that they are done
 providing information. Suggest initial values for number of people and travel dates (e.g. 2 guests, dates of nearest weekend). The `InputGroup` has a submit button, but if
 you are not using that, you can use an `ElevatedButton`. Only use
 `OptionsFilterChipInput` widgets inside of a `InputGroup`.
+**It is a strict requirement that all input chip widgets bind their state to the data model. Under no circumstances should you use a literal value for their state.** You should invent a suitable path in the data model for each input. For example: `/search/destination`, `/search/preferredActivities`, `/search/budget`.
+Specifically:
+  - For `OptionsFilterChipInput`, `DateInputChip`, and `TextInputChip`, the `value` parameter MUST be bound to the data model using a `path`.
+  - For `CheckboxFilterChipsInput`, the `selectedOptions` parameter MUST be bound to the data model using a `path`.
 
 - State management: Try to maintain state by being aware of the user's
   selections and preferences and setting them in the initial value fields of

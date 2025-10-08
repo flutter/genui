@@ -5,9 +5,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
-import 'package:dart_schema_builder/src/logging_context.dart';
-import 'package:dart_schema_builder/src/schema_registry.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:json_schema_builder/src/logging_context.dart';
+import 'package:json_schema_builder/src/schema_registry.dart';
 import 'package:test/test.dart';
 
 void main() {

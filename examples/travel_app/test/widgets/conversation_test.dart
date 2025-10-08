@@ -27,7 +27,9 @@ void main() {
               {
                 'id': 'r1',
                 'widget': {
-                  'Text': {'text': 'Hi there!'},
+                  'Text': {
+                    'text': {'literalString': 'Hi there!'},
+                  },
                 },
               },
             ],
@@ -48,6 +50,7 @@ void main() {
       );
 
       expect(find.text('Hello'), findsOneWidget);
+      await tester.pumpAndSettle();
       expect(find.text('Hi there!'), findsOneWidget);
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
@@ -76,7 +79,9 @@ void main() {
               {
                 'id': 'root',
                 'widget': {
-                  'Text': {'text': 'UI Content'},
+                  'Text': {
+                    'text': {'literalString': 'UI Content'},
+                  },
                 },
               },
             ],
@@ -91,6 +96,7 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
       expect(find.byType(GenUiSurface), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
     });

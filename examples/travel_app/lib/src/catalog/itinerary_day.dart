@@ -5,9 +5,9 @@
 /// @docImport 'itinerary_with_details.dart';
 library;
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../utils.dart';
 
@@ -17,15 +17,17 @@ final _schema = S.object(
       'It should contain a list of ItineraryEntry widgets. '
       'This should be nested inside an ItineraryWithDetails.',
   properties: {
-    'title': S.string(description: 'The title for the day, e.g., "Day 1".'),
-    'subtitle': S.string(
+    'title': GulfSchemas.stringReference(
+      description: 'The title for the day, e.g., "Day 1".',
+    ),
+    'subtitle': GulfSchemas.stringReference(
       description: 'The subtitle for the day, e.g., "Arrival in Tokyo".',
     ),
-    'description': S.string(
+    'description': GulfSchemas.stringReference(
       description:
           'A short description of the day\'s plan. This supports markdown.',
     ),
-    'imageChildId': S.string(
+    'imageChildId': GulfSchemas.componentReference(
       description:
           'The ID of the Image widget to display. The Image fit should '
           'typically be \'cover\'.',
@@ -41,9 +43,9 @@ final _schema = S.object(
 
 extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
   factory _ItineraryDayData({
-    required String title,
-    required String subtitle,
-    required String description,
+    required JsonMap title,
+    required JsonMap subtitle,
+    required JsonMap description,
     required String imageChildId,
     required List<String> children,
   }) => _ItineraryDayData.fromMap({
@@ -54,9 +56,9 @@ extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
     'children': children,
   });
 
-  String get title => _json['title'] as String;
-  String get subtitle => _json['subtitle'] as String;
-  String get description => _json['description'] as String;
+  JsonMap get title => _json['title'] as JsonMap;
+  JsonMap get subtitle => _json['subtitle'] as JsonMap;
+  JsonMap get description => _json['description'] as JsonMap;
   String get imageChildId => _json['imageChildId'] as String;
   List<String> get children => (_json['children'] as List).cast<String>();
 }
@@ -71,15 +73,26 @@ final itineraryDay = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final itineraryDayData = _ItineraryDayData.fromMap(
           data as Map<String, Object?>,
         );
+
+        final titleNotifier = dataContext.subscribeToString(
+          itineraryDayData.title,
+        );
+        final subtitleNotifier = dataContext.subscribeToString(
+          itineraryDayData.subtitle,
+        );
+        final descriptionNotifier = dataContext.subscribeToString(
+          itineraryDayData.description,
+        );
+
         return _ItineraryDay(
-          title: itineraryDayData.title,
-          subtitle: itineraryDayData.subtitle,
-          description: itineraryDayData.description,
+          title: titleNotifier,
+          subtitle: subtitleNotifier,
+          description: descriptionNotifier,
           imageChild: buildChild(itineraryDayData.imageChildId),
           children: itineraryDayData.children.map(buildChild).toList(),
         );
@@ -87,12 +100,6 @@ final itineraryDay = CatalogItem(
 );
 
 class _ItineraryDay extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String description;
-  final Widget imageChild;
-  final List<Widget> children;
-
   const _ItineraryDay({
     required this.title,
     required this.subtitle,
@@ -101,47 +108,51 @@ class _ItineraryDay extends StatelessWidget {
     required this.children,
   });
 
+  final ValueNotifier<String?> title;
+  final ValueNotifier<String?> subtitle;
+  final ValueNotifier<String?> description;
+  final Widget imageChild;
+  final List<Widget> children;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 200, width: double.infinity, child: imageChild),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: SizedBox(height: 80, width: 80, child: imageChild),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: theme.textTheme.headlineSmall),
-                      const SizedBox(height: 4.0),
-                      Text(subtitle, style: theme.textTheme.titleMedium),
-                    ],
+                ValueListenableBuilder<String?>(
+                  valueListenable: title,
+                  builder: (context, title, _) => Text(
+                    title ?? '',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
+                ),
+                ValueListenableBuilder<String?>(
+                  valueListenable: subtitle,
+                  builder: (context, subtitle, _) => Text(
+                    subtitle ?? '',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                ValueListenableBuilder<String?>(
+                  valueListenable: description,
+                  builder: (context, description, _) =>
+                      MarkdownWidget(text: description ?? ''),
                 ),
               ],
             ),
-            const SizedBox(height: 8.0),
-            MarkdownWidget(text: description),
-            const SizedBox(height: 8.0),
-            const Divider(),
-            ...children,
-          ],
-        ),
+          ),
+          ...children,
+        ],
       ),
     );
   }

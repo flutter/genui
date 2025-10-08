@@ -4,7 +4,7 @@
 
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:test/test.dart';
 
 void main() {

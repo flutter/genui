@@ -2,15 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../core/widget_utilities.dart';
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'location': S.string(
+    'location': GulfSchemas.stringReference(
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
     ),
@@ -22,10 +24,10 @@ final _schema = S.object(
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({required String location, String? fit}) =>
+  factory _ImageData({required JsonMap location, String? fit}) =>
       _ImageData.fromMap({'location': location, 'fit': fit});
 
-  String get location => _json['location'] as String;
+  JsonMap get location => _json['location'] as JsonMap;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -41,17 +43,26 @@ final image = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
+        final notifier = dataContext.subscribeToString(imageData.location);
 
-        final location = imageData.location;
-        final fit = imageData.fit;
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentLocation, child) {
+            final location = currentLocation;
+            if (location == null) {
+              return const SizedBox.shrink();
+            }
+            final fit = imageData.fit;
 
-        if (location.startsWith('assets/')) {
-          return Image.asset(location, fit: fit);
-        } else {
-          return Image.network(location, fit: fit);
-        }
+            if (location.startsWith('assets/')) {
+              return Image.asset(location, fit: fit);
+            } else {
+              return Image.network(location, fit: fit);
+            }
+          },
+        );
       },
 );

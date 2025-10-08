@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+// ignore_for_file: avoid_dynamic_calls
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
@@ -104,7 +104,7 @@ final column = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         final childrenIds = columnData.children;
@@ -141,7 +141,11 @@ final column = CatalogItem(
         {
           'id': 'advice_text',
           'widget': {
-            'Text': {'text': 'What kind of advice are you looking for?'},
+            'Text': {
+              'text': {
+                'literalString': 'What kind of advice are you looking for?',
+              },
+            },
           },
         },
         {
@@ -156,7 +160,7 @@ final column = CatalogItem(
                 'Relationships',
                 'Other',
               ],
-              'groupValue': '',
+              'groupValue': {'literalString': ''},
             },
           },
         },
@@ -168,7 +172,9 @@ final column = CatalogItem(
         },
         {
           'widget': {
-            'Text': {'text': 'Submit'},
+            'Text': {
+              'text': {'literalString': 'Submit'},
+            },
           },
           'id': 'submit_button_text',
         },

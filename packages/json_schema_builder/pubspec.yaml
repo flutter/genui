@@ -2,10 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-name: dart_schema_builder
+name: json_schema_builder
 description: A full-featured package used to build and validate JSON schemas in Dart.
 version: 0.1.0
-homepage: https://github.com/flutter/genui/packages/dart_schema_builder
+homepage: https://github.com/flutter/genui/packages/json_schema_builder
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
 publish_to: none

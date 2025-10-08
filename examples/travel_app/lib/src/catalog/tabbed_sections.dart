@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
@@ -12,8 +12,10 @@ final _schema = S.object(
       description: 'A list of sections to display as tabs.',
       items: S.object(
         properties: {
-          'title': S.string(description: 'The title of the tab.'),
-          'child': S.string(
+          'title': GulfSchemas.stringReference(
+            description: 'The title of the tab.',
+          ),
+          'child': GulfSchemas.componentReference(
             description: 'The ID of the child widget for the tab content.',
           ),
         },
@@ -34,10 +36,12 @@ extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
 }
 
 extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
-  factory _TabSectionItemData({required String title, required String child}) =>
-      _TabSectionItemData.fromMap({'title': title, 'child': child});
+  factory _TabSectionItemData({
+    required Map<String, Object?> title,
+    required String child,
+  }) => _TabSectionItemData.fromMap({'title': title, 'child': child});
 
-  String get title => _json['title'] as String;
+  Map<String, Object?> get title => _json['title'] as Map<String, Object?>;
   String get childId => _json['child'] as String;
 }
 
@@ -58,29 +62,28 @@ final tabbedSections = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final tabbedSectionsData = _TabbedSectionsData.fromMap(
           data as Map<String, Object?>,
         );
-        final sections = tabbedSectionsData.sections
-            .map(
-              (section) => _TabSectionData(
-                title: section.title,
-                childId: section.childId,
-              ),
-            )
-            .toList();
+        final sections = tabbedSectionsData.sections.map((section) {
+          final titleNotifier = dataContext.subscribeToString(section.title);
+          return _TabSectionData(
+            titleNotifier: titleNotifier,
+            childId: section.childId,
+          );
+        }).toList();
 
         return _TabbedSections(sections: sections, buildChild: buildChild);
       },
 );
 
 class _TabSectionData {
-  final String title;
+  final ValueNotifier<String?> titleNotifier;
   final String childId;
 
-  _TabSectionData({required this.title, required this.childId});
+  _TabSectionData({required this.titleNotifier, required this.childId});
 }
 
 class _TabbedSections extends StatefulWidget {
@@ -121,9 +124,16 @@ class _TabbedSectionsState extends State<_TabbedSections>
       children: [
         TabBar(
           controller: _tabController,
-          tabs: widget.sections
-              .map((section) => Tab(text: section.title))
-              .toList(),
+          tabs: widget.sections.map((section) {
+            return Tab(
+              child: ValueListenableBuilder<String?>(
+                valueListenable: section.titleNotifier,
+                builder: (context, title, child) {
+                  return Text(title ?? '');
+                },
+              ),
+            );
+          }).toList(),
         ),
         IndexedStack(
           index: _selectedIndex,

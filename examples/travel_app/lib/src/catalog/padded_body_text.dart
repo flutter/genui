@@ -2,24 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../utils.dart';
 
 extension type _PaddedBodyTextData.fromMap(Map<String, Object?> _json) {
-  factory _PaddedBodyTextData({required String text}) =>
+  factory _PaddedBodyTextData({required JsonMap text}) =>
       _PaddedBodyTextData.fromMap({'text': text});
 
-  String get text => _json['text'] as String;
+  JsonMap get text => _json['text'] as JsonMap;
 }
 
 final paddedBodyText = CatalogItem(
   name: 'PaddedBodyText',
   dataSchema: S.object(
     properties: {
-      'text': S.string(
+      'text': GulfSchemas.stringReference(
         description: 'The text to display. This supports markdown.',
       ),
     },
@@ -32,14 +32,22 @@ final paddedBodyText = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final textData = _PaddedBodyTextData.fromMap(
           data as Map<String, Object?>,
         );
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: MarkdownWidget(text: textData.text),
+
+        final notifier = dataContext.subscribeToString(textData.text);
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, text, child) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: MarkdownWidget(text: text ?? ''),
+            );
+          },
         );
       },
 );

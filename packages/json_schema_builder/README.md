@@ -1,6 +1,6 @@
-# Dart Schema Builder
+# JSON Schema Builder
 
-A robust and developer-friendly Dart library for creating, validating, and working with JSON Schemas. `dart_schema_builder` provides a fluent, type-safe API to define the structure of your data, ensuring its integrity and correctness throughout your application.
+A robust and developer-friendly Dart library for creating, validating, and working with JSON Schemas. `json_schema_builder` provides a fluent, type-safe API to define the structure of your data, ensuring its integrity and correctness throughout your application.
 
 This package is compliant with the [**JSON Schema Draft 2020-12 specification**](https://json-schema.org/draft/2020-12), making it a powerful and standard-compliant choice for data validation. Whether you're building a backend service that consumes structured data, a client-side application that needs to validate user input, or any system where data consistency is key, this package offers the tools you need.
 
@@ -31,13 +31,13 @@ This package is compliant with the [**JSON Schema Draft 2020-12 specification**]
 Add the dependency to your `pubspec.yaml`:
 
 ```shell
-dart pub add dart_schema_builder
+dart pub add json_schema_builder
 ```
 
 Import the library in your Dart code:
 
 ```dart
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 ```
 
 ## Usage Example
@@ -45,7 +45,7 @@ import 'package:dart_schema_builder/dart_schema_builder.dart';
 Let's define a schema for a user profile and then validate some data against it.
 
 ```dart
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 Future<void> main() async {
   // 1. Define a schema for a 'User' object using the fluent API.

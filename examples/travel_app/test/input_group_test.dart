@@ -13,7 +13,7 @@ void main() {
       'renders children and dispatches submit event on button press',
       (WidgetTester tester) async {
         final data = {
-          'submitLabel': 'Submit',
+          'submitLabel': {'literalString': 'Submit'},
           'children': ['child1', 'child2'],
         };
         UiEvent? dispatchedEvent;
@@ -33,7 +33,7 @@ void main() {
                       dispatchedEvent = event;
                     },
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),
@@ -58,7 +58,10 @@ void main() {
     testWidgets('renders correctly with no children', (
       WidgetTester tester,
     ) async {
-      final data = {'submitLabel': 'Submit', 'children': <String>[]};
+      final data = {
+        'submitLabel': {'literalString': 'Submit'},
+        'children': <String>[],
+      };
 
       await tester.pumpWidget(
         MaterialApp(
@@ -71,7 +74,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (UiEvent _) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),

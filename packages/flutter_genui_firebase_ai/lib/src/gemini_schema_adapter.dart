@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
+import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 /// An error that occurred during schema adaptation.
 ///
 /// This class encapsulates information about an error that occurred while
-/// converting a `dart_schema_builder` schema to a `firebase_ai` schema.
+/// converting a `json_schema_builder` schema to a `firebase_ai` schema.
 class GeminiSchemaAdapterError {
   /// Creates an [GeminiSchemaAdapterError].
   ///
@@ -46,7 +46,7 @@ class GeminiSchemaAdapterResult {
   final List<GeminiSchemaAdapterError> errors;
 }
 
-/// An adapter to convert a [dsb.Schema] from the `dart_schema_builder` package
+/// An adapter to convert a [dsb.Schema] from the `json_schema_builder` package
 /// to a [firebase_ai.Schema] from the `firebase_ai` package.
 ///
 /// This adapter attempts to convert as much of the schema as possible,
@@ -60,7 +60,7 @@ class GeminiSchemaAdapterResult {
 class GeminiSchemaAdapter {
   final List<GeminiSchemaAdapterError> _errors = [];
 
-  /// Adapts the given [schema] from `dart_schema_builder` to `firebase_ai`
+  /// Adapts the given [schema] from `json_schema_builder` to `firebase_ai`
   /// format.
   ///
   /// This is the main entry point for the adapter. It takes a [dsb.Schema] and
