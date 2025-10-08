@@ -4,7 +4,7 @@
 
 import 'dart:io';
 
-import 'schema_cache.dart';
+import 'schema_cache_base.dart';
 
 class SchemaCache extends SchemaCacheBase {
   SchemaCache({super.httpClient});

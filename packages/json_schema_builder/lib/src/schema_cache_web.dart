@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'schema_cache.dart';
+import 'schema_cache_base.dart';
 
 class SchemaCache extends SchemaCacheBase {
   SchemaCache({super.httpClient});
