@@ -65,14 +65,6 @@ class _ChatScreenState extends State<ChatScreen> {
       aiClient: aiClient,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,
-      onActionSent: (value) {
-        final text = value.parts
-            .whereType<TextPart>()
-            .map((p) => p.text)
-            .join();
-        // ignore: avoid_print
-        print('Action sent: $text');
-      },
       // ignore: avoid_print
       onWarning: (value) => print('Warning from UiAgent: $value'),
     );

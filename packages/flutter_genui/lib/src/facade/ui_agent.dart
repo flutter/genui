@@ -29,7 +29,6 @@ class UiAgent {
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
     this.onTextResponse,
-    this.onActionSent,
     this.onWarning,
     required GenUiManager genUiManager,
     required AiClient aiClient,
@@ -67,7 +66,6 @@ class UiAgent {
   }
 
   void _handleUserMessage(UserMessage message) async {
-    onActionSent?.call(message);
     _addMessage(message);
 
     final result = await _aiClient.generateContent<Map<String, Object?>>(
@@ -163,9 +161,6 @@ class UiAgent {
 
   /// A callback for when a text response is received from the AI.
   final ValueChanged<String>? onTextResponse;
-
-  /// A callback for when a user action is sent to the AI.
-  final ValueChanged<UserMessage>? onActionSent;
 
   /// A [ValueListenable] that indicates whether the agent is currently
   /// processing a request.
