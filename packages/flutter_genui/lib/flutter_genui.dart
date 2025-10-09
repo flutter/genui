@@ -19,6 +19,7 @@ export 'src/core/widget_utilities.dart';
 export 'src/core/widgets/chat_primitives.dart';
 export 'src/development_utilities/catalog_view.dart';
 export 'src/facade/ui_agent.dart';
+export 'src/model/a2ui_message.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_message.dart';

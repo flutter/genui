@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
 import '../core/genui_surface.dart';
+import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
+import '../primitives/simple_items.dart';
 
 /// A widget that displays a GenUI catalog widgets.
 ///
@@ -55,7 +57,24 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
 
     for (final item in examples.entries) {
       final surfaceId = item.key;
-      _genUi.addOrUpdateSurface(surfaceId, item.value());
+      final definition = item.value();
+      final widgets = definition['widgets'] as List<Object?>;
+      final components = widgets.map((e) {
+        final widget = e as JsonMap;
+        return Component(
+          id: widget['id'] as String,
+          componentProperties: widget['widget'] as JsonMap,
+        );
+      }).toList();
+      _genUi.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      _genUi.handleMessage(
+        BeginRendering(
+          surfaceId: surfaceId,
+          root: definition['root'] as String,
+        ),
+      );
       surfaceIds.add(surfaceId);
     }
   }

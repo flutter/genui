@@ -64,35 +64,4 @@ void main() {
       expect(map['value'], 'testValue');
     });
   });
-
-  group('UiDefinition', () {
-    test('can be created and read', () {
-      final definition = UiDefinition.fromMap({
-        'surfaceId': 'testSurface',
-        'root': 'rootWidget',
-        'widgets': [
-          {
-            'id': 'rootWidget',
-            'widget': {'text': 'Hello'},
-          },
-          {
-            'id': 'childWidget',
-            'widget': {'text': 'World'},
-          },
-        ],
-      });
-
-      expect(definition.surfaceId, 'testSurface');
-      expect(definition.root, 'rootWidget');
-      expect(definition.widgets.length, 2);
-      expect(definition.widgets['rootWidget'], {
-        'id': 'rootWidget',
-        'widget': {'text': 'Hello'},
-      });
-      expect(definition.widgets['childWidget'], {
-        'id': 'childWidget',
-        'widget': {'text': 'World'},
-      });
-    });
-  });
 }

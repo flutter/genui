@@ -7,14 +7,15 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../../flutter_genui.dart' show AiTool;
 import '../ai_client/ai_client.dart';
+import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
-import '../model/tools.dart';
+import '../model/tools.dart' show AiTool;
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
 import 'ui_tools.dart';
 
@@ -132,12 +133,12 @@ class GenUiManager implements GenUiHost {
       if (configuration.actions.allowCreate ||
           configuration.actions.allowUpdate)
         AddOrUpdateSurfaceTool(
-          onAddOrUpdate: addOrUpdateSurface,
+          handleMessage: handleMessage,
           catalog: catalog,
           configuration: configuration,
         ),
       if (configuration.actions.allowDelete)
-        DeleteSurfaceTool(onDelete: deleteSurface),
+        DeleteSurfaceTool(handleMessage: handleMessage),
     ];
   }
 
@@ -155,34 +156,44 @@ class GenUiManager implements GenUiHost {
     }
   }
 
-  /// Adds or updates a surface with the given [surfaceId] and [definition].
-  ///
-  /// If a surface with the given ID does not exist, a new one is created.
-  /// Otherwise, the existing surface is updated.
-  void addOrUpdateSurface(String surfaceId, JsonMap definition) {
-    final uiDefinition = UiDefinition.fromMap({
-      'surfaceId': surfaceId,
-      ...definition,
-    });
-    final notifier = surface(surfaceId); // Gets or creates the notifier.
-    final isNew = notifier.value == null;
-    notifier.value = uiDefinition;
-    if (isNew) {
-      genUiLogger.info('Adding surface $surfaceId');
-      _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
-    } else {
-      genUiLogger.info('Updating surface $surfaceId');
-      _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
-    }
-  }
-
-  /// Deletes the surface with the given [surfaceId].
-  void deleteSurface(String surfaceId) {
-    if (_surfaces.containsKey(surfaceId)) {
-      genUiLogger.info('Deleting surface $surfaceId');
-      final notifier = _surfaces.remove(surfaceId);
-      notifier?.dispose();
-      _surfaceUpdates.add(SurfaceRemoved(surfaceId));
+  /// Handles an [A2uiMessage] and updates the UI accordingly.
+  void handleMessage(A2uiMessage message) {
+    switch (message) {
+      case SurfaceUpdate():
+        final surfaceId = message.surfaceId;
+        final notifier = surface(surfaceId);
+        final isNew = notifier.value == null;
+        final uiDefinition =
+            notifier.value ?? UiDefinition(surfaceId: surfaceId);
+        for (final component in message.components) {
+          uiDefinition.components[component.id] = component;
+        }
+        notifier.value = uiDefinition;
+        if (isNew) {
+          genUiLogger.info('Adding surface $surfaceId');
+          _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
+        } else {
+          genUiLogger.info('Updating surface $surfaceId');
+          _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
+        }
+      case DataModelUpdate():
+        // TODO(gulf-authors): Implement data model updates.
+        break;
+      case BeginRendering():
+        final surfaceId = message.surfaceId;
+        final notifier = surface(surfaceId);
+        if (notifier.value != null) {
+          notifier.value!.rootComponentId = message.root;
+          _surfaceUpdates.add(SurfaceUpdated(surfaceId, notifier.value!));
+        }
+      case SurfaceDeletion():
+        final surfaceId = message.surfaceId;
+        if (_surfaces.containsKey(surfaceId)) {
+          genUiLogger.info('Deleting surface $surfaceId');
+          final notifier = _surfaces.remove(surfaceId);
+          notifier?.dispose();
+          _surfaceUpdates.add(SurfaceRemoved(surfaceId));
+        }
     }
   }
 }

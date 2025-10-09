@@ -125,7 +125,7 @@ class UiAgent {
         return;
       }
       final message = AiUiMessage(
-        definition: UiDefinition.fromMap({}),
+        definition: UiDefinition(surfaceId: update.surfaceId),
         surfaceId: update.surfaceId,
       );
       _addMessage(message);
