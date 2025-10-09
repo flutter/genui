@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/catalog_item.dart';
+import '../../model/gulf_schemas.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
@@ -18,7 +19,7 @@ final _schema = S.object(
           'The ID of a child widget. This should always be set, e.g. to the ID '
           'of a `Text` widget.',
     ),
-    'action': S.string(
+    'action': GulfSchemas.action(
       description:
           'A short description of what should happen when the button is '
           'pressed to be used by the LLM.',
@@ -28,11 +29,11 @@ final _schema = S.object(
 );
 
 extension type _ElevatedButtonData.fromMap(JsonMap _json) {
-  factory _ElevatedButtonData({required String child, String? action}) =>
+  factory _ElevatedButtonData({required String child, JsonMap? action}) =>
       _ElevatedButtonData.fromMap({'child': child, 'action': action});
 
   String get child => _json['child'] as String;
-  String? get action => _json['action'] as String?;
+  JsonMap? get action => _json['action'] as JsonMap?;
 }
 
 final elevatedButton = CatalogItem(
@@ -50,9 +51,14 @@ final elevatedButton = CatalogItem(
         final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
         return ElevatedButton(
-          onPressed: () => dispatchEvent(
-            UiActionEvent(widgetId: id, eventType: 'onTap', value: {}),
-          ),
+          onPressed: () {
+            final action = buttonData.action;
+            if (action != null) {
+              dispatchEvent(
+                UiActionEvent(widgetId: id, eventType: 'onTap', value: action),
+              );
+            }
+          },
           child: child,
         );
       },

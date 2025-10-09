@@ -78,6 +78,9 @@ class GulfSchemas {
           properties: {
             'key': S.string(),
             'value': S.object(
+              description:
+                  'The dynamic value. Define EXACTLY ONE of the nested '
+                  'properties.',
               properties: {
                 'path': S.string(),
                 'literalString': S.string(),

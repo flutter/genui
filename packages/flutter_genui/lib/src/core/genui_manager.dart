@@ -114,10 +114,56 @@ class GenUiManager implements GenUiHost {
   @override
   void handleUiEvent(UiEvent event) {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
-    final eventString =
-        'Action: ${jsonEncode(event.value)}\n'
-        'Current state: ${jsonEncode(dataModel.data)}';
-    _onSubmit.add(UserMessage([TextPart(eventString)]));
+
+    final value = event.value;
+    final String actionName;
+    final Map<String, Object?> resolvedContext;
+
+    if (value is JsonMap && value.containsKey('action')) {
+      actionName = value['action'] as String;
+      resolvedContext = _resolveActionContext(value, dataModel);
+    } else {
+      actionName = event.eventType;
+      resolvedContext = dataModel.data;
+    }
+
+    final eventMap = {
+      'actionName': actionName,
+      'sourceComponentId': event.widgetId,
+      'timestamp': DateTime.now().toIso8601String(),
+      'resolvedContext': resolvedContext,
+    };
+
+    _onSubmit.add(UserMessage([TextPart(jsonEncode(eventMap))]));
+  }
+
+  Map<String, Object?> _resolveActionContext(
+    JsonMap action,
+    DataModel dataModel,
+  ) {
+    final resolvedContext = <String, Object?>{};
+    final context = action['context'] as List?;
+    if (context == null) {
+      return resolvedContext;
+    }
+
+    for (final item in context) {
+      if (item is! Map) continue;
+      final key = item['key'] as String?;
+      final value = item['value'] as Map?;
+      if (key == null || value == null) continue;
+
+      if (value.containsKey('path')) {
+        resolvedContext[key] = dataModel.getValue(value['path'] as String);
+      } else if (value.containsKey('literalString')) {
+        resolvedContext[key] = value['literalString'];
+      } else if (value.containsKey('literalNumber')) {
+        resolvedContext[key] = value['literalNumber'];
+      } else if (value.containsKey('literalBoolean')) {
+        resolvedContext[key] = value['literalBoolean'];
+      }
+    }
+    return resolvedContext;
   }
 
   @override

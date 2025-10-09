@@ -17,21 +17,27 @@ final _schema = S.object(
           'be input types such as OptionsFilterChipInput.',
       items: S.string(),
     ),
+    'action': GulfSchemas.action(
+      description: 'The action to perform when the submit button is pressed.',
+    ),
   },
-  required: ['submitLabel', 'children'],
+  required: ['submitLabel', 'children', 'action'],
 );
 
 extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
   factory _InputGroupData({
     required JsonMap submitLabel,
     required List<String> children,
+    required JsonMap action,
   }) => _InputGroupData.fromMap({
     'submitLabel': submitLabel,
     'children': children,
+    'action': action,
   });
 
   JsonMap get submitLabel => _json['submitLabel'] as JsonMap;
   List<String> get children => (_json['children'] as List).cast<String>();
+  JsonMap get action => _json['action'] as JsonMap;
 }
 
 /// A container widget that visually groups a collection of input chips.
@@ -128,13 +134,16 @@ final inputGroup = CatalogItem(
                   valueListenable: notifier,
                   builder: (context, submitLabel, child) {
                     return ElevatedButton(
-                      onPressed: () => dispatchEvent(
-                        UiActionEvent(
-                          widgetId: id,
-                          eventType: 'submit',
-                          value: {},
-                        ),
-                      ),
+                      onPressed: () {
+                        final action = inputGroupData.action;
+                        dispatchEvent(
+                          UiActionEvent(
+                            widgetId: id,
+                            eventType: 'submit',
+                            value: action,
+                          ),
+                        );
+                      },
                       child: Text(submitLabel ?? ''),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,7 +45,10 @@ void main() {
           {
             'id': 'button',
             'widget': {
-              'ElevatedButton': {'child': 'text'},
+              'ElevatedButton': {
+                'child': 'text',
+                'action': {'action': 'test_action'},
+              },
             },
           },
           {
@@ -64,6 +69,10 @@ void main() {
       expect(message, null);
       await tester.tap(find.byType(ElevatedButton));
       expect(message, isNotNull);
+      final eventMap = jsonDecode(message!.text) as Map<String, Object?>;
+      expect(eventMap['actionName'], 'test_action');
+      expect(eventMap['timestamp'], isNotNull);
+      expect(eventMap['resolvedContext'], <String, Object?>{});
     });
 
     testWidgets('Text renders from data model', (WidgetTester tester) async {
