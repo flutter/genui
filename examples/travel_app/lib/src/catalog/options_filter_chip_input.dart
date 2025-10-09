@@ -30,7 +30,7 @@ final _schema = S.object(
       description: 'An icon to display on the left of the chip.',
       enumValues: TravelIcon.values.map((e) => e.name).toList(),
     ),
-    'value': GulfSchemas.stringReference(
+    'value': A2uiSchemas.stringReference(
       description:
           'The name of the option that should be selected initially. This '
           'option must exist in the "options" list.',

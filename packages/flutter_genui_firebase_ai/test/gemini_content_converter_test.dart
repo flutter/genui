@@ -44,10 +44,7 @@ void main() {
     });
 
     test('toFirebaseAiContent converts $AiUiMessage', () {
-      final definition = UiDefinition.fromMap({
-        'root': 'a',
-        'widgets': <Object?>[],
-      });
+      final definition = UiDefinition(surfaceId: 'testSurface');
       final messages = [AiUiMessage(definition: definition)];
       final result = converter.toFirebaseAiContent(messages);
       expect(result, hasLength(1));

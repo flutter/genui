@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../core/widget_utilities.dart';
+import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'location': GulfSchemas.stringReference(
+    'location': A2uiSchemas.stringReference(
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
     ),

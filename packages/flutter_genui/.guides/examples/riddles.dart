@@ -149,8 +149,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
 final _schema = S.object(
   properties: {
-    'question': GulfSchemas.stringReference(description: 'The question part of a riddle.'),
-    'answer': GulfSchemas.stringReference(description: 'The answer part of a riddle.'),
+    'question': A2uiSchemas.stringReference(
+      description: 'The question part of a riddle.',
+    ),
+    'answer': A2uiSchemas.stringReference(
+      description: 'The answer part of a riddle.',
+    ),
   },
   required: ['question', 'answer'],
 );
@@ -158,57 +162,62 @@ final _schema = S.object(
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final json = data as Map<String, Object?>;
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final json = data as Map<String, Object?>;
 
-    // 1. Resolve the question reference
-    final questionRef = json['question'] as Map<String, Object?>;
-    final questionPath = questionRef['path'] as String?;
-    final questionLiteral = questionRef['literalString'] as String?;
-    final questionNotifier = questionPath != null
-        ? dataContext.subscribe<String>(questionPath)
-        : ValueNotifier<String?>(questionLiteral);
+        // 1. Resolve the question reference
+        final questionRef = json['question'] as Map<String, Object?>;
+        final questionPath = questionRef['path'] as String?;
+        final questionLiteral = questionRef['literalString'] as String?;
+        final questionNotifier = questionPath != null
+            ? dataContext.subscribe<String>(questionPath)
+            : ValueNotifier<String?>(questionLiteral);
 
-    // 2. Resolve the answer reference
-    final answerRef = json['answer'] as Map<String, Object?>;
-    final answerPath = answerRef['path'] as String?;
-    final answerLiteral = answerRef['literalString'] as String?;
-    final answerNotifier = answerPath != null
-        ? dataContext.subscribe<String>(answerPath)
-        : ValueNotifier<String?>(answerLiteral);
+        // 2. Resolve the answer reference
+        final answerRef = json['answer'] as Map<String, Object?>;
+        final answerPath = answerRef['path'] as String?;
+        final answerLiteral = answerRef['literalString'] as String?;
+        final answerNotifier = answerPath != null
+            ? dataContext.subscribe<String>(answerPath)
+            : ValueNotifier<String?>(answerLiteral);
 
-    // 3. Use ValueListenableBuilder to build the UI reactively
-    return ValueListenableBuilder<String?>(
-      valueListenable: questionNotifier,
-      builder: (context, question, _) {
+        // 3. Use ValueListenableBuilder to build the UI reactively
         return ValueListenableBuilder<String?>(
-          valueListenable: answerNotifier,
-          builder: (context, answer, _) {
-            return Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              decoration: BoxDecoration(border: Border.all()),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(question ?? '',
-                      style: Theme.of(context).textTheme.headlineMedium),
-                  const SizedBox(height: 8.0),
-                  Text(answer ?? '',
-                      style: Theme.of(context).textTheme.headlineSmall),
-                ],
-              ),
+          valueListenable: questionNotifier,
+          builder: (context, question, _) {
+            return ValueListenableBuilder<String?>(
+              valueListenable: answerNotifier,
+              builder: (context, answer, _) {
+                return Container(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  decoration: BoxDecoration(border: Border.all()),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        question ?? '',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        answer ?? '',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
           },
         );
       },
-    );
-  },
 );

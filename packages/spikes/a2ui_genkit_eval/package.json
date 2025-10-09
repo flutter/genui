@@ -1,0 +1,25 @@
+{
+  "name": "a2ui_genkit_eval",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "genkit start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@genkit-ai/compat-oai": "^1.19.2",
+    "@genkit-ai/google-genai": "^1.19.3",
+    "@genkit-ai/vertexai": "^1.19.3",
+    "genkit": "^1.19.2",
+    "genkitx-anthropic": "^0.25.0"
+  }
+}

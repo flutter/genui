@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../core/widget_utilities.dart';
+import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/gulf_schemas.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'value': GulfSchemas.stringReference(
+    'value': A2uiSchemas.stringReference(
       description: 'The initial value of the text field.',
     ),
     'hintText': S.string(description: 'Hint text for the text field.'),
