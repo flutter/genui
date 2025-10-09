@@ -59,10 +59,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         return _buildWidget(
           definition,
           rootId,
-          DataContext(
-            widget.host.dataModels.putIfAbsent(widget.surfaceId, DataModel.new),
-            '/',
-          ),
+          DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
         );
       },
     );
