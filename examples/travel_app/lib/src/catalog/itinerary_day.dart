@@ -116,40 +116,54 @@ class _ItineraryDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      clipBehavior: Clip.antiAlias,
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 200, width: double.infinity, child: imageChild),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ValueListenableBuilder<String?>(
-                  valueListenable: title,
-                  builder: (context, title, _) => Text(
-                    title ?? '',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ValueListenableBuilder<String?>(
+                      valueListenable: title,
+                      builder: (context, title, _) => Text(
+                        title ?? '',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    ValueListenableBuilder<String?>(
+                      valueListenable: subtitle,
+                      builder: (context, subtitle, _) => Text(
+                        subtitle ?? '',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                  ],
                 ),
-                ValueListenableBuilder<String?>(
-                  valueListenable: subtitle,
-                  builder: (context, subtitle, _) => Text(
-                    subtitle ?? '',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+              ),
+              SizedBox(
+                width: 100,
+                height: 100,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: imageChild,
                 ),
-                const SizedBox(height: 8.0),
-                ValueListenableBuilder<String?>(
-                  valueListenable: description,
-                  builder: (context, description, _) =>
-                      MarkdownWidget(text: description ?? ''),
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8.0),
+          ValueListenableBuilder<String?>(
+            valueListenable: description,
+            builder: (context, description, _) =>
+                MarkdownWidget(text: description ?? ''),
           ),
           ...children,
         ],
