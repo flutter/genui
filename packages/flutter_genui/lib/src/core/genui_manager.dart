@@ -7,7 +7,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../flutter_genui.dart' show AiTool;
 import '../ai_client/ai_client.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
