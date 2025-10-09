@@ -25,7 +25,10 @@ void main() {
         {
           'id': 'root',
           'widget': {
-            'ElevatedButton': {'child': 'text'},
+            'ElevatedButton': {
+              'child': 'text',
+              'action': {'action': 'test_action'},
+            },
           },
         },
         {
@@ -61,7 +64,10 @@ void main() {
         {
           'id': 'root',
           'widget': {
-            'ElevatedButton': {'child': 'text'},
+            'ElevatedButton': {
+              'child': 'text',
+              'action': {'action': 'test_action'},
+            },
           },
         },
         {

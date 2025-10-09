@@ -25,15 +25,15 @@ final _schema = S.object(
           'pressed to be used by the LLM.',
     ),
   },
-  required: ['child'],
+  required: ['child', 'action'],
 );
 
 extension type _ElevatedButtonData.fromMap(JsonMap _json) {
-  factory _ElevatedButtonData({required String child, JsonMap? action}) =>
+  factory _ElevatedButtonData({required String child, required JsonMap action}) =>
       _ElevatedButtonData.fromMap({'child': child, 'action': action});
 
   String get child => _json['child'] as String;
-  JsonMap? get action => _json['action'] as JsonMap?;
+  JsonMap get action => _json['action'] as JsonMap;
 }
 
 final elevatedButton = CatalogItem(
@@ -52,12 +52,13 @@ final elevatedButton = CatalogItem(
         final child = buildChild(buttonData.child);
         return ElevatedButton(
           onPressed: () {
-            final action = buttonData.action;
-            if (action != null) {
-              dispatchEvent(
-                UiActionEvent(widgetId: id, eventType: 'onTap', value: action),
-              );
-            }
+            dispatchEvent(
+              UiActionEvent(
+                widgetId: id,
+                eventType: 'onTap',
+                value: buttonData.action,
+              ),
+            );
           },
           child: child,
         );
