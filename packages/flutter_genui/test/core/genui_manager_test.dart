@@ -208,5 +208,40 @@ void main() {
 
       expect(eventMap['resolvedContext'], isEmpty);
     });
+
+    test('handleUiEvent resolves context correctly', () async {
+      // Ensure the data model is created for the surface and populated.
+      final dataModel = manager.dataModelForSurface('s1');
+      dataModel.update('/name', 'Alice');
+
+      final event = UiActionEvent(
+        surfaceId: 's1',
+        widgetId: 'w1',
+        eventType: 'submit',
+        value: {
+          'action': 'testAction',
+          'context': <Object?>[
+            {
+              'key': 'userName',
+              'value': {'path': '/name'},
+            },
+            {
+              'key': 'source',
+              'value': {'literalString': 'test'},
+            },
+          ],
+        },
+      );
+
+      final futureMessage = manager.onSubmit.first;
+      manager.handleUiEvent(event);
+      final message = await futureMessage;
+      final eventMap = jsonDecode(message.text) as Map<String, Object?>;
+
+      expect(eventMap['resolvedContext'], {
+        'userName': 'Alice',
+        'source': 'test',
+      });
+    });
   });
 }

@@ -75,6 +75,56 @@ void main() {
       expect(eventMap['resolvedContext'], <String, Object?>{});
     });
 
+    testWidgets('ElevatedButton resolves context on tap', (
+      WidgetTester tester,
+    ) async {
+      final definition = {
+        'root': 'button',
+        'widgets': [
+          {
+            'id': 'button',
+            'widget': {
+              'ElevatedButton': {
+                'child': 'text',
+                'action': {
+                  'action': 'test_action',
+                  'context': [
+                    {
+                      'key': 'userName',
+                      'value': {'path': '/name'},
+                    },
+                    {
+                      'key': 'source',
+                      'value': {'literalString': 'button'},
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          {
+            'id': 'text',
+            'widget': {
+              'Text': {
+                'text': {'literalString': 'Click Me'},
+              },
+            },
+          },
+        ],
+      };
+
+      await pumpWidgetWithDefinition(tester, definition);
+      manager!.dataModelForSurface('testSurface').update('/name', 'Alice');
+
+      await tester.tap(find.byType(ElevatedButton));
+      expect(message, isNotNull);
+      final eventMap = jsonDecode(message!.text) as Map<String, Object?>;
+      expect(eventMap['resolvedContext'], {
+        'userName': 'Alice',
+        'source': 'button',
+      });
+    });
+
     testWidgets('Text renders from data model', (WidgetTester tester) async {
       final definition = {
         'root': 'text',

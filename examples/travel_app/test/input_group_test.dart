@@ -91,5 +91,55 @@ void main() {
       expect(find.byType(Text), findsOneWidget); // The button label
       expect(find.widgetWithText(ElevatedButton, 'Submit'), findsOneWidget);
     });
+
+    testWidgets('resolves context on submit', (WidgetTester tester) async {
+      final data = {
+        'submitLabel': {'literalString': 'Submit'},
+        'children': <String>[],
+        'action': {
+          'action': 'submit_action',
+          'context': [
+            {
+              'key': 'userName',
+              'value': {'path': '/name'},
+            },
+            {
+              'key': 'source',
+              'value': {'literalString': 'inputGroup'},
+            },
+          ],
+        },
+      };
+      UiEvent? dispatchedEvent;
+      final dataModel = DataModel();
+      dataModel.update('/name', 'Alice');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return inputGroup.widgetBuilder(
+                  data: data,
+                  id: 'testId',
+                  buildChild: (_) => const SizedBox.shrink(),
+                  dispatchEvent: (event) {
+                    dispatchedEvent = event;
+                  },
+                  context: context,
+                  dataContext: DataContext(dataModel, '/'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      expect(dispatchedEvent, isA<UiActionEvent>());
+      final actionEvent = dispatchedEvent as UiActionEvent;
+      final value = actionEvent.value as Map<String, Object?>;
+      expect(value['action'], 'submit_action');
+    });
   });
 }
