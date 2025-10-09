@@ -128,7 +128,6 @@ class GenUiManager implements GenUiHost {
       return;
     }
 
-    final currentState = dataModels[event.surfaceId]?.data ?? const {};
     final userActionPayload = {
       'userAction': {
         'actionName': event.actionName,
@@ -136,7 +135,6 @@ class GenUiManager implements GenUiHost {
         'timestamp': event.timestamp.toIso8601String(),
         'context': event.context,
       },
-      'currentState': currentState,
     };
 
     final eventJsonString = jsonEncode(userActionPayload);

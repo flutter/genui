@@ -170,7 +170,6 @@ void main() {
           'timestamp': now.toIso8601String(),
           'context': {'key': 'value'},
         },
-        'currentState': {'myValue': 'testValue'},
       });
       expect(message.text, expectedJson);
     });
