@@ -70,8 +70,8 @@ abstract interface class GenUiHost {
   /// The catalog of UI components available to the AI.
   Catalog get catalog;
 
-  /// The data model for storing the UI state.
-  DataModel get dataModel;
+  /// A map of data models for storing the UI state of each surface.
+  Map<String, DataModel> get dataModels;
 
   /// A callback to handle an action from a surface.
   void handleUiEvent(UiEvent event);
@@ -99,8 +99,10 @@ class GenUiManager implements GenUiHost {
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
   final _onSubmit = StreamController<UserMessage>.broadcast();
 
+  final _dataModels = <String, DataModel>{};
+
   @override
-  final dataModel = DataModel();
+  Map<String, DataModel> get dataModels => _dataModels;
 
   /// A map of all the surfaces managed by this manager, keyed by surface ID.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
@@ -116,7 +118,7 @@ class GenUiManager implements GenUiHost {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
     final eventString =
         'Action: ${jsonEncode(event.value)}\n'
-        'Current state: ${jsonEncode(dataModel.data)}';
+        'Current state: ${jsonEncode(dataModels[event.surfaceId]?.data)}';
     _onSubmit.add(UserMessage([TextPart(eventString)]));
   }
 
