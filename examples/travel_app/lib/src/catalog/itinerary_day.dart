@@ -99,6 +99,21 @@ final itineraryDay = CatalogItem(
       },
 );
 
+class _ValueListenableText extends StatelessWidget {
+  const _ValueListenableText(this.listenable, this.style);
+
+  final ValueNotifier<String?> listenable;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String?>(
+      valueListenable: listenable,
+      builder: (context, value, _) => Text(value ?? '', style: style),
+    );
+  }
+}
+
 class _ItineraryDay extends StatelessWidget {
   const _ItineraryDay({
     required this.title,
@@ -116,57 +131,55 @@ class _ItineraryDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ValueListenableBuilder<String?>(
-                      valueListenable: title,
-                      builder: (context, title, _) => Text(
-                        title ?? '',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    ValueListenableBuilder<String?>(
-                      valueListenable: subtitle,
-                      builder: (context, subtitle, _) => Text(
-                        subtitle ?? '',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: ClipRRect(
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: imageChild,
+                  child: SizedBox(height: 80, width: 80, child: imageChild),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8.0),
-          ValueListenableBuilder<String?>(
-            valueListenable: description,
-            builder: (context, description, _) =>
-                MarkdownWidget(text: description ?? ''),
-          ),
-          ...children,
-        ],
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _ValueListenableText(
+                        title,
+                        theme.textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 4.0),
+                      _ValueListenableText(
+                        subtitle,
+                        theme.textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            ValueListenableBuilder<String?>(
+              valueListenable: description,
+              builder: (context, description, _) =>
+                  MarkdownWidget(text: description ?? ''),
+            ),
+            const SizedBox(height: 8.0),
+            const Divider(),
+            ...children,
+          ],
+        ),
       ),
     );
   }
