@@ -70,8 +70,11 @@ abstract interface class GenUiHost {
   /// The catalog of UI components available to the AI.
   Catalog get catalog;
 
-  /// The data model for storing the UI state.
-  DataModel get dataModel;
+  /// A map of data models for storing the UI state of each surface.
+  Map<String, DataModel> get dataModels;
+
+  /// The data model for storing the UI state for a given surface.
+  DataModel dataModelForSurface(String surfaceId);
 
   /// A callback to handle an action from a surface.
   void handleUiEvent(UiEvent event);
@@ -99,8 +102,15 @@ class GenUiManager implements GenUiHost {
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
   final _onSubmit = StreamController<UserMessage>.broadcast();
 
+  final _dataModels = <String, DataModel>{};
+
   @override
-  final dataModel = DataModel();
+  Map<String, DataModel> get dataModels => Map.unmodifiable(_dataModels);
+
+  @override
+  DataModel dataModelForSurface(String surfaceId) {
+    return _dataModels.putIfAbsent(surfaceId, DataModel.new);
+  }
 
   /// A map of all the surfaces managed by this manager, keyed by surface ID.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
@@ -114,17 +124,21 @@ class GenUiManager implements GenUiHost {
   @override
   void handleUiEvent(UiEvent event) {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
+    final surfaceDataModel = dataModels[event.surfaceId];
+    final currentState = surfaceDataModel?.data ?? const {};
 
     final value = event.value;
     final String actionName;
     final Map<String, Object?> resolvedContext;
 
-    if (value is JsonMap && value.containsKey('action')) {
+    if (surfaceDataModel != null &&
+        value is JsonMap &&
+        value.containsKey('action')) {
       actionName = value['action'] as String;
-      resolvedContext = _resolveActionContext(value, dataModel);
+      resolvedContext = _resolveActionContext(value, surfaceDataModel);
     } else {
       actionName = event.eventType;
-      resolvedContext = dataModel.data;
+      resolvedContext = currentState;
     }
 
     final eventMap = {
@@ -228,6 +242,7 @@ class GenUiManager implements GenUiHost {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);
       notifier?.dispose();
+      _dataModels.remove(surfaceId);
       _surfaceUpdates.add(SurfaceRemoved(surfaceId));
     }
   }

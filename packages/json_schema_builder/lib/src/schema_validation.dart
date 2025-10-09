@@ -22,6 +22,8 @@ import 'utils.dart';
 import 'validation_error.dart';
 import 'validation_result.dart';
 
+/// A context object that holds information about the current validation
+/// process.
 class ValidationContext {
   final Schema rootSchema;
   final bool strictFormat;
@@ -30,6 +32,7 @@ class ValidationContext {
   final Map<String, bool> vocabularies;
   final LoggingContext? loggingContext;
 
+  /// Creates a new validation context.
   ValidationContext(
     this.rootSchema, {
     this.strictFormat = false,
@@ -56,6 +59,7 @@ class ValidationContext {
     required this.loggingContext,
   });
 
+  /// Creates a copy of this context with a new [newSourceUri].
   ValidationContext withSourceUri(Uri newSourceUri) {
     return ValidationContext._copyWith(
       rootSchema: rootSchema,
@@ -67,6 +71,7 @@ class ValidationContext {
     );
   }
 
+  /// Creates a copy of this context with a new set of [newVocabularies].
   ValidationContext withVocabularies(Map<String, bool> newVocabularies) {
     return ValidationContext._copyWith(
       rootSchema: rootSchema,
@@ -79,6 +84,9 @@ class ValidationContext {
   }
 }
 
+/// Validates the given [data] against a [schema].
+///
+/// This is a helper function for recursively validating subschemas.
 Future<ValidationResult> validateSubSchema(
   Object? schema,
   Object? data,
@@ -113,6 +121,7 @@ Future<ValidationResult> validateSubSchema(
   return ValidationResult.success(AnnotationSet.empty());
 }
 
+/// An extension on [Schema] that adds validation functionality.
 extension SchemaValidation on Schema {
   /// Validates the given [data] against this schema.
   ///
@@ -148,6 +157,9 @@ extension SchemaValidation on Schema {
     return result.errors;
   }
 
+  /// Validates the given [data] against this schema, including any subschemas.
+  ///
+  /// This is the main entry point for validating an object against a schema.
   Future<ValidationResult> validateSchema(
     Object? data,
     List<String> currentPath,
@@ -526,6 +538,8 @@ extension SchemaValidation on Schema {
     return ValidationResult.fromErrors(errors, allAnnotations);
   }
 
+  /// Validates the given [data] against the type-specific keywords in this
+  /// schema.
   Future<ValidationResult> validateTypeSpecificKeywords(
     Object? data,
     List<String> currentPath,
@@ -709,6 +723,10 @@ extension SchemaValidation on Schema {
     return ValidationResult.fromErrors(errors, AnnotationSet.empty());
   }
 
+  /// Validates an object against the schema.
+  ///
+  /// This method is called by [validateTypeSpecificKeywords] when the data is
+  /// a [Map].
   Future<ValidationResult> validateObject(
     Map<String, Object?> data,
     List<String> currentPath,
@@ -877,6 +895,10 @@ extension SchemaValidation on Schema {
     return ValidationResult.fromErrors(errors, annotations);
   }
 
+  /// Validates a list against the schema.
+  ///
+  /// This method is called by [validateTypeSpecificKeywords] when the data is
+  /// a [List].
   Future<ValidationResult> validateList(
     List data,
     List<String> currentPath,
@@ -1028,6 +1050,7 @@ extension SchemaValidation on Schema {
     );
   }
 
+  /// Gets the [JsonType] of the given [data].
   JsonType getJsonType(Object? data) {
     if (data is Map) return JsonType.object;
     if (data is List) return JsonType.list;
@@ -1045,6 +1068,7 @@ extension SchemaValidation on Schema {
     throw StateError('Unknown JSON type for value: $data');
   }
 
+  /// Resolves a `$ref` reference to a schema.
   Future<(Schema, Uri)?> resolveRef(
     String ref,
     Schema rootSchema,
@@ -1061,6 +1085,7 @@ extension SchemaValidation on Schema {
     }
   }
 
+  /// Resolves a `$dynamicRef` reference to a schema.
   Future<(Schema, Uri)?> resolveDynamicRef(
     String ref,
     List<Schema> dynamicScope,
@@ -1110,6 +1135,7 @@ extension SchemaValidation on Schema {
     return initialResolution;
   }
 
+  /// Finds a schema with a matching `$dynamicAnchor` in the given [schema].
   Schema? _findDynamicAnchorInSchema(String anchorName, Schema schema) {
     Schema? result;
     final visited = <Map<String, Object?>>{};
