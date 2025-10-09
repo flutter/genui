@@ -184,6 +184,7 @@ class GenUiManager implements GenUiHost {
       genUiLogger.info('Deleting surface $surfaceId');
       final notifier = _surfaces.remove(surfaceId);
       notifier?.dispose();
+      _dataModels.remove(surfaceId);
       _surfaceUpdates.add(SurfaceRemoved(surfaceId));
     }
   }
