@@ -6,62 +6,62 @@ import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('UiEvent', () {
+  group('UserActionEvent', () {
     test('can be created and read', () {
       final now = DateTime.now();
-      final event = UiActionEvent(
+      final event = UserActionEvent(
         surfaceId: 'testSurface',
-        widgetId: 'testWidget',
-        eventType: 'onTap',
+        actionName: 'testAction',
+        sourceComponentId: 'testWidget',
         timestamp: now,
-        value: 'testValue',
+        context: {'key': 'value'},
       );
 
       expect(event.surfaceId, 'testSurface');
-      expect(event.widgetId, 'testWidget');
-      expect(event.eventType, 'onTap');
-      expect(event.isAction, isTrue);
+      expect(event.actionName, 'testAction');
+      expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.value, 'testValue');
+      expect(event.isAction, isTrue);
+      expect(event.context, {'key': 'value'});
     });
 
     test('can be created from map and read', () {
       final now = DateTime.now();
-      final event = UiEvent.fromMap({
+      final event = UserActionEvent.fromMap({
         'surfaceId': 'testSurface',
-        'widgetId': 'testWidget',
-        'eventType': 'onTap',
-        'isAction': false,
+        'actionName': 'testAction',
+        'sourceComponentId': 'testWidget',
         'timestamp': now.toIso8601String(),
-        'value': 'testValue',
+        'isAction': true,
+        'context': {'key': 'value'},
       });
 
       expect(event.surfaceId, 'testSurface');
-      expect(event.widgetId, 'testWidget');
-      expect(event.eventType, 'onTap');
-      expect(event.isAction, isFalse);
+      expect(event.actionName, 'testAction');
+      expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.value, 'testValue');
+      expect(event.isAction, isTrue);
+      expect(event.context, {'key': 'value'});
     });
 
     test('can be converted to map', () {
       final now = DateTime.now();
-      final event = UiActionEvent(
+      final event = UserActionEvent(
         surfaceId: 'testSurface',
-        widgetId: 'testWidget',
-        eventType: 'onTap',
+        actionName: 'testAction',
+        sourceComponentId: 'testWidget',
         timestamp: now,
-        value: 'testValue',
+        context: {'key': 'value'},
       );
 
       final map = event.toMap();
 
       expect(map['surfaceId'], 'testSurface');
-      expect(map['widgetId'], 'testWidget');
-      expect(map['eventType'], 'onTap');
-      expect(map['isAction'], isTrue);
+      expect(map['actionName'], 'testAction');
+      expect(map['sourceComponentId'], 'testWidget');
       expect(map['timestamp'], now.toIso8601String());
-      expect(map['value'], 'testValue');
+      expect(map['isAction'], isTrue);
+      expect(map['context'], {'key': 'value'});
     });
   });
 }

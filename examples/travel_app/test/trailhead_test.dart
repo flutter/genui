@@ -17,6 +17,7 @@ void main() {
           {'literalString': 'Topic A'},
           {'literalString': 'Topic B'},
         ],
+        'action': {'actionName': 'selectTopic'},
       };
       UiEvent? dispatchedEvent;
 
@@ -47,17 +48,20 @@ void main() {
       await tester.tap(find.text('Topic A'));
       await tester.pump();
 
-      expect(dispatchedEvent, isA<UiActionEvent>());
-      final actionEvent = dispatchedEvent as UiActionEvent;
-      expect(actionEvent.widgetId, 'testId');
-      expect(actionEvent.eventType, 'trailheadTopicSelected');
-      expect(actionEvent.value, 'Topic A');
+      expect(dispatchedEvent, isA<UserActionEvent>());
+      final actionEvent = dispatchedEvent as UserActionEvent;
+      expect(actionEvent.sourceComponentId, 'testId');
+      expect(actionEvent.actionName, 'selectTopic');
+      expect(actionEvent.context, {'topic': 'Topic A'});
     });
 
     testWidgets('builds widget correctly with no topics', (
       WidgetTester tester,
     ) async {
-      final data = {'topics': <Map<String, String>>[]};
+      final data = {
+        'topics': <Map<String, String>>[],
+        'action': {'actionName': 'selectTopic'},
+      };
 
       await tester.pumpWidget(
         MaterialApp(

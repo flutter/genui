@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_genui/flutter_genui.dart';
@@ -141,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _sendMessage() async {
+  void _sendMessage() {
     final text = _textController.text;
     if (text.isEmpty) {
       return;
@@ -154,7 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _scrollToBottom();
 
-    await _uiAgent.sendRequest(UserMessage([TextPart(text)]));
+    unawaited(_uiAgent.sendRequest(UserMessage([TextPart(text)])));
   }
 
   void _scrollToBottom() {

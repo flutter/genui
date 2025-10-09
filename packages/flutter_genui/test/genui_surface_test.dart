@@ -24,7 +24,10 @@ void main() {
       const Component(
         id: 'root',
         componentProperties: {
-          'ElevatedButton': {'child': 'text'},
+          'ElevatedButton': {
+            'child': 'text',
+            'action': {'actionName': 'testAction'},
+          },
         },
       ),
       const Component(
@@ -63,7 +66,10 @@ void main() {
       const Component(
         id: 'root',
         componentProperties: {
-          'ElevatedButton': {'child': 'text'},
+          'ElevatedButton': {
+            'child': 'text',
+            'action': {'actionName': 'testAction'},
+          },
         },
       ),
       const Component(

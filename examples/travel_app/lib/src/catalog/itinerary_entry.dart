@@ -51,6 +51,11 @@ final _schema = S.object(
           'is confirmed.',
       enumValues: ItineraryEntryStatus.values.map((e) => e.name).toList(),
     ),
+    'choiceRequiredAction': A2uiSchemas.action(
+      description:
+          'The action to perform when the user needs to make a choice. '
+          'This is only used when the status is "choiceRequired".',
+    ),
   },
   required: ['title', 'bodyText', 'time', 'type', 'status'],
 );
@@ -65,6 +70,7 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
     JsonMap? totalCost,
     required String type,
     required String status,
+    JsonMap? choiceRequiredAction,
   }) => _ItineraryEntryData.fromMap({
     'title': title,
     if (subtitle != null) 'subtitle': subtitle,
@@ -74,6 +80,8 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
     if (totalCost != null) 'totalCost': totalCost,
     'type': type,
     'status': status,
+    if (choiceRequiredAction != null)
+      'choiceRequiredAction': choiceRequiredAction,
   });
 
   JsonMap get title => _json['title'] as JsonMap;
@@ -86,6 +94,8 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
       ItineraryEntryType.values.byName(_json['type'] as String);
   ItineraryEntryStatus get status =>
       ItineraryEntryStatus.values.byName(_json['status'] as String);
+  JsonMap? get choiceRequiredAction =>
+      _json['choiceRequiredAction'] as JsonMap?;
 }
 
 final itineraryEntry = CatalogItem(
@@ -132,8 +142,10 @@ final itineraryEntry = CatalogItem(
           totalCostNotifier: totalCostNotifier,
           type: itineraryEntryData.type,
           status: itineraryEntryData.status,
+          choiceRequiredAction: itineraryEntryData.choiceRequiredAction,
           widgetId: id,
           dispatchEvent: dispatchEvent,
+          dataContext: dataContext,
         );
       },
 );
@@ -147,8 +159,10 @@ class _ItineraryEntry extends StatelessWidget {
   final ValueNotifier<String?> totalCostNotifier;
   final ItineraryEntryType type;
   final ItineraryEntryStatus status;
+  final JsonMap? choiceRequiredAction;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
+  final DataContext dataContext;
 
   const _ItineraryEntry({
     required this.titleNotifier,
@@ -159,8 +173,10 @@ class _ItineraryEntry extends StatelessWidget {
     required this.totalCostNotifier,
     required this.type,
     required this.status,
+    this.choiceRequiredAction,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.dataContext,
   });
 
   IconData _getIconForType(ItineraryEntryType type) {
@@ -178,7 +194,7 @@ class _ItineraryEntry extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -207,13 +223,23 @@ class _ItineraryEntry extends StatelessWidget {
                         valueListenable: titleNotifier,
                         builder: (context, title, _) => FilledButton(
                           onPressed: () {
+                            final actionData = choiceRequiredAction;
+                            if (actionData == null) {
+                              return;
+                            }
+                            final actionName =
+                                actionData['actionName'] as String;
+                            final contextDefinition =
+                                (actionData['context'] as JsonMap?) ?? {};
+                            final resolvedContext = resolveContext(
+                              dataContext,
+                              contextDefinition,
+                            );
                             dispatchEvent(
-                              UiActionEvent(
-                                widgetId: widgetId,
-                                eventType: 'seeOptions',
-                                value:
-                                    'Choose options in order to book '
-                                    '${title ?? ''}',
+                              UserActionEvent(
+                                actionName: actionName,
+                                sourceComponentId: widgetId,
+                                context: resolvedContext,
                               ),
                             );
                             DismissNotification().dispatch(context);

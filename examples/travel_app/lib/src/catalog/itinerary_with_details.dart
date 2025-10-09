@@ -189,9 +189,7 @@ class _ItineraryWithDetails extends StatelessWidget {
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(
-                8.0,
-              ), // Adjust radius as needed
+              borderRadius: BorderRadius.circular(8.0),
               child: SizedBox(height: 100, width: 100, child: imageChild),
             ),
             const SizedBox(width: 8.0),

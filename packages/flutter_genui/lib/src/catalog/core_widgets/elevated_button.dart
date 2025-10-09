@@ -7,6 +7,8 @@
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../core/widget_utilities.dart';
+import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
@@ -18,21 +20,21 @@ final _schema = S.object(
           'The ID of a child widget. This should always be set, e.g. to the ID '
           'of a `Text` widget.',
     ),
-    'action': S.string(
-      description:
-          'A short description of what should happen when the button is '
-          'pressed to be used by the LLM.',
+    'action': A2uiSchemas.action(
+      description: 'The action to perform when the button is pressed.',
     ),
   },
-  required: ['child'],
+  required: ['child', 'action'],
 );
 
 extension type _ElevatedButtonData.fromMap(JsonMap _json) {
-  factory _ElevatedButtonData({required String child, String? action}) =>
-      _ElevatedButtonData.fromMap({'child': child, 'action': action});
+  factory _ElevatedButtonData({
+    required String child,
+    required JsonMap action,
+  }) => _ElevatedButtonData.fromMap({'child': child, 'action': action});
 
   String get child => _json['child'] as String;
-  String? get action => _json['action'] as String?;
+  JsonMap get action => _json['action'] as JsonMap;
 }
 
 final elevatedButton = CatalogItem(
@@ -49,11 +51,39 @@ final elevatedButton = CatalogItem(
       }) {
         final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
+        final actionData = buttonData.action;
+        final actionName = actionData['actionName'] as String;
+        final contextDefinition = (actionData['context'] as JsonMap?) ?? {};
+
         return ElevatedButton(
-          onPressed: () => dispatchEvent(
-            UiActionEvent(widgetId: id, eventType: 'onTap', value: {}),
-          ),
+          onPressed: () {
+            final resolvedContext = resolveContext(
+              dataContext,
+              contextDefinition,
+            );
+            dispatchEvent(
+              UserActionEvent(
+                actionName: actionName,
+                sourceComponentId: id,
+                context: resolvedContext,
+              ),
+            );
+          },
           child: child,
         );
       },
+  exampleData: [
+    () => {
+      'root': 'button',
+      'widgets': [
+        {
+          'id': 'button',
+          'type': 'ElevatedButton',
+          'child': 'text',
+          'action': {'actionName': 'button_pressed'},
+        },
+        {'id': 'text', 'type': 'Text', 'text': 'Hello World'},
+      ],
+    },
+  ],
 );

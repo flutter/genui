@@ -27,6 +27,21 @@ final text = CatalogItem(
     },
     required: ['text'],
   ),
+  exampleData: [
+    () => {
+      'root': 'text',
+      'widgets': [
+        {
+          'id': 'text',
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'Hello World'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

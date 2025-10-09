@@ -167,16 +167,19 @@ final column = CatalogItem(
         {
           'id': 'submit_button',
           'widget': {
-            'ElevatedButton': {'child': 'submit_button_text'},
+            'ElevatedButton': {
+              'child': 'submit_button_text',
+              'action': {'actionName': 'submit'},
+            },
           },
         },
         {
+          'id': 'submit_button_text',
           'widget': {
             'Text': {
               'text': {'literalString': 'Submit'},
             },
           },
-          'id': 'submit_button_text',
         },
       ],
     },

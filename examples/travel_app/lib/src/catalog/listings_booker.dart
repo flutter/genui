@@ -11,14 +11,20 @@ import '../tools/booking/booking_service.dart';
 import '../tools/booking/model.dart';
 
 final _schema = S.object(
-  description: 'A widget to check out set of listings.',
+  description: 'A widget to select among a set of listings.',
   properties: {
     'listingSelectionIds': S.list(
-      description: 'Listings to checkout.',
+      description: 'Listings to select among.',
       items: S.string(),
     ),
     'itineraryName': A2uiSchemas.stringReference(
       description: 'The name of the itinerary.',
+    ),
+    'modifyAction': A2uiSchemas.action(
+      description:
+          'The action to perform when the user wants to modify a listing '
+          'selection. The listingSelectionId will be added to the context with '
+          'the key "listingSelectionId".',
     ),
   },
   required: ['listingSelectionIds'],
@@ -28,14 +34,17 @@ extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
   factory _ListingsBookerData({
     required List<String> listingSelectionIds,
     required JsonMap itineraryName,
+    JsonMap? modifyAction,
   }) => _ListingsBookerData.fromMap({
     'listingSelectionIds': listingSelectionIds,
     'itineraryName': itineraryName,
+    if (modifyAction != null) 'modifyAction': modifyAction,
   });
 
   List<String> get listingSelectionIds =>
       (_json['listingSelectionIds'] as List).cast<String>();
   JsonMap get itineraryName => _json['itineraryName'] as JsonMap;
+  JsonMap? get modifyAction => _json['modifyAction'] as JsonMap?;
 }
 
 final listingsBooker = CatalogItem(
@@ -66,6 +75,8 @@ final listingsBooker = CatalogItem(
               itineraryName: itineraryName ?? '',
               dispatchEvent: dispatchEvent,
               widgetId: id,
+              modifyAction: listingsBookerData.modifyAction,
+              dataContext: dataContext,
             );
           },
         );
@@ -136,12 +147,16 @@ class _ListingsBooker extends StatefulWidget {
   final String itineraryName;
   final DispatchEventCallback dispatchEvent;
   final String widgetId;
+  final JsonMap? modifyAction;
+  final DataContext dataContext;
 
   const _ListingsBooker({
     required this.listingSelectionIds,
     required this.itineraryName,
     required this.dispatchEvent,
     required this.widgetId,
+    this.modifyAction,
+    required this.dataContext,
   });
 
   @override
@@ -328,14 +343,25 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                             const SizedBox(width: 8),
                             TextButton(
                               onPressed: () {
+                                final actionData = widget.modifyAction;
+                                if (actionData == null) {
+                                  return;
+                                }
+                                final actionName =
+                                    actionData['actionName'] as String;
+                                final contextDefinition =
+                                    (actionData['context'] as JsonMap?) ?? {};
+                                final resolvedContext = resolveContext(
+                                  widget.dataContext,
+                                  contextDefinition,
+                                );
+                                resolvedContext['listingSelectionId'] =
+                                    listing.listingSelectionId;
                                 widget.dispatchEvent(
-                                  UiActionEvent(
-                                    eventType: 'Modify',
-                                    widgetId: widget.widgetId,
-                                    value: {
-                                      'listingSelectionId':
-                                          listing.listingSelectionId,
-                                    },
+                                  UserActionEvent(
+                                    actionName: actionName,
+                                    sourceComponentId: widget.widgetId,
+                                    context: resolvedContext,
                                   ),
                                 );
                               },

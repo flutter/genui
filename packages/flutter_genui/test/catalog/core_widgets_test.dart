@@ -48,7 +48,10 @@ void main() {
         const Component(
           id: 'button',
           componentProperties: {
-            'ElevatedButton': {'child': 'text'},
+            'ElevatedButton': {
+              'child': 'text',
+              'action': {'actionName': 'testAction'},
+            },
           },
         ),
         const Component(
@@ -212,6 +215,7 @@ void main() {
             'TextField': {
               'value': {'path': '/myValue'},
               'hintText': 'hint',
+              'onSubmittedAction': {'actionName': 'submit'},
             },
           },
         ),

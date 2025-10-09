@@ -36,6 +36,24 @@ extension type _ImageData.fromMap(JsonMap _json) {
 final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'image',
+      'widgets': [
+        {
+          'id': 'image',
+          'widget': {
+            'Image': {
+              'location': {
+                'literalString':
+                    'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+              },
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

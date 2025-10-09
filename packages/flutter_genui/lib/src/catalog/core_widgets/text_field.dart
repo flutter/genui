@@ -20,6 +20,9 @@ final _schema = S.object(
     'obscureText': S.boolean(
       description: 'Whether the text should be obscured.',
     ),
+    'onSubmittedAction': A2uiSchemas.action(
+      description: 'The action to perform when the text field is submitted.',
+    ),
   },
 );
 
@@ -28,15 +31,18 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
     required JsonMap value,
     String? hintText,
     bool? obscureText,
+    JsonMap? onSubmittedAction,
   }) => _TextFieldData.fromMap({
     'value': value,
     'hintText': hintText,
     'obscureText': obscureText,
+    'onSubmittedAction': onSubmittedAction,
   });
 
   JsonMap get value => _json['value'] as JsonMap;
   String? get hintText => _json['hintText'] as String?;
   bool get obscureText => (_json['obscureText'] as bool?) ?? false;
+  JsonMap? get onSubmittedAction => _json['onSubmittedAction'] as JsonMap?;
 }
 
 class _TextField extends StatefulWidget {
@@ -96,6 +102,21 @@ class _TextFieldState extends State<_TextField> {
 final textField = CatalogItem(
   name: 'TextField',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'text_field',
+      'widgets': [
+        {
+          'id': 'text_field',
+          'widget': {
+            'TextField': {
+              'value': {'literalString': 'Hello World'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -123,11 +144,22 @@ final textField = CatalogItem(
                 }
               },
               onSubmitted: (newValue) {
+                final actionData = textFieldData.onSubmittedAction;
+                if (actionData == null) {
+                  return;
+                }
+                final actionName = actionData['actionName'] as String;
+                final contextDefinition =
+                    (actionData['context'] as JsonMap?) ?? {};
+                final resolvedContext = resolveContext(
+                  dataContext,
+                  contextDefinition,
+                );
                 dispatchEvent(
-                  UiActionEvent(
-                    widgetId: id,
-                    eventType: 'onSubmitted',
-                    value: newValue,
+                  UserActionEvent(
+                    actionName: actionName,
+                    sourceComponentId: id,
+                    context: resolvedContext,
                   ),
                 );
               },

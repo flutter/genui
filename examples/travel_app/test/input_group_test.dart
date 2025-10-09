@@ -15,6 +15,7 @@ void main() {
         final data = {
           'submitLabel': {'literalString': 'Submit'},
           'children': ['child1', 'child2'],
+          'action': {'actionName': 'submitAction'},
         };
         UiEvent? dispatchedEvent;
 
@@ -49,9 +50,10 @@ void main() {
 
         // Verify that the submit event is dispatched on tap.
         await tester.tap(button);
-        expect(dispatchedEvent, isA<UiActionEvent>());
-        expect(dispatchedEvent?.eventType, 'submit');
-        expect((dispatchedEvent as UiActionEvent).widgetId, 'testId');
+        expect(dispatchedEvent, isA<UserActionEvent>());
+        final actionEvent = dispatchedEvent as UserActionEvent;
+        expect(actionEvent.actionName, 'submitAction');
+        expect(actionEvent.sourceComponentId, 'testId');
       },
     );
 
@@ -61,6 +63,7 @@ void main() {
       final data = {
         'submitLabel': {'literalString': 'Submit'},
         'children': <String>[],
+        'action': {'actionName': 'submitAction'},
       };
 
       await tester.pumpWidget(

@@ -59,13 +59,20 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       final surfaceId = item.key;
       final definition = item.value();
       final widgets = definition['widgets'] as List<Object?>;
-      final components = widgets.map((e) {
-        final widget = e as JsonMap;
-        return Component(
-          id: widget['id'] as String,
-          componentProperties: widget['widget'] as JsonMap,
-        );
-      }).toList();
+      final components = widgets
+          .map((e) {
+            final widget = e as JsonMap;
+            final widgetMap = widget['widget'] as JsonMap?;
+            if (widgetMap == null) {
+              return null;
+            }
+            return Component(
+              id: widget['id'] as String,
+              componentProperties: widgetMap.values.first as JsonMap,
+            );
+          })
+          .whereType<Component>()
+          .toList();
       _genUi.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );

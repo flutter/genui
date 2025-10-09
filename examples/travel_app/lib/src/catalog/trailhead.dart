@@ -12,15 +12,23 @@ final _schema = S.object(
       description: 'A list of topics to display as chips.',
       items: A2uiSchemas.stringReference(description: 'A topic to explore.'),
     ),
+    'action': A2uiSchemas.action(
+      description:
+          'The action to perform when a topic is selected. The selected topic '
+          'will be added to the context with the key "topic".',
+    ),
   },
-  required: ['topics'],
+  required: ['topics', 'action'],
 );
 
 extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
-  factory _TrailheadData({required List<JsonMap> topics}) =>
-      _TrailheadData.fromMap({'topics': topics});
+  factory _TrailheadData({
+    required List<JsonMap> topics,
+    required JsonMap action,
+  }) => _TrailheadData.fromMap({'topics': topics, 'action': action});
 
   List<JsonMap> get topics => (_json['topics'] as List).cast<JsonMap>();
+  JsonMap get action => _json['action'] as JsonMap;
 }
 
 /// A widget that presents a list of suggested topics or follow-up questions to
@@ -49,6 +57,7 @@ final trailhead = CatalogItem(
         );
         return _Trailhead(
           topics: trailheadData.topics,
+          action: trailheadData.action,
           widgetId: id,
           dispatchEvent: dispatchEvent,
           dataContext: dataContext,
@@ -59,12 +68,14 @@ final trailhead = CatalogItem(
 class _Trailhead extends StatelessWidget {
   const _Trailhead({
     required this.topics,
+    required this.action,
     required this.widgetId,
     required this.dispatchEvent,
     required this.dataContext,
   });
 
   final List<JsonMap> topics;
+  final JsonMap action;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
   final DataContext dataContext;
@@ -88,11 +99,19 @@ class _Trailhead extends StatelessWidget {
               return InputChip(
                 label: Text(topic),
                 onPressed: () {
+                  final actionName = action['actionName'] as String;
+                  final contextDefinition =
+                      (action['context'] as JsonMap?) ?? {};
+                  final resolvedContext = resolveContext(
+                    dataContext,
+                    contextDefinition,
+                  );
+                  resolvedContext['topic'] = topic;
                   dispatchEvent(
-                    UiActionEvent(
-                      widgetId: widgetId,
-                      eventType: 'trailheadTopicSelected',
-                      value: topic,
+                    UserActionEvent(
+                      actionName: actionName,
+                      sourceComponentId: widgetId,
+                      context: resolvedContext,
                     ),
                   );
                 },

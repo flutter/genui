@@ -123,12 +123,24 @@ class GenUiManager implements GenUiHost {
 
   @override
   void handleUiEvent(UiEvent event) {
-    if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
+    if (event is! UserActionEvent) {
+      // Or handle other event types if necessary
+      return;
+    }
+
     final currentState = dataModels[event.surfaceId]?.data ?? const {};
-    final eventString =
-        'Action: ${jsonEncode(event.value)}\n'
-        'Current state: ${jsonEncode(currentState)}';
-    _onSubmit.add(UserMessage([TextPart(eventString)]));
+    final userActionPayload = {
+      'userAction': {
+        'actionName': event.actionName,
+        'sourceComponentId': event.sourceComponentId,
+        'timestamp': event.timestamp.toIso8601String(),
+        'context': event.context,
+      },
+      'currentState': currentState,
+    };
+
+    final eventJsonString = jsonEncode(userActionPayload);
+    _onSubmit.add(UserMessage.text(eventJsonString));
   }
 
   @override

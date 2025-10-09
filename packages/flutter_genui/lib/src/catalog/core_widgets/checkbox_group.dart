@@ -99,6 +99,22 @@ class _CheckboxGroupState extends State<_CheckboxGroup> {
 final checkboxGroup = CatalogItem(
   name: 'CheckboxGroup',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'checkbox_group',
+      'widgets': [
+        {
+          'id': 'checkbox_group',
+          'widget': {
+            'CheckboxGroup': {
+              'selectedValues': {'path': 'selected'},
+              'labels': ['Option 1', 'Option 2', 'Option 3'],
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

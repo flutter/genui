@@ -19,10 +19,12 @@ void main() {
             {
               'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
+              'action': {'actionName': 'selectItem'},
             },
             {
               'description': {'literalString': 'Item 2'},
               'imageChildId': 'imageId2',
+              'action': {'actionName': 'selectItem'},
             },
           ],
         };
@@ -60,11 +62,11 @@ void main() {
         await tester.tap(find.text('Item 1'));
         await tester.pump();
 
-        expect(dispatchedEvent, isA<UiActionEvent>());
-        final actionEvent = dispatchedEvent as UiActionEvent;
-        expect(actionEvent.widgetId, 'testId');
-        expect(actionEvent.eventType, 'itemSelected');
-        expect(actionEvent.value, {'description': 'Item 1'});
+        expect(dispatchedEvent, isA<UserActionEvent>());
+        final actionEvent = dispatchedEvent as UserActionEvent;
+        expect(actionEvent.sourceComponentId, 'testId');
+        expect(actionEvent.actionName, 'selectItem');
+        expect(actionEvent.context, {'description': 'Item 1'});
       });
     });
 
@@ -78,10 +80,12 @@ void main() {
               'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
               'listingSelectionId': 'listing1',
+              'action': {'actionName': 'selectItem'},
             },
             {
               'description': {'literalString': 'Item 2'},
               'imageChildId': 'imageId2',
+              'action': {'actionName': 'selectItem'},
             },
           ],
         };
@@ -115,8 +119,8 @@ void main() {
         await tester.tap(find.text('Item 1'));
         await tester.pump();
 
-        final actionEvent = dispatchedEvent as UiActionEvent;
-        expect(actionEvent.value, {
+        final actionEvent = dispatchedEvent as UserActionEvent;
+        expect(actionEvent.context, {
           'description': 'Item 1',
           'listingSelectionId': 'listing1',
         });
