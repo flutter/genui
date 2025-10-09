@@ -36,7 +36,6 @@ DEPS.md
 **/.pub/
 **/build/
 **/coverage/
-**/pubspec.lock
 **/generated_plugins.cmake
 **/GeneratedPluginRegistrant.*
 **/generated_plugin_registrant.*
