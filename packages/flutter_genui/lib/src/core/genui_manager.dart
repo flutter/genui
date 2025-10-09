@@ -191,7 +191,7 @@ class GenUiManager implements GenUiHost {
           _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
         }
       case DataModelUpdate():
-        // TODO(gulf-authors): Implement data model updates.
+        // TODO(a2ui-authors): Implement data model updates.
         break;
       case BeginRendering():
         final notifier = surface(message.surfaceId);

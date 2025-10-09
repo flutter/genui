@@ -18,22 +18,22 @@ final _schema = S.object(
       'A specific activity within a day in an itinerary. '
       'This should be nested inside an ItineraryDay.',
   properties: {
-    'title': GulfSchemas.stringReference(
+    'title': A2uiSchemas.stringReference(
       description: 'The title of the itinerary entry.',
     ),
-    'subtitle': GulfSchemas.stringReference(
+    'subtitle': A2uiSchemas.stringReference(
       description: 'The subtitle of the itinerary entry.',
     ),
-    'bodyText': GulfSchemas.stringReference(
+    'bodyText': A2uiSchemas.stringReference(
       description: 'The body text for the entry. This supports markdown.',
     ),
-    'address': GulfSchemas.stringReference(
+    'address': A2uiSchemas.stringReference(
       description: 'The address for the entry.',
     ),
-    'time': GulfSchemas.stringReference(
+    'time': A2uiSchemas.stringReference(
       description: 'The time for the entry (formatted string).',
     ),
-    'totalCost': GulfSchemas.stringReference(
+    'totalCost': A2uiSchemas.stringReference(
       description: 'The total cost for the entry.',
     ),
     'type': S.string(

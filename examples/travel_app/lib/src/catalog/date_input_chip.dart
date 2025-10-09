@@ -11,7 +11,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
-    'value': GulfSchemas.stringReference(
+    'value': A2uiSchemas.stringReference(
       description: 'The initial date of the date picker in yyyy-mm-dd format.',
     ),
     'label': S.string(description: 'Label for the date picker.'),
