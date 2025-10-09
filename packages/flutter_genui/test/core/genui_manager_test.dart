@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -141,6 +143,70 @@ void main() {
 
       await Future<void>.delayed(Duration.zero);
       expect(isClosed, isTrue);
+    });
+
+    test(
+      'handleUiEvent throws ArgumentError when given a context object with an'
+      'unexpected key',
+      () {
+        manager.dataModelForSurface('s1');
+
+        final event = UiActionEvent(
+          surfaceId: 's1',
+          widgetId: 'w1',
+          eventType: 'submit',
+          value: {
+            'action': 'testAction',
+            'context': [
+              {
+                'key': 'invalidKey',
+                'value': {'invalidValue': 'someValue'},
+              },
+            ],
+          },
+        );
+
+        expect(
+          () => manager.handleUiEvent(event),
+          throwsA(isA<ArgumentError>()),
+        );
+      },
+    );
+
+    test('handleUiEvent handles missing context safely', () async {
+      manager.dataModelForSurface('s1');
+
+      final event = UiActionEvent(
+        surfaceId: 's1',
+        widgetId: 'w1',
+        eventType: 'submit',
+        value: {'action': 'testAction'},
+      );
+
+      final futureMessage = manager.onSubmit.first;
+      manager.handleUiEvent(event);
+      final message = await futureMessage;
+      final eventMap = jsonDecode(message.text) as Map<String, Object?>;
+
+      expect(eventMap['resolvedContext'], isEmpty);
+    });
+
+    test('handleUiEvent handles empty context safely', () async {
+      manager.dataModelForSurface('s1');
+
+      final event = UiActionEvent(
+        surfaceId: 's1',
+        widgetId: 'w1',
+        eventType: 'submit',
+        value: {'action': 'testAction', 'context': <Object?>[]},
+      );
+
+      final futureMessage = manager.onSubmit.first;
+      manager.handleUiEvent(event);
+      final message = await futureMessage;
+      final eventMap = jsonDecode(message.text) as Map<String, Object?>;
+
+      expect(eventMap['resolvedContext'], isEmpty);
     });
   });
 }

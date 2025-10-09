@@ -175,6 +175,11 @@ class GenUiManager implements GenUiHost {
         resolvedContext[key] = value['literalNumber'];
       } else if (value.containsKey('literalBoolean')) {
         resolvedContext[key] = value['literalBoolean'];
+      } else {
+        throw ArgumentError(
+          'Invalid action context value: a literal key or a path to bound '
+          'value is required. Received: ${jsonEncode(value)}',
+        );
       }
     }
     return resolvedContext;
