@@ -173,11 +173,15 @@ class GenUiManager implements GenUiHost {
         final surfaceId = message.surfaceId;
         final notifier = surface(surfaceId);
         final isNew = notifier.value == null;
-        final uiDefinition =
-            notifier.value ?? UiDefinition(surfaceId: surfaceId);
+        var uiDefinition = notifier.value ?? UiDefinition(surfaceId: surfaceId);
+        final newComponents = Map.of(uiDefinition.components);
         for (final component in message.components) {
-          uiDefinition.components[component.id] = component;
+          newComponents[component.id] = component;
         }
+        uiDefinition = uiDefinition.copyWith(components: newComponents);
+
+        // Implement garbage collection of unused nodes here.
+
         notifier.value = uiDefinition;
         if (isNew) {
           genUiLogger.info('Adding surface $surfaceId');
@@ -190,12 +194,14 @@ class GenUiManager implements GenUiHost {
         // TODO(gulf-authors): Implement data model updates.
         break;
       case BeginRendering():
-        final surfaceId = message.surfaceId;
-        final notifier = surface(surfaceId);
-        if (notifier.value != null) {
-          notifier.value!.rootComponentId = message.root;
-          _surfaceUpdates.add(SurfaceUpdated(surfaceId, notifier.value!));
-        }
+        final notifier = surface(message.surfaceId);
+        final uiDefinition =
+            notifier.value ?? UiDefinition(surfaceId: message.surfaceId);
+        final newUiDefinition = uiDefinition.copyWith(
+          rootComponentId: message.root,
+        );
+        notifier.value = newUiDefinition;
+        _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, newUiDefinition));
       case SurfaceDeletion():
         final surfaceId = message.surfaceId;
         if (_surfaces.containsKey(surfaceId)) {

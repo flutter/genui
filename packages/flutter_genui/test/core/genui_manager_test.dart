@@ -38,22 +38,25 @@ void main() {
         ),
       ];
 
-      final futureUpdate = manager.surfaceUpdates.first;
-
+      final futureAdded = manager.surfaceUpdates.first;
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
+      final addedUpdate = await futureAdded;
+      expect(addedUpdate, isA<SurfaceAdded>());
+      expect(addedUpdate.surfaceId, surfaceId);
+
+      final futureUpdated = manager.surfaceUpdates.first;
       manager.handleMessage(
         const BeginRendering(surfaceId: surfaceId, root: 'root'),
       );
+      final updatedUpdate = await futureUpdated;
 
-      final update = await futureUpdate;
-
-      expect(update, isA<SurfaceAdded>());
-      expect(update.surfaceId, surfaceId);
-      final addedUpdate = update as SurfaceAdded;
-      expect(addedUpdate.definition, isNotNull);
-      expect(addedUpdate.definition.rootComponentId, 'root');
+      expect(updatedUpdate, isA<SurfaceUpdated>());
+      expect(updatedUpdate.surfaceId, surfaceId);
+      final definition = (updatedUpdate as SurfaceUpdated).definition;
+      expect(definition, isNotNull);
+      expect(definition.rootComponentId, 'root');
       expect(manager.surfaces[surfaceId]!.value, isNotNull);
       expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
     });

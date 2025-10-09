@@ -109,9 +109,14 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
+    // ignore: avoid_print
+    print('AddOrUpdateSurfaceTool invoked with args: $args');
     final surfaceId = args['surfaceId'] as String;
     final definition = args['definition'] as JsonMap;
-    final widgets = definition['widgets'] as List<Object?>;
+    final widgets = definition['widgets'] as List?;
+    if (widgets == null) {
+      return {'status': 'ERROR', 'message': 'Missing widgets'};
+    }
     final components = widgets.map((e) {
       final widget = e as JsonMap;
       return Component(
@@ -119,10 +124,20 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
         componentProperties: widget['widget'] as JsonMap,
       );
     }).toList();
-    handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
-    handleMessage(
-      BeginRendering(surfaceId: surfaceId, root: definition['root'] as String),
+    final surfaceUpdate = SurfaceUpdate(
+      surfaceId: surfaceId,
+      components: components,
     );
+    // ignore: avoid_print
+    print('AddOrUpdateSurfaceTool dispatching $surfaceUpdate');
+    handleMessage(surfaceUpdate);
+    final beginRendering = BeginRendering(
+      surfaceId: surfaceId,
+      root: definition['root'] as String,
+    );
+    // ignore: avoid_print
+    print('AddOrUpdateSurfaceTool dispatching $beginRendering');
+    handleMessage(beginRendering);
     return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
   }
 }

@@ -76,19 +76,41 @@ class UiDefinition {
   final String surfaceId;
 
   /// The ID of the root widget in the UI tree.
-  String? rootComponentId;
+  final String? rootComponentId;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
-  final Map<String, Component> components = {};
+  final Map<String, Component> components;
 
   /// (Future) The URI of the catalog used for this surface.
-  Uri? catalogUri;
+  final Uri? catalogUri;
 
   /// (Future) The styles for this surface.
-  JsonMap? styles;
+  final JsonMap? styles;
 
   /// Creates a [UiDefinition].
-  UiDefinition({required this.surfaceId, this.rootComponentId});
+  UiDefinition({
+    required this.surfaceId,
+    this.rootComponentId,
+    this.components = const {},
+    this.catalogUri,
+    this.styles,
+  });
+
+  /// Creates a copy of this [UiDefinition] with the given fields replaced.
+  UiDefinition copyWith({
+    String? rootComponentId,
+    Map<String, Component>? components,
+    Uri? catalogUri,
+    JsonMap? styles,
+  }) {
+    return UiDefinition(
+      surfaceId: surfaceId,
+      rootComponentId: rootComponentId ?? this.rootComponentId,
+      components: components ?? this.components,
+      catalogUri: catalogUri ?? this.catalogUri,
+      styles: styles ?? this.styles,
+    );
+  }
 
   /// Converts this object to a JSON map.
   JsonMap toJson() {
