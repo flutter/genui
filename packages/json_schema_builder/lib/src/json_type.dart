@@ -14,5 +14,6 @@ enum JsonType {
 
   const JsonType(this.typeName);
 
+  /// The name of the type as it appears in a JSON schema.
   final String typeName;
 }

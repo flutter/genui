@@ -12,7 +12,7 @@ import 'number_schema.dart';
 import 'object_schema.dart';
 import 'string_schema.dart';
 
-// A shortcut typedef so that we can use S.object, etc.
+/// A shortcut typedef so that [Schema.object], etc. can be used as [S.object].
 typedef S = Schema;
 
 /// A JSON Schema object defining any kind of property.
@@ -43,34 +43,131 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
   /// ```
   factory Schema.combined({
     // Core keywords
+
+    /// The type of the data that this schema defines.
+    ///
+    /// The value can be a [JsonType] for a single type, or a list of
+    /// [JsonType]s if the data can be one of multiple types.
     Object? type,
+
+    /// A list of valid values for an instance.
+    ///
+    /// The instance is valid if its value is deeply equal to one of the values
+    /// in this array.
     List<Object?>? enumValues,
+
+    /// A constant value that the instance must be equal to.
     Object? constValue,
+
+    /// A descriptive title for the schema.
     String? title,
+
+    /// A detailed description of the schema.
     String? description,
+
+    /// A comment for the schema.
+    ///
+    /// This keyword is intended for adding comments to a schema and has no
+    /// validation effect.
     String? $comment,
+
+    /// The default value for the instance.
+    ///
+    /// This keyword does not affect validation but can be used by applications
+    /// to provide a default value.
     Object? defaultValue,
+
+    /// A list of example values.
+    ///
+    /// This keyword is for documentation purposes and does not affect
+    /// validation.
     List<Object?>? examples,
+
+    /// Indicates whether the instance is deprecated.
+    ///
+    /// This keyword does not affect validation but can be used by tools to
+    /// signal that a property is deprecated.
     bool? deprecated,
+
+    /// Indicates whether the instance is read-only.
+    ///
+    /// This keyword does not affect validation but can be used by applications
+    /// to control write access to a property.
     bool? readOnly,
+
+    /// Indicates whether the instance is write-only.
+    ///
+    /// This keyword does not affect validation but can be used by applications
+    /// to control read access to a property.
     bool? writeOnly,
+
+    /// A map of re-usable schemas.
+    ///
+    /// This keyword provides a set of schema definitions that can be referenced
+    /// from elsewhere in the same schema document.
     Map<String, Schema>? $defs,
+
+    /// A reference to another schema.
+    ///
+    /// This allows for the re-use of schemas. The value is a URI-reference that
+    /// resolves to a schema.
     String? $ref,
+
+    /// An anchor for this schema.
+    ///
+    /// This allows a schema to be identified by a plain name fragment, which
+    /// can then be used in a URI to reference this schema.
     String? $anchor,
+
+    /// A dynamic anchor for this schema.
+    ///
+    /// This works with `$dynamicRef` to allow for dynamic extension of schemas.
     String? $dynamicAnchor,
+
+    /// The ID of the schema.
+    ///
+    /// This sets a base URI for the schema, which affects how `$ref` references
+    /// are resolved.
     String? $id,
+
+    /// The meta-schema for this schema.
+    ///
+    /// This specifies the URI of the dialect of JSON Schema that this schema is
+    /// written in.
     String? $schema,
 
     // Schema composition
+    /// The instance must be valid against all of these schemas.
     List<Object?>? allOf,
+
+    /// The instance must be valid against at least one of these schemas.
     List<Object?>? anyOf,
+
+    /// The instance must be valid against exactly one of these schemas.
     List<Object?>? oneOf,
+
+    /// The instance must not be valid against this schema.
     Object? not,
 
     // Conditional subschemas
+
+    /// If the instance is valid against this schema, then it must also be valid
+    /// against [thenSchema].
+    ///
+    /// If the instance is not valid against this schema, it must be valid
+    /// against [elseSchema], if present.
     Object? ifSchema,
+
+    /// The schema that the instance must be valid against if it is valid
+    /// against [ifSchema].
     Object? thenSchema,
+
+    /// The schema that the instance must be valid against if it is not valid
+    /// against [ifSchema].
     Object? elseSchema,
+
+    /// A map where the keys are property names, and the values are schemas that
+    /// must be valid for the object if the key is present.
     Map<String, Schema>? dependentSchemas,
   }) {
     final typeValue = switch (type) {

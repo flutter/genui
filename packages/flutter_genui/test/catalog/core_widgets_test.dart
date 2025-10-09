@@ -83,7 +83,9 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'text', components);
-      manager!.dataModel.update('/myText', 'Hello from data model');
+      manager!
+          .dataModelForSurface('testSurface')
+          .update('/myText', 'Hello from data model');
       await tester.pumpAndSettle();
 
       expect(find.text('Hello from data model'), findsOneWidget);
@@ -106,7 +108,7 @@ void main() {
 
       await pumpWidgetWithDefinition(tester, 'checkboxes', components);
 
-      manager!.dataModel.update('/checkboxes', ['A']);
+      manager!.dataModels['testSurface']!.update('/checkboxes', ['A']);
 
       await tester.pumpAndSettle();
 
@@ -119,10 +121,12 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.dataModel.getValue<List<String>>('/checkboxes'), [
-        'A',
-        'B',
-      ]);
+      expect(
+        manager!.dataModels['testSurface']!.getValue<List<String>>(
+          '/checkboxes',
+        ),
+        ['A', 'B'],
+      );
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
@@ -182,7 +186,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'radios', components);
-      manager!.dataModel.update('/radioValue', 'A');
+      manager!.dataModelForSurface('testSurface').update('/radioValue', 'A');
       await tester.pumpAndSettle();
 
       expect(find.byType(RadioListTile<String>), findsNWidgets(2));
@@ -190,7 +194,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(message, null);
-      expect(manager!.dataModel.getValue<String>('/radioValue'), 'B');
+      expect(
+        manager!
+            .dataModelForSurface('testSurface')
+            .getValue<String>('/radioValue'),
+        'B',
+      );
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
@@ -209,7 +218,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      manager!.dataModel.update('/myValue', 'initial');
+      manager!.dataModelForSurface('testSurface').update('/myValue', 'initial');
       await tester.pumpAndSettle();
 
       final textFieldFinder = find.byType(TextField);
@@ -219,7 +228,12 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(manager!.dataModel.getValue<String>('/myValue'), 'new value');
+      expect(
+        manager!
+            .dataModelForSurface('testSurface')
+            .getValue<String>('/myValue'),
+        'new value',
+      );
 
       // Test onSubmitted
       expect(message, null);

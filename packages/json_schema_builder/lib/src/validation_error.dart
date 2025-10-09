@@ -89,6 +89,7 @@ extension type ValidationError.fromMap(Map<String, Object?> _value) {
   /// Additional details about the error (optional).
   String? get details => _value['details'] as String?;
 
+  /// Returns a human-readable string representation of the error.
   String toErrorString() {
     return '${details != null ? '$details' : error.name} at path '
         '#root${path.map((p) => '["$p"]').join('')}'
