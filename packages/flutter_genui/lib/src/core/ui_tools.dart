@@ -110,7 +110,6 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     // ignore: avoid_print
-    print('AddOrUpdateSurfaceTool invoked with args: $args');
     final surfaceId = args['surfaceId'] as String;
     final definition = args['definition'] as JsonMap;
     final widgets = definition['widgets'] as List?;
@@ -129,14 +128,12 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
       components: components,
     );
     // ignore: avoid_print
-    print('AddOrUpdateSurfaceTool dispatching $surfaceUpdate');
     handleMessage(surfaceUpdate);
     final beginRendering = BeginRendering(
       surfaceId: surfaceId,
       root: definition['root'] as String,
     );
     // ignore: avoid_print
-    print('AddOrUpdateSurfaceTool dispatching $beginRendering');
     handleMessage(beginRendering);
     return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
   }
