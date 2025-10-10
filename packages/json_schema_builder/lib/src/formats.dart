@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:email_validator/email_validator.dart';
 import 'package:intl/intl.dart';
 
 /// A function that validates a string against a format.
@@ -37,11 +38,7 @@ final Map<String, FormatValidator> formatValidators = {
       return false;
     }
   },
-  'email': (value) {
-    return RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-    ).hasMatch(value);
-  },
+  'email': EmailValidator.validate,
   'ipv4': (value) {
     final parts = value.split('.');
     if (parts.length != 4) return false;

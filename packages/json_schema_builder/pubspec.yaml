@@ -17,6 +17,7 @@ dependencies:
   characters: ^1.4.0
   collection: ^1.19.1
   decimal: ^3.2.4
+  email_validator: ^3.0.0
   http: ^1.4.0
   intl: ^0.20.2
   meta: ^1.17.0
