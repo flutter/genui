@@ -54,7 +54,8 @@ final _schema = S.object(
     'choiceRequiredAction': A2uiSchemas.action(
       description:
           'The action to perform when the user needs to make a choice. '
-          'This is only used when the status is "choiceRequired".',
+          'This is only used when the status is "choiceRequired". The context '
+          'for this action should include the title of this itinerary entry.',
     ),
   },
   required: ['title', 'bodyText', 'time', 'type', 'status'],

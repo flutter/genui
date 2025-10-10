@@ -39,7 +39,9 @@ final _schema = S.object(
                 'a list of hotels or other bookable items.',
           ),
           'action': A2uiSchemas.action(
-            description: 'The action to perform when the item is tapped.',
+            description: 'The action to perform when the item is tapped. The '
+                'context for this action will include the "description" and '
+                '"listingSelectionId" of the tapped item.',
           ),
         },
         required: ['description', 'imageChildId', 'action'],
