@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -79,34 +77,8 @@ JsonMap resolveContext(
   final resolved = <String, Object?>{};
   for (final contextEntry in contextDefinitions) {
     final entry = contextEntry as JsonMap;
-    final key = entry['name']! as String;
-    final valueDefinition = entry;
-
-    if (valueDefinition.containsKey('path')) {
-      resolved[key] = dataContext.getValue(valueDefinition['path'] as String);
-    } else if (valueDefinition.containsKey('literalString')) {
-      resolved[key] = valueDefinition['literalString'];
-    } else if (valueDefinition.containsKey('literalNumber')) {
-      resolved[key] = valueDefinition['literalNumber'];
-    } else if (valueDefinition.containsKey('literalBoolean')) {
-      resolved[key] = valueDefinition['literalBoolean'];
-    } else {
-      resolved[key] = null;
-      throw DataBindingException(
-        'No data source found to bind context key "$key". '
-        'Value definition supplied was: ${jsonEncode(valueDefinition)}',
-      );
-    }
+    final key = entry['key']! as String;
+    resolved[key] = dataContext.getValue(entry['path'] as String);
   }
   return resolved;
-}
-
-class DataBindingException implements Exception {
-  DataBindingException([this.message = '']);
-
-  final String message;
-
-  @override
-  String toString() =>
-      '$DataBindingException: Could not resolve data binding. $message';
 }
