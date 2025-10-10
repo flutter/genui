@@ -101,7 +101,7 @@ class _Trailhead extends StatelessWidget {
                 onPressed: () {
                   final actionName = action['actionName'] as String;
                   final contextDefinition =
-                      (action['context'] as JsonMap?) ?? {};
+                      (action['context'] as List<Object?>?) ?? <Object?>[];
                   final resolvedContext = resolveContext(
                     dataContext,
                     contextDefinition,

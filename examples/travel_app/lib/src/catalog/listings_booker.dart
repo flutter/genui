@@ -350,7 +350,8 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                 final actionName =
                                     actionData['actionName'] as String;
                                 final contextDefinition =
-                                    (actionData['context'] as JsonMap?) ?? {};
+                                    (actionData['context'] as List<Object?>?) ??
+                                    <Object?>[];
                                 final resolvedContext = resolveContext(
                                   widget.dataContext,
                                   contextDefinition,

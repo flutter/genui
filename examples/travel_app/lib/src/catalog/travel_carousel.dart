@@ -39,7 +39,8 @@ final _schema = S.object(
                 'a list of hotels or other bookable items.',
           ),
           'action': A2uiSchemas.action(
-            description: 'The action to perform when the item is tapped. The '
+            description:
+                'The action to perform when the item is tapped. The '
                 'context for this action will include the "description" and '
                 '"listingSelectionId" of the tapped item.',
           ),
@@ -242,7 +243,8 @@ class _TravelCarouselItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           final actionName = data.action['actionName'] as String;
-          final contextDefinition = (data.action['context'] as JsonMap?) ?? {};
+          final contextDefinition =
+              (data.action['context'] as List<Object?>?) ?? <Object?>[];
           final resolvedContext = resolveContext(
             dataContext,
             contextDefinition,

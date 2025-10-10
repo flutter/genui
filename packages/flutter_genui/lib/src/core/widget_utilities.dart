@@ -72,11 +72,15 @@ extension DataContextExtensions on DataContext {
 }
 
 /// Resolves a context map definition against a [DataContext].
-JsonMap resolveContext(DataContext dataContext, JsonMap contextDefinition) {
+JsonMap resolveContext(
+  DataContext dataContext,
+  List<Object?> contextDefinitions,
+) {
   final resolved = <String, Object?>{};
-  for (final entry in contextDefinition.entries) {
-    final key = entry.key;
-    final valueDefinition = entry.value as JsonMap;
+  for (final contextEntry in contextDefinitions) {
+    final entry = contextEntry as JsonMap;
+    final key = entry['name']! as String;
+    final valueDefinition = entry;
 
     if (valueDefinition.containsKey('path')) {
       resolved[key] = dataContext.getValue(valueDefinition['path'] as String);

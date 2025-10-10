@@ -53,7 +53,8 @@ final elevatedButton = CatalogItem(
         final child = buildChild(buttonData.child);
         final actionData = buttonData.action;
         final actionName = actionData['actionName'] as String;
-        final contextDefinition = (actionData['context'] as JsonMap?) ?? {};
+        final contextDefinition =
+            (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
         return ElevatedButton(
           onPressed: () {

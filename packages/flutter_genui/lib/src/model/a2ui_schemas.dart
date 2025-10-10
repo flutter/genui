@@ -75,17 +75,26 @@ class A2uiSchemas {
       'actionName': S.string(
         description: 'The name of the action to be sent to the server.',
       ),
-      'context': S.object(
+      'context': S.list(
         description:
-            'A map of key-value pairs to be sent with the action. The '
-            'values can be data-bound.',
-        additionalProperties: S.object(
+            'A list of name-value pairs to be sent with the action. The '
+            'values can bind to the data model with a path, and should bind '
+            'to all of the related widget data for this action.',
+        items: S.object(
+          description:
+              'A single piece of data to be sent with the action. Must include '
+              'a name, but must also include either a path or a literal value. '
+              'Prefer linking to a data model path if available.',
           properties: {
-            'path': S.string(),
+            'name': S.string(),
+            'path': S.string(
+              description: 'A relative or absolute path in the data model.',
+            ),
             'literalString': S.string(),
             'literalNumber': S.number(),
             'literalBoolean': S.boolean(),
           },
+          required: ['name'],
         ),
       ),
     },

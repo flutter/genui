@@ -18,7 +18,8 @@ final _schema = S.object(
       items: S.string(),
     ),
     'action': A2uiSchemas.action(
-      description: 'The action to perform when the submit button is pressed. '
+      description:
+          'The action to perform when the submit button is pressed. '
           'The context for this action should include references to the values '
           'of all the input chips inside this group, so that the model can '
           'know what the user has selected.',
@@ -121,7 +122,8 @@ final inputGroup = CatalogItem(
         final children = inputGroupData.children;
         final actionData = inputGroupData.action;
         final actionName = actionData['actionName'] as String;
-        final contextDefinition = (actionData['context'] as JsonMap?) ?? {};
+        final contextDefinition =
+            (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
         return Card(
           color: Theme.of(context).colorScheme.primaryContainer,
