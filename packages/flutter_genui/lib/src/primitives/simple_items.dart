@@ -7,7 +7,7 @@ typedef JsonMap = Map<String, Object?>;
 T parseEnum<T>(String? value, List<T> values, T defaultValue) {
   if (value == null) return defaultValue;
   return values.firstWhere(
-    (T e) => e.toString().split('.').last == value,
+    (T e) => (e as Enum).name == value,
     orElse: () => defaultValue,
   );
 }
