@@ -9,32 +9,27 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
+enum _P { mainAxisAlignment, crossAxisAlignment, children, spacing }
+
 final _schema = S.object(
   properties: {
-    'mainAxisAlignment': S.string(
+    _P.mainAxisAlignment.name: S.string(
       description:
           'How children are aligned on the main axis. '
           'See Flutter\'s MainAxisAlignment for values.',
-      enumValues: [
-        'start',
-        'center',
-        'end',
-        'spaceBetween',
-        'spaceAround',
-        'spaceEvenly',
-      ],
+      enumValues: MainAxisAlignment.values.map((e) => e.name).toList(),
     ),
-    'crossAxisAlignment': S.string(
+    _P.crossAxisAlignment.name: S.string(
       description:
           'How children are aligned on the cross axis. '
           'See Flutter\'s CrossAxisAlignment for values.',
-      enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
+      enumValues: CrossAxisAlignment.values.map((e) => e.name).toList(),
     ),
-    'children': S.list(
+    _P.children.name: S.list(
       items: S.string(),
       description: 'A list of widget IDs for the children.',
     ),
-    'spacing': S.number(
+    _P.spacing.name: S.number(
       description: 'The spacing between children. Defaults to 8.0.',
     ),
   },
@@ -47,52 +42,33 @@ extension type _ColumnData.fromMap(JsonMap _json) {
     String? mainAxisAlignment,
     String? crossAxisAlignment,
   }) => _ColumnData.fromMap({
-    'children': children,
-    'spacing': spacing,
-    'mainAxisAlignment': mainAxisAlignment,
-    'crossAxisAlignment': crossAxisAlignment,
+    _P.children.name: children,
+    _P.spacing.name: spacing,
+    _P.mainAxisAlignment.name: mainAxisAlignment,
+    _P.crossAxisAlignment.name: crossAxisAlignment,
   });
 
   List<String> get children =>
-      ((_json['children'] as List?) ?? []).cast<String>();
-  double get spacing => (_json['spacing'] as num?)?.toDouble() ?? 8.0;
-  String? get mainAxisAlignment => _json['mainAxisAlignment'] as String?;
-  String? get crossAxisAlignment => _json['crossAxisAlignment'] as String?;
+      ((_json[_P.children.name] as List?) ?? []).cast<String>();
+  double get spacing => (_json[_P.spacing.name] as num?)?.toDouble() ?? 8.0;
+  String? get mainAxisAlignment => _json[_P.mainAxisAlignment.name] as String?;
+  String? get crossAxisAlignment =>
+      _json[_P.crossAxisAlignment.name] as String?;
 }
 
-MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
-  switch (alignment) {
-    case 'start':
-      return MainAxisAlignment.start;
-    case 'center':
-      return MainAxisAlignment.center;
-    case 'end':
-      return MainAxisAlignment.end;
-    case 'spaceBetween':
-      return MainAxisAlignment.spaceBetween;
-    case 'spaceAround':
-      return MainAxisAlignment.spaceAround;
-    case 'spaceEvenly':
-      return MainAxisAlignment.spaceEvenly;
-    default:
-      return MainAxisAlignment.start;
-  }
-}
+MainAxisAlignment _parseMainAxisAlignment(String? alignment) =>
+    parseEnum<MainAxisAlignment>(
+      alignment,
+      MainAxisAlignment.values,
+      MainAxisAlignment.start,
+    );
 
-CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
-  switch (alignment) {
-    case 'start':
-      return CrossAxisAlignment.start;
-    case 'center':
-      return CrossAxisAlignment.center;
-    case 'end':
-      return CrossAxisAlignment.end;
-    case 'stretch':
-      return CrossAxisAlignment.stretch;
-    default:
-      return CrossAxisAlignment.start;
-  }
-}
+CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) =>
+    parseEnum<CrossAxisAlignment>(
+      alignment,
+      CrossAxisAlignment.values,
+      CrossAxisAlignment.start,
+    );
 
 final column = CatalogItem(
   name: 'Column',
