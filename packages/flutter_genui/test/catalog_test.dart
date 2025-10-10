@@ -29,11 +29,12 @@ void main() {
             body: Builder(
               builder: (context) {
                 final widget = catalog.buildWidget(
-                  data,
-                  Text.new, // Mock child builder
-                  (UiEvent event) {},
-                  context,
-                  DataContext(DataModel(), '/'),
+                  id: data['id'] as String,
+                  widgetData: data['widget'] as JsonMap,
+                  buildChild: Text.new, // Mock child builder
+                  dispatchEvent: (UiEvent event) {},
+                  context: context,
+                  dataContext: DataContext(DataModel(), '/'),
                 );
                 expect(widget, isA<Column>());
                 expect((widget as Column).children.length, 1);
@@ -72,11 +73,12 @@ void main() {
             body: Builder(
               builder: (context) {
                 final widget = catalog.buildWidget(
-                  data,
-                  (_) => const SizedBox(),
-                  (UiEvent event) {},
-                  context,
-                  DataContext(DataModel(), '/'),
+                  id: data['id'] as String,
+                  widgetData: data['widget'] as JsonMap,
+                  buildChild: (_) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  context: context,
+                  dataContext: DataContext(DataModel(), '/'),
                 );
                 expect(widget, isA<Container>());
                 return widget;
@@ -93,23 +95,16 @@ void main() {
         CoreCatalogItems.text,
         CoreCatalogItems.elevatedButton,
       ]);
-      final schema = catalog.schema as ObjectSchema;
+      final schema = catalog.definition as ObjectSchema;
 
-      expect(schema.properties?.containsKey('id'), isTrue);
-      expect(schema.properties?.containsKey('widget'), isTrue);
+      expect(schema.properties?.containsKey('components'), isTrue);
+      expect(schema.properties?.containsKey('styles'), isTrue);
 
-      final widgetSchema = schema.properties!['widget'] as Schema;
-      final widgetSchemaMap = widgetSchema.value;
-      final anyOf = widgetSchemaMap['anyOf'] as List<Object?>;
-      final widgetProperties = anyOf
-          .map((e) => e as Schema)
-          .map((e) => e.value)
-          .map((e) => e['properties'] as Map<String, Object?>)
-          .expand((element) => element.keys)
-          .toList();
+      final componentsSchema = schema.properties!['components'] as ObjectSchema;
+      final componentProperties = componentsSchema.properties!;
 
-      expect(widgetProperties, contains('Text'));
-      expect(widgetProperties, contains('ElevatedButton'));
+      expect(componentProperties.keys, contains('Text'));
+      expect(componentProperties.keys, contains('ElevatedButton'));
     });
   });
 }

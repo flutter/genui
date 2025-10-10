@@ -8,13 +8,13 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../ai_client/ai_client.dart';
+import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
-import '../model/tools.dart';
+import '../model/tools.dart' show AiTool;
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
 import 'ui_tools.dart';
 
@@ -70,8 +70,11 @@ abstract interface class GenUiHost {
   /// The catalog of UI components available to the AI.
   Catalog get catalog;
 
-  /// The data model for storing the UI state.
-  DataModel get dataModel;
+  /// A map of data models for storing the UI state of each surface.
+  Map<String, DataModel> get dataModels;
+
+  /// The data model for storing the UI state for a given surface.
+  DataModel dataModelForSurface(String surfaceId);
 
   /// A callback to handle an action from a surface.
   void handleUiEvent(UiEvent event);
@@ -99,8 +102,15 @@ class GenUiManager implements GenUiHost {
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
   final _onSubmit = StreamController<UserMessage>.broadcast();
 
+  final _dataModels = <String, DataModel>{};
+
   @override
-  final dataModel = DataModel();
+  Map<String, DataModel> get dataModels => Map.unmodifiable(_dataModels);
+
+  @override
+  DataModel dataModelForSurface(String surfaceId) {
+    return _dataModels.putIfAbsent(surfaceId, DataModel.new);
+  }
 
   /// A map of all the surfaces managed by this manager, keyed by surface ID.
   Map<String, ValueNotifier<UiDefinition?>> get surfaces => _surfaces;
@@ -114,9 +124,10 @@ class GenUiManager implements GenUiHost {
   @override
   void handleUiEvent(UiEvent event) {
     if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
+    final currentState = dataModels[event.surfaceId]?.data ?? const {};
     final eventString =
         'Action: ${jsonEncode(event.value)}\n'
-        'Current state: ${jsonEncode(dataModel.data)}';
+        'Current state: ${jsonEncode(currentState)}';
     _onSubmit.add(UserMessage([TextPart(eventString)]));
   }
 
@@ -132,12 +143,12 @@ class GenUiManager implements GenUiHost {
       if (configuration.actions.allowCreate ||
           configuration.actions.allowUpdate)
         AddOrUpdateSurfaceTool(
-          onAddOrUpdate: addOrUpdateSurface,
+          handleMessage: handleMessage,
           catalog: catalog,
           configuration: configuration,
         ),
       if (configuration.actions.allowDelete)
-        DeleteSurfaceTool(onDelete: deleteSurface),
+        DeleteSurfaceTool(handleMessage: handleMessage),
     ];
   }
 
@@ -155,34 +166,51 @@ class GenUiManager implements GenUiHost {
     }
   }
 
-  /// Adds or updates a surface with the given [surfaceId] and [definition].
-  ///
-  /// If a surface with the given ID does not exist, a new one is created.
-  /// Otherwise, the existing surface is updated.
-  void addOrUpdateSurface(String surfaceId, JsonMap definition) {
-    final uiDefinition = UiDefinition.fromMap({
-      'surfaceId': surfaceId,
-      ...definition,
-    });
-    final notifier = surface(surfaceId); // Gets or creates the notifier.
-    final isNew = notifier.value == null;
-    notifier.value = uiDefinition;
-    if (isNew) {
-      genUiLogger.info('Adding surface $surfaceId');
-      _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
-    } else {
-      genUiLogger.info('Updating surface $surfaceId');
-      _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
-    }
-  }
+  /// Handles an [A2uiMessage] and updates the UI accordingly.
+  void handleMessage(A2uiMessage message) {
+    switch (message) {
+      case SurfaceUpdate():
+        final surfaceId = message.surfaceId;
+        final notifier = surface(surfaceId);
+        final isNew = notifier.value == null;
+        var uiDefinition = notifier.value ?? UiDefinition(surfaceId: surfaceId);
+        final newComponents = Map.of(uiDefinition.components);
+        for (final component in message.components) {
+          newComponents[component.id] = component;
+        }
+        uiDefinition = uiDefinition.copyWith(components: newComponents);
 
-  /// Deletes the surface with the given [surfaceId].
-  void deleteSurface(String surfaceId) {
-    if (_surfaces.containsKey(surfaceId)) {
-      genUiLogger.info('Deleting surface $surfaceId');
-      final notifier = _surfaces.remove(surfaceId);
-      notifier?.dispose();
-      _surfaceUpdates.add(SurfaceRemoved(surfaceId));
+        // Implement garbage collection of unused nodes here.
+
+        notifier.value = uiDefinition;
+        if (isNew) {
+          genUiLogger.info('Adding surface $surfaceId');
+          _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
+        } else {
+          genUiLogger.info('Updating surface $surfaceId');
+          _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
+        }
+      case DataModelUpdate():
+        // TODO(a2ui-authors): Implement data model updates.
+        break;
+      case BeginRendering():
+        final notifier = surface(message.surfaceId);
+        final uiDefinition =
+            notifier.value ?? UiDefinition(surfaceId: message.surfaceId);
+        final newUiDefinition = uiDefinition.copyWith(
+          rootComponentId: message.root,
+        );
+        notifier.value = newUiDefinition;
+        _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, newUiDefinition));
+      case SurfaceDeletion():
+        final surfaceId = message.surfaceId;
+        if (_surfaces.containsKey(surfaceId)) {
+          genUiLogger.info('Deleting surface $surfaceId');
+          final notifier = _surfaces.remove(surfaceId);
+          notifier?.dispose();
+          _dataModels.remove(surfaceId);
+          _surfaceUpdates.add(SurfaceRemoved(surfaceId));
+        }
     }
   }
 }

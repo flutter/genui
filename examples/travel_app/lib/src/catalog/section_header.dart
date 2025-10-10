@@ -13,10 +13,10 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 final _schema = S.object(
   description: 'A widget to break up sections of a longer list of content.',
   properties: {
-    'title': GulfSchemas.stringReference(
+    'title': A2uiSchemas.stringReference(
       description: 'The title of the section.',
     ),
-    'subtitle': GulfSchemas.stringReference(
+    'subtitle': A2uiSchemas.stringReference(
       description: 'The subtitle of the section.',
     ),
   },

@@ -33,8 +33,8 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
-    'question': GulfSchemas.stringReference(description: 'The question part of a riddle.'),
-    'answer': GulfSchemas.stringReference(description: 'The answer part of a riddle.'),
+    'question': A2uiSchemas.stringReference(description: 'The question part of a riddle.'),
+    'answer': A2uiSchemas.stringReference(description: 'The answer part of a riddle.'),
   },
   required: ['question', 'answer'],
 );
@@ -144,6 +144,7 @@ final aiClient = FirebaseAiClient(
 Your custom widget can also participate in the reactive data model. This allows the AI to create UIs where the state is centralized and can be updated dynamically.
 
 With the schema and widget builder defined as above, the AI can now generate a `RiddleCard` with either literal values:
+
 ```json
 {
   "RiddleCard": {
@@ -152,7 +153,9 @@ With the schema and widget builder defined as above, the AI can now generate a `
   }
 }
 ```
+
 ...or with paths that bind to the data model:
+
 ```json
 {
   "RiddleCard": {
@@ -161,4 +164,5 @@ With the schema and widget builder defined as above, the AI can now generate a `
   }
 }
 ```
+
 When a `path` is used, the `ValueListenableBuilder` in the widget will automatically listen for changes to that path in the `DataModel` and rebuild the widget whenever the data changes.

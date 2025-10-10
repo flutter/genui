@@ -26,14 +26,38 @@ extension type ObjectSchema.fromMap(Map<String, Object?> _value)
     String? title,
     String? description,
     // Object-specific keywords
+
+    /// A map of property names to schemas.
     Map<String, Schema>? properties,
+
+    /// A map of regular expression patterns to schemas.
+    ///
+    /// If a property name in the instance matches a regular expression in this
+    /// map, the corresponding schema will be applied to the property value.
     Map<String, Schema>? patternProperties,
+
+    /// A list of property names that must be present in the object.
     List<String>? required,
+
+    /// A map where the keys are property names, and the values are a list of
+    /// property names that must be present in the object if the key is present.
     Map<String, List<String>>? dependentRequired,
+
+    /// A schema that will be applied to all properties that are not matched by
+    /// [properties] or [patternProperties].
     Object? additionalProperties,
+
+    /// A schema that will be applied to all properties that are not matched by
+    /// [properties], [patternProperties], or [additionalProperties].
     Object? unevaluatedProperties,
+
+    /// A schema that all property names in the object must match.
     Schema? propertyNames,
+
+    /// The minimum number of properties that the object must have.
     int? minProperties,
+
+    /// The maximum number of properties that the object can have.
     int? maxProperties,
   }) => ObjectSchema.fromMap({
     'type': JsonType.object.typeName,

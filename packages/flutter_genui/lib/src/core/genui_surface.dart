@@ -9,7 +9,6 @@ import '../core/genui_manager.dart';
 import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import '../primitives/simple_items.dart';
 
 /// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
@@ -51,15 +50,15 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
-        final rootId = definition.root;
-        if (definition.widgets.isEmpty) {
+        final rootId = definition.rootComponentId;
+        if (rootId == null || definition.components.isEmpty) {
           genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
           return const SizedBox.shrink();
         }
         return _buildWidget(
           definition,
           rootId,
-          DataContext(widget.host.dataModel, '/'),
+          DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
         );
       },
     );
@@ -74,25 +73,29 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     String widgetId,
     DataContext dataContext,
   ) {
-    var data = definition.widgets[widgetId];
+    var data = definition.components[widgetId];
     if (data == null) {
       genUiLogger.severe('Widget with id: $widgetId not found.');
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
+    final widgetData = data.componentProperties;
+
     return widget.host.catalog.buildWidget(
-      data as JsonMap,
-      (String childId) => _buildWidget(definition, childId, dataContext),
-      _dispatchEvent,
-      context,
-      dataContext,
+      id: widgetId,
+      widgetData: widgetData,
+      buildChild: (String childId) =>
+          _buildWidget(definition, childId, dataContext),
+      dispatchEvent: _dispatchEvent,
+      context: context,
+      dataContext: dataContext,
     );
   }
 
   void _dispatchEvent(UiEvent event) {
     // The event comes in without a surfaceId, which we add here.
-    final eventMap = event.toMap();
-    eventMap['surfaceId'] = widget.surfaceId;
-    widget.host.handleUiEvent(event);
+    widget.host.handleUiEvent(
+      UiEvent.fromMap({...event.toMap(), 'surfaceId': widget.surfaceId}),
+    );
   }
 }

@@ -10,7 +10,7 @@ final _schema = S.object(
   properties: {
     'topics': S.list(
       description: 'A list of topics to display as chips.',
-      items: GulfSchemas.stringReference(description: 'A topic to explore.'),
+      items: A2uiSchemas.stringReference(description: 'A topic to explore.'),
     ),
   },
   required: ['topics'],

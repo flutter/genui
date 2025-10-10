@@ -16,29 +16,29 @@ void main() {
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
+      const surfaceId = 's1';
       final messages = [
         UserMessage.text('Hello'),
         AiUiMessage(
-          surfaceId: 's1',
-          definition: UiDefinition.fromMap({
-            'surfaceId': 's1',
-            'root': 'r1',
-            'widgets': [
-              {
-                'id': 'r1',
-                'widget': {
-                  'Text': {
-                    'text': {'literalString': 'Hi there!'},
-                  },
-                },
-              },
-            ],
-          }),
+          surfaceId: surfaceId,
+          definition: UiDefinition(surfaceId: surfaceId),
         ),
       ];
-      manager.addOrUpdateSurface(
-        's1',
-        (messages[1] as AiUiMessage).definition.toMap(),
+      final components = [
+        const Component(
+          id: 'r1',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'Hi there!'},
+            },
+          },
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager.handleMessage(
+        const BeginRendering(surfaceId: surfaceId, root: 'r1'),
       );
 
       await tester.pumpWidget(
@@ -69,26 +69,29 @@ void main() {
     });
 
     testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
+      const surfaceId = 's1';
       final messages = [
         AiUiMessage(
-          surfaceId: 's1',
-          definition: UiDefinition.fromMap({
-            'surfaceId': 's1',
-            'root': 'root',
-            'widgets': [
-              {
-                'id': 'root',
-                'widget': {
-                  'Text': {
-                    'text': {'literalString': 'UI Content'},
-                  },
-                },
-              },
-            ],
-          }),
+          surfaceId: surfaceId,
+          definition: UiDefinition(surfaceId: surfaceId),
         ),
       ];
-      manager.addOrUpdateSurface('s1', messages[0].definition.toMap());
+      final components = [
+        const Component(
+          id: 'root',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'UI Content'},
+            },
+          },
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager.handleMessage(
+        const BeginRendering(surfaceId: surfaceId, root: 'root'),
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

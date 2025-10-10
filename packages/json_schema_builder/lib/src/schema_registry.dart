@@ -4,39 +4,68 @@
 
 import 'dart:async';
 
+import 'exceptions.dart';
+import 'logging_context.dart';
 import 'schema/schema.dart';
 import 'schema_cache.dart';
+
 import 'utils.dart';
 
+/// A registry for managing and resolving JSON schemas.
+///
+/// This class is responsible for storing schemas, resolving `$ref` and
+/// `$dynamicRef` references, and handling schema identifiers (`$id`).
 class SchemaRegistry {
   final SchemaCache _schemaCache;
   final Map<Uri, Schema> _schemas = {};
 
-  SchemaRegistry({SchemaCache? schemaCache})
-    : _schemaCache = schemaCache ?? SchemaCache();
+  /// Creates a new schema registry.
+  ///
+  /// An optional [schemaCache] can be provided for fetching remote schemas.
+  SchemaRegistry({SchemaCache? schemaCache, LoggingContext? loggingContext})
+    : _schemaCache = schemaCache ?? SchemaCache(loggingContext: loggingContext);
 
+  /// Adds a schema to the registry with a given [uri].
+  ///
+  /// The schema is stored in the registry and can be resolved later using its
+  /// URI. This method also registers any `$id`s found within the schema.
   void addSchema(Uri uri, Schema schema) {
     final uriWithoutFragment = uri.removeFragment();
     _schemas[uriWithoutFragment] = schema;
     _registerIds(schema, uriWithoutFragment);
   }
 
+  /// Resolves a schema from the given [uri].
+  ///
+  /// If the schema is already in the registry, it is returned directly.
+  /// Otherwise, it is fetched using the [SchemaCache], stored in the registry,
+  /// and then returned.
+  ///
+  /// This method can also resolve fragments and JSON pointers within a schema.
   Future<Schema?> resolve(Uri uri) async {
     final uriWithoutFragment = uri.removeFragment();
     if (_schemas.containsKey(uriWithoutFragment)) {
       return _getSchemaFromFragment(uri, _schemas[uriWithoutFragment]!);
     }
 
-    final schema = await _schemaCache.get(uriWithoutFragment);
-    if (schema == null) {
-      return null;
-    }
-    _schemas[uriWithoutFragment] = schema;
-    _registerIds(schema, uriWithoutFragment);
+    try {
+      final schema = await _schemaCache.get(uriWithoutFragment);
+      if (schema == null) {
+        return null;
+      }
+      _schemas[uriWithoutFragment] = schema;
+      _registerIds(schema, uriWithoutFragment);
 
-    return _getSchemaFromFragment(uri, schema);
+      return _getSchemaFromFragment(uri, schema);
+    } on SchemaFetchException {
+      rethrow;
+    }
   }
 
+  /// Gets the URI for a given schema, if it has been registered.
+  ///
+  /// This method performs a deep comparison to find a matching schema in the
+  /// registry.
   Uri? getUriForSchema(Schema schema) {
     for (final entry in _schemas.entries) {
       if (deepEquals(entry.value.value, schema.value)) {
@@ -44,6 +73,10 @@ class SchemaRegistry {
       }
     }
     return null;
+  }
+
+  void dispose() {
+    _schemaCache.close();
   }
 
   void _registerIds(Schema schema, Uri baseUri) {

@@ -19,7 +19,7 @@ final paddedBodyText = CatalogItem(
   name: 'PaddedBodyText',
   dataSchema: S.object(
     properties: {
-      'text': GulfSchemas.stringReference(
+      'text': A2uiSchemas.stringReference(
         description: 'The text to display. This supports markdown.',
       ),
     },

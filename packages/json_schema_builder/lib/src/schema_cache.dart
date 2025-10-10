@@ -3,16 +3,32 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io';
+
 import 'package:http/http.dart' as http;
+
+import 'exceptions.dart';
+import 'logging_context.dart';
 import 'schema/schema.dart';
+import 'schema_cache_web.dart' if (dart.library.io) 'schema_cache_file.dart';
 
 class SchemaCache {
-  final http.Client _httpClient;
+  final http.Client? _externalHttpClient;
+  http.Client? _internalHttpClient;
   final Map<String, Schema> _cache = {};
+  final LoggingContext? _loggingContext;
+  final SchemaCacheFileLoader _fileLoader = SchemaCacheFileLoader();
 
-  SchemaCache({http.Client? httpClient})
-    : _httpClient = httpClient ?? http.Client();
+  SchemaCache({http.Client? httpClient, LoggingContext? loggingContext})
+    : _internalHttpClient = null,
+      _loggingContext = loggingContext,
+      _externalHttpClient = httpClient;
+
+  http.Client get _httpClient =>
+      _externalHttpClient ?? (_internalHttpClient ??= http.Client());
+
+  void close() {
+    _internalHttpClient?.close();
+  }
 
   Future<Schema?> get(Uri uri) async {
     final uriString = uri.toString();
@@ -23,17 +39,19 @@ class SchemaCache {
     try {
       String content;
       if (uri.scheme == 'file') {
-        final file = File.fromUri(uri);
-        content = await file.readAsString();
+        content = await _fileLoader.getFile(uri);
       } else if (uri.scheme == 'http' || uri.scheme == 'https') {
         final response = await _httpClient.get(uri);
         if (response.statusCode != 200) {
-          return null;
+          throw SchemaFetchException(
+            uri,
+            'Failed to fetch schema: ${response.statusCode}',
+          );
         }
         content = response.body;
       } else {
         // Unsupported scheme
-        return null;
+        throw SchemaFetchException(uri, 'Unsupported scheme: ${uri.scheme}');
       }
 
       final schema = Schema.fromMap(
@@ -42,7 +60,8 @@ class SchemaCache {
       _cache[uriString] = schema;
       return schema;
     } catch (e) {
-      return null;
+      _loggingContext?.log('Error fetching remote schema from $uri: $e');
+      throw SchemaFetchException(uri, e);
     }
   }
 }

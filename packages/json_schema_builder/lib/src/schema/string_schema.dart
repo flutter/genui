@@ -18,9 +18,19 @@ extension type const StringSchema.fromMap(Map<String, Object?> _value)
     List<Object?>? enumValues,
     Object? constValue,
     // String-specific keywords
+    /// The minimum length of the string.
     int? minLength,
+
+    /// The maximum length of the string.
     int? maxLength,
+
+    /// A regular expression that the string must match.
     String? pattern,
+
+    /// A pre-defined format that the string must match.
+    ///
+    /// See https://json-schema.org/understanding-json-schema/reference/string.html#format
+    /// for a list of supported formats.
     String? format,
   }) => StringSchema.fromMap({
     'type': JsonType.string.typeName,

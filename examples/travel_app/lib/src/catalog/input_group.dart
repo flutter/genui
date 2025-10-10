@@ -8,7 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
-    'submitLabel': GulfSchemas.stringReference(
+    'submitLabel': A2uiSchemas.stringReference(
       description: 'The label for the submit button.',
     ),
     'children': S.list(

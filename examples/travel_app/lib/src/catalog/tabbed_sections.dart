@@ -12,10 +12,10 @@ final _schema = S.object(
       description: 'A list of sections to display as tabs.',
       items: S.object(
         properties: {
-          'title': GulfSchemas.stringReference(
+          'title': A2uiSchemas.stringReference(
             description: 'The title of the tab.',
           ),
-          'child': GulfSchemas.componentReference(
+          'child': A2uiSchemas.componentReference(
             description: 'The ID of the child widget for the tab content.',
           ),
         },

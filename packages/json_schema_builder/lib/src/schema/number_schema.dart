@@ -20,15 +20,25 @@ import 'schema.dart';
 /// ```
 extension type NumberSchema.fromMap(Map<String, Object?> _value)
     implements Schema {
+  /// Creates a JSON Schema definition for a [num].
   factory NumberSchema({
     // Core keywords
     String? title,
     String? description,
     // Number-specific keywords
+    /// The inclusive lower bound of the number.
     num? minimum,
+
+    /// The inclusive upper bound of the number.
     num? maximum,
+
+    /// The exclusive lower bound of the number.
     num? exclusiveMinimum,
+
+    /// The exclusive upper bound of the number.
     num? exclusiveMaximum,
+
+    /// The number must be a multiple of this number.
     num? multipleOf,
   }) => NumberSchema.fromMap({
     'type': JsonType.num.typeName,
@@ -56,6 +66,9 @@ extension type NumberSchema.fromMap(Map<String, Object?> _value)
   /// The number must be a multiple of this number.
   num? get multipleOf => _value['multipleOf'] as num?;
 
+  /// Validates the given number against the schema constraints.
+  ///
+  /// This is a helper method used by the main validation logic.
   void validateNumber(
     num data,
     List<String> currentPath,

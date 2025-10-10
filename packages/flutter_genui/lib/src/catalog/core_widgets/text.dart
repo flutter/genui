@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../core/widget_utilities.dart';
+import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
-import '../../model/gulf_schemas.dart';
 import '../../primitives/simple_items.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
@@ -21,7 +21,7 @@ final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
     properties: {
-      'text': GulfSchemas.stringReference(
+      'text': A2uiSchemas.stringReference(
         description: 'The text to display. This does *not* support markdown.',
       ),
     },

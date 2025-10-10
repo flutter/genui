@@ -25,10 +25,19 @@ extension type IntegerSchema.fromMap(Map<String, Object?> _value)
     String? title,
     String? description,
     // Number-specific keywords
+    /// The inclusive lower bound of the integer.
     int? minimum,
+
+    /// The inclusive upper bound of the integer.
     int? maximum,
+
+    /// The exclusive lower bound of theinteger.
     int? exclusiveMinimum,
+
+    /// The exclusive upper bound of the integer.
     int? exclusiveMaximum,
+
+    /// The integer must be a multiple of this number.
     num? multipleOf,
   }) => IntegerSchema.fromMap({
     'type': JsonType.int.typeName,
@@ -56,6 +65,9 @@ extension type IntegerSchema.fromMap(Map<String, Object?> _value)
   /// The integer must be a multiple of this number.
   num? get multipleOf => _value['multipleOf'] as num?;
 
+  /// Validates the given integer against the schema constraints.
+  ///
+  /// This is a helper method used by the main validation logic.
   void validateInteger(
     int data,
     List<String> currentPath,

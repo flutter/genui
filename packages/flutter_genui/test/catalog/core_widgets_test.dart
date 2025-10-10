@@ -15,7 +15,8 @@ void main() {
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
-      Map<String, Object?> definition,
+      String rootId,
+      List<Component> components,
     ) async {
       message = null;
       manager?.dispose();
@@ -24,11 +25,17 @@ void main() {
         configuration: const GenUiConfiguration(),
       );
       manager!.onSubmit.listen((event) => message = event);
-      manager!.addOrUpdateSurface('testSurface', definition);
+      const surfaceId = 'testSurface';
+      manager!.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager!.handleMessage(
+        BeginRendering(surfaceId: surfaceId, root: rootId),
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: manager!, surfaceId: 'testSurface'),
+            body: GenUiSurface(host: manager!, surfaceId: surfaceId),
           ),
         ),
       );
@@ -37,27 +44,24 @@ void main() {
     testWidgets('ElevatedButton renders and handles taps', (
       WidgetTester tester,
     ) async {
-      final definition = {
-        'root': 'button',
-        'widgets': [
-          {
-            'id': 'button',
-            'widget': {
-              'ElevatedButton': {'child': 'text'},
+      final components = [
+        const Component(
+          id: 'button',
+          componentProperties: {
+            'ElevatedButton': {'child': 'text'},
+          },
+        ),
+        const Component(
+          id: 'text',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'Click Me'},
             },
           },
-          {
-            'id': 'text',
-            'widget': {
-              'Text': {
-                'text': {'literalString': 'Click Me'},
-              },
-            },
-          },
-        ],
-      };
+        ),
+      ];
 
-      await pumpWidgetWithDefinition(tester, definition);
+      await pumpWidgetWithDefinition(tester, 'button', components);
 
       expect(find.text('Click Me'), findsOneWidget);
 
@@ -67,22 +71,21 @@ void main() {
     });
 
     testWidgets('Text renders from data model', (WidgetTester tester) async {
-      final definition = {
-        'root': 'text',
-        'widgets': [
-          {
-            'id': 'text',
-            'widget': {
-              'Text': {
-                'text': {'path': '/myText'},
-              },
+      final components = [
+        const Component(
+          id: 'text',
+          componentProperties: {
+            'Text': {
+              'text': {'path': '/myText'},
             },
           },
-        ],
-      };
+        ),
+      ];
 
-      await pumpWidgetWithDefinition(tester, definition);
-      manager!.dataModel.update('/myText', 'Hello from data model');
+      await pumpWidgetWithDefinition(tester, 'text', components);
+      manager!
+          .dataModelForSurface('testSurface')
+          .update('/myText', 'Hello from data model');
       await tester.pumpAndSettle();
 
       expect(find.text('Hello from data model'), findsOneWidget);
@@ -91,24 +94,21 @@ void main() {
     testWidgets('CheckboxGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
-      final definition = {
-        'root': 'checkboxes',
-        'widgets': [
-          {
-            'id': 'checkboxes',
-            'widget': {
-              'CheckboxGroup': {
-                'selectedValues': {'path': '/checkboxes'},
-                'labels': ['A', 'B'],
-              },
+      final components = [
+        const Component(
+          id: 'checkboxes',
+          componentProperties: {
+            'CheckboxGroup': {
+              'selectedValues': {'path': '/checkboxes'},
+              'labels': ['A', 'B'],
             },
           },
-        ],
-      };
+        ),
+      ];
 
-      await pumpWidgetWithDefinition(tester, definition);
+      await pumpWidgetWithDefinition(tester, 'checkboxes', components);
 
-      manager!.dataModel.update('/checkboxes', ['A']);
+      manager!.dataModels['testSurface']!.update('/checkboxes', ['A']);
 
       await tester.pumpAndSettle();
 
@@ -121,45 +121,44 @@ void main() {
       await tester.tap(find.text('B'));
 
       expect(message, null);
-      expect(manager!.dataModel.getValue<List<String>>('/checkboxes'), [
-        'A',
-        'B',
-      ]);
+      expect(
+        manager!.dataModels['testSurface']!.getValue<List<String>>(
+          '/checkboxes',
+        ),
+        ['A', 'B'],
+      );
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
-      final definition = {
-        'root': 'col',
-        'widgets': [
-          {
-            'id': 'col',
-            'widget': {
-              'Column': {
-                'children': ['text1', 'text2'],
-                'spacing': 16.0,
-              },
+      final components = [
+        const Component(
+          id: 'col',
+          componentProperties: {
+            'Column': {
+              'children': ['text1', 'text2'],
+              'spacing': 16.0,
             },
           },
-          {
-            'id': 'text1',
-            'widget': {
-              'Text': {
-                'text': {'literalString': 'First'},
-              },
+        ),
+        const Component(
+          id: 'text1',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'First'},
             },
           },
-          {
-            'id': 'text2',
-            'widget': {
-              'Text': {
-                'text': {'literalString': 'Second'},
-              },
+        ),
+        const Component(
+          id: 'text2',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'Second'},
             },
           },
-        ],
-      };
+        ),
+      ];
 
-      await pumpWidgetWithDefinition(tester, definition);
+      await pumpWidgetWithDefinition(tester, 'col', components);
 
       expect(find.text('First'), findsOneWidget);
       expect(find.text('Second'), findsOneWidget);
@@ -174,23 +173,20 @@ void main() {
     testWidgets('RadioGroup renders and handles changes', (
       WidgetTester tester,
     ) async {
-      final definition = {
-        'root': 'radios',
-        'widgets': [
-          {
-            'id': 'radios',
-            'widget': {
-              'RadioGroup': {
-                'groupValue': {'path': '/radioValue'},
-                'labels': ['A', 'B'],
-              },
+      final components = [
+        const Component(
+          id: 'radios',
+          componentProperties: {
+            'RadioGroup': {
+              'groupValue': {'path': '/radioValue'},
+              'labels': ['A', 'B'],
             },
           },
-        ],
-      };
+        ),
+      ];
 
-      await pumpWidgetWithDefinition(tester, definition);
-      manager!.dataModel.update('/radioValue', 'A');
+      await pumpWidgetWithDefinition(tester, 'radios', components);
+      manager!.dataModelForSurface('testSurface').update('/radioValue', 'A');
       await tester.pumpAndSettle();
 
       expect(find.byType(RadioListTile<String>), findsNWidgets(2));
@@ -198,29 +194,31 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(message, null);
-      expect(manager!.dataModel.getValue<String>('/radioValue'), 'B');
+      expect(
+        manager!
+            .dataModelForSurface('testSurface')
+            .getValue<String>('/radioValue'),
+        'B',
+      );
     });
 
     testWidgets('TextField renders and handles changes/submissions', (
       WidgetTester tester,
     ) async {
-      final definition = {
-        'root': 'field',
-        'widgets': [
-          {
-            'id': 'field',
-            'widget': {
-              'TextField': {
-                'value': {'path': '/myValue'},
-                'hintText': 'hint',
-              },
+      final components = [
+        const Component(
+          id: 'field',
+          componentProperties: {
+            'TextField': {
+              'value': {'path': '/myValue'},
+              'hintText': 'hint',
             },
           },
-        ],
-      };
+        ),
+      ];
 
-      await pumpWidgetWithDefinition(tester, definition);
-      manager!.dataModel.update('/myValue', 'initial');
+      await pumpWidgetWithDefinition(tester, 'field', components);
+      manager!.dataModelForSurface('testSurface').update('/myValue', 'initial');
       await tester.pumpAndSettle();
 
       final textFieldFinder = find.byType(TextField);
@@ -230,7 +228,12 @@ void main() {
 
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
-      expect(manager!.dataModel.getValue<String>('/myValue'), 'new value');
+      expect(
+        manager!
+            .dataModelForSurface('testSurface')
+            .getValue<String>('/myValue'),
+        'new value',
+      );
 
       // Test onSubmitted
       expect(message, null);
