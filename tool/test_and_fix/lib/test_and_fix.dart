@@ -27,7 +27,7 @@ class TestAndFix {
     bool all = false,
   }) async {
     root ??= fs.currentDirectory;
-    final projects = findProjects(root, all: all);
+    final projects = await findProjects(root, all: all);
     final jobs = <WorkerJob>[];
 
     // Global jobs
@@ -116,9 +116,12 @@ class TestAndFix {
     return true;
   }
 
-  List<Directory> findProjects(Directory root, {bool all = false}) {
+  Future<List<Directory>> findProjects(
+    Directory root, {
+    bool all = false,
+  }) async {
     final projects = <Directory>[];
-    for (final entity in root.listSync(recursive: true)) {
+    await for (final entity in root.list(recursive: true)) {
       if (entity is! File || path.basename(entity.path) != 'pubspec.yaml') {
         continue;
       }

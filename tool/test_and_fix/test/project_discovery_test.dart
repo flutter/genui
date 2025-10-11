@@ -20,7 +20,7 @@ void main() {
       testAndFix = TestAndFix(fs: fs);
     });
 
-    test('finds Flutter projects', () {
+    test('finds Flutter projects', () async {
       final project1 = fs.directory(path.join(root.path, 'project1'))
         ..createSync();
       fs
@@ -32,7 +32,7 @@ void main() {
           .file(path.join(project2.path, 'pubspec.yaml'))
           .writeAsStringSync('sdk: flutter');
 
-      final projects = testAndFix.findProjects(root);
+      final projects = await testAndFix.findProjects(root);
 
       expect(
         projects.map((d) => d.path).toList()..sort(),
@@ -40,10 +40,12 @@ void main() {
       );
     });
 
-    test('ignores excluded directories', () {
+    test('ignores excluded directories', () async {
       final excluded = [
         '.dart_tool',
         'build',
+        'ephemeral',
+        'firebase_core',
         'packages/spikes',
         'tool/fix_copyright',
         'tool/test_and_fix',
@@ -57,7 +59,7 @@ void main() {
             .writeAsStringSync('sdk: flutter');
       }
 
-      final projects = testAndFix.findProjects(root);
+      final projects = await testAndFix.findProjects(root);
 
       expect(projects, isEmpty);
     });

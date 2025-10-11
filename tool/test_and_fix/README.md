@@ -14,10 +14,10 @@ You can also pass the `--verbose` (or `-v`) flag to see the full output of all j
 
 The tool will automatically discover all Flutter projects in the repository and run the following tasks in parallel:
 
--   `dart fix --apply .`
--   `dart format .`
--   `dart run tool/fix_copyright/bin/fix_copyright.dart --force`
--   `dart analyze` (for each project)
--   `flutter test` (for each project with a `test` directory)
+- `dart fix --apply .`
+- `dart format .`
+- `dart run tool/fix_copyright/bin/fix_copyright.dart --force`
+- `dart analyze` (for each project)
+- `flutter test` (for each project with a `test` directory)
 
 The output of successful jobs will be printed first, followed by the output of any failed jobs. If any jobs fail, the tool will exit with a non-zero exit code.
