@@ -61,13 +61,10 @@ class TestAndFix {
         ),
       );
       if (fs.directory(path.join(project.path, 'test')).existsSync()) {
-        final isFlutter =
-            project
-                .childFile('pubspec.yaml')
-                .readAsStringSync()
-                .contains('sdk: flutter')
-            ? true
-            : false;
+        final isFlutter = project
+            .childFile('pubspec.yaml')
+            .readAsStringSync()
+            .contains('sdk: flutter');
         final command = isFlutter ? 'flutter' : 'dart';
         jobs.add(
           WorkerJob(
@@ -127,14 +124,14 @@ class TestAndFix {
       }
       final pubspec = entity;
       final projectDir = pubspec.parent;
-      if (isProjectAllowed(projectDir.path, all: all)) {
+      if (isProjectAllowed(projectDir, all: all)) {
         projects.add(projectDir);
       }
     }
     return projects;
   }
 
-  bool isProjectAllowed(String projectPath, {bool all = false}) {
+  bool isProjectAllowed(Directory projectPath, {bool all = false}) {
     // Skip the things that we really don't ever want to traverse, but skip the
     // non-essential packages unless --all is specified.
     final excluded = [
@@ -142,12 +139,13 @@ class TestAndFix {
       'ephemeral',
       'firebase_core',
       'build',
-      if (!all) 'packages/spikes',
-      if (!all) 'tool/fix_copyright',
-      if (!all) 'tool/test_and_fix',
+      if (!all) 'spikes',
+      if (!all) 'fix_copyright',
+      if (!all) 'test_and_fix',
     ];
+    final components = fs.path.split(projectPath.path);
     for (final exclude in excluded) {
-      if (projectPath.contains(exclude)) {
+      if (components.contains(exclude)) {
         return false;
       }
     }
