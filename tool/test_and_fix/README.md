@@ -17,7 +17,7 @@ The tool will automatically discover all Flutter projects in the repository and 
 -   `dart fix --apply .`
 -   `dart format .`
 -   `dart run tool/fix_copyright/bin/fix_copyright.dart --force`
--   `flutter analyze` (for each project)
+-   `dart analyze` (for each project)
 -   `flutter test` (for each project with a `test` directory)
 
 The output of successful jobs will be printed first, followed by the output of any failed jobs. If any jobs fail, the tool will exit with a non-zero exit code.
