@@ -64,7 +64,7 @@ void main() {
       expect(projects, isEmpty);
     });
 
-    test('ignores some excluded directories with --all', () {
+    test('ignores some excluded directories with --all', () async {
       final excluded = ['.dart_tool', 'ephemeral', 'firebase_core', 'build'];
 
       for (final exclude in excluded) {
@@ -75,7 +75,7 @@ void main() {
             .writeAsStringSync('sdk: flutter');
       }
 
-      final projects = testAndFix.findProjects(root, all: true);
+      final projects = await testAndFix.findProjects(root, all: true);
 
       expect(projects, isEmpty);
     });
