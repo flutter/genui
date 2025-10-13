@@ -419,6 +419,8 @@
                                     "value": {
                                       "type": "object",
                                       "description": "The dynamic value. Define EXACTLY ONE of the nested properties.",
+                                      "minProperties": 1,
+                                      "maxProperties": 1,
                                       "properties": {
                                         "path": {
                                           "type": "string",

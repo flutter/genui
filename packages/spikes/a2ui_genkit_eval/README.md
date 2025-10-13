@@ -1,4 +1,6 @@
-# Genkit Flow
+# Genkit Eval Framework for UI generation
+
+This is for evaluating A2UI (v0.8) against various LLMs.
 
 ## Setup
 

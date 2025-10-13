@@ -79,6 +79,7 @@ The dog generator is another card which is a form that generates a fictional dog
     promptText: `Generate a JSON message containing a surfaceUpdate for a product gallery. It should display a list of products from the data model at '/products'. Use a template for the list items. Each item should be a Card containing an Image (from '/products/item/imageUrl'), a Text component for the product name (from '/products/item/name'), and a Button labeled "Add to Cart". The button's action should be 'addToCart' and include a staticContext with the product ID, for example, 'productId': 'product123'. You should create a template component and then a list that uses it.`,
     matchers: [
       new ComponentUpdateSchemaMatcher("Column"),
+      new ComponentUpdateSchemaMatcher("Card"),
       new ComponentUpdateSchemaMatcher("Image"),
       new ComponentUpdateSchemaMatcher("Text"),
       new ComponentUpdateSchemaMatcher("Button", "label", "Add to Cart"),

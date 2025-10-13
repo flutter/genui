@@ -57,6 +57,90 @@ interface InferenceResult {
   runNumber: number;
 }
 
+function generateSummary(
+  resultsByModel: Record<string, InferenceResult[]>,
+  results: InferenceResult[]
+): string {
+  const promptNameWidth = 40;
+  const latencyWidth = 20;
+  const failedRunsWidth = 15;
+  const toolErrorRunsWidth = 20;
+
+  let summary = "# Evaluation Summary";
+  for (const modelName in resultsByModel) {
+    summary += `\n\n## Model: ${modelName}\n\n`;
+    const header = `| ${"Prompt Name".padEnd(
+      promptNameWidth
+    )} | ${"Avg Latency (ms)".padEnd(latencyWidth)} | ${"Failed Runs".padEnd(
+      failedRunsWidth
+    )} | ${"Tool Error Runs".padEnd(toolErrorRunsWidth)} |`;
+    const divider = `|${"-".repeat(promptNameWidth + 2)}|${"-".repeat(
+      latencyWidth + 2
+    )}|${"-".repeat(failedRunsWidth + 2)}|${"-".repeat(
+      toolErrorRunsWidth + 2
+    )}|`;
+    summary += header;
+    summary += `\n${divider}`;
+
+    const promptsInModel = resultsByModel[modelName].reduce((acc, result) => {
+      if (!acc[result.prompt.name]) {
+        acc[result.prompt.name] = [];
+      }
+      acc[result.prompt.name].push(result);
+      return acc;
+    }, {} as Record<string, InferenceResult[]>);
+
+    let totalModelFailedRuns = 0;
+
+    for (const promptName in promptsInModel) {
+      const runs = promptsInModel[promptName];
+      const totalRuns = runs.length;
+      const errorRuns = runs.filter((r) => r.error).length;
+      const failedRuns = runs.filter(
+        (r) => r.error || r.validationResults.length > 0
+      ).length;
+      const totalLatency = runs.reduce((acc, r) => acc + r.latency, 0);
+      const avgLatency = (totalLatency / totalRuns).toFixed(0);
+
+      totalModelFailedRuns += failedRuns;
+
+      const failedRunsStr =
+        failedRuns > 0 ? `${failedRuns} / ${totalRuns}` : "";
+      const errorRunsStr = errorRuns > 0 ? `${errorRuns} / ${totalRuns}` : "";
+
+      summary += `\n| ${promptName.padEnd(
+        promptNameWidth
+      )} | ${avgLatency.padEnd(latencyWidth)} | ${failedRunsStr.padEnd(
+        failedRunsWidth
+      )} | ${errorRunsStr.padEnd(toolErrorRunsWidth)} |`;
+    }
+
+    const totalRunsForModel = resultsByModel[modelName].length;
+    summary += `\n\n**Total failed runs:** ${totalModelFailedRuns} / ${totalRunsForModel}`;
+  }
+
+  summary += "\n\n---\n\n## Overall Summary\n";
+  const totalRuns = results.length;
+  const totalToolErrorRuns = results.filter((r) => r.error).length;
+  const totalRunsWithAnyFailure = results.filter(
+    (r) => r.error || r.validationResults.length > 0
+  ).length;
+  const modelsWithFailures = [
+    ...new Set(
+      results
+        .filter((r) => r.error || r.validationResults.length > 0)
+        .map((r) => r.modelName)
+    ),
+  ].join(", ");
+
+  summary += `\n- **Number of tool error runs:** ${totalToolErrorRuns} / ${totalRuns}`;
+  summary += `\n- **Number of runs with any failure (tool error or validation):** ${totalRunsWithAnyFailure} / ${totalRuns}`;
+  if (modelsWithFailures) {
+    summary += `\n- **Models with at least one failure:** ${modelsWithFailures}`;
+  }
+  return summary;
+}
+
 // Run the flow
 async function main() {
   const args = process.argv.slice(2).reduce((acc, arg) => {
@@ -76,10 +160,10 @@ async function main() {
   let outputDir: string | null = null;
 
   if (keep) {
-    if (typeof keep === 'string') {
+    if (typeof keep === "string") {
       outputDir = keep;
     } else {
-      outputDir = fs.mkdtempSync(path.join(process.cwd(), 'a2ui-eval-'));
+      outputDir = fs.mkdtempSync(path.join(process.cwd(), "a2ui-eval-"));
     }
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -120,7 +204,7 @@ async function main() {
     );
     const schema = JSON.parse(schemaString);
     for (const modelConfig of filteredModels) {
-      const modelDirName = modelConfig.name.replace(/[\/:]/g, '_');
+      const modelDirName = modelConfig.name.replace(/[\/:]/g, "_");
       const modelOutputDir = outputDir
         ? path.join(outputDir, modelDirName)
         : null;
@@ -129,9 +213,7 @@ async function main() {
       }
       for (let i = 1; i <= runsPerPrompt; i++) {
         console.log(
-          `Queueing generation for model: ${modelConfig.name}, prompt: ${
-            prompt.name
-          } (run ${i})`
+          `Queueing generation for model: ${modelConfig.name}, prompt: ${prompt.name} (run ${i})`
         );
         const startTime = Date.now();
         generationPromises.push(
@@ -153,7 +235,10 @@ async function main() {
                   modelOutputDir,
                   `${prompt.name}.output.json`
                 );
-                fs.writeFileSync(outputPath, JSON.stringify(component, null, 2));
+                fs.writeFileSync(
+                  outputPath,
+                  JSON.stringify(component, null, 2)
+                );
               }
               const validationResults = validateSchema(
                 component,
@@ -187,7 +272,10 @@ async function main() {
                   stack: error.stack,
                   ...error,
                 };
-                fs.writeFileSync(errorPath, JSON.stringify(errorOutput, null, 2));
+                fs.writeFileSync(
+                  errorPath,
+                  JSON.stringify(errorOutput, null, 2)
+                );
               }
               return {
                 modelName: modelConfig.name,
@@ -248,83 +336,11 @@ async function main() {
     }
   }
 
-  console.log("\n--- Summary ---");
-  for (const modelName in resultsByModel) {
-    console.log(`\n----------------------------------------`);
-    console.log(`Model: ${modelName}`);
-    console.log(`----------------------------------------`);
-    const header = `${"Prompt Name".padEnd(40)}${"Avg Latency (ms)".padEnd(
-      20
-    )}${"Failed Runs".padEnd(15)}${"Tool Error Runs".padEnd(20)}`;
-    const divider = "-".repeat(header.length);
-    console.log(header);
-    console.log(divider);
-
-    const promptsInModel = resultsByModel[modelName].reduce((acc, result) => {
-      if (!acc[result.prompt.name]) {
-        acc[result.prompt.name] = [];
-      }
-      acc[result.prompt.name].push(result);
-      return acc;
-    }, {} as Record<string, InferenceResult[]>);
-
-    let totalModelFailedRuns = 0;
-
-    for (const promptName in promptsInModel) {
-      const runs = promptsInModel[promptName];
-      const totalRuns = runs.length;
-      const errorRuns = runs.filter((r) => r.error).length;
-      const failedRuns = runs.filter(
-        (r) => r.error || r.validationResults.length > 0
-      ).length;
-      const totalLatency = runs.reduce((acc, r) => acc + r.latency, 0);
-      const avgLatency = (totalLatency / totalRuns).toFixed(0);
-
-      totalModelFailedRuns += failedRuns;
-
-      const promptStr = promptName.padEnd(40);
-      const latencyStr = `${avgLatency}ms`.padEnd(20);
-      const failedRunsStr =
-        failedRuns > 0
-          ? `${failedRuns} / ${totalRuns}`.padEnd(15)
-          : "".padEnd(15);
-      const errorRunsStr =
-        errorRuns > 0
-          ? `${errorRuns} / ${totalRuns}`.padEnd(20)
-          : "".padEnd(20);
-
-      console.log(`${promptStr}${latencyStr}${failedRunsStr}${errorRunsStr}`);
-    }
-
-    console.log(divider);
-    const totalRunsForModel = resultsByModel[modelName].length;
-    console.log(
-      `Total failed runs: ${totalModelFailedRuns} / ${totalRunsForModel}`
-    );
-  }
-
-  console.log("\n--- Overall Summary ---");
-  const totalRuns = results.length;
-  const totalToolErrorRuns = results.filter((r) => r.error).length;
-  const totalRunsWithAnyFailure = results.filter(
-    (r) => r.error || r.validationResults.length > 0
-  ).length;
-  const modelsWithFailures = [
-    ...new Set(
-      results
-        .filter((r) => r.error || r.validationResults.length > 0)
-        .map((r) => r.modelName)
-    ),
-  ].join(", ");
-
-  console.log(
-    `Number of tool error runs: ${totalToolErrorRuns} / ${totalRuns}`
-  );
-  console.log(
-    `Number of runs with any failure (tool error or validation): ${totalRunsWithAnyFailure} / ${totalRuns}`
-  );
-  if (modelsWithFailures) {
-    console.log(`Models with at least one failure: ${modelsWithFailures}`);
+  const summary = generateSummary(resultsByModel, results);
+  console.log(summary);
+  if (outputDir) {
+    const summaryPath = path.join(outputDir, "summary.md");
+    fs.writeFileSync(summaryPath, summary);
   }
 }
 
