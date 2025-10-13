@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import { SchemaMatcher, ValidationResult } from './schema_matcher';
+import { SchemaMatcher, ValidationResult } from "./schema_matcher";
 
 export class ComponentUpdateSchemaMatcher extends SchemaMatcher {
   constructor(
@@ -57,7 +57,7 @@ export class ComponentUpdateSchemaMatcher extends SchemaMatcher {
   }
 
   private findText(obj: any, text: string): boolean {
-    if (typeof obj === 'string') {
+    if (typeof obj === "string") {
       return obj.toLowerCase().includes(text.toLowerCase());
     }
     if (Array.isArray(obj)) {
@@ -67,7 +67,7 @@ export class ComponentUpdateSchemaMatcher extends SchemaMatcher {
         }
       }
     }
-    if (typeof obj === 'object' && obj !== null) {
+    if (typeof obj === "object" && obj !== null) {
       for (const key in obj) {
         if (this.findText(obj[key], text)) {
           return true;

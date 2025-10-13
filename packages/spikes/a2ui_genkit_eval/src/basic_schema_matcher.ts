@@ -5,7 +5,10 @@
 import { SchemaMatcher, ValidationResult } from "./schema_matcher";
 
 export class BasicSchemaMatcher extends SchemaMatcher {
-  constructor(public propertyName: string, public propertyValue?: any) {
+  constructor(
+    public propertyName: string,
+    public propertyValue?: any,
+  ) {
     super();
   }
 
@@ -30,7 +33,7 @@ export class BasicSchemaMatcher extends SchemaMatcher {
         const error = `Property '${
           this.propertyName
         }' has value '${JSON.stringify(
-          actualValue
+          actualValue,
         )}', but expected '${JSON.stringify(this.propertyValue)}'.`;
         return { success: false, error };
       }

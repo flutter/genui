@@ -10,7 +10,8 @@
     "evalGemini": "pnpm run eval -- --model=gemini-2.5-flash --prompt=travelItinerary",
     "evalGpt": "pnpm run eval -- --model=gpt-5-mini --prompt=travelItinerary",
     "evalClaude": "pnpm run eval -- --model=claude-4-sonnet --prompt=travelItinerary",
-    "start": "genkit start"
+    "start": "genkit start",
+    "format": "prettier --write src/**/*.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
   "description": "",
   "devDependencies": {
     "dotenv-cli": "^10.0.0",
+    "prettier": "^3.6.2",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   },
