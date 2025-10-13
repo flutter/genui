@@ -24,12 +24,12 @@ class DebugCatalogView extends StatefulWidget {
   const DebugCatalogView({
     super.key,
     required this.catalog,
-    this.maxHeightPerItem,
+    this.maxHeightPerItem = 450,
     this.onSubmit,
   });
 
   final Catalog catalog;
-  final double? maxHeightPerItem;
+  final double maxHeightPerItem;
   final ValueChanged<UserMessage>? onSubmit;
 
   @override
