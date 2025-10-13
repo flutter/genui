@@ -22,9 +22,10 @@ import '../primitives/simple_items.dart';
 /// defined.
 class DebugCatalogView extends StatefulWidget {
   const DebugCatalogView({
-    this.onSubmit,
+    super.key,
     required this.catalog,
     this.maxHeightPerItem = 400.0,
+    this.onSubmit,
   });
 
   final Catalog catalog;
