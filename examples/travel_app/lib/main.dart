@@ -16,11 +16,7 @@ import 'src/travel_planner_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAppCheck.instance.activate(
-    appleProvider: AppleProvider.debug,
-    androidProvider: AndroidProvider.debug,
-    providerWeb: ReCaptchaV3Provider('debug'),
-  );
+  await FirebaseAppCheck.instance.activate();
   await loadImagesJson();
   final logger = configureGenUiLogging(level: Level.ALL);
   logger.onRecord.listen((record) {
