@@ -11,8 +11,6 @@ import 'catalog/input_group.dart';
 import 'catalog/itinerary.dart';
 import 'catalog/listings_booker.dart';
 import 'catalog/options_filter_chip_input.dart';
-import 'catalog/padded_body_text.dart';
-import 'catalog/section_header.dart';
 import 'catalog/tabbed_sections.dart';
 import 'catalog/text_input_chip.dart';
 import 'catalog/trailhead.dart';
@@ -50,8 +48,6 @@ final travelAppCatalog = CoreCatalogItems.asCatalog()
       itinerary,
       listingsBooker,
       optionsFilterChipInput,
-      paddedBodyText,
-      sectionHeader,
       tabbedSections,
       textInputChip,
       trailhead,

@@ -16,7 +16,9 @@ class ListHotelsTool extends AiTool<Map<String, Object?>> {
         description: 'Lists hotels based on the provided criteria.',
         parameters: S.object(
           properties: {
-            'query': S.string(),
+            'query': S.string(
+              description: 'The search query, e.g., "hotels in Paris".',
+            ),
             'checkIn': S.string(
               description: 'The check-in date in ISO 8601 format (YYYY-MM-DD).',
               format: 'date',

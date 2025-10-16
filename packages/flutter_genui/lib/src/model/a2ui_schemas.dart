@@ -31,7 +31,7 @@ class A2uiSchemas {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',
       ),
-      'literalString': S.number(),
+      'literalNumber': S.number(),
     },
   );
 

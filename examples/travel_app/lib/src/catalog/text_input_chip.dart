@@ -35,7 +35,7 @@ extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
 
   String get label => _json['label'] as String;
   JsonMap? get value => _json['value'] as JsonMap?;
-  bool get obscured => _json['obscured'] as bool;
+  bool get obscured => _json['obscured'] as bool? ?? false;
 }
 
 final textInputChip = CatalogItem(
