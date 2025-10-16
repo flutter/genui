@@ -1,5 +1,5 @@
 ---
-title: Connecting to an agent provider
+title: Create a custom widget and add it to the agent's catalog
 description: |
   Instructions for creating a custom widget and adding it to the agent's
   catalog.
