@@ -84,7 +84,7 @@ abstract interface class GenUiHost {
 ///
 /// This class is the core state manager for the dynamic UI. It maintains a map
 /// of all active UI "surfaces", where each surface is represented by a
-/// `UiDefinition`. It provides the tools (`addOrUpdateSurface`,
+/// `UiDefinition`. It provides the tools (`surfaceUpdate`,
 /// `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
 class GenUiManager implements GenUiHost {
@@ -130,7 +130,7 @@ class GenUiManager implements GenUiHost {
 
     final userActionPayload = {
       'userAction': {
-        'actionName': event.actionName,
+        'name': event.name,
         'sourceComponentId': event.sourceComponentId,
         'timestamp': event.timestamp.toIso8601String(),
         'context': event.context,
@@ -151,12 +151,14 @@ class GenUiManager implements GenUiHost {
   List<AiTool> getTools() {
     return [
       if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate)
-        AddOrUpdateSurfaceTool(
+          configuration.actions.allowUpdate) ...[
+        SurfaceUpdateTool(
           handleMessage: handleMessage,
           catalog: catalog,
           configuration: configuration,
         ),
+        BeginRenderingTool(handleMessage: handleMessage),
+      ],
       if (configuration.actions.allowDelete)
         DeleteSurfaceTool(handleMessage: handleMessage),
     ];

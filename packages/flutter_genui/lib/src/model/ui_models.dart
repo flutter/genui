@@ -54,20 +54,20 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UserActionEvent] from a set of properties.
   UserActionEvent({
     String? surfaceId,
-    required String actionName,
+    required String name,
     required String sourceComponentId,
     DateTime? timestamp,
     JsonMap? context,
   }) : _json = {
          if (surfaceId != null) 'surfaceId': surfaceId,
-         'actionName': actionName,
+         'name': name,
          'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
          'isAction': true,
          'context': context ?? {},
        };
 
-  String get actionName => _json['actionName'] as String;
+  String get name => _json['name'] as String;
   String get sourceComponentId => _json['sourceComponentId'] as String;
   JsonMap get context => _json['context'] as JsonMap;
 }
@@ -85,9 +85,6 @@ class UiDefinition {
   /// A map of all widget definitions in the UI, keyed by their ID.
   final Map<String, Component> components;
 
-  /// (Future) The URI of the catalog used for this surface.
-  final Uri? catalogUri;
-
   /// (Future) The styles for this surface.
   final JsonMap? styles;
 
@@ -96,7 +93,6 @@ class UiDefinition {
     required this.surfaceId,
     this.rootComponentId,
     this.components = const {},
-    this.catalogUri,
     this.styles,
   });
 
@@ -104,14 +100,12 @@ class UiDefinition {
   UiDefinition copyWith({
     String? rootComponentId,
     Map<String, Component>? components,
-    Uri? catalogUri,
     JsonMap? styles,
   }) {
     return UiDefinition(
       surfaceId: surfaceId,
       rootComponentId: rootComponentId ?? this.rootComponentId,
       components: components ?? this.components,
-      catalogUri: catalogUri ?? this.catalogUri,
       styles: styles ?? this.styles,
     );
   }

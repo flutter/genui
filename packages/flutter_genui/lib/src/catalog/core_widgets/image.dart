@@ -12,7 +12,7 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'location': A2uiSchemas.stringReference(
+    'url': A2uiSchemas.stringReference(
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
     ),
@@ -24,10 +24,10 @@ final _schema = S.object(
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({required JsonMap location, String? fit}) =>
-      _ImageData.fromMap({'location': location, 'fit': fit});
+  factory _ImageData({required JsonMap url, String? fit}) =>
+      _ImageData.fromMap({'url': url, 'fit': fit});
 
-  JsonMap get location => _json['location'] as JsonMap;
+  JsonMap get url => _json['url'] as JsonMap;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -44,7 +44,7 @@ final image = CatalogItem(
           'id': 'image',
           'widget': {
             'Image': {
-              'location': {
+              'url': {
                 'literalString':
                     'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
               },
@@ -64,7 +64,7 @@ final image = CatalogItem(
         required dataContext,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
-        final notifier = dataContext.subscribeToString(imageData.location);
+        final notifier = dataContext.subscribeToString(imageData.url);
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,

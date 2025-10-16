@@ -6,15 +6,14 @@ import 'package:flutter/material.dart';
 // ignore_for_file: avoid_dynamic_calls
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'mainAxisAlignment': S.string(
-      description:
-          'How children are aligned on the main axis. '
-          'See Flutter\'s MainAxisAlignment for values.',
+    'distribution': S.string(
+      description: 'How children are aligned on the main axis. ',
       enumValues: [
         'start',
         'center',
@@ -24,40 +23,30 @@ final _schema = S.object(
         'spaceEvenly',
       ],
     ),
-    'crossAxisAlignment': S.string(
-      description:
-          'How children are aligned on the cross axis. '
-          'See Flutter\'s CrossAxisAlignment for values.',
+    'alignment': S.string(
+      description: 'How children are aligned on the cross axis. ',
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
-    'children': S.list(
-      items: S.string(),
+    'children': A2uiSchemas.componentArrayReference(
       description: 'A list of widget IDs for the children.',
-    ),
-    'spacing': S.number(
-      description: 'The spacing between children. Defaults to 8.0.',
     ),
   },
 );
 
 extension type _ColumnData.fromMap(JsonMap _json) {
   factory _ColumnData({
-    List<String> children = const [],
-    double? spacing,
-    String? mainAxisAlignment,
-    String? crossAxisAlignment,
+    JsonMap? children,
+    String? distribution,
+    String? alignment,
   }) => _ColumnData.fromMap({
     'children': children,
-    'spacing': spacing,
-    'mainAxisAlignment': mainAxisAlignment,
-    'crossAxisAlignment': crossAxisAlignment,
+    'distribution': distribution,
+    'alignment': alignment,
   });
 
-  List<String> get children =>
-      ((_json['children'] as List?) ?? []).cast<String>();
-  double get spacing => (_json['spacing'] as num?)?.toDouble() ?? 8.0;
-  String? get mainAxisAlignment => _json['mainAxisAlignment'] as String?;
-  String? get crossAxisAlignment => _json['crossAxisAlignment'] as String?;
+  JsonMap? get children => _json['children'] as JsonMap?;
+  String? get distribution => _json['distribution'] as String?;
+  String? get alignment => _json['alignment'] as String?;
 }
 
 MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
@@ -107,24 +96,18 @@ final column = CatalogItem(
         required dataContext,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
-        final childrenIds = columnData.children;
-        final spacing = columnData.spacing;
-        final childrenWithSpacing = <Widget>[];
-        for (var i = 0; i < childrenIds.length; i++) {
-          childrenWithSpacing.add(buildChild(childrenIds[i]));
-          if (i < childrenIds.length - 1) {
-            childrenWithSpacing.add(SizedBox(height: spacing));
-          }
+        final children = columnData.children;
+        final explicitList = (children?['explicitList'] as List?)
+            ?.cast<String>();
+        if (explicitList != null) {
+          return Column(
+            mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
+            crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),
+            children: explicitList.map(buildChild).toList(),
+          );
         }
-        return Column(
-          mainAxisAlignment: _parseMainAxisAlignment(
-            columnData.mainAxisAlignment,
-          ),
-          crossAxisAlignment: _parseCrossAxisAlignment(
-            columnData.crossAxisAlignment,
-          ),
-          children: childrenWithSpacing,
-        );
+        // TODO(gspencer): Implement template lists.
+        return const SizedBox.shrink();
       },
   exampleData: [
     () => {
@@ -151,23 +134,15 @@ final column = CatalogItem(
         {
           'id': 'advice_options',
           'widget': {
-            'RadioGroup': {
-              'labels': [
-                'Career',
-                'Personal',
-                'Financial',
-                'Health',
-                'Relationships',
-                'Other',
-              ],
-              'groupValue': {'literalString': ''},
+            'Text': {
+              'text': {'literalString': 'Some advice options.'},
             },
           },
         },
         {
           'id': 'submit_button',
           'widget': {
-            'ElevatedButton': {
+            'Button': {
               'child': 'submit_button_text',
               'action': {'actionName': 'submit'},
             },

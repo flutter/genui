@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 void main() {
-  group('AddOrUpdateSurfaceTool', () {
+  group('$SurfaceUpdateTool', () {
     test('invoke calls handleMessage with correct arguments', () async {
       final messages = <A2uiMessage>[];
 
@@ -20,7 +20,7 @@ void main() {
         messages.add(message);
       }
 
-      final tool = AddOrUpdateSurfaceTool(
+      final tool = SurfaceUpdateTool(
         handleMessage: fakeHandleMessage,
         catalog: Catalog([
           CatalogItem(
@@ -44,22 +44,19 @@ void main() {
 
       final args = {
         'surfaceId': 'testSurface',
-        'definition': {
-          'root': 'rootWidget',
-          'widgets': [
-            {
-              'id': 'rootWidget',
-              'widget': {
-                'Text': {'text': 'Hello'},
-              },
+        'components': [
+          {
+            'id': 'rootWidget',
+            'component': {
+              'Text': {'text': 'Hello'},
             },
-          ],
-        },
+          },
+        ],
       };
 
       await tool.invoke(args);
 
-      expect(messages.length, 2);
+      expect(messages.length, 1);
       expect(messages[0], isA<SurfaceUpdate>());
       final surfaceUpdate = messages[0] as SurfaceUpdate;
       expect(surfaceUpdate.surfaceId, 'testSurface');
@@ -68,10 +65,6 @@ void main() {
       expect(surfaceUpdate.components[0].componentProperties, {
         'Text': {'text': 'Hello'},
       });
-      expect(messages[1], isA<BeginRendering>());
-      final beginRendering = messages[1] as BeginRendering;
-      expect(beginRendering.surfaceId, 'testSurface');
-      expect(beginRendering.root, 'rootWidget');
     });
   });
 
@@ -93,6 +86,28 @@ void main() {
       expect(messages[0], isA<SurfaceDeletion>());
       final surfaceDeletion = messages[0] as SurfaceDeletion;
       expect(surfaceDeletion.surfaceId, 'testSurface');
+    });
+  });
+
+  group('BeginRenderingTool', () {
+    test('invoke calls handleMessage with correct arguments', () async {
+      final messages = <A2uiMessage>[];
+
+      void fakeHandleMessage(A2uiMessage message) {
+        messages.add(message);
+      }
+
+      final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
+
+      final args = {'surfaceId': 'testSurface', 'root': 'rootWidget'};
+
+      await tool.invoke(args);
+
+      expect(messages.length, 1);
+      expect(messages[0], isA<BeginRendering>());
+      final beginRendering = messages[0] as BeginRendering;
+      expect(beginRendering.surfaceId, 'testSurface');
+      expect(beginRendering.root, 'rootWidget');
     });
   });
 }

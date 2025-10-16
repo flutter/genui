@@ -17,7 +17,7 @@ void main() {
           {'literalString': 'Topic A'},
           {'literalString': 'Topic B'},
         ],
-        'action': {'actionName': 'selectTopic'},
+        'action': {'name': 'selectTopic'},
       };
       UiEvent? dispatchedEvent;
 
@@ -51,7 +51,7 @@ void main() {
       expect(dispatchedEvent, isA<UserActionEvent>());
       final actionEvent = dispatchedEvent as UserActionEvent;
       expect(actionEvent.sourceComponentId, 'testId');
-      expect(actionEvent.actionName, 'selectTopic');
+      expect(actionEvent.name, 'selectTopic');
       expect(actionEvent.context, {'topic': 'Topic A'});
     });
 
@@ -60,7 +60,7 @@ void main() {
     ) async {
       final data = {
         'topics': <Map<String, String>>[],
-        'action': {'actionName': 'selectTopic'},
+        'action': {'name': 'selectTopic'},
       };
 
       await tester.pumpWidget(

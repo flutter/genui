@@ -155,7 +155,7 @@ void main() {
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
-        actionName: 'testAction',
+        name: 'testAction',
         sourceComponentId: 'testWidget',
         timestamp: now,
         context: {'key': 'value'},
@@ -165,7 +165,7 @@ void main() {
       expect(message, isA<UserMessage>());
       final expectedJson = jsonEncode({
         'userAction': {
-          'actionName': 'testAction',
+          'name': 'testAction',
           'sourceComponentId': 'testWidget',
           'timestamp': now.toIso8601String(),
           'context': {'key': 'value'},

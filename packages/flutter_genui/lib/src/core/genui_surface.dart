@@ -93,6 +93,26 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   }
 
   void _dispatchEvent(UiEvent event) {
+    if (event is UserActionEvent && event.name == 'showModal') {
+      final definition = widget.host.surface(widget.surfaceId).value;
+      if (definition == null) return;
+      final modalId = event.context['modalId'] as String;
+      final modalComponent = definition.components[modalId];
+      if (modalComponent == null) return;
+      final contentChildId =
+          (modalComponent.componentProperties['Modal'] as Map)['contentChild']
+              as String;
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) => _buildWidget(
+          definition,
+          contentChildId,
+          DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
+        ),
+      );
+      return;
+    }
+
     // The event comes in without a surfaceId, which we add here.
     final eventMap = {...event.toMap(), 'surfaceId': widget.surfaceId};
     final newEvent = event is UserActionEvent

@@ -11,34 +11,31 @@ import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
+import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'child': S.string(
+    'child': A2uiSchemas.componentReference(
       description:
           'The ID of a child widget. This should always be set, e.g. to the ID '
           'of a `Text` widget.',
     ),
-    'action': A2uiSchemas.action(
-      description: 'The action to perform when the button is pressed.',
-    ),
+    'action': A2uiSchemas.action(),
   },
   required: ['child', 'action'],
 );
 
-extension type _ElevatedButtonData.fromMap(JsonMap _json) {
-  factory _ElevatedButtonData({
-    required String child,
-    required JsonMap action,
-  }) => _ElevatedButtonData.fromMap({'child': child, 'action': action});
+extension type _ButtonData.fromMap(JsonMap _json) {
+  factory _ButtonData({required String child, required JsonMap action}) =>
+      _ButtonData.fromMap({'child': child, 'action': action});
 
   String get child => _json['child'] as String;
   JsonMap get action => _json['action'] as JsonMap;
 }
 
-final elevatedButton = CatalogItem(
-  name: 'ElevatedButton',
+final button = CatalogItem(
+  name: 'Button',
   dataSchema: _schema,
   widgetBuilder:
       ({
@@ -49,12 +46,14 @@ final elevatedButton = CatalogItem(
         required context,
         required dataContext,
       }) {
-        final buttonData = _ElevatedButtonData.fromMap(data as JsonMap);
+        final buttonData = _ButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
         final actionData = buttonData.action;
-        final actionName = actionData['actionName'] as String;
+        final actionName = actionData['name'] as String;
         final contextDefinition =
             (actionData['context'] as List<Object?>?) ?? <Object?>[];
+
+        genUiLogger.info('Building Button with child: ${buttonData.child}');
 
         return ElevatedButton(
           onPressed: () {
@@ -64,7 +63,7 @@ final elevatedButton = CatalogItem(
             );
             dispatchEvent(
               UserActionEvent(
-                actionName: actionName,
+                name: actionName,
                 sourceComponentId: id,
                 context: resolvedContext,
               ),
@@ -79,11 +78,21 @@ final elevatedButton = CatalogItem(
       'widgets': [
         {
           'id': 'button',
-          'type': 'ElevatedButton',
-          'child': 'text',
-          'action': {'actionName': 'button_pressed'},
+          'widget': {
+            'Button': {
+              'child': 'text',
+              'action': {'name': 'button_pressed'},
+            },
+          },
         },
-        {'id': 'text', 'type': 'Text', 'text': 'Hello World'},
+        {
+          'id': 'text',
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'Hello World'},
+            },
+          },
+        },
       ],
     },
   ],

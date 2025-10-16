@@ -22,7 +22,7 @@ void main() {
                     'chipLabel': 'Amenities',
                     'options': ['Wifi', 'Pool', 'Gym'],
                     'selectedOptions': {
-                      'literalStringArray': ['Wifi', 'Gym'],
+                      'literalArray': ['Wifi', 'Gym'],
                     },
                     'iconName': 'hotel',
                   },

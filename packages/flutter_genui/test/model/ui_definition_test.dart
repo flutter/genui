@@ -28,7 +28,7 @@ void main() {
       expect(json['components'], {
         'root': {
           'id': 'root',
-          'componentProperties': {
+          'component': {
             'Text': {'text': 'Hello'},
           },
         },

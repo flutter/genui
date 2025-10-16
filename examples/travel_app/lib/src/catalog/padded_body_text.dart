@@ -20,11 +20,26 @@ final paddedBodyText = CatalogItem(
   dataSchema: S.object(
     properties: {
       'text': A2uiSchemas.stringReference(
-        description: 'The text to display. This supports markdown.',
+        description: 'This supports markdown.',
       ),
     },
     required: ['text'],
   ),
+  exampleData: [
+    () => {
+      'root': 'padded_body_text',
+      'widgets': [
+        {
+          'id': 'padded_body_text',
+          'widget': {
+            'PaddedBodyText': {
+              'text': {'literalString': 'This is some padded body text.'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

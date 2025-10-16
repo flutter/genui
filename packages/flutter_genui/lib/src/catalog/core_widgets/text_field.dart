@@ -13,50 +13,54 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'value': A2uiSchemas.stringReference(
+    'text': A2uiSchemas.stringReference(
       description: 'The initial value of the text field.',
     ),
-    'hintText': S.string(description: 'Hint text for the text field.'),
-    'obscureText': S.boolean(
-      description: 'Whether the text should be obscured.',
+    'label': A2uiSchemas.stringReference(),
+    'textFieldType': S.string(
+      enumValues: ['shortText', 'longText', 'number', 'date', 'obscured'],
     ),
-    'onSubmittedAction': A2uiSchemas.action(
-      description: 'The action to perform when the text field is submitted.',
-    ),
+    'validationRegexp': S.string(),
+    'onSubmittedAction': A2uiSchemas.action(),
   },
 );
 
 extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
-    required JsonMap value,
-    String? hintText,
-    bool? obscureText,
+    required JsonMap text,
+    JsonMap? label,
+    String? textFieldType,
+    String? validationRegexp,
     JsonMap? onSubmittedAction,
   }) => _TextFieldData.fromMap({
-    'value': value,
-    'hintText': hintText,
-    'obscureText': obscureText,
+    'text': text,
+    'label': label,
+    'textFieldType': textFieldType,
+    'validationRegexp': validationRegexp,
     'onSubmittedAction': onSubmittedAction,
   });
 
-  JsonMap get value => _json['value'] as JsonMap;
-  String? get hintText => _json['hintText'] as String?;
-  bool get obscureText => (_json['obscureText'] as bool?) ?? false;
+  JsonMap get text => _json['text'] as JsonMap;
+  JsonMap? get label => _json['label'] as JsonMap?;
+  String? get textFieldType => _json['textFieldType'] as String?;
+  String? get validationRegexp => _json['validationRegexp'] as String?;
   JsonMap? get onSubmittedAction => _json['onSubmittedAction'] as JsonMap?;
 }
 
 class _TextField extends StatefulWidget {
   const _TextField({
     required this.initialValue,
-    this.hintText,
-    this.obscureText = false,
+    this.label,
+    this.textFieldType,
+    this.validationRegexp,
     required this.onChanged,
     required this.onSubmitted,
   });
 
   final String initialValue;
-  final String? hintText;
-  final bool obscureText;
+  final String? label;
+  final String? textFieldType;
+  final String? validationRegexp;
   final void Function(String) onChanged;
   final void Function(String) onSubmitted;
 
@@ -91,8 +95,14 @@ class _TextFieldState extends State<_TextField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
-      decoration: InputDecoration(hintText: widget.hintText),
-      obscureText: widget.obscureText,
+      decoration: InputDecoration(labelText: widget.label),
+      obscureText: widget.textFieldType == 'obscured',
+      keyboardType: switch (widget.textFieldType) {
+        'number' => TextInputType.number,
+        'longText' => TextInputType.multiline,
+        'date' => TextInputType.datetime,
+        _ => TextInputType.text,
+      },
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
     );
@@ -110,7 +120,23 @@ final textField = CatalogItem(
           'id': 'text_field',
           'widget': {
             'TextField': {
-              'value': {'literalString': 'Hello World'},
+              'text': {'literalString': 'Hello World'},
+              'label': {'literalString': 'Greeting'},
+            },
+          },
+        },
+      ],
+    },
+    () => {
+      'root': 'password_field',
+      'widgets': [
+        {
+          'id': 'password_field',
+          'widget': {
+            'TextField': {
+              'text': {'literalString': 'password123'},
+              'label': {'literalString': 'Password'},
+              'textFieldType': 'obscured',
             },
           },
         },
@@ -127,40 +153,50 @@ final textField = CatalogItem(
         required dataContext,
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
-        final valueRef = textFieldData.value;
+        final valueRef = textFieldData.text;
         final path = valueRef['path'] as String?;
         final notifier = dataContext.subscribeToString(valueRef);
+        final labelNotifier = dataContext.subscribeToString(
+          textFieldData.label,
+        );
 
         return ValueListenableBuilder<String?>(
           valueListenable: notifier,
           builder: (context, currentValue, child) {
-            return _TextField(
-              initialValue: currentValue ?? '',
-              hintText: textFieldData.hintText,
-              obscureText: textFieldData.obscureText,
-              onChanged: (newValue) {
-                if (path != null) {
-                  dataContext.update(path, newValue);
-                }
-              },
-              onSubmitted: (newValue) {
-                final actionData = textFieldData.onSubmittedAction;
-                if (actionData == null) {
-                  return;
-                }
-                final actionName = actionData['actionName'] as String;
-                final contextDefinition =
-                    (actionData['context'] as List<Object?>?) ?? <Object?>[];
-                final resolvedContext = resolveContext(
-                  dataContext,
-                  contextDefinition,
-                );
-                dispatchEvent(
-                  UserActionEvent(
-                    actionName: actionName,
-                    sourceComponentId: id,
-                    context: resolvedContext,
-                  ),
+            return ValueListenableBuilder(
+              valueListenable: labelNotifier,
+              builder: (context, label, child) {
+                return _TextField(
+                  initialValue: currentValue ?? '',
+                  label: label,
+                  textFieldType: textFieldData.textFieldType,
+                  validationRegexp: textFieldData.validationRegexp,
+                  onChanged: (newValue) {
+                    if (path != null) {
+                      dataContext.update(path, newValue);
+                    }
+                  },
+                  onSubmitted: (newValue) {
+                    final actionData = textFieldData.onSubmittedAction;
+                    if (actionData == null) {
+                      return;
+                    }
+                    final actionName = actionData['name'] as String;
+                    final contextDefinition =
+                        (actionData['context'] as List<Object?>?) ??
+                        <Object?>[];
+                    final resolvedContext = resolveContext(
+                      dataContext,
+                      contextDefinition,
+                    );
+                    dispatchEvent(
+                      UserActionEvent(
+                        name: actionName,
+                        sourceComponentId: id,
+                        context: resolvedContext,
+                      ),
+                    );
+                  },
                 );
               },
             );

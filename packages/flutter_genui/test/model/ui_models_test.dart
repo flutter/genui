@@ -11,14 +11,14 @@ void main() {
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
-        actionName: 'testAction',
+        name: 'testAction',
         sourceComponentId: 'testWidget',
         timestamp: now,
         context: {'key': 'value'},
       );
 
       expect(event.surfaceId, 'testSurface');
-      expect(event.actionName, 'testAction');
+      expect(event.name, 'testAction');
       expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
       expect(event.isAction, isTrue);
@@ -29,7 +29,7 @@ void main() {
       final now = DateTime.now();
       final event = UserActionEvent.fromMap({
         'surfaceId': 'testSurface',
-        'actionName': 'testAction',
+        'name': 'testAction',
         'sourceComponentId': 'testWidget',
         'timestamp': now.toIso8601String(),
         'isAction': true,
@@ -37,7 +37,7 @@ void main() {
       });
 
       expect(event.surfaceId, 'testSurface');
-      expect(event.actionName, 'testAction');
+      expect(event.name, 'testAction');
       expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
       expect(event.isAction, isTrue);
@@ -48,7 +48,7 @@ void main() {
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
-        actionName: 'testAction',
+        name: 'testAction',
         sourceComponentId: 'testWidget',
         timestamp: now,
         context: {'key': 'value'},
@@ -57,7 +57,7 @@ void main() {
       final map = event.toMap();
 
       expect(map['surfaceId'], 'testSurface');
-      expect(map['actionName'], 'testAction');
+      expect(map['name'], 'testAction');
       expect(map['sourceComponentId'], 'testWidget');
       expect(map['timestamp'], now.toIso8601String());
       expect(map['isAction'], isTrue);

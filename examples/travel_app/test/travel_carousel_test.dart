@@ -19,12 +19,12 @@ void main() {
             {
               'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
-              'action': {'actionName': 'selectItem'},
+              'action': {'name': 'selectItem'},
             },
             {
               'description': {'literalString': 'Item 2'},
               'imageChildId': 'imageId2',
-              'action': {'actionName': 'selectItem'},
+              'action': {'name': 'selectItem'},
             },
           ],
         };
@@ -65,7 +65,7 @@ void main() {
         expect(dispatchedEvent, isA<UserActionEvent>());
         final actionEvent = dispatchedEvent as UserActionEvent;
         expect(actionEvent.sourceComponentId, 'testId');
-        expect(actionEvent.actionName, 'selectItem');
+        expect(actionEvent.name, 'selectItem');
         expect(actionEvent.context, {'description': 'Item 1'});
       });
     });
@@ -80,12 +80,12 @@ void main() {
               'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
               'listingSelectionId': 'listing1',
-              'action': {'actionName': 'selectItem'},
+              'action': {'name': 'selectItem'},
             },
             {
               'description': {'literalString': 'Item 2'},
               'imageChildId': 'imageId2',
-              'action': {'actionName': 'selectItem'},
+              'action': {'name': 'selectItem'},
             },
           ],
         };

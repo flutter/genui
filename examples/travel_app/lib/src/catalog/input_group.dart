@@ -60,20 +60,25 @@ final inputGroup = CatalogItem(
         {
           'id': 'input_group',
           'widget': {
-            'Column': {
+            'InputGroup': {
+              'submitLabel': {'literalString': 'Submit'},
               'children': [
                 'check_in',
                 'check_out',
                 'text_input1',
                 'text_input2',
               ],
+              'action': {'name': 'submit_form'},
             },
           },
         },
         {
           'id': 'check_in',
           'widget': {
-            'DateInputChip': {'value': '2026-07-22', 'label': 'Check-in date'},
+            'DateInputChip': {
+              'value': {'literalString': '2026-07-22'},
+              'label': 'Check-in date',
+            },
           },
         },
         {
@@ -86,7 +91,7 @@ final inputGroup = CatalogItem(
           'id': 'text_input1',
           'widget': {
             'TextInputChip': {
-              'initialValue': 'John Doe',
+              'value': {'literalString': 'John Doe'},
               'label': 'Enter your name',
             },
           },
@@ -121,7 +126,7 @@ final inputGroup = CatalogItem(
 
         final children = inputGroupData.children;
         final actionData = inputGroupData.action;
-        final actionName = actionData['actionName'] as String;
+        final name = actionData['name'] as String;
         final contextDefinition =
             (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
@@ -149,7 +154,7 @@ final inputGroup = CatalogItem(
                         );
                         dispatchEvent(
                           UserActionEvent(
-                            actionName: actionName,
+                            name: name,
                             sourceComponentId: id,
                             context: resolvedContext,
                           ),

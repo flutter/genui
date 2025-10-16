@@ -49,6 +49,35 @@ extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
 final informationCard = CatalogItem(
   name: 'InformationCard',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'information_card',
+      'widgets': [
+        {
+          'id': 'information_card',
+          'widget': {
+            'InformationCard': {
+              'title': {'literalString': 'Beautiful Scenery'},
+              'subtitle': {'literalString': 'A stunning view'},
+              'body': {
+                'literalString':
+                    'This is a beautiful place to visit in the summer.',
+              },
+              'imageChildId': 'image1',
+            },
+          },
+        },
+        {
+          'id': 'image1',
+          'widget': {
+            'Image': {
+              'url': {'literalString': 'assets/travel_images/beach.jpg'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

@@ -347,8 +347,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                 if (actionData == null) {
                                   return;
                                 }
-                                final actionName =
-                                    actionData['actionName'] as String;
+                                final actionName = actionData['name'] as String;
                                 final contextDefinition =
                                     (actionData['context'] as List<Object?>?) ??
                                     <Object?>[];
@@ -360,7 +359,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                     listing.listingSelectionId;
                                 widget.dispatchEvent(
                                   UserActionEvent(
-                                    actionName: actionName,
+                                    name: actionName,
                                     sourceComponentId: widget.widgetId,
                                     context: resolvedContext,
                                   ),

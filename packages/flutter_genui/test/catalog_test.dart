@@ -14,11 +14,10 @@ void main() {
       WidgetTester tester,
     ) async {
       final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
-      final data = {
-        'id': 'col1',
-        'widget': {
-          'Column': {
-            'children': ['text1'],
+      final widgetData = {
+        'Column': {
+          'children': {
+            'explicitList': ['child1'],
           },
         },
       };
@@ -29,8 +28,8 @@ void main() {
             body: Builder(
               builder: (context) {
                 final widget = catalog.buildWidget(
-                  id: data['id'] as String,
-                  widgetData: data['widget'] as JsonMap,
+                  id: 'col1',
+                  widgetData: widgetData,
                   buildChild: Text.new, // Mock child builder
                   dispatchEvent: (UiEvent event) {},
                   context: context,
@@ -91,10 +90,7 @@ void main() {
     });
 
     test('schema generation is correct', () {
-      final catalog = Catalog([
-        CoreCatalogItems.text,
-        CoreCatalogItems.elevatedButton,
-      ]);
+      final catalog = Catalog([CoreCatalogItems.text, CoreCatalogItems.button]);
       final schema = catalog.definition as ObjectSchema;
 
       expect(schema.properties?.containsKey('components'), isTrue);
@@ -104,7 +100,7 @@ void main() {
       final componentProperties = componentsSchema.properties!;
 
       expect(componentProperties.keys, contains('Text'));
-      expect(componentProperties.keys, contains('ElevatedButton'));
+      expect(componentProperties.keys, contains('Button'));
     });
   });
 }

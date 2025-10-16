@@ -20,7 +20,7 @@ void main() {
             builder: (context) => Scaffold(
               body: image.widgetBuilder(
                 data: {
-                  'location': {
+                  'url': {
                     'literalString':
                         'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
                   },

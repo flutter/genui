@@ -242,7 +242,7 @@ class _TravelCarouselItem extends StatelessWidget {
       width: 190,
       child: InkWell(
         onTap: () {
-          final actionName = data.action['actionName'] as String;
+          final name = data.action['name'] as String;
           final contextDefinition =
               (data.action['context'] as List<Object?>?) ?? <Object?>[];
           final resolvedContext = resolveContext(
@@ -255,7 +255,7 @@ class _TravelCarouselItem extends StatelessWidget {
           }
           dispatchEvent(
             UserActionEvent(
-              actionName: actionName,
+              name: name,
               sourceComponentId: widgetId,
               context: resolvedContext,
             ),
@@ -317,13 +317,13 @@ JsonMap _hotelExample() {
                 'description': {'literalString': hotel1.description},
                 'imageChildId': 'image_1',
                 'listingSelectionId': '12345',
-                'action': {'actionName': 'selectHotel'},
+                'action': {'name': 'selectHotel'},
               },
               {
                 'description': {'literalString': hotel2.description},
                 'imageChildId': 'image_2',
                 'listingSelectionId': '12346',
-                'action': {'actionName': 'selectHotel'},
+                'action': {'name': 'selectHotel'},
               },
             ],
           },
@@ -335,7 +335,7 @@ JsonMap _hotelExample() {
         'widget': {
           'Image': {
             'fit': 'cover',
-            'location': {'literalString': hotel1.images[0]},
+            'url': {'literalString': hotel1.images[0]},
           },
         },
       },
@@ -344,7 +344,7 @@ JsonMap _hotelExample() {
         'widget': {
           'Image': {
             'fit': 'cover',
-            'location': {'literalString': hotel2.images[0]},
+            'url': {'literalString': hotel2.images[0]},
           },
         },
       },
@@ -384,24 +384,24 @@ JsonMap _inspirationExample() => {
               'description': {'literalString': 'Relaxing Beach Holiday'},
               'imageChildId': 'santorini_beach_image',
               'listingSelectionId': '12345',
-              'action': {'actionName': 'selectExperience'},
+              'action': {'name': 'selectExperience'},
             },
             {
               'imageChildId': 'akrotiri_fresco_image',
               'description': {'literalString': 'Cultural Exploration'},
               'listingSelectionId': '12346',
-              'action': {'actionName': 'selectExperience'},
+              'action': {'name': 'selectExperience'},
             },
             {
               'imageChildId': 'santorini_caldera_image',
               'description': {'literalString': 'Adventure & Outdoors'},
               'listingSelectionId': '12347',
-              'action': {'actionName': 'selectExperience'},
+              'action': {'name': 'selectExperience'},
             },
             {
               'description': {'literalString': 'Foodie Tour'},
               'imageChildId': 'greece_food_image',
-              'action': {'actionName': 'selectExperience'},
+              'action': {'name': 'selectExperience'},
             },
           ],
         },
@@ -413,7 +413,7 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': {
+          'url': {
             'literalString': 'assets/travel_images/santorini_panorama.jpg',
           },
         },
@@ -424,7 +424,7 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': {
+          'url': {
             'literalString':
                 'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
           },
@@ -435,7 +435,7 @@ JsonMap _inspirationExample() => {
       'id': 'santorini_caldera_image',
       'widget': {
         'Image': {
-          'location': {
+          'url': {
             'literalString': 'assets/travel_images/santorini_from_space.jpg',
           },
           'fit': 'cover',
@@ -446,7 +446,7 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': {
+          'url': {
             'literalString':
                 'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
           },

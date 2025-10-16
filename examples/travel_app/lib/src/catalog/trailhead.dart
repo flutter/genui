@@ -43,6 +43,26 @@ extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
 final trailhead = CatalogItem(
   name: 'Trailhead',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'trailhead',
+      'widgets': [
+        {
+          'id': 'trailhead',
+          'widget': {
+            'Trailhead': {
+              'topics': [
+                {'literalString': 'Topic 1'},
+                {'literalString': 'Topic 2'},
+                {'literalString': 'Topic 3'},
+              ],
+              'action': {'name': 'select_topic'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -99,7 +119,7 @@ class _Trailhead extends StatelessWidget {
               return InputChip(
                 label: Text(topic),
                 onPressed: () {
-                  final actionName = action['actionName'] as String;
+                  final name = action['name'] as String;
                   final contextDefinition =
                       (action['context'] as List<Object?>?) ?? <Object?>[];
                   final resolvedContext = resolveContext(
@@ -109,7 +129,7 @@ class _Trailhead extends StatelessWidget {
                   resolvedContext['topic'] = topic;
                   dispatchEvent(
                     UserActionEvent(
-                      actionName: actionName,
+                      name: name,
                       sourceComponentId: widgetId,
                       context: resolvedContext,
                     ),

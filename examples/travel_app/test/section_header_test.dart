@@ -35,7 +35,9 @@ void main() {
         ),
       );
 
-      final title = tester.widget<Text>(find.text('Section Title'));
+      final titleFinder = find.text('Section Title');
+      expect(titleFinder, findsOneWidget);
+      final title = tester.widget<Text>(titleFinder);
       expect(title.style?.fontWeight, FontWeight.bold);
     });
 
@@ -66,8 +68,12 @@ void main() {
         ),
       );
 
-      final title = tester.widget<Text>(find.text('Section Title'));
-      final subtitle = tester.widget<Text>(find.text('Section Subtitle'));
+      final titleFinder = find.text('Section Title');
+      expect(titleFinder, findsOneWidget);
+      final title = tester.widget<Text>(titleFinder);
+      final subtitleFinder = find.text('Section Subtitle');
+      expect(subtitleFinder, findsOneWidget);
+      final subtitle = tester.widget<Text>(subtitleFinder);
       expect(title.style?.fontWeight, FontWeight.bold);
       expect(subtitle.style?.color, Colors.grey);
     });

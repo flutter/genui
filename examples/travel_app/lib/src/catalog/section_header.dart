@@ -2,10 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'itinerary_day.dart';
-/// @docImport 'itinerary_entry.dart';
-library;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
@@ -35,12 +31,27 @@ extension type _SectionHeaderData.fromMap(Map<String, Object?> _json) {
 /// a list of content.
 ///
 /// It displays a prominent title and an optional subtitle, helping to organize
-/// longer sequences of widgets, such as a detailed travel itinerary composed of
-/// multiple [itineraryDay] widgets. Its primary role is to improve the
-/// structure and scannability of the UI.
+/// longer sequences of widgets. Its primary role is to improve the structure
+/// and scannability of the UI.
 final sectionHeader = CatalogItem(
   name: 'SectionHeader',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'section_header',
+      'widgets': [
+        {
+          'id': 'section_header',
+          'widget': {
+            'SectionHeader': {
+              'title': {'literalString': 'Section Title'},
+              'subtitle': {'literalString': 'Section Subtitle'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
