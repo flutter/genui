@@ -45,7 +45,9 @@ void main() {
       streamController.add(
         '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Text": {"text": {"literalString": "Hello"}}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Hello'), findsOneWidget);
@@ -61,7 +63,9 @@ void main() {
       streamController.add(
         '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["root"]}}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(
@@ -80,7 +84,9 @@ void main() {
       streamController.add(
         '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"MissingWidget": {}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(
@@ -96,7 +102,9 @@ void main() {
         ),
       );
 
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Error: component not found'), findsOneWidget);
@@ -113,15 +121,19 @@ void main() {
         '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Text": {"text": {"path": "greeting"}}}}]}}''',
       );
       streamController.add(
-        '{"dataModelUpdate": {"surfaceId": "1", "path": "greeting", "contents": "Initial"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "greeting", '
+        '"contents": "Initial"}}',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Initial'), findsOneWidget);
 
       streamController.add(
-        '{"dataModelUpdate": {"surfaceId": "1", "path": "greeting", "contents": "Updated"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "greeting", '
+        '"contents": "Updated"}}',
       );
       await tester.pumpAndSettle();
 
@@ -145,7 +157,9 @@ void main() {
           {"id": "text_child", "component": {"Text": {"text": {"literalString": "Card Text"}}}}
         ]}}
         ''');
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(Card), findsOneWidget);

@@ -26,7 +26,9 @@ void main() {
     testWidgets('processes SurfaceUpdate and buffers components', (
       tester,
     ) async {
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pump();
       streamController.add(
         '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Column": {"children": {}}}}]}}''',
@@ -36,10 +38,13 @@ void main() {
     });
 
     testWidgets('processes DataModelUpdate and buffers nodes', (tester) async {
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pump();
       streamController.add(
-        '{"dataModelUpdate": {"surfaceId": "1", "path": "user.name", "contents": "John Doe"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "user.name", '
+        '"contents": "John Doe"}}',
       );
       await tester.pump();
       expect(interpreter.resolveDataBinding('user.name'), 'John Doe');
@@ -48,7 +53,9 @@ void main() {
     testWidgets('processes BeginRendering and sets isReadyToRender', (
       tester,
     ) async {
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pump();
       expect(interpreter.isReadyToRender, isTrue);
       expect(interpreter.rootComponentId, 'root');
@@ -58,7 +65,9 @@ void main() {
       var callCount = 0;
       interpreter.addListener(() => callCount++);
 
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pump();
       expect(callCount, 1);
     });
@@ -106,7 +115,9 @@ void main() {
       streamController.add(
         '''{"dataModelUpdate": {"surfaceId": "1", "path": "user", "contents": {"name": "test_user"}}}''',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await streamController.close();
 
       expect(interpreter.resolveDataBinding('invalid.path'), isNull);

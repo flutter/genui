@@ -84,8 +84,8 @@ void main() {
 
       expect(messages.length, 1);
       expect(messages[0], isA<SurfaceDeletion>());
-      final surfaceDeletion = messages[0] as SurfaceDeletion;
-      expect(surfaceDeletion.surfaceId, 'testSurface');
+      final deleteSurface = messages[0] as SurfaceDeletion;
+      expect(deleteSurface.surfaceId, 'testSurface');
     });
   });
 

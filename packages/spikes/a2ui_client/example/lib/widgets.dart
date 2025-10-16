@@ -140,9 +140,11 @@ void registerA2uiWidgets(WidgetRegistry registry) {
     );
   });
   registry.register('Button', (context, component, properties, children) {
-    final action = properties['action'] as Map<String, dynamic>;
-    final actionName = action['action'] as String;
-    final resolvedContext = action['context'] as Map<String, dynamic>;
+    final action = properties['action'] as Map<String, dynamic>?;
+    final actionName = action?['name'] as String? ?? '';
+    final resolvedContext =
+        action?['context'] as Map<String, dynamic>? ??
+        const <String, dynamic>{};
     return ElevatedButton(
       onPressed: () {
         _log.info('Button ${component.id} pressed. Firing event: $actionName');

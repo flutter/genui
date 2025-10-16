@@ -44,7 +44,9 @@ void main() {
       streamController.add(
         '''{"dataModelUpdate": {"surfaceId": "1", "path": "items", "contents": [{"text": "Item 1"}, {"text": "Item 2"}]}}''',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Item 1'), findsOneWidget);
@@ -69,9 +71,12 @@ void main() {
         '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "template", "component": {"Text": {"text": {"path": "text"}}}}]}}''',
       );
       streamController.add(
-        '{"dataModelUpdate": {"surfaceId": "1", "path": "items", "contents": "not a list"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "items", '
+        '"contents": "not a list"}}',
       );
-      streamController.add('{"beginRendering": {"surfaceId": "1", "root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(SizedBox), findsOneWidget);

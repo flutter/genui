@@ -76,8 +76,10 @@ class A2uiInterpreter with ChangeNotifier {
         SurfaceDeletion(surfaceId: final id) => id,
       };
 
-      final surfaceState =
-          _surfaces.putIfAbsent(_activeSurfaceId!, _SurfaceState.new);
+      final surfaceState = _surfaces.putIfAbsent(
+        _activeSurfaceId!,
+        _SurfaceState.new,
+      );
 
       switch (message) {
         case SurfaceUpdate():
@@ -92,14 +94,16 @@ class A2uiInterpreter with ChangeNotifier {
           break;
         case DataModelUpdate():
           _log.info(
-            'Received DataModelUpdate at path "${message.path}" for surface ${message.surfaceId}.',
+            'Received DataModelUpdate at path "${message.path}" for surface '
+            '${message.surfaceId}.',
           );
           _updateDataModel(surfaceState, message.path, message.contents);
           notifyListeners();
           break;
         case BeginRendering():
           _log.info(
-            'Received BeginRendering with root "${message.root}" for surface ${message.surfaceId}.',
+            'Received BeginRendering with root "${message.root}" for surface '
+            '${message.surfaceId}.',
           );
           surfaceState.rootComponentId = message.root;
           surfaceState.isReadyToRender = true;

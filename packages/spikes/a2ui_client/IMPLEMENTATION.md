@@ -113,8 +113,8 @@ The client processes four types of messages, defined in `stream_message.dart`.
   - **Purpose:** Adds or updates a part of the data model at a given `path` for a given surface.
 - `{"beginRendering": {"surfaceId": "...", "root": "root_id"}}`
   - **Purpose:** Signals to the client that it has enough information to perform the initial render for a given surface. It specifies the ID of the root component for the UI tree.
-- `{"surfaceDeletion": {"surfaceId": "..."}}`
-    - **Purpose:** Signals the client to delete the surface.
+- `{"deleteSurface": {"surfaceId": "..."}}`
+  - **Purpose:** Signals the client to delete the surface.
 
 ## 6. Key Implementation Components
 

@@ -23,9 +23,9 @@ sealed class A2uiStreamMessage {
         json['dataModelUpdate'] as Map<String, dynamic>,
       );
     }
-    if (json.containsKey('surfaceDeletion')) {
+    if (json.containsKey('deleteSurface')) {
       return SurfaceDeletion.fromJson(
-        json['surfaceDeletion'] as Map<String, dynamic>,
+        json['deleteSurface'] as Map<String, dynamic>,
       );
     }
     throw Exception('Unknown message type in JSON: $json');

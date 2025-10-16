@@ -705,7 +705,7 @@
     {
       "type": "object",
       "properties": {
-        "surfaceDeletion": {
+        "deleteSurface": {
           "type": "object",
           "description": "Deletes a surface.",
           "properties": {
@@ -717,7 +717,7 @@
           "required": ["delete"]
         }
       },
-      "required": ["surfaceDeletion"]
+      "required": ["deleteSurface"]
     }
   ]
 }

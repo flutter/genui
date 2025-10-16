@@ -22,17 +22,16 @@ class Component extends Equatable {
   const Component({required this.id, this.weight, required this.component});
 
   /// Creates a [Component] from a JSON object.
-    factory Component.fromJson(Map<String, dynamic> json) {
-      final componentMap = json['component'] as Map<String, dynamic>;
-      return Component(
-        id: json['id'] as String,
-        weight: JsonUtils.parseDouble(json['weight']),
-        component: {
-          componentMap.keys.first:
-              ComponentProperties.fromJson(componentMap)
-        },
-      );
-    }
+  factory Component.fromJson(Map<String, dynamic> json) {
+    final componentMap = json['component'] as Map<String, dynamic>;
+    return Component(
+      id: json['id'] as String,
+      weight: JsonUtils.parseDouble(json['weight']),
+      component: {
+        componentMap.keys.first: ComponentProperties.fromJson(componentMap),
+      },
+    );
+  }
 
   /// The unique ID of the component.
   final String id;
