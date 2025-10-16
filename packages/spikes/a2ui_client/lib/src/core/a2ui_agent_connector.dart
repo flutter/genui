@@ -193,42 +193,17 @@ class A2uiAgentConnector {
       final messages = data['a2uiMessages'] as List;
       _log.finer('Found ${messages.length} A2UI messages.');
       for (final message in messages) {
-        final jsonMessage = _transformMessage(message as Map<String, dynamic>);
-        if (jsonMessage != null && !_controller.isClosed) {
+        if (!_controller.isClosed) {
           _log.finest(
-            'Transformed and adding message to stream: '
-            '${jsonEncode(jsonMessage)}',
+            'Adding message to stream: '
+            '${jsonEncode(message)}',
           );
-          _controller.add(jsonEncode(jsonMessage));
-        } else {
-          _log.warning('Transformed message is null or controller is closed.');
+          _controller.add(jsonEncode(message));
         }
       }
     } else {
       _log.warning('A2A data part did not contain "a2uiMessages" key.');
     }
-  }
-
-  Map<String, dynamic>? _transformMessage(Map<String, dynamic> message) {
-    _log.finest('Transforming message: $message');
-    if (message.containsKey('version')) {
-      _log.finest('Identified as streamHeader');
-      return {'streamHeader': message};
-    }
-    if (message.containsKey('components')) {
-      _log.finest('Identified as componentUpdate');
-      return {'componentUpdate': message};
-    }
-    if (message.containsKey('contents')) {
-      _log.finest('Identified as dataModelUpdate');
-      return {'dataModelUpdate': message};
-    }
-    if (message.containsKey('root')) {
-      _log.finest('Identified as beginRendering');
-      return {'beginRendering': message};
-    }
-    _log.warning('Unknown message type for transform: $message');
-    return null;
   }
 
   /// Closes the connection to the agent.

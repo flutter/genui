@@ -136,7 +136,11 @@ class _AgentConnectionViewState extends State<AgentConnectionView>
                       interpreter: agentState.interpreter!,
                       registry: registry,
                       onEvent: (event) {
-                        agentState.connector?.sendEvent(event);
+                        agentState.connector?.sendEvent({
+                          'action': event['action'],
+                          'sourceComponentId': event['sourceComponentId'],
+                          'context': event['context'],
+                        });
                       },
                       onDataModelUpdate: (path, value) {
                         agentState.interpreter!.updateData(path, value);

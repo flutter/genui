@@ -8,13 +8,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('A2UI Models', () {
-    test('ComponentUpdate can be deserialized', () {
+    test('SurfaceUpdate can be deserialized', () {
       final json = {
-        'componentUpdate': {
+        'surfaceUpdate': {
+          'surfaceId': '1',
           'components': [
             {
               'id': 'test',
-              'componentProperties': {
+              'component': {
                 'Text': {
                   'text': {'literalString': 'Hello'},
                 },
@@ -24,23 +25,27 @@ void main() {
         },
       };
       final message = A2uiStreamMessage.fromJson(json);
-      expect(message, isA<ComponentUpdate>());
-      final componentUpdate = message as ComponentUpdate;
-      expect(componentUpdate.components.length, 1);
-      expect(componentUpdate.components.first.id, 'test');
+      expect(message, isA<SurfaceUpdate>());
+      final surfaceUpdate = message as SurfaceUpdate;
+      expect(surfaceUpdate.components.length, 1);
+      expect(surfaceUpdate.components.first.id, 'test');
       expect(
-        componentUpdate.components.first.componentProperties,
+        surfaceUpdate.components.first.component.values.first,
         isA<TextProperties>(),
       );
       final textProperties =
-          componentUpdate.components.first.componentProperties
+          surfaceUpdate.components.first.component.values.first
               as TextProperties;
       expect(textProperties.text.literalString, 'Hello');
     });
 
     test('DataModelUpdate can be deserialized', () {
       final json = {
-        'dataModelUpdate': {'path': 'user.name', 'contents': 'John Doe'},
+        'dataModelUpdate': {
+          'surfaceId': '1',
+          'path': 'user.name',
+          'contents': 'John Doe',
+        },
       };
       final message = A2uiStreamMessage.fromJson(json);
       expect(message, isA<DataModelUpdate>());
@@ -51,22 +56,12 @@ void main() {
 
     test('BeginRendering can be deserialized', () {
       final json = {
-        'beginRendering': {'root': 'root_id'},
+        'beginRendering': {'surfaceId': '1', 'root': 'root_id'},
       };
       final message = A2uiStreamMessage.fromJson(json);
       expect(message, isA<BeginRendering>());
       final beginRendering = message as BeginRendering;
       expect(beginRendering.root, 'root_id');
-    });
-
-    test('StreamHeader can be deserialized', () {
-      final json = {
-        'streamHeader': {'version': '1.0.0'},
-      };
-      final message = A2uiStreamMessage.fromJson(json);
-      expect(message, isA<StreamHeader>());
-      final streamHeader = message as StreamHeader;
-      expect(streamHeader.version, '1.0.0');
     });
   });
 }

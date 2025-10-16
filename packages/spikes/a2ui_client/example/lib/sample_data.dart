@@ -3,29 +3,28 @@
 // found in the LICENSE file.
 
 const String sampleJsonl = r'''
-{"streamHeader": {"version": "1.0.0"}}
-{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {"explicitList": ["profile_card"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "profile_card", "componentProperties": {"Card": {"child": "card_content"}}}]}}
-{"componentUpdate": {"components": [{"id": "card_content", "componentProperties": {"Column": {"children": {"explicitList": ["header_row", "bio_text", "stats_row", "interaction_row"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "header_row", "componentProperties": {"Row": {"alignment": "center", "children": {"explicitList": ["avatar", "name_column"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "avatar", "componentProperties": {"Image": {"url": {"literalString": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=128"}}}}]}}
-{"componentUpdate": {"components": [{"id": "name_column", "componentProperties": {"Column": {"alignment": "start", "children": {"explicitList": ["name_text", "handle_text"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "name_text", "componentProperties": {"Heading": {"level": "3", "text": {"literalString": "Flutter Fan"}}}}]}}
-{"componentUpdate": {"components": [{"id": "handle_text", "componentProperties": {"Text": {"text": {"literalString": "@flutterdev"}}}}]}}
-{"componentUpdate": {"components": [{"id": "bio_text", "componentProperties": {"Text": {"text": {"literalString": "Building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase."}}}}]}}
-{"componentUpdate": {"components": [{"id": "stats_row", "componentProperties": {"Row": {"distribution": "spaceAround", "children": {"explicitList": ["followers_stat", "following_stat", "likes_stat"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "followers_stat", "componentProperties": {"Column": {"children": {"explicitList": ["followers_count", "followers_label"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "followers_count", "componentProperties": {"Text": {"text": {"literalString": "1.2M"}}}}]}}
-{"componentUpdate": {"components": [{"id": "followers_label", "componentProperties": {"Text": {"text": {"literalString": "Followers"}}}}]}}
-{"componentUpdate": {"components": [{"id": "following_stat", "componentProperties": {"Column": {"children": {"explicitList": ["following_count", "following_label"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "following_count", "componentProperties": {"Text": {"text": {"literalString": "280"}}}}]}}
-{"componentUpdate": {"components": [{"id": "following_label", "componentProperties": {"Text": {"text": {"literalString": "Following"}}}}]}}
-{"componentUpdate": {"components": [{"id": "likes_stat", "componentProperties": {"Column": {"children": {"explicitList": ["likes_count", "likes_label"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "likes_count", "componentProperties": {"Text": {"text": {"literalString": "10M"}}}}]}}
-{"componentUpdate": {"components": [{"id": "likes_label", "componentProperties": {"Text": {"text": {"literalString": "Likes"}}}}]}}
-{"componentUpdate": {"components": [{"id": "interaction_row", "componentProperties": {"Row": {"children": {"explicitList": ["follow_button", "message_field"]}}}}]}}
-{"componentUpdate": {"components": [{"id": "follow_button", "componentProperties": {"Button": {"label": {"literalString": "Follow"}, "action": {"action": "follow_user"}}}}]}}
-{"componentUpdate": {"components": [{"id": "message_field", "componentProperties": {"TextField": {"label": {"literalString": "Send a message..."}}}}]}}
-{"dataModelUpdate": {"contents": {}}}
-{"beginRendering": {"root": "root"}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["profile_card"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "profile_card", "component": {"Card": {"child": "card_content"}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "card_content", "component": {"Column": {"children": {"explicitList": ["header_row", "bio_text", "stats_row", "interaction_row"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "header_row", "component": {"Row": {"alignment": "center", "children": {"explicitList": ["avatar", "name_column"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "avatar", "component": {"Image": {"url": {"literalString": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=128"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "name_column", "component": {"Column": {"alignment": "start", "children": {"explicitList": ["name_text", "handle_text"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "name_text", "component": {"Heading": {"level": "3", "text": {"literalString": "Flutter Fan"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "handle_text", "component": {"Text": {"text": {"literalString": "@flutterdev"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "bio_text", "component": {"Text": {"text": {"literalString": "Building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase."}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "stats_row", "component": {"Row": {"distribution": "spaceAround", "children": {"explicitList": ["followers_stat", "following_stat", "likes_stat"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "followers_stat", "component": {"Column": {"children": {"explicitList": ["followers_count", "followers_label"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "followers_count", "component": {"Text": {"text": {"literalString": "1.2M"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "followers_label", "component": {"Text": {"text": {"literalString": "Followers"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "following_stat", "component": {"Column": {"children": {"explicitList": ["following_count", "following_label"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "following_count", "component": {"Text": {"text": {"literalString": "280"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "following_label", "component": {"Text": {"text": {"literalString": "Following"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "likes_stat", "component": {"Column": {"children": {"explicitList": ["likes_count", "likes_label"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "likes_count", "component": {"Text": {"text": {"literalString": "10M"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "likes_label", "component": {"Text": {"text": {"literalString": "Likes"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "interaction_row", "component": {"Row": {"children": {"explicitList": ["follow_button", "message_field"]}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "follow_button", "component": {"Button": {"label": {"literalString": "Follow"}, "action": {"name": "follow_user"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "message_field", "component": {"TextField": {"label": {"literalString": "Send a message..."}}}}]}}
+{"dataModelUpdate": {"surfaceId": "1", "contents": {}}}
+{"beginRendering": {"surfaceId": "1", "root": "root"}}
 ''';
