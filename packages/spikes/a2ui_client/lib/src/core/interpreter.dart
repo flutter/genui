@@ -42,13 +42,24 @@ class A2uiInterpreter with ChangeNotifier {
   String? _error;
 
   /// Whether the interpreter has received enough information to render the UI.
-  bool get isReadyToRender =>
-      _activeSurfaceId != null && _surfaces[_activeSurfaceId]!.isReadyToRender;
+  bool get isReadyToRender {
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) {
+      return false;
+    }
+    final surface = _surfaces[activeSurfaceId];
+    return surface?.isReadyToRender ?? false;
+  }
 
   /// The ID of the root component in the UI.
-  String? get rootComponentId => _activeSurfaceId != null
-      ? _surfaces[_activeSurfaceId]!.rootComponentId
-      : null;
+  String? get rootComponentId {
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) {
+      return null;
+    }
+    final surface = _surfaces[activeSurfaceId];
+    return surface?.rootComponentId;
+  }
 
   /// An error message, if any error has occurred.
   String? get error => _error;
@@ -76,8 +87,16 @@ class A2uiInterpreter with ChangeNotifier {
         SurfaceDeletion(surfaceId: final id) => id,
       };
 
+      final activeSurfaceId = _activeSurfaceId;
+      if (activeSurfaceId == null) {
+        _error = 'No active surface ID found when processing message.';
+        _log.severe(_error);
+        notifyListeners();
+        return;
+      }
+
       final surfaceState = _surfaces.putIfAbsent(
-        _activeSurfaceId!,
+        activeSurfaceId,
         _SurfaceState.new,
       );
 
@@ -140,8 +159,16 @@ class A2uiInterpreter with ChangeNotifier {
   /// This method is used to update the data model from the client-side, for
   /// example when a user interacts with a form field.
   void updateData(String path, dynamic value) {
-    if (_activeSurfaceId == null) return;
-    _updateDataModel(_surfaces[_activeSurfaceId]!, path, value);
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) return;
+    final surfaceState = _surfaces[activeSurfaceId];
+    if (surfaceState == null) {
+      _error = 'No surface state found for active surface ID: $activeSurfaceId';
+      _log.severe(_error);
+      notifyListeners();
+      return;
+    }
+    _updateDataModel(surfaceState, path, value);
     notifyListeners();
   }
 
@@ -226,8 +253,15 @@ class A2uiInterpreter with ChangeNotifier {
 
   /// Resolves a data binding path to a value in the data model.
   Object? resolveDataBinding(String path) {
-    if (_activeSurfaceId == null) return null;
-    final surfaceState = _surfaces[_activeSurfaceId]!;
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) return null;
+    final surfaceState = _surfaces[activeSurfaceId];
+    if (surfaceState == null) {
+      _log.warning(
+        'No surface state found for active surface ID: $activeSurfaceId',
+      );
+      return null;
+    }
     _log.finer('Resolving data binding for path: "$path"');
     if (path.isEmpty) {
       _log.warning('Attempted to resolve empty data binding path.');
