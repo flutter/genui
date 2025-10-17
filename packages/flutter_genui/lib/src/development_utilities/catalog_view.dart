@@ -21,10 +21,17 @@ import '../primitives/simple_items.dart';
 /// In order for a catalog item to be displayed, it must have example data
 /// defined.
 class DebugCatalogView extends StatefulWidget {
-  const DebugCatalogView({this.onSubmit, required this.catalog});
+  const DebugCatalogView({
+    this.onSubmit,
+    required this.catalog,
+    this.itemHeight,
+  });
 
   final Catalog catalog;
   final ValueChanged<UserMessage>? onSubmit;
+
+  /// If provided, constrains each item to the given height.
+  final double? itemHeight;
 
   @override
   State<DebugCatalogView> createState() => _DebugCatalogViewState();
@@ -117,7 +124,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
               '$surfaceId:',
               style: const TextStyle(decoration: TextDecoration.underline),
             ),
-            subtitle: GenUiSurface(host: _genUi, surfaceId: surfaceId),
+            subtitle: SizedBox(
+              height: widget.itemHeight,
+              child: GenUiSurface(host: _genUi, surfaceId: surfaceId),
+            ),
           ),
         );
       },
