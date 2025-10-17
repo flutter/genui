@@ -99,8 +99,11 @@ final dateTimeInput = CatalogItem(
       'widgets': [
         {
           'id': 'datetime',
-          'type': 'DateTimeInput',
-          'value': {'path': '/myDateTime'},
+          'widget': {
+            'DateTimeInput': {
+              'value': {'path': '/myDateTime'},
+            },
+          },
         },
       ],
     },

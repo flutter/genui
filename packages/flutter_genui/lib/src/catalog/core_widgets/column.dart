@@ -117,7 +117,13 @@ final column = CatalogItem(
           'id': 'advice_column',
           'widget': {
             'Column': {
-              'children': ['advice_text', 'advice_options', 'submit_button'],
+              'children': {
+                'explicitList': [
+                  'advice_text',
+                  'advice_options',
+                  'submit_button',
+                ],
+              },
             },
           },
         },
@@ -144,7 +150,7 @@ final column = CatalogItem(
           'widget': {
             'Button': {
               'child': 'submit_button_text',
-              'action': {'actionName': 'submit'},
+              'action': {'name': 'submit'},
             },
           },
         },

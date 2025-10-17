@@ -67,20 +67,29 @@ final list = CatalogItem(
       'widgets': [
         {
           'id': 'list',
-          'type': 'List',
-          'children': {
-            'explicitList': ['text1', 'text2'],
+          'widget': {
+            'List': {
+              'children': {
+                'explicitList': ['text1', 'text2'],
+              },
+            },
           },
         },
         {
           'id': 'text1',
-          'type': 'Text',
-          'text': {'literalString': 'First'},
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'First'},
+            },
+          },
         },
         {
           'id': 'text2',
-          'type': 'Text',
-          'text': {'literalString': 'Second'},
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'Second'},
+            },
+          },
         },
       ],
     },

@@ -63,9 +63,12 @@ final heading = CatalogItem(
       'widgets': [
         {
           'id': 'heading',
-          'type': 'Heading',
-          'text': {'literalString': 'This is a heading'},
-          'level': '1',
+          'widget': {
+            'Heading': {
+              'text': {'literalString': 'This is a heading'},
+              'level': '1',
+            },
+          },
         },
       ],
     },

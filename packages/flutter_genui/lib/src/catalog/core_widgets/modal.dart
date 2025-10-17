@@ -54,20 +54,42 @@ final modal = CatalogItem(
       'widgets': [
         {
           'id': 'modal',
-          'type': 'Modal',
-          'entryPointChild': 'button',
-          'contentChild': 'text',
+          'widget': {
+            'Modal': {'entryPointChild': 'button', 'contentChild': 'text'},
+          },
         },
         {
           'id': 'button',
-          'type': 'Button',
-          'label': {'literalString': 'Open Modal'},
-          'action': {'name': 'showModal'},
+          'widget': {
+            'Button': {
+              'child': 'button_text',
+              'action': {
+                'name': 'showModal',
+                'context': [
+                  {
+                    'key': 'modalId',
+                    'value': {'literalString': 'modal'},
+                  },
+                ],
+              },
+            },
+          },
+        },
+        {
+          'id': 'button_text',
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'Open Modal'},
+            },
+          },
         },
         {
           'id': 'text',
-          'type': 'Text',
-          'text': {'literalString': 'This is a modal.'},
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'This is a modal.'},
+            },
+          },
         },
       ],
     },

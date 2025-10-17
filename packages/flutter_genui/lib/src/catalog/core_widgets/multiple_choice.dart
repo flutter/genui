@@ -105,18 +105,21 @@ final multipleChoice = CatalogItem(
       'widgets': [
         {
           'id': 'multiple_choice',
-          'type': 'MultipleChoice',
-          'selections': {'path': '/mySelections'},
-          'options': [
-            {
-              'label': {'literalString': 'Option 1'},
-              'value': '1',
+          'widget': {
+            'MultipleChoice': {
+              'selections': {'path': '/mySelections'},
+              'options': [
+                {
+                  'label': {'literalString': 'Option 1'},
+                  'value': '1',
+                },
+                {
+                  'label': {'literalString': 'Option 2'},
+                  'value': '2',
+                },
+              ],
             },
-            {
-              'label': {'literalString': 'Option 2'},
-              'value': '2',
-            },
-          ],
+          },
         },
       ],
     },

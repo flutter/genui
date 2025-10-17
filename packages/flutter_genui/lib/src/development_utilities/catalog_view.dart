@@ -63,12 +63,23 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
           .map((e) {
             final widget = e as JsonMap;
             final widgetMap = widget['widget'] as JsonMap?;
-            if (widgetMap == null) {
+            if (widgetMap != null) {
+              return Component(
+                id: widget['id'] as String,
+                componentProperties: widgetMap,
+              );
+            }
+            // Handle the other format.
+            final type = widget['type'] as String?;
+            if (type == null) {
               return null;
             }
+            final properties = Map<String, Object?>.from(widget);
+            properties.remove('id');
+            properties.remove('type');
             return Component(
               id: widget['id'] as String,
-              componentProperties: widgetMap.values.first as JsonMap,
+              componentProperties: {type: properties},
             );
           })
           .whereType<Component>()
@@ -99,12 +110,15 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final surfaceId = surfaceIds[index];
-        return ListTile(
-          title: Text(
-            '$surfaceId:',
-            style: const TextStyle(decoration: TextDecoration.underline),
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: ListTile(
+            title: Text(
+              '$surfaceId:',
+              style: const TextStyle(decoration: TextDecoration.underline),
+            ),
+            subtitle: GenUiSurface(host: _genUi, surfaceId: surfaceId),
           ),
-          subtitle: GenUiSurface(host: _genUi, surfaceId: surfaceId),
         );
       },
     );

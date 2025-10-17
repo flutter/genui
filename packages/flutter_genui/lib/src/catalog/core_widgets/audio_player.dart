@@ -29,7 +29,10 @@ final audioPlayer = CatalogItem(
         required context,
         required dataContext,
       }) {
-        return const Placeholder(child: Center(child: Text('AudioPlayer')));
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),
+          child: const Placeholder(child: Center(child: Text('AudioPlayer'))),
+        );
       },
   exampleData: [
     () => {

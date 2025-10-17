@@ -76,8 +76,11 @@ final slider = CatalogItem(
       'widgets': [
         {
           'id': 'slider',
-          'type': 'Slider',
-          'value': {'path': '/myValue'},
+          'widget': {
+            'Slider': {
+              'value': {'path': '/myValue'},
+            },
+          },
         },
       ],
     },

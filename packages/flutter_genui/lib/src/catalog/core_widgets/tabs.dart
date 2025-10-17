@@ -79,27 +79,36 @@ final tabs = CatalogItem(
       'widgets': [
         {
           'id': 'tabs',
-          'type': 'Tabs',
-          'tabItems': [
-            {
-              'title': {'literalString': 'Tab 1'},
-              'child': 'text1',
+          'widget': {
+            'Tabs': {
+              'tabItems': [
+                {
+                  'title': {'literalString': 'Tab 1'},
+                  'child': 'text1',
+                },
+                {
+                  'title': {'literalString': 'Tab 2'},
+                  'child': 'text2',
+                },
+              ],
             },
-            {
-              'title': {'literalString': 'Tab 2'},
-              'child': 'text2',
-            },
-          ],
+          },
         },
         {
           'id': 'text1',
-          'type': 'Text',
-          'text': {'literalString': 'This is the first tab.'},
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'This is the first tab.'},
+            },
+          },
         },
         {
           'id': 'text2',
-          'type': 'Text',
-          'text': {'literalString': 'This is the second tab.'},
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'This is the second tab.'},
+            },
+          },
         },
       ],
     },

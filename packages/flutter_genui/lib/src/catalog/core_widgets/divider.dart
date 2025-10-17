@@ -42,7 +42,10 @@ final divider = CatalogItem(
     () => {
       'root': 'divider',
       'widgets': [
-        {'id': 'divider', 'type': 'Divider'},
+        {
+          'id': 'divider',
+          'widget': {'Divider': <String, Object?>{}},
+        },
       ],
     },
   ],
