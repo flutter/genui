@@ -7,15 +7,20 @@ import 'backend/model.dart';
 import 'debug_utils.dart';
 
 class Protocol {
-  Future<SurfaceUpdate?> sendRequest(String request) async {
+  Future<SurfaceUpdate?> sendRequest(
+    String request, {
+    required bool useSavedResponse,
+  }) async {
     final schema = UiSchemaDefinition(
       prompt: _prompt(request),
       tools: [_functionDeclaration()],
     );
 
-    debugSaveToFileObject('schema', schema);
-
-    final toolCall = await Backend.sendRequest(schema, _prompt(request));
+    final toolCall = await Backend.sendRequest(
+      schema,
+      _prompt(request),
+      useSavedResponse: useSavedResponse,
+    );
 
     if (toolCall == null) {
       return null;

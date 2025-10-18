@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   // ignore: omit_local_variable_types
                   final SurfaceUpdate? ui = await _protocol.sendRequest(
                     _controller.text,
+                    useSavedResponse: true,
                   );
                   if (ui == null) {
                     _surfaceId = null;

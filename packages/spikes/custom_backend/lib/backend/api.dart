@@ -3,24 +3,50 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:http/http.dart' as http;
 
 import '../debug_utils.dart';
 import 'model.dart';
 
-/*
-Prompt to create this code:
-Implement sendRequest to send request to gemini with enforced schema.
-Use direct REST API calls with http package as described here:
-https://ai.google.dev/gemini-api/docs/function-calling?example=meeting#rest_2
-*/
+// https://ai.google.dev/gemini-api/docs/function-calling?example=meeting#rest_2
 
 abstract class Backend {
   static Future<ToolCall?> sendRequest(
     UiSchemaDefinition schema,
+    String request, {
+    required bool useSavedResponse,
+  }) async {
+    late final String? rawResponse;
+    if (useSavedResponse) {
+      rawResponse = await _getSavedRawResponse();
+    } else {
+      rawResponse = await _getRawResponseFromApi(schema, request);
+    }
+
+    if (rawResponse == null) {
+      return null;
+    }
+
+    final response = jsonDecode(rawResponse);
+    debugSaveToFileObject('full-response', response);
+    final toolCallPart = response['candidates'][0]['content']['parts'][0];
+    final functionCall = toolCallPart['functionCall'];
+    if (functionCall == null) return null;
+    return ToolCall.fromJson(functionCall as JsonMap);
+  }
+
+  static Future<String> _getSavedRawResponse() async {
+    return await rootBundle.loadString('assets/data/saved-response.json');
+  }
+
+  static Future<String?> _getRawResponseFromApi(
+    UiSchemaDefinition schema,
     String request,
   ) async {
+    debugSaveToFileObject('schema', schema);
+
     final apiKey = Platform.environment['GEMINI_API_KEY'];
     if (apiKey == null) {
       throw Exception('GEMINI_API_KEY environment variable not set.');
@@ -57,17 +83,10 @@ abstract class Backend {
     );
 
     if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      debugSaveToFileObject('full-response', responseBody);
-      final toolCallPart = responseBody['candidates'][0]['content']['parts'][0];
-      if (toolCallPart['functionCall'] != null) {
-        return ToolCall.fromJson(toolCallPart['functionCall'] as JsonMap);
-      }
+      return response.body;
     } else {
       print('Failed to send request: ${response.body}');
       throw Exception('Failed to send request: ${response.body}');
     }
-
-    return null;
   }
 }
