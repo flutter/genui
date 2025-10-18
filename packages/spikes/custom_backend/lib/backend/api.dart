@@ -16,13 +16,13 @@ abstract class Backend {
   static Future<ToolCall?> sendRequest(
     UiSchemaDefinition schema,
     String request, {
-    required bool useSavedResponse,
+    required String? savedResponse,
   }) async {
     late final String? rawResponse;
-    if (useSavedResponse) {
-      rawResponse = await _getSavedRawResponse();
-    } else {
+    if (savedResponse == null) {
       rawResponse = await _getRawResponseFromApi(schema, request);
+    } else {
+      rawResponse = await _getSavedRawResponse(savedResponse);
     }
 
     if (rawResponse == null) {
@@ -37,9 +37,8 @@ abstract class Backend {
     return ToolCall.fromJson(functionCall as JsonMap);
   }
 
-  static Future<String> _getSavedRawResponse() async {
-    return await rootBundle.loadString('assets/data/saved-response.json');
-  }
+  static Future<String> _getSavedRawResponse(String savedResponse) async =>
+      await rootBundle.loadString(savedResponse);
 
   static Future<String?> _getRawResponseFromApi(
     UiSchemaDefinition schema,

@@ -17,12 +17,14 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
   });
 
-  test('sendRequest works', () async {
-    final protocol = Protocol();
-    final result = await protocol.sendRequest(
-      requestText,
-      useSavedResponse: true,
-    );
-    expect(result, isNotNull);
-  });
+  for (final savedResponse in savedResponseAssets) {
+    test('sendRequest works for $savedResponse', () async {
+      final protocol = Protocol();
+      final result = await protocol.sendRequest(
+        requestText,
+        savedResponse: savedResponse,
+      );
+      expect(result, isNotNull);
+    });
+  }
 }

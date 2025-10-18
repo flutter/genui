@@ -9,7 +9,7 @@ import 'debug_utils.dart';
 class Protocol {
   Future<SurfaceUpdate?> sendRequest(
     String request, {
-    required bool useSavedResponse,
+    required String? savedResponse,
   }) async {
     final schema = UiSchemaDefinition(
       prompt: _prompt(request),
@@ -19,7 +19,7 @@ class Protocol {
     final toolCall = await Backend.sendRequest(
       schema,
       _prompt(request),
-      useSavedResponse: useSavedResponse,
+      savedResponse: savedResponse,
     );
 
     if (toolCall == null) {

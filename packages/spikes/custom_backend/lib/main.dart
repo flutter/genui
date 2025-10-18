@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _controller = TextEditingController(text: requestText);
   final _protocol = Protocol();
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
-  bool _useSavedResponse = false;
+  String? _selectedResponse;
   bool _isLoading = false;
   String? _surfaceId;
   String? _errorMessage;
@@ -55,13 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             TextField(controller: _controller),
             const SizedBox(height: 20.0),
-            CheckboxListTile(
-              value: _useSavedResponse,
-              onChanged: (value) {
-                setState(() => _useSavedResponse = value ?? false);
-              },
-              title: const Text('Use saved response'),
-            ),
+            _ResponseSelector((selected) => _selectedResponse = selected),
+
             const SizedBox(height: 20.0),
             IconButton(
               onPressed: () async {
@@ -70,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   // ignore: omit_local_variable_types
                   final SurfaceUpdate? ui = await _protocol.sendRequest(
                     _controller.text,
-                    useSavedResponse: _useSavedResponse,
+                    savedResponse: _selectedResponse,
                   );
                   if (ui == null) {
                     _surfaceId = null;
@@ -149,7 +144,7 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
       items: savedResponseAssets.map((String? location) {
         return DropdownMenuItem<String?>(
           value: location,
-          child: Text(location ?? 'Request to server'),
+          child: Text(location ?? 'Request Gemini'),
         );
       }).toList(),
     );
@@ -159,5 +154,5 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
 const _numberOfSavedResponses = 2;
 final Iterable<String?> savedResponseAssets = List.generate(
   _numberOfSavedResponses + 1,
-  (index) => index == 0 ? null : 'assets/data/saved_response_$index.json',
+  (index) => index == 0 ? null : 'assets/data/saved-response-$index.json',
 );
