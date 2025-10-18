@@ -55,6 +55,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         var rootId = definition.rootComponentId;
 
         if (rootId == null && definition.components.isNotEmpty) {
+          genUiLogger.warning(
+            'Surface ${widget.surfaceId} has no rootComponentId specified.',
+          );
+          // This should happen less after fix of
+          // https://github.com/flutter/genui/issues/400
           // If there's only one component, use last as the root.
           rootId = definition.components.keys.last;
         }
