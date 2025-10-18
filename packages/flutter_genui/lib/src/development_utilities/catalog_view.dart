@@ -119,6 +119,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
         final surfaceId = surfaceIds[index];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
               '$surfaceId:',
