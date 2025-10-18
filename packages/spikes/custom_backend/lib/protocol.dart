@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:flutter_genui/flutter_genui.dart';
 
 import 'backend/api.dart';
@@ -17,7 +19,7 @@ class Protocol {
       return null;
     }
 
-    final componentsMap = toolCall.args['components'] as Map<String, dynamic>?;
+    final componentsMap = toolCall.args['components'] as JsonMap?;
     if (componentsMap == null) {
       return null;
     }
@@ -30,10 +32,7 @@ class Protocol {
       );
     }).toList();
 
-    return SurfaceUpdate(
-      surfaceId: 'custom_backend',
-      components: components,
-    );
+    return SurfaceUpdate(surfaceId: 'custom_backend', components: components);
   }
 
   Catalog get catalog => _catalog;
