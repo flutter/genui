@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final _controller = TextEditingController(text: requestText);
   final _protocol = Protocol();
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
+  bool _useSavedResponse = false;
   bool _isLoading = false;
   String? _surfaceId;
   String? _errorMessage;
@@ -54,6 +55,14 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             TextField(controller: _controller),
             const SizedBox(height: 20.0),
+            CheckboxListTile(
+              value: _useSavedResponse,
+              onChanged: (value) {
+                setState(() => _useSavedResponse = value ?? false);
+              },
+              title: const Text('Use saved response'),
+            ),
+            const SizedBox(height: 20.0),
             IconButton(
               onPressed: () async {
                 setState(() => _isLoading = true);
@@ -61,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   // ignore: omit_local_variable_types
                   final SurfaceUpdate? ui = await _protocol.sendRequest(
                     _controller.text,
-                    useSavedResponse: true,
+                    useSavedResponse: _useSavedResponse,
                   );
                   if (ui == null) {
                     _surfaceId = null;
@@ -76,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() => _isLoading = false);
                 } catch (e, callStack) {
                   _surfaceId = null;
-                  print('!!! Error: $e\n$callStack');
+                  print('Error connecting to backend: $e\n$callStack');
                   setState(() {
                     _isLoading = false;
                     _errorMessage = e.toString();
@@ -114,3 +123,41 @@ class _MyHomePageState extends State<MyHomePage> {
     return GenUiSurface(surfaceId: _surfaceId!, host: _genUi);
   }
 }
+
+class _ResponseSelector extends StatefulWidget {
+  _ResponseSelector(this.onChanged);
+
+  final ValueChanged<String?> onChanged;
+
+  @override
+  State<_ResponseSelector> createState() => _ResponseSelectorState();
+}
+
+class _ResponseSelectorState extends State<_ResponseSelector> {
+  String? _selection;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String?>(
+      value: _selection,
+
+      onChanged: (String? newValue) => setState(() {
+        _selection = newValue;
+        widget.onChanged(newValue);
+      }),
+
+      items: savedResponseAssets.map((String? location) {
+        return DropdownMenuItem<String?>(
+          value: location,
+          child: Text(location ?? 'Request to server'),
+        );
+      }).toList(),
+    );
+  }
+}
+
+const _numberOfSavedResponses = 2;
+final Iterable<String?> savedResponseAssets = List.generate(
+  _numberOfSavedResponses + 1,
+  (index) => index == 0 ? null : 'assets/data/saved_response_$index.json',
+);

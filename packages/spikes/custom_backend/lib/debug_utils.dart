@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:intl/intl.dart';
 
 int _i = 100;
 
-void debugSaveToFile(String name, String content, {String extension = 'txt'}) {
-  final d = DateTime.now();
+final _formatter = DateFormat('yyyy-MM-dd_HH_mm_ss');
 
-  final dirName = 'debug/${d.year}-${d.month}-${d.day}_${d.hour}_${d.minute}';
+void debugSaveToFile(String name, String content, {String extension = 'txt'}) {
+  final dirName = 'debug/${_formatter.format(DateTime.now())}';
   final directory = Directory(dirName);
   if (!directory.existsSync()) {
     directory.createSync(recursive: true);
