@@ -22,6 +22,7 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
   final catalog = CoreCatalogItems.asCatalog().copyWithout([
     CoreCatalogItems.tabs,
     CoreCatalogItems.list,
+    CoreCatalogItems.image,
   ]);
 
   @override
