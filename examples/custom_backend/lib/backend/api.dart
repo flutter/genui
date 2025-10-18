@@ -91,7 +91,6 @@ abstract class Backend {
     if (response.statusCode == 200) {
       return response.body;
     } else {
-      print('Failed to send request: ${response.body}');
       throw Exception('Failed to send request: ${response.body}');
     }
   }
