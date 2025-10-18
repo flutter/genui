@@ -5,7 +5,6 @@ import 'backend/model.dart';
 
 class Protocol {
   Future<SurfaceUpdate?> sendRequest(String request) async {
-    // ignore: unused_local_variable
     final toolCall = await Backend.sendRequest(
       UiSchemaDefinition(
         prompt: _prompt(request),
@@ -14,7 +13,14 @@ class Protocol {
       _prompt(request),
     );
 
-    return null;
+    if (toolCall == null) {
+      return null;
+    }
+
+    return SurfaceUpdate(
+      surfaceId: 'custom_backend',
+      components: catalog.build(toolCall.args),
+    );
   }
 
   Catalog get catalog => _catalog;
