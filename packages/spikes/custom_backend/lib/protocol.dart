@@ -4,20 +4,24 @@ import 'package:flutter_genui/flutter_genui.dart';
 
 import 'backend/api.dart';
 import 'backend/model.dart';
+import 'debug_utils.dart';
 
 class Protocol {
   Future<SurfaceUpdate?> sendRequest(String request) async {
-    final toolCall = await Backend.sendRequest(
-      UiSchemaDefinition(
-        prompt: _prompt(request),
-        tools: [_functionDeclaration()],
-      ),
-      _prompt(request),
+    final schema = UiSchemaDefinition(
+      prompt: _prompt(request),
+      tools: [_functionDeclaration()],
     );
+
+    debugSaveToFileObject('schema', schema);
+
+    final toolCall = await Backend.sendRequest(schema, _prompt(request));
 
     if (toolCall == null) {
       return null;
     }
+
+    debugSaveToFileObject('toolCall', toolCall);
 
     final componentsMap = toolCall.args['components'] as JsonMap?;
     if (componentsMap == null) {
@@ -31,6 +35,8 @@ class Protocol {
         componentProperties: {componentName: componentProps},
       );
     }).toList();
+
+    debugSaveToFileObject('components', components);
 
     return SurfaceUpdate(surfaceId: 'custom_backend', components: components);
   }

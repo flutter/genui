@@ -63,3 +63,6 @@ app.*.map.json
 **/GoogleService-Info.plist
 **/.firebase
 **/.firebaserc
+
+# This package's specific logs.
+**/*.log.*
