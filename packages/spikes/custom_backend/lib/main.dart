@@ -92,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return const CircularProgressIndicator();
     }
     if (_surfaceId == null) {
-      return const Text('No UI generated :(');
+      return const Text('No UI 🤷‍♀️');
     }
     return GenUiSurface(surfaceId: _surfaceId!, host: _genUi);
   }
