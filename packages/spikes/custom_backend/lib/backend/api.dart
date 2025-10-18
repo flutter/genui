@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:http/http.dart' as http;
 
+import '../debug_utils.dart';
 import 'model.dart';
 
 /*
@@ -57,6 +58,7 @@ abstract class Backend {
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
+      debugSaveToFileObject('full-response', responseBody);
       final toolCallPart = responseBody['candidates'][0]['content']['parts'][0];
       if (toolCallPart['functionCall'] != null) {
         return ToolCall.fromJson(toolCallPart['functionCall'] as JsonMap);

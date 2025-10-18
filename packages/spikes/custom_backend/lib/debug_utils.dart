@@ -3,9 +3,7 @@ import 'dart:io';
 
 int _i = 100;
 
-void debugSaveToFile(String filePrefix, String content, {
-  String extension = 'txt',
-}) {
+void debugSaveToFile(String name, String content, {String extension = 'txt'}) {
   final d = DateTime.now();
 
   final dirName = 'debug/${d.year}-${d.month}-${d.day}_${d.hour}_${d.minute}';
@@ -13,13 +11,13 @@ void debugSaveToFile(String filePrefix, String content, {
   if (!directory.existsSync()) {
     directory.createSync(recursive: true);
   }
-  final file = File('$dirName/$filePrefix-${_i++}.log.$extension');
+  final file = File('$dirName/${_i++}-$name.log.$extension');
   file.writeAsStringSync(content);
   print('Debug: ${Directory.current.path}/${file.path}');
 }
 
-void debugSaveToFileObject(String filePrefix, Object content) {
+void debugSaveToFileObject(String name, Object content) {
   final encoder = const JsonEncoder.withIndent('  ');
   final prettyJson = encoder.convert(content);
-  debugSaveToFile(filePrefix, prettyJson, extension:  'json');
+  debugSaveToFile(name, prettyJson, extension: 'json');
 }
