@@ -117,17 +117,14 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final surfaceId = surfaceIds[index];
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200),
-          child: ListTile(
-            title: Text(
-              '$surfaceId:',
-              style: const TextStyle(decoration: TextDecoration.underline),
-            ),
-            subtitle: SizedBox(
-              height: widget.itemHeight,
-              child: GenUiSurface(host: _genUi, surfaceId: surfaceId),
-            ),
+        return ListTile(
+          title: Text(
+            '$surfaceId:',
+            style: const TextStyle(decoration: TextDecoration.underline),
+          ),
+          subtitle: SizedBox(
+            height: widget.itemHeight,
+            child: GenUiSurface(host: _genUi, surfaceId: surfaceId),
           ),
         );
       },
