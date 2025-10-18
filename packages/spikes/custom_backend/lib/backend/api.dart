@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:http/http.dart' as http;
 
 import 'model.dart';
@@ -23,27 +26,27 @@ abstract class Backend {
     }
 
     final url = Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$apiKey');
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$apiKey',
+    );
 
     final body = jsonEncode({
       'contents': [
         {
           'role': 'user',
           'parts': [
-            {'text': request}
+            {'text': request},
           ],
-        }
+        },
       ],
       'tools': [
-        {'function_declarations': schema.tools.map((e) => e.toJson()).toList()}
+        {'function_declarations': schema.tools.map((e) => e.toJson()).toList()},
       ],
       'tool_config': {
         'mode': 'MANDATORY',
         'function_calling_config': {
-          'allowed_function_names':
-              schema.tools.map((e) => e.name).toList(),
-        }
-      }
+          'allowed_function_names': schema.tools.map((e) => e.name).toList(),
+        },
+      },
     });
 
     final response = await http.post(
@@ -56,7 +59,7 @@ abstract class Backend {
       final responseBody = jsonDecode(response.body);
       final toolCallPart = responseBody['candidates'][0]['content']['parts'][0];
       if (toolCallPart['functionCall'] != null) {
-        return ToolCall.fromJson(toolCallPart['functionCall']);
+        return ToolCall.fromJson(toolCallPart['functionCall'] as JsonMap);
       }
     } else {
       throw Exception('Failed to send request: ${response.body}');

@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
   bool _isLoading = false;
   String? _surfaceId;
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -56,18 +57,30 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(
               onPressed: () async {
                 setState(() => _isLoading = true);
-                // ignore: omit_local_variable_types
-                final SurfaceUpdate? ui = await _protocol.sendRequest(
-                  _controller.text,
-                );
-                if (ui == null) {
-                  _surfaceId = null;
+                try {
+                  // ignore: omit_local_variable_types
+                  final SurfaceUpdate? ui = await _protocol.sendRequest(
+                    _controller.text,
+                  );
+                  if (ui == null) {
+                    _surfaceId = null;
+                    setState(() {
+                      _isLoading = false;
+                      _errorMessage = null;
+                    });
+                    return;
+                  }
+                  _genUi.handleMessage(ui);
+                  _surfaceId = ui.surfaceId;
                   setState(() => _isLoading = false);
-                  return;
+                } catch (e, callStack) {
+                  _surfaceId = null;
+                  print('!!! Error: $e\n$callStack');
+                  setState(() {
+                    _isLoading = false;
+                    _errorMessage = e.toString();
+                  });
                 }
-                _genUi.handleMessage(ui);
-                _surfaceId = ui.surfaceId;
-                setState(() => _isLoading = false);
               },
               icon: const Icon(Icons.send),
             ),
@@ -90,6 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildGeneratedUi() {
     if (_isLoading) {
       return const CircularProgressIndicator();
+    }
+    if (_errorMessage != null) {
+      return Text('$_errorMessage');
     }
     if (_surfaceId == null) {
       return const Text('No UI 🤷‍♀️');
