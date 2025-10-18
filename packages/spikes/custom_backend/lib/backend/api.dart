@@ -26,7 +26,7 @@ abstract class Backend {
     }
 
     final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$apiKey',
     );
 
     final body = jsonEncode({
@@ -49,16 +49,11 @@ abstract class Backend {
       },
     });
 
-    print('Request body: $body');
-
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
-
-    print('Response status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);

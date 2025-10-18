@@ -17,13 +17,18 @@ class Protocol {
       return null;
     }
 
-    final componentsJson = toolCall.args['components'] as List<dynamic>?;
-    if (componentsJson == null) {
+    final componentsMap = toolCall.args['components'] as Map<String, dynamic>?;
+    if (componentsMap == null) {
       return null;
     }
-    final components = componentsJson
-        .map((e) => Component.fromJson(e as JsonMap))
-        .toList();
+    final components = componentsMap.entries.map((entry) {
+      final componentName = entry.key;
+      final componentProps = entry.value as Map<String, dynamic>;
+      return Component(
+        id: componentName,
+        componentProperties: {componentName: componentProps},
+      );
+    }).toList();
 
     return SurfaceUpdate(
       surfaceId: 'custom_backend',
