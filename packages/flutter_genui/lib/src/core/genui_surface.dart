@@ -50,8 +50,14 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
-        final rootId = definition.rootComponentId;
-        if (rootId == null || definition.components.isEmpty) {
+
+        var rootId = definition.rootComponentId;
+
+        if (rootId == null && definition.components.length == 1) {
+          rootId = definition.components.keys.first;
+        }
+
+        if (rootId == null) {
           genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
           return const SizedBox.shrink();
         }
