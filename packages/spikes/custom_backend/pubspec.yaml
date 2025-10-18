@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   flutter_genui:
     path: ../../flutter_genui
+  http: ^1.5.0
   json_schema_builder:
     path: ../../json_schema_builder
 
