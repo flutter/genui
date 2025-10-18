@@ -31,10 +31,10 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+const requestText = 'Show me options how you can help me, using radio buttons.';
+
 class _MyHomePageState extends State<MyHomePage> {
-  final _controller = TextEditingController(
-    text: 'Show me options how you can help me, using radio buttons.',
-  );
+  final _controller = TextEditingController(text: requestText);
   final _protocol = Protocol();
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
   bool _isLoading = false;
