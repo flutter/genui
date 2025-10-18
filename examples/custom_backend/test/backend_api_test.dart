@@ -18,13 +18,18 @@ void main() {
   });
 
   for (final savedResponse in savedResponseAssets) {
-    test('sendRequest works for $savedResponse', () async {
-      final protocol = Protocol();
-      final result = await protocol.sendRequest(
-        requestText,
-        savedResponse: savedResponse,
-      );
-      expect(result, isNotNull);
-    });
+    test(
+      'sendRequest works for ${savedResponse ?? 'real request'}',
+      () async {
+        final protocol = Protocol();
+        final result = await protocol.sendRequest(
+          requestText,
+          savedResponse: savedResponse,
+        );
+        expect(result, isNotNull);
+      },
+      retry: 3,
+      timeout: const Timeout(Duration(minutes: 2)),
+    );
   }
 }
