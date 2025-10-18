@@ -10,6 +10,9 @@ import 'package:http/http.dart' as http;
 import '../debug_utils.dart';
 import 'model.dart';
 
+// mode='ANY':
+// The model is constrained to always predict a function call and
+// guarantees function schema adherence.
 // https://ai.google.dev/gemini-api/docs/function-calling?example=meeting#rest_2
 
 abstract class Backend {
