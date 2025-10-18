@@ -26,7 +26,7 @@ abstract class Backend {
     }
 
     final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=$apiKey',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey',
     );
 
     final body = jsonEncode({
@@ -42,18 +42,23 @@ abstract class Backend {
         {'function_declarations': schema.tools.map((e) => e.toJson()).toList()},
       ],
       'tool_config': {
-        'mode': 'MANDATORY',
         'function_calling_config': {
+          'mode': 'ANY',
           'allowed_function_names': schema.tools.map((e) => e.name).toList(),
         },
       },
     });
+
+    print('Request body: $body');
 
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
@@ -62,6 +67,7 @@ abstract class Backend {
         return ToolCall.fromJson(toolCallPart['functionCall'] as JsonMap);
       }
     } else {
+      print('Failed to send request: ${response.body}');
       throw Exception('Failed to send request: ${response.body}');
     }
 
