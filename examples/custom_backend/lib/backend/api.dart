@@ -21,13 +21,13 @@ import 'model.dart';
 
 abstract class Backend {
   static Future<ToolCall?> sendRequest(
-    UiSchemaDefinition schema,
+    List<FunctionDeclaration> tools,
     String request, {
     required String? savedResponse,
   }) async {
     late final String? rawResponse;
     if (savedResponse == null) {
-      rawResponse = await _getRawResponseFromApi(schema, request);
+      rawResponse = await _getRawResponseFromApi(tools, request);
     } else {
       rawResponse = await _getSavedRawResponse(savedResponse);
     }
@@ -48,10 +48,10 @@ abstract class Backend {
       await rootBundle.loadString(savedResponse);
 
   static Future<String?> _getRawResponseFromApi(
-    UiSchemaDefinition schema,
+    List<FunctionDeclaration> tools,
     String request,
   ) async {
-    debugSaveToFileObject('schema', schema);
+    debugSaveToFileObject('tools', tools);
 
     final apiKey = Platform.environment['GEMINI_API_KEY'];
     if (apiKey == null) {
@@ -72,12 +72,12 @@ abstract class Backend {
         },
       ],
       'tools': [
-        {'function_declarations': schema.tools.map((e) => e.toJson()).toList()},
+        {'function_declarations': tools.map((e) => e.toJson()).toList()},
       ],
       'tool_config': {
         'function_calling_config': {
           'mode': 'ANY',
-          'allowed_function_names': schema.tools.map((e) => e.name).toList(),
+          'allowed_function_names': tools.map((e) => e.name).toList(),
         },
       },
     });

@@ -15,13 +15,10 @@ class Protocol {
     String request, {
     required String? savedResponse,
   }) async {
-    final schema = UiSchemaDefinition(
-      prompt: _prompt(request),
-      tools: [_functionDeclaration()],
-    );
+    final tools = [_functionDeclaration()];
 
     final toolCall = await Backend.sendRequest(
-      schema,
+      tools,
       _prompt(request),
       savedResponse: savedResponse,
     );
@@ -64,6 +61,7 @@ String _prompt(String request) =>
     '''
 You are a helpful assistant that provides concise and relevant information.
 Always respond in a clear and structured manner.
+Always respond with generated UI.
 Use the tool $_toolName to generate UI code snippets to satisfy user request.
 
 User request: $request
