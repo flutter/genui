@@ -8,7 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
-  runApp(CatalogGalleryApp(CoreCatalogItems.asCatalog()));
+  runApp(
+    CatalogGalleryApp(
+      CoreCatalogItems.asCatalog().copyWithout([
+        CoreCatalogItems.tabs,
+        CoreCatalogItems.list,
+      ]),
+    ),
+  );
 }
 
 class CatalogGalleryApp extends StatefulWidget {
