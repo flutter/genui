@@ -4,7 +4,7 @@ import 'backend/api.dart';
 import 'backend/model.dart';
 
 class Protocol {
-  Future<SurfaceUpdated?> sendRequest(String request) async {
+  Future<SurfaceUpdate?> sendRequest(String request) async {
     // ignore: unused_local_variable
     final toolCall = await Backend.sendRequest(
       UiSchemaDefinition(
@@ -24,7 +24,7 @@ const _toolName = 'uiGenerator';
 
 final _catalog = CoreCatalogItems.asCatalog().copyWith([
   CoreCatalogItems.text,
-  CoreCatalogItems.radioGroup,
+  CoreCatalogItems.multipleChoice,
 ]);
 
 String _prompt(String request) =>
@@ -40,6 +40,6 @@ FunctionDeclaration _functionDeclaration() {
   return FunctionDeclaration(
     description: 'Generates UI.',
     name: _toolName,
-    parameters: _catalog.schema,
+    parameters: _catalog.definition,
   );
 }

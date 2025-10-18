@@ -37,6 +37,8 @@ class _MyHomePageState extends State<MyHomePage> {
   );
   final _protocol = Protocol();
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
+  bool _isLoading = false;
+  String? _surfaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +54,43 @@ class _MyHomePageState extends State<MyHomePage> {
             TextField(controller: _controller),
             const SizedBox(height: 16.0),
             IconButton(
-              onPressed: () {
-                _genUi.addOrUpdateSurface(surfaceId, definition)
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                // ignore: omit_local_variable_types
+                final SurfaceUpdate? ui = await _protocol.sendRequest(
+                  _controller.text,
+                );
+                if (ui == null) {
+                  _surfaceId = null;
+                  setState(() => _isLoading = false);
+                  return;
+                }
+                _genUi.handleMessage(ui);
+                _surfaceId = ui.surfaceId;
+                setState(() => _isLoading = false);
               },
               icon: const Icon(Icons.send),
+            ),
+            Card(
+              child: Container(
+                height: 400,
+                padding: const EdgeInsets.all(8.0),
+                child: _buildGeneratedUi(),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildGeneratedUi() {
+    if (_isLoading) {
+      return const CircularProgressIndicator();
+    }
+    if (_surfaceId == null) {
+      return const Text('No UI generated :(');
+    }
+    return GenUiSurface(surfaceId: _surfaceId!, host: _genUi);
   }
 }
