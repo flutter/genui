@@ -8,26 +8,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
-  runApp(
-    CatalogGalleryApp(
-      CoreCatalogItems.asCatalog().copyWithout([
-        CoreCatalogItems.tabs,
-        CoreCatalogItems.list,
-      ]),
-    ),
-  );
+  runApp(const CatalogGalleryApp());
 }
 
 class CatalogGalleryApp extends StatefulWidget {
-  const CatalogGalleryApp(this.catalog, {super.key});
-
-  final Catalog catalog;
+  const CatalogGalleryApp({super.key});
 
   @override
   State<CatalogGalleryApp> createState() => _CatalogGalleryAppState();
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
+  final catalog = CoreCatalogItems.asCatalog().copyWithout([
+    CoreCatalogItems.tabs,
+    CoreCatalogItems.list,
+  ]);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,7 +36,7 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
           title: const Text('Catalog items that has "exampleData" field set'),
         ),
         body: DebugCatalogView(
-          catalog: widget.catalog,
+          catalog: catalog,
           onSubmit: (message) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
