@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-import 'protocol.dart';
+import 'protocol/protocol.dart';
 
 void main() {
   runApp(const MyApp());
@@ -151,7 +151,7 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
   }
 }
 
-const _numberOfSavedResponses = 2;
+const _numberOfSavedResponses = 1;
 final Iterable<String?> savedResponseAssets = List.generate(
   _numberOfSavedResponses + 1,
   (index) => index == 0 ? null : 'assets/data/saved-response-$index.json',

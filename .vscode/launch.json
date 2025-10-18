@@ -24,7 +24,7 @@
     },
     {
       "name": "custom_backend",
-      "cwd": "packages/spikes/custom_backend",
+      "cwd": "examples/custom_backend",
       "request": "launch",
       "type": "dart"
     },

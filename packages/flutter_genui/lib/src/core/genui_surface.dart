@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
@@ -53,14 +54,16 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
         var rootId = definition.rootComponentId;
 
-        if (rootId == null && definition.components.length == 1) {
-          rootId = definition.components.keys.first;
+        if (rootId == null && definition.components.isNotEmpty) {
+          // If there's only one component, use last as the root.
+          rootId = definition.components.keys.last;
         }
 
         if (rootId == null) {
-          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
+          genUiLogger.warning('Surface ${widget.surfaceId} has no components.');
           return const SizedBox.shrink();
         }
+
         return _buildWidget(
           definition,
           rootId,

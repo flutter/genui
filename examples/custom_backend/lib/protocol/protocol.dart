@@ -2,9 +2,9 @@
 
 import 'package:flutter_genui/flutter_genui.dart';
 
-import 'backend/api.dart';
-import 'backend/model.dart';
-import 'debug_utils.dart';
+import '../backend/api.dart';
+import '../backend/model.dart';
+import '../debug_utils.dart';
 
 class Protocol {
   Future<SurfaceUpdate?> sendRequest(
@@ -51,7 +51,7 @@ class Protocol {
 
 const _toolName = 'uiGenerator';
 
-final _catalog = CoreCatalogItems.asCatalog().copyWith([
+final _catalog = Catalog([
   CoreCatalogItems.text,
   CoreCatalogItems.multipleChoice,
 ]);
