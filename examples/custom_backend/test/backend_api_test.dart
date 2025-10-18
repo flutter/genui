@@ -13,8 +13,13 @@ void main() {
   });
 
   for (final savedResponse in savedResponseAssets) {
+    // To add more saved responses, comment this line,
+    // run the test, copy debug output of full response to a new asset
+    // and update length of savedResponseAssets.
+    if (savedResponse == null) continue;
+
     test(
-      'sendRequest works for ${savedResponse ?? 'real request'}',
+      'sendRequest works for $savedResponse',
       () async {
         final protocol = Protocol();
         final result = await protocol.sendRequest(

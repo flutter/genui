@@ -155,7 +155,7 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
   }
 }
 
-const _numberOfSavedResponses = 1;
+const _numberOfSavedResponses = 2;
 final Iterable<String?> savedResponseAssets = List.generate(
   _numberOfSavedResponses + 1,
   (index) => index == 0 ? null : 'assets/data/saved-response-$index.json',
