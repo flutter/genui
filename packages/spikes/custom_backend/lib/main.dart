@@ -75,8 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Card(
               elevation: 2.0,
               child: Container(
-                height: 400,
-                width: 400,
+                height: 350,
+                width: 350,
                 alignment: Alignment.center,
                 child: _buildGeneratedUi(),
               ),
