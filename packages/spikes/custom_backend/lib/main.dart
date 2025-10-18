@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: [
             TextField(controller: _controller),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 20.0),
             IconButton(
               onPressed: () async {
                 setState(() => _isLoading = true);
@@ -71,10 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               icon: const Icon(Icons.send),
             ),
+            const SizedBox(height: 20.0),
             Card(
+              elevation: 2.0,
               child: Container(
                 height: 400,
-                padding: const EdgeInsets.all(8.0),
+                width: 400,
+                alignment: Alignment.center,
                 child: _buildGeneratedUi(),
               ),
             ),
