@@ -5,7 +5,8 @@ abstract class Backend {
     UiSchemaDefinition schema,
     String request,
   ) async {
-    await Future.delayed(const Duration(seconds: 2));
+    // ignore: inference_failure_on_instance_creation
+    await Future.delayed(const Duration(seconds: 1));
 
     // Implementation goes here
     return null;
