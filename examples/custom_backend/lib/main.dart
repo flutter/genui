@@ -38,6 +38,29 @@ class MyHomePage extends StatefulWidget {
 const requestText = 'Show me options how you can help me, using radio buttons.';
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text(_title),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: const _IntegrationTester(),
+      ),
+    );
+  }
+}
+
+class _IntegrationTester extends StatefulWidget {
+  const _IntegrationTester();
+
+  @override
+  State<_IntegrationTester> createState() => _IntegrationTesterState();
+}
+
+class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
   final _protocol = Protocol();
   late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
@@ -48,64 +71,55 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text(_title),
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(controller: _controller),
-            const SizedBox(height: 20.0),
-            _ResponseSelector((selected) => _selectedResponse = selected),
+    return Column(
+      children: [
+        TextField(controller: _controller),
+        const SizedBox(height: 20.0),
+        _ResponseSelector((selected) => _selectedResponse = selected),
 
-            const SizedBox(height: 20.0),
-            IconButton(
-              onPressed: () async {
-                setState(() => _isLoading = true);
-                try {
-                  // ignore: omit_local_variable_types
-                  final SurfaceUpdate? ui = await _protocol.sendRequest(
-                    _controller.text,
-                    savedResponse: _selectedResponse,
-                  );
-                  if (ui == null) {
-                    _surfaceId = null;
-                    setState(() {
-                      _isLoading = false;
-                      _errorMessage = null;
-                    });
-                    return;
-                  }
-                  _genUi.handleMessage(ui);
-                  _surfaceId = ui.surfaceId;
-                  setState(() => _isLoading = false);
-                } catch (e, callStack) {
-                  _surfaceId = null;
-                  print('Error connecting to backend: $e\n$callStack');
-                  setState(() {
-                    _isLoading = false;
-                    _errorMessage = e.toString();
-                  });
-                }
-              },
-              icon: const Icon(Icons.send),
-            ),
-            const SizedBox(height: 20.0),
-            Card(
-              elevation: 2.0,
-              child: Container(
-                height: 350,
-                width: 350,
-                alignment: Alignment.center,
-                child: _buildGeneratedUi(),
-              ),
-            ),
-          ],
+        const SizedBox(height: 20.0),
+        IconButton(
+          onPressed: () async {
+            setState(() => _isLoading = true);
+            try {
+              // ignore: omit_local_variable_types
+              final SurfaceUpdate? ui = await _protocol.sendRequest(
+                _controller.text,
+                savedResponse: _selectedResponse,
+              );
+              if (ui == null) {
+                _surfaceId = null;
+                setState(() {
+                  _isLoading = false;
+                  _errorMessage = null;
+                });
+                return;
+              }
+              _genUi.handleMessage(ui);
+              _surfaceId = ui.surfaceId;
+              setState(() => _isLoading = false);
+            } catch (e, callStack) {
+              _surfaceId = null;
+              print('Error connecting to backend: $e\n$callStack');
+              setState(() {
+                _isLoading = false;
+                _errorMessage = e.toString();
+              });
+            }
+          },
+          icon: const Icon(Icons.send),
         ),
-      ),
+        const SizedBox(height: 20.0),
+        Card(
+          elevation: 2.0,
+          child: Container(
+            height: 350,
+            width: 350,
+            alignment: Alignment.center,
+            child: _buildGeneratedUi(),
+          ),
+        ),
+      ],
     );
   }
 
