@@ -27,7 +27,7 @@ class ComponentPropertiesVisitor {
         resolvedContext[item.key] = resolveValue(item.value, itemData);
       }
     }
-    return {'action': action.action, 'context': resolvedContext};
+    return {'action': action.name, 'context': resolvedContext};
   }
 
   /// Resolves the properties of a [Component].
@@ -103,6 +103,8 @@ class ComponentPropertiesVisitor {
       return value.literalNumber;
     } else if (value.literalBoolean != null) {
       return value.literalBoolean;
+    } else if (value.literalArray != null) {
+      return value.literalArray;
     } else if (value.path != null) {
       Object? resolvedValue;
       if (itemData != null) {

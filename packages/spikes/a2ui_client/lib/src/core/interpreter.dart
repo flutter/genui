@@ -13,6 +13,13 @@ import '../models/stream_message.dart';
 
 final _log = Logger('A2uiInterpreter');
 
+class _SurfaceState {
+  final Map<String, Component> components = {};
+  Map<String, Object?> dataModel = {};
+  String? rootComponentId;
+  bool isReadyToRender = false;
+}
+
 /// A client-side interpreter for the A2UI Streaming UI Protocol.
 ///
 /// This class processes a stream of JSONL messages from a server, manages the
@@ -29,18 +36,30 @@ class A2uiInterpreter with ChangeNotifier {
   final Stream<String> stream;
   StreamSubscription<String>? _subscription;
 
-  final Map<String, Component> _components = {};
-  Map<String, Object?> _dataModel = {};
-  String? _rootComponentId;
-  bool _isReadyToRender = false;
+  final Map<String, _SurfaceState> _surfaces = {};
+  String? _activeSurfaceId;
 
   String? _error;
 
   /// Whether the interpreter has received enough information to render the UI.
-  bool get isReadyToRender => _isReadyToRender;
+  bool get isReadyToRender {
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) {
+      return false;
+    }
+    final surface = _surfaces[activeSurfaceId];
+    return surface?.isReadyToRender ?? false;
+  }
 
   /// The ID of the root component in the UI.
-  String? get rootComponentId => _rootComponentId;
+  String? get rootComponentId {
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) {
+      return null;
+    }
+    final surface = _surfaces[activeSurfaceId];
+    return surface?.rootComponentId;
+  }
 
   /// An error message, if any error has occurred.
   String? get error => _error;
@@ -59,30 +78,64 @@ class A2uiInterpreter with ChangeNotifier {
       final json = jsonDecode(jsonl) as Map<String, Object?>;
       final message = A2uiStreamMessage.fromJson(json);
       _log.finer('Parsed message: $message');
+
+      // For this spike, we only handle one surface at a time.
+      _activeSurfaceId ??= switch (message) {
+        BeginRendering(surfaceId: final id) => id,
+        SurfaceUpdate(surfaceId: final id) => id,
+        DataModelUpdate(surfaceId: final id) => id,
+        SurfaceDeletion(surfaceId: final id) => id,
+      };
+
+      final activeSurfaceId = _activeSurfaceId;
+      if (activeSurfaceId == null) {
+        _error = 'No active surface ID found when processing message.';
+        _log.severe(_error);
+        notifyListeners();
+        return;
+      }
+
+      final surfaceState = _surfaces.putIfAbsent(
+        activeSurfaceId,
+        _SurfaceState.new,
+      );
+
       switch (message) {
-        case StreamHeader():
-          _log.info('Received StreamHeader: version ${message.version}');
-          // Nothing to do for now.
-          break;
-        case ComponentUpdate():
+        case SurfaceUpdate():
           _log.info(
-            'Received ComponentUpdate with ${message.components.length} '
-            'components.',
+            'Received SurfaceUpdate with ${message.components.length} '
+            'components for surface ${message.surfaceId}.',
           );
           for (final component in message.components) {
             _log.finer('Updating component: ${component.id}');
-            _components[component.id] = component;
+            surfaceState.components[component.id] = component;
           }
           break;
         case DataModelUpdate():
-          _log.info('Received DataModelUpdate at path "${message.path}".');
-          _updateDataModel(message.path, message.contents);
+          _log.info(
+            'Received DataModelUpdate at path "${message.path}" for surface '
+            '${message.surfaceId}.',
+          );
+          _updateDataModel(surfaceState, message.path, message.contents);
           notifyListeners();
           break;
         case BeginRendering():
-          _log.info('Received BeginRendering with root "${message.root}".');
-          _rootComponentId = message.root;
-          _isReadyToRender = true;
+          _log.info(
+            'Received BeginRendering with root "${message.root}" for surface '
+            '${message.surfaceId}.',
+          );
+          surfaceState.rootComponentId = message.root;
+          surfaceState.isReadyToRender = true;
+          notifyListeners();
+          break;
+        case SurfaceDeletion():
+          _log.info(
+            'Received SurfaceDeletion for surface ${message.surfaceId}.',
+          );
+          _surfaces.remove(message.surfaceId);
+          if (_activeSurfaceId == message.surfaceId) {
+            _activeSurfaceId = _surfaces.keys.firstOrNull;
+          }
           notifyListeners();
           break;
       }
@@ -106,18 +159,31 @@ class A2uiInterpreter with ChangeNotifier {
   /// This method is used to update the data model from the client-side, for
   /// example when a user interacts with a form field.
   void updateData(String path, dynamic value) {
-    _updateDataModel(path, value);
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) return;
+    final surfaceState = _surfaces[activeSurfaceId];
+    if (surfaceState == null) {
+      _error = 'No surface state found for active surface ID: $activeSurfaceId';
+      _log.severe(_error);
+      notifyListeners();
+      return;
+    }
+    _updateDataModel(surfaceState, path, value);
     notifyListeners();
   }
 
-  void _updateDataModel(String? path, dynamic contents) {
+  void _updateDataModel(
+    _SurfaceState surfaceState,
+    String? path,
+    dynamic contents,
+  ) {
     _log.finer('Updating data model at path "$path" with contents: $contents');
     if (path == null || path.isEmpty || path == '/') {
       if (contents is Map<String, Object?>) {
-        _dataModel = contents;
+        surfaceState.dataModel = contents;
         _log.finer('Replaced root data model.');
       } else if (contents is Map) {
-        _dataModel = contents.cast<String, Object?>();
+        surfaceState.dataModel = contents.cast<String, Object?>();
         _log.finer('Replaced root data model (after casting).');
       } else {
         _error = 'Data model root must be a JSON object.';
@@ -132,7 +198,7 @@ class A2uiInterpreter with ChangeNotifier {
         .toList();
     if (segments.isEmpty) return;
 
-    Object? current = _dataModel;
+    Object? current = surfaceState.dataModel;
 
     for (var i = 0; i < segments.length - 1; i++) {
       final segment = segments[i];
@@ -181,10 +247,21 @@ class A2uiInterpreter with ChangeNotifier {
   }
 
   /// Retrieves a component by its [id].
-  Component? getComponent(String id) => _components[id];
+  Component? getComponent(String id) => _activeSurfaceId != null
+      ? _surfaces[_activeSurfaceId]!.components[id]
+      : null;
 
   /// Resolves a data binding path to a value in the data model.
   Object? resolveDataBinding(String path) {
+    final activeSurfaceId = _activeSurfaceId;
+    if (activeSurfaceId == null) return null;
+    final surfaceState = _surfaces[activeSurfaceId];
+    if (surfaceState == null) {
+      _log.warning(
+        'No surface state found for active surface ID: $activeSurfaceId',
+      );
+      return null;
+    }
     _log.finer('Resolving data binding for path: "$path"');
     if (path.isEmpty) {
       _log.warning('Attempted to resolve empty data binding path.');
@@ -194,7 +271,7 @@ class A2uiInterpreter with ChangeNotifier {
         .split(RegExp(r'\/|\.|\[|\]'))
         .where((s) => s.isNotEmpty)
         .toList();
-    dynamic currentValue = _dataModel;
+    dynamic currentValue = surfaceState.dataModel;
     for (final segment in segments) {
       if (currentValue == null) {
         return null;

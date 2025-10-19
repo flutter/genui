@@ -43,9 +43,11 @@ void main() {
       );
 
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Text": {"text": {"literalString": "Hello"}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Text": {"text": {"literalString": "Hello"}}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Hello'), findsOneWidget);
@@ -59,9 +61,11 @@ void main() {
       );
 
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {"explicitList": ["root"]}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Column": {"children": {"explicitList": ["root"]}}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(
@@ -78,9 +82,11 @@ void main() {
       );
 
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"MissingWidget": {}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"MissingWidget": {}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(
@@ -96,7 +102,9 @@ void main() {
         ),
       );
 
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Error: component not found'), findsOneWidget);
@@ -110,18 +118,22 @@ void main() {
       );
 
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Text": {"text": {"path": "greeting"}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Text": {"text": {"path": "greeting"}}}}]}}''',
       );
       streamController.add(
-        '{"dataModelUpdate": {"path": "greeting", "contents": "Initial"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "greeting", '
+        '"contents": "Initial"}}',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Initial'), findsOneWidget);
 
       streamController.add(
-        '{"dataModelUpdate": {"path": "greeting", "contents": "Updated"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "greeting", '
+        '"contents": "Updated"}}',
       );
       await tester.pumpAndSettle();
 
@@ -140,12 +152,14 @@ void main() {
       );
 
       streamController.add('''
-        {"componentUpdate": { "components": [
-          {"id": "root", "componentProperties": {"Card": {"child": "text_child"}}},
-          {"id": "text_child", "componentProperties": {"Text": {"text": {"literalString": "Card Text"}}}}
+        {"surfaceUpdate": {"surfaceId": "1", "components": [
+          {"id": "root", "component": {"Card": {"child": "text_child"}}},
+          {"id": "text_child", "component": {"Text": {"text": {"literalString": "Card Text"}}}}
         ]}}
         ''');
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(Card), findsOneWidget);

@@ -8,13 +8,9 @@ import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/date_input_chip.dart';
 import 'catalog/information_card.dart';
 import 'catalog/input_group.dart';
-import 'catalog/itinerary_day.dart';
-import 'catalog/itinerary_entry.dart';
-import 'catalog/itinerary_with_details.dart';
+import 'catalog/itinerary.dart';
 import 'catalog/listings_booker.dart';
 import 'catalog/options_filter_chip_input.dart';
-import 'catalog/padded_body_text.dart';
-import 'catalog/section_header.dart';
 import 'catalog/tabbed_sections.dart';
 import 'catalog/text_input_chip.dart';
 import 'catalog/trailhead.dart';
@@ -25,23 +21,35 @@ import 'catalog/travel_carousel.dart';
 ///
 /// This catalog includes a mix of core widgets (like [CoreCatalogItems.column]
 /// and [CoreCatalogItems.text]) and custom, domain-specific widgets tailored
-/// for a travel planning experience, such as [travelCarousel], [itineraryDay],
+/// for a travel planning experience, such as [travelCarousel], [itinerary],
 /// and [inputGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
-final travelAppCatalog = CoreCatalogItems.asCatalog().copyWith([
-  dateInputChip,
-  inputGroup,
-  optionsFilterChipInput,
-  checkboxFilterChipsInput,
-  listingsBooker,
-  travelCarousel,
-  itineraryWithDetails,
-  itineraryDay,
-  itineraryEntry,
-  tabbedSections,
-  sectionHeader,
-  trailhead,
-  paddedBodyText,
-  textInputChip,
-  informationCard,
-]);
+final travelAppCatalog = CoreCatalogItems.asCatalog()
+    .copyWithout([
+      CoreCatalogItems.audioPlayer,
+      CoreCatalogItems.card,
+      CoreCatalogItems.checkBox,
+      CoreCatalogItems.dateTimeInput,
+      CoreCatalogItems.divider,
+      CoreCatalogItems.heading,
+      CoreCatalogItems.textField,
+      CoreCatalogItems.list,
+      CoreCatalogItems.modal,
+      CoreCatalogItems.multipleChoice,
+      CoreCatalogItems.slider,
+      CoreCatalogItems.tabs,
+      CoreCatalogItems.video,
+    ])
+    .copyWith([
+      checkboxFilterChipsInput,
+      dateInputChip,
+      informationCard,
+      inputGroup,
+      itinerary,
+      listingsBooker,
+      optionsFilterChipInput,
+      tabbedSections,
+      textInputChip,
+      trailhead,
+      travelCarousel,
+    ]);

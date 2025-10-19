@@ -131,7 +131,7 @@ class _LayoutEngine extends StatelessWidget {
       return const Text('Error: component not found');
     }
 
-    final properties = component.componentProperties;
+    final properties = component.component.values.first;
     final builder = registry.getBuilder(properties.componentType);
     if (builder == null) {
       _log.severe(
@@ -211,7 +211,7 @@ class _LayoutEngine extends StatelessWidget {
     Set<String> visited,
   ) {
     _log.finer('Building node with template for component: ${component.id}');
-    final properties = component.componentProperties as HasChildren;
+    final properties = component.component.values.first as HasChildren;
     final template = properties.children.template!;
     _log.finer(
       'Template componentId: ${template.componentId}, '
@@ -249,23 +249,23 @@ class _LayoutEngine extends StatelessWidget {
     }
     _log.finer('Template data has ${data.length} items.');
     final builder = registry.getBuilder(
-      component.componentProperties.componentType,
+      component.component.values.first.componentType,
     );
     if (builder == null) {
       return Text(
         'Error: unknown component type '
-        '${component.componentProperties.componentType}',
+        '${component.component.values.first.componentType}',
       );
     }
     final children = data.map((Object? itemData) {
       _log.finest('Building template item with data: $itemData');
       final visitor = ComponentPropertiesVisitor(interpreter);
       final resolvedProperties = visitor.visit(
-        templateComponent.componentProperties,
+        templateComponent.component.values.first,
         itemData as Map<String, Object?>,
       );
       final itemChildren = <String, List<Widget>>{};
-      final templateProperties = templateComponent.componentProperties;
+      final templateProperties = templateComponent.component.values.first;
       if (templateProperties is HasChildren) {
         final childrenProp = (templateProperties as HasChildren).children;
         if (childrenProp.explicitList != null) {
@@ -292,12 +292,12 @@ class _LayoutEngine extends StatelessWidget {
       }
 
       final itemBuilder = registry.getBuilder(
-        templateComponent.componentProperties.componentType,
+        templateComponent.component.values.first.componentType,
       );
       if (itemBuilder == null) {
         return Text(
           'Error building template: Unknown component type: '
-          '${templateComponent.componentProperties.componentType}',
+          '${templateComponent.component.values.first.componentType}',
         );
       }
       return itemBuilder(

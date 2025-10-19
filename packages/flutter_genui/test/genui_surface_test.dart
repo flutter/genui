@@ -7,10 +7,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final testCatalog = Catalog([
-    CoreCatalogItems.elevatedButton,
-    CoreCatalogItems.text,
-  ]);
+  final testCatalog = Catalog([CoreCatalogItems.button, CoreCatalogItems.text]);
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
@@ -24,7 +21,10 @@ void main() {
       const Component(
         id: 'root',
         componentProperties: {
-          'ElevatedButton': {'child': 'text'},
+          'Button': {
+            'child': 'text',
+            'action': {'name': 'testAction'},
+          },
         },
       ),
       const Component(
@@ -63,7 +63,10 @@ void main() {
       const Component(
         id: 'root',
         componentProperties: {
-          'ElevatedButton': {'child': 'text'},
+          'Button': {
+            'child': 'text',
+            'action': {'name': 'testAction'},
+          },
         },
       ),
       const Component(

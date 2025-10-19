@@ -42,7 +42,8 @@ class OptionalValueBuilder<T> extends StatelessWidget {
 
 /// Extension methods for [DataContext] to simplify data binding.
 extension DataContextExtensions on DataContext {
-  ValueNotifier<T?> _subscribeToValue<T>(JsonMap? ref, String literalKey) {
+  /// Subscribes to a value, which can be a literal or a data-bound path.
+  ValueNotifier<T?> subscribeToValue<T>(JsonMap? ref, String literalKey) {
     if (ref == null) return ValueNotifier<T?>(null);
     final path = ref['path'] as String?;
     final literal = ref[literalKey];
@@ -59,12 +60,41 @@ extension DataContextExtensions on DataContext {
 
   /// Subscribes to a string value, which can be a literal or a data-bound path.
   ValueNotifier<String?> subscribeToString(JsonMap? ref) {
-    return _subscribeToValue<String>(ref, 'literalString');
+    return subscribeToValue<String>(ref, 'literalString');
+  }
+
+  /// Subscribes to a boolean value, which can be a literal or a data-bound
+  /// path.
+  ValueNotifier<bool?> subscribeToBool(JsonMap? ref) {
+    return subscribeToValue<bool>(ref, 'literalString');
   }
 
   /// Subscribes to a list of strings, which can be a literal or a data-bound
   /// path.
   ValueNotifier<List<dynamic>?> subscribeToStringArray(JsonMap? ref) {
-    return _subscribeToValue<List<dynamic>>(ref, 'literalStringArray');
+    return subscribeToValue<List<dynamic>>(ref, 'literalArray');
   }
+}
+
+/// Resolves a context map definition against a [DataContext].
+JsonMap resolveContext(
+  DataContext dataContext,
+  List<Object?> contextDefinitions,
+) {
+  final resolved = <String, Object?>{};
+  for (final contextEntry in contextDefinitions) {
+    final entry = contextEntry as JsonMap;
+    final key = entry['key']! as String;
+    final value = entry['value'] as JsonMap;
+    if (value.containsKey('path')) {
+      resolved[key] = dataContext.getValue(value['path'] as String);
+    } else if (value.containsKey('literalString')) {
+      resolved[key] = value['literalString'];
+    } else if (value.containsKey('literalNumber')) {
+      resolved[key] = value['literalNumber'];
+    } else if (value.containsKey('literalBoolean')) {
+      resolved[key] = value['literalBoolean'];
+    }
+  }
+  return resolved;
 }

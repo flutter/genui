@@ -23,20 +23,28 @@ void main() {
       expect(interpreter.rootComponentId, isNull);
     });
 
-    testWidgets('processes ComponentUpdate and buffers components', (
+    testWidgets('processes SurfaceUpdate and buffers components', (
       tester,
     ) async {
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {}}}}]}}''',
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
+      await tester.pump();
+      streamController.add(
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Column": {"children": {}}}}]}}''',
       );
       await tester.pump();
       expect(interpreter.getComponent('root'), isNotNull);
-      expect(interpreter.isReadyToRender, isFalse);
     });
 
     testWidgets('processes DataModelUpdate and buffers nodes', (tester) async {
       streamController.add(
-        '{"dataModelUpdate": {"path": "user.name", "contents": "John Doe"}}',
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
+      await tester.pump();
+      streamController.add(
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "user.name", '
+        '"contents": "John Doe"}}',
       );
       await tester.pump();
       expect(interpreter.resolveDataBinding('user.name'), 'John Doe');
@@ -45,7 +53,9 @@ void main() {
     testWidgets('processes BeginRendering and sets isReadyToRender', (
       tester,
     ) async {
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pump();
       expect(interpreter.isReadyToRender, isTrue);
       expect(interpreter.rootComponentId, 'root');
@@ -55,7 +65,9 @@ void main() {
       var callCount = 0;
       interpreter.addListener(() => callCount++);
 
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pump();
       expect(callCount, 1);
     });
@@ -80,29 +92,32 @@ void main() {
     });
 
     test('correctly processes a valid JSONL stream', () async {
-      streamController.add('{"streamHeader": {"version": "1.0.0"}}');
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"Column": {"children": {}}}}]}}''',
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
       );
       streamController.add(
-        '''{"dataModelUpdate": {"path": "user", "contents": {"name": "test_user"}}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"Column": {"children": {}}}}]}}''',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '''{"dataModelUpdate": {"surfaceId": "1", "path": "user", "contents": {"name": "test_user"}}}''',
+      );
       await streamController.close();
 
       expect(interpreter.isReadyToRender, isTrue);
       expect(interpreter.rootComponentId, 'root');
       final component = interpreter.getComponent('root');
       expect(component, isNotNull);
-      expect(component?.componentProperties, isA<ColumnProperties>());
+      expect(component?.component.values.first, isA<ColumnProperties>());
       expect(interpreter.resolveDataBinding('user.name'), 'test_user');
     });
 
     test('resolveDataBinding returns null for invalid path', () async {
       streamController.add(
-        '''{"dataModelUpdate": {"path": "user", "contents": {"name": "test_user"}}}''',
+        '''{"dataModelUpdate": {"surfaceId": "1", "path": "user", "contents": {"name": "test_user"}}}''',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await streamController.close();
 
       expect(interpreter.resolveDataBinding('invalid.path'), isNull);
@@ -111,7 +126,7 @@ void main() {
     test('handles data model updates with array paths', () {
       final interpreter = A2uiInterpreter(stream: const Stream.empty());
       const message = '''
-      {"dataModelUpdate": {"path": "user.addresses[0].street", "contents": "123 Main St"}}
+      {"dataModelUpdate": {"surfaceId": "1", "path": "user.addresses[0].street", "contents": "123 Main St"}}
       ''';
       interpreter.processMessage(message);
       final address = interpreter.resolveDataBinding(
@@ -120,7 +135,7 @@ void main() {
       expect(address, '123 Main St');
 
       const message2 = '''
-      {"dataModelUpdate": {"path": "user.addresses[1]", "contents": {"street": "456 Oak Ave"}}}
+      {"dataModelUpdate": {"surfaceId": "1", "path": "user.addresses[1]", "contents": {"street": "456 Oak Ave"}}}
       ''';
       interpreter.processMessage(message2);
       final street = interpreter.resolveDataBinding('user.addresses[1].street');
@@ -128,6 +143,11 @@ void main() {
     });
 
     test('updateData updates the data model and notifies listeners', () {
+      final interpreter = A2uiInterpreter(stream: const Stream.empty());
+      const message = '''
+      {"beginRendering": {"surfaceId": "1", "root": "root"}}
+      ''';
+      interpreter.processMessage(message);
       var callCount = 0;
       interpreter.addListener(() => callCount++);
 
@@ -140,7 +160,7 @@ void main() {
     test('sets error when root data model is not a map', () {
       final interpreter = A2uiInterpreter(stream: const Stream.empty());
       const message = '''
-      {"dataModelUpdate": {"contents": "not a map"}}
+      {"dataModelUpdate": {"surfaceId": "1", "contents": "not a map"}}
       ''';
       interpreter.processMessage(message);
       expect(interpreter.error, isNotNull);

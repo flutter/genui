@@ -75,7 +75,7 @@ This layer defines the data structures that represent the dynamic UI and the con
 
 - **`Catalog` and `CatalogItem`**: These classes define the registry of available UI components. The `Catalog` holds a list of `CatalogItem`s, and each `CatalogItem` defines a widget's name, its data schema, and a builder function to render it.
 - **`UiDefinition` and `UiEvent`**: `UiDefinition` represents a complete UI tree to be rendered, including the root widget and a map of all widget definitions. `UiEvent` is a data object representing a user interaction. `UiActionEvent` is a subtype used for events that should trigger a submission to the AI, like a button tap.
-- **`ChatMessage`**: A sealed class representing the different types of messages in a conversation: `UserMessage`, `AiTextMessage`, `ToolResponseMessage`, `AiUiMessage`, and `InternalMessage`.
+- **`ChatMessage`**: A sealed class representing the different types of messages in a conversation: `UserMessage`, `AiTextMessage`, `ToolResponseMessage`, `AiUiMessage`, `InternalMessage`, and `UserUiInteractionMessage`.
 - **`DataModel` and `DataContext`**: The `DataModel` is a centralized, observable key-value store that holds the entire dynamic state of the UI. Widgets receive a `DataContext`, which is a view into the `DataModel` that understands the widget's current scope. This allows widgets to subscribe to changes in the data model and rebuild reactively. This separation of data and UI structure is a core principle of the architecture.
 
 ### 4. Widget Catalog Layer (`lib/src/catalog/`)
@@ -106,7 +106,8 @@ sequenceDiagram
     participant GenUiManager
     participant GenUiSurface as "GenUiSurface"
 
-    AppLogic->>+UiAgent: Initializes UiAgent with an instruction
+    AppLogic->>+UiAgent: Creates UiAgent(genUiManager, aiClient)
+    AppLogic->>+UiAgent: (Optional) sendRequest(instructionMessage)
 
     User->>+AppLogic: Provides input (e.g., text prompt)
     AppLogic->>+UiAgent: Calls sendRequest(userMessage)
@@ -137,7 +138,7 @@ sequenceDiagram
     Note over UiAgent, LLM: The cycle repeats...
 ```
 
-1. **Initialization**: The developer creates a `UiAgent`, providing a system instruction. The `UiAgent` internally creates a `GenUiManager` and an `AiClient`.
+1. **Initialization**: The developer creates a `UiAgent`, providing it with a `GenUiManager` and an `AiClient`. The developer may also provide a system instruction to the `UiAgent` by sending an an initial `UserMessage`.
 2. **User Input**: The user enters a prompt.
 3. **Send Request**: The developer calls `uiAgent.sendRequest(UserMessage.text(prompt))`.
 4. **Conversation Management**: The `UiAgent` adds the `UserMessage` to its internal conversation history.
@@ -147,5 +148,5 @@ sequenceDiagram
 8. **Notification**: The `GenUiManager` updates its internal state (the `UiDefinition` for the surface) and broadcasts a `GenUiUpdate` event on its `surfaceUpdates` stream.
 9. **UI Rendering**: A `GenUiSurface` widget listening to the `GenUiManager` (via the `GenUiHost` interface) receives the update and rebuilds, rendering the new UI based on the updated `UiDefinition`.
 10. **User Interaction**: The user interacts with the newly generated UI (e.g., clicks a submit button).
-11. **Event Dispatch**: The `GenUiSurface`'s `onEvent` callback is fired, which in turn calls `host.handleUiEvent()`.
+11. **Event Dispatch**: The widget's builder calls a `dispatchEvent` function, which causes the `GenUiSurface` to call `host.handleUiEvent()`.
 12. **Cycle Repeats**: The `GenUiManager`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `DataModel`) and emits it on its `onSubmit` stream. The `UiAgent` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.

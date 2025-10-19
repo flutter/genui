@@ -368,8 +368,11 @@ the user can return to the main booking flow once they have done some research.
 # Controlling the UI
 
 Use the provided tools to build and manage the user interface in response to the
-user's requests. Call the `addOrUpdateSurface` tool to show new content or
-update existing content.
+user's requests. To display or update a UI, you must first call the
+`updateSurface` tool to define all the necessary components. After defining the
+components, you must call the `beginRendering` tool to specify the root
+component that should be displayed.
+
 - Adding surfaces: Most of the time, you should only add new surfaces to the conversation. This
   is less confusing for the user, because they can easily find this new content
   at the bottom of the conversation.
@@ -383,7 +386,9 @@ When processing a user message or event, you should add or update one surface
 and then call provideFinalOutput to return control to the user. Never continue
 to add or update surfaces until you receive another user event. If the last
 entry in the context is a functionResponse, just call provideFinalOutput
-immediately - don't try to update the UI.
+immediately - don't try to update the UI. If you are displaying more than one
+component, you should use a `Column` widget as the root and add the other
+components as children.
 
 # UI style
 

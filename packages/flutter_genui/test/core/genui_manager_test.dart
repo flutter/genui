@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -143,6 +145,33 @@ void main() {
 
       await Future<void>.delayed(Duration.zero);
       expect(isClosed, isTrue);
+    });
+
+    test('can handle UI event', () async {
+      manager
+          .dataModelForSurface('testSurface')
+          .update('/myValue', 'testValue');
+      final future = manager.onSubmit.first;
+      final now = DateTime.now();
+      final event = UserActionEvent(
+        surfaceId: 'testSurface',
+        name: 'testAction',
+        sourceComponentId: 'testWidget',
+        timestamp: now,
+        context: {'key': 'value'},
+      );
+      manager.handleUiEvent(event);
+      final message = await future;
+      expect(message, isA<UserMessage>());
+      final expectedJson = jsonEncode({
+        'userAction': {
+          'name': 'testAction',
+          'sourceComponentId': 'testWidget',
+          'timestamp': now.toIso8601String(),
+          'context': {'key': 'value'},
+        },
+      });
+      expect(message.text, expectedJson);
     });
   });
 }

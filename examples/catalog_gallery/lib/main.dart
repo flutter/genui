@@ -2,17 +2,32 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
 void main() {
-  runApp(CatalogGalleryApp(CoreCatalogItems.asCatalog()));
+  runApp(const CatalogGalleryApp());
 }
 
-class CatalogGalleryApp extends StatelessWidget {
-  const CatalogGalleryApp(this.catalog, {super.key});
+class CatalogGalleryApp extends StatefulWidget {
+  const CatalogGalleryApp({super.key});
 
-  final Catalog catalog;
+  @override
+  State<CatalogGalleryApp> createState() => _CatalogGalleryAppState();
+}
+
+class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
+  final catalog = CoreCatalogItems.asCatalog().copyWithout([
+    // Excluded, because they are flexible:
+    CoreCatalogItems.tabs,
+    CoreCatalogItems.list,
+
+    // Excluded, because something is wrong with image:
+    // NetworkImageLoadException was thrown resolving an image codec...
+    CoreCatalogItems.image,
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +40,16 @@ class CatalogGalleryApp extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text('Catalog items that has "exampleData" field set'),
         ),
-        body: DebugCatalogView(catalog: catalog),
+        body: DebugCatalogView(
+          catalog: catalog,
+          onSubmit: (message) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('User action: ${jsonEncode(message.parts.last)}'),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

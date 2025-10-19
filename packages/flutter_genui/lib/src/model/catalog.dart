@@ -42,8 +42,8 @@ class Catalog {
 
   /// Returns a new [Catalog] instance containing the items from this catalog
   /// with the specified items removed.
-  Catalog copyWithout(Iterable<String> itemNames) {
-    final namesToRemove = itemNames.toSet();
+  Catalog copyWithout(Iterable<CatalogItem> itemNames) {
+    final namesToRemove = itemNames.map<String>((item) => item.name).toSet();
     final updatedItems = items
         .where((item) => !namesToRemove.contains(item.name))
         .toList();
@@ -79,7 +79,7 @@ class Catalog {
 
     genUiLogger.info('Building widget ${item.name} with id $id');
     return item.widgetBuilder(
-      data: widgetData[widgetType]! as JsonMap,
+      data: JsonMap.from(widgetData[widgetType]! as Map),
       id: id,
       buildChild: buildChild,
       dispatchEvent: dispatchEvent,

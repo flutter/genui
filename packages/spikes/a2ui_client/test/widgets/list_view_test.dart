@@ -36,15 +36,17 @@ void main() {
       );
 
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"List": {"children": {"template": {"componentId": "template", "dataBinding": "items"}}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"List": {"children": {"template": {"componentId": "template", "dataBinding": "items"}}}}}]}}''',
       );
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "template", "componentProperties": {"Text": {"text": {"path": "text"}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "template", "component": {"Text": {"text": {"path": "text"}}}}]}}''',
       );
       streamController.add(
-        '''{"dataModelUpdate": {"path": "items", "contents": [{"text": "Item 1"}, {"text": "Item 2"}]}}''',
+        '''{"dataModelUpdate": {"surfaceId": "1", "path": "items", "contents": [{"text": "Item 1"}, {"text": "Item 2"}]}}''',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Item 1'), findsOneWidget);
@@ -63,15 +65,18 @@ void main() {
       );
 
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "root", "componentProperties": {"List": {"children": {"template": {"componentId": "template", "dataBinding": "items"}}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "root", "component": {"List": {"children": {"template": {"componentId": "template", "dataBinding": "items"}}}}}]}}''',
       );
       streamController.add(
-        '''{"componentUpdate": {"components": [{"id": "template", "componentProperties": {"Text": {"text": {"path": "text"}}}}]}}''',
+        '''{"surfaceUpdate": {"surfaceId": "1", "components": [{"id": "template", "component": {"Text": {"text": {"path": "text"}}}}]}}''',
       );
       streamController.add(
-        '{"dataModelUpdate": {"path": "items", "contents": "not a list"}}',
+        '{"dataModelUpdate": {"surfaceId": "1", "path": "items", '
+        '"contents": "not a list"}}',
       );
-      streamController.add('{"beginRendering": {"root": "root"}}');
+      streamController.add(
+        '{"beginRendering": {"surfaceId": "1", "root": "root"}}',
+      );
       await tester.pumpAndSettle();
 
       expect(find.byType(SizedBox), findsOneWidget);

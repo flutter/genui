@@ -19,7 +19,7 @@ final _schema = S.object(
             description: 'The ID of the child widget for the tab content.',
           ),
         },
-        required: ['title', 'child'],
+        required: ['child', 'title'],
       ),
     ),
   },
@@ -39,7 +39,7 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
   factory _TabSectionItemData({
     required Map<String, Object?> title,
     required String child,
-  }) => _TabSectionItemData.fromMap({'title': title, 'child': child});
+  }) => _TabSectionItemData.fromMap({'child': child, 'title': title});
 
   Map<String, Object?> get title => _json['title'] as Map<String, Object?>;
   String get childId => _json['child'] as String;
@@ -55,6 +55,46 @@ extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
 final tabbedSections = CatalogItem(
   name: 'TabbedSections',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'tabbed_sections',
+      'widgets': [
+        {
+          'id': 'tabbed_sections',
+          'widget': {
+            'TabbedSections': {
+              'sections': [
+                {
+                  'title': {'literalString': 'Tab 1'},
+                  'child': 'tab1_content',
+                },
+                {
+                  'title': {'literalString': 'Tab 2'},
+                  'child': 'tab2_content',
+                },
+              ],
+            },
+          },
+        },
+        {
+          'id': 'tab1_content',
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'This is the content of Tab 1.'},
+            },
+          },
+        },
+        {
+          'id': 'tab2_content',
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'This is the content of Tab 2.'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

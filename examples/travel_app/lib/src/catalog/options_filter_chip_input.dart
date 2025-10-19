@@ -71,6 +71,23 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
 final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'options_filter_chip_input',
+      'widgets': [
+        {
+          'id': 'options_filter_chip_input',
+          'widget': {
+            'OptionsFilterChipInput': {
+              'chipLabel': 'Budget',
+              'options': ['\$', '\$\$', '\$\$\$'],
+              'value': {'literalString': '\$\$'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -117,7 +134,7 @@ final optionsFilterChipInput = CatalogItem(
       },
 );
 
-class _OptionsFilterChip extends StatelessWidget {
+class _OptionsFilterChip extends StatefulWidget {
   const _OptionsFilterChip({
     required this.chipLabel,
     required this.options,
@@ -132,12 +149,33 @@ class _OptionsFilterChip extends StatelessWidget {
   final String? value;
   final void Function(String?) onChanged;
 
-  String get _currentChipLabel => value ?? chipLabel;
+  @override
+  State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
+}
+
+class _OptionsFilterChipState extends State<_OptionsFilterChip> {
+  String? _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.value;
+  }
+
+  @override
+  void didUpdateWidget(_OptionsFilterChip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      _value = widget.value;
+    }
+  }
+
+  String get _currentChipLabel => _value ?? widget.chipLabel;
 
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      avatar: icon != null ? Icon(icon) : null,
+      avatar: widget.icon != null ? Icon(widget.icon) : null,
       label: Text(_currentChipLabel),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -145,23 +183,22 @@ class _OptionsFilterChip extends StatelessWidget {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            var tempSelectedOption = value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: options.map((option) {
+                  children: widget.options.map((option) {
                     return RadioListTile<String>(
                       title: Text(option),
                       value: option,
                       // ignore: deprecated_member_use
-                      groupValue: tempSelectedOption,
+                      groupValue: _value,
                       // ignore: deprecated_member_use
                       onChanged: (String? newValue) {
                         setModalState(() {
-                          tempSelectedOption = newValue;
+                          _value = newValue;
                         });
-                        onChanged(newValue);
+                        widget.onChanged(newValue);
                         if (newValue != null) {
                           Navigator.pop(context);
                         }

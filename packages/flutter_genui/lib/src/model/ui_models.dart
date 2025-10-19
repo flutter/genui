@@ -50,22 +50,26 @@ extension type UiEvent.fromMap(JsonMap _json) {
 ///
 /// This is used for events that should trigger a submission to the AI, such as
 /// tapping a button.
-extension type UiActionEvent.fromMap(JsonMap _json) implements UiEvent {
-  /// Creates a [UiEvent] from a set of properties.
-  UiActionEvent({
+extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
+  /// Creates a [UserActionEvent] from a set of properties.
+  UserActionEvent({
     String? surfaceId,
-    required String widgetId,
-    required String eventType,
+    required String name,
+    required String sourceComponentId,
     DateTime? timestamp,
-    Object? value,
+    JsonMap? context,
   }) : _json = {
          if (surfaceId != null) 'surfaceId': surfaceId,
-         'widgetId': widgetId,
-         'eventType': eventType,
+         'name': name,
+         'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
          'isAction': true,
-         if (value != null) 'value': value,
+         'context': context ?? {},
        };
+
+  String get name => _json['name'] as String;
+  String get sourceComponentId => _json['sourceComponentId'] as String;
+  JsonMap get context => _json['context'] as JsonMap;
 }
 
 /// A data object that represents the entire UI definition.
@@ -81,9 +85,6 @@ class UiDefinition {
   /// A map of all widget definitions in the UI, keyed by their ID.
   final Map<String, Component> components;
 
-  /// (Future) The URI of the catalog used for this surface.
-  final Uri? catalogUri;
-
   /// (Future) The styles for this surface.
   final JsonMap? styles;
 
@@ -92,7 +93,6 @@ class UiDefinition {
     required this.surfaceId,
     this.rootComponentId,
     this.components = const {},
-    this.catalogUri,
     this.styles,
   });
 
@@ -100,14 +100,12 @@ class UiDefinition {
   UiDefinition copyWith({
     String? rootComponentId,
     Map<String, Component>? components,
-    Uri? catalogUri,
     JsonMap? styles,
   }) {
     return UiDefinition(
       surfaceId: surfaceId,
       rootComponentId: rootComponentId ?? this.rootComponentId,
       components: components ?? this.components,
-      catalogUri: catalogUri ?? this.catalogUri,
       styles: styles ?? this.styles,
     );
   }

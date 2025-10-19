@@ -19,20 +19,17 @@ class UnknownComponentException implements Exception {
 
 /// A component in the UI.
 class Component extends Equatable {
-  const Component({
-    required this.id,
-    this.weight,
-    required this.componentProperties,
-  });
+  const Component({required this.id, this.weight, required this.component});
 
   /// Creates a [Component] from a JSON object.
   factory Component.fromJson(Map<String, dynamic> json) {
+    final componentMap = json['component'] as Map<String, dynamic>;
     return Component(
       id: json['id'] as String,
       weight: JsonUtils.parseDouble(json['weight']),
-      componentProperties: ComponentProperties.fromJson(
-        json['componentProperties'] as Map<String, dynamic>,
-      ),
+      component: {
+        componentMap.keys.first: ComponentProperties.fromJson(componentMap),
+      },
     );
   }
 
@@ -43,10 +40,10 @@ class Component extends Equatable {
   final double? weight;
 
   /// The properties of the component.
-  final ComponentProperties componentProperties;
+  final Map<String, ComponentProperties> component;
 
   @override
-  List<Object?> get props => [id, weight, componentProperties];
+  List<Object?> get props => [id, weight, component];
 }
 
 /// A sealed class for the properties of a component.
@@ -608,6 +605,7 @@ class BoundValue extends Equatable {
     this.literalString,
     this.literalNumber,
     this.literalBoolean,
+    this.literalArray,
   });
 
   factory BoundValue.fromJson(Map<String, dynamic> json) {
@@ -616,6 +614,7 @@ class BoundValue extends Equatable {
       literalString: json['literalString'] as String?,
       literalNumber: JsonUtils.parseDouble(json['literalNumber']),
       literalBoolean: json['literalBoolean'] as bool?,
+      literalArray: json['literalArray'] as List<dynamic>?,
     );
   }
 
@@ -631,12 +630,16 @@ class BoundValue extends Equatable {
   /// The literal boolean value.
   final bool? literalBoolean;
 
+  /// The literal array value.
+  final List<dynamic>? literalArray;
+
   @override
   List<Object?> get props => [
     path,
     literalString,
     literalNumber,
     literalBoolean,
+    literalArray,
   ];
 }
 
@@ -709,11 +712,11 @@ class TabItem extends Equatable {
 
 /// An action to perform when a widget is interacted with.
 class Action extends Equatable {
-  const Action({required this.action, this.context});
+  const Action({required this.name, this.context});
 
   factory Action.fromJson(Map<String, dynamic> json) {
     return Action(
-      action: json['action'] as String,
+      name: json['name'] as String,
       context: (json['context'] as List<dynamic>?)
           ?.map((e) => ContextItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -721,13 +724,13 @@ class Action extends Equatable {
   }
 
   /// The name of the action.
-  final String action;
+  final String name;
 
   /// The context of the action.
   final List<ContextItem>? context;
 
   @override
-  List<Object?> get props => [action, context];
+  List<Object?> get props => [name, context];
 }
 
 /// An item in the context of an action.

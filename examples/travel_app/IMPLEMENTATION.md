@@ -102,9 +102,13 @@ This is the collection of predefined UI components that the AI can use to constr
   - `TravelCarousel`: For displaying a horizontal list of selectable options.
   - `ItineraryWithDetails`, `ItineraryDay`, `ItineraryEntry`: For building structured travel plans.
   - `InputGroup`: A container for grouping various input widgets.
-  - `OptionsFilterChipInput`, `CheckboxFilterChipsInput`, `TextInputChip`: Different types of input chips for user selections.
+  - `OptionsFilterChipInput`, `CheckboxFilterChipsInput`, `TextInputChip`, `DateInputChip`: Different types of input chips for user selections.
   - `InformationCard`: For displaying detailed information about a topic.
   - `Trailhead`: For suggesting follow-up prompts to the user.
+  - `ListingsBooker`: For displaying a list of bookings to checkout.
+  - `PaddedBodyText`: For displaying a block of text with padding.
+  - `SectionHeader`: For displaying a section header.
+  - `TabbedSections`: For displaying a set of tabbed sections.
 - **Standard Components**: It also uses standard, pre-built components from `flutter_genui` like `column`, `text`, `image`, etc.
 
 ## Data Flow: The Generative UI Cycle

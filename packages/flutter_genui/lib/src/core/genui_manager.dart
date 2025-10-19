@@ -84,7 +84,7 @@ abstract interface class GenUiHost {
 ///
 /// This class is the core state manager for the dynamic UI. It maintains a map
 /// of all active UI "surfaces", where each surface is represented by a
-/// `UiDefinition`. It provides the tools (`addOrUpdateSurface`,
+/// `UiDefinition`. It provides the tools (`surfaceUpdate`,
 /// `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
 class GenUiManager implements GenUiHost {
@@ -123,12 +123,22 @@ class GenUiManager implements GenUiHost {
 
   @override
   void handleUiEvent(UiEvent event) {
-    if (event is! UiActionEvent) throw ArgumentError('Unexpected event type');
-    final currentState = dataModels[event.surfaceId]?.data ?? const {};
-    final eventString =
-        'Action: ${jsonEncode(event.value)}\n'
-        'Current state: ${jsonEncode(currentState)}';
-    _onSubmit.add(UserMessage([TextPart(eventString)]));
+    if (event is! UserActionEvent) {
+      // Or handle other event types if necessary
+      return;
+    }
+
+    final userActionPayload = {
+      'userAction': {
+        'name': event.name,
+        'sourceComponentId': event.sourceComponentId,
+        'timestamp': event.timestamp.toIso8601String(),
+        'context': event.context,
+      },
+    };
+
+    final eventJsonString = jsonEncode(userActionPayload);
+    _onSubmit.add(UserMessage.text(eventJsonString));
   }
 
   @override
@@ -141,12 +151,14 @@ class GenUiManager implements GenUiHost {
   List<AiTool> getTools() {
     return [
       if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate)
-        AddOrUpdateSurfaceTool(
+          configuration.actions.allowUpdate) ...[
+        SurfaceUpdateTool(
           handleMessage: handleMessage,
           catalog: catalog,
           configuration: configuration,
         ),
+        BeginRenderingTool(handleMessage: handleMessage),
+      ],
       if (configuration.actions.allowDelete)
         DeleteSurfaceTool(handleMessage: handleMessage),
     ];

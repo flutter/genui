@@ -17,8 +17,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
-    appleProvider: AppleProvider.debug,
-    androidProvider: AndroidProvider.debug,
+    providerApple: const AppleDebugProvider(),
+    providerAndroid: const AndroidDebugProvider(),
     providerWeb: ReCaptchaV3Provider('debug'),
   );
   await loadImagesJson();

@@ -15,19 +15,27 @@ final _schema = S.object(
     'value': A2uiSchemas.stringReference(
       description: 'The initial value for the text input.',
     ),
+    'obscured': S.boolean(
+      description: 'Whether the text should be obscured (e.g., for passwords).',
+    ),
   },
   required: ['label'],
 );
 
 extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
-  factory _TextInputChipData({required String label, JsonMap? value}) =>
-      _TextInputChipData.fromMap({
-        'label': label,
-        if (value != null) 'value': value,
-      });
+  factory _TextInputChipData({
+    required String label,
+    JsonMap? value,
+    bool? obscured,
+  }) => _TextInputChipData.fromMap({
+    'label': label,
+    if (value != null) 'value': value,
+    'obscured': obscured ?? false,
+  });
 
   String get label => _json['label'] as String;
   JsonMap? get value => _json['value'] as JsonMap?;
+  bool get obscured => _json['obscured'] as bool? ?? false;
 }
 
 final textInputChip = CatalogItem(
@@ -44,6 +52,17 @@ final textInputChip = CatalogItem(
               'value': {'literalString': 'John Doe'},
               'label': 'Enter your name',
             },
+          },
+        },
+      ],
+    },
+    () => {
+      'root': 'password_input',
+      'widgets': [
+        {
+          'id': 'password_input',
+          'widget': {
+            'TextInputChip': {'label': 'Enter your password', 'obscured': true},
           },
         },
       ],
@@ -72,6 +91,7 @@ final textInputChip = CatalogItem(
             return _TextInputChip(
               label: textInputChipData.label,
               value: currentValue,
+              obscured: textInputChipData.obscured,
               onChanged: (newValue) {
                 if (path != null) {
                   dataContext.update(path, newValue);
@@ -87,11 +107,13 @@ class _TextInputChip extends StatefulWidget {
   const _TextInputChip({
     required this.label,
     this.value,
+    this.obscured = false,
     required this.onChanged,
   });
 
   final String label;
   final String? value;
+  final bool obscured;
   final void Function(String) onChanged;
 
   @override
@@ -124,7 +146,11 @@ class _TextInputChipState extends State<_TextInputChip> {
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      label: Text(widget.value ?? widget.label),
+      label: Text(
+        widget.obscured && (widget.value?.isNotEmpty ?? false)
+            ? '********'
+            : widget.value ?? widget.label,
+      ),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
@@ -138,6 +164,7 @@ class _TextInputChipState extends State<_TextInputChip> {
                 children: [
                   TextField(
                     controller: _textController,
+                    obscureText: widget.obscured,
                     decoration: InputDecoration(labelText: widget.label),
                   ),
                   const SizedBox(height: 16.0),

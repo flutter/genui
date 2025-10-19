@@ -101,11 +101,7 @@ class _MyAppState extends State<MyApp> {
                   final update = _updates[index];
                   return GenUiSurface(
                     host: _uiAgent.host,
-                    surfaceId: update.surfaceId,
-                    onEvent: (event) {
-                      // 3. The UiAgent handles events automatically
-                    },
-                  );
+                    surfaceId: update.surfaceId,                  );
                 },
               ),
             ),

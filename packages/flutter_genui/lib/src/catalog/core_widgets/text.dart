@@ -22,11 +22,26 @@ final text = CatalogItem(
   dataSchema: S.object(
     properties: {
       'text': A2uiSchemas.stringReference(
-        description: 'The text to display. This does *not* support markdown.',
+        description: 'This does *not* support markdown.',
       ),
     },
     required: ['text'],
   ),
+  exampleData: [
+    () => {
+      'root': 'text',
+      'widgets': [
+        {
+          'id': 'text',
+          'widget': {
+            'Text': {
+              'text': {'literalString': 'Hello World'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,

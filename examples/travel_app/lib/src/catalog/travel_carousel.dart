@@ -38,8 +38,14 @@ final _schema = S.object(
                 'represents. This is useful when the carousel is used to show '
                 'a list of hotels or other bookable items.',
           ),
+          'action': A2uiSchemas.action(
+            description:
+                'The action to perform when the item is tapped. The '
+                'context for this action will include the "description" and '
+                '"listingSelectionId" of the tapped item.',
+          ),
         },
-        required: ['description', 'imageChildId'],
+        required: ['description', 'imageChildId', 'action'],
       ),
     ),
   },
@@ -82,6 +88,7 @@ final travelCarousel = CatalogItem(
             descriptionNotifier: descriptionNotifier,
             imageChild: buildChild(item.imageChildId),
             listingSelectionId: item.listingSelectionId,
+            action: item.action,
           );
         }).toList();
 
@@ -93,6 +100,7 @@ final travelCarousel = CatalogItem(
               items: items,
               widgetId: id,
               dispatchEvent: dispatchEvent,
+              dataContext: dataContext,
             );
           },
         );
@@ -124,15 +132,18 @@ extension type _TravelCarouselItemSchemaData.fromMap(
     required JsonMap description,
     required String imageChildId,
     String? listingSelectionId,
+    required JsonMap action,
   }) => _TravelCarouselItemSchemaData.fromMap({
     'description': description,
     'imageChildId': imageChildId,
     if (listingSelectionId != null) 'listingSelectionId': listingSelectionId,
+    'action': action,
   });
 
   JsonMap get description => _json['description'] as JsonMap;
   String get imageChildId => _json['imageChildId'] as String;
   String? get listingSelectionId => _json['listingSelectionId'] as String?;
+  JsonMap get action => _json['action'] as JsonMap;
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {
@@ -149,12 +160,14 @@ class _TravelCarousel extends StatelessWidget {
     required this.items,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.dataContext,
   });
 
   final String? title;
   final List<_TravelCarouselItemData> items;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
+  final DataContext dataContext;
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +197,7 @@ class _TravelCarousel extends StatelessWidget {
                   data: items[index],
                   widgetId: widgetId,
                   dispatchEvent: dispatchEvent,
+                  dataContext: dataContext,
                 );
               },
               separatorBuilder: (context, index) => const SizedBox(width: 16),
@@ -199,11 +213,13 @@ class _TravelCarouselItemData {
   final ValueNotifier<String?> descriptionNotifier;
   final Widget imageChild;
   final String? listingSelectionId;
+  final JsonMap action;
 
   _TravelCarouselItemData({
     required this.descriptionNotifier,
     required this.imageChild,
     this.listingSelectionId,
+    required this.action,
   });
 }
 
@@ -212,11 +228,13 @@ class _TravelCarouselItem extends StatelessWidget {
     required this.data,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.dataContext,
   });
 
   final _TravelCarouselItemData data;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
+  final DataContext dataContext;
 
   @override
   Widget build(BuildContext context) {
@@ -224,15 +242,22 @@ class _TravelCarouselItem extends StatelessWidget {
       width: 190,
       child: InkWell(
         onTap: () {
+          final name = data.action['name'] as String;
+          final contextDefinition =
+              (data.action['context'] as List<Object?>?) ?? <Object?>[];
+          final resolvedContext = resolveContext(
+            dataContext,
+            contextDefinition,
+          );
+          resolvedContext['description'] = data.descriptionNotifier.value;
+          if (data.listingSelectionId != null) {
+            resolvedContext['listingSelectionId'] = data.listingSelectionId;
+          }
           dispatchEvent(
-            UiActionEvent(
-              widgetId: widgetId,
-              eventType: 'itemSelected',
-              value: {
-                'description': data.descriptionNotifier.value,
-                if (data.listingSelectionId != null)
-                  'listingSelectionId': data.listingSelectionId,
-              },
+            UserActionEvent(
+              name: name,
+              sourceComponentId: widgetId,
+              context: resolvedContext,
             ),
           );
         },
@@ -292,11 +317,13 @@ JsonMap _hotelExample() {
                 'description': {'literalString': hotel1.description},
                 'imageChildId': 'image_1',
                 'listingSelectionId': '12345',
+                'action': {'name': 'selectHotel'},
               },
               {
                 'description': {'literalString': hotel2.description},
                 'imageChildId': 'image_2',
                 'listingSelectionId': '12346',
+                'action': {'name': 'selectHotel'},
               },
             ],
           },
@@ -308,7 +335,7 @@ JsonMap _hotelExample() {
         'widget': {
           'Image': {
             'fit': 'cover',
-            'location': {'literalString': hotel1.images[0]},
+            'url': {'literalString': hotel1.images[0]},
           },
         },
       },
@@ -317,7 +344,7 @@ JsonMap _hotelExample() {
         'widget': {
           'Image': {
             'fit': 'cover',
-            'location': {'literalString': hotel2.images[0]},
+            'url': {'literalString': hotel2.images[0]},
           },
         },
       },
@@ -357,20 +384,24 @@ JsonMap _inspirationExample() => {
               'description': {'literalString': 'Relaxing Beach Holiday'},
               'imageChildId': 'santorini_beach_image',
               'listingSelectionId': '12345',
+              'action': {'name': 'selectExperience'},
             },
             {
               'imageChildId': 'akrotiri_fresco_image',
               'description': {'literalString': 'Cultural Exploration'},
               'listingSelectionId': '12346',
+              'action': {'name': 'selectExperience'},
             },
             {
               'imageChildId': 'santorini_caldera_image',
               'description': {'literalString': 'Adventure & Outdoors'},
               'listingSelectionId': '12347',
+              'action': {'name': 'selectExperience'},
             },
             {
               'description': {'literalString': 'Foodie Tour'},
               'imageChildId': 'greece_food_image',
+              'action': {'name': 'selectExperience'},
             },
           ],
         },
@@ -382,7 +413,7 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': {
+          'url': {
             'literalString': 'assets/travel_images/santorini_panorama.jpg',
           },
         },
@@ -393,7 +424,7 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': {
+          'url': {
             'literalString':
                 'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
           },
@@ -404,7 +435,7 @@ JsonMap _inspirationExample() => {
       'id': 'santorini_caldera_image',
       'widget': {
         'Image': {
-          'location': {
+          'url': {
             'literalString': 'assets/travel_images/santorini_from_space.jpg',
           },
           'fit': 'cover',
@@ -415,7 +446,7 @@ JsonMap _inspirationExample() => {
       'widget': {
         'Image': {
           'fit': 'cover',
-          'location': {
+          'url': {
             'literalString':
                 'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
           },

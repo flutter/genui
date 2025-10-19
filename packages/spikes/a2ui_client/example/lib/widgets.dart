@@ -55,7 +55,7 @@ void registerA2uiWidgets(WidgetRegistry registry) {
   });
   registry.register('Heading', (context, component, properties, children) {
     final text = properties['text'] as String? ?? '';
-    final level = (component.componentProperties as HeadingProperties).level;
+    final level = (component.component.values.first as HeadingProperties).level;
     TextStyle? style;
     style = switch (level) {
       '1' => Theme.of(context).textTheme.headlineSmall,
@@ -140,9 +140,11 @@ void registerA2uiWidgets(WidgetRegistry registry) {
     );
   });
   registry.register('Button', (context, component, properties, children) {
-    final action = properties['action'] as Map<String, dynamic>;
-    final actionName = action['action'] as String;
-    final resolvedContext = action['context'] as Map<String, dynamic>;
+    final action = properties['action'] as Map<String, dynamic>?;
+    final actionName = action?['name'] as String? ?? '';
+    final resolvedContext =
+        action?['context'] as Map<String, dynamic>? ??
+        const <String, dynamic>{};
     return ElevatedButton(
       onPressed: () {
         _log.info('Button ${component.id} pressed. Firing event: $actionName');
@@ -241,8 +243,9 @@ class _CheckboxState extends State<_Checkbox> {
   @override
   Widget build(BuildContext context) {
     final properties = widget.properties;
-    final path =
-        (widget.component.componentProperties as CheckBoxProperties).value.path;
+    final path = (widget.component.component.values.first as CheckBoxProperties)
+        .value
+        .path;
     return CheckboxListTile(
       title: Text(properties['label'] as String? ?? ''),
       value: _value,
@@ -289,7 +292,7 @@ class _MultipleChoiceState extends State<_MultipleChoice> {
     final properties = widget.properties;
     final options = properties['options'] as List<Option>? ?? [];
     final path =
-        (widget.component.componentProperties as MultipleChoiceProperties)
+        (widget.component.component.values.first as MultipleChoiceProperties)
             .selections
             .path;
 
@@ -353,8 +356,9 @@ class _SliderState extends State<_Slider> {
   @override
   Widget build(BuildContext context) {
     final properties = widget.properties;
-    final path =
-        (widget.component.componentProperties as SliderProperties).value.path;
+    final path = (widget.component.component.values.first as SliderProperties)
+        .value
+        .path;
     final minValue = properties['minValue'] is num
         ? (properties['minValue'] as num).toDouble()
         : 0.0;

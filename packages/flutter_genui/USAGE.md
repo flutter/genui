@@ -264,21 +264,13 @@ Add the `json_schema_builder` package as a dependency in `pubspec.yaml`. Use the
 same commit reference as the one for `flutter_genui`.
 
 ```yaml
-<<<<<<< HEAD
 dependencies:
   # ...
-  dart_schema_builder:
+  json_schema_builder:
     git:
       url: https://github.com/flutter/genui.git
-      path: packages/dart_schema_builder
-      ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
-=======
-json_schema_builder:
-  git:
-    url: https://github.com/flutter/genui.git
-    path: packages/json_schema_builder
-    ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
->>>>>>> main
+      path: packages/json_schema_builder
+      ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
 ```
 
 #### Create the new widget's schema

@@ -21,10 +21,17 @@ import '../primitives/simple_items.dart';
 /// In order for a catalog item to be displayed, it must have example data
 /// defined.
 class DebugCatalogView extends StatefulWidget {
-  const DebugCatalogView({this.onSubmit, required this.catalog});
+  const DebugCatalogView({
+    this.onSubmit,
+    required this.catalog,
+    this.itemHeight,
+  });
 
   final Catalog catalog;
   final ValueChanged<UserMessage>? onSubmit;
+
+  /// If provided, constrains each item to the given height.
+  final double? itemHeight;
 
   @override
   State<DebugCatalogView> createState() => _DebugCatalogViewState();
@@ -59,13 +66,31 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       final surfaceId = item.key;
       final definition = item.value();
       final widgets = definition['widgets'] as List<Object?>;
-      final components = widgets.map((e) {
-        final widget = e as JsonMap;
-        return Component(
-          id: widget['id'] as String,
-          componentProperties: widget['widget'] as JsonMap,
-        );
-      }).toList();
+      final components = widgets
+          .map((e) {
+            final widget = e as JsonMap;
+            final widgetMap = widget['widget'] as JsonMap?;
+            if (widgetMap != null) {
+              return Component(
+                id: widget['id'] as String,
+                componentProperties: widgetMap,
+              );
+            }
+            // Handle the other format.
+            final type = widget['type'] as String?;
+            if (type == null) {
+              return null;
+            }
+            final properties = Map<String, Object?>.from(widget);
+            properties.remove('id');
+            properties.remove('type');
+            return Component(
+              id: widget['id'] as String,
+              componentProperties: {type: properties},
+            );
+          })
+          .whereType<Component>()
+          .toList();
       _genUi.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
@@ -92,12 +117,19 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final surfaceId = surfaceIds[index];
-        return ListTile(
-          title: Text(
-            '$surfaceId:',
-            style: const TextStyle(decoration: TextDecoration.underline),
-          ),
-          subtitle: GenUiSurface(host: _genUi, surfaceId: surfaceId),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              '$surfaceId:',
+              style: const TextStyle(decoration: TextDecoration.underline),
+            ),
+            SizedBox(
+              height: widget.itemHeight,
+              child: GenUiSurface(host: _genUi, surfaceId: surfaceId),
+            ),
+          ],
         );
       },
     );
