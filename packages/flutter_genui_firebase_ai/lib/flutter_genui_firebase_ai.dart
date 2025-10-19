@@ -4,4 +4,5 @@
 
 export 'src/firebase_ai_client.dart';
 export 'src/gemini_content_converter.dart';
+export 'src/gemini_generative_model.dart';
 export 'src/gemini_schema_adapter.dart';
