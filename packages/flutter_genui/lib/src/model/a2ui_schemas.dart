@@ -4,11 +4,6 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// Key used in schema definition to specify the component ID.
-///
-/// This key is used in prompts.
-const componentIdKey = 'componentId';
-
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 class A2uiSchemas {
