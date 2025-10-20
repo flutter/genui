@@ -61,8 +61,8 @@ class A2uiSchemas {
     properties: {
       'explicitList': S.list(items: componentReference()),
       'template': S.object(
-        properties: {componentIdKey: S.string(), 'dataBinding': S.string()},
-        required: [componentIdKey, 'dataBinding'],
+        properties: {'componentId': S.string(), 'dataBinding': S.string()},
+        required: ['componentId', 'dataBinding'],
       ),
     },
   );
