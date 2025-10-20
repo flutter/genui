@@ -50,24 +50,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
-
-        var rootId = definition.rootComponentId;
-
-        if (rootId == null && definition.components.isNotEmpty) {
-          genUiLogger.warning(
-            'Surface ${widget.surfaceId} has no rootComponentId specified.',
-          );
-          // This should happen less after fix of
-          // https://github.com/flutter/genui/issues/400
-          // If there's only one component, use last as the root.
-          rootId = definition.components.keys.last;
-        }
-
-        if (rootId == null) {
-          genUiLogger.warning('Surface ${widget.surfaceId} has no components.');
+        final rootId = definition.rootComponentId;
+        if (rootId == null || definition.components.isEmpty) {
+          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
           return const SizedBox.shrink();
         }
-
         return _buildWidget(
           definition,
           rootId,
