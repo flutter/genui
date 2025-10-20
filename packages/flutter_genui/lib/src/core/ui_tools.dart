@@ -10,6 +10,11 @@ import '../model/tools.dart';
 import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
 
+/// Key used in schema definition to specify the component ID.
+///
+/// This key is used in prompts.
+const surfaceIdKey = 'surfaceId';
+
 /// An [AiTool] for adding or updating a UI surface.
 ///
 /// This tool allows the AI to create a new UI surface or update an existing
@@ -25,7 +30,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
          description: 'Updates a surface with a new set of components.',
          parameters: S.object(
            properties: {
-             'surfaceId': S.string(
+             surfaceIdKey: S.string(
                description:
                    'The unique identifier for the UI surface to create or '
                    'update. If you are adding a new surface this *must* be a '
@@ -59,7 +64,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
                ),
              ),
            },
-           required: ['surfaceId', 'components'],
+           required: [surfaceIdKey, 'components'],
          ),
        );
 
@@ -71,7 +76,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final surfaceId = args['surfaceId'] as String;
+    final surfaceId = args[surfaceIdKey] as String;
     final components = (args['components'] as List).map((e) {
       final component = e as JsonMap;
       return Component(
@@ -80,7 +85,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
       );
     }).toList();
     handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
-    return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
+    return {surfaceIdKey: surfaceId, 'status': 'SUCCESS'};
   }
 }
 
@@ -95,12 +100,12 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
         description: 'Removes a UI surface that is no longer needed.',
         parameters: S.object(
           properties: {
-            'surfaceId': S.string(
+            surfaceIdKey: S.string(
               description:
                   'The unique identifier for the UI surface to remove.',
             ),
           },
-          required: ['surfaceId'],
+          required: [surfaceIdKey],
         ),
       );
 
@@ -109,7 +114,7 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final surfaceId = args['surfaceId'] as String;
+    final surfaceId = args[surfaceIdKey] as String;
     handleMessage(SurfaceDeletion(surfaceId: surfaceId));
     return {'status': 'ok'};
   }
@@ -128,7 +133,7 @@ class BeginRenderingTool extends AiTool<JsonMap> {
             'root component.',
         parameters: S.object(
           properties: {
-            'surfaceId': S.string(
+            surfaceIdKey: S.string(
               description:
                   'The unique identifier for the UI surface to render.',
             ),
@@ -138,7 +143,7 @@ class BeginRenderingTool extends AiTool<JsonMap> {
                   'the ID of one of the widgets in the `components` list.',
             ),
           },
-          required: ['surfaceId', 'root'],
+          required: [surfaceIdKey, 'root'],
         ),
       );
 
@@ -147,7 +152,7 @@ class BeginRenderingTool extends AiTool<JsonMap> {
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final surfaceId = args['surfaceId'] as String;
+    final surfaceId = args[surfaceIdKey] as String;
     final root = args['root'] as String;
     handleMessage(BeginRendering(surfaceId: surfaceId, root: root));
     return {'status': 'ok'};
