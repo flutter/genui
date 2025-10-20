@@ -113,7 +113,8 @@ class A2uiSchemas {
     },
   );
 
-  /// Schema for a `beginRendering` message.
+  /// Schema for a beginRendering message, which provides the root widget ID for
+  /// the given surface so that the surface can be rendered.
   static Schema beginRenderingSchema() => S.object(
     properties: {
       'surfaceId': S.string(),
@@ -125,11 +126,12 @@ class A2uiSchemas {
     required: ['surfaceId', 'root'],
   );
 
-  /// Schema for a `deleteSurface` message.
+  /// Schema for a `deleteSurface` message which will delete the given surface.
   static Schema surfaceDeletionSchema() =>
       S.object(properties: {'surfaceId': S.string()}, required: ['surfaceId']);
 
-  /// Schema for a `dataModelUpdate` message.
+  /// Schema for a `dataModelUpdate` message which will update the given path in
+  /// the data model. If the path is omitted, the entire data model is replaced.
   static Schema dataModelUpdateSchema() => S.object(
     properties: {
       'surfaceId': S.string(),
@@ -141,7 +143,8 @@ class A2uiSchemas {
     required: ['surfaceId', 'contents'],
   );
 
-  /// Schema for a `surfaceUpdate` message.
+  /// Schema for a `surfaceUpdate` message which defines the components to be
+  /// rendered on a surface.
   static Schema surfaceUpdateSchema(Catalog catalog) => S.object(
     properties: {
       'surfaceId': S.string(
