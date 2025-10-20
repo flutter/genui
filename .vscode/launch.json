@@ -23,6 +23,12 @@
       "type": "dart"
     },
     {
+      "name": "custom_backend",
+      "cwd": "examples/custom_backend",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
       "name": "fix_copyright",
       "request": "launch",
       "program": "bin/fix_copyright.dart",
