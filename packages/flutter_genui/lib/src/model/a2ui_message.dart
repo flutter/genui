@@ -3,8 +3,11 @@
 // found in the LICENSE file.
 
 import 'package:collection/collection.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/simple_items.dart';
+import 'a2ui_schemas.dart';
+import 'catalog.dart';
 
 /// A sealed class representing a message in the A2UI stream.
 sealed class A2uiMessage {
@@ -26,6 +29,21 @@ sealed class A2uiMessage {
       return SurfaceDeletion.fromJson(json['deleteSurface'] as JsonMap);
     }
     throw ArgumentError('Unknown A2UI message type: $json');
+  }
+
+  /// Returns the JSON schema for an A2UI message.
+  static Schema a2uiMessageSchema(Catalog catalog) {
+    return S.object(
+      title: 'A2UI Message Schema',
+      description:
+          """Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces. A message MUST contain exactly ONE of the action properties: 'beginRendering', 'surfaceUpdate', 'dataModelUpdate', or 'deleteSurface'.""",
+      properties: {
+        'surfaceUpdate': A2uiSchemas.surfaceUpdateSchema(catalog),
+        'dataModelUpdate': A2uiSchemas.dataModelUpdateSchema(),
+        'beginRendering': A2uiSchemas.beginRenderingSchema(),
+        'deleteSurface': A2uiSchemas.surfaceDeletionSchema(),
+      },
+    );
   }
 }
 

@@ -4,6 +4,8 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import 'catalog.dart';
+
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 class A2uiSchemas {
@@ -76,8 +78,8 @@ class A2uiSchemas {
       'context': S.list(
         description:
             'A list of name-value pairs to be sent with the action. The '
-            'values are bind to the data model with a path, and should bind '
-            'to all of the related data for this action.',
+            'values are bind to the data model with a path, and should '
+            'bind to all of the related data for this action.',
         items: S.object(
           properties: {
             'key': S.string(),
@@ -109,5 +111,73 @@ class A2uiSchemas {
       ),
       'literalArray': S.list(items: S.string()),
     },
+  );
+
+  /// Schema for a `beginRendering` message.
+  static Schema beginRenderingSchema() => S.object(
+    properties: {
+      'surfaceId': S.string(),
+      'root': S.string(),
+      'styles': S.object(
+        properties: {'font': S.string(), 'primaryColor': S.string()},
+      ),
+    },
+    required: ['surfaceId', 'root'],
+  );
+
+  /// Schema for a `deleteSurface` message.
+  static Schema surfaceDeletionSchema() =>
+      S.object(properties: {'surfaceId': S.string()}, required: ['surfaceId']);
+
+  /// Schema for a `dataModelUpdate` message.
+  static Schema dataModelUpdateSchema() => S.object(
+    properties: {
+      'surfaceId': S.string(),
+      'path': S.string(),
+      'contents': S.any(
+        description: 'The new contents to write to the data model.',
+      ),
+    },
+    required: ['surfaceId', 'contents'],
+  );
+
+  /// Schema for a `surfaceUpdate` message.
+  static Schema surfaceUpdateSchema(Catalog catalog) => S.object(
+    properties: {
+      'surfaceId': S.string(
+        description:
+            'The unique identifier for the UI surface to create or '
+            'update. If you are adding a new surface this *must* be a '
+            'new, unique identified that has never been used for any '
+            'existing surfaces shown.',
+      ),
+      'components': S.list(
+        description: 'A list of component definitions.',
+        minItems: 1,
+        items: S.object(
+          description:
+              'Represents a *single* component in a UI widget tree. '
+              'This component could be one of many supported types.',
+          properties: {
+            'id': S.string(),
+            'component': S.object(
+              description:
+                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Heading'). The value is an object containing the properties for that specific component.''',
+              properties: {
+                for (var entry
+                    in ((catalog.definition as ObjectSchema)
+                                .properties!['components']!
+                            as ObjectSchema)
+                        .properties!
+                        .entries)
+                  entry.key: entry.value,
+              },
+            ),
+          },
+          required: ['id', 'component'],
+        ),
+      ),
+    },
+    required: ['surfaceId', 'components'],
   );
 }

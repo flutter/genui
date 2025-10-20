@@ -5,6 +5,7 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../model/a2ui_message.dart';
+import '../model/a2ui_schemas.dart';
 import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../primitives/simple_items.dart';
@@ -23,44 +24,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
   }) : super(
          name: 'surfaceUpdate',
          description: 'Updates a surface with a new set of components.',
-         parameters: S.object(
-           properties: {
-             'surfaceId': S.string(
-               description:
-                   'The unique identifier for the UI surface to create or '
-                   'update. If you are adding a new surface this *must* be a '
-                   'new, unique identified that has never been used for any '
-                   'existing surfaces shown.',
-             ),
-             'components': S.list(
-               description: 'A list of component definitions.',
-               minItems: 1,
-               items: S.object(
-                 description:
-                     'Represents a *single* component in a UI widget tree. '
-                     'This component could be one of many supported types.',
-                 properties: {
-                   'id': S.string(),
-                   'component': S.object(
-                     description:
-                         '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Heading'). The value is an object containing the properties for that specific component.''',
-                     properties: {
-                       for (var entry
-                           in ((catalog.definition as ObjectSchema)
-                                       .properties!['components']!
-                                   as ObjectSchema)
-                               .properties!
-                               .entries)
-                         entry.key: entry.value,
-                     },
-                   ),
-                 },
-                 required: ['id', 'component'],
-               ),
-             ),
-           },
-           required: ['surfaceId', 'components'],
-         ),
+         parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
        );
 
   /// The callback to invoke when adding or updating a surface.
