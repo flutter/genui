@@ -10,11 +10,6 @@ import '../model/tools.dart';
 import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
 
-/// Key used in schema definition to specify the component ID.
-///
-/// This key is used in prompts.
-const surfaceIdKey = 'surfaceId';
-
 /// An [AiTool] for adding or updating a UI surface.
 ///
 /// This tool allows the AI to create a new UI surface or update an existing
