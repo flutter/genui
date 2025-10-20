@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:collection/collection.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/simple_items.dart';
 import 'a2ui_schemas.dart';
 import 'catalog.dart';
+import 'ui_models.dart';
 
 /// A sealed class representing a message in the A2UI stream.
 sealed class A2uiMessage {
@@ -137,45 +137,4 @@ final class SurfaceDeletion extends A2uiMessage {
 
   /// The ID of the surface that this message applies to.
   final String surfaceId;
-}
-
-/// A component in the UI.
-final class Component {
-  /// Creates a [Component].
-  const Component({required this.id, required this.componentProperties});
-
-  /// Creates a [Component] from a JSON map.
-  factory Component.fromJson(JsonMap json) {
-    return Component(
-      id: json['id'] as String,
-      componentProperties: json['component'] as JsonMap,
-    );
-  }
-
-  /// The unique ID of the component.
-  final String id;
-
-  /// The properties of the component.
-  final JsonMap componentProperties;
-
-  /// Converts this object to a JSON map.
-  JsonMap toJson() {
-    return {'id': id, 'component': componentProperties};
-  }
-
-  /// The type of the component.
-  String get type => componentProperties.keys.first;
-
-  @override
-  bool operator ==(Object other) =>
-      other is Component &&
-      id == other.id &&
-      const DeepCollectionEquality().equals(
-        componentProperties,
-        other.componentProperties,
-      );
-
-  @override
-  int get hashCode =>
-      Object.hash(id, const DeepCollectionEquality().hash(componentProperties));
 }

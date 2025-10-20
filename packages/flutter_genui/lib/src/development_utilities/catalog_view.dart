@@ -12,6 +12,7 @@ import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
+import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
 
 /// A widget that displays a GenUI catalog widgets.

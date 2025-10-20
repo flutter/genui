@@ -4,8 +4,9 @@
 
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
+
 import '../primitives/simple_items.dart';
-import 'a2ui_message.dart';
 
 /// A callback that is called when events are sent.
 typedef SendEventsCallback =
@@ -126,4 +127,45 @@ class UiDefinition {
     final text = jsonEncode(this);
     return 'A user interface is shown with the following content:\n$text.';
   }
+}
+
+/// A component in the UI.
+final class Component {
+  /// Creates a [Component].
+  const Component({required this.id, required this.componentProperties});
+
+  /// Creates a [Component] from a JSON map.
+  factory Component.fromJson(JsonMap json) {
+    return Component(
+      id: json['id'] as String,
+      componentProperties: json['component'] as JsonMap,
+    );
+  }
+
+  /// The unique ID of the component.
+  final String id;
+
+  /// The properties of the component.
+  final JsonMap componentProperties;
+
+  /// Converts this object to a JSON map.
+  JsonMap toJson() {
+    return {'id': id, 'component': componentProperties};
+  }
+
+  /// The type of the component.
+  String get type => componentProperties.keys.first;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Component &&
+      id == other.id &&
+      const DeepCollectionEquality().equals(
+        componentProperties,
+        other.componentProperties,
+      );
+
+  @override
+  int get hashCode =>
+      Object.hash(id, const DeepCollectionEquality().hash(componentProperties));
 }

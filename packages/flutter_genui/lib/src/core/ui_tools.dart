@@ -8,6 +8,7 @@ import '../model/a2ui_message.dart';
 import '../model/a2ui_schemas.dart';
 import '../model/catalog.dart';
 import '../model/tools.dart';
+import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
 import 'genui_configuration.dart';
 
