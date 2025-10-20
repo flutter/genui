@@ -82,12 +82,17 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
           onPressed: () async {
             setState(() => _isLoading = true);
             try {
+              print(
+                'Sending request for _selectedResponse = '
+                '$_selectedResponse ...',
+              );
               // ignore: omit_local_variable_types
               final SurfaceUpdate? ui = await _protocol.sendRequest(
                 _controller.text,
                 savedResponse: _selectedResponse,
               );
               if (ui == null) {
+                print('No UI received.');
                 _surfaceId = null;
                 setState(() {
                   _isLoading = false;
@@ -97,6 +102,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
               }
               _genUi.handleMessage(ui);
               _surfaceId = ui.surfaceId;
+              print('UI received for surfaceId=$_surfaceId');
               setState(() => _isLoading = false);
             } catch (e, callStack) {
               _surfaceId = null;
@@ -169,7 +175,7 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
   }
 }
 
-const _numberOfSavedResponses = 3;
+const _numberOfSavedResponses = 4;
 final Iterable<String?> savedResponseAssets = List.generate(
   _numberOfSavedResponses + 1,
   (index) => index == 0 ? null : 'assets/data/saved-response-$index.json',
