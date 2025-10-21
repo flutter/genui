@@ -20,7 +20,7 @@ dependencies:
   email_validator: ^3.0.0
   http: ^1.4.0
   intl: ^0.20.2
-  meta: ^1.17.0
+  meta: ^1.16.0
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2

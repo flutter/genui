@@ -2,6 +2,7 @@
 
 - Use [`email_validator`](https://pub.dev/packages/email_validator) package to
   validate emails instead of a regular expression.
+- Reduce required version for `meta` package to 1.16.0.
 
 ## 0.1.2
 
