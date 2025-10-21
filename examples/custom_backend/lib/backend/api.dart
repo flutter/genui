@@ -89,7 +89,7 @@ abstract class Backend {
     );
 
     if (response.statusCode == 200) {
-      print('Response body: ${response.body}');
+      debugSaveToFileObject('response-body', response.body);
       return response.body;
     } else {
       throw Exception('Failed to send request: ${response.body}');
