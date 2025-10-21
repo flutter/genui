@@ -37,7 +37,7 @@ of the front-line triage include:
 
 * Once a day, open the list of new issues which do not have
   `front-line-handled` label. (link TODO)
-* Access if this issue is _critical_ (using the definition above).
+* Assess if this issue is _critical_ (using the definition above).
   If so, assign P0 label and add the `front-line-handled` label. Then,
   ping the team chat, cc the Eng Manager, and share that a new P0
   regression / issue has been identified. In addition, reply to the issue
