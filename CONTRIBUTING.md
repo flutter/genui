@@ -67,11 +67,12 @@ Check that existing issues are labeled and organized appropriately:
 Triage issues ready for second-line review:
 
 * Open the [list of issues ready for second-line][ready-for-second-line].
-* For each issue in the list, do one of:
-  * If we don't plan to fix the issue, close it with an explanation.
-  * If we plan to fix the issue assign a priority label:
-    [P0][P0], [P1][P1], [P2][P2], or [P3][P3]. If you don't know which priority
-    to assign, apply `P2`. If an issue is `P0` or `P1`, add it to a milestone.
+* For each issue in the list:
+  * Do one of:
+    * If we don't plan to fix the issue, close it with an explanation.
+    * If we plan to fix the issue assign a priority label:
+      [P0][P0], [P1][P1], [P2][P2], or [P3][P3]. If you don't know which priority
+      to assign, apply `P2`. If an issue is `P0` or `P1`, add it to a milestone.
   * Add a label for `second-line-triaged`
 
 At the end of a triage session, the untriaged issue list should be as close to
