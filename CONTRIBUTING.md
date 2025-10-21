@@ -66,7 +66,7 @@ Check that existing issues are labeled and organized appropriately:
 
 Triage issues ready for second-line review:
 
-* Open the [list of issues ready for second-line][read-for-second-line].
+* Open the [list of issues ready for second-line][ready-for-second-line].
 * For each issue in the list, do one of:
   * If we don't plan to fix the issue, close it with an explanation.
   * If we plan to fix the issue assign a priority label:
