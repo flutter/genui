@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 
+import '../model/tools.dart';
 import '../primitives/simple_items.dart';
 
 /// A callback that is called when events are sent.
@@ -21,7 +22,7 @@ typedef DispatchEventCallback = void Function(UiEvent event);
 /// actions, such as tapping a button or entering text.
 extension type UiEvent.fromMap(JsonMap _json) {
   /// The ID of the surface that this event originated from.
-  String get surfaceId => _json['surfaceId'] as String;
+  String get surfaceId => _json[surfaceIdKey] as String;
 
   /// The ID of the widget that triggered the event.
   String get widgetId => _json['widgetId'] as String;
@@ -60,7 +61,7 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
     DateTime? timestamp,
     JsonMap? context,
   }) : _json = {
-         if (surfaceId != null) 'surfaceId': surfaceId,
+         if (surfaceId != null) surfaceIdKey: surfaceId,
          'name': name,
          'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
@@ -114,7 +115,7 @@ class UiDefinition {
   /// Converts this object to a JSON map.
   JsonMap toJson() {
     return {
-      'surfaceId': surfaceId,
+      surfaceIdKey: surfaceId,
       'rootComponentId': rootComponentId,
       'components': components.map(
         (key, value) => MapEntry(key, value.toJson()),

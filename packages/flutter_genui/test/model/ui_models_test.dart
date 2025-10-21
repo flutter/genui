@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,7 +29,7 @@ void main() {
     test('can be created from map and read', () {
       final now = DateTime.now();
       final event = UserActionEvent.fromMap({
-        'surfaceId': 'testSurface',
+        surfaceIdKey: 'testSurface',
         'name': 'testAction',
         'sourceComponentId': 'testWidget',
         'timestamp': now.toIso8601String(),
@@ -56,7 +57,7 @@ void main() {
 
       final map = event.toMap();
 
-      expect(map['surfaceId'], 'testSurface');
+      expect(map[surfaceIdKey], 'testSurface');
       expect(map['name'], 'testAction');
       expect(map['sourceComponentId'], 'testWidget');
       expect(map['timestamp'], now.toIso8601String());

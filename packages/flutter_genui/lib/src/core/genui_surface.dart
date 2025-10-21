@@ -5,8 +5,8 @@
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
-
 import '../model/data_model.dart';
+import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 
@@ -114,7 +114,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     }
 
     // The event comes in without a surfaceId, which we add here.
-    final eventMap = {...event.toMap(), 'surfaceId': widget.surfaceId};
+    final eventMap = {...event.toMap(), surfaceIdKey: widget.surfaceId};
     final newEvent = event is UserActionEvent
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);

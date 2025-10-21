@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../primitives/simple_items.dart';
 import 'a2ui_schemas.dart';
 import 'catalog.dart';
+import 'tools.dart';
 import 'ui_models.dart';
 
 /// A sealed class representing a message in the A2UI stream.
@@ -55,7 +56,7 @@ final class SurfaceUpdate extends A2uiMessage {
   /// Creates a [SurfaceUpdate] message from a JSON map.
   factory SurfaceUpdate.fromJson(JsonMap json) {
     return SurfaceUpdate(
-      surfaceId: json['surfaceId'] as String,
+      surfaceId: json[surfaceIdKey] as String,
       components: (json['components'] as List<Object?>)
           .map((e) => Component.fromJson(e as JsonMap))
           .toList(),
@@ -81,7 +82,7 @@ final class DataModelUpdate extends A2uiMessage {
   /// Creates a [DataModelUpdate] message from a JSON map.
   factory DataModelUpdate.fromJson(JsonMap json) {
     return DataModelUpdate(
-      surfaceId: json['surfaceId'] as String,
+      surfaceId: json[surfaceIdKey] as String,
       path: json['path'] as String?,
       contents: json['contents'] as Object,
     );
@@ -109,7 +110,7 @@ final class BeginRendering extends A2uiMessage {
   /// Creates a [BeginRendering] message from a JSON map.
   factory BeginRendering.fromJson(JsonMap json) {
     return BeginRendering(
-      surfaceId: json['surfaceId'] as String,
+      surfaceId: json[surfaceIdKey] as String,
       root: json['root'] as String,
       styles: json['styles'] as JsonMap?,
     );
@@ -132,7 +133,7 @@ final class SurfaceDeletion extends A2uiMessage {
 
   /// Creates a [SurfaceDeletion] message from a JSON map.
   factory SurfaceDeletion.fromJson(JsonMap json) {
-    return SurfaceDeletion(surfaceId: json['surfaceId'] as String);
+    return SurfaceDeletion(surfaceId: json[surfaceIdKey] as String);
   }
 
   /// The ID of the surface that this message applies to.

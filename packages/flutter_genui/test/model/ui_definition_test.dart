@@ -23,7 +23,7 @@ void main() {
 
       final json = definition.toJson();
 
-      expect(json['surfaceId'], 'testSurface');
+      expect(json[surfaceIdKey], 'testSurface');
       expect(json['rootComponentId'], 'root');
       expect(json['components'], {
         'root': {

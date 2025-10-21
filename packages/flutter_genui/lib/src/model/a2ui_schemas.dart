@@ -5,6 +5,7 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'catalog.dart';
+import 'tools.dart';
 
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
@@ -117,37 +118,37 @@ class A2uiSchemas {
   /// the given surface so that the surface can be rendered.
   static Schema beginRenderingSchema() => S.object(
     properties: {
-      'surfaceId': S.string(),
+      surfaceIdKey: S.string(),
       'root': S.string(),
       'styles': S.object(
         properties: {'font': S.string(), 'primaryColor': S.string()},
       ),
     },
-    required: ['surfaceId', 'root'],
+    required: [surfaceIdKey, 'root'],
   );
 
   /// Schema for a `deleteSurface` message which will delete the given surface.
   static Schema surfaceDeletionSchema() =>
-      S.object(properties: {'surfaceId': S.string()}, required: ['surfaceId']);
+      S.object(properties: {surfaceIdKey: S.string()}, required: [surfaceIdKey]);
 
   /// Schema for a `dataModelUpdate` message which will update the given path in
   /// the data model. If the path is omitted, the entire data model is replaced.
   static Schema dataModelUpdateSchema() => S.object(
     properties: {
-      'surfaceId': S.string(),
+      surfaceIdKey: S.string(),
       'path': S.string(),
       'contents': S.any(
         description: 'The new contents to write to the data model.',
       ),
     },
-    required: ['surfaceId', 'contents'],
+    required: [surfaceIdKey, 'contents'],
   );
 
   /// Schema for a `surfaceUpdate` message which defines the components to be
   /// rendered on a surface.
   static Schema surfaceUpdateSchema(Catalog catalog) => S.object(
     properties: {
-      'surfaceId': S.string(
+      surfaceIdKey: S.string(
         description:
             'The unique identifier for the UI surface to create or '
             'update. If you are adding a new surface this *must* be a '
@@ -181,6 +182,6 @@ class A2uiSchemas {
         ),
       ),
     },
-    required: ['surfaceId', 'components'],
+    required: [surfaceIdKey, 'components'],
   );
 }

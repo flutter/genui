@@ -33,7 +33,7 @@ void main() {
       );
 
       final args = {
-        'surfaceId': 'testSurface',
+        surfaceIdKey: 'testSurface',
         'components': [
           {
             'id': 'root',
@@ -50,7 +50,7 @@ void main() {
         genUiManager.surfaceUpdates,
         emits(
           isA<SurfaceAdded>()
-              .having((e) => e.surfaceId, 'surfaceId', 'testSurface')
+              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
               .having(
                 (e) => e.definition.components.length,
                 'components.length',
@@ -74,7 +74,7 @@ void main() {
         handleMessage: genUiManager.handleMessage,
       );
 
-      final args = {'surfaceId': 'testSurface', 'root': 'root'};
+      final args = {surfaceIdKey: 'testSurface', 'root': 'root'};
 
       // First, add a component to the surface so that the root can be set.
       genUiManager.handleMessage(
@@ -98,7 +98,7 @@ void main() {
         genUiManager.surfaceUpdates,
         emits(
           isA<SurfaceUpdated>()
-              .having((e) => e.surfaceId, 'surfaceId', 'testSurface')
+              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
               .having(
                 (e) => e.definition.rootComponentId,
                 'rootComponentId',

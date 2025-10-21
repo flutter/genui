@@ -43,7 +43,7 @@ void main() {
       );
 
       final args = {
-        'surfaceId': 'testSurface',
+        surfaceIdKey: 'testSurface',
         'components': [
           {
             'id': 'rootWidget',
@@ -78,7 +78,7 @@ void main() {
 
       final tool = DeleteSurfaceTool(handleMessage: fakeHandleMessage);
 
-      final args = {'surfaceId': 'testSurface'};
+      final args = {surfaceIdKey: 'testSurface'};
 
       await tool.invoke(args);
 
@@ -99,7 +99,7 @@ void main() {
 
       final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
 
-      final args = {'surfaceId': 'testSurface', 'root': 'rootWidget'};
+      final args = {surfaceIdKey: 'testSurface', 'root': 'rootWidget'};
 
       await tool.invoke(args);
 
