@@ -18,8 +18,7 @@ dependencies:
   collection: ^1.19.1
   flutter:
     sdk: flutter
-  json_schema_builder:
-    path: ../json_schema_builder
+  json_schema_builder: ^0.1.3
   logging: ^1.3.0
 
 dev_dependencies:
