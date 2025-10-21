@@ -128,8 +128,10 @@ class A2uiSchemas {
   );
 
   /// Schema for a `deleteSurface` message which will delete the given surface.
-  static Schema surfaceDeletionSchema() =>
-      S.object(properties: {surfaceIdKey: S.string()}, required: [surfaceIdKey]);
+  static Schema surfaceDeletionSchema() => S.object(
+    properties: {surfaceIdKey: S.string()},
+    required: [surfaceIdKey],
+  );
 
   /// Schema for a `dataModelUpdate` message which will update the given path in
   /// the data model. If the path is omitted, the entire data model is replaced.
