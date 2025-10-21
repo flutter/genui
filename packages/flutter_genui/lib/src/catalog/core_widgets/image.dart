@@ -1,24 +1,20 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../core/widget_utilities.dart';
+import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'url': S.string(
+    'url': A2uiSchemas.stringReference(
       description:
-          'The URL of the image to display. Only one '
-          'of url or assetName may be specified.',
-    ),
-    'assetName': S.string(
-      description:
-          'The name of the asset to display. Only '
-          'one of assetName or url may be specified.',
+          'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
     ),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
@@ -28,11 +24,10 @@ final _schema = S.object(
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({String? url, String? assetName, String? fit}) =>
-      _ImageData.fromMap({'url': url, 'assetName': assetName, 'fit': fit});
+  factory _ImageData({required JsonMap url, String? fit}) =>
+      _ImageData.fromMap({'url': url, 'fit': fit});
 
-  String? get url => _json['url'] as String?;
-  String? get assetName => _json['assetName'] as String?;
+  JsonMap get url => _json['url'] as JsonMap;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -41,6 +36,24 @@ extension type _ImageData.fromMap(JsonMap _json) {
 final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'image',
+      'widgets': [
+        {
+          'id': 'image',
+          'widget': {
+            'Image': {
+              'url': {
+                'literalString':
+                    'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+              },
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -48,29 +61,26 @@ final image = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
+        final notifier = dataContext.subscribeToString(imageData.url);
 
-        final url = imageData.url;
-        final assetName = imageData.assetName;
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentLocation, child) {
+            final location = currentLocation;
+            if (location == null) {
+              return const SizedBox.shrink();
+            }
+            final fit = imageData.fit;
 
-        if ((url == null) == (assetName == null)) {
-          throw Exception(
-            'Image widget must have either a url or an assetName, '
-            'but not both. '
-            'Details: $imageData',
-          );
-        }
-
-        if (url != null) {
-          return Image.network(url, fit: imageData.fit);
-        }
-
-        if (assetName != null) {
-          return Image.asset(assetName, fit: imageData.fit);
-        }
-
-        return const SizedBox();
+            if (location.startsWith('assets/')) {
+              return Image.asset(location, fit: fit);
+            } else {
+              return Image.network(location, fit: fit);
+            }
+          },
+        );
       },
 );

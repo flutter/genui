@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,27 +16,29 @@ void main() {
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
+      const surfaceId = 's1';
       final messages = [
         UserMessage.text('Hello'),
         AiUiMessage(
-          surfaceId: 's1',
-          definition: UiDefinition.fromMap({
-            'surfaceId': 's1',
-            'root': 'r1',
-            'widgets': [
-              {
-                'id': 'r1',
-                'widget': {
-                  'Text': {'text': 'Hi there!'},
-                },
-              },
-            ],
-          }),
+          surfaceId: surfaceId,
+          definition: UiDefinition(surfaceId: surfaceId),
         ),
       ];
-      manager.addOrUpdateSurface(
-        's1',
-        (messages[1] as AiUiMessage).definition.toMap(),
+      final components = [
+        const Component(
+          id: 'r1',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'Hi there!'},
+            },
+          },
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager.handleMessage(
+        const BeginRendering(surfaceId: surfaceId, root: 'r1'),
       );
 
       await tester.pumpWidget(
@@ -48,6 +50,7 @@ void main() {
       );
 
       expect(find.text('Hello'), findsOneWidget);
+      await tester.pumpAndSettle();
       expect(find.text('Hi there!'), findsOneWidget);
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
@@ -66,24 +69,29 @@ void main() {
     });
 
     testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
+      const surfaceId = 's1';
       final messages = [
         AiUiMessage(
-          surfaceId: 's1',
-          definition: UiDefinition.fromMap({
-            'surfaceId': 's1',
-            'root': 'root',
-            'widgets': [
-              {
-                'id': 'root',
-                'widget': {
-                  'Text': {'text': 'UI Content'},
-                },
-              },
-            ],
-          }),
+          surfaceId: surfaceId,
+          definition: UiDefinition(surfaceId: surfaceId),
         ),
       ];
-      manager.addOrUpdateSurface('s1', messages[0].definition.toMap());
+      final components = [
+        const Component(
+          id: 'root',
+          componentProperties: {
+            'Text': {
+              'text': {'literalString': 'UI Content'},
+            },
+          },
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager.handleMessage(
+        const BeginRendering(surfaceId: surfaceId, root: 'root'),
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -91,6 +99,7 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
       expect(find.byType(GenUiSurface), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
     });

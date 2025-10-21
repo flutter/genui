@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,93 +6,62 @@ import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('UiEvent', () {
+  group('UserActionEvent', () {
     test('can be created and read', () {
       final now = DateTime.now();
-      final event = UiActionEvent(
+      final event = UserActionEvent(
         surfaceId: 'testSurface',
-        widgetId: 'testWidget',
-        eventType: 'onTap',
+        name: 'testAction',
+        sourceComponentId: 'testWidget',
         timestamp: now,
-        value: 'testValue',
+        context: {'key': 'value'},
       );
 
       expect(event.surfaceId, 'testSurface');
-      expect(event.widgetId, 'testWidget');
-      expect(event.eventType, 'onTap');
-      expect(event.isAction, isTrue);
+      expect(event.name, 'testAction');
+      expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.value, 'testValue');
+      expect(event.isAction, isTrue);
+      expect(event.context, {'key': 'value'});
     });
 
     test('can be created from map and read', () {
       final now = DateTime.now();
-      final event = UiEvent.fromMap({
+      final event = UserActionEvent.fromMap({
         'surfaceId': 'testSurface',
-        'widgetId': 'testWidget',
-        'eventType': 'onTap',
-        'isAction': false,
+        'name': 'testAction',
+        'sourceComponentId': 'testWidget',
         'timestamp': now.toIso8601String(),
-        'value': 'testValue',
+        'isAction': true,
+        'context': {'key': 'value'},
       });
 
       expect(event.surfaceId, 'testSurface');
-      expect(event.widgetId, 'testWidget');
-      expect(event.eventType, 'onTap');
-      expect(event.isAction, isFalse);
+      expect(event.name, 'testAction');
+      expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.value, 'testValue');
+      expect(event.isAction, isTrue);
+      expect(event.context, {'key': 'value'});
     });
 
     test('can be converted to map', () {
       final now = DateTime.now();
-      final event = UiActionEvent(
+      final event = UserActionEvent(
         surfaceId: 'testSurface',
-        widgetId: 'testWidget',
-        eventType: 'onTap',
+        name: 'testAction',
+        sourceComponentId: 'testWidget',
         timestamp: now,
-        value: 'testValue',
+        context: {'key': 'value'},
       );
 
       final map = event.toMap();
 
       expect(map['surfaceId'], 'testSurface');
-      expect(map['widgetId'], 'testWidget');
-      expect(map['eventType'], 'onTap');
-      expect(map['isAction'], isTrue);
+      expect(map['name'], 'testAction');
+      expect(map['sourceComponentId'], 'testWidget');
       expect(map['timestamp'], now.toIso8601String());
-      expect(map['value'], 'testValue');
-    });
-  });
-
-  group('UiDefinition', () {
-    test('can be created and read', () {
-      final definition = UiDefinition.fromMap({
-        'surfaceId': 'testSurface',
-        'root': 'rootWidget',
-        'widgets': [
-          {
-            'id': 'rootWidget',
-            'widget': {'text': 'Hello'},
-          },
-          {
-            'id': 'childWidget',
-            'widget': {'text': 'World'},
-          },
-        ],
-      });
-
-      expect(definition.surfaceId, 'testSurface');
-      expect(definition.root, 'rootWidget');
-      expect(definition.widgets.length, 2);
-      expect(definition.widgets['rootWidget'], {
-        'id': 'rootWidget',
-        'widget': {'text': 'Hello'},
-      });
-      expect(definition.widgets['childWidget'], {
-        'id': 'childWidget',
-        'widget': {'text': 'World'},
-      });
+      expect(map['isAction'], isTrue);
+      expect(map['context'], {'key': 'value'});
     });
   });
 }

@@ -1,0 +1,33 @@
+{
+  "name": "a2ui_genkit_eval",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "eval": "dotenv -- tsx src/index.ts",
+    "evalAll": "pnpm run eval",
+    "evalGemini": "pnpm run eval -- --model=gemini-2.5-flash --prompt=travelItinerary",
+    "evalGpt": "pnpm run eval -- --model=gpt-5-mini --prompt=travelItinerary",
+    "evalClaude": "pnpm run eval -- --model=claude-4-sonnet --prompt=travelItinerary",
+    "start": "genkit start",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@genkit-ai/compat-oai": "^1.19.2",
+    "@genkit-ai/google-genai": "^1.19.3",
+    "@genkit-ai/vertexai": "^1.19.3",
+    "genkit": "^1.19.2",
+    "genkitx-anthropic": "^0.25.0"
+  }
+}

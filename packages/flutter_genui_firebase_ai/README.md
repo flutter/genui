@@ -4,9 +4,9 @@ This package provides the integration between `flutter_genui` and the Firebase A
 
 ## Features
 
-*   **FirebaseAiClient:** An implementation of `AiClient` that connects to the Firebase AI SDK.
-*   **GeminiContentConverter:** Converts between the generic `ChatMessage` and the `firebase_ai` specific `Content` classes.
-*   **GeminiSchemaAdapter:** Adapts schemas from `dart_schema_builder` to the `firebase_ai` format.
+- **FirebaseAiClient:** An implementation of `AiClient` that connects to the Firebase AI SDK.
+- **GeminiContentConverter:** Converts between the generic `ChatMessage` and the `firebase_ai` specific `Content` classes.
+- **GeminiSchemaAdapter:** Adapts schemas from `json_schema_builder` to the `firebase_ai` format.
 
 ## Getting Started
 

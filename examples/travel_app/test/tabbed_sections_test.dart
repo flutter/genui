@@ -1,8 +1,9 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/src/catalog/tabbed_sections.dart';
 
@@ -25,8 +26,14 @@ void main() {
       final catalogItem = tabbedSections;
       final data = {
         'sections': [
-          {'title': 'Tab 1', 'child': 'child1'},
-          {'title': 'Tab 2', 'child': 'child2'},
+          {
+            'title': {'literalString': 'Tab 1'},
+            'child': 'child1',
+          },
+          {
+            'title': {'literalString': 'Tab 2'},
+            'child': 'child2',
+          },
         ],
       };
 
@@ -41,11 +48,11 @@ void main() {
                     builder: (context) {
                       return catalogItem.widgetBuilder(
                         data: data,
-                        id: 'test_tabbed_sections',
+                        id: 'testId',
                         buildChild: mockBuildChild,
                         dispatchEvent: (event) {},
                         context: context,
-                        values: {},
+                        dataContext: DataContext(DataModel(), '/'),
                       );
                     },
                   ),

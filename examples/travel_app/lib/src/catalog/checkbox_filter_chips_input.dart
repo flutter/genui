@@ -1,13 +1,15 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 /// @docImport 'input_group.dart';
 library;
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'common.dart';
 
@@ -29,14 +31,13 @@ final _schema = S.object(
       description: 'An icon to display on the left of the chip.',
       enumValues: TravelIcon.values.map((e) => e.name).toList(),
     ),
-    'initialOptions': S.list(
+    'selectedOptions': A2uiSchemas.stringArrayReference(
       description:
           'The names of the options that should be selected '
           'initially. These options must exist in the "options" list.',
-      items: S.string(description: 'An option from the "options" list.'),
     ),
   },
-  required: ['chipLabel', 'options'],
+  required: ['chipLabel', 'options', 'selectedOptions'],
 );
 
 extension type _CheckboxFilterChipsInputData.fromMap(
@@ -46,19 +47,18 @@ extension type _CheckboxFilterChipsInputData.fromMap(
     required String chipLabel,
     required List<String> options,
     String? iconName,
-    List<String>? initialOptions,
+    required JsonMap selectedOptions,
   }) => _CheckboxFilterChipsInputData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
     if (iconName != null) 'iconName': iconName,
-    if (initialOptions != null) 'initialOptions': initialOptions,
+    'selectedOptions': selectedOptions,
   });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
   String? get iconName => _json['iconName'] as String?;
-  List<String> get initialOptions =>
-      (_json['initialOptions'] as List?)?.cast<String>() ?? [];
+  JsonMap get selectedOptions => _json['selectedOptions'] as JsonMap;
 }
 
 /// An interactive chip that allows the user to select multiple options from a
@@ -75,6 +75,25 @@ extension type _CheckboxFilterChipsInputData.fromMap(
 final checkboxFilterChipsInput = CatalogItem(
   name: 'CheckboxFilterChipsInput',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'checkbox_filter_chips_input',
+      'widgets': [
+        {
+          'id': 'checkbox_filter_chips_input',
+          'widget': {
+            'CheckboxFilterChipsInput': {
+              'chipLabel': 'Amenities',
+              'options': ['Wifi', 'Gym', 'Pool', 'Parking'],
+              'selectedOptions': {
+                'literalArray': ['Wifi', 'Gym'],
+              },
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -82,7 +101,7 @@ final checkboxFilterChipsInput = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
           data as Map<String, Object?>,
@@ -94,79 +113,80 @@ final checkboxFilterChipsInput = CatalogItem(
               TravelIcon.values.byName(checkboxFilterChipsData.iconName!),
             );
           } catch (e) {
-            // Invalid icon name, default to no icon.
-            // Consider logging this error.
+            developer.log(
+              'Invalid icon name: ${checkboxFilterChipsData.iconName}',
+              name: 'CheckboxFilterChipsInput',
+              error: e,
+            );
             icon = null;
           }
         }
-        return _CheckboxFilterChip(
-          initialChipLabel: checkboxFilterChipsData.chipLabel,
-          options: checkboxFilterChipsData.options,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          icon: icon,
-          initialOptions: checkboxFilterChipsData.initialOptions,
-          values: values,
+
+        final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
+        final notifier = dataContext.subscribeToStringArray(selectedOptionsRef);
+
+        return ValueListenableBuilder<List<dynamic>?>(
+          valueListenable: notifier,
+          builder: (context, currentSelectedValues, child) {
+            final selectedOptionsSet = (currentSelectedValues ?? [])
+                .cast<String>()
+                .toSet();
+            return _CheckboxFilterChip(
+              chipLabel: checkboxFilterChipsData.chipLabel,
+              options: checkboxFilterChipsData.options,
+              icon: icon,
+              selectedOptions: selectedOptionsSet,
+              onChanged: (newSelectedOptions) {
+                final path = selectedOptionsRef['path'] as String?;
+                if (path != null) {
+                  dataContext.update(path, newSelectedOptions.toList());
+                }
+              },
+            );
+          },
         );
       },
 );
 
-class _CheckboxFilterChip extends StatefulWidget {
+class _CheckboxFilterChip extends StatelessWidget {
   const _CheckboxFilterChip({
-    required this.initialChipLabel,
+    required this.chipLabel,
     required this.options,
-    required this.widgetId,
-    required this.dispatchEvent,
-    required this.values,
     this.icon,
-    this.initialOptions,
+    required this.selectedOptions,
+    required this.onChanged,
   });
 
-  final String initialChipLabel;
+  final String chipLabel;
   final List<String> options;
-  final String widgetId;
   final IconData? icon;
-  final DispatchEventCallback dispatchEvent;
-  final List<String>? initialOptions;
-  final Map<String, Object?> values;
+  final Set<String> selectedOptions;
+  final void Function(Set<String>) onChanged;
 
-  @override
-  State<_CheckboxFilterChip> createState() => _CheckboxFilterChipState();
-}
-
-class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
-  late List<String> _selectedOptions;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedOptions = widget.initialOptions ?? [];
-  }
-
-  String get _chipLabel {
-    if (_selectedOptions.isEmpty) {
-      return widget.initialChipLabel;
+  String get _displayLabel {
+    if (selectedOptions.isEmpty) {
+      return chipLabel;
     }
-    return _selectedOptions.join(', ');
+    return selectedOptions.join(', ');
   }
 
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      avatar: widget.icon != null ? Icon(widget.icon) : null,
-      label: Text(_chipLabel),
+      avatar: icon != null ? Icon(icon) : null,
+      label: Text(_displayLabel),
       selected: false,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       onSelected: (bool selected) {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            var tempSelectedOptions = List<String>.from(_selectedOptions);
+            var tempSelectedOptions = Set<String>.from(selectedOptions);
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: widget.options.map((option) {
+                  children: options.map((option) {
                     return CheckboxListTile(
                       title: Text(option),
                       value: tempSelectedOptions.contains(option),
@@ -178,10 +198,7 @@ class _CheckboxFilterChipState extends State<_CheckboxFilterChip> {
                             tempSelectedOptions.remove(option);
                           }
                         });
-                        setState(() {
-                          _selectedOptions = List.from(tempSelectedOptions);
-                        });
-                        widget.values[widget.widgetId] = tempSelectedOptions;
+                        onChanged(tempSelectedOptions);
                       },
                     );
                   }).toList(),

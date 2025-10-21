@@ -1,12 +1,13 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+
 import 'package:fcp_client/fcp_client.dart';
 import 'package:fcp_client/src/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 void main() {
   group('FCP Models', () {

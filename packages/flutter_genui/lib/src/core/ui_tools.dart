@@ -1,9 +1,10 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../primitives/simple_items.dart';
@@ -13,73 +14,73 @@ import 'genui_configuration.dart';
 ///
 /// This tool allows the AI to create a new UI surface or update an existing
 /// one with a new definition.
-class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
-  /// Creates an [AddOrUpdateSurfaceTool].
-  AddOrUpdateSurfaceTool({
-    required this.onAddOrUpdate,
+class SurfaceUpdateTool extends AiTool<JsonMap> {
+  /// Creates an [SurfaceUpdateTool].
+  SurfaceUpdateTool({
+    required this.handleMessage,
     required Catalog catalog,
     required this.configuration,
   }) : super(
-         name: 'addOrUpdateSurface',
-         description:
-             'Adds a new UI surface or updates an existing one. Use this to '
-             'display new content or change what is currently visible. You are '
-             'only able to use the `action` types that are available.',
+         name: 'surfaceUpdate',
+         description: 'Updates a surface with a new set of components.',
          parameters: S.object(
            properties: {
-             'action': S.string(
-               description:
-                   'The action to perform. You must choose from the available '
-                   'actions. If you choose the `add` action, you must choose a '
-                   'new unique surfaceId. If you choose the `update` action, '
-                   'you must choose an existing surfaceId.',
-               enumValues: [
-                 if (configuration.actions.allowCreate) 'add',
-                 if (configuration.actions.allowUpdate) 'update',
-               ],
-             ),
-             'surfaceId': S.string(
+             surfaceIdKey: S.string(
                description:
                    'The unique identifier for the UI surface to create or '
                    'update. If you are adding a new surface this *must* be a '
                    'new, unique identified that has never been used for any '
-                   'existing surfaces shown in the context.',
+                   'existing surfaces shown.',
              ),
-             'definition': S.object(
-               properties: {
-                 'root': S.string(
-                   description:
-                       'The ID of the root widget. This ID must correspond to '
-                       'the ID of one of the widgets in the `widgets` list.',
-                 ),
-                 'widgets': S.list(
-                   items: catalog.schema,
-                   description: 'A list of widget definitions.',
-                   minItems: 1,
-                 ),
-               },
-               description:
-                   'A schema for a simple UI tree to be rendered by '
-                   'Flutter.',
-               required: ['root', 'widgets'],
+             'components': S.list(
+               description: 'A list of component definitions.',
+               minItems: 1,
+               items: S.object(
+                 description:
+                     'Represents a *single* component in a UI widget tree. '
+                     'This component could be one of many supported types.',
+                 properties: {
+                   'id': S.string(),
+                   'component': S.object(
+                     description:
+                         '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Heading'). The value is an object containing the properties for that specific component.''',
+                     properties: {
+                       for (var entry
+                           in ((catalog.definition as ObjectSchema)
+                                       .properties!['components']!
+                                   as ObjectSchema)
+                               .properties!
+                               .entries)
+                         entry.key: entry.value,
+                     },
+                   ),
+                 },
+                 required: ['id', 'component'],
+               ),
              ),
            },
-           required: ['action', 'surfaceId', 'definition'],
+           required: [surfaceIdKey, 'components'],
          ),
        );
 
   /// The callback to invoke when adding or updating a surface.
-  final void Function(String surfaceId, JsonMap definition) onAddOrUpdate;
+  final void Function(A2uiMessage message) handleMessage;
 
   /// The configuration of the Gen UI system.
   final GenUiConfiguration configuration;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final surfaceId = args['surfaceId'] as String;
-    final definition = args['definition'] as JsonMap;
-    onAddOrUpdate(surfaceId, definition);
-    return {'surfaceId': surfaceId, 'status': 'SUCCESS'};
+    final surfaceId = args[surfaceIdKey] as String;
+    final components = (args['components'] as List).map((e) {
+      final component = e as JsonMap;
+      return Component(
+        id: component['id'] as String,
+        componentProperties: component['component'] as JsonMap,
+      );
+    }).toList();
+    handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
+    return {surfaceIdKey: surfaceId, 'status': 'SUCCESS'};
   }
 }
 
@@ -88,28 +89,67 @@ class AddOrUpdateSurfaceTool extends AiTool<JsonMap> {
 /// This tool allows the AI to remove a UI surface that is no longer needed.
 class DeleteSurfaceTool extends AiTool<JsonMap> {
   /// Creates a [DeleteSurfaceTool].
-  DeleteSurfaceTool({required this.onDelete})
+  DeleteSurfaceTool({required this.handleMessage})
     : super(
         name: 'deleteSurface',
         description: 'Removes a UI surface that is no longer needed.',
         parameters: S.object(
           properties: {
-            'surfaceId': S.string(
+            surfaceIdKey: S.string(
               description:
                   'The unique identifier for the UI surface to remove.',
             ),
           },
-          required: ['surfaceId'],
+          required: [surfaceIdKey],
         ),
       );
 
   /// The callback to invoke when deleting a surface.
-  final void Function(String surfaceId) onDelete;
+  final void Function(A2uiMessage message) handleMessage;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final surfaceId = args['surfaceId'] as String;
-    onDelete(surfaceId);
+    final surfaceId = args[surfaceIdKey] as String;
+    handleMessage(SurfaceDeletion(surfaceId: surfaceId));
+    return {'status': 'ok'};
+  }
+}
+
+/// An [AiTool] for signaling the client to begin rendering.
+///
+/// This tool allows the AI to specify the root component of a UI surface.
+class BeginRenderingTool extends AiTool<JsonMap> {
+  /// Creates a [BeginRenderingTool].
+  BeginRenderingTool({required this.handleMessage})
+    : super(
+        name: 'beginRendering',
+        description:
+            'Signals the client to begin rendering a surface with a '
+            'root component.',
+        parameters: S.object(
+          properties: {
+            surfaceIdKey: S.string(
+              description:
+                  'The unique identifier for the UI surface to render.',
+            ),
+            'root': S.string(
+              description:
+                  'The ID of the root widget. This ID must correspond to '
+                  'the ID of one of the widgets in the `components` list.',
+            ),
+          },
+          required: [surfaceIdKey, 'root'],
+        ),
+      );
+
+  /// The callback to invoke when signaling to begin rendering.
+  final void Function(A2uiMessage message) handleMessage;
+
+  @override
+  Future<JsonMap> invoke(JsonMap args) async {
+    final surfaceId = args[surfaceIdKey] as String;
+    final root = args['root'] as String;
+    handleMessage(BeginRendering(surfaceId: surfaceId, root: root));
     return {'status': 'ok'};
   }
 }

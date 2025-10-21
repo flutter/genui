@@ -1,17 +1,18 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'asset_images.dart';
 import 'catalog.dart';
-import 'tools/list_hotels_tool.dart';
+import 'tools/booking/booking_service.dart';
+import 'tools/booking/list_hotels_tool.dart';
 import 'widgets/conversation.dart';
 
 Future<void> loadImagesJson() async {
@@ -73,7 +74,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
       _handleUserMessageFromUi,
     );
     final tools = _genUiManager.getTools();
-    tools.add(ListHotelsTool(onListHotels: onListHotels));
+    tools.add(ListHotelsTool(onListHotels: BookingService.instance.listHotels));
     _aiClient =
         widget.aiClient ??
         FirebaseAiClient(tools: tools, systemInstruction: prompt);
@@ -322,7 +323,6 @@ to the user.
     of time, the budget, preferred activity types etc.
 
     Then, when the user clicks search, you should update the surface to have
-<<<<<<< HEAD
     a Column with the existing inputGroup, an itineraryWithDetails. When
     creating the itinerary, include all necessary `itineraryEntry` items for
     hotels and transport with generic details and a status of `choiceRequired`.
@@ -335,18 +335,16 @@ to the user.
     involves booking every accommodation, transport and activity in the itinerary
     one step at a time.
 
-    When booking accommodation, you should use the `listHotels` tool to search
-    for hotels. You can then show the user the different options in a
-    `travelCarousel`.
-
     Here, you should just focus on one item at a time, using an `inputGroup`
     with chips to ask the user for preferences, and the `travelCarousel` to show
     the user different options. When the user chooses an option, you can confirm
     it has been chosen and immediately prompt the user to book the next detail,
-    e.g. an activity, accommodation, transport etc. When a booking is confirmed,
+    e.g. an activity, hotels, transport etc. When a booking is confirmed,
     update the original `itineraryWithDetails` to reflect the booking by
     updating the relevant `itineraryEntry` to have the status `chosen` and
     including the booking details in the `bodyText`.
+
+    When booking a hotel, use inputGroup, providing initial values for check-in and check-out dates (nearest weekend). Then use the `listHotels` tool to search for hotels and pass the values listingSelectionId to `travelCarousel` to show the user different options. When user selects a hotel, pass the listingSelectionId of the selected hotel the parameter listingSelectionIds of `listingsBooker`.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your job to
 understand which step of the flow the user is at, and when they are ready to
@@ -370,8 +368,11 @@ the user can return to the main booking flow once they have done some research.
 # Controlling the UI
 
 Use the provided tools to build and manage the user interface in response to the
-user's requests. Call the `addOrUpdateSurface` tool to show new content or
-update existing content.
+user's requests. To display or update a UI, you must first call the
+`updateSurface` tool to define all the necessary components. After defining the
+components, you must call the `beginRendering` tool to specify the root
+component that should be displayed.
+
 - Adding surfaces: Most of the time, you should only add new surfaces to the conversation. This
   is less confusing for the user, because they can easily find this new content
   at the bottom of the conversation.
@@ -385,7 +386,9 @@ When processing a user message or event, you should add or update one surface
 and then call provideFinalOutput to return control to the user. Never continue
 to add or update surfaces until you receive another user event. If the last
 entry in the context is a functionResponse, just call provideFinalOutput
-immediately - don't try to update the UI.
+immediately - don't try to update the UI. If you are displaying more than one
+component, you should use a `Column` widget as the root and add the other
+components as children.
 
 # UI style
 
@@ -412,9 +415,13 @@ transport for that day.
 
 - Inputs: When you are asking for information from the user, you should always include a
 submit button of some kind so that the user can indicate that they are done
-providing information. The `InputGroup` has a submit button, but if
+providing information. Suggest initial values for number of people and travel dates (e.g. 2 guests, dates of nearest weekend). The `InputGroup` has a submit button, but if
 you are not using that, you can use an `ElevatedButton`. Only use
 `OptionsFilterChipInput` widgets inside of a `InputGroup`.
+**It is a strict requirement that all input chip widgets bind their state to the data model. Under no circumstances should you use a literal value for their state.** You should invent a suitable path in the data model for each input. For example: `/search/destination`, `/search/preferredActivities`, `/search/budget`.
+Specifically:
+  - For `OptionsFilterChipInput`, `DateInputChip`, and `TextInputChip`, the `value` parameter MUST be bound to the data model using a `path`.
+  - For `CheckboxFilterChipsInput`, the `selectedOptions` parameter MUST be bound to the data model using a `path`.
 
 - State management: Try to maintain state by being aware of the user's
   selections and preferences and setting them in the initial value fields of
@@ -431,8 +438,7 @@ ${_imagesJson ?? ''}
 list that might be tangentially relevant. DO NOT USE ANY IMAGES NOT IN THE LIST.
 It is fine if the image is irrelevant, as long as it is from the list.
 
-- Use assetName for images from the list only - NEVER use `url` and reference
-images from wikipedia or other sites.
+- Image location always should be an asset path (e.g. assets/...).
 
 # Example
 
@@ -479,7 +485,7 @@ contain the other widgets.
         "id": "mexico_city_image",
         "widget": {
           "Image": {
-            "assetName": "assets/travel_images/mexico_city.jpg"
+            "location": "assets/travel_images/mexico_city.jpg"
           }
         }
       },
@@ -512,7 +518,7 @@ contain the other widgets.
         "id": "day1_image",
         "widget": {
           "Image": {
-            "assetName": "assets/travel_images/mexico_city.jpg"
+            "location": "assets/travel_images/mexico_city.jpg"
           }
         }
       },

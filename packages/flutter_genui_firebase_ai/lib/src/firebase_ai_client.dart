@@ -1,13 +1,13 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 import 'dart:convert';
 
-import 'package:dart_schema_builder/dart_schema_builder.dart' as dsb;
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';

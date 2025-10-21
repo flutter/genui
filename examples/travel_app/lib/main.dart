@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,7 +6,6 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/flutter_genui_dev.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:logging/logging.dart';
 
@@ -18,9 +17,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
-    appleProvider: AppleProvider.debug,
-    androidProvider: AndroidProvider.debug,
-    webProvider: ReCaptchaV3Provider('debug'),
+    providerApple: const AppleDebugProvider(),
+    providerAndroid: const AndroidDebugProvider(),
+    providerWeb: ReCaptchaV3Provider('debug'),
   );
   await loadImagesJson();
   final logger = configureGenUiLogging(level: Level.ALL);
@@ -33,6 +32,8 @@ void main() async {
   });
   runApp(const TravelApp());
 }
+
+const _title = 'Agentic Travel Inc';
 
 /// The root widget for the travel application.
 ///
@@ -52,7 +53,7 @@ class TravelApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Agentic Travel Inc.',
+      title: _title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
@@ -74,7 +75,7 @@ class _TravelAppBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final tabs = {
       'Travel': TravelPlannerPage(aiClient: aiClient),
-      'Widget Catalog': CatalogView(catalog: travelAppCatalog),
+      'Widget Catalog': const CatalogTab(),
     };
     return DefaultTabController(
       length: tabs.length,
@@ -87,7 +88,7 @@ class _TravelAppBody extends StatelessWidget {
             children: <Widget>[
               Icon(Icons.local_airport),
               SizedBox(width: 16.0), // Add spacing between icon and text
-              Text('Agentic Travel Inc.'),
+              Text(_title),
             ],
           ),
           actions: [
@@ -104,4 +105,23 @@ class _TravelAppBody extends StatelessWidget {
       ),
     );
   }
+}
+
+class CatalogTab extends StatefulWidget {
+  const CatalogTab({super.key});
+
+  @override
+  State<CatalogTab> createState() => _CatalogTabState();
+}
+
+class _CatalogTabState extends State<CatalogTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return DebugCatalogView(catalog: travelAppCatalog);
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

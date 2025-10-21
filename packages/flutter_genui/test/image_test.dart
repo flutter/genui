@@ -1,9 +1,10 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/src/catalog/core_widgets/image.dart';
+import 'package:flutter_genui/src/model/data_model.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -19,14 +20,16 @@ void main() {
             builder: (context) => Scaffold(
               body: image.widgetBuilder(
                 data: {
-                  'url':
-                      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                  'url': {
+                    'literalString':
+                        'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                  },
                 },
                 id: 'test_image',
                 buildChild: (String id) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 context: context,
-                values: {},
+                dataContext: DataContext(DataModel(), '/'),
               ),
             ),
           ),

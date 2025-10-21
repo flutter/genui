@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file/file.dart';
+import 'package:process/process.dart';
 
 typedef LogFunction = void Function(String);
 
@@ -18,6 +19,7 @@ Future<int> fixCopyrights(
   required bool force,
   required String year,
   required List<String> paths,
+  ProcessManager processManager = const LocalProcessManager(),
   LogFunction? log,
   LogFunction? error,
 }) async {
@@ -33,33 +35,38 @@ Future<int> fixCopyrights(
     return pathExtension.isNotEmpty ? pathExtension.substring(1) : '';
   }
 
-  Iterable<File> matchingFiles(Directory dir) {
-    return dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((File file) => extensionMap.containsKey(getExtension(file)))
-        .map((File file) => file.absolute);
+  final gitRootResult = await processManager.run([
+    'git',
+    'rev-parse',
+    '--show-toplevel',
+  ]);
+  if (gitRootResult.exitCode != 0) {
+    stdErr(
+      'Error: not a git repository. '
+      'This tool only works within a git repository.',
+    );
+    return 1;
+  }
+  final repoRoot = gitRootResult.stdout.toString().trim();
+
+  final gitFilesResult = await processManager.run([
+    'git',
+    'ls-files',
+    ...paths,
+  ], workingDirectory: repoRoot);
+
+  if (gitFilesResult.exitCode != 0) {
+    stdErr('Error running "git ls-files":\n${gitFilesResult.stderr}');
+    return 1;
   }
 
-  final rest = paths.isEmpty ? <String>['.'] : paths;
-
-  final files = <File>[];
-  for (final fileOrDir in rest) {
-    switch (fileSystem.typeSync(fileOrDir)) {
-      case FileSystemEntityType.directory:
-        files.addAll(matchingFiles(fileSystem.directory(fileOrDir)));
-        break;
-      case FileSystemEntityType.file:
-        files.add(fileSystem.file(fileOrDir));
-        break;
-      case FileSystemEntityType.link:
-      case FileSystemEntityType.notFound:
-      case FileSystemEntityType.pipe:
-      case FileSystemEntityType.unixDomainSock:
-        // We don't care about these, just ignore them.
-        break;
-    }
-  }
+  final files = gitFilesResult.stdout
+      .toString()
+      .split('\n')
+      .where((line) => line.trim().isNotEmpty)
+      .map((filePath) => fileSystem.file(path.join(repoRoot, filePath)))
+      .where((file) => extensionMap.containsKey(getExtension(file)))
+      .toList();
 
   final nonCompliantFiles = <File>[];
   for (final file in files) {
@@ -74,42 +81,49 @@ Future<int> fixCopyrights(
       }
       final info = extensionMap[extension]!;
       final inputFile = file.absolute;
-      var originalContents = inputFile.readAsStringSync();
+      final originalContents = inputFile.readAsStringSync();
       if (_hasCorrectLicense(originalContents, info)) {
         continue;
       }
 
-      // If a sort-of correct copyright is there, but just doesn't have the
-      // right case, date, spacing, license type or trailing newline, then
-      // remove it.
-      var newContents = originalContents.replaceFirst(
-        RegExp(info.copyrightPattern, caseSensitive: false, multiLine: true),
-        '',
-      );
-      // Strip any matching header from the existing file, and replace it with
-      // the correct combined copyright and the header that was matched.
-      if ((info.headerPattern ?? info.header) != null) {
-        final match = RegExp(
-          info.headerPattern ?? '(?<header>${RegExp.escape(info.header!)})',
-          caseSensitive: false,
-        ).firstMatch(newContents);
-        if (match != null) {
-          final header = match.namedGroup('header') ?? '';
-          newContents = newContents.substring(match.end);
-          newContents =
-              '$header${info.copyright}\n${info.trailingBlank ? '\n' : ''}'
-              '$newContents';
-        } else {
-          newContents = '${info.combined}$newContents';
+      nonCompliantFiles.add(file);
+
+      if (force) {
+        var contents = originalContents.replaceAll('\r\n', '\n');
+        String? fileHeader;
+        if (info.headerPattern != null) {
+          final match = RegExp(
+            info.headerPattern!,
+            caseSensitive: false,
+          ).firstMatch(contents);
+          if (match != null && match.start == 0) {
+            fileHeader = match.group(0);
+            contents = contents.substring(match.end);
+          }
         }
-      } else {
-        newContents = '${info.combined}$newContents';
-      }
-      if (newContents != originalContents) {
-        if (force) {
+
+        contents = contents.trimLeft();
+
+        // If a sort-of correct copyright is there, but just doesn't have the
+        // right case, date, spacing, license type or trailing newline, then
+        // remove it.
+        contents = contents.replaceFirst(
+          RegExp(info.copyrightPattern, caseSensitive: false, multiLine: true),
+          '',
+        );
+        contents = contents.trimLeft();
+        var newContents = '';
+        if (fileHeader != null) {
+          final copyrightBlock =
+              '${info.copyright}${info.trailingBlank ? '\n\n' : '\n'}';
+          newContents = '$fileHeader$copyrightBlock$contents';
+        } else {
+          newContents = '${info.combined}$contents';
+        }
+
+        if (newContents != originalContents.replaceAll('\r\n', '\n')) {
           inputFile.writeAsStringSync(newContents);
         }
-        nonCompliantFiles.add(file);
       }
     } on FileSystemException catch (e) {
       stdErr('Could not process file ${file.path}: $e');
@@ -153,8 +167,9 @@ class CopyrightInfo {
 
   RegExp get pattern {
     return RegExp(
-      '${headerPattern ?? (header != null ? RegExp.escape(header!) : '')}'
+      '^(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
+      multiLine: true,
     );
   }
 
@@ -183,7 +198,7 @@ Map<String, CopyrightInfo> _generateExtensionMap(String year) {
     String suffix = '',
     required bool isParagraph,
   }) {
-    return '''${prefix}Copyright $year The Flutter Authors. All rights reserved.${isParagraph ? '' : suffix}
+    return '''${prefix}Copyright $year The Flutter Authors.${isParagraph ? '' : suffix}
 ${isParagraph ? '' : prefix}Use of this source code is governed by a BSD-style license that can be${isParagraph ? '' : suffix}
 ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
@@ -196,7 +211,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     final escapedSuffix = RegExp.escape(suffix);
 
     return '($escapedPrefix'
-        r'Copyright (\d+) ([\w ]+)\.?\s+All rights reserved.'
+        r'Copyright (\d+) ([\w ]+)\.?(?:\s*All rights reserved.)?'
         '(?:$escapedSuffix)?\\n'
         '(?:$escapedPrefix)?'
         r'Use of this source code is governed by a [-\w]+ license that can be'
@@ -231,56 +246,52 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
 
   return <String, CopyrightInfo>{
-    'dart': generateInfo(prefix: '// '),
-    'java': generateInfo(prefix: '// '),
-    'h': generateInfo(prefix: '// '),
-    'm': generateInfo(prefix: '// '),
-    'cpp': generateInfo(prefix: '// '),
-    'cc': generateInfo(prefix: '// '),
-    'c': generateInfo(prefix: '// '),
-    'kt': generateInfo(prefix: '// '),
-    'swift': generateInfo(prefix: '// '),
-    'gradle': generateInfo(prefix: '// '),
-    'gn': generateInfo(prefix: '# '),
-    'sh': generateInfo(
-      prefix: '# ',
-      header: '#!/usr/bin/env bash\n',
-      headerPattern:
-          r'(?<header>#!/usr/bin/env bash\n|#!/bin/sh\n|#!/bin/bash\n)',
-    ),
     'bat': generateInfo(
       prefix: 'REM ',
       header: '@ECHO off\n',
       headerPattern: r'(?<header>@ECHO off\n)',
     ),
-    'ps1': generateInfo(prefix: '# '),
+    'c': generateInfo(prefix: '// '),
+    'cc': generateInfo(prefix: '// '),
+    'cmake': generateInfo(prefix: '# '),
+    'cpp': generateInfo(prefix: '// '),
+    'dart': generateInfo(prefix: '// ', headerPattern: r'(?<header>#!.*\n?)'),
+    'gn': generateInfo(prefix: '# '),
+    'gradle': generateInfo(prefix: '// '),
+    'h': generateInfo(prefix: '// '),
     'html': generateInfo(
       prefix: '<!-- ',
       suffix: ' -->',
       isParagraph: true,
       trailingBlank: false,
       header: '<!DOCTYPE HTML>\n',
-      headerPattern: r'(?<header><!DOCTYPE\s+HTML[^>]*>\n)?',
+      headerPattern: r'(?<header><!DOCTYPE\s+HTML[^>]*>\n?)?',
     ),
+    'js': generateInfo(prefix: '// '),
+    'java': generateInfo(prefix: '// '),
+    'kt': generateInfo(prefix: '// '),
+    'm': generateInfo(prefix: '// '),
+    'ps1': generateInfo(prefix: '# '),
+    'sh': generateInfo(prefix: '# ', headerPattern: r'(?<header>#!.*\n?)'),
+    'swift': generateInfo(prefix: '// '),
+    'ts': generateInfo(prefix: '// '),
     'xml': generateInfo(
       prefix: '<!-- ',
       suffix: ' -->',
       isParagraph: true,
       headerPattern:
-          r'''(?<header><\?xml\s+(?:version="1.0"\s+encoding="utf-8"|encoding="utf-8"\s+version="1.0")[^>]*\?>\n|)''',
+          r'''(?<header><\?xml\s+(?:version="1.0"\s+encoding="utf-8"|encoding="utf-8"\s+version="1.0")[^>]*\?>\n?|)''',
     ),
     'yaml': generateInfo(prefix: '# '),
-    // 'frag': generateInfo(
-    //   prefix: '// ',
-    //   header: '#version 320 es\n',
-    //   headerPattern: r'#version 320 es(\n)+',
-    // ),
   };
 }
 
 bool _hasCorrectLicense(String rawContents, CopyrightInfo info) {
   // Normalize line endings.
-  final contents = rawContents.replaceAll('\r\n', '\n');
+  var contents = rawContents.replaceAll('\r\n', '\n');
   // Ignore empty files.
-  return contents.isEmpty || contents.startsWith(info.pattern);
+  if (contents.isEmpty) {
+    return true;
+  }
+  return info.pattern.hasMatch(contents);
 }

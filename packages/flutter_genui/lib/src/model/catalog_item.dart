@@ -1,28 +1,19 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/simple_items.dart';
+import 'data_model.dart';
 import 'ui_models.dart';
 
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
 
-/// Store for widget values by surfaceId.
-class WidgetValueStore {
-  final Map<String, JsonMap> _values = {};
-
-  JsonMap forSurface(String surfaceId) {
-    return _values.putIfAbsent(surfaceId, () => {});
-  }
-
-  void delete(String surfaceId) {
-    _values.remove(surfaceId);
-  }
-}
+/// A callback that builds a child widget for a catalog item.
+typedef ExampleBuilderCallback = JsonMap Function();
 
 /// A callback that builds a widget for a catalog item.
 typedef CatalogWidgetBuilder =
@@ -36,10 +27,9 @@ typedef CatalogWidgetBuilder =
       required ChildBuilderCallback buildChild,
       // A function used to dispatch an event.
       required DispatchEventCallback dispatchEvent,
-
       required BuildContext context,
-      // The current values of all widgets on the surface.
-      required JsonMap values,
+      // The current data context for this widget.
+      required DataContext dataContext,
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.
@@ -50,7 +40,7 @@ class CatalogItem {
     required this.name,
     required this.dataSchema,
     required this.widgetBuilder,
-    this.exampleData,
+    this.exampleData = const [],
   });
 
   /// The widget type name used in JSON, e.g., 'TextChatMessage'.
@@ -62,10 +52,10 @@ class CatalogItem {
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
 
-  /// Example data for this widget, for testing purposes.
+  /// List of examples for this widget, for testing purposes.
   ///
   /// To catch real data returned by the AI,
   /// [configure logging](https://github.com/flutter/genui/blob/main/packages/flutter_genui/USAGE.md#configure-logging)
   /// to Level.ALL and search for the string `"definition": {` in the logs.
-  final JsonMap? exampleData;
+  final List<ExampleBuilderCallback> exampleData;
 }

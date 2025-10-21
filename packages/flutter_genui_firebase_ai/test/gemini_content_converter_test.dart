@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -44,10 +44,7 @@ void main() {
     });
 
     test('toFirebaseAiContent converts $AiUiMessage', () {
-      final definition = UiDefinition.fromMap({
-        'root': 'a',
-        'widgets': <Object?>[],
-      });
+      final definition = UiDefinition(surfaceId: 'testSurface');
       final messages = [AiUiMessage(definition: definition)];
       final result = converter.toFirebaseAiContent(messages);
       expect(result, hasLength(1));

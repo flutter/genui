@@ -1,13 +1,13 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 /// @docImport 'input_group.dart';
 library;
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'common.dart';
 
@@ -30,7 +30,7 @@ final _schema = S.object(
       description: 'An icon to display on the left of the chip.',
       enumValues: TravelIcon.values.map((e) => e.name).toList(),
     ),
-    'initialValue': S.string(
+    'value': A2uiSchemas.stringReference(
       description:
           'The name of the option that should be selected initially. This '
           'option must exist in the "options" list.',
@@ -44,18 +44,18 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
     required String chipLabel,
     required List<String> options,
     String? iconName,
-    String? initialValue,
+    JsonMap? value,
   }) => _OptionsFilterChipInputData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
     if (iconName != null) 'iconName': iconName,
-    if (initialValue != null) 'initialValue': initialValue,
+    if (value != null) 'value': value,
   });
 
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
   String? get iconName => _json['iconName'] as String?;
-  String? get initialValue => _json['initialValue'] as String?;
+  JsonMap? get value => _json['value'] as JsonMap?;
 }
 
 /// An interactive chip that allows the user to select a single option from a
@@ -71,6 +71,23 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
 final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'options_filter_chip_input',
+      'widgets': [
+        {
+          'id': 'options_filter_chip_input',
+          'widget': {
+            'OptionsFilterChipInput': {
+              'chipLabel': 'Budget',
+              'options': ['\$', '\$\$', '\$\$\$'],
+              'value': {'literalString': '\$\$'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -78,7 +95,7 @@ final optionsFilterChipInput = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
           data as Map<String, Object?>,
@@ -90,54 +107,70 @@ final optionsFilterChipInput = CatalogItem(
               TravelIcon.values.byName(optionsFilterChipData.iconName!),
             );
           } catch (e) {
-            // Invalid icon name, default to no icon.
-            // Consider logging this error.
             icon = null;
           }
         }
-        return _OptionsFilterChip(
-          initialChipLabel: optionsFilterChipData.chipLabel,
-          options: optionsFilterChipData.options,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          icon: icon,
-          initialValue: optionsFilterChipData.initialValue,
-          values: values,
+
+        final valueRef = optionsFilterChipData.value;
+        final path = valueRef?['path'] as String?;
+        final notifier = dataContext.subscribeToString(valueRef);
+
+        return ValueListenableBuilder<String?>(
+          valueListenable: notifier,
+          builder: (context, currentValue, child) {
+            return _OptionsFilterChip(
+              chipLabel: optionsFilterChipData.chipLabel,
+              options: optionsFilterChipData.options,
+              icon: icon,
+              value: currentValue,
+              onChanged: (newValue) {
+                if (path != null && newValue != null) {
+                  dataContext.update(path, newValue);
+                }
+              },
+            );
+          },
         );
       },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
   const _OptionsFilterChip({
-    required this.initialChipLabel,
+    required this.chipLabel,
     required this.options,
-    required this.widgetId,
-    required this.dispatchEvent,
-    required this.values,
     this.icon,
-    this.initialValue,
+    this.value,
+    required this.onChanged,
   });
 
-  final String initialChipLabel;
+  final String chipLabel;
   final List<String> options;
-  final String widgetId;
   final IconData? icon;
-  final DispatchEventCallback dispatchEvent;
-  final String? initialValue;
-  final Map<String, Object?> values;
+  final String? value;
+  final void Function(String?) onChanged;
 
   @override
   State<_OptionsFilterChip> createState() => _OptionsFilterChipState();
 }
 
 class _OptionsFilterChipState extends State<_OptionsFilterChip> {
-  late String _currentChipLabel;
+  String? _value;
 
   @override
   void initState() {
     super.initState();
-    _currentChipLabel = widget.initialValue ?? widget.initialChipLabel;
+    _value = widget.value;
   }
+
+  @override
+  void didUpdateWidget(_OptionsFilterChip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      _value = widget.value;
+    }
+  }
+
+  String get _currentChipLabel => _value ?? widget.chipLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +183,6 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            String? tempSelectedOption = _currentChipLabel;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
@@ -160,17 +192,14 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                       title: Text(option),
                       value: option,
                       // ignore: deprecated_member_use
-                      groupValue: tempSelectedOption,
+                      groupValue: _value,
                       // ignore: deprecated_member_use
                       onChanged: (String? newValue) {
                         setModalState(() {
-                          tempSelectedOption = newValue;
+                          _value = newValue;
                         });
-                        widget.values[widget.widgetId] = newValue;
+                        widget.onChanged(newValue);
                         if (newValue != null) {
-                          setState(() {
-                            _currentChipLabel = newValue;
-                          });
                           Navigator.pop(context);
                         }
                       },

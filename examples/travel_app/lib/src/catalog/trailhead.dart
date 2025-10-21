@@ -1,26 +1,34 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
     'topics': S.list(
       description: 'A list of topics to display as chips.',
-      items: S.string(description: 'A topic to explore.'),
+      items: A2uiSchemas.stringReference(description: 'A topic to explore.'),
+    ),
+    'action': A2uiSchemas.action(
+      description:
+          'The action to perform when a topic is selected. The selected topic '
+          'will be added to the context with the key "topic".',
     ),
   },
-  required: ['topics'],
+  required: ['topics', 'action'],
 );
 
 extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
-  factory _TrailheadData({required List<String> topics}) =>
-      _TrailheadData.fromMap({'topics': topics});
+  factory _TrailheadData({
+    required List<JsonMap> topics,
+    required JsonMap action,
+  }) => _TrailheadData.fromMap({'topics': topics, 'action': action});
 
-  List<String> get topics => (_json['topics'] as List).cast<String>();
+  List<JsonMap> get topics => (_json['topics'] as List).cast<JsonMap>();
+  JsonMap get action => _json['action'] as JsonMap;
 }
 
 /// A widget that presents a list of suggested topics or follow-up questions to
@@ -35,6 +43,26 @@ extension type _TrailheadData.fromMap(Map<String, Object?> _json) {
 final trailhead = CatalogItem(
   name: 'Trailhead',
   dataSchema: _schema,
+  exampleData: [
+    () => {
+      'root': 'trailhead',
+      'widgets': [
+        {
+          'id': 'trailhead',
+          'widget': {
+            'Trailhead': {
+              'topics': [
+                {'literalString': 'Topic 1'},
+                {'literalString': 'Topic 2'},
+                {'literalString': 'Topic 3'},
+              ],
+              'action': {'name': 'select_topic'},
+            },
+          },
+        },
+      ],
+    },
+  ],
   widgetBuilder:
       ({
         required data,
@@ -42,15 +70,17 @@ final trailhead = CatalogItem(
         required buildChild,
         required dispatchEvent,
         required context,
-        required values,
+        required dataContext,
       }) {
         final trailheadData = _TrailheadData.fromMap(
           data as Map<String, Object?>,
         );
         return _Trailhead(
           topics: trailheadData.topics,
+          action: trailheadData.action,
           widgetId: id,
           dispatchEvent: dispatchEvent,
+          dataContext: dataContext,
         );
       },
 );
@@ -58,13 +88,17 @@ final trailhead = CatalogItem(
 class _Trailhead extends StatelessWidget {
   const _Trailhead({
     required this.topics,
+    required this.action,
     required this.widgetId,
     required this.dispatchEvent,
+    required this.dataContext,
   });
 
-  final List<String> topics;
+  final List<JsonMap> topics;
+  final JsonMap action;
   final String widgetId;
   final DispatchEventCallback dispatchEvent;
+  final DataContext dataContext;
 
   @override
   Widget build(BuildContext context) {
@@ -73,16 +107,34 @@ class _Trailhead extends StatelessWidget {
       child: Wrap(
         spacing: 8.0,
         runSpacing: 8.0,
-        children: topics.map((topic) {
-          return InputChip(
-            label: Text(topic),
-            onPressed: () {
-              dispatchEvent(
-                UiActionEvent(
-                  widgetId: widgetId,
-                  eventType: 'trailheadTopicSelected',
-                  value: topic,
-                ),
+        children: topics.map((topicRef) {
+          final notifier = dataContext.subscribeToString(topicRef);
+
+          return ValueListenableBuilder<String?>(
+            valueListenable: notifier,
+            builder: (context, topic, child) {
+              if (topic == null) {
+                return const SizedBox.shrink();
+              }
+              return InputChip(
+                label: Text(topic),
+                onPressed: () {
+                  final name = action['name'] as String;
+                  final contextDefinition =
+                      (action['context'] as List<Object?>?) ?? <Object?>[];
+                  final resolvedContext = resolveContext(
+                    dataContext,
+                    contextDefinition,
+                  );
+                  resolvedContext['topic'] = topic;
+                  dispatchEvent(
+                    UserActionEvent(
+                      name: name,
+                      sourceComponentId: widgetId,
+                      context: resolvedContext,
+                    ),
+                  );
+                },
               );
             },
           );

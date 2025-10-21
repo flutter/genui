@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -13,8 +13,9 @@ void main() {
       'renders children and dispatches submit event on button press',
       (WidgetTester tester) async {
         final data = {
-          'submitLabel': 'Submit',
+          'submitLabel': {'literalString': 'Submit'},
           'children': ['child1', 'child2'],
+          'action': {'name': 'submitAction'},
         };
         UiEvent? dispatchedEvent;
 
@@ -33,7 +34,7 @@ void main() {
                       dispatchedEvent = event;
                     },
                     context: context,
-                    values: {},
+                    dataContext: DataContext(DataModel(), '/'),
                   );
                 },
               ),
@@ -49,16 +50,21 @@ void main() {
 
         // Verify that the submit event is dispatched on tap.
         await tester.tap(button);
-        expect(dispatchedEvent, isA<UiActionEvent>());
-        expect(dispatchedEvent?.eventType, 'submit');
-        expect((dispatchedEvent as UiActionEvent).widgetId, 'testId');
+        expect(dispatchedEvent, isA<UserActionEvent>());
+        final actionEvent = dispatchedEvent as UserActionEvent;
+        expect(actionEvent.name, 'submitAction');
+        expect(actionEvent.sourceComponentId, 'testId');
       },
     );
 
     testWidgets('renders correctly with no children', (
       WidgetTester tester,
     ) async {
-      final data = {'submitLabel': 'Submit', 'children': <String>[]};
+      final data = {
+        'submitLabel': {'literalString': 'Submit'},
+        'children': <String>[],
+        'action': {'name': 'submitAction'},
+      };
 
       await tester.pumpWidget(
         MaterialApp(
@@ -71,7 +77,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (UiEvent _) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),

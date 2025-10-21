@@ -1,10 +1,15 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/simple_items.dart';
+
+/// Key used in schema definition to specify the component ID.
+///
+/// This key is used in prompts.
+const surfaceIdKey = 'surfaceId';
 
 /// Abstract base class for defining tools that an AI agent can invoke.
 ///

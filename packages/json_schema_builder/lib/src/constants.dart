@@ -1,0 +1,57 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// Constants used in parsing schemas.
+
+const kAdditionalProperties = 'additionalProperties';
+const kAllOf = 'allOf';
+const kAnyOf = 'anyOf';
+const kConst = 'const';
+const kContains = 'contains';
+const kDefault = 'default';
+const kDependentRequired = 'dependentRequired';
+const kDependentSchemas = 'dependentSchemas';
+const kDescription = 'description';
+const kElse = 'else';
+const kEnum = 'enum';
+const kExamples = 'examples';
+const kExclusiveMaximum = 'exclusiveMaximum';
+const kExclusiveMinimum = 'exclusiveMinimum';
+const kFormat = 'format';
+const kIf = 'if';
+const kItems = 'items';
+const kMaximum = 'maximum';
+const kMaxItems = 'maxItems';
+const kMaxLength = 'maxLength';
+const kMaxProperties = 'maxProperties';
+const kMinimum = 'minimum';
+const kMinItems = 'minItems';
+const kMinLength = 'minLength';
+const kMinProperties = 'minProperties';
+const kMultipleOf = 'multipleOf';
+const kNot = 'not';
+const kOneOf = 'oneOf';
+const kPattern = 'pattern';
+const kPatternProperties = 'patternProperties';
+const kPrefixItems = 'prefixItems';
+const kProperties = 'properties';
+const kPropertyNames = 'propertyNames';
+const kReadOnly = 'readOnly';
+const kRef = '\$ref';
+const kRequired = 'required';
+const kThen = 'then';
+const kTitle = 'title';
+const kType = 'type';
+const kUnevaluatedItems = 'unevaluatedItems';
+const kUnevaluatedProperties = 'unevaluatedProperties';
+const kUniqueItems = 'uniqueItems';
+const kWriteOnly = 'writeOnly';
+const kDefs = '\$defs';
+const kComment = '\$comment';
+const kDeprecated = 'deprecated';
+const kMinContains = 'minContains';
+const kMaxContains = 'maxContains';
+const kAnchor = '\$anchor';
+const kDynamicAnchor = '\$dynamicAnchor';
+const kDynamicRef = '\$dynamicRef';

@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -13,7 +13,11 @@ void main() {
       WidgetTester tester,
     ) async {
       final data = {
-        'topics': ['Topic A', 'Topic B'],
+        'topics': [
+          {'literalString': 'Topic A'},
+          {'literalString': 'Topic B'},
+        ],
+        'action': {'name': 'selectTopic'},
       };
       UiEvent? dispatchedEvent;
 
@@ -30,7 +34,7 @@ void main() {
                     dispatchedEvent = event;
                   },
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),
@@ -44,17 +48,20 @@ void main() {
       await tester.tap(find.text('Topic A'));
       await tester.pump();
 
-      expect(dispatchedEvent, isA<UiActionEvent>());
-      final actionEvent = dispatchedEvent as UiActionEvent;
-      expect(actionEvent.widgetId, 'testId');
-      expect(actionEvent.eventType, 'trailheadTopicSelected');
-      expect(actionEvent.value, 'Topic A');
+      expect(dispatchedEvent, isA<UserActionEvent>());
+      final actionEvent = dispatchedEvent as UserActionEvent;
+      expect(actionEvent.sourceComponentId, 'testId');
+      expect(actionEvent.name, 'selectTopic');
+      expect(actionEvent.context, {'topic': 'Topic A'});
     });
 
     testWidgets('builds widget correctly with no topics', (
       WidgetTester tester,
     ) async {
-      final data = {'topics': <String>[]};
+      final data = {
+        'topics': <Map<String, String>>[],
+        'action': {'name': 'selectTopic'},
+      };
 
       await tester.pumpWidget(
         MaterialApp(
@@ -67,7 +74,7 @@ void main() {
                   buildChild: (_) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
-                  values: {},
+                  dataContext: DataContext(DataModel(), '/'),
                 );
               },
             ),

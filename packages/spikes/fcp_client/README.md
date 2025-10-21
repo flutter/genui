@@ -38,7 +38,7 @@ dependencies:
 Here is a simple example of how to use `FcpView` to render a UI. For a more complete, interactive example, see the `example/` directory.
 
 ```dart
-import 'package:dart_schema_builder/dart_schema_builder.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:fcp_client/fcp_client.dart';
 import 'package:flutter/material.dart';
 

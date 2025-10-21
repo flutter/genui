@@ -1,6 +1,8 @@
-// Copyright 2025 The Flutter Authors. All rights reserved.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -48,16 +50,16 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    const instruction = '''
-    You are a helpful assistant who chats with user,
-    giving exactly one response for each user message.
-    Your responses should contain acknowledgment
-    of the user message.
-    ''';
     final catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
     final aiClient = FirebaseAiClient(
-      systemInstruction: '$instruction\n\n${GenUiPromptFragments.basicChat}',
+      systemInstruction:
+          'You are a helpful assistant who chats with a user, '
+          'giving exactly one response for each user message. '
+          'Your responses should contain acknowledgment '
+          'of the user message.'
+          '\n\n'
+          '${GenUiPromptFragments.basicChat}',
       tools: _genUiManager.getTools(),
     );
     _uiAgent = UiAgent(
@@ -141,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _sendMessage() async {
+  void _sendMessage() {
     final text = _textController.text;
     if (text.isEmpty) {
       return;
@@ -154,7 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _scrollToBottom();
 
-    await _uiAgent.sendRequest(UserMessage([TextPart(text)]));
+    unawaited(_uiAgent.sendRequest(UserMessage([TextPart(text)])));
   }
 
   void _scrollToBottom() {
