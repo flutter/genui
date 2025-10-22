@@ -36,7 +36,7 @@ We have a rotation which runs daily on business days. The responsibilities
 of the front-line triage include:
 
 * Once a day, open the list of new issues which do not have
-  `front-line-handled` label. (link TODO)
+  [`front-line-handled` label][for-front-line].
 * Assess if this issue is _critical_ (using the definition above).
   If so, assign P0 label and add the `front-line-handled` label. Then,
   ping the team chat, cc the Eng Manager, and share that a new P0
@@ -78,6 +78,7 @@ Triage issues ready for second-line review:
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
 
+[for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled
 [flutter_guidelines]: https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md
 [usage_md]: packages/flutter_genui/USAGE.md#configure-firebase
 [assigned_p2_p3_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP2%2CP3%20assignee%3A*
