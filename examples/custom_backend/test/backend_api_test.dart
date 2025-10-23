@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:custom_backend/backend.dart';
 import 'package:custom_backend/main.dart';
-import 'package:custom_backend/protocol.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,7 +25,7 @@ void main() {
     test(
       'sendRequest works for $savedResponse',
       () async {
-        final protocol = Protocol();
+        final protocol = Backend(uiSchema);
         final result = await protocol.sendRequest(
           requestText,
           savedResponse: savedResponse,

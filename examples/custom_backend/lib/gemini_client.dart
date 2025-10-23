@@ -18,7 +18,7 @@ import 'debug_utils.dart';
 // guarantees function schema adherence.
 // https://ai.google.dev/gemini-api/docs/function-calling?example=meeting#rest_2
 
-abstract class Backend {
+abstract class GeminiClient {
   static Future<ToolCall?> sendRequest({
     required List<GenUiFunctionDeclaration> tools,
     required String request,

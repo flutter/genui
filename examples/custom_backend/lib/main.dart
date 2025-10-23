@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-import 'protocol.dart';
+import 'backend.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,10 +60,24 @@ class _IntegrationTester extends StatefulWidget {
   State<_IntegrationTester> createState() => _IntegrationTesterState();
 }
 
+final _catalog = CoreCatalogItems.asCatalog();
+const _toolName = 'uiGenerationTool';
+final uiSchema = UiSchemaDefinition(
+  prompt: '',
+  tools: [
+    catalogToFunctionDeclaration(
+      _catalog,
+      _toolName,
+      'Generates Flutter UI based on user requests.',
+    ),
+  ],
+);
+
 class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
-  final _protocol = Protocol();
-  late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
+
+  final _protocol = Backend(uiSchema);
+  late final GenUiManager _genUi = GenUiManager(catalog: _catalog);
   String? _selectedResponse;
   bool _isLoading = false;
   String? _errorMessage;
