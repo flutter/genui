@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+
 import '../flutter_genui.dart';
 
 /// A fake [ContentGenerator] for use in tests.

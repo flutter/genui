@@ -7,7 +7,15 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../flutter_genui.dart';
+import '../model/a2ui_message.dart';
+import '../model/catalog.dart';
+import '../model/chat_message.dart';
+import '../model/data_model.dart';
+import '../model/tools.dart';
+import '../model/ui_models.dart';
+import '../primitives/logging.dart';
+import 'genui_configuration.dart';
+import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
