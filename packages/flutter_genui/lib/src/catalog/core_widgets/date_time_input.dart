@@ -5,10 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../core/widget_utilities.dart';
-import '../../model/a2ui_schemas.dart';
-import '../../model/catalog_item.dart';
-import '../../primitives/simple_items.dart';
+import '../../../flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
@@ -76,7 +73,7 @@ final dateTimeInput = CatalogItem(
                     lastDate: DateTime(2100),
                   );
                   if (date != null) {
-                    dataContext.update(path, date.toIso8601String());
+                    dataContext.update(DataPath(path), date.toIso8601String());
                   }
                 }
                 if (dateTimeInputData.enableTime) {
@@ -85,7 +82,7 @@ final dateTimeInput = CatalogItem(
                     initialTime: TimeOfDay.now(),
                   );
                   if (time != null) {
-                    dataContext.update(path, time.format(context));
+                    dataContext.update(DataPath(path), time.format(context));
                   }
                 }
               },

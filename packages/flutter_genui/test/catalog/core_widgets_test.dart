@@ -86,7 +86,7 @@ void main() {
       await pumpWidgetWithDefinition(tester, 'text', components);
       manager!
           .dataModelForSurface('testSurface')
-          .update('/myText', 'Hello from data model');
+          .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
 
       expect(find.text('Hello from data model'), findsOneWidget);
@@ -145,7 +145,9 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      manager!.dataModelForSurface('testSurface').update('/myValue', 'initial');
+      manager!
+          .dataModelForSurface('testSurface')
+          .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
       final textFieldFinder = find.byType(TextField);
@@ -158,7 +160,7 @@ void main() {
       expect(
         manager!
             .dataModelForSurface('testSurface')
-            .getValue<String>('/myValue'),
+            .getValue<String>(DataPath('/myValue')),
         'new value',
       );
 

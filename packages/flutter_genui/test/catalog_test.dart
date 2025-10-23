@@ -30,7 +30,7 @@ void main() {
                 final widget = catalog.buildWidget(
                   id: 'col1',
                   widgetData: widgetData,
-                  buildChild: Text.new, // Mock child builder
+                  buildChild: (_, [_]) => const Text(''), // Mock child builder
                   dispatchEvent: (UiEvent event) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),
@@ -74,7 +74,7 @@ void main() {
                 final widget = catalog.buildWidget(
                   id: data['id'] as String,
                   widgetData: data['widget'] as JsonMap,
-                  buildChild: (_) => const SizedBox(),
+                  buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),

@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui/src/core/ui_tools.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

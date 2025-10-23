@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export 'src/ai_client/ai_client.dart';
 export 'src/catalog/core_catalog.dart';
+export 'src/content_generator.dart';
 export 'src/conversation/gen_ui_conversation.dart';
 export 'src/core/genui_configuration.dart';
 export 'src/core/genui_manager.dart';
 export 'src/core/genui_surface.dart';
 export 'src/core/prompt_fragments.dart';
+export 'src/core/ui_tools.dart';
 export 'src/core/widget_utilities.dart';
 export 'src/core/widgets/chat_primitives.dart';
 export 'src/development_utilities/catalog_view.dart';

@@ -103,7 +103,7 @@ final column = CatalogItem(
           return Column(
             mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
             crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),
-            children: explicitList.map(buildChild).toList(),
+            children: explicitList.map((id) => buildChild(id)).toList(),
           );
         }
         // TODO(gspencer): Implement template lists.

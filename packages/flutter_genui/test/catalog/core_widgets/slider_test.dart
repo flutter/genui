@@ -31,7 +31,7 @@ void main() {
     manager.handleMessage(
       const BeginRendering(surfaceId: surfaceId, root: 'slider'),
     );
-    manager.dataModelForSurface(surfaceId).update('/myValue', 0.5);
+    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -46,7 +46,9 @@ void main() {
 
     await tester.drag(find.byType(Slider), const Offset(100, 0));
     expect(
-      manager.dataModelForSurface(surfaceId).getValue<double>('/myValue'),
+      manager
+          .dataModelForSurface(surfaceId)
+          .getValue<double>(DataPath('/myValue')),
       greaterThan(0.5),
     );
   });

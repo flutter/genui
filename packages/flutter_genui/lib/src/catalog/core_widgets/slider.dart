@@ -5,10 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../core/widget_utilities.dart';
-import '../../model/a2ui_schemas.dart';
-import '../../model/catalog_item.dart';
-import '../../primitives/simple_items.dart';
+import '../../../flutter_genui.dart';
 
 final _schema = S.object(
   properties: {
@@ -63,7 +60,7 @@ final slider = CatalogItem(
               onChanged: (newValue) {
                 final path = sliderData.value['path'] as String?;
                 if (path != null) {
-                  dataContext.update(path, newValue);
+                  dataContext.update(DataPath(path), newValue);
                 }
               },
             );

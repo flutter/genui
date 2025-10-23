@@ -24,7 +24,7 @@ void main() {
                   'label': 'Test Date',
                 },
                 id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
+                buildChild: (data, [_]) => const SizedBox(),
                 dispatchEvent: (event) {},
                 context: context,
                 dataContext: DataContext(dataModel, '/'),
@@ -42,7 +42,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final dataModel = DataModel();
-    dataModel.update('/testDate', '2025-09-20');
+    dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -55,7 +55,7 @@ void main() {
                   'label': 'Test Date',
                 },
                 id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
+                buildChild: (data, [_]) => const SizedBox(),
                 dispatchEvent: (event) {},
                 context: context,
                 dataContext: DataContext(dataModel, '/'),
@@ -69,7 +69,7 @@ void main() {
     expect(find.text('Test Date: Sep 20, 2025'), findsOneWidget);
 
     // Update the data model and expect the UI to change
-    dataModel.update('/testDate', '2025-10-15');
+    dataModel.update(DataPath('/testDate'), '2025-10-15');
     await tester.pump();
     expect(find.text('Test Date: Oct 15, 2025'), findsOneWidget);
   });
@@ -78,7 +78,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final dataModel = DataModel();
-    dataModel.update('/testDate', '2025-09-20');
+    dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -91,7 +91,7 @@ void main() {
                   'label': 'Test Date',
                 },
                 id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
+                buildChild: (data, [_]) => const SizedBox(),
                 dispatchEvent: (event) {},
                 context: context,
                 dataContext: DataContext(dataModel, '/'),
@@ -108,7 +108,7 @@ void main() {
     await tester.tap(find.text('10'));
     await tester.pumpAndSettle();
 
-    expect(dataModel.getValue<String>('/testDate'), '2025-09-10');
+    expect(dataModel.getValue<String>(DataPath('/testDate')), '2025-09-10');
     expect(find.text('Test Date: Sep 10, 2025'), findsOneWidget);
   });
 
@@ -128,7 +128,7 @@ void main() {
                   'label': 'Test Date',
                 },
                 id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
+                buildChild: (data, [_]) => const SizedBox(),
                 dispatchEvent: (event) {},
                 context: context,
                 dataContext: DataContext(dataModel, '/'),
@@ -155,7 +155,7 @@ void main() {
     final formatted =
         '${expectedDate.year}-'
         '${expectedDate.month.toString().padLeft(2, '0')}-10';
-    expect(dataModel.getValue<String>('/testDate'), formatted);
+    expect(dataModel.getValue<String>(DataPath('/testDate')), formatted);
 
     final month = DateFormat.MMM().format(expectedDate);
     expect(

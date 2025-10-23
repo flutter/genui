@@ -28,7 +28,7 @@ void main() {
                 return optionsFilterChipInput.widgetBuilder(
                   data: data,
                   id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
+                  buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
                   dataContext: DataContext(dataModel, '/'),
@@ -65,7 +65,7 @@ void main() {
       expect(find.text('\$\$'), findsOneWidget);
 
       // Check if the data model is updated.
-      expect(dataModel.getValue<String>('/price'), '\$\$');
+      expect(dataModel.getValue<String>(DataPath('/price')), '\$\$');
     });
 
     testWidgets('renders correctly and handles selection without an icon', (
@@ -86,7 +86,7 @@ void main() {
                 return optionsFilterChipInput.widgetBuilder(
                   data: data,
                   id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
+                  buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
                   dataContext: DataContext(dataModel, '/'),
@@ -114,7 +114,7 @@ void main() {
       expect(find.text('\$\$\$'), findsOneWidget);
 
       // Check if the data model is updated.
-      expect(dataModel.getValue<String>('/price'), '\$\$\$');
+      expect(dataModel.getValue<String>(DataPath('/price')), '\$\$\$');
     });
   });
 }

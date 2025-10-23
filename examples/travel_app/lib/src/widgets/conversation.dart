@@ -65,6 +65,16 @@ class Conversation extends StatelessWidget {
               icon: Icons.smart_toy_outlined,
               alignment: MainAxisAlignment.start,
             );
+          case ModelMessage():
+            final text = message.text ?? '';
+            if (text.trim().isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return ChatMessageWidget(
+              text: text,
+              icon: Icons.smart_toy_outlined,
+              alignment: MainAxisAlignment.start,
+            );
           case AiUiMessage():
             return Padding(
               padding: const EdgeInsets.all(16.0),

@@ -3,4 +3,4 @@
 // found in the LICENSE file.
 
 export 'src/test_utils/validation.dart';
-export 'test/fake_ai_client.dart';
+export 'test/fake_content_generator.dart';

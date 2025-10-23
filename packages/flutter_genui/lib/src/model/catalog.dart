@@ -65,7 +65,7 @@ class Catalog {
   Widget buildWidget({
     required String id,
     required JsonMap widgetData,
-    required Widget Function(String id) buildChild,
+    required ChildBuilderCallback buildChild,
     required DispatchEventCallback dispatchEvent,
     required BuildContext context,
     required DataContext dataContext,
@@ -81,7 +81,8 @@ class Catalog {
     return item.widgetBuilder(
       data: JsonMap.from(widgetData[widgetType]! as Map),
       id: id,
-      buildChild: buildChild,
+      buildChild: (String childId, [DataContext? childDataContext]) =>
+          buildChild(childId, childDataContext ?? dataContext),
       dispatchEvent: dispatchEvent,
       context: context,
       dataContext: dataContext,
