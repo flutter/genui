@@ -50,7 +50,7 @@ class Backend {
 
     if (!schema.tools.map((e) => e.name).contains(toolCall.name)) {
       throw Exception(
-        'Received unknown tool call: ${toolCall.name}'
+        'Received unknown tool call: ${toolCall.name}. '
         'Expected one of: ${schema.tools.map((e) => e.name).toList()}',
       );
     }
