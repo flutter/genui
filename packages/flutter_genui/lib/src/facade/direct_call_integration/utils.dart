@@ -44,8 +44,7 @@ Future<ParsedToolCall> parseToolCall(ToolCall toolCall, String toolName) async {
   final messageJson = {'surfaceUpdate': toolCall.args};
   final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
 
-  // ignore: avoid_dynamic_calls
-  final surfaceId = toolCall.args[surfaceIdKey] as String;
+  final surfaceId = (toolCall.args as JsonMap)[surfaceIdKey] as String;
 
   final beginRenderingMessage = BeginRendering(
     surfaceId: surfaceId,
