@@ -14,10 +14,10 @@ void main() {
   });
 
   for (final savedResponse in savedResponseAssets) {
-    // // TODO: fix Gemini API keys to get live test working.
-    // if (savedResponse == null) {
-    //   continue;
-    // }
+    // TODO: fix Gemini API keys to get live test working.
+    if (savedResponse == null) {
+      continue;
+    }
 
     // To update the saved responses, run the app, select "Request Gemini",
     // and copy the console output of the "Response body" to the

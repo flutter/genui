@@ -136,11 +136,12 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (_errorMessage != null) {
       return Text('$_errorMessage');
     }
-    if (_surfaceId == null) {
+    final surfaceId = _surfaceId;
+    if (surfaceId == null) {
       return const Text('_surfaceId == null');
     }
     return GenUiSurface(
-      surfaceId: _surfaceId!,
+      surfaceId: surfaceId,
       host: _genUi,
       defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
     );
