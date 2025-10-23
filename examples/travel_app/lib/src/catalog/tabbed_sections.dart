@@ -56,44 +56,51 @@ final tabbedSections = CatalogItem(
   name: 'TabbedSections',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'tabbed_sections',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'tabbed_sections',
-          'widget': {
-            'TabbedSections': {
-              'sections': [
+          "id": "root",
+          "component": {
+            "TabbedSections": {
+              "sections": [
                 {
-                  'title': {'literalString': 'Tab 1'},
-                  'child': 'tab1_content',
+                  "title": {
+                    "literalString": "Tab 1"
+                  },
+                  "child": "tab1_content"
                 },
                 {
-                  'title': {'literalString': 'Tab 2'},
-                  'child': 'tab2_content',
-                },
-              ],
-            },
-          },
+                  "title": {
+                    "literalString": "Tab 2"
+                  },
+                  "child": "tab2_content"
+                }
+              ]
+            }
+          }
         },
         {
-          'id': 'tab1_content',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is the content of Tab 1.'},
-            },
-          },
+          "id": "tab1_content",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is the content of Tab 1."
+              }
+            }
+          }
         },
         {
-          'id': 'tab2_content',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is the content of Tab 2.'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "tab2_content",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is the content of Tab 2."
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

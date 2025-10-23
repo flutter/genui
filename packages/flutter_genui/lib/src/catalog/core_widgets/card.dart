@@ -37,24 +37,27 @@ final card = CatalogItem(
         return Card(child: buildChild(cardData.child));
       },
   exampleData: [
-    () => {
-      'root': 'card',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'card',
-          'widget': {
-            'Card': {'child': 'text'},
-          },
+          "id": "root",
+          "component": {
+            "Card": {
+              "child": "text"
+            }
+          }
         },
         {
-          'id': 'text',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is a card.'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is a card."
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

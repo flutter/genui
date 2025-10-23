@@ -39,14 +39,15 @@ final divider = CatalogItem(
         return const Divider();
       },
   exampleData: [
-    () => {
-      'root': 'divider',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'divider',
-          'widget': {'Divider': <String, Object?>{}},
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "Divider": {}
+          }
+        }
+      ]
+    ''',
   ],
 );

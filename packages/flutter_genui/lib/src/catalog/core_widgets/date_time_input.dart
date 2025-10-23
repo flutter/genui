@@ -94,18 +94,19 @@ final dateTimeInput = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'datetime',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'datetime',
-          'widget': {
-            'DateTimeInput': {
-              'value': {'path': '/myDateTime'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "DateTimeInput": {
+              "value": {
+                "path": "/myDateTime"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

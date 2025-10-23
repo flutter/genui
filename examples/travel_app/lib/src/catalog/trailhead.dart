@@ -44,24 +44,31 @@ final trailhead = CatalogItem(
   name: 'Trailhead',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'trailhead',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'trailhead',
-          'widget': {
-            'Trailhead': {
-              'topics': [
-                {'literalString': 'Topic 1'},
-                {'literalString': 'Topic 2'},
-                {'literalString': 'Topic 3'},
+          "id": "root",
+          "component": {
+            "Trailhead": {
+              "topics": [
+                {
+                  "literalString": "Topic 1"
+                },
+                {
+                  "literalString": "Topic 2"
+                },
+                {
+                  "literalString": "Topic 3"
+                }
               ],
-              'action': {'name': 'select_topic'},
-            },
-          },
-        },
-      ],
-    },
+              "action": {
+                "name": "select_topic"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

@@ -56,14 +56,14 @@ final aiClient = FirebaseAiClient(
   ''',
   tools: genUiManager.getTools(),
 );
-late final _uiAgent = UiAgent(
+late final _genUiConversation = GenUiConversation(
   genUiManager: genUiManager,
   aiClient: aiClient,
   onSurfaceAdded: _onSurfaceAdded,
   onSurfaceDeleted: (_) {},
   onTextResponse: (_) {},
   // ignore: avoid_print
-  onWarning: (value) => print('Warning from UiAgent: $value'),
+  onWarning: (value) => print('Warning from GenUiConversation: $value'),
 );
 
 // Put the surface, added by AI, to the list of messages that should be rendered,
@@ -80,7 +80,7 @@ void _onSurfaceAdded(SurfaceAdded surface) {
 Widget build(BuildContext context) {
    if (type == MessageType.genUi) {
      return GenUiSurface(
-       host: _uiAgent.host,
+       host: _genUiConversation.host,
        surfaceId: _surfaceId,
        onEvent: _handleEvent,
      );

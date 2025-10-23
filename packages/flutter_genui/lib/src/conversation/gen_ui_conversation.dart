@@ -14,18 +14,21 @@ import '../model/ui_models.dart';
 
 const _maxConversationLength = 1000;
 
-/// A high-level facade for the GenUI package.
+/// A high-level abstraction to manage a generative UI conversation.
 ///
 /// This class simplifies the process of creating a generative UI by managing
 /// the conversation loop and the interaction with the AI. It encapsulates a
 /// [GenUiManager] and an [AiClient], providing a single entry point for
 /// sending user requests and receiving UI updates.
-class UiAgent {
-  /// Creates a new [UiAgent].
+///
+/// This is a convenience facade for the specific use case of a linear
+/// conversation that can contain Gen UI surfaces.
+class GenUiConversation {
+  /// Creates a new [GenUiConversation].
   ///
   /// Callbacks like [onSurfaceAdded] and [onSurfaceDeleted] can be provided to
   /// react to UI changes initiated by the AI.
-  UiAgent({
+  GenUiConversation({
     this.onSurfaceAdded,
     this.onSurfaceDeleted,
     this.onTextResponse,

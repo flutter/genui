@@ -54,56 +54,67 @@ extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
 /// is useful for refining a search or query with multiple parameters.
 final inputGroup = CatalogItem(
   exampleData: [
-    () => {
-      'root': 'input_group',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'input_group',
-          'widget': {
-            'InputGroup': {
-              'submitLabel': {'literalString': 'Submit'},
-              'children': [
-                'check_in',
-                'check_out',
-                'text_input1',
-                'text_input2',
+          "id": "root",
+          "component": {
+            "InputGroup": {
+              "submitLabel": {
+                "literalString": "Submit"
+              },
+              "children": [
+                "check_in",
+                "check_out",
+                "text_input1",
+                "text_input2"
               ],
-              'action': {'name': 'submit_form'},
-            },
-          },
+              "action": {
+                "name": "submit_form"
+              }
+            }
+          }
         },
         {
-          'id': 'check_in',
-          'widget': {
-            'DateInputChip': {
-              'value': {'literalString': '2026-07-22'},
-              'label': 'Check-in date',
-            },
-          },
+          "id": "check_in",
+          "component": {
+            "DateInputChip": {
+              "value": {
+                "literalString": "2026-07-22"
+              },
+              "label": "Check-in date"
+            }
+          }
         },
         {
-          'id': 'check_out',
-          'widget': {
-            'DateInputChip': {'label': 'Check-out date'},
-          },
+          "id": "check_out",
+          "component": {
+            "DateInputChip": {
+              "label": "Check-out date"
+            }
+          }
         },
         {
-          'id': 'text_input1',
-          'widget': {
-            'TextInputChip': {
-              'value': {'literalString': 'John Doe'},
-              'label': 'Enter your name',
-            },
-          },
+          "id": "text_input1",
+          "component": {
+            "TextInputChip": {
+              "value": {
+                "literalString": "John Doe"
+              },
+              "label": "Enter your name"
+            }
+          }
         },
         {
-          'id': 'text_input2',
-          'widget': {
-            'TextInputChip': {'label': 'Enter your friend\'s name'},
-          },
-        },
-      ],
-    },
+          "id": "text_input2",
+          "component": {
+            "TextInputChip": {
+              "label": "Enter your friend's name"
+            }
+          }
+        }
+      ]
+    ''',
   ],
   name: 'InputGroup',
   dataSchema: _schema,

@@ -6,7 +6,7 @@ This document provides a comprehensive overview of the architecture, purpose, an
 
 The `flutter_genui` package provides the core framework for building Flutter applications with dynamically generated user interfaces powered by large language models (LLMs). It enables developers to create conversational UIs where the interface is not static or predefined, but is instead constructed by an AI in real-time based on the user's prompts and the flow of the conversation.
 
-The package supplies the essential components for managing the state of the dynamic UI, interacting with the AI model, defining a vocabulary of UI widgets, and rendering the UI surfaces. The primary entry point for this package is the `UiAgent`.
+The package supplies the essential components for managing the state of the dynamic UI, interacting with the AI model, defining a vocabulary of UI widgets, and rendering the UI surfaces. The primary entry point for this package is the `GenUiConversation`.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ graph TD
     end
 
     subgraph "flutter_genui Package"
-        UiAgent["UiAgent (Facade)"]
+        GenUiConversation["GenUiConversation (Facade)"]
         GenUiManager["GenUiManager<br>(Manages Surfaces, Tools, State)"]
         AiClient["AiClient<br>(e.g., a Gemini client)"]
         Catalog["Widget Catalog"]
@@ -31,14 +31,14 @@ graph TD
         LLM["Large Language Model"]
     end
 
-    AppLogic -- "Initializes and Uses" --> UiAgent
-    UiAgent -- "Encapsulates" --> GenUiManager
-    UiAgent -- "Encapsulates" --> AiClient
+    AppLogic -- "Initializes and Uses" --> GenUiConversation
+    GenUiConversation -- "Encapsulates" --> GenUiManager
+    GenUiConversation -- "Encapsulates" --> AiClient
 
     GenUiManager -- "Owns" --> DataModel
 
-    AppLogic -- "Sends User Input" --> UiAgent
-    UiAgent -- "Manages Conversation &<br>Calls generateContent()" --> AiClient
+    AppLogic -- "Sends User Input" --> GenUiConversation
+    GenUiConversation -- "Manages Conversation &<br>Calls generateContent()" --> AiClient
     AiClient -- "Sends prompt +<br>tool schemas" --> LLM
     LLM -- "Returns tool call" --> AiClient
 
@@ -49,7 +49,7 @@ graph TD
     UIWidgets -- "Reads/writes state via" --> DataModel
     UIWidgets -- "Sends UI events to" --> GenUiManager
 
-    GenUiManager -- "Puts user input on stream" --> UiAgent
+    GenUiManager -- "Puts user input on stream" --> GenUiConversation
 ```
 
 ### 1. AI Client Layer (`lib/src/ai_client/`)
@@ -89,30 +89,30 @@ This layer provides a set of core, general-purpose UI widgets that can be used o
 
 This layer provides high-level widgets and controllers for easily building a generative UI application.
 
-- **`UiAgent`**: The primary entry point for the package. This facade class encapsulates the `GenUiManager` and `AiClient`, managing the conversation loop and orchestrating the entire generative UI process. The developer interacts with the `UiAgent` to send user messages and receive UI updates.
+- **`GenUiConversation`**: The primary entry point for the package. This facade class encapsulates the `GenUiManager` and `AiClient`, managing the conversation loop and orchestrating the entire generative UI process. The developer interacts with the `GenUiConversation` to send user messages and receive UI updates.
 - **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiHost` (typically the `GenUiManager`) for a specific `surfaceId` and rebuilds itself when the definition changes.
 
 ## How It Works: The Generative UI Cycle
 
-The `UiAgent` simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
+The `GenUiConversation` simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
 
 ```mermaid
 sequenceDiagram
     participant User
     participant AppLogic as "App Logic (Developer's Code)"
-    participant UiAgent
+    participant GenUiConversation
     participant AiClient
     participant LLM
     participant GenUiManager
     participant GenUiSurface as "GenUiSurface"
 
-    AppLogic->>+UiAgent: Creates UiAgent(genUiManager, aiClient)
-    AppLogic->>+UiAgent: (Optional) sendRequest(instructionMessage)
+    AppLogic->>+GenUiConversation: Creates GenUiConversation(genUiManager, aiClient)
+    AppLogic->>+GenUiConversation: (Optional) sendRequest(instructionMessage)
 
     User->>+AppLogic: Provides input (e.g., text prompt)
-    AppLogic->>+UiAgent: Calls sendRequest(userMessage)
-    UiAgent->>UiAgent: Manages conversation history
-    UiAgent->>+AiClient: Calls generateContent(conversation, uiTools)
+    AppLogic->>+GenUiConversation: Calls sendRequest(userMessage)
+    GenUiConversation->>GenUiConversation: Manages conversation history
+    GenUiConversation->>+AiClient: Calls generateContent(conversation, uiTools)
     AiClient->>+LLM: Sends prompt and tool schemas
     LLM-->>-AiClient: Responds with tool call (e.g., addOrUpdateSurface)
 
@@ -120,7 +120,7 @@ sequenceDiagram
     AiClient->>+GenUiManager: ...which calls addOrUpdateSurface()
     GenUiManager->>GenUiManager: Updates state and broadcasts GenUiUpdate
     GenUiManager-->>-AiClient: Tool returns result
-    AiClient-->>-UiAgent: generateContent() completes
+    AiClient-->>-GenUiConversation: generateContent() completes
 
     %% The UI updates asynchronously based on the stream
     GenUiManager->>GenUiSurface: Notifies of the update via a Stream
@@ -132,21 +132,21 @@ sequenceDiagram
     %% Later, the user interacts
     User->>+GenUiSurface: Interacts with a widget (e.g., clicks a button)
     GenUiSurface-->>GenUiManager: Fires onEvent, which calls handleUiEvent()
-    GenUiManager-->>UiAgent: Emits a UserMessage on the onSubmit stream
-    UiAgent->>UiAgent: Receives UserMessage, adds to conversation
-    deactivate UiAgent
-    Note over UiAgent, LLM: The cycle repeats...
+    GenUiManager-->>GenUiConversation: Emits a UserMessage on the onSubmit stream
+    GenUiConversation->>GenUiConversation: Receives UserMessage, adds to conversation
+    deactivate GenUiConversation
+    Note over GenUiConversation, LLM: The cycle repeats...
 ```
 
-1. **Initialization**: The developer creates a `UiAgent`, providing it with a `GenUiManager` and an `AiClient`. The developer may also provide a system instruction to the `UiAgent` by sending an an initial `UserMessage`.
+1. **Initialization**: The developer creates a `GenUiConversation`, providing it with a `GenUiManager` and an `AiClient`. The developer may also provide a system instruction to the `GenUiConversation` by sending an an initial `UserMessage`.
 2. **User Input**: The user enters a prompt.
-3. **Send Request**: The developer calls `uiAgent.sendRequest(UserMessage.text(prompt))`.
-4. **Conversation Management**: The `UiAgent` adds the `UserMessage` to its internal conversation history.
-5. **AI Invocation**: The `UiAgent` calls `aiClient.generateContent()`, passing in the conversation history and the UI tools from the `GenUiManager`.
+3. **Send Request**: The developer calls `genUiConversation.sendRequest(UserMessage.text(prompt))`.
+4. **Conversation Management**: The `GenUiConversation` adds the `UserMessage` to its internal conversation history.
+5. **AI Invocation**: The `GenUiConversation` calls `aiClient.generateContent()`, passing in the conversation history and the UI tools from the `GenUiManager`.
 6. **Model Processing & Tool Call**: The LLM processes the conversation and returns a response indicating it wants to call a UI tool (e.g., `addOrUpdateSurface`).
 7. **Tool Execution & State Update**: The `AiClient` receives the response, finds the corresponding `AiTool` object, and executes its `invoke` method. This calls the target function on the `GenUiManager` (e.g., `addOrUpdateSurface`).
 8. **Notification**: The `GenUiManager` updates its internal state (the `UiDefinition` for the surface) and broadcasts a `GenUiUpdate` event on its `surfaceUpdates` stream.
 9. **UI Rendering**: A `GenUiSurface` widget listening to the `GenUiManager` (via the `GenUiHost` interface) receives the update and rebuilds, rendering the new UI based on the updated `UiDefinition`.
 10. **User Interaction**: The user interacts with the newly generated UI (e.g., clicks a submit button).
 11. **Event Dispatch**: The widget's builder calls a `dispatchEvent` function, which causes the `GenUiSurface` to call `host.handleUiEvent()`.
-12. **Cycle Repeats**: The `GenUiManager`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `DataModel`) and emits it on its `onSubmit` stream. The `UiAgent` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.
+12. **Cycle Repeats**: The `GenUiManager`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `DataModel`) and emits it on its `onSubmit` stream. The `GenUiConversation` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.

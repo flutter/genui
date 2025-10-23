@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -294,7 +295,7 @@ class _TravelCarouselItem extends StatelessWidget {
   }
 }
 
-JsonMap _hotelExample() {
+String _hotelExample() {
   final hotels = BookingService.instance.listHotelsSync(
     HotelSearch(
       query: '',
@@ -306,153 +307,162 @@ JsonMap _hotelExample() {
   final hotel1 = hotels.listings[0];
   final hotel2 = hotels.listings[1];
 
-  return {
-    'root': 'hotel_carousel',
-    'widgets': [
-      {
-        'widget': {
-          'TravelCarousel': {
-            'items': [
-              {
-                'description': {'literalString': hotel1.description},
-                'imageChildId': 'image_1',
-                'listingSelectionId': '12345',
-                'action': {'name': 'selectHotel'},
-              },
-              {
-                'description': {'literalString': hotel2.description},
-                'imageChildId': 'image_2',
-                'listingSelectionId': '12346',
-                'action': {'name': 'selectHotel'},
-              },
-            ],
-          },
-        },
-        'id': 'hotel_carousel',
-      },
-      {
-        'id': 'image_1',
-        'widget': {
-          'Image': {
-            'fit': 'cover',
-            'url': {'literalString': hotel1.images[0]},
-          },
-        },
-      },
-      {
-        'id': 'image_2',
-        'widget': {
-          'Image': {
-            'fit': 'cover',
-            'url': {'literalString': hotel2.images[0]},
-          },
-        },
-      },
-    ],
-  };
-}
-
-JsonMap _inspirationExample() => {
-  'root': 'greece_inspiration_column',
-  'widgets': [
+  return jsonEncode([
     {
-      'id': 'greece_inspiration_column',
-      'widget': {
-        'Column': {
-          'children': ['inspiration_title', 'inspiration_carousel'],
-        },
-      },
-    },
-    {
-      'id': 'inspiration_title',
-      'widget': {
-        'Text': {
-          'text': {
-            'literalString':
-                "Let's plan your dream trip to Greece! "
-                'What kind of experience'
-                ' are you looking for?',
-          },
-        },
-      },
-    },
-    {
-      'widget': {
+      'id': 'root',
+      'component': {
         'TravelCarousel': {
           'items': [
             {
-              'description': {'literalString': 'Relaxing Beach Holiday'},
-              'imageChildId': 'santorini_beach_image',
+              'description': {'literalString': hotel1.description},
+              'imageChildId': 'image_1',
               'listingSelectionId': '12345',
-              'action': {'name': 'selectExperience'},
+              'action': {'name': 'selectHotel'},
             },
             {
-              'imageChildId': 'akrotiri_fresco_image',
-              'description': {'literalString': 'Cultural Exploration'},
+              'description': {'literalString': hotel2.description},
+              'imageChildId': 'image_2',
               'listingSelectionId': '12346',
-              'action': {'name': 'selectExperience'},
-            },
-            {
-              'imageChildId': 'santorini_caldera_image',
-              'description': {'literalString': 'Adventure & Outdoors'},
-              'listingSelectionId': '12347',
-              'action': {'name': 'selectExperience'},
-            },
-            {
-              'description': {'literalString': 'Foodie Tour'},
-              'imageChildId': 'greece_food_image',
-              'action': {'name': 'selectExperience'},
+              'action': {'name': 'selectHotel'},
             },
           ],
         },
       },
-      'id': 'inspiration_carousel',
     },
     {
-      'id': 'santorini_beach_image',
-      'widget': {
+      'id': 'image_1',
+      'component': {
         'Image': {
           'fit': 'cover',
-          'url': {
-            'literalString': 'assets/travel_images/santorini_panorama.jpg',
-          },
+          'url': {'literalString': hotel1.images[0]},
         },
       },
     },
     {
-      'id': 'akrotiri_fresco_image',
-      'widget': {
+      'id': 'image_2',
+      'component': {
         'Image': {
           'fit': 'cover',
-          'url': {
-            'literalString':
-                'assets/travel_images/akrotiri_spring_fresco_santorini.jpg',
-          },
+          'url': {'literalString': hotel2.images[0]},
         },
       },
+    },
+  ]);
+}
+
+String _inspirationExample() => '''
+  [
+    {
+      "id": "root",
+      "component": {
+        "Column": {
+          "children": {
+            "explicitList": ["inspiration_title", "inspiration_carousel"]
+          }
+        }
+      }
     },
     {
-      'id': 'santorini_caldera_image',
-      'widget': {
-        'Image': {
-          'url': {
-            'literalString': 'assets/travel_images/santorini_from_space.jpg',
-          },
-          'fit': 'cover',
-        },
-      },
+      "id": "inspiration_title",
+      "component": {
+        "Text": {
+          "text": {
+            "literalString": "Let's plan your dream trip to Greece! What kind of experience are you looking for?"
+          }
+        }
+      }
     },
     {
-      'widget': {
-        'Image': {
-          'fit': 'cover',
-          'url': {
-            'literalString':
-                'assets/travel_images/saffron_gatherers_fresco_santorini.jpg',
-          },
-        },
-      },
-      'id': 'greece_food_image',
+      "id": "inspiration_carousel",
+      "component": {
+        "TravelCarousel": {
+          "items": [
+            {
+              "description": {
+                "literalString": "Relaxing Beach Holiday"
+              },
+              "imageChildId": "santorini_beach_image",
+              "listingSelectionId": "12345",
+              "action": {
+                "name": "selectExperience"
+              }
+            },
+            {
+              "imageChildId": "akrotiri_fresco_image",
+              "description": {
+                "literalString": "Cultural Exploration"
+              },
+              "listingSelectionId": "12346",
+              "action": {
+                "name": "selectExperience"
+              }
+            },
+            {
+              "imageChildId": "santorini_caldera_image",
+              "description": {
+                "literalString": "Adventure & Outdoors"
+              },
+              "listingSelectionId": "12347",
+              "action": {
+                "name": "selectExperience"
+              }
+            },
+            {
+              "description": {
+                "literalString": "Foodie Tour"
+              },
+              "imageChildId": "greece_food_image",
+              "action": {
+                "name": "selectExperience"
+              }
+            }
+          ]
+        }
+      }
     },
-  ],
-};
+    {
+      "id": "santorini_beach_image",
+      "component": {
+        "Image": {
+          "fit": "cover",
+          "url": {
+            "literalString": "assets/travel_images/santorini_panorama.jpg"
+          }
+        }
+      }
+    },
+    {
+      "id": "akrotiri_fresco_image",
+      "component": {
+        "Image": {
+          "fit": "cover",
+          "url": {
+            "literalString": "assets/travel_images/akrotiri_spring_fresco_santorini.jpg"
+          }
+        }
+      }
+    },
+    {
+      "id": "santorini_caldera_image",
+      "component": {
+        "Image": {
+          "url": {
+            "literalString": "assets/travel_images/santorini_from_space.jpg"
+          },
+          "fit": "cover"
+        }
+      }
+    },
+    {
+      "id": "greece_food_image",
+      "component": {
+        "Image": {
+          "fit": "cover",
+          "url": {
+            "literalString": "assets/travel_images/saffron_gatherers_fresco_santorini.jpg"
+          }
+        }
+      }
+    }
+  ]
+''';

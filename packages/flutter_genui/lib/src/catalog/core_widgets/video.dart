@@ -35,15 +35,19 @@ final video = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'video',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'video',
-          'type': 'Video',
-          'url': {'literalString': 'https://example.com/video.mp4'},
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "Video": {
+              "url": {
+                "literalString": "https://example.com/video.mp4"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

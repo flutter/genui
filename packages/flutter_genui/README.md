@@ -9,7 +9,7 @@ This package provides the core functionality for GenUI. For a concrete implement
 ## Features
 
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
-- **Simplified Conversation Flow**: A high-level `UiAgent` facade manages the interaction loop with the AI.
+- **Simplified Conversation Flow**: A high-level `GenUiConversation` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
 - **Extensible AI Client**: Abstract interface for connecting to different AI model backends.
 - **Event Handling**: Capture user interactions (button clicks, text input), update a client-side data model, and send the state back to the AI as context for the next turn in the conversation.
@@ -19,7 +19,7 @@ This package provides the core functionality for GenUI. For a concrete implement
 
 The package is built around four main components:
 
-1.  **`UiAgent`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
+1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
 
 2.  **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
@@ -29,7 +29,7 @@ The package is built around four main components:
 
 ## Getting Started
 
-To use `flutter_genui`, you need to initialize a `UiAgent`, provide it with a system prompt, and render the UI surfaces it manages.
+To use `flutter_genui`, you need to initialize a `GenUiConversation`, provide it with a system prompt, and render the UI surfaces it manages.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -49,20 +49,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late final UiAgent _uiAgent;
+  late final GenUiConversation _genUiConversation;
   final List<GenUiUpdate> _updates = [];
 
   @override
   void initState() {
     super.initState();
 
-    // 1. Create a UiAgent with a system instruction
+    // 1. Create a GenUiConversation with a system instruction
     final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
     final aiClient = FirebaseAiClient(
       systemInstruction: 'You are a helpful AI assistant that builds UIs.',
       tools: genUiManager.getTools(),
     );
-    _uiAgent = UiAgent(
+    _genUiConversation = GenUiConversation(
       genUiManager: genUiManager,
       aiClient: aiClient,
       onSurfaceAdded: _onSurfaceAdded,
@@ -77,12 +77,12 @@ class _MyAppState extends State<MyApp> {
 
   void _sendPrompt(String text) {
     if (text.trim().isEmpty) return;
-    _uiAgent.sendRequest(UserMessage.text(text));
+    _genUiConversation.sendRequest(UserMessage.text(text));
   }
 
   @override
   void dispose() {
-    _uiAgent.dispose();
+    _genUiConversation.dispose();
     super.dispose();
   }
 
@@ -100,7 +100,7 @@ class _MyAppState extends State<MyApp> {
                 itemBuilder: (context, index) {
                   final update = _updates[index];
                   return GenUiSurface(
-                    host: _uiAgent.host,
+                    host: _genUiConversation.host,
                     surfaceId: update.surfaceId,                  );
                 },
               ),
@@ -116,14 +116,14 @@ class _MyAppState extends State<MyApp> {
 
 ## How It Works
 
-The `UiAgent` manages the interaction cycle:
+The `GenUiConversation` manages the interaction cycle:
 
-1. **User Input**: The user provides a prompt (e.g., through a text field). The app calls `uiAgent.sendRequest()`.
-2. **AI Invocation**: The `UiAgent` adds the user's message to its internal conversation history and sends it to the `AiClient`.
+1. **User Input**: The user provides a prompt (e.g., through a text field). The app calls `genUiConversation.sendRequest()`.
+2. **AI Invocation**: The `GenUiConversation` adds the user's message to its internal conversation history and sends it to the `AiClient`.
 3. **AI Response**: The AI model processes the conversation and, guided by the schemas of the widgets in your `Catalog`, returns a structured response with instructions to `add`, `update`, or `delete` UI elements by calling the appropriate tools.
-4. **UI State Update**: The `UiAgent` executes these tool calls, which updates the internal `GenUiManager` and its `DataModel`.
+4. **UI State Update**: The `GenUiConversation` executes these tool calls, which updates the internal `GenUiManager` and its `DataModel`.
 5. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild to display the new UI. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
-6. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `UiAgent`'s `GenUiManager`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
+6. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `GenUiConversation`'s `GenUiManager`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
 
 ```mermaid
 graph TD
@@ -133,21 +133,21 @@ graph TD
     end
 
     subgraph "GenUI Framework"
-        UiAgent("UiAgent")
+        GenUiConversation("GenUiConversation")
         AiClient("AiClient")
         GenUiManager("GenUiManager")
         GenUiSurface("GenUiSurface")
     end
 
-    UserInput -- "calls sendRequest()" --> UiAgent;
-    UiAgent -- "manages conversation and sends prompt" --> AiClient;
-    AiClient -- "returns tool calls" --> UiAgent;
-    UiAgent -- "executes tools" --> GenUiManager;
+    UserInput -- "calls sendRequest()" --> GenUiConversation;
+    GenUiConversation -- "manages conversation and sends prompt" --> AiClient;
+    AiClient -- "returns tool calls" --> GenUiConversation;
+    GenUiConversation -- "executes tools" --> GenUiManager;
     GenUiManager -- "notifies of updates" --> GenUiSurface;
     GenUiSurface -- "renders UI" --> UserInteraction;
     UserInteraction -- "creates event" --> GenUiSurface;
     GenUiSurface -- "sends event to host" --> GenUiManager;
-    GenUiManager -- "sends user input to" --> UiAgent;
+    GenUiManager -- "sends user input to" --> GenUiConversation;
 ```
 
 See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for more detailed information about the design.

@@ -58,19 +58,20 @@ final heading = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'heading',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'heading',
-          'widget': {
-            'Heading': {
-              'text': {'literalString': 'This is a heading'},
-              'level': '1',
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "Heading": {
+              "text": {
+                "literalString": "This is a heading"
+              },
+              "level": "1"
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

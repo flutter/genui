@@ -3,14 +3,15 @@
 // found in the LICENSE file.
 
 import 'dart:async' show StreamSubscription;
+import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
 import '../core/genui_surface.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
-import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
@@ -23,6 +24,7 @@ import '../primitives/simple_items.dart';
 /// defined.
 class DebugCatalogView extends StatefulWidget {
   const DebugCatalogView({
+    super.key,
     this.onSubmit,
     required this.catalog,
     this.itemHeight,
@@ -54,54 +56,38 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       _subscription = null;
     }
 
-    final examples = <String, ExampleBuilderCallback>{};
-
     for (final item in widget.catalog.items) {
-      for (var d = 0; d < item.exampleData.length; d++) {
-        final indexPart = item.exampleData.length > 1 ? '-$d' : '';
-        examples['${item.name}$indexPart'] = item.exampleData[d];
-      }
-    }
+      for (var i = 0; i < item.exampleData.length; i++) {
+        final exampleBuilder = item.exampleData[i];
+        final indexPart = item.exampleData.length > 1 ? '-$i' : '';
+        final surfaceId = '${item.name}$indexPart';
 
-    for (final item in examples.entries) {
-      final surfaceId = item.key;
-      final definition = item.value();
-      final widgets = definition['widgets'] as List<Object?>;
-      final components = widgets
-          .map((e) {
-            final widget = e as JsonMap;
-            final widgetMap = widget['widget'] as JsonMap?;
-            if (widgetMap != null) {
-              return Component(
-                id: widget['id'] as String,
-                componentProperties: widgetMap,
-              );
-            }
-            // Handle the other format.
-            final type = widget['type'] as String?;
-            if (type == null) {
-              return null;
-            }
-            final properties = Map<String, Object?>.from(widget);
-            properties.remove('id');
-            properties.remove('type');
-            return Component(
-              id: widget['id'] as String,
-              componentProperties: {type: properties},
-            );
-          })
-          .whereType<Component>()
-          .toList();
-      _genUi.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
-      );
-      _genUi.handleMessage(
-        BeginRendering(
-          surfaceId: surfaceId,
-          root: definition['root'] as String,
-        ),
-      );
-      surfaceIds.add(surfaceId);
+        final exampleJsonString = exampleBuilder();
+        final exampleData = jsonDecode(exampleJsonString) as List<Object?>;
+
+        final components = exampleData
+            .map((e) => Component.fromJson(e as JsonMap))
+            .toList();
+
+        Component? rootComponent;
+        rootComponent = components.firstWhereOrNull((c) => c.id == 'root');
+
+        if (rootComponent == null) {
+          debugPrint(
+            'Skipping example for ${item.name} because it is missing a root '
+            'component.',
+          );
+          continue;
+        }
+
+        _genUi.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: components),
+        );
+        _genUi.handleMessage(
+          BeginRendering(surfaceId: surfaceId, root: rootComponent.id),
+        );
+        surfaceIds.add(surfaceId);
+      }
     }
   }
 

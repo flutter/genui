@@ -20,8 +20,7 @@ dependencies:
     sdk: flutter
   flutter_genui:
     path: ../flutter_genui
-  json_schema_builder:
-    path: ../json_schema_builder
+  json_schema_builder: ^0.1.3
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2

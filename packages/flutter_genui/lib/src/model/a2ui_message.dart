@@ -68,6 +68,14 @@ final class SurfaceUpdate extends A2uiMessage {
 
   /// The list of components to add or update.
   final List<Component> components;
+
+  /// Converts this object to a JSON representation.
+  JsonMap toJson() {
+    return {
+      surfaceIdKey: surfaceId,
+      'components': components.map((c) => c.toJson()).toList(),
+    };
+  }
 }
 
 /// An A2UI message that updates the data model.

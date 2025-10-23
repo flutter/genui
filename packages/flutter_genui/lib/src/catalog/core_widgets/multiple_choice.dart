@@ -100,28 +100,33 @@ final multipleChoice = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'multiple_choice',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'multiple_choice',
-          'widget': {
-            'MultipleChoice': {
-              'selections': {'path': '/mySelections'},
-              'options': [
+          "id": "root",
+          "component": {
+            "MultipleChoice": {
+              "selections": {
+                "path": "/mySelections"
+              },
+              "options": [
                 {
-                  'label': {'literalString': 'Option 1'},
-                  'value': '1',
+                  "label": {
+                    "literalString": "Option 1"
+                  },
+                  "value": "1"
                 },
                 {
-                  'label': {'literalString': 'Option 2'},
-                  'value': '2',
-                },
-              ],
-            },
-          },
-        },
-      ],
-    },
+                  "label": {
+                    "literalString": "Option 2"
+                  },
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

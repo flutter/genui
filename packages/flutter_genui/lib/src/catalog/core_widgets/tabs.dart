@@ -74,43 +74,50 @@ final tabs = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'tabs',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'tabs',
-          'widget': {
-            'Tabs': {
-              'tabItems': [
+          "id": "root",
+          "component": {
+            "Tabs": {
+              "tabItems": [
                 {
-                  'title': {'literalString': 'Tab 1'},
-                  'child': 'text1',
+                  "title": {
+                    "literalString": "Tab 1"
+                  },
+                  "child": "text1"
                 },
                 {
-                  'title': {'literalString': 'Tab 2'},
-                  'child': 'text2',
-                },
-              ],
-            },
-          },
+                  "title": {
+                    "literalString": "Tab 2"
+                  },
+                  "child": "text2"
+                }
+              ]
+            }
+          }
         },
         {
-          'id': 'text1',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is the first tab.'},
-            },
-          },
+          "id": "text1",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is the first tab."
+              }
+            }
+          }
         },
         {
-          'id': 'text2',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is the second tab.'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "text2",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is the second tab."
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

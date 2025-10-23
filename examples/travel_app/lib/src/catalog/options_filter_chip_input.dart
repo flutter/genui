@@ -72,21 +72,26 @@ final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'options_filter_chip_input',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'options_filter_chip_input',
-          'widget': {
-            'OptionsFilterChipInput': {
-              'chipLabel': 'Budget',
-              'options': ['\$', '\$\$', '\$\$\$'],
-              'value': {'literalString': '\$\$'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "OptionsFilterChipInput": {
+              "chipLabel": "Budget",
+              "options": [
+                "\$",
+                "\$\$",
+                "\$\$\$"
+              ],
+              "value": {
+                "literalString": "\$\$"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

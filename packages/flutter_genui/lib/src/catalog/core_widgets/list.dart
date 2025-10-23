@@ -62,36 +62,42 @@ final list = CatalogItem(
         return const SizedBox.shrink();
       },
   exampleData: [
-    () => {
-      'root': 'list',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'list',
-          'widget': {
-            'List': {
-              'children': {
-                'explicitList': ['text1', 'text2'],
-              },
-            },
-          },
+          "id": "root",
+          "component": {
+            "List": {
+              "children": {
+                "explicitList": [
+                  "text1",
+                  "text2"
+                ]
+              }
+            }
+          }
         },
         {
-          'id': 'text1',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'First'},
-            },
-          },
+          "id": "text1",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "First"
+              }
+            }
+          }
         },
         {
-          'id': 'text2',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'Second'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "text2",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Second"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

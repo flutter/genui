@@ -71,18 +71,19 @@ final slider = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'slider',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'slider',
-          'widget': {
-            'Slider': {
-              'value': {'path': '/myValue'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "Slider": {
+              "value": {
+                "path": "/myValue"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

@@ -5,15 +5,18 @@
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../primitives/simple_items.dart';
 import 'data_model.dart';
 import 'ui_models.dart';
 
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback = Widget Function(String id);
 
-/// A callback that builds a child widget for a catalog item.
-typedef ExampleBuilderCallback = JsonMap Function();
+/// A callback that builds an example of a catalog item.
+///
+/// The returned string must be a valid JSON representation of a list of
+/// [Component] objects. One of the components in the list must have the `id`
+/// 'root'.
+typedef ExampleBuilderCallback = String Function();
 
 /// A callback that builds a widget for a catalog item.
 typedef CatalogWidgetBuilder =
@@ -52,10 +55,16 @@ class CatalogItem {
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
 
-  /// List of examples for this widget, for testing purposes.
+  /// A list of builder functions that each return a JSON string representing an
+  /// example usage of this widget.
   ///
-  /// To catch real data returned by the AI,
-  /// [configure logging](https://github.com/flutter/genui/blob/main/packages/flutter_genui/USAGE.md#configure-logging)
-  /// to Level.ALL and search for the string `"definition": {` in the logs.
+  /// Each returned string must be a valid JSON representation of a list of
+  /// [Component] objects. For the example to be renderable, one of the
+  /// components in the list must have the `id` 'root', which will be used as
+  /// the entry point for rendering.
+  ///
+  /// To catch real data returned by the AI for debugging or creating new
+  /// examples, [configure logging](https://github.com/flutter/genui/blob/main/packages/flutter_genui/USAGE.md#configure-logging)
+  /// to `Level.ALL` and search for the string `"definition": {` in the logs.
   final List<ExampleBuilderCallback> exampleData;
 }

@@ -110,59 +110,64 @@ final column = CatalogItem(
         return const SizedBox.shrink();
       },
   exampleData: [
-    () => {
-      'root': 'advice_column',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'advice_column',
-          'widget': {
-            'Column': {
-              'children': {
-                'explicitList': [
-                  'advice_text',
-                  'advice_options',
-                  'submit_button',
-                ],
-              },
-            },
-          },
+          "id": "root",
+          "component": {
+            "Column": {
+              "children": {
+                "explicitList": [
+                  "advice_text",
+                  "advice_options",
+                  "submit_button"
+                ]
+              }
+            }
+          }
         },
         {
-          'id': 'advice_text',
-          'widget': {
-            'Text': {
-              'text': {
-                'literalString': 'What kind of advice are you looking for?',
-              },
-            },
-          },
+          "id": "advice_text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "What kind of advice are you looking for?"
+              }
+            }
+          }
         },
         {
-          'id': 'advice_options',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'Some advice options.'},
-            },
-          },
+          "id": "advice_options",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Some advice options."
+              }
+            }
+          }
         },
         {
-          'id': 'submit_button',
-          'widget': {
-            'Button': {
-              'child': 'submit_button_text',
-              'action': {'name': 'submit'},
-            },
-          },
+          "id": "submit_button",
+          "component": {
+            "Button": {
+              "child": "submit_button_text",
+              "action": {
+                "name": "submit"
+              }
+            }
+          }
         },
         {
-          'id': 'submit_button_text',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'Submit'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "submit_button_text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Submit"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

@@ -37,22 +37,20 @@ final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'image',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'image',
-          'widget': {
-            'Image': {
-              'url': {
-                'literalString':
-                    'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
-              },
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "Image": {
+              "url": {
+                "literalString": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

@@ -113,35 +113,41 @@ final textField = CatalogItem(
   name: 'TextField',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'text_field',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'text_field',
-          'widget': {
-            'TextField': {
-              'text': {'literalString': 'Hello World'},
-              'label': {'literalString': 'Greeting'},
-            },
-          },
-        },
-      ],
-    },
-    () => {
-      'root': 'password_field',
-      'widgets': [
+          "id": "root",
+          "component": {
+            "TextField": {
+              "text": {
+                "literalString": "Hello World"
+              },
+              "label": {
+                "literalString": "Greeting"
+              }
+            }
+          }
+        }
+      ]
+    ''',
+    () => '''
+      [
         {
-          'id': 'password_field',
-          'widget': {
-            'TextField': {
-              'text': {'literalString': 'password123'},
-              'label': {'literalString': 'Password'},
-              'textFieldType': 'obscured',
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "TextField": {
+              "text": {
+                "literalString": "password123"
+              },
+              "label": {
+                "literalString": "Password"
+              },
+              "textFieldType": "obscured"
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

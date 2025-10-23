@@ -73,27 +73,30 @@ final button = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'button',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'button',
-          'widget': {
-            'Button': {
-              'child': 'text',
-              'action': {'name': 'button_pressed'},
-            },
-          },
+          "id": "root",
+          "component": {
+            "Button": {
+              "child": "text",
+              "action": {
+                "name": "button_pressed"
+              }
+            }
+          }
         },
         {
-          'id': 'text',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'Hello World'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Hello World"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

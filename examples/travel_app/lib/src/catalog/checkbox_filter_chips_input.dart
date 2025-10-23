@@ -76,23 +76,30 @@ final checkboxFilterChipsInput = CatalogItem(
   name: 'CheckboxFilterChipsInput',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'checkbox_filter_chips_input',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'checkbox_filter_chips_input',
-          'widget': {
-            'CheckboxFilterChipsInput': {
-              'chipLabel': 'Amenities',
-              'options': ['Wifi', 'Gym', 'Pool', 'Parking'],
-              'selectedOptions': {
-                'literalArray': ['Wifi', 'Gym'],
-              },
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "CheckboxFilterChipsInput": {
+              "chipLabel": "Amenities",
+              "options": [
+                "Wifi",
+                "Gym",
+                "Pool",
+                "Parking"
+              ],
+              "selectedOptions": {
+                "literalArray": [
+                  "Wifi",
+                  "Gym"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

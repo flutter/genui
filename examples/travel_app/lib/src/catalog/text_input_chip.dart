@@ -42,31 +42,34 @@ final textInputChip = CatalogItem(
   name: 'TextInputChip',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'text_input',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'text_input',
-          'widget': {
-            'TextInputChip': {
-              'value': {'literalString': 'John Doe'},
-              'label': 'Enter your name',
-            },
-          },
-        },
-      ],
-    },
-    () => {
-      'root': 'password_input',
-      'widgets': [
+          "id": "root",
+          "component": {
+            "TextInputChip": {
+              "value": {
+                "literalString": "John Doe"
+              },
+              "label": "Enter your name"
+            }
+          }
+        }
+      ]
+    ''',
+    () => '''
+      [
         {
-          'id': 'password_input',
-          'widget': {
-            'TextInputChip': {'label': 'Enter your password', 'obscured': true},
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "TextInputChip": {
+              "label": "Enter your password",
+              "obscured": true
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

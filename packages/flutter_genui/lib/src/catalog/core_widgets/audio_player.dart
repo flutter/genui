@@ -35,18 +35,19 @@ final audioPlayer = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'audio_player',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'audio_player',
-          'widget': {
-            'AudioPlayer': {
-              'url': {'literalString': 'https://example.com/audio.mp3'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "AudioPlayer": {
+              "url": {
+                "literalString": "https://example.com/audio.mp3"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

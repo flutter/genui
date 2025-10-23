@@ -12,7 +12,7 @@ This package provides the integration between `flutter_genui` and the Firebase A
 
 To use this package, you will need to have a Firebase project set up and the Firebase AI SDK configured.
 
-Then, you can create an instance of `FirebaseAiClient` and pass it to your `UiAgent`:
+Then, you can create an instance of `FirebaseAiClient` and pass it to your `GenUiConversation`:
 
 ```dart
 final genUiManager = GenUiManager(catalog: catalog);
@@ -20,7 +20,7 @@ final aiClient = FirebaseAiClient(
   systemInstruction: 'You are a helpful assistant.',
   tools: genUiManager.getTools(),
 );
-final uiAgent = UiAgent(
+final genUiConversation = GenUiConversation(
   genUiManager: genUiManager,
   aiClient: aiClient,
   ...

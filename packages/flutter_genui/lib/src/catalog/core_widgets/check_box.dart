@@ -63,19 +63,22 @@ final checkBox = CatalogItem(
         );
       },
   exampleData: [
-    () => {
-      'root': 'checkbox',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'checkbox',
-          'widget': {
-            'CheckBox': {
-              'label': {'literalString': 'Check me'},
-              'value': {'literalBoolean': true},
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "CheckBox": {
+              "label": {
+                "literalString": "Check me"
+              },
+              "value": {
+                "literalBoolean": true
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );

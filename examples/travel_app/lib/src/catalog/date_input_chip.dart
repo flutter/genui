@@ -112,20 +112,21 @@ final dateInputChip = CatalogItem(
   name: 'DateInputChip',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'date_picker',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'date_picker',
-          'widget': {
-            'DateInputChip': {
-              'value': {'literalString': '1871-07-22'},
-              'label': 'Your birth date',
-            },
-          },
-        },
-      ],
-    },
+          "id": "root",
+          "component": {
+            "DateInputChip": {
+              "value": {
+                "literalString": "1871-07-22"
+              },
+              "label": "Your birth date"
+            }
+          }
+        }
+      ]
+    ''',
   ],
   widgetBuilder:
       ({

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:intl/intl.dart';
@@ -103,25 +105,17 @@ final listingsBooker = CatalogItem(
           .last
           .listingSelectionId;
 
-      return {
-        'root': 'listings_booker',
-        'widgets': [
-          {
-            'id': 'listings_booker',
-            'widget': {
-              'ListingsBooker': {
-                'listingSelectionIds': [
-                  listingSelectionId1,
-                  listingSelectionId2,
-                ],
-                'itineraryName': {
-                  'literalString': 'Dart and Flutter deep dive',
-                },
-              },
+      return jsonEncode([
+        {
+          'id': 'root',
+          'component': {
+            'ListingsBooker': {
+              'listingSelectionIds': [listingSelectionId1, listingSelectionId2],
+              'itineraryName': {'literalString': 'Dart and Flutter deep dive'},
             },
           },
-        ],
-      };
+        },
+      ]);
     },
   ],
 );

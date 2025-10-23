@@ -49,49 +49,57 @@ final modal = CatalogItem(
         return buildChild(modalData.entryPointChild);
       },
   exampleData: [
-    () => {
-      'root': 'modal',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'modal',
-          'widget': {
-            'Modal': {'entryPointChild': 'button', 'contentChild': 'text'},
-          },
+          "id": "root",
+          "component": {
+            "Modal": {
+              "entryPointChild": "button",
+              "contentChild": "text"
+            }
+          }
         },
         {
-          'id': 'button',
-          'widget': {
-            'Button': {
-              'child': 'button_text',
-              'action': {
-                'name': 'showModal',
-                'context': [
+          "id": "button",
+          "component": {
+            "Button": {
+              "child": "button_text",
+              "action": {
+                "name": "showModal",
+                "context": [
                   {
-                    'key': 'modalId',
-                    'value': {'literalString': 'modal'},
-                  },
-                ],
-              },
-            },
-          },
+                    "key": "modalId",
+                    "value": {
+                      "literalString": "modal"
+                    }
+                  }
+                ]
+              }
+            }
+          }
         },
         {
-          'id': 'button_text',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'Open Modal'},
-            },
-          },
+          "id": "button_text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Open Modal"
+              }
+            }
+          }
         },
         {
-          'id': 'text',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is a modal.'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is a modal."
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );
