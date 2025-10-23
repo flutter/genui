@@ -63,7 +63,7 @@ class _IntegrationTester extends StatefulWidget {
 final _catalog = CoreCatalogItems.asCatalog();
 const _toolName = 'uiGenerationTool';
 final uiSchema = UiSchemaDefinition(
-  prompt: '',
+  prompt: genUiTechPrompt([_toolName]),
   tools: [
     catalogToFunctionDeclaration(
       _catalog,

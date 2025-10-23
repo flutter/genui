@@ -42,7 +42,7 @@ class Backend {
   }) async {
     final toolCall = await GeminiClient.sendRequest(
       tools: schema.tools,
-      request: '${schema.prompt}\n\n$request',
+      request: '${schema.prompt}\n\nUser request:\n$request',
       savedResponse: savedResponse,
     );
 
