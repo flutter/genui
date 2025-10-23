@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:custom_backend/main.dart';
-import 'package:custom_backend/protocol/protocol.dart';
+import 'package:custom_backend/protocol.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';

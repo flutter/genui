@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 
-import 'protocol/protocol.dart';
+import 'protocol.dart';
 
 void main() {
   runApp(const MyApp());
@@ -67,6 +67,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
   String? _selectedResponse;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _surfaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -87,21 +88,21 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
                 'Sending request for _selectedResponse = '
                 '$_selectedResponse ...',
               );
-              final messages = await _protocol.sendRequest(
+              final parsedToolCall = await _protocol.sendRequest(
                 _controller.text,
                 savedResponse: _selectedResponse,
               );
-              if (messages == null) {
+              if (parsedToolCall == null) {
                 print('No UI received.');
                 setState(() {
                   _isLoading = false;
                 });
                 return;
               }
-              for (final message in messages) {
+              for (final message in parsedToolCall.messages) {
                 _genUi.handleMessage(message);
               }
-              print('UI received for surfaceId=$kSurfaceId');
+              print('UI received for surfaceId=${parsedToolCall.surfaceId}');
               setState(() => _isLoading = false);
             } catch (e, callStack) {
               print('Error connecting to backend: $e\n$callStack');
@@ -134,7 +135,14 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (_errorMessage != null) {
       return Text('$_errorMessage');
     }
-    return GenUiSurface(surfaceId: kSurfaceId, host: _genUi);
+    if (_surfaceId == null) {
+      return const Text('_surfaceId == null');
+    }
+    return GenUiSurface(
+      surfaceId: _surfaceId!,
+      host: _genUi,
+      defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
+    );
   }
 }
 
