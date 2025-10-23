@@ -101,7 +101,9 @@ final row = CatalogItem(
           return Row(
             mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
             crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
-            children: explicitList.map((id) => buildChild(id)).toList(),
+            children: explicitList
+                .map((id) => buildChild(id, dataContext))
+                .toList(),
           );
         }
         // TODO(gspencer): Implement template lists.
