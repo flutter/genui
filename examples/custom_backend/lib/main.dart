@@ -99,6 +99,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
                 });
                 return;
               }
+              _surfaceId = parsedToolCall.surfaceId;
               for (final message in parsedToolCall.messages) {
                 _genUi.handleMessage(message);
               }
