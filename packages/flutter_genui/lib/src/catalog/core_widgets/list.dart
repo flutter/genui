@@ -52,11 +52,13 @@ final list = CatalogItem(
         final children = listData.children;
         final explicitList = (children['explicitList'] as List?)
             ?.cast<String>();
+        final direction = listData.direction == 'horizontal'
+            ? Axis.horizontal
+            : Axis.vertical;
         if (explicitList != null) {
           return ListView(
-            scrollDirection: listData.direction == 'horizontal'
-                ? Axis.horizontal
-                : Axis.vertical,
+            shrinkWrap: true,
+            scrollDirection: direction,
             children: explicitList
                 .map((childId) => buildChild(childId))
                 .toList(),
@@ -78,9 +80,7 @@ final list = CatalogItem(
               }
               return ListView.builder(
                 shrinkWrap: true,
-                scrollDirection: listData.direction == 'horizontal'
-                    ? Axis.horizontal
-                    : Axis.vertical,
+                scrollDirection: direction,
                 itemCount: list.length,
                 itemBuilder: (context, index) {
                   final itemDataContext = dataContext.nested(
