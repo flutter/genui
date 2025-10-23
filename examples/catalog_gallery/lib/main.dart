@@ -57,7 +57,10 @@ class _CatalogGalleryHome extends StatelessWidget {
           final messageText = message.parts
               .whereType<TextPart>()
               .map((p) => p.text)
-              .last;
+              .lastOrNull;
+          if (messageText == null) {
+            return;
+          }
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('User action: $messageText')));
