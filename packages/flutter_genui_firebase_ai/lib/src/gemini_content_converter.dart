@@ -39,7 +39,6 @@ class GeminiContentConverter {
         AiTextMessage() => ('model', _convertParts(message.parts)),
         ToolResponseMessage() => ('user', _convertParts(message.results)),
         AiUiMessage() => ('model', _convertParts(message.parts)),
-        ModelMessage() => ('model', _convertParts(message.parts)),
         InternalMessage() => (null, <firebase_ai.Part>[]), // Not sent to model
       };
 

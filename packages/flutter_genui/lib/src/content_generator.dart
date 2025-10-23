@@ -9,6 +9,18 @@ import 'package:flutter/foundation.dart';
 import 'model/a2ui_message.dart';
 import 'model/chat_message.dart';
 
+/// An error produced by a [ContentGenerator].
+final class ContentGeneratorError {
+  /// The error that occurred.
+  final Object error;
+
+  /// The stack trace of the error.
+  final StackTrace stackTrace;
+
+  /// Creates a [ContentGeneratorError].
+  const ContentGeneratorError(this.error, this.stackTrace);
+}
+
 /// An abstract interface for a content generator.
 ///
 /// A content generator is responsible for generating UI content and handling
@@ -22,6 +34,9 @@ abstract interface class ContentGenerator {
 
   /// A stream of text responses from the agent.
   Stream<String> get textResponseStream;
+
+  /// A stream of errors from the agent.
+  Stream<ContentGeneratorError> get errorStream;
 
   /// Whether the content generator is currently processing a request.
   ValueListenable<bool> get isProcessing;

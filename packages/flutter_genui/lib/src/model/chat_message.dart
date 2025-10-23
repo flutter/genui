@@ -166,19 +166,21 @@ final class UserUiInteractionMessage extends ChatMessage {
 }
 
 /// A message representing a text response from the AI.
-
 final class AiTextMessage extends ChatMessage {
   /// Creates a [AiTextMessage] with the given [parts].
-
-  const AiTextMessage(this.parts);
+  AiTextMessage(this.parts);
 
   /// Creates a [AiTextMessage] with the given [text].
-
   factory AiTextMessage.text(String text) => AiTextMessage([TextPart(text)]);
 
   /// The parts of the AI's message.
-
   final List<MessagePart> parts;
+
+  /// The text content of the AI's message.
+  late final String text = parts
+      .whereType<TextPart>()
+      .map((p) => p.text)
+      .join('\n');
 }
 
 /// A message representing a response from a tool.
@@ -220,23 +222,4 @@ final class AiUiMessage extends ChatMessage {
   final String surfaceId;
 
   final List<MessagePart> parts;
-}
-
-/// A message representing a model's message.
-
-final class ModelMessage extends ChatMessage {
-  /// Creates a [ModelMessage] with the given [parts].
-
-  ModelMessage(this.parts);
-
-  /// The parts of the model's message.
-
-  final List<MessagePart> parts;
-
-  /// The text content of the model's message.
-
-  late final String? text = parts
-      .whereType<TextPart>()
-      .map((p) => p.text)
-      .join('\n');
 }

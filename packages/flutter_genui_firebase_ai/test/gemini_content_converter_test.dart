@@ -115,8 +115,8 @@ void main() {
 
     test('toFirebaseAiContent converts $ToolCallPart', () {
       final messages = [
-        const AiTextMessage([
-          ToolCallPart(
+        AiTextMessage([
+          const ToolCallPart(
             id: 'call1',
             toolName: 'doSomething',
             arguments: {'arg': 'value'},
@@ -144,7 +144,7 @@ void main() {
 
     test('toFirebaseAiContent converts $ThinkingPart', () {
       final messages = [
-        const AiTextMessage([ThinkingPart('working on it')]),
+        AiTextMessage([const ThinkingPart('working on it')]),
       ];
       final result = converter.toFirebaseAiContent(messages);
       final part = result.first.parts.first as firebase_ai.TextPart;

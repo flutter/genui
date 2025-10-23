@@ -31,6 +31,7 @@ class GenUiConversation {
     this.onSurfaceUpdated,
     this.onSurfaceDeleted,
     this.onTextResponse,
+    this.onError,
     required this.contentGenerator,
     required this.genUiManager,
   }) {
@@ -46,6 +47,7 @@ class GenUiConversation {
     _textResponseSubscription = contentGenerator.textResponseStream.listen(
       onTextResponse,
     );
+    _errorSubscription = contentGenerator.errorStream.listen(onError);
   }
 
   final ContentGenerator contentGenerator;
@@ -63,10 +65,14 @@ class GenUiConversation {
   /// A callback for when a text response is received from the AI.
   final ValueChanged<String>? onTextResponse;
 
+  /// A callback for when an error occurs in the content generator.
+  final ValueChanged<ContentGeneratorError>? onError;
+
   late final StreamSubscription<A2uiMessage> _a2uiSubscription;
   late final StreamSubscription<UserMessage> _userEventSubscription;
   late final StreamSubscription<GenUiUpdate> _surfaceUpdateSubscription;
   late final StreamSubscription<String> _textResponseSubscription;
+  late final StreamSubscription<ContentGeneratorError> _errorSubscription;
 
   void _handleSurfaceUpdate(GenUiUpdate update) {
     switch (update) {
@@ -85,6 +91,7 @@ class GenUiConversation {
     _userEventSubscription.cancel();
     _surfaceUpdateSubscription.cancel();
     _textResponseSubscription.cancel();
+    _errorSubscription.cancel();
     contentGenerator.dispose();
     genUiManager.dispose();
   }

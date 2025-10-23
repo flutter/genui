@@ -11,6 +11,7 @@ import '../flutter_genui.dart';
 class FakeContentGenerator implements ContentGenerator {
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
+  final _errorController = StreamController<ContentGeneratorError>.broadcast();
   final _conversation = ValueNotifier<List<ChatMessage>>([]);
   final _isProcessing = ValueNotifier<bool>(false);
 
@@ -32,6 +33,9 @@ class FakeContentGenerator implements ContentGenerator {
   Stream<String> get textResponseStream => _textResponseController.stream;
 
   @override
+  Stream<ContentGeneratorError> get errorStream => _errorController.stream;
+
+  @override
   ValueListenable<List<ChatMessage>> get conversation => _conversation;
 
   @override
@@ -41,6 +45,7 @@ class FakeContentGenerator implements ContentGenerator {
   void dispose() {
     _a2uiMessageController.close();
     _textResponseController.close();
+    _errorController.close();
     _conversation.dispose();
     _isProcessing.dispose();
   }

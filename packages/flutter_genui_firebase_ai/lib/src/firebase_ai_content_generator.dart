@@ -79,6 +79,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   final _conversation = ValueNotifier<List<ChatMessage>>([]);
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
+  final _errorController = StreamController<ContentGeneratorError>.broadcast();
   final _isProcessing = ValueNotifier<bool>(false);
 
   @override
@@ -86,6 +87,9 @@ class FirebaseAiContentGenerator implements ContentGenerator {
 
   @override
   Stream<String> get textResponseStream => _textResponseController.stream;
+
+  @override
+  Stream<ContentGeneratorError> get errorStream => _errorController.stream;
 
   @override
   ValueListenable<bool> get isProcessing => _isProcessing;
@@ -98,6 +102,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     _conversation.dispose();
     _a2uiMessageController.close();
     _textResponseController.close();
+    _errorController.close();
     _isProcessing.dispose();
   }
 
@@ -107,6 +112,8 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     try {
       _addMessage(message);
       await _generate(messages: _conversation.value);
+    } catch (e, st) {
+      _errorController.add(ContentGeneratorError(e, st));
     } finally {
       _isProcessing.value = false;
     }
@@ -429,7 +436,7 @@ With functions:
           mutableContent.add(candidate.content);
           genUiLogger.fine('Returning text response: "$text"');
           _textResponseController.add(text);
-          _addMessage(ModelMessage([TextPart(text)]));
+          _addMessage(AiTextMessage([TextPart(text)]));
           return text;
         }
       }

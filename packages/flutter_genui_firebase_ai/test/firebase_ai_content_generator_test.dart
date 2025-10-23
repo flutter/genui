@@ -37,7 +37,7 @@ void main() {
       );
       expect(generator.conversation.value.length, 2);
       expect(generator.conversation.value[0], isA<genui.UserMessage>());
-      expect(generator.conversation.value[1], isA<genui.ModelMessage>());
+      expect(generator.conversation.value[1], isA<genui.AiTextMessage>());
     });
 
     test('isProcessing is true during request', () async {
