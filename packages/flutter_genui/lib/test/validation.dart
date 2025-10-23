@@ -6,12 +6,12 @@ import 'dart:convert';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../model/a2ui_message.dart';
-import '../model/a2ui_schemas.dart';
-import '../model/catalog.dart';
-import '../model/catalog_item.dart' show CatalogItem;
-import '../model/ui_models.dart';
-import '../primitives/simple_items.dart';
+import '../src/model/a2ui_message.dart';
+import '../src/model/a2ui_schemas.dart';
+import '../src/model/catalog.dart';
+import '../src/model/catalog_item.dart' show CatalogItem;
+import '../src/model/ui_models.dart';
+import '../src/primitives/simple_items.dart';
 
 /// A class to represent a validation error in a catalog item example.
 class ExampleValidationError {

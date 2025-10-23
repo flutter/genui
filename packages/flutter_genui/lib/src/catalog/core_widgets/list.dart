@@ -76,19 +76,18 @@ final list = CatalogItem(
               if (list == null) {
                 return const SizedBox.shrink();
               }
-              return Expanded(
-                child: ListView.builder(
-                  scrollDirection: listData.direction == 'horizontal'
-                      ? Axis.horizontal
-                      : Axis.vertical,
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final itemDataContext = dataContext.nested(
-                      DataPath('$dataBinding[$index]'),
-                    );
-                    return buildChild(componentId, itemDataContext);
-                  },
-                ),
+              return ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: listData.direction == 'horizontal'
+                    ? Axis.horizontal
+                    : Axis.vertical,
+                itemCount: list.length,
+                itemBuilder: (context, index) {
+                  final itemDataContext = dataContext.nested(
+                    DataPath('$dataBinding[$index]'),
+                  );
+                  return buildChild(componentId, itemDataContext);
+                },
               );
             },
           );

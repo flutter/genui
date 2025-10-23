@@ -107,7 +107,7 @@ final row = CatalogItem(
             mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
             crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
             children: explicitList
-                .map((id) => Expanded(child: buildChild(id, dataContext)))
+                .map((id) => buildChild(id, dataContext))
                 .toList(),
           );
         }
