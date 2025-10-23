@@ -6,6 +6,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
+// ignore: implementation_imports
+import 'package:firebase_ai/src/api.dart' show ModalityTokenCount;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
@@ -113,6 +115,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       _addMessage(message);
       await _generate(messages: _conversation.value);
     } catch (e, st) {
+      genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
     } finally {
       _isProcessing.value = false;
@@ -228,6 +231,13 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     final generativeAiTools = functionDeclarations.isNotEmpty
         ? [Tool.functionDeclarations(functionDeclarations)]
         : null;
+
+    if (generativeAiTools != null) {
+      genUiLogger.finest(
+        'Tool declarations being sent to the model: '
+        '${jsonEncode(generativeAiTools)}',
+      );
+    }
 
     final allowedFunctionNames = <String>{
       ...uniqueAiToolsByName.keys,
@@ -387,7 +397,17 @@ With functions:
   ''',
       );
       final inferenceStartTime = DateTime.now();
-      final response = await model.generateContent(mutableContent);
+      GenerateContentResponse response;
+      try {
+        response = await model.generateContent(mutableContent);
+        genUiLogger.finest(
+          'Raw model response: ${_responseToString(response)}',
+        );
+      } catch (e, st) {
+        genUiLogger.severe('Error from model.generateContent', e, st);
+        _errorController.add(ContentGeneratorError(e, st));
+        rethrow;
+      }
       final elapsed = DateTime.now().difference(inferenceStartTime);
 
       if (response.usageMetadata != null) {
@@ -466,6 +486,20 @@ With functions:
           'parts to conversation.',
         );
       }
+
+      // If the model returned a text response, we assume it's the final
+      // response and we should stop the tool calling loop.
+      if (!isForcedToolCalling &&
+          candidate.text != null &&
+          candidate.text!.trim().isNotEmpty) {
+        genUiLogger.fine(
+          'Model returned a text response of "${candidate.text!.trim()}". '
+          'Exiting tool loop.',
+        );
+        _textResponseController.add(candidate.text!);
+        _addMessage(AiTextMessage([TextPart(candidate.text!)]));
+        return candidate.text;
+      }
     }
 
     if (isForcedToolCalling) {
@@ -487,4 +521,84 @@ With functions:
       return '';
     }
   }
+}
+
+String _usageMetadata(UsageMetadata? metadata) {
+  if (metadata == null) return '';
+  final buffer = StringBuffer();
+  buffer.writeln('UsageMetadata(');
+  buffer.writeln('  promptTokenCount: ${metadata.promptTokenCount},');
+  buffer.writeln('  candidatesTokenCount: ${metadata.candidatesTokenCount},');
+  buffer.writeln('  totalTokenCount: ${metadata.totalTokenCount},');
+  buffer.writeln('  thoughtsTokenCount: ${metadata.thoughtsTokenCount},');
+  buffer.writeln(
+    '  toolUsePromptTokenCount: ${metadata.toolUsePromptTokenCount},',
+  );
+  buffer.writeln('  promptTokensDetails: [');
+  for (final detail in metadata.promptTokensDetails ?? <ModalityTokenCount>[]) {
+    buffer.writeln('    ModalityTokenCount(');
+    buffer.writeln('      modality: ${detail.modality},');
+    buffer.writeln('      tokenCount: ${detail.tokenCount},');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
+  buffer.writeln('  candidatesTokensDetails: [');
+  for (final detail
+      in metadata.candidatesTokensDetails ?? <ModalityTokenCount>[]) {
+    buffer.writeln('    ModalityTokenCount(');
+    buffer.writeln('      ${detail.modality},');
+    buffer.writeln('      ${detail.tokenCount},');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
+  buffer.writeln('  toolUsePromptTokensDetails: [');
+  for (final detail
+      in metadata.toolUsePromptTokensDetails ?? <ModalityTokenCount>[]) {
+    buffer.writeln('    ModalityTokenCount(');
+    buffer.writeln('      ${detail.modality},');
+    buffer.writeln('      ${detail.tokenCount},');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
+  buffer.writeln(')');
+  return buffer.toString();
+}
+
+String _responseToString(GenerateContentResponse response) {
+  final buffer = StringBuffer();
+  buffer.writeln('GenerateContentResponse(');
+  buffer.writeln('  usageMetadata: ${_usageMetadata(response.usageMetadata)},');
+  buffer.writeln('  promptFeedback: ${response.promptFeedback},');
+  buffer.writeln('  candidates: [');
+  for (final candidate in response.candidates) {
+    buffer.writeln('    Candidate(');
+    buffer.writeln('      finishReason: ${candidate.finishReason},');
+    buffer.writeln('      finishMessage: "${candidate.finishMessage}",');
+    buffer.writeln('      content: Content(');
+    buffer.writeln('        role: "${candidate.content.role}",');
+    buffer.writeln('        parts: [');
+    for (final part in candidate.content.parts) {
+      if (part is TextPart) {
+        buffer.writeln(
+          '          TextPart(text: "${(part as TextPart).text}"),',
+        );
+      } else if (part is FunctionCall) {
+        buffer.writeln('          FunctionCall(');
+        buffer.writeln('            name: "${part.name}",');
+        buffer.writeln(
+          '            args: '
+          '${const JsonEncoder.withIndent('  ').convert(part.args)},',
+        );
+        buffer.writeln('          ),');
+      } else {
+        buffer.writeln('          Unknown Part: ${part.runtimeType},');
+      }
+    }
+    buffer.writeln('        ],');
+    buffer.writeln('      ),');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
+  buffer.writeln(')');
+  return buffer.toString();
 }

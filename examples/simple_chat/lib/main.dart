@@ -67,6 +67,13 @@ class _ChatScreenState extends State<ChatScreen> {
       contentGenerator: contentGenerator,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,
+      onError: (error) {
+        genUiLogger.severe(
+          'Error from content generator',
+          error.error,
+          error.stackTrace,
+        );
+      },
     );
   }
 

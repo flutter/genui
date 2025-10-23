@@ -28,14 +28,16 @@ final _schema = S.object(
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
     'children': A2uiSchemas.componentArrayReference(
-      description: 'A list of widget IDs for the children.',
+      description:
+          'Either an explicit list of widget IDs for the children, or a '
+          'template with a data binding to the list of children.',
     ),
   },
 );
 
 extension type _ColumnData.fromMap(JsonMap _json) {
   factory _ColumnData({
-    JsonMap? children,
+    required JsonMap children,
     String? distribution,
     String? alignment,
   }) => _ColumnData.fromMap({
@@ -44,7 +46,7 @@ extension type _ColumnData.fromMap(JsonMap _json) {
     'alignment': alignment,
   });
 
-  JsonMap? get children => _json['children'] as JsonMap?;
+  JsonMap get children => _json['children'] as JsonMap;
   String? get distribution => _json['distribution'] as String?;
   String? get alignment => _json['alignment'] as String?;
 }
@@ -97,8 +99,9 @@ final column = CatalogItem(
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         final children = columnData.children;
-        final explicitList = (children?['explicitList'] as List?)
-            ?.cast<String>();
+        final explicitList = (children is List)
+            ? (children as List).cast<String>()
+            : (children['explicitList'] as List?)?.cast<String>();
         if (explicitList != null) {
           return Column(
             mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),

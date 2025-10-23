@@ -11,7 +11,11 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'children': A2uiSchemas.componentArrayReference(),
+    'children': A2uiSchemas.componentArrayReference(
+      description:
+          'Either an explicit list of widget IDs for the children, or a '
+          'template with a data binding to the list of children.',
+    ),
     'distribution': S.string(
       enumValues: [
         'start',
@@ -95,14 +99,15 @@ final row = CatalogItem(
       }) {
         final rowData = _RowData.fromMap(data as JsonMap);
         final children = rowData.children;
-        final explicitList = (children['explicitList'] as List?)
-            ?.cast<String>();
+        final explicitList = (children is List)
+            ? (children as List).cast<String>()
+            : (children['explicitList'] as List?)?.cast<String>();
         if (explicitList != null) {
           return Row(
             mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
             crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
             children: explicitList
-                .map((id) => buildChild(id, dataContext))
+                .map((id) => Expanded(child: buildChild(id, dataContext)))
                 .toList(),
           );
         }

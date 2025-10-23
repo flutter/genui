@@ -23,7 +23,7 @@ final _schema = S.object(
 
 extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
-    required JsonMap text,
+    JsonMap? text,
     JsonMap? label,
     String? textFieldType,
     String? validationRegexp,
@@ -36,7 +36,7 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
     'onSubmittedAction': onSubmittedAction,
   });
 
-  JsonMap get text => _json['text'] as JsonMap;
+  JsonMap? get text => _json['text'] as JsonMap?;
   JsonMap? get label => _json['label'] as JsonMap?;
   String? get textFieldType => _json['textFieldType'] as String?;
   String? get validationRegexp => _json['validationRegexp'] as String?;
@@ -156,7 +156,7 @@ final textField = CatalogItem(
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         final valueRef = textFieldData.text;
-        final path = valueRef['path'] as String?;
+        final path = valueRef?['path'] as String?;
         final notifier = dataContext.subscribeToString(valueRef);
         final labelNotifier = dataContext.subscribeToString(
           textFieldData.label,
