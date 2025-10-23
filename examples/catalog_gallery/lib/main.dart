@@ -19,6 +19,21 @@ class CatalogGalleryApp extends StatefulWidget {
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ),
+      home: _CatalogGalleryHome(),
+    );
+  }
+}
+
+class _CatalogGalleryHome extends StatelessWidget {
+  _CatalogGalleryHome();
+
   final catalog = CoreCatalogItems.asCatalog().copyWithout([
     // Excluded, because they are flexible:
     CoreCatalogItems.tabs,
@@ -31,28 +46,27 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Catalog items that has "exampleData" field set'),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Catalog items that has "exampleData" field set'),
-        ),
-        body: DebugCatalogView(
-          catalog: catalog,
-          onSubmit: (message) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'User action: '
-                  '${jsonEncode(message.parts.last)}',
-                ),
+      body: DebugCatalogView(
+        catalog: catalog,
+        onSubmit: (message) {
+          final messageText = message.parts
+              .whereType<TextPart>()
+              .map((p) => p.text)
+              .lastOrNull;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'User action: '
+                    '${jsonEncode(messageText)}',
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
