@@ -20,7 +20,7 @@ void main() {
     }
 
     // To update the saved responses, run the app, select "Request Gemini",
-    // and copy the console output of the "Response body" to the
+    // and copy the console output of the "full-response" to the
     // corresponding `saved-response-X.json` file in `assets/data/`.
     test(
       'sendRequest works for $savedResponse',
