@@ -30,12 +30,12 @@ Ensure one of the generated components has an id of 'root'.
 ''';
 }
 
-FunctionDeclaration catalogToFunctionDeclaration(
+GenUiFunctionDeclaration catalogToFunctionDeclaration(
   Catalog catalog,
   String toolName,
   String toolDescription,
 ) {
-  return FunctionDeclaration(
+  return GenUiFunctionDeclaration(
     description: toolDescription,
     name: toolName,
     parameters: A2uiSchemas.surfaceUpdateSchema(catalog),

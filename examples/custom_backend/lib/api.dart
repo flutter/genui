@@ -20,7 +20,7 @@ import 'debug_utils.dart';
 
 abstract class Backend {
   static Future<ToolCall?> sendRequest({
-    required List<FunctionDeclaration> tools,
+    required List<GenUiFunctionDeclaration> tools,
     required String request,
     required String? savedResponse,
   }) async {
@@ -47,7 +47,7 @@ abstract class Backend {
       await rootBundle.loadString(savedResponse);
 
   static Future<String?> _getRawResponseFromApi(
-    List<FunctionDeclaration> tools,
+    List<GenUiFunctionDeclaration> tools,
     String request,
   ) async {
     debugSaveToFileObject('tools', tools);

@@ -38,19 +38,19 @@ class ToolCall extends Part {
 }
 
 /// Declaration to be provided to the LLM about a function/tool.
-class FunctionDeclaration {
+class GenUiFunctionDeclaration {
   final String description;
   final String name;
   final dynamic parameters;
 
-  FunctionDeclaration({
+  GenUiFunctionDeclaration({
     required this.description,
     required this.name,
     this.parameters,
   });
 
-  factory FunctionDeclaration.fromJson(Map<String, dynamic> json) =>
-      FunctionDeclaration(
+  factory GenUiFunctionDeclaration.fromJson(Map<String, dynamic> json) =>
+      GenUiFunctionDeclaration(
         description: json['description'] as String,
         name: json['name'] as String,
         parameters: json['parameters'],
