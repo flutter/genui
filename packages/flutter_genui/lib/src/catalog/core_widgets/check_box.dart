@@ -27,6 +27,14 @@ extension type _CheckBoxData.fromMap(JsonMap _json) {
   JsonMap get value => _json['value'] as JsonMap;
 }
 
+/// A catalog item for a Material Design checkbox.
+///
+/// This widget displays a checkbox with a label.
+///
+/// ### Parameters:
+///
+/// - `label`: The text to display next to the checkbox.
+/// - `value`: The boolean value of the checkbox.
 final checkBox = CatalogItem(
   name: 'CheckBox',
   dataSchema: _schema,

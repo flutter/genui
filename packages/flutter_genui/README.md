@@ -11,7 +11,7 @@ This package provides the core functionality for GenUI. For a concrete implement
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
 - **Simplified Conversation Flow**: A high-level `GenUiConversation` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
-- **Extensible AI Client**: Abstract interface for connecting to different AI model backends.
+- **Extensible Content Generator**: Abstract interface for connecting to different AI model backends.
 - **Event Handling**: Capture user interactions (button clicks, text input), update a client-side data model, and send the state back to the AI as context for the next turn in the conversation.
 - **Reactive UI**: Widgets automatically rebuild when the data they are bound to changes in the data model.
 
@@ -19,13 +19,13 @@ This package provides the core functionality for GenUI. For a concrete implement
 
 The package is built around four main components:
 
-1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
+1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
 
 2.  **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
 3.  **`DataModel`**: A centralized, observable store for all dynamic UI state. Widgets are "bound" to data in this model. When data changes, only the widgets that depend on that specific piece of data are rebuilt.
 
-4.  **`AiClient`**: An interface for communicating with a generative AI model. For a concrete implementation, see `FirebaseAiClient` in the `flutter_genui_firebase_ai` package.
+4.  **`ContentGenerator`**: An interface for communicating with a generative AI model. For a concrete implementation, see the `flutter_genui_firebase_ai` package.
 
 ## Getting Started
 
@@ -58,13 +58,13 @@ class _MyAppState extends State<MyApp> {
 
     // 1. Create a GenUiConversation with a system instruction
     final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
-    final aiClient = FirebaseAiClient(
+    final contentGenerator = FirebaseAiClient(
       systemInstruction: 'You are a helpful AI assistant that builds UIs.',
       tools: genUiManager.getTools(),
     );
     _genUiConversation = GenUiConversation(
       genUiManager: genUiManager,
-      aiClient: aiClient,
+      contentGenerator: contentGenerator,
       onSurfaceAdded: _onSurfaceAdded,
     );
   }
@@ -119,7 +119,7 @@ class _MyAppState extends State<MyApp> {
 The `GenUiConversation` manages the interaction cycle:
 
 1. **User Input**: The user provides a prompt (e.g., through a text field). The app calls `genUiConversation.sendRequest()`.
-2. **AI Invocation**: The `GenUiConversation` adds the user's message to its internal conversation history and sends it to the `AiClient`.
+2. **AI Invocation**: The `GenUiConversation` adds the user's message to its internal conversation history and sends it to the `ContentGenerator`.
 3. **AI Response**: The AI model processes the conversation and, guided by the schemas of the widgets in your `Catalog`, returns a structured response with instructions to `add`, `update`, or `delete` UI elements by calling the appropriate tools.
 4. **UI State Update**: The `GenUiConversation` executes these tool calls, which updates the internal `GenUiManager` and its `DataModel`.
 5. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild to display the new UI. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
@@ -134,14 +134,14 @@ graph TD
 
     subgraph "GenUI Framework"
         GenUiConversation("GenUiConversation")
-        AiClient("AiClient")
+        ContentGenerator("ContentGenerator")
         GenUiManager("GenUiManager")
         GenUiSurface("GenUiSurface")
     end
 
     UserInput -- "calls sendRequest()" --> GenUiConversation;
-    GenUiConversation -- "manages conversation and sends prompt" --> AiClient;
-    AiClient -- "returns tool calls" --> GenUiConversation;
+    GenUiConversation -- "manages conversation and sends prompt" --> ContentGenerator;
+    ContentGenerator -- "returns tool calls" --> GenUiConversation;
     GenUiConversation -- "executes tools" --> GenUiManager;
     GenUiManager -- "notifies of updates" --> GenUiSurface;
     GenUiSurface -- "renders UI" --> UserInteraction;

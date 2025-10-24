@@ -17,6 +17,11 @@ extension type _TextData.fromMap(JsonMap _json) {
   JsonMap get text => _json['text'] as JsonMap;
 }
 
+/// A catalog item for a string of text.
+///
+/// ### Parameters:
+///
+/// - `text`: The text to display. This does *not* support markdown.
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(

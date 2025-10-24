@@ -50,7 +50,10 @@ class GenUiConversation {
     _errorSubscription = contentGenerator.errorStream.listen(onError);
   }
 
+  /// The [ContentGenerator] for the conversation.
   final ContentGenerator contentGenerator;
+
+  /// The manager for the UI surfaces in the conversation.
   final GenUiManager genUiManager;
 
   /// A callback for when a new surface is added by the AI.

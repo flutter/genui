@@ -36,6 +36,13 @@ extension type _SliderData.fromMap(JsonMap _json) {
   double get maxValue => (_json['maxValue'] as num?)?.toDouble() ?? 1.0;
 }
 
+/// A catalog item for a Material Design slider.
+///
+/// ### Parameters:
+///
+/// - `value`: The current value of the slider.
+/// - `minValue`: The minimum value of the slider. Defaults to 0.0.
+/// - `maxValue`: The maximum value of the slider. Defaults to 1.0.
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,

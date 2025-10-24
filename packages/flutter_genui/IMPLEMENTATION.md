@@ -21,8 +21,8 @@ graph TD
 
     subgraph "flutter_genui Package"
         GenUiConversation["GenUiConversation (Facade)"]
+        ContentGenerator["ContentGenerator<br>(e.g., a Gemini client)"]
         GenUiManager["GenUiManager<br>(Manages Surfaces, Tools, State)"]
-        AiClient["AiClient<br>(e.g., a Gemini client)"]
         Catalog["Widget Catalog"]
         DataModel["DataModel"]
     end
@@ -33,16 +33,16 @@ graph TD
 
     AppLogic -- "Initializes and Uses" --> GenUiConversation
     GenUiConversation -- "Encapsulates" --> GenUiManager
-    GenUiConversation -- "Encapsulates" --> AiClient
+    GenUiConversation -- "Encapsulates" --> ContentGenerator
 
     GenUiManager -- "Owns" --> DataModel
 
     AppLogic -- "Sends User Input" --> GenUiConversation
-    GenUiConversation -- "Manages Conversation &<br>Calls generateContent()" --> AiClient
-    AiClient -- "Sends prompt +<br>tool schemas" --> LLM
-    LLM -- "Returns tool call" --> AiClient
+    GenUiConversation -- "Manages Conversation &<br>Calls sendRequest()" --> ContentGenerator
+    ContentGenerator -- "Sends prompt +<br>tool schemas" --> LLM
+    LLM -- "Returns tool call" --> ContentGenerator
 
-    AiClient -- "Executes tool" --> GenUiManager
+    ContentGenerator -- "Executes tool" --> GenUiManager
 
     GenUiManager -- "Notifies of updates" --> UIWidgets
     UIWidgets -- "Builds widgets using" --> Catalog
@@ -52,22 +52,20 @@ graph TD
     GenUiManager -- "Puts user input on stream" --> GenUiConversation
 ```
 
-### 1. AI Client Layer (`lib/src/ai_client/`)
+### 1. Content Generator Layer (`lib/src/content_generator.dart`)
 
 This layer is responsible for all communication with the generative AI model.
 
-- **`AiClient`**: An abstract interface defining the contract for a client that interacts with an AI model. This allows for different LLM backends to be implemented.
-- **Example Implementations**: The `flutter_genui_firebase_ai` package provides a concrete implementation that uses Google's Gemini models via Firebase. It handles the complexities of interacting with the Gemini API, including model configuration, retry logic, and tool management. It supports two main generation modes:
-  - `generateContent`: For generating structured data that conforms to a specific schema. This is used for UI generation, where the AI is forced to call a specific tool that returns the UI definition.
-  - `generateText`: For generating free-form text responses.
+- **`ContentGenerator`**: An abstract interface defining the contract for a client that interacts with an AI model. This allows for different LLM backends to be implemented.
+- **Example Implementations**: The `flutter_genui_firebase_ai` package provides a concrete implementation that uses Google's Gemini models via Firebase. It handles the complexities of interacting with the Gemini API, including model configuration, retry logic, and tool management.
 - **`AiTool`**: An abstract class for defining tools that the AI can invoke. These tools are the bridge between the AI and the application's capabilities. The `DynamicAiTool` provides a convenient way to create tools from simple functions.
 
 ### 2. UI State Management Layer (`lib/src/core/`)
 
 This is the central nervous system of the package, orchestrating the state of all generated UI surfaces.
 
-- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). It provides the tools (`addOrUpdateSurface`, `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiHost` for the `GenUiSurface` widget.
-- **`ui_tools.dart`**: Contains the `AddOrUpdateSurfaceTool` and `DeleteSurfaceTool` classes that wrap the `GenUiManager`'s methods, making them available to the AI.
+- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). It provides the tools (`surfaceUpdate`, `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiHost` for the `GenUiSurface` widget.
+- **`ui_tools.dart`**: Contains the `SurfaceUpdateTool` and `DeleteSurfaceTool` classes that wrap the `GenUiManager`'s methods, making them available to the AI.
 
 ### 3. UI Model Layer (`lib/src/model/`)
 
@@ -82,14 +80,14 @@ This layer defines the data structures that represent the dynamic UI and the con
 
 This layer provides a set of core, general-purpose UI widgets that can be used out-of-the-box.
 
-- **`core_catalog.dart`**: Defines the `coreCatalog`, which includes fundamental widgets like `Column`, `Text`, `ElevatedButton`, `TextField`, `CheckboxGroup`, `RadioGroup`, and `Image`.
+- **`core_catalog.dart`**: Defines the `CoreCatalogItems`, which includes fundamental widgets like `Column`, `Text`, `Button`, `TextField`, `CheckBox`, and `Image`.
 - **Widget Implementation**: Each core widget follows the standard `CatalogItem` pattern: a schema definition, a type-safe data accessor using an `extension type`, the `CatalogItem` instance, and the Flutter widget implementation.
 
-### 5. UI Facade Layer (`lib/src/facade/`)
+### 5. UI Facade Layer (`lib/src/conversation/`)
 
 This layer provides high-level widgets and controllers for easily building a generative UI application.
 
-- **`GenUiConversation`**: The primary entry point for the package. This facade class encapsulates the `GenUiManager` and `AiClient`, managing the conversation loop and orchestrating the entire generative UI process. The developer interacts with the `GenUiConversation` to send user messages and receive UI updates.
+- **`GenUiConversation`**: The primary entry point for the package. This facade class encapsulates the `GenUiManager` and `ContentGenerator`, managing the conversation loop and orchestrating the entire generative UI process. The developer interacts with the `GenUiConversation` to send user messages and receive UI updates.
 - **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiHost` (typically the `GenUiManager`) for a specific `surfaceId` and rebuilds itself when the definition changes.
 
 ## How It Works: The Generative UI Cycle
@@ -101,26 +99,26 @@ sequenceDiagram
     participant User
     participant AppLogic as "App Logic (Developer's Code)"
     participant GenUiConversation
-    participant AiClient
+    participant ContentGenerator
     participant LLM
     participant GenUiManager
     participant GenUiSurface as "GenUiSurface"
 
-    AppLogic->>+GenUiConversation: Creates GenUiConversation(genUiManager, aiClient)
+    AppLogic->>+GenUiConversation: Creates GenUiConversation(genUiManager, contentGenerator)
     AppLogic->>+GenUiConversation: (Optional) sendRequest(instructionMessage)
 
     User->>+AppLogic: Provides input (e.g., text prompt)
     AppLogic->>+GenUiConversation: Calls sendRequest(userMessage)
     GenUiConversation->>GenUiConversation: Manages conversation history
-    GenUiConversation->>+AiClient: Calls generateContent(conversation, uiTools)
-    AiClient->>+LLM: Sends prompt and tool schemas
-    LLM-->>-AiClient: Responds with tool call (e.g., addOrUpdateSurface)
+    GenUiConversation->>+ContentGenerator: Calls sendRequest(conversation, uiTools)
+    ContentGenerator->>+LLM: Sends prompt and tool schemas
+    LLM-->>-ContentGenerator: Responds with tool call (e.g., surfaceUpdate)
 
-    Note right of AiClient: The AiClient internally executes the tool...
-    AiClient->>+GenUiManager: ...which calls addOrUpdateSurface()
+    Note right of ContentGenerator: The ContentGenerator internally executes the tool...
+    ContentGenerator->>+GenUiManager: ...which calls handleMessage()
     GenUiManager->>GenUiManager: Updates state and broadcasts GenUiUpdate
-    GenUiManager-->>-AiClient: Tool returns result
-    AiClient-->>-GenUiConversation: generateContent() completes
+    GenUiManager-->>-ContentGenerator: Tool returns result
+    ContentGenerator-->>-GenUiConversation: sendRequest() completes
 
     %% The UI updates asynchronously based on the stream
     GenUiManager->>GenUiSurface: Notifies of the update via a Stream
@@ -138,13 +136,13 @@ sequenceDiagram
     Note over GenUiConversation, LLM: The cycle repeats...
 ```
 
-1. **Initialization**: The developer creates a `GenUiConversation`, providing it with a `GenUiManager` and an `AiClient`. The developer may also provide a system instruction to the `GenUiConversation` by sending an an initial `UserMessage`.
+1. **Initialization**: The developer creates a `GenUiConversation`, providing it with a `GenUiManager` and a `ContentGenerator`. The developer may also provide a system instruction to the `GenUiConversation` by sending an an initial `UserMessage`.
 2. **User Input**: The user enters a prompt.
 3. **Send Request**: The developer calls `genUiConversation.sendRequest(UserMessage.text(prompt))`.
 4. **Conversation Management**: The `GenUiConversation` adds the `UserMessage` to its internal conversation history.
-5. **AI Invocation**: The `GenUiConversation` calls `aiClient.generateContent()`, passing in the conversation history and the UI tools from the `GenUiManager`.
-6. **Model Processing & Tool Call**: The LLM processes the conversation and returns a response indicating it wants to call a UI tool (e.g., `addOrUpdateSurface`).
-7. **Tool Execution & State Update**: The `AiClient` receives the response, finds the corresponding `AiTool` object, and executes its `invoke` method. This calls the target function on the `GenUiManager` (e.g., `addOrUpdateSurface`).
+5. **AI Invocation**: The `GenUiConversation` calls `contentGenerator.sendRequest()`, passing in the conversation history and the UI tools from the `GenUiManager`.
+6. **Model Processing & Tool Call**: The LLM processes the conversation and returns a response indicating it wants to call a UI tool (e.g., `surfaceUpdate`).
+7. **Tool Execution & State Update**: The `ContentGenerator` receives the response, finds the corresponding `AiTool` object, and executes its `invoke` method. This calls the target function on the `GenUiManager` (e.g., `handleMessage`).
 8. **Notification**: The `GenUiManager` updates its internal state (the `UiDefinition` for the surface) and broadcasts a `GenUiUpdate` event on its `surfaceUpdates` stream.
 9. **UI Rendering**: A `GenUiSurface` widget listening to the `GenUiManager` (via the `GenUiHost` interface) receives the update and rebuilds, rendering the new UI based on the updated `UiDefinition`.
 10. **User Interaction**: The user interacts with the newly generated UI (e.g., clicks a submit button).

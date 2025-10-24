@@ -4,9 +4,12 @@
 
 import 'package:flutter/material.dart';
 
+/// A widget to display an internal message in the chat.
 class InternalMessageWidget extends StatelessWidget {
+  /// Creates a new [InternalMessageWidget].
   const InternalMessageWidget({super.key, required this.content});
 
+  /// The content of the message.
   final String content;
 
   @override
@@ -23,7 +26,9 @@ class InternalMessageWidget extends StatelessWidget {
   }
 }
 
+/// A widget to display a chat message.
 class ChatMessageWidget extends StatelessWidget {
+  /// Creates a new [ChatMessageWidget].
   const ChatMessageWidget({
     super.key,
     required this.text,
@@ -31,8 +36,13 @@ class ChatMessageWidget extends StatelessWidget {
     required this.alignment,
   });
 
+  /// The text of the message.
   final String text;
+
+  /// The icon to display next to the message.
   final IconData icon;
+
+  /// The alignment of the message.
   final MainAxisAlignment alignment;
 
   @override

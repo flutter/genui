@@ -87,6 +87,17 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
+/// A catalog item for a widget that displays its children in a vertical array.
+///
+/// ### Parameters:
+///
+/// - `distribution`: How the children should be placed along the main axis.
+///   Can be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
+///   `spaceEvenly`. Defaults to `start`.
+/// - `alignment`: How the children should be placed along the cross axis.
+///   Can be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
+///   `start`.
+/// - `children`: A list of child widget IDs to display in the column.
 final column = CatalogItem(
   name: 'Column',
   dataSchema: _schema,

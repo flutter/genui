@@ -110,6 +110,17 @@ class _TextFieldState extends State<_TextField> {
   }
 }
 
+/// A catalog item for a Material Design text field.
+///
+/// ### Parameters:
+///
+/// - `text`: The initial value of the text field.
+/// - `label`: The text to display as the label for the text field.
+/// - `textFieldType`: The type of text field. Can be `shortText`, `longText`,
+///   `number`, `date`, or `obscured`.
+/// - `validationRegexp`: A regular expression to validate the input.
+/// - `onSubmittedAction`: The action to perform when the user submits the
+///   text field.
 final textField = CatalogItem(
   name: 'TextField',
   dataSchema: _schema,

@@ -28,7 +28,7 @@ final class ContentGeneratorError {
 abstract interface class ContentGenerator {
   /// A stream of A2UI messages produced by the generator.
   ///
-  /// The `UiAgent` will listen to this stream and forward messages
+  /// The `GenUiConversation` will listen to this stream and forward messages
   /// to the `GenUiManager`.
   Stream<A2uiMessage> get a2uiMessageStream;
 

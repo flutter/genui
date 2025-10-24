@@ -36,6 +36,15 @@ extension type _ListData.fromMap(JsonMap _json) {
   String? get alignment => _json['alignment'] as String?;
 }
 
+/// A catalog item for a list of widgets.
+///
+/// ### Parameters:
+///
+/// - `children`: A list of child widget IDs to display in the list.
+/// - `direction`: The direction of the list. Can be `vertical` or
+///   `horizontal`. Defaults to `vertical`.
+/// - `alignment`: How the children should be placed along the cross axis.
+///   Can be `start`, `center`, `end`, or `stretch`. Defaults to `start`.
 final list = CatalogItem(
   name: 'List',
   dataSchema: _schema,

@@ -34,6 +34,14 @@ extension type _ButtonData.fromMap(JsonMap _json) {
   JsonMap get action => _json['action'] as JsonMap;
 }
 
+/// A catalog item for a Material Design elevated button.
+///
+/// This widget displays a button that can be pressed to trigger an action.
+///
+/// ### Parameters:
+///
+/// - `child`: The ID of a child widget to display inside the button.
+/// - `action`: The action to perform when the button is pressed.
 final button = CatalogItem(
   name: 'Button',
   dataSchema: _schema,

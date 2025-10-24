@@ -44,6 +44,17 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
   int? get maxAllowedSelections => _json['maxAllowedSelections'] as int?;
 }
 
+/// A catalog item for a multiple choice widget.
+///
+/// This widget displays a list of options that the user can select from.
+///
+/// ### Parameters:
+///
+/// - `selections`: A list of the values of the selected options.
+/// - `options`: A list of options to display, each with a `label` and a
+///   `value`.
+/// - `maxAllowedSelections`: The maximum number of options that can be
+///   selected.
 final multipleChoice = CatalogItem(
   name: 'MultipleChoice',
   dataSchema: _schema,

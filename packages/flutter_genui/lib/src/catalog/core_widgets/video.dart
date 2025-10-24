@@ -17,6 +17,11 @@ final _schema = S.object(
   required: ['url'],
 );
 
+/// A catalog item for a video player.
+///
+/// ### Parameters:
+///
+/// - `url`: The URL of the video to play.
 final video = CatalogItem(
   name: 'Video',
   dataSchema: _schema,

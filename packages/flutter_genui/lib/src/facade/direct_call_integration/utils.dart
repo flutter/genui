@@ -30,6 +30,7 @@ Ensure one of the generated components has an id of 'root'.
 ''';
 }
 
+/// Converts a [Catalog] to a [GenUiFunctionDeclaration].
 GenUiFunctionDeclaration catalogToFunctionDeclaration(
   Catalog catalog,
   String toolName,
@@ -42,6 +43,7 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
   );
 }
 
+/// Parses a [ToolCall] into a [ParsedToolCall].
 Future<ParsedToolCall> parseToolCall(ToolCall toolCall, String toolName) async {
   assert(toolCall.name == toolName);
 
@@ -61,6 +63,7 @@ Future<ParsedToolCall> parseToolCall(ToolCall toolCall, String toolName) async {
   );
 }
 
+/// Converts a catalog example to a [ToolCall].
 ToolCall catalogExampleToToolCall(
   JsonMap example,
   String toolName,
