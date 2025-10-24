@@ -8,13 +8,41 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
+import 'package:flutter_genui_dartantic/flutter_genui_dartantic.dart';
 import 'package:simple_chat/message.dart';
-import 'firebase_options.dart';
+import 'firebase_options_stub.dart';
 import 'package:logging/logging.dart';
+
+/// Configuration for which AI client to use
+enum AiClientType {
+  firebase,
+  dartantic,
+}
+
+/// Global configuration - change this to switch between AI clients
+/// 
+/// To use Firebase AI: set to AiClientType.firebase
+/// To use Dartantic AI: set to AiClientType.dartantic
+/// 
+/// For Dartantic AI, you'll need to set up API keys via environment variables:
+/// - OpenAI: OPENAI_API_KEY
+/// - Google: GOOGLE_API_KEY  
+/// - Anthropic: ANTHROPIC_API_KEY
+const AiClientType _aiClientType = AiClientType.dartantic;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Only initialize Firebase if using Firebase AI client
+  if (_aiClientType == AiClientType.firebase) {
+    try {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    } catch (e) {
+      print('Warning: Firebase initialization failed: $e');
+      print('Please configure Firebase or switch to Dartantic AI client.');
+    }
+  }
+  
   configureGenUiLogging(level: Level.ALL);
 
   runApp(const MyApp());
@@ -25,8 +53,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final title = _aiClientType == AiClientType.dartantic 
+        ? 'Simple Chat (Dartantic AI)' 
+        : 'Simple Chat (Firebase AI)';
+    
     return MaterialApp(
-      title: 'Simple Chat',
+      title: title,
       theme: ThemeData(primarySwatch: Colors.blue),
       home: const ChatScreen(),
     );
@@ -52,16 +84,9 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     final catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
-    final aiClient = FirebaseAiClient(
-      systemInstruction:
-          'You are a helpful assistant who chats with a user, '
-          'giving exactly one response for each user message. '
-          'Your responses should contain acknowledgment '
-          'of the user message.'
-          '\n\n'
-          '${GenUiPromptFragments.basicChat}',
-      tools: _genUiManager.getTools(),
-    );
+    
+    final aiClient = _createAiClient();
+    
     _genUiConversation = GenUiConversation(
       genUiManager: _genUiManager,
       aiClient: aiClient,
@@ -70,6 +95,33 @@ class _ChatScreenState extends State<ChatScreen> {
       // ignore: avoid_print
       onWarning: (value) => print('Warning from GenUiConversation: $value'),
     );
+  }
+
+  /// Creates the appropriate AI client based on the global configuration
+  AiClient _createAiClient() {
+    final systemInstruction = 'You are a helpful assistant who chats with a user, '
+        'giving exactly one response for each user message. '
+        'Your responses should contain acknowledgment '
+        'of the user message.'
+        '\n\n'
+        '${GenUiPromptFragments.basicChat}';
+    
+    final tools = _genUiManager.getTools();
+    
+    switch (_aiClientType) {
+      case AiClientType.firebase:
+        return FirebaseAiClient(
+          systemInstruction: systemInstruction,
+          tools: tools,
+        );
+      case AiClientType.dartantic:
+        return DartanticAiClient(
+          provider: 'openai', // Options: 'openai', 'google', 'anthropic'
+          model: 'gpt-4o', // Options: 'gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', etc.
+          systemInstruction: systemInstruction,
+          tools: tools,
+        );
+    }
   }
 
   void _handleSurfaceAdded(SurfaceAdded surface) {
@@ -90,8 +142,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appBarTitle = _aiClientType == AiClientType.dartantic 
+        ? 'Chat with Dartantic AI' 
+        : 'Chat with Firebase AI';
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat with Firebase AI')),
+      appBar: AppBar(title: Text(appBarTitle)),
       body: SafeArea(
         child: Column(
           children: [
