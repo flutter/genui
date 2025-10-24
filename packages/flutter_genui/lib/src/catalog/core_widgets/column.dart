@@ -9,8 +9,8 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
-import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
@@ -111,61 +111,39 @@ final column = CatalogItem(
         required dataContext,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
-        final children = columnData.children;
-        // Accept either a List of string IDs or the correct output, which is an
-        // object with "explicitList" as the list property to use. This is
-        // because the AIs seem to often get confused and generate just a list
-        // of IDs.
-        final explicitList = (children is List)
-            ? children.cast<String>()
-            : ((children as JsonMap?)?['explicitList'] as List?)
-                  ?.cast<String>();
-
-        if (explicitList != null) {
-          return Column(
-            mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
-            crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),
-            children: explicitList
-                .map((id) => buildChild(id, dataContext))
-                .toList(),
-          );
-        }
-
-        if (children is JsonMap) {
-          final template = children['template'] as JsonMap?;
-          if (template != null) {
-            final dataBinding = template['dataBinding'] as String;
-            final componentId = template['componentId'] as String;
-            final listNotifier = dataContext.subscribe<List<dynamic>>(
-              DataPath(dataBinding),
+        return ComponentChildrenBuilder(
+          childrenData: columnData.children,
+          dataContext: dataContext,
+          buildChild: buildChild,
+          explicitListBuilder: (children) {
+            return Column(
+              mainAxisAlignment: _parseMainAxisAlignment(
+                columnData.distribution,
+              ),
+              crossAxisAlignment: _parseCrossAxisAlignment(
+                columnData.alignment,
+              ),
+              children: children,
             );
-            return ValueListenableBuilder<List<dynamic>?>(
-              valueListenable: listNotifier,
-              builder: (context, list, child) {
-                genUiLogger.info('Column.builder: list=$list');
-                if (list == null) {
-                  return const SizedBox.shrink();
-                }
-                return Column(
-                  mainAxisAlignment: _parseMainAxisAlignment(
-                    columnData.distribution,
+          },
+          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
+            return Column(
+              mainAxisAlignment: _parseMainAxisAlignment(
+                columnData.distribution,
+              ),
+              crossAxisAlignment: _parseCrossAxisAlignment(
+                columnData.alignment,
+              ),
+              children: [
+                for (var i = 0; i < list.length; i++)
+                  buildChild(
+                    componentId,
+                    dataContext.nested(DataPath('$dataBinding[$i]')),
                   ),
-                  crossAxisAlignment: _parseCrossAxisAlignment(
-                    columnData.alignment,
-                  ),
-                  children: [
-                    for (var i = 0; i < list.length; i++)
-                      buildChild(
-                        componentId,
-                        dataContext.nested(DataPath('$dataBinding[$i]')),
-                      ),
-                  ],
-                );
-              },
+              ],
             );
-          }
-        }
-        return const SizedBox.shrink();
+          },
+        );
       },
   exampleData: [
     () => '''

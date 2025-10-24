@@ -27,7 +27,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                final widget = catalog.buildWidget(
+                return catalog.buildWidget(
                   id: 'col1',
                   widgetData: widgetData,
                   buildChild: (_, [_]) => const Text(''), // Mock child builder
@@ -35,14 +35,14 @@ void main() {
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),
                 );
-                expect(widget, isA<Column>());
-                expect((widget as Column).children.length, 1);
-                return widget;
               },
             ),
           ),
         ),
       );
+      expect(find.byType(Column), findsOneWidget);
+      final column = tester.widget<Column>(find.byType(Column));
+      expect(column.children.length, 1);
     });
 
     testWidgets('buildWidget returns empty container for unknown widget type', (
