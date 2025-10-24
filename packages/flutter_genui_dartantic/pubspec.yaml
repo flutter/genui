@@ -1,0 +1,31 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: flutter_genui_dartantic
+description: Integration package for flutter_genui and Dartantic AI.
+version: 0.1.0
+homepage: https://github.com/flutter/genui/packages/flutter_genui_dartantic
+license: BSD-3-Clause
+issue_tracker: https://github.com/flutter/genui/issues
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  dartantic_ai: ^1.1.0
+  dartantic_interface: ^1.1.0
+  json_schema: ^5.1.5
+  flutter:
+    sdk: flutter
+  flutter_genui:
+    path: ../flutter_genui
+  json_schema_builder: ^0.1.3
+  logging: ^1.3.0
+
+dev_dependencies:
+  dart_flutter_team_lints: ^3.5.2
+  flutter_test:
+    sdk: flutter
