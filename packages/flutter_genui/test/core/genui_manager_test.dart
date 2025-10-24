@@ -173,5 +173,123 @@ void main() {
       });
       expect(message.text, expectedJson);
     });
+
+    group('DataModelUpdate', () {
+      test('updates the entire data model when path is empty', () {
+        const surfaceId = 's1';
+        final dataModel = manager.dataModelForSurface(surfaceId);
+        expect(dataModel.data, {});
+
+        final newContents = {'a': 1, 'b': 'hello'};
+        manager.handleMessage(
+          DataModelUpdate(surfaceId: surfaceId, contents: newContents),
+        );
+
+        expect(dataModel.data, newContents);
+      });
+
+      test('updates a value at a specific path', () {
+        const surfaceId = 's1';
+        final dataModel = manager.dataModelForSurface(surfaceId);
+        dataModel.update('/', <String, Object>{
+          'a': {'b': 1},
+        });
+
+        manager.handleMessage(
+          const DataModelUpdate(
+            surfaceId: surfaceId,
+            path: '/a/b',
+            contents: 2,
+          ),
+        );
+
+        expect(dataModel.data, <String, dynamic>{
+          'a': {'b': 2},
+        });
+      });
+
+      test('creates nested maps when updating a non-existent path', () {
+        const surfaceId = 's1';
+        final dataModel = manager.dataModelForSurface(surfaceId);
+        expect(dataModel.data, {});
+
+        manager.handleMessage(
+          const DataModelUpdate(
+            surfaceId: surfaceId,
+            path: '/a/b/c',
+            contents: 'hello',
+          ),
+        );
+
+        expect(dataModel.data, <String, dynamic>{
+          'a': {
+            'b': {'c': 'hello'},
+          },
+        });
+      });
+
+      test(
+        'creates nested lists and maps when updating a non-existent path',
+        () {
+          const surfaceId = 's1';
+          final dataModel = manager.dataModelForSurface(surfaceId);
+          expect(dataModel.data, {});
+
+          manager.handleMessage(
+            const DataModelUpdate(
+              surfaceId: surfaceId,
+              path: '/a[0]/b',
+              contents: 'hello',
+            ),
+          );
+
+          expect(dataModel.data, <String, dynamic>{
+            'a': [
+              {'b': 'hello'},
+            ],
+          });
+        },
+      );
+
+      test(
+        'throws an error when path conflicts with existing structure (map)',
+        () {
+          const surfaceId = 's1';
+          final dataModel = manager.dataModelForSurface(surfaceId);
+          dataModel.update('/', {'a': 'not a map'});
+
+          expect(
+            () => manager.handleMessage(
+              const DataModelUpdate(
+                surfaceId: surfaceId,
+                path: '/a/b',
+                contents: 'hello',
+              ),
+            ),
+            throwsA(isA<ArgumentError>()),
+          );
+        },
+      );
+
+      test(
+        'throws an error when path conflicts with existing structure (list)',
+        () {
+          const surfaceId = 's1';
+          final dataModel = manager.dataModelForSurface(surfaceId);
+          dataModel.update('/', {'a': 'not a list'});
+
+          expect(
+            () => manager.handleMessage(
+              const DataModelUpdate(
+                surfaceId: surfaceId,
+                path: '/a/0',
+                contents: 'hello',
+              ),
+            ),
+            throwsA(isA<ArgumentError>()),
+          );
+        },
+      );
+    });
   });
 }

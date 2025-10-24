@@ -203,8 +203,8 @@ class GenUiManager implements GenUiHost {
           _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
         }
       case DataModelUpdate():
-        // TODO(a2ui-authors): Implement data model updates.
-        break;
+        final dataModel = dataModelForSurface(message.surfaceId);
+        dataModel.update(message.path, message.contents);
       case BeginRendering():
         final notifier = surface(message.surfaceId);
         final uiDefinition =
