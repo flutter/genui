@@ -181,7 +181,7 @@ To receive and display generated UI:
      // Send a message containing the user's text to the agent.
      void _sendMessage(String text) {
        if (text.trim().isEmpty) return;
-       genUiConversation.sendRequest(UserMessage.text(text));
+       _genUiConversation.sendRequest(UserMessage.text(text));
      }
 
      // A callback invoked by the [GenUiConversation] when a new UI surface is generated.
@@ -215,7 +215,7 @@ To receive and display generated UI:
                  itemBuilder: (context, index) {
                    // For each surface, create a GenUiSurface to display it.
                    final id = _surfaceIds[index];
-                   return GenUiSurface(host: genUiConversation.host, surfaceId: id);
+                   return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
                  },
                ),
              ),
@@ -337,7 +337,7 @@ final riddleCard = CatalogItem(
 Include your catalog items when instantiating `GenUiManager`.
 
 ```dart
-final genUiManager = GenUiManager(
+_genUiManager = GenUiManager(
   catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
 );
 ```
@@ -355,7 +355,7 @@ final aiClient = FirebaseAiClient(
       you should generate a RiddleCard that displays one new riddle related to that word.
       Each riddle should have both a question and an answer.
       ''',
-  tools: genUiManager.getTools(),
+  tools: _genUiManager.getTools(),
 );
 ```
 
