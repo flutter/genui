@@ -8,62 +8,83 @@ description: |
 Follow these steps to connect `flutter_genui` to an agent provider and give
 your app the ability to send messages and receive/display generated UI.
 
-The instructions below use `FirebaseAiClient`. If your app uses a different
-`AiClient`, substitute its name where you see `FirebaseAiClient`.
+The instructions below use a placeholder `YourContentGenerator`. You should substitute this with your actual `ContentGenerator` implementation (e.g., `FirebaseAiContentGenerator` from the `flutter_genui_firebase_ai` package).
 
-## 1. Create the connection to an agent
+## 1. Create the `GenUiConversation`
 
-Use the following instructions to connect your app to your chosen agent
-provider.
+To connect your app, you'll need to instantiate a `GenUiConversation`.
+This class orchestrates the interaction between your UI, the `GenUiManager`,
+and a `ContentGenerator`.
 
-1. Create a `GenUiManager`, and provide it with the catalog of widgets you want
-   to make available to the agent.
-2. Create an `AiClient`, and provide it with a system instruction and a set of
-   tools (functions you want the agent to be able to invoke). You should always
-   include those provided by `GenUiManager`, but feel free to include others.
-3. Create a `UiAgent` using the instances of `AiClient` and `GenUiManager`. Your
-   app will primarily interact with this object to get things done.
+1.  Create a `GenUiManager`, and provide it with the catalog of widgets you want
+    to make available to the agent.
+2.  Create a `ContentGenerator` implementation. This is your bridge to the AI
+    model. You might need to provide system instructions or other
+    configurations here.
+3.  Create a `GenUiConversation`, passing in the `GenUiManager` and
+    `ContentGenerator` instances. You can also provide callbacks for UI
+    events like `onSurfaceAdded`, `onTextResponse`, etc.
 
     For example:
-
     ```dart
+    import 'package:flutter/material.dart';
+    import 'package:flutter_genui/flutter_genui.dart';
+
+    // Replace with your actual ContentGenerator implementation
+    class YourContentGenerator implements ContentGenerator {
+      // ... implementation details ...
+      @override
+      Stream<A2uiMessage> get a2uiMessageStream => Stream.empty(); // Replace
+      @override
+      Stream<String> get textResponseStream => Stream.empty(); // Replace
+      @override
+      Stream<ContentGeneratorError> get errorStream => Stream.empty(); // Replace
+      @override
+      ValueListenable<bool> get isProcessing => ValueNotifier(false); // Replace
+      @override
+      Future<void> sendRequest(Iterable<ChatMessage> messages) async { /* ... */ }
+      @override
+      void dispose() { /* ... */ }
+    }
+
     class _MyHomePageState extends State<MyHomePage> {
       late final GenUiManager _genUiManager;
-      late final UiAgent _uiAgent;
+      late final GenUiConversation _genUiConversation;
+      final _surfaceIds = <String>[];
 
       @override
       void initState() {
         super.initState();
 
-        // Create a GenUiManager with a widget catalog.
-        // The CoreCatalogItems contain basic widgets for text, markdown, and images.
         _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
 
-        // Create an AiClient to communicate with the LLM.
-        // Provide system instructions and the tools from the GenUiManager.
-        final aiClient = FirebaseAiClient(
-          systemInstruction: '''
-            You are an expert in creating funny riddles. Every time I give you a word,
-            you should generate UI that displays one new riddle related to that word.
-            Each riddle should have both a question and an answer.
-            ''',
-          tools: _genUiManager.getTools(),
-        );
+        // NOTE: You need a concrete implementation of ContentGenerator here.
+        // The 'flutter_genui_firebase_ai' package provides implementations
+        // like FirebaseAiContentGenerator.
+        final contentGenerator = YourContentGenerator();
 
-        // Create the UiAgent to orchestrate everything.
-        _uiAgent = UiAgent(
+        _genUiConversation = GenUiConversation(
           genUiManager: _genUiManager,
-          aiClient: aiClient,
-          onSurfaceAdded: _onSurfaceAdded, // Added in the next step.
-          onSurfaceDeleted: _onSurfaceDeleted, // Added in the next step.
+          contentGenerator: contentGenerator,
+          onSurfaceAdded: _onSurfaceAdded,
+          onSurfaceDeleted: _onSurfaceDeleted,
+          onTextResponse: (text) => print('AI Text: $text'),
+          onError: (error) => print('AI Error: ${error.error}'),
         );
+      }
+
+      void _onSurfaceAdded(SurfaceAdded update) {
+        setState(() => _surfaceIds.add(update.surfaceId));
+      }
+
+      void _onSurfaceDeleted(SurfaceRemoved update) {
+        setState(() => _surfaceIds.remove(update.surfaceId));
       }
 
       @override
       void dispose() {
-        _textController.dispose();
-        _uiAgent.dispose();
-        _genUiManager.dispose();
+        _genUiConversation.dispose();
+        // _genUiManager is disposed by _genUiConversation
         super.dispose();
       }
     }
@@ -71,15 +92,15 @@ provider.
 
 ### 2. Send messages and display the agent's responses
 
-Send a message to the agent using the `sendRequest` method in the `UiAgent`
+Send a message to the agent using the `sendRequest` method in the `GenUiConversation`
 class.
 
 To receive and display generated UI:
 
-1. Use `UiAgent`'s callbacks to track the addition and removal of UI surfaces as
-   they are generated. These events include a "surface ID" for each surface.
-2. Build a `GenUiSurface` widget for each active surface using the surface IDs
-   received in the previous step.
+1. Use `GenUiConversation`'s callbacks (e.g., `onSurfaceAdded`, `onSurfaceDeleted`)
+   to track the addition and removal of UI surfaces.
+2. Build a `GenUiSurface` widget for each active surface ID.
+   Make sure to provide the host: `_genUiConversation.host`.
 
     For example:
 
@@ -94,24 +115,12 @@ To receive and display generated UI:
       // Send a message containing the user's text to the agent.
       void _sendMessage(String text) {
         if (text.trim().isEmpty) return;
-        _uiAgent.sendRequest(UserMessage.text(text));
+        _genUiConversation.sendRequest(UserMessage.text(text));
       }
 
-      // A callback invoked by the [UiAgent] when a new UI surface is generated.
-      // Here, the ID is stored so the build method can create a GenUiSurface to
-      // display it.
-      void _onSurfaceAdded(SurfaceAdded update) {
-        setState(() {
-          _surfaceIds.add(update.surfaceId);
-        });
-      }
-
-      // A callback invoked by UiAgent when a UI surface is removed.
-      void _onSurfaceDeleted(SurfaceRemoved update) {
-        setState(() {
-          _surfaceIds.remove(update.surfaceId);
-        });
-      }
+      // Callbacks for GenUiConversation (defined in initState example above)
+      // void _onSurfaceAdded(SurfaceAdded update) { ... }
+      // void _onSurfaceDeleted(SurfaceRemoved update) { ... }
 
       @override
       Widget build(BuildContext context) {
@@ -128,7 +137,7 @@ To receive and display generated UI:
                   itemBuilder: (context, index) {
                     // For each surface, create a GenUiSurface to display it.
                     final id = _surfaceIds[index];
-                    return GenUiSurface(host: _uiAgent.host, surfaceId: id);
+                    return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
                   },
                 ),
               ),
