@@ -13,6 +13,21 @@ import 'package:logging/logging.dart';
 import 'dartantic_content_converter.dart';
 import 'dartantic_schema_adapter.dart';
 
+/// Represents an API key with a name and value.
+class ApiKey {
+  /// Creates an [ApiKey] with the specified name and value.
+  const ApiKey({
+    required this.name,
+    required this.value,
+  });
+
+  /// The name of the API key (e.g., 'GOOGLE_API_KEY', 'OPENAI_API_KEY').
+  final String name;
+
+  /// The value of the API key.
+  final String value;
+}
+
 /// A factory for creating an [Agent].
 ///
 /// This is used to allow for custom agent creation, for example, for testing.
@@ -39,6 +54,7 @@ class DartanticAiClient implements AiClient {
   /// - [tools]: A list of default [AiTool]s available to the AI.
   /// - [outputToolName]: The name of the internal tool used to force structured
   ///   output from the AI.
+  /// - [apiKey]: Optional API key to set in the Agent environment.
   /// - [agentFactory]: A function to use for creating the agent itself.
   DartanticAiClient({
     required this.provider,
@@ -46,8 +62,14 @@ class DartanticAiClient implements AiClient {
     this.systemInstruction,
     this.tools = const <AiTool>[],
     this.outputToolName = 'provideFinalOutput',
+    this.apiKey,
     this.agentFactory = defaultAgentFactory,
   }) {
+    // Set API key in Agent environment if provided
+    if (apiKey != null) {
+      Agent.environment[apiKey!.name] = apiKey!.value;
+    }
+
     final duplicateToolNames = tools.map((t) => t.name).toSet();
     if (duplicateToolNames.length != tools.length) {
       final duplicateTools = tools.where((t) {
@@ -86,6 +108,9 @@ class DartanticAiClient implements AiClient {
   ///
   /// Defaults to 'provideFinalOutput'.
   final String outputToolName;
+
+  /// Optional API key to set in the Agent environment.
+  final ApiKey? apiKey;
 
   /// A function to use for creating the agent itself.
   ///

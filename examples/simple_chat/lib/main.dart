@@ -14,16 +14,13 @@ import 'firebase_options_stub.dart';
 import 'package:logging/logging.dart';
 
 /// Configuration for which AI client to use
-enum AiClientType {
-  firebase,
-  dartantic,
-}
+enum AiClientType { firebase, dartantic }
 
 /// Global configuration - change this to switch between AI clients
-/// 
+///
 /// To use Firebase AI: set to AiClientType.firebase
 /// To use Dartantic AI: set to AiClientType.dartantic
-/// 
+///
 /// For Dartantic AI, you'll need to set up API keys via environment variables:
 /// - Google: GOOGLE_API_KEY (default provider)
 /// - OpenAI: OPENAI_API_KEY
@@ -32,17 +29,19 @@ const AiClientType _aiClientType = AiClientType.dartantic;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Only initialize Firebase if using Firebase AI client
   if (_aiClientType == AiClientType.firebase) {
     try {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     } catch (e) {
       print('Warning: Firebase initialization failed: $e');
       print('Please configure Firebase or switch to Dartantic AI client.');
     }
   }
-  
+
   configureGenUiLogging(level: Level.ALL);
 
   runApp(const MyApp());
@@ -53,10 +52,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = _aiClientType == AiClientType.dartantic 
-        ? 'Simple Chat (Dartantic AI)' 
+    final title = _aiClientType == AiClientType.dartantic
+        ? 'Simple Chat (Dartantic AI)'
         : 'Simple Chat (Firebase AI)';
-    
+
     return MaterialApp(
       title: title,
       theme: ThemeData(primarySwatch: Colors.blue),
@@ -84,9 +83,9 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     final catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
-    
+
     final aiClient = _createAiClient();
-    
+
     _genUiConversation = GenUiConversation(
       genUiManager: _genUiManager,
       aiClient: aiClient,
@@ -99,15 +98,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Creates the appropriate AI client based on the global configuration
   AiClient _createAiClient() {
-    final systemInstruction = 'You are a helpful assistant who chats with a user, '
+    final systemInstruction =
+        'You are a helpful assistant who chats with a user, '
         'giving exactly one response for each user message. '
         'Your responses should contain acknowledgment '
         'of the user message.'
         '\n\n'
         '${GenUiPromptFragments.basicChat}';
-    
+
     final tools = _genUiManager.getTools();
-    
+
     switch (_aiClientType) {
       case AiClientType.firebase:
         return FirebaseAiClient(
@@ -117,9 +117,11 @@ class _ChatScreenState extends State<ChatScreen> {
       case AiClientType.dartantic:
         return DartanticAiClient(
           provider: 'google', // Options: 'openai', 'google', 'anthropic'
-          model: 'gemini-2.5-flash', // Options: 'gemini-2.5-flash', 'gemini-2.5-pro', etc.
+          model:
+              'gemini-2.5-flash', // Options: 'gemini-2.5-flash', 'gemini-2.5-pro', etc.
           systemInstruction: systemInstruction,
           tools: tools,
+          apiKey: const ApiKey(name: 'GEMINI_API_KEY', value: 'TODO'),
         );
     }
   }
@@ -142,10 +144,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final appBarTitle = _aiClientType == AiClientType.dartantic 
-        ? 'Chat with Dartantic AI' 
+    final appBarTitle = _aiClientType == AiClientType.dartantic
+        ? 'Chat with Dartantic AI'
         : 'Chat with Firebase AI';
-    
+
     return Scaffold(
       appBar: AppBar(title: Text(appBarTitle)),
       body: SafeArea(
