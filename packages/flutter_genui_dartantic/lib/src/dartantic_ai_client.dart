@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
-
 import 'package:dartantic_ai/dartantic_ai.dart';
 import 'package:dartantic_interface/dartantic_interface.dart' as dartantic;
 import 'package:flutter/foundation.dart';
@@ -18,18 +16,19 @@ import 'dartantic_schema_adapter.dart';
 /// A factory for creating an [Agent].
 ///
 /// This is used to allow for custom agent creation, for example, for testing.
-typedef AgentFactory = Agent Function({
-  required String provider,
-  String? model,
-  Map<String, dynamic>? options,
-  List<dartantic.Tool>? tools,
-});
+typedef AgentFactory =
+    Agent Function({
+      required String provider,
+      String? model,
+      Map<String, dynamic>? options,
+      List<dartantic.Tool>? tools,
+    });
 
 /// A basic implementation of [AiClient] for accessing AI models through Dartantic.
 ///
 /// This class encapsulates settings for interacting with a generative AI model,
-/// including provider selection, model configuration, and tool configurations. 
-/// It provides a [generateContent] method to interact with the AI model, 
+/// including provider selection, model configuration, and tool configurations.
+/// It provides a [generateContent] method to interact with the AI model,
 /// supporting structured output and tool usage.
 class DartanticAiClient implements AiClient {
   /// Creates a [DartanticAiClient] instance with specified configurations.
@@ -175,7 +174,7 @@ class DartanticAiClient implements AiClient {
     required dsb.Schema? outputSchema,
   }) {
     final isForcedToolCalling = outputSchema != null;
-    
+
     // Create an "output" tool that copies its args into the output.
     final finalOutputAiTool = isForcedToolCalling
         ? DynamicAiTool<Map<String, Object?>>(
@@ -281,10 +280,12 @@ class DartanticAiClient implements AiClient {
       try {
         final result = await agent.sendFor(
           dartanticMessages.last.text,
-          history: dartanticMessages.take(dartanticMessages.length - 1).toList(),
+          history: dartanticMessages
+              .take(dartanticMessages.length - 1)
+              .toList(),
           outputSchema: adaptedSchema.schema!,
         );
-        
+
         // Update token usage if available
         if (result.usage != null) {
           inputTokenUsage += result.usage!.promptTokens ?? 0;
@@ -300,9 +301,11 @@ class DartanticAiClient implements AiClient {
       try {
         final result = await agent.send(
           dartanticMessages.last.text,
-          history: dartanticMessages.take(dartanticMessages.length - 1).toList(),
+          history: dartanticMessages
+              .take(dartanticMessages.length - 1)
+              .toList(),
         );
-        
+
         // Update token usage if available
         if (result.usage != null) {
           inputTokenUsage += result.usage!.promptTokens ?? 0;
