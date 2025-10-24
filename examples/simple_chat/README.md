@@ -25,12 +25,13 @@ The application's logic is contained almost entirely within `lib/main.dart`.
    - The user's text is immediately added to the local message list and displayed on screen as a simple text message (e.g., "You: Hello").
    - The `genUiConversation.sendRequest()` method is called with the user's text wrapped in a `UserMessage`.
 4. **AI Response**:
-   - The `GenUiConversation` sends the conversation history to the AI model.
-   - The AI processes the prompt and, according to its instructions, calls the `addOrUpdateSurface` tool to create a UI response.
+   - The `GenUiConversation` sends the conversation history to the `FirebaseAiContentGenerator`.
+   - The AI model processes the prompt and generates `A2uiMessage`s (like `SurfaceUpdate`, `BeginRendering`).
+   - These messages are emitted on the `ContentGenerator.a2uiMessageStream`.
 5. **UI Rendering**:
-   - The `GenUiConversation` executes the tool call, which triggers the `onSurfaceAdded` callback in the app.
-   - The callback adds a new message item to the list, this time containing the `surfaceId` of the newly created UI.
-   - The `ListView` rebuilds, and a `GenUiSurface` widget is rendered for the AI's message, dynamically building the UI defined by the model.
+   - `GenUiConversation` listens to the stream and processes the `A2uiMessage`s, invoking the appropriate callbacks like `onSurfaceAdded`.
+   - The `_handleSurfaceAdded` callback adds a new message item to the list, containing the `surfaceId`.
+   - The `ListView` rebuilds, and a `GenUiSurface` widget is rendered for the AI's message, dynamically building the UI based on the `UiDefinition` managed by `GenUiManager`.
 
 ## Getting Started
 

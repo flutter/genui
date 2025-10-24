@@ -23,8 +23,8 @@ This example highlights several core concepts of the `flutter_genui` package:
 - **Dynamic UI Generation**: The entire user interface is constructed on-the-fly by the AI based on the conversation.
 - **Component Catalog**: The AI builds the UI from a custom, domain-specific catalog of widgets defined in `lib/src/catalog.dart`. This includes widgets like `TravelCarousel`, `ItineraryEntry`, and `OptionsFilterChipInput`.
 - **System Prompt Engineering**: The behavior of the AI is guided by a detailed system prompt located in `lib/src/travel_planner_page.dart`. This prompt instructs the AI on how to act like a travel agent and which widgets to use in various scenarios.
-- **Dynamic UI State Management**: The `GenUiManager` from `flutter_genui` handles the state of the dynamically generated UI surfaces, manages the widget tree, and processes events between the user and the AI. The application's main page (`TravelPlannerPage`) manages the overall conversation history.
-- **Firebase Integration**: The application is configured to use Firebase for backend services, as shown in `lib/firebase_options.dart`.
+- **Dynamic UI State Management**: The `GenUiConversation` and `GenUiManager` from `flutter_genui` handle the orchestration of AI interaction, state of the dynamically generated UI surfaces, and event processing. The application's main page (`TravelPlannerPage`) uses `GenUiConversation` to manage the overall conversation flow and UI updates.
+- **Firebase Integration**: The application uses `FirebaseAiContentGenerator` from `flutter_genui_firebase_ai` to connect to a Firebase backend for AI model access, as shown in `lib/src/travel_planner_page.dart`.
 
 ## Getting Started
 

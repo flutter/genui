@@ -1,8 +1,20 @@
 # Flutter GenUI Changelog
 
+## 0.4.0
+
+- **BREAKING**: Replaced `AiClient` interface with `ContentGenerator`. `ContentGenerator` uses a stream-based API (`a2uiMessageStream`, `textResponseStream`, `errorStream`) for asynchronous communication of AI-generated UI commands, text, and errors.
+- **BREAKING**: `GenUiConversation` now requires a `ContentGenerator` instance instead of an `AiClient`.
+- **Feature**: Introduced `A2uiMessage` sealed class (`BeginRendering`, `SurfaceUpdate`, `DataModelUpdate`, `SurfaceDeletion`) to represent AI-to-UI commands, emitted from `ContentGenerator.a2uiMessageStream`.
+- **Feature**: Added `FakeContentGenerator` for testing purposes, replacing `FakeAiClient`.
+- **Feature**: Added `configureGenUiLogging` function and `genUiLogger` instance for configurable package logging.
+- **Feature**: Added `JsonMap` type alias in `primitives/simple_items.dart`.
+- **Feature**: Added `DirectCallHost` and related utilities in `facade/direct_call_integration` for more direct AI model interactions.
+- **Refactor**: `GenUiConversation` now internally subscribes to `ContentGenerator` streams and uses callbacks (`onSurfaceAdded`, `onSurfaceUpdated`, `onSurfaceDeleted`, `onTextResponse`, `onError`) to notify the application of events.
+- **Fix**: Improved error handling and reporting through the `ContentGenerator.errorStream` and `ContentGeneratorError` class.
+
 ## 0.2.0
 
-- **BREADKIGN**: Replaced `ElevatedButton` with a more generic `Button` component.
+- **BREAKING**: Replaced `ElevatedButton` with a more generic `Button` component.
 - **BREAKING**: Removed `CheckboxGroup` and `RadioGroup` from the core catalog. The `MultipleChoice` or `CheckBox` widgets can be used as replacements. See [migration guide](./.guides/docs/migration_from_0.1.0_to_0.2.0.md) for details.
 - **Feature**: Added an `obscured` property to `TextInputChip` to allow for password style inputs.
 - **Feature**: Added many new components to the core catalog: `AudioPlayer` (placeholder), `Button`, `Card`, `CheckBox`, `DateTimeInput`, `Divider`, `Heading`, `List`, `Modal`, `MultipleChoice`, `Row`, `Slider`, `Tabs`, and `Video` (placeholder).

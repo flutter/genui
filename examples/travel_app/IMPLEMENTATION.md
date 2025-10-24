@@ -19,9 +19,9 @@ classDiagram
             <<StatefulWidget>>
             +build()
             - _genUiManager
-            - _aiClient
+            - _genUiConversation
             - _conversation
-            - _triggerInference()
+            - _sendPrompt()
         }
         class ConversationWidget {
             <<Widget>>
@@ -37,9 +37,14 @@ classDiagram
             +getTools()
             +surfaceUpdates
         }
-        class AiClient {
+        class GenUiConversation {
             <<Component>>
-            +generateContent()
+            +sendRequest()
+        }
+        class ContentGenerator {
+            <<Interface>>
+            +sendRequest()
+            +a2uiMessageStream
         }
         class WidgetCatalog {
             <<Component>>
@@ -53,16 +58,19 @@ classDiagram
     }
 
     TravelPlannerPage --o flutter_genui.GenUiManager : "Initializes and holds"
-    TravelPlannerPage --o flutter_genui.AiClient : "Initializes and holds"
+    TravelPlannerPage --o flutter_genui.GenUiConversation : "Initializes and holds"
     TravelPlannerPage --> ConversationWidget : "Builds"
     ConversationWidget --> GenUiSurface : "Renders AI UI messages"
 
-    TravelPlannerPage --> flutter_genui.AiClient : "Calls generateContent()"
+    TravelPlannerPage --> flutter_genui.GenUiConversation : "Calls sendRequest()"
+    flutter_genui.GenUiConversation --o flutter_genui.ContentGenerator : "Uses"
+    flutter_genui.GenUiConversation --o flutter_genui.GenUiManager : "Uses"
 
-    flutter_genui.GenUiManager --> TravelPlannerPage : "Notifies of updates via Stream"
+    flutter_genui.GenUiManager --> TravelPlannerPage : "Notifies of onSubmit events"
+    flutter_genui.GenUiConversation --> TravelPlannerPage : "Notifies of UI updates via Callbacks"
     GenUiSurface --> flutter_genui.WidgetCatalog : "Uses to build widgets"
 
-    flutter_genui.AiClient --> Backend.LLM : "Communicates with"
+    flutter_genui.ContentGenerator --> Backend.LLM : "Communicates with"
 ```
 
 ### 1. UI Layer (`main.dart`)
@@ -76,9 +84,8 @@ This is the main entry point for the application. Its responsibilities are:
 
 ### 2. App Logic (`lib/src/travel_planner_page.dart`)
 
-The core application logic resides in the `TravelPlannerPage` widget. Its responsibilities are:
+The core application logic resides in the `TravelPlannerPage` widget. Its responsibilities are: - **Initialization**: It initializes the `GenUiManager` and the `GenUiConversation`, which in turn initializes a `FirebaseAiContentGenerator`.
 
-- **Initialization**: It initializes the `GenUiManager` and the `AiClient`.
 - **State Management**: It manages the `_conversation` history list, sends prompts to the AI via `_triggerInference`, and handles UI events returned from the `GenUiSurface` widgets.
 - **UI Rendering**: It provides the structure for the chat interface, which consists of a `Conversation` widget to render the conversation history and a custom chat input field.
 
@@ -86,12 +93,13 @@ The core application logic resides in the `TravelPlannerPage` widget. Its respon
 
 The components from the `flutter_genui` package are the central orchestrators of the dynamic UI state.
 
-- **`GenUiManager`**: The core state manager. It maintains the definitions for all active UI "surfaces", provides the UI manipulation tools (`addOrUpdateSurface`, `deleteSurface`) to the app logic, and notifies listening widgets (like `TravelPlannerPage`) of changes via a stream.
+- **`GenUiManager`**: Manages the state of UI surfaces and the widget catalog. It's used by `GenUiConversation`.
+- **`GenUiConversation`**: Orchestrates the interaction between the UI, `GenUiManager`, and the `ContentGenerator`. It exposes callbacks for UI changes (`onSurfaceAdded`, etc.) and an `onSubmit` stream for user interactions within the generated UI.
 - **`Conversation` widget**: A widget defined in the app (`lib/src/widgets/conversation.dart`) that renders a list of `ChatMessage`s. It is responsible for displaying the conversation history, including text messages and dynamically rendered UI surfaces via `GenUiSurface`.
 
 ### 4. AI/Model Layer (`package:flutter_genui_firebase_ai`)
 
-The `FirebaseAiClient` class, from the `flutter_genui_firebase_ai` package, abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls to the model, sending prompts and receiving the model's responses, including the tool calls that drive the UI generation.
+The `FirebaseAiContentGenerator` class, from the `flutter_genui_firebase_ai` package, implements the `ContentGenerator` interface. It abstracts the communication with the underlying generative AI model (a Google Gemini model via Firebase). It handles the API calls, sending the conversation history and tool schemas, and processes the model's responses, emitting `A2uiMessage`s, text responses, or errors through its streams.
 
 ### 5. Widget Catalog (The "Tools")
 
@@ -119,7 +127,8 @@ The diagram below shows the sequence of events from user input to UI rendering. 
 sequenceDiagram
     actor User
     participant AppLogic as "App Logic (TravelPlannerPage)"
-    participant AiClient
+    participant GenUiConversation
+    participant ContentGenerator
     participant LLM
     participant GenUiManager
     participant ConversationWidget
@@ -130,23 +139,25 @@ sequenceDiagram
 
     activate AppLogic
     AppLogic->>AppLogic: Adds UserMessage to _conversation list
-    AppLogic->>AiClient: generateContent(_conversation, uiTools)
-    activate AiClient
-    AiClient->>LLM: Sends prompt and tool schemas
+    AppLogic->>GenUiConversation: sendRequest(message)
+    activate GenUiConversation
+    GenUiConversation->>ContentGenerator: sendRequest(conversation)
+    activate ContentGenerator
+    ContentGenerator->>LLM: Sends prompt and tool schemas
     activate LLM
-    LLM-->>AiClient: Responds with tool call (e.g. addOrUpdateSurface)
+    LLM-->>ContentGenerator: Responds with content (A2UI Messages, text)
     deactivate LLM
-    AiClient-->>AppLogic: Returns result (AI tool calls are executed internally)
-    deactivate AiClient
+    ContentGenerator-->>GenUiConversation: Emits A2uiMessage on a2uiMessageStream
+    deactivate ContentGenerator
 
-    note right of AppLogic: The AiClient invokes the tool, which calls a method on GenUiManager.
-
+    GenUiConversation->>GenUiManager: Processes A2uiMessage
     activate GenUiManager
-    GenUiManager->>GenUiManager: Updates internal state
-    GenUiManager-->>AppLogic: Notifies of state change via Stream
+    GenUiManager->>GenUiManager: Updates surface state
     deactivate GenUiManager
 
+    GenUiConversation-->>AppLogic: Invokes onSurfaceAdded/Updated callback
     AppLogic->>AppLogic: Updates _conversation list with AiUiMessage
+    deactivate GenUiConversation
 
     activate ConversationWidget
     AppLogic->>ConversationWidget: Rebuilds with new message list
@@ -230,5 +241,5 @@ graph TD
 The UI is not just for display; it's interactive. Widgets like `InputGroup`, `OptionsFilterChipInput`, and `TravelCarousel` can capture user input.
 
 - **Event Dispatching**: The `widgetBuilder` for each catalog item receives a `dispatchEvent` function. This function is called in response to user actions (like a button press or item selection), creating a `UiEvent` (e.g., `UiActionEvent`).
-- **Event Handling**: The `TravelPlannerPage` listens to the `genUiManager.onSubmit` stream. When an event is dispatched from a widget, the `GenUiManager` processes it and emits a `UserMessage` on this stream.
-- **Conversation Update**: The `TravelPlannerPage`'s stream listener (`_handleUserMessageFromUi`) receives the `UserMessage`, adds it to the conversation history, and triggers a new inference call to the model. This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
+- **Event Handling**: The `GenUiManager`'s `dispatchEvent` call results in a `UserMessage` being emitted on its `onSubmit` stream.
+- **Conversation Update**: The `TravelPlannerPage`'s stream listener (`_handleUserMessageFromUi`) receives the `UserMessage`, adds a `UserUiInteractionMessage` to the conversation history, and calls `_triggerInference` (which calls `_uiAgent.sendRequest()`). This informs the model of the user's actions, allowing it to respond accordingly (e.g., refining a search based on a selected filter).
