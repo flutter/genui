@@ -45,7 +45,10 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
       );
     }).toList();
     handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
-    return {surfaceIdKey: surfaceId, 'status': 'SUCCESS'};
+    return {
+      surfaceIdKey: surfaceId,
+      'status': 'UI Surface $surfaceId updated.',
+    };
   }
 }
 
@@ -76,7 +79,7 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
     handleMessage(SurfaceDeletion(surfaceId: surfaceId));
-    return {'status': 'ok'};
+    return {'status': 'Surface $surfaceId deleted.'};
   }
 }
 
@@ -115,6 +118,8 @@ class BeginRenderingTool extends AiTool<JsonMap> {
     final surfaceId = args[surfaceIdKey] as String;
     final root = args['root'] as String;
     handleMessage(BeginRendering(surfaceId: surfaceId, root: root));
-    return {'status': 'ok'};
+    return {
+      'status': 'Surface $surfaceId rendered and waiting for user input.',
+    };
   }
 }

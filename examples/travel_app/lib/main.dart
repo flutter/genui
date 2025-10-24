@@ -22,14 +22,7 @@ void main() async {
     providerWeb: ReCaptchaV3Provider('debug'),
   );
   await loadImagesJson();
-  final logger = configureGenUiLogging(level: Level.ALL);
-  logger.onRecord.listen((record) {
-    // ignore: avoid_print
-    print(
-      '${record.level.name}: ${record.time}: ${record.loggerName}: '
-      '${record.message}',
-    );
-  });
+  configureGenUiLogging(level: Level.ALL);
   runApp(const TravelApp());
 }
 

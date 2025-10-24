@@ -370,12 +370,12 @@ because it avoids confusing the conversation with many versions of the same
 itinerary etc.
 
 When processing a user message or event, you should add or update one surface
-and then call provideFinalOutput to return control to the user. Never continue
-to add or update surfaces until you receive another user event. If the last
-entry in the context is a functionResponse, just call provideFinalOutput
-immediately - don't try to update the UI. If you are displaying more than one
-component, you should use a `Column` widget as the root and add the other
-components as children.
+and then wait for the next user event. Never continue to add or update surfaces
+until you receive another user event. If the last entry in the context is a
+functionResponse, your turn is complete. Do not call any more tools; simply wait
+for the next user input. immediately - don't try to update the UI. If you are
+displaying more than one component, you should use a `Column` widget as the root
+and add the other components as children.
 
 # UI style
 

@@ -290,7 +290,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
         genUiLogger.fine('Invoking tool: ${aiTool.name}');
         toolResult = await aiTool.invoke(call.args);
         genUiLogger.info(
-          'Invoked tool ${aiTool.name} with args ${call.args}. ',
+          'Invoked tool ${aiTool.name} with args ${call.args}. '
           'Result: $toolResult',
         );
       } catch (exception, stack) {
@@ -573,10 +573,10 @@ String _responseToString(GenerateContentResponse response) {
       } else if (part is FunctionCall) {
         buffer.writeln('          FunctionCall(');
         buffer.writeln('            name: "${part.name}",');
-        buffer.writeln(
-          '            args: '
-          '${const JsonEncoder.withIndent('  ').convert(part.args)},',
-        );
+        final indentedLines = (const JsonEncoder.withIndent('  ').convert(
+          part.args,
+        )).split('\n').map<String>((line) => '            $line');
+        buffer.writeln('            args: $indentedLines,');
         buffer.writeln('          ),');
       } else {
         buffer.writeln('          Unknown Part: ${part.runtimeType},');
