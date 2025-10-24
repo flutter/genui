@@ -78,7 +78,6 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
 
-  final _conversation = ValueNotifier<List<ChatMessage>>([]);
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
   final _errorController = StreamController<ContentGeneratorError>.broadcast();
@@ -97,11 +96,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   ValueListenable<bool> get isProcessing => _isProcessing;
 
   @override
-  ValueListenable<List<ChatMessage>> get conversation => _conversation;
-
-  @override
   void dispose() {
-    _conversation.dispose();
     _a2uiMessageController.close();
     _textResponseController.close();
     _errorController.close();
@@ -109,21 +104,16 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(UserMessage message) async {
+  Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
-      _addMessage(message);
-      await _generate(messages: _conversation.value);
+      await _generate(messages: messages);
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
     } finally {
       _isProcessing.value = false;
     }
-  }
-
-  void _addMessage(ChatMessage message) {
-    _conversation.value = [..._conversation.value, message];
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -456,7 +446,6 @@ With functions:
           mutableContent.add(candidate.content);
           genUiLogger.fine('Returning text response: "$text"');
           _textResponseController.add(text);
-          _addMessage(AiTextMessage([TextPart(text)]));
           return text;
         }
       }
@@ -497,7 +486,6 @@ With functions:
           'Exiting tool loop.',
         );
         _textResponseController.add(candidate.text!);
-        _addMessage(AiTextMessage([TextPart(candidate.text!)]));
         return candidate.text;
       }
     }

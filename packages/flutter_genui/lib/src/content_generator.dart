@@ -41,13 +41,9 @@ abstract interface class ContentGenerator {
   /// Whether the content generator is currently processing a request.
   ValueListenable<bool> get isProcessing;
 
-  /// Sends a user request to the content source.
-  ///
-  /// This can be a text message or a structured UI event.
-  Future<void> sendRequest(UserMessage message);
-
-  /// The full conversation history managed by the generator.
-  ValueListenable<List<ChatMessage>> get conversation;
+  /// Sends a collection of messages to the content source to generate a
+  /// response.
+  Future<void> sendRequest(Iterable<ChatMessage> messages);
 
   /// Disposes of the resources used by this generator.
   void dispose();

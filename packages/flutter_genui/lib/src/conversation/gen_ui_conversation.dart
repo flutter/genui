@@ -38,16 +38,14 @@ class GenUiConversation {
     _a2uiSubscription = contentGenerator.a2uiMessageStream.listen(
       genUiManager.handleMessage,
     );
-    _userEventSubscription = genUiManager.onSubmit.listen(
-      contentGenerator.sendRequest,
-    );
+    _userEventSubscription = genUiManager.onSubmit.listen(sendRequest);
     _surfaceUpdateSubscription = genUiManager.surfaceUpdates.listen(
       _handleSurfaceUpdate,
     );
     _textResponseSubscription = contentGenerator.textResponseStream.listen(
-      onTextResponse,
+      _handleTextResponse,
     );
-    _errorSubscription = contentGenerator.errorStream.listen(onError);
+    _errorSubscription = contentGenerator.errorStream.listen(_handleError);
   }
 
   /// The [ContentGenerator] for the conversation.
@@ -77,6 +75,9 @@ class GenUiConversation {
   late final StreamSubscription<String> _textResponseSubscription;
   late final StreamSubscription<ContentGeneratorError> _errorSubscription;
 
+  final ValueNotifier<List<ChatMessage>> _conversation =
+      ValueNotifier<List<ChatMessage>>([]);
+
   void _handleSurfaceUpdate(GenUiUpdate update) {
     switch (update) {
       case SurfaceAdded():
@@ -103,8 +104,7 @@ class GenUiConversation {
   GenUiHost get host => genUiManager;
 
   /// A [ValueListenable] that provides the current conversation history.
-  ValueListenable<List<ChatMessage>> get conversation =>
-      contentGenerator.conversation;
+  ValueListenable<List<ChatMessage>> get conversation => _conversation;
 
   /// A [ValueListenable] that indicates whether the agent is currently
   /// processing a request.
@@ -117,6 +117,22 @@ class GenUiConversation {
 
   /// Sends a user message to the AI to generate a UI response.
   Future<void> sendRequest(UserMessage message) async {
-    return contentGenerator.sendRequest(message);
+    _conversation.value.add(message);
+    return contentGenerator.sendRequest(_conversation.value);
+  }
+
+  void _handleTextResponse(String text) {
+    _conversation.value = [..._conversation.value, AiTextMessage.text(text)];
+    onTextResponse?.call(text);
+  }
+
+  void _handleError(ContentGeneratorError error) {
+    // Add an error representation to the conversation history so the AI can see
+    // that something failed.
+    final errorResponseMessage = AiTextMessage.text(
+      'An error occurred: ${error.error}',
+    );
+    _conversation.value = [..._conversation.value, errorResponseMessage];
+    onError?.call(error);
   }
 }

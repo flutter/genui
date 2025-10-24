@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui/test/fake_content_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_app/main.dart' as app;
@@ -21,12 +20,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(mockAiClient.sendRequestCallCount, 1);
-    final lastMessage = mockAiClient.conversation.value.last;
-    expect(lastMessage, isA<UserMessage>());
-    expect(
-      ((lastMessage as UserMessage).parts.last as TextPart).text,
-      'test prompt',
-    );
+    expect(find.text('test prompt'), findsOneWidget);
     expect(find.text('AI response'), findsOneWidget);
   });
 

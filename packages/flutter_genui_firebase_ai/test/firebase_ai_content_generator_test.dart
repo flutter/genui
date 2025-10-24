@@ -13,33 +13,6 @@ import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 void main() {
   group('FirebaseAiContentGenerator', () {
-    test('conversation history is maintained', () async {
-      final generator = FirebaseAiContentGenerator(
-        catalog: const genui.Catalog({}),
-        modelCreator:
-            ({required configuration, systemInstruction, tools, toolConfig}) {
-              return FakeGeminiGenerativeModel([
-                GenerateContentResponse([
-                  Candidate(
-                    Content.model([const TextPart('Hello')]),
-                    [],
-                    null,
-                    FinishReason.stop,
-                    '',
-                  ),
-                ], null),
-              ]);
-            },
-      );
-
-      await generator.sendRequest(
-        genui.UserMessage([const genui.TextPart('Hi')]),
-      );
-      expect(generator.conversation.value.length, 2);
-      expect(generator.conversation.value[0], isA<genui.UserMessage>());
-      expect(generator.conversation.value[1], isA<genui.AiTextMessage>());
-    });
-
     test('isProcessing is true during request', () async {
       final generator = FirebaseAiContentGenerator(
         catalog: const genui.Catalog({}),
@@ -60,9 +33,9 @@ void main() {
       );
 
       expect(generator.isProcessing.value, isFalse);
-      final future = generator.sendRequest(
+      final future = generator.sendRequest([
         genui.UserMessage([const genui.TextPart('Hi')]),
-      );
+      ]);
       expect(generator.isProcessing.value, isTrue);
       await future;
       expect(generator.isProcessing.value, isFalse);
@@ -107,7 +80,7 @@ void main() {
       final hi = genui.UserMessage([const genui.TextPart('Hi')]);
       final completer = Completer<String>();
       unawaited(generator.textResponseStream.first.then(completer.complete));
-      await generator.sendRequest(hi);
+      await generator.sendRequest([hi]);
       final response = await completer.future;
       expect(response, 'Tool called');
     });
@@ -134,7 +107,7 @@ void main() {
       final hi = genui.UserMessage([const genui.TextPart('Hi')]);
       final completer = Completer<String>();
       unawaited(generator.textResponseStream.first.then(completer.complete));
-      await generator.sendRequest(hi);
+      await generator.sendRequest([hi]);
       final response = await completer.future;
       expect(response, 'Hello');
     });

@@ -10,10 +10,11 @@ import '../flutter_genui.dart';
 
 /// A fake [ContentGenerator] for use in tests.
 class FakeContentGenerator implements ContentGenerator {
+  FakeContentGenerator();
+
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
   final _errorController = StreamController<ContentGeneratorError>.broadcast();
-  final _conversation = ValueNotifier<List<ChatMessage>>([]);
   final _isProcessing = ValueNotifier<bool>(false);
 
   /// A completer that can be used to pause [sendRequest].
@@ -24,8 +25,8 @@ class FakeContentGenerator implements ContentGenerator {
   /// The number of times [sendRequest] has been called.
   int sendRequestCallCount = 0;
 
-  /// The last message passed to [sendRequest].
-  UserMessage? lastMessage;
+  /// The last messages passed to [sendRequest].
+  Iterable<ChatMessage>? lastMessages;
 
   @override
   Stream<A2uiMessage> get a2uiMessageStream => _a2uiMessageController.stream;
@@ -37,9 +38,6 @@ class FakeContentGenerator implements ContentGenerator {
   Stream<ContentGeneratorError> get errorStream => _errorController.stream;
 
   @override
-  ValueListenable<List<ChatMessage>> get conversation => _conversation;
-
-  @override
   ValueListenable<bool> get isProcessing => _isProcessing;
 
   @override
@@ -47,28 +45,21 @@ class FakeContentGenerator implements ContentGenerator {
     _a2uiMessageController.close();
     _textResponseController.close();
     _errorController.close();
-    _conversation.dispose();
     _isProcessing.dispose();
   }
 
   @override
-  Future<void> sendRequest(UserMessage message) async {
+  Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
       sendRequestCallCount++;
-      lastMessage = message;
-      _conversation.value = [..._conversation.value, message];
+      lastMessages = messages;
       if (sendRequestCompleter != null) {
         await sendRequestCompleter!.future;
       }
     } finally {
       _isProcessing.value = false;
     }
-  }
-
-  /// Adds a message to the conversation.
-  void addMessage(ChatMessage message) {
-    _conversation.value = [..._conversation.value, message];
   }
 
   /// Adds an A2UI message to the stream.
