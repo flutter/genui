@@ -17,7 +17,8 @@ Then, you can create an instance of `DartanticAiClient` and pass it to your `Gen
 ```dart
 final genUiManager = GenUiManager(catalog: catalog);
 final aiClient = DartanticAiClient(
-  provider: 'openai', // or 'google', 'anthropic', etc.
+  provider: 'google', // or 'openai', 'anthropic', etc.
+  model: 'gemini-2.5-flash', // or 'gemini-2.5-pro', 'gpt-4o', etc.
   systemInstruction: 'You are a helpful assistant.',
   tools: genUiManager.getTools(),
 );

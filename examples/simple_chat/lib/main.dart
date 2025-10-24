@@ -25,8 +25,8 @@ enum AiClientType {
 /// To use Dartantic AI: set to AiClientType.dartantic
 /// 
 /// For Dartantic AI, you'll need to set up API keys via environment variables:
+/// - Google: GOOGLE_API_KEY (default provider)
 /// - OpenAI: OPENAI_API_KEY
-/// - Google: GOOGLE_API_KEY  
 /// - Anthropic: ANTHROPIC_API_KEY
 const AiClientType _aiClientType = AiClientType.dartantic;
 
@@ -116,8 +116,8 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       case AiClientType.dartantic:
         return DartanticAiClient(
-          provider: 'openai', // Options: 'openai', 'google', 'anthropic'
-          model: 'gpt-4o', // Options: 'gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', etc.
+          provider: 'google', // Options: 'openai', 'google', 'anthropic'
+          model: 'gemini-2.5-flash', // Options: 'gemini-2.5-flash', 'gemini-2.5-pro', etc.
           systemInstruction: systemInstruction,
           tools: tools,
         );
