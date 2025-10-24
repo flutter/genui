@@ -52,26 +52,23 @@ void main() {
       );
 
       expect(
-        () => DartanticAiClient(
-          provider: 'openai',
-          tools: [tool1, tool2],
-        ),
+        () => DartanticAiClient(provider: 'openai', tools: [tool1, tool2]),
         throwsA(isA<AiClientException>()),
       );
     });
 
     test('tracks active requests', () {
       final client = DartanticAiClient(provider: 'openai');
-      
+
       expect(client.activeRequests.value, equals(0));
-      
+
       // Note: In a real test, we would need to mock the Agent
       // to test the actual request tracking behavior
     });
 
     test('disposes resources', () {
       final client = DartanticAiClient(provider: 'openai');
-      
+
       // Should not throw
       client.dispose();
     });
@@ -88,15 +85,21 @@ void main() {
     });
 
     test('accepts custom agent factory', () {
-      final customFactory = ({
-        required String provider,
-        String? model,
-        Map<String, dynamic>? options,
-        List<dartantic.Tool>? tools,
-      }) {
-        final modelString = model != null ? '$provider:$model' : provider;
-        return Agent(modelString, tools: tools, temperature: options?['temperature'] as double?);
-      };
+      final customFactory =
+          ({
+            required String provider,
+            String? model,
+            String? systemInstruction,
+            Map<String, dynamic>? options,
+            List<dartantic.Tool>? tools,
+          }) {
+            final modelString = model != null ? '$provider:$model' : provider;
+            return Agent(
+              modelString,
+              tools: tools,
+              temperature: options?['temperature'] as double?,
+            );
+          };
 
       final client = DartanticAiClient(
         provider: 'openai',

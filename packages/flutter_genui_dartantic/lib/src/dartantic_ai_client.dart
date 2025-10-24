@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:dartantic_ai/dartantic_ai.dart';
 import 'package:dartantic_interface/dartantic_interface.dart' as dartantic;
 import 'package:flutter/foundation.dart';
@@ -16,10 +18,7 @@ import 'dartantic_schema_adapter.dart';
 /// Represents an API key with a name and value.
 class ApiKey {
   /// Creates an [ApiKey] with the specified name and value.
-  const ApiKey({
-    required this.name,
-    required this.value,
-  });
+  const ApiKey({required this.name, required this.value});
 
   /// The name of the API key (e.g., 'GOOGLE_API_KEY', 'OPENAI_API_KEY').
   final String name;
@@ -35,6 +34,7 @@ typedef AgentFactory =
     Agent Function({
       required String provider,
       String? model,
+      String? systemInstruction,
       Map<String, dynamic>? options,
       List<dartantic.Tool>? tools,
     });
@@ -181,14 +181,19 @@ class DartanticAiClient implements AiClient {
   static Agent defaultAgentFactory({
     required String provider,
     String? model,
+    String? systemInstruction,
     Map<String, dynamic>? options,
     List<dartantic.Tool>? tools,
   }) {
     final modelString = model != null ? '$provider:$model' : provider;
+    // Note: dartantic Agent may handle system instruction differently
+    // depending on the provider. For now, we'll pass it through if available.
     return Agent(
       modelString,
       tools: tools,
       temperature: options?['temperature'] as double?,
+      // System instruction handling may vary by provider
+      // TODO: Verify correct parameter name for system instruction in dartantic
     );
   }
 
@@ -199,6 +204,11 @@ class DartanticAiClient implements AiClient {
     required dsb.Schema? outputSchema,
   }) {
     final isForcedToolCalling = outputSchema != null;
+
+    _logger.fine(
+      'Setting up tools'
+      '${isForcedToolCalling ? ' with forced tool calling' : ''}',
+    );
 
     // Create an "output" tool that copies its args into the output.
     final finalOutputAiTool = isForcedToolCalling
@@ -217,12 +227,23 @@ class DartanticAiClient implements AiClient {
         ? [...availableTools, finalOutputAiTool!]
         : availableTools;
 
+    _logger.fine('Available tools: ${allTools.map((t) => t.name).join(', ')}');
+
     final uniqueAiToolsByName = <String, AiTool>{};
+    final toolFullNames = <String>{};
     for (final tool in allTools) {
       if (uniqueAiToolsByName.containsKey(tool.name)) {
         throw AiClientException('Duplicate tool ${tool.name} registered.');
       }
       uniqueAiToolsByName[tool.name] = tool;
+      if (tool.name != tool.fullName) {
+        if (toolFullNames.contains(tool.fullName)) {
+          throw AiClientException(
+            'Duplicate tool ${tool.fullName} registered.',
+          );
+        }
+        toolFullNames.add(tool.fullName);
+      }
     }
 
     final dartanticTools = <dartantic.Tool>[];
@@ -263,7 +284,44 @@ class DartanticAiClient implements AiClient {
           },
         ),
       );
+
+      // Register tool with fullName if different from name
+      if (tool.name != tool.fullName) {
+        dartanticTools.add(
+          dartantic.Tool<Map<String, dynamic>>(
+            name: tool.fullName,
+            description: tool.description,
+            inputSchema: adaptedParameters,
+            onCall: (args) async {
+              try {
+                _logger.info('Invoking tool ${tool.fullName} with args $args');
+                final result = await tool.invoke(args);
+                _logger.info('Tool ${tool.fullName} result: $result');
+                return result;
+              } catch (exception, stack) {
+                _logger.severe(
+                  'Error invoking tool ${tool.fullName} with args $args: ',
+                  exception,
+                  stack,
+                );
+                return {
+                  'error':
+                      'Tool ${tool.fullName} failed to execute: $exception',
+                };
+              }
+            },
+          ),
+        );
+      }
     }
+
+    final toolNames = uniqueAiToolsByName.keys.toList();
+    final allToolNames = [...toolNames, ...toolFullNames];
+    _logger.fine(
+      'Adapted tools to dartantic format: '
+      '${allToolNames.join(', ')}',
+    );
+    _logger.fine('Allowed tool names for model: ${allToolNames.join(', ')}');
 
     return dartanticTools;
   }
@@ -290,6 +348,7 @@ class DartanticAiClient implements AiClient {
     final agent = agentFactory(
       provider: provider,
       model: model,
+      systemInstruction: systemInstruction,
       tools: dartanticTools,
     );
 
@@ -303,6 +362,13 @@ class DartanticAiClient implements AiClient {
       }
 
       try {
+        final toolNames = dartanticTools.map((t) => t.name).join(', ');
+        _logger.info('''****** Performing Inference ******
+Message: ${dartanticMessages.last.text}
+History: ${dartanticMessages.length - 1} messages
+With tools: $toolNames''');
+
+        final inferenceStartTime = DateTime.now();
         final result = await agent.sendFor(
           dartanticMessages.last.text,
           history: dartanticMessages
@@ -310,6 +376,7 @@ class DartanticAiClient implements AiClient {
               .toList(),
           outputSchema: adaptedSchema.schema!,
         );
+        final elapsed = DateTime.now().difference(inferenceStartTime);
 
         // Update token usage if available
         if (result.usage != null) {
@@ -317,19 +384,40 @@ class DartanticAiClient implements AiClient {
           outputTokenUsage += result.usage!.responseTokens ?? 0;
         }
 
+        _logger.info(
+          '****** Completed Inference ******\n'
+          'Latency = ${elapsed.inMilliseconds}ms\n'
+          'Output tokens = ${result.usage?.responseTokens ?? 0}\n'
+          'Prompt tokens = ${result.usage?.promptTokens ?? 0}',
+        );
+
+        _logger.info(
+          '****** Gen UI Output ******.\n'
+          '${const JsonEncoder.withIndent('  ').convert(result.output)}',
+        );
+
         return result.output;
       } catch (e) {
+        _logger.severe('Failed to generate structured content', e);
         throw AiClientException('Failed to generate structured content: $e');
       }
     } else {
       // Use text generation
       try {
+        final toolNames = dartanticTools.map((t) => t.name).join(', ');
+        _logger.info('''****** Performing Inference ******
+Message: ${dartanticMessages.last.text}
+History: ${dartanticMessages.length - 1} messages
+With tools: $toolNames''');
+
+        final inferenceStartTime = DateTime.now();
         final result = await agent.send(
           dartanticMessages.last.text,
           history: dartanticMessages
               .take(dartanticMessages.length - 1)
               .toList(),
         );
+        final elapsed = DateTime.now().difference(inferenceStartTime);
 
         // Update token usage if available
         if (result.usage != null) {
@@ -337,8 +425,18 @@ class DartanticAiClient implements AiClient {
           outputTokenUsage += result.usage!.responseTokens ?? 0;
         }
 
+        _logger.info(
+          '****** Completed Inference ******\n'
+          'Latency = ${elapsed.inMilliseconds}ms\n'
+          'Output tokens = ${result.usage?.responseTokens ?? 0}\n'
+          'Prompt tokens = ${result.usage?.promptTokens ?? 0}',
+        );
+
+        _logger.fine('Returning text response: "${result.output}"');
+
         return result.output;
       } catch (e) {
+        _logger.severe('Failed to generate text', e);
         throw AiClientException('Failed to generate text: $e');
       }
     }
