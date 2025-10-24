@@ -6,11 +6,50 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../model/a2ui_message.dart';
 import '../model/a2ui_schemas.dart';
-import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
-import 'genui_configuration.dart';
+import 'genui_manager.dart';
+
+/// A collection of tools for interacting with the GenUI system.
+class GenUiTools {
+  /// Returns a list of all the tools available for interacting with the GenUI
+  /// system.
+  static List<AiTool> allTools(GenUiManager genUiManager) {
+    return [
+      SurfaceUpdateTool(genUiManager),
+      BeginRenderingTool(genUiManager),
+      DeleteSurfaceTool(genUiManager),
+      // Add DataModelUpdate tool here once
+      //https://github.com/flutter/genui/pull/423 is fixed
+    ];
+  }
+}
+
+/// An [AiTool] for updating the data model.
+class DataModelUpdateTool extends AiTool<JsonMap> {
+  /// Creates a [DataModelUpdateTool].
+  DataModelUpdateTool(this.genUiManager)
+    : super(
+        name: 'dataModelUpdate',
+        description: 'Updates the data model of a surface.',
+        parameters: A2uiSchemas.dataModelUpdateSchema(),
+      );
+
+  /// The [GenUiManager] to use for updating the UI.
+  final GenUiManager genUiManager;
+
+  @override
+  Future<JsonMap> invoke(JsonMap args) async {
+    final surfaceId = args[surfaceIdKey] as String;
+    final path = args['path'] as String?;
+    final contents = args['contents'] as JsonMap;
+    genUiManager.handleMessage(
+      DataModelUpdate(surfaceId: surfaceId, path: path, contents: contents),
+    );
+    return {'status': 'ok'};
+  }
+}
 
 /// An [AiTool] for adding or updating a UI surface.
 ///
@@ -18,21 +57,15 @@ import 'genui_configuration.dart';
 /// one with a new definition.
 class SurfaceUpdateTool extends AiTool<JsonMap> {
   /// Creates an [SurfaceUpdateTool].
-  SurfaceUpdateTool({
-    required this.handleMessage,
-    required Catalog catalog,
-    required this.configuration,
-  }) : super(
-         name: 'surfaceUpdate',
-         description: 'Updates a surface with a new set of components.',
-         parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
-       );
+  SurfaceUpdateTool(this.genUiManager)
+    : super(
+        name: 'surfaceUpdate',
+        description: 'Updates a surface with a new set of components.',
+        parameters: A2uiSchemas.surfaceUpdateSchema(genUiManager.catalog),
+      );
 
-  /// The callback to invoke when adding or updating a surface.
-  final void Function(A2uiMessage message) handleMessage;
-
-  /// The configuration of the Gen UI system.
-  final GenUiConfiguration configuration;
+  /// The [GenUiManager] to use for updating the UI.
+  final GenUiManager genUiManager;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
@@ -44,7 +77,9 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
         componentProperties: component['component'] as JsonMap,
       );
     }).toList();
-    handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
+    genUiManager.handleMessage(
+      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    );
     return {surfaceIdKey: surfaceId, 'status': 'SUCCESS'};
   }
 }
@@ -54,7 +89,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
 /// This tool allows the AI to remove a UI surface that is no longer needed.
 class DeleteSurfaceTool extends AiTool<JsonMap> {
   /// Creates a [DeleteSurfaceTool].
-  DeleteSurfaceTool({required this.handleMessage})
+  DeleteSurfaceTool(this.genUiManager)
     : super(
         name: 'deleteSurface',
         description: 'Removes a UI surface that is no longer needed.',
@@ -69,13 +104,13 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
         ),
       );
 
-  /// The callback to invoke when deleting a surface.
-  final void Function(A2uiMessage message) handleMessage;
+  /// The [GenUiManager] to use for updating the UI.
+  final GenUiManager genUiManager;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
-    handleMessage(SurfaceDeletion(surfaceId: surfaceId));
+    genUiManager.handleMessage(SurfaceDeletion(surfaceId: surfaceId));
     return {'status': 'ok'};
   }
 }
@@ -85,7 +120,7 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
 /// This tool allows the AI to specify the root component of a UI surface.
 class BeginRenderingTool extends AiTool<JsonMap> {
   /// Creates a [BeginRenderingTool].
-  BeginRenderingTool({required this.handleMessage})
+  BeginRenderingTool(this.genUiManager)
     : super(
         name: 'beginRendering',
         description:
@@ -107,14 +142,16 @@ class BeginRenderingTool extends AiTool<JsonMap> {
         ),
       );
 
-  /// The callback to invoke when signaling to begin rendering.
-  final void Function(A2uiMessage message) handleMessage;
+  /// The [GenUiManager] to use for updating the UI.
+  final GenUiManager genUiManager;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
     final root = args['root'] as String;
-    handleMessage(BeginRendering(surfaceId: surfaceId, root: root));
+    genUiManager.handleMessage(
+      BeginRendering(surfaceId: surfaceId, root: root),
+    );
     return {'status': 'ok'};
   }
 }

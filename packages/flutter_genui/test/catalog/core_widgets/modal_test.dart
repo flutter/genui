@@ -16,7 +16,6 @@ void main() {
         CoreCatalogItems.button,
         CoreCatalogItems.text,
       ]),
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

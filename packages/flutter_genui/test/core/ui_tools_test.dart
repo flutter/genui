@@ -3,26 +3,25 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/src/core/genui_configuration.dart';
-import 'package:flutter_genui/src/core/ui_tools.dart';
-import 'package:flutter_genui/src/model/a2ui_message.dart';
-import 'package:flutter_genui/src/model/catalog.dart';
-import 'package:flutter_genui/src/model/catalog_item.dart';
-import 'package:flutter_genui/src/model/tools.dart';
+import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+
+class MockGenUiManager extends GenUiManager {
+  MockGenUiManager({required super.catalog});
+
+  final messages = <A2uiMessage>[];
+
+  @override
+  void handleMessage(A2uiMessage message) {
+    messages.add(message);
+  }
+}
 
 void main() {
   group('$SurfaceUpdateTool', () {
     test('invoke calls handleMessage with correct arguments', () async {
-      final messages = <A2uiMessage>[];
-
-      void fakeHandleMessage(A2uiMessage message) {
-        messages.add(message);
-      }
-
-      final tool = SurfaceUpdateTool(
-        handleMessage: fakeHandleMessage,
+      final mockManager = MockGenUiManager(
         catalog: Catalog([
           CatalogItem(
             name: 'Text',
@@ -40,8 +39,9 @@ void main() {
             dataSchema: Schema.object(properties: {}),
           ),
         ]),
-        configuration: const GenUiConfiguration(),
       );
+
+      final tool = SurfaceUpdateTool(mockManager);
 
       final args = {
         surfaceIdKey: 'testSurface',
@@ -57,9 +57,9 @@ void main() {
 
       await tool.invoke(args);
 
-      expect(messages.length, 1);
-      expect(messages[0], isA<SurfaceUpdate>());
-      final surfaceUpdate = messages[0] as SurfaceUpdate;
+      expect(mockManager.messages.length, 1);
+      expect(mockManager.messages[0], isA<SurfaceUpdate>());
+      final surfaceUpdate = mockManager.messages[0] as SurfaceUpdate;
       expect(surfaceUpdate.surfaceId, 'testSurface');
       expect(surfaceUpdate.components.length, 1);
       expect(surfaceUpdate.components[0].id, 'rootWidget');
@@ -71,42 +71,34 @@ void main() {
 
   group('DeleteSurfaceTool', () {
     test('invoke calls handleMessage with correct arguments', () async {
-      final messages = <A2uiMessage>[];
+      final mockManager = MockGenUiManager(catalog: const Catalog([]));
 
-      void fakeHandleMessage(A2uiMessage message) {
-        messages.add(message);
-      }
-
-      final tool = DeleteSurfaceTool(handleMessage: fakeHandleMessage);
+      final tool = DeleteSurfaceTool(mockManager);
 
       final args = {surfaceIdKey: 'testSurface'};
 
       await tool.invoke(args);
 
-      expect(messages.length, 1);
-      expect(messages[0], isA<SurfaceDeletion>());
-      final deleteSurface = messages[0] as SurfaceDeletion;
+      expect(mockManager.messages.length, 1);
+      expect(mockManager.messages[0], isA<SurfaceDeletion>());
+      final deleteSurface = mockManager.messages[0] as SurfaceDeletion;
       expect(deleteSurface.surfaceId, 'testSurface');
     });
   });
 
   group('BeginRenderingTool', () {
     test('invoke calls handleMessage with correct arguments', () async {
-      final messages = <A2uiMessage>[];
+      final mockManager = MockGenUiManager(catalog: const Catalog([]));
 
-      void fakeHandleMessage(A2uiMessage message) {
-        messages.add(message);
-      }
-
-      final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
+      final tool = BeginRenderingTool(mockManager);
 
       final args = {surfaceIdKey: 'testSurface', 'root': 'rootWidget'};
 
       await tool.invoke(args);
 
-      expect(messages.length, 1);
-      expect(messages[0], isA<BeginRendering>());
-      final beginRendering = messages[0] as BeginRendering;
+      expect(mockManager.messages.length, 1);
+      expect(mockManager.messages[0], isA<BeginRendering>());
+      final beginRendering = mockManager.messages[0] as BeginRendering;
       expect(beginRendering.surfaceId, 'testSurface');
       expect(beginRendering.root, 'rootWidget');
     });

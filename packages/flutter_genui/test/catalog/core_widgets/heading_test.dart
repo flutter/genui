@@ -8,10 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('Heading widget renders', (WidgetTester tester) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.heading]),
-      configuration: const GenUiConfiguration(),
-    );
+    final manager = GenUiManager(catalog: Catalog([CoreCatalogItems.heading]));
     const surfaceId = 'testSurface';
     final components = [
       const Component(

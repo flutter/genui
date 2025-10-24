@@ -10,7 +10,6 @@ void main() {
   testWidgets('Card widget renders child', (WidgetTester tester) async {
     final manager = GenUiManager(
       catalog: Catalog([CoreCatalogItems.card, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

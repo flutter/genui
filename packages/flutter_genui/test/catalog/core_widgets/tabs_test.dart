@@ -12,7 +12,6 @@ void main() {
   ) async {
     final manager = GenUiManager(
       catalog: Catalog([CoreCatalogItems.tabs, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

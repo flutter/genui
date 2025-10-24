@@ -10,10 +10,7 @@ void main() {
   testWidgets('CheckBox widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.checkBox]),
-      configuration: const GenUiConfiguration(),
-    );
+    final manager = GenUiManager(catalog: Catalog([CoreCatalogItems.checkBox]));
     const surfaceId = 'testSurface';
     final components = [
       const Component(

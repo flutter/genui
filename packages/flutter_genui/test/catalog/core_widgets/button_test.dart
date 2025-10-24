@@ -13,7 +13,6 @@ void main() {
     UserMessage? message;
     final manager = GenUiManager(
       catalog: Catalog([CoreCatalogItems.button, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';
