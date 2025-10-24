@@ -69,23 +69,7 @@ class A2uiContentGenerator implements ContentGenerator {
         return;
       }
 
-      var textToSend = '';
-      if (lastUserMessage.parts.isNotEmpty) {
-        final lastPart = lastUserMessage.parts.last;
-        if (lastPart is TextPart) {
-          textToSend = lastPart.text;
-        }
-      }
-
-      if (textToSend.isEmpty) {
-        _errorResponseController.add(ContentGeneratorError(
-          'Last UserMessage has no text to send',
-          StackTrace.current,
-        ));
-        return;
-      }
-
-      final responseText = await connector.connectAndSend(textToSend);
+      final responseText = await connector.connectAndSend(lastUserMessage);
       if (responseText != null && responseText.isNotEmpty) {
         _textResponseController.add(responseText);
         _addMessage(AiTextMessage([TextPart(responseText)]));

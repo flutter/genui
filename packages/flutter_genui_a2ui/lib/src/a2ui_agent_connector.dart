@@ -77,11 +77,15 @@ class A2uiAgentConnector {
   /// Connects to the agent and sends a message.
   ///
   /// Returns the text response from the agent, if any.
-  Future<String?> connectAndSend(String messageText) async {
+  Future<String?> connectAndSend(genui.ChatMessage chatMessage) async {
     final message = A2AMessage()
       ..messageId = const Uuid().v4()
       ..role = 'user'
-      ..parts = [A2ATextPart()..text = messageText];
+      ..parts = (
+        chatMessage as genui.UserMessage
+      ).parts.whereType<genui.TextPart>().map((part) {
+        return A2ATextPart()..text = part.text;
+      }).toList();
 
     if (taskId != null) {
       message.referenceTaskIds = [taskId!];

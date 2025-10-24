@@ -74,14 +74,48 @@ void main() {
       final messages = <genui.A2uiMessage>[];
       connector.stream.listen(messages.add);
 
-      final responseText = await connector.connectAndSend('Hi');
+      final userMessage = genui.UserMessage([
+        const genui.TextPart('Hi'),
+        const genui.TextPart('There'),
+      ]);
+      final responseText = await connector.connectAndSend(userMessage);
 
       expect(responseText, 'Hello');
+      expect(fakeClient.lastSendMessageParams, isNotNull);
+      final sentMessage = fakeClient.lastSendMessageParams!.message;
+      expect(sentMessage.parts!.length, 2);
+      expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hi');
+      expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'There');
       expect(connector.taskId, 'task1');
       expect(connector.contextId, 'context1');
       expect(fakeClient.sendMessageStreamCalled, 1);
       expect(messages.length, 1);
       expect(messages.first, isA<genui.SurfaceUpdate>());
+    });
+
+    test('connectAndSend sends multiple text parts', () async {
+      final responses = [
+        a2a.A2ASendStreamMessageSuccessResponse()
+          ..result = (a2a.A2ATask()
+            ..id = 'task1'
+            ..contextId = 'context1'),
+      ];
+      fakeClient.sendMessageStreamHandler = (_) =>
+          Stream.fromIterable(responses);
+
+      await connector.connectAndSend(
+        genui.UserMessage([
+          const genui.TextPart('Hello'),
+          const genui.TextPart('World'),
+        ]),
+      );
+
+      expect(fakeClient.sendMessageStreamCalled, 1);
+      expect(fakeClient.lastSendMessageParams, isNotNull);
+      final sentMessage = fakeClient.lastSendMessageParams!.message;
+      expect(sentMessage.parts!.length, 2);
+      expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hello');
+      expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'World');
     });
 
     test('connectAndSend handles errors', () async {
@@ -93,7 +127,7 @@ void main() {
       final errors = <Object>[];
       connector.errorStream.listen(errors.add);
 
-      await connector.connectAndSend('Hi');
+      await connector.connectAndSend(genui.UserMessage.text('Hi'));
 
       expect(errors.length, 1);
       expect(errors.first, 'A2A Error: -1');

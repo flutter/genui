@@ -78,10 +78,6 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   /// The total number of output tokens used by this client
   int outputTokenUsage = 0;
 
-<<<<<<< HEAD
-  final _conversation = ValueNotifier<List<ChatMessage>>([]);
-=======
->>>>>>> main
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
   final _errorController = StreamController<ContentGeneratorError>.broadcast();
@@ -98,19 +94,9 @@ class FirebaseAiContentGenerator implements ContentGenerator {
 
   @override
   ValueListenable<bool> get isProcessing => _isProcessing;
-<<<<<<< HEAD
-
-  @override
-  ValueListenable<List<ChatMessage>> get conversation => _conversation;
 
   @override
   void dispose() {
-    _conversation.dispose();
-=======
-
-  @override
-  void dispose() {
->>>>>>> main
     _a2uiMessageController.close();
     _textResponseController.close();
     _errorController.close();
@@ -118,31 +104,16 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   }
 
   @override
-<<<<<<< HEAD
-  Future<void> sendRequest(UserMessage message) async {
-    _isProcessing.value = true;
-    try {
-      _addMessage(message);
-      await _generate(messages: _conversation.value);
-=======
   Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
       await _generate(messages: messages);
->>>>>>> main
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
     } finally {
       _isProcessing.value = false;
     }
-<<<<<<< HEAD
-  }
-
-  void _addMessage(ChatMessage message) {
-    _conversation.value = [..._conversation.value, message];
-=======
->>>>>>> main
   }
 
   /// The default factory function for creating a [GenerativeModel].
@@ -475,10 +446,6 @@ With functions:
           mutableContent.add(candidate.content);
           genUiLogger.fine('Returning text response: "$text"');
           _textResponseController.add(text);
-<<<<<<< HEAD
-          _addMessage(AiTextMessage([TextPart(text)]));
-=======
->>>>>>> main
           return text;
         }
       }
@@ -519,10 +486,6 @@ With functions:
           'Exiting tool loop.',
         );
         _textResponseController.add(candidate.text!);
-<<<<<<< HEAD
-        _addMessage(AiTextMessage([TextPart(candidate.text!)]));
-=======
->>>>>>> main
         return candidate.text;
       }
     }
@@ -610,17 +573,10 @@ String _responseToString(GenerateContentResponse response) {
       } else if (part is FunctionCall) {
         buffer.writeln('          FunctionCall(');
         buffer.writeln('            name: "${part.name}",');
-<<<<<<< HEAD
-        buffer.writeln(
-          '            args: '
-          '${const JsonEncoder.withIndent('  ').convert(part.args)},',
-        );
-=======
         final indentedLines = (const JsonEncoder.withIndent('  ').convert(
           part.args,
         )).split('\n').map<String>((line) => '            $line');
         buffer.writeln('            args: $indentedLines,');
->>>>>>> main
         buffer.writeln('          ),');
       } else {
         buffer.writeln('          Unknown Part: ${part.runtimeType},');

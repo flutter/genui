@@ -53,6 +53,7 @@ void main() {
       expect(contentGenerator.conversation.value[1], isA<AiTextMessage>());
       final aiMessage = contentGenerator.conversation.value[1] as AiTextMessage;
       expect((aiMessage.parts.first as TextPart).text, 'Fake AI Response');
+      expect(fakeConnector.lastConnectAndSendChatMessage, userMessage);
     });
 
     test('sendRequest adds response to textResponseStream', () async {

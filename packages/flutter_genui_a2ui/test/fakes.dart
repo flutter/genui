@@ -41,6 +41,7 @@ class FakeA2AClient implements a2a.A2AClient {
     a2a.A2AMessageSendParams params,
   ) {
     sendMessageStreamCalled++;
+    lastSendMessageParams = params;
     if (sendMessageStreamHandler != null) {
       return sendMessageStreamHandler!(params);
     }
@@ -146,8 +147,11 @@ class FakeA2uiAgentConnector implements A2uiAgentConnector {
   @override
   late a2a.A2AClient client;
 
+  genui.ChatMessage? lastConnectAndSendChatMessage;
+
   @override
-  Future<String?> connectAndSend(String messageText) async {
+  Future<String?> connectAndSend(genui.ChatMessage chatMessage) async {
+    lastConnectAndSendChatMessage = chatMessage;
     // Simulate sending a message and receiving a response
     return Future.value('Fake AI Response');
   }
