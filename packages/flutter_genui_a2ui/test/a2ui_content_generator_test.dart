@@ -42,7 +42,7 @@ void main() {
       final userMessage = UserMessage([const TextPart('Hello')]);
 
       expect(contentGenerator.isProcessing.value, isFalse);
-      final future = contentGenerator.sendRequest(userMessage);
+      final future = contentGenerator.sendRequest([userMessage]);
       expect(contentGenerator.isProcessing.value, isTrue);
 
       await future;
@@ -60,7 +60,7 @@ void main() {
       final completer = Completer<String>();
       contentGenerator.textResponseStream.listen(completer.complete);
 
-      await contentGenerator.sendRequest(userMessage);
+      await contentGenerator.sendRequest([userMessage]);
 
       expect(await completer.future, 'Fake AI Response');
     });

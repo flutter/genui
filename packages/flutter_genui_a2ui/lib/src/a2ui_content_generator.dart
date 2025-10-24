@@ -44,7 +44,6 @@ class A2uiContentGenerator implements ContentGenerator {
   @override
   ValueListenable<bool> get isProcessing => _isProcessing;
 
-  @override
   ValueListenable<List<ChatMessage>> get conversation => _conversation;
 
   @override
@@ -56,11 +55,37 @@ class A2uiContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(UserMessage message) async {
+  Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
-      _addMessage(message);
-      final responseText = await connector.connectAndSend(message.text);
+      _conversation.value = messages.toList();
+      final lastUserMessage = messages.whereType<UserMessage>().lastOrNull;
+
+      if (lastUserMessage == null) {
+        _errorResponseController.add(ContentGeneratorError(
+          'No UserMessage found to send',
+          StackTrace.current,
+        ));
+        return;
+      }
+
+      var textToSend = '';
+      if (lastUserMessage.parts.isNotEmpty) {
+        final lastPart = lastUserMessage.parts.last;
+        if (lastPart is TextPart) {
+          textToSend = lastPart.text;
+        }
+      }
+
+      if (textToSend.isEmpty) {
+        _errorResponseController.add(ContentGeneratorError(
+          'Last UserMessage has no text to send',
+          StackTrace.current,
+        ));
+        return;
+      }
+
+      final responseText = await connector.connectAndSend(textToSend);
       if (responseText != null && responseText.isNotEmpty) {
         _textResponseController.add(responseText);
         _addMessage(AiTextMessage([TextPart(responseText)]));
