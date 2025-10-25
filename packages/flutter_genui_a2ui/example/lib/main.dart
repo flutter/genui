@@ -97,8 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 const Divider(height: 1.0),
                 Container(
-                  decoration:
-                      BoxDecoration(color: Theme.of(context).cardColor),
+                  decoration: BoxDecoration(color: Theme.of(context).cardColor),
                   child: _buildTextComposer(),
                 ),
               ],
@@ -106,8 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              child:
-                  GenUiSurface(host: _genUiManager, surfaceId: 'default'),
+              child: GenUiSurface(host: _genUiManager, surfaceId: 'default'),
             ),
           ),
         ],
