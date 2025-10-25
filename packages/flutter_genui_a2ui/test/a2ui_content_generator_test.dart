@@ -42,7 +42,7 @@ void main() {
       final userMessage = UserMessage([const TextPart('Hello')]);
 
       expect(contentGenerator.isProcessing.value, isFalse);
-      final future = contentGenerator.sendRequest([userMessage]);
+      final future = contentGenerator.sendRequest(userMessage);
       expect(contentGenerator.isProcessing.value, isTrue);
 
       await future;
@@ -56,7 +56,7 @@ void main() {
       final completer = Completer<String>();
       contentGenerator.textResponseStream.listen(completer.complete);
 
-      await contentGenerator.sendRequest([userMessage]);
+      await contentGenerator.sendRequest(userMessage);
 
       expect(await completer.future, 'Fake AI Response');
     });
@@ -93,6 +93,18 @@ void main() {
 
       final capturedMessage = await completer.future;
       expect(capturedMessage, testMessage);
+    });
+    test('sendRequest with history adds an error to the stream', () async {
+      final userMessage = UserMessage([const TextPart('Test')]);
+      final history = [UserMessage([const TextPart('Old')])];
+      final completer = Completer<ContentGeneratorError>();
+      contentGenerator.errorStream.listen(completer.complete);
+
+      await contentGenerator.sendRequest(userMessage, history: history);
+
+      final capturedError = await completer.future;
+      expect(capturedError.error, isA<String>());
+      expect(capturedError.error as String, contains('ignores history'));
     });
   });
 }

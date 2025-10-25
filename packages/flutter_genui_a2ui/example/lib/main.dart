@@ -43,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
     catalog: CoreCatalogItems.asCatalog(),
   );
   late final A2uiContentGenerator _contentGenerator;
-  late final GenUiConversation _uiAgent;
+  late final GenUiConversation _genUiConversation;
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _contentGenerator = A2uiContentGenerator(
       serverUrl: Uri.parse('http://localhost:10002'),
     );
-    _uiAgent = GenUiConversation(
+    _genUiConversation = GenUiConversation(
       contentGenerator: _contentGenerator,
       genUiManager: _genUiManager,
     );
@@ -60,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _textController.dispose();
-    _uiAgent.dispose();
+    _genUiConversation.dispose();
     _genUiManager.dispose();
     _contentGenerator.dispose();
     super.dispose();
@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    _uiAgent.sendRequest(UserMessage.text(text));
+    _genUiConversation.sendRequest(UserMessage.text(text));
   }
 
   @override
@@ -79,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Expanded(
             child: ValueListenableBuilder<List<ChatMessage>>(
-              valueListenable: _uiAgent.conversation,
+              valueListenable: _genUiConversation.conversation,
               builder: (context, messages, child) {
                 return ListView.builder(
                   padding: const EdgeInsets.all(8.0),

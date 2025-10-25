@@ -51,22 +51,20 @@ class A2uiContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(Iterable<ChatMessage> messages) async {
+  Future<void> sendRequest(ChatMessage message, {
+    Iterable<ChatMessage>? history,
+  }) async {
     _isProcessing.value = true;
     try {
-      final lastUserMessage = messages.whereType<UserMessage>().lastOrNull;
-
-      if (lastUserMessage == null) {
+      if (history != null && history.isNotEmpty) {
         _errorResponseController.add(
           ContentGeneratorError(
-            'No UserMessage found to send',
+            'A2uiContentGenerator is stateful and ignores history.',
             StackTrace.current,
           ),
         );
-        return;
       }
-
-      final responseText = await connector.connectAndSend(lastUserMessage);
+      final responseText = await connector.connectAndSend(message);
       if (responseText != null && responseText.isNotEmpty) {
         _textResponseController.add(responseText);
       }
