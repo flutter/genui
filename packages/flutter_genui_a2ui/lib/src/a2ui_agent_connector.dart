@@ -37,7 +37,8 @@ class AgentCard {
 /// the agent card, sending messages, and receiving the A2UI protocol stream.
 class A2uiAgentConnector {
   /// Creates a [A2uiAgentConnector] that connects to the given [url].
-  A2uiAgentConnector({required this.url, A2AClient? client}) {
+  A2uiAgentConnector({required this.url, A2AClient? client, String? contextId})
+    : _contextId = contextId {
     this.client = client ?? A2AClient(url.toString());
   }
 
@@ -50,8 +51,9 @@ class A2uiAgentConnector {
   late A2AClient client;
   @visibleForTesting
   String? taskId;
-  @visibleForTesting
-  String? contextId;
+
+  String? _contextId;
+  String? get contextId => _contextId;
 
   /// The stream of A2UI protocol lines.
   ///
@@ -81,11 +83,12 @@ class A2uiAgentConnector {
     final message = A2AMessage()
       ..messageId = const Uuid().v4()
       ..role = 'user'
-      ..parts = (
-        chatMessage as genui.UserMessage
-      ).parts.whereType<genui.TextPart>().map((part) {
-        return A2ATextPart()..text = part.text;
-      }).toList();
+      ..parts = (chatMessage as genui.UserMessage).parts
+          .whereType<genui.TextPart>()
+          .map((part) {
+            return A2ATextPart()..text = part.text;
+          })
+          .toList();
 
     if (taskId != null) {
       message.referenceTaskIds = [taskId!];
@@ -129,7 +132,7 @@ class A2uiAgentConnector {
         final result = response.result;
         if (result is A2ATask) {
           taskId = result.id;
-          contextId = result.contextId;
+          _contextId = result.contextId;
         }
 
         A2AMessage? message;

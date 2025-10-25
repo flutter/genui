@@ -38,7 +38,7 @@ void main() {
       fakeConnector.dispose();
     });
 
-    test('sendRequest updates isProcessing and conversation', () async {
+    test('sendRequest updates isProcessing', () async {
       final userMessage = UserMessage([const TextPart('Hello')]);
 
       expect(contentGenerator.isProcessing.value, isFalse);
@@ -48,11 +48,6 @@ void main() {
       await future;
 
       expect(contentGenerator.isProcessing.value, isFalse);
-      expect(contentGenerator.conversation.value.length, 2);
-      expect(contentGenerator.conversation.value[0], userMessage);
-      expect(contentGenerator.conversation.value[1], isA<AiTextMessage>());
-      final aiMessage = contentGenerator.conversation.value[1] as AiTextMessage;
-      expect((aiMessage.parts.first as TextPart).text, 'Fake AI Response');
       expect(fakeConnector.lastConnectAndSendChatMessage, userMessage);
     });
 
@@ -89,8 +84,8 @@ void main() {
               'id': 'c1',
               'component': {
                 'Column': {'children': <dynamic>[]},
-              }
-            }
+              },
+            },
           ],
         },
       });

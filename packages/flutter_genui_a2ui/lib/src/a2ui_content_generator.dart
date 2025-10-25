@@ -25,7 +25,6 @@ class A2uiContentGenerator implements ContentGenerator {
   }
 
   final A2uiAgentConnector connector;
-  final _conversation = ValueNotifier<List<ChatMessage>>([]);
   final _textResponseController = StreamController<String>.broadcast();
   final _errorResponseController =
       StreamController<ContentGeneratorError>.broadcast();
@@ -44,11 +43,8 @@ class A2uiContentGenerator implements ContentGenerator {
   @override
   ValueListenable<bool> get isProcessing => _isProcessing;
 
-  ValueListenable<List<ChatMessage>> get conversation => _conversation;
-
   @override
   void dispose() {
-    _conversation.dispose();
     _textResponseController.close();
     connector.dispose();
     _isProcessing.dispose();
@@ -58,28 +54,24 @@ class A2uiContentGenerator implements ContentGenerator {
   Future<void> sendRequest(Iterable<ChatMessage> messages) async {
     _isProcessing.value = true;
     try {
-      _conversation.value = messages.toList();
       final lastUserMessage = messages.whereType<UserMessage>().lastOrNull;
 
       if (lastUserMessage == null) {
-        _errorResponseController.add(ContentGeneratorError(
-          'No UserMessage found to send',
-          StackTrace.current,
-        ));
+        _errorResponseController.add(
+          ContentGeneratorError(
+            'No UserMessage found to send',
+            StackTrace.current,
+          ),
+        );
         return;
       }
 
       final responseText = await connector.connectAndSend(lastUserMessage);
       if (responseText != null && responseText.isNotEmpty) {
         _textResponseController.add(responseText);
-        _addMessage(AiTextMessage([TextPart(responseText)]));
       }
     } finally {
       _isProcessing.value = false;
     }
-  }
-
-  void _addMessage(ChatMessage message) {
-    _conversation.value = [..._conversation.value, message];
   }
 }

@@ -134,8 +134,12 @@ void main() {
     });
 
     test('sendEvent sends correct message', () async {
+      connector = A2uiAgentConnector(
+        url: Uri.parse('http://localhost:8080'),
+        client: fakeClient,
+        contextId: 'context1',
+      );
       connector.taskId = 'task1';
-      connector.contextId = 'context1';
       final event = {
         'action': 'testAction',
         'sourceComponentId': 'c1',
