@@ -104,7 +104,8 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(ChatMessage message, {
+  Future<void> sendRequest(
+    ChatMessage message, {
     Iterable<ChatMessage>? history,
   }) async {
     _isProcessing.value = true;

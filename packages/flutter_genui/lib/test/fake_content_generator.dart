@@ -52,7 +52,10 @@ class FakeContentGenerator implements ContentGenerator {
   }
 
   @override
-  Future<void> sendRequest(ChatMessage message, {Iterable<ChatMessage>? history}) async {
+  Future<void> sendRequest(
+    ChatMessage message, {
+    Iterable<ChatMessage>? history,
+  }) async {
     _isProcessing.value = true;
     try {
       sendRequestCallCount++;

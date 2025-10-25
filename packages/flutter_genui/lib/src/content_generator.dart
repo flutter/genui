@@ -46,7 +46,10 @@ abstract interface class ContentGenerator {
   ///
   /// Some implementations, particularly those that manage their own state
   /// (stateful), may ignore the `history` parameter.
-  Future<void> sendRequest(ChatMessage message, {Iterable<ChatMessage>? history});
+  Future<void> sendRequest(
+    ChatMessage message, {
+    Iterable<ChatMessage>? history,
+  });
 
   /// Disposes of the resources used by this generator.
   void dispose();

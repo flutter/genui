@@ -96,7 +96,9 @@ void main() {
     });
     test('sendRequest with history adds an error to the stream', () async {
       final userMessage = UserMessage([const TextPart('Test')]);
-      final history = [UserMessage([const TextPart('Old')])];
+      final history = [
+        UserMessage([const TextPart('Old')]),
+      ];
       final completer = Completer<ContentGeneratorError>();
       contentGenerator.errorStream.listen(completer.complete);
 
