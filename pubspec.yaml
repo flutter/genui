@@ -1,0 +1,25 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: _
+publish_to: none
+
+environment:
+  sdk: ^3.9.0-333.2.beta
+
+workspace:
+  - packages/flutter_genui
+  - packages/flutter_genui_firebase_ai
+  - packages/json_schema_builder
+  - examples/catalog_gallery
+  - examples/custom_backend
+  - examples/simple_chat
+  - examples/travel_app
+  - tool/fix_copyright
+  - tool/test_and_fix
+
+dependency_overrides:
+  test: ^1.25.6
+  test_api: 0.7.6
+  analyzer: ^5.12.0
