@@ -75,30 +75,40 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('A2UI Example')),
-      body: Column(
+      body: Row(
         children: <Widget>[
-          Expanded(
-            child: ValueListenableBuilder<List<ChatMessage>>(
-              valueListenable: _genUiConversation.conversation,
-              builder: (context, messages, child) {
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8.0),
-                  reverse: true,
-                  itemBuilder: (_, int index) =>
-                      _buildMessage(messages.reversed.toList()[index]),
-                  itemCount: messages.length,
-                );
-              },
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 200, maxWidth: 300),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: ValueListenableBuilder<List<ChatMessage>>(
+                    valueListenable: _genUiConversation.conversation,
+                    builder: (context, messages, child) {
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(8.0),
+                        reverse: true,
+                        itemBuilder: (_, int index) =>
+                            _buildMessage(messages.reversed.toList()[index]),
+                        itemCount: messages.length,
+                      );
+                    },
+                  ),
+                ),
+                const Divider(height: 1.0),
+                Container(
+                  decoration:
+                      BoxDecoration(color: Theme.of(context).cardColor),
+                  child: _buildTextComposer(),
+                ),
+              ],
             ),
           ),
-          const Divider(height: 1.0),
-          Container(
-            decoration: BoxDecoration(color: Theme.of(context).cardColor),
-            child: _buildTextComposer(),
-          ),
-          SizedBox(
-            height: 200,
-            child: GenUiSurface(host: _genUiManager, surfaceId: 'default'),
+          Expanded(
+            child: SingleChildScrollView(
+              child:
+                  GenUiSurface(host: _genUiManager, surfaceId: 'default'),
+            ),
           ),
         ],
       ),
