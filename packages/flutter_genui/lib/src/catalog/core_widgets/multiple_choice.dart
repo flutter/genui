@@ -137,7 +137,11 @@ final multipleChoice = CatalogItem(
               ]
             }
           }
-        },
+        }
+      ]
+    ''',
+    () => '''
+      [
         {
           "id": "root",
           "component": {
