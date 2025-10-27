@@ -111,7 +111,15 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       final messages = [...?history, message];
-      await _generate(messages: messages);
+      final response = await _generate(
+        messages: messages,
+        // This turns on forced function calling.
+        outputSchema: dsb.S.object(properties: {'response': dsb.S.string()}),
+      );
+      // Convert any response to a text response to the user.
+      if (response is Map && response.containsKey('response')) {
+        _textResponseController.add(response['response']! as String);
+      }
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
@@ -156,7 +164,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
         ? DynamicAiTool<Map<String, Object?>>(
             name: outputToolName,
             description:
-                '''Returns the final output. Call this function ONLY when you have your complete structured output that conforms to the required schema. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
+                '''Returns the final output. Call this function when you are done with the current turn of the conversation. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
             // Wrap the outputSchema in an object so that the output schema
             // isn't limited to objects.
             parameters: dsb.S.object(properties: {'output': outputSchema!}),
@@ -577,9 +585,9 @@ String _responseToString(GenerateContentResponse response) {
       } else if (part is FunctionCall) {
         buffer.writeln('          FunctionCall(');
         buffer.writeln('            name: "${part.name}",');
-        final indentedLines = (const JsonEncoder.withIndent('  ').convert(
-          part.args,
-        )).split('\n').map<String>((line) => '            $line');
+        final indentedLines = (const JsonEncoder.withIndent(
+          '  ',
+        ).convert(part.args)).split('\n').join('\n            ');
         buffer.writeln('            args: $indentedLines,');
         buffer.writeln('          ),');
       } else {
