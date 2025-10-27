@@ -7,6 +7,18 @@ import 'dart:convert';
 import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/flutter_genui.dart';
 
+/// An exception thrown by this package.
+class AiClientException implements Exception {
+  /// Creates an [AiClientException] with the given [message].
+  AiClientException(this.message);
+
+  /// The message associated with the exception.
+  final String message;
+
+  @override
+  String toString() => '$AiClientException: $message';
+}
+
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
 /// specific `Content` classes.
 ///

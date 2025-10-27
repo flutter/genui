@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
@@ -27,7 +28,7 @@ final _schema = S.object(
 
 extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
-    required JsonMap text,
+    JsonMap? text,
     JsonMap? label,
     String? textFieldType,
     String? validationRegexp,
@@ -40,7 +41,7 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
     'onSubmittedAction': onSubmittedAction,
   });
 
-  JsonMap get text => _json['text'] as JsonMap;
+  JsonMap? get text => _json['text'] as JsonMap?;
   JsonMap? get label => _json['label'] as JsonMap?;
   String? get textFieldType => _json['textFieldType'] as String?;
   String? get validationRegexp => _json['validationRegexp'] as String?;
@@ -109,6 +110,17 @@ class _TextFieldState extends State<_TextField> {
   }
 }
 
+/// A catalog item for a Material Design text field.
+///
+/// ### Parameters:
+///
+/// - `text`: The initial value of the text field.
+/// - `label`: The text to display as the label for the text field.
+/// - `textFieldType`: The type of text field. Can be `shortText`, `longText`,
+///   `number`, `date`, or `obscured`.
+/// - `validationRegexp`: A regular expression to validate the input.
+/// - `onSubmittedAction`: The action to perform when the user submits the
+///   text field.
 final textField = CatalogItem(
   name: 'TextField',
   dataSchema: _schema,
@@ -160,7 +172,7 @@ final textField = CatalogItem(
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         final valueRef = textFieldData.text;
-        final path = valueRef['path'] as String?;
+        final path = valueRef?['path'] as String?;
         final notifier = dataContext.subscribeToString(valueRef);
         final labelNotifier = dataContext.subscribeToString(
           textFieldData.label,
@@ -179,7 +191,7 @@ final textField = CatalogItem(
                   validationRegexp: textFieldData.validationRegexp,
                   onChanged: (newValue) {
                     if (path != null) {
-                      dataContext.update(path, newValue);
+                      dataContext.update(DataPath(path), newValue);
                     }
                   },
                   onSubmitted: (newValue) {

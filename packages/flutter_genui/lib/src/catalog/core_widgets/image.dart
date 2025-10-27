@@ -33,6 +33,14 @@ extension type _ImageData.fromMap(JsonMap _json) {
       : null;
 }
 
+/// A catalog item for a widget that displays an image.
+///
+/// ### Parameters:
+///
+/// - `url`: The URL of the image to display. Can be a network URL or a local
+///   asset path.
+/// - `fit`: How the image should be inscribed into the box. See [BoxFit] for
+///   possible values.
 final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,

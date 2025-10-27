@@ -14,11 +14,8 @@ Add the `json_schema_builder` package as a dependency in `pubspec.yaml`. Use the
 same commit reference as the one for `flutter_genui`.
 
 ```yaml
-json_schema_builder:
-  git:
-    url: https://github.com/flutter/genui.git
-    path: packages/json_schema_builder
-    ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+dependencies:
+  json_schema_builder: ^0.1.3
 ```
 
 ## 2. Create the new widget's schema
@@ -129,13 +126,14 @@ The following example shows how to instruct an agent provided by Firebase AI
 Login to generate a RiddleCard in response to user messages.
 
 ```dart
-final aiClient = FirebaseAiClient(
+// In your ContentGenerator implementation (e.g., YourContentGenerator):
+final contentGenerator = YourContentGenerator(
   systemInstruction: '''
       You are an expert in creating funny riddles. Every time I give you a word,
       you should generate a RiddleCard that displays one new riddle related to that word.
       Each riddle should have both a question and an answer.
       ''',
-  tools: genUiManager.getTools(),
+  // Pass any necessary tools to your ContentGenerator
 );
 ```
 

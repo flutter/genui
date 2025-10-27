@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -41,6 +42,19 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
   String? get outputFormat => _json['outputFormat'] as String?;
 }
 
+/// A catalog item for a Material Design date/time input.
+///
+/// This widget displays a field that allows the user to select a date and/or
+/// time.
+///
+/// ### Parameters:
+///
+/// - `value`: The selected date and/or time, as a string.
+/// - `enableDate`: Whether to allow the user to select a date. Defaults to
+///   `true`.
+/// - `enableTime`: Whether to allow the user to select a time. Defaults to
+///   `true`.
+/// - `outputFormat`: The format to use for the output string.
 final dateTimeInput = CatalogItem(
   name: 'DateTimeInput',
   dataSchema: _schema,
@@ -76,7 +90,7 @@ final dateTimeInput = CatalogItem(
                     lastDate: DateTime(2100),
                   );
                   if (date != null) {
-                    dataContext.update(path, date.toIso8601String());
+                    dataContext.update(DataPath(path), date.toIso8601String());
                   }
                 }
                 if (dateTimeInputData.enableTime) {
@@ -85,7 +99,7 @@ final dateTimeInput = CatalogItem(
                     initialTime: TimeOfDay.now(),
                   );
                   if (time != null) {
-                    dataContext.update(path, time.format(context));
+                    dataContext.update(DataPath(path), time.format(context));
                   }
                 }
               },

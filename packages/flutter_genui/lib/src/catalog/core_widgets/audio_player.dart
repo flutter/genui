@@ -17,6 +17,13 @@ final _schema = S.object(
   required: ['url'],
 );
 
+/// A catalog item for an audio player.
+///
+/// This widget displays a placeholder for an audio player.
+///
+/// ### Parameters:
+///
+/// - `url`: The URL of the audio to play.
 final audioPlayer = CatalogItem(
   name: 'AudioPlayer',
   dataSchema: _schema,

@@ -32,7 +32,7 @@ void main() {
     manager.handleMessage(
       const BeginRendering(surfaceId: surfaceId, root: 'checkbox'),
     );
-    manager.dataModelForSurface(surfaceId).update('/myValue', true);
+    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -50,7 +50,9 @@ void main() {
 
     await tester.tap(find.byType(CheckboxListTile));
     expect(
-      manager.dataModelForSurface(surfaceId).getValue<bool>('/myValue'),
+      manager
+          .dataModelForSurface(surfaceId)
+          .getValue<bool>(DataPath('/myValue')),
       isFalse,
     );
   });

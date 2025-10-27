@@ -33,6 +33,12 @@ extension type _ModalData.fromMap(JsonMap _json) {
   String get contentChild => _json['contentChild'] as String;
 }
 
+/// A catalog item for a modal bottom sheet.
+///
+/// ### Parameters:
+///
+/// - `entryPointChild`: The ID of the widget that opens the modal.
+/// - `contentChild`: The ID of the widget to display in the modal.
 final modal = CatalogItem(
   name: 'Modal',
   dataSchema: _schema,

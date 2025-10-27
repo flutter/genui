@@ -13,7 +13,7 @@ void main() {
       WidgetTester tester,
     ) async {
       // Mock buildChild function
-      Widget mockBuildChild(String id) {
+      Widget mockBuildChild(String id, [_]) {
         if (id == 'child1') {
           return const Text('Content for Tab 1');
         } else if (id == 'child2') {

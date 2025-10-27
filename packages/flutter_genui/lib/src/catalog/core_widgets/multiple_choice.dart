@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -43,6 +44,17 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
   int? get maxAllowedSelections => _json['maxAllowedSelections'] as int?;
 }
 
+/// A catalog item for a multiple choice widget.
+///
+/// This widget displays a list of options that the user can select from.
+///
+/// ### Parameters:
+///
+/// - `selections`: A list of the values of the selected options.
+/// - `options`: A list of options to display, each with a `label` and a
+///   `value`.
+/// - `maxAllowedSelections`: The maximum number of options that can be
+///   selected.
 final multipleChoice = CatalogItem(
   name: 'MultipleChoice',
   dataSchema: _schema,
@@ -89,7 +101,7 @@ final multipleChoice = CatalogItem(
                         } else {
                           newSelections.remove(value);
                         }
-                        dataContext.update(path, newSelections);
+                        dataContext.update(DataPath(path), newSelections);
                       },
                     );
                   },

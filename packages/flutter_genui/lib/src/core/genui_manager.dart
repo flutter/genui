@@ -7,16 +7,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../ai_client/ai_client.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
-import '../model/tools.dart' show AiTool;
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import 'genui_configuration.dart';
-import 'ui_tools.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -84,8 +81,8 @@ abstract interface class GenUiHost {
 ///
 /// This class is the core state manager for the dynamic UI. It maintains a map
 /// of all active UI "surfaces", where each surface is represented by a
-/// `UiDefinition`. It provides the tools (`surfaceUpdate`,
-/// `deleteSurface`) that the AI uses to manipulate the UI. It exposes a stream
+/// `UiDefinition`. It provides the tools (`surfaceUpdate`, `deleteSurface`,
+/// `beginRendering`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
 class GenUiManager implements GenUiHost {
   /// Creates a new [GenUiManager].
@@ -128,41 +125,12 @@ class GenUiManager implements GenUiHost {
       return;
     }
 
-    final userActionPayload = {
-      'userAction': {
-        'name': event.name,
-        'sourceComponentId': event.sourceComponentId,
-        'timestamp': event.timestamp.toIso8601String(),
-        'context': event.context,
-      },
-    };
-
-    final eventJsonString = jsonEncode(userActionPayload);
+    final eventJsonString = jsonEncode({'userAction': event.toMap()});
     _onSubmit.add(UserMessage.text(eventJsonString));
   }
 
   @override
   final Catalog catalog;
-
-  /// Returns a list of [AiTool]s that can be used to manipulate the UI.
-  ///
-  /// These tools should be provided to the [AiClient] to allow the AI to
-  /// generate and modify the UI.
-  List<AiTool> getTools() {
-    return [
-      if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate) ...[
-        SurfaceUpdateTool(
-          handleMessage: handleMessage,
-          catalog: catalog,
-          configuration: configuration,
-        ),
-        BeginRenderingTool(handleMessage: handleMessage),
-      ],
-      if (configuration.actions.allowDelete)
-        DeleteSurfaceTool(handleMessage: handleMessage),
-    ];
-  }
 
   @override
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
@@ -203,7 +171,13 @@ class GenUiManager implements GenUiHost {
           _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
         }
       case DataModelUpdate():
-        // TODO(a2ui-authors): Implement data model updates.
+        final path = message.path ?? '/';
+        genUiLogger.info(
+          'Updating data model for surface ${message.surfaceId} at path '
+          '$path with contents: ${message.contents}',
+        );
+        final dataModel = dataModelForSurface(message.surfaceId);
+        dataModel.update(DataPath(path), message.contents);
         break;
       case BeginRendering():
         final notifier = surface(message.surfaceId);

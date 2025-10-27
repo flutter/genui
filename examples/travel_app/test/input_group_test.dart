@@ -19,7 +19,7 @@ void main() {
         };
         UiEvent? dispatchedEvent;
 
-        Widget buildChild(String id) => Text(id);
+        Widget buildChild(String id, [_]) => Text(id);
 
         await tester.pumpWidget(
           MaterialApp(
@@ -74,7 +74,7 @@ void main() {
                 return inputGroup.widgetBuilder(
                   data: data,
                   id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
+                  buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (UiEvent _) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),

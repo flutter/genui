@@ -27,7 +27,7 @@ void main() {
                     'iconName': 'hotel',
                   },
                   id: 'test',
-                  buildChild: (_) => const SizedBox(),
+                  buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (_) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),

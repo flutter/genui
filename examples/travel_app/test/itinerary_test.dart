@@ -38,7 +38,7 @@ void main() {
               'status': 'choiceRequired',
               'choiceRequiredAction': {
                 'name': 'testAction',
-                'context': <Object?>[],
+                'context': <Object>[],
               },
             },
           ],
@@ -49,7 +49,7 @@ void main() {
     final itineraryWidget = itinerary.widgetBuilder(
       data: testData,
       id: 'itinerary1',
-      buildChild: (id) => SizedBox(key: Key(id)),
+      buildChild: (data, [_]) => SizedBox(key: Key(data)),
       dispatchEvent: mockDispatchEvent,
       context: tester.element(find.byType(Container)),
       dataContext: DataContext(DataModel(), '/'),

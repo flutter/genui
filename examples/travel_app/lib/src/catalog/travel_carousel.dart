@@ -141,10 +141,10 @@ extension type _TravelCarouselItemSchemaData.fromMap(
     'action': action,
   });
 
-  JsonMap get description => _json['description'] as JsonMap;
-  String get imageChildId => _json['imageChildId'] as String;
+  JsonMap get description => _json['description'] as JsonMap? ?? {};
+  String get imageChildId => _json['imageChildId'] as String? ?? '';
   String? get listingSelectionId => _json['listingSelectionId'] as String?;
-  JsonMap get action => _json['action'] as JsonMap;
+  JsonMap get action => _json['action'] as JsonMap? ?? {};
 }
 
 class _DesktopAndWebScrollBehavior extends MaterialScrollBehavior {

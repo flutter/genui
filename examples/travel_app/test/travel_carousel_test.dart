@@ -30,7 +30,7 @@ void main() {
         };
         UiEvent? dispatchedEvent;
 
-        Widget buildChild(String id) {
+        Widget buildChild(String id, [_]) {
           return Image.network('https://example.com/image.jpg');
         }
 
@@ -91,7 +91,7 @@ void main() {
         };
         UiEvent? dispatchedEvent;
 
-        Widget buildChild(String id) {
+        Widget buildChild(String id, [_]) {
           return Image.network('https://example.com/image.jpg');
         }
 
@@ -139,7 +139,7 @@ void main() {
                   return travelCarousel.widgetBuilder(
                     data: data,
                     id: 'testId',
-                    buildChild: (_) => const SizedBox.shrink(),
+                    buildChild: (data, [_]) => Text(data),
                     dispatchEvent: (event) {},
                     context: context,
                     dataContext: DataContext(DataModel(), '/'),

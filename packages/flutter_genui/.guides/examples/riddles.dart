@@ -49,26 +49,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late final UiAgent uiAgent;
+  late final GenUiConversation conversation;
   final _textController = TextEditingController();
-
-  final List<String> _surfaceIds = [];
-
-  void _onSurfaceAdded(SurfaceAdded update) {
-    setState(() {
-      _surfaceIds.add(update.surfaceId);
-    });
-  }
-
-  void _onSurfaceDeleted(SurfaceRemoved update) {
-    setState(() {
-      _surfaceIds.remove(update.surfaceId);
-    });
-  }
+  final List<ChatMessage> messages = [];
 
   void _sendMessage(String text) {
     if (text.trim().isEmpty) return;
-    uiAgent.sendRequest(UserMessage.text(text));
+    conversation.sendRequest(UserMessage.text(text));
+    _textController.clear();
   }
 
   @override
@@ -77,7 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final genUiManager = GenUiManager(
       catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
     );
-    final aiClient = FirebaseAiClient(
+    final contentGenerator = FirebaseContentGenerator(
+      apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
       systemInstruction: '''
           You are an expert in creating funny riddles. Every time I give you a
           word, you should generate a RiddleCard that displays one new riddle
@@ -86,16 +75,37 @@ class _MyHomePageState extends State<MyHomePage> {
           ''',
       tools: genUiManager.getTools(),
     );
-    uiAgent = UiAgent(
+    conversation = GenUiConversation(
+      contentGenerator: contentGenerator,
       genUiManager: genUiManager,
-      aiClient: aiClient,
-      onTextResponse: (t) {
-        debugPrint('TEXT: $t)');
+      onSurfaceAdded: (update) {
+        setState(() {
+          messages.add(
+            AiUiMessage(
+              definition: update.definition,
+              surfaceId: update.surfaceId,
+            ),
+          );
+        });
       },
-      onSurfaceAdded: _onSurfaceAdded,
-      onSurfaceDeleted: _onSurfaceDeleted,
-      onWarning: (value) => debugPrint('Warning from UiAgent: $value'),
+      onTextResponse: (text) {
+        setState(() {
+          messages.add(AiTextMessage.text(text));
+        });
+      },
+      onError: (error) {
+        setState(() {
+          messages.add(
+            InternalMessage('Error: ${error.error}'),
+          );
+        });
+      },
     );
+    conversation.conversation.addListener(() {
+      // This is just to trigger a rebuild when the conversation history inside
+      // GenUiConversation changes.
+      setState(() {});
+    });
   }
 
   @override
@@ -109,13 +119,34 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: _surfaceIds.length,
+              itemCount: messages.length,
               itemBuilder: (context, index) {
-                final id = _surfaceIds[index];
-                return GenUiSurface(host: uiAgent.host, surfaceId: id);
+                final message = messages[index];
+                return switch (message) {
+                  AiUiMessage() => GenUiSurface(
+                      key: message.uiKey,
+                      host: conversation.host,
+                      surfaceId: message.surfaceId,
+                    ),
+                  AiTextMessage() => ChatMessageWidget(
+                      text: message.text,
+                      icon: Icons.computer,
+                      alignment: MainAxisAlignment.start,
+                    ),
+                  UserMessage() => ChatMessageWidget(
+                      text: message.text,
+                      icon: Icons.person,
+                      alignment: MainAxisAlignment.end,
+                    ),
+                  InternalMessage() =>
+                    InternalMessageWidget(content: message.text),
+                  _ => Text(message.toString()),
+                };
               },
             ),
           ),
+          if (conversation.isProcessing.value)
+            const LinearProgressIndicator(),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -127,14 +158,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       decoration: const InputDecoration(
                         hintText: 'Enter a message',
                       ),
+                      onSubmitted: _sendMessage,
                     ),
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      _sendMessage(_textController.text);
-                      _textController.clear();
-                    },
+                    onPressed: () => _sendMessage(_textController.text),
                     child: const Text('Send'),
                   ),
                 ],
@@ -162,62 +191,50 @@ final _schema = S.object(
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final json = data as Map<String, Object?>;
+  widgetBuilder: ({
+    required data,
+    required id,
+    required buildChild,
+    required dispatchEvent,
+    required context,
+    required dataContext,
+  }) {
+    final json = data as Map<String, Object?>;
 
-        // 1. Resolve the question reference
-        final questionRef = json['question'] as Map<String, Object?>;
-        final questionPath = questionRef['path'] as String?;
-        final questionLiteral = questionRef['literalString'] as String?;
-        final questionNotifier = questionPath != null
-            ? dataContext.subscribe<String>(questionPath)
-            : ValueNotifier<String?>(questionLiteral);
+    final questionNotifier =
+        dataContext.subscribeToString(json['question'] as Map<String, Object?>?);
+    final answerNotifier =
+        dataContext.subscribeToString(json['answer'] as Map<String, Object?>?);
 
-        // 2. Resolve the answer reference
-        final answerRef = json['answer'] as Map<String, Object?>;
-        final answerPath = answerRef['path'] as String?;
-        final answerLiteral = answerRef['literalString'] as String?;
-        final answerNotifier = answerPath != null
-            ? dataContext.subscribe<String>(answerPath)
-            : ValueNotifier<String?>(answerLiteral);
-
-        // 3. Use ValueListenableBuilder to build the UI reactively
+    // 3. Use ValueListenableBuilder to build the UI reactively
+    return ValueListenableBuilder<String?>(
+      valueListenable: questionNotifier,
+      builder: (context, question, _) {
         return ValueListenableBuilder<String?>(
-          valueListenable: questionNotifier,
-          builder: (context, question, _) {
-            return ValueListenableBuilder<String?>(
-              valueListenable: answerNotifier,
-              builder: (context, answer, _) {
-                return Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  decoration: BoxDecoration(border: Border.all()),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        question ?? '',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        answer ?? '',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ],
+          valueListenable: answerNotifier,
+          builder: (context, answer, _) {
+            return Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              decoration: BoxDecoration(border: Border.all()),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    question ?? '',
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                );
-              },
+                  const SizedBox(height: 8.0),
+                  Text(
+                    answer ?? '',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
             );
           },
         );
       },
+    );
+  },
 );

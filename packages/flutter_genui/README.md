@@ -11,7 +11,7 @@ This package provides the core functionality for GenUI. For a concrete implement
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
 - **Simplified Conversation Flow**: A high-level `GenUiConversation` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
-- **Extensible AI Client**: Abstract interface for connecting to different AI model backends.
+- **Extensible Content Generator**: Abstract interface for connecting to different AI model backends.
 - **Event Handling**: Capture user interactions (button clicks, text input), update a client-side data model, and send the state back to the AI as context for the next turn in the conversation.
 - **Reactive UI**: Widgets automatically rebuild when the data they are bound to changes in the data model.
 
@@ -19,13 +19,15 @@ This package provides the core functionality for GenUI. For a concrete implement
 
 The package is built around four main components:
 
-1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `AiClient`, manages the conversation history, and orchestrates the entire generative UI process.
+1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
 
 2.  **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
 3.  **`DataModel`**: A centralized, observable store for all dynamic UI state. Widgets are "bound" to data in this model. When data changes, only the widgets that depend on that specific piece of data are rebuilt.
 
-4.  **`AiClient`**: An interface for communicating with a generative AI model. For a concrete implementation, see `FirebaseAiClient` in the `flutter_genui_firebase_ai` package.
+4.  **`ContentGenerator`**: An interface for communicating with a generative AI model. This interface uses streams to send `A2uiMessage` commands, text responses, and errors back to the `GenUiConversation`.
+
+5.  **`A2uiMessage`**: A message sent from the AI (via the `ContentGenerator`) to the UI, instructing it to perform actions like `beginRendering`, `surfaceUpdate`, `dataModelUpdate`, or `deleteSurface`.
 
 ## Getting Started
 
@@ -34,10 +36,25 @@ To use `flutter_genui`, you need to initialize a `GenUiConversation`, provide it
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
+
+// Replace with your actual ContentGenerator implementation
+class YourContentGenerator implements ContentGenerator {
+  // ... implementation details ...
+  @override
+  Stream<A2uiMessage> get a2uiMessageStream => Stream.empty(); // Replace
+  @override
+  Stream<String> get textResponseStream => Stream.empty(); // Replace
+  @override
+  Stream<ContentGeneratorError> get errorStream => Stream.empty(); // Replace
+  @override
+  ValueListenable<bool> get isProcessing => ValueNotifier(false); // Replace
+  @override
+  Future<void> sendRequest(Iterable<ChatMessage> messages) async { /* ... */ }
+  @override
+  void dispose() { /* ... */ }
+}
 
 void main() {
-  // Initialize Firebase, etc.
   runApp(const MyApp());
 }
 
@@ -50,29 +67,28 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final GenUiConversation _genUiConversation;
-  final List<GenUiUpdate> _updates = [];
+  final List<String> _surfaceIds = [];
+  String _lastTextResponse = '';
+  String _lastError = '';
 
   @override
   void initState() {
     super.initState();
 
-    // 1. Create a GenUiConversation with a system instruction
     final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
-    final aiClient = FirebaseAiClient(
-      systemInstruction: 'You are a helpful AI assistant that builds UIs.',
-      tools: genUiManager.getTools(),
-    );
+    // NOTE: You need a concrete implementation of ContentGenerator here.
+    // The 'flutter_genui_firebase_ai' package provides implementations
+    // like FirebaseAiContentGenerator.
+    final contentGenerator = YourContentGenerator();
+
     _genUiConversation = GenUiConversation(
       genUiManager: genUiManager,
-      aiClient: aiClient,
-      onSurfaceAdded: _onSurfaceAdded,
+      contentGenerator: contentGenerator,
+      onSurfaceAdded: (update) => setState(() => _surfaceIds.add(update.surfaceId)),
+      onSurfaceDeleted: (update) => setState(() => _surfaceIds.remove(update.surfaceId)),
+      onTextResponse: (text) => setState(() => _lastTextResponse = text),
+      onError: (error) => setState(() => _lastError = error.error.toString()),
     );
-  }
-
-  void _onSurfaceAdded(SurfaceAdded update) {
-    setState(() {
-      _updates.add(update);
-    });
   }
 
   void _sendPrompt(String text) {
@@ -93,15 +109,16 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('GenUI Demo')),
         body: Column(
           children: [
+            if (_lastTextResponse.isNotEmpty) Text('AI: $_lastTextResponse'),
+            if (_lastError.isNotEmpty) Text('Error: $_lastError', style: TextStyle(color: Colors.red)),
             Expanded(
-              // 2. Render the dynamic UI surfaces
               child: ListView.builder(
-                itemCount: _updates.length,
+                itemCount: _surfaceIds.length,
                 itemBuilder: (context, index) {
-                  final update = _updates[index];
                   return GenUiSurface(
                     host: _genUiConversation.host,
-                    surfaceId: update.surfaceId,                  );
+                    surfaceId: _surfaceIds[index],
+                  );
                 },
               ),
             ),
@@ -119,11 +136,13 @@ class _MyAppState extends State<MyApp> {
 The `GenUiConversation` manages the interaction cycle:
 
 1. **User Input**: The user provides a prompt (e.g., through a text field). The app calls `genUiConversation.sendRequest()`.
-2. **AI Invocation**: The `GenUiConversation` adds the user's message to its internal conversation history and sends it to the `AiClient`.
-3. **AI Response**: The AI model processes the conversation and, guided by the schemas of the widgets in your `Catalog`, returns a structured response with instructions to `add`, `update`, or `delete` UI elements by calling the appropriate tools.
-4. **UI State Update**: The `GenUiConversation` executes these tool calls, which updates the internal `GenUiManager` and its `DataModel`.
-5. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild to display the new UI. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
-6. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `GenUiConversation`'s `GenUiManager`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
+2. **AI Invocation**: The `GenUiConversation` adds the user's message to its internal conversation history and calls `contentGenerator.sendRequest()`.
+3. **AI Response**: The `ContentGenerator` interacts with the AI model. The AI, guided by the widget schemas, sends back responses.
+4. **Stream Handling**: The `ContentGenerator` emits `A2uiMessage`s, text responses, or errors on its streams.
+5. **UI State Update**: `GenUiConversation` listens to these streams. `A2uiMessage`s are passed to `GenUiManager.handleMessage()`, which updates the UI state and `DataModel`.
+6. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
+7. **Callbacks**: Text responses and errors trigger the `onTextResponse` and `onError` callbacks on `GenUiConversation`.
+8. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `GenUiConversation`'s `GenUiManager`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
 
 ```mermaid
 graph TD
@@ -134,14 +153,14 @@ graph TD
 
     subgraph "GenUI Framework"
         GenUiConversation("GenUiConversation")
-        AiClient("AiClient")
+        ContentGenerator("ContentGenerator")
         GenUiManager("GenUiManager")
         GenUiSurface("GenUiSurface")
     end
 
     UserInput -- "calls sendRequest()" --> GenUiConversation;
-    GenUiConversation -- "manages conversation and sends prompt" --> AiClient;
-    AiClient -- "returns tool calls" --> GenUiConversation;
+    GenUiConversation -- "manages conversation and sends prompt" --> ContentGenerator;
+    ContentGenerator -- "returns tool calls" --> GenUiConversation;
     GenUiConversation -- "executes tools" --> GenUiManager;
     GenUiManager -- "notifies of updates" --> GenUiSurface;
     GenUiSurface -- "renders UI" --> UserInteraction;

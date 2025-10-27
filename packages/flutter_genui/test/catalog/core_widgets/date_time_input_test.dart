@@ -31,7 +31,9 @@ void main() {
     manager.handleMessage(
       const BeginRendering(surfaceId: surfaceId, root: 'datetime'),
     );
-    manager.dataModelForSurface(surfaceId).update('/myDateTime', '2025-10-15');
+    manager
+        .dataModelForSurface(surfaceId)
+        .update(DataPath('/myDateTime'), '2025-10-15');
 
     await tester.pumpWidget(
       MaterialApp(

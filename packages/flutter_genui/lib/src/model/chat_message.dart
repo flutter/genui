@@ -168,41 +168,57 @@ final class UserUiInteractionMessage extends ChatMessage {
 /// A message representing a text response from the AI.
 final class AiTextMessage extends ChatMessage {
   /// Creates a [AiTextMessage] with the given [parts].
-  const AiTextMessage(this.parts);
+  AiTextMessage(this.parts);
 
   /// Creates a [AiTextMessage] with the given [text].
   factory AiTextMessage.text(String text) => AiTextMessage([TextPart(text)]);
 
   /// The parts of the AI's message.
   final List<MessagePart> parts;
+
+  /// The text content of the AI's message.
+  late final String text = parts
+      .whereType<TextPart>()
+      .map((p) => p.text)
+      .join('\n');
 }
 
 /// A message representing a response from a tool.
+
 final class ToolResponseMessage extends ChatMessage {
   /// Creates a [ToolResponseMessage] with the given [results].
+
   const ToolResponseMessage(this.results);
 
   /// The results of the tool calls.
+
   final List<ToolResultPart> results;
 }
 
 /// A message representing a UI response from the AI.
+
 final class AiUiMessage extends ChatMessage {
   /// Creates a [AiUiMessage] with the given UI [definition].
+
   AiUiMessage({required this.definition, String? surfaceId})
     : uiKey = UniqueKey(),
+
       parts = [TextPart(definition.asContextDescriptionText())],
+
       surfaceId =
           surfaceId ??
           ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
 
   /// The JSON definition of the UI.
+
   final UiDefinition definition;
 
   /// A unique key for the UI widget.
+
   final Key uiKey;
 
   /// The unique ID for this UI surface.
+
   final String surfaceId;
 
   final List<MessagePart> parts;

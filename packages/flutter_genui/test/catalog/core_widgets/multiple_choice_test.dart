@@ -41,7 +41,9 @@ void main() {
     manager.handleMessage(
       const BeginRendering(surfaceId: surfaceId, root: 'multiple_choice'),
     );
-    manager.dataModelForSurface(surfaceId).update('/mySelections', ['1']);
+    manager.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
+      '1',
+    ]);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -66,7 +68,7 @@ void main() {
     expect(
       manager
           .dataModelForSurface(surfaceId)
-          .getValue<List<dynamic>>('/mySelections'),
+          .getValue<List<dynamic>>(DataPath('/mySelections')),
       ['1', '2'],
     );
   });

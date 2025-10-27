@@ -137,6 +137,9 @@ final class Component {
 
   /// Creates a [Component] from a JSON map.
   factory Component.fromJson(JsonMap json) {
+    if (json['component'] == null) {
+      throw ArgumentError('Component.fromJson: component property is null');
+    }
     return Component(
       id: json['id'] as String,
       componentProperties: json['component'] as JsonMap,

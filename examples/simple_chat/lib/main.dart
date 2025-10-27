@@ -52,7 +52,8 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     final catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
-    final aiClient = FirebaseAiClient(
+    final contentGenerator = FirebaseAiContentGenerator(
+      catalog: catalog,
       systemInstruction:
           'You are a helpful assistant who chats with a user, '
           'giving exactly one response for each user message. '
@@ -60,15 +61,19 @@ class _ChatScreenState extends State<ChatScreen> {
           'of the user message.'
           '\n\n'
           '${GenUiPromptFragments.basicChat}',
-      tools: _genUiManager.getTools(),
     );
     _genUiConversation = GenUiConversation(
       genUiManager: _genUiManager,
-      aiClient: aiClient,
+      contentGenerator: contentGenerator,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,
-      // ignore: avoid_print
-      onWarning: (value) => print('Warning from GenUiConversation: $value'),
+      onError: (error) {
+        genUiLogger.severe(
+          'Error from content generator',
+          error.error,
+          error.stackTrace,
+        );
+      },
     );
   }
 

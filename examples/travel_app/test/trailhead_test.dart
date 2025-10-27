@@ -29,7 +29,7 @@ void main() {
                 return trailhead.widgetBuilder(
                   data: data,
                   id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
+                  buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {
                     dispatchedEvent = event;
                   },
@@ -71,7 +71,7 @@ void main() {
                 return trailhead.widgetBuilder(
                   data: data,
                   id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
+                  buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),

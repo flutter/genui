@@ -20,6 +20,14 @@ extension type _DividerData.fromMap(JsonMap _json) {
   String? get axis => _json['axis'] as String?;
 }
 
+/// A catalog item for a Material Design divider.
+///
+/// This widget displays a thin horizontal or vertical line.
+///
+/// ### Parameters:
+///
+/// - `axis`: The direction of the divider. Can be `horizontal` or `vertical`.
+///   Defaults to `horizontal`.
 final divider = CatalogItem(
   name: 'Divider',
   dataSchema: _schema,

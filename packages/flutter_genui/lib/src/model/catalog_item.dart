@@ -9,7 +9,8 @@ import 'data_model.dart';
 import 'ui_models.dart';
 
 /// A callback that builds a child widget for a catalog item.
-typedef ChildBuilderCallback = Widget Function(String id);
+typedef ChildBuilderCallback =
+    Widget Function(String id, [DataContext? dataContext]);
 
 /// A callback that builds an example of a catalog item.
 ///

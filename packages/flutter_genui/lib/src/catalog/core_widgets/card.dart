@@ -21,6 +21,13 @@ extension type _CardData.fromMap(JsonMap _json) {
   String get child => _json['child'] as String;
 }
 
+/// A catalog item for a Material Design card.
+///
+/// This widget displays a card with a child widget inside.
+///
+/// ### Parameters:
+///
+/// - `child`: The ID of a child widget to display inside the card.
 final card = CatalogItem(
   name: 'Card',
   dataSchema: _schema,
