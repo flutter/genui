@@ -21,7 +21,11 @@ void main() {
               return FakeGeminiGenerativeModel([
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([const TextPart('Hello')]),
+                    Content.model([
+                      const FunctionCall('provideFinalOutput', {
+                        'output': {'response': 'Hello'},
+                      }),
+                    ]),
                     [],
                     null,
                     FinishReason.stop,
@@ -66,7 +70,11 @@ void main() {
                 ], null),
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([const TextPart('Tool called')]),
+                    Content.model([
+                      const FunctionCall('provideFinalOutput', {
+                        'output': {'response': 'Tool called'},
+                      }),
+                    ]),
                     [],
                     null,
                     FinishReason.stop,
@@ -93,7 +101,11 @@ void main() {
               return FakeGeminiGenerativeModel([
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([const TextPart('Hello')]),
+                    Content.model([
+                      const FunctionCall('provideFinalOutput', {
+                        'output': {'response': 'Hello'},
+                      }),
+                    ]),
                     [],
                     null,
                     FinishReason.stop,
