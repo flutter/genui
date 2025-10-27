@@ -8,7 +8,9 @@ version: 0.1.0
 publish_to: none
 
 environment:
-  sdk: ^3.9.0
+  sdk: ^3.9.0-333.2.beta
+
+resolution: workspace
 
 # Add regular dependencies here.
 dependencies:
