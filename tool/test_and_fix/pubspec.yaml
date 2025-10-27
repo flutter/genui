@@ -18,6 +18,7 @@ dependencies:
   file: ^7.0.1
   path: ^1.9.0
   process: ^5.0.5
+  process_runner: ^4.2.2
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
