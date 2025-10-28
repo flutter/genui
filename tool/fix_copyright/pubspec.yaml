@@ -7,7 +7,7 @@ description: A command line app to fix copyright headers.
 version: 0.1.0
 
 environment:
-  sdk: ^3.9.0-333.2.beta
+  sdk: ">=3.9.2 <4.0.0"
 
 resolution: workspace
 

@@ -6,10 +6,11 @@ name: _
 publish_to: none
 
 environment:
-  sdk: ^3.9.0-333.2.beta
+  sdk: ">=3.9.2 <4.0.0"
 
 workspace:
   - packages/flutter_genui
+  - packages/flutter_genui_a2ui
   - packages/flutter_genui_firebase_ai
   - packages/json_schema_builder
   - examples/catalog_gallery
@@ -18,8 +19,3 @@ workspace:
   - examples/travel_app
   - tool/fix_copyright
   - tool/test_and_fix
-
-dependency_overrides:
-  test: ^1.25.6
-  test_api: 0.7.6
-  analyzer: ^5.12.0

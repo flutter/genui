@@ -97,7 +97,10 @@ jobs:
       fail-fast: false
       matrix:
         package: ${{ fromJson(needs.matrix.outputs.matrix) }}
-        flutter_version: [beta, stable]
+        # Disable stable testing for now until
+        # https://github.com/shamblett/a2a/pull/52 is merged.
+        # flutter_version: [beta, stable]
+        flutter_version: [beta]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
