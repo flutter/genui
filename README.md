@@ -12,11 +12,12 @@ This is a highly experimental package, which means the API will change (sometime
 
 Our goal for the GenUI SDK for Flutter is to help you replace static "walls of text" from your LLM with
 dynamic, interactive, graphical UI.
-It uses a JSON-based format to compose UIs from your existing widget catalog, turning conversations or agent
-interactions into rich, intuitive experiences. State changes in the UI update a client-side data model, which is fed back to the agent, creating a
-powerful, high-bandwidth interaction loop. The GenUI SDK for Flutter aims to be easy to integrate into your Flutter
-application to significantly improve the usability and satisfaction of your chatbots and next-generation
-agent-based user experiences.
+It uses a JSON-based format to compose UIs from your existing widget catalog, turning
+conversations or agent interactions into rich, intuitive experiences. State changes in the UI update
+a client-side data model, which is fed back to the agent, creating a
+powerful, high-bandwidth interaction loop. The GenUI SDK for Flutter aims to be easy to integrate
+into your Flutter application to significantly improve the usability and satisfaction of your
+chatbots and next-generation agent-based user experiences.
 
 ## High-level goals
 
@@ -94,11 +95,13 @@ Widget build(BuildContext context) {
 
 <img src="misc/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
 
-_The GIF above shows how GenUI enables dynamic, interactive UI generation — instead of text descriptions or code from a traditional AI coding agent._
+_The GIF above shows how GenUI enables dynamic, interactive UI generation,_
+_instead of text descriptions or code from a traditional AI coding agent._
 
 ### Core Difference
 
-This UI is not generated in the form of code; rather, it's generated at runtime based on a widget catalog from the developers' project.
+This UI is not generated in the form of code; rather, it's generated at runtime
+based on a widget catalog from the developers' project.
 
 <img src="misc/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
 
@@ -137,6 +140,10 @@ This UI is not generated in the form of code; rather, it's generated at runtime 
 ## Usage
 
 See [packages/flutter_genui/USAGE.md](packages/flutter_genui/USAGE.md).
+
+## Constraints
+
+This repo requires Flutter 3.38 or greater.
 
 ## Contribute
 
