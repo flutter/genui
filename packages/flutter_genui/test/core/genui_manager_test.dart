@@ -162,7 +162,7 @@ void main() {
       );
       manager.handleUiEvent(event);
       final message = await future;
-      expect(message, isA<UserMessage>());
+      expect(message, isA<UserUiInteractionMessage>());
       final expectedJson = jsonEncode({
         'userAction': {
           'surfaceId': 'testSurface',

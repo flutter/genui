@@ -10,7 +10,7 @@ void main() {
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    UserMessage? message;
+    ChatMessage? message;
     final manager = GenUiManager(
       catalog: Catalog([CoreCatalogItems.button, CoreCatalogItems.text]),
       configuration: const GenUiConfiguration(),

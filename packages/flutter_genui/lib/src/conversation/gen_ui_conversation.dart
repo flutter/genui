@@ -70,7 +70,7 @@ class GenUiConversation {
   final ValueChanged<ContentGeneratorError>? onError;
 
   late final StreamSubscription<A2uiMessage> _a2uiSubscription;
-  late final StreamSubscription<UserMessage> _userEventSubscription;
+  late final StreamSubscription<ChatMessage> _userEventSubscription;
   late final StreamSubscription<GenUiUpdate> _surfaceUpdateSubscription;
   late final StreamSubscription<String> _textResponseSubscription;
   late final StreamSubscription<ContentGeneratorError> _errorSubscription;
@@ -81,11 +81,39 @@ class GenUiConversation {
   void _handleSurfaceUpdate(GenUiUpdate update) {
     switch (update) {
       case SurfaceAdded():
+        _conversation.value = [
+          ..._conversation.value,
+          AiUiMessage(
+            definition: update.definition,
+            surfaceId: update.surfaceId,
+          ),
+        ];
         onSurfaceAdded?.call(update);
-      case SurfaceRemoved():
-        onSurfaceDeleted?.call(update);
       case SurfaceUpdated():
+        final newConversation = List<ChatMessage>.from(_conversation.value);
+        final index = newConversation.lastIndexWhere(
+          (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
+        );
+        final newMessage = AiUiMessage(
+          definition: update.definition,
+          surfaceId: update.surfaceId,
+        );
+        if (index != -1) {
+          newConversation[index] = newMessage;
+        } else {
+          // This can happen if a surface is created and updated in the same
+          // turn.
+          newConversation.add(newMessage);
+        }
+        _conversation.value = newConversation;
         onSurfaceUpdated?.call(update);
+      case SurfaceRemoved():
+        final newConversation = List<ChatMessage>.from(_conversation.value);
+        newConversation.removeWhere(
+          (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
+        );
+        _conversation.value = newConversation;
+        onSurfaceDeleted?.call(update);
     }
   }
 
@@ -116,7 +144,7 @@ class GenUiConversation {
   }
 
   /// Sends a user message to the AI to generate a UI response.
-  Future<void> sendRequest(UserMessage message) async {
+  Future<void> sendRequest(ChatMessage message) async {
     final history = _conversation.value;
     _conversation.value = [...history, message];
     return contentGenerator.sendRequest(message, history: history);

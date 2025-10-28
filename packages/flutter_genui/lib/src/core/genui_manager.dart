@@ -97,7 +97,7 @@ class GenUiManager implements GenUiHost {
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
-  final _onSubmit = StreamController<UserMessage>.broadcast();
+  final _onSubmit = StreamController<UserUiInteractionMessage>.broadcast();
 
   final _dataModels = <String, DataModel>{};
 
@@ -116,7 +116,7 @@ class GenUiManager implements GenUiHost {
   Stream<GenUiUpdate> get surfaceUpdates => _surfaceUpdates.stream;
 
   /// A stream of user input messages generated from UI interactions.
-  Stream<UserMessage> get onSubmit => _onSubmit.stream;
+  Stream<UserUiInteractionMessage> get onSubmit => _onSubmit.stream;
 
   @override
   void handleUiEvent(UiEvent event) {
@@ -126,7 +126,7 @@ class GenUiManager implements GenUiHost {
     }
 
     final eventJsonString = jsonEncode({'userAction': event.toMap()});
-    _onSubmit.add(UserMessage.text(eventJsonString));
+    _onSubmit.add(UserUiInteractionMessage.text(eventJsonString));
   }
 
   @override

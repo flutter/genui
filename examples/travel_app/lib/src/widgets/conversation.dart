@@ -9,12 +9,16 @@ import 'package:flutter_genui/flutter_genui.dart';
 typedef UserPromptBuilder =
     Widget Function(BuildContext context, UserMessage message);
 
+typedef UserUiInteractionBuilder =
+    Widget Function(BuildContext context, UserUiInteractionMessage message);
+
 class Conversation extends StatelessWidget {
   const Conversation({
     super.key,
     required this.messages,
     required this.manager,
     this.userPromptBuilder,
+    this.userUiInteractionBuilder,
     this.showInternalMessages = false,
     this.scrollController,
   });
@@ -22,6 +26,7 @@ class Conversation extends StatelessWidget {
   final List<ChatMessage> messages;
   final GenUiManager manager;
   final UserPromptBuilder? userPromptBuilder;
+  final UserUiInteractionBuilder? userUiInteractionBuilder;
   final bool showInternalMessages;
   final ScrollController? scrollController;
 
@@ -31,9 +36,7 @@ class Conversation extends StatelessWidget {
       if (showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage &&
-          message is! ToolResponseMessage &&
-          message is! UserUiInteractionMessage;
+      return message is! InternalMessage && message is! ToolResponseMessage;
     }).toList();
     return ListView.builder(
       controller: scrollController,
@@ -77,12 +80,9 @@ class Conversation extends StatelessWidget {
           case InternalMessage():
             return InternalMessageWidget(content: message.text);
           case UserUiInteractionMessage():
-            return InternalMessageWidget(
-              content: message.parts
-                  .whereType<TextPart>()
-                  .map((part) => part.text)
-                  .join('\n'),
-            );
+            return userUiInteractionBuilder != null
+                ? userUiInteractionBuilder!(context, message)
+                : const SizedBox.shrink();
           case ToolResponseMessage():
             return InternalMessageWidget(content: message.results.toString());
         }

@@ -34,7 +34,7 @@ class DebugCatalogView extends StatefulWidget {
   final Catalog catalog;
 
   /// A callback for when a user submits an action.
-  final ValueChanged<UserMessage>? onSubmit;
+  final ValueChanged<UserUiInteractionMessage>? onSubmit;
 
   /// If provided, constrains each item to the given height.
   final double? itemHeight;
@@ -46,7 +46,7 @@ class DebugCatalogView extends StatefulWidget {
 class _DebugCatalogViewState extends State<DebugCatalogView> {
   late final GenUiManager _genUi;
   final surfaceIds = <String>[];
-  late final StreamSubscription<UserMessage>? _subscription;
+  late final StreamSubscription<UserUiInteractionMessage>? _subscription;
 
   @override
   void initState() {

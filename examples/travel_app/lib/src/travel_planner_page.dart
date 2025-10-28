@@ -49,9 +49,8 @@ class TravelPlannerPage extends StatefulWidget {
 class _TravelPlannerPageState extends State<TravelPlannerPage>
     with AutomaticKeepAliveClientMixin {
   late final GenUiConversation _uiConversation;
-  late final StreamSubscription<UserMessage> _userMessageSubscription;
+  late final StreamSubscription<ChatMessage> _userMessageSubscription;
 
-  final List<ChatMessage> _conversation = [];
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
 
@@ -84,42 +83,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
       genUiManager: genUiManager,
       contentGenerator: contentGenerator,
       onSurfaceAdded: (update) {
-        setState(() {
-          _conversation.add(
-            AiUiMessage(
-              definition: update.definition,
-              surfaceId: update.surfaceId,
-            ),
-          );
-          _scrollToBottom();
-        });
-      },
-      onSurfaceUpdated: (update) {
-        setState(() {
-          final index = _conversation.lastIndexWhere(
-            (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
-          );
-          if (index != -1) {
-            _conversation[index] = AiUiMessage(
-              definition: update.definition,
-              surfaceId: update.surfaceId,
-            );
-          }
-        });
-      },
-      onSurfaceDeleted: (update) {
-        setState(() {
-          _conversation.removeWhere(
-            (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
-          );
-        });
+        _scrollToBottom();
       },
       onTextResponse: (text) {
         if (!mounted) return;
         if (text.isNotEmpty) {
-          setState(() {
-            _conversation.add(AiTextMessage.text(text));
-          });
           _scrollToBottom();
         }
       },
@@ -147,19 +115,16 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     });
   }
 
-  Future<void> _triggerInference(UserMessage message) async {
+  Future<void> _triggerInference(ChatMessage message) async {
     await _uiConversation.sendRequest(message);
   }
 
-  void _handleUserMessageFromUi(UserMessage message) {
+  void _handleUserMessageFromUi(ChatMessage message) {
     _scrollToBottom();
   }
 
   void _sendPrompt(String text) {
     if (_uiConversation.isProcessing.value || text.trim().isEmpty) return;
-    setState(() {
-      _conversation.add(UserMessage.text(text));
-    });
     _scrollToBottom();
     _textController.clear();
     _triggerInference(UserMessage.text(text));
@@ -175,10 +140,15 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
             Expanded(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1000),
-                child: Conversation(
-                  messages: _conversation,
-                  manager: _uiConversation.genUiManager,
-                  scrollController: _scrollController,
+                child: ValueListenableBuilder<List<ChatMessage>>(
+                  valueListenable: _uiConversation.conversation,
+                  builder: (context, messages, child) {
+                    return Conversation(
+                      messages: messages,
+                      manager: _uiConversation.genUiManager,
+                      scrollController: _scrollController,
+                    );
+                  },
                 ),
               ),
             ),
@@ -331,10 +301,10 @@ to the user.
 
     When booking a hotel, use inputGroup, providing initial values for check-in
     and check-out dates (nearest weekend). Then use the `listHotels` tool to
-    search for hotels and pass the values listingSelectionId to `travelCarousel`
-    to show the user different options. When user selects a hotel, pass the
-    listingSelectionId of the selected hotel the parameter listingSelectionIds
-    of `listingsBooker`.
+    search for hotels and pass the values with their `listingSelectionId` to a
+    `travelCarousel` to show the user different options. When user selects a
+    hotel, pass the `listingSelectionId` of the selected hotel the parameter
+    `listingSelectionIds` of `listingsBooker`.
 
 IMPORTANT: The user may start from different steps in the flow, and it is your
 job to understand which step of the flow the user is at, and when they are ready

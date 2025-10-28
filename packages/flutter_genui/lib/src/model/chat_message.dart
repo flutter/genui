@@ -155,7 +155,7 @@ final class UserMessage extends ChatMessage {
 /// user.
 final class UserUiInteractionMessage extends ChatMessage {
   /// Creates a [UserUiInteractionMessage] with the given [parts].
-  const UserUiInteractionMessage(this.parts);
+  UserUiInteractionMessage(this.parts);
 
   /// Creates a [UserUiInteractionMessage] with the given [text].
   factory UserUiInteractionMessage.text(String text) =>
@@ -163,6 +163,12 @@ final class UserUiInteractionMessage extends ChatMessage {
 
   /// The parts of the user's message.
   final List<MessagePart> parts;
+
+  /// The text content of the UI interaction.
+  late final String text = parts
+      .whereType<TextPart>()
+      .map((p) => p.text)
+      .join('\n');
 }
 
 /// A message representing a text response from the AI.

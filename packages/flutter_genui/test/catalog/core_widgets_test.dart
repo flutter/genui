@@ -10,7 +10,7 @@ void main() {
   group('Core Widgets', () {
     final testCatalog = CoreCatalogItems.asCatalog();
 
-    UserMessage? message;
+    ChatMessage? message;
     GenUiManager? manager;
 
     Future<void> pumpWidgetWithDefinition(

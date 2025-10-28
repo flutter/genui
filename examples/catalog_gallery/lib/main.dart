@@ -45,7 +45,10 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
           onSubmit: (message) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('User action: ${jsonEncode(message.parts.last)}'),
+                content: Text(
+                  'User action: '
+                  '${jsonEncode(message.parts.last)}',
+                ),
               ),
             );
           },
