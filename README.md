@@ -143,7 +143,7 @@ See [packages/flutter_genui/USAGE.md](packages/flutter_genui/USAGE.md).
 
 ## Constraints
 
-This repo requires Flutter 3.38 or greater.
+This repo requires Flutter >3.37.0.
 
 ## Contribute
 
