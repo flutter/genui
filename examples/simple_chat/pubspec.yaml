@@ -21,6 +21,8 @@ dependencies:
     path: ../../packages/flutter_genui
   flutter_genui_firebase_ai:
     path: ../../packages/flutter_genui_firebase_ai
+  flutter_genui_google_generative_ai:
+    path: ../../packages/flutter_genui_google_generative_ai
   logging: ^1.3.0
 
 dev_dependencies:
