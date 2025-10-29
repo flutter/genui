@@ -20,6 +20,3 @@ workspace:
   - examples/travel_app
   - tool/fix_copyright
   - tool/test_and_fix
-
-dependency_overrides:
-  meta: 1.6.0
