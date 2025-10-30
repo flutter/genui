@@ -339,7 +339,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   Future<ProcessResult> run(
-    List<Object?> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
