@@ -87,15 +87,19 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-/// A catalog item for a widget that displays its children in a vertical array.
+/// A catalog item representing a layout widget that displays its children in a
+/// vertical array.
 ///
-/// ### Parameters:
+/// This widget is analogous to Flutter's [Column] widget. It arranges a list of
+/// child components from top to bottom.
 ///
-/// - `distribution`: How the children should be placed along the main axis.
-///   Can be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
+/// ## Parameters:
+///
+/// - `distribution`: How the children should be placed along the main axis. Can
+///   be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
 ///   `spaceEvenly`. Defaults to `start`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
+/// - `alignment`: How the children should be placed along the cross axis. Can
+///   be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
 ///   `start`.
 /// - `children`: A list of child widget IDs to display in the column.
 final column = CatalogItem(

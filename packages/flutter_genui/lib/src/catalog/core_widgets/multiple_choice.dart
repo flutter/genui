@@ -44,11 +44,13 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
   int? get maxAllowedSelections => _json['maxAllowedSelections'] as int?;
 }
 
-/// A catalog item for a multiple choice widget.
+/// A catalog item representing a multiple choice selection widget.
 ///
-/// This widget displays a list of options that the user can select from.
+/// This widget displays a list of options, each with a checkbox. The
+/// `selections` parameter, which should be a data model path, is updated to
+/// reflect the list of *values* of the currently selected options.
 ///
-/// ### Parameters:
+/// ## Parameters:
 ///
 /// - `selections`: A list of the values of the selected options.
 /// - `options`: A list of options to display, each with a `label` and a

@@ -34,9 +34,12 @@ extension type _ImageData.fromMap(JsonMap _json) {
       : null;
 }
 
-/// A catalog item for a widget that displays an image.
+/// A catalog item representing a widget that displays an image.
 ///
-/// ### Parameters:
+/// The image source is specified by the `url` parameter, which can be a network
+/// URL (e.g., `https://...`) or a local asset path (e.g., `assets/...`).
+///
+/// ## Parameters:
 ///
 /// - `url`: The URL of the image to display. Can be a network URL or a local
 ///   asset path.

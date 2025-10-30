@@ -82,6 +82,7 @@ extension DataContextExtensions on DataContext {
 }
 
 /// Resolves a context map definition against a [DataContext].
+///
 JsonMap resolveContext(
   DataContext dataContext,
   List<Object?> contextDefinitions,

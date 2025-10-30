@@ -36,9 +36,12 @@ extension type _ListData.fromMap(JsonMap _json) {
   String? get alignment => _json['alignment'] as String?;
 }
 
-/// A catalog item for a list of widgets.
+/// A catalog item representing a scrollable list of widgets.
 ///
-/// ### Parameters:
+/// This widget is analogous to Flutter's [ListView] widget. It can display
+/// children in either a vertical or horizontal direction.
+///
+/// ## Parameters:
 ///
 /// - `children`: A list of child widget IDs to display in the list.
 /// - `direction`: The direction of the list. Can be `vertical` or

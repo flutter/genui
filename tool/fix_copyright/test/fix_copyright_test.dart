@@ -332,7 +332,7 @@ class FakeProcessManager implements ProcessManager {
   final List<List<String>> commands = [];
 
   @override
-  bool canRun(Object executable, {String? workingDirectory}) => true;
+  bool canRun(dynamic executable, {String? workingDirectory}) => true;
 
   @override
   bool killPid(int pid, [ProcessSignal signal = ProcessSignal.sigterm]) => true;

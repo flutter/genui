@@ -36,9 +36,13 @@ extension type _SliderData.fromMap(JsonMap _json) {
   double get maxValue => (_json['maxValue'] as num?)?.toDouble() ?? 1.0;
 }
 
-/// A catalog item for a Material Design slider.
+/// A catalog item representing a Material Design slider.
 ///
-/// ### Parameters:
+/// This widget allows the user to select a value from a range by sliding a
+/// thumb along a track. The `value` is bidirectionally bound to the data model.
+/// This is analogous to Flutter's [Slider] widget.
+///
+/// ## Parameters:
 ///
 /// - `value`: The current value of the slider.
 /// - `minValue`: The minimum value of the slider. Defaults to 0.0.

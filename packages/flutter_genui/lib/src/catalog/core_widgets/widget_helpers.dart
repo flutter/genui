@@ -9,6 +9,10 @@ import '../../model/data_model.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
+/// Builder function for creating a widget from a template and a list of data.
+///
+/// This is used by [ComponentChildrenBuilder] when children are defined by a
+/// `template` which includes a `dataBinding` to a list in the [DataContext].
 typedef TemplateListWidgetBuilder =
     Widget Function(
       BuildContext context,
@@ -17,6 +21,11 @@ typedef TemplateListWidgetBuilder =
       String dataBinding,
     );
 
+/// Builder function for creating a parent widget given a list of pre-built
+/// [children].
+///
+/// This is used by [ComponentChildrenBuilder] when children are defined as an
+/// explicit list of component IDs.
 typedef ExplicitListWidgetBuilder = Widget Function(List<Widget> children);
 
 /// A helper widget to build widgets from component data that contains a list

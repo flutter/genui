@@ -17,9 +17,13 @@ extension type _TextData.fromMap(JsonMap _json) {
   JsonMap get text => _json['text'] as JsonMap;
 }
 
-/// A catalog item for a string of text.
+/// A catalog item representing a block of styled text.
 ///
-/// ### Parameters:
+/// This widget displays a string of text, analogous to Flutter's [Text] widget.
+/// The content is taken from the `text` parameter, which can be a literal
+/// string or a data model binding.
+///
+/// ## Parameters:
 ///
 /// - `text`: The text to display. This does *not* support markdown.
 final text = CatalogItem(
