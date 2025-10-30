@@ -131,15 +131,16 @@ final row = CatalogItem(
                     rowData.alignment,
                   ),
                   mainAxisSize: MainAxisSize.min,
-                  children: childIds.map((id) {
-                    final component = getComponent(id);
-                    final weight = component?.weight;
-                    final childWidget = buildChild(id, dataContext);
-                    if (weight != null) {
-                      return Flexible(flex: weight, child: childWidget);
-                    }
-                    return childWidget;
-                  }).toList(),
+                  children: childIds
+                      .map(
+                        (id) => buildWeightedChild(
+                          componentId: id,
+                          dataContext: dataContext,
+                          buildChild: buildChild,
+                          getComponent: getComponent,
+                        ),
+                      )
+                      .toList(),
                 );
               },
           templateListWidgetBuilder: (context, list, componentId, dataBinding) {
@@ -148,11 +149,16 @@ final row = CatalogItem(
               crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (var i = 0; i < list.length; i++)
-                  buildChild(
-                    componentId,
-                    dataContext.nested(DataPath('$dataBinding[$i]')),
+                for (var i = 0; i < list.length; i++) ...[
+                  buildWeightedChild(
+                    componentId: componentId,
+                    dataContext: dataContext.nested(
+                      DataPath('$dataBinding[$i]'),
+                    ),
+                    buildChild: buildChild,
+                    getComponent: getComponent,
                   ),
+                ],
               ],
             );
           },

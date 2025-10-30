@@ -126,3 +126,20 @@ class ComponentChildrenBuilder extends StatelessWidget {
     return const SizedBox.shrink();
   }
 }
+
+/// Builds a child widget, wrapping it in a [Flexible] if a weight is provided
+/// in the component.
+Widget buildWeightedChild({
+  required String componentId,
+  required DataContext dataContext,
+  required ChildBuilderCallback buildChild,
+  required GetComponentCallback getComponent,
+}) {
+  final component = getComponent(componentId);
+  final weight = component?.weight;
+  final childWidget = buildChild(componentId, dataContext);
+  if (weight != null) {
+    return Flexible(flex: weight, child: childWidget);
+  }
+  return childWidget;
+}

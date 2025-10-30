@@ -125,26 +125,26 @@ void main() {
     expect(find.text('Second'), findsOneWidget);
     expect(find.text('Third'), findsOneWidget);
 
-    final expandedWidgets = tester
-        .widgetList<Expanded>(find.byType(Expanded))
+    final flexibleWidgets = tester
+        .widgetList<Flexible>(find.byType(Flexible))
         .toList();
-    expect(expandedWidgets.length, 2);
+    expect(flexibleWidgets.length, 2);
 
     // Check flex values
-    expect(expandedWidgets[0].flex, 1);
-    expect(expandedWidgets[1].flex, 2);
+    expect(flexibleWidgets[0].flex, 1);
+    expect(flexibleWidgets[1].flex, 2);
 
     // Check that the correct children are wrapped
     expect(
-      find.ancestor(of: find.text('First'), matching: find.byType(Expanded)),
+      find.ancestor(of: find.text('First'), matching: find.byType(Flexible)),
       findsOneWidget,
     );
     expect(
-      find.ancestor(of: find.text('Second'), matching: find.byType(Expanded)),
+      find.ancestor(of: find.text('Second'), matching: find.byType(Flexible)),
       findsOneWidget,
     );
     expect(
-      find.ancestor(of: find.text('Third'), matching: find.byType(Expanded)),
+      find.ancestor(of: find.text('Third'), matching: find.byType(Flexible)),
       findsNothing,
     );
   });
