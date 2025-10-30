@@ -188,5 +188,135 @@ void main() {
         expect(callCount, 0);
       });
     });
+
+    group('DataModel Update Parsing', () {
+      test('parses contents with valueString', () {
+        dataModel.update(DataPath.root, <Object?>[
+          {'key': 'a', 'valueString': 'hello'},
+        ]);
+        expect(dataModel.getValue<String>(DataPath('/a')), 'hello');
+      });
+
+      test('parses contents with valueNumber', () {
+        dataModel.update(DataPath.root, <Object?>[
+          {'key': 'b', 'valueNumber': 123},
+        ]);
+        expect(dataModel.getValue<int>(DataPath('/b')), 123);
+      });
+
+      test('parses contents with valueBoolean', () {
+        dataModel.update(DataPath.root, <Object?>[
+          {'key': 'c', 'valueBoolean': true},
+        ]);
+        expect(dataModel.getValue<bool>(DataPath('/c')), isTrue);
+      });
+
+      test('parses contents with valueMap', () {
+        dataModel.update(DataPath.root, <Object?>[
+          {
+            'key': 'd',
+            'valueMap': <Object?>[
+              {'key': 'd1', 'valueString': 'v1'},
+              {'key': 'd2', 'valueNumber': 2},
+            ],
+          },
+        ]);
+        expect(dataModel.getValue<Map>(DataPath('/d')), {'d1': 'v1', 'd2': 2});
+      });
+
+      test('is permissive with multiple value types', () {
+        dataModel.update(DataPath.root, <Object?>[
+          {'key': 'e', 'valueString': 'first', 'valueNumber': 999},
+        ]);
+        expect(dataModel.getValue<String>(DataPath('/e')), 'first');
+      });
+
+      test('handles empty contents array', () {
+        dataModel.update(DataPath('/a'), {'b': 1}); // Initial data
+        dataModel.update(DataPath.root, <Object?>[]);
+        expect(dataModel.data, isEmpty);
+      });
+
+      test('handles contents with no value field', () {
+        dataModel.update(DataPath.root, <Object?>[
+          {'key': 'f'},
+        ]);
+        expect(dataModel.getValue<Object?>(DataPath('/f')), isNull);
+      });
+    });
+  });
+
+  group('DataModel _getValue and _updateValue consistency', () {
+    late DataModel dataModel;
+
+    setUp(() {
+      dataModel = DataModel();
+    });
+
+    test('Map: set and get', () {
+      dataModel.update(DataPath('/a/b'), 1);
+      expect(dataModel.getValue<int>(DataPath('/a/b')), 1);
+    });
+
+    test('List: set and get', () {
+      dataModel.update(DataPath('/a/0'), 'hello');
+      expect(dataModel.getValue<String>(DataPath('/a/0')), 'hello');
+    });
+
+    test('List: append and get', () {
+      dataModel.update(DataPath('/a/0'), 'hello');
+      dataModel.update(DataPath('/a/1'), 'world');
+      expect(dataModel.getValue<String>(DataPath('/a/0')), 'hello');
+      expect(dataModel.getValue<String>(DataPath('/a/1')), 'world');
+    });
+
+    test('Nested Map/List: set and get', () {
+      dataModel.update(DataPath('/a/b/0/c'), 123);
+      expect(dataModel.getValue<int>(DataPath('/a/b/0/c')), 123);
+    });
+
+    test('Map: non-existent key returns null', () {
+      dataModel.update(DataPath('/a/b'), 1);
+      expect(dataModel.getValue<int>(DataPath('/a/c')), isNull);
+    });
+
+    test('List: out of bounds index returns null', () {
+      dataModel.update(DataPath('/a/0'), 'hello');
+      expect(dataModel.getValue<String>(DataPath('/a/1')), isNull);
+    });
+
+    test('List: update existing index', () {
+      dataModel.update(DataPath('/a/0'), 'hello');
+      dataModel.update(DataPath('/a/0'), 'world');
+      expect(dataModel.getValue<String>(DataPath('/a/0')), 'world');
+    });
+
+    test('Empty path on getValue returns current data', () {
+      dataModel.update(DataPath('/a'), {'b': 1});
+      expect(dataModel.getValue<Map>(DataPath('/a')), {'b': 1});
+    });
+
+    test('Nested structures are created automatically', () {
+      dataModel.update(DataPath('/a/b/0/c'), 123);
+      expect(
+        dataModel.getValue<int>(DataPath('/a/b/0/c')),
+        123,
+        reason: 'Should create nested map and list',
+      );
+
+      dataModel.update(DataPath('/x/y/z'), 'hello');
+      expect(
+        dataModel.getValue<String>(DataPath('/x/y/z')),
+        'hello',
+        reason: 'Should create nested maps',
+      );
+
+      dataModel.update(DataPath('/list/0/0'), 'inner list');
+      expect(
+        dataModel.getValue<String>(DataPath('/list/0/0')),
+        'inner list',
+        reason: 'Should create nested lists',
+      );
+    });
   });
 }

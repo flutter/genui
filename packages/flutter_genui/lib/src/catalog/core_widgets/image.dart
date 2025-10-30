@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -76,7 +77,10 @@ final image = CatalogItem(
           valueListenable: notifier,
           builder: (context, currentLocation, child) {
             final location = currentLocation;
-            if (location == null) {
+            if (location == null || location.isEmpty) {
+              genUiLogger.warning(
+                'Image widget created with no URL at path: ${dataContext.path}',
+              );
               return const SizedBox.shrink();
             }
             final fit = imageData.fit;

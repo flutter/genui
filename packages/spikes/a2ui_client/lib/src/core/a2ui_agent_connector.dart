@@ -196,9 +196,9 @@ class A2uiAgentConnector {
         if (!_controller.isClosed) {
           _log.finest(
             'Adding message to stream: '
-            '${jsonEncode(message)}',
+            '${const JsonEncoder.withIndent('  ').convert(message)}',
           );
-          _controller.add(jsonEncode(message));
+          _controller.add(const JsonEncoder.withIndent('  ').convert(message));
         }
       }
     } else {

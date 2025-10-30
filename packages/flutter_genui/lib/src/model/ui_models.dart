@@ -85,7 +85,8 @@ class UiDefinition {
   final String? rootComponentId;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
-  final Map<String, Component> components;
+  Map<String, Component> get components => UnmodifiableMapView(_components);
+  final Map<String, Component> _components;
 
   /// (Future) The styles for this surface.
   final JsonMap? styles;
@@ -94,9 +95,9 @@ class UiDefinition {
   UiDefinition({
     required this.surfaceId,
     this.rootComponentId,
-    this.components = const {},
+    Map<String, Component> components = const {},
     this.styles,
-  });
+  }) : _components = components;
 
   /// Creates a copy of this [UiDefinition] with the given fields replaced.
   UiDefinition copyWith({
@@ -107,7 +108,7 @@ class UiDefinition {
     return UiDefinition(
       surfaceId: surfaceId,
       rootComponentId: rootComponentId ?? this.rootComponentId,
-      components: components ?? this.components,
+      components: components ?? _components,
       styles: styles ?? this.styles,
     );
   }

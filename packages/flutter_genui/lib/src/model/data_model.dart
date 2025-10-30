@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 import '../primitives/logging.dart';
@@ -10,7 +12,8 @@ import '../primitives/simple_items.dart';
 @immutable
 class DataPath {
   factory DataPath(String path) {
-    return DataPath._(_split(path), path.startsWith(_separator));
+    final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+    return DataPath._(segments, path.startsWith(_separator));
   }
 
   const DataPath._(this.segments, this.isAbsolute);
@@ -20,16 +23,6 @@ class DataPath {
 
   static final String _separator = '/';
   static const DataPath root = DataPath._([], true);
-
-  static List<String> _split(String path) {
-    if (path.startsWith(_separator)) {
-      path = path.substring(1);
-    }
-    if (path.isEmpty) {
-      return [];
-    }
-    return path.split(_separator);
-  }
 
   String get basename => segments.last;
 
@@ -130,11 +123,28 @@ class DataModel {
   /// relevant subscribers.
   void update(DataPath? absolutePath, dynamic contents) {
     genUiLogger.info(
-      'DataModel.update: path=$absolutePath, contents=$contents',
+      'DataModel.update: path=$absolutePath, contents='
+      '${const JsonEncoder.withIndent('  ').convert(contents)}',
     );
     if (absolutePath == null || absolutePath.segments.isEmpty) {
-      _data = contents as JsonMap;
-      _notifySubscribers(DataPath('/'));
+      if (contents is List) {
+        _data = _parseDataModelContents(contents);
+      } else if (contents is Map) {
+        // Permissive: Allow a map to be sent for the root, even though the
+        // schema expects a list.
+        genUiLogger.info(
+          'DataModel.update: contents for root path is a Map, not a '
+          'List: $contents',
+        );
+        _data = Map<String, Object?>.from(contents);
+      } else {
+        genUiLogger.warning(
+          'DataModel.update: contents for root path is not a List or '
+          'Map: $contents',
+        );
+        _data = <String, Object?>{}; // Fallback
+      }
+      _notifySubscribers(DataPath.root);
       return;
     }
 
@@ -177,6 +187,59 @@ class DataModel {
     return _getValue(_data, absolutePath.segments) as T?;
   }
 
+  JsonMap _parseDataModelContents(List<Object?> contents) {
+    final newData = <String, Object?>{};
+    for (final item in contents) {
+      if (item is Map<String, Object?> && item.containsKey('key')) {
+        final key = item['key'] as String;
+        Object? value;
+        var valueCount = 0;
+
+        const valueKeys = [
+          'valueString',
+          'valueNumber',
+          'valueBoolean',
+          'valueMap',
+        ];
+        for (final valueKey in valueKeys) {
+          if (item.containsKey(valueKey)) {
+            if (valueCount == 0) {
+              if (valueKey == 'valueMap') {
+                if (item[valueKey] is List) {
+                  value = _parseDataModelContents(
+                    (item[valueKey] as List).cast<Object?>(),
+                  );
+                } else {
+                  genUiLogger.warning(
+                    'valueMap for key "$key" is not a List: ${item[valueKey]}',
+                  );
+                }
+              } else {
+                value = item[valueKey];
+              }
+            }
+            valueCount++;
+          }
+        }
+
+        if (valueCount == 0) {
+          genUiLogger.warning(
+            'No value field found for key "$key" in contents: $item',
+          );
+        } else if (valueCount > 1) {
+          genUiLogger.warning(
+            'Multiple value fields found for key "$key" in contents: $item. '
+            'Using the first one found.',
+          );
+        }
+        newData[key] = value;
+      } else {
+        genUiLogger.warning('Invalid item in dataModelUpdate contents: $item');
+      }
+    }
+    return newData;
+  }
+
   dynamic _getValue(dynamic current, List<String> segments) {
     if (segments.isEmpty) {
       return current;
@@ -187,8 +250,8 @@ class DataModel {
 
     if (current is Map) {
       return _getValue(current[segment], remaining);
-    } else if (current is List && segment.startsWith('[')) {
-      final index = int.tryParse(segment.substring(1, segment.length - 1));
+    } else if (current is List) {
+      final index = int.tryParse(segment);
       if (index != null && index >= 0 && index < current.length) {
         return _getValue(current[index], remaining);
       }
@@ -204,9 +267,34 @@ class DataModel {
     final segment = segments.first;
     final remaining = segments.sublist(1);
 
-    if (segment.startsWith('[')) {
-      final index = int.tryParse(segment.substring(1, segment.length - 1));
-      if (index != null && current is List && index >= 0) {
+    if (current is Map) {
+      if (remaining.isEmpty) {
+        current[segment] = value;
+        return;
+      }
+
+      // If we are here, remaining is not empty.
+      final nextSegment = remaining.first;
+      final isNextSegmentListIndex = nextSegment.startsWith(RegExp(r'^\d+$'));
+
+      var nextNode = current[segment];
+
+      if (isNextSegmentListIndex) {
+        if (nextNode is! List) {
+          nextNode = <dynamic>[];
+          current[segment] = nextNode;
+        }
+      } else {
+        // Next segment is a map key
+        if (nextNode is! Map) {
+          nextNode = <String, dynamic>{};
+          current[segment] = nextNode;
+        }
+      }
+      _updateValue(nextNode, remaining, value);
+    } else if (current is List) {
+      final index = int.tryParse(segment);
+      if (index != null && index >= 0) {
         if (remaining.isEmpty) {
           if (index < current.length) {
             current[index] = value;
@@ -221,34 +309,33 @@ class DataModel {
         } else {
           if (index < current.length) {
             _updateValue(current[index], remaining, value);
+          } else if (index == current.length) {
+            // If the index is the length, we're adding a new item which
+            // should be a map or list based on the next segment.
+            if (remaining.first.startsWith(RegExp(r'^\d+$'))) {
+              current.add(<dynamic>[]);
+            } else {
+              current.add(<String, dynamic>{});
+            }
+            _updateValue(current[index], remaining, value);
           } else {
             throw ArgumentError(
               'Index out of bounds for nested update: index ($index) is '
-              'greater than or equal to list length (${current.length}).',
+              'greater than list length (${current.length}).',
             );
           }
         }
-      }
-    } else {
-      if (current is Map) {
-        if (remaining.isEmpty) {
-          current[segment] = value;
-        } else {
-          if (!current.containsKey(segment)) {
-            if (remaining.first.startsWith('[')) {
-              current[segment] = <dynamic>[];
-            } else {
-              current[segment] = <String, dynamic>{};
-            }
-          }
-          _updateValue(current[segment], remaining, value);
-        }
+      } else {
+        genUiLogger.warning('Invalid list index segment: $segment');
       }
     }
   }
 
   void _notifySubscribers(DataPath path) {
-    genUiLogger.info('DataModel._notifySubscribers: notifying for path=$path');
+    genUiLogger.info(
+      'DataModel._notifySubscribers: notifying '
+      '${_subscriptions.length} subscribers for path=$path',
+    );
     for (final p in _subscriptions.keys) {
       if (p.startsWith(path) || path.startsWith(p)) {
         genUiLogger.info('  - Notifying subscriber for path=$p');

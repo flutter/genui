@@ -72,19 +72,22 @@ final list = CatalogItem(
               children: children,
             );
           },
-          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
-            return ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: direction,
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final itemDataContext = dataContext.nested(
-                  DataPath('$dataBinding[$index]'),
+          templateListWidgetBuilder:
+              (context, Map<String, Object?> data, componentId, dataBinding) {
+                final values = data.values.toList();
+                final keys = data.keys.toList();
+                return ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: direction,
+                  itemCount: values.length,
+                  itemBuilder: (context, index) {
+                    final itemDataContext = dataContext.nested(
+                      DataPath('$dataBinding/${keys[index]}'),
+                    );
+                    return buildChild(componentId, itemDataContext);
+                  },
                 );
-                return buildChild(componentId, itemDataContext);
               },
-            );
-          },
         );
       },
   exampleData: [

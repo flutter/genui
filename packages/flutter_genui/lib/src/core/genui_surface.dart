@@ -41,10 +41,11 @@ class GenUiSurface extends StatefulWidget {
 class _GenUiSurfaceState extends State<GenUiSurface> {
   @override
   Widget build(BuildContext context) {
+    genUiLogger.fine('Outer Building surface ${widget.surfaceId}');
     return ValueListenableBuilder<UiDefinition?>(
-      valueListenable: widget.host.surface(widget.surfaceId),
+      valueListenable: widget.host.getSurfaceNotifier(widget.surfaceId),
       builder: (context, definition, child) {
-        genUiLogger.info('Building surface ${widget.surfaceId}');
+        genUiLogger.fine('Building surface ${widget.surfaceId}');
         if (definition == null) {
           genUiLogger.info('Surface ${widget.surfaceId} has no definition.');
           return widget.defaultBuilder?.call(context) ??
@@ -80,7 +81,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     }
 
     final widgetData = data.componentProperties;
-
+    genUiLogger.finest('Building widget $widgetId');
     return widget.host.catalog.buildWidget(
       id: widgetId,
       widgetData: widgetData,
@@ -94,7 +95,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   void _dispatchEvent(UiEvent event) {
     if (event is UserActionEvent && event.name == 'showModal') {
-      final definition = widget.host.surface(widget.surfaceId).value;
+      final definition = widget.host.getSurfaceNotifier(widget.surfaceId).value;
       if (definition == null) return;
       final modalId = event.context['modalId'] as String;
       final modalComponent = definition.components[modalId];

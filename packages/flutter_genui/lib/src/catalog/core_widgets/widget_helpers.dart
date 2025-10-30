@@ -9,6 +9,16 @@ import '../../model/data_model.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
+typedef TemplateListWidgetBuilder =
+    Widget Function(
+      BuildContext context,
+      Map<String, Object?> data,
+      String componentId,
+      String dataBinding,
+    );
+
+typedef ExplicitListWidgetBuilder = Widget Function(List<Widget> children);
+
 /// A helper widget to build widgets from component data that contains a list
 /// of children.
 ///
@@ -41,23 +51,13 @@ class ComponentChildrenBuilder extends StatelessWidget {
   final ChildBuilderCallback buildChild;
 
   /// The builder for an explicit list of children.
-  final Widget Function(List<Widget> children) explicitListBuilder;
+  final ExplicitListWidgetBuilder explicitListBuilder;
 
   /// The builder for a template-based list of children.
-  final Widget Function(
-    BuildContext context,
-    List<dynamic> list,
-    String componentId,
-    String dataBinding,
-  )
-  templateListWidgetBuilder;
+  final TemplateListWidgetBuilder templateListWidgetBuilder;
 
   @override
   Widget build(BuildContext context) {
-    // Accept either a List of string IDs or the correct output, which is an
-    // object with "explicitList" as the list property to use. This is
-    // because the AIs seem to often get confused and generate just a list
-    // of IDs.
     final explicitList = (childrenData is List)
         ? (childrenData as List).cast<String>()
         : ((childrenData as JsonMap?)?['explicitList'] as List?)
@@ -75,22 +75,28 @@ class ComponentChildrenBuilder extends StatelessWidget {
       if (template != null) {
         final dataBinding = template['dataBinding'] as String;
         final componentId = template['componentId'] as String;
-        final listNotifier = dataContext.subscribe<List<dynamic>>(
+        genUiLogger.finest(
+          'Widget $componentId subscribing to ${dataContext.path}',
+        );
+        final dataNotifier = dataContext.subscribe<Map<String, Object?>>(
           DataPath(dataBinding),
         );
-        return ValueListenableBuilder<List<dynamic>?>(
-          valueListenable: listNotifier,
-          builder: (context, list, child) {
-            genUiLogger.info('buildChildrenFromComponentData: list=$list');
-            if (list == null) {
-              return const SizedBox.shrink();
-            }
-            return templateListWidgetBuilder(
-              context,
-              list,
-              componentId,
-              dataBinding,
+        return ValueListenableBuilder<Map<String, Object?>?>(
+          valueListenable: dataNotifier,
+          builder: (context, data, child) {
+            genUiLogger.info(
+              'ComponentChildrenBuilder: data type: ${data.runtimeType}, '
+              'value: $data',
             );
+            if (data != null) {
+              return templateListWidgetBuilder(
+                context,
+                data,
+                componentId,
+                dataBinding,
+              );
+            }
+            return const SizedBox.shrink();
           },
         );
       }

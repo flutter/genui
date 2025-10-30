@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../model/data_model.dart';
+import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
 /// A builder widget that simplifies handling of nullable `ValueListenable`s.
@@ -44,6 +45,9 @@ class OptionalValueBuilder<T> extends StatelessWidget {
 extension DataContextExtensions on DataContext {
   /// Subscribes to a value, which can be a literal or a data-bound path.
   ValueNotifier<T?> subscribeToValue<T>(JsonMap? ref, String literalKey) {
+    genUiLogger.info(
+      'DataContext.subscribeToValue: ref=$ref, literalKey=$literalKey',
+    );
     if (ref == null) return ValueNotifier<T?>(null);
     final path = ref['path'] as String?;
     final literal = ref[literalKey];
@@ -67,12 +71,12 @@ extension DataContextExtensions on DataContext {
   /// Subscribes to a boolean value, which can be a literal or a data-bound
   /// path.
   ValueNotifier<bool?> subscribeToBool(JsonMap? ref) {
-    return subscribeToValue<bool>(ref, 'literalString');
+    return subscribeToValue<bool>(ref, 'literalBoolean');
   }
 
-  /// Subscribes to a list of strings, which can be a literal or a data-bound
+  /// Subscribes to a list of objects, which can be a literal or a data-bound
   /// path.
-  ValueNotifier<List<dynamic>?> subscribeToStringArray(JsonMap? ref) {
+  ValueNotifier<List<dynamic>?> subscribeToObjectArray(JsonMap? ref) {
     return subscribeToValue<List<dynamic>>(ref, 'literalArray');
   }
 }

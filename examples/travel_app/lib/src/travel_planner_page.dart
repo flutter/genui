@@ -82,6 +82,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _uiConversation = GenUiConversation(
       genUiManager: genUiManager,
       contentGenerator: contentGenerator,
+      onSurfaceUpdated: (update) {
+        _scrollToBottom();
+      },
       onSurfaceAdded: (update) {
         _scrollToBottom();
       },
