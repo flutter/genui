@@ -79,7 +79,7 @@ final class ToolCallPart implements MessagePart {
   final String toolName;
 
   /// The arguments for the tool, as a JSON-like map.
-  final Map<String, dynamic> arguments;
+  final Map<String, Object?> arguments;
 
   /// A unique identifier for this specific tool call.
   final String id;

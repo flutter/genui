@@ -8,7 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../models/models.dart';
 import 'fcp_state.dart';
 
-/// Processes bindings from a [LayoutNode] to resolve dynamic values from
+/// Processes bindings from a [LayoutNode] to resolve Object? values from
 /// [FcpState].
 ///
 /// This class handles path resolution and transformations (`format`,

@@ -89,7 +89,7 @@ class DataContext {
   }
 
   /// Updates the data model, resolving the path against the current context.
-  void update(DataPath relativeOrAbsolutePath, dynamic contents) {
+  void update(DataPath relativeOrAbsolutePath, Object? contents) {
     final absolutePath = resolvePath(relativeOrAbsolutePath);
     _dataModel.update(absolutePath, contents);
   }
@@ -109,19 +109,19 @@ class DataContext {
   }
 }
 
-/// Manages the application's dynamic data model and provides
+/// Manages the application's Object? data model and provides
 /// a subscription-based mechanism for reactive UI updates.
 class DataModel {
   JsonMap _data = {};
-  final Map<DataPath, ValueNotifier<dynamic>> _subscriptions = {};
-  final Map<DataPath, ValueNotifier<dynamic>> _valueSubscriptions = {};
+  final Map<DataPath, ValueNotifier<Object?>> _subscriptions = {};
+  final Map<DataPath, ValueNotifier<Object?>> _valueSubscriptions = {};
 
   /// The full contents of the data model.
   JsonMap get data => _data;
 
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
-  void update(DataPath? absolutePath, dynamic contents) {
+  void update(DataPath? absolutePath, Object? contents) {
     genUiLogger.info(
       'DataModel.update: path=$absolutePath, contents='
       '${const JsonEncoder.withIndent('  ').convert(contents)}',
@@ -253,7 +253,7 @@ class DataModel {
   /// traversed.
   /// The [segments] parameter is the list of remaining path segments to
   /// traverse.
-  dynamic _getValue(dynamic current, List<String> segments) {
+  Object? _getValue(Object? current, List<String> segments) {
     if (segments.isEmpty) {
       return current;
     }
@@ -279,7 +279,7 @@ class DataModel {
   /// The [segments] parameter is the list of remaining path segments to
   /// traverse.
   /// The [value] parameter is the new value to set at the specified path.
-  void _updateValue(dynamic current, List<String> segments, dynamic value) {
+  void _updateValue(Object? current, List<String> segments, Object? value) {
     if (segments.isEmpty) {
       return;
     }
@@ -353,7 +353,7 @@ class DataModel {
         genUiLogger.info('  - Notifying subscriber for path=$p');
         final subscriber = _subscriptions[p];
         if (subscriber != null) {
-          subscriber.value = getValue<dynamic>(p);
+          subscriber.value = getValue<Object?>(p);
         }
       }
     }
@@ -361,7 +361,7 @@ class DataModel {
       genUiLogger.info('  - Notifying value subscriber for path=$path');
       final subscriber = _valueSubscriptions[path];
       if (subscriber != null) {
-        subscriber.value = getValue<dynamic>(path);
+        subscriber.value = getValue<Object?>(path);
       }
     }
   }

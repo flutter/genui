@@ -332,14 +332,14 @@ class FakeProcessManager implements ProcessManager {
   final List<List<String>> commands = [];
 
   @override
-  bool canRun(dynamic executable, {String? workingDirectory}) => true;
+  bool canRun(Object executable, {String? workingDirectory}) => true;
 
   @override
   bool killPid(int pid, [ProcessSignal signal = ProcessSignal.sigterm]) => true;
 
   @override
   Future<ProcessResult> run(
-    List<dynamic> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
@@ -364,7 +364,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   ProcessResult runSync(
-    List<dynamic> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
@@ -387,7 +387,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   Future<Process> start(
-    List<dynamic> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,

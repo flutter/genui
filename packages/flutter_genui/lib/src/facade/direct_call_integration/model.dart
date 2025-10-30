@@ -10,7 +10,7 @@ sealed class Part {
   const Part();
 
   /// Creates a [Part] from a JSON map.
-  factory Part.fromJson(Map<String, dynamic> json) {
+  factory Part.fromJson(Map<String, Object?> json) {
     switch (json['type'] as String) {
       case 'ToolCall':
         return ToolCall.fromJson(json);
@@ -21,13 +21,13 @@ sealed class Part {
   }
 
   /// Converts this object to a JSON representation.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 }
 
 /// A tool call part.
 class ToolCall extends Part {
   /// The arguments to the tool call.
-  final dynamic args;
+  final Object? args;
 
   /// The name of the tool to call.
   final String name;
@@ -36,11 +36,11 @@ class ToolCall extends Part {
   const ToolCall({required this.args, required this.name});
 
   /// Creates a [ToolCall] from a JSON map.
-  factory ToolCall.fromJson(Map<String, dynamic> json) =>
+  factory ToolCall.fromJson(Map<String, Object?> json) =>
       ToolCall(args: json['args'], name: json['name'] as String);
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
     'type': 'ToolCall',
     'args': args,
     'name': name,
@@ -56,7 +56,7 @@ class GenUiFunctionDeclaration {
   final String name;
 
   /// The parameters of the function.
-  final dynamic parameters;
+  final Object? parameters;
 
   /// Creates a [GenUiFunctionDeclaration].
   GenUiFunctionDeclaration({
@@ -66,7 +66,7 @@ class GenUiFunctionDeclaration {
   });
 
   /// Creates a [GenUiFunctionDeclaration] from a JSON map.
-  factory GenUiFunctionDeclaration.fromJson(Map<String, dynamic> json) =>
+  factory GenUiFunctionDeclaration.fromJson(Map<String, Object?> json) =>
       GenUiFunctionDeclaration(
         description: json['description'] as String,
         name: json['name'] as String,
@@ -74,7 +74,7 @@ class GenUiFunctionDeclaration {
       );
 
   /// Converts this object to a JSON representation.
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
     'description': description,
     'name': name,
     'parameters': parameters,

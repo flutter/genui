@@ -158,7 +158,7 @@ class A2uiInterpreter with ChangeNotifier {
   ///
   /// This method is used to update the data model from the client-side, for
   /// example when a user interacts with a form field.
-  void updateData(String path, dynamic value) {
+  void updateData(String path, Object? value) {
     final activeSurfaceId = _activeSurfaceId;
     if (activeSurfaceId == null) return;
     final surfaceState = _surfaces[activeSurfaceId];
@@ -175,7 +175,7 @@ class A2uiInterpreter with ChangeNotifier {
   void _updateDataModel(
     _SurfaceState surfaceState,
     String? path,
-    dynamic contents,
+    Object? contents,
   ) {
     _log.finer('Updating data model at path "$path" with contents: $contents');
     if (path == null || path.isEmpty || path == '/') {
@@ -271,7 +271,7 @@ class A2uiInterpreter with ChangeNotifier {
         .split(RegExp(r'\/|\.|\[|\]'))
         .where((s) => s.isNotEmpty)
         .toList();
-    dynamic currentValue = surfaceState.dataModel;
+    Object? currentValue = surfaceState.dataModel;
     for (final segment in segments) {
       if (currentValue == null) {
         return null;
