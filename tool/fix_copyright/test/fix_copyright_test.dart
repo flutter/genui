@@ -364,7 +364,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   ProcessResult runSync(
-    List<Object?> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
