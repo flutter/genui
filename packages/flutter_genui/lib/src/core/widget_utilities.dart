@@ -70,9 +70,9 @@ extension DataContextExtensions on DataContext {
     return subscribeToValue<bool>(ref, 'literalString');
   }
 
-  /// Subscribes to a list of strings, which can be a literal or a data-bound
-  /// path.
-  ValueNotifier<List<Object?>?> subscribeToStringArray(JsonMap? ref) {
+  /// Subscribes to a list of objects (which will only be strings, numbers, or
+  /// booleans), which can be a literal or a data-bound path.
+  ValueNotifier<List<Object?>?> subscribeToObjectArray(JsonMap? ref) {
     return subscribeToValue<List<Object?>>(ref, 'literalArray');
   }
 }

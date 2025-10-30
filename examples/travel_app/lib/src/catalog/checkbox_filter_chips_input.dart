@@ -130,7 +130,7 @@ final checkboxFilterChipsInput = CatalogItem(
         }
 
         final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-        final notifier = dataContext.subscribeToStringArray(selectedOptionsRef);
+        final notifier = dataContext.subscribeToObjectArray(selectedOptionsRef);
 
         return ValueListenableBuilder<List<Object?>?>(
           valueListenable: notifier,
