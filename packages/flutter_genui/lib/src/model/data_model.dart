@@ -187,59 +187,72 @@ class DataModel {
     return _getValue(_data, absolutePath.segments) as T?;
   }
 
+  /// Parses a list of content objects into a [JsonMap].
+  ///
+  /// Each item in [contents] is expected to be a `Map<String, Object?>`
+  /// with a 'key' and a single 'valueString', 'valueNumber', 'valueBoolean',
+  /// or 'valueMap' entry.
   JsonMap _parseDataModelContents(List<Object?> contents) {
     final newData = <String, Object?>{};
     for (final item in contents) {
-      if (item is Map<String, Object?> && item.containsKey('key')) {
-        final key = item['key'] as String;
-        Object? value;
-        var valueCount = 0;
-
-        const valueKeys = [
-          'valueString',
-          'valueNumber',
-          'valueBoolean',
-          'valueMap',
-        ];
-        for (final valueKey in valueKeys) {
-          if (item.containsKey(valueKey)) {
-            if (valueCount == 0) {
-              if (valueKey == 'valueMap') {
-                if (item[valueKey] is List) {
-                  value = _parseDataModelContents(
-                    (item[valueKey] as List).cast<Object?>(),
-                  );
-                } else {
-                  genUiLogger.warning(
-                    'valueMap for key "$key" is not a List: ${item[valueKey]}',
-                  );
-                }
-              } else {
-                value = item[valueKey];
-              }
-            }
-            valueCount++;
-          }
-        }
-
-        if (valueCount == 0) {
-          genUiLogger.warning(
-            'No value field found for key "$key" in contents: $item',
-          );
-        } else if (valueCount > 1) {
-          genUiLogger.warning(
-            'Multiple value fields found for key "$key" in contents: $item. '
-            'Using the first one found.',
-          );
-        }
-        newData[key] = value;
-      } else {
+      if (item is! Map<String, Object?> || !item.containsKey('key')) {
         genUiLogger.warning('Invalid item in dataModelUpdate contents: $item');
+        continue;
       }
+
+      final key = item['key'] as String;
+      Object? value;
+      var valueCount = 0;
+
+      const valueKeys = [
+        'valueString',
+        'valueNumber',
+        'valueBoolean',
+        'valueMap',
+      ];
+      for (final valueKey in valueKeys) {
+        if (item.containsKey(valueKey)) {
+          if (valueCount == 0) {
+            if (valueKey == 'valueMap') {
+              if (item[valueKey] is List) {
+                value = _parseDataModelContents(
+                  (item[valueKey] as List).cast<Object?>(),
+                );
+              } else {
+                genUiLogger.warning(
+                  'valueMap for key "$key" is not a List: ${item[valueKey]}',
+                );
+              }
+            } else {
+              value = item[valueKey];
+            }
+          }
+          valueCount++;
+        }
+      }
+
+      if (valueCount == 0) {
+        genUiLogger.warning(
+          'No value field found for key "$key" in contents: $item',
+        );
+      } else if (valueCount > 1) {
+        genUiLogger.warning(
+          'Multiple value fields found for key "$key" in contents: $item. '
+          'Using the first one found.',
+        );
+      }
+      newData[key] = value;
     }
     return newData;
   }
 
+  /// Retrieves a static, one-time value from the data model at the
+  /// specified path segments without creating a subscription.
+  ///
+  /// The [current] parameter is the current node in the data model being
+  /// traversed.
+  /// The [segments] parameter is the list of remaining path segments to
+  /// traverse.
   dynamic _getValue(dynamic current, List<String> segments) {
     if (segments.isEmpty) {
       return current;
@@ -259,6 +272,13 @@ class DataModel {
     return null;
   }
 
+  /// Updates the given path with a new value without creating a subscription.
+  ///
+  /// The [current] parameter is the current node in the data model being
+  /// traversed.
+  /// The [segments] parameter is the list of remaining path segments to
+  /// traverse.
+  /// The [value] parameter is the new value to set at the specified path.
   void _updateValue(dynamic current, List<String> segments, dynamic value) {
     if (segments.isEmpty) {
       return;
@@ -274,22 +294,14 @@ class DataModel {
       }
 
       // If we are here, remaining is not empty.
-      final nextSegment = remaining.first;
-      final isNextSegmentListIndex = nextSegment.startsWith(RegExp(r'^\d+$'));
-
       var nextNode = current[segment];
-
-      if (isNextSegmentListIndex) {
-        if (nextNode is! List) {
-          nextNode = <dynamic>[];
-          current[segment] = nextNode;
-        }
-      } else {
-        // Next segment is a map key
-        if (nextNode is! Map) {
-          nextNode = <String, dynamic>{};
-          current[segment] = nextNode;
-        }
+      if (nextNode == null) {
+        // Create the node if it doesn't exist, so the recursive call can
+        // populate it.
+        final nextSegment = remaining.first;
+        final isNextSegmentListIndex = nextSegment.startsWith(RegExp(r'^\d+$'));
+        nextNode = isNextSegmentListIndex ? <dynamic>[] : <String, dynamic>{};
+        current[segment] = nextNode;
       }
       _updateValue(nextNode, remaining, value);
     } else if (current is List) {
