@@ -130,12 +130,13 @@ final row = CatalogItem(
                   crossAxisAlignment: _parseCrossAxisAlignment(
                     rowData.alignment,
                   ),
+                  mainAxisSize: MainAxisSize.min,
                   children: childIds.map((id) {
                     final component = getComponent(id);
                     final weight = component?.weight;
                     final childWidget = buildChild(id, dataContext);
                     if (weight != null) {
-                      return Expanded(flex: weight, child: childWidget);
+                      return Flexible(flex: weight, child: childWidget);
                     }
                     return childWidget;
                   }).toList(),
@@ -145,6 +146,7 @@ final row = CatalogItem(
             return Row(
               mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
               crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+              mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < list.length; i++)
                   buildChild(

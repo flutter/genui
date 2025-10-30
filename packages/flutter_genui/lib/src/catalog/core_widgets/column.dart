@@ -130,12 +130,13 @@ final column = CatalogItem(
                   crossAxisAlignment: _parseCrossAxisAlignment(
                     columnData.alignment,
                   ),
+                  mainAxisSize: MainAxisSize.min,
                   children: childIds.map((id) {
                     final component = getComponent(id);
                     final weight = component?.weight;
                     final childWidget = buildChild(id, dataContext);
                     if (weight != null) {
-                      return Expanded(flex: weight, child: childWidget);
+                      return Flexible(flex: weight, child: childWidget);
                     }
                     return childWidget;
                   }).toList(),
@@ -149,6 +150,7 @@ final column = CatalogItem(
               crossAxisAlignment: _parseCrossAxisAlignment(
                 columnData.alignment,
               ),
+              mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < list.length; i++)
                   buildChild(
