@@ -387,7 +387,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   Future<Process> start(
-    List<Object?> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
