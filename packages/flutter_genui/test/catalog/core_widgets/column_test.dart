@@ -7,17 +7,17 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Row widget renders children', (WidgetTester tester) async {
+  testWidgets('Column widget renders children', (WidgetTester tester) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.row, CoreCatalogItems.text]),
+      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
+        id: 'column',
         componentProperties: {
-          'Row': {
+          'Column': {
             'children': {
               'explicitList': ['text1', 'text2'],
             },
@@ -45,7 +45,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'row'),
+      const BeginRendering(surfaceId: surfaceId, root: 'column'),
     );
 
     await tester.pumpWidget(
@@ -60,19 +60,19 @@ void main() {
     expect(find.text('Second'), findsOneWidget);
   });
 
-  testWidgets('Row widget applies weight property to children', (
+  testWidgets('Column widget applies weight property to children', (
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.row, CoreCatalogItems.text]),
+      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
+        id: 'column',
         componentProperties: {
-          'Row': {
+          'Column': {
             'children': {
               'explicitList': ['text1', 'text2', 'text3'],
             },
@@ -110,7 +110,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'row'),
+      const BeginRendering(surfaceId: surfaceId, root: 'column'),
     );
 
     await tester.pumpWidget(

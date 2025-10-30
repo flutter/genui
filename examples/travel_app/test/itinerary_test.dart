@@ -53,6 +53,7 @@ void main() {
       dispatchEvent: mockDispatchEvent,
       context: tester.element(find.byType(Container)),
       dataContext: DataContext(DataModel(), '/'),
+      getComponent: (String componentId) => null,
     );
 
     // 2. Pump the widget

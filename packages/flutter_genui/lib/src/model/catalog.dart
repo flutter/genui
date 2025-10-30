@@ -69,6 +69,7 @@ class Catalog {
     required DispatchEventCallback dispatchEvent,
     required BuildContext context,
     required DataContext dataContext,
+    required GetComponentCallback getComponent,
   }) {
     final widgetType = widgetData.keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
@@ -86,6 +87,7 @@ class Catalog {
       dispatchEvent: dispatchEvent,
       context: context,
       dataContext: dataContext,
+      getComponent: getComponent,
     );
   }
 

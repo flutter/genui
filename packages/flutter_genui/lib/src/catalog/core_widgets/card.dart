@@ -39,6 +39,7 @@ final card = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final cardData = _CardData.fromMap(data as JsonMap);
         return Card(child: buildChild(cardData.child));

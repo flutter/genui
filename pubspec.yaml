@@ -21,3 +21,6 @@ workspace:
   - examples/travel_app
   - tool/fix_copyright
   - tool/test_and_fix
+
+flutter:
+  uses-material-design: true

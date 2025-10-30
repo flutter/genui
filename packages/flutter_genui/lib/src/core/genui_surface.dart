@@ -90,6 +90,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       dispatchEvent: _dispatchEvent,
       context: context,
       dataContext: dataContext,
+      getComponent: (String componentId) => definition.components[componentId],
     );
   }
 

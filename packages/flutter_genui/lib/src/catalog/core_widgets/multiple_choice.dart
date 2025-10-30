@@ -66,6 +66,7 @@ final multipleChoice = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final multipleChoiceData = _MultipleChoiceData.fromMap(data as JsonMap);
         final selectionsNotifier = dataContext.subscribeToObjectArray(

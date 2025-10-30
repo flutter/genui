@@ -49,6 +49,7 @@ final tabs = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final tabsData = _TabsData.fromMap(data as JsonMap);
         return DefaultTabController(

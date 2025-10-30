@@ -69,6 +69,7 @@ final image = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
         final notifier = dataContext.subscribeToString(imageData.url);
@@ -85,11 +86,14 @@ final image = CatalogItem(
             }
             final fit = imageData.fit;
 
+            late Widget child;
+
             if (location.startsWith('assets/')) {
-              return Image.asset(location, fit: fit);
+              child = Image.asset(location, fit: fit);
             } else {
-              return Image.network(location, fit: fit);
+              child = Image.network(location, fit: fit);
             }
+            return SizedBox(width: 150, height: 150, child: child);
           },
         );
       },

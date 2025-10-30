@@ -56,6 +56,7 @@ final list = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final listData = _ListData.fromMap(data as JsonMap);
         final direction = listData.direction == 'horizontal'
@@ -65,13 +66,17 @@ final list = CatalogItem(
           childrenData: listData.children,
           dataContext: dataContext,
           buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return ListView(
-              shrinkWrap: true,
-              scrollDirection: direction,
-              children: children,
-            );
-          },
+          getComponent: getComponent,
+          explicitListBuilder:
+              (childIds, buildChild, getComponent, dataContext) {
+                return ListView(
+                  shrinkWrap: true,
+                  scrollDirection: direction,
+                  children: childIds
+                      .map((id) => buildChild(id, dataContext))
+                      .toList(),
+                );
+              },
           templateListWidgetBuilder:
               (context, Map<String, Object?> data, componentId, dataBinding) {
                 final values = data.values.toList();

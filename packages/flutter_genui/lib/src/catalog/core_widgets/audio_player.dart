@@ -35,6 +35,7 @@ final audioPlayer = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),

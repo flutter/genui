@@ -178,6 +178,10 @@ class A2uiSchemas {
               'This component could be one of many supported types.',
           properties: {
             'id': S.string(),
+            'weight': S.integer(
+              description:
+                  'Optional layout weight for use in Row/Column children.',
+            ),
             'component': S.object(
               description:
                   '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Heading'). The value is an object containing the properties for that specific component.''',

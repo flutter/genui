@@ -66,6 +66,7 @@ final button = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final buttonData = _ButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);

@@ -30,6 +30,7 @@ void main() {
                 dispatchEvent: (UiEvent event) {},
                 context: context,
                 dataContext: DataContext(DataModel(), '/'),
+                getComponent: (String componentId) => null,
               ),
             ),
           ),

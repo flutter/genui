@@ -134,7 +134,11 @@ class UiDefinition {
 /// A component in the UI.
 final class Component {
   /// Creates a [Component].
-  const Component({required this.id, required this.componentProperties});
+  const Component({
+    required this.id,
+    required this.componentProperties,
+    this.weight,
+  });
 
   /// Creates a [Component] from a JSON map.
   factory Component.fromJson(JsonMap json) {
@@ -144,6 +148,7 @@ final class Component {
     return Component(
       id: json['id'] as String,
       componentProperties: json['component'] as JsonMap,
+      weight: json['weight'] as int?,
     );
   }
 
@@ -153,9 +158,16 @@ final class Component {
   /// The properties of the component.
   final JsonMap componentProperties;
 
+  /// The weight of the component, used for layout in Row/Column.
+  final int? weight;
+
   /// Converts this object to a JSON map.
   JsonMap toJson() {
-    return {'id': id, 'component': componentProperties};
+    return {
+      'id': id,
+      'component': componentProperties,
+      if (weight != null) 'weight': weight,
+    };
   }
 
   /// The type of the component.
@@ -165,12 +177,16 @@ final class Component {
   bool operator ==(Object other) =>
       other is Component &&
       id == other.id &&
+      weight == other.weight &&
       const DeepCollectionEquality().equals(
         componentProperties,
         other.componentProperties,
       );
 
   @override
-  int get hashCode =>
-      Object.hash(id, const DeepCollectionEquality().hash(componentProperties));
+  int get hashCode => Object.hash(
+    id,
+    weight,
+    const DeepCollectionEquality().hash(componentProperties),
+  );
 }

@@ -101,6 +101,7 @@ final optionsFilterChipInput = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
           data as Map<String, Object?>,

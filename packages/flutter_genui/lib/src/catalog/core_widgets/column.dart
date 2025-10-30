@@ -109,23 +109,34 @@ final column = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         return ComponentChildrenBuilder(
           childrenData: columnData.children,
           dataContext: dataContext,
           buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return Column(
-              mainAxisAlignment: _parseMainAxisAlignment(
-                columnData.distribution,
-              ),
-              crossAxisAlignment: _parseCrossAxisAlignment(
-                columnData.alignment,
-              ),
-              children: children,
-            );
-          },
+          getComponent: getComponent,
+          explicitListBuilder:
+              (childIds, buildChild, getComponent, dataContext) {
+                return Column(
+                  mainAxisAlignment: _parseMainAxisAlignment(
+                    columnData.distribution,
+                  ),
+                  crossAxisAlignment: _parseCrossAxisAlignment(
+                    columnData.alignment,
+                  ),
+                  children: childIds.map((id) {
+                    final component = getComponent(id);
+                    final weight = component?.weight;
+                    final childWidget = buildChild(id, dataContext);
+                    if (weight != null) {
+                      return Expanded(flex: weight, child: childWidget);
+                    }
+                    return childWidget;
+                  }).toList(),
+                );
+              },
           templateListWidgetBuilder: (context, list, componentId, dataBinding) {
             return Column(
               mainAxisAlignment: _parseMainAxisAlignment(

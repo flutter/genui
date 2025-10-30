@@ -8,6 +8,9 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'data_model.dart';
 import 'ui_models.dart';
 
+/// A callback to get a component definition by its ID.
+typedef GetComponentCallback = Component? Function(String componentId);
+
 /// A callback that builds a child widget for a catalog item.
 typedef ChildBuilderCallback =
     Widget Function(String id, [DataContext? dataContext]);
@@ -34,6 +37,8 @@ typedef CatalogWidgetBuilder =
       required BuildContext context,
       // The current data context for this widget.
       required DataContext dataContext,
+      // A function to retrieve a component definition by its ID.
+      required GetComponentCallback getComponent,
     });
 
 /// Defines a UI layout type, its schema, and how to build its widget.
