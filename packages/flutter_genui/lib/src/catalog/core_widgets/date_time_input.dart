@@ -42,12 +42,13 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
   String? get outputFormat => _json['outputFormat'] as String?;
 }
 
-/// A catalog item for a Material Design date/time input.
+/// A catalog item representing a Material Design date and/or time input field.
 ///
-/// This widget displays a field that allows the user to select a date and/or
-/// time.
+/// This widget displays a field that, when tapped, opens the native date and/or
+/// time pickers. The selected value is stored as a string in the data model
+/// path specified by the `value` parameter.
 ///
-/// ### Parameters:
+/// ## Parameters:
 ///
 /// - `value`: The selected date and/or time, as a string.
 /// - `enableDate`: Whether to allow the user to select a date. Defaults to

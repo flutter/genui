@@ -32,9 +32,13 @@ extension type _TabsData.fromMap(JsonMap _json) {
   List<JsonMap> get tabItems => (_json['tabItems'] as List).cast<JsonMap>();
 }
 
-/// A catalog item for a Material Design tab bar.
+/// A catalog item representing a Material Design tab layout.
 ///
-/// ### Parameters:
+/// This widget displays a [TabBar] and a [TabBarView] to allow navigation
+/// between different child components. Each tab in `tabItems` has a title and
+/// a corresponding child component ID to display when selected.
+///
+/// ## Parameters:
 ///
 /// - `tabItems`: A list of tabs to display, each with a `title` and a `child`
 ///   widget ID.

@@ -174,7 +174,7 @@ class FakeA2uiAgentConnector implements A2uiAgentConnector {
   }
 
   @override
-  Future<void> sendEvent(Map<String, dynamic> event) async {
+  Future<void> sendEvent(Map<String, Object?> event) async {
     // Simulate sending an event
   }
 

@@ -83,7 +83,7 @@ void main() {
             {
               'id': 'c1',
               'component': {
-                'Column': {'children': <dynamic>[]},
+                'Column': {'children': <Object?>[]},
               },
             },
           ],

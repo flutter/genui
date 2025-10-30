@@ -59,7 +59,7 @@ void main() {
                       {
                         'id': 'c1',
                         'component': {
-                          'Column': {'children': <dynamic>[]},
+                          'Column': {'children': <Object?>[]},
                         },
                       },
                     ],
@@ -153,7 +153,7 @@ void main() {
       expect(sentMessage.referenceTaskIds, ['task1']);
       expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts!.first as a2a.A2ADataPart;
-      final a2uiEvent = dataPart.data['a2uiEvent'] as Map<String, dynamic>;
+      final a2uiEvent = dataPart.data['a2uiEvent'] as Map<String, Object?>;
       expect(a2uiEvent['actionName'], 'testAction');
       expect(a2uiEvent['sourceComponentId'], 'c1');
       expect(a2uiEvent['resolvedContext'], {'key': 'value'});

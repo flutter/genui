@@ -339,7 +339,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   Future<ProcessResult> run(
-    List<dynamic> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
@@ -364,7 +364,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   ProcessResult runSync(
-    List<dynamic> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,
@@ -387,7 +387,7 @@ class FakeProcessManager implements ProcessManager {
 
   @override
   Future<Process> start(
-    List<dynamic> command, {
+    List<Object> command, {
     String? workingDirectory,
     Map<String, String>? environment,
     bool includeParentEnvironment = true,

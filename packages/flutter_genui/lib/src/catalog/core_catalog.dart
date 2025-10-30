@@ -28,58 +28,79 @@ import 'core_widgets/video.dart' as video_item;
 class CoreCatalogItems {
   CoreCatalogItems._();
 
-  /// A placeholder for an audio player.
+  /// Represents a UI element for playing audio content.
+  ///
+  /// This typically includes controls like play/pause, seek, and volume.
   static final CatalogItem audioPlayer = audio_player_item.audioPlayer;
 
-  /// A material design elevated button.
+  /// Represents an interactive button that triggers an action when pressed.
+  ///
+  /// Conforms to Material Design guidelines for elevated buttons.
   static final CatalogItem button = button_item.button;
 
-  /// A material design card.
+  /// Represents a Material Design card, a container for related information and
+  /// actions.
+  ///
+  /// Often used to group content visually.
   static final CatalogItem card = card_item.card;
 
-  /// A material design checkbox.
+  /// Represents a checkbox that allows the user to toggle a boolean state.
   static final CatalogItem checkBox = check_box_item.checkBox;
 
-  /// A widget that displays its children in a vertical array.
+  /// Represents a layout widget that arranges its children in a vertical
+  /// sequence.
   static final CatalogItem column = column_item.column;
 
-  /// A material design date/time input.
+  /// Represents a widget for selecting a date and/or time.
   static final CatalogItem dateTimeInput = date_time_input_item.dateTimeInput;
 
-  /// A material design divider.
+  /// Represents a thin horizontal line used to separate content.
   static final CatalogItem divider = divider_item.divider;
 
-  /// A heading.
+  /// Represents a text heading, typically used to title sections of content.
+  ///
+  /// Supports different levels to indicate hierarchy.
   static final CatalogItem heading = heading_item.heading;
 
-  /// A widget that displays an image.
+  /// Represents a UI element for displaying image data from a URL or other
+  /// source.
   static final CatalogItem image = image_item.image;
 
-  /// A list of widgets.
+  /// Represents a scrollable list of child widgets.
+  ///
+  /// Can be configured to lay out items linearly.
   static final CatalogItem list = list_item.list;
 
-  /// A modal bottom sheet.
+  /// Represents a modal overlay that slides up from the bottom of the screen.
+  ///
+  /// Used to present a set of options or a piece of content requiring user
+  /// interaction.
   static final CatalogItem modal = modal_item.modal;
 
-  /// A multiple choice widget.
+  /// Represents a widget allowing the user to select one or more options from a
+  /// list.
   static final CatalogItem multipleChoice = multiple_choice_item.multipleChoice;
 
-  /// A widget that displays its children in a horizontal array.
+  /// Represents a layout widget that arranges its children in a horizontal
+  /// sequence.
   static final CatalogItem row = row_item.row;
 
-  /// A material design slider.
+  /// Represents a slider control for selecting a value from a range.
   static final CatalogItem slider = slider_item.slider;
 
-  /// A material design tab bar.
+  /// Represents a set of tabs for navigating between different views or
+  /// sections.
   static final CatalogItem tabs = tabs_item.tabs;
 
-  /// A string of text.
+  /// Represents a block of styled text.
   static final CatalogItem text = text_item.text;
 
-  /// A material design text field.
+  /// Represents an input field where the user can enter text.
   static final CatalogItem textField = text_field_item.textField;
 
-  /// A placeholder for a video player.
+  /// Represents a UI element for playing video content.
+  ///
+  /// This typically includes controls like play/pause, seek, and volume.
   static final CatalogItem video = video_item.video;
 
   /// Creates a catalog containing all core catalog items.

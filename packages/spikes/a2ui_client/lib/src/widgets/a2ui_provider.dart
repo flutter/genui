@@ -25,11 +25,11 @@ class A2uiProvider extends InheritedWidget {
 
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
-  final ValueChanged<Map<String, dynamic>>? onEvent;
+  final ValueChanged<Map<String, Object?>>? onEvent;
 
   /// A callback function that is invoked when the data model is updated by a
   /// widget.
-  final void Function(String path, dynamic value)? onDataModelUpdate;
+  final void Function(String path, Object? value)? onDataModelUpdate;
 
   /// Retrieves the [A2uiProvider] from the given [context].
   static A2uiProvider? of(BuildContext context) {

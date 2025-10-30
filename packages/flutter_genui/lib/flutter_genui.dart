@@ -2,6 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// The core library for the Flutter GenUI framework.
+///
+/// This library provides the necessary components to build generative user
+/// interfaces in Flutter applications. It includes models for UI components,
+/// data handling, and communication with a generative AI service.
+library;
+
 export 'src/catalog/core_catalog.dart';
 export 'src/content_generator.dart';
 export 'src/conversation/gen_ui_conversation.dart';

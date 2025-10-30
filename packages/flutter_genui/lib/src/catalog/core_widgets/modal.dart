@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport '../../core/genui_surface.dart';
+library;
+
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
@@ -33,9 +36,14 @@ extension type _ModalData.fromMap(JsonMap _json) {
   String get contentChild => _json['contentChild'] as String;
 }
 
-/// A catalog item for a modal bottom sheet.
+/// A catalog item representing a modal bottom sheet.
 ///
-/// ### Parameters:
+/// This component doesn't render the modal content directly. Instead, it
+/// renders the `entryPointChild` widget. The `entryPointChild` is expected to
+/// trigger an action (e.g., on button press) that causes the `contentChild` to
+/// be displayed within a modal bottom sheet by the [GenUiSurface].
+///
+/// ## Parameters:
 ///
 /// - `entryPointChild`: The ID of the widget that opens the modal.
 /// - `contentChild`: The ID of the widget to display in the modal.

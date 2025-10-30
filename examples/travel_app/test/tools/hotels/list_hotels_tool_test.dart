@@ -123,8 +123,8 @@ void main() {
         };
 
         final result = await tool.invoke(args);
-        final listings = result['listings'] as List<dynamic>;
-        final listing = listings.first as Map<String, dynamic>;
+        final listings = result['listings'] as List<Object?>;
+        final listing = listings.first as Map<String, Object?>;
         expect(listing['listingSelectionId'], isNotEmpty);
       });
     });

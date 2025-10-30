@@ -26,9 +26,13 @@ extension type _HeadingData.fromMap(JsonMap _json) {
   String? get level => _json['level'] as String?;
 }
 
-/// A catalog item for a large text heading.
+/// A catalog item representing a text heading.
 ///
-/// ### Parameters:
+/// Headings are used to title sections of content. The visual appearance is
+/// determined by the `level` parameter, which maps to standard [TextTheme]
+/// styles.
+///
+/// ## Parameters:
 ///
 /// - `text`: The text to display.
 /// - `level`: The heading level, from 1 to 5. This affects the text style.

@@ -22,8 +22,8 @@ class Component extends Equatable {
   const Component({required this.id, this.weight, required this.component});
 
   /// Creates a [Component] from a JSON object.
-  factory Component.fromJson(Map<String, dynamic> json) {
-    final componentMap = json['component'] as Map<String, dynamic>;
+  factory Component.fromJson(Map<String, Object?> json) {
+    final componentMap = json['component'] as Map<String, Object?>;
     return Component(
       id: json['id'] as String,
       weight: JsonUtils.parseDouble(json['weight']),
@@ -51,9 +51,9 @@ sealed class ComponentProperties extends Equatable {
   const ComponentProperties();
 
   /// Creates a [ComponentProperties] from a JSON object.
-  factory ComponentProperties.fromJson(Map<String, dynamic> json) {
+  factory ComponentProperties.fromJson(Map<String, Object?> json) {
     final type = json.keys.first;
-    final properties = json[type] as Map<String, dynamic>;
+    final properties = json[type] as Map<String, Object?>;
     switch (type) {
       case 'Heading':
         return HeadingProperties.fromJson(properties);
@@ -113,9 +113,9 @@ abstract class HasChildren {
 class HeadingProperties extends ComponentProperties {
   const HeadingProperties({required this.text, required this.level});
 
-  factory HeadingProperties.fromJson(Map<String, dynamic> json) {
+  factory HeadingProperties.fromJson(Map<String, Object?> json) {
     return HeadingProperties(
-      text: BoundValue.fromJson(json['text'] as Map<String, dynamic>),
+      text: BoundValue.fromJson(json['text'] as Map<String, Object?>),
       level: json['level'] as String,
     );
   }
@@ -137,9 +137,9 @@ class HeadingProperties extends ComponentProperties {
 class TextProperties extends ComponentProperties {
   const TextProperties({required this.text});
 
-  factory TextProperties.fromJson(Map<String, dynamic> json) {
+  factory TextProperties.fromJson(Map<String, Object?> json) {
     return TextProperties(
-      text: BoundValue.fromJson(json['text'] as Map<String, dynamic>),
+      text: BoundValue.fromJson(json['text'] as Map<String, Object?>),
     );
   }
 
@@ -157,9 +157,9 @@ class TextProperties extends ComponentProperties {
 class ImageProperties extends ComponentProperties {
   const ImageProperties({required this.url});
 
-  factory ImageProperties.fromJson(Map<String, dynamic> json) {
+  factory ImageProperties.fromJson(Map<String, Object?> json) {
     return ImageProperties(
-      url: BoundValue.fromJson(json['url'] as Map<String, dynamic>),
+      url: BoundValue.fromJson(json['url'] as Map<String, Object?>),
     );
   }
 
@@ -177,9 +177,9 @@ class ImageProperties extends ComponentProperties {
 class VideoProperties extends ComponentProperties {
   const VideoProperties({required this.url});
 
-  factory VideoProperties.fromJson(Map<String, dynamic> json) {
+  factory VideoProperties.fromJson(Map<String, Object?> json) {
     return VideoProperties(
-      url: BoundValue.fromJson(json['url'] as Map<String, dynamic>),
+      url: BoundValue.fromJson(json['url'] as Map<String, Object?>),
     );
   }
 
@@ -197,11 +197,11 @@ class VideoProperties extends ComponentProperties {
 class AudioPlayerProperties extends ComponentProperties {
   const AudioPlayerProperties({required this.url, this.description});
 
-  factory AudioPlayerProperties.fromJson(Map<String, dynamic> json) {
+  factory AudioPlayerProperties.fromJson(Map<String, Object?> json) {
     return AudioPlayerProperties(
-      url: BoundValue.fromJson(json['url'] as Map<String, dynamic>),
+      url: BoundValue.fromJson(json['url'] as Map<String, Object?>),
       description: json['description'] != null
-          ? BoundValue.fromJson(json['description'] as Map<String, dynamic>)
+          ? BoundValue.fromJson(json['description'] as Map<String, Object?>)
           : null,
     );
   }
@@ -227,9 +227,9 @@ class RowProperties extends ComponentProperties implements HasChildren {
     this.alignment,
   });
 
-  factory RowProperties.fromJson(Map<String, dynamic> json) {
+  factory RowProperties.fromJson(Map<String, Object?> json) {
     return RowProperties(
-      children: Children.fromJson(json['children'] as Map<String, dynamic>),
+      children: Children.fromJson(json['children'] as Map<String, Object?>),
       distribution: json['distribution'] as String?,
       alignment: json['alignment'] as String?,
     );
@@ -259,9 +259,9 @@ class ColumnProperties extends ComponentProperties implements HasChildren {
     this.alignment,
   });
 
-  factory ColumnProperties.fromJson(Map<String, dynamic> json) {
+  factory ColumnProperties.fromJson(Map<String, Object?> json) {
     return ColumnProperties(
-      children: Children.fromJson(json['children'] as Map<String, dynamic>),
+      children: Children.fromJson(json['children'] as Map<String, Object?>),
       distribution: json['distribution'] as String?,
       alignment: json['alignment'] as String?,
     );
@@ -291,9 +291,9 @@ class ListProperties extends ComponentProperties implements HasChildren {
     this.alignment,
   });
 
-  factory ListProperties.fromJson(Map<String, dynamic> json) {
+  factory ListProperties.fromJson(Map<String, Object?> json) {
     return ListProperties(
-      children: Children.fromJson(json['children'] as Map<String, dynamic>),
+      children: Children.fromJson(json['children'] as Map<String, Object?>),
       direction: json['direction'] as String?,
       alignment: json['alignment'] as String?,
     );
@@ -319,7 +319,7 @@ class ListProperties extends ComponentProperties implements HasChildren {
 class CardProperties extends ComponentProperties {
   const CardProperties({required this.child});
 
-  factory CardProperties.fromJson(Map<String, dynamic> json) {
+  factory CardProperties.fromJson(Map<String, Object?> json) {
     return CardProperties(child: json['child'] as String);
   }
 
@@ -337,10 +337,10 @@ class CardProperties extends ComponentProperties {
 class TabsProperties extends ComponentProperties {
   const TabsProperties({required this.tabItems});
 
-  factory TabsProperties.fromJson(Map<String, dynamic> json) {
+  factory TabsProperties.fromJson(Map<String, Object?> json) {
     return TabsProperties(
-      tabItems: (json['tabItems'] as List<dynamic>)
-          .map((e) => TabItem.fromJson(e as Map<String, dynamic>))
+      tabItems: (json['tabItems'] as List<Object?>)
+          .map((e) => TabItem.fromJson(e as Map<String, Object?>))
           .toList(),
     );
   }
@@ -359,7 +359,7 @@ class TabsProperties extends ComponentProperties {
 class DividerProperties extends ComponentProperties {
   const DividerProperties({this.axis, this.color, this.thickness});
 
-  factory DividerProperties.fromJson(Map<String, dynamic> json) {
+  factory DividerProperties.fromJson(Map<String, Object?> json) {
     return DividerProperties(
       axis: json['axis'] as String?,
       color: json['color'] as String?,
@@ -390,7 +390,7 @@ class ModalProperties extends ComponentProperties {
     required this.contentChild,
   });
 
-  factory ModalProperties.fromJson(Map<String, dynamic> json) {
+  factory ModalProperties.fromJson(Map<String, Object?> json) {
     return ModalProperties(
       entryPointChild: json['entryPointChild'] as String,
       contentChild: json['contentChild'] as String,
@@ -414,10 +414,10 @@ class ModalProperties extends ComponentProperties {
 class ButtonProperties extends ComponentProperties {
   const ButtonProperties({required this.label, required this.action});
 
-  factory ButtonProperties.fromJson(Map<String, dynamic> json) {
+  factory ButtonProperties.fromJson(Map<String, Object?> json) {
     return ButtonProperties(
-      label: BoundValue.fromJson(json['label'] as Map<String, dynamic>),
-      action: Action.fromJson(json['action'] as Map<String, dynamic>),
+      label: BoundValue.fromJson(json['label'] as Map<String, Object?>),
+      action: Action.fromJson(json['action'] as Map<String, Object?>),
     );
   }
 
@@ -438,10 +438,10 @@ class ButtonProperties extends ComponentProperties {
 class CheckBoxProperties extends ComponentProperties {
   const CheckBoxProperties({required this.label, required this.value});
 
-  factory CheckBoxProperties.fromJson(Map<String, dynamic> json) {
+  factory CheckBoxProperties.fromJson(Map<String, Object?> json) {
     return CheckBoxProperties(
-      label: BoundValue.fromJson(json['label'] as Map<String, dynamic>),
-      value: BoundValue.fromJson(json['value'] as Map<String, dynamic>),
+      label: BoundValue.fromJson(json['label'] as Map<String, Object?>),
+      value: BoundValue.fromJson(json['value'] as Map<String, Object?>),
     );
   }
 
@@ -467,12 +467,12 @@ class TextFieldProperties extends ComponentProperties {
     this.validationRegexp,
   });
 
-  factory TextFieldProperties.fromJson(Map<String, dynamic> json) {
+  factory TextFieldProperties.fromJson(Map<String, Object?> json) {
     return TextFieldProperties(
       text: json['text'] != null
-          ? BoundValue.fromJson(json['text'] as Map<String, dynamic>)
+          ? BoundValue.fromJson(json['text'] as Map<String, Object?>)
           : null,
-      label: BoundValue.fromJson(json['label'] as Map<String, dynamic>),
+      label: BoundValue.fromJson(json['label'] as Map<String, Object?>),
       type: json['type'] as String?,
       validationRegexp: json['validationRegexp'] as String?,
     );
@@ -506,9 +506,9 @@ class DateTimeInputProperties extends ComponentProperties {
     this.outputFormat,
   });
 
-  factory DateTimeInputProperties.fromJson(Map<String, dynamic> json) {
+  factory DateTimeInputProperties.fromJson(Map<String, Object?> json) {
     return DateTimeInputProperties(
-      value: BoundValue.fromJson(json['value'] as Map<String, dynamic>),
+      value: BoundValue.fromJson(json['value'] as Map<String, Object?>),
       enableDate: json['enableDate'] as bool?,
       enableTime: json['enableTime'] as bool?,
       outputFormat: json['outputFormat'] as String?,
@@ -542,13 +542,13 @@ class MultipleChoiceProperties extends ComponentProperties {
     this.maxAllowedSelections,
   });
 
-  factory MultipleChoiceProperties.fromJson(Map<String, dynamic> json) {
+  factory MultipleChoiceProperties.fromJson(Map<String, Object?> json) {
     return MultipleChoiceProperties(
       selections: BoundValue.fromJson(
-        json['selections'] as Map<String, dynamic>,
+        json['selections'] as Map<String, Object?>,
       ),
-      options: (json['options'] as List<dynamic>?)
-          ?.map((e) => Option.fromJson(e as Map<String, dynamic>))
+      options: (json['options'] as List<Object?>?)
+          ?.map((e) => Option.fromJson(e as Map<String, Object?>))
           .toList(),
       maxAllowedSelections: json['maxAllowedSelections'] as int?,
     );
@@ -574,9 +574,9 @@ class MultipleChoiceProperties extends ComponentProperties {
 class SliderProperties extends ComponentProperties {
   const SliderProperties({required this.value, this.minValue, this.maxValue});
 
-  factory SliderProperties.fromJson(Map<String, dynamic> json) {
+  factory SliderProperties.fromJson(Map<String, Object?> json) {
     return SliderProperties(
-      value: BoundValue.fromJson(json['value'] as Map<String, dynamic>),
+      value: BoundValue.fromJson(json['value'] as Map<String, Object?>),
       minValue: JsonUtils.parseDouble(json['minValue']),
       maxValue: JsonUtils.parseDouble(json['maxValue']),
     );
@@ -608,13 +608,13 @@ class BoundValue extends Equatable {
     this.literalArray,
   });
 
-  factory BoundValue.fromJson(Map<String, dynamic> json) {
+  factory BoundValue.fromJson(Map<String, Object?> json) {
     return BoundValue(
       path: json['path'] as String?,
       literalString: json['literalString'] as String?,
       literalNumber: JsonUtils.parseDouble(json['literalNumber']),
       literalBoolean: json['literalBoolean'] as bool?,
-      literalArray: json['literalArray'] as List<dynamic>?,
+      literalArray: json['literalArray'] as List<Object?>?,
     );
   }
 
@@ -631,7 +631,7 @@ class BoundValue extends Equatable {
   final bool? literalBoolean;
 
   /// The literal array value.
-  final List<dynamic>? literalArray;
+  final List<Object?>? literalArray;
 
   @override
   List<Object?> get props => [
@@ -647,13 +647,13 @@ class BoundValue extends Equatable {
 class Children extends Equatable {
   const Children({this.explicitList, this.template});
 
-  factory Children.fromJson(Map<String, dynamic> json) {
+  factory Children.fromJson(Map<String, Object?> json) {
     return Children(
-      explicitList: (json['explicitList'] as List<dynamic>?)
+      explicitList: (json['explicitList'] as List<Object?>?)
           ?.map((e) => e as String)
           .toList(),
       template: json['template'] != null
-          ? Template.fromJson(json['template'] as Map<String, dynamic>)
+          ? Template.fromJson(json['template'] as Map<String, Object?>)
           : null,
     );
   }
@@ -672,7 +672,7 @@ class Children extends Equatable {
 class Template extends Equatable {
   const Template({required this.componentId, required this.dataBinding});
 
-  factory Template.fromJson(Map<String, dynamic> json) {
+  factory Template.fromJson(Map<String, Object?> json) {
     return Template(
       componentId: json['componentId'] as String,
       dataBinding: json['dataBinding'] as String,
@@ -693,9 +693,9 @@ class Template extends Equatable {
 class TabItem extends Equatable {
   const TabItem({required this.title, required this.child});
 
-  factory TabItem.fromJson(Map<String, dynamic> json) {
+  factory TabItem.fromJson(Map<String, Object?> json) {
     return TabItem(
-      title: BoundValue.fromJson(json['title'] as Map<String, dynamic>),
+      title: BoundValue.fromJson(json['title'] as Map<String, Object?>),
       child: json['child'] as String,
     );
   }
@@ -714,11 +714,11 @@ class TabItem extends Equatable {
 class Action extends Equatable {
   const Action({required this.name, this.context});
 
-  factory Action.fromJson(Map<String, dynamic> json) {
+  factory Action.fromJson(Map<String, Object?> json) {
     return Action(
       name: json['name'] as String,
-      context: (json['context'] as List<dynamic>?)
-          ?.map((e) => ContextItem.fromJson(e as Map<String, dynamic>))
+      context: (json['context'] as List<Object?>?)
+          ?.map((e) => ContextItem.fromJson(e as Map<String, Object?>))
           .toList(),
     );
   }
@@ -737,10 +737,10 @@ class Action extends Equatable {
 class ContextItem extends Equatable {
   const ContextItem({required this.key, required this.value});
 
-  factory ContextItem.fromJson(Map<String, dynamic> json) {
+  factory ContextItem.fromJson(Map<String, Object?> json) {
     return ContextItem(
       key: json['key'] as String,
-      value: BoundValue.fromJson(json['value'] as Map<String, dynamic>),
+      value: BoundValue.fromJson(json['value'] as Map<String, Object?>),
     );
   }
 
@@ -758,9 +758,9 @@ class ContextItem extends Equatable {
 class Option extends Equatable {
   const Option({required this.label, required this.value});
 
-  factory Option.fromJson(Map<String, dynamic> json) {
+  factory Option.fromJson(Map<String, Object?> json) {
     return Option(
-      label: BoundValue.fromJson(json['label'] as Map<String, dynamic>),
+      label: BoundValue.fromJson(json['label'] as Map<String, Object?>),
       value: json['value'] as String,
     );
   }

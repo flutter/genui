@@ -45,11 +45,13 @@ extension type _ButtonData.fromMap(JsonMap _json) {
   bool get primary => (_json['primary'] as bool?) ?? false;
 }
 
-/// A catalog item for a Material Design elevated button.
+/// A catalog item representing a Material Design elevated button.
 ///
-/// This widget displays a button that can be pressed to trigger an action.
+/// This widget displays an interactive button. When pressed, it dispatches
+/// the specified `action` event. The button's appearance can be styled as
+/// a primary action.
 ///
-/// ### Parameters:
+/// ## Parameters:
 ///
 /// - `child`: The ID of a child widget to display inside the button.
 /// - `action`: The action to perform when the button is pressed.
