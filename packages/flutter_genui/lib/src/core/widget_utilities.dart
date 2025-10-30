@@ -72,8 +72,8 @@ extension DataContextExtensions on DataContext {
 
   /// Subscribes to a list of strings, which can be a literal or a data-bound
   /// path.
-  ValueNotifier<List<dynamic>?> subscribeToStringArray(JsonMap? ref) {
-    return subscribeToValue<List<dynamic>>(ref, 'literalArray');
+  ValueNotifier<List<Object?>?> subscribeToStringArray(JsonMap? ref) {
+    return subscribeToValue<List<Object?>>(ref, 'literalArray');
   }
 }
 

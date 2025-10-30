@@ -46,7 +46,7 @@ class ComponentChildrenBuilder extends StatelessWidget {
   /// The builder for a template-based list of children.
   final Widget Function(
     BuildContext context,
-    List<dynamic> list,
+    List<Object?> list,
     String componentId,
     String dataBinding,
   )
@@ -75,10 +75,10 @@ class ComponentChildrenBuilder extends StatelessWidget {
       if (template != null) {
         final dataBinding = template['dataBinding'] as String;
         final componentId = template['componentId'] as String;
-        final listNotifier = dataContext.subscribe<List<dynamic>>(
+        final listNotifier = dataContext.subscribe<List<Object?>>(
           DataPath(dataBinding),
         );
-        return ValueListenableBuilder<List<dynamic>?>(
+        return ValueListenableBuilder<List<Object?>?>(
           valueListenable: listNotifier,
           builder: (context, list, child) {
             genUiLogger.info('buildChildrenFromComponentData: list=$list');

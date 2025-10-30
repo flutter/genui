@@ -310,7 +310,7 @@ class _LayoutEngine with ChangeNotifier {
       );
     }
     final boundProperties = bindingProcessor.process(node);
-    final data = boundProperties['data'] as List<dynamic>? ?? [];
+    final data = boundProperties['data'] as List<Object?>? ?? [];
     final itemTemplate = node.itemTemplate;
 
     if (itemTemplate == null) {

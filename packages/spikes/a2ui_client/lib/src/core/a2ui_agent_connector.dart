@@ -150,7 +150,7 @@ class A2uiAgentConnector {
   ///
   /// This is used to send user interaction events to the agent, such as
   /// button clicks or form submissions.
-  Future<void> sendEvent(Map<String, dynamic> event) async {
+  Future<void> sendEvent(Map<String, Object?> event) async {
     if (_taskId == null) {
       _log.severe('Cannot send event, no active task ID.');
       return;
@@ -187,7 +187,7 @@ class A2uiAgentConnector {
     }
   }
 
-  void _processA2uiMessages(Map<String, dynamic> data) {
+  void _processA2uiMessages(Map<String, Object?> data) {
     _log.finer('Processing a2ui messages from data part: $data');
     if (data.containsKey('a2uiMessages')) {
       final messages = data['a2uiMessages'] as List;

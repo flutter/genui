@@ -17,11 +17,11 @@ class ComponentPropertiesVisitor {
   /// The interpreter to use for resolving data bindings.
   final A2uiInterpreter interpreter;
 
-  Map<String, dynamic> _resolveAction(
+  Map<String, Object?> _resolveAction(
     Action action,
-    Map<String, dynamic>? itemData,
+    Map<String, Object?>? itemData,
   ) {
-    final resolvedContext = <String, dynamic>{};
+    final resolvedContext = <String, Object?>{};
     if (action.context != null) {
       for (final item in action.context!) {
         resolvedContext[item.key] = resolveValue(item.value, itemData);
@@ -33,7 +33,7 @@ class ComponentPropertiesVisitor {
   /// Resolves the properties of a [Component].
   Map<String, Object?> visit(
     ComponentProperties properties,
-    Map<String, dynamic>? itemData,
+    Map<String, Object?>? itemData,
   ) {
     _log.finer('Visiting ${properties.componentType} with itemData: $itemData');
     return switch (properties) {
@@ -92,7 +92,7 @@ class ComponentPropertiesVisitor {
   ///
   /// If the value is a literal, it is returned directly. If it is a data
   /// binding, the value is resolved from the data model.
-  Object? resolveValue(BoundValue? value, Map<String, dynamic>? itemData) {
+  Object? resolveValue(BoundValue? value, Map<String, Object?>? itemData) {
     if (value == null) {
       return null;
     }

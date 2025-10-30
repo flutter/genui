@@ -72,7 +72,7 @@ final multipleChoice = CatalogItem(
           multipleChoiceData.selections,
         );
 
-        return ValueListenableBuilder<List<dynamic>?>(
+        return ValueListenableBuilder<List<Object?>?>(
           valueListenable: selectionsNotifier,
           builder: (context, selections, child) {
             return Column(

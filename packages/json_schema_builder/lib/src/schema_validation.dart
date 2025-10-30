@@ -1140,7 +1140,7 @@ extension SchemaValidation on Schema {
     Schema? result;
     final visited = <Map<String, Object?>>{};
 
-    void visit(dynamic current, {required bool isRootOfResource}) {
+    void visit(Object? current, {required bool isRootOfResource}) {
       if (result != null) return;
       if (current is Map<String, Object?>) {
         if (visited.contains(current)) return;

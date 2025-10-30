@@ -88,7 +88,7 @@ class GeminiSchemaAdapter {
         final schemas = <firebase_ai.Schema>[];
         for (var i = 0; i < anyOfList.length; i++) {
           final subSchemaMap = anyOfList[i];
-          if (subSchemaMap is! Map<String, dynamic>) {
+          if (subSchemaMap is! Map<String, Object?>) {
             _errors.add(
               GeminiSchemaAdapterError(
                 'Schema inside "anyOf" must be an object.',

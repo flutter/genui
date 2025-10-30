@@ -15,7 +15,7 @@ void main() {
     () async {
       final result = await assetImageCatalogJson();
       final decoded = jsonDecode(result);
-      expect(decoded, isA<List<dynamic>>());
+      expect(decoded, isA<List<Object?>>());
       expect(decoded, isNotEmpty);
     },
   );

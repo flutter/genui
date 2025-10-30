@@ -132,7 +132,7 @@ void main() {
     });
 
     test('getValue returns null for non-existent paths', () {
-      expect(dataModel.getValue<dynamic>(DataPath('/a')), isNull);
+      expect(dataModel.getValue<Object?>(DataPath('/a')), isNull);
     });
 
     group('subscribe', () {

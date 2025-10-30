@@ -165,7 +165,7 @@ class SchemaRegistry {
 
   Schema? _resolveJsonPointer(Schema schema, String pointer) {
     final parts = pointer.substring(1).split('/');
-    dynamic current = schema;
+    Object? current = schema;
     for (final part in parts) {
       final decodedPart = Uri.decodeComponent(
         part,
@@ -202,7 +202,7 @@ class SchemaRegistry {
     Schema? result;
     final visited = <Map<String, Object?>>{};
 
-    void visit(dynamic current, {required bool isRootOfResource}) {
+    void visit(Object? current, {required bool isRootOfResource}) {
       if (result != null) return;
       if (current is Map<String, Object?>) {
         if (visited.contains(current)) return;
