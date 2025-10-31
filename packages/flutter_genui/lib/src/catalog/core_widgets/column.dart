@@ -133,11 +133,11 @@ final column = CatalogItem(
                   mainAxisSize: MainAxisSize.min,
                   children: childIds
                       .map(
-                        (id) => buildWeightedChild(
-                          componentId: id,
+                        (componentId) => buildWeightedChild(
+                          componentId: componentId,
                           dataContext: dataContext,
                           buildChild: buildChild,
-                          getComponent: getComponent,
+                          component: getComponent(componentId),
                         ),
                       )
                       .toList(),
@@ -157,10 +157,10 @@ final column = CatalogItem(
                   buildWeightedChild(
                     componentId: componentId,
                     dataContext: dataContext.nested(
-                      DataPath('$dataBinding[$i]'),
+                      DataPath('$dataBinding/$i'),
                     ),
                     buildChild: buildChild,
-                    getComponent: getComponent,
+                    component: getComponent(componentId),
                   ),
                 ],
               ],
