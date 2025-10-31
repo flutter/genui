@@ -14,13 +14,20 @@ class A2uiSchemas {
   /// data-bound path to a string in the DataModel. If both path and
   /// literal are provided, the value at the path will be initialized
   /// with the literal.
-  static Schema stringReference({String? description}) => S.object(
+  ///
+  /// If `enumValues` are provided, the string value (either literal or at the
+  /// path) must be one of the values in the enum.
+  static Schema stringReference({
+    String? description,
+    List<String>? enumValues,
+  }) => S.object(
     description: description,
     properties: {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',
+        enumValues: enumValues,
       ),
-      'literalString': S.string(),
+      'literalString': S.string(enumValues: enumValues),
     },
   );
 

@@ -12,6 +12,7 @@ import 'core_widgets/column.dart' as column_item;
 import 'core_widgets/date_time_input.dart' as date_time_input_item;
 import 'core_widgets/divider.dart' as divider_item;
 import 'core_widgets/heading.dart' as heading_item;
+import 'core_widgets/icon.dart' as icon_item;
 import 'core_widgets/image.dart' as image_item;
 import 'core_widgets/list.dart' as list_item;
 import 'core_widgets/modal.dart' as modal_item;
@@ -61,6 +62,9 @@ class CoreCatalogItems {
   ///
   /// Supports different levels to indicate hierarchy.
   static final CatalogItem heading = heading_item.heading;
+
+  /// An icon.
+  static final CatalogItem icon = icon_item.icon;
 
   /// Represents a UI element for displaying image data from a URL or other
   /// source.
@@ -114,6 +118,7 @@ class CoreCatalogItems {
       dateTimeInput,
       divider,
       heading,
+      icon,
       image,
       list,
       modal,
