@@ -143,5 +143,34 @@ final multipleChoice = CatalogItem(
         }
       ]
     ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": {
+            "MultipleChoice": {
+              "selections": {
+                "path": "/mySelections"
+              },
+              "maxAllowedSelections": 1,
+              "options": [
+                {
+                  "label": {
+                    "literalString": "Radio Button 1"
+                  },
+                  "value": "1"
+                },
+                {
+                  "label": {
+                    "literalString": "Radio Button 2"
+                  },
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );
