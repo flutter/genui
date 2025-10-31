@@ -1,3 +1,3 @@
-git clone -b stable https://github.com/flutter/flutter.git /usr/local/flutter
-export PATH="$PATH:/usr/local/flutter/bin"
+git clone -b stable https://github.com/flutter/flutter.git $HOME/flutter
+export PATH="$PATH:$HOME/flutter/bin"
 flutter precache
