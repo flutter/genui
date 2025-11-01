@@ -56,7 +56,7 @@ final image = CatalogItem(
           "component": {
             "Image": {
               "url": {
-                "literalString": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
+                "literalString": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png"
               }
             }
           }
