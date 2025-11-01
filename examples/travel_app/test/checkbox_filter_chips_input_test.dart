@@ -31,6 +31,7 @@ void main() {
                   dispatchEvent: (_) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),
+                  getComponent: (String componentId) => null,
                 ),
               );
             },

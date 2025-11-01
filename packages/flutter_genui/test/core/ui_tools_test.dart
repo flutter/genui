@@ -34,6 +34,7 @@ void main() {
                   required dispatchEvent,
                   required context,
                   required dataContext,
+                  required getComponent,
                 }) {
                   return const Text('');
                 },

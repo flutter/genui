@@ -24,8 +24,8 @@ import '../model/ui_models.dart';
 class GenUiConversation {
   /// Creates a new [GenUiConversation].
   ///
-  /// Callbacks like [onSurfaceAdded] and [onSurfaceDeleted] can be provided to
-  /// react to UI changes initiated by the AI.
+  /// Callbacks like [onSurfaceAdded], [onSurfaceUpdated] and [onSurfaceDeleted]
+  /// can be provided to react to UI changes initiated by the AI.
   GenUiConversation({
     this.onSurfaceAdded,
     this.onSurfaceUpdated,
@@ -140,7 +140,7 @@ class GenUiConversation {
 
   /// Returns a [ValueNotifier] for the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
-    return genUiManager.surface(surfaceId);
+    return genUiManager.getSurfaceNotifier(surfaceId);
   }
 
   /// Sends a user message to the AI to generate a UI response.

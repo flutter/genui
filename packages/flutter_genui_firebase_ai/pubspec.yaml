@@ -12,7 +12,7 @@ publish_to: none
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
-  flutter: ">=3.35.7"
+  flutter: ">=3.35.7 <4.0.0"
 
 resolution: workspace
 

@@ -14,7 +14,7 @@ class FakeA2uiInterpreter extends ChangeNotifier implements A2uiInterpreter {
   }
 
   @override
-  void updateData(String path, dynamic value) {
+  void updateData(String path, Object? value) {
     _data[path] = value;
   }
 

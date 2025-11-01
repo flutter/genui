@@ -126,8 +126,8 @@ void main() {
     });
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
-      final notifier1 = manager.surface('s1');
-      final notifier2 = manager.surface('s1');
+      final notifier1 = manager.getSurfaceNotifier('s1');
+      final notifier2 = manager.getSurfaceNotifier('s1');
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
     });

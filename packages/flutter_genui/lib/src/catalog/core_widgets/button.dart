@@ -22,26 +22,41 @@ final _schema = S.object(
           'of a `Text` widget.',
     ),
     'action': A2uiSchemas.action(),
+    'primary': S.boolean(
+      description: 'Whether the button invokes a primary action.',
+    ),
   },
   required: ['child', 'action'],
 );
 
 extension type _ButtonData.fromMap(JsonMap _json) {
-  factory _ButtonData({required String child, required JsonMap action}) =>
-      _ButtonData.fromMap({'child': child, 'action': action});
+  factory _ButtonData({
+    required String child,
+    required JsonMap action,
+    bool primary = false,
+  }) => _ButtonData.fromMap({
+    'child': child,
+    'action': action,
+    'primary': primary,
+  });
 
   String get child => _json['child'] as String;
   JsonMap get action => _json['action'] as JsonMap;
+  bool get primary => (_json['primary'] as bool?) ?? false;
 }
 
-/// A catalog item for a Material Design elevated button.
+/// A catalog item representing a Material Design elevated button.
 ///
-/// This widget displays a button that can be pressed to trigger an action.
+/// This widget displays an interactive button. When pressed, it dispatches
+/// the specified `action` event. The button's appearance can be styled as
+/// a primary action.
 ///
-/// ### Parameters:
+/// ## Parameters:
 ///
 /// - `child`: The ID of a child widget to display inside the button.
 /// - `action`: The action to perform when the button is pressed.
+/// - `primary`: Whether the button invokes a primary action (defaults to
+///   false).
 final button = CatalogItem(
   name: 'Button',
   dataSchema: _schema,
@@ -53,6 +68,7 @@ final button = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final buttonData = _ButtonData.fromMap(data as JsonMap);
         final child = buildChild(buttonData.child);
@@ -62,8 +78,18 @@ final button = CatalogItem(
             (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
         genUiLogger.info('Building Button with child: ${buttonData.child}');
+        final colorScheme = Theme.of(context).colorScheme;
+        final primary = buttonData.primary;
 
         return ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primary
+                ? colorScheme.primary
+                : colorScheme.surface,
+            foregroundColor: primary
+                ? colorScheme.onPrimary
+                : colorScheme.onSurface,
+          ),
           onPressed: () {
             final resolvedContext = resolveContext(
               dataContext,
@@ -100,6 +126,63 @@ final button = CatalogItem(
             "Text": {
               "text": {
                 "literalString": "Hello World"
+              }
+            }
+          }
+        }
+      ]
+    ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": {
+            "Column": {
+              "children": {
+                "explicitList": ["primaryButton", "secondaryButton"]
+              }
+            }
+          }
+        },
+        {
+          "id": "primaryButton",
+          "component": {
+            "Button": {
+              "child": "primaryText",
+              "primary": true,
+              "action": {
+                "name": "primary_pressed"
+              }
+            }
+          }
+        },
+        {
+          "id": "secondaryButton",
+          "component": {
+            "Button": {
+              "child": "secondaryText",
+              "action": {
+                "name": "secondary_pressed"
+              }
+            }
+          }
+        },
+        {
+          "id": "primaryText",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Primary Button"
+              }
+            }
+          }
+        },
+        {
+          "id": "secondaryText",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Secondary Button"
               }
             }
           }

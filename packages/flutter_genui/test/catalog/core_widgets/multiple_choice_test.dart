@@ -68,7 +68,7 @@ void main() {
     expect(
       manager
           .dataModelForSurface(surfaceId)
-          .getValue<List<dynamic>>(DataPath('/mySelections')),
+          .getValue<List<Object?>>(DataPath('/mySelections')),
       ['1', '2'],
     );
   });

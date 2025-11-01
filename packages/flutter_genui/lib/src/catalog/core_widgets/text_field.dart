@@ -110,9 +110,13 @@ class _TextFieldState extends State<_TextField> {
   }
 }
 
-/// A catalog item for a Material Design text field.
+/// A catalog item representing a Material Design text field.
 ///
-/// ### Parameters:
+/// This widget allows the user to enter and edit text. The `text` parameter
+/// bidirectionally binds the field's content to the data model. This is
+/// analogous to Flutter's [TextField] widget.
+///
+/// ## Parameters:
 ///
 /// - `text`: The initial value of the text field.
 /// - `label`: The text to display as the label for the text field.
@@ -169,6 +173,7 @@ final textField = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final textFieldData = _TextFieldData.fromMap(data as JsonMap);
         final valueRef = textFieldData.text;

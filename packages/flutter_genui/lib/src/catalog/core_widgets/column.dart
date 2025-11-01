@@ -87,15 +87,19 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-/// A catalog item for a widget that displays its children in a vertical array.
+/// A catalog item representing a layout widget that displays its children in a
+/// vertical array.
 ///
-/// ### Parameters:
+/// This widget is analogous to Flutter's [Column] widget. It arranges a list of
+/// child components from top to bottom.
 ///
-/// - `distribution`: How the children should be placed along the main axis.
-///   Can be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
+/// ## Parameters:
+///
+/// - `distribution`: How the children should be placed along the main axis. Can
+///   be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
 ///   `spaceEvenly`. Defaults to `start`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
+/// - `alignment`: How the children should be placed along the cross axis. Can
+///   be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
 ///   `start`.
 /// - `children`: A list of child widget IDs to display in the column.
 final column = CatalogItem(
@@ -109,23 +113,36 @@ final column = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final columnData = _ColumnData.fromMap(data as JsonMap);
         return ComponentChildrenBuilder(
           childrenData: columnData.children,
           dataContext: dataContext,
           buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return Column(
-              mainAxisAlignment: _parseMainAxisAlignment(
-                columnData.distribution,
-              ),
-              crossAxisAlignment: _parseCrossAxisAlignment(
-                columnData.alignment,
-              ),
-              children: children,
-            );
-          },
+          getComponent: getComponent,
+          explicitListBuilder:
+              (childIds, buildChild, getComponent, dataContext) {
+                return Column(
+                  mainAxisAlignment: _parseMainAxisAlignment(
+                    columnData.distribution,
+                  ),
+                  crossAxisAlignment: _parseCrossAxisAlignment(
+                    columnData.alignment,
+                  ),
+                  mainAxisSize: MainAxisSize.min,
+                  children: childIds
+                      .map(
+                        (componentId) => buildWeightedChild(
+                          componentId: componentId,
+                          dataContext: dataContext,
+                          buildChild: buildChild,
+                          component: getComponent(componentId),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
           templateListWidgetBuilder: (context, list, componentId, dataBinding) {
             return Column(
               mainAxisAlignment: _parseMainAxisAlignment(
@@ -134,12 +151,18 @@ final column = CatalogItem(
               crossAxisAlignment: _parseCrossAxisAlignment(
                 columnData.alignment,
               ),
+              mainAxisSize: MainAxisSize.min,
               children: [
-                for (var i = 0; i < list.length; i++)
-                  buildChild(
-                    componentId,
-                    dataContext.nested(DataPath('$dataBinding[$i]')),
+                for (var i = 0; i < list.length; i++) ...[
+                  buildWeightedChild(
+                    componentId: componentId,
+                    dataContext: dataContext.nested(
+                      DataPath('$dataBinding/$i'),
+                    ),
+                    buildChild: buildChild,
+                    component: getComponent(componentId),
                   ),
+                ],
               ],
             );
           },

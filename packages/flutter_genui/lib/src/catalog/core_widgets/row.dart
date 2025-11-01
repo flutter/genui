@@ -87,17 +87,20 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
   }
 }
 
-/// A catalog item for a widget that displays its children in a horizontal
-/// array.
+/// A catalog item representing a layout widget that displays its children in a
+/// horizontal array.
 ///
-/// ### Parameters:
+/// This widget is analogous to Flutter's [Row] widget. It arranges a list of
+/// child components from left to right.
+///
+/// ## Parameters:
 ///
 /// - `children`: A list of child widget IDs to display in the row.
-/// - `distribution`: How the children should be placed along the main axis.
-///   Can be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
+/// - `distribution`: How the children should be placed along the main axis. Can
+///   be `start`, `center`, `end`, `spaceBetween`, `spaceAround`, or
 ///   `spaceEvenly`. Defaults to `start`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
+/// - `alignment`: How the children should be placed along the cross axis. Can
+///   be `start`, `center`, `end`, `stretch`, or `baseline`. Defaults to
 ///   `start`.
 final row = CatalogItem(
   name: 'Row',
@@ -110,29 +113,52 @@ final row = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final rowData = _RowData.fromMap(data as JsonMap);
         return ComponentChildrenBuilder(
           childrenData: rowData.children,
           dataContext: dataContext,
           buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return Row(
-              mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
-              crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
-              children: children,
-            );
-          },
+          getComponent: getComponent,
+          explicitListBuilder:
+              (childIds, buildChild, getComponent, dataContext) {
+                return Row(
+                  mainAxisAlignment: _parseMainAxisAlignment(
+                    rowData.distribution,
+                  ),
+                  crossAxisAlignment: _parseCrossAxisAlignment(
+                    rowData.alignment,
+                  ),
+                  mainAxisSize: MainAxisSize.min,
+                  children: childIds
+                      .map(
+                        (componentId) => buildWeightedChild(
+                          componentId: componentId,
+                          dataContext: dataContext,
+                          buildChild: buildChild,
+                          component: getComponent(componentId),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
           templateListWidgetBuilder: (context, list, componentId, dataBinding) {
             return Row(
               mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
               crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+              mainAxisSize: MainAxisSize.min,
               children: [
-                for (var i = 0; i < list.length; i++)
-                  buildChild(
-                    componentId,
-                    dataContext.nested(DataPath('$dataBinding[$i]')),
+                for (var i = 0; i < list.length; i++) ...[
+                  buildWeightedChild(
+                    componentId: componentId,
+                    dataContext: dataContext.nested(
+                      DataPath('$dataBinding/$i'),
+                    ),
+                    buildChild: buildChild,
+                    component: getComponent(componentId),
                   ),
+                ],
               ],
             );
           },

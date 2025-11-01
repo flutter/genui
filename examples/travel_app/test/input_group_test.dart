@@ -35,6 +35,7 @@ void main() {
                     },
                     context: context,
                     dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
                   );
                 },
               ),
@@ -78,6 +79,7 @@ void main() {
                   dispatchEvent: (UiEvent _) {},
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),
+                  getComponent: (String componentId) => null,
                 );
               },
             ),

@@ -78,6 +78,7 @@ final trailhead = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final trailheadData = _TrailheadData.fromMap(
           data as Map<String, Object?>,

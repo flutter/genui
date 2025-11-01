@@ -80,15 +80,17 @@ class A2uiAgentConnector {
   ///
   /// Returns the text response from the agent, if any.
   Future<String?> connectAndSend(genui.ChatMessage chatMessage) async {
+    final parts = (chatMessage is genui.UserMessage)
+        ? chatMessage.parts
+        : (chatMessage is genui.UserUiInteractionMessage)
+        ? chatMessage.parts
+        : <A2ATextPart>[];
     final message = A2AMessage()
       ..messageId = const Uuid().v4()
       ..role = 'user'
-      ..parts = (chatMessage as genui.UserMessage).parts
-          .whereType<genui.TextPart>()
-          .map((part) {
-            return A2ATextPart()..text = part.text;
-          })
-          .toList();
+      ..parts = parts.whereType<genui.TextPart>().map((part) {
+        return A2ATextPart()..text = part.text;
+      }).toList();
 
     if (taskId != null) {
       message.referenceTaskIds = [taskId!];
@@ -103,7 +105,10 @@ class A2uiAgentConnector {
     _log.info('--- OUTGOING REQUEST ---');
     _log.info('URL: ${url.toString()}');
     _log.info('Method: message/stream');
-    _log.info('Payload: ${jsonEncode(payload.toJson())}');
+    _log.info(
+      'Payload: '
+      '${const JsonEncoder.withIndent('  ').convert(payload.toJson())}',
+    );
     _log.info('----------------------');
 
     final events = client.sendMessageStream(payload);
@@ -173,7 +178,7 @@ class A2uiAgentConnector {
   ///
   /// This is used to send user interaction events to the agent, such as
   /// button clicks or form submissions.
-  Future<void> sendEvent(Map<String, dynamic> event) async {
+  Future<void> sendEvent(Map<String, Object?> event) async {
     if (taskId == null) {
       _log.severe('Cannot send event, no active task ID.');
       return;
@@ -208,8 +213,11 @@ class A2uiAgentConnector {
     }
   }
 
-  void _processA2uiMessages(Map<String, dynamic> data) {
-    _log.finer('Processing a2ui messages from data part: $data');
+  void _processA2uiMessages(Map<String, Object?> data) {
+    _log.finer(
+      'Processing a2ui messages from data part:\n'
+      '${const JsonEncoder.withIndent('  ').convert(data)}',
+    );
     if (data.containsKey('surfaceUpdate') ||
         data.containsKey('dataModelUpdate') ||
         data.containsKey('beginRendering') ||
@@ -217,7 +225,7 @@ class A2uiAgentConnector {
       if (!_controller.isClosed) {
         _log.finest(
           'Adding message to stream: '
-          '${jsonEncode(data)}',
+          '${const JsonEncoder.withIndent('  ').convert(data)}',
         );
         _controller.add(genui.A2uiMessage.fromJson(data));
       }

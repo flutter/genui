@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
@@ -33,9 +34,12 @@ extension type _ImageData.fromMap(JsonMap _json) {
       : null;
 }
 
-/// A catalog item for a widget that displays an image.
+/// A catalog item representing a widget that displays an image.
 ///
-/// ### Parameters:
+/// The image source is specified by the `url` parameter, which can be a network
+/// URL (e.g., `https://...`) or a local asset path (e.g., `assets/...`).
+///
+/// ## Parameters:
 ///
 /// - `url`: The URL of the image to display. Can be a network URL or a local
 ///   asset path.
@@ -68,6 +72,7 @@ final image = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final imageData = _ImageData.fromMap(data as JsonMap);
         final notifier = dataContext.subscribeToString(imageData.url);
@@ -76,16 +81,22 @@ final image = CatalogItem(
           valueListenable: notifier,
           builder: (context, currentLocation, child) {
             final location = currentLocation;
-            if (location == null) {
+            if (location == null || location.isEmpty) {
+              genUiLogger.warning(
+                'Image widget created with no URL at path: ${dataContext.path}',
+              );
               return const SizedBox.shrink();
             }
             final fit = imageData.fit;
 
+            late Widget child;
+
             if (location.startsWith('assets/')) {
-              return Image.asset(location, fit: fit);
+              child = Image.asset(location, fit: fit);
             } else {
-              return Image.network(location, fit: fit);
+              child = Image.network(location, fit: fit);
             }
+            return SizedBox(width: 150, height: 150, child: child);
           },
         );
       },

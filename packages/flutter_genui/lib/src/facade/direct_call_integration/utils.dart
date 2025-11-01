@@ -17,15 +17,13 @@ String genUiTechPrompt(List<String> toolNames) {
       : 'the UI generation tool "${toolNames.first}"';
 
   return '''
-To show generated UI to user, use $toolDescription.
+To show generated UI, use $toolDescription.
 When generating UI, always provide a unique $surfaceIdKey to identify the UI surface:
 
 * To create new UI, use a new $surfaceIdKey.
 * To update existing UI, use the existing $surfaceIdKey.
 
-Use the root component ID: 'root'.
-If you want to show new UI, use a new $surfaceIdKey.
-If you want to update existing UI, use the existing $surfaceIdKey.
+Use the root component id: 'root'.
 Ensure one of the generated components has an id of 'root'.
 ''';
 }

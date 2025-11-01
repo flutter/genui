@@ -14,13 +14,20 @@ class A2uiSchemas {
   /// data-bound path to a string in the DataModel. If both path and
   /// literal are provided, the value at the path will be initialized
   /// with the literal.
-  static Schema stringReference({String? description}) => S.object(
+  ///
+  /// If `enumValues` are provided, the string value (either literal or at the
+  /// path) must be one of the values in the enum.
+  static Schema stringReference({
+    String? description,
+    List<String>? enumValues,
+  }) => S.object(
     description: description,
     properties: {
       'path': S.string(
         description: 'A relative or absolute path in the data model.',
+        enumValues: enumValues,
       ),
-      'literalString': S.string(),
+      'literalString': S.string(enumValues: enumValues),
     },
   );
 
@@ -178,6 +185,10 @@ class A2uiSchemas {
               'This component could be one of many supported types.',
           properties: {
             'id': S.string(),
+            'weight': S.integer(
+              description:
+                  'Optional layout weight for use in Row/Column children.',
+            ),
             'component': S.object(
               description:
                   '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Heading'). The value is an object containing the properties for that specific component.''',

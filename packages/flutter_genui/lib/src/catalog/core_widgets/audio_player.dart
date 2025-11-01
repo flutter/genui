@@ -19,9 +19,10 @@ final _schema = S.object(
 
 /// A catalog item for an audio player.
 ///
-/// This widget displays a placeholder for an audio player.
+/// This widget displays a placeholder for an audio player, used to represent
+/// a component capable of playing audio from a given URL.
 ///
-/// ### Parameters:
+/// ## Parameters:
 ///
 /// - `url`: The URL of the audio to play.
 final audioPlayer = CatalogItem(
@@ -35,6 +36,7 @@ final audioPlayer = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),

@@ -40,11 +40,11 @@ class A2uiView extends StatefulWidget {
 
   /// A callback function that is invoked when an event is triggered by a
   /// widget.
-  final ValueChanged<Map<String, dynamic>>? onEvent;
+  final ValueChanged<Map<String, Object?>>? onEvent;
 
   /// A callback function that is invoked when the data model is updated by a
   /// widget.
-  final void Function(String path, dynamic value)? onDataModelUpdate;
+  final void Function(String path, Object? value)? onDataModelUpdate;
 
   @override
   State<A2uiView> createState() => _A2uiViewState();

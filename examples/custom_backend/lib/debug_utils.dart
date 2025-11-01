@@ -21,7 +21,7 @@ void debugSaveToFile(String name, String content, {String extension = 'txt'}) {
   print('Debug: ${Directory.current.path}/${file.path}');
 }
 
-void debugSaveToFileObject(String name, dynamic content) {
+void debugSaveToFileObject(String name, Object? content) {
   final encoder = const JsonEncoder.withIndent('  ');
   final prettyJson = encoder.convert(content);
   debugSaveToFile(name, prettyJson, extension: 'json');

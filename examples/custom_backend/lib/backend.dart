@@ -13,21 +13,21 @@ class UiSchemaDefinition {
 
   const UiSchemaDefinition({required this.prompt, required this.tools});
 
-  factory UiSchemaDefinition.fromJson(Map<String, dynamic> json) =>
+  factory UiSchemaDefinition.fromJson(Map<String, Object?> json) =>
       UiSchemaDefinition(
         prompt: json['prompt'] as String,
-        tools: (json['tools'] as List<dynamic>)
+        tools: (json['tools'] as List<Object?>)
             .map(
               (x) =>
-                  GenUiFunctionDeclaration.fromJson(x as Map<String, dynamic>),
+                  GenUiFunctionDeclaration.fromJson(x as Map<String, Object?>),
             )
             .toList(),
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
     'type': 'UiSchemaDefinition',
     'prompt': prompt,
-    'tools': List<dynamic>.from(tools.map((x) => x.toJson())),
+    'tools': List<Object?>.from(tools.map((x) => x.toJson())),
   };
 }
 

@@ -110,6 +110,7 @@ final tabbedSections = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final tabbedSectionsData = _TabbedSectionsData.fromMap(
           data as Map<String, Object?>,

@@ -7,25 +7,25 @@ import 'component.dart';
 /// A sealed class for all messages in the A2UI Streaming UI Protocol.
 sealed class A2uiStreamMessage {
   /// Creates a [A2uiStreamMessage] from a JSON object.
-  factory A2uiStreamMessage.fromJson(Map<String, dynamic> json) {
+  factory A2uiStreamMessage.fromJson(Map<String, Object?> json) {
     if (json.containsKey('beginRendering')) {
       return BeginRendering.fromJson(
-        json['beginRendering'] as Map<String, dynamic>,
+        json['beginRendering'] as Map<String, Object?>,
       );
     }
     if (json.containsKey('surfaceUpdate')) {
       return SurfaceUpdate.fromJson(
-        json['surfaceUpdate'] as Map<String, dynamic>,
+        json['surfaceUpdate'] as Map<String, Object?>,
       );
     }
     if (json.containsKey('dataModelUpdate')) {
       return DataModelUpdate.fromJson(
-        json['dataModelUpdate'] as Map<String, dynamic>,
+        json['dataModelUpdate'] as Map<String, Object?>,
       );
     }
     if (json.containsKey('deleteSurface')) {
       return SurfaceDeletion.fromJson(
-        json['deleteSurface'] as Map<String, dynamic>,
+        json['deleteSurface'] as Map<String, Object?>,
       );
     }
     throw Exception('Unknown message type in JSON: $json');
@@ -42,11 +42,11 @@ class BeginRendering implements A2uiStreamMessage {
   });
 
   /// Creates a [BeginRendering] from a JSON object.
-  factory BeginRendering.fromJson(Map<String, dynamic> json) {
+  factory BeginRendering.fromJson(Map<String, Object?> json) {
     return BeginRendering(
       surfaceId: json['surfaceId'] as String,
       root: json['root'] as String,
-      styles: json['styles'] as Map<String, dynamic>?,
+      styles: json['styles'] as Map<String, Object?>?,
     );
   }
 
@@ -57,7 +57,7 @@ class BeginRendering implements A2uiStreamMessage {
   final String root;
 
   /// The styles for the UI.
-  final Map<String, dynamic>? styles;
+  final Map<String, Object?>? styles;
 }
 
 /// A message that contains a list of components to update.
@@ -66,11 +66,11 @@ class SurfaceUpdate implements A2uiStreamMessage {
   const SurfaceUpdate({required this.surfaceId, required this.components});
 
   /// Creates a [SurfaceUpdate] from a JSON object.
-  factory SurfaceUpdate.fromJson(Map<String, dynamic> json) {
+  factory SurfaceUpdate.fromJson(Map<String, Object?> json) {
     return SurfaceUpdate(
       surfaceId: json['surfaceId'] as String,
-      components: (json['components'] as List<dynamic>)
-          .map((e) => Component.fromJson(e as Map<String, dynamic>))
+      components: (json['components'] as List<Object?>)
+          .map((e) => Component.fromJson(e as Map<String, Object?>))
           .toList(),
     );
   }
@@ -92,7 +92,7 @@ class DataModelUpdate implements A2uiStreamMessage {
   });
 
   /// Creates a [DataModelUpdate] from a JSON object.
-  factory DataModelUpdate.fromJson(Map<String, dynamic> json) {
+  factory DataModelUpdate.fromJson(Map<String, Object?> json) {
     return DataModelUpdate(
       surfaceId: json['surfaceId'] as String,
       path: json['path'] as String?,
@@ -107,7 +107,7 @@ class DataModelUpdate implements A2uiStreamMessage {
   final String? path;
 
   /// The new contents of the data.
-  final dynamic contents;
+  final Object? contents;
 }
 
 /// A message that signals the client to delete a surface.
@@ -116,7 +116,7 @@ class SurfaceDeletion implements A2uiStreamMessage {
   const SurfaceDeletion({required this.surfaceId});
 
   /// Creates a [SurfaceDeletion] from a JSON object.
-  factory SurfaceDeletion.fromJson(Map<String, dynamic> json) {
+  factory SurfaceDeletion.fromJson(Map<String, Object?> json) {
     return SurfaceDeletion(surfaceId: json['surfaceId'] as String);
   }
 

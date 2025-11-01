@@ -14,7 +14,14 @@ environment:
 resolution: workspace
 
 dependencies:
-  a2a: ^3.0.0
+  # Revert to the published version when the following PRs have landed:
+  # https://github.com/shamblett/a2a/pull/53
+  # https://github.com/shamblett/a2a/pull/52
+  # a2a: ^3.0.0
+  a2a:
+    git:
+      url: https://github.com/gspencergoog/shamblett_a2a.git
+      ref: genui
   flutter:
     sdk: flutter
   flutter_genui:

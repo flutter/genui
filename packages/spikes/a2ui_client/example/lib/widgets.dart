@@ -140,11 +140,11 @@ void registerA2uiWidgets(WidgetRegistry registry) {
     );
   });
   registry.register('Button', (context, component, properties, children) {
-    final action = properties['action'] as Map<String, dynamic>?;
+    final action = properties['action'] as Map<String, Object?>?;
     final actionName = action?['name'] as String? ?? '';
     final resolvedContext =
-        action?['context'] as Map<String, dynamic>? ??
-        const <String, dynamic>{};
+        action?['context'] as Map<String, Object?>? ??
+        const <String, Object?>{};
     return ElevatedButton(
       onPressed: () {
         _log.info('Button ${component.id} pressed. Firing event: $actionName');
@@ -282,7 +282,7 @@ class _MultipleChoiceState extends State<_MultipleChoice> {
     super.didChangeDependencies();
 
     final selections = widget.properties['selections'] is List
-        ? widget.properties['selections'] as List<dynamic>? ?? []
+        ? widget.properties['selections'] as List<Object?>? ?? []
         : null;
     _selectedValues = selections?.map((e) => e.toString()).toList() ?? [];
   }

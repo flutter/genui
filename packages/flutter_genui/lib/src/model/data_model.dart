@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 import '../primitives/logging.dart';
@@ -10,7 +12,8 @@ import '../primitives/simple_items.dart';
 @immutable
 class DataPath {
   factory DataPath(String path) {
-    return DataPath._(_split(path), path.startsWith(_separator));
+    final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+    return DataPath._(segments, path.startsWith(_separator));
   }
 
   const DataPath._(this.segments, this.isAbsolute);
@@ -20,16 +23,6 @@ class DataPath {
 
   static final String _separator = '/';
   static const DataPath root = DataPath._([], true);
-
-  static List<String> _split(String path) {
-    if (path.startsWith(_separator)) {
-      path = path.substring(1);
-    }
-    if (path.isEmpty) {
-      return [];
-    }
-    return path.split(_separator);
-  }
 
   String get basename => segments.last;
 
@@ -96,7 +89,7 @@ class DataContext {
   }
 
   /// Updates the data model, resolving the path against the current context.
-  void update(DataPath relativeOrAbsolutePath, dynamic contents) {
+  void update(DataPath relativeOrAbsolutePath, Object? contents) {
     final absolutePath = resolvePath(relativeOrAbsolutePath);
     _dataModel.update(absolutePath, contents);
   }
@@ -116,25 +109,42 @@ class DataContext {
   }
 }
 
-/// Manages the application's dynamic data model and provides
+/// Manages the application's Object? data model and provides
 /// a subscription-based mechanism for reactive UI updates.
 class DataModel {
   JsonMap _data = {};
-  final Map<DataPath, ValueNotifier<dynamic>> _subscriptions = {};
-  final Map<DataPath, ValueNotifier<dynamic>> _valueSubscriptions = {};
+  final Map<DataPath, ValueNotifier<Object?>> _subscriptions = {};
+  final Map<DataPath, ValueNotifier<Object?>> _valueSubscriptions = {};
 
   /// The full contents of the data model.
   JsonMap get data => _data;
 
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
-  void update(DataPath? absolutePath, dynamic contents) {
+  void update(DataPath? absolutePath, Object? contents) {
     genUiLogger.info(
-      'DataModel.update: path=$absolutePath, contents=$contents',
+      'DataModel.update: path=$absolutePath, contents='
+      '${const JsonEncoder.withIndent('  ').convert(contents)}',
     );
     if (absolutePath == null || absolutePath.segments.isEmpty) {
-      _data = contents as JsonMap;
-      _notifySubscribers(DataPath('/'));
+      if (contents is List) {
+        _data = _parseDataModelContents(contents);
+      } else if (contents is Map) {
+        // Permissive: Allow a map to be sent for the root, even though the
+        // schema expects a list.
+        genUiLogger.info(
+          'DataModel.update: contents for root path is a Map, not a '
+          'List: $contents',
+        );
+        _data = Map<String, Object?>.from(contents);
+      } else {
+        genUiLogger.warning(
+          'DataModel.update: contents for root path is not a List or '
+          'Map: $contents',
+        );
+        _data = <String, Object?>{}; // Fallback
+      }
+      _notifySubscribers(DataPath.root);
       return;
     }
 
@@ -177,7 +187,73 @@ class DataModel {
     return _getValue(_data, absolutePath.segments) as T?;
   }
 
-  dynamic _getValue(dynamic current, List<String> segments) {
+  /// Parses a list of content objects into a [JsonMap].
+  ///
+  /// Each item in [contents] is expected to be a `Map<String, Object?>`
+  /// with a 'key' and a single 'valueString', 'valueNumber', 'valueBoolean',
+  /// or 'valueMap' entry.
+  JsonMap _parseDataModelContents(List<Object?> contents) {
+    final newData = <String, Object?>{};
+    for (final item in contents) {
+      if (item is! Map<String, Object?> || !item.containsKey('key')) {
+        genUiLogger.warning('Invalid item in dataModelUpdate contents: $item');
+        continue;
+      }
+
+      final key = item['key'] as String;
+      Object? value;
+      var valueCount = 0;
+
+      const valueKeys = [
+        'valueString',
+        'valueNumber',
+        'valueBoolean',
+        'valueMap',
+      ];
+      for (final valueKey in valueKeys) {
+        if (item.containsKey(valueKey)) {
+          if (valueCount == 0) {
+            if (valueKey == 'valueMap') {
+              if (item[valueKey] is List) {
+                value = _parseDataModelContents(
+                  (item[valueKey] as List).cast<Object?>(),
+                );
+              } else {
+                genUiLogger.warning(
+                  'valueMap for key "$key" is not a List: ${item[valueKey]}',
+                );
+              }
+            } else {
+              value = item[valueKey];
+            }
+          }
+          valueCount++;
+        }
+      }
+
+      if (valueCount == 0) {
+        genUiLogger.warning(
+          'No value field found for key "$key" in contents: $item',
+        );
+      } else if (valueCount > 1) {
+        genUiLogger.warning(
+          'Multiple value fields found for key "$key" in contents: $item. '
+          'Using the first one found.',
+        );
+      }
+      newData[key] = value;
+    }
+    return newData;
+  }
+
+  /// Retrieves a static, one-time value from the data model at the
+  /// specified path segments without creating a subscription.
+  ///
+  /// The [current] parameter is the current node in the data model being
+  /// traversed.
+  /// The [segments] parameter is the list of remaining path segments to
+  /// traverse.
+  Object? _getValue(Object? current, List<String> segments) {
     if (segments.isEmpty) {
       return current;
     }
@@ -187,8 +263,8 @@ class DataModel {
 
     if (current is Map) {
       return _getValue(current[segment], remaining);
-    } else if (current is List && segment.startsWith('[')) {
-      final index = int.tryParse(segment.substring(1, segment.length - 1));
+    } else if (current is List) {
+      final index = int.tryParse(segment);
       if (index != null && index >= 0 && index < current.length) {
         return _getValue(current[index], remaining);
       }
@@ -196,7 +272,14 @@ class DataModel {
     return null;
   }
 
-  void _updateValue(dynamic current, List<String> segments, dynamic value) {
+  /// Updates the given path with a new value without creating a subscription.
+  ///
+  /// The [current] parameter is the current node in the data model being
+  /// traversed.
+  /// The [segments] parameter is the list of remaining path segments to
+  /// traverse.
+  /// The [value] parameter is the new value to set at the specified path.
+  void _updateValue(Object? current, List<String> segments, Object? value) {
     if (segments.isEmpty) {
       return;
     }
@@ -204,9 +287,26 @@ class DataModel {
     final segment = segments.first;
     final remaining = segments.sublist(1);
 
-    if (segment.startsWith('[')) {
-      final index = int.tryParse(segment.substring(1, segment.length - 1));
-      if (index != null && current is List && index >= 0) {
+    if (current is Map) {
+      if (remaining.isEmpty) {
+        current[segment] = value;
+        return;
+      }
+
+      // If we are here, remaining is not empty.
+      var nextNode = current[segment];
+      if (nextNode == null) {
+        // Create the node if it doesn't exist, so the recursive call can
+        // populate it.
+        final nextSegment = remaining.first;
+        final isNextSegmentListIndex = nextSegment.startsWith(RegExp(r'^\d+$'));
+        nextNode = isNextSegmentListIndex ? <dynamic>[] : <String, dynamic>{};
+        current[segment] = nextNode;
+      }
+      _updateValue(nextNode, remaining, value);
+    } else if (current is List) {
+      final index = int.tryParse(segment);
+      if (index != null && index >= 0) {
         if (remaining.isEmpty) {
           if (index < current.length) {
             current[index] = value;
@@ -221,40 +321,39 @@ class DataModel {
         } else {
           if (index < current.length) {
             _updateValue(current[index], remaining, value);
+          } else if (index == current.length) {
+            // If the index is the length, we're adding a new item which
+            // should be a map or list based on the next segment.
+            if (remaining.first.startsWith(RegExp(r'^\d+$'))) {
+              current.add(<dynamic>[]);
+            } else {
+              current.add(<String, dynamic>{});
+            }
+            _updateValue(current[index], remaining, value);
           } else {
             throw ArgumentError(
               'Index out of bounds for nested update: index ($index) is '
-              'greater than or equal to list length (${current.length}).',
+              'greater than list length (${current.length}).',
             );
           }
         }
-      }
-    } else {
-      if (current is Map) {
-        if (remaining.isEmpty) {
-          current[segment] = value;
-        } else {
-          if (!current.containsKey(segment)) {
-            if (remaining.first.startsWith('[')) {
-              current[segment] = <dynamic>[];
-            } else {
-              current[segment] = <String, dynamic>{};
-            }
-          }
-          _updateValue(current[segment], remaining, value);
-        }
+      } else {
+        genUiLogger.warning('Invalid list index segment: $segment');
       }
     }
   }
 
   void _notifySubscribers(DataPath path) {
-    genUiLogger.info('DataModel._notifySubscribers: notifying for path=$path');
+    genUiLogger.info(
+      'DataModel._notifySubscribers: notifying '
+      '${_subscriptions.length} subscribers for path=$path',
+    );
     for (final p in _subscriptions.keys) {
       if (p.startsWith(path) || path.startsWith(p)) {
         genUiLogger.info('  - Notifying subscriber for path=$p');
         final subscriber = _subscriptions[p];
         if (subscriber != null) {
-          subscriber.value = getValue<dynamic>(p);
+          subscriber.value = getValue<Object?>(p);
         }
       }
     }
@@ -262,7 +361,7 @@ class DataModel {
       genUiLogger.info('  - Notifying value subscriber for path=$path');
       final subscriber = _valueSubscriptions[path];
       if (subscriber != null) {
-        subscriber.value = getValue<dynamic>(path);
+        subscriber.value = getValue<Object?>(path);
       }
     }
   }

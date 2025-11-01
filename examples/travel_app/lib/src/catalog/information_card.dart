@@ -90,6 +90,7 @@ final informationCard = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final cardData = _InformationCardData.fromMap(
           data as Map<String, Object?>,

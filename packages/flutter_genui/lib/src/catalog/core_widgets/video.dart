@@ -17,9 +17,12 @@ final _schema = S.object(
   required: ['url'],
 );
 
-/// A catalog item for a video player.
+/// A catalog item representing a video player.
 ///
-/// ### Parameters:
+/// This widget currently displays a placeholder for a video player. It is
+/// intended to play video content from the given `url`.
+///
+/// ## Parameters:
 ///
 /// - `url`: The URL of the video to play.
 final video = CatalogItem(
@@ -33,6 +36,7 @@ final video = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),

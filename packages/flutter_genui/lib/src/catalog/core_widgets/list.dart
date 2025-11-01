@@ -36,9 +36,12 @@ extension type _ListData.fromMap(JsonMap _json) {
   String? get alignment => _json['alignment'] as String?;
 }
 
-/// A catalog item for a list of widgets.
+/// A catalog item representing a scrollable list of widgets.
 ///
-/// ### Parameters:
+/// This widget is analogous to Flutter's [ListView] widget. It can display
+/// children in either a vertical or horizontal direction.
+///
+/// ## Parameters:
 ///
 /// - `children`: A list of child widget IDs to display in the list.
 /// - `direction`: The direction of the list. Can be `vertical` or
@@ -56,6 +59,7 @@ final list = CatalogItem(
         required dispatchEvent,
         required context,
         required dataContext,
+        required getComponent,
       }) {
         final listData = _ListData.fromMap(data as JsonMap);
         final direction = listData.direction == 'horizontal'
@@ -65,26 +69,33 @@ final list = CatalogItem(
           childrenData: listData.children,
           dataContext: dataContext,
           buildChild: buildChild,
-          explicitListBuilder: (children) {
-            return ListView(
-              shrinkWrap: true,
-              scrollDirection: direction,
-              children: children,
-            );
-          },
-          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
-            return ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: direction,
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final itemDataContext = dataContext.nested(
-                  DataPath('$dataBinding[$index]'),
+          getComponent: getComponent,
+          explicitListBuilder:
+              (childIds, buildChild, getComponent, dataContext) {
+                return ListView(
+                  shrinkWrap: true,
+                  scrollDirection: direction,
+                  children: childIds
+                      .map((id) => buildChild(id, dataContext))
+                      .toList(),
                 );
-                return buildChild(componentId, itemDataContext);
               },
-            );
-          },
+          templateListWidgetBuilder:
+              (context, Map<String, Object?> data, componentId, dataBinding) {
+                final values = data.values.toList();
+                final keys = data.keys.toList();
+                return ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: direction,
+                  itemCount: values.length,
+                  itemBuilder: (context, index) {
+                    final itemDataContext = dataContext.nested(
+                      DataPath('$dataBinding/${keys[index]}'),
+                    );
+                    return buildChild(componentId, itemDataContext);
+                  },
+                );
+              },
         );
       },
   exampleData: [
