@@ -13,7 +13,15 @@ import 'package:google_cloud_protobuf/protobuf.dart' as protobuf;
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 import 'google_content_converter.dart';
+import 'google_generative_service_interface.dart';
 import 'google_schema_adapter.dart';
+
+/// A factory for creating a [GoogleGenerativeServiceInterface].
+///
+/// This is used to allow for custom service creation, for example, for testing.
+typedef GenerativeServiceFactory = GoogleGenerativeServiceInterface Function({
+  required GoogleGenerativeAiContentGenerator configuration,
+});
 
 /// A [ContentGenerator] that uses the Google Cloud Generative Language API to
 /// generate content.
@@ -24,11 +32,12 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     required this.catalog,
     this.systemInstruction,
     this.outputToolName = 'provideFinalOutput',
+    this.serviceFactory = defaultGenerativeServiceFactory,
     this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
     this.modelName = 'models/gemini-2.5-flash',
     String? apiKey,
-  }) : service = google_ai.GenerativeService.fromApiKey(apiKey);
+  }) : apiKey = apiKey;
 
   final GenUiConfiguration configuration;
 
@@ -47,14 +56,26 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
   /// Defaults to 'provideFinalOutput'.
   final String outputToolName;
 
+  /// A function to use for creating the service itself.
+  ///
+  /// This factory function is responsible for instantiating the
+  /// [GoogleGenerativeServiceInterface] used for AI interactions. It allows for
+  /// customization of the service setup, or for providing mock services during
+  /// testing. The factory receives this [GoogleGenerativeAiContentGenerator]
+  /// instance as configuration.
+  ///
+  /// Defaults to a wrapper for the regular [google_ai.GenerativeService]
+  /// constructor, [defaultGenerativeServiceFactory].
+  final GenerativeServiceFactory serviceFactory;
+
   /// Additional tools to make available to the AI model.
   final List<AiTool> additionalTools;
 
   /// The model name to use (e.g., 'models/gemini-2.5-flash').
   final String modelName;
 
-  /// The Google Cloud Generative Service instance.
-  final google_ai.GenerativeService service;
+  /// The API key to use for authentication.
+  final String? apiKey;
 
   /// The total number of input tokens used by this client.
   int inputTokenUsage = 0;
@@ -85,7 +106,6 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     _textResponseController.close();
     _errorController.close();
     _isProcessing.dispose();
-    service.close();
   }
 
   @override
@@ -111,6 +131,19 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     } finally {
       _isProcessing.value = false;
     }
+  }
+
+  /// The default factory function for creating a [google_ai.GenerativeService].
+  ///
+  /// This function instantiates a standard [google_ai.GenerativeService] using
+  /// the `apiKey` from the provided [GoogleGenerativeAiContentGenerator]
+  /// `configuration`.
+  static GoogleGenerativeServiceInterface defaultGenerativeServiceFactory({
+    required GoogleGenerativeAiContentGenerator configuration,
+  }) {
+    return GoogleGenerativeServiceWrapper(
+      google_ai.GenerativeService.fromApiKey(configuration.apiKey),
+    );
   }
 
   ({List<google_ai.Tool>? tools, Set<String> allowedFunctionNames})
@@ -306,7 +339,10 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     final converter = GoogleContentConverter();
     final adapter = GoogleSchemaAdapter();
 
-    final availableTools = [
+    final service = serviceFactory(configuration: this);
+
+    try {
+      final availableTools = [
       if (configuration.actions.allowCreate ||
           configuration.actions.allowUpdate) ...[
         SurfaceUpdateTool(
@@ -517,23 +553,26 @@ With functions:
       }
     }
 
-    if (isForcedToolCalling) {
-      if (toolUsageCycle >= maxToolUsageCycles) {
+      if (isForcedToolCalling) {
+        if (toolUsageCycle >= maxToolUsageCycles) {
+          genUiLogger.severe(
+            'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
+            'No final output was produced.',
+            StackTrace.current,
+          );
+        }
+        genUiLogger.fine('Exited tool usage loop. Returning captured result.');
+        return capturedResult;
+      } else {
         genUiLogger.severe(
           'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
           'No final output was produced.',
           StackTrace.current,
         );
+        return '';
       }
-      genUiLogger.fine('Exited tool usage loop. Returning captured result.');
-      return capturedResult;
-    } else {
-      genUiLogger.severe(
-        'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-        'No final output was produced.',
-        StackTrace.current,
-      );
-      return '';
+    } finally {
+      service.close();
     }
   }
 }

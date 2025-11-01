@@ -4,4 +4,5 @@
 
 export 'src/google_content_converter.dart';
 export 'src/google_generative_ai_content_generator.dart';
+export 'src/google_generative_service_interface.dart';
 export 'src/google_schema_adapter.dart';
