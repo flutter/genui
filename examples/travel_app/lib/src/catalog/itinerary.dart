@@ -201,7 +201,7 @@ final itinerary = CatalogItem(
           "component": {
             "Image": {
               "url": {
-                "literalString": "assets/travel_images/beach.jpg"
+                "literalString": "assets/travel_images/rio_de_janeiro.jpg"
               }
             }
           }
@@ -211,7 +211,7 @@ final itinerary = CatalogItem(
           "component": {
             "Image": {
               "url": {
-                "literalString": "assets/travel_images/city.jpg"
+                "literalString": "assets/travel_images/maldives_islands.jpg"
               }
             }
           }
