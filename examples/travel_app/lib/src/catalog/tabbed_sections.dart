@@ -111,6 +111,7 @@ final tabbedSections = CatalogItem(
         required context,
         required dataContext,
         required getComponent,
+        required surfaceId,
       }) {
         final tabbedSectionsData = _TabbedSectionsData.fromMap(
           data as Map<String, Object?>,

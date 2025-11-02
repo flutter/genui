@@ -84,6 +84,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     genUiLogger.finest('Building widget $widgetId');
     return widget.host.catalog.buildWidget(
       id: widgetId,
+      surfaceId: widget.surfaceId,
       widgetData: widgetData,
       buildChild: (String childId, [DataContext? childDataContext]) =>
           _buildWidget(definition, childId, childDataContext ?? dataContext),

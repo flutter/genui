@@ -63,6 +63,7 @@ final dateTimeInput = CatalogItem(
       ({
         required data,
         required id,
+        required surfaceId,
         required buildChild,
         required dispatchEvent,
         required context,

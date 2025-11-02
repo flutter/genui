@@ -29,6 +29,7 @@ void main() {
               builder: (context) {
                 return catalog.buildWidget(
                   id: 'col1',
+                  surfaceId: 'surface1',
                   widgetData: widgetData,
                   buildChild: (_, [_]) => const Text(''), // Mock child builder
                   dispatchEvent: (UiEvent event) {},
@@ -74,6 +75,7 @@ void main() {
               builder: (context) {
                 final widget = catalog.buildWidget(
                   id: data['id'] as String,
+                  surfaceId: 'surface1',
                   widgetData: data['widget'] as JsonMap,
                   buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},

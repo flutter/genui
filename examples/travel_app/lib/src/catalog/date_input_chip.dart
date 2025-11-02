@@ -137,6 +137,7 @@ final dateInputChip = CatalogItem(
         required context,
         required dataContext,
         required getComponent,
+        required surfaceId,
       }) {
         final datePickerData = _DatePickerData.fromMap(data as JsonMap);
         final notifier = dataContext.subscribeToString(datePickerData.value);

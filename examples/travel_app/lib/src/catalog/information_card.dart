@@ -91,6 +91,7 @@ final informationCard = CatalogItem(
         required context,
         required dataContext,
         required getComponent,
+        required surfaceId,
       }) {
         final cardData = _InformationCardData.fromMap(
           data as Map<String, Object?>,

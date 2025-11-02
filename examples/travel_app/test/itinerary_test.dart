@@ -49,6 +49,7 @@ void main() {
     final itineraryWidget = itinerary.widgetBuilder(
       data: testData,
       id: 'itinerary1',
+      surfaceId: 'surface1',
       buildChild: (data, [_]) => SizedBox(key: Key(data)),
       dispatchEvent: mockDispatchEvent,
       context: tester.element(find.byType(Container)),

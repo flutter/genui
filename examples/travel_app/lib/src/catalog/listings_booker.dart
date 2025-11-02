@@ -61,6 +61,7 @@ final listingsBooker = CatalogItem(
         required context,
         required dataContext,
         required getComponent,
+        required surfaceId,
       }) {
         final listingsBookerData = _ListingsBookerData.fromMap(
           data as Map<String, Object?>,

@@ -29,6 +29,7 @@ void main() {
                   return inputGroup.widgetBuilder(
                     data: data,
                     id: 'testId',
+                    surfaceId: 'surface1',
                     buildChild: buildChild,
                     dispatchEvent: (event) {
                       dispatchedEvent = event;
@@ -75,6 +76,7 @@ void main() {
                 return inputGroup.widgetBuilder(
                   data: data,
                   id: 'testId',
+                  surfaceId: 'surface1',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (UiEvent _) {},
                   context: context,

@@ -27,6 +27,7 @@ void main() {
                     'iconName': 'hotel',
                   },
                   id: 'test',
+                  surfaceId: 'surface1',
                   buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (_) {},
                   context: context,

@@ -49,6 +49,7 @@ void main() {
                       return catalogItem.widgetBuilder(
                         data: data,
                         id: 'testId',
+                        surfaceId: 'surface1',
                         buildChild: mockBuildChild,
                         dispatchEvent: (event) {},
                         context: context,

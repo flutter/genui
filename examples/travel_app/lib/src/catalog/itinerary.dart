@@ -228,6 +228,7 @@ final itinerary = CatalogItem(
         required context,
         required dataContext,
         required getComponent,
+        required surfaceId,
       }) {
         final itineraryData = _ItineraryData.fromMap(
           data as Map<String, Object?>,

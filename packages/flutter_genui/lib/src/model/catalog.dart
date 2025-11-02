@@ -64,6 +64,7 @@ class Catalog {
   /// * [context]: The build context for the widget.
   Widget buildWidget({
     required String id,
+    required String surfaceId,
     required JsonMap widgetData,
     required ChildBuilderCallback buildChild,
     required DispatchEventCallback dispatchEvent,
@@ -88,6 +89,7 @@ class Catalog {
       context: context,
       dataContext: dataContext,
       getComponent: getComponent,
+      surfaceId: surfaceId,
     );
   }
 

@@ -28,12 +28,14 @@ typedef CatalogWidgetBuilder =
       // The actual deserialized JSON data for this widget. The format of this
       // data will exactly match [CatalogItem.dataSchema].
       required Object data,
-      // The ID of this widget.
+      // The ID of this component.
       required String id,
-      // A function used to build a child based on the given ID.
+      // The ID of this surface.
+      required String surfaceId,
       required ChildBuilderCallback buildChild,
       // A function used to dispatch an event.
       required DispatchEventCallback dispatchEvent,
+      // A function used to build a child based on the given ID.
       required BuildContext context,
       // The current data context for this widget.
       required DataContext dataContext,

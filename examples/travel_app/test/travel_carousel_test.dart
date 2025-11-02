@@ -42,6 +42,7 @@ void main() {
                   return travelCarousel.widgetBuilder(
                     data: data,
                     id: 'testId',
+                    surfaceId: 'surface1',
                     buildChild: buildChild,
                     dispatchEvent: (event) {
                       dispatchedEvent = event;
@@ -104,6 +105,7 @@ void main() {
                   return travelCarousel.widgetBuilder(
                     data: data,
                     id: 'testId',
+                    surfaceId: 'surface1',
                     buildChild: buildChild,
                     dispatchEvent: (event) {
                       dispatchedEvent = event;
@@ -141,6 +143,7 @@ void main() {
                   return travelCarousel.widgetBuilder(
                     data: data,
                     id: 'testId',
+                    surfaceId: 'surface1',
                     buildChild: (data, [_]) => Text(data),
                     dispatchEvent: (event) {},
                     context: context,

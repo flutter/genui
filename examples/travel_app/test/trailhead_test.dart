@@ -29,6 +29,7 @@ void main() {
                 return trailhead.widgetBuilder(
                   data: data,
                   id: 'testId',
+                  surfaceId: 'surface1',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {
                     dispatchedEvent = event;
@@ -72,6 +73,7 @@ void main() {
                 return trailhead.widgetBuilder(
                   data: data,
                   id: 'testId',
+                  surfaceId: 'surface1',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,

@@ -110,6 +110,7 @@ final checkboxFilterChipsInput = CatalogItem(
         required context,
         required dataContext,
         required getComponent,
+        required surfaceId,
       }) {
         final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
           data as Map<String, Object?>,

@@ -26,6 +26,7 @@ void main() {
                   },
                 },
                 id: 'test_image',
+                surfaceId: 'test_surface',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 context: context,

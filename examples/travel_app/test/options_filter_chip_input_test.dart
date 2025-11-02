@@ -28,6 +28,7 @@ void main() {
                 return optionsFilterChipInput.widgetBuilder(
                   data: data,
                   id: 'testId',
+                  surfaceId: 'surface1',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
@@ -87,6 +88,7 @@ void main() {
                 return optionsFilterChipInput.widgetBuilder(
                   data: data,
                   id: 'testId',
+                  surfaceId: 'surface1',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
                   context: context,
