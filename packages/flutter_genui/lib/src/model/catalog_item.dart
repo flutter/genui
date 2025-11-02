@@ -32,10 +32,10 @@ typedef CatalogWidgetBuilder =
       required String id,
       // The ID of this surface.
       required String surfaceId,
+      // A function used to build a child based on the given ID.
       required ChildBuilderCallback buildChild,
       // A function used to dispatch an event.
       required DispatchEventCallback dispatchEvent,
-      // A function used to build a child based on the given ID.
       required BuildContext context,
       // The current data context for this widget.
       required DataContext dataContext,
