@@ -100,7 +100,10 @@ class GoogleContentConverter {
             google_ai.Part(
               functionResponse: google_ai.FunctionResponse(
                 id: part.callId,
-                name: part.callId,
+                // ToolResultPart will be removed in the future.
+                // Function calling history is managed within the
+                // Content Generator.
+                name: "",   
                 // The result from ToolResultPart is a JSON string
                 response: protobuf.Struct.fromJson(
                   jsonDecode(part.result) as Map<String, Object?>,
@@ -124,7 +127,10 @@ class GoogleContentConverter {
           google_ai.Part(
             functionResponse: google_ai.FunctionResponse(
               id: part.callId,
-              name: part.callId,
+              // ToolResultPart will be removed in the future.
+              // Function calling history is managed within the
+              // Content Generator.
+              name: "",
               response: protobuf.Struct.fromJson(
                 jsonDecode(part.result) as Map<String, Object?>,
               ),
