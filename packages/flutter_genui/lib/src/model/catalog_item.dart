@@ -41,6 +41,8 @@ typedef CatalogWidgetBuilder =
       required GetComponentCallback getComponent,
     });
 
+class CatalogItemContext {}
+
 /// Defines a UI layout type, its schema, and how to build its widget.
 @immutable
 class CatalogItem {
