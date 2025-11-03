@@ -26,17 +26,17 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailhead.widgetBuilder(
+                return trailhead.widgetBuilder(CatalogItemContext(
                   data: data,
                   id: 'testId',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {
                     dispatchedEvent = event;
                   },
-                  context: context,
+                  buildContext: context,
                   dataContext: DataContext(DataModel(), '/'),
                   getComponent: (String componentId) => null,
-                );
+                ));
               },
             ),
           ),
@@ -69,15 +69,15 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailhead.widgetBuilder(
+                return trailhead.widgetBuilder(CatalogItemContext(
                   data: data,
                   id: 'testId',
                   buildChild: (_, [_]) => const SizedBox.shrink(),
                   dispatchEvent: (event) {},
-                  context: context,
+                  buildContext: context,
                   dataContext: DataContext(DataModel(), '/'),
                   getComponent: (String componentId) => null,
-                );
+                ));
               },
             ),
           ),

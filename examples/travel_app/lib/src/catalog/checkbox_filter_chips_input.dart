@@ -102,8 +102,9 @@ final checkboxFilterChipsInput = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final checkboxFilterChipsData =
-        _CheckboxFilterChipsInputData.fromMap(context.data);
+    final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
+      context.data,
+    );
     IconData? icon;
     if (checkboxFilterChipsData.iconName != null) {
       try {
@@ -128,8 +129,9 @@ final checkboxFilterChipsInput = CatalogItem(
     return ValueListenableBuilder<List<Object?>?>(
       valueListenable: notifier,
       builder: (context, currentSelectedValues, child) {
-        final selectedOptionsSet =
-            (currentSelectedValues ?? []).cast<String>().toSet();
+        final selectedOptionsSet = (currentSelectedValues ?? [])
+            .cast<String>()
+            .toSet();
         return _CheckboxFilterChip(
           chipLabel: checkboxFilterChipsData.chipLabel,
           options: checkboxFilterChipsData.options,

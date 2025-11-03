@@ -94,8 +94,9 @@ final optionsFilterChipInput = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final optionsFilterChipData =
-        _OptionsFilterChipInputData.fromMap(context.data);
+    final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
+      context.data,
+    );
     IconData? icon;
     if (optionsFilterChipData.iconName != null) {
       try {

@@ -66,11 +66,11 @@ final travelCarousel = CatalogItem(
   name: 'TravelCarousel',
   dataSchema: _schema,
   widgetBuilder: (context) {
-    final carouselData =
-        _TravelCarouselData.fromMap(context.data);
+    final carouselData = _TravelCarouselData.fromMap(context.data);
 
-    final titleNotifier =
-        context.dataContext.subscribeToString(carouselData.title);
+    final titleNotifier = context.dataContext.subscribeToString(
+      carouselData.title,
+    );
 
     final items = carouselData.items.map((item) {
       final descriptionNotifier = context.dataContext.subscribeToString(

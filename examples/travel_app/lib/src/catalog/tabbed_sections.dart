@@ -105,18 +105,16 @@ final tabbedSections = CatalogItem(
   widgetBuilder: (context) {
     final tabbedSectionsData = _TabbedSectionsData.fromMap(context.data);
     final sections = tabbedSectionsData.sections.map((section) {
-      final titleNotifier =
-          context.dataContext.subscribeToString(section.title);
+      final titleNotifier = context.dataContext.subscribeToString(
+        section.title,
+      );
       return _TabSectionData(
         titleNotifier: titleNotifier,
         childId: section.childId,
       );
     }).toList();
 
-    return _TabbedSections(
-      sections: sections,
-      buildChild: context.buildChild,
-    );
+    return _TabbedSections(sections: sections, buildChild: context.buildChild);
   },
 );
 
