@@ -87,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
         '${GenUiPromptFragments.basicChat}';
 
     // Create the appropriate content generator based on configuration
-    final ContentGenerator contentGenerator = switch () {
+    final ContentGenerator contentGenerator = switch (aiBackend) {
       AiBackend.google => () {
         if (googleApiKey.isEmpty) {
           throw Exception(
