@@ -40,18 +40,27 @@ This example supports two AI backends: **Google Generative AI** (default) and **
 
 ### Option 1: Using Google Generative AI (Default)
 
-1. **Get an API Key**: Obtain a Google Cloud API key with access to the Generative Language API from the [Google AI Studio](https://aistudio.google.com/app/apikey).
+> **⚠️ Warning**: This option is for demo purposes only. For
+> production applications, use Firebase AI (Option 2) which provides
+> better security, quota management, and production-ready
+> infrastructure.
 
-2. **Configure the API Key**: In `lib/main.dart`, replace `YOUR_API_KEY_HERE` with your actual API key:
+1. **Get an API Key**: Obtain a Google Cloud API key with access
+   to the Generative Language API from the
+   [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-   ```dart
-   const String googleApiKey = 'your_actual_api_key_here';
-   ```
-
-3. **Run the App**:
+2. **Run the App**: Pass your API key as a Dart environment
+   variable when running the app:
 
    ```bash
-   flutter run
+   flutter run -d <device> --dart-define=GEMINI_API_KEY=your_api_key
+   ```
+
+   Or set it as an environment variable and reference it:
+
+   ```bash
+   export GEMINI_API_KEY=your_api_key_here
+   flutter run -d <device> --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY
    ```
 
 ### Option 2: Using Firebase AI
@@ -61,20 +70,23 @@ This example supports two AI backends: **Google Generative AI** (default) and **
    - Generate a `firebase_options.dart` file using the FlutterFire CLI
    - Update `lib/main.dart` to import `firebase_options.dart` instead of `firebase_options_stub.dart`
 
-2. **Switch the Backend**: In `lib/main.dart`, change the `defaultBackend` constant:
+2. **Switch the Backend**: In `lib/main.dart`, change the
+   `aiBackend` constant to use Firebase:
 
    ```dart
-   const AiBackend defaultBackend = AiBackend.firebase;
+   const AiBackend aiBackend = AiBackend.firebase;
    ```
 
 3. **Run the App**:
 
    ```bash
-   flutter run
+   flutter run -d <device>
    ```
 
 ### Switching Between Backends
 
-To switch backends, modify the `defaultBackend` constant in `lib/main.dart`:
-- `AiBackend.google` (default) - Uses Google Generative AI with an API key
+To switch backends, modify the `aiBackend` constant in
+`lib/main.dart`:
+- `AiBackend.google` (default) - Uses Google Generative AI with
+  an API key
 - `AiBackend.firebase` - Uses Firebase AI

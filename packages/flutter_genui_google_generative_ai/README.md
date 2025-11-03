@@ -14,13 +14,7 @@ To use this package, you will need a Gemini API key. If you don't already have o
 
 ### Installation
 
-Add this package to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  flutter_genui_google_generative_ai:
-    path: packages/flutter_genui_google_generative_ai
-```
+Add this package to your `pubspec.yaml`: "flutter_genui_google_generative_ai"
 
 ### Usage
 
@@ -55,29 +49,13 @@ If neither is provided, the package will attempt to use the default environment 
 
 ## Differences from Firebase AI
 
-This package uses the Google Cloud Generative Language API instead of Firebase AI Logic. Key differences:
+This package uses the Google Cloud Generative Language API instead of Firebase AI Logic.
 
-- **Server-side**: This API is meant for Dart command-line, cloud, and server applications
-- **Flutter apps should use Firebase AI**: For mobile and web applications, consider using `flutter_genui_firebase_ai` instead, which provides client-side access
+This API is meant for quick explorations and local testing or prototyping,
+not for production or deployment.
 
-## Example
-
-```dart
-// Send a message
-await conversation.sendMessage(
-  UserMessage(parts: [TextPart('Create a login form')]),
-);
-
-// Listen to text responses
-conversation.textResponseStream.listen((text) {
-  print('AI: $text');
-});
-
-// Listen to A2UI messages
-conversation.a2uiMessageStream.listen((message) {
-  // Handle UI updates
-});
-```
+**Flutter apps built for production should use Firebase AI**: For mobile and
+web applications, consider using `flutter_genui_firebase_ai` instead, which provides client-side access
 
 ## Documentation
 
@@ -88,4 +66,3 @@ For more information on the Google Cloud Generative Language API, see:
 ## License
 
 This package is licensed under the BSD-3-Clause license. See [LICENSE](LICENSE) for details.
-

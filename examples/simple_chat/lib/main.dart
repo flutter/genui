@@ -19,12 +19,12 @@ enum AiBackend {
   firebase,
 
   /// Use Google Generative AI
-  google,
+  googleGenerativeAi,
 }
 
 /// Configuration for which AI backend to use.
 /// Change this value to switch between backends.
-const AiBackend aiBackend = AiBackend.google;
+const AiBackend aiBackend = AiBackend.googleGenerativeAi;
 
 /// API key for Google Generative AI (only needed if using google backend).
 /// Get an API key from https://aistudio.google.com/app/apikey
@@ -88,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Create the appropriate content generator based on configuration
     final ContentGenerator contentGenerator = switch (aiBackend) {
-      AiBackend.google => () {
+      AiBackend.googleGenerativeAi => () {
         if (googleApiKey.isEmpty) {
           throw Exception(
             'Google API key is required when using google backend. '
@@ -143,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final title = switch (aiBackend) {
-      AiBackend.google => 'Chat with Google Generative AI',
+      AiBackend.googleGenerativeAi => 'Chat with Google Generative AI',
       AiBackend.firebase => 'Chat with Firebase AI',
     };
 
