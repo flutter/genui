@@ -39,17 +39,19 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return travelCarousel.widgetBuilder(CatalogItemContext(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
-                  ));
+                  return travelCarousel.widgetBuilder(
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                    ),
+                  );
                 },
               ),
             ),
@@ -101,17 +103,19 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return travelCarousel.widgetBuilder(CatalogItemContext(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
-                  ));
+                  return travelCarousel.widgetBuilder(
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                    ),
+                  );
                 },
               ),
             ),
@@ -138,15 +142,17 @@ void main() {
             home: Scaffold(
               body: Builder(
                 builder: (context) {
-                  return travelCarousel.widgetBuilder(CatalogItemContext(
-                    data: data,
-                    id: 'testId',
-                    buildChild: (data, [_]) => Text(data),
-                    dispatchEvent: (event) {},
-                    buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
-                  ));
+                  return travelCarousel.widgetBuilder(
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: (data, [_]) => Text(data),
+                      dispatchEvent: (event) {},
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                    ),
+                  );
                 },
               ),
             ),

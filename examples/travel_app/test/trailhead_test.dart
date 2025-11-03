@@ -26,17 +26,19 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailhead.widgetBuilder(CatalogItemContext(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEvent = event;
-                  },
-                  buildContext: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
-                ));
+                return trailhead.widgetBuilder(
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {
+                      dispatchedEvent = event;
+                    },
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                  ),
+                );
               },
             ),
           ),
@@ -69,15 +71,17 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                return trailhead.widgetBuilder(CatalogItemContext(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  buildContext: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
-                ));
+                return trailhead.widgetBuilder(
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                  ),
+                );
               },
             ),
           ),

@@ -46,15 +46,17 @@ void main() {
                 Expanded(
                   child: Builder(
                     builder: (context) {
-                      return catalogItem.widgetBuilder(CatalogItemContext(
-                        data: data,
-                        id: 'testId',
-                        buildChild: mockBuildChild,
-                        dispatchEvent: (event) {},
-                        buildContext: context,
-                        dataContext: DataContext(DataModel(), '/'),
-                        getComponent: (String componentId) => null,
-                      ));
+                      return catalogItem.widgetBuilder(
+                        CatalogItemContext(
+                          data: data,
+                          id: 'testId',
+                          buildChild: mockBuildChild,
+                          dispatchEvent: (event) {},
+                          buildContext: context,
+                          dataContext: DataContext(DataModel(), '/'),
+                          getComponent: (String componentId) => null,
+                        ),
+                      );
                     },
                   ),
                 ),

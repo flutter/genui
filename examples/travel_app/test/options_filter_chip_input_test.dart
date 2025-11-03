@@ -26,13 +26,15 @@ void main() {
             body: Builder(
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  context: context,
-                  dataContext: DataContext(dataModel, '/'),
-                  getComponent: (String componentId) => null,
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, '/'),
+                    getComponent: (String componentId) => null,
+                  ),
                 );
               },
             ),
@@ -85,13 +87,15 @@ void main() {
             body: Builder(
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  context: context,
-                  dataContext: DataContext(dataModel, '/'),
-                  getComponent: (String componentId) => null,
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, '/'),
+                    getComponent: (String componentId) => null,
+                  ),
                 );
               },
             ),

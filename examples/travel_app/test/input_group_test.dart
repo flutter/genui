@@ -27,15 +27,17 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return inputGroup.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                    ),
                   );
                 },
               ),
@@ -73,13 +75,15 @@ void main() {
             body: Builder(
               builder: (context) {
                 return inputGroup.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (UiEvent _) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (UiEvent _) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                  ),
                 );
               },
             ),
