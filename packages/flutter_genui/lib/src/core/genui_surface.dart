@@ -91,6 +91,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       context: context,
       dataContext: dataContext,
       getComponent: (String componentId) => definition.components[componentId],
+      surfaceId: widget.surfaceId,
     );
   }
 

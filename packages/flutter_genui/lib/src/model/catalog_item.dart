@@ -34,6 +34,7 @@ class CatalogItemContext {
     required this.buildContext,
     required this.dataContext,
     required this.getComponent,
+    required this.surfaceId,
   });
 
   final Object data;
@@ -43,6 +44,7 @@ class CatalogItemContext {
   final BuildContext buildContext;
   final DataContext dataContext;
   final GetComponentCallback getComponent;
+  final String surfaceId;
 }
 
 /// Defines a UI layout type, its schema, and how to build its widget.

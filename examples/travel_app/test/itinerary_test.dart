@@ -55,6 +55,7 @@ void main() {
         buildContext: tester.element(find.byType(Container)),
         dataContext: DataContext(DataModel(), '/'),
         getComponent: (String componentId) => null,
+        surfaceId: 'surface1',
       ),
     );
 

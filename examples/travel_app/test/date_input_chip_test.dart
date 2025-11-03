@@ -30,6 +30,7 @@ void main() {
                   buildContext: context,
                   dataContext: DataContext(dataModel, '/'),
                   getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
                 ),
               );
             },
@@ -64,6 +65,7 @@ void main() {
                   buildContext: context,
                   dataContext: DataContext(dataModel, '/'),
                   getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
                 ),
               );
             },
@@ -103,6 +105,7 @@ void main() {
                   buildContext: context,
                   dataContext: DataContext(dataModel, '/'),
                   getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
                 ),
               );
             },
@@ -143,6 +146,7 @@ void main() {
                   buildContext: context,
                   dataContext: DataContext(dataModel, '/'),
                   getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
                 ),
               );
             },

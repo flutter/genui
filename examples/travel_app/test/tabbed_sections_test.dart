@@ -55,6 +55,7 @@ void main() {
                           buildContext: context,
                           dataContext: DataContext(DataModel(), '/'),
                           getComponent: (String componentId) => null,
+                          surfaceId: 'surface1',
                         ),
                       );
                     },

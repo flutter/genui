@@ -70,6 +70,7 @@ class Catalog {
     required BuildContext context,
     required DataContext dataContext,
     required GetComponentCallback getComponent,
+    required String surfaceId,
   }) {
     final widgetType = widgetData.keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
@@ -89,6 +90,7 @@ class Catalog {
         buildContext: context,
         dataContext: dataContext,
         getComponent: getComponent,
+        surfaceId: surfaceId,
       ),
     );
   }

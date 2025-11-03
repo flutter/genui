@@ -35,6 +35,7 @@ void main() {
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),
                   getComponent: (String componentId) => null,
+                  surfaceId: 'surfaceId',
                 );
               },
             ),
@@ -80,6 +81,7 @@ void main() {
                   context: context,
                   dataContext: DataContext(DataModel(), '/'),
                   getComponent: (String componentId) => null,
+                  surfaceId: 'surfaceId',
                 );
                 expect(widget, isA<Container>());
                 return widget;
