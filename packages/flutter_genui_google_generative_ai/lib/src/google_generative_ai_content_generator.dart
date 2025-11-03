@@ -19,8 +19,8 @@ import 'google_schema_adapter.dart';
 /// A factory for creating a [GoogleGenerativeServiceInterface].
 ///
 /// This is used to allow for custom service creation, for example, for testing.
-typedef GenerativeServiceFactory = 
-    GoogleGenerativeServiceInterface Function ({ 
+typedef GenerativeServiceFactory =
+    GoogleGenerativeServiceInterface Function({
       required GoogleGenerativeAiContentGenerator configuration,
     });
 
@@ -358,7 +358,8 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
         ...additionalTools,
       ];
 
-      // A local copy of the incoming messages which is updated with tool results
+      // A local copy of the incoming messages which is updated with
+      // tool results
       // as they are generated.
       final content = converter.toGoogleAiContent(messages);
 
@@ -391,7 +392,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
         toolUsageCycle++;
 
         final concatenatedContents = content
-            .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
+            .map((c) => jsonEncode(c.toJson()))
             .join('\n');
 
         genUiLogger.info(
@@ -481,7 +482,7 @@ With functions:
             if (text != null && text.trim().isNotEmpty) {
               genUiLogger.warning(
                 'Model returned direct text instead of a tool call. '
-                'This might be an error or unexpected AI behavior for ' 
+                'This might be an error or unexpected AI behavior for '
                 'forced tool calling.',
               );
             }
