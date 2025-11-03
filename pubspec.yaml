@@ -7,7 +7,7 @@ publish_to: none
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
-  flutter: ">3.37.0"
+  flutter: ">=3.35.7 <4.0.0"
 
 workspace:
   - packages/flutter_genui
