@@ -93,9 +93,9 @@ final optionsFilterChipInput = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
     IconData? icon;
     if (optionsFilterChipData.iconName != null) {
@@ -110,7 +110,7 @@ final optionsFilterChipInput = CatalogItem(
 
     final valueRef = optionsFilterChipData.value;
     final path = valueRef?['path'] as String?;
-    final notifier = context.dataContext.subscribeToString(valueRef);
+    final notifier = itemContext.dataContext.subscribeToString(valueRef);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -122,7 +122,7 @@ final optionsFilterChipInput = CatalogItem(
           value: currentValue,
           onChanged: (newValue) {
             if (path != null && newValue != null) {
-              context.dataContext.update(DataPath(path), newValue);
+              itemContext.dataContext.update(DataPath(path), newValue);
             }
           },
         );

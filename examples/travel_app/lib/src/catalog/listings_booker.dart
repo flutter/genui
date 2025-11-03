@@ -52,12 +52,12 @@ extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
 final listingsBooker = CatalogItem(
   name: 'ListingsBooker',
   dataSchema: _schema,
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final listingsBookerData = _ListingsBookerData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
 
-    final itineraryNameNotifier = context.dataContext.subscribeToString(
+    final itineraryNameNotifier = itemContext.dataContext.subscribeToString(
       listingsBookerData.itineraryName,
     );
 
@@ -67,10 +67,10 @@ final listingsBooker = CatalogItem(
         return _ListingsBooker(
           listingSelectionIds: listingsBookerData.listingSelectionIds,
           itineraryName: itineraryName ?? '',
-          dispatchEvent: context.dispatchEvent,
-          widgetId: context.id,
+          dispatchEvent: itemContext.dispatchEvent,
+          widgetId: itemContext.id,
           modifyAction: listingsBookerData.modifyAction,
-          dataContext: context.dataContext,
+          dataContext: itemContext.dataContext,
         );
       },
     );
