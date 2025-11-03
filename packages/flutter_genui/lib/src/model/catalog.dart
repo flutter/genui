@@ -80,14 +80,16 @@ class Catalog {
 
     genUiLogger.info('Building widget ${item.name} with id $id');
     return item.widgetBuilder(
-      data: JsonMap.from(widgetData[widgetType]! as Map),
-      id: id,
-      buildChild: (String childId, [DataContext? childDataContext]) =>
-          buildChild(childId, childDataContext ?? dataContext),
-      dispatchEvent: dispatchEvent,
-      context: context,
-      dataContext: dataContext,
-      getComponent: getComponent,
+      CatalogItemContext(
+        data: JsonMap.from(widgetData[widgetType]! as Map),
+        id: id,
+        buildChild: (String childId, [DataContext? childDataContext]) =>
+            buildChild(childId, childDataContext ?? dataContext),
+        dispatchEvent: dispatchEvent,
+        context: context,
+        dataContext: dataContext,
+        getComponent: getComponent,
+      ),
     );
   }
 
