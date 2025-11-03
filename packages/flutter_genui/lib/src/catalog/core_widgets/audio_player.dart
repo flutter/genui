@@ -28,21 +28,12 @@ final _schema = S.object(
 final audioPlayer = CatalogItem(
   name: 'AudioPlayer',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),
-          child: const Placeholder(child: Center(child: Text('AudioPlayer'))),
-        );
-      },
+  widgetBuilder: (context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),
+      child: const Placeholder(child: Center(child: Text('AudioPlayer'))),
+    );
+  },
   exampleData: [
     () => '''
       [

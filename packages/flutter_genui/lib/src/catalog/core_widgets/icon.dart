@@ -90,44 +90,33 @@ enum AvailableIcons {
 final icon = CatalogItem(
   name: 'Icon',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final iconData = _IconData.fromMap(data as JsonMap);
-        final literalName = iconData.literalName;
-        final namePath = iconData.namePath;
+  widgetBuilder: (context) {
+    final iconData = _IconData.fromMap(context.data as JsonMap);
+    final literalName = iconData.literalName;
+    final namePath = iconData.namePath;
 
-        if (literalName != null) {
-          final icon =
-              AvailableIcons.fromName(literalName)?.iconData ??
-              Icons.broken_image;
-          return Icon(icon);
-        }
+    if (literalName != null) {
+      final icon =
+          AvailableIcons.fromName(literalName)?.iconData ?? Icons.broken_image;
+      return Icon(icon);
+    }
 
-        if (namePath == null) {
-          return const Icon(Icons.broken_image);
-        }
+    if (namePath == null) {
+      return const Icon(Icons.broken_image);
+    }
 
-        final notifier = dataContext.subscribe<String>(DataPath(namePath));
+    final notifier = context.dataContext.subscribe<String>(DataPath(namePath));
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            final iconName = currentValue ?? '';
-            final icon =
-                AvailableIcons.fromName(iconName)?.iconData ??
-                Icons.broken_image;
-            return Icon(icon);
-          },
-        );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (bcontext, currentValue, child) {
+        final iconName = currentValue ?? '';
+        final icon =
+            AvailableIcons.fromName(iconName)?.iconData ?? Icons.broken_image;
+        return Icon(icon);
       },
+    );
+  },
   exampleData: [
     () => '''
       [

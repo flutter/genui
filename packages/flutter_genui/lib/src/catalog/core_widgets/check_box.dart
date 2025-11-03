@@ -40,40 +40,35 @@ extension type _CheckBoxData.fromMap(JsonMap _json) {
 final checkBox = CatalogItem(
   name: 'CheckBox',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final checkBoxData = _CheckBoxData.fromMap(data as JsonMap);
-        final labelNotifier = dataContext.subscribeToString(checkBoxData.label);
-        final valueNotifier = dataContext.subscribeToBool(checkBoxData.value);
-        return ValueListenableBuilder<String?>(
-          valueListenable: labelNotifier,
-          builder: (context, label, child) {
-            return ValueListenableBuilder<bool?>(
-              valueListenable: valueNotifier,
-              builder: (context, value, child) {
-                return CheckboxListTile(
-                  title: Text(label ?? ''),
-                  value: value ?? false,
-                  onChanged: (newValue) {
-                    final path = checkBoxData.value['path'] as String?;
-                    if (path != null) {
-                      dataContext.update(DataPath(path), newValue);
-                    }
-                  },
-                );
+  widgetBuilder: (context) {
+    final checkBoxData = _CheckBoxData.fromMap(context.data as JsonMap);
+    final labelNotifier = context.dataContext.subscribeToString(
+      checkBoxData.label,
+    );
+    final valueNotifier = context.dataContext.subscribeToBool(
+      checkBoxData.value,
+    );
+    return ValueListenableBuilder<String?>(
+      valueListenable: labelNotifier,
+      builder: (bcontext, label, child) {
+        return ValueListenableBuilder<bool?>(
+          valueListenable: valueNotifier,
+          builder: (bcontext, value, child) {
+            return CheckboxListTile(
+              title: Text(label ?? ''),
+              value: value ?? false,
+              onChanged: (newValue) {
+                final path = checkBoxData.value['path'] as String?;
+                if (path != null) {
+                  context.dataContext.update(DataPath(path), newValue);
+                }
               },
             );
           },
         );
       },
+    );
+  },
   exampleData: [
     () => '''
       [

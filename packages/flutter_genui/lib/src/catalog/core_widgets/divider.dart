@@ -32,22 +32,13 @@ extension type _DividerData.fromMap(JsonMap _json) {
 final divider = CatalogItem(
   name: 'Divider',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final dividerData = _DividerData.fromMap(data as JsonMap);
-        if (dividerData.axis == 'vertical') {
-          return const VerticalDivider();
-        }
-        return const Divider();
-      },
+  widgetBuilder: (context) {
+    final dividerData = _DividerData.fromMap(context.data as JsonMap);
+    if (dividerData.axis == 'vertical') {
+      return const VerticalDivider();
+    }
+    return const Divider();
+  },
   exampleData: [
     () => '''
       [

@@ -59,56 +59,55 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
 final dateTimeInput = CatalogItem(
   name: 'DateTimeInput',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final dateTimeInputData = _DateTimeInputData.fromMap(data as JsonMap);
-        final valueNotifier = dataContext.subscribeToString(
-          dateTimeInputData.value,
-        );
+  widgetBuilder: (context) {
+    final dateTimeInputData = _DateTimeInputData.fromMap(
+      context.data as JsonMap,
+    );
+    final valueNotifier = context.dataContext.subscribeToString(
+      dateTimeInputData.value,
+    );
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: valueNotifier,
-          builder: (context, value, child) {
-            return ListTile(
-              title: Text(value ?? 'Select a date/time'),
-              onTap: () async {
-                final path = dateTimeInputData.value['path'] as String?;
-                if (path == null) {
-                  return;
-                }
-                if (dateTimeInputData.enableDate) {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (date != null) {
-                    dataContext.update(DataPath(path), date.toIso8601String());
-                  }
-                }
-                if (dateTimeInputData.enableTime) {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (time != null) {
-                    dataContext.update(DataPath(path), time.format(context));
-                  }
-                }
-              },
-            );
+    return ValueListenableBuilder<String?>(
+      valueListenable: valueNotifier,
+      builder: (bcontext, value, child) {
+        return ListTile(
+          title: Text(value ?? 'Select a date/time'),
+          onTap: () async {
+            final path = dateTimeInputData.value['path'] as String?;
+            if (path == null) {
+              return;
+            }
+            if (dateTimeInputData.enableDate) {
+              final date = await showDatePicker(
+                context: context.context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (date != null) {
+                context.dataContext.update(
+                  DataPath(path),
+                  date.toIso8601String(),
+                );
+              }
+            }
+            if (dateTimeInputData.enableTime) {
+              final time = await showTimePicker(
+                context: context.context,
+                initialTime: TimeOfDay.now(),
+              );
+              if (time != null) {
+                context.dataContext.update(
+                  DataPath(path),
+                  time.format(context.context),
+                );
+              }
+            }
           },
         );
       },
+    );
+  },
   exampleData: [
     () => '''
       [

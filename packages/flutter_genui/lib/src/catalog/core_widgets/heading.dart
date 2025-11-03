@@ -39,35 +39,26 @@ extension type _HeadingData.fromMap(JsonMap _json) {
 final heading = CatalogItem(
   name: 'Heading',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final headingData = _HeadingData.fromMap(data as JsonMap);
-        final notifier = dataContext.subscribeToString(headingData.text);
+  widgetBuilder: (context) {
+    final headingData = _HeadingData.fromMap(context.data as JsonMap);
+    final notifier = context.dataContext.subscribeToString(headingData.text);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            final textTheme = Theme.of(context).textTheme;
-            final style = switch (headingData.level) {
-              '1' => textTheme.headlineLarge,
-              '2' => textTheme.headlineMedium,
-              '3' => textTheme.headlineSmall,
-              '4' => textTheme.titleLarge,
-              '5' => textTheme.titleMedium,
-              _ => textTheme.titleSmall,
-            };
-            return Text(currentValue ?? '', style: style);
-          },
-        );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (bcontext, currentValue, child) {
+        final textTheme = Theme.of(bcontext).textTheme;
+        final style = switch (headingData.level) {
+          '1' => textTheme.headlineLarge,
+          '2' => textTheme.headlineMedium,
+          '3' => textTheme.headlineSmall,
+          '4' => textTheme.titleLarge,
+          '5' => textTheme.titleMedium,
+          _ => textTheme.titleSmall,
+        };
+        return Text(currentValue ?? '', style: style);
       },
+    );
+  },
   exampleData: [
     () => '''
       [

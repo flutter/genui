@@ -105,65 +105,51 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
 final row = CatalogItem(
   name: 'Row',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final rowData = _RowData.fromMap(data as JsonMap);
-        return ComponentChildrenBuilder(
-          childrenData: rowData.children,
-          dataContext: dataContext,
-          buildChild: buildChild,
-          getComponent: getComponent,
-          explicitListBuilder:
-              (childIds, buildChild, getComponent, dataContext) {
-                return Row(
-                  mainAxisAlignment: _parseMainAxisAlignment(
-                    rowData.distribution,
-                  ),
-                  crossAxisAlignment: _parseCrossAxisAlignment(
-                    rowData.alignment,
-                  ),
-                  mainAxisSize: MainAxisSize.min,
-                  children: childIds
-                      .map(
-                        (componentId) => buildWeightedChild(
-                          componentId: componentId,
-                          dataContext: dataContext,
-                          buildChild: buildChild,
-                          component: getComponent(componentId),
-                        ),
-                      )
-                      .toList(),
-                );
-              },
-          templateListWidgetBuilder: (context, list, componentId, dataBinding) {
-            return Row(
-              mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
-              crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < list.length; i++) ...[
-                  buildWeightedChild(
-                    componentId: componentId,
-                    dataContext: dataContext.nested(
-                      DataPath('$dataBinding/$i'),
-                    ),
-                    buildChild: buildChild,
-                    component: getComponent(componentId),
-                  ),
-                ],
-              ],
-            );
-          },
+  widgetBuilder: (context) {
+    final rowData = _RowData.fromMap(context.data as JsonMap);
+    return ComponentChildrenBuilder(
+      childrenData: rowData.children,
+      dataContext: context.dataContext,
+      buildChild: context.buildChild,
+      getComponent: context.getComponent,
+      explicitListBuilder: (childIds, buildChild, getComponent, dataContext) {
+        return Row(
+          mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
+          crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+          mainAxisSize: MainAxisSize.min,
+          children: childIds
+              .map(
+                (componentId) => buildWeightedChild(
+                  componentId: componentId,
+                  dataContext: dataContext,
+                  buildChild: buildChild,
+                  component: getComponent(componentId),
+                ),
+              )
+              .toList(),
         );
       },
+      templateListWidgetBuilder: (bcontext, list, componentId, dataBinding) {
+        return Row(
+          mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
+          crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < list.length; i++) ...[
+              buildWeightedChild(
+                componentId: componentId,
+                dataContext: context.dataContext.nested(
+                  DataPath('$dataBinding/$i'),
+                ),
+                buildChild: context.buildChild,
+                component: context.getComponent(componentId),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  },
   exampleData: [
     () => '''
       [

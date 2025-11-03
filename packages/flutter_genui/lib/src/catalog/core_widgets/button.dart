@@ -60,52 +60,41 @@ extension type _ButtonData.fromMap(JsonMap _json) {
 final button = CatalogItem(
   name: 'Button',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final buttonData = _ButtonData.fromMap(data as JsonMap);
-        final child = buildChild(buttonData.child);
-        final actionData = buttonData.action;
-        final actionName = actionData['name'] as String;
-        final contextDefinition =
-            (actionData['context'] as List<Object?>?) ?? <Object?>[];
+  widgetBuilder: (context) {
+    final buttonData = _ButtonData.fromMap(context.data as JsonMap);
+    final child = context.buildChild(buttonData.child);
+    final actionData = buttonData.action;
+    final actionName = actionData['name'] as String;
+    final contextDefinition =
+        (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
-        genUiLogger.info('Building Button with child: ${buttonData.child}');
-        final colorScheme = Theme.of(context).colorScheme;
-        final primary = buttonData.primary;
+    genUiLogger.info('Building Button with child: ${buttonData.child}');
+    final colorScheme = Theme.of(context.context).colorScheme;
+    final primary = buttonData.primary;
 
-        return ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primary
-                ? colorScheme.primary
-                : colorScheme.surface,
-            foregroundColor: primary
-                ? colorScheme.onPrimary
-                : colorScheme.onSurface,
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primary ? colorScheme.primary : colorScheme.surface,
+        foregroundColor: primary
+            ? colorScheme.onPrimary
+            : colorScheme.onSurface,
+      ),
+      onPressed: () {
+        final resolvedContext = resolveContext(
+          context.dataContext,
+          contextDefinition,
+        );
+        context.dispatchEvent(
+          UserActionEvent(
+            name: actionName,
+            sourceComponentId: context.id,
+            context: resolvedContext,
           ),
-          onPressed: () {
-            final resolvedContext = resolveContext(
-              dataContext,
-              contextDefinition,
-            );
-            dispatchEvent(
-              UserActionEvent(
-                name: actionName,
-                sourceComponentId: id,
-                context: resolvedContext,
-              ),
-            );
-          },
-          child: child,
         );
       },
+      child: child,
+    );
+  },
   exampleData: [
     () => '''
       [

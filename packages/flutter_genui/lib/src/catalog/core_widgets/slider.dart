@@ -54,25 +54,26 @@ final slider = CatalogItem(
     final sliderData = _SliderData.fromMap(context.data as JsonMap);
     final valueNotifier = context.dataContext.subscribeToValue<num>(
       DataPath(sliderData.value['path'] as String),
+      context.context,
     );
 
-        return ValueListenableBuilder<num?>(
-          valueListenable: valueNotifier,
-          builder: (context, value, child) {
-            return Slider(
-              value: (value ?? 0.0).toDouble(),
-              min: sliderData.minValue,
-              max: sliderData.maxValue,
-              onChanged: (newValue) {
-                final path = sliderData.value['path'] as String?;
-                if (path != null) {
-                  dataContext.update(DataPath(path), newValue);
-                }
-              },
-            );
+    return ValueListenableBuilder<num?>(
+      valueListenable: valueNotifier,
+      builder: (bcontext, value, child) {
+        return Slider(
+          value: (value ?? 0.0).toDouble(),
+          min: sliderData.minValue,
+          max: sliderData.maxValue,
+          onChanged: (newValue) {
+            final path = sliderData.value['path'] as String?;
+            if (path != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
   exampleData: [
     () => '''
       [

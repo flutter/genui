@@ -60,60 +60,51 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
 final multipleChoice = CatalogItem(
   name: 'MultipleChoice',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final multipleChoiceData = _MultipleChoiceData.fromMap(data as JsonMap);
-        final selectionsNotifier = dataContext.subscribeToObjectArray(
-          multipleChoiceData.selections,
-        );
+  widgetBuilder: (context) {
+    final multipleChoiceData = _MultipleChoiceData.fromMap(
+      context.data as JsonMap,
+    );
+    final selectionsNotifier = context.dataContext.subscribeToObjectArray(
+      multipleChoiceData.selections,
+    );
 
-        return ValueListenableBuilder<List<Object?>?>(
-          valueListenable: selectionsNotifier,
-          builder: (context, selections, child) {
-            return Column(
-              children: multipleChoiceData.options.map((option) {
-                final labelNotifier = dataContext.subscribeToString(
-                  option['label'] as JsonMap,
-                );
-                final value = option['value'] as String;
-                return ValueListenableBuilder<String?>(
-                  valueListenable: labelNotifier,
-                  builder: (context, label, child) {
-                    return CheckboxListTile(
-                      title: Text(label ?? ''),
-                      value: selections?.contains(value) ?? false,
-                      onChanged: (newValue) {
-                        final path =
-                            multipleChoiceData.selections['path'] as String?;
-                        if (path == null) {
-                          return;
-                        }
-                        final newSelections = List<String>.from(
-                          selections ?? [],
-                        );
-                        if (newValue ?? false) {
-                          newSelections.add(value);
-                        } else {
-                          newSelections.remove(value);
-                        }
-                        dataContext.update(DataPath(path), newSelections);
-                      },
-                    );
+    return ValueListenableBuilder<List<Object?>?>(
+      valueListenable: selectionsNotifier,
+      builder: (bcontext, selections, child) {
+        return Column(
+          children: multipleChoiceData.options.map((option) {
+            final labelNotifier = context.dataContext.subscribeToString(
+              option['label'] as JsonMap,
+            );
+            final value = option['value'] as String;
+            return ValueListenableBuilder<String?>(
+              valueListenable: labelNotifier,
+              builder: (bcontext, label, child) {
+                return CheckboxListTile(
+                  title: Text(label ?? ''),
+                  value: selections?.contains(value) ?? false,
+                  onChanged: (newValue) {
+                    final path =
+                        multipleChoiceData.selections['path'] as String?;
+                    if (path == null) {
+                      return;
+                    }
+                    final newSelections = List<String>.from(selections ?? []);
+                    if (newValue ?? false) {
+                      newSelections.add(value);
+                    } else {
+                      newSelections.remove(value);
+                    }
+                    context.dataContext.update(DataPath(path), newSelections);
                   },
                 );
-              }).toList(),
+              },
             );
-          },
+          }).toList(),
         );
       },
+    );
+  },
   exampleData: [
     () => '''
       [

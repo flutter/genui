@@ -52,27 +52,18 @@ final text = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final textData = _TextData.fromMap(data as JsonMap);
-        final notifier = dataContext.subscribeToString(textData.text);
+  widgetBuilder: (context) {
+    final textData = _TextData.fromMap(context.data as JsonMap);
+    final notifier = context.dataContext.subscribeToString(textData.text);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return Text(
-              currentValue ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-            );
-          },
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (bcontext, currentValue, child) {
+        return Text(
+          currentValue ?? '',
+          style: Theme.of(bcontext).textTheme.bodyMedium,
         );
       },
+    );
+  },
 );
