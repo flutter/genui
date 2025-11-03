@@ -10,7 +10,6 @@ import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
 import 'data_model.dart';
-import 'ui_models.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
@@ -71,7 +70,7 @@ class Catalog {
       return Container();
     }
 
-    genUiLogger.info('Building widget ${item.name} with id $id');
+    genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
     return item.widgetBuilder(
       CatalogItemContext(
         data: JsonMap.from(widgetData[widgetType]! as Map),

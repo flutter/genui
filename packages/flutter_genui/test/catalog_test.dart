@@ -28,14 +28,17 @@ void main() {
             body: Builder(
               builder: (context) {
                 return catalog.buildWidget(
-                  id: 'col1',
-                  widgetData: widgetData,
-                  buildChild: (_, [_]) => const Text(''), // Mock child builder
-                  dispatchEvent: (UiEvent event) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
-                  surfaceId: 'surfaceId',
+                  CatalogItemContext(
+                    id: 'col1',
+                    data: widgetData,
+                    buildChild: (_, [_]) =>
+                        const Text(''), // Mock child builder
+                    dispatchEvent: (UiEvent event) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surfaceId',
+                  ),
                 );
               },
             ),
@@ -74,14 +77,16 @@ void main() {
             body: Builder(
               builder: (context) {
                 final widget = catalog.buildWidget(
-                  id: data['id'] as String,
-                  widgetData: data['widget'] as JsonMap,
-                  buildChild: (_, [_]) => const SizedBox(),
-                  dispatchEvent: (UiEvent event) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
-                  surfaceId: 'surfaceId',
+                  CatalogItemContext(
+                    id: data['id'] as String,
+                    data: data['widget'] as JsonMap,
+                    buildChild: (_, [_]) => const SizedBox(),
+                    dispatchEvent: (UiEvent event) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surfaceId',
+                  ),
                 );
                 expect(widget, isA<Container>());
                 return widget;

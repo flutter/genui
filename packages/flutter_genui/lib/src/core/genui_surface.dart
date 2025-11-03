@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
+import '../model/catalog_item.dart';
 import '../model/data_model.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
@@ -83,15 +84,18 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     final widgetData = data.componentProperties;
     genUiLogger.finest('Building widget $widgetId');
     return widget.host.catalog.buildWidget(
-      id: widgetId,
-      widgetData: widgetData,
-      buildChild: (String childId, [DataContext? childDataContext]) =>
-          _buildWidget(definition, childId, childDataContext ?? dataContext),
-      dispatchEvent: _dispatchEvent,
-      context: context,
-      dataContext: dataContext,
-      getComponent: (String componentId) => definition.components[componentId],
-      surfaceId: widget.surfaceId,
+      CatalogItemContext(
+        id: widgetId,
+        data: widgetData,
+        buildChild: (String childId, [DataContext? childDataContext]) =>
+            _buildWidget(definition, childId, childDataContext ?? dataContext),
+        dispatchEvent: _dispatchEvent,
+        buildContext: context,
+        dataContext: dataContext,
+        getComponent: (String componentId) =>
+            definition.components[componentId],
+        surfaceId: widget.surfaceId,
+      ),
     );
   }
 
