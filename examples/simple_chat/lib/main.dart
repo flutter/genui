@@ -27,8 +27,8 @@ enum AiBackend {
 const AiBackend aiBackend = AiBackend.google;
 
 /// API key for Google Generative AI (only needed if using google backend).
-/// Replace with your actual API key from https://aistudio.google.com/app/apikey
-const String googleApiKey = 'REPLACE ME';
+/// Get an API key from https://aistudio.google.com/app/apikey
+const String googleApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,7 +92,9 @@ class _ChatScreenState extends State<ChatScreen> {
         if (googleApiKey.isEmpty) {
           throw Exception(
             'Google API key is required when using google backend. '
-            'Set GOOGLE_API_KEY environment variable.',
+            'Run the app with a GOOGLE_API_KEY '
+            'as a Dart environment variable, for example with '
+            '-D GEMINI_API_KEY=\$GEMINI_API_KEY',
           );
         }
         return GoogleGenerativeAiContentGenerator(
