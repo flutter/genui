@@ -128,9 +128,9 @@ final dateInputChip = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
-    final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
-    final notifier = context.dataContext.subscribeToString(
+  widgetBuilder: (itemContext) {
+    final datePickerData = _DatePickerData.fromMap(itemContext.data as JsonMap);
+    final notifier = itemContext.dataContext.subscribeToString(
       datePickerData.value,
     );
     final path = datePickerData.value?['path'] as String?;
@@ -143,7 +143,7 @@ final dateInputChip = CatalogItem(
           label: datePickerData.label,
           onChanged: (newValue) {
             if (path != null) {
-              context.dataContext.update(DataPath(path), newValue);
+              itemContext.dataContext.update(DataPath(path), newValue);
             }
           },
         );

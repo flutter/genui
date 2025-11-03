@@ -82,19 +82,19 @@ final informationCard = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final cardData = _InformationCardData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
     final imageChild = cardData.imageChildId != null
-        ? context.buildChild(cardData.imageChildId!)
+        ? itemContext.buildChild(cardData.imageChildId!)
         : null;
 
-    final titleNotifier = context.dataContext.subscribeToString(cardData.title);
-    final subtitleNotifier = context.dataContext.subscribeToString(
+    final titleNotifier = itemContext.dataContext.subscribeToString(cardData.title);
+    final subtitleNotifier = itemContext.dataContext.subscribeToString(
       cardData.subtitle,
     );
-    final bodyNotifier = context.dataContext.subscribeToString(cardData.body);
+    final bodyNotifier = itemContext.dataContext.subscribeToString(cardData.body);
 
     return _InformationCard(
       imageChild: imageChild,

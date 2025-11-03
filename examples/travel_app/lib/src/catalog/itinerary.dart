@@ -219,28 +219,28 @@ final itinerary = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final itineraryData = _ItineraryData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
 
-    final titleNotifier = context.dataContext.subscribeToString(
+    final titleNotifier = itemContext.dataContext.subscribeToString(
       itineraryData.title,
     );
-    final subheadingNotifier = context.dataContext.subscribeToString(
+    final subheadingNotifier = itemContext.dataContext.subscribeToString(
       itineraryData.subheading,
     );
-    final imageChild = context.buildChild(itineraryData.imageChildId);
+    final imageChild = itemContext.buildChild(itineraryData.imageChildId);
 
     return _Itinerary(
       titleNotifier: titleNotifier,
       subheadingNotifier: subheadingNotifier,
       imageChild: imageChild,
       days: itineraryData.days,
-      widgetId: context.id,
-      buildChild: context.buildChild,
-      dispatchEvent: context.dispatchEvent,
-      dataContext: context.dataContext,
+      widgetId: itemContext.id,
+      buildChild: itemContext.buildChild,
+      dispatchEvent: itemContext.dispatchEvent,
+      dataContext: itemContext.dataContext,
     );
   },
 );

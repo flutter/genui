@@ -101,9 +101,9 @@ final checkboxFilterChipsInput = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
     IconData? icon;
     if (checkboxFilterChipsData.iconName != null) {
@@ -122,7 +122,7 @@ final checkboxFilterChipsInput = CatalogItem(
     }
 
     final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-    final notifier = context.dataContext.subscribeToObjectArray(
+    final notifier = itemContext.dataContext.subscribeToObjectArray(
       selectedOptionsRef,
     );
 
@@ -140,7 +140,7 @@ final checkboxFilterChipsInput = CatalogItem(
           onChanged: (newSelectedOptions) {
             final path = selectedOptionsRef['path'] as String?;
             if (path != null) {
-              context.dataContext.update(
+              itemContext.dataContext.update(
                 DataPath(path),
                 newSelectedOptions.toList(),
               );
