@@ -50,17 +50,6 @@ class Catalog {
   }
 
   /// Builds a Flutter widget from a JSON-like data structure.
-  ///
-  /// This method looks up the appropriate [CatalogItem] based on the `widget`
-  /// field in the [widgetData] map and uses its `widgetBuilder` to construct
-  /// the widget.
-  ///
-  /// * [widgetData]: The deserialized JSON data for the widget to build.
-  /// * [buildChild]: A function that can be called to recursively build child
-  ///   widgets by their ID.
-  /// * [dispatchEvent]: A callback to send UI events, like button presses or
-  ///   value changes, back to the model.
-  /// * [context]: The build context for the widget.
   Widget buildWidget(CatalogItemContext itemContext) {
     final widgetData = itemContext.data as JsonMap;
     final widgetType = widgetData.keys.firstOrNull;
