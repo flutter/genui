@@ -11,24 +11,28 @@ import 'package:travel_app/main.dart' as app;
 
 void main() {
   testWidgets('Can send a prompt', (WidgetTester tester) async {
-    final mockAiClient = FakeContentGenerator();
-    await tester.pumpWidget(app.TravelApp(contentGenerator: mockAiClient));
+    final mockContentGenerator = FakeContentGenerator();
+    await tester.pumpWidget(
+      app.TravelApp(contentGenerator: mockContentGenerator),
+    );
 
     await tester.enterText(find.byType(TextField), 'test prompt');
     await tester.testTextInput.receiveAction(TextInputAction.send);
-    mockAiClient.addTextResponse('AI response');
+    mockContentGenerator.addTextResponse('AI response');
     await tester.pumpAndSettle();
 
-    expect(mockAiClient.sendRequestCallCount, 1);
+    expect(mockContentGenerator.sendRequestCallCount, 1);
     expect(find.text('test prompt'), findsOneWidget);
     expect(find.text('AI response'), findsOneWidget);
   });
 
   testWidgets('Shows spinner while thinking', (WidgetTester tester) async {
-    final mockAiClient = FakeContentGenerator();
+    final mockContentGenerator = FakeContentGenerator();
     final completer = Completer<void>();
-    mockAiClient.sendRequestCompleter = completer;
-    await tester.pumpWidget(app.TravelApp(contentGenerator: mockAiClient));
+    mockContentGenerator.sendRequestCompleter = completer;
+    await tester.pumpWidget(
+      app.TravelApp(contentGenerator: mockContentGenerator),
+    );
 
     await tester.enterText(find.byType(TextField), 'test prompt');
     await tester.testTextInput.receiveAction(TextInputAction.send);
@@ -42,7 +46,7 @@ void main() {
 
     // Complete the response.
     completer.complete();
-    mockAiClient.addTextResponse('AI response');
+    mockContentGenerator.addTextResponse('AI response');
     await tester.pumpAndSettle();
 
     // The spinner should be gone.

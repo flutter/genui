@@ -81,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
       genUiManager: _genUiManager,
     );
     _uiAgent = UiAgent(
-      aiClient: _contentGenerator,
+      contentGenerator: _contentGenerator,
       genUiManager: _genUiManager,
     );
   }
