@@ -105,7 +105,7 @@ provider.
 
 1. Create a `GenUiManager`, and provide it with the catalog of widgets you want
    to make available to the agent.
-2. Create an `ContentGenerator`, and provide it with a system instruction and a set of
+2. Create a `ContentGenerator`, and provide it with a system instruction and a set of
    tools (functions you want the agent to be able to invoke). You should always
    include those provided by `GenUiManager`, but feel free to include others.
 3. Create a `GenUiConversation` using the instances of `ContentGenerator` and `GenUiManager`. Your
@@ -215,7 +215,7 @@ To receive and display generated UI:
                  itemBuilder: (context, index) {
                    // For each surface, create a GenUiSurface to display it.
                    final id = _surfaceIds[index];
-                   return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
+                   return GenUiSurface(host: _genUiManager, surfaceId: id);
                  },
                ),
              ),

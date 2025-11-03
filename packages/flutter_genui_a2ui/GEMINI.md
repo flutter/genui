@@ -12,7 +12,7 @@ The primary purpose of this package is to facilitate the creation of generative 
 
 ### `A2uiContentGenerator`
 
-This class implements the `ContentGenerator` interface from `flutter_genui`. It acts as the main bridge between the `UiAgent` and the A2UI server. It uses an internal `A2uiAgentConnector` to handle the low-level A2A communication.
+This class implements the `ContentGenerator` interface from `flutter_genui`. It acts as the main bridge between the `GenUiConversation` and the A2UI server. It uses an internal `A2uiAgentConnector` to handle the low-level A2A communication.
 
 - **Constructor:** Takes `serverUrl` (the A2A server endpoint) and `genUiManager` (the `GenUiManager` instance from `flutter_genui`). An optional `A2AClient` can be provided for testing.
 - **`generateContent` and `generateText`:** These methods are overridden to send user messages to the A2A server via the `A2uiAgentConnector`. UI updates are driven by the incoming A2UI stream, not direct return values from these methods.
@@ -35,7 +35,7 @@ A simple data class to hold metadata about the A2A agent, including its name, de
 ## File Layout
 
 - `lib/flutter_genui_a2ui.dart`: Exports the public API of the package (`A2uiContentGenerator`, `A2uiAgentConnector`, `AgentCard`).
-- `lib/src/a2ui_ai_client.dart`: Contains the `A2uiContentGenerator` implementation.
+- `lib/src/a2ui_content_generator.dart`: Contains the `A2uiContentGenerator` implementation.
 - `lib/src/a2ui_agent_connector.dart`: Contains the `A2uiAgentConnector` and `AgentCard` implementations.
-- `test/a2ui_client_test.dart`: Unit tests for `A2uiContentGenerator` and `A2uiAgentConnector`.
+- `test/a2ui_content_generator_test.dart`: Unit tests for `A2uiContentGenerator` and `A2uiAgentConnector`.
 - `example/`: Contains a sample Flutter application demonstrating the usage of the `flutter_genui_a2ui` package.

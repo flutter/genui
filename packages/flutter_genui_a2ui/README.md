@@ -7,7 +7,7 @@ An integration package for `flutter_genui` and the A2UI Streaming UI Protocol. T
 - Connects to an A2A (Agent-to-Agent) server.
 - Receives and processes A2UI (Agent-to-UI) protocol messages.
 - Renders dynamic user interfaces using `flutter_genui`'s `GenUiSurface`.
-- Provides an `A2uiContentGenerator` implementation for `flutter_genui`'s `UiAgent`.
+- Provides an `A2uiContentGenerator` implementation for `flutter_genui`'s `GenUiConversation`.
 
 ## Getting Started
 
@@ -28,9 +28,9 @@ To use this package, you need to:
 
 1.  Initialize a `GenUiManager` with your desired `Catalog`.
 2.  Create an `A2uiContentGenerator` instance, providing the A2A server URL and the `GenUiManager`.
-3.  Create a `UiAgent` instance with the `A2uiContentGenerator` and `GenUiManager`.
+3.  Create a `GenUiConversation` instance with the `A2uiContentGenerator` and `GenUiManager`.
 4.  Use a `GenUiSurface` widget in your Flutter application to render the AI-generated UI.
-5.  Send user messages to the `UiAgent` using `sendRequest`.
+5.  Send user messages to the `GenUiConversation` using `sendRequest`.
 
 Here's a basic example:
 
@@ -70,7 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GenUiManager _genUiManager =
       GenUiManager(catalog: CoreCatalogItems.asCatalog());
   late final A2uiContentGenerator _contentGenerator;
-  late final UiAgent _uiAgent;
+  late final GenUiConversation _uiAgent;
   final List<ChatMessage> _messages = [];
 
   @override
@@ -80,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
       serverUrl: Uri.parse('http://localhost:8080'), // Replace with your A2A server URL
       genUiManager: _genUiManager,
     );
-    _uiAgent = UiAgent(
+    _uiAgent = GenUiConversation(
       contentGenerator: _contentGenerator,
       genUiManager: _genUiManager,
     );
