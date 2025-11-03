@@ -53,8 +53,9 @@ final listingsBooker = CatalogItem(
   name: 'ListingsBooker',
   dataSchema: _schema,
   widgetBuilder: (context) {
-    final listingsBookerData =
-        _ListingsBookerData.fromMap(context.data as Map<String, Object?>);
+    final listingsBookerData = _ListingsBookerData.fromMap(
+      context.data as Map<String, Object?>,
+    );
 
     final itineraryNameNotifier = context.dataContext.subscribeToString(
       listingsBookerData.itineraryName,

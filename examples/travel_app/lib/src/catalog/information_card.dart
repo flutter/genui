@@ -83,8 +83,9 @@ final informationCard = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final cardData =
-        _InformationCardData.fromMap(context.data as Map<String, Object?>);
+    final cardData = _InformationCardData.fromMap(
+      context.data as Map<String, Object?>,
+    );
     final imageChild = cardData.imageChildId != null
         ? context.buildChild(cardData.imageChildId!)
         : null;

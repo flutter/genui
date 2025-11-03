@@ -129,8 +129,7 @@ final dateInputChip = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final datePickerData =
-        _DatePickerData.fromMap(context.data as JsonMap);
+    final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
     final notifier = context.dataContext.subscribeToString(
       datePickerData.value,
     );
