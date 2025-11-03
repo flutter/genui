@@ -118,12 +118,12 @@ final inputGroup = CatalogItem(
   ],
   name: 'InputGroup',
   dataSchema: _schema,
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final inputGroupData = _InputGroupData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
 
-    final notifier = context.dataContext.subscribeToString(
+    final notifier = itemContext.dataContext.subscribeToString(
       inputGroupData.submitLabel,
     );
 
@@ -134,7 +134,7 @@ final inputGroup = CatalogItem(
         (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
     return Card(
-      color: Theme.of(context.buildContext).colorScheme.primaryContainer,
+      color: Theme.of(itemContext.buildContext).colorScheme.primaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -143,7 +143,7 @@ final inputGroup = CatalogItem(
             Wrap(
               runSpacing: 16.0,
               spacing: 8.0,
-              children: children.map(context.buildChild).toList(),
+              children: children.map(itemContext.buildChild).toList(),
             ),
             const SizedBox(height: 16.0),
             ValueListenableBuilder<String?>(
@@ -152,13 +152,13 @@ final inputGroup = CatalogItem(
                 return ElevatedButton(
                   onPressed: () {
                     final resolvedContext = resolveContext(
-                      context.dataContext,
+                      itemContext.dataContext,
                       contextDefinition,
                     );
-                    context.dispatchEvent(
+                    itemContext.dispatchEvent(
                       UserActionEvent(
                         name: name,
-                        sourceComponentId: context.id,
+                        sourceComponentId: itemContext.id,
                         context: resolvedContext,
                       ),
                     );
