@@ -165,12 +165,12 @@ final textField = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
-    final textFieldData = _TextFieldData.fromMap(context.data as JsonMap);
+  widgetBuilder: (itemContext) {
+    final textFieldData = _TextFieldData.fromMap(itemContext.data as JsonMap);
     final valueRef = textFieldData.text;
     final path = valueRef?['path'] as String?;
-    final notifier = context.dataContext.subscribeToString(valueRef);
-    final labelNotifier = context.dataContext.subscribeToString(
+    final notifier = itemContext.dataContext.subscribeToString(valueRef);
+    final labelNotifier = itemContext.dataContext.subscribeToString(
       textFieldData.label,
     );
 
@@ -187,7 +187,7 @@ final textField = CatalogItem(
               validationRegexp: textFieldData.validationRegexp,
               onChanged: (newValue) {
                 if (path != null) {
-                  context.dataContext.update(DataPath(path), newValue);
+                  itemContext.dataContext.update(DataPath(path), newValue);
                 }
               },
               onSubmitted: (newValue) {
@@ -199,13 +199,13 @@ final textField = CatalogItem(
                 final contextDefinition =
                     (actionData['context'] as List<Object?>?) ?? <Object?>[];
                 final resolvedContext = resolveContext(
-                  context.dataContext,
+                  itemContext.dataContext,
                   contextDefinition,
                 );
-                context.dispatchEvent(
+                itemContext.dispatchEvent(
                   UserActionEvent(
                     name: actionName,
-                    sourceComponentId: context.id,
+                    sourceComponentId: itemContext.id,
                     context: resolvedContext,
                   ),
                 );
