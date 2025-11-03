@@ -4,7 +4,7 @@ This package provides the integration between `flutter_genui` and the Firebase A
 
 ## Features
 
-- **FirebaseAiClient:** An implementation of `AiClient` that connects to the Firebase AI SDK.
+- **FirebaseAiContentGenerator:** An implementation of `ContentGenerator` that connects to the Firebase AI SDK.
 - **GeminiContentConverter:** Converts between the generic `ChatMessage` and the `firebase_ai` specific `Content` classes.
 - **GeminiSchemaAdapter:** Adapts schemas from `json_schema_builder` to the `firebase_ai` format.
 
@@ -12,17 +12,18 @@ This package provides the integration between `flutter_genui` and the Firebase A
 
 To use this package, you will need to have a Firebase project set up and the Firebase AI SDK configured.
 
-Then, you can create an instance of `FirebaseAiClient` and pass it to your `GenUiConversation`:
+Then, you can create an instance of `FirebaseAiContentGenerator` and pass it to your `GenUiConversation`:
 
 ```dart
+final catalog = CoreCatalogItems.asCatalog();
 final genUiManager = GenUiManager(catalog: catalog);
-final aiClient = FirebaseAiClient(
+final contentGenerator = FirebaseAiContentGenerator(
+  catalog: catalog,
   systemInstruction: 'You are a helpful assistant.',
-  tools: genUiManager.getTools(),
 );
 final genUiConversation = GenUiConversation(
   genUiManager: genUiManager,
-  aiClient: aiClient,
+  contentGenerator: contentGenerator,
   ...
 );
 ```

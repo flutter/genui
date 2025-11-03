@@ -65,15 +65,14 @@ class _MyHomePageState extends State<MyHomePage> {
     final genUiManager = GenUiManager(
       catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
     );
-    final contentGenerator = FirebaseContentGenerator(
-      apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
+    final contentGenerator = FirebaseAiContentGenerator(
+      catalog: genUiManager.catalog,
       systemInstruction: '''
           You are an expert in creating funny riddles. Every time I give you a
           word, you should generate a RiddleCard that displays one new riddle
           related to that word. Each riddle should have both a question and an
           answer.
           ''',
-      tools: genUiManager.getTools(),
     );
     conversation = GenUiConversation(
       contentGenerator: contentGenerator,
