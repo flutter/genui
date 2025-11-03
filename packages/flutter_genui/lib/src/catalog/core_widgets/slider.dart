@@ -50,16 +50,16 @@ extension type _SliderData.fromMap(JsonMap _json) {
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
-  widgetBuilder: (context) {
+  widgetBuilder: (CatalogItemContext context) {
     final sliderData = _SliderData.fromMap(context.data as JsonMap);
     final valueNotifier = context.dataContext.subscribeToValue<num>(
-      DataPath(sliderData.value['path'] as String),
-      context.context,
+      sliderData.value,
+      'literalNumber',
     );
 
     return ValueListenableBuilder<num?>(
       valueListenable: valueNotifier,
-      builder: (bcontext, value, child) {
+      builder: (_, value, child) {
         return Slider(
           value: (value ?? 0.0).toDouble(),
           min: sliderData.minValue,
