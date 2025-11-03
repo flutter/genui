@@ -58,10 +58,10 @@ final text = CatalogItem(
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
-      builder: (bcontext, currentValue, child) {
+      builder: (context, currentValue, child) {
         return Text(
           currentValue ?? '',
-          style: Theme.of(bcontext).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium,
         );
       },
     );

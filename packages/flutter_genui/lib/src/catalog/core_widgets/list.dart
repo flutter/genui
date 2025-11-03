@@ -69,14 +69,14 @@ final list = CatalogItem(
         );
       },
       templateListWidgetBuilder:
-          (bcontext, Map<String, Object?> data, componentId, dataBinding) {
+          (context, Map<String, Object?> data, componentId, dataBinding) {
             final values = data.values.toList();
             final keys = data.keys.toList();
             return ListView.builder(
               shrinkWrap: true,
               scrollDirection: direction,
               itemCount: values.length,
-              itemBuilder: (bcontext, index) {
+              itemBuilder: (context, index) {
                 final itemDataContext = itemContext.dataContext.nested(
                   DataPath('$dataBinding/${keys[index]}'),
                 );

@@ -176,10 +176,10 @@ final textField = CatalogItem(
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
-      builder: (bcontext, currentValue, child) {
+      builder: (context, currentValue, child) {
         return ValueListenableBuilder(
           valueListenable: labelNotifier,
-          builder: (bcontext, label, child) {
+          builder: (context, label, child) {
             return _TextField(
               initialValue: currentValue ?? '',
               label: label,

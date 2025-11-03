@@ -58,7 +58,7 @@ final tabs = CatalogItem(
               );
               return ValueListenableBuilder<String?>(
                 valueListenable: titleNotifier,
-                builder: (bcontext, title, child) {
+                builder: (context, title, child) {
                   return Tab(text: title ?? '');
                 },
               );

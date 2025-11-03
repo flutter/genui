@@ -70,7 +70,7 @@ final multipleChoice = CatalogItem(
 
     return ValueListenableBuilder<List<Object?>?>(
       valueListenable: selectionsNotifier,
-      builder: (bcontext, selections, child) {
+      builder: (context, selections, child) {
         return Column(
           children: multipleChoiceData.options.map((option) {
             final labelNotifier = itemContext.dataContext.subscribeToString(
@@ -79,7 +79,7 @@ final multipleChoice = CatalogItem(
             final value = option['value'] as String;
             return ValueListenableBuilder<String?>(
               valueListenable: labelNotifier,
-              builder: (bcontext, label, child) {
+              builder: (context, label, child) {
                 return CheckboxListTile(
                   title: Text(label ?? ''),
                   value: selections?.contains(value) ?? false,

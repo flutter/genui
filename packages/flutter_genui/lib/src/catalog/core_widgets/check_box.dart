@@ -50,10 +50,10 @@ final checkBox = CatalogItem(
     );
     return ValueListenableBuilder<String?>(
       valueListenable: labelNotifier,
-      builder: (bcontext, label, child) {
+      builder: (context, label, child) {
         return ValueListenableBuilder<bool?>(
           valueListenable: valueNotifier,
-          builder: (bcontext, value, child) {
+          builder: (context, value, child) {
             return CheckboxListTile(
               title: Text(label ?? ''),
               value: value ?? false,

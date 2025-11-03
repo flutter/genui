@@ -129,7 +129,7 @@ final column = CatalogItem(
               .toList(),
         );
       },
-      templateListWidgetBuilder: (bcontext, list, componentId, dataBinding) {
+      templateListWidgetBuilder: (context, list, componentId, dataBinding) {
         return Column(
           mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
           crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),

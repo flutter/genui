@@ -69,7 +69,7 @@ final dateTimeInput = CatalogItem(
 
     return ValueListenableBuilder<String?>(
       valueListenable: valueNotifier,
-      builder: (bcontext, value, child) {
+      builder: (context, value, child) {
         return ListTile(
           title: Text(value ?? 'Select a date/time'),
           onTap: () async {

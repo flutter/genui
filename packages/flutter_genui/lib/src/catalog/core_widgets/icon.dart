@@ -111,7 +111,7 @@ final icon = CatalogItem(
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
-      builder: (bcontext, currentValue, child) {
+      builder: (context, currentValue, child) {
         final iconName = currentValue ?? '';
         final icon =
             AvailableIcons.fromName(iconName)?.iconData ?? Icons.broken_image;

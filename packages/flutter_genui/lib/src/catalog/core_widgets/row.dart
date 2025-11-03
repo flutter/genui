@@ -129,7 +129,7 @@ final row = CatalogItem(
               .toList(),
         );
       },
-      templateListWidgetBuilder: (bcontext, list, componentId, dataBinding) {
+      templateListWidgetBuilder: (context, list, componentId, dataBinding) {
         return Row(
           mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
           crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),

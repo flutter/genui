@@ -70,7 +70,7 @@ final image = CatalogItem(
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
-      builder: (bcontext, currentLocation, child) {
+      builder: (context, currentLocation, child) {
         final location = currentLocation;
         if (location == null || location.isEmpty) {
           genUiLogger.warning(
