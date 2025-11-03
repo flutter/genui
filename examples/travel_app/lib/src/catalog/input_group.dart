@@ -119,7 +119,8 @@ final inputGroup = CatalogItem(
   name: 'InputGroup',
   dataSchema: _schema,
   widgetBuilder: (context) {
-    final inputGroupData = _InputGroupData.fromMap(context.data);
+    final inputGroupData =
+        _InputGroupData.fromMap(context.data as Map<String, Object?>);
 
     final notifier = context.dataContext.subscribeToString(
       inputGroupData.submitLabel,

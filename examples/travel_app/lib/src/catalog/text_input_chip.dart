@@ -72,7 +72,8 @@ final textInputChip = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final textInputChipData = _TextInputChipData.fromMap(context.data);
+    final textInputChipData =
+        _TextInputChipData.fromMap(context.data as Map<String, Object?>);
 
     final valueRef = textInputChipData.value;
     final path = valueRef?['path'] as String?;

@@ -220,7 +220,8 @@ final itinerary = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final itineraryData = _ItineraryData.fromMap(context.data);
+    final itineraryData =
+        _ItineraryData.fromMap(context.data as Map<String, Object?>);
 
     final titleNotifier = context.dataContext.subscribeToString(
       itineraryData.title,

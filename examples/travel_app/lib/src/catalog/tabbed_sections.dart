@@ -103,7 +103,8 @@ final tabbedSections = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final tabbedSectionsData = _TabbedSectionsData.fromMap(context.data);
+    final tabbedSectionsData =
+        _TabbedSectionsData.fromMap(context.data as Map<String, Object?>);
     final sections = tabbedSectionsData.sections.map((section) {
       final titleNotifier = context.dataContext.subscribeToString(
         section.title,

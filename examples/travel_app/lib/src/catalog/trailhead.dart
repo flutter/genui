@@ -71,7 +71,8 @@ final trailhead = CatalogItem(
     ''',
   ],
   widgetBuilder: (context) {
-    final trailheadData = _TrailheadData.fromMap(context.data);
+    final trailheadData =
+        _TrailheadData.fromMap(context.data as Map<String, Object?>);
     return _Trailhead(
       topics: trailheadData.topics,
       action: trailheadData.action,
