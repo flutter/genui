@@ -118,71 +118,61 @@ final inputGroup = CatalogItem(
   ],
   name: 'InputGroup',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final inputGroupData = _InputGroupData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: (context) {
+    final inputGroupData = _InputGroupData.fromMap(context.data);
 
-        final notifier = dataContext.subscribeToString(
-          inputGroupData.submitLabel,
-        );
+    final notifier = context.dataContext.subscribeToString(
+      inputGroupData.submitLabel,
+    );
 
-        final children = inputGroupData.children;
-        final actionData = inputGroupData.action;
-        final name = actionData['name'] as String;
-        final contextDefinition =
-            (actionData['context'] as List<Object?>?) ?? <Object?>[];
+    final children = inputGroupData.children;
+    final actionData = inputGroupData.action;
+    final name = actionData['name'] as String;
+    final contextDefinition =
+        (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
-        return Card(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  runSpacing: 16.0,
-                  spacing: 8.0,
-                  children: children.map(buildChild).toList(),
-                ),
-                const SizedBox(height: 16.0),
-                ValueListenableBuilder<String?>(
-                  valueListenable: notifier,
-                  builder: (context, submitLabel, child) {
-                    return ElevatedButton(
-                      onPressed: () {
-                        final resolvedContext = resolveContext(
-                          dataContext,
-                          contextDefinition,
-                        );
-                        dispatchEvent(
-                          UserActionEvent(
-                            name: name,
-                            sourceComponentId: id,
-                            context: resolvedContext,
-                          ),
-                        );
-                      },
-                      child: Text(submitLabel ?? ''),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
+    return Card(
+      color: Theme.of(context.buildContext).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              runSpacing: 16.0,
+              spacing: 8.0,
+              children: children.map(context.buildChild).toList(),
+            ),
+            const SizedBox(height: 16.0),
+            ValueListenableBuilder<String?>(
+              valueListenable: notifier,
+              builder: (builderContext, submitLabel, child) {
+                return ElevatedButton(
+                  onPressed: () {
+                    final resolvedContext = resolveContext(
+                      context.dataContext,
+                      contextDefinition,
+                    );
+                    context.dispatchEvent(
+                      UserActionEvent(
+                        name: name,
+                        sourceComponentId: context.id,
+                        context: resolvedContext,
                       ),
                     );
                   },
-                ),
-              ],
+                  child: Text(submitLabel ?? ''),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(builderContext).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                );
+              },
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
+    );
+  },
 );
