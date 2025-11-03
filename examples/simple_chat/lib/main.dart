@@ -24,7 +24,7 @@ enum AiBackend {
 
 /// Configuration for which AI backend to use.
 /// Change this value to switch between backends.
-const AiBackend AI_BACKEND = AiBackend.google;
+const AiBackend aiBackend = AiBackend.google;
 
 /// API key for Google Generative AI (only needed if using google backend).
 /// Replace with your actual API key from https://aistudio.google.com/app/apikey
@@ -34,7 +34,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Only initialize Firebase if using firebase backend
-  if (AI_BACKEND == AiBackend.firebase) {
+  if (aiBackend == AiBackend.firebase) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
@@ -87,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
         '${GenUiPromptFragments.basicChat}';
 
     // Create the appropriate content generator based on configuration
-    final ContentGenerator contentGenerator = switch (AI_BACKEND) {
+    final ContentGenerator contentGenerator = switch () {
       AiBackend.google => () {
         if (googleApiKey.isEmpty) {
           throw Exception(
@@ -140,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = switch (AI_BACKEND) {
+    final title = switch (aiBackend) {
       AiBackend.google => 'Chat with Google Generative AI',
       AiBackend.firebase => 'Chat with Firebase AI',
     };
