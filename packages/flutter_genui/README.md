@@ -49,7 +49,7 @@ class YourContentGenerator implements ContentGenerator {
   @override
   ValueListenable<bool> get isProcessing => ValueNotifier(false); // Replace
   @override
-  Future<void> sendRequest(Iterable<ChatMessage> messages) async { /* ... */ }
+  Future<void> sendRequest(ChatMessage message, {Iterable<ChatMessage>? history}) async { /* ... */ }
   @override
   void dispose() { /* ... */ }
 }
@@ -116,7 +116,7 @@ class _MyAppState extends State<MyApp> {
                 itemCount: _surfaceIds.length,
                 itemBuilder: (context, index) {
                   return GenUiSurface(
-                    host: _genUiConversation.host,
+                                         host: _genUiConversation.host,
                     surfaceId: _surfaceIds[index],
                   );
                 },
@@ -159,9 +159,9 @@ graph TD
     end
 
     UserInput -- "calls sendRequest()" --> GenUiConversation;
-    GenUiConversation -- "manages conversation and sends prompt" --> ContentGenerator;
-    ContentGenerator -- "returns tool calls" --> GenUiConversation;
-    GenUiConversation -- "executes tools" --> GenUiManager;
+    GenUiConversation -- "sends prompt" --> ContentGenerator;
+    ContentGenerator -- "returns A2UI messages" --> GenUiConversation;
+    GenUiConversation -- "handles messages" --> GenUiManager;
     GenUiManager -- "notifies of updates" --> GenUiSurface;
     GenUiSurface -- "renders UI" --> UserInteraction;
     UserInteraction -- "creates event" --> GenUiSurface;

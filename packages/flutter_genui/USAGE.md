@@ -61,11 +61,12 @@ Logic, follow these instructions:
        git:
          url: https://github.com/flutter/genui.git
          path: packages/flutter_genui
-         ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+         ref: main
      flutter_genui_firebase_ai:
        git:
          url: https://github.com/flutter/genui.git
          path: packages/flutter_genui_firebase_ai
+         ref: main
    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,
@@ -150,7 +151,7 @@ provider.
      void dispose() {
        _textController.dispose();
        _genUiConversation.dispose();
-       _genUiManager.dispose();
+
        super.dispose();
      }
    }
@@ -215,7 +216,7 @@ To receive and display generated UI:
                  itemBuilder: (context, index) {
                    // For each surface, create a GenUiSurface to display it.
                    final id = _surfaceIds[index];
-                   return GenUiSurface(host: _genUiManager, surfaceId: id);
+                   return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
                  },
                ),
              ),
@@ -270,7 +271,7 @@ dependencies:
     git:
       url: https://github.com/flutter/genui.git
       path: packages/json_schema_builder
-      ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+
 ```
 
 #### Create the new widget's schema
