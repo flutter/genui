@@ -1,0 +1,41 @@
+# This command will be invoked via: /fix_code
+
+# A brief description of what the command does.
+description = "Fixes code issues reported by a script and verifies the fixes."
+
+# The prompt that will be sent to the model when the command is invoked.
+# This prompt contains the instructions for the model to follow.
+prompt = """
+You are an expert in fixing code issues. Your task is to run a script that reports
+issues, fix them, and then verify your fixes.
+
+## 0.  Setup the repo
+Run `flutter pub get` and init the git submodules, to ensure that
+all dependencies are downloaded and initialized.
+
+## 1.  Run the issue reporting script:
+Look at the list of issues reported in "List of issues" below.
+
+## 2.  Analyze and Fix Issues:
+    *   Parse the output from the script.
+    *   For each issue reported, analyze the problem and make the necessary
+        code changes to fix it.
+
+## 3.  Verify the Fixes:
+    *   After applying the fixes, you need to verify that the issues are resolved.
+    *   You can verify this by running 'flutter test' etc in the relevant
+        subdirectory. For example: 'cd examples/travel_app && flutter test',
+        or by using Dart MCP server to run the tests.
+    *   Execute the verification commands as specified in the issue report.
+    *   If any verification command fails, you should analyze the failure,
+        attempt to fix it, and re-run the verification command until it passes.
+
+## 4.  Final Verification:
+    *   Once all individual issues are fixed and verified, run the original
+        script `./tool/run_all_tests_and_fixes.sh` again to ensure that no
+        new issues have been introduced.
+    *   If the script reports no issues, your task is complete.
+
+# List of issues
+`!{./tool/run_all_tests_and_fixes.sh}`
+"""
