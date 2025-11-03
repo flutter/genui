@@ -70,27 +70,16 @@ final trailhead = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final trailheadData = _TrailheadData.fromMap(
-          data as Map<String, Object?>,
-        );
-        return _Trailhead(
-          topics: trailheadData.topics,
-          action: trailheadData.action,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          dataContext: dataContext,
-        );
-      },
+  widgetBuilder: (context) {
+    final trailheadData = _TrailheadData.fromMap(context.data);
+    return _Trailhead(
+      topics: trailheadData.topics,
+      action: trailheadData.action,
+      widgetId: context.id,
+      dispatchEvent: context.dispatchEvent,
+      dataContext: context.dataContext,
+    );
+  },
 );
 
 class _Trailhead extends StatelessWidget {

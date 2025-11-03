@@ -65,48 +65,39 @@ final _schema = S.object(
 final travelCarousel = CatalogItem(
   name: 'TravelCarousel',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final carouselData = _TravelCarouselData.fromMap(
-          (data as Map).cast<String, Object?>(),
-        );
+  widgetBuilder: (context) {
+    final carouselData =
+        _TravelCarouselData.fromMap(context.data);
 
-        final titleNotifier = dataContext.subscribeToString(carouselData.title);
+    final titleNotifier =
+        context.dataContext.subscribeToString(carouselData.title);
 
-        final items = carouselData.items.map((item) {
-          final descriptionNotifier = dataContext.subscribeToString(
-            item.description,
-          );
+    final items = carouselData.items.map((item) {
+      final descriptionNotifier = context.dataContext.subscribeToString(
+        item.description,
+      );
 
-          return _TravelCarouselItemData(
-            descriptionNotifier: descriptionNotifier,
-            imageChild: buildChild(item.imageChildId),
-            listingSelectionId: item.listingSelectionId,
-            action: item.action,
-          );
-        }).toList();
+      return _TravelCarouselItemData(
+        descriptionNotifier: descriptionNotifier,
+        imageChild: context.buildChild(item.imageChildId),
+        listingSelectionId: item.listingSelectionId,
+        action: item.action,
+      );
+    }).toList();
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: titleNotifier,
-          builder: (context, title, _) {
-            return _TravelCarousel(
-              title: title,
-              items: items,
-              widgetId: id,
-              dispatchEvent: dispatchEvent,
-              dataContext: dataContext,
-            );
-          },
+    return ValueListenableBuilder<String?>(
+      valueListenable: titleNotifier,
+      builder: (builderContext, title, _) {
+        return _TravelCarousel(
+          title: title,
+          items: items,
+          widgetId: context.id,
+          dispatchEvent: context.dispatchEvent,
+          dataContext: context.dataContext,
         );
       },
+    );
+  },
   exampleData: [_inspirationExample, _hotelExample],
 );
 
