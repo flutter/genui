@@ -62,16 +62,8 @@ class Catalog {
   /// * [dispatchEvent]: A callback to send UI events, like button presses or
   ///   value changes, back to the model.
   /// * [context]: The build context for the widget.
-  Widget buildWidget({
-    required String id,
-    required JsonMap widgetData,
-    required ChildBuilderCallback buildChild,
-    required DispatchEventCallback dispatchEvent,
-    required BuildContext context,
-    required DataContext dataContext,
-    required GetComponentCallback getComponent,
-    required String surfaceId,
-  }) {
+  Widget buildWidget(CatalogItemContext itemContext) {
+    final widgetData = itemContext.data as JsonMap;
     final widgetType = widgetData.keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
@@ -83,14 +75,17 @@ class Catalog {
     return item.widgetBuilder(
       CatalogItemContext(
         data: JsonMap.from(widgetData[widgetType]! as Map),
-        id: id,
+        id: itemContext.id,
         buildChild: (String childId, [DataContext? childDataContext]) =>
-            buildChild(childId, childDataContext ?? dataContext),
-        dispatchEvent: dispatchEvent,
-        buildContext: context,
-        dataContext: dataContext,
-        getComponent: getComponent,
-        surfaceId: surfaceId,
+            itemContext.buildChild(
+              childId,
+              childDataContext ?? itemContext.dataContext,
+            ),
+        dispatchEvent: itemContext.dispatchEvent,
+        buildContext: itemContext.buildContext,
+        dataContext: itemContext.dataContext,
+        getComponent: itemContext.getComponent,
+        surfaceId: itemContext.surfaceId,
       ),
     );
   }
