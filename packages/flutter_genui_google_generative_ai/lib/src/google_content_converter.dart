@@ -103,7 +103,7 @@ class GoogleContentConverter {
                 // ToolResultPart will be removed in the future.
                 // Function calling history is managed within the
                 // Content Generator.
-                name: "",
+                name: '',
                 // The result from ToolResultPart is a JSON string
                 response: protobuf.Struct.fromJson(
                   jsonDecode(part.result) as Map<String, Object?>,
@@ -130,7 +130,7 @@ class GoogleContentConverter {
               // ToolResultPart will be removed in the future.
               // Function calling history is managed within the
               // Content Generator.
-              name: "",
+              name: '',
               response: protobuf.Struct.fromJson(
                 jsonDecode(part.result) as Map<String, Object?>,
               ),

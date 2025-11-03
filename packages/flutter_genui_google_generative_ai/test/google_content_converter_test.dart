@@ -88,7 +88,7 @@ void main() {
     test('toGoogleAiContent converts ToolCallPart', () {
       final messages = [
         AiTextMessage([
-          ToolCallPart(
+          const ToolCallPart(
             id: 'call-1',
             toolName: 'calculator',
             arguments: {'operation': 'add', 'a': 1, 'b': 2},

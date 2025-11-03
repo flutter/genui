@@ -490,7 +490,7 @@ With functions:
             return null;
           } else {
             // Extract text from parts
-            String text = '';
+            var text = '';
             if (candidate.content?.parts != null) {
               final textParts = candidate.content!.parts!
                   .where((google_ai.Part p) => p.text != null)

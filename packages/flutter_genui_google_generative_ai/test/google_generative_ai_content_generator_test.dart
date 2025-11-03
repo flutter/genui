@@ -15,7 +15,7 @@ import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 void main() {
   group('GoogleGenerativeAiContentGenerator', () {
     test('constructor creates instance with required parameters', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('constructor accepts custom model name', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -41,7 +41,7 @@ void main() {
     });
 
     test('constructor accepts custom output tool name', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -53,7 +53,7 @@ void main() {
     });
 
     test('constructor accepts system instruction', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -65,7 +65,7 @@ void main() {
     });
 
     test('constructor accepts additional tools', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
       final tool = genui.DynamicAiTool<Map<String, Object?>>(
         name: 'testTool',
         description: 'A test tool',
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('streams are accessible', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -97,7 +97,7 @@ void main() {
     });
 
     test('isProcessing starts as false', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -108,7 +108,7 @@ void main() {
     });
 
     test('dispose closes all streams', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
@@ -116,11 +116,11 @@ void main() {
       );
 
       // Should not throw
-      expect(() => generator.dispose(), returnsNormally);
+      expect(generator.dispose, returnsNormally);
     });
 
     test('token usage starts at zero', () {
-      final catalog = genui.Catalog(<genui.CatalogItem>[]);
+      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
 
       final generator = GoogleGenerativeAiContentGenerator(
         catalog: catalog,
