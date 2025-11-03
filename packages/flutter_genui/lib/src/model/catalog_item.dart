@@ -23,7 +23,7 @@ typedef ChildBuilderCallback =
 typedef ExampleBuilderCallback = String Function();
 
 /// A callback that builds a widget for a catalog item.
-typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext context);
+typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext itemContext);
 
 class CatalogItemContext {
   CatalogItemContext({
