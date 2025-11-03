@@ -69,7 +69,7 @@ final button = CatalogItem(
         (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
     genUiLogger.info('Building Button with child: ${buttonData.child}');
-    final colorScheme = Theme.of(context.context).colorScheme;
+    final colorScheme = Theme.of(context.buildContext).colorScheme;
     final primary = buttonData.primary;
 
     return ElevatedButton(

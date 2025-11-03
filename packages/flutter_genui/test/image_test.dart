@@ -30,7 +30,7 @@ void main() {
                   id: 'test_image',
                   buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},
-                  context: context,
+                  buildContext: context,
                   dataContext: DataContext(DataModel(), '/'),
                   getComponent: (String componentId) => null,
                 ),

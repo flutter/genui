@@ -31,7 +31,7 @@ class CatalogItemContext {
     required this.id,
     required this.buildChild,
     required this.dispatchEvent,
-    required this.context,
+    required this.buildContext,
     required this.dataContext,
     required this.getComponent,
   });
@@ -40,7 +40,7 @@ class CatalogItemContext {
   final String id;
   final ChildBuilderCallback buildChild;
   final DispatchEventCallback dispatchEvent;
-  final BuildContext context;
+  final BuildContext buildContext;
   final DataContext dataContext;
   final GetComponentCallback getComponent;
 }

@@ -86,7 +86,7 @@ class Catalog {
         buildChild: (String childId, [DataContext? childDataContext]) =>
             buildChild(childId, childDataContext ?? dataContext),
         dispatchEvent: dispatchEvent,
-        context: context,
+        buildContext: context,
         dataContext: dataContext,
         getComponent: getComponent,
       ),

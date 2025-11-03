@@ -79,7 +79,7 @@ final dateTimeInput = CatalogItem(
             }
             if (dateTimeInputData.enableDate) {
               final date = await showDatePicker(
-                context: context.context,
+                context: context.buildContext,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
@@ -93,13 +93,13 @@ final dateTimeInput = CatalogItem(
             }
             if (dateTimeInputData.enableTime) {
               final time = await showTimePicker(
-                context: context.context,
+                context: context.buildContext,
                 initialTime: TimeOfDay.now(),
               );
               if (time != null) {
                 context.dataContext.update(
                   DataPath(path),
-                  time.format(context.context),
+                  time.format(context.buildContext),
                 );
               }
             }
