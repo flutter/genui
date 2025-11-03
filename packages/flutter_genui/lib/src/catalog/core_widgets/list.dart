@@ -51,16 +51,16 @@ extension type _ListData.fromMap(JsonMap _json) {
 final list = CatalogItem(
   name: 'List',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final listData = _ListData.fromMap(context.data as JsonMap);
+  widgetBuilder: (itemContext) {
+    final listData = _ListData.fromMap(itemContext.data as JsonMap);
     final direction = listData.direction == 'horizontal'
         ? Axis.horizontal
         : Axis.vertical;
     return ComponentChildrenBuilder(
       childrenData: listData.children,
-      dataContext: context.dataContext,
-      buildChild: context.buildChild,
-      getComponent: context.getComponent,
+      dataContext: itemContext.dataContext,
+      buildChild: itemContext.buildChild,
+      getComponent: itemContext.getComponent,
       explicitListBuilder: (childIds, buildChild, getComponent, dataContext) {
         return ListView(
           shrinkWrap: true,
@@ -77,10 +77,10 @@ final list = CatalogItem(
               scrollDirection: direction,
               itemCount: values.length,
               itemBuilder: (bcontext, index) {
-                final itemDataContext = context.dataContext.nested(
+                final itemDataContext = itemContext.dataContext.nested(
                   DataPath('$dataBinding/${keys[index]}'),
                 );
-                return context.buildChild(componentId, itemDataContext);
+                return itemContext.buildChild(componentId, itemDataContext);
               },
             );
           },

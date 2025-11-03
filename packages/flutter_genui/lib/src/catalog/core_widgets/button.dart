@@ -60,16 +60,16 @@ extension type _ButtonData.fromMap(JsonMap _json) {
 final button = CatalogItem(
   name: 'Button',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final buttonData = _ButtonData.fromMap(context.data as JsonMap);
-    final child = context.buildChild(buttonData.child);
+  widgetBuilder: (itemContext) {
+    final buttonData = _ButtonData.fromMap(itemContext.data as JsonMap);
+    final child = itemContext.buildChild(buttonData.child);
     final actionData = buttonData.action;
     final actionName = actionData['name'] as String;
     final contextDefinition =
         (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
     genUiLogger.info('Building Button with child: ${buttonData.child}');
-    final colorScheme = Theme.of(context.buildContext).colorScheme;
+    final colorScheme = Theme.of(itemContext.buildContext).colorScheme;
     final primary = buttonData.primary;
 
     return ElevatedButton(
@@ -81,13 +81,13 @@ final button = CatalogItem(
       ),
       onPressed: () {
         final resolvedContext = resolveContext(
-          context.dataContext,
+          itemContext.dataContext,
           contextDefinition,
         );
-        context.dispatchEvent(
+        itemContext.dispatchEvent(
           UserActionEvent(
             name: actionName,
-            sourceComponentId: context.id,
+            sourceComponentId: itemContext.id,
             context: resolvedContext,
           ),
         );

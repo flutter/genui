@@ -39,9 +39,10 @@ extension type _HeadingData.fromMap(JsonMap _json) {
 final heading = CatalogItem(
   name: 'Heading',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final headingData = _HeadingData.fromMap(context.data as JsonMap);
-    final notifier = context.dataContext.subscribeToString(headingData.text);
+  widgetBuilder: (itemContext) {
+    final headingData = _HeadingData.fromMap(itemContext.data as JsonMap);
+    final notifier =
+        itemContext.dataContext.subscribeToString(headingData.text);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,

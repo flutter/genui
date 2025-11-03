@@ -40,12 +40,12 @@ extension type _CheckBoxData.fromMap(JsonMap _json) {
 final checkBox = CatalogItem(
   name: 'CheckBox',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final checkBoxData = _CheckBoxData.fromMap(context.data as JsonMap);
-    final labelNotifier = context.dataContext.subscribeToString(
+  widgetBuilder: (itemContext) {
+    final checkBoxData = _CheckBoxData.fromMap(itemContext.data as JsonMap);
+    final labelNotifier = itemContext.dataContext.subscribeToString(
       checkBoxData.label,
     );
-    final valueNotifier = context.dataContext.subscribeToBool(
+    final valueNotifier = itemContext.dataContext.subscribeToBool(
       checkBoxData.value,
     );
     return ValueListenableBuilder<String?>(
@@ -60,7 +60,7 @@ final checkBox = CatalogItem(
               onChanged: (newValue) {
                 final path = checkBoxData.value['path'] as String?;
                 if (path != null) {
-                  context.dataContext.update(DataPath(path), newValue);
+                  itemContext.dataContext.update(DataPath(path), newValue);
                 }
               },
             );

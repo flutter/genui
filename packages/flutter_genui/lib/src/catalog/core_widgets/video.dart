@@ -28,7 +28,7 @@ final _schema = S.object(
 final video = CatalogItem(
   name: 'Video',
   dataSchema: _schema,
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),
       child: const Placeholder(child: Center(child: Text('Video'))),

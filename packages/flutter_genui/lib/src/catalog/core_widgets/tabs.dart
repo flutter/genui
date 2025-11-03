@@ -45,15 +45,15 @@ extension type _TabsData.fromMap(JsonMap _json) {
 final tabs = CatalogItem(
   name: 'Tabs',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final tabsData = _TabsData.fromMap(context.data as JsonMap);
+  widgetBuilder: (itemContext) {
+    final tabsData = _TabsData.fromMap(itemContext.data as JsonMap);
     return DefaultTabController(
       length: tabsData.tabItems.length,
       child: Column(
         children: [
           TabBar(
             tabs: tabsData.tabItems.map((tabItem) {
-              final titleNotifier = context.dataContext.subscribeToString(
+              final titleNotifier = itemContext.dataContext.subscribeToString(
                 tabItem['title'] as JsonMap,
               );
               return ValueListenableBuilder<String?>(
@@ -67,7 +67,7 @@ final tabs = CatalogItem(
           Expanded(
             child: TabBarView(
               children: tabsData.tabItems.map((tabItem) {
-                return context.buildChild(tabItem['child'] as String);
+                return itemContext.buildChild(tabItem['child'] as String);
               }).toList(),
             ),
           ),

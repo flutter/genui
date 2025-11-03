@@ -60,11 +60,11 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
 final multipleChoice = CatalogItem(
   name: 'MultipleChoice',
   dataSchema: _schema,
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final multipleChoiceData = _MultipleChoiceData.fromMap(
-      context.data as JsonMap,
+      itemContext.data as JsonMap,
     );
-    final selectionsNotifier = context.dataContext.subscribeToObjectArray(
+    final selectionsNotifier = itemContext.dataContext.subscribeToObjectArray(
       multipleChoiceData.selections,
     );
 
@@ -73,7 +73,7 @@ final multipleChoice = CatalogItem(
       builder: (bcontext, selections, child) {
         return Column(
           children: multipleChoiceData.options.map((option) {
-            final labelNotifier = context.dataContext.subscribeToString(
+            final labelNotifier = itemContext.dataContext.subscribeToString(
               option['label'] as JsonMap,
             );
             final value = option['value'] as String;
@@ -95,7 +95,8 @@ final multipleChoice = CatalogItem(
                     } else {
                       newSelections.remove(value);
                     }
-                    context.dataContext.update(DataPath(path), newSelections);
+                    itemContext.dataContext
+                        .update(DataPath(path), newSelections);
                   },
                 );
               },

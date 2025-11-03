@@ -90,8 +90,8 @@ enum AvailableIcons {
 final icon = CatalogItem(
   name: 'Icon',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final iconData = _IconData.fromMap(context.data as JsonMap);
+  widgetBuilder: (itemContext) {
+    final iconData = _IconData.fromMap(itemContext.data as JsonMap);
     final literalName = iconData.literalName;
     final namePath = iconData.namePath;
 
@@ -105,7 +105,8 @@ final icon = CatalogItem(
       return const Icon(Icons.broken_image);
     }
 
-    final notifier = context.dataContext.subscribe<String>(DataPath(namePath));
+    final notifier =
+        itemContext.dataContext.subscribe<String>(DataPath(namePath));
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,

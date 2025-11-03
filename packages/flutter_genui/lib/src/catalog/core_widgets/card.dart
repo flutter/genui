@@ -33,9 +33,9 @@ extension type _CardData.fromMap(JsonMap _json) {
 final card = CatalogItem(
   name: 'Card',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final cardData = _CardData.fromMap(context.data as JsonMap);
-    return Card(child: context.buildChild(cardData.child));
+  widgetBuilder: (itemContext) {
+    final cardData = _CardData.fromMap(itemContext.data as JsonMap);
+    return Card(child: itemContext.buildChild(cardData.child));
   },
   exampleData: [
     () => '''

@@ -32,8 +32,8 @@ extension type _DividerData.fromMap(JsonMap _json) {
 final divider = CatalogItem(
   name: 'Divider',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final dividerData = _DividerData.fromMap(context.data as JsonMap);
+  widgetBuilder: (itemContext) {
+    final dividerData = _DividerData.fromMap(itemContext.data as JsonMap);
     if (dividerData.axis == 'vertical') {
       return const VerticalDivider();
     }

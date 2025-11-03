@@ -105,13 +105,13 @@ CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
 final column = CatalogItem(
   name: 'Column',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final columnData = _ColumnData.fromMap(context.data as JsonMap);
+  widgetBuilder: (itemContext) {
+    final columnData = _ColumnData.fromMap(itemContext.data as JsonMap);
     return ComponentChildrenBuilder(
       childrenData: columnData.children,
-      dataContext: context.dataContext,
-      buildChild: context.buildChild,
-      getComponent: context.getComponent,
+      dataContext: itemContext.dataContext,
+      buildChild: itemContext.buildChild,
+      getComponent: itemContext.getComponent,
       explicitListBuilder: (childIds, buildChild, getComponent, dataContext) {
         return Column(
           mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
@@ -138,11 +138,11 @@ final column = CatalogItem(
             for (var i = 0; i < list.length; i++) ...[
               buildWeightedChild(
                 componentId: componentId,
-                dataContext: context.dataContext.nested(
+                dataContext: itemContext.dataContext.nested(
                   DataPath('$dataBinding/$i'),
                 ),
-                buildChild: context.buildChild,
-                component: context.getComponent(componentId),
+                buildChild: itemContext.buildChild,
+                component: itemContext.getComponent(componentId),
               ),
             ],
           ],

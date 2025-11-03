@@ -50,9 +50,9 @@ extension type _ModalData.fromMap(JsonMap _json) {
 final modal = CatalogItem(
   name: 'Modal',
   dataSchema: _schema,
-  widgetBuilder: (context) {
-    final modalData = _ModalData.fromMap(context.data as JsonMap);
-    return context.buildChild(modalData.entryPointChild);
+  widgetBuilder: (itemContext) {
+    final modalData = _ModalData.fromMap(itemContext.data as JsonMap);
+    return itemContext.buildChild(modalData.entryPointChild);
   },
   exampleData: [
     () => '''
