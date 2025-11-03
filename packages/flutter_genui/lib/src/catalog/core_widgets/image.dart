@@ -74,7 +74,8 @@ final image = CatalogItem(
         final location = currentLocation;
         if (location == null || location.isEmpty) {
           genUiLogger.warning(
-            'Image widget created with no URL at path: ${context.dataContext.path}',
+            'Image widget created with no URL at path: '
+            '${context.dataContext.path}',
           );
           return const SizedBox.shrink();
         }
