@@ -102,12 +102,12 @@ final tabbedSections = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final tabbedSectionsData = _TabbedSectionsData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
     final sections = tabbedSectionsData.sections.map((section) {
-      final titleNotifier = context.dataContext.subscribeToString(
+      final titleNotifier = itemContext.dataContext.subscribeToString(
         section.title,
       );
       return _TabSectionData(
@@ -116,7 +116,7 @@ final tabbedSections = CatalogItem(
       );
     }).toList();
 
-    return _TabbedSections(sections: sections, buildChild: context.buildChild);
+    return _TabbedSections(sections: sections, buildChild: itemContext.buildChild);
   },
 );
 
