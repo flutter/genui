@@ -105,8 +105,9 @@ final icon = CatalogItem(
       return const Icon(Icons.broken_image);
     }
 
-    final notifier =
-        itemContext.dataContext.subscribe<String>(DataPath(namePath));
+    final notifier = itemContext.dataContext.subscribe<String>(
+      DataPath(namePath),
+    );
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,

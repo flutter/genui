@@ -41,8 +41,9 @@ final heading = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final headingData = _HeadingData.fromMap(itemContext.data as JsonMap);
-    final notifier =
-        itemContext.dataContext.subscribeToString(headingData.text);
+    final notifier = itemContext.dataContext.subscribeToString(
+      headingData.text,
+    );
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,

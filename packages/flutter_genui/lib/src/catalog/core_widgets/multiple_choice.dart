@@ -95,8 +95,10 @@ final multipleChoice = CatalogItem(
                     } else {
                       newSelections.remove(value);
                     }
-                    itemContext.dataContext
-                        .update(DataPath(path), newSelections);
+                    itemContext.dataContext.update(
+                      DataPath(path),
+                      newSelections,
+                    );
                   },
                 );
               },
