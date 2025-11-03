@@ -19,8 +19,8 @@ import 'google_schema_adapter.dart';
 /// A factory for creating a [GoogleGenerativeServiceInterface].
 ///
 /// This is used to allow for custom service creation, for example, for testing.
-typedef GenerativeServiceFactory =
-    GoogleGenerativeServiceInterface Function({
+typedef GenerativeServiceFactory = 
+    GoogleGenerativeServiceInterface Function ({ 
       required GoogleGenerativeAiContentGenerator configuration,
     });
 
@@ -37,8 +37,8 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
     this.modelName = 'models/gemini-2.5-flash',
-    String? apiKey,
-  }) : apiKey = apiKey;
+    this.apiKey,
+  });
 
   final GenUiConfiguration configuration;
 
@@ -360,7 +360,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
       // A local copy of the incoming messages which is updated with tool results
       // as they are generated.
-      final mutableContent = converter.toGoogleAiContent(messages);
+      final content = converter.toGoogleAiContent(messages);
 
       final (:tools, :allowedFunctionNames) = _setupToolsAndFunctions(
         isForcedToolCalling: isForcedToolCalling,
@@ -390,7 +390,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
         }
         toolUsageCycle++;
 
-        final concatenatedContents = mutableContent
+        final concatenatedContents = content
             .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
             .join('\n');
 
@@ -405,7 +405,7 @@ With functions:
         try {
           final request = google_ai.GenerateContentRequest(
             model: modelName,
-            contents: [...systemInstructionContent, ...mutableContent],
+            contents: [...systemInstructionContent, ...content],
             tools: tools,
             toolConfig: isForcedToolCalling
                 ? google_ai.ToolConfig(
@@ -440,7 +440,8 @@ With functions:
         genUiLogger.info(
           '****** Completed Inference ******\n'
           'Latency = ${elapsed.inMilliseconds}ms\n'
-          'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
+          'Output tokens = '
+          '${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
           'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
         );
 
@@ -479,8 +480,9 @@ With functions:
             }
             if (text != null && text.trim().isNotEmpty) {
               genUiLogger.warning(
-                'Model returned direct text instead of a tool call. This might '
-                'be an error or unexpected AI behavior for forced tool calling.',
+                'Model returned direct text instead of a tool call. '
+                'This might be an error or unexpected AI behavior for ' 
+                'forced tool calling.',
               );
             }
             genUiLogger.fine(
@@ -499,7 +501,7 @@ With functions:
               text = textParts.join('');
             }
             if (candidate.content != null) {
-              mutableContent.add(candidate.content!);
+              content.add(candidate.content!);
             }
             genUiLogger.fine('Returning text response: "$text"');
             _textResponseController.add(text);
@@ -511,10 +513,11 @@ With functions:
           'Model response contained ${functionCalls.length} function calls.',
         );
         if (candidate.content != null) {
-          mutableContent.add(candidate.content!);
+          content.add(candidate.content!);
         }
         genUiLogger.fine(
-          'Added assistant message with ${candidate.content?.parts?.length ?? 0} '
+          'Added assistant message with '
+          '${candidate.content?.parts?.length ?? 0} '
           'parts to conversation.',
         );
 
@@ -528,7 +531,7 @@ With functions:
         final functionResponseParts = result.functionResponseParts;
 
         if (functionResponseParts.isNotEmpty) {
-          mutableContent.add(
+          content.add(
             google_ai.Content(role: 'user', parts: functionResponseParts),
           );
           genUiLogger.fine(
