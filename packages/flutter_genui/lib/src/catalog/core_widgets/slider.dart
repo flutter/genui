@@ -50,9 +50,9 @@ extension type _SliderData.fromMap(JsonMap _json) {
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
-  widgetBuilder: (CatalogItemContext context) {
-    final sliderData = _SliderData.fromMap(context.data as JsonMap);
-    final valueNotifier = context.dataContext.subscribeToValue<num>(
+  widgetBuilder: (CatalogItemContext itemContext) {
+    final sliderData = _SliderData.fromMap(itemContext.data as JsonMap);
+    final valueNotifier = itemContext.dataContext.subscribeToValue<num>(
       sliderData.value,
       'literalNumber',
     );
@@ -67,7 +67,7 @@ final slider = CatalogItem(
           onChanged: (newValue) {
             final path = sliderData.value['path'] as String?;
             if (path != null) {
-              context.dataContext.update(DataPath(path), newValue);
+              itemContext.dataContext.update(DataPath(path), newValue);
             }
           },
         );

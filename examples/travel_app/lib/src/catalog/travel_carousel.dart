@@ -65,23 +65,23 @@ final _schema = S.object(
 final travelCarousel = CatalogItem(
   name: 'TravelCarousel',
   dataSchema: _schema,
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final carouselData = _TravelCarouselData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
 
-    final titleNotifier = context.dataContext.subscribeToString(
+    final titleNotifier = itemContext.dataContext.subscribeToString(
       carouselData.title,
     );
 
     final items = carouselData.items.map((item) {
-      final descriptionNotifier = context.dataContext.subscribeToString(
+      final descriptionNotifier = itemContext.dataContext.subscribeToString(
         item.description,
       );
 
       return _TravelCarouselItemData(
         descriptionNotifier: descriptionNotifier,
-        imageChild: context.buildChild(item.imageChildId),
+        imageChild: itemContext.buildChild(item.imageChildId),
         listingSelectionId: item.listingSelectionId,
         action: item.action,
       );
@@ -93,9 +93,9 @@ final travelCarousel = CatalogItem(
         return _TravelCarousel(
           title: title,
           items: items,
-          widgetId: context.id,
-          dispatchEvent: context.dispatchEvent,
-          dataContext: context.dataContext,
+          widgetId: itemContext.id,
+          dispatchEvent: itemContext.dispatchEvent,
+          dataContext: itemContext.dataContext,
         );
       },
     );

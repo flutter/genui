@@ -70,16 +70,16 @@ final trailhead = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final trailheadData = _TrailheadData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
     return _Trailhead(
       topics: trailheadData.topics,
       action: trailheadData.action,
-      widgetId: context.id,
-      dispatchEvent: context.dispatchEvent,
-      dataContext: context.dataContext,
+      widgetId: itemContext.id,
+      dispatchEvent: itemContext.dispatchEvent,
+      dataContext: itemContext.dataContext,
     );
   },
 );

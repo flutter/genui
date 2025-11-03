@@ -64,9 +64,9 @@ final image = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
-    final imageData = _ImageData.fromMap(context.data as JsonMap);
-    final notifier = context.dataContext.subscribeToString(imageData.url);
+  widgetBuilder: (itemContext) {
+    final imageData = _ImageData.fromMap(itemContext.data as JsonMap);
+    final notifier = itemContext.dataContext.subscribeToString(imageData.url);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -75,7 +75,7 @@ final image = CatalogItem(
         if (location == null || location.isEmpty) {
           genUiLogger.warning(
             'Image widget created with no URL at path: '
-            '${context.dataContext.path}',
+            '${itemContext.dataContext.path}',
           );
           return const SizedBox.shrink();
         }

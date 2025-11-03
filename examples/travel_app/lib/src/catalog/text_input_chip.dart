@@ -71,14 +71,14 @@ final textInputChip = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder: (context) {
+  widgetBuilder: (itemContext) {
     final textInputChipData = _TextInputChipData.fromMap(
-      context.data as Map<String, Object?>,
+      itemContext.data as Map<String, Object?>,
     );
 
     final valueRef = textInputChipData.value;
     final path = valueRef?['path'] as String?;
-    final notifier = context.dataContext.subscribeToString(valueRef);
+    final notifier = itemContext.dataContext.subscribeToString(valueRef);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -89,7 +89,7 @@ final textInputChip = CatalogItem(
           obscured: textInputChipData.obscured,
           onChanged: (newValue) {
             if (path != null) {
-              context.dataContext.update(DataPath(path), newValue);
+              itemContext.dataContext.update(DataPath(path), newValue);
             }
           },
         );
