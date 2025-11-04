@@ -11,7 +11,7 @@ below for your preferred provider.
 
 ### Configure Firebase AI Logic
 
-To use the built-in `FirebaseAiClient` to connect to Gemini via Firebase AI
+To use the built-in `FirebaseContentGenerator` to connect to Gemini via Firebase AI
 Logic, follow these instructions:
 
 1. [Create a new Firebase project](https://support.google.com/appsheet/answer/10104995)
@@ -25,37 +25,37 @@ Logic, follow these instructions:
    `dependencies` section. As of this writing, it's best to use pub's git
    dependency to refer directly to this project's source.
 
-    ```yaml
-    dependencies:
-      # ...
-      flutter_genui:
-        git:
-          url: https://github.com/flutter/genui.git
-          path: packages/flutter_genui
-          ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
-      flutter_genui_firebase_ai:
-        git:
-          url: https://github.com/flutter/genui.git
-          path: packages/flutter_genui_firebase_ai
-          ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
-    ```
+   ```yaml
+   dependencies:
+     # ...
+     flutter_genui:
+       git:
+         url: https://github.com/flutter/genui.git
+         path: packages/flutter_genui
+         ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
+     flutter_genui_firebase_ai:
+       git:
+         url: https://github.com/flutter/genui.git
+         path: packages/flutter_genui_firebase_ai
+         ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
+   ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,
    and then initialize Firebase.
 
-    ```dart
-    void main() async {
-      WidgetsFlutterBinding.ensureInitialized();
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      runApp(const MyApp());
-    }
-    ```
+   ```dart
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+     runApp(const MyApp());
+   }
+   ```
 
 ### Configure another agent provider
 
 To use `flutter_genui` with another agent provider, you need to follow that
 provider's instructions to configure your app, and then create your own subclass
-of `AiClient` to connect to that provider. Use `FirebaseAiClient` as an example
+of `ContentGenerator` to connect to that provider. Use `FirebaseContentGenerator` as an example
 of how to do so.
 
 ## 2. Create the connection to an agent

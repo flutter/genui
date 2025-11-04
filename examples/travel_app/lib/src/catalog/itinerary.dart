@@ -219,39 +219,30 @@ final itinerary = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final itineraryData = _ItineraryData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: (context) {
+    final itineraryData = _ItineraryData.fromMap(
+      context.data as Map<String, Object?>,
+    );
 
-        final titleNotifier = dataContext.subscribeToString(
-          itineraryData.title,
-        );
-        final subheadingNotifier = dataContext.subscribeToString(
-          itineraryData.subheading,
-        );
-        final imageChild = buildChild(itineraryData.imageChildId);
+    final titleNotifier = context.dataContext.subscribeToString(
+      itineraryData.title,
+    );
+    final subheadingNotifier = context.dataContext.subscribeToString(
+      itineraryData.subheading,
+    );
+    final imageChild = context.buildChild(itineraryData.imageChildId);
 
-        return _Itinerary(
-          titleNotifier: titleNotifier,
-          subheadingNotifier: subheadingNotifier,
-          imageChild: imageChild,
-          days: itineraryData.days,
-          widgetId: id,
-          buildChild: buildChild,
-          dispatchEvent: dispatchEvent,
-          dataContext: dataContext,
-        );
-      },
+    return _Itinerary(
+      titleNotifier: titleNotifier,
+      subheadingNotifier: subheadingNotifier,
+      imageChild: imageChild,
+      days: itineraryData.days,
+      widgetId: context.id,
+      buildChild: context.buildChild,
+      dispatchEvent: context.dispatchEvent,
+      dataContext: context.dataContext,
+    );
+  },
 );
 
 class _Itinerary extends StatelessWidget {

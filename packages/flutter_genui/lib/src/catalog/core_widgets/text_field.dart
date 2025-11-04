@@ -165,65 +165,55 @@ final textField = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final textFieldData = _TextFieldData.fromMap(data as JsonMap);
-        final valueRef = textFieldData.text;
-        final path = valueRef?['path'] as String?;
-        final notifier = dataContext.subscribeToString(valueRef);
-        final labelNotifier = dataContext.subscribeToString(
-          textFieldData.label,
-        );
+  widgetBuilder: (itemContext) {
+    final textFieldData = _TextFieldData.fromMap(itemContext.data as JsonMap);
+    final valueRef = textFieldData.text;
+    final path = valueRef?['path'] as String?;
+    final notifier = itemContext.dataContext.subscribeToString(valueRef);
+    final labelNotifier = itemContext.dataContext.subscribeToString(
+      textFieldData.label,
+    );
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return ValueListenableBuilder(
-              valueListenable: labelNotifier,
-              builder: (context, label, child) {
-                return _TextField(
-                  initialValue: currentValue ?? '',
-                  label: label,
-                  textFieldType: textFieldData.textFieldType,
-                  validationRegexp: textFieldData.validationRegexp,
-                  onChanged: (newValue) {
-                    if (path != null) {
-                      dataContext.update(DataPath(path), newValue);
-                    }
-                  },
-                  onSubmitted: (newValue) {
-                    final actionData = textFieldData.onSubmittedAction;
-                    if (actionData == null) {
-                      return;
-                    }
-                    final actionName = actionData['name'] as String;
-                    final contextDefinition =
-                        (actionData['context'] as List<Object?>?) ??
-                        <Object?>[];
-                    final resolvedContext = resolveContext(
-                      dataContext,
-                      contextDefinition,
-                    );
-                    dispatchEvent(
-                      UserActionEvent(
-                        name: actionName,
-                        sourceComponentId: id,
-                        context: resolvedContext,
-                      ),
-                    );
-                  },
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentValue, child) {
+        return ValueListenableBuilder(
+          valueListenable: labelNotifier,
+          builder: (context, label, child) {
+            return _TextField(
+              initialValue: currentValue ?? '',
+              label: label,
+              textFieldType: textFieldData.textFieldType,
+              validationRegexp: textFieldData.validationRegexp,
+              onChanged: (newValue) {
+                if (path != null) {
+                  itemContext.dataContext.update(DataPath(path), newValue);
+                }
+              },
+              onSubmitted: (newValue) {
+                final actionData = textFieldData.onSubmittedAction;
+                if (actionData == null) {
+                  return;
+                }
+                final actionName = actionData['name'] as String;
+                final contextDefinition =
+                    (actionData['context'] as List<Object?>?) ?? <Object?>[];
+                final resolvedContext = resolveContext(
+                  itemContext.dataContext,
+                  contextDefinition,
+                );
+                itemContext.dispatchEvent(
+                  UserActionEvent(
+                    name: actionName,
+                    sourceComponentId: itemContext.id,
+                    context: resolvedContext,
+                  ),
                 );
               },
             );
           },
         );
       },
+    );
+  },
 );

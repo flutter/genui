@@ -9,8 +9,8 @@ This guidance explains how to quickly get started with the
   conversation with the LLM, handles UI state, and orchestrates the interaction
   between the app, its UI, and the AI.
 
-- **`AiClient`**: A client that manages communication with your LLM. The package
-  includes an (optional) `FirebaseAiClient` to communicate with Google's Gemini
+- **`ContentGenerator`**: A client that manages communication with your LLM. The package
+  includes an (optional) `FirebaseAiContentGenerator` to communicate with Google's Gemini
   models (using Firebase AI Logic), and you can create your own subclasses for
   other models or LLM libraries.
 
@@ -40,7 +40,7 @@ below for your preferred provider.
 
 #### Configure Firebase AI Logic
 
-To use the built-in `FirebaseAiClient` to connect to Gemini via Firebase AI
+To use the built-in `FirebaseAiContentGenerator` to connect to Gemini via Firebase AI
 Logic, follow these instructions:
 
 1. [Create a new Firebase project](https://support.google.com/appsheet/answer/10104995)
@@ -61,11 +61,12 @@ Logic, follow these instructions:
        git:
          url: https://github.com/flutter/genui.git
          path: packages/flutter_genui
-         ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+         ref: main
      flutter_genui_firebase_ai:
        git:
          url: https://github.com/flutter/genui.git
          path: packages/flutter_genui_firebase_ai
+         ref: main
    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,
@@ -83,7 +84,7 @@ Logic, follow these instructions:
 
 To use `flutter_genui` with another agent provider, you need to follow that
 provider's instructions to configure your app, and then create your own subclass
-of `AiClient` to connect to that provider. Use `FirebaseAiClient` as an example
+of `ContentGenerator` to connect to that provider. Use `FirebaseAiContentGenerator` as an example
 of how to do so.
 
 ### 2. Create the connection to an agent
@@ -105,10 +106,10 @@ provider.
 
 1. Create a `GenUiManager`, and provide it with the catalog of widgets you want
    to make available to the agent.
-2. Create an `AiClient`, and provide it with a system instruction and a set of
+2. Create a `ContentGenerator`, and provide it with a system instruction and a set of
    tools (functions you want the agent to be able to invoke). You should always
    include those provided by `GenUiManager`, but feel free to include others.
-3. Create a `GenUiConversation` using the instances of `AiClient` and `GenUiManager`. Your
+3. Create a `GenUiConversation` using the instances of `ContentGenerator` and `GenUiManager`. Your
    app will primarily interact with this object to get things done.
 
    For example:
@@ -126,9 +127,9 @@ provider.
        // The CoreCatalogItems contain basic widgets for text, markdown, and images.
        _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
 
-       // Create an AiClient to communicate with the LLM.
+       // Create a ContentGenerator to communicate with the LLM.
        // Provide system instructions and the tools from the GenUiManager.
-       final aiClient = FirebaseAiClient(
+       final contentGenerator = FirebaseAiContentGenerator(
          systemInstruction: '''
            You are an expert in creating funny riddles. Every time I give you a word,
            you should generate UI that displays one new riddle related to that word.
@@ -140,7 +141,7 @@ provider.
        // Create the GenUiConversation to orchestrate everything.
        _genUiConversation = GenUiConversation(
          genUiManager: _genUiManager,
-         aiClient: aiClient,
+         contentGenerator: contentGenerator,
          onSurfaceAdded: _onSurfaceAdded, // Added in the next step.
          onSurfaceDeleted: _onSurfaceDeleted, // Added in the next step.
        );
@@ -150,7 +151,7 @@ provider.
      void dispose() {
        _textController.dispose();
        _genUiConversation.dispose();
-       _genUiManager.dispose();
+
        super.dispose();
      }
    }
@@ -270,7 +271,7 @@ dependencies:
     git:
       url: https://github.com/flutter/genui.git
       path: packages/json_schema_builder
-      ref: 6e472cf0f7416c31a1de6af9a0d1b4cc37188989
+
 ```
 
 #### Create the new widget's schema
@@ -349,7 +350,7 @@ instruction to explicitly tell it how and when to do so. Provide the name from
 the CatalogItem when you do.
 
 ```dart
-final aiClient = FirebaseAiClient(
+final contentGenerator = FirebaseAiContentGenerator(
   systemInstruction: '''
       You are an expert in creating funny riddles. Every time I give you a word,
       you should generate a RiddleCard that displays one new riddle related to that word.
@@ -411,7 +412,7 @@ If something is unclear or missing, please
 
 The `flutter_genui` package gives the LLM a set of tools it can use to generate
 UI. To get the LLM to use these tools, the `systemInstruction` provided to
-`AiClient` must explicitly tell it to do so. This is why the previous example
+`ContentGenerator` must explicitly tell it to do so. This is why the previous example
 includes a system instruction for the agent with the line "Every time I give
 you a word, you should generate UI that displays one new riddle...".
 

@@ -47,13 +47,16 @@ void main() {
     };
 
     final itineraryWidget = itinerary.widgetBuilder(
-      data: testData,
-      id: 'itinerary1',
-      buildChild: (data, [_]) => SizedBox(key: Key(data)),
-      dispatchEvent: mockDispatchEvent,
-      context: tester.element(find.byType(Container)),
-      dataContext: DataContext(DataModel(), '/'),
-      getComponent: (String componentId) => null,
+      CatalogItemContext(
+        data: testData,
+        id: 'itinerary1',
+        buildChild: (data, [_]) => SizedBox(key: Key(data)),
+        dispatchEvent: mockDispatchEvent,
+        buildContext: tester.element(find.byType(Container)),
+        dataContext: DataContext(DataModel(), '/'),
+        getComponent: (String componentId) => null,
+        surfaceId: 'surface1',
+      ),
     );
 
     // 2. Pump the widget

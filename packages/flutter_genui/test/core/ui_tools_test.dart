@@ -26,18 +26,9 @@ void main() {
         catalog: Catalog([
           CatalogItem(
             name: 'Text',
-            widgetBuilder:
-                ({
-                  required data,
-                  required id,
-                  required buildChild,
-                  required dispatchEvent,
-                  required context,
-                  required dataContext,
-                  required getComponent,
-                }) {
-                  return const Text('');
-                },
+            widgetBuilder: (_) {
+              return const Text('');
+            },
             dataSchema: Schema.object(properties: {}),
           ),
         ]),

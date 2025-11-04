@@ -19,16 +19,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'literalString': '2025-09-20'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data, [_]) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
-                getComponent: (String componentId) => null,
+                CatalogItemContext(
+                  data: {
+                    'value': {'literalString': '2025-09-20'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -51,16 +54,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'path': '/testDate'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data, [_]) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
-                getComponent: (String componentId) => null,
+                CatalogItemContext(
+                  data: {
+                    'value': {'path': '/testDate'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -88,16 +94,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'path': '/testDate'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data, [_]) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
-                getComponent: (String componentId) => null,
+                CatalogItemContext(
+                  data: {
+                    'value': {'path': '/testDate'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -126,16 +135,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'path': '/testDate'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data, [_]) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
-                getComponent: (String componentId) => null,
+                CatalogItemContext(
+                  data: {
+                    'value': {'path': '/testDate'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),

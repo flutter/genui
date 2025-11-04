@@ -82,36 +82,27 @@ final informationCard = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final cardData = _InformationCardData.fromMap(
-          data as Map<String, Object?>,
-        );
-        final imageChild = cardData.imageChildId != null
-            ? buildChild(cardData.imageChildId!)
-            : null;
+  widgetBuilder: (context) {
+    final cardData = _InformationCardData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+    final imageChild = cardData.imageChildId != null
+        ? context.buildChild(cardData.imageChildId!)
+        : null;
 
-        final titleNotifier = dataContext.subscribeToString(cardData.title);
-        final subtitleNotifier = dataContext.subscribeToString(
-          cardData.subtitle,
-        );
-        final bodyNotifier = dataContext.subscribeToString(cardData.body);
+    final titleNotifier = context.dataContext.subscribeToString(cardData.title);
+    final subtitleNotifier = context.dataContext.subscribeToString(
+      cardData.subtitle,
+    );
+    final bodyNotifier = context.dataContext.subscribeToString(cardData.body);
 
-        return _InformationCard(
-          imageChild: imageChild,
-          titleNotifier: titleNotifier,
-          subtitleNotifier: subtitleNotifier,
-          bodyNotifier: bodyNotifier,
-        );
-      },
+    return _InformationCard(
+      imageChild: imageChild,
+      titleNotifier: titleNotifier,
+      subtitleNotifier: subtitleNotifier,
+      bodyNotifier: bodyNotifier,
+    );
+  },
 );
 
 class _InformationCard extends StatelessWidget {

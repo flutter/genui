@@ -51,53 +51,41 @@ extension type _ListData.fromMap(JsonMap _json) {
 final list = CatalogItem(
   name: 'List',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final listData = _ListData.fromMap(data as JsonMap);
-        final direction = listData.direction == 'horizontal'
-            ? Axis.horizontal
-            : Axis.vertical;
-        return ComponentChildrenBuilder(
-          childrenData: listData.children,
-          dataContext: dataContext,
-          buildChild: buildChild,
-          getComponent: getComponent,
-          explicitListBuilder:
-              (childIds, buildChild, getComponent, dataContext) {
-                return ListView(
-                  shrinkWrap: true,
-                  scrollDirection: direction,
-                  children: childIds
-                      .map((id) => buildChild(id, dataContext))
-                      .toList(),
-                );
-              },
-          templateListWidgetBuilder:
-              (context, Map<String, Object?> data, componentId, dataBinding) {
-                final values = data.values.toList();
-                final keys = data.keys.toList();
-                return ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: direction,
-                  itemCount: values.length,
-                  itemBuilder: (context, index) {
-                    final itemDataContext = dataContext.nested(
-                      DataPath('$dataBinding/${keys[index]}'),
-                    );
-                    return buildChild(componentId, itemDataContext);
-                  },
-                );
-              },
+  widgetBuilder: (itemContext) {
+    final listData = _ListData.fromMap(itemContext.data as JsonMap);
+    final direction = listData.direction == 'horizontal'
+        ? Axis.horizontal
+        : Axis.vertical;
+    return ComponentChildrenBuilder(
+      childrenData: listData.children,
+      dataContext: itemContext.dataContext,
+      buildChild: itemContext.buildChild,
+      getComponent: itemContext.getComponent,
+      explicitListBuilder: (childIds, buildChild, getComponent, dataContext) {
+        return ListView(
+          shrinkWrap: true,
+          scrollDirection: direction,
+          children: childIds.map((id) => buildChild(id, dataContext)).toList(),
         );
       },
+      templateListWidgetBuilder:
+          (context, Map<String, Object?> data, componentId, dataBinding) {
+            final values = data.values.toList();
+            final keys = data.keys.toList();
+            return ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: direction,
+              itemCount: values.length,
+              itemBuilder: (context, index) {
+                final itemDataContext = itemContext.dataContext.nested(
+                  DataPath('$dataBinding/${keys[index]}'),
+                );
+                return itemContext.buildChild(componentId, itemDataContext);
+              },
+            );
+          },
+    );
+  },
   exampleData: [
     () => '''
       [

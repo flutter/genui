@@ -47,13 +47,16 @@ void main() {
                   child: Builder(
                     builder: (context) {
                       return catalogItem.widgetBuilder(
-                        data: data,
-                        id: 'testId',
-                        buildChild: mockBuildChild,
-                        dispatchEvent: (event) {},
-                        context: context,
-                        dataContext: DataContext(DataModel(), '/'),
-                        getComponent: (String componentId) => null,
+                        CatalogItemContext(
+                          data: data,
+                          id: 'testId',
+                          buildChild: mockBuildChild,
+                          dispatchEvent: (event) {},
+                          buildContext: context,
+                          dataContext: DataContext(DataModel(), '/'),
+                          getComponent: (String componentId) => null,
+                          surfaceId: 'surface1',
+                        ),
                       );
                     },
                   ),

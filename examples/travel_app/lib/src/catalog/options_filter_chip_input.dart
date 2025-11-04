@@ -93,51 +93,42 @@ final optionsFilterChipInput = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
-          data as Map<String, Object?>,
+  widgetBuilder: (context) {
+    final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+    IconData? icon;
+    if (optionsFilterChipData.iconName != null) {
+      try {
+        icon = iconFor(
+          TravelIcon.values.byName(optionsFilterChipData.iconName!),
         );
-        IconData? icon;
-        if (optionsFilterChipData.iconName != null) {
-          try {
-            icon = iconFor(
-              TravelIcon.values.byName(optionsFilterChipData.iconName!),
-            );
-          } catch (e) {
-            icon = null;
-          }
-        }
+      } catch (e) {
+        icon = null;
+      }
+    }
 
-        final valueRef = optionsFilterChipData.value;
-        final path = valueRef?['path'] as String?;
-        final notifier = dataContext.subscribeToString(valueRef);
+    final valueRef = optionsFilterChipData.value;
+    final path = valueRef?['path'] as String?;
+    final notifier = context.dataContext.subscribeToString(valueRef);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return _OptionsFilterChip(
-              chipLabel: optionsFilterChipData.chipLabel,
-              options: optionsFilterChipData.options,
-              icon: icon,
-              value: currentValue,
-              onChanged: (newValue) {
-                if (path != null && newValue != null) {
-                  dataContext.update(DataPath(path), newValue);
-                }
-              },
-            );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (builderContext, currentValue, child) {
+        return _OptionsFilterChip(
+          chipLabel: optionsFilterChipData.chipLabel,
+          options: optionsFilterChipData.options,
+          icon: icon,
+          value: currentValue,
+          onChanged: (newValue) {
+            if (path != null && newValue != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
 );
 
 class _OptionsFilterChip extends StatefulWidget {

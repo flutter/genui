@@ -128,33 +128,26 @@ final dateInputChip = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final datePickerData = _DatePickerData.fromMap(data as JsonMap);
-        final notifier = dataContext.subscribeToString(datePickerData.value);
-        final path = datePickerData.value?['path'] as String?;
+  widgetBuilder: (context) {
+    final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
+    final notifier = context.dataContext.subscribeToString(
+      datePickerData.value,
+    );
+    final path = datePickerData.value?['path'] as String?;
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return _DateInputChip(
-              initialValue: currentValue,
-              label: datePickerData.label,
-              onChanged: (newValue) {
-                if (path != null) {
-                  dataContext.update(DataPath(path), newValue);
-                }
-              },
-            );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (buildContext, currentValue, child) {
+        return _DateInputChip(
+          initialValue: currentValue,
+          label: datePickerData.label,
+          onChanged: (newValue) {
+            if (path != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
 );
