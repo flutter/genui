@@ -1,0 +1,57 @@
+# A2A Dart Library Implementation Plan
+
+This document outlines the phased implementation plan for the `a2a_dart` library.
+
+## Journal
+
+**Phase 1: Project Setup and Core Models**
+
+- **Actions:**
+  - Initialized a pure Dart project.
+  - Added all necessary dependencies for the project.
+  - Created all core data models in `lib/src/core` using `freezed` and `json_serializable`.
+  - Wrote a full suite of unit tests for the data models to ensure correct JSON serialization and deserialization.
+- **Learnings:**
+  - The interaction between `freezed` and `json_serializable` can be complex, especially with nested objects. It is crucial to have `explicit_to_json: true` in `build.yaml` to ensure that `toJson()` is called on all nested objects.
+  - The `@JsonKey` annotation can be used to map Dart fields to JSON fields with names that are reserved keywords in Dart (e.g., `in_` to `in`).
+
+## Phase 1: Project Setup and Core Models
+
+- [x] Initialize a pure Dart project in the `a2a_dart` directory.
+- [x] Add dependencies: `http`, `freezed`, `json_serializable`, `logging`, `sse_client`.
+- [x] Create the core data models in `lib/src/core` based on the A2A specification, using `freezed` for immutability and `json_serializable` for JSON conversion.
+- [x] Write unit tests for the data models, ensuring correct JSON serialization and deserialization.
+
+## Phase 2: Client Implementation
+
+- [ ] Define the `Transport` interface and create an `HttpTransport` implementation for request-response.
+- [ ] Create an `SseTransport` implementation for streaming responses.
+- [ ] Implement the `A2AClient` class with methods for all A2A RPC calls, including a `messageStream` method that returns a `Stream`.
+- [ ] Implement a middleware pipeline for the client.
+- [ ] Write unit tests for the `A2AClient`, `HttpTransport`, and `SseTransport`.
+
+## Phase 3: Server Framework
+
+- [ ] Implement the `A2AServer` class.
+- [ ] Define the `RequestHandler` interface.
+- [ ] Implement the `TaskManager` for managing task state.
+- [ ] Write unit tests for the server components.
+
+## Phase 4: Integration and Documentation
+
+- [ ] Write integration tests for the client and server.
+- [ ] Add comprehensive DartDoc comments to all public APIs.
+- [ ] Create a detailed `README.md` with usage examples.
+- [ ] Create a `GEMINI.md` file describing the package.
+
+## General Tasks for Each Phase
+
+After completing each phase, the following tasks should be performed:
+
+- [ ] Create/modify unit tests for the code added or modified in this phase.
+- [ ] Run `dart fix --apply` to clean up the code.
+- [ ] Run `dart analyze` and fix any issues.
+- [ ] Run all tests to ensure they pass.
+- [ ] Run `dart format .` to ensure correct formatting.
+- [ ] Update this `IMPLEMENTATION.md` file with the current state.
+- [ ] Commit the changes with a descriptive commit message.

@@ -1,0 +1,5 @@
+I would like you to port the @packages/spikes/a2a-python library to Dart.  The a2a spec is in @a2a.md and I'd like you to keep some guidelines in mind for creating Dart code in @flutter.md and @create-package.md Please make sure to provide functionality for all of the capabilities described by the A2A specification, using the implementation in the python version as a guide for the specific details of implementation. Start by making a pure Dart project called a2a_dart in packages/spikes/a2a_dart. Then make a truly, eplcally comprehensive and detailed design document in a2a_dart/DESIGN.md Think about all aspects of the design and explain them in detail. Then make an implementation plan that you will copy to a2a_dart/IMPLEMENTATION.md
+
+Documentation for json_serializable is avialable at https://raw.githubusercontent.com/google/json_serializable.dart/refs/heads/master/json_serializable/README.md
+
+Documentation for the freezed package is available at https://raw.githubusercontent.com/rrousselGit/freezed/refs/heads/master/packages/freezed/README.md
