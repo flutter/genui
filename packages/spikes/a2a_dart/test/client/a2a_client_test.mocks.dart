@@ -3,11 +3,10 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i3;
 
-import 'package:a2a_dart/src/client/http_transport.dart' as _i2;
+import 'package:a2a_dart/src/client/transport.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -24,47 +23,42 @@ import 'package:mockito/src/dummies.dart' as _i3;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-/// A class which mocks [HttpTransport].
+/// A class which mocks [Transport].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockHttpTransport extends _i1.Mock implements _i2.HttpTransport {
-  MockHttpTransport() {
+class MockTransport extends _i1.Mock implements _i2.Transport {
+  MockTransport() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  String get url =>
-      (super.noSuchMethod(
-            Invocation.getter(#url),
-            returnValue: _i3.dummyValue<String>(this, Invocation.getter(#url)),
-          )
-          as String);
+  _i3.Future<Map<String, dynamic>> get(String? path) => (super.noSuchMethod(
+        Invocation.method(
+          #get,
+          [path],
+        ),
+        returnValue:
+            _i3.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i3.Future<Map<String, dynamic>>);
 
   @override
-  _i4.Future<Map<String, dynamic>> get(String? url) =>
+  _i3.Future<Map<String, dynamic>> send(Map<String, dynamic>? request) =>
       (super.noSuchMethod(
-            Invocation.method(#get, [url]),
-            returnValue: _i4.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
-          )
-          as _i4.Future<Map<String, dynamic>>);
+        Invocation.method(
+          #send,
+          [request],
+        ),
+        returnValue:
+            _i3.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i3.Future<Map<String, dynamic>>);
 
   @override
-  _i4.Future<Map<String, dynamic>> send(Map<String, dynamic>? request) =>
+  _i3.Stream<Map<String, dynamic>> sendStream(Map<String, dynamic>? request) =>
       (super.noSuchMethod(
-            Invocation.method(#send, [request]),
-            returnValue: _i4.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
-          )
-          as _i4.Future<Map<String, dynamic>>);
-
-  @override
-  _i4.Stream<Map<String, dynamic>> sendStream(Map<String, dynamic>? request) =>
-      (super.noSuchMethod(
-            Invocation.method(#sendStream, [request]),
-            returnValue: _i4.Stream<Map<String, dynamic>>.empty(),
-          )
-          as _i4.Stream<Map<String, dynamic>>);
+        Invocation.method(
+          #sendStream,
+          [request],
+        ),
+        returnValue: _i3.Stream<Map<String, dynamic>>.empty(),
+      ) as _i3.Stream<Map<String, dynamic>>);
 }

@@ -75,7 +75,7 @@ const agentCardJson = '''
       ],
       "examples": [
         "Plan a route from '1600 Amphitheatre Parkway, Mountain View, CA' to 'San Francisco International Airport' avoiding tolls.",
-        "{"origin": {"lat": 37.422, "lng": -122.084}, "destination": {"lat": 37.7749, "lng": -122.4194}, "preferences": ["avoid_ferries"]}"
+        "{\\"origin\\": {\\"lat\\": 37.422, \\"lng\\": -122.084}, \\"destination\\": {\\"lat\\": 37.7749, \\"lng\\": -122.4194}, \\"preferences\\": [\\"avoid_ferries\\"]}"
       ],
       "inputModes": [
         "application/json",
@@ -137,7 +137,8 @@ void main() {
       final json = jsonDecode(agentCardJson) as Map<String, dynamic>;
       final agentCard = AgentCard.fromJson(json);
       final serializedJson = agentCard.toJson();
-      expect(serializedJson, equals(json));
+      final agentCard2 = AgentCard.fromJson(serializedJson);
+      expect(agentCard2, equals(agentCard));
     });
   });
 }

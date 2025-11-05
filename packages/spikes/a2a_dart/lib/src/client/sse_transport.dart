@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
-import 'package:sse_client/sse_client.dart';
+import 'package:sse_channel/sse_channel.dart';
 
 import 'transport.dart';
 
@@ -29,13 +28,16 @@ class SseTransport implements Transport {
 
   @override
   Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
-    final client = SseClient.connect(Uri.parse('$url/rpc'));
+    final channel = SseChannel.connect(Uri.parse('$url/rpc'));
 
-    client.stream.listen((event) {
-      print('Received SSE event: $event');
+    // TODO(gspencer): Implement SSE transport correctly.
+    // This is a placeholder implementation.
+    return channel.stream.map((event) {
+      if (event.data == null) {
+        return {};
+      }
+      final data = jsonDecode(event.data!) as Map<String, dynamic>;
+      return data['result'] as Map<String, dynamic>;
     });
-
-    // TODO(gspencer): Implement SSE transport.
-    throw UnimplementedError();
   }
 }

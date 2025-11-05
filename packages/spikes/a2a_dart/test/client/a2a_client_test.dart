@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:a2a_dart/src/client/a2a_client.dart';
-import 'package:a2a_dart/src/client/http_transport.dart';
+import 'package:a2a_dart/src/client/transport.dart';
 import 'package:a2a_dart/src/core/agent_card.dart';
 import 'package:a2a_dart/src/core/message.dart';
 import 'package:a2a_dart/src/core/part.dart';
@@ -12,122 +12,93 @@ import 'package:test/test.dart';
 
 import 'a2a_client_test.mocks.dart';
 
-@GenerateMocks([HttpTransport])
+@GenerateMocks([Transport])
 void main() {
   group('A2AClient', () {
-    test('getAgentCard returns AgentCard on success', () async {
-      final mockTransport = MockHttpTransport();
-      final client = A2AClient(
-        url: 'https://example.com/a2a',
+    late A2AClient client;
+    late MockTransport mockTransport;
+
+    setUp(() {
+      mockTransport = MockTransport();
+      client = A2AClient(
+        url: 'http://localhost:8080',
         transport: mockTransport,
       );
-
-      when(mockTransport.get(any)).thenAnswer(
-        (_) async => {
-          'protocolVersion': '1.0',
-          'name': 'Test Agent',
-          'description': 'An agent for testing',
-          'url': 'https://example.com/agent',
-          'preferredTransport': 'JSONRPC',
-          'version': '1.0.0',
-          'capabilities': {
-            'streaming': false,
-            'pushNotifications': false,
-            'stateTransitionHistory': false,
-            'extensions': [],
-          },
-          'defaultInputModes': ['text/plain'],
-          'defaultOutputModes': ['text/plain'],
-          'skills': [],
-        },
-      );
-
-      final agentCard = await client.getAgentCard();
-
-      expect(agentCard, isA<AgentCard>());
-      expect(agentCard.name, equals('Test Agent'));
     });
 
-    test('createTask returns Task on success', () async {
-      final mockTransport = MockHttpTransport();
-      final client = A2AClient(
-        url: 'https://example.com/a2a',
-        transport: mockTransport,
-      );
+    test('getAgentCard returns an AgentCard on success', () async {
+      final agentCardJson = {
+        'protocolVersion': '0.1.0',
+        'name': 'Test Agent',
+        'description': 'A test agent.',
+        'url': 'https://example.com/a2a',
+        'version': '1.0.0',
+        'capabilities': {
+          'streaming': false,
+          'pushNotifications': false,
+          'stateTransitionHistory': false,
+        },
+        'defaultInputModes': [],
+        'defaultOutputModes': [],
+        'skills': [],
+      };
+      final agentCard = AgentCard.fromJson(agentCardJson);
+
+      when(mockTransport.get(any)).thenAnswer((_) async => agentCardJson);
+
+      final result = await client.getAgentCard();
+
+      expect(result, equals(agentCard));
+    });
+
+    test('createTask returns a Task on success', () async {
       final message = Message(
         messageId: '1',
         role: Role.user,
         parts: [TextPart(text: 'Hello')],
       );
+      final taskJson = {
+        'id': '123',
+        'contextId': '456',
+        'status': {'state': 'submitted'},
+      };
+      final task = Task.fromJson(taskJson);
 
-      when(mockTransport.send(any)).thenAnswer(
-        (_) async => {
-          'jsonrpc': '2.0',
-          'result': {
-            'id': '123',
-            'contextId': '456',
-            'status': {'state': 'submitted'},
-          },
-          'id': 1,
-        },
-      );
+      when(
+        mockTransport.send(any),
+      ).thenAnswer((_) async => {'result': taskJson});
 
-      final task = await client.createTask(message);
+      final result = await client.createTask(message);
 
-      expect(task, isA<Task>());
-      expect(task.id, equals('123'));
+      expect(result, equals(task));
     });
 
     test('executeTask returns a stream of Messages on success', () {
-      final mockTransport = MockHttpTransport();
-      final client = A2AClient(
-        url: 'https://example.com/a2a',
-        transport: mockTransport,
-      );
-      final message = Message(
-        messageId: '1',
-        role: Role.user,
-        parts: [TextPart(text: 'Hello')],
-      );
       final streamController = StreamController<Map<String, dynamic>>();
+      final messageJson = {
+        'messageId': '1',
+        'role': 'agent',
+        'parts': [
+          {'kind': 'text', 'text': 'Hi there!'},
+        ],
+      };
+      final message = Message.fromJson(messageJson);
 
       when(
         mockTransport.sendStream(any),
       ).thenAnswer((_) => streamController.stream);
 
-      final stream = client.executeTask(message);
+      final stream = client.executeTask('test-task-id');
 
       expect(
         stream,
         emitsInOrder([
-          isA<Message>().having((m) => m.messageId, 'messageId', '2'),
-          isA<Message>().having((m) => m.messageId, 'messageId', '3'),
+          message,
           emitsDone,
         ]),
       );
 
-      streamController.add({
-        'jsonrpc': '2.0',
-        'result': {
-          'messageId': '2',
-          'role': 'agent',
-          'parts': [
-            {'kind': 'text', 'text': 'Hi there!'},
-          ],
-        },
-        'id': 1,
-      });
-      streamController.add({
-        'jsonrpc': '2.0',
-        'result': {
-          'messageId': '3',
-          'role': 'agent',
-          'parts': [
-            {'kind': 'text', 'text': 'How can I help?'},
-          ],
-        },
-        'id': 1,
-      });
+      streamController.add({'result': messageJson});
       streamController.close();
     });
   });

@@ -23,8 +23,13 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeTask_0 extends _i1.SmartFake implements _i2.Task {
-  _FakeTask_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+  _FakeTask_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
 }
 
 /// A class which mocks [TaskManager].
@@ -36,20 +41,32 @@ class MockTaskManager extends _i1.Mock implements _i3.TaskManager {
   }
 
   @override
-  _i2.Task createTask() =>
-      (super.noSuchMethod(
-            Invocation.method(#createTask, []),
-            returnValue: _FakeTask_0(this, Invocation.method(#createTask, [])),
-          )
-          as _i2.Task);
+  _i2.Task createTask() => (super.noSuchMethod(
+        Invocation.method(
+          #createTask,
+          [],
+        ),
+        returnValue: _FakeTask_0(
+          this,
+          Invocation.method(
+            #createTask,
+            [],
+          ),
+        ),
+      ) as _i2.Task);
 
   @override
-  _i2.Task? getTask(String? taskId) =>
-      (super.noSuchMethod(Invocation.method(#getTask, [taskId])) as _i2.Task?);
+  _i2.Task? getTask(String? taskId) => (super.noSuchMethod(Invocation.method(
+        #getTask,
+        [taskId],
+      )) as _i2.Task?);
 
   @override
   void updateTask(_i2.Task? task) => super.noSuchMethod(
-    Invocation.method(#updateTask, [task]),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(
+          #updateTask,
+          [task],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

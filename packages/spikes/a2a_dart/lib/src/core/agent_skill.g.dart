@@ -7,30 +7,26 @@ part of 'agent_skill.dart';
 // **************************************************************************
 
 _AgentSkill _$AgentSkillFromJson(Map<String, dynamic> json) => _AgentSkill(
-  id: json['id'] as String,
-  name: json['name'] as String,
-  description: json['description'] as String,
-  tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
-  examples: (json['examples'] as List<dynamic>?)
-      ?.map((e) => e as String)
-      .toList(),
-  inputModes: (json['inputModes'] as List<dynamic>?)
-      ?.map((e) => e as String)
-      .toList(),
-  outputModes: (json['outputModes'] as List<dynamic>?)
-      ?.map((e) => e as String)
-      .toList(),
-  security: (json['security'] as List<dynamic>?)
-      ?.map(
-        (e) => (e as Map<String, dynamic>).map(
-          (k, e) => MapEntry(
-            k,
-            (e as List<dynamic>).map((e) => e as String).toList(),
-          ),
-        ),
-      )
-      .toList(),
-);
+      id: json['id'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
+      examples: (json['examples'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      inputModes: (json['inputModes'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      outputModes: (json['outputModes'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      security: (json['security'] as List<dynamic>?)
+          ?.map((e) => (e as Map<String, dynamic>).map(
+                (k, e) => MapEntry(
+                    k, (e as List<dynamic>).map((e) => e as String).toList()),
+              ))
+          .toList(),
+    );
 
 Map<String, dynamic> _$AgentSkillToJson(_AgentSkill instance) =>
     <String, dynamic>{
