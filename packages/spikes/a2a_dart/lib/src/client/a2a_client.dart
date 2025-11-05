@@ -16,7 +16,7 @@ class A2AClient {
 
   /// Creates an [A2AClient].
   A2AClient({required this.url, Transport? transport})
-    : transport = transport ?? HttpTransport(url: url);
+      : transport = transport ?? HttpTransport(url: url);
 
   /// Fetches the [AgentCard] from the server.
   Future<AgentCard> getAgentCard() async {
@@ -34,6 +34,17 @@ class A2AClient {
     };
     final response = await transport.send(request);
     return Task.fromJson(response['result'] as Map<String, dynamic>);
+  }
+
+  /// Sends a message to the server and returns a stream of responses.
+  Stream<Map<String, dynamic>> messageStream(Message message) {
+    final request = {
+      'jsonrpc': '2.0',
+      'method': 'message/stream',
+      'params': {'message': message.toJson()},
+      'id': 1,
+    };
+    return transport.sendStream(request);
   }
 
   /// Executes a [Task] on the server and returns a stream of [Message]s.

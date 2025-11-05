@@ -25,7 +25,7 @@ void main() {
     });
 
     test('client can create a task on the server', () async {
-      final client = A2AClient(url: 'http://localhost:${server.port}/rpc');
+      final client = A2AClient(url: 'http://localhost:${server.port}');
       final message = Message(
         messageId: '1',
         role: Role.user,

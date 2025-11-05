@@ -9,15 +9,15 @@ class HttpTransport implements Transport {
   /// The URL of the A2A server.
   final String url;
 
-  final http.Client _client;
+  final http.Client client;
 
   /// Creates an [HttpTransport].
   HttpTransport({required this.url, http.Client? client})
-    : _client = client ?? http.Client();
+      : client = client ?? http.Client();
 
   @override
   Future<Map<String, dynamic>> get(String path) async {
-    final response = await _client.get(Uri.parse('$url/$path'));
+    final response = await client.get(Uri.parse('$url/$path'));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to get agent card: ${response.statusCode}');
@@ -28,8 +28,8 @@ class HttpTransport implements Transport {
 
   @override
   Future<Map<String, dynamic>> send(Map<String, dynamic> request) async {
-    final response = await _client.post(
-      Uri.parse(url),
+    final response = await client.post(
+      Uri.parse('$url/rpc'),
       body: jsonEncode(request),
       headers: {'Content-Type': 'application/json'},
     );
@@ -44,6 +44,7 @@ class HttpTransport implements Transport {
   @override
   Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
     // HTTP transport does not support streaming.
-    throw UnimplementedError('Streaming is not supported by HttpTransport.');
+    throw UnimplementedError(
+        'Streaming is not supported by HttpTransport. Use SseTransport instead.');
   }
 }
