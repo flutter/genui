@@ -138,7 +138,38 @@ The client API will be centered around the `A2AClient` class. This class will pr
 
 - **Asynchronous**: All API methods will be asynchronous, returning `Future`s.
 - **Transport Agnostic**: The `A2AClient` will delegate the actual HTTP communication to a `Transport` interface, allowing for different transport implementations (e.g., `HttpTransport` for standard request-response and `SseTransport` for streaming).
-- **Middleware**: The client will support a middleware pipeline for intercepting and modifying requests and responses. This can be used for logging, authentication, and other cross-cutting concerns.
+- **A2A Handlers**: The client will support a handler pipeline for intercepting and modifying requests and responses. This can be used for logging, authentication, and other cross-cutting concerns.
+
+### 5.1. A2A Handlers
+
+The client will feature an `A2AHandler` pipeline, a powerful mechanism for implementing cross-cutting concerns. Handlers are executed in order for requests and in reverse order for responses, allowing them to wrap the core request/response logic.
+
+This pattern is ideal for:
+
+- **Logging**: Recording request and response data.
+- **Authentication**: Injecting authentication tokens into request headers.
+- **Caching**: Implementing a caching layer.
+- **Error Handling**: Centralizing error handling and reporting.
+
+Example of a logging handler:
+
+```dart
+class LoggingHandler implements A2AHandler {
+  final Logger _logger = Logger('A2AClient');
+
+  @override
+  Future<Map<String, dynamic>> handleRequest(Map<String, dynamic> request) async {
+    _logger.info('Request: $request');
+    return request;
+  }
+
+  @override
+  Future<Map<String, dynamic>> handleResponse(Map<String, dynamic> response) async {
+    _logger.info('Response: $response');
+    return response;
+  }
+}
+```
 
 Example `A2AClient` usage:
 
@@ -160,9 +191,6 @@ final stream = client.messageStream(Message(
 await for (final event in stream) {
   // process events
 }
-  role: 'user',
-  parts: [TextPart(text: 'Hello, agent!')],
-));
 
 print(task.status.state);
 ```

@@ -275,7 +275,6 @@ class APIKeySecurityScheme implements SecurityScheme {
 @override@JsonKey() final  String type;
 @override final  String? description;
  final  String name;
-// ignore: invalid_annotation_target
 @JsonKey(name: 'in') final  String in_;
 
 /// Create a copy of SecurityScheme

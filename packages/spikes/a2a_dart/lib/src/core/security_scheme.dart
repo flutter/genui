@@ -3,6 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'security_scheme.freezed.dart';
 part 'security_scheme.g.dart';
 
+// ignore_for_file: invalid_annotation_target
+
 /// Defines a security scheme that can be used to secure an agent's endpoints.
 /// This is a discriminated union type based on the OpenAPI 3.0 Security Scheme
 /// Object.
@@ -12,7 +14,6 @@ abstract class SecurityScheme with _$SecurityScheme {
     @Default('apiKey') String type,
     String? description,
     required String name,
-    // ignore: invalid_annotation_target
     @JsonKey(name: 'in') required String in_,
   }) = APIKeySecurityScheme;
 

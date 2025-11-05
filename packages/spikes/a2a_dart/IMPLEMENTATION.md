@@ -15,6 +15,17 @@ This document outlines the phased implementation plan for the `a2a_dart` library
   - The interaction between `freezed` and `json_serializable` can be complex, especially with nested objects. It is crucial to have `explicit_to_json: true` in `build.yaml` to ensure that `toJson()` is called on all nested objects.
   - The `@JsonKey` annotation can be used to map Dart fields to JSON fields with names that are reserved keywords in Dart (e.g., `in_` to `in`).
 
+**Phase 2: Client Implementation**
+
+- **Actions:**
+  - Defined the `Transport` interface and created `HttpTransport` and `SseTransport` implementations.
+  - Implemented the `A2AClient` with methods for all core A2A RPC calls.
+  - Created an `A2AHandler` pipeline for extensible client behavior.
+  - Wrote a full suite of unit tests for the client, mocking the transport layer to ensure correct behavior.
+- **Learnings:**
+  - When using `json_serializable`, it is important to be aware of the `fieldRename` option in `build.yaml`. By default, it is `camelCase`, so JSON keys are expected to be in that format. This can be changed to `snake_case` if needed.
+  - When testing streams, the `emitsInOrder` matcher is very useful for verifying a sequence of events.
+
 ## Phase 1: Project Setup and Core Models
 
 - [x] Initialize a pure Dart project in the `a2a_dart` directory.
@@ -24,11 +35,11 @@ This document outlines the phased implementation plan for the `a2a_dart` library
 
 ## Phase 2: Client Implementation
 
-- [ ] Define the `Transport` interface and create an `HttpTransport` implementation for request-response.
-- [ ] Create an `SseTransport` implementation for streaming responses.
-- [ ] Implement the `A2AClient` class with methods for all A2A RPC calls, including a `messageStream` method that returns a `Stream`.
-- [ ] Implement a middleware pipeline for the client.
-- [ ] Write unit tests for the `A2AClient`, `HttpTransport`, and `SseTransport`.
+- [x] Define the `Transport` interface and create an `HttpTransport` implementation for request-response.
+- [x] Create an `SseTransport` implementation for streaming responses.
+- [x] Implement the `A2AClient` class with methods for all A2A RPC calls, including a `messageStream` method that returns a `Stream`.
+- [x] Implement a middleware pipeline for the client.
+- [x] Write unit tests for the `A2AClient`, `HttpTransport`, and `SseTransport`.
 
 ## Phase 3: Server Framework
 
