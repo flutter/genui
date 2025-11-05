@@ -26,6 +26,17 @@ This document outlines the phased implementation plan for the `a2a_dart` library
   - When using `json_serializable`, it is important to be aware of the `fieldRename` option in `build.yaml`. By default, it is `camelCase`, so JSON keys are expected to be in that format. This can be changed to `snake_case` if needed.
   - When testing streams, the `emitsInOrder` matcher is very useful for verifying a sequence of events.
 
+**Phase 3: Server Framework**
+
+- **Actions:**
+  - Implemented the `A2AServer` class using the `shelf` and `shelf_router` packages.
+  - Defined a `RequestHandler` interface to create a modular and extensible handler system.
+  - Implemented a `TaskManager` to manage the lifecycle of A2A tasks.
+  - Wrote a full suite of unit tests for all server components, including the `A2AServer`, `TaskManager`, and `CreateTaskHandler`.
+- **Learnings:**
+  - The `shelf` package provides a simple and effective way to build modular web servers in Dart.
+  - Dependency conflicts can be tricky to resolve. It is important to pay attention to the version constraints of all dependencies.
+
 ## Phase 1: Project Setup and Core Models
 
 - [x] Initialize a pure Dart project in the `a2a_dart` directory.
@@ -43,10 +54,10 @@ This document outlines the phased implementation plan for the `a2a_dart` library
 
 ## Phase 3: Server Framework
 
-- [ ] Implement the `A2AServer` class.
-- [ ] Define the `RequestHandler` interface.
-- [ ] Implement the `TaskManager` for managing task state.
-- [ ] Write unit tests for the server components.
+- [x] Implement the `A2AServer` class.
+- [x] Define the `RequestHandler` interface.
+- [x] Implement the `TaskManager` for managing task state.
+- [x] Write unit tests for the server components.
 
 ## Phase 4: Integration and Documentation
 
