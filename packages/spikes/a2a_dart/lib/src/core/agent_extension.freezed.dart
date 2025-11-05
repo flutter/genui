@@ -14,13 +14,13 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AgentExtension {
-  /// The unique URI identifying the extension.
+  /// A unique URI that identifies the extension.
   String get uri;
 
   /// A human-readable description of how this agent uses the extension.
   String? get description;
 
-  /// If true, the client must understand and comply with the extension's
+  /// If `true`, the client must understand and comply with the extension's
   /// requirements to interact with the agent.
   bool? get required;
 
@@ -292,7 +292,7 @@ class _AgentExtension implements AgentExtension {
   factory _AgentExtension.fromJson(Map<String, dynamic> json) =>
       _$AgentExtensionFromJson(json);
 
-  /// The unique URI identifying the extension.
+  /// A unique URI that identifies the extension.
   @override
   final String uri;
 
@@ -300,7 +300,7 @@ class _AgentExtension implements AgentExtension {
   @override
   final String? description;
 
-  /// If true, the client must understand and comply with the extension's
+  /// If `true`, the client must understand and comply with the extension's
   /// requirements to interact with the agent.
   @override
   final bool? required;

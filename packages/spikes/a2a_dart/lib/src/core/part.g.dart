@@ -20,7 +20,7 @@ Map<String, dynamic> _$TextPartToJson(TextPart instance) => <String, dynamic>{
 
 FilePart _$FilePartFromJson(Map<String, dynamic> json) => FilePart(
       kind: json['kind'] as String? ?? 'file',
-      file: FileWithUri.fromJson(json['file'] as Map<String, dynamic>),
+      file: FileType.fromJson(json['file'] as Map<String, dynamic>),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
 
@@ -42,15 +42,33 @@ Map<String, dynamic> _$DataPartToJson(DataPart instance) => <String, dynamic>{
       'metadata': instance.metadata,
     };
 
-_FileWithUri _$FileWithUriFromJson(Map<String, dynamic> json) => _FileWithUri(
+FileWithUri _$FileWithUriFromJson(Map<String, dynamic> json) => FileWithUri(
       uri: json['uri'] as String,
       name: json['name'] as String?,
       mimeType: json['mimeType'] as String?,
+      $type: json['type'] as String?,
     );
 
-Map<String, dynamic> _$FileWithUriToJson(_FileWithUri instance) =>
+Map<String, dynamic> _$FileWithUriToJson(FileWithUri instance) =>
     <String, dynamic>{
       'uri': instance.uri,
       'name': instance.name,
       'mimeType': instance.mimeType,
+      'type': instance.$type,
+    };
+
+FileWithBytes _$FileWithBytesFromJson(Map<String, dynamic> json) =>
+    FileWithBytes(
+      bytes: json['bytes'] as String,
+      name: json['name'] as String?,
+      mimeType: json['mimeType'] as String?,
+      $type: json['type'] as String?,
+    );
+
+Map<String, dynamic> _$FileWithBytesToJson(FileWithBytes instance) =>
+    <String, dynamic>{
+      'bytes': instance.bytes,
+      'name': instance.name,
+      'mimeType': instance.mimeType,
+      'type': instance.$type,
     };

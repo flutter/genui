@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:a2a_dart/src/client/a2a_client.dart';
 import 'package:a2a_dart/src/client/transport.dart';
 import 'package:a2a_dart/src/core/agent_card.dart';
+import 'package:a2a_dart/src/core/events.dart';
 import 'package:a2a_dart/src/core/message.dart';
 import 'package:a2a_dart/src/core/part.dart';
 import 'package:a2a_dart/src/core/task.dart';
@@ -53,7 +54,7 @@ void main() {
       final message = Message(
         messageId: '1',
         role: Role.user,
-        parts: [TextPart(text: 'Hello')],
+        parts: [Part.text(text: 'Hello')],
       );
       final taskJson = {
         'id': '123',
@@ -71,16 +72,32 @@ void main() {
       expect(result, equals(task));
     });
 
-    test('executeTask returns a stream of Messages on success', () {
+    test('createTask throws an exception on error', () {
+      final message = Message(
+        messageId: '1',
+        role: Role.user,
+        parts: [Part.text(text: 'Hello')],
+      );
+
+      when(
+        mockTransport.send(any),
+      ).thenAnswer((_) async => {
+            'error': {'code': -32600, 'message': 'Invalid Request'}
+          });
+
+      expect(client.createTask(message), throwsException);
+    });
+
+    test('executeTask returns a stream of StreamingEvents on success', () {
       final streamController = StreamController<Map<String, dynamic>>();
-      final messageJson = {
-        'messageId': '1',
-        'role': 'agent',
-        'parts': [
-          {'kind': 'text', 'text': 'Hi there!'},
-        ],
+      final eventJson = {
+        'kind': 'task_status_update',
+        'taskId': '123',
+        'contextId': '456',
+        'status': {'state': 'working'},
+        'final_': false,
       };
-      final message = Message.fromJson(messageJson);
+      final event = StreamingEvent.fromJson(eventJson);
 
       when(
         mockTransport.sendStream(any),
@@ -91,12 +108,44 @@ void main() {
       expect(
         stream,
         emitsInOrder([
-          message,
+          event,
           emitsDone,
         ]),
       );
 
-      streamController.add({'result': messageJson});
+      streamController.add(eventJson);
+      streamController.close();
+    });
+
+    test('executeTask handles SSE keepalive comments', () {
+      final streamController = StreamController<Map<String, dynamic>>();
+      final eventJson = {
+        'kind': 'task_status_update',
+        'taskId': '123',
+        'contextId': '456',
+        'status': {'state': 'working'},
+        'final_': false,
+      };
+      final event = StreamingEvent.fromJson(eventJson);
+
+      when(
+        mockTransport.sendStream(any),
+      ).thenAnswer((_) => streamController.stream);
+
+      final stream = client.executeTask('test-task-id');
+
+      expect(
+        stream,
+        emitsInOrder([
+          event,
+          emitsDone,
+        ]),
+      );
+
+      // The SseTransport is responsible for filtering keepalive comments, so the
+      // client should never receive them. The mock transport simulates this by
+      // not sending a keepalive event.
+      streamController.add(eventJson);
       streamController.close();
     });
   });

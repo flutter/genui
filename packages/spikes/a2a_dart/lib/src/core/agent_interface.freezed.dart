@@ -14,8 +14,9 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AgentInterface {
-  /// The URL where this interface is available. Must be a valid absolute HTTPS
-  /// URL in production.
+  /// The URL where this interface is available.
+  ///
+  /// In a production environment, this must be a valid absolute HTTPS URL.
   String get url;
 
   /// The transport protocol supported at this URL.
@@ -254,8 +255,9 @@ class _AgentInterface implements AgentInterface {
   factory _AgentInterface.fromJson(Map<String, dynamic> json) =>
       _$AgentInterfaceFromJson(json);
 
-  /// The URL where this interface is available. Must be a valid absolute HTTPS
-  /// URL in production.
+  /// The URL where this interface is available.
+  ///
+  /// In a production environment, this must be a valid absolute HTTPS URL.
   @override
   final String url;
 

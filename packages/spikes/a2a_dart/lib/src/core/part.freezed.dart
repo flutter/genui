@@ -28,7 +28,10 @@ Part _$PartFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Part {
+  /// The type of this part, always 'text'.
   String get kind;
+
+  /// Optional metadata for the part.
   Map<String, dynamic>? get metadata;
 
   /// Create a copy of Part
@@ -211,7 +214,7 @@ extension PartPatterns on Part {
     TResult Function(String kind, String text, Map<String, dynamic>? metadata)?
         text,
     TResult Function(
-            String kind, FileWithUri file, Map<String, dynamic>? metadata)?
+            String kind, FileType file, Map<String, dynamic>? metadata)?
         file,
     TResult Function(String kind, Map<String, dynamic> data,
             Map<String, dynamic>? metadata)?
@@ -250,7 +253,7 @@ extension PartPatterns on Part {
             String kind, String text, Map<String, dynamic>? metadata)
         text,
     required TResult Function(
-            String kind, FileWithUri file, Map<String, dynamic>? metadata)
+            String kind, FileType file, Map<String, dynamic>? metadata)
         file,
     required TResult Function(String kind, Map<String, dynamic> data,
             Map<String, dynamic>? metadata)
@@ -286,7 +289,7 @@ extension PartPatterns on Part {
     TResult? Function(String kind, String text, Map<String, dynamic>? metadata)?
         text,
     TResult? Function(
-            String kind, FileWithUri file, Map<String, dynamic>? metadata)?
+            String kind, FileType file, Map<String, dynamic>? metadata)?
         file,
     TResult? Function(String kind, Map<String, dynamic> data,
             Map<String, dynamic>? metadata)?
@@ -317,11 +320,18 @@ class TextPart implements Part {
   factory TextPart.fromJson(Map<String, dynamic> json) =>
       _$TextPartFromJson(json);
 
+  /// The type of this part, always 'text'.
   @override
   @JsonKey()
   final String kind;
+
+  /// The text content.
   final String text;
+
+  /// Optional metadata for the part.
   final Map<String, dynamic>? _metadata;
+
+  /// Optional metadata for the part.
   @override
   Map<String, dynamic>? get metadata {
     final value = _metadata;
@@ -420,11 +430,18 @@ class FilePart implements Part {
   factory FilePart.fromJson(Map<String, dynamic> json) =>
       _$FilePartFromJson(json);
 
+  /// The type of this part, always 'file'.
   @override
   @JsonKey()
   final String kind;
-  final FileWithUri file;
+
+  /// The file to be included in the message.
+  final FileType file;
+
+  /// Optional metadata for the part.
   final Map<String, dynamic>? _metadata;
+
+  /// Optional metadata for the part.
   @override
   Map<String, dynamic>? get metadata {
     final value = _metadata;
@@ -476,9 +493,9 @@ abstract mixin class $FilePartCopyWith<$Res> implements $PartCopyWith<$Res> {
       _$FilePartCopyWithImpl;
   @override
   @useResult
-  $Res call({String kind, FileWithUri file, Map<String, dynamic>? metadata});
+  $Res call({String kind, FileType file, Map<String, dynamic>? metadata});
 
-  $FileWithUriCopyWith<$Res> get file;
+  $FileTypeCopyWith<$Res> get file;
 }
 
 /// @nodoc
@@ -505,7 +522,7 @@ class _$FilePartCopyWithImpl<$Res> implements $FilePartCopyWith<$Res> {
       file: null == file
           ? _self.file
           : file // ignore: cast_nullable_to_non_nullable
-              as FileWithUri,
+              as FileType,
       metadata: freezed == metadata
           ? _self._metadata
           : metadata // ignore: cast_nullable_to_non_nullable
@@ -517,8 +534,8 @@ class _$FilePartCopyWithImpl<$Res> implements $FilePartCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $FileWithUriCopyWith<$Res> get file {
-    return $FileWithUriCopyWith<$Res>(_self.file, (value) {
+  $FileTypeCopyWith<$Res> get file {
+    return $FileTypeCopyWith<$Res>(_self.file, (value) {
       return _then(_self.copyWith(file: value));
     });
   }
@@ -536,17 +553,25 @@ class DataPart implements Part {
   factory DataPart.fromJson(Map<String, dynamic> json) =>
       _$DataPartFromJson(json);
 
+  /// The type of this part, always 'data'.
   @override
   @JsonKey()
   final String kind;
+
+  /// The structured data, represented as a JSON object.
   final Map<String, dynamic> _data;
+
+  /// The structured data, represented as a JSON object.
   Map<String, dynamic> get data {
     if (_data is EqualUnmodifiableMapView) return _data;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_data);
   }
 
+  /// Optional metadata for the part.
   final Map<String, dynamic>? _metadata;
+
+  /// Optional metadata for the part.
   @override
   Map<String, dynamic>? get metadata {
     final value = _metadata;
@@ -638,33 +663,42 @@ class _$DataPartCopyWithImpl<$Res> implements $DataPartCopyWith<$Res> {
   }
 }
 
-/// @nodoc
-mixin _$FileWithUri {
-  /// A URL pointing to the file's content.
-  String get uri;
+FileType _$FileTypeFromJson(Map<String, dynamic> json) {
+  switch (json['type']) {
+    case 'uri':
+      return FileWithUri.fromJson(json);
+    case 'bytes':
+      return FileWithBytes.fromJson(json);
 
+    default:
+      throw CheckedFromJsonException(
+          json, 'type', 'FileType', 'Invalid union type "${json['type']}"!');
+  }
+}
+
+/// @nodoc
+mixin _$FileType {
   /// An optional name for the file (e.g., "document.pdf").
   String? get name;
 
   /// The MIME type of the file (e.g., "application/pdf").
   String? get mimeType;
 
-  /// Create a copy of FileWithUri
+  /// Create a copy of FileType
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $FileWithUriCopyWith<FileWithUri> get copyWith =>
-      _$FileWithUriCopyWithImpl<FileWithUri>(this as FileWithUri, _$identity);
+  $FileTypeCopyWith<FileType> get copyWith =>
+      _$FileTypeCopyWithImpl<FileType>(this as FileType, _$identity);
 
-  /// Serializes this FileWithUri to a JSON map.
+  /// Serializes this FileType to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is FileWithUri &&
-            (identical(other.uri, uri) || other.uri == uri) &&
+            other is FileType &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.mimeType, mimeType) ||
                 other.mimeType == mimeType));
@@ -672,44 +706,38 @@ mixin _$FileWithUri {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, uri, name, mimeType);
+  int get hashCode => Object.hash(runtimeType, name, mimeType);
 
   @override
   String toString() {
-    return 'FileWithUri(uri: $uri, name: $name, mimeType: $mimeType)';
+    return 'FileType(name: $name, mimeType: $mimeType)';
   }
 }
 
 /// @nodoc
-abstract mixin class $FileWithUriCopyWith<$Res> {
-  factory $FileWithUriCopyWith(
-          FileWithUri value, $Res Function(FileWithUri) _then) =
-      _$FileWithUriCopyWithImpl;
+abstract mixin class $FileTypeCopyWith<$Res> {
+  factory $FileTypeCopyWith(FileType value, $Res Function(FileType) _then) =
+      _$FileTypeCopyWithImpl;
   @useResult
-  $Res call({String uri, String? name, String? mimeType});
+  $Res call({String? name, String? mimeType});
 }
 
 /// @nodoc
-class _$FileWithUriCopyWithImpl<$Res> implements $FileWithUriCopyWith<$Res> {
-  _$FileWithUriCopyWithImpl(this._self, this._then);
+class _$FileTypeCopyWithImpl<$Res> implements $FileTypeCopyWith<$Res> {
+  _$FileTypeCopyWithImpl(this._self, this._then);
 
-  final FileWithUri _self;
-  final $Res Function(FileWithUri) _then;
+  final FileType _self;
+  final $Res Function(FileType) _then;
 
-  /// Create a copy of FileWithUri
+  /// Create a copy of FileType
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? uri = null,
     Object? name = freezed,
     Object? mimeType = freezed,
   }) {
     return _then(_self.copyWith(
-      uri: null == uri
-          ? _self.uri
-          : uri // ignore: cast_nullable_to_non_nullable
-              as String,
       name: freezed == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -722,8 +750,8 @@ class _$FileWithUriCopyWithImpl<$Res> implements $FileWithUriCopyWith<$Res> {
   }
 }
 
-/// Adds pattern-matching-related methods to [FileWithUri].
-extension FileWithUriPatterns on FileWithUri {
+/// Adds pattern-matching-related methods to [FileType].
+extension FileTypePatterns on FileType {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -737,14 +765,17 @@ extension FileWithUriPatterns on FileWithUri {
   /// ```
 
   @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_FileWithUri value)? $default, {
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(FileWithUri value)? uri,
+    TResult Function(FileWithBytes value)? bytes,
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _FileWithUri() when $default != null:
-        return $default(_that);
+      case FileWithUri() when uri != null:
+        return uri(_that);
+      case FileWithBytes() when bytes != null:
+        return bytes(_that);
       case _:
         return orElse();
     }
@@ -764,13 +795,16 @@ extension FileWithUriPatterns on FileWithUri {
   /// ```
 
   @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_FileWithUri value) $default,
-  ) {
+  TResult map<TResult extends Object?>({
+    required TResult Function(FileWithUri value) uri,
+    required TResult Function(FileWithBytes value) bytes,
+  }) {
     final _that = this;
     switch (_that) {
-      case _FileWithUri():
-        return $default(_that);
+      case FileWithUri():
+        return uri(_that);
+      case FileWithBytes():
+        return bytes(_that);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -789,13 +823,16 @@ extension FileWithUriPatterns on FileWithUri {
   /// ```
 
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_FileWithUri value)? $default,
-  ) {
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(FileWithUri value)? uri,
+    TResult? Function(FileWithBytes value)? bytes,
+  }) {
     final _that = this;
     switch (_that) {
-      case _FileWithUri() when $default != null:
-        return $default(_that);
+      case FileWithUri() when uri != null:
+        return uri(_that);
+      case FileWithBytes() when bytes != null:
+        return bytes(_that);
       case _:
         return null;
     }
@@ -814,14 +851,17 @@ extension FileWithUriPatterns on FileWithUri {
   /// ```
 
   @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String uri, String? name, String? mimeType)? $default, {
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String uri, String? name, String? mimeType)? uri,
+    TResult Function(String bytes, String? name, String? mimeType)? bytes,
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _FileWithUri() when $default != null:
-        return $default(_that.uri, _that.name, _that.mimeType);
+      case FileWithUri() when uri != null:
+        return uri(_that.uri, _that.name, _that.mimeType);
+      case FileWithBytes() when bytes != null:
+        return bytes(_that.bytes, _that.name, _that.mimeType);
       case _:
         return orElse();
     }
@@ -841,13 +881,17 @@ extension FileWithUriPatterns on FileWithUri {
   /// ```
 
   @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(String uri, String? name, String? mimeType) $default,
-  ) {
+  TResult when<TResult extends Object?>({
+    required TResult Function(String uri, String? name, String? mimeType) uri,
+    required TResult Function(String bytes, String? name, String? mimeType)
+        bytes,
+  }) {
     final _that = this;
     switch (_that) {
-      case _FileWithUri():
-        return $default(_that.uri, _that.name, _that.mimeType);
+      case FileWithUri():
+        return uri(_that.uri, _that.name, _that.mimeType);
+      case FileWithBytes():
+        return bytes(_that.bytes, _that.name, _that.mimeType);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -866,13 +910,16 @@ extension FileWithUriPatterns on FileWithUri {
   /// ```
 
   @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String uri, String? name, String? mimeType)? $default,
-  ) {
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String uri, String? name, String? mimeType)? uri,
+    TResult? Function(String bytes, String? name, String? mimeType)? bytes,
+  }) {
     final _that = this;
     switch (_that) {
-      case _FileWithUri() when $default != null:
-        return $default(_that.uri, _that.name, _that.mimeType);
+      case FileWithUri() when uri != null:
+        return uri(_that.uri, _that.name, _that.mimeType);
+      case FileWithBytes() when bytes != null:
+        return bytes(_that.bytes, _that.name, _that.mimeType);
       case _:
         return null;
     }
@@ -881,13 +928,14 @@ extension FileWithUriPatterns on FileWithUri {
 
 /// @nodoc
 @JsonSerializable()
-class _FileWithUri implements FileWithUri {
-  const _FileWithUri({required this.uri, this.name, this.mimeType});
-  factory _FileWithUri.fromJson(Map<String, dynamic> json) =>
+class FileWithUri implements FileType {
+  const FileWithUri(
+      {required this.uri, this.name, this.mimeType, final String? $type})
+      : $type = $type ?? 'uri';
+  factory FileWithUri.fromJson(Map<String, dynamic> json) =>
       _$FileWithUriFromJson(json);
 
   /// A URL pointing to the file's content.
-  @override
   final String uri;
 
   /// An optional name for the file (e.g., "document.pdf").
@@ -898,13 +946,16 @@ class _FileWithUri implements FileWithUri {
   @override
   final String? mimeType;
 
-  /// Create a copy of FileWithUri
+  @JsonKey(name: 'type')
+  final String $type;
+
+  /// Create a copy of FileType
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$FileWithUriCopyWith<_FileWithUri> get copyWith =>
-      __$FileWithUriCopyWithImpl<_FileWithUri>(this, _$identity);
+  $FileWithUriCopyWith<FileWithUri> get copyWith =>
+      _$FileWithUriCopyWithImpl<FileWithUri>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -917,7 +968,7 @@ class _FileWithUri implements FileWithUri {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _FileWithUri &&
+            other is FileWithUri &&
             (identical(other.uri, uri) || other.uri == uri) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.mimeType, mimeType) ||
@@ -930,29 +981,29 @@ class _FileWithUri implements FileWithUri {
 
   @override
   String toString() {
-    return 'FileWithUri(uri: $uri, name: $name, mimeType: $mimeType)';
+    return 'FileType.uri(uri: $uri, name: $name, mimeType: $mimeType)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$FileWithUriCopyWith<$Res>
-    implements $FileWithUriCopyWith<$Res> {
-  factory _$FileWithUriCopyWith(
-          _FileWithUri value, $Res Function(_FileWithUri) _then) =
-      __$FileWithUriCopyWithImpl;
+abstract mixin class $FileWithUriCopyWith<$Res>
+    implements $FileTypeCopyWith<$Res> {
+  factory $FileWithUriCopyWith(
+          FileWithUri value, $Res Function(FileWithUri) _then) =
+      _$FileWithUriCopyWithImpl;
   @override
   @useResult
   $Res call({String uri, String? name, String? mimeType});
 }
 
 /// @nodoc
-class __$FileWithUriCopyWithImpl<$Res> implements _$FileWithUriCopyWith<$Res> {
-  __$FileWithUriCopyWithImpl(this._self, this._then);
+class _$FileWithUriCopyWithImpl<$Res> implements $FileWithUriCopyWith<$Res> {
+  _$FileWithUriCopyWithImpl(this._self, this._then);
 
-  final _FileWithUri _self;
-  final $Res Function(_FileWithUri) _then;
+  final FileWithUri _self;
+  final $Res Function(FileWithUri) _then;
 
-  /// Create a copy of FileWithUri
+  /// Create a copy of FileType
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -961,10 +1012,114 @@ class __$FileWithUriCopyWithImpl<$Res> implements _$FileWithUriCopyWith<$Res> {
     Object? name = freezed,
     Object? mimeType = freezed,
   }) {
-    return _then(_FileWithUri(
+    return _then(FileWithUri(
       uri: null == uri
           ? _self.uri
           : uri // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: freezed == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mimeType: freezed == mimeType
+          ? _self.mimeType
+          : mimeType // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class FileWithBytes implements FileType {
+  const FileWithBytes(
+      {required this.bytes, this.name, this.mimeType, final String? $type})
+      : $type = $type ?? 'bytes';
+  factory FileWithBytes.fromJson(Map<String, dynamic> json) =>
+      _$FileWithBytesFromJson(json);
+
+  /// The base64-encoded content of the file.
+  final String bytes;
+
+  /// An optional name for the file (e.g., "document.pdf").
+  @override
+  final String? name;
+
+  /// The MIME type of the file (e.g., "application/pdf").
+  @override
+  final String? mimeType;
+
+  @JsonKey(name: 'type')
+  final String $type;
+
+  /// Create a copy of FileType
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $FileWithBytesCopyWith<FileWithBytes> get copyWith =>
+      _$FileWithBytesCopyWithImpl<FileWithBytes>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$FileWithBytesToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is FileWithBytes &&
+            (identical(other.bytes, bytes) || other.bytes == bytes) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.mimeType, mimeType) ||
+                other.mimeType == mimeType));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, bytes, name, mimeType);
+
+  @override
+  String toString() {
+    return 'FileType.bytes(bytes: $bytes, name: $name, mimeType: $mimeType)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $FileWithBytesCopyWith<$Res>
+    implements $FileTypeCopyWith<$Res> {
+  factory $FileWithBytesCopyWith(
+          FileWithBytes value, $Res Function(FileWithBytes) _then) =
+      _$FileWithBytesCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String bytes, String? name, String? mimeType});
+}
+
+/// @nodoc
+class _$FileWithBytesCopyWithImpl<$Res>
+    implements $FileWithBytesCopyWith<$Res> {
+  _$FileWithBytesCopyWithImpl(this._self, this._then);
+
+  final FileWithBytes _self;
+  final $Res Function(FileWithBytes) _then;
+
+  /// Create a copy of FileType
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? bytes = null,
+    Object? name = freezed,
+    Object? mimeType = freezed,
+  }) {
+    return _then(FileWithBytes(
+      bytes: null == bytes
+          ? _self.bytes
+          : bytes // ignore: cast_nullable_to_non_nullable
               as String,
       name: freezed == name
           ? _self.name

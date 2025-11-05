@@ -1,20 +1,89 @@
 import 'dart:async';
 
 import 'package:a2a_dart/src/client/a2a_client.dart';
+import 'package:a2a_dart/src/client/sse_transport.dart';
 import 'package:a2a_dart/src/core/message.dart';
 import 'package:a2a_dart/src/core/part.dart';
+import 'package:a2a_dart/src/core/task.dart';
+import 'package:a2a_dart/src/core/events.dart';
 import 'package:a2a_dart/src/server/a2a_server.dart';
 import 'package:a2a_dart/src/server/create_task_handler.dart';
+import 'package:a2a_dart/src/server/request_handler.dart';
 import 'package:a2a_dart/src/server/task_manager.dart';
 import 'package:test/test.dart';
+
+class MockExecuteTaskHandler implements RequestHandler {
+  MockExecuteTaskHandler(this.taskManager);
+
+  final TaskManager taskManager;
+
+  @override
+  String get method => 'execute_task';
+
+  @override
+  FutureOr<Map<String, dynamic>> handle(Map<String, dynamic> params) {
+    final streamController = StreamController<Map<String, dynamic>>();
+    final taskId = params['task_id'] as String;
+    final task = taskManager.getTask(taskId)!;
+
+    // Simulate work
+    taskManager.updateTask(
+      task.copyWith(
+        status: const TaskStatus(state: TaskState.working),
+      ),
+    );
+    streamController.add(
+      TaskStatusUpdateEvent(
+        taskId: taskId,
+        contextId: task.contextId,
+        status: const TaskStatus(state: TaskState.working),
+        final_: false,
+      ).toJson(),
+    );
+
+    streamController.add(
+      TaskArtifactUpdateEvent(
+        taskId: taskId,
+        contextId: task.contextId,
+        artifact: Artifact(
+          artifactId: 'artifact-1',
+          parts: [Part.text(text: 'Here is your artifact')],
+        ),
+        append: false,
+        lastChunk: true,
+      ).toJson(),
+    );
+
+    taskManager.updateTask(
+      task.copyWith(
+        status: const TaskStatus(state: TaskState.completed),
+      ),
+    );
+    streamController.add(
+      TaskStatusUpdateEvent(
+        taskId: taskId,
+        contextId: task.contextId,
+        status: const TaskStatus(state: TaskState.completed),
+        final_: true,
+      ).toJson(),
+    );
+    streamController.close();
+
+    return {'stream': streamController.stream};
+  }
+}
 
 void main() {
   group('A2AClient and A2AServer', () {
     late A2AServer server;
+    late TaskManager taskManager;
 
     setUp(() async {
-      final taskManager = TaskManager();
-      server = A2AServer([CreateTaskHandler(taskManager)]);
+      taskManager = TaskManager();
+      server = A2AServer([
+        CreateTaskHandler(taskManager),
+        MockExecuteTaskHandler(taskManager),
+      ]);
       await server.start();
       // Add a small delay to allow the server to start.
       await Future.delayed(const Duration(milliseconds: 100));
@@ -24,18 +93,48 @@ void main() {
       server.stop();
     });
 
-    test('client can create a task on the server', () async {
+    test('client can create and execute a task on the server', () async {
+      final client = A2AClient(
+        url: 'http://localhost:${server.port}',
+        transport: SseTransport(url: 'http://localhost:${server.port}'),
+      );
+      final message = Message(
+        messageId: '1',
+        role: Role.user,
+        parts: [Part.text(text: 'Hello')],
+      );
+
+      final task = await client.createTask(message);
+      expect(task, isNotNull);
+      expect(task.id, isNotEmpty);
+
+      final stream = client.executeTask(task.id);
+      final events = await stream.toList();
+
+      expect(events, hasLength(3));
+      expect(events[0], isA<TaskStatusUpdateEvent>());
+      expect((events[0] as TaskStatusUpdateEvent).status.state,
+          equals(TaskState.working));
+      expect(events[1], isA<TaskArtifactUpdateEvent>());
+      expect((events[1] as TaskArtifactUpdateEvent).artifact.artifactId,
+          equals('artifact-1'));
+      expect(events[2], isA<TaskStatusUpdateEvent>());
+      expect((events[2] as TaskStatusUpdateEvent).status.state,
+          equals(TaskState.completed));
+    });
+
+    test('client handles server errors gracefully', () async {
       final client = A2AClient(url: 'http://localhost:${server.port}');
       final message = Message(
         messageId: '1',
         role: Role.user,
-        parts: [TextPart(text: 'Hello')],
+        parts: [Part.text(text: 'Hello')],
       );
 
-      final task = await client.createTask(message);
+      // Stop the server to simulate a connection error
+      server.stop();
 
-      expect(task, isNotNull);
-      expect(task.id, isNotEmpty);
+      expect(client.createTask(message), throwsException);
     });
   });
 }

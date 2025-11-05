@@ -14,55 +14,55 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AgentCard {
-  /// The version of the A2A protocol this agent supports.
+  /// The version of the A2A protocol that this agent supports.
   String get protocolVersion;
 
-  /// A human-readable name for the agent.
+  /// A human-readable name for the agent (e.g., "Weather Bot").
   String get name;
 
-  /// A short description of the agent's purpose and capabilities.
+  /// A brief summary of the agent's purpose and capabilities.
   String get description;
 
   /// A URL for the agent's website or relevant documentation.
   String get url;
 
-  /// The preferred transport protocol for this agent.
+  /// The preferred transport protocol for this agent (e.g., "sse").
   TransportProtocol? get preferredTransport;
 
-  /// A list of additional interfaces the agent supports.
+  /// A list of additional communication interfaces the agent supports.
   List<AgentInterface>? get additionalInterfaces;
 
   /// A URL for an icon representing the agent.
   String? get iconUrl;
 
-  /// Information about the agent's provider.
+  /// Information about the entity that provides the agent.
   AgentProvider? get provider;
 
-  /// The version of the agent's software.
+  /// The version of the agent's software (e.g., "1.2.3").
   String get version;
 
   /// A URL for the agent's detailed documentation.
   String? get documentationUrl;
 
-  /// The capabilities of the agent.
+  /// The capabilities of the agent, such as supported extensions.
   AgentCapabilities get capabilities;
 
-  /// The security schemes supported by the agent.
+  /// The security schemes supported by the agent (e.g., OAuth 2.0).
   Map<String, SecurityScheme>? get securitySchemes;
 
-  /// The security requirements for the agent.
+  /// The security requirements for accessing the agent's services.
   List<Map<String, List<String>>>? get security;
 
-  /// The default input modes for the agent.
+  /// The default input modes for the agent (e.g., "text/plain").
   List<String> get defaultInputModes;
 
-  /// The default output modes for the agent.
+  /// The default output modes for the agent (e.g., "application/json").
   List<String> get defaultOutputModes;
 
-  /// The skills supported by the agent.
+  /// The skills or functionalities that the agent can perform.
   List<AgentSkill> get skills;
 
-  /// Whether the agent supports authenticated extended card requests.
+  /// Indicates whether the agent supports authenticated extended card requests.
   bool? get supportsAuthenticatedExtendedCard;
 
   /// Create a copy of AgentCard
@@ -588,15 +588,15 @@ class _AgentCard implements AgentCard {
   factory _AgentCard.fromJson(Map<String, dynamic> json) =>
       _$AgentCardFromJson(json);
 
-  /// The version of the A2A protocol this agent supports.
+  /// The version of the A2A protocol that this agent supports.
   @override
   final String protocolVersion;
 
-  /// A human-readable name for the agent.
+  /// A human-readable name for the agent (e.g., "Weather Bot").
   @override
   final String name;
 
-  /// A short description of the agent's purpose and capabilities.
+  /// A brief summary of the agent's purpose and capabilities.
   @override
   final String description;
 
@@ -604,14 +604,14 @@ class _AgentCard implements AgentCard {
   @override
   final String url;
 
-  /// The preferred transport protocol for this agent.
+  /// The preferred transport protocol for this agent (e.g., "sse").
   @override
   final TransportProtocol? preferredTransport;
 
-  /// A list of additional interfaces the agent supports.
+  /// A list of additional communication interfaces the agent supports.
   final List<AgentInterface>? _additionalInterfaces;
 
-  /// A list of additional interfaces the agent supports.
+  /// A list of additional communication interfaces the agent supports.
   @override
   List<AgentInterface>? get additionalInterfaces {
     final value = _additionalInterfaces;
@@ -626,11 +626,11 @@ class _AgentCard implements AgentCard {
   @override
   final String? iconUrl;
 
-  /// Information about the agent's provider.
+  /// Information about the entity that provides the agent.
   @override
   final AgentProvider? provider;
 
-  /// The version of the agent's software.
+  /// The version of the agent's software (e.g., "1.2.3").
   @override
   final String version;
 
@@ -638,14 +638,14 @@ class _AgentCard implements AgentCard {
   @override
   final String? documentationUrl;
 
-  /// The capabilities of the agent.
+  /// The capabilities of the agent, such as supported extensions.
   @override
   final AgentCapabilities capabilities;
 
-  /// The security schemes supported by the agent.
+  /// The security schemes supported by the agent (e.g., OAuth 2.0).
   final Map<String, SecurityScheme>? _securitySchemes;
 
-  /// The security schemes supported by the agent.
+  /// The security schemes supported by the agent (e.g., OAuth 2.0).
   @override
   Map<String, SecurityScheme>? get securitySchemes {
     final value = _securitySchemes;
@@ -655,10 +655,10 @@ class _AgentCard implements AgentCard {
     return EqualUnmodifiableMapView(value);
   }
 
-  /// The security requirements for the agent.
+  /// The security requirements for accessing the agent's services.
   final List<Map<String, List<String>>>? _security;
 
-  /// The security requirements for the agent.
+  /// The security requirements for accessing the agent's services.
   @override
   List<Map<String, List<String>>>? get security {
     final value = _security;
@@ -668,10 +668,10 @@ class _AgentCard implements AgentCard {
     return EqualUnmodifiableListView(value);
   }
 
-  /// The default input modes for the agent.
+  /// The default input modes for the agent (e.g., "text/plain").
   final List<String> _defaultInputModes;
 
-  /// The default input modes for the agent.
+  /// The default input modes for the agent (e.g., "text/plain").
   @override
   List<String> get defaultInputModes {
     if (_defaultInputModes is EqualUnmodifiableListView)
@@ -680,10 +680,10 @@ class _AgentCard implements AgentCard {
     return EqualUnmodifiableListView(_defaultInputModes);
   }
 
-  /// The default output modes for the agent.
+  /// The default output modes for the agent (e.g., "application/json").
   final List<String> _defaultOutputModes;
 
-  /// The default output modes for the agent.
+  /// The default output modes for the agent (e.g., "application/json").
   @override
   List<String> get defaultOutputModes {
     if (_defaultOutputModes is EqualUnmodifiableListView)
@@ -692,10 +692,10 @@ class _AgentCard implements AgentCard {
     return EqualUnmodifiableListView(_defaultOutputModes);
   }
 
-  /// The skills supported by the agent.
+  /// The skills or functionalities that the agent can perform.
   final List<AgentSkill> _skills;
 
-  /// The skills supported by the agent.
+  /// The skills or functionalities that the agent can perform.
   @override
   List<AgentSkill> get skills {
     if (_skills is EqualUnmodifiableListView) return _skills;
@@ -703,7 +703,7 @@ class _AgentCard implements AgentCard {
     return EqualUnmodifiableListView(_skills);
   }
 
-  /// Whether the agent supports authenticated extended card requests.
+  /// Indicates whether the agent supports authenticated extended card requests.
   @override
   final bool? supportsAuthenticatedExtendedCard;
 

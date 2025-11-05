@@ -12,6 +12,9 @@ class MockRequestHandler implements RequestHandler {
 
   @override
   FutureOr<Map<String, dynamic>> handle(Map<String, dynamic> params) {
+    if (params.containsKey('throw_error')) {
+      throw Exception('Test error');
+    }
     return {'result': 'success'};
   }
 }
@@ -73,6 +76,33 @@ void main() {
       expect(response.statusCode, equals(400));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       expect(json['error']['code'], equals(-32600));
+    });
+
+    test('returns error for malformed JSON', () async {
+      final response = await http.post(
+        Uri.parse('http://localhost:${server.port}/rpc'),
+        body: 'not json',
+      );
+
+      expect(response.statusCode, equals(400));
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      expect(json['error']['code'], equals(-32700));
+    });
+
+    test('returns error when handler throws an exception', () async {
+      final response = await http.post(
+        Uri.parse('http://localhost:${server.port}/rpc'),
+        body: jsonEncode({
+          'jsonrpc': '2.0',
+          'method': 'test_method',
+          'params': {'throw_error': true},
+          'id': 1,
+        }),
+      );
+
+      expect(response.statusCode, equals(500));
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      expect(json['error']['code'], equals(-32000));
     });
   });
 }

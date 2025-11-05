@@ -40,12 +40,26 @@ class A2AServer {
     final router = Router();
 
     router.post('/rpc', (Request request) async {
+      Map<String, dynamic> json;
+      dynamic id;
       try {
         final body = await request.readAsString();
-        final json = jsonDecode(body) as Map<String, dynamic>;
+        json = jsonDecode(body) as Map<String, dynamic>;
+        id = json['id'];
+      } on FormatException {
+        return Response.badRequest(
+          body: jsonEncode({
+            'jsonrpc': '2.0',
+            'error': {'code': -32700, 'message': 'Parse error'},
+            'id': null,
+          }),
+          headers: {'Content-Type': 'application/json'},
+        );
+      }
+
+      try {
         final method = json['method'] as String?;
         final params = json['params'] as Map<String, dynamic>?;
-        final id = json['id'];
 
         if (method == null || params == null) {
           return Response.badRequest(
@@ -61,6 +75,26 @@ class A2AServer {
         final handler = _handlers[method];
         if (handler != null) {
           final result = await handler.handle(params);
+          if (result.containsKey('stream')) {
+            final stream = result['stream'] as Stream<Map<String, dynamic>>;
+            final responseStream = stream.map((event) {
+              return utf8.encode(
+                'data: ${jsonEncode({
+                      'jsonrpc': '2.0',
+                      'result': event,
+                      'id': id
+                    })}\n\n',
+              );
+            });
+            return Response.ok(
+              responseStream,
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+              },
+            );
+          }
           return Response.ok(
             jsonEncode({'jsonrpc': '2.0', 'result': result, 'id': id}),
             headers: {'Content-Type': 'application/json'},
@@ -79,8 +113,8 @@ class A2AServer {
         return Response.internalServerError(
           body: jsonEncode({
             'jsonrpc': '2.0',
-            'error': {'code': -32603, 'message': 'Internal error'},
-            'id': null,
+            'error': {'code': -32000, 'message': 'Server error'},
+            'id': id,
           }),
           headers: {'Content-Type': 'application/json'},
         );

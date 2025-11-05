@@ -14,18 +14,21 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AgentCapabilities {
-  /// Indicates if the agent supports Server-Sent Events (SSE) for streaming
-  /// responses.
+  /// Indicates whether the agent supports Server-Sent Events (SSE) for
+  /// streaming responses.
+  ///
+  /// If `true`, the agent can send multiple responses over a single connection.
   bool? get streaming;
 
-  /// Indicates if the agent supports sending push notifications for asynchronous
-  /// task updates.
+  /// Indicates whether the agent supports sending push notifications for
+  /// asynchronous task updates.
   bool? get pushNotifications;
 
-  /// Indicates if the agent provides a history of state transitions for a task.
+  /// Indicates whether the agent provides a history of state transitions for a
+  /// task.
   bool? get stateTransitionHistory;
 
-  /// A list of protocol extensions supported by the agent.
+  /// A list of protocol extensions that the agent supports.
   List<AgentExtension>? get extensions;
 
   /// Create a copy of AgentCapabilities
@@ -295,24 +298,27 @@ class _AgentCapabilities implements AgentCapabilities {
   factory _AgentCapabilities.fromJson(Map<String, dynamic> json) =>
       _$AgentCapabilitiesFromJson(json);
 
-  /// Indicates if the agent supports Server-Sent Events (SSE) for streaming
-  /// responses.
+  /// Indicates whether the agent supports Server-Sent Events (SSE) for
+  /// streaming responses.
+  ///
+  /// If `true`, the agent can send multiple responses over a single connection.
   @override
   final bool? streaming;
 
-  /// Indicates if the agent supports sending push notifications for asynchronous
-  /// task updates.
+  /// Indicates whether the agent supports sending push notifications for
+  /// asynchronous task updates.
   @override
   final bool? pushNotifications;
 
-  /// Indicates if the agent provides a history of state transitions for a task.
+  /// Indicates whether the agent provides a history of state transitions for a
+  /// task.
   @override
   final bool? stateTransitionHistory;
 
-  /// A list of protocol extensions supported by the agent.
+  /// A list of protocol extensions that the agent supports.
   final List<AgentExtension>? _extensions;
 
-  /// A list of protocol extensions supported by the agent.
+  /// A list of protocol extensions that the agent supports.
   @override
   List<AgentExtension>? get extensions {
     final value = _extensions;

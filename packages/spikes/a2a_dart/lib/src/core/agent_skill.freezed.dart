@@ -14,10 +14,10 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AgentSkill {
-  /// A unique identifier for the agent's skill.
+  /// A unique identifier for the agent's skill (e.g., "weather-forecast").
   String get id;
 
-  /// A human-readable name for the skill.
+  /// A human-readable name for the skill (e.g., "Weather Forecast").
   String get name;
 
   /// A detailed description of the skill, intended to help clients or users
@@ -27,8 +27,8 @@ mixin _$AgentSkill {
   /// A set of keywords describing the skill's capabilities.
   List<String> get tags;
 
-  /// Example prompts or scenarios that this skill can handle. Provides a hint to
-  /// the client on how to use the skill.
+  /// Example prompts or scenarios that this skill can handle, providing a hint
+  /// to the client on how to use the skill.
   List<String>? get examples;
 
   /// The set of supported input MIME types for this skill, overriding the
@@ -392,11 +392,11 @@ class _AgentSkill implements AgentSkill {
   factory _AgentSkill.fromJson(Map<String, dynamic> json) =>
       _$AgentSkillFromJson(json);
 
-  /// A unique identifier for the agent's skill.
+  /// A unique identifier for the agent's skill (e.g., "weather-forecast").
   @override
   final String id;
 
-  /// A human-readable name for the skill.
+  /// A human-readable name for the skill (e.g., "Weather Forecast").
   @override
   final String name;
 
@@ -416,12 +416,12 @@ class _AgentSkill implements AgentSkill {
     return EqualUnmodifiableListView(_tags);
   }
 
-  /// Example prompts or scenarios that this skill can handle. Provides a hint to
-  /// the client on how to use the skill.
+  /// Example prompts or scenarios that this skill can handle, providing a hint
+  /// to the client on how to use the skill.
   final List<String>? _examples;
 
-  /// Example prompts or scenarios that this skill can handle. Provides a hint to
-  /// the client on how to use the skill.
+  /// Example prompts or scenarios that this skill can handle, providing a hint
+  /// to the client on how to use the skill.
   @override
   List<String>? get examples {
     final value = _examples;

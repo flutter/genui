@@ -32,7 +32,10 @@ SecurityScheme _$SecuritySchemeFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$SecurityScheme {
+  /// The type of the security scheme, always 'apiKey'.
   String get type;
+
+  /// A short description for the API key.
   String? get description;
 
   /// Create a copy of SecurityScheme
@@ -371,12 +374,19 @@ class APIKeySecurityScheme implements SecurityScheme {
   factory APIKeySecurityScheme.fromJson(Map<String, dynamic> json) =>
       _$APIKeySecuritySchemeFromJson(json);
 
+  /// The type of the security scheme, always 'apiKey'.
   @override
   @JsonKey()
   final String type;
+
+  /// A short description for the API key.
   @override
   final String? description;
+
+  /// The name of the header, query or cookie parameter to be used.
   final String name;
+
+  /// The location of the API key. Valid values are "query", "header" or "cookie".
   @JsonKey(name: 'in')
   final String in_;
 
@@ -483,12 +493,21 @@ class HttpAuthSecurityScheme implements SecurityScheme {
   factory HttpAuthSecurityScheme.fromJson(Map<String, dynamic> json) =>
       _$HttpAuthSecuritySchemeFromJson(json);
 
+  /// The type of the security scheme, always 'http'.
   @override
   @JsonKey()
   final String type;
+
+  /// A short description for the HTTP security scheme.
   @override
   final String? description;
+
+  /// The name of the HTTP Authorization scheme to be used in the Authorization
+  /// header defined in RFC7235. The values used should be registered in the
+  /// IANA "Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry".
   final String scheme;
+
+  /// A hint to the client to identify how the bearer token is formatted.
   final String? bearerFormat;
 
   /// Create a copy of SecurityScheme
@@ -590,11 +609,16 @@ class OAuth2SecurityScheme implements SecurityScheme {
   factory OAuth2SecurityScheme.fromJson(Map<String, dynamic> json) =>
       _$OAuth2SecuritySchemeFromJson(json);
 
+  /// The type of the security scheme, always 'oauth2'.
   @override
   @JsonKey()
   final String type;
+
+  /// A short description for the OAuth 2.0 security scheme.
   @override
   final String? description;
+
+  /// An object containing configuration information for the supported OAuth Flows.
   final OAuthFlows flows;
 
   /// Create a copy of SecurityScheme
@@ -701,11 +725,16 @@ class OpenIdConnectSecurityScheme implements SecurityScheme {
   factory OpenIdConnectSecurityScheme.fromJson(Map<String, dynamic> json) =>
       _$OpenIdConnectSecuritySchemeFromJson(json);
 
+  /// The type of the security scheme, always 'openIdConnect'.
   @override
   @JsonKey()
   final String type;
+
+  /// A short description for the OpenID Connect security scheme.
   @override
   final String? description;
+
+  /// OpenID Connect Discovery URL.
   final String openIdConnectUrl;
 
   /// Create a copy of SecurityScheme
@@ -800,9 +829,12 @@ class MutualTlsSecurityScheme implements SecurityScheme {
   factory MutualTlsSecurityScheme.fromJson(Map<String, dynamic> json) =>
       _$MutualTlsSecuritySchemeFromJson(json);
 
+  /// The type of the security scheme, always 'mutualTls'.
   @override
   @JsonKey()
   final String type;
+
+  /// A short description for the mutual TLS security scheme.
   @override
   final String? description;
 
@@ -884,9 +916,16 @@ class _$MutualTlsSecuritySchemeCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$OAuthFlows {
+  /// The implicit flow.
   OAuthFlow? get implicit;
+
+  /// The password flow.
   OAuthFlow? get password;
+
+  /// The client credentials flow.
   OAuthFlow? get clientCredentials;
+
+  /// The authorization code flow.
   OAuthFlow? get authorizationCode;
 
   /// Create a copy of OAuthFlows
@@ -1214,12 +1253,19 @@ class _OAuthFlows implements OAuthFlows {
   factory _OAuthFlows.fromJson(Map<String, dynamic> json) =>
       _$OAuthFlowsFromJson(json);
 
+  /// The implicit flow.
   @override
   final OAuthFlow? implicit;
+
+  /// The password flow.
   @override
   final OAuthFlow? password;
+
+  /// The client credentials flow.
   @override
   final OAuthFlow? clientCredentials;
+
+  /// The authorization code flow.
   @override
   final OAuthFlow? authorizationCode;
 
@@ -1384,9 +1430,16 @@ class __$OAuthFlowsCopyWithImpl<$Res> implements _$OAuthFlowsCopyWith<$Res> {
 
 /// @nodoc
 mixin _$OAuthFlow {
+  /// The authorization URL for the flow.
   String? get authorizationUrl;
+
+  /// The token URL for the flow.
   String? get tokenUrl;
+
+  /// The refresh URL for the flow.
   String? get refreshUrl;
+
+  /// The available scopes for the flow.
   Map<String, String> get scopes;
 
   /// Create a copy of OAuthFlow
@@ -1652,13 +1705,22 @@ class _OAuthFlow implements OAuthFlow {
   factory _OAuthFlow.fromJson(Map<String, dynamic> json) =>
       _$OAuthFlowFromJson(json);
 
+  /// The authorization URL for the flow.
   @override
   final String? authorizationUrl;
+
+  /// The token URL for the flow.
   @override
   final String? tokenUrl;
+
+  /// The refresh URL for the flow.
   @override
   final String? refreshUrl;
+
+  /// The available scopes for the flow.
   final Map<String, String> _scopes;
+
+  /// The available scopes for the flow.
   @override
   Map<String, String> get scopes {
     if (_scopes is EqualUnmodifiableMapView) return _scopes;

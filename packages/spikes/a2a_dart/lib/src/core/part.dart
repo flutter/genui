@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'part.freezed.dart';
-
 part 'part.g.dart';
 
 /// A discriminated union representing a part of a [Message].
@@ -26,7 +25,7 @@ abstract class Part with _$Part {
     /// The type of this part, always 'file'.
     @Default('file') String kind,
     /// The file to be included in the message.
-    required FileWithUri file,
+    required FileType file,
     /// Optional metadata for the part.
     Map<String, dynamic>? metadata,
   }) = FilePart;
@@ -45,25 +44,34 @@ abstract class Part with _$Part {
   factory Part.fromJson(Map<String, dynamic> json) => _$PartFromJson(json);
 }
 
-/// Represents a file with its content located at a specific URI.
+/// Represents a file with its content located at a specific URI or bytes.
 ///
 /// This class is used in [FilePart] to specify a file that is part of a
 /// [Message].
-@freezed
-abstract class FileWithUri with _$FileWithUri {
-  /// Creates a [FileWithUri].
-  const factory FileWithUri({
+@Freezed(unionKey: 'type')
+abstract class FileType with _$FileType {
+  /// A file represented by a URI.
+  const factory FileType.uri({
     /// A URL pointing to the file's content.
     required String uri,
-
     /// An optional name for the file (e.g., "document.pdf").
     String? name,
 
     /// The MIME type of the file (e.g., "application/pdf").
     String? mimeType,
-  }) = _FileWithUri;
+  }) = FileWithUri;
 
-  /// Creates a [FileWithUri] from a JSON object.
-  factory FileWithUri.fromJson(Map<String, dynamic> json) =>
-      _$FileWithUriFromJson(json);
+  /// A file represented by its raw bytes.
+  const factory FileType.bytes({
+    /// The base64-encoded content of the file.
+    required String bytes,
+    /// An optional name for the file (e.g., "document.pdf").
+    String? name,
+    /// The MIME type of the file (e.g., "application/pdf").
+    String? mimeType,
+  }) = FileWithBytes;
+
+  /// Creates a [FileType] from a JSON object.
+  factory FileType.fromJson(Map<String, dynamic> json) =>
+      _$FileTypeFromJson(json);
 }

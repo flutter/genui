@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 
 import '../core/agent_card.dart';
+import '../core/events.dart';
 import '../core/message.dart';
 import '../core/task.dart';
 import 'http_transport.dart';
@@ -54,6 +55,9 @@ class A2AClient {
       'id': 1,
     };
     final response = await transport.send(request);
+    if (response.containsKey('error')) {
+      throw Exception('Server returned an error: ${response['error']}');
+    }
     return Task.fromJson(response['result'] as Map<String, dynamic>);
   }
 
@@ -72,22 +76,20 @@ class A2AClient {
     return transport.sendStream(request);
   }
 
-  /// Executes a task on the server and returns a stream of messages.
+  /// Executes a task on the server and returns a stream of [StreamingEvent]s.
   ///
   /// This method is used to execute a task that has been previously created. It
-  /// takes a [taskId] and returns a [Stream] of [Message]s from the server.
-  Stream<Message> executeTask(String taskId) {
+  /// takes a [taskId] and returns a [Stream] of [StreamingEvent]s from the
+  /// server.
+  Stream<StreamingEvent> executeTask(String taskId) {
     final request = {
       'jsonrpc': '2.0',
       'method': 'execute_task',
       'params': {'task_id': taskId},
       'id': 1,
     };
-    return transport
-        .sendStream(request)
-        .map(
-          (response) =>
-              Message.fromJson(response['result'] as Map<String, dynamic>),
+    return transport.sendStream(request).map(
+          (eventPayload) => StreamingEvent.fromJson(eventPayload),
         );
   }
 }
