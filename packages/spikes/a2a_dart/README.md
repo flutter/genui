@@ -1,6 +1,22 @@
 # A2A Dart
 
-This package provides a Dart implementation of the A2A (Agent-to-Agent) protocol.
+This package provides a Dart implementation of the A2A (Agent-to-Agent) protocol. It includes a client for interacting with A2A servers and a server framework for building A2A agents.
+
+## Features
+
+-   **A2A Client**: A high-level client for communicating with A2A servers.
+-   **HTTP and SSE Transports**: Support for both standard request-response and streaming communication.
+-   **A2A Server**: A simple and extensible server framework.
+-   **Type-Safe Data Models**: Dart classes for all A2A data structures.
+
+## Installation
+
+Add the following to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  a2a_dart: ^1.0.0
+```
 
 ## Usage
 
@@ -10,7 +26,9 @@ This package provides a Dart implementation of the A2A (Agent-to-Agent) protocol
 import 'package:a2a_dart/a2a_dart.dart';
 
 void main() async {
-  final client = A2AClient(url: 'http://localhost:8080/rpc');
+  // For streaming, use SseTransport.
+  final transport = SseTransport(url: 'http://localhost:8080');
+  final client = A2AClient(url: 'http://localhost:8080', transport: transport);
 
   // Get the agent card.
   final agentCard = await client.getAgentCard();
@@ -20,7 +38,7 @@ void main() async {
   final message = Message(
     messageId: '1',
     role: Role.user,
-    parts: [TextPart(text: 'Hello')],
+    parts: [const TextPart(text: 'Hello')],
   );
   final task = await client.createTask(message);
   print('Created task: ${task.id}');
@@ -36,7 +54,7 @@ void main() async {
 ### Server
 
 ```dart
-import 'package:a2a_dart/a2a_dart_server.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 
 void main() async {
   final taskManager = TaskManager();
@@ -45,5 +63,6 @@ void main() async {
   ]);
 
   await server.start();
+  print('Server started on port ${server.port}');
 }
 ```

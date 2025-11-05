@@ -5,13 +5,17 @@ part 'agent_skill.freezed.dart';
 part 'agent_skill.g.dart';
 
 /// Represents a distinct capability or function that an agent can perform.
+///
+/// Part of the [AgentCard], this class allows an agent to advertise its
+/// specific skills, making them discoverable to clients.
 @freezed
 abstract class AgentSkill with _$AgentSkill {
+  /// Creates an [AgentSkill].
   const factory AgentSkill({
-    /// A unique identifier for the agent's skill.
+    /// A unique identifier for the agent's skill (e.g., "weather-forecast").
     required String id,
 
-    /// A human-readable name for the skill.
+    /// A human-readable name for the skill (e.g., "Weather Forecast").
     required String name,
 
     /// A detailed description of the skill, intended to help clients or users
@@ -21,8 +25,8 @@ abstract class AgentSkill with _$AgentSkill {
     /// A set of keywords describing the skill's capabilities.
     required List<String> tags,
 
-    /// Example prompts or scenarios that this skill can handle. Provides a hint to
-    /// the client on how to use the skill.
+    /// Example prompts or scenarios that this skill can handle, providing a hint
+    /// to the client on how to use the skill.
     List<String>? examples,
 
     /// The set of supported input MIME types for this skill, overriding the
@@ -37,6 +41,7 @@ abstract class AgentSkill with _$AgentSkill {
     List<Map<String, List<String>>>? security,
   }) = _AgentSkill;
 
+  /// Creates an [AgentSkill] from a JSON object.
   factory AgentSkill.fromJson(Map<String, dynamic> json) =>
       _$AgentSkillFromJson(json);
 }

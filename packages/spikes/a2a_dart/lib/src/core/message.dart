@@ -5,13 +5,22 @@ import 'part.dart';
 part 'message.freezed.dart';
 part 'message.g.dart';
 
-/// Identifies the sender of the message. `user` for the client, `agent` for the
-/// service.
-enum Role { user, agent }
+/// Identifies the sender of a message.
+enum Role {
+  /// The message is from the user (i.e., the client).
+  user,
+
+  /// The message is from the agent (i.e., the server).
+  agent,
+}
 
 /// Represents a single message in the conversation between a user and an agent.
+///
+/// A message is composed of one or more [Part]s, which can be text, images, or
+/// other types of content.
 @freezed
 abstract class Message with _$Message {
+  /// Creates a [Message].
   const factory Message({
     /// Identifies the sender of the message.
     required Role role,
@@ -44,6 +53,7 @@ abstract class Message with _$Message {
     @Default('message') String kind,
   }) = _Message;
 
+  /// Creates a [Message] from a JSON object.
   factory Message.fromJson(Map<String, dynamic> json) =>
       _$MessageFromJson(json);
 }

@@ -6,8 +6,12 @@ This package provides a Dart implementation of the A2A (Agent-to-Agent) protocol
 
 ## Client
 
-The `A2AClient` provides a simple and convenient way to interact with an A2A server. It supports all the standard A2A RPC calls, including `get_agent_card`, `create_task`, and `execute_task`.
+The `A2AClient` provides a simple and convenient way to interact with an A2A server. It supports all the standard A2A RPC calls, including `get_agent_card`, `create_task`, and `execute_task`. The client uses a `Transport` interface to abstract the underlying communication mechanism, with `HttpTransport` for standard request-response and `SseTransport` for streaming.
 
 ## Server
 
-The `A2AServer` provides a flexible and extensible framework for building A2A agents. It is built on top of the `shelf` package and uses a request handler pipeline to process incoming requests.
+The `A2AServer` provides a flexible and extensible framework for building A2A agents. It is built on top of the `shelf` package and uses a request handler pipeline to process incoming requests. Each `RequestHandler` is responsible for a single RPC method, making it easy to add new functionality to the server.
+
+## Data Models
+
+The package includes a complete set of type-safe Dart classes for all A2A data structures, such as `AgentCard`, `Message`, `Task`, and `SecurityScheme`. These models are built using the `freezed` and `json_serializable` packages to provide immutable data structures with built-in JSON serialization.

@@ -9,16 +9,24 @@ import 'package:shelf_router/shelf_router.dart';
 import 'request_handler.dart';
 
 /// A server for handling A2A RPC calls.
+///
+/// This class provides a simple and extensible server for handling A2A RPC
+/// calls. It uses a request handler pipeline to process incoming requests.
 class A2AServer {
   HttpServer? _server;
 
-  /// The port the server is listening on. This is only valid after `start` has
-  /// been called.
+  /// The port the server is listening on.
+  ///
+  /// This is only valid after [start] has been called.
   int get port => _server?.port ?? -1;
 
   final Map<String, RequestHandler> _handlers = {};
 
   /// Creates an [A2AServer].
+  ///
+  /// The [handlers] are a list of [RequestHandler]s that will be used to
+  /// process incoming requests. Each handler is responsible for a single RPC
+  /// method.
   A2AServer(List<RequestHandler> handlers) {
     for (final handler in handlers) {
       _handlers[handler.method] = handler;
@@ -26,6 +34,8 @@ class A2AServer {
   }
 
   /// Starts the server.
+  ///
+  /// The server will listen on a random available port.
   Future<void> start() async {
     final router = Router();
 
@@ -82,7 +92,6 @@ class A2AServer {
         .addHandler(router.call);
 
     _server = await io.serve(handler, 'localhost', 0);
-    print('A2A server started on ${_server!.address.host}:${_server!.port}');
     print('A2A server started on ${_server!.address.host}:${_server!.port}');
   }
 

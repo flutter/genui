@@ -5,13 +5,20 @@ import 'package:http/http.dart' as http;
 import 'transport.dart';
 
 /// An implementation of [Transport] that uses HTTP for communication.
+///
+/// This class is used for standard request-response interactions with the A2A
+/// server. It does not support streaming.
 class HttpTransport implements Transport {
-  /// The URL of the A2A server.
+  /// The base URL of the A2A server.
   final String url;
 
+  /// The [http.Client] used to make requests.
   final http.Client client;
 
   /// Creates an [HttpTransport].
+  ///
+  /// The [url] is the base URL of the A2A server. An optional [client] can be
+  /// provided for testing or to customize the HTTP client.
   HttpTransport({required this.url, http.Client? client})
       : client = client ?? http.Client();
 

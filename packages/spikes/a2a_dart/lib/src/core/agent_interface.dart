@@ -4,34 +4,40 @@ part 'agent_interface.freezed.dart';
 
 part 'agent_interface.g.dart';
 
-/// Supported A2A transport protocols.
+/// Defines the transport protocols that can be used for A2A communication.
 enum TransportProtocol {
-  /// JSON-RPC 2.0 over HTTP (optional)
+  /// JSON-RPC 2.0 over HTTP.
   @JsonValue('JSONRPC')
   jsonrpc,
 
-  /// gRPC over HTTP/2 (optional)
+  /// gRPC over HTTP/2.
   @JsonValue('GRPC')
   grpc,
 
-  /// REST-style HTTP with JSON (optional)
+  /// REST-style HTTP with JSON.
   @JsonValue('HTTP+JSON')
   httpJson,
 }
 
-/// Declares a combination of a target URL and a transport protocol for
-/// interacting with the agent.
+/// Declares a communication interface for an agent, combining a URL with a
+/// specific transport protocol.
+///
+/// Part of the [AgentCard], this allows an agent to advertise multiple endpoints
+/// or protocols for interaction.
 @freezed
 abstract class AgentInterface with _$AgentInterface {
+  /// Creates an [AgentInterface].
   const factory AgentInterface({
-    /// The URL where this interface is available. Must be a valid absolute HTTPS
-    /// URL in production.
+    /// The URL where this interface is available.
+    ///
+    /// In a production environment, this must be a valid absolute HTTPS URL.
     required String url,
 
     /// The transport protocol supported at this URL.
     required TransportProtocol transport,
   }) = _AgentInterface;
 
+  /// Creates an [AgentInterface] from a JSON object.
   factory AgentInterface.fromJson(Map<String, dynamic> json) =>
       _$AgentInterfaceFromJson(json);
 }

@@ -6,9 +6,17 @@ import 'package:http/http.dart' as http;
 import 'http_transport.dart';
 
 /// An implementation of [Transport] that uses Server-Sent Events (SSE) for
-/// communication.
+/// streaming communication.
+///
+/// This class extends [HttpTransport] and adds support for streaming responses
+/// from the server. It should be used when real-time, bidirectional
+/// communication is required. For simple request-response interactions,
+/// [HttpTransport] is sufficient.
 class SseTransport extends HttpTransport {
   /// Creates an [SseTransport].
+  ///
+  /// The [url] is the base URL of the A2A server. An optional [client] can be
+  /// provided for testing or to customize the HTTP client.
   SseTransport({required super.url, super.client});
 
   @override

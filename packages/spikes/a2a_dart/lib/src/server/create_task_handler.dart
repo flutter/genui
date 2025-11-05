@@ -4,9 +4,17 @@ import '../core/message.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
+/// A [RequestHandler] that creates a new task.
+///
+/// This handler is responsible for the `create_task` RPC method. It uses a
+/// [TaskManager] to create a new task and returns the task's JSON
+/// representation.
 class CreateTaskHandler implements RequestHandler {
   final TaskManager _taskManager;
 
+  /// Creates a [CreateTaskHandler].
+  ///
+  /// The handler will use the provided [_taskManager] to create new tasks.
   CreateTaskHandler(this._taskManager);
 
   @override
@@ -14,7 +22,8 @@ class CreateTaskHandler implements RequestHandler {
 
   @override
   FutureOr<Map<String, dynamic>> handle(Map<String, dynamic> params) {
-    // The message is not used yet, but it will be needed in the future.
+    // The 'message' parameter is part of the A2A specification for 'create_task',
+    // but it is not yet used in this implementation.
     // ignore: unused_local_variable
     final message = Message.fromJson(params['message'] as Map<String, dynamic>);
 

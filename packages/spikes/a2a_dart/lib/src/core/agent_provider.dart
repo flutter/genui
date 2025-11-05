@@ -5,8 +5,12 @@ part 'agent_provider.freezed.dart';
 part 'agent_provider.g.dart';
 
 /// Represents the service provider of an agent.
+///
+/// This class is part of the [AgentCard] and provides information about the
+/// entity that created and maintains the agent.
 @freezed
 abstract class AgentProvider with _$AgentProvider {
+  /// Creates an [AgentProvider].
   const factory AgentProvider({
     /// The name of the agent provider's organization.
     required String organization,
@@ -15,6 +19,7 @@ abstract class AgentProvider with _$AgentProvider {
     required String url,
   }) = _AgentProvider;
 
+  /// Creates an [AgentProvider] from a JSON object.
   factory AgentProvider.fromJson(Map<String, dynamic> json) =>
       _$AgentProviderFromJson(json);
 }

@@ -30,7 +30,7 @@ The primary goal is to create a library that is:
 
 ## 3. Implemented A2A Features
 
-The `a2a_dart` library will implement the following features from the A2A specification:
+The `a2a_dart` library implements the following features from the A2A specification:
 
 ### Core Concepts
 
@@ -59,18 +59,11 @@ The `a2a_dart` library will implement the following features from the A2A specif
 
 ### RPC Methods
 
-- The library will provide client methods and server-side handlers for the full suite of A2A RPC methods:
-  - `message/send`
+- The library provides client methods and server-side handlers for the following A2A RPC methods:
+  - `get_agent_card` (via HTTP GET)
+  - `create_task`
   - `message/stream`
-  - `tasks/get`
-  - `tasks/list`
-  - `tasks/cancel`
-  - `tasks/resubscribe`
-  - `tasks/pushNotificationConfig/set`
-  - `tasks/pushNotificationConfig/get`
-  - `tasks/pushNotificationConfig/list`
-  - `tasks/pushNotificationConfig/delete`
-  - `agent/getAuthenticatedExtendedCard`
+  - `execute_task`
 
 ### Authentication
 
@@ -95,7 +88,6 @@ graph TD
 
     C --> C1[A2AClient]
     C --> C2[Transport]
-    C --> C3[Middleware]
 
     D --> D1[A2AServer]
     D --> D2[RequestHandler]
@@ -137,49 +129,20 @@ class AgentCard with _$AgentCard {
 The client API will be centered around the `A2AClient` class. This class will provide methods for each of the A2A RPC calls, such as `sendMessage`, `getTask`, and `cancelTask`.
 
 - **Asynchronous**: All API methods will be asynchronous, returning `Future`s.
-- **Transport Agnostic**: The `A2AClient` will delegate the actual HTTP communication to a `Transport` interface, allowing for different transport implementations (e.g., `HttpTransport` for standard request-response and `SseTransport` for streaming).
-- **A2A Handlers**: The client will support a handler pipeline for intercepting and modifying requests and responses. This can be used for logging, authentication, and other cross-cutting concerns.
+- **Transport Agnostic**: The `A2AClient` delegates the actual HTTP communication to a `Transport` interface. This allows for different transport implementations, with `HttpTransport` providing basic request-response and `SseTransport` extending it for streaming.
 
-### 5.1. A2A Handlers
 
-The client will feature an `A2AHandler` pipeline, a powerful mechanism for implementing cross-cutting concerns. Handlers are executed in order for requests and in reverse order for responses, allowing them to wrap the core request/response logic.
-
-This pattern is ideal for:
-
-- **Logging**: Recording request and response data.
-- **Authentication**: Injecting authentication tokens into request headers.
-- **Caching**: Implementing a caching layer.
-- **Error Handling**: Centralizing error handling and reporting.
-
-Example of a logging handler:
-
-```dart
-class LoggingHandler implements A2AHandler {
-  final Logger _logger = Logger('A2AClient');
-
-  @override
-  Future<Map<String, dynamic>> handleRequest(Map<String, dynamic> request) async {
-    _logger.info('Request: $request');
-    return request;
-  }
-
-  @override
-  Future<Map<String, dynamic>> handleResponse(Map<String, dynamic> response) async {
-    _logger.info('Response: $response');
-    return response;
-  }
-}
-```
 
 Example `A2AClient` usage:
 
 ```dart
-final client = A2AClient(httpTransport: HttpTransport('https://example.com/a2a'), sseTransport: SseTransport('https://example.com/a2a'));
+final client = A2AClient(url: 'https://example.com/a2a', transport: SseTransport(url: 'https://example.com/a2a'));
 
 // For a simple request-response
-final task = await client.sendMessage(Message(
-  role: 'user',
-  parts: [TextPart(text: 'Hello, agent!')],
+final task = await client.createTask(Message(
+  messageId: '1',
+  role: Role.user,
+  parts: [const TextPart(text: 'Hello, agent!')],
 ));
 
 // For a streaming response
@@ -193,6 +156,12 @@ await for (final event in stream) {
 }
 
 print(task.status.state);
+
+// To execute the task and get a stream of messages:
+final stream = client.executeTask(task.id);
+await for (final message in stream) {
+  // process messages
+}
 ```
 
 ## 6. Server Framework
@@ -212,7 +181,9 @@ Errors will be handled using a combination of exceptions and a `Result` type. Ne
 - `http`: For making HTTP requests.
 - `freezed`: For immutable data classes.
 - `json_serializable`: For JSON serialization.
-- `logging`: For structured logging.
+- `shelf`: For building the server.
+- `shelf_router`: For routing requests on the server.
+- `uuid`: For generating unique IDs.
 
 ## 9. Testing
 
