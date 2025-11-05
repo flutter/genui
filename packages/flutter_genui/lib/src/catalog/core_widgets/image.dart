@@ -81,14 +81,14 @@ final image = CatalogItem(
         }
         final fit = imageData.fit;
 
-        late Widget bchild;
+        late Widget child;
 
         if (location.startsWith('assets/')) {
-          bchild = Image.asset(location, fit: fit);
+          child = Image.asset(location, fit: fit);
         } else {
-          bchild = Image.network(location, fit: fit);
+          child = Image.network(location, fit: fit);
         }
-        return SizedBox(width: 150, height: 150, child: bchild);
+        return SizedBox(height: 150, child: child);
       },
     );
   },

@@ -40,6 +40,64 @@ class GenUiSurface extends StatefulWidget {
 }
 
 class _GenUiSurfaceState extends State<GenUiSurface> {
+  ValueNotifier<dynamic>? _rootNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    genUiLogger.info('_GenUiSurfaceState.initState for ${widget.surfaceId}');
+    _subscribeToDataModel();
+  }
+
+  @override
+  void didUpdateWidget(GenUiSurface oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    genUiLogger.info(
+      '_GenUiSurfaceState.didUpdateWidget for ${widget.surfaceId}, '
+      'old: ${oldWidget.surfaceId}',
+    );
+    if (widget.surfaceId != oldWidget.surfaceId ||
+        widget.host != oldWidget.host) {
+      genUiLogger.info('  surfaceId or host changed, re-subscribing');
+      _unsubscribeFromDataModel();
+      _subscribeToDataModel();
+    }
+  }
+
+  @override
+  void dispose() {
+    genUiLogger.info('_GenUiSurfaceState.dispose for ${widget.surfaceId}');
+    _unsubscribeFromDataModel();
+    super.dispose();
+  }
+
+  void _dataModelListener() {
+    if (mounted) {
+      genUiLogger.fine(
+        'DataModel change detected for ${widget.surfaceId} at root, forcing '
+        'rebuild',
+      );
+      setState(() {});
+    }
+  }
+
+  void _subscribeToDataModel() {
+    genUiLogger.info(
+      '_GenUiSurfaceState._subscribeToDataModel for ${widget.surfaceId}',
+    );
+    final dataModel = widget.host.dataModelForSurface(widget.surfaceId);
+    _rootNotifier = dataModel.subscribe<dynamic>(DataPath.root);
+    _rootNotifier?.addListener(_dataModelListener);
+  }
+
+  void _unsubscribeFromDataModel() {
+    genUiLogger.info(
+      '_GenUiSurfaceState._unsubscribeFromDataModel for ${widget.surfaceId}',
+    );
+    _rootNotifier?.removeListener(_dataModelListener);
+    _rootNotifier = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     genUiLogger.fine('Outer Building surface ${widget.surfaceId}');

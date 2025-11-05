@@ -59,10 +59,7 @@ final text = CatalogItem(
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
-        return Text(
-          currentValue ?? '',
-          style: Theme.of(context).textTheme.bodyMedium,
-        );
+        return Text(currentValue ?? '');
       },
     );
   },

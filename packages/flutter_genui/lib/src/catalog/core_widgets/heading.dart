@@ -57,7 +57,14 @@ final heading = CatalogItem(
           '5' => textTheme.titleMedium,
           _ => textTheme.titleSmall,
         };
-        return Text(currentValue ?? '', style: style);
+        return Padding(
+          // Add some space below the heading to separate it from the content
+          // above and below it, proportionally based on the heading level.
+          padding: EdgeInsets.symmetric(
+            vertical: 4.0 * (6 - (int.tryParse(headingData.level ?? '5') ?? 5)),
+          ),
+          child: Text(currentValue ?? '', style: style),
+        );
       },
     );
   },

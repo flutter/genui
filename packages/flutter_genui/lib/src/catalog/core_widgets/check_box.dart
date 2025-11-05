@@ -55,7 +55,11 @@ final checkBox = CatalogItem(
           valueListenable: valueNotifier,
           builder: (context, value, child) {
             return CheckboxListTile(
-              title: Text(label ?? ''),
+              controlAffinity: ListTileControlAffinity.leading,
+              title: Text(
+                label ?? '',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               value: value ?? false,
               onChanged: (newValue) {
                 final path = checkBoxData.value['path'] as String?;

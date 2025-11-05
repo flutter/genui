@@ -35,7 +35,13 @@ final card = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final cardData = _CardData.fromMap(itemContext.data as JsonMap);
-    return Card(child: itemContext.buildChild(cardData.child));
+    return Card(
+      color: Theme.of(itemContext.buildContext).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: itemContext.buildChild(cardData.child),
+      ),
+    );
   },
   exampleData: [
     () => '''

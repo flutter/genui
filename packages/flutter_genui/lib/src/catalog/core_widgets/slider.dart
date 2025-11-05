@@ -50,26 +50,42 @@ extension type _SliderData.fromMap(JsonMap _json) {
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
-  widgetBuilder: (CatalogItemContext context) {
-    final sliderData = _SliderData.fromMap(context.data as JsonMap);
-    final valueNotifier = context.dataContext.subscribeToValue<num>(
+  widgetBuilder: (CatalogItemContext itemContext) {
+    final sliderData = _SliderData.fromMap(itemContext.data as JsonMap);
+    final valueNotifier = itemContext.dataContext.subscribeToValue<num>(
       sliderData.value,
       'literalNumber',
     );
 
     return ValueListenableBuilder<num?>(
       valueListenable: valueNotifier,
-      builder: (_, value, child) {
-        return Slider(
-          value: (value ?? 0.0).toDouble(),
-          min: sliderData.minValue,
-          max: sliderData.maxValue,
-          onChanged: (newValue) {
-            final path = sliderData.value['path'] as String?;
-            if (path != null) {
-              context.dataContext.update(DataPath(path), newValue);
-            }
-          },
+      builder: (context, value, child) {
+        return Padding(
+          padding: const EdgeInsetsDirectional.only(end: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Slider(
+                  value: (value ?? sliderData.minValue).toDouble(),
+                  min: sliderData.minValue,
+                  max: sliderData.maxValue,
+                  divisions: (sliderData.maxValue - sliderData.minValue)
+                      .toInt(),
+                  onChanged: (newValue) {
+                    final path = sliderData.value['path'] as String?;
+                    if (path != null) {
+                      itemContext.dataContext.update(DataPath(path), newValue);
+                    }
+                  },
+                ),
+              ),
+              Text(
+                value?.toStringAsFixed(0) ??
+                    sliderData.minValue.toStringAsFixed(0),
+              ),
+            ],
+          ),
         );
       },
     );

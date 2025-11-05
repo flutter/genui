@@ -80,27 +80,63 @@ final multipleChoice = CatalogItem(
             return ValueListenableBuilder<String?>(
               valueListenable: labelNotifier,
               builder: (context, label, child) {
-                return CheckboxListTile(
-                  title: Text(label ?? ''),
-                  value: selections?.contains(value) ?? false,
-                  onChanged: (newValue) {
-                    final path =
-                        multipleChoiceData.selections['path'] as String?;
-                    if (path == null) {
-                      return;
-                    }
-                    final newSelections = List<String>.from(selections ?? []);
-                    if (newValue ?? false) {
-                      newSelections.add(value);
-                    } else {
-                      newSelections.remove(value);
-                    }
-                    itemContext.dataContext.update(
-                      DataPath(path),
-                      newSelections,
-                    );
-                  },
-                );
+                if (multipleChoiceData.maxAllowedSelections == 1) {
+                  final groupValue = selections?.isNotEmpty == true
+                      ? selections!.first
+                      : null;
+                  return RadioListTile<String>(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    dense: true,
+                    title: Text(
+                      label ?? '',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    value: value,
+                    // ignore: deprecated_member_use
+                    groupValue: groupValue as String?,
+                    // ignore: deprecated_member_use
+                    onChanged: (newValue) {
+                      final path =
+                          multipleChoiceData.selections['path'] as String?;
+                      if (path == null || newValue == null) {
+                        return;
+                      }
+                      itemContext.dataContext.update(DataPath(path), [
+                        newValue,
+                      ]);
+                    },
+                  );
+                } else {
+                  return CheckboxListTile(
+                    title: Text(label ?? ''),
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: selections?.contains(value) ?? false,
+                    onChanged: (newValue) {
+                      final path =
+                          multipleChoiceData.selections['path'] as String?;
+                      if (path == null) {
+                        return;
+                      }
+                      final newSelections =
+                          selections?.map((e) => e.toString()).toList() ??
+                          <String>[];
+                      if (newValue ?? false) {
+                        if (multipleChoiceData.maxAllowedSelections == null ||
+                            newSelections.length <
+                                multipleChoiceData.maxAllowedSelections!) {
+                          newSelections.add(value);
+                        }
+                      } else {
+                        newSelections.remove(value);
+                      }
+                      itemContext.dataContext.update(
+                        DataPath(path),
+                        newSelections,
+                      );
+                    },
+                  );
+                }
               },
             );
           }).toList(),

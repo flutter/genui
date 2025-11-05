@@ -72,13 +72,39 @@ final button = CatalogItem(
     final colorScheme = Theme.of(itemContext.buildContext).colorScheme;
     final primary = buttonData.primary;
 
+    genUiLogger.finest('Button build: primary=$primary');
+    genUiLogger.finest(
+      'Button build: colorScheme.primary=${colorScheme.primary}',
+    );
+    genUiLogger.finest(
+      'Button build: colorScheme.onPrimary=${colorScheme.onPrimary}',
+    );
+    genUiLogger.finest(
+      'Button build: colorScheme.surface=${colorScheme.surface}',
+    );
+    genUiLogger.finest(
+      'Button build: colorScheme.onSurface=${colorScheme.onSurface}',
+    );
+    genUiLogger.finest(
+      'Button build: theme.textTheme.bodyLarge.color='
+      '${Theme.of(itemContext.buildContext).textTheme.bodyLarge?.color}',
+    );
+
+    final textStyle = Theme.of(itemContext.buildContext).textTheme.bodyLarge
+        ?.copyWith(
+          color: primary ? colorScheme.onPrimary : colorScheme.onSurface,
+        );
+    genUiLogger.finest(
+      'Button build: created textStyle.color=${textStyle?.color}',
+    );
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary ? colorScheme.primary : colorScheme.surface,
         foregroundColor: primary
             ? colorScheme.onPrimary
             : colorScheme.onSurface,
-      ),
+      ).copyWith(textStyle: WidgetStatePropertyAll(textStyle)),
       onPressed: () {
         final resolvedContext = resolveContext(
           itemContext.dataContext,
@@ -92,7 +118,7 @@ final button = CatalogItem(
           ),
         );
       },
-      child: child,
+      child: DefaultTextStyle.merge(style: textStyle, child: child),
     );
   },
   exampleData: [

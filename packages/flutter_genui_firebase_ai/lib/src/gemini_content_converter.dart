@@ -55,6 +55,13 @@ class GeminiContentConverter {
       switch (part) {
         case TextPart():
           result.add(firebase_ai.TextPart(part.text));
+        case DataPart():
+          result.add(
+            firebase_ai.InlineDataPart(
+              'application/json',
+              utf8.encode(jsonEncode(part.data)),
+            ),
+          );
         case ImagePart():
           if (part.bytes != null) {
             result.add(firebase_ai.InlineDataPart(part.mimeType!, part.bytes!));
