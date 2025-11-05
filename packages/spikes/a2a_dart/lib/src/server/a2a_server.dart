@@ -8,17 +8,22 @@ import 'package:shelf_router/shelf_router.dart';
 
 import 'request_handler.dart';
 
+/// A server for handling A2A RPC calls.
 class A2AServer {
+  /// The port to listen on.
   final int port;
+
   final Map<String, RequestHandler> _handlers = {};
   HttpServer? _server;
 
+  /// Creates an [A2AServer].
   A2AServer(List<RequestHandler> handlers, {this.port = 8080}) {
     for (final handler in handlers) {
       _handlers[handler.method] = handler;
     }
   }
 
+  /// Starts the server.
   Future<void> start() async {
     final router = Router();
 
@@ -27,9 +32,10 @@ class A2AServer {
         final body = await request.readAsString();
         final json = jsonDecode(body) as Map<String, dynamic>;
         final method = json['method'] as String?;
+        final params = json['params'] as Map<String, dynamic>?;
         final id = json['id'];
 
-        if (method == null) {
+        if (method == null || params == null) {
           return Response.badRequest(
             body: jsonEncode({
               'jsonrpc': '2.0',
@@ -42,7 +48,11 @@ class A2AServer {
 
         final handler = _handlers[method];
         if (handler != null) {
-          return handler.handle(request);
+          final result = await handler.handle(params);
+          return Response.ok(
+            jsonEncode({'jsonrpc': '2.0', 'result': result, 'id': id}),
+            headers: {'Content-Type': 'application/json'},
+          );
         } else {
           return Response.notFound(
             jsonEncode({
@@ -65,12 +75,15 @@ class A2AServer {
       }
     });
 
-    final handler = const Pipeline().addHandler(router.call);
+    final handler = const Pipeline()
+        .addMiddleware(logRequests())
+        .addHandler(router.call);
 
     _server = await io.serve(handler, 'localhost', port);
-    print('A2A server started on port $port');
+    print('A2A server started on ${_server!.address.host}:${_server!.port}');
   }
 
+  /// Stops the server.
   Future<void> stop() async {
     await _server?.close();
     print('A2A server stopped');
