@@ -10,14 +10,16 @@ import 'request_handler.dart';
 
 /// A server for handling A2A RPC calls.
 class A2AServer {
-  /// The port to listen on.
-  final int port;
-
-  final Map<String, RequestHandler> _handlers = {};
   HttpServer? _server;
 
+  /// The port the server is listening on. This is only valid after `start` has
+  /// been called.
+  int get port => _server?.port ?? -1;
+
+  final Map<String, RequestHandler> _handlers = {};
+
   /// Creates an [A2AServer].
-  A2AServer(List<RequestHandler> handlers, {this.port = 8080}) {
+  A2AServer(List<RequestHandler> handlers) {
     for (final handler in handlers) {
       _handlers[handler.method] = handler;
     }
@@ -79,7 +81,8 @@ class A2AServer {
         .addMiddleware(logRequests())
         .addHandler(router.call);
 
-    _server = await io.serve(handler, 'localhost', port);
+    _server = await io.serve(handler, 'localhost', 0);
+    print('A2A server started on ${_server!.address.host}:${_server!.port}');
     print('A2A server started on ${_server!.address.host}:${_server!.port}');
   }
 

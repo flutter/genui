@@ -31,7 +31,7 @@ void main() {
 
     test('handles valid request', () async {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/rpc'),
+        Uri.parse('http://localhost:${server.port}/rpc'),
         body: jsonEncode({
           'jsonrpc': '2.0',
           'method': 'test_method',
@@ -47,7 +47,7 @@ void main() {
 
     test('returns error for invalid method', () async {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/rpc'),
+        Uri.parse('http://localhost:${server.port}/rpc'),
         body: jsonEncode({
           'jsonrpc': '2.0',
           'method': 'invalid_method',
@@ -63,7 +63,7 @@ void main() {
 
     test('returns error for invalid request', () async {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/rpc'),
+        Uri.parse('http://localhost:${server.port}/rpc'),
         body: jsonEncode({
           'jsonrpc': '2.0',
           'id': 1,

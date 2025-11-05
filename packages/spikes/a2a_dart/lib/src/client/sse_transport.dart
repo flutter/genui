@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:sse_channel/sse_channel.dart';
+import 'package:http/http.dart' as http;
 
 import 'transport.dart';
 
@@ -28,16 +28,49 @@ class SseTransport implements Transport {
 
   @override
   Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
-    final channel = SseChannel.connect(Uri.parse('$url/rpc'));
+    final client = http.Client();
+    final httpRequest = http.Request('POST', Uri.parse('$url/rpc'))
+      ..headers['Content-Type'] = 'application/json'
+      ..headers['Accept'] = 'text/event-stream'
+      ..body = jsonEncode(request);
 
-    // TODO(gspencer): Implement SSE transport correctly.
-    // This is a placeholder implementation.
-    return channel.stream.map((event) {
-      if (event.data == null) {
-        return {};
-      }
-      final data = jsonDecode(event.data!) as Map<String, dynamic>;
-      return data['result'] as Map<String, dynamic>;
+    final controller = StreamController<Map<String, dynamic>>();
+
+    client.send(httpRequest).then((response) {
+      response.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .listen(
+            (line) {
+              if (line.startsWith('data: ')) {
+                final dataString = line.substring('data: '.length);
+                if (dataString.isNotEmpty) {
+                  try {
+                    final data = jsonDecode(dataString) as Map<String, dynamic>;
+                    if (data.containsKey('result')) {
+                      controller.add(data['result'] as Map<String, dynamic>);
+                    } else if (data.containsKey('error')) {
+                      controller.addError(data['error']);
+                    }
+                  } catch (e) {
+                    controller.addError(e);
+                  }
+                }
+              }
+            },
+            onError: controller.addError,
+            onDone: () {
+              controller.close();
+              client.close();
+            },
+            cancelOnError: true,
+          );
+    }).catchError((dynamic error) {
+      controller.addError(error);
+      controller.close();
+      client.close();
     });
+
+    return controller.stream;
   }
 }

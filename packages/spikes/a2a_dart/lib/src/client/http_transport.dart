@@ -43,7 +43,7 @@ class HttpTransport implements Transport {
 
   @override
   Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
-    // TODO(gspencer): Implement SSE transport.
-    throw UnimplementedError();
+    // HTTP transport does not support streaming.
+    throw UnimplementedError('Streaming is not supported by HttpTransport.');
   }
 }
