@@ -66,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     _surfaceSubscription = _genUiManager.surfaceUpdates.listen((update) {
-      if (update is SurfaceAdded || update is SurfaceUpdated) {
+      if (update is SurfaceAdded) {
         genUiLogger.info('Surface added: ${update.surfaceId}');
         if (!_surfaceIds.contains(update.surfaceId)) {
           setState(() {
@@ -75,18 +75,27 @@ class _ChatScreenState extends State<ChatScreen> {
             _currentSurfaceIndex = _surfaceIds.length - 1;
           });
         }
+      } else if (update is SurfaceUpdated) {
+        genUiLogger.info('Surface updated: ${update.surfaceId}');
+        // The surface will redraw itself, but we call setState here to ensure
+        // that any other dependent widgets are also updated.
+        setState(() {});
       } else if (update is SurfaceRemoved) {
         genUiLogger.info('Surface removed: ${update.surfaceId}');
         if (_surfaceIds.contains(update.surfaceId)) {
           setState(() {
             final removeIndex = _surfaceIds.indexOf(update.surfaceId);
             _surfaceIds.removeAt(removeIndex);
-            if (_currentSurfaceIndex >= removeIndex &&
-                _currentSurfaceIndex > 0) {
-              _currentSurfaceIndex--;
-            }
-            if (_currentSurfaceIndex >= _surfaceIds.length) {
-              _currentSurfaceIndex = _surfaceIds.length - 1;
+            if (_surfaceIds.isEmpty) {
+              _currentSurfaceIndex = 0;
+            } else {
+              if (_currentSurfaceIndex >= removeIndex &&
+                  _currentSurfaceIndex > 0) {
+                _currentSurfaceIndex--;
+              }
+              if (_currentSurfaceIndex >= _surfaceIds.length) {
+                _currentSurfaceIndex = _surfaceIds.length - 1;
+              }
             }
           });
         }
@@ -127,6 +136,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_surfaceIds.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('A2UI Example')),
+        body: const Center(child: Text('No surfaces available.')),
+      );
+    }
     final currentSurfaceId = _surfaceIds[_currentSurfaceIndex];
     return Scaffold(
       appBar: AppBar(

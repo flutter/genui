@@ -49,20 +49,26 @@ final heading = CatalogItem(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
         final textTheme = Theme.of(context).textTheme;
-        final style = switch (headingData.level) {
-          '1' => textTheme.headlineLarge,
-          '2' => textTheme.headlineMedium,
-          '3' => textTheme.headlineSmall,
-          '4' => textTheme.titleLarge,
-          '5' => textTheme.titleMedium,
+        final level = int.tryParse(headingData.level ?? '5') ?? 5;
+        final style = switch (level) {
+          1 => textTheme.headlineLarge,
+          2 => textTheme.headlineMedium,
+          3 => textTheme.headlineSmall,
+          4 => textTheme.titleLarge,
+          5 => textTheme.titleMedium,
           _ => textTheme.titleSmall,
+        };
+        final verticalPadding = switch (level) {
+          1 => 20.0,
+          2 => 16.0,
+          3 => 12.0,
+          4 => 8.0,
+          _ => 4.0,
         };
         return Padding(
           // Add some space below the heading to separate it from the content
           // above and below it, proportionally based on the heading level.
-          padding: EdgeInsets.symmetric(
-            vertical: 4.0 * (6 - (int.tryParse(headingData.level ?? '5') ?? 5)),
-          ),
+          padding: EdgeInsets.symmetric(vertical: verticalPadding),
           child: Text(currentValue ?? '', style: style),
         );
       },

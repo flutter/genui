@@ -89,34 +89,35 @@ class A2uiAgentConnector {
       ..messageId = const Uuid().v4()
       ..role = 'user'
       ..parts = parts.map<A2APart>((part) {
-        if (part is genui.TextPart) {
-          return A2ATextPart()..text = part.text;
-        } else if (part is genui.DataPart) {
-          return A2ADataPart()..data = part.data as A2ASV;
-        } else if (part is genui.ImagePart) {
-          if (part.url != null) {
-            return A2AFilePart()
-              ..file = (A2AFileWithUri()
-                ..uri = part.url.toString()
-                ..mimeType = part.mimeType ?? 'image/jpeg');
-          } else {
-            String base64Data;
-            if (part.bytes != null) {
-              base64Data = base64Encode(part.bytes!);
-            } else if (part.base64 != null) {
-              base64Data = part.base64!;
+        switch (part) {
+          case genui.TextPart():
+            return A2ATextPart()..text = part.text;
+          case genui.DataPart():
+            return A2ADataPart()..data = part.data as A2ASV? ?? {};
+          case genui.ImagePart():
+            if (part.url != null) {
+              return A2AFilePart()
+                ..file = (A2AFileWithUri()
+                  ..uri = part.url.toString()
+                  ..mimeType = part.mimeType ?? 'image/jpeg');
             } else {
-              _log.warning('ImagePart has no data (url, bytes, or base64)');
-              return A2ATextPart()..text = '[Empty Image]';
+              String base64Data;
+              if (part.bytes != null) {
+                base64Data = base64Encode(part.bytes!);
+              } else if (part.base64 != null) {
+                base64Data = part.base64!;
+              } else {
+                _log.warning('ImagePart has no data (url, bytes, or base64)');
+                return A2ATextPart()..text = '[Empty Image]';
+              }
+              return A2AFilePart()
+                ..file = (A2AFileWithBytes()
+                  ..bytes = base64Data
+                  ..mimeType = part.mimeType ?? 'image/jpeg');
             }
-            return A2AFilePart()
-              ..file = (A2AFileWithBytes()
-                ..bytes = base64Data
-                ..mimeType = part.mimeType ?? 'image/jpeg');
-          }
-        } else {
-          _log.warning('Unknown message part type: ${part.runtimeType}');
-          return A2ATextPart()..text = '[Unknown Part]';
+          default:
+            _log.warning('Unknown message part type: ${part.runtimeType}');
+            return A2ATextPart()..text = '[Unknown Part]';
         }
       }).toList();
 

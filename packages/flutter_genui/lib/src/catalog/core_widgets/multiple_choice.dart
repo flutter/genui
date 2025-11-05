@@ -93,7 +93,7 @@ final multipleChoice = CatalogItem(
                     ),
                     value: value,
                     // ignore: deprecated_member_use
-                    groupValue: groupValue as String?,
+                    groupValue: groupValue is String ? groupValue : null,
                     // ignore: deprecated_member_use
                     onChanged: (newValue) {
                       final path =

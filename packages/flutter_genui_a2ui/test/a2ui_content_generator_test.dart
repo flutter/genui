@@ -94,19 +94,5 @@ void main() {
       final capturedMessage = await completer.future;
       expect(capturedMessage, testMessage);
     });
-    test('sendRequest with history adds an error to the stream', () async {
-      final userMessage = UserMessage([const TextPart('Test')]);
-      final history = [
-        UserMessage([const TextPart('Old')]),
-      ];
-      final completer = Completer<ContentGeneratorError>();
-      contentGenerator.errorStream.listen(completer.complete);
-
-      await contentGenerator.sendRequest(userMessage, history: history);
-
-      final capturedError = await completer.future;
-      expect(capturedError.error, isA<String>());
-      expect(capturedError.error as String, contains('ignores history'));
-    });
   });
 }

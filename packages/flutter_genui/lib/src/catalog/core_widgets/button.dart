@@ -118,7 +118,7 @@ final button = CatalogItem(
           ),
         );
       },
-      child: DefaultTextStyle.merge(style: textStyle, child: child),
+      child: child,
     );
   },
   exampleData: [
