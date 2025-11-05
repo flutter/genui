@@ -77,18 +77,18 @@ This document outlines the phased implementation plan for the `a2a_dart` library
 
 - [ ] Re-enable and fix the integration test.
 - [ ] Address all TODOs in the code.
-- [ ] Add comprehensive DartDoc comments to all public APIs.
-- [ ] Create a detailed `README.md` with usage examples.
-- [ ] Create a `GEMINI.md` file describing the package.
+- [x] Add comprehensive DartDoc comments to all public APIs.
+- [x] Create a detailed `README.md` with usage examples.
+- [x] Create a `GEMINI.md` file describing the package.
 
 ## General Tasks for Each Phase
 
 After completing each phase, the following tasks should be performed:
 
-- [ ] Create/modify unit tests for the code added or modified in this phase.
-- [ ] Run `dart fix --apply` to clean up the code.
-- [ ] Run `dart analyze` and fix any issues.
-- [ ] Run all tests to ensure they pass.
-- [ ] Run `dart format .` to ensure correct formatting.
-- [ ] Update this `IMPLEMENTATION.md` file with the current state.
-- [ ] Commit the changes with a descriptive commit message.
+- [x] Create/modify unit tests for the code added or modified in this phase.
+- [x] Run `dart fix --apply` to clean up the code.
+- [x] Run `dart analyze` and fix any issues.
+- [x] Run all tests to ensure they pass.
+- [x] Run `dart format .` to ensure correct formatting.
+- [x] Update this `IMPLEMENTATION.md` file with the current state.
+- [x] Commit the changes with a descriptive commit message.
