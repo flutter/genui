@@ -102,6 +102,29 @@ void main() {
       );
     });
 
+    test('sends unique request IDs', () async {
+      final message = Message(
+        messageId: '1',
+        role: Role.user,
+        parts: [Part.text(text: 'Hello')],
+      );
+      final taskJson = {
+        'id': '123',
+        'contextId': '456',
+        'status': {'state': 'submitted'},
+      };
+
+      when(
+        mockTransport.send(any),
+      ).thenAnswer((_) async => {'result': taskJson});
+
+      await client.createTask(message);
+      await client.createTask(message);
+
+      final requests = verify(mockTransport.send(captureAny)).captured;
+      expect(requests[0]['id'], isNot(equals(requests[1]['id'])));
+    });
+
     test('executeTask returns a stream of StreamingEvents on success', () {
       final streamController = StreamController<Map<String, dynamic>>();
       final eventJson = {

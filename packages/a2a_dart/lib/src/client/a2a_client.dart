@@ -25,6 +25,7 @@ import 'transport.dart';
 /// Events (SSE).
 class A2AClient {
   final _log = Logger('A2AClient');
+  int _nextId = 1;
 
   /// The base URL of the A2A server.
   final String url;
@@ -94,7 +95,7 @@ class A2AClient {
       'jsonrpc': '2.0',
       'method': 'create_task',
       'params': {'message': message.toJson()},
-      'id': 1,
+      'id': _nextId++,
     };
     _log.info('Creating task with message: ${message.toJson()}');
     final response = await transport.send(request);
@@ -120,7 +121,7 @@ class A2AClient {
       'jsonrpc': '2.0',
       'method': 'message/stream',
       'params': {'message': message.toJson()},
-      'id': 1,
+      'id': _nextId++,
     };
     _log.info('Sending message stream: ${message.toJson()}');
     return transport.sendStream(request);
@@ -136,7 +137,7 @@ class A2AClient {
       'jsonrpc': '2.0',
       'method': 'execute_task',
       'params': {'task_id': taskId},
-      'id': 1,
+      'id': _nextId++,
     };
     _log.info('Executing task $taskId');
     return transport.sendStream(request).map(
