@@ -184,8 +184,10 @@ class CopyrightInfo {
   final String? headerPattern;
   final String? generatedCodePattern;
 
+  RegExp? _pattern;
+
   RegExp get pattern {
-    return RegExp(
+    return _pattern ??= RegExp(
       '^(?:${generatedCodePattern ?? ''})?'
       '(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
