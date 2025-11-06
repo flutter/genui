@@ -6,9 +6,11 @@ name: a2a_dart
 description: A Dart implementation of the A2A (Agent-to-Agent) protocol.
 version: 0.1.0
 publish_to: none
+repository: https://github.com/flutter/genui.git
+homepage: https://github.com/flutter/genui/tree/main/packages/a2a_dart
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.9.2 <4.0.0'
 
 dependencies:
   freezed_annotation: ^3.1.0
