@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2a_dart/src/server/a2a_server.dart';
-import 'package:a2a_dart/src/server/create_task_handler.dart';
-import 'package:a2a_dart/src/server/task_manager.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 
 Future<void> main(List<String> arguments) async {
   final taskManager = TaskManager();

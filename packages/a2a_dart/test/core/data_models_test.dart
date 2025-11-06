@@ -2,12 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2a_dart/src/core/agent_card.dart';
-import 'package:a2a_dart/src/core/agent_capabilities.dart';
-import 'package:a2a_dart/src/core/message.dart';
-import 'package:a2a_dart/src/core/part.dart';
-import 'package:a2a_dart/src/core/task.dart';
-import 'package:a2a_dart/src/core/security_scheme.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 import 'package:test/test.dart';
 
 void main() {

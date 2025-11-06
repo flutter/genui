@@ -1,0 +1,29 @@
+// Copyright 2025 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// A library for building Agent-to-Agent (A2A) clients and servers.
+library;
+
+// Client exports.
+export 'src/client/a2a_client.dart';
+export 'src/client/http_transport.dart';
+export 'src/client/sse_transport.dart';
+export 'src/client/transport.dart';
+export 'src/client/a2a_exception.dart';
+
+// Core data models and exceptions.
+export 'src/core/agent_card.dart';
+export 'src/core/message.dart';
+export 'src/core/task.dart';
+export 'src/core/part.dart';
+export 'src/core/events.dart';
+export 'src/core/agent_capabilities.dart';
+export 'src/core/security_scheme.dart';
+
+// Server exports (conditionally exported).
+export 'src/server/a2a_server.dart';
+export 'src/server/request_handler.dart';
+export 'src/server/create_task_handler.dart';
+export 'src/server/handler_result.dart';
+export 'src/server/task_manager.dart';

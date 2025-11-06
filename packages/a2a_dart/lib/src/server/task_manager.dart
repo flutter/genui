@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2a_dart/src/core/message.dart';
-import 'package:a2a_dart/src/core/task.dart';
 import 'package:uuid/uuid.dart';
+
+import '../core/message.dart';
+import '../core/task.dart';
 
 /// Manages the lifecycle of A2A tasks in memory.
 ///

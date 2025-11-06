@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-This document outlines the design for a pure Dart implementation of the Agent2Agent (A2A) protocol. The `a2a_dart` library will provide both client and server components for A2A communication, enabling Dart and Flutter applications to interact with other A2A-compliant agents.
+This document outlines the design for a pure Dart implementation of the Agent2Agent (A2A) protocol. The `a2a_dart` library provides both client and server components for A2A communication. The client is platform-independent and can be used in web applications, while the server is designed for native platforms that support `dart:io`.
 
 The primary goal is to create a library that is:
 
@@ -71,27 +71,40 @@ The `a2a_dart` library implements the following features from the A2A specificat
 
 ## 4. Architecture
 
-The `a2a_dart` library will be structured into three main components:
+The `a2a_dart` library is structured with a single public entry point, `lib/a2a_dart.dart`, which exports the core, client, and server APIs. The internal structure is organized as follows:
 
-- **Core**: Contains the data models and types defined in the A2A specification.
-- **Client**: Provides the `A2AClient` class and related components for making requests to A2A agents.
-- **Server**: Offers a framework for building A2A agents, including request handling and task management.
+- **`lib/src`**: Contains the private implementation of the library.
+  - **`core`**: Contains the platform-independent data models and types defined in the A2A specification.
+  - **`client`**: Provides the `A2AClient` class and transport implementations (`HttpTransport`, `SseTransport`).
+  - **`server`**: Offers a framework for building A2A agents. It uses a conditional export (`a2a_server.dart`) to provide a native implementation (`io/a2a_server.dart`) and a web stub (`web/a2a_server.dart`).
 
 ```mermaid
 graph TD
-    A[a2a_dart] --> B[Core]
-    A --> C[Client]
-    A --> D[Server]
+    subgraph Public API
+        A[lib/a2a_dart.dart]
+    end
+
+    subgraph "Implementation (lib/src)"
+        B[Core]
+        C[Client]
+        D[Server]
+    end
+
+    A --> B
+    A --> C
+    A --> D
 
     B --> B1[Data Models]
-    B --> B2[Enums]
 
     C --> C1[A2AClient]
     C --> C2[Transport]
+    C2 --> C2a[HttpTransport]
+    C2 --> C2b[SseTransport]
 
-    D --> D1[A2AServer]
+    D --> D1[a2a_server.dart (conditional export)]
+    D1 --> D1a[io/a2a_server.dart]
+    D1 --> D1b[web/a2a_server.dart]
     D --> D2[RequestHandler]
-    D --> D3[TaskManager]
 ```
 
 ## 4. Data Models
@@ -136,13 +149,17 @@ The client API will be centered around the `A2AClient` class. This class will pr
 Example `A2AClient` usage:
 
 ```dart
-final client = A2AClient(url: 'https://example.com/a2a', transport: SseTransport(url: 'https://example.com/a2a'));
+final log = Logger('MyClient');
+final client = A2AClient(
+  url: 'https://example.com/a2a',
+  transport: SseTransport(url: 'https://example.com/a2a', log: log),
+);
 
 // Create a task
 final task = await client.createTask(Message(
   messageId: '1',
   role: Role.user,
-  parts: [const TextPart(text: 'Hello, agent!')],
+  parts: [Part.text(text: 'Hello, agent!')],
 ));
 
 // Execute the task and get a stream of events
@@ -156,7 +173,7 @@ await for (final event in stream) {
 
 The server framework will provide the building blocks for creating A2A-compliant agents in Dart.
 
-- **`A2AServer`**: A top-level class that listens for incoming HTTP requests and routes them to the appropriate `RequestHandler`.
+- **`A2AServer`**: A top-level class that listens for incoming HTTP requests. It is conditionally exported to support both native and web platforms. On native, it uses `dart:io` to create an HTTP server. On the web, it throws an `UnsupportedError` if instantiated.
 - **`RequestHandler`**: An interface for handling specific A2A methods. Developers will implement this interface to define their agent's behavior. The `handle` method returns a `HandlerResult` which can be a `SingleResult` for a single response or a `StreamResult` for a streaming response.
 - **`TaskManager`**: A class responsible for managing the lifecycle of tasks.
 

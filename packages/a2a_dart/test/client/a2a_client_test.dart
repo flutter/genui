@@ -5,15 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2a_dart/src/client/a2a_client.dart';
-import 'package:a2a_dart/src/client/a2a_exception.dart';
-import 'package:a2a_dart/src/client/sse_transport.dart';
-import 'package:a2a_dart/src/client/transport.dart';
-import 'package:a2a_dart/src/core/agent_card.dart';
-import 'package:a2a_dart/src/core/events.dart';
-import 'package:a2a_dart/src/core/message.dart';
-import 'package:a2a_dart/src/core/part.dart';
-import 'package:a2a_dart/src/core/task.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:logging/logging.dart';

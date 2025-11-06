@@ -2,10 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2a_dart/src/core/task.dart';
-import 'package:a2a_dart/src/server/create_task_handler.dart';
-import 'package:a2a_dart/src/server/handler_result.dart';
-import 'package:a2a_dart/src/server/task_manager.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -33,7 +30,7 @@ void main() {
         status: const TaskStatus(state: TaskState.submitted),
       );
 
-      when(taskManager.createTask()).thenReturn(task);
+      when(taskManager.createTask(any)).thenReturn(task);
 
       final result = await handler.handle(params);
 

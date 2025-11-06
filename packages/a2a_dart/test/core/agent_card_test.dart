@@ -4,8 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:a2a_dart/src/core/agent_card.dart';
-import 'package:a2a_dart/src/core/agent_capabilities.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 
 import 'package:test/test.dart';
 

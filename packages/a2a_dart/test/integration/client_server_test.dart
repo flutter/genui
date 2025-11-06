@@ -4,17 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2a_dart/src/client/a2a_client.dart';
-import 'package:a2a_dart/src/client/sse_transport.dart';
-import 'package:a2a_dart/src/core/events.dart';
-import 'package:a2a_dart/src/core/message.dart';
-import 'package:a2a_dart/src/core/part.dart';
-import 'package:a2a_dart/src/core/task.dart';
-import 'package:a2a_dart/src/server/a2a_server.dart';
-import 'package:a2a_dart/src/server/create_task_handler.dart';
-import 'package:a2a_dart/src/server/handler_result.dart';
-import 'package:a2a_dart/src/server/request_handler.dart';
-import 'package:a2a_dart/src/server/task_manager.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
@@ -87,13 +77,11 @@ void main() {
 
     setUp(() async {
       taskManager = TaskManager();
-      server = A2AServer(
-        [
-          CreateTaskHandler(taskManager),
-          MockExecuteTaskHandler(taskManager),
-        ],
-        host: 'localhost',
-      );
+      final handlers = [
+        CreateTaskHandler(taskManager),
+        MockExecuteTaskHandler(taskManager),
+      ];
+      server = A2AServer(handlers, host: 'localhost');
       await server.start();
     });
 

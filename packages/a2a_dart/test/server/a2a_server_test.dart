@@ -5,9 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2a_dart/src/server/a2a_server.dart';
-import 'package:a2a_dart/src/server/handler_result.dart';
-import 'package:a2a_dart/src/server/request_handler.dart';
+import 'package:a2a_dart/a2a_dart.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 import 'package:logging/logging.dart';
@@ -31,7 +29,7 @@ void main() {
     late A2AServer server;
 
     setUp(() async {
-      server = A2AServer([MockRequestHandler()], host: 'localhost');
+      server = A2AServer([MockRequestHandler()]);
       await server.start();
     });
 
