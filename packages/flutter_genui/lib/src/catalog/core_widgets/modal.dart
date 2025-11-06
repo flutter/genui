@@ -77,7 +77,7 @@ final modal = CatalogItem(
                   {
                     "key": "modalId",
                     "value": {
-                      "literalString": "modal"
+                      "literalString": "root"
                     }
                   }
                 ]
