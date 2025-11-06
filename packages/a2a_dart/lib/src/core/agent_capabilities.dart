@@ -39,6 +39,6 @@ abstract class AgentCapabilities with _$AgentCapabilities {
   }) = _AgentCapabilities;
 
   /// Creates an [AgentCapabilities] from a JSON object.
-  factory AgentCapabilities.fromJson(Map<String, dynamic> json) =>
+  factory AgentCapabilities.fromJson(Map<String, Object?> json) =>
       _$AgentCapabilitiesFromJson(json);
 }

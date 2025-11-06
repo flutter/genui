@@ -11,7 +11,7 @@ part of 'security_scheme.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-SecurityScheme _$SecuritySchemeFromJson(Map<String, dynamic> json) {
+SecurityScheme _$SecuritySchemeFromJson(Map<String, Object?> json) {
   switch (json['type']) {
     case 'apiKey':
       return APIKeySecurityScheme.fromJson(json);
@@ -47,7 +47,7 @@ mixin _$SecurityScheme {
           this as SecurityScheme, _$identity);
 
   /// Serializes this SecurityScheme to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -371,7 +371,7 @@ class APIKeySecurityScheme implements SecurityScheme {
       this.description,
       required this.name,
       @JsonKey(name: 'in') required this.in_});
-  factory APIKeySecurityScheme.fromJson(Map<String, dynamic> json) =>
+  factory APIKeySecurityScheme.fromJson(Map<String, Object?> json) =>
       _$APIKeySecuritySchemeFromJson(json);
 
   /// The type of the security scheme, always 'apiKey'.
@@ -401,7 +401,7 @@ class APIKeySecurityScheme implements SecurityScheme {
           this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$APIKeySecuritySchemeToJson(
       this,
     );
@@ -491,7 +491,7 @@ class HttpAuthSecurityScheme implements SecurityScheme {
       this.description,
       required this.scheme,
       this.bearerFormat});
-  factory HttpAuthSecurityScheme.fromJson(Map<String, dynamic> json) =>
+  factory HttpAuthSecurityScheme.fromJson(Map<String, Object?> json) =>
       _$HttpAuthSecuritySchemeFromJson(json);
 
   /// The type of the security scheme, always 'http'.
@@ -522,7 +522,7 @@ class HttpAuthSecurityScheme implements SecurityScheme {
           this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$HttpAuthSecuritySchemeToJson(
       this,
     );
@@ -608,7 +608,7 @@ class _$HttpAuthSecuritySchemeCopyWithImpl<$Res>
 class OAuth2SecurityScheme implements SecurityScheme {
   const OAuth2SecurityScheme(
       {this.type = 'oauth2', this.description, required this.flows});
-  factory OAuth2SecurityScheme.fromJson(Map<String, dynamic> json) =>
+  factory OAuth2SecurityScheme.fromJson(Map<String, Object?> json) =>
       _$OAuth2SecuritySchemeFromJson(json);
 
   /// The type of the security scheme, always 'oauth2'.
@@ -634,7 +634,7 @@ class OAuth2SecurityScheme implements SecurityScheme {
           this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$OAuth2SecuritySchemeToJson(
       this,
     );
@@ -725,7 +725,7 @@ class OpenIdConnectSecurityScheme implements SecurityScheme {
       {this.type = 'openIdConnect',
       this.description,
       required this.openIdConnectUrl});
-  factory OpenIdConnectSecurityScheme.fromJson(Map<String, dynamic> json) =>
+  factory OpenIdConnectSecurityScheme.fromJson(Map<String, Object?> json) =>
       _$OpenIdConnectSecuritySchemeFromJson(json);
 
   /// The type of the security scheme, always 'openIdConnect'.
@@ -750,7 +750,7 @@ class OpenIdConnectSecurityScheme implements SecurityScheme {
           OpenIdConnectSecurityScheme>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$OpenIdConnectSecuritySchemeToJson(
       this,
     );
@@ -829,7 +829,7 @@ class _$OpenIdConnectSecuritySchemeCopyWithImpl<$Res>
 @JsonSerializable()
 class MutualTlsSecurityScheme implements SecurityScheme {
   const MutualTlsSecurityScheme({this.type = 'mutualTls', this.description});
-  factory MutualTlsSecurityScheme.fromJson(Map<String, dynamic> json) =>
+  factory MutualTlsSecurityScheme.fromJson(Map<String, Object?> json) =>
       _$MutualTlsSecuritySchemeFromJson(json);
 
   /// The type of the security scheme, always 'mutualTls'.
@@ -851,7 +851,7 @@ class MutualTlsSecurityScheme implements SecurityScheme {
           this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$MutualTlsSecuritySchemeToJson(
       this,
     );
@@ -939,7 +939,7 @@ mixin _$OAuthFlows {
       _$OAuthFlowsCopyWithImpl<OAuthFlows>(this as OAuthFlows, _$identity);
 
   /// Serializes this OAuthFlows to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -1253,7 +1253,7 @@ class _OAuthFlows implements OAuthFlows {
       this.password,
       this.clientCredentials,
       this.authorizationCode});
-  factory _OAuthFlows.fromJson(Map<String, dynamic> json) =>
+  factory _OAuthFlows.fromJson(Map<String, Object?> json) =>
       _$OAuthFlowsFromJson(json);
 
   /// The implicit flow.
@@ -1281,7 +1281,7 @@ class _OAuthFlows implements OAuthFlows {
       __$OAuthFlowsCopyWithImpl<_OAuthFlows>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$OAuthFlowsToJson(
       this,
     );
@@ -1453,7 +1453,7 @@ mixin _$OAuthFlow {
       _$OAuthFlowCopyWithImpl<OAuthFlow>(this as OAuthFlow, _$identity);
 
   /// Serializes this OAuthFlow to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -1705,7 +1705,7 @@ class _OAuthFlow implements OAuthFlow {
       this.refreshUrl,
       required final Map<String, String> scopes})
       : _scopes = scopes;
-  factory _OAuthFlow.fromJson(Map<String, dynamic> json) =>
+  factory _OAuthFlow.fromJson(Map<String, Object?> json) =>
       _$OAuthFlowFromJson(json);
 
   /// The authorization URL for the flow.
@@ -1740,7 +1740,7 @@ class _OAuthFlow implements OAuthFlow {
       __$OAuthFlowCopyWithImpl<_OAuthFlow>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$OAuthFlowToJson(
       this,
     );

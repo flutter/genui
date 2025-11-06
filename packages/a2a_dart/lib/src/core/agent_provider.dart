@@ -28,6 +28,6 @@ abstract class AgentProvider with _$AgentProvider {
   }) = _AgentProvider;
 
   /// Creates an [AgentProvider] from a JSON object.
-  factory AgentProvider.fromJson(Map<String, dynamic> json) =>
+  factory AgentProvider.fromJson(Map<String, Object?> json) =>
       _$AgentProviderFromJson(json);
 }

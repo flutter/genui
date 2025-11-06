@@ -22,7 +22,7 @@ class SseParser {
   SseParser({this.log});
 
   /// Parses a stream of SSE lines and returns a stream of JSON objects.
-  Stream<Map<String, dynamic>> parse(Stream<String> lines) async* {
+  Stream<Map<String, Object?>> parse(Stream<String> lines) async* {
     var data = <String>[];
 
     try {
@@ -33,15 +33,15 @@ class SseParser {
             final dataString = data.join('\n');
             data = [];
             try {
-              final jsonData = jsonDecode(dataString) as Map<String, dynamic>;
+              final jsonData = jsonDecode(dataString) as Map<String, Object?>;
               if (jsonData.containsKey('result')) {
-                yield jsonData['result'] as Map<String, dynamic>;
+                yield jsonData['result'] as Map<String, Object?>;
               } else if (jsonData.containsKey('error')) {
-                final error = jsonData['error'] as Map<String, dynamic>;
+                final error = jsonData['error'] as Map<String, Object?>;
                 throw A2AException.jsonRpc(
                   code: error['code'] as int,
                   message: error['message'] as String,
-                  data: error['data'] as Map<String, dynamic>?,
+                  data: error['data'] as Map<String, Object?>?,
                 );
               }
             } catch (e) {

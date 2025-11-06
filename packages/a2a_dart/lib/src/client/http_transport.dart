@@ -30,7 +30,7 @@ class HttpTransport implements Transport {
       : client = client ?? http.Client();
 
   @override
-  Future<Map<String, dynamic>> get(String path) async {
+  Future<Map<String, Object?>> get(String path) async {
     final uri = Uri.parse('$url/$path');
     log?.fine('Sending GET request to $uri');
     final response = await client.get(uri);
@@ -41,11 +41,11 @@ class HttpTransport implements Transport {
       throw Exception('Failed to get agent card: ${response.statusCode}');
     }
 
-    return jsonDecode(response.body) as Map<String, dynamic>;
+    return jsonDecode(response.body) as Map<String, Object?>;
   }
 
   @override
-  Future<Map<String, dynamic>> send(Map<String, dynamic> request) async {
+  Future<Map<String, Object?>> send(Map<String, Object?> request) async {
     final uri = Uri.parse('$url/rpc');
     final body = jsonEncode(request);
     log?.fine('Sending POST request to $uri with body: $body');
@@ -58,14 +58,14 @@ class HttpTransport implements Transport {
         '${response.statusCode} ${response.body}');
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      return jsonDecode(response.body) as Map<String, Object?>;
     } else {
       throw Exception('Failed to send message: ${response.statusCode}');
     }
   }
 
   @override
-  Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
+  Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
     // HTTP transport does not support streaming.
     throw UnimplementedError('Streaming is not supported by HttpTransport. '
         'Use SseTransport instead.');

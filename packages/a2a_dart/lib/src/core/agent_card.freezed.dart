@@ -74,7 +74,7 @@ mixin _$AgentCard {
       _$AgentCardCopyWithImpl<AgentCard>(this as AgentCard, _$identity);
 
   /// Serializes this AgentCard to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -586,7 +586,7 @@ class _AgentCard implements AgentCard {
         _defaultInputModes = defaultInputModes,
         _defaultOutputModes = defaultOutputModes,
         _skills = skills;
-  factory _AgentCard.fromJson(Map<String, dynamic> json) =>
+  factory _AgentCard.fromJson(Map<String, Object?> json) =>
       _$AgentCardFromJson(json);
 
   /// The version of the A2A protocol that this agent supports.
@@ -718,7 +718,7 @@ class _AgentCard implements AgentCard {
       __$AgentCardCopyWithImpl<_AgentCard>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$AgentCardToJson(
       this,
     );

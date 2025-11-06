@@ -17,16 +17,16 @@ abstract class Transport {
   /// Fetches a resource from the server using an HTTP GET request.
   ///
   /// The [path] is appended to the base URL of the server.
-  Future<Map<String, dynamic>> get(String path);
+  Future<Map<String, Object?>> get(String path);
 
   /// Sends a request to the server and expects a single response.
   ///
   /// The [request] is a JSON-RPC 2.0 compliant [Map].
-  Future<Map<String, dynamic>> send(Map<String, dynamic> request);
+  Future<Map<String, Object?>> send(Map<String, Object?> request);
 
   /// Sends a request to the server and returns a stream of responses.
   ///
   /// The [request] is a JSON-RPC 2.0 compliant [Map]. This method is used for
   /// streaming communication, such as with Server-Sent Events (SSE).
-  Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request);
+  Stream<Map<String, Object?>> sendStream(Map<String, Object?> request);
 }

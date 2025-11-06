@@ -27,15 +27,14 @@ void main() {
           'pushNotifications': false,
           'stateTransitionHistory': false,
         },
-        'defaultInputModes': <dynamic>[],
-        'defaultOutputModes': <dynamic>[],
-        'skills': <dynamic>[],
+        'defaultInputModes': <Object?>[],
+        'defaultOutputModes': <Object?>[],
+        'skills': <Object?>[],
       };
       final agentCard = AgentCard.fromJson(agentCardJson);
       client = A2AClient(
         url: 'http://localhost:8080',
         transport: FakeTransport(response: agentCardJson),
-        logger: Logger('A2AClient'),
       );
 
       final result = await client.getAgentCard();
@@ -58,7 +57,6 @@ void main() {
       client = A2AClient(
         url: 'http://localhost:8080',
         transport: FakeTransport(response: {'result': taskJson}),
-        logger: Logger('A2AClient'),
       );
 
       final result = await client.createTask(message);
@@ -77,7 +75,6 @@ void main() {
         transport: FakeTransport(response: {
           'error': {'code': -32600, 'message': 'Invalid Request'}
         }),
-        logger: Logger('A2AClient'),
       );
 
       expect(
@@ -87,7 +84,7 @@ void main() {
     });
 
     test('executeTask returns a stream of StreamingEvents on success', () {
-      final streamController = StreamController<Map<String, dynamic>>();
+      final streamController = StreamController<Map<String, Object?>>();
       final eventJson = {
         'kind': 'task_status_update',
         'taskId': '123',
@@ -102,7 +99,6 @@ void main() {
           response: {},
           streamResponse: streamController.stream,
         ),
-        logger: Logger('A2AClient'),
       );
 
       final stream = client.executeTask('test-task-id');
@@ -120,7 +116,7 @@ void main() {
     });
 
     test('messageStream returns a stream of StreamingEvents on success', () {
-      final streamController = StreamController<Map<String, dynamic>>();
+      final streamController = StreamController<Map<String, Object?>>();
       final eventJson = {
         'kind': 'task_status_update',
         'taskId': '123',
@@ -135,7 +131,6 @@ void main() {
           response: {},
           streamResponse: streamController.stream,
         ),
-        logger: Logger('A2AClient'),
       );
 
       final stream = client.messageStream(

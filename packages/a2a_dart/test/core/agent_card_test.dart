@@ -25,7 +25,7 @@ void main() {
     });
 
     test('can be serialized and deserialized from JSON', () {
-      final json = jsonDecode(agentCardJson) as Map<String, dynamic>;
+      final json = jsonDecode(agentCardJson) as Map<String, Object?>;
       final agentCard = AgentCard.fromJson(json);
       final serializedJson = agentCard.toJson();
       final agentCard2 = AgentCard.fromJson(serializedJson);

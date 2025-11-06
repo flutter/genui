@@ -50,6 +50,6 @@ abstract class AgentSkill with _$AgentSkill {
   }) = _AgentSkill;
 
   /// Creates an [AgentSkill] from a JSON object.
-  factory AgentSkill.fromJson(Map<String, dynamic> json) =>
+  factory AgentSkill.fromJson(Map<String, Object?> json) =>
       _$AgentSkillFromJson(json);
 }

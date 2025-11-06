@@ -28,7 +28,7 @@ class SseTransport extends HttpTransport {
   SseTransport({required super.url, super.client, super.log});
 
   @override
-  Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) async* {
+  Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) async* {
     final uri = Uri.parse('$url/rpc');
     final body = jsonEncode(request);
     log?.fine('Sending SSE request to $uri with body: $body');

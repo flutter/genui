@@ -33,7 +33,7 @@ abstract class Message with _$Message {
     required List<Part> parts,
 
     /// Optional metadata for extensions.
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
 
     /// The URIs of extensions that are relevant to this message.
     List<String>? extensions,
@@ -58,6 +58,6 @@ abstract class Message with _$Message {
   }) = _Message;
 
   /// Creates a [Message] from a JSON object.
-  factory Message.fromJson(Map<String, dynamic> json) =>
+  factory Message.fromJson(Map<String, Object?> json) =>
       _$MessageFromJson(json);
 }

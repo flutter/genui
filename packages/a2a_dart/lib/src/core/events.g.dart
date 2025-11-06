@@ -7,18 +7,19 @@ part of 'events.dart';
 // **************************************************************************
 
 TaskStatusUpdateEvent _$TaskStatusUpdateEventFromJson(
-        Map<String, dynamic> json) =>
+  Map<String, Object?> json,
+) =>
     TaskStatusUpdateEvent(
       kind: json['kind'] as String? ?? 'task_status_update',
       taskId: json['taskId'] as String,
       contextId: json['contextId'] as String,
-      status: TaskStatus.fromJson(json['status'] as Map<String, dynamic>),
+  status: TaskStatus.fromJson(json['status'] as Map<String, Object?>),
       final_: json['final_'] as bool,
     );
 
-Map<String, dynamic> _$TaskStatusUpdateEventToJson(
+Map<String, Object?> _$TaskStatusUpdateEventToJson(
         TaskStatusUpdateEvent instance) =>
-    <String, dynamic>{
+    <String, Object?>{
       'kind': instance.kind,
       'taskId': instance.taskId,
       'contextId': instance.contextId,
@@ -27,19 +28,20 @@ Map<String, dynamic> _$TaskStatusUpdateEventToJson(
     };
 
 TaskArtifactUpdateEvent _$TaskArtifactUpdateEventFromJson(
-        Map<String, dynamic> json) =>
+  Map<String, Object?> json,
+) =>
     TaskArtifactUpdateEvent(
       kind: json['kind'] as String? ?? 'task_artifact_update',
       taskId: json['taskId'] as String,
       contextId: json['contextId'] as String,
-      artifact: Artifact.fromJson(json['artifact'] as Map<String, dynamic>),
+  artifact: Artifact.fromJson(json['artifact'] as Map<String, Object?>),
       append: json['append'] as bool,
       lastChunk: json['lastChunk'] as bool,
     );
 
-Map<String, dynamic> _$TaskArtifactUpdateEventToJson(
+Map<String, Object?> _$TaskArtifactUpdateEventToJson(
         TaskArtifactUpdateEvent instance) =>
-    <String, dynamic>{
+    <String, Object?>{
       'kind': instance.kind,
       'taskId': instance.taskId,
       'contextId': instance.contextId,

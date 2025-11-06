@@ -6,14 +6,14 @@ part of 'agent_interface.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentInterface _$AgentInterfaceFromJson(Map<String, dynamic> json) =>
+_AgentInterface _$AgentInterfaceFromJson(Map<String, Object?> json) =>
     _AgentInterface(
       url: json['url'] as String,
       transport: $enumDecode(_$TransportProtocolEnumMap, json['transport']),
     );
 
-Map<String, dynamic> _$AgentInterfaceToJson(_AgentInterface instance) =>
-    <String, dynamic>{
+Map<String, Object?> _$AgentInterfaceToJson(_AgentInterface instance) =>
+    <String, Object?>{
       'url': instance.url,
       'transport': _$TransportProtocolEnumMap[instance.transport]!,
     };

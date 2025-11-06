@@ -32,10 +32,10 @@ abstract class AgentExtension with _$AgentExtension {
     bool? required,
 
     /// Optional, extension-specific configuration parameters.
-    Map<String, dynamic>? params,
+    Map<String, Object?>? params,
   }) = _AgentExtension;
 
   /// Creates an [AgentExtension] from a JSON object.
-  factory AgentExtension.fromJson(Map<String, dynamic> json) =>
+  factory AgentExtension.fromJson(Map<String, Object?> json) =>
       _$AgentExtensionFromJson(json);
 }

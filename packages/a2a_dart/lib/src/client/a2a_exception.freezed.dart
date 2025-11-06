@@ -11,7 +11,7 @@ part of 'a2a_exception.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-A2AException _$A2AExceptionFromJson(Map<String, dynamic> json) {
+A2AException _$A2AExceptionFromJson(Map<String, Object?> json) {
   switch (json['runtimeType']) {
     case 'jsonRpc':
       return A2AJsonRpcException.fromJson(json);
@@ -31,7 +31,7 @@ A2AException _$A2AExceptionFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$A2AException {
   /// Serializes this A2AException to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -172,7 +172,7 @@ extension A2AExceptionPatterns on A2AException {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(int code, String message, Map<String, dynamic>? data)?
+    TResult Function(int code, String message, Map<String, Object?>? data)?
         jsonRpc,
     TResult Function(int statusCode, String? reason)? http,
     TResult Function(String message)? network,
@@ -210,7 +210,7 @@ extension A2AExceptionPatterns on A2AException {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            int code, String message, Map<String, dynamic>? data)
+            int code, String message, Map<String, Object?>? data)
         jsonRpc,
     required TResult Function(int statusCode, String? reason) http,
     required TResult Function(String message) network,
@@ -243,7 +243,7 @@ extension A2AExceptionPatterns on A2AException {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(int code, String message, Map<String, dynamic>? data)?
+    TResult? Function(int code, String message, Map<String, Object?>? data)?
         jsonRpc,
     TResult? Function(int statusCode, String? reason)? http,
     TResult? Function(String message)? network,
@@ -271,11 +271,11 @@ class A2AJsonRpcException implements A2AException {
   const A2AJsonRpcException(
       {required this.code,
       required this.message,
-      final Map<String, dynamic>? data,
+      final Map<String, Object?>? data,
       final String? $type})
       : _data = data,
         $type = $type ?? 'jsonRpc';
-  factory A2AJsonRpcException.fromJson(Map<String, dynamic> json) =>
+  factory A2AJsonRpcException.fromJson(Map<String, Object?> json) =>
       _$A2AJsonRpcExceptionFromJson(json);
 
   /// The JSON-RPC error code.
@@ -285,10 +285,10 @@ class A2AJsonRpcException implements A2AException {
   final String message;
 
   /// Optional data associated with the error.
-  final Map<String, dynamic>? _data;
+  final Map<String, Object?>? _data;
 
   /// Optional data associated with the error.
-  Map<String, dynamic>? get data {
+  Map<String, Object?>? get data {
     final value = _data;
     if (value == null) return null;
     if (_data is EqualUnmodifiableMapView) return _data;
@@ -307,7 +307,7 @@ class A2AJsonRpcException implements A2AException {
       _$A2AJsonRpcExceptionCopyWithImpl<A2AJsonRpcException>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$A2AJsonRpcExceptionToJson(
       this,
     );
@@ -341,7 +341,7 @@ abstract mixin class $A2AJsonRpcExceptionCopyWith<$Res>
           A2AJsonRpcException value, $Res Function(A2AJsonRpcException) _then) =
       _$A2AJsonRpcExceptionCopyWithImpl;
   @useResult
-  $Res call({int code, String message, Map<String, dynamic>? data});
+  $Res call({int code, String message, Map<String, Object?>? data});
 }
 
 /// @nodoc
@@ -372,7 +372,7 @@ class _$A2AJsonRpcExceptionCopyWithImpl<$Res>
       data: freezed == data
           ? _self._data
           : data // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 }
@@ -383,7 +383,7 @@ class A2AHttpException implements A2AException {
   const A2AHttpException(
       {required this.statusCode, this.reason, final String? $type})
       : $type = $type ?? 'http';
-  factory A2AHttpException.fromJson(Map<String, dynamic> json) =>
+  factory A2AHttpException.fromJson(Map<String, Object?> json) =>
       _$A2AHttpExceptionFromJson(json);
 
   final int statusCode;
@@ -400,7 +400,7 @@ class A2AHttpException implements A2AException {
       _$A2AHttpExceptionCopyWithImpl<A2AHttpException>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$A2AHttpExceptionToJson(
       this,
     );
@@ -469,7 +469,7 @@ class _$A2AHttpExceptionCopyWithImpl<$Res>
 class A2ANetworkException implements A2AException {
   const A2ANetworkException({required this.message, final String? $type})
       : $type = $type ?? 'network';
-  factory A2ANetworkException.fromJson(Map<String, dynamic> json) =>
+  factory A2ANetworkException.fromJson(Map<String, Object?> json) =>
       _$A2ANetworkExceptionFromJson(json);
 
   final String message;
@@ -485,7 +485,7 @@ class A2ANetworkException implements A2AException {
       _$A2ANetworkExceptionCopyWithImpl<A2ANetworkException>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$A2ANetworkExceptionToJson(
       this,
     );
@@ -547,7 +547,7 @@ class _$A2ANetworkExceptionCopyWithImpl<$Res>
 class A2AParsingException implements A2AException {
   const A2AParsingException({required this.message, final String? $type})
       : $type = $type ?? 'parsing';
-  factory A2AParsingException.fromJson(Map<String, dynamic> json) =>
+  factory A2AParsingException.fromJson(Map<String, Object?> json) =>
       _$A2AParsingExceptionFromJson(json);
 
   /// The error message.
@@ -564,7 +564,7 @@ class A2AParsingException implements A2AException {
       _$A2AParsingExceptionCopyWithImpl<A2AParsingException>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$A2AParsingExceptionToJson(
       this,
     );

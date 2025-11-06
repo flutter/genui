@@ -21,5 +21,5 @@ abstract class RequestHandler {
   /// The [params] are the parameters of the RPC call. This method should return
   /// a [FutureOr] of a [Map] that will be sent as the `result` of the JSON-RPC
   /// 2.0 response.
-  FutureOr<HandlerResult> handle(Map<String, dynamic> params);
+  FutureOr<HandlerResult> handle(Map<String, Object?> params);
 }

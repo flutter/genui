@@ -21,7 +21,7 @@ mixin _$Message {
   List<Part> get parts;
 
   /// Optional metadata for extensions.
-  Map<String, dynamic>? get metadata;
+  Map<String, Object?>? get metadata;
 
   /// The URIs of extensions that are relevant to this message.
   List<String>? get extensions;
@@ -52,7 +52,7 @@ mixin _$Message {
       _$MessageCopyWithImpl<Message>(this as Message, _$identity);
 
   /// Serializes this Message to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -102,7 +102,7 @@ abstract mixin class $MessageCopyWith<$Res> {
   $Res call(
       {Role role,
       List<Part> parts,
-      Map<String, dynamic>? metadata,
+      Map<String, Object?>? metadata,
       List<String>? extensions,
       List<String>? referenceTaskIds,
       String messageId,
@@ -145,7 +145,7 @@ class _$MessageCopyWithImpl<$Res> implements $MessageCopyWith<$Res> {
       metadata: freezed == metadata
           ? _self.metadata
           : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
       extensions: freezed == extensions
           ? _self.extensions
           : extensions // ignore: cast_nullable_to_non_nullable
@@ -270,7 +270,7 @@ extension MessagePatterns on Message {
     TResult Function(
             Role role,
             List<Part> parts,
-            Map<String, dynamic>? metadata,
+            Map<String, Object?>? metadata,
             List<String>? extensions,
             List<String>? referenceTaskIds,
             String messageId,
@@ -316,7 +316,7 @@ extension MessagePatterns on Message {
     TResult Function(
             Role role,
             List<Part> parts,
-            Map<String, dynamic>? metadata,
+            Map<String, Object?>? metadata,
             List<String>? extensions,
             List<String>? referenceTaskIds,
             String messageId,
@@ -360,7 +360,7 @@ extension MessagePatterns on Message {
     TResult? Function(
             Role role,
             List<Part> parts,
-            Map<String, dynamic>? metadata,
+            Map<String, Object?>? metadata,
             List<String>? extensions,
             List<String>? referenceTaskIds,
             String messageId,
@@ -394,7 +394,7 @@ class _Message implements Message {
   const _Message(
       {required this.role,
       required final List<Part> parts,
-      final Map<String, dynamic>? metadata,
+      final Map<String, Object?>? metadata,
       final List<String>? extensions,
       final List<String>? referenceTaskIds,
       required this.messageId,
@@ -405,7 +405,7 @@ class _Message implements Message {
         _metadata = metadata,
         _extensions = extensions,
         _referenceTaskIds = referenceTaskIds;
-  factory _Message.fromJson(Map<String, dynamic> json) =>
+  factory _Message.fromJson(Map<String, Object?> json) =>
       _$MessageFromJson(json);
 
   /// Identifies the sender of the message.
@@ -424,11 +424,11 @@ class _Message implements Message {
   }
 
   /// Optional metadata for extensions.
-  final Map<String, dynamic>? _metadata;
+  final Map<String, Object?>? _metadata;
 
   /// Optional metadata for extensions.
   @override
-  Map<String, dynamic>? get metadata {
+  Map<String, Object?>? get metadata {
     final value = _metadata;
     if (value == null) return null;
     if (_metadata is EqualUnmodifiableMapView) return _metadata;
@@ -493,7 +493,7 @@ class _Message implements Message {
       __$MessageCopyWithImpl<_Message>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$MessageToJson(
       this,
     );
@@ -548,7 +548,7 @@ abstract mixin class _$MessageCopyWith<$Res> implements $MessageCopyWith<$Res> {
   $Res call(
       {Role role,
       List<Part> parts,
-      Map<String, dynamic>? metadata,
+      Map<String, Object?>? metadata,
       List<String>? extensions,
       List<String>? referenceTaskIds,
       String messageId,
@@ -591,7 +591,7 @@ class __$MessageCopyWithImpl<$Res> implements _$MessageCopyWith<$Res> {
       metadata: freezed == metadata
           ? _self._metadata
           : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
       extensions: freezed == extensions
           ? _self._extensions
           : extensions // ignore: cast_nullable_to_non_nullable

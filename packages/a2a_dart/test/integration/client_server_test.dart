@@ -17,8 +17,8 @@ class MockExecuteTaskHandler implements RequestHandler {
   String get method => 'execute_task';
 
   @override
-  FutureOr<HandlerResult> handle(Map<String, dynamic> params) {
-    final streamController = StreamController<Map<String, dynamic>>();
+  FutureOr<HandlerResult> handle(Map<String, Object?> params) {
+    final streamController = StreamController<Map<String, Object?>>();
     final taskId = params['task_id'] as String;
     final task = taskManager.getTask(taskId)!;
 
@@ -81,8 +81,7 @@ void main() {
         CreateTaskHandler(taskManager),
         MockExecuteTaskHandler(taskManager),
       ];
-      server =
-          A2AServer(handlers, host: 'localhost', logger: Logger('A2AServer'));
+      server = A2AServer(handlers, host: 'localhost');
       await server.start();
     });
 
@@ -95,7 +94,6 @@ void main() {
         url: 'http://localhost:${server.port}',
         transport: SseTransport(
           url: 'http://localhost:${server.port}',
-          log: Logger('A2AClient'),
         ),
       );
       final message = const Message(
@@ -130,7 +128,6 @@ void main() {
     test('client handles server errors gracefully', () async {
       final client = A2AClient(
         url: 'http://localhost:${server.port}',
-        logger: Logger('A2AClient'),
       );
       final message = const Message(
         messageId: '1',

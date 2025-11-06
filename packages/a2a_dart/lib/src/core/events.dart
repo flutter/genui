@@ -54,6 +54,6 @@ abstract class StreamingEvent with _$StreamingEvent {
   }) = TaskArtifactUpdateEvent;
 
   /// Creates a [StreamingEvent] from a JSON object.
-  factory StreamingEvent.fromJson(Map<String, dynamic> json) =>
+  factory StreamingEvent.fromJson(Map<String, Object?> json) =>
       _$StreamingEventFromJson(json);
 }

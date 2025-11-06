@@ -46,6 +46,6 @@ abstract class AgentInterface with _$AgentInterface {
   }) = _AgentInterface;
 
   /// Creates an [AgentInterface] from a JSON object.
-  factory AgentInterface.fromJson(Map<String, dynamic> json) =>
+  factory AgentInterface.fromJson(Map<String, Object?> json) =>
       _$AgentInterfaceFromJson(json);
 }

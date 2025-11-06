@@ -31,7 +31,7 @@ mixin _$AgentInterface {
           this as AgentInterface, _$identity);
 
   /// Serializes this AgentInterface to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -252,7 +252,7 @@ extension AgentInterfacePatterns on AgentInterface {
 @JsonSerializable()
 class _AgentInterface implements AgentInterface {
   const _AgentInterface({required this.url, required this.transport});
-  factory _AgentInterface.fromJson(Map<String, dynamic> json) =>
+  factory _AgentInterface.fromJson(Map<String, Object?> json) =>
       _$AgentInterfaceFromJson(json);
 
   /// The URL where this interface is available.
@@ -274,7 +274,7 @@ class _AgentInterface implements AgentInterface {
       __$AgentInterfaceCopyWithImpl<_AgentInterface>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$AgentInterfaceToJson(
       this,
     );

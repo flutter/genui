@@ -9,7 +9,7 @@ import 'package:a2a_dart/a2a_dart.dart';
 import 'package:http/http.dart' as http;
 
 class FakeHttpClient extends http.BaseClient {
-  final Map<String, dynamic> response;
+  final Map<String, Object?> response;
   final int statusCode;
 
   FakeHttpClient({required this.response, this.statusCode = 200});
@@ -27,25 +27,28 @@ class FakeHttpClient extends http.BaseClient {
 }
 
 class FakeTransport implements Transport {
-  final Map<String, dynamic> response;
-  final Stream<Map<String, dynamic>> streamResponse;
+  final Map<String, Object?> response;
+  final Stream<Map<String, Object?>> streamResponse;
 
   FakeTransport(
-      {required this.response, Stream<Map<String, dynamic>>? streamResponse})
+      {
+    required this.response,
+    Stream<Map<String, Object?>>? streamResponse,
+  })
       : streamResponse = streamResponse ?? Stream.value(response);
 
   @override
-  Future<Map<String, dynamic>> get(String method) async {
+  Future<Map<String, Object?>> get(String method) async {
     return response;
   }
 
   @override
-  Future<Map<String, dynamic>> send(Map<String, dynamic> request) async {
+  Future<Map<String, Object?>> send(Map<String, Object?> request) async {
     return response;
   }
 
   @override
-  Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
+  Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
     return streamResponse;
   }
 }

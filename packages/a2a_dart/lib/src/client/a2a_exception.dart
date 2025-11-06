@@ -19,7 +19,7 @@ sealed class A2AException with _$A2AException implements Exception {
     required String message,
 
     /// Optional data associated with the error.
-    Map<String, dynamic>? data,
+    Map<String, Object?>? data,
   }) = A2AJsonRpcException;
 
   /// An exception that represents an HTTP error.
@@ -40,6 +40,6 @@ sealed class A2AException with _$A2AException implements Exception {
   }) = A2AParsingException;
 
   /// Creates an [A2AException] from a JSON object.
-  factory A2AException.fromJson(Map<String, dynamic> json) =>
+  factory A2AException.fromJson(Map<String, Object?> json) =>
       _$A2AExceptionFromJson(json);
 }

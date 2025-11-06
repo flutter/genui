@@ -29,7 +29,7 @@ mixin _$AgentProvider {
           this as AgentProvider, _$identity);
 
   /// Serializes this AgentProvider to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -250,7 +250,7 @@ extension AgentProviderPatterns on AgentProvider {
 @JsonSerializable()
 class _AgentProvider implements AgentProvider {
   const _AgentProvider({required this.organization, required this.url});
-  factory _AgentProvider.fromJson(Map<String, dynamic> json) =>
+  factory _AgentProvider.fromJson(Map<String, Object?> json) =>
       _$AgentProviderFromJson(json);
 
   /// The name of the agent provider's organization.
@@ -270,7 +270,7 @@ class _AgentProvider implements AgentProvider {
       __$AgentProviderCopyWithImpl<_AgentProvider>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$AgentProviderToJson(
       this,
     );

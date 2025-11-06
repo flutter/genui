@@ -105,14 +105,14 @@ class A2AClient {
     final response = await transport.send(request);
     _log?.info('Received response from create_task: $response');
     if (response.containsKey('error')) {
-      final error = response['error'] as Map<String, dynamic>;
+      final error = response['error'] as Map<String, Object?>;
       throw A2AException.jsonRpc(
         code: error['code'] as int,
         message: error['message'] as String,
-        data: error['data'] as Map<String, dynamic>?,
+        data: error['data'] as Map<String, Object?>?,
       );
     }
-    return Task.fromJson(response['result'] as Map<String, dynamic>);
+    return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
   /// Sends a message to the server and returns a stream of responses.

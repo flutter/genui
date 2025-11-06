@@ -25,7 +25,7 @@ mixin _$AgentExtension {
   bool? get required;
 
   /// Optional, extension-specific configuration parameters.
-  Map<String, dynamic>? get params;
+  Map<String, Object?>? get params;
 
   /// Create a copy of AgentExtension
   /// with the given fields replaced by the non-null parameter values.
@@ -36,7 +36,7 @@ mixin _$AgentExtension {
           this as AgentExtension, _$identity);
 
   /// Serializes this AgentExtension to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -72,7 +72,7 @@ abstract mixin class $AgentExtensionCopyWith<$Res> {
       {String uri,
       String? description,
       bool? required,
-      Map<String, dynamic>? params});
+      Map<String, Object?>? params});
 }
 
 /// @nodoc
@@ -109,7 +109,7 @@ class _$AgentExtensionCopyWithImpl<$Res>
       params: freezed == params
           ? _self.params
           : params // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 }
@@ -208,7 +208,7 @@ extension AgentExtensionPatterns on AgentExtension {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(String uri, String? description, bool? required,
-            Map<String, dynamic>? params)?
+            Map<String, Object?>? params)?
         $default, {
     required TResult orElse(),
   }) {
@@ -238,7 +238,7 @@ extension AgentExtensionPatterns on AgentExtension {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(String uri, String? description, bool? required,
-            Map<String, dynamic>? params)
+            Map<String, Object?>? params)
         $default,
   ) {
     final _that = this;
@@ -266,7 +266,7 @@ extension AgentExtensionPatterns on AgentExtension {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(String uri, String? description, bool? required,
-            Map<String, dynamic>? params)?
+            Map<String, Object?>? params)?
         $default,
   ) {
     final _that = this;
@@ -287,9 +287,9 @@ class _AgentExtension implements AgentExtension {
       {required this.uri,
       this.description,
       this.required,
-      final Map<String, dynamic>? params})
+      final Map<String, Object?>? params})
       : _params = params;
-  factory _AgentExtension.fromJson(Map<String, dynamic> json) =>
+  factory _AgentExtension.fromJson(Map<String, Object?> json) =>
       _$AgentExtensionFromJson(json);
 
   /// A unique URI that identifies the extension.
@@ -306,11 +306,11 @@ class _AgentExtension implements AgentExtension {
   final bool? required;
 
   /// Optional, extension-specific configuration parameters.
-  final Map<String, dynamic>? _params;
+  final Map<String, Object?>? _params;
 
   /// Optional, extension-specific configuration parameters.
   @override
-  Map<String, dynamic>? get params {
+  Map<String, Object?>? get params {
     final value = _params;
     if (value == null) return null;
     if (_params is EqualUnmodifiableMapView) return _params;
@@ -327,7 +327,7 @@ class _AgentExtension implements AgentExtension {
       __$AgentExtensionCopyWithImpl<_AgentExtension>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$AgentExtensionToJson(
       this,
     );
@@ -369,7 +369,7 @@ abstract mixin class _$AgentExtensionCopyWith<$Res>
       {String uri,
       String? description,
       bool? required,
-      Map<String, dynamic>? params});
+      Map<String, Object?>? params});
 }
 
 /// @nodoc
@@ -406,7 +406,7 @@ class __$AgentExtensionCopyWithImpl<$Res>
       params: freezed == params
           ? _self._params
           : params // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 }

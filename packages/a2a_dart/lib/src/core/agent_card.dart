@@ -76,6 +76,6 @@ abstract class AgentCard with _$AgentCard {
   }) = _AgentCard;
 
   /// Creates an [AgentCard] from a JSON object.
-  factory AgentCard.fromJson(Map<String, dynamic> json) =>
+  factory AgentCard.fromJson(Map<String, Object?> json) =>
       _$AgentCardFromJson(json);
 }

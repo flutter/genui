@@ -39,7 +39,7 @@ abstract class Task with _$Task {
 
     /// Optional metadata for extensions. The key is an extension-specific
     /// identifier.
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
 
     /// The type of this object, used as a discriminator. Always 'task' for a
     /// Task.
@@ -47,7 +47,7 @@ abstract class Task with _$Task {
   }) = _Task;
 
   /// Creates a [Task] from a JSON object.
-  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+  factory Task.fromJson(Map<String, Object?> json) => _$TaskFromJson(json);
 }
 
 /// Represents the status of a task at a specific point in time.
@@ -67,7 +67,7 @@ abstract class TaskStatus with _$TaskStatus {
   }) = _TaskStatus;
 
   /// Creates a [TaskStatus] from a JSON object.
-  factory TaskStatus.fromJson(Map<String, dynamic> json) =>
+  factory TaskStatus.fromJson(Map<String, Object?> json) =>
       _$TaskStatusFromJson(json);
 }
 
@@ -122,13 +122,13 @@ abstract class Artifact with _$Artifact {
 
     /// Optional metadata for extensions. The key is an extension-specific
     /// identifier.
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
 
     /// The URIs of extensions that are relevant to this artifact.
     List<String>? extensions,
   }) = _Artifact;
 
   /// Creates an [Artifact] from a JSON object.
-  factory Artifact.fromJson(Map<String, dynamic> json) =>
+  factory Artifact.fromJson(Map<String, Object?> json) =>
       _$ArtifactFromJson(json);
 }

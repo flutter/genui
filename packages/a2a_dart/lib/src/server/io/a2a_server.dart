@@ -86,8 +86,21 @@ class A2AServer {
   /// The server will listen on a random available port.
   Future<void> start() async {
     final router = Router()..post('/rpc', _handleRpcRequest);
-    final handler =
-        const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
+    var pipeline = const Pipeline();
+    if (_log != null) {
+      pipeline = pipeline.addMiddleware(
+        logRequests(
+          logger: (message, isError) {
+            if (isError) {
+              _log.severe(message);
+            } else {
+              _log.info(message);
+            }
+          },
+        ),
+      );
+    }
+    final handler = pipeline.addHandler(router.call);
 
     _server = await io.serve(handler, host, _requestedPort);
     _log?.info(
@@ -99,10 +112,10 @@ class A2AServer {
     final body = await request.readAsString();
     _log?.fine('Request body: $body');
 
-    dynamic id;
-    Map<String, dynamic> json;
+    Object? id;
+    Map<String, Object?> json;
     try {
-      json = jsonDecode(body) as Map<String, dynamic>;
+      json = jsonDecode(body) as Map<String, Object?>;
       id = json['id'];
     } on FormatException {
       return _jsonRpcError(id: null, code: -32700, message: 'Parse error');
@@ -110,7 +123,7 @@ class A2AServer {
 
     try {
       final method = json['method'] as String?;
-      final params = json['params'] as Map<String, dynamic>?;
+      final params = json['params'] as Map<String, Object?>?;
 
       if (method == null || params == null) {
         return _jsonRpcError(
@@ -142,8 +155,8 @@ class A2AServer {
 
   Future<Response> _executeHandler(
     RequestHandler handler,
-    Map<String, dynamic> params,
-    dynamic id,
+    Map<String, Object?> params,
+    Object? id,
   ) async {
     try {
       final result = await handler.handle(params);
@@ -190,7 +203,7 @@ class A2AServer {
   }
 
   Response _jsonRpcError({
-    required dynamic id,
+    required Object? id,
     required int code,
     required String message,
     int responseCode = 400,

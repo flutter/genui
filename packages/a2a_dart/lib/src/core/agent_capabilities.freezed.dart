@@ -41,7 +41,7 @@ mixin _$AgentCapabilities {
           this as AgentCapabilities, _$identity);
 
   /// Serializes this AgentCapabilities to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -296,7 +296,7 @@ class _AgentCapabilities implements AgentCapabilities {
       this.stateTransitionHistory,
       final List<AgentExtension>? extensions})
       : _extensions = extensions;
-  factory _AgentCapabilities.fromJson(Map<String, dynamic> json) =>
+  factory _AgentCapabilities.fromJson(Map<String, Object?> json) =>
       _$AgentCapabilitiesFromJson(json);
 
   /// Indicates whether the agent supports Server-Sent Events (SSE) for
@@ -339,7 +339,7 @@ class _AgentCapabilities implements AgentCapabilities {
       __$AgentCapabilitiesCopyWithImpl<_AgentCapabilities>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$AgentCapabilitiesToJson(
       this,
     );

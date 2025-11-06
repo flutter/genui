@@ -6,30 +6,33 @@ part of 'agent_skill.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentSkill _$AgentSkillFromJson(Map<String, dynamic> json) => _AgentSkill(
+_AgentSkill _$AgentSkillFromJson(Map<String, Object?> json) => _AgentSkill(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
-      examples: (json['examples'] as List<dynamic>?)
+  tags: (json['tags'] as List<Object?>).map((e) => e as String).toList(),
+  examples: (json['examples'] as List<Object?>?)
           ?.map((e) => e as String)
           .toList(),
-      inputModes: (json['inputModes'] as List<dynamic>?)
+  inputModes: (json['inputModes'] as List<Object?>?)
           ?.map((e) => e as String)
           .toList(),
-      outputModes: (json['outputModes'] as List<dynamic>?)
+  outputModes: (json['outputModes'] as List<Object?>?)
           ?.map((e) => e as String)
           .toList(),
-      security: (json['security'] as List<dynamic>?)
-          ?.map((e) => (e as Map<String, dynamic>).map(
+  security: (json['security'] as List<Object?>?)
+      ?.map(
+        (e) => (e as Map<String, Object?>).map(
                 (k, e) => MapEntry(
-                    k, (e as List<dynamic>).map((e) => e as String).toList()),
+            k,
+            (e as List<Object?>).map((e) => e as String).toList(),
+          ),
               ))
           .toList(),
     );
 
-Map<String, dynamic> _$AgentSkillToJson(_AgentSkill instance) =>
-    <String, dynamic>{
+Map<String, Object?> _$AgentSkillToJson(_AgentSkill instance) =>
+    <String, Object?>{
       'id': instance.id,
       'name': instance.name,
       'description': instance.description,

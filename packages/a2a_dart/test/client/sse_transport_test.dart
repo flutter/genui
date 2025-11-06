@@ -25,7 +25,6 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
-        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -52,7 +51,6 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
-        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -79,7 +77,6 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
-        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -102,7 +99,6 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
-        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -123,7 +119,6 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
-        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(

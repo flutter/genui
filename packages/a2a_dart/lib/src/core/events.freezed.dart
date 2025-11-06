@@ -11,7 +11,7 @@ part of 'events.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-StreamingEvent _$StreamingEventFromJson(Map<String, dynamic> json) {
+StreamingEvent _$StreamingEventFromJson(Map<String, Object?> json) {
   switch (json['kind']) {
     case 'task_status_update':
       return TaskStatusUpdateEvent.fromJson(json);
@@ -44,7 +44,7 @@ mixin _$StreamingEvent {
           this as StreamingEvent, _$identity);
 
   /// Serializes this StreamingEvent to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -312,7 +312,7 @@ class TaskStatusUpdateEvent implements StreamingEvent {
       required this.contextId,
       required this.status,
       required this.final_});
-  factory TaskStatusUpdateEvent.fromJson(Map<String, dynamic> json) =>
+  factory TaskStatusUpdateEvent.fromJson(Map<String, Object?> json) =>
       _$TaskStatusUpdateEventFromJson(json);
 
   /// The type of this event, always 'task_status_update'.
@@ -344,7 +344,7 @@ class TaskStatusUpdateEvent implements StreamingEvent {
           this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$TaskStatusUpdateEventToJson(
       this,
     );
@@ -456,7 +456,7 @@ class TaskArtifactUpdateEvent implements StreamingEvent {
       required this.artifact,
       required this.append,
       required this.lastChunk});
-  factory TaskArtifactUpdateEvent.fromJson(Map<String, dynamic> json) =>
+  factory TaskArtifactUpdateEvent.fromJson(Map<String, Object?> json) =>
       _$TaskArtifactUpdateEventFromJson(json);
 
   /// The type of this event, always 'task_artifact_update'.
@@ -492,7 +492,7 @@ class TaskArtifactUpdateEvent implements StreamingEvent {
           this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$TaskArtifactUpdateEventToJson(
       this,
     );

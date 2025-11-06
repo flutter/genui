@@ -6,16 +6,16 @@ part of 'agent_extension.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentExtension _$AgentExtensionFromJson(Map<String, dynamic> json) =>
+_AgentExtension _$AgentExtensionFromJson(Map<String, Object?> json) =>
     _AgentExtension(
       uri: json['uri'] as String,
       description: json['description'] as String?,
       required: json['required'] as bool?,
-      params: json['params'] as Map<String, dynamic>?,
+      params: json['params'] as Map<String, Object?>?,
     );
 
-Map<String, dynamic> _$AgentExtensionToJson(_AgentExtension instance) =>
-    <String, dynamic>{
+Map<String, Object?> _$AgentExtensionToJson(_AgentExtension instance) =>
+    <String, Object?>{
       'uri': instance.uri,
       'description': instance.description,
       'required': instance.required,

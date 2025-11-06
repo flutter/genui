@@ -50,7 +50,7 @@ mixin _$AgentSkill {
       _$AgentSkillCopyWithImpl<AgentSkill>(this as AgentSkill, _$identity);
 
   /// Serializes this AgentSkill to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -389,7 +389,7 @@ class _AgentSkill implements AgentSkill {
         _inputModes = inputModes,
         _outputModes = outputModes,
         _security = security;
-  factory _AgentSkill.fromJson(Map<String, dynamic> json) =>
+  factory _AgentSkill.fromJson(Map<String, Object?> json) =>
       _$AgentSkillFromJson(json);
 
   /// A unique identifier for the agent's skill (e.g., "weather-forecast").
@@ -483,7 +483,7 @@ class _AgentSkill implements AgentSkill {
       __$AgentSkillCopyWithImpl<_AgentSkill>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$AgentSkillToJson(
       this,
     );

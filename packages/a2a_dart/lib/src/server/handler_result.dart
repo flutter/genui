@@ -14,7 +14,7 @@ sealed class HandlerResult {}
 /// A [HandlerResult] that represents a single, non-streaming response.
 class SingleResult extends HandlerResult {
   /// The data to be returned in the response.
-  final Map<String, dynamic> data;
+  final Map<String, Object?> data;
 
   /// Creates a [SingleResult] with the given [data].
   SingleResult(this.data);
@@ -23,7 +23,7 @@ class SingleResult extends HandlerResult {
 /// A [HandlerResult] that represents a streaming response.
 class StreamResult extends HandlerResult {
   /// The stream of data to be returned in the response.
-  final Stream<Map<String, dynamic>> stream;
+  final Stream<Map<String, Object?>> stream;
 
   /// Creates a [StreamResult] with the given [stream].
   StreamResult(this.stream);

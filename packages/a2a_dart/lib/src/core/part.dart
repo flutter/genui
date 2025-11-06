@@ -27,7 +27,7 @@ abstract class Part with _$Part {
     required String text,
 
     /// Optional metadata for the part.
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
   }) = TextPart;
 
   /// A file part of a message.
@@ -39,7 +39,7 @@ abstract class Part with _$Part {
     required FileType file,
 
     /// Optional metadata for the part.
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
   }) = FilePart;
 
   /// A structured data part of a message.
@@ -48,14 +48,14 @@ abstract class Part with _$Part {
     @Default('data') String kind,
 
     /// The structured data, represented as a JSON object.
-    required Map<String, dynamic> data,
+    required Map<String, Object?> data,
 
     /// Optional metadata for the part.
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
   }) = DataPart;
 
   /// Creates a [Part] from a JSON object.
-  factory Part.fromJson(Map<String, dynamic> json) => _$PartFromJson(json);
+  factory Part.fromJson(Map<String, Object?> json) => _$PartFromJson(json);
 }
 
 /// Represents a file with its content located at a specific URI or bytes.
@@ -89,6 +89,6 @@ abstract class FileType with _$FileType {
   }) = FileWithBytes;
 
   /// Creates a [FileType] from a JSON object.
-  factory FileType.fromJson(Map<String, dynamic> json) =>
+  factory FileType.fromJson(Map<String, Object?> json) =>
       _$FileTypeFromJson(json);
 }

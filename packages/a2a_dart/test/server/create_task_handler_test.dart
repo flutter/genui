@@ -40,7 +40,7 @@ void main() {
         contextId: '456',
         status: TaskStatus(state: TaskState.submitted),
       )));
-      final params = <String, dynamic>{};
+      final params = <String, Object?>{};
 
       expect(
         () => handler.handle(params),

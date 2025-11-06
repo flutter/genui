@@ -11,7 +11,7 @@ part of 'part.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-Part _$PartFromJson(Map<String, dynamic> json) {
+Part _$PartFromJson(Map<String, Object?> json) {
   switch (json['kind']) {
     case 'text':
       return TextPart.fromJson(json);
@@ -32,7 +32,7 @@ mixin _$Part {
   String get kind;
 
   /// Optional metadata for the part.
-  Map<String, dynamic>? get metadata;
+  Map<String, Object?>? get metadata;
 
   /// Create a copy of Part
   /// with the given fields replaced by the non-null parameter values.
@@ -42,7 +42,7 @@ mixin _$Part {
       _$PartCopyWithImpl<Part>(this as Part, _$identity);
 
   /// Serializes this Part to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -69,7 +69,7 @@ abstract mixin class $PartCopyWith<$Res> {
   factory $PartCopyWith(Part value, $Res Function(Part) _then) =
       _$PartCopyWithImpl;
   @useResult
-  $Res call({String kind, Map<String, dynamic>? metadata});
+  $Res call({String kind, Map<String, Object?>? metadata});
 }
 
 /// @nodoc
@@ -95,7 +95,7 @@ class _$PartCopyWithImpl<$Res> implements $PartCopyWith<$Res> {
       metadata: freezed == metadata
           ? _self.metadata
           : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 }
@@ -211,13 +211,13 @@ extension PartPatterns on Part {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String kind, String text, Map<String, dynamic>? metadata)?
+    TResult Function(String kind, String text, Map<String, Object?>? metadata)?
         text,
     TResult Function(
-            String kind, FileType file, Map<String, dynamic>? metadata)?
+            String kind, FileType file, Map<String, Object?>? metadata)?
         file,
-    TResult Function(String kind, Map<String, dynamic> data,
-            Map<String, dynamic>? metadata)?
+    TResult Function(String kind, Map<String, Object?> data,
+            Map<String, Object?>? metadata)?
         data,
     required TResult orElse(),
   }) {
@@ -250,13 +250,13 @@ extension PartPatterns on Part {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String kind, String text, Map<String, dynamic>? metadata)
+            String kind, String text, Map<String, Object?>? metadata)
         text,
     required TResult Function(
-            String kind, FileType file, Map<String, dynamic>? metadata)
+            String kind, FileType file, Map<String, Object?>? metadata)
         file,
-    required TResult Function(String kind, Map<String, dynamic> data,
-            Map<String, dynamic>? metadata)
+    required TResult Function(String kind, Map<String, Object?> data,
+            Map<String, Object?>? metadata)
         data,
   }) {
     final _that = this;
@@ -286,13 +286,13 @@ extension PartPatterns on Part {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String kind, String text, Map<String, dynamic>? metadata)?
+    TResult? Function(String kind, String text, Map<String, Object?>? metadata)?
         text,
     TResult? Function(
-            String kind, FileType file, Map<String, dynamic>? metadata)?
+            String kind, FileType file, Map<String, Object?>? metadata)?
         file,
-    TResult? Function(String kind, Map<String, dynamic> data,
-            Map<String, dynamic>? metadata)?
+    TResult? Function(String kind, Map<String, Object?> data,
+            Map<String, Object?>? metadata)?
         data,
   }) {
     final _that = this;
@@ -315,9 +315,9 @@ class TextPart implements Part {
   const TextPart(
       {this.kind = 'text',
       required this.text,
-      final Map<String, dynamic>? metadata})
+      final Map<String, Object?>? metadata})
       : _metadata = metadata;
-  factory TextPart.fromJson(Map<String, dynamic> json) =>
+  factory TextPart.fromJson(Map<String, Object?> json) =>
       _$TextPartFromJson(json);
 
   /// The type of this part, always 'text'.
@@ -329,11 +329,11 @@ class TextPart implements Part {
   final String text;
 
   /// Optional metadata for the part.
-  final Map<String, dynamic>? _metadata;
+  final Map<String, Object?>? _metadata;
 
   /// Optional metadata for the part.
   @override
-  Map<String, dynamic>? get metadata {
+  Map<String, Object?>? get metadata {
     final value = _metadata;
     if (value == null) return null;
     if (_metadata is EqualUnmodifiableMapView) return _metadata;
@@ -350,7 +350,7 @@ class TextPart implements Part {
       _$TextPartCopyWithImpl<TextPart>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$TextPartToJson(
       this,
     );
@@ -383,7 +383,7 @@ abstract mixin class $TextPartCopyWith<$Res> implements $PartCopyWith<$Res> {
       _$TextPartCopyWithImpl;
   @override
   @useResult
-  $Res call({String kind, String text, Map<String, dynamic>? metadata});
+  $Res call({String kind, String text, Map<String, Object?>? metadata});
 }
 
 /// @nodoc
@@ -414,7 +414,7 @@ class _$TextPartCopyWithImpl<$Res> implements $TextPartCopyWith<$Res> {
       metadata: freezed == metadata
           ? _self._metadata
           : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 }
@@ -425,9 +425,9 @@ class FilePart implements Part {
   const FilePart(
       {this.kind = 'file',
       required this.file,
-      final Map<String, dynamic>? metadata})
+      final Map<String, Object?>? metadata})
       : _metadata = metadata;
-  factory FilePart.fromJson(Map<String, dynamic> json) =>
+  factory FilePart.fromJson(Map<String, Object?> json) =>
       _$FilePartFromJson(json);
 
   /// The type of this part, always 'file'.
@@ -439,11 +439,11 @@ class FilePart implements Part {
   final FileType file;
 
   /// Optional metadata for the part.
-  final Map<String, dynamic>? _metadata;
+  final Map<String, Object?>? _metadata;
 
   /// Optional metadata for the part.
   @override
-  Map<String, dynamic>? get metadata {
+  Map<String, Object?>? get metadata {
     final value = _metadata;
     if (value == null) return null;
     if (_metadata is EqualUnmodifiableMapView) return _metadata;
@@ -460,7 +460,7 @@ class FilePart implements Part {
       _$FilePartCopyWithImpl<FilePart>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$FilePartToJson(
       this,
     );
@@ -493,7 +493,7 @@ abstract mixin class $FilePartCopyWith<$Res> implements $PartCopyWith<$Res> {
       _$FilePartCopyWithImpl;
   @override
   @useResult
-  $Res call({String kind, FileType file, Map<String, dynamic>? metadata});
+  $Res call({String kind, FileType file, Map<String, Object?>? metadata});
 
   $FileTypeCopyWith<$Res> get file;
 }
@@ -526,7 +526,7 @@ class _$FilePartCopyWithImpl<$Res> implements $FilePartCopyWith<$Res> {
       metadata: freezed == metadata
           ? _self._metadata
           : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 
@@ -546,11 +546,11 @@ class _$FilePartCopyWithImpl<$Res> implements $FilePartCopyWith<$Res> {
 class DataPart implements Part {
   const DataPart(
       {this.kind = 'data',
-      required final Map<String, dynamic> data,
-      final Map<String, dynamic>? metadata})
+      required final Map<String, Object?> data,
+      final Map<String, Object?>? metadata})
       : _data = data,
         _metadata = metadata;
-  factory DataPart.fromJson(Map<String, dynamic> json) =>
+  factory DataPart.fromJson(Map<String, Object?> json) =>
       _$DataPartFromJson(json);
 
   /// The type of this part, always 'data'.
@@ -559,21 +559,21 @@ class DataPart implements Part {
   final String kind;
 
   /// The structured data, represented as a JSON object.
-  final Map<String, dynamic> _data;
+  final Map<String, Object?> _data;
 
   /// The structured data, represented as a JSON object.
-  Map<String, dynamic> get data {
+  Map<String, Object?> get data {
     if (_data is EqualUnmodifiableMapView) return _data;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_data);
   }
 
   /// Optional metadata for the part.
-  final Map<String, dynamic>? _metadata;
+  final Map<String, Object?>? _metadata;
 
   /// Optional metadata for the part.
   @override
-  Map<String, dynamic>? get metadata {
+  Map<String, Object?>? get metadata {
     final value = _metadata;
     if (value == null) return null;
     if (_metadata is EqualUnmodifiableMapView) return _metadata;
@@ -590,7 +590,7 @@ class DataPart implements Part {
       _$DataPartCopyWithImpl<DataPart>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$DataPartToJson(
       this,
     );
@@ -627,7 +627,7 @@ abstract mixin class $DataPartCopyWith<$Res> implements $PartCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String kind, Map<String, dynamic> data, Map<String, dynamic>? metadata});
+      {String kind, Map<String, Object?> data, Map<String, Object?>? metadata});
 }
 
 /// @nodoc
@@ -654,16 +654,16 @@ class _$DataPartCopyWithImpl<$Res> implements $DataPartCopyWith<$Res> {
       data: null == data
           ? _self._data
           : data // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>,
+              as Map<String, Object?>,
       metadata: freezed == metadata
           ? _self._metadata
           : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as Map<String, Object?>?,
     ));
   }
 }
 
-FileType _$FileTypeFromJson(Map<String, dynamic> json) {
+FileType _$FileTypeFromJson(Map<String, Object?> json) {
   switch (json['type']) {
     case 'uri':
       return FileWithUri.fromJson(json);
@@ -692,7 +692,7 @@ mixin _$FileType {
       _$FileTypeCopyWithImpl<FileType>(this as FileType, _$identity);
 
   /// Serializes this FileType to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -932,7 +932,7 @@ class FileWithUri implements FileType {
   const FileWithUri(
       {required this.uri, this.name, this.mimeType, final String? $type})
       : $type = $type ?? 'uri';
-  factory FileWithUri.fromJson(Map<String, dynamic> json) =>
+  factory FileWithUri.fromJson(Map<String, Object?> json) =>
       _$FileWithUriFromJson(json);
 
   /// A URL pointing to the file's content.
@@ -958,7 +958,7 @@ class FileWithUri implements FileType {
       _$FileWithUriCopyWithImpl<FileWithUri>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$FileWithUriToJson(
       this,
     );
@@ -1035,7 +1035,7 @@ class FileWithBytes implements FileType {
   const FileWithBytes(
       {required this.bytes, this.name, this.mimeType, final String? $type})
       : $type = $type ?? 'bytes';
-  factory FileWithBytes.fromJson(Map<String, dynamic> json) =>
+  factory FileWithBytes.fromJson(Map<String, Object?> json) =>
       _$FileWithBytesFromJson(json);
 
   /// The base64-encoded content of the file.
@@ -1061,7 +1061,7 @@ class FileWithBytes implements FileType {
       _$FileWithBytesCopyWithImpl<FileWithBytes>(this, _$identity);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return _$FileWithBytesToJson(
       this,
     );

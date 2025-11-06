@@ -84,7 +84,7 @@ abstract class SecurityScheme with _$SecurityScheme {
   }) = MutualTlsSecurityScheme;
 
   /// Creates a [SecurityScheme] from a JSON object.
-  factory SecurityScheme.fromJson(Map<String, dynamic> json) =>
+  factory SecurityScheme.fromJson(Map<String, Object?> json) =>
       _$SecuritySchemeFromJson(json);
 }
 
@@ -107,7 +107,7 @@ abstract class OAuthFlows with _$OAuthFlows {
   }) = _OAuthFlows;
 
   /// Creates an [OAuthFlows] from a JSON object.
-  factory OAuthFlows.fromJson(Map<String, dynamic> json) =>
+  factory OAuthFlows.fromJson(Map<String, Object?> json) =>
       _$OAuthFlowsFromJson(json);
 }
 
@@ -130,6 +130,6 @@ abstract class OAuthFlow with _$OAuthFlow {
   }) = _OAuthFlow;
 
   /// Creates an [OAuthFlow] from a JSON object.
-  factory OAuthFlow.fromJson(Map<String, dynamic> json) =>
+  factory OAuthFlow.fromJson(Map<String, Object?> json) =>
       _$OAuthFlowFromJson(json);
 }
