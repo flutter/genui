@@ -25,6 +25,7 @@ import 'transport.dart';
 /// Events (SSE).
 class A2AClient {
   final _log = Logger('A2AClient');
+
   /// The base URL of the A2A server.
   final String url;
 
