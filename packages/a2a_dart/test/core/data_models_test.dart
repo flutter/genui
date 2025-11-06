@@ -27,8 +27,7 @@ void main() {
       expect(newAgentCard.name, equals('Test Agent'));
     });
 
-    test(
-        'AgentCard with optional fields null can be serialized and '
+    test('AgentCard with optional fields null can be serialized and '
         'deserialized', () {
       final agentCard = const AgentCard(
         protocolVersion: '1.0',
@@ -117,19 +116,21 @@ void main() {
       expect(newTask.id, equals('task-123'));
     });
 
-    test('Task with optional fields null can be serialized and deserialized',
-        () {
-      final task = const Task(
-        id: 'task-123',
-        contextId: 'context-456',
-        status: TaskStatus(state: TaskState.working),
-      );
+    test(
+      'Task with optional fields null can be serialized and deserialized',
+      () {
+        final task = const Task(
+          id: 'task-123',
+          contextId: 'context-456',
+          status: TaskStatus(state: TaskState.working),
+        );
 
-      final json = task.toJson();
-      final newTask = Task.fromJson(json);
+        final json = task.toJson();
+        final newTask = Task.fromJson(json);
 
-      expect(newTask, equals(task));
-    });
+        expect(newTask, equals(task));
+      },
+    );
 
     test('Part can be serialized and deserialized', () {
       final partText = const Part.text(text: 'Hello');

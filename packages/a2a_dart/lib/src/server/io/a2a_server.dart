@@ -54,8 +54,8 @@ class A2AServer {
     this.host = 'localhost',
     int port = 0,
     Logger? logger,
-  })  : _requestedPort = port,
-        _log = logger {
+  }) : _requestedPort = port,
+       _log = logger {
     for (final handler in handlers) {
       registerHandler(handler);
     }
@@ -104,7 +104,8 @@ class A2AServer {
 
     _server = await io.serve(handler, host, _requestedPort);
     _log?.info(
-        'A2A server started on ${_server!.address.host}:${_server!.port}');
+      'A2A server started on ${_server!.address.host}:${_server!.port}',
+    );
   }
 
   Future<Response> _handleRpcRequest(Request request) async {
@@ -126,11 +127,7 @@ class A2AServer {
       final params = json['params'] as Map<String, Object?>?;
 
       if (method == null || params == null) {
-        return _jsonRpcError(
-          id: id,
-          code: -32600,
-          message: 'Invalid Request',
-        );
+        return _jsonRpcError(id: id, code: -32600, message: 'Invalid Request');
       }
 
       final handler = _handlers[method];
@@ -164,25 +161,21 @@ class A2AServer {
 
       return switch (result) {
         SingleResult(data: final data) => Response.ok(
-            jsonEncode({'jsonrpc': '2.0', 'result': data, 'id': id}),
-            headers: {'Content-Type': 'application/json'},
-          ),
+          jsonEncode({'jsonrpc': '2.0', 'result': data, 'id': id}),
+          headers: {'Content-Type': 'application/json'},
+        ),
         StreamResult(stream: final stream) => Response.ok(
-            stream.map((event) {
-              return utf8.encode(
-                'data: ${jsonEncode({
-                      'jsonrpc': '2.0',
-                      'result': event,
-                      'id': id
-                    })}\n\n',
-              );
-            }),
-            headers: {
-              'Content-Type': 'text/event-stream',
-              'Cache-Control': 'no-cache',
-              'Connection': 'keep-alive',
-            },
-          ),
+          stream.map((event) {
+            return utf8.encode(
+              'data: ${jsonEncode({'jsonrpc': '2.0', 'result': event, 'id': id})}\n\n',
+            );
+          }),
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        ),
       };
     } on A2AServerException catch (e) {
       return _jsonRpcError(

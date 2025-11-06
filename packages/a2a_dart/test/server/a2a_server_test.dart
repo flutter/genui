@@ -60,7 +60,8 @@ void main() {
       final json = jsonDecode(response.body) as Map<String, Object?>;
       expect(
         (json['result'] as Map<String, Object?>)['result'],
-          equals('success'));
+        equals('success'),
+      );
     });
 
     test('returns error for invalid method', () async {
@@ -82,10 +83,7 @@ void main() {
     test('returns error for invalid request', () async {
       final response = await http.post(
         Uri.parse('http://localhost:${server.port}/rpc'),
-        body: jsonEncode({
-          'jsonrpc': '2.0',
-          'id': 1,
-        }),
+        body: jsonEncode({'jsonrpc': '2.0', 'id': 1}),
       );
 
       expect(response.statusCode, equals(400));
@@ -120,7 +118,8 @@ void main() {
       expect((json['error'] as Map<String, Object?>)['code'], equals(-32001));
       expect(
         (json['error'] as Map<String, Object?>)['message'],
-          equals('Test error'));
+        equals('Test error'),
+      );
     });
 
     test('server uses the specified host', () async {
@@ -156,15 +155,17 @@ void main() {
 
       final event1 = jsonDecode(lines[0].substring(5));
       expect(
-          ((event1 as Map<String, Object?>)['result']
-              as Map<String, Object?>)['result'],
-          equals('event1'));
+        ((event1 as Map<String, Object?>)['result']
+            as Map<String, Object?>)['result'],
+        equals('event1'),
+      );
 
       final event2 = jsonDecode(lines[1].substring(5));
       expect(
-          ((event2 as Map<String, Object?>)['result']
-              as Map<String, Object?>)['result'],
-          equals('event2'));
+        ((event2 as Map<String, Object?>)['result']
+            as Map<String, Object?>)['result'],
+        equals('event2'),
+      );
     });
   });
 }

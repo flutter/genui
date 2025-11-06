@@ -56,11 +56,8 @@ class A2AClient {
   ///   print('${record.level.name}: ${record.time}: ${record.message}');
   /// });
   /// ```
-  A2AClient({
-    required this.url,
-    Transport? transport,
-    Logger? logger,
-  }) : _log = logger {
+  A2AClient({required this.url, Transport? transport, Logger? logger})
+    : _log = logger {
     this.transport = transport ?? HttpTransport(url: url, log: _log);
   }
 
@@ -144,8 +141,6 @@ class A2AClient {
       'id': _nextId++,
     };
     _log?.info('Executing task $taskId');
-    return transport.sendStream(request).map(
-          StreamingEvent.fromJson,
-        );
+    return transport.sendStream(request).map(StreamingEvent.fromJson);
   }
 }

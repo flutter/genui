@@ -23,15 +23,12 @@ sealed class A2AException with _$A2AException implements Exception {
   }) = A2AJsonRpcException;
 
   /// An exception that represents an HTTP error.
-  const factory A2AException.http({
-    required int statusCode,
-    String? reason,
-  }) = A2AHttpException;
+  const factory A2AException.http({required int statusCode, String? reason}) =
+      A2AHttpException;
 
   /// An exception that represents a network error.
-  const factory A2AException.network({
-    required String message,
-  }) = A2ANetworkException;
+  const factory A2AException.network({required String message}) =
+      A2ANetworkException;
 
   /// An exception that represents a parsing error.
   const factory A2AException.parsing({

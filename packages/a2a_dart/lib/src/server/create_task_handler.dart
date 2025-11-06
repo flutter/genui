@@ -31,9 +31,7 @@ class CreateTaskHandler implements RequestHandler {
     if (!params.containsKey('message')) {
       throw A2AServerException('`message` parameter is required.', -32602);
     }
-    final message = Message.fromJson(
-      params['message'] as Map<String, Object?>,
-    );
+    final message = Message.fromJson(params['message'] as Map<String, Object?>);
     final task = _taskManager.createTask(message);
     return SingleResult(task.toJson());
   }

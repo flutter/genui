@@ -30,12 +30,10 @@ class FakeTransport implements Transport {
   final Map<String, Object?> response;
   final Stream<Map<String, Object?>> streamResponse;
 
-  FakeTransport(
-      {
+  FakeTransport({
     required this.response,
     Stream<Map<String, Object?>>? streamResponse,
-  })
-      : streamResponse = streamResponse ?? Stream.value(response);
+  }) : streamResponse = streamResponse ?? Stream.value(response);
 
   @override
   Future<Map<String, Object?>> get(String method) async {

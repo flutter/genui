@@ -24,7 +24,7 @@ void main() {
           'parts': [
             {'kind': 'text', 'text': 'Hello'},
           ],
-        }
+        },
       };
 
       final result = await handler.handle(params);
@@ -34,18 +34,18 @@ void main() {
     });
 
     test('handle throws an exception if message is missing', () {
-      final handler = CreateTaskHandler(FakeTaskManager(
+      final handler = CreateTaskHandler(
+        FakeTaskManager(
           taskToReturn: const Task(
-        id: '123',
-        contextId: '456',
-        status: TaskStatus(state: TaskState.submitted),
-      )));
+            id: '123',
+            contextId: '456',
+            status: TaskStatus(state: TaskState.submitted),
+          ),
+        ),
+      );
       final params = <String, Object?>{};
 
-      expect(
-        () => handler.handle(params),
-        throwsA(isA<A2AServerException>()),
-      );
+      expect(() => handler.handle(params), throwsA(isA<A2AServerException>()));
     });
   });
 }

@@ -24,9 +24,7 @@ class MockExecuteTaskHandler implements RequestHandler {
 
     // Simulate work
     taskManager.updateTask(
-      task.copyWith(
-        status: const TaskStatus(state: TaskState.working),
-      ),
+      task.copyWith(status: const TaskStatus(state: TaskState.working)),
     );
     streamController.add(
       TaskStatusUpdateEvent(
@@ -51,9 +49,7 @@ class MockExecuteTaskHandler implements RequestHandler {
     );
 
     taskManager.updateTask(
-      task.copyWith(
-        status: const TaskStatus(state: TaskState.completed),
-      ),
+      task.copyWith(status: const TaskStatus(state: TaskState.completed)),
     );
     streamController.add(
       TaskStatusUpdateEvent(
@@ -92,9 +88,7 @@ void main() {
     test('client can create and execute a task on the server', () async {
       final client = A2AClient(
         url: 'http://localhost:${server.port}',
-        transport: SseTransport(
-          url: 'http://localhost:${server.port}',
-        ),
+        transport: SseTransport(url: 'http://localhost:${server.port}'),
       );
       final message = const Message(
         messageId: '1',
@@ -111,24 +105,28 @@ void main() {
 
       expect(events, hasLength(3));
       expect(events[0], isA<TaskStatusUpdateEvent>());
-      expect((events[0] as TaskStatusUpdateEvent).status.state,
-          equals(TaskState.working));
+      expect(
+        (events[0] as TaskStatusUpdateEvent).status.state,
+        equals(TaskState.working),
+      );
       expect(events[1], isA<TaskArtifactUpdateEvent>());
-      expect((events[1] as TaskArtifactUpdateEvent).artifact.artifactId,
-          equals('artifact-1'));
+      expect(
+        (events[1] as TaskArtifactUpdateEvent).artifact.artifactId,
+        equals('artifact-1'),
+      );
       expect(
         (events[1] as TaskArtifactUpdateEvent).artifact.parts[0],
         const Part.text(text: 'Here is your artifact'),
       );
       expect(events[2], isA<TaskStatusUpdateEvent>());
-      expect((events[2] as TaskStatusUpdateEvent).status.state,
-          equals(TaskState.completed));
+      expect(
+        (events[2] as TaskStatusUpdateEvent).status.state,
+        equals(TaskState.completed),
+      );
     });
 
     test('client handles server errors gracefully', () async {
-      final client = A2AClient(
-        url: 'http://localhost:${server.port}',
-      );
+      final client = A2AClient(url: 'http://localhost:${server.port}');
       final message = const Message(
         messageId: '1',
         role: Role.user,

@@ -72,15 +72,14 @@ void main() {
       );
       client = A2AClient(
         url: 'http://localhost:8080',
-        transport: FakeTransport(response: {
-          'error': {'code': -32600, 'message': 'Invalid Request'}
-        }),
+        transport: FakeTransport(
+          response: {
+            'error': {'code': -32600, 'message': 'Invalid Request'},
+          },
+        ),
       );
 
-      expect(
-        client.createTask(message),
-        throwsA(isA<A2AException>()),
-      );
+      expect(client.createTask(message), throwsA(isA<A2AException>()));
     });
 
     test('executeTask returns a stream of StreamingEvents on success', () {
@@ -103,13 +102,7 @@ void main() {
 
       final stream = client.executeTask('test-task-id');
 
-      expect(
-        stream,
-        emitsInOrder([
-          event,
-          emitsDone,
-        ]),
-      );
+      expect(stream, emitsInOrder([event, emitsDone]));
 
       streamController.add(eventJson);
       streamController.close();
@@ -141,13 +134,7 @@ void main() {
         ),
       );
 
-      expect(
-        stream,
-        emitsInOrder([
-          event,
-          emitsDone,
-        ]),
-      );
+      expect(stream, emitsInOrder([event, emitsDone]));
 
       streamController.add(eventJson);
       streamController.close();

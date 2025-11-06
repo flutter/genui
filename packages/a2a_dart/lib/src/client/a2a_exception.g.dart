@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'a2a_exception.dart';
@@ -15,13 +19,13 @@ A2AJsonRpcException _$A2AJsonRpcExceptionFromJson(Map<String, Object?> json) =>
     );
 
 Map<String, Object?> _$A2AJsonRpcExceptionToJson(
-        A2AJsonRpcException instance) =>
-    <String, Object?>{
-      'code': instance.code,
-      'message': instance.message,
-      'data': instance.data,
-      'runtimeType': instance.$type,
-    };
+  A2AJsonRpcException instance,
+) => <String, Object?>{
+  'code': instance.code,
+  'message': instance.message,
+  'data': instance.data,
+  'runtimeType': instance.$type,
+};
 
 A2AHttpException _$A2AHttpExceptionFromJson(Map<String, Object?> json) =>
     A2AHttpException(
@@ -44,11 +48,11 @@ A2ANetworkException _$A2ANetworkExceptionFromJson(Map<String, Object?> json) =>
     );
 
 Map<String, Object?> _$A2ANetworkExceptionToJson(
-        A2ANetworkException instance) =>
-    <String, Object?>{
-      'message': instance.message,
-      'runtimeType': instance.$type,
-    };
+  A2ANetworkException instance,
+) => <String, Object?>{
+  'message': instance.message,
+  'runtimeType': instance.$type,
+};
 
 A2AParsingException _$A2AParsingExceptionFromJson(Map<String, Object?> json) =>
     A2AParsingException(
@@ -57,8 +61,8 @@ A2AParsingException _$A2AParsingExceptionFromJson(Map<String, Object?> json) =>
     );
 
 Map<String, Object?> _$A2AParsingExceptionToJson(
-        A2AParsingException instance) =>
-    <String, Object?>{
-      'message': instance.message,
-      'runtimeType': instance.$type,
-    };
+  A2AParsingException instance,
+) => <String, Object?>{
+  'message': instance.message,
+  'runtimeType': instance.$type,
+};
