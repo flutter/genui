@@ -233,7 +233,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
 
     return '($escapedPrefix'
         '${generatedCodePattern ?? r'GENERATED CODE.*\n?'}'
-        '${escapedSuffix}s*\n?)?';
+        '${escapedSuffix}s*\n?)';
   }
 
   String generateCopyrightPattern({
