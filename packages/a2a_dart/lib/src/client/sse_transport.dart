@@ -54,16 +54,15 @@ class SseTransport extends HttpTransport {
                 yield jsonData['result'] as Map<String, dynamic>;
               } else if (jsonData.containsKey('error')) {
                 final error = jsonData['error'] as Map<String, dynamic>;
-                yield* Stream.error(A2AException.jsonRpc(
+                throw A2AException.jsonRpc(
                   code: error['code'] as int,
                   message: error['message'] as String,
                   data: error['data'] as Map<String, dynamic>?,
-                ));
+                );
               }
             } catch (e) {
-              yield* Stream.error(A2AException.parsing(message: e.toString()));
+              throw A2AException.parsing(message: e.toString());
             }
-          }
         } else if (line.startsWith('data:')) {
           data.add(line.substring(5).trim());
         } else if (line.startsWith(':')) {
