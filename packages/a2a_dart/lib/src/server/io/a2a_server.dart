@@ -19,7 +19,7 @@ import '../request_handler.dart';
 /// This class provides a simple and extensible server for handling A2A RPC
 /// calls. It uses a request handler pipeline to process incoming requests.
 class A2AServer {
-  final _log = Logger('A2AServer');
+  final Logger? _log;
   HttpServer? _server;
 
   /// The host the server is listening on.
@@ -44,17 +44,17 @@ class A2AServer {
   ///
   /// ```dart
   /// final server = A2AServer([...]);
-  /// server.logger.onRecord.listen((record) {
+  /// server.logger?.onRecord.listen((record) {
   ///   print('${record.level.name}: ${record.time}: ${record.message}');
   /// });
   /// ```
   A2AServer(
     List<RequestHandler> handlers, {
-    Level logLevel = Level.INFO,
     this.host = 'localhost',
     int port = 0,
-  }) : _requestedPort = port {
-    _log.level = logLevel;
+    Logger? logger,
+  })  : _requestedPort = port,
+        _log = logger {
     for (final handler in handlers) {
       _handlers[handler.method] = handler;
     }
@@ -69,11 +69,11 @@ class A2AServer {
   ///
   /// ```dart
   /// final server = A2AServer([...]);
-  /// server.logger.onRecord.listen((record) {
+  /// server.logger?.onRecord.listen((record) {
   ///   print('${record.level.name}: ${record.time}: ${record.message}');
   /// });
   /// ```
-  Logger get logger => _log;
+  Logger? get logger => _log;
 
   /// Starts the server.
   ///
@@ -83,9 +83,9 @@ class A2AServer {
 
     router.post('/rpc', (Request request) async {
       Map<String, dynamic> json;
-      _log.info('Received request: ${request.method} ${request.requestedUri}');
+      _log?.info('Received request: ${request.method} ${request.requestedUri}');
       final body = await request.readAsString();
-      _log.fine('Request body: $body');
+      _log?.fine('Request body: $body');
 
       dynamic id;
       try {
@@ -120,7 +120,7 @@ class A2AServer {
         final handler = _handlers[method];
         if (handler != null) {
           final result = await handler.handle(params);
-          _log.info('Returning successful response for method $method');
+          _log?.info('Returning successful response for method $method');
 
           return switch (result) {
             SingleResult(data: final data) => Response.ok(
@@ -170,13 +170,13 @@ class A2AServer {
         const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
     _server = await io.serve(handler, host, _requestedPort);
-    _log.info(
+    _log?.info(
         'A2A server started on ${_server!.address.host}:${_server!.port}');
   }
 
   /// Stops the server.
   Future<void> stop() async {
     await _server?.close();
-    _log.info('A2A server stopped');
+    _log?.info('A2A server stopped');
   }
 }

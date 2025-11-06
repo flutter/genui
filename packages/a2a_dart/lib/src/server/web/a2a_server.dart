@@ -1,3 +1,5 @@
+import 'package:logging/logging.dart';
+
 import '../request_handler.dart';
 
 /// A class that represents an A2A server.
@@ -13,6 +15,7 @@ class A2AServer {
     List<RequestHandler> handlers, {
     String host = 'localhost',
     int port = 0,
+    Logger? logger,
   }) {
     throw UnsupportedError('Cannot create an A2AServer on the web.');
   }

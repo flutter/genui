@@ -81,7 +81,8 @@ void main() {
         CreateTaskHandler(taskManager),
         MockExecuteTaskHandler(taskManager),
       ];
-      server = A2AServer(handlers, host: 'localhost');
+      server =
+          A2AServer(handlers, host: 'localhost', logger: Logger('A2AServer'));
       await server.start();
     });
 
@@ -123,7 +124,10 @@ void main() {
     });
 
     test('client handles server errors gracefully', () async {
-      final client = A2AClient(url: 'http://localhost:${server.port}');
+      final client = A2AClient(
+        url: 'http://localhost:${server.port}',
+        logger: Logger('A2AClient'),
+      );
       final message = Message(
         messageId: '1',
         role: Role.user,

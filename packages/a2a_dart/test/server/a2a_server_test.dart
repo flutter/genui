@@ -29,7 +29,8 @@ void main() {
     late A2AServer server;
 
     setUp(() async {
-      server = A2AServer([MockRequestHandler()]);
+      server = A2AServer([MockRequestHandler()],
+          port: 8081, logger: Logger('A2AServer'));
       await server.start();
     });
 
@@ -112,14 +113,16 @@ void main() {
 
     test('server uses the specified host', () async {
       await server.stop();
-      server = A2AServer([MockRequestHandler()], host: '127.0.0.1');
+      server = A2AServer([MockRequestHandler()],
+          host: '127.0.0.1', port: 8081, logger: Logger('A2AServer'));
       await server.start();
       expect(server.host, equals('127.0.0.1'));
     });
 
     test('server uses the specified port', () async {
       await server.stop();
-      server = A2AServer([MockRequestHandler()], port: 8081);
+      server = A2AServer([MockRequestHandler()],
+          port: 8081, logger: Logger('A2AServer'));
       await server.start();
       expect(server.port, equals(8081));
     });

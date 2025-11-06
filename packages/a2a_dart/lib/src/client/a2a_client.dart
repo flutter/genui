@@ -24,7 +24,7 @@ import 'transport.dart';
 /// request-response interactions and streaming communication using Server-Sent
 /// Events (SSE).
 class A2AClient {
-  final _log = Logger('A2AClient');
+  final Logger? _log;
   int _nextId = 1;
 
   /// The base URL of the A2A server.
@@ -47,16 +47,15 @@ class A2AClient {
   ///
   /// ```dart
   /// final client = A2AClient(url: 'http://localhost:8080');
-  /// client.logger.onRecord.listen((record) {
+  /// client.logger?.onRecord.listen((record) {
   ///   print('${record.level.name}: ${record.time}: ${record.message}');
   /// });
   /// ```
   A2AClient({
     required this.url,
     Transport? transport,
-    Level logLevel = Level.INFO,
-  }) {
-    _log.level = logLevel;
+    Logger? logger,
+  }) : _log = logger {
     this.transport = transport ?? HttpTransport(url: url, log: _log);
   }
 
@@ -69,20 +68,20 @@ class A2AClient {
   ///
   /// ```dart
   /// final client = A2AClient(url: 'http://localhost:8080');
-  /// client.logger.onRecord.listen((record) {
+  /// client.logger?.onRecord.listen((record) {
   ///   print('${record.level.name}: ${record.time}: ${record.message}');
   /// });
   /// ```
-  Logger get logger => _log;
+  Logger? get logger => _log;
 
   /// Fetches the agent's capabilities and metadata from the server.
   ///
   /// This method retrieves the [AgentCard], which contains information about the
   /// agent, such as its name, version, and supported extensions.
   Future<AgentCard> getAgentCard() async {
-    _log.info('Getting agent card');
+    _log?.info('Getting agent card');
     final response = await transport.get('.well-known/agent-card.json');
-    _log.info('Received agent card');
+    _log?.info('Received agent card');
     return AgentCard.fromJson(response);
   }
 
@@ -97,9 +96,9 @@ class A2AClient {
       'params': {'message': message.toJson()},
       'id': _nextId++,
     };
-    _log.info('Creating task with message: ${message.toJson()}');
+    _log?.info('Creating task with message: ${message.toJson()}');
     final response = await transport.send(request);
-    _log.info('Received response from create_task: $response');
+    _log?.info('Received response from create_task: $response');
     if (response.containsKey('error')) {
       final error = response['error'] as Map<String, dynamic>;
       throw A2AException.jsonRpc(
@@ -123,7 +122,7 @@ class A2AClient {
       'params': {'message': message.toJson()},
       'id': _nextId++,
     };
-    _log.info('Sending message stream: ${message.toJson()}');
+    _log?.info('Sending message stream: ${message.toJson()}');
     return transport.sendStream(request);
   }
 
@@ -139,7 +138,7 @@ class A2AClient {
       'params': {'task_id': taskId},
       'id': _nextId++,
     };
-    _log.info('Executing task $taskId');
+    _log?.info('Executing task $taskId');
     return transport.sendStream(request).map(
           (eventPayload) => StreamingEvent.fromJson(eventPayload),
         );

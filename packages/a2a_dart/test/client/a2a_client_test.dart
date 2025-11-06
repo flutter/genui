@@ -24,8 +24,11 @@ void main() {
 
     setUp(() {
       mockTransport = MockTransport();
-      client =
-          A2AClient(url: 'http://localhost:8080', transport: mockTransport);
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: mockTransport,
+        logger: Logger('A2AClient'),
+      );
     });
 
     test('getAgentCard returns an AgentCard on success', () async {
