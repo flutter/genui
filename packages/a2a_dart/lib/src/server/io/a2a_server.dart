@@ -166,9 +166,12 @@ class A2AServer {
         ),
         StreamResult(stream: final stream) => Response.ok(
           stream.map((event) {
-            return utf8.encode(
-              'data: ${jsonEncode({'jsonrpc': '2.0', 'result': event, 'id': id})}\n\n',
-            );
+            final json = jsonEncode({
+              'jsonrpc': '2.0',
+              'result': event,
+              'id': id,
+            });
+            return utf8.encode('data: $json\n\n');
           }),
           headers: {
             'Content-Type': 'text/event-stream',
