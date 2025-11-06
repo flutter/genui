@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'part.freezed.dart';
@@ -14,8 +18,10 @@ abstract class Part with _$Part {
   const factory Part.text({
     /// The type of this part, always 'text'.
     @Default('text') String kind,
+
     /// The text content.
     required String text,
+
     /// Optional metadata for the part.
     Map<String, dynamic>? metadata,
   }) = TextPart;
@@ -24,8 +30,10 @@ abstract class Part with _$Part {
   const factory Part.file({
     /// The type of this part, always 'file'.
     @Default('file') String kind,
+
     /// The file to be included in the message.
     required FileType file,
+
     /// Optional metadata for the part.
     Map<String, dynamic>? metadata,
   }) = FilePart;
@@ -34,8 +42,10 @@ abstract class Part with _$Part {
   const factory Part.data({
     /// The type of this part, always 'data'.
     @Default('data') String kind,
+
     /// The structured data, represented as a JSON object.
     required Map<String, dynamic> data,
+
     /// Optional metadata for the part.
     Map<String, dynamic>? metadata,
   }) = DataPart;
@@ -54,6 +64,7 @@ abstract class FileType with _$FileType {
   const factory FileType.uri({
     /// A URL pointing to the file's content.
     required String uri,
+
     /// An optional name for the file (e.g., "document.pdf").
     String? name,
 
@@ -65,8 +76,10 @@ abstract class FileType with _$FileType {
   const factory FileType.bytes({
     /// The base64-encoded content of the file.
     required String bytes,
+
     /// An optional name for the file (e.g., "document.pdf").
     String? name,
+
     /// The MIME type of the file (e.g., "application/pdf").
     String? mimeType,
   }) = FileWithBytes;

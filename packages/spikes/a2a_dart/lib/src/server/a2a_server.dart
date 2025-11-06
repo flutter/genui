@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -121,9 +125,8 @@ class A2AServer {
       }
     });
 
-    final handler = const Pipeline()
-        .addMiddleware(logRequests())
-        .addHandler(router.call);
+    final handler =
+        const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
     _server = await io.serve(handler, 'localhost', 0);
     print('A2A server started on ${_server!.address.host}:${_server!.port}');

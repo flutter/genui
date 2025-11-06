@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 
 /// A handler for intercepting and processing A2A requests and responses.
@@ -18,7 +22,8 @@ class A2AHandlerPipeline {
   final List<A2AHandler> handlers;
 
   /// Executes the request handlers in order.
-  Future<Map<String, dynamic>> handleRequest(Map<String, dynamic> request) async {
+  Future<Map<String, dynamic>> handleRequest(
+      Map<String, dynamic> request) async {
     var currentRequest = request;
     for (final handler in handlers) {
       currentRequest = await handler.handleRequest(currentRequest);
