@@ -85,10 +85,13 @@ void main() {
 
     setUp(() async {
       taskManager = TaskManager();
-      server = A2AServer([
-        CreateTaskHandler(taskManager),
-        MockExecuteTaskHandler(taskManager),
-      ]);
+      server = A2AServer(
+        [
+          CreateTaskHandler(taskManager),
+          MockExecuteTaskHandler(taskManager),
+        ],
+        host: 'localhost',
+      );
       await server.start();
       // Add a small delay to allow the server to start.
       await Future.delayed(const Duration(milliseconds: 100));

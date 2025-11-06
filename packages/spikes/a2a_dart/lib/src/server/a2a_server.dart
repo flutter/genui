@@ -21,6 +21,9 @@ class A2AServer {
   final _log = Logger('A2AServer');
   HttpServer? _server;
 
+  /// The host the server is listening on.
+  final String host;
+
   /// The port the server is listening on.
   ///
   /// This is only valid after [start] has been called.
@@ -33,7 +36,11 @@ class A2AServer {
   /// The [handlers] are a list of [RequestHandler]s that will be used to
   /// process incoming requests. Each handler is responsible for a single RPC
   /// method.
-  A2AServer(List<RequestHandler> handlers, {Level logLevel = Level.INFO}) {
+  A2AServer(
+    List<RequestHandler> handlers, {
+    Level logLevel = Level.INFO,
+    this.host = 'localhost',
+  }) {
     Logger.root.level = logLevel;
     Logger.root.onRecord.listen((record) {
       print('${record.level.name}: ${record.time}: ${record.message}');
@@ -139,7 +146,7 @@ class A2AServer {
     final handler =
         const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
-    _server = await io.serve(handler, 'localhost', 0);
+    _server = await io.serve(handler, host, 0);
     _log.info(
         'A2A server started on ${_server!.address.host}:${_server!.port}');
   }

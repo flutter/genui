@@ -28,7 +28,7 @@ void main() {
     late A2AServer server;
 
     setUp(() async {
-      server = A2AServer([MockRequestHandler()]);
+      server = A2AServer([MockRequestHandler()], host: 'localhost');
       await server.start();
     });
 
@@ -107,6 +107,13 @@ void main() {
       expect(response.statusCode, equals(500));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       expect(json['error']['code'], equals(-32000));
+    });
+
+    test('server uses the specified host', () async {
+      await server.stop();
+      server = A2AServer([MockRequestHandler()], host: '127.0.0.1');
+      await server.start();
+      expect(server.host, equals('127.0.0.1'));
     });
   });
 }
