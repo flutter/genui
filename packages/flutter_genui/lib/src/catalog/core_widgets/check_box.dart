@@ -84,6 +84,7 @@ final checkBox = CatalogItem(
                 "literalString": "Check me"
               },
               "value": {
+                "path": "/myValue",
                 "literalBoolean": true
               }
             }
