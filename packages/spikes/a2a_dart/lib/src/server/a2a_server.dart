@@ -37,21 +37,42 @@ class A2AServer {
   /// The [handlers] are a list of [RequestHandler]s that will be used to
   /// process incoming requests. Each handler is responsible for a single RPC
   /// method.
+  ///
+  /// To listen to log messages from the server, you can listen to the [logger]'s
+  /// `onRecord` stream:
+  ///
+  /// ```dart
+  /// final server = A2AServer([...]);
+  /// server.logger.onRecord.listen((record) {
+  ///   print('${record.level.name}: ${record.time}: ${record.message}');
+  /// });
+  /// ```
   A2AServer(
     List<RequestHandler> handlers, {
     Level logLevel = Level.INFO,
     this.host = 'localhost',
     int port = 0,
   }) : _requestedPort = port {
-    Logger.root.level = logLevel;
-    Logger.root.onRecord.listen((record) {
-      print('${record.level.name}: ${record.time}: ${record.message}');
-    });
-
+    _log.level = logLevel;
     for (final handler in handlers) {
       _handlers[handler.method] = handler;
     }
   }
+
+  /// The logger used for logging messages.
+  ///
+  /// This can be listened to in order to receive log messages from the server.
+  ///
+  /// To listen to log messages from the server, you can listen to the [logger]'s
+  /// `onRecord` stream:
+  ///
+  /// ```dart
+  /// final server = A2AServer([...]);
+  /// server.logger.onRecord.listen((record) {
+  ///   print('${record.level.name}: ${record.time}: ${record.message}');
+  /// });
+  /// ```
+  Logger get logger => _log;
 
   /// Starts the server.
   ///

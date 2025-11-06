@@ -9,6 +9,7 @@ import 'package:a2a_dart/src/server/a2a_server.dart';
 import 'package:a2a_dart/src/server/request_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
+import 'package:logging/logging.dart';
 
 class MockRequestHandler implements RequestHandler {
   @override
@@ -24,6 +25,7 @@ class MockRequestHandler implements RequestHandler {
 }
 
 void main() {
+  hierarchicalLoggingEnabled = true;
   group('A2AServer', () {
     late A2AServer server;
 

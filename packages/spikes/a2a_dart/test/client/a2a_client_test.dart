@@ -25,6 +25,7 @@ import 'a2a_client_test.mocks.dart';
 
 @GenerateMocks([Transport])
 void main() {
+  hierarchicalLoggingEnabled = true;
   group('A2AClient', () {
     late A2AClient client;
     late MockTransport mockTransport;

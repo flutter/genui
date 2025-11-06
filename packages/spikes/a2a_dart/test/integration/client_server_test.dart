@@ -79,6 +79,7 @@ class MockExecuteTaskHandler implements RequestHandler {
 }
 
 void main() {
+  hierarchicalLoggingEnabled = true;
   group('A2AClient and A2AServer', () {
     late A2AServer server;
     late TaskManager taskManager;
@@ -93,8 +94,6 @@ void main() {
         host: 'localhost',
       );
       await server.start();
-      // Add a small delay to allow the server to start.
-      await Future.delayed(const Duration(milliseconds: 100));
     });
 
     tearDown(() {

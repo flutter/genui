@@ -39,18 +39,39 @@ class A2AClient {
   /// The [url] is the base URL of the server. An optional [transport] can be
   /// provided to customize the communication mechanism. If no transport is
   /// provided, an [HttpTransport] instance will be created by default.
+  ///
+  /// To listen to log messages from the client, you can listen to the [logger]'s
+  /// `onRecord` stream:
+  ///
+  /// ```dart
+  /// final client = A2AClient(url: 'http://localhost:8080');
+  /// client.logger.onRecord.listen((record) {
+  ///   print('${record.level.name}: ${record.time}: ${record.message}');
+  /// });
+  /// ```
   A2AClient({
     required this.url,
     Transport? transport,
     Level logLevel = Level.INFO,
   }) {
-    Logger.root.level = logLevel;
-    Logger.root.onRecord.listen((record) {
-      print('${record.level.name}: ${record.time}: ${record.message}');
-    });
+    _log.level = logLevel;
     this.transport = transport ?? HttpTransport(url: url, log: _log);
   }
 
+  /// The logger used for logging messages.
+  ///
+  /// This can be listened to in order to receive log messages from the client.
+  ///
+  /// To listen to log messages from the client, you can listen to the [logger]'s
+  /// `onRecord` stream:
+  ///
+  /// ```dart
+  /// final client = A2AClient(url: 'http://localhost:8080');
+  /// client.logger.onRecord.listen((record) {
+  ///   print('${record.level.name}: ${record.time}: ${record.message}');
+  /// });
+  /// ```
+  Logger get logger => _log;
 
   /// Fetches the agent's capabilities and metadata from the server.
   ///
