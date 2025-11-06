@@ -11,6 +11,7 @@ import '../core/agent_card.dart';
 import '../core/events.dart';
 import '../core/message.dart';
 import '../core/task.dart';
+import 'a2a_exception.dart';
 import 'http_transport.dart';
 import 'transport.dart';
 
@@ -60,7 +61,12 @@ class A2AClient {
     };
     final response = await transport.send(request);
     if (response.containsKey('error')) {
-      throw Exception('Server returned an error: ${response['error']}');
+      final error = response['error'] as Map<String, dynamic>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+        data: error['data'] as Map<String, dynamic>?,
+      );
     }
     return Task.fromJson(response['result'] as Map<String, dynamic>);
   }

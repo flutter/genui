@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:a2a_dart/src/client/a2a_client.dart';
 import 'package:a2a_dart/src/client/sse_transport.dart';
+import 'package:a2a_dart/src/client/a2a_exception.dart';
 import 'package:a2a_dart/src/client/transport.dart';
 import 'package:a2a_dart/src/core/agent_card.dart';
 import 'package:a2a_dart/src/core/events.dart';
@@ -93,7 +94,10 @@ void main() {
             'error': {'code': -32600, 'message': 'Invalid Request'}
           });
 
-      expect(client.createTask(message), throwsException);
+      expect(
+        client.createTask(message),
+        throwsA(isA<A2AException>()),
+      );
     });
 
     test('executeTask returns a stream of StreamingEvents on success', () {
@@ -212,6 +216,32 @@ void main() {
       final mockHttp = MockClient((request) async {
         final stream = Stream.fromIterable([
           'data: { "result": { "key": "value" } }\n\n',
+          'data: { "error": { "code": -32000, "message": "Server error" } }\n\n',
+        ].map((e) => utf8.encode(e)));
+        final bytes = (await stream.toList()).expand((i) => i).toList();
+        return http.Response.bytes(bytes, 200);
+      });
+      final transport = SseTransport(
+        url: 'http://localhost:8080',
+        client: mockHttp,
+      );
+      final stream = transport.sendStream({});
+      expect(
+        stream,
+        emitsInOrder([
+          {
+            'key': 'value',
+          },
+          emitsError(isA<A2AException>()),
+          emitsDone,
+        ]),
+      );
+    });
+
+    test('SseTransport handles parsing errors', () async {
+      final mockHttp = MockClient((request) async {
+        final stream = Stream.fromIterable([
+          'data: { "result": { "key": "value" } }\n\n',
           'data: not json\n\n',
         ].map((e) => utf8.encode(e)));
         final bytes = (await stream.toList()).expand((i) => i).toList();
@@ -228,7 +258,7 @@ void main() {
           {
             'key': 'value',
           },
-          emitsError(isA<FormatException>()),
+          emitsError(isA<A2AException>()),
           emitsDone,
         ]),
       );

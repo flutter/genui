@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'a2a_exception.dart';
 import 'http_transport.dart';
 
 /// An implementation of [Transport] that uses Server-Sent Events (SSE) for
@@ -48,10 +49,15 @@ class SseTransport extends HttpTransport {
               if (jsonData.containsKey('result')) {
                 yield jsonData['result'] as Map<String, dynamic>;
               } else if (jsonData.containsKey('error')) {
-                throw Exception(jsonData['error']);
+                final error = jsonData['error'] as Map<String, dynamic>;
+                yield* Stream.error(A2AException.jsonRpc(
+                  code: error['code'] as int,
+                  message: error['message'] as String,
+                  data: error['data'] as Map<String, dynamic>?,
+                ));
               }
             } catch (e) {
-              yield* Stream.error(e);
+              yield* Stream.error(A2AException.parsing(message: e.toString()));
             }
           }
         } else if (line.startsWith('data:')) {
