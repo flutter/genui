@@ -28,6 +28,7 @@ class A2AServer {
   ///
   /// This is only valid after [start] has been called.
   int get port => _server?.port ?? -1;
+  final int _requestedPort;
 
   final Map<String, RequestHandler> _handlers = {};
 
@@ -40,7 +41,8 @@ class A2AServer {
     List<RequestHandler> handlers, {
     Level logLevel = Level.INFO,
     this.host = 'localhost',
-  }) {
+    int port = 0,
+  }) : _requestedPort = port {
     Logger.root.level = logLevel;
     Logger.root.onRecord.listen((record) {
       print('${record.level.name}: ${record.time}: ${record.message}');
@@ -146,7 +148,7 @@ class A2AServer {
     final handler =
         const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
-    _server = await io.serve(handler, host, 0);
+    _server = await io.serve(handler, host, _requestedPort);
     _log.info(
         'A2A server started on ${_server!.address.host}:${_server!.port}');
   }

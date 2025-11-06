@@ -115,5 +115,12 @@ void main() {
       await server.start();
       expect(server.host, equals('127.0.0.1'));
     });
+
+    test('server uses the specified port', () async {
+      await server.stop();
+      server = A2AServer([MockRequestHandler()], port: 8081);
+      await server.start();
+      expect(server.port, equals(8081));
+    });
   });
 }
