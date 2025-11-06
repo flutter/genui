@@ -24,45 +24,44 @@ class SseTransport extends HttpTransport {
   SseTransport({required super.url, super.client});
 
   @override
-  Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
+  Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) async* {
     final httpRequest = http.Request('POST', Uri.parse('$url/rpc'))
       ..headers['Content-Type'] = 'application/json'
       ..headers['Accept'] = 'text/event-stream'
       ..body = jsonEncode(request);
 
-    final controller = StreamController<Map<String, dynamic>>();
-
-    client.send(httpRequest).then((response) {
-      response.stream
+    try {
+      final response = await client.send(httpRequest);
+      final lines = response.stream
           .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen(
-        (line) {
-          if (line.startsWith('data: ')) {
-            final dataString = line.substring('data: '.length);
-            if (dataString.isNotEmpty) {
-              try {
-                final data = jsonDecode(dataString) as Map<String, dynamic>;
-                if (data.containsKey('result')) {
-                  controller.add(data['result'] as Map<String, dynamic>);
-                } else if (data.containsKey('error')) {
-                  controller.addError(data['error']);
-                }
-              } catch (e) {
-                controller.addError(e);
+          .transform(const LineSplitter());
+
+      var data = <String>[];
+
+      await for (final line in lines) {
+        if (line.isEmpty) {
+          if (data.isNotEmpty) {
+            final dataString = data.join('\n');
+            data = [];
+            try {
+              final jsonData = jsonDecode(dataString) as Map<String, dynamic>;
+              if (jsonData.containsKey('result')) {
+                yield jsonData['result'] as Map<String, dynamic>;
+              } else if (jsonData.containsKey('error')) {
+                throw Exception(jsonData['error']);
               }
+            } catch (e) {
+              yield* Stream.error(e);
             }
           }
-        },
-        onError: controller.addError,
-        onDone: controller.close,
-        cancelOnError: true,
-      );
-    }).catchError((dynamic error) {
-      controller.addError(error);
-      controller.close();
-    });
-
-    return controller.stream;
+        } else if (line.startsWith('data:')) {
+          data.add(line.substring(5).trim());
+        } else if (line.startsWith(':')) {
+          // Ignore comments.
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 }
