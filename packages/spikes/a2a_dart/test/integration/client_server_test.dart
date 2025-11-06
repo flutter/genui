@@ -6,14 +6,15 @@ import 'dart:async';
 
 import 'package:a2a_dart/src/client/a2a_client.dart';
 import 'package:a2a_dart/src/client/sse_transport.dart';
+import 'package:a2a_dart/src/core/events.dart';
 import 'package:a2a_dart/src/core/message.dart';
 import 'package:a2a_dart/src/core/part.dart';
 import 'package:a2a_dart/src/core/task.dart';
-import 'package:a2a_dart/src/core/events.dart';
 import 'package:a2a_dart/src/server/a2a_server.dart';
 import 'package:a2a_dart/src/server/create_task_handler.dart';
 import 'package:a2a_dart/src/server/request_handler.dart';
 import 'package:a2a_dart/src/server/task_manager.dart';
+import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
 class MockExecuteTaskHandler implements RequestHandler {
@@ -100,7 +101,10 @@ void main() {
     test('client can create and execute a task on the server', () async {
       final client = A2AClient(
         url: 'http://localhost:${server.port}',
-        transport: SseTransport(url: 'http://localhost:${server.port}'),
+        transport: SseTransport(
+          url: 'http://localhost:${server.port}',
+          log: Logger('A2AClient'),
+        ),
       );
       final message = Message(
         messageId: '1',

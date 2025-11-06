@@ -6,8 +6,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a_dart/src/client/a2a_client.dart';
-import 'package:a2a_dart/src/client/sse_transport.dart';
 import 'package:a2a_dart/src/client/a2a_exception.dart';
+import 'package:a2a_dart/src/client/sse_transport.dart';
 import 'package:a2a_dart/src/client/transport.dart';
 import 'package:a2a_dart/src/core/agent_card.dart';
 import 'package:a2a_dart/src/core/events.dart';
@@ -16,6 +16,7 @@ import 'package:a2a_dart/src/core/part.dart';
 import 'package:a2a_dart/src/core/task.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:logging/logging.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -173,6 +174,7 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
+        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -199,6 +201,7 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
+        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -224,6 +227,7 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
+        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(
@@ -250,6 +254,7 @@ void main() {
       final transport = SseTransport(
         url: 'http://localhost:8080',
         client: mockHttp,
+        log: Logger('A2AClient'),
       );
       final stream = transport.sendStream({});
       expect(

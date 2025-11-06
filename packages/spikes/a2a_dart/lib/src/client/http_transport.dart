@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 
 import 'transport.dart';
 
@@ -19,16 +20,22 @@ class HttpTransport implements Transport {
   /// The [http.Client] used to make requests.
   final http.Client client;
 
+  final Logger log;
+
   /// Creates an [HttpTransport].
   ///
   /// The [url] is the base URL of the A2A server. An optional [client] can be
   /// provided for testing or to customize the HTTP client.
-  HttpTransport({required this.url, http.Client? client})
+  HttpTransport({required this.url, http.Client? client, required this.log})
       : client = client ?? http.Client();
 
   @override
   Future<Map<String, dynamic>> get(String path) async {
-    final response = await client.get(Uri.parse('$url/$path'));
+    final uri = Uri.parse('$url/$path');
+    log.fine('Sending GET request to $uri');
+    final response = await client.get(uri);
+    log.fine(
+        'Received response from GET $uri: ${response.statusCode} ${response.body}');
 
     if (response.statusCode != 200) {
       throw Exception('Failed to get agent card: ${response.statusCode}');
@@ -39,11 +46,16 @@ class HttpTransport implements Transport {
 
   @override
   Future<Map<String, dynamic>> send(Map<String, dynamic> request) async {
+    final uri = Uri.parse('$url/rpc');
+    final body = jsonEncode(request);
+    log.fine('Sending POST request to $uri with body: $body');
     final response = await client.post(
-      Uri.parse('$url/rpc'),
-      body: jsonEncode(request),
+      uri,
+      body: body,
       headers: {'Content-Type': 'application/json'},
     );
+    log.fine(
+        'Received response from POST $uri: ${response.statusCode} ${response.body}');
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;

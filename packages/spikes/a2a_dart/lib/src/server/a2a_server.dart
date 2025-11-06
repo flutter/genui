@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
@@ -17,6 +18,7 @@ import 'request_handler.dart';
 /// This class provides a simple and extensible server for handling A2A RPC
 /// calls. It uses a request handler pipeline to process incoming requests.
 class A2AServer {
+  final _log = Logger('A2AServer');
   HttpServer? _server;
 
   /// The port the server is listening on.
@@ -31,7 +33,12 @@ class A2AServer {
   /// The [handlers] are a list of [RequestHandler]s that will be used to
   /// process incoming requests. Each handler is responsible for a single RPC
   /// method.
-  A2AServer(List<RequestHandler> handlers) {
+  A2AServer(List<RequestHandler> handlers, {Level logLevel = Level.INFO}) {
+    Logger.root.level = logLevel;
+    Logger.root.onRecord.listen((record) {
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    });
+
     for (final handler in handlers) {
       _handlers[handler.method] = handler;
     }
@@ -45,9 +52,12 @@ class A2AServer {
 
     router.post('/rpc', (Request request) async {
       Map<String, dynamic> json;
+      _log.info('Received request: ${request.method} ${request.requestedUri}');
+      final body = await request.readAsString();
+      _log.fine('Request body: $body');
+
       dynamic id;
       try {
-        final body = await request.readAsString();
         json = jsonDecode(body) as Map<String, dynamic>;
         id = json['id'];
       } on FormatException {
@@ -79,6 +89,7 @@ class A2AServer {
         final handler = _handlers[method];
         if (handler != null) {
           final result = await handler.handle(params);
+          _log.info('Returning successful response for method $method');
           if (result.containsKey('stream')) {
             final stream = result['stream'] as Stream<Map<String, dynamic>>;
             final responseStream = stream.map((event) {
@@ -129,12 +140,13 @@ class A2AServer {
         const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
     _server = await io.serve(handler, 'localhost', 0);
-    print('A2A server started on ${_server!.address.host}:${_server!.port}');
+    _log.info(
+        'A2A server started on ${_server!.address.host}:${_server!.port}');
   }
 
   /// Stops the server.
   Future<void> stop() async {
     await _server?.close();
-    print('A2A server stopped');
+    _log.info('A2A server stopped');
   }
 }
