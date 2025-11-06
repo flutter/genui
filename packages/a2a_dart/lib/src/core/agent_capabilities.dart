@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'agent_card.dart';
+library;
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../a2a_dart.dart' show AgentCard;
-import 'agent_card.dart' show AgentCard;
 import 'agent_extension.dart';
 
 part 'agent_capabilities.freezed.dart';

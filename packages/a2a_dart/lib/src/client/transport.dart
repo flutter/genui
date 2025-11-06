@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'a2a_client.dart';
+library;
+
 import 'dart:async';
-
-import '../../a2a_dart.dart' show A2AClient;
-
-import 'a2a_client.dart' show A2AClient;
 
 /// An interface for sending and receiving messages to an A2A server.
 ///

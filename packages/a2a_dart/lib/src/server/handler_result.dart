@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'request_handler.dart';
+library;
+
 import 'dart:async';
-
-import '../../a2a_dart.dart' show RequestHandler;
-
-import 'request_handler.dart' show RequestHandler;
 
 /// A sealed class representing the result of a [RequestHandler].
 sealed class HandlerResult {}

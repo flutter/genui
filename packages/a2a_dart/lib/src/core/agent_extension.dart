@@ -2,14 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'agent_capabilities.dart';
+library;
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../a2a_dart.dart' show AgentCapabilities;
-
-import 'agent_capabilities.dart' show AgentCapabilities;
-
 part 'agent_extension.freezed.dart';
-
 part 'agent_extension.g.dart';
 
 /// A declaration of a protocol extension supported by an agent.

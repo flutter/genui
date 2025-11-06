@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// @docImport 'message.dart';
+library;
+
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import '../../a2a_dart.dart' show Message;
-
-import 'message.dart' show Message;
 
 part 'part.freezed.dart';
 part 'part.g.dart';
