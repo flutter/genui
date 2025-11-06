@@ -21,6 +21,7 @@ export 'src/core/security_scheme.dart';
 export 'src/core/task.dart';
 // Server exports (conditionally exported).
 export 'src/server/a2a_server.dart';
+export 'src/server/a2a_server_exception.dart';
 export 'src/server/create_task_handler.dart';
 export 'src/server/handler_result.dart';
 export 'src/server/request_handler.dart';

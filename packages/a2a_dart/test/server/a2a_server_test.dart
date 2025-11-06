@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
-import 'package:a2a_dart/src/server/a2a_server_exception.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';

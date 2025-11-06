@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:a2a_dart/a2a_dart.dart';
-import 'package:a2a_dart/src/server/a2a_server_exception.dart';
 import 'package:test/test.dart';
 
 import '../fakes.dart';
