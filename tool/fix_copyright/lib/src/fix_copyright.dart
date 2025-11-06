@@ -332,7 +332,5 @@ bool _hasCorrectLicense(String rawContents, CopyrightInfo info) {
   if (contents.isEmpty) {
     return true;
   }
-  final pattern = info.pattern;
-  final hasMatch = pattern.hasMatch(contents);
-  return hasMatch;
+  return info.pattern.hasMatch(contents);
 }
