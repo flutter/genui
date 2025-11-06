@@ -39,8 +39,8 @@ class A2AServer {
   /// process incoming requests. Each handler is responsible for a single RPC
   /// method.
   ///
-  /// To listen to log messages from the server, you can listen to the [logger]'s
-  /// `onRecord` stream:
+  /// To listen to log messages from the server, you can listen to the
+  /// [logger]'s `onRecord` stream:
   ///
   /// ```dart
   /// final server = A2AServer([...]);
@@ -64,8 +64,8 @@ class A2AServer {
   ///
   /// This can be listened to in order to receive log messages from the server.
   ///
-  /// To listen to log messages from the server, you can listen to the [logger]'s
-  /// `onRecord` stream:
+  /// To listen to log messages from the server, you can listen to the
+  /// [logger]'s `onRecord` stream:
   ///
   /// ```dart
   /// final server = A2AServer([...]);

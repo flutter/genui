@@ -9,7 +9,8 @@ abstract class A2AHandler {
   /// Handles the request and can modify it before it is sent.
   Future<Map<String, dynamic>> handleRequest(Map<String, dynamic> request);
 
-  /// Handles the response and can modify it before it is returned to the caller.
+  /// Handles the response and can modify it before it is returned to the
+  /// caller.
   Future<Map<String, dynamic>> handleResponse(Map<String, dynamic> response);
 }
 

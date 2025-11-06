@@ -4,6 +4,10 @@
 
 import 'dart:async';
 
+import '../../a2a_dart.dart' show RequestHandler;
+
+import 'request_handler.dart' show RequestHandler;
+
 /// A sealed class representing the result of a [RequestHandler].
 sealed class HandlerResult {}
 

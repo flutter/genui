@@ -70,7 +70,8 @@ void main() {
       final mockHttp = MockClient((request) async {
         final stream = Stream.fromIterable([
           'data: { "result": { "key": "value" } }\n\n',
-          'data: { "error": { "code": -32000, "message": "Server error" } }\n\n',
+          'data: { "error": { "code": -32000, '
+              '"message": "Server error" } }\n\n',
         ].map((e) => utf8.encode(e)));
         final bytes = (await stream.toList()).expand((i) => i).toList();
         return http.Response.bytes(bytes, 200);

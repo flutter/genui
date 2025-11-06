@@ -21,8 +21,8 @@ abstract class Task with _$Task {
     /// for a new task.
     required String id,
 
-    /// A server-generated unique identifier (e.g., a UUID) for maintaining context
-    /// across multiple related tasks or interactions.
+    /// A server-generated unique identifier (e.g., a UUID) for maintaining
+    /// context across multiple related tasks or interactions.
     required String contextId,
 
     /// The current status of the task, including its state and a descriptive
@@ -41,7 +41,8 @@ abstract class Task with _$Task {
     /// identifier.
     Map<String, dynamic>? metadata,
 
-    /// The type of this object, used as a discriminator. Always 'task' for a Task.
+    /// The type of this object, used as a discriminator. Always 'task' for a
+    /// Task.
     @Default('task') String kind,
   }) = _Task;
 
@@ -106,8 +107,8 @@ enum TaskState {
 abstract class Artifact with _$Artifact {
   /// Creates an [Artifact].
   const factory Artifact({
-    /// A unique identifier (e.g., a UUID) for the artifact within the scope of the
-    /// task.
+    /// A unique identifier (e.g., a UUID) for the artifact within the scope of
+    /// the task.
     required String artifactId,
 
     /// An optional, human-readable name for the artifact.

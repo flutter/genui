@@ -4,15 +4,19 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../a2a_dart.dart' show AgentCapabilities;
+
+import 'agent_capabilities.dart' show AgentCapabilities;
+
 part 'agent_extension.freezed.dart';
 
 part 'agent_extension.g.dart';
 
 /// A declaration of a protocol extension supported by an agent.
 ///
-/// This class is used in the [AgentCapabilities] to list the protocol extensions
-/// that an agent supports. It provides a way for agents to advertise custom
-/// features that are not part of the core A2A specification.
+/// This class is used in the [AgentCapabilities] to list the protocol
+/// extensions that an agent supports. It provides a way for agents to advertise
+/// custom features that are not part of the core A2A specification.
 @freezed
 abstract class AgentExtension with _$AgentExtension {
   /// Creates an [AgentExtension].

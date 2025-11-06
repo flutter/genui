@@ -10,10 +10,10 @@ import '../fakes.dart';
 void main() {
   group('CreateTaskHandler', () {
     test('handle returns a task on success', () async {
-      final task = Task(
+      final task = const Task(
         id: '123',
         contextId: '456',
-        status: const TaskStatus(state: TaskState.submitted),
+        status: TaskStatus(state: TaskState.submitted),
       );
       final handler = CreateTaskHandler(FakeTaskManager(taskToReturn: task));
       final params = {

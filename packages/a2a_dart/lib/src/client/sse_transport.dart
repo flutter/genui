@@ -7,8 +7,10 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../a2a_dart.dart' show Transport;
 import 'a2a_exception.dart';
 import 'http_transport.dart';
+import 'transport.dart' show Transport;
 
 /// An implementation of [Transport] that uses Server-Sent Events (SSE) for
 /// streaming communication.

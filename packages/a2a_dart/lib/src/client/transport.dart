@@ -4,6 +4,10 @@
 
 import 'dart:async';
 
+import '../../a2a_dart.dart' show A2AClient;
+
+import 'a2a_client.dart' show A2AClient;
+
 /// An interface for sending and receiving messages to an A2A server.
 ///
 /// This class defines the contract for transport mechanisms that can be used

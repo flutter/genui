@@ -4,6 +4,8 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../a2a_dart.dart' show AgentCard;
+import 'agent_card.dart' show AgentCard;
 import 'agent_extension.dart';
 
 part 'agent_capabilities.freezed.dart';
@@ -20,15 +22,16 @@ abstract class AgentCapabilities with _$AgentCapabilities {
     /// Indicates whether the agent supports Server-Sent Events (SSE) for
     /// streaming responses.
     ///
-    /// If `true`, the agent can send multiple responses over a single connection.
+    /// If `true`, the agent can send multiple responses over a single
+    /// connection.
     bool? streaming,
 
     /// Indicates whether the agent supports sending push notifications for
     /// asynchronous task updates.
     bool? pushNotifications,
 
-    /// Indicates whether the agent provides a history of state transitions for a
-    /// task.
+    /// Indicates whether the agent provides a history of state transitions for
+    /// a task.
     bool? stateTransitionHistory,
 
     /// A list of protocol extensions that the agent supports.

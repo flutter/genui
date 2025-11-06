@@ -4,14 +4,18 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../a2a_dart.dart' show Message;
+
+import 'message.dart' show Message;
+
 part 'part.freezed.dart';
 part 'part.g.dart';
 
 /// A discriminated union representing a part of a [Message].
 ///
 /// A message can be composed of multiple parts, which can be text, a file, or
-/// structured data. The `kind` field is used as a discriminator to determine the
-/// type of the part.
+/// structured data. The `kind` field is used as a discriminator to determine
+/// the type of the part.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 abstract class Part with _$Part {
   /// A text part of a message.

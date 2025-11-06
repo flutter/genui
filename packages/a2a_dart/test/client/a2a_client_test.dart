@@ -27,9 +27,9 @@ void main() {
           'pushNotifications': false,
           'stateTransitionHistory': false,
         },
-        'defaultInputModes': [],
-        'defaultOutputModes': [],
-        'skills': [],
+        'defaultInputModes': <dynamic>[],
+        'defaultOutputModes': <dynamic>[],
+        'skills': <dynamic>[],
       };
       final agentCard = AgentCard.fromJson(agentCardJson);
       client = A2AClient(
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('createTask returns a Task on success', () async {
-      final message = Message(
+      final message = const Message(
         messageId: '1',
         role: Role.user,
         parts: [Part.text(text: 'Hello')],
@@ -67,7 +67,7 @@ void main() {
     });
 
     test('createTask throws an exception on error', () {
-      final message = Message(
+      final message = const Message(
         messageId: '1',
         role: Role.user,
         parts: [Part.text(text: 'Hello')],

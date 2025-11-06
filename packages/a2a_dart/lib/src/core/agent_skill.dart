@@ -4,6 +4,10 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../a2a_dart.dart' show AgentCard;
+
+import 'agent_card.dart' show AgentCard;
+
 part 'agent_skill.freezed.dart';
 
 part 'agent_skill.g.dart';
@@ -29,8 +33,8 @@ abstract class AgentSkill with _$AgentSkill {
     /// A set of keywords describing the skill's capabilities.
     required List<String> tags,
 
-    /// Example prompts or scenarios that this skill can handle, providing a hint
-    /// to the client on how to use the skill.
+    /// Example prompts or scenarios that this skill can handle, providing a
+    /// hint to the client on how to use the skill.
     List<String>? examples,
 
     /// The set of supported input MIME types for this skill, overriding the

@@ -41,7 +41,7 @@ class MockExecuteTaskHandler implements RequestHandler {
       TaskArtifactUpdateEvent(
         taskId: taskId,
         contextId: task.contextId,
-        artifact: Artifact(
+        artifact: const Artifact(
           artifactId: 'artifact-1',
           parts: [Part.text(text: 'Here is your artifact')],
         ),
@@ -98,7 +98,7 @@ void main() {
           log: Logger('A2AClient'),
         ),
       );
-      final message = Message(
+      final message = const Message(
         messageId: '1',
         role: Role.user,
         parts: [Part.text(text: 'Hello')],
@@ -128,14 +128,14 @@ void main() {
         url: 'http://localhost:${server.port}',
         logger: Logger('A2AClient'),
       );
-      final message = Message(
+      final message = const Message(
         messageId: '1',
         role: Role.user,
         parts: [Part.text(text: 'Hello')],
       );
 
       // Stop the server to simulate a connection error
-      server.stop();
+      await server.stop();
 
       expect(client.createTask(message), throwsException);
     });

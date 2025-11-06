@@ -70,7 +70,8 @@ abstract class AgentCard with _$AgentCard {
     /// The skills or functionalities that the agent can perform.
     required List<AgentSkill> skills,
 
-    /// Indicates whether the agent supports authenticated extended card requests.
+    /// Indicates whether the agent supports authenticated extended card
+    /// requests.
     bool? supportsAuthenticatedExtendedCard,
   }) = _AgentCard;
 

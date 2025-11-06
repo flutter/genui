@@ -4,6 +4,10 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../a2a_dart.dart' show AgentCard;
+
+import 'agent_card.dart' show AgentCard;
+
 part 'agent_provider.freezed.dart';
 
 part 'agent_provider.g.dart';

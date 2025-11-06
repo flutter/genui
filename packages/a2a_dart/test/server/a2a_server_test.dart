@@ -7,8 +7,8 @@ import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
 import 'package:http/http.dart' as http;
-import 'package:test/test.dart';
 import 'package:logging/logging.dart';
+import 'package:test/test.dart';
 
 class MockRequestHandler implements RequestHandler {
   @override
@@ -44,14 +44,15 @@ void main() {
         body: jsonEncode({
           'jsonrpc': '2.0',
           'method': 'test_method',
-          'params': {},
+          'params': <String, dynamic>{},
           'id': 1,
         }),
       );
 
       expect(response.statusCode, equals(200));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      expect(json['result']['result'], equals('success'));
+      expect((json['result'] as Map<String, dynamic>)['result'],
+          equals('success'));
     });
 
     test('returns error for invalid method', () async {
@@ -60,14 +61,14 @@ void main() {
         body: jsonEncode({
           'jsonrpc': '2.0',
           'method': 'invalid_method',
-          'params': {},
+          'params': <String, dynamic>{},
           'id': 1,
         }),
       );
 
       expect(response.statusCode, equals(404));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      expect(json['error']['code'], equals(-32601));
+      expect((json['error'] as Map<String, dynamic>)['code'], equals(-32601));
     });
 
     test('returns error for invalid request', () async {
@@ -81,7 +82,7 @@ void main() {
 
       expect(response.statusCode, equals(400));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      expect(json['error']['code'], equals(-32600));
+      expect((json['error'] as Map<String, dynamic>)['code'], equals(-32600));
     });
 
     test('returns error for malformed JSON', () async {
@@ -92,7 +93,7 @@ void main() {
 
       expect(response.statusCode, equals(400));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      expect(json['error']['code'], equals(-32700));
+      expect((json['error'] as Map<String, dynamic>)['code'], equals(-32700));
     });
 
     test('returns error when handler throws an exception', () async {
@@ -108,7 +109,7 @@ void main() {
 
       expect(response.statusCode, equals(500));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      expect(json['error']['code'], equals(-32000));
+      expect((json['error'] as Map<String, dynamic>)['code'], equals(-32000));
     });
 
     test('server uses the specified host', () async {

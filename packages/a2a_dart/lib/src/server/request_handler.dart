@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'a2a_server.dart';
 import 'handler_result.dart';
 
 /// Defines the interface for a handler of a specific A2A RPC method.

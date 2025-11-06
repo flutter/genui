@@ -42,8 +42,8 @@ class A2AClient {
   /// provided to customize the communication mechanism. If no transport is
   /// provided, an [HttpTransport] instance will be created by default.
   ///
-  /// To listen to log messages from the client, you can listen to the [logger]'s
-  /// `onRecord` stream:
+  /// To listen to log messages from the client, you can listen to the
+  /// [logger]'s `onRecord` stream:
   ///
   /// ```dart
   /// final client = A2AClient(url: 'http://localhost:8080');
@@ -63,8 +63,8 @@ class A2AClient {
   ///
   /// This can be listened to in order to receive log messages from the client.
   ///
-  /// To listen to log messages from the client, you can listen to the [logger]'s
-  /// `onRecord` stream:
+  /// To listen to log messages from the client, you can listen to the
+  /// [logger]'s `onRecord` stream:
   ///
   /// ```dart
   /// final client = A2AClient(url: 'http://localhost:8080');
@@ -76,8 +76,8 @@ class A2AClient {
 
   /// Fetches the agent's capabilities and metadata from the server.
   ///
-  /// This method retrieves the [AgentCard], which contains information about the
-  /// agent, such as its name, version, and supported extensions.
+  /// This method retrieves the [AgentCard], which contains information about
+  /// the agent, such as its name, version, and supported extensions.
   Future<AgentCard> getAgentCard() async {
     _log?.info('Getting agent card');
     final response = await transport.get('.well-known/agent-card.json');
@@ -112,8 +112,8 @@ class A2AClient {
 
   /// Sends a message to the server and returns a stream of responses.
   ///
-  /// This method is used for streaming communication with the server. It sends a
-  /// [Message] and returns a [Stream] of [Map]s, where each map is a JSON
+  /// This method is used for streaming communication with the server. It sends
+  /// a [Message] and returns a [Stream] of [Map]s, where each map is a JSON
   /// object received from the server.
   Stream<Map<String, dynamic>> messageStream(Message message) {
     final request = {
@@ -140,7 +140,7 @@ class A2AClient {
     };
     _log?.info('Executing task $taskId');
     return transport.sendStream(request).map(
-          (eventPayload) => StreamingEvent.fromJson(eventPayload),
+          StreamingEvent.fromJson,
         );
   }
 }

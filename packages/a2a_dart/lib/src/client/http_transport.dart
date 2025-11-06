@@ -34,8 +34,8 @@ class HttpTransport implements Transport {
     final uri = Uri.parse('$url/$path');
     log?.fine('Sending GET request to $uri');
     final response = await client.get(uri);
-    log?.fine(
-        'Received response from GET $uri: ${response.statusCode} ${response.body}');
+    log?.fine('Received response from GET $uri: '
+        '${response.statusCode} ${response.body}');
 
     if (response.statusCode != 200) {
       throw Exception('Failed to get agent card: ${response.statusCode}');
@@ -54,8 +54,8 @@ class HttpTransport implements Transport {
       body: body,
       headers: {'Content-Type': 'application/json'},
     );
-    log?.fine(
-        'Received response from POST $uri: ${response.statusCode} ${response.body}');
+    log?.fine('Received response from POST $uri: '
+        '${response.statusCode} ${response.body}');
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
@@ -67,7 +67,7 @@ class HttpTransport implements Transport {
   @override
   Stream<Map<String, dynamic>> sendStream(Map<String, dynamic> request) {
     // HTTP transport does not support streaming.
-    throw UnimplementedError(
-        'Streaming is not supported by HttpTransport. Use SseTransport instead.');
+    throw UnimplementedError('Streaming is not supported by HttpTransport. '
+        'Use SseTransport instead.');
   }
 }

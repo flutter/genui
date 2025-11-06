@@ -144,8 +144,6 @@ The client API will be centered around the `A2AClient` class. This class will pr
 - **Asynchronous**: All API methods will be asynchronous, returning `Future`s.
 - **Transport Agnostic**: The `A2AClient` delegates the actual HTTP communication to a `Transport` interface. This allows for different transport implementations, with `HttpTransport` providing basic request-response and `SseTransport` extending it for streaming.
 
-
-
 Example `A2AClient` usage:
 
 ```dart

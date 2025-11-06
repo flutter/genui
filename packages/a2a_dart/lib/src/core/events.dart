@@ -9,8 +9,8 @@ import 'task.dart';
 part 'events.freezed.dart';
 part 'events.g.dart';
 
-/// A discriminated union representing events that can be sent from the server to
-/// the client during a streaming task.
+/// A discriminated union representing events that can be sent from the server
+/// to the client during a streaming task.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 abstract class StreamingEvent with _$StreamingEvent {
   /// An event indicating that the status of a task has been updated.
@@ -45,8 +45,8 @@ abstract class StreamingEvent with _$StreamingEvent {
     /// The artifact that was updated.
     required Artifact artifact,
 
-    /// A boolean indicating if the content of the artifact should be appended to
-    /// the existing content.
+    /// A boolean indicating if the content of the artifact should be appended
+    /// to the existing content.
     required bool append,
 
     /// A boolean indicating if this is the last chunk of the artifact.

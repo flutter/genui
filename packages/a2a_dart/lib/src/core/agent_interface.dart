@@ -4,6 +4,10 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../a2a_dart.dart' show AgentCard;
+
+import 'agent_card.dart' show AgentCard;
+
 part 'agent_interface.freezed.dart';
 
 part 'agent_interface.g.dart';
@@ -26,8 +30,8 @@ enum TransportProtocol {
 /// Declares a communication interface for an agent, combining a URL with a
 /// specific transport protocol.
 ///
-/// Part of the [AgentCard], this allows an agent to advertise multiple endpoints
-/// or protocols for interaction.
+/// Part of the [AgentCard], this allows an agent to advertise multiple
+/// endpoints or protocols for interaction.
 @freezed
 abstract class AgentInterface with _$AgentInterface {
   /// Creates an [AgentInterface].

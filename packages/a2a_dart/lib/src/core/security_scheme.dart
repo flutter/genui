@@ -26,7 +26,8 @@ abstract class SecurityScheme with _$SecurityScheme {
     /// The name of the header, query or cookie parameter to be used.
     required String name,
 
-    /// The location of the API key. Valid values are "query", "header" or "cookie".
+    /// The location of the API key. Valid values are "query", "header" or
+    /// "cookie".
     @JsonKey(name: 'in') required String in_,
   }) = APIKeySecurityScheme;
 
@@ -38,9 +39,10 @@ abstract class SecurityScheme with _$SecurityScheme {
     /// A short description for the HTTP security scheme.
     String? description,
 
-    /// The name of the HTTP Authorization scheme to be used in the Authorization
-    /// header defined in RFC7235. The values used should be registered in the
-    /// IANA "Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry".
+    /// The name of the HTTP Authorization scheme to be used in the
+    /// Authorization header defined in RFC7235. The values used should be
+    /// registered in the IANA "Hypertext Transfer Protocol (HTTP)
+    /// Authentication Scheme Registry".
     required String scheme,
 
     /// A hint to the client to identify how the bearer token is formatted.
@@ -55,7 +57,8 @@ abstract class SecurityScheme with _$SecurityScheme {
     /// A short description for the OAuth 2.0 security scheme.
     String? description,
 
-    /// An object containing configuration information for the supported OAuth Flows.
+    /// An object containing configuration information for the supported OAuth
+    /// Flows.
     required OAuthFlows flows,
   }) = OAuth2SecurityScheme;
 

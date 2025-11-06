@@ -13,7 +13,7 @@ import '../core/task.dart';
 /// uses a [Map] to store tasks, with the task ID as the key.
 class TaskManager {
   final _tasks = <String, Task>{};
-  final _uuid = Uuid();
+  final _uuid = const Uuid();
 
   /// Creates a new [Task] with a unique ID and `submitted` status.
   ///

@@ -122,16 +122,16 @@ const agentCardJson = '''
 void main() {
   group('AgentCard', () {
     test('can be instantiated', () {
-      final agentCard = AgentCard(
+      final agentCard = const AgentCard(
         protocolVersion: '0.2.9',
         name: 'Test Agent',
         description: 'A test agent.',
         url: 'https://example.com/a2a',
         version: '1.0.0',
-        capabilities: const AgentCapabilities(),
-        defaultInputModes: const [],
-        defaultOutputModes: const [],
-        skills: const [],
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
       );
       expect(agentCard, isNotNull);
     });
