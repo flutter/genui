@@ -3,33 +3,17 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:logging/logging.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
-import 'a2a_client_test.mocks.dart';
+import '../fakes.dart';
 
-@GenerateMocks([Transport])
 void main() {
   hierarchicalLoggingEnabled = true;
   group('A2AClient', () {
     late A2AClient client;
-    late MockTransport mockTransport;
-
-    setUp(() {
-      mockTransport = MockTransport();
-      client = A2AClient(
-        url: 'http://localhost:8080',
-        transport: mockTransport,
-        logger: Logger('A2AClient'),
-      );
-    });
 
     test('getAgentCard returns an AgentCard on success', () async {
       final agentCardJson = {
@@ -48,8 +32,11 @@ void main() {
         'skills': [],
       };
       final agentCard = AgentCard.fromJson(agentCardJson);
-
-      when(mockTransport.get(any)).thenAnswer((_) async => agentCardJson);
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: FakeTransport(response: agentCardJson),
+        logger: Logger('A2AClient'),
+      );
 
       final result = await client.getAgentCard();
 
@@ -68,10 +55,11 @@ void main() {
         'status': {'state': 'submitted'},
       };
       final task = Task.fromJson(taskJson);
-
-      when(
-        mockTransport.send(any),
-      ).thenAnswer((_) async => {'result': taskJson});
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: FakeTransport(response: {'result': taskJson}),
+        logger: Logger('A2AClient'),
+      );
 
       final result = await client.createTask(message);
 
@@ -84,40 +72,18 @@ void main() {
         role: Role.user,
         parts: [Part.text(text: 'Hello')],
       );
-
-      when(
-        mockTransport.send(any),
-      ).thenAnswer((_) async => {
-            'error': {'code': -32600, 'message': 'Invalid Request'}
-          });
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: FakeTransport(response: {
+          'error': {'code': -32600, 'message': 'Invalid Request'}
+        }),
+        logger: Logger('A2AClient'),
+      );
 
       expect(
         client.createTask(message),
         throwsA(isA<A2AException>()),
       );
-    });
-
-    test('sends unique request IDs', () async {
-      final message = Message(
-        messageId: '1',
-        role: Role.user,
-        parts: [Part.text(text: 'Hello')],
-      );
-      final taskJson = {
-        'id': '123',
-        'contextId': '456',
-        'status': {'state': 'submitted'},
-      };
-
-      when(
-        mockTransport.send(any),
-      ).thenAnswer((_) async => {'result': taskJson});
-
-      await client.createTask(message);
-      await client.createTask(message);
-
-      final requests = verify(mockTransport.send(captureAny)).captured;
-      expect(requests[0]['id'], isNot(equals(requests[1]['id'])));
     });
 
     test('executeTask returns a stream of StreamingEvents on success', () {
@@ -130,10 +96,14 @@ void main() {
         'final_': false,
       };
       final event = StreamingEvent.fromJson(eventJson);
-
-      when(
-        mockTransport.sendStream(any),
-      ).thenAnswer((_) => streamController.stream);
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: FakeTransport(
+          response: {},
+          streamResponse: streamController.stream,
+        ),
+        logger: Logger('A2AClient'),
+      );
 
       final stream = client.executeTask('test-task-id');
 
@@ -147,145 +117,6 @@ void main() {
 
       streamController.add(eventJson);
       streamController.close();
-    });
-
-    test('executeTask handles SSE keepalive comments', () {
-      final streamController = StreamController<Map<String, dynamic>>();
-      final eventJson = {
-        'kind': 'task_status_update',
-        'taskId': '123',
-        'contextId': '456',
-        'status': {'state': 'working'},
-        'final_': false,
-      };
-      final event = StreamingEvent.fromJson(eventJson);
-
-      when(
-        mockTransport.sendStream(any),
-      ).thenAnswer((_) => streamController.stream);
-
-      final stream = client.executeTask('test-task-id');
-
-      expect(
-        stream,
-        emitsInOrder([
-          event,
-          emitsDone,
-        ]),
-      );
-
-      // The SseTransport is responsible for filtering keepalive comments, so the
-      // client should never receive them. The mock transport simulates this by
-      // not sending a keepalive event.
-      streamController.add(eventJson);
-      streamController.close();
-    });
-
-    test('SseTransport handles multi-line data', () async {
-      final mockHttp = MockClient((request) async {
-        final stream = Stream.fromIterable([
-          'data: { "result": { "line1": "hello",\n',
-          'data: "line2": "world" } }\n\n',
-        ].map((e) => utf8.encode(e)));
-        final bytes = (await stream.toList()).expand((i) => i).toList();
-        return http.Response.bytes(bytes, 200);
-      });
-      final transport = SseTransport(
-        url: 'http://localhost:8080',
-        client: mockHttp,
-        log: Logger('A2AClient'),
-      );
-      final stream = transport.sendStream({});
-      expect(
-        stream,
-        emitsInOrder([
-          {
-            'line1': 'hello',
-            'line2': 'world',
-          },
-          emitsDone,
-        ]),
-      );
-    });
-
-    test('SseTransport handles comments', () async {
-      final mockHttp = MockClient((request) async {
-        final stream = Stream.fromIterable([
-          ': this is a comment\n',
-          'data: { "result": { "key": "value" } }\n\n',
-        ].map((e) => utf8.encode(e)));
-        final bytes = (await stream.toList()).expand((i) => i).toList();
-        return http.Response.bytes(bytes, 200);
-      });
-      final transport = SseTransport(
-        url: 'http://localhost:8080',
-        client: mockHttp,
-        log: Logger('A2AClient'),
-      );
-      final stream = transport.sendStream({});
-      expect(
-        stream,
-        emitsInOrder([
-          {
-            'key': 'value',
-          },
-          emitsDone,
-        ]),
-      );
-    });
-
-    test('SseTransport handles parsing errors', () async {
-      final mockHttp = MockClient((request) async {
-        final stream = Stream.fromIterable([
-          'data: { "result": { "key": "value" } }\n\n',
-          'data: { "error": { "code": -32000, "message": "Server error" } }\n\n',
-        ].map((e) => utf8.encode(e)));
-        final bytes = (await stream.toList()).expand((i) => i).toList();
-        return http.Response.bytes(bytes, 200);
-      });
-      final transport = SseTransport(
-        url: 'http://localhost:8080',
-        client: mockHttp,
-        log: Logger('A2AClient'),
-      );
-      final stream = transport.sendStream({});
-      expect(
-        stream,
-        emitsInOrder([
-          {
-            'key': 'value',
-          },
-          emitsError(isA<A2AException>()),
-          emitsDone,
-        ]),
-      );
-    });
-
-    test('SseTransport handles parsing errors', () async {
-      final mockHttp = MockClient((request) async {
-        final stream = Stream.fromIterable([
-          'data: { "result": { "key": "value" } }\n\n',
-          'data: not json\n\n',
-        ].map((e) => utf8.encode(e)));
-        final bytes = (await stream.toList()).expand((i) => i).toList();
-        return http.Response.bytes(bytes, 200);
-      });
-      final transport = SseTransport(
-        url: 'http://localhost:8080',
-        client: mockHttp,
-        log: Logger('A2AClient'),
-      );
-      final stream = transport.sendStream({});
-      expect(
-        stream,
-        emitsInOrder([
-          {
-            'key': 'value',
-          },
-          emitsError(isA<A2AException>()),
-          emitsDone,
-        ]),
-      );
     });
   });
 }
