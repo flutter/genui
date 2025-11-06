@@ -15,7 +15,7 @@ Add the following to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  a2a_dart: ^1.0.0
+  a2a_dart: ^0.1.0
 ```
 
 ## Usage
@@ -45,8 +45,8 @@ void main() async {
 
   // Execute the task and stream the results.
   final stream = client.executeTask(task.id);
-  await for (final message in stream) {
-    print('Received message: ${message.messageId}');
+  await for (final event in stream) {
+    print('Received event: ${event.type}');
   }
 }
 ```

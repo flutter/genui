@@ -12,6 +12,7 @@ import 'package:a2a_dart/src/core/part.dart';
 import 'package:a2a_dart/src/core/task.dart';
 import 'package:a2a_dart/src/server/a2a_server.dart';
 import 'package:a2a_dart/src/server/create_task_handler.dart';
+import 'package:a2a_dart/src/server/handler_result.dart';
 import 'package:a2a_dart/src/server/request_handler.dart';
 import 'package:a2a_dart/src/server/task_manager.dart';
 import 'package:logging/logging.dart';
@@ -26,7 +27,7 @@ class MockExecuteTaskHandler implements RequestHandler {
   String get method => 'execute_task';
 
   @override
-  FutureOr<Map<String, dynamic>> handle(Map<String, dynamic> params) {
+  FutureOr<HandlerResult> handle(Map<String, dynamic> params) {
     final streamController = StreamController<Map<String, dynamic>>();
     final taskId = params['task_id'] as String;
     final task = taskManager.getTask(taskId)!;
@@ -74,7 +75,7 @@ class MockExecuteTaskHandler implements RequestHandler {
     );
     streamController.close();
 
-    return {'stream': streamController.stream};
+    return StreamResult(streamController.stream);
   }
 }
 

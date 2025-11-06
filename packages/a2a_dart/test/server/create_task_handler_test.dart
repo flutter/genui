@@ -4,6 +4,7 @@
 
 import 'package:a2a_dart/src/core/task.dart';
 import 'package:a2a_dart/src/server/create_task_handler.dart';
+import 'package:a2a_dart/src/server/handler_result.dart';
 import 'package:a2a_dart/src/server/task_manager.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -36,7 +37,8 @@ void main() {
 
       final result = await handler.handle(params);
 
-      expect(result['id'], equals('123'));
+      expect(result, isA<SingleResult>());
+      expect((result as SingleResult).data['id'], equals('123'));
     });
   });
 }

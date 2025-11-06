@@ -138,29 +138,17 @@ Example `A2AClient` usage:
 ```dart
 final client = A2AClient(url: 'https://example.com/a2a', transport: SseTransport(url: 'https://example.com/a2a'));
 
-// For a simple request-response
+// Create a task
 final task = await client.createTask(Message(
   messageId: '1',
   role: Role.user,
   parts: [const TextPart(text: 'Hello, agent!')],
 ));
 
-// For a streaming response
-final stream = client.messageStream(Message(
-  role: 'user',
-  parts: [TextPart(text: 'Tell me a story.')],
-));
-
+// Execute the task and get a stream of events
+final stream = client.executeTask(task.id);
 await for (final event in stream) {
   // process events
-}
-
-print(task.status.state);
-
-// To execute the task and get a stream of messages:
-final stream = client.executeTask(task.id);
-await for (final message in stream) {
-  // process messages
 }
 ```
 
@@ -169,7 +157,7 @@ await for (final message in stream) {
 The server framework will provide the building blocks for creating A2A-compliant agents in Dart.
 
 - **`A2AServer`**: A top-level class that listens for incoming HTTP requests and routes them to the appropriate `RequestHandler`.
-- **`RequestHandler`**: An interface for handling specific A2A methods. Developers will implement this interface to define their agent's behavior.
+- **`RequestHandler`**: An interface for handling specific A2A methods. Developers will implement this interface to define their agent's behavior. The `handle` method returns a `HandlerResult` which can be a `SingleResult` for a single response or a `StreamResult` for a streaming response.
 - **`TaskManager`**: A class responsible for managing the lifecycle of tasks.
 
 ## 7. Error Handling

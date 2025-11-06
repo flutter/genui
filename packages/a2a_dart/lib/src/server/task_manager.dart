@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2a_dart/src/core/message.dart';
 import 'package:a2a_dart/src/core/task.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,12 +17,13 @@ class TaskManager {
   /// Creates a new [Task] with a unique ID and `submitted` status.
   ///
   /// The new task is stored in the task manager and then returned.
-  Task createTask() {
+  Task createTask([Message? message]) {
     final taskId = _uuid.v4();
     final contextId = _uuid.v4();
     final task = Task(
       id: taskId,
       contextId: contextId,
+      history: [if (message != null) message],
       status: const TaskStatus(state: TaskState.submitted),
     );
     _tasks[taskId] = task;

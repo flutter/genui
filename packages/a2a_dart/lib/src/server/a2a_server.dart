@@ -11,6 +11,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
 
+import 'handler_result.dart';
 import 'request_handler.dart';
 
 /// A server for handling A2A RPC calls.
@@ -120,30 +121,29 @@ class A2AServer {
         if (handler != null) {
           final result = await handler.handle(params);
           _log.info('Returning successful response for method $method');
-          if (result.containsKey('stream')) {
-            final stream = result['stream'] as Stream<Map<String, dynamic>>;
-            final responseStream = stream.map((event) {
-              return utf8.encode(
-                'data: ${jsonEncode({
-                      'jsonrpc': '2.0',
-                      'result': event,
-                      'id': id
-                    })}\n\n',
-              );
-            });
-            return Response.ok(
-              responseStream,
-              headers: {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-              },
-            );
-          }
-          return Response.ok(
-            jsonEncode({'jsonrpc': '2.0', 'result': result, 'id': id}),
-            headers: {'Content-Type': 'application/json'},
-          );
+
+          return switch (result) {
+            SingleResult(data: final data) => Response.ok(
+                jsonEncode({'jsonrpc': '2.0', 'result': data, 'id': id}),
+                headers: {'Content-Type': 'application/json'},
+              ),
+            StreamResult(stream: final stream) => Response.ok(
+                stream.map((event) {
+                  return utf8.encode(
+                    'data: ${jsonEncode({
+                          'jsonrpc': '2.0',
+                          'result': event,
+                          'id': id
+                        })}\n\n',
+                  );
+                }),
+                headers: {
+                  'Content-Type': 'text/event-stream',
+                  'Cache-Control': 'no-cache',
+                  'Connection': 'keep-alive',
+                },
+              ),
+          };
         } else {
           return Response.notFound(
             jsonEncode({

@@ -63,6 +63,7 @@ class SseTransport extends HttpTransport {
             } catch (e) {
               throw A2AException.parsing(message: e.toString());
             }
+          }
         } else if (line.startsWith('data:')) {
           data.add(line.substring(5).trim());
         } else if (line.startsWith(':')) {

@@ -7,6 +7,7 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:a2a_dart/src/core/message.dart';
 import 'package:a2a_dart/src/core/task.dart' as _i2;
 import 'package:a2a_dart/src/server/task_manager.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
@@ -45,7 +46,7 @@ class MockTaskManager extends _i1.Mock implements _i3.TaskManager {
   }
 
   @override
-  _i2.Task createTask() => (super.noSuchMethod(
+  _i2.Task createTask([Message? message]) => (super.noSuchMethod(
         Invocation.method(
           #createTask,
           [],

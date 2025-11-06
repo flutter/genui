@@ -10,7 +10,7 @@ The `A2AClient` provides a simple and convenient way to interact with an A2A ser
 
 ## Server
 
-The `A2AServer` provides a flexible and extensible framework for building A2A agents. It is built on top of the `shelf` package and uses a request handler pipeline to process incoming requests. Each `RequestHandler` is responsible for a single RPC method, making it easy to add new functionality to the server.
+The `A2AServer` provides a flexible and extensible framework for building A2A agents. It is built on top of the `shelf` package and uses a request handler pipeline to process incoming requests. Each `RequestHandler` is responsible for a single RPC method, making it easy to add new functionality to the server. The `handle` method of a `RequestHandler` returns a `HandlerResult`, which can be a `SingleResult` for a single response or a `StreamResult` for a streaming response.
 
 ## Data Models
 

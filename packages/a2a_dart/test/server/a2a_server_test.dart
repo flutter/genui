@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a_dart/src/server/a2a_server.dart';
+import 'package:a2a_dart/src/server/handler_result.dart';
 import 'package:a2a_dart/src/server/request_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
@@ -16,11 +17,11 @@ class MockRequestHandler implements RequestHandler {
   String get method => 'test_method';
 
   @override
-  FutureOr<Map<String, dynamic>> handle(Map<String, dynamic> params) {
+  FutureOr<HandlerResult> handle(Map<String, dynamic> params) {
     if (params.containsKey('throw_error')) {
       throw Exception('Test error');
     }
-    return {'result': 'success'};
+    return SingleResult({'result': 'success'});
   }
 }
 

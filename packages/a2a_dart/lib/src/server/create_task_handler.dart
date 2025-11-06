@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import '../core/message.dart';
+import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
@@ -25,14 +26,11 @@ class CreateTaskHandler implements RequestHandler {
   String get method => 'create_task';
 
   @override
-  FutureOr<Map<String, dynamic>> handle(Map<String, dynamic> params) {
-    // The 'message' parameter is part of the A2A specification for 'create_task',
-    // but it is not yet used in this implementation.
-    // ignore: unused_local_variable
+  FutureOr<HandlerResult> handle(Map<String, dynamic> params) {
     final message = Message.fromJson(params['message'] as Map<String, dynamic>);
 
-    final task = _taskManager.createTask();
+    final task = _taskManager.createTask(message);
 
-    return task.toJson();
+    return SingleResult(task.toJson());
   }
 }
