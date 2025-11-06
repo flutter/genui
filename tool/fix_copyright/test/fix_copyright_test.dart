@@ -309,6 +309,43 @@ found in the LICENSE file. -->''';
       ),
     );
   });
+
+  test('fails a file with a generated code header but no copyright', () async {
+    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
+    final testFile = fileSystem.file('test.dart')
+      ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
+    final result = await runFixCopyrights(paths: ['test.dart']);
+    expect(result, equals(1));
+    expect(log, equals(['/test.dart']));
+    expect(
+      error,
+      contains('Found 1 files which have out-of-compliance copyrights.'),
+    );
+    expect(
+      testFile.readAsStringSync(),
+      '// GENERATED CODE - DO NOT MODIFY BY HAND\n',
+    );
+  });
+
+  test(
+    'updates a file with a generated code header but no copyright when forced',
+    () async {
+      mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
+      final testFile = fileSystem.file('test.dart')
+        ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
+      final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+      expect(result, equals(0));
+      expect(log, equals(['/test.dart']));
+      expect(
+        error,
+        contains('Found 1 files which have out-of-compliance copyrights.'),
+      );
+      expect(
+        testFile.readAsStringSync(),
+        equals('// GENERATED CODE - DO NOT MODIFY BY HAND\n$copyright\n\n'),
+      );
+    },
+  );
 }
 
 class MockCommand {

@@ -90,6 +90,18 @@ Future<int> fixCopyrights(
 
       if (force) {
         var contents = originalContents.replaceAll('\r\n', '\n');
+        String? generatedCodeHeader;
+        if (info.generatedCodePattern != null) {
+          final match = RegExp(
+            info.generatedCodePattern!,
+            caseSensitive: false,
+          ).firstMatch(contents);
+          if (match != null && match.start == 0) {
+            generatedCodeHeader = match.group(0);
+            contents = contents.substring(match.end);
+          }
+        }
+
         String? fileHeader;
         if (info.headerPattern != null) {
           final match = RegExp(
@@ -119,6 +131,10 @@ Future<int> fixCopyrights(
           newContents = '$fileHeader$copyrightBlock$contents';
         } else {
           newContents = '${info.combined}$contents';
+        }
+
+        if (generatedCodeHeader != null) {
+          newContents = '$generatedCodeHeader$newContents';
         }
 
         if (newContents != originalContents.replaceAll('\r\n', '\n')) {
@@ -157,6 +173,7 @@ class CopyrightInfo {
     required this.copyrightPattern,
     this.header,
     this.headerPattern,
+    this.generatedCodePattern,
     this.trailingBlank = true,
   }) : assert(!copyright.endsWith('\n'));
 
@@ -165,10 +182,12 @@ class CopyrightInfo {
   final bool trailingBlank;
   final String? header;
   final String? headerPattern;
+  final String? generatedCodePattern;
 
   RegExp get pattern {
     return RegExp(
-      '^(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
+      '^(?:${generatedCodePattern ?? ''})?'
+      '(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
       multiLine: true,
     );
@@ -204,6 +223,19 @@ ${isParagraph ? '' : prefix}Use of this source code is governed by a BSD-style l
 ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
 
+  String? generateGeneratedCodePattern({
+    String? prefix,
+    String? suffix,
+    String? generatedCodePattern,
+  }) {
+    final escapedPrefix = RegExp.escape(prefix ?? '');
+    final escapedSuffix = RegExp.escape(suffix ?? '');
+
+    return '($escapedPrefix'
+        '${generatedCodePattern ?? r'GENERATED CODE.*\n?'}'
+        '${escapedSuffix}s*\n?)?';
+  }
+
   String generateCopyrightPattern({
     required String prefix,
     String suffix = '',
@@ -227,6 +259,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     String suffix = '',
     String? header,
     String? headerPattern,
+    String? generatedCodePattern,
     bool isParagraph = false,
     bool trailingBlank = true,
   }) {
@@ -242,6 +275,11 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       ),
       header: header,
       headerPattern: headerPattern,
+      generatedCodePattern: generateGeneratedCodePattern(
+        prefix: prefix,
+        suffix: suffix,
+        generatedCodePattern: generatedCodePattern,
+      ),
       trailingBlank: trailingBlank,
     );
   }
@@ -294,5 +332,7 @@ bool _hasCorrectLicense(String rawContents, CopyrightInfo info) {
   if (contents.isEmpty) {
     return true;
   }
-  return info.pattern.hasMatch(contents);
+  final pattern = info.pattern;
+  final hasMatch = pattern.hasMatch(contents);
+  return hasMatch;
 }
