@@ -1,0 +1,62 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:logging/logging.dart';
+
+import 'a2a_exception.dart';
+
+/// A parser for Server-Sent Events (SSE).
+///
+/// This class is responsible for parsing a stream of SSE lines and converting
+/// them into a stream of JSON objects. It handles multi-line data, comments,
+/// and JSON-RPC errors.
+class SseParser {
+  /// The logger used for logging messages.
+  final Logger? log;
+
+  /// Creates an [SseParser].
+  SseParser({this.log});
+
+  /// Parses a stream of SSE lines and returns a stream of JSON objects.
+  Stream<Map<String, dynamic>> parse(Stream<String> lines) async* {
+    var data = <String>[];
+
+    try {
+      await for (final line in lines) {
+        log?.finer('Received SSE line: $line');
+        if (line.isEmpty) {
+          if (data.isNotEmpty) {
+            final dataString = data.join('\n');
+            data = [];
+            try {
+              final jsonData = jsonDecode(dataString) as Map<String, dynamic>;
+              if (jsonData.containsKey('result')) {
+                yield jsonData['result'] as Map<String, dynamic>;
+              } else if (jsonData.containsKey('error')) {
+                final error = jsonData['error'] as Map<String, dynamic>;
+                throw A2AException.jsonRpc(
+                  code: error['code'] as int,
+                  message: error['message'] as String,
+                  data: error['data'] as Map<String, dynamic>?,
+                );
+              }
+            } catch (e) {
+              throw A2AException.parsing(message: e.toString());
+            }
+          }
+        } else if (line.startsWith('data:')) {
+          data.add(line.substring(5).trim());
+        } else if (line.startsWith(':')) {
+          // Ignore comments.
+        }
+      }
+      // ignore: avoid_catching_errors
+    } on StateError {
+      throw const A2AException.parsing(message: 'Stream closed unexpectedly.');
+    }
+  }
+}

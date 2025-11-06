@@ -118,6 +118,10 @@ void main() {
       expect(events[1], isA<TaskArtifactUpdateEvent>());
       expect((events[1] as TaskArtifactUpdateEvent).artifact.artifactId,
           equals('artifact-1'));
+      expect(
+        (events[1] as TaskArtifactUpdateEvent).artifact.parts[0],
+        const Part.text(text: 'Here is your artifact'),
+      );
       expect(events[2], isA<TaskStatusUpdateEvent>());
       expect((events[2] as TaskStatusUpdateEvent).status.state,
           equals(TaskState.completed));

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
+import 'package:a2a_dart/src/server/a2a_server_exception.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
@@ -17,7 +18,14 @@ class MockRequestHandler implements RequestHandler {
   @override
   FutureOr<HandlerResult> handle(Map<String, dynamic> params) {
     if (params.containsKey('throw_error')) {
-      throw Exception('Test error');
+      throw A2AServerException('Test error', -32001);
+    }
+    if (params.containsKey('stream')) {
+      final controller = StreamController<Map<String, dynamic>>();
+      controller.add({'result': 'event1'});
+      controller.add({'result': 'event2'});
+      controller.close();
+      return StreamResult(controller.stream);
     }
     return SingleResult({'result': 'success'});
   }
@@ -109,7 +117,9 @@ void main() {
 
       expect(response.statusCode, equals(500));
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      expect((json['error'] as Map<String, dynamic>)['code'], equals(-32000));
+      expect((json['error'] as Map<String, dynamic>)['code'], equals(-32001));
+      expect((json['error'] as Map<String, dynamic>)['message'],
+          equals('Test error'));
     });
 
     test('server uses the specified host', () async {
@@ -126,6 +136,36 @@ void main() {
           port: 8081, logger: Logger('A2AServer'));
       await server.start();
       expect(server.port, equals(8081));
+    });
+
+    test('handles streaming requests', () async {
+      final response = await http.post(
+        Uri.parse('http://localhost:${server.port}/rpc'),
+        body: jsonEncode({
+          'jsonrpc': '2.0',
+          'method': 'test_method',
+          'params': {'stream': true},
+          'id': 1,
+        }),
+      );
+
+      expect(response.statusCode, equals(200));
+      expect(response.headers['content-type'], contains('text/event-stream'));
+
+      final lines = response.body.split('\n\n');
+      expect(lines, hasLength(3)); // Two events and a blank line
+
+      final event1 = jsonDecode(lines[0].substring(5));
+      expect(
+          ((event1 as Map<String, Object?>)['result']
+              as Map<String, Object?>)['result'],
+          equals('event1'));
+
+      final event2 = jsonDecode(lines[1].substring(5));
+      expect(
+          ((event2 as Map<String, Object?>)['result']
+              as Map<String, Object?>)['result'],
+          equals('event2'));
     });
   });
 }

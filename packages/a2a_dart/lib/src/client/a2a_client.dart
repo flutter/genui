@@ -46,7 +46,12 @@ class A2AClient {
   /// [logger]'s `onRecord` stream:
   ///
   /// ```dart
-  /// final client = A2AClient(url: 'http://localhost:8080');
+  /// // For streaming, use SseTransport.
+  /// final transport = SseTransport(url: 'http://localhost:8080');
+  /// final client = A2AClient(
+  ///   url: 'http://localhost:8080',
+  ///   transport: transport,
+  /// );
   /// client.logger?.onRecord.listen((record) {
   ///   print('${record.level.name}: ${record.time}: ${record.message}');
   /// });
@@ -115,7 +120,7 @@ class A2AClient {
   /// This method is used for streaming communication with the server. It sends
   /// a [Message] and returns a [Stream] of [Map]s, where each map is a JSON
   /// object received from the server.
-  Stream<Map<String, dynamic>> messageStream(Message message) {
+  Stream<StreamingEvent> messageStream(Message message) {
     final request = {
       'jsonrpc': '2.0',
       'method': 'message/stream',
@@ -123,7 +128,7 @@ class A2AClient {
       'id': _nextId++,
     };
     _log?.info('Sending message stream: ${message.toJson()}');
-    return transport.sendStream(request);
+    return transport.sendStream(request).map(StreamingEvent.fromJson);
   }
 
   /// Executes a task on the server and returns a stream of [StreamingEvent]s.

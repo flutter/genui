@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import '../core/message.dart';
+import 'a2a_server_exception.dart';
 import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
@@ -27,10 +28,13 @@ class CreateTaskHandler implements RequestHandler {
 
   @override
   FutureOr<HandlerResult> handle(Map<String, dynamic> params) {
-    final message = Message.fromJson(params['message'] as Map<String, dynamic>);
-
+    if (!params.containsKey('message')) {
+      throw A2AServerException('`message` parameter is required.', -32602);
+    }
+    final message = Message.fromJson(
+      params['message'] as Map<String, dynamic>,
+    );
     final task = _taskManager.createTask(message);
-
     return SingleResult(task.toJson());
   }
 }

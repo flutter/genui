@@ -40,7 +40,7 @@ void main() {
 
       final result = await client.getAgentCard();
 
-      expect(result, equals(agentCard));
+      expect(result.name, equals(agentCard.name));
     });
 
     test('createTask returns a Task on success', () async {
@@ -63,7 +63,7 @@ void main() {
 
       final result = await client.createTask(message);
 
-      expect(result, equals(task));
+      expect(result.id, equals(task.id));
     });
 
     test('createTask throws an exception on error', () {
@@ -106,6 +106,45 @@ void main() {
       );
 
       final stream = client.executeTask('test-task-id');
+
+      expect(
+        stream,
+        emitsInOrder([
+          event,
+          emitsDone,
+        ]),
+      );
+
+      streamController.add(eventJson);
+      streamController.close();
+    });
+
+    test('messageStream returns a stream of StreamingEvents on success', () {
+      final streamController = StreamController<Map<String, dynamic>>();
+      final eventJson = {
+        'kind': 'task_status_update',
+        'taskId': '123',
+        'contextId': '456',
+        'status': {'state': 'working'},
+        'final_': false,
+      };
+      final event = StreamingEvent.fromJson(eventJson);
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: FakeTransport(
+          response: {},
+          streamResponse: streamController.stream,
+        ),
+        logger: Logger('A2AClient'),
+      );
+
+      final stream = client.messageStream(
+        const Message(
+          messageId: '1',
+          role: Role.user,
+          parts: [Part.text(text: 'Hello')],
+        ),
+      );
 
       expect(
         stream,

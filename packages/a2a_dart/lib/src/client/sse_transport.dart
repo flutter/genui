@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import '../../a2a_dart.dart' show Transport;
 import 'a2a_exception.dart';
 import 'http_transport.dart';
+import 'sse_parser.dart';
 import 'transport.dart' show Transport;
 
 /// An implementation of [Transport] that uses Server-Sent Events (SSE) for
@@ -38,42 +39,21 @@ class SseTransport extends HttpTransport {
 
     try {
       final response = await client.send(httpRequest);
+      if (response.statusCode >= 400) {
+        throw A2AException.http(
+          statusCode: response.statusCode,
+          reason: response.reasonPhrase,
+        );
+      }
       final lines = response.stream
           .transform(utf8.decoder)
           .transform(const LineSplitter());
-
-      var data = <String>[];
-
-      await for (final line in lines) {
-        log?.finer('Received SSE line: $line');
-        if (line.isEmpty) {
-          if (data.isNotEmpty) {
-            final dataString = data.join('\n');
-            data = [];
-            try {
-              final jsonData = jsonDecode(dataString) as Map<String, dynamic>;
-              if (jsonData.containsKey('result')) {
-                yield jsonData['result'] as Map<String, dynamic>;
-              } else if (jsonData.containsKey('error')) {
-                final error = jsonData['error'] as Map<String, dynamic>;
-                throw A2AException.jsonRpc(
-                  code: error['code'] as int,
-                  message: error['message'] as String,
-                  data: error['data'] as Map<String, dynamic>?,
-                );
-              }
-            } catch (e) {
-              throw A2AException.parsing(message: e.toString());
-            }
-          }
-        } else if (line.startsWith('data:')) {
-          data.add(line.substring(5).trim());
-        } else if (line.startsWith(':')) {
-          // Ignore comments.
-        }
-      }
+      yield* SseParser(log: log).parse(lines);
     } catch (e) {
-      rethrow;
+      if (e is A2AException) {
+        rethrow;
+      }
+      throw A2AException.network(message: e.toString());
     }
   }
 }

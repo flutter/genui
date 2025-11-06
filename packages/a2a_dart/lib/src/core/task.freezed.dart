@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -22,8 +18,8 @@ mixin _$Task {
   /// for a new task.
   String get id;
 
-  /// A server-generated unique identifier (e.g., a UUID) for maintaining context
-  /// across multiple related tasks or interactions.
+  /// A server-generated unique identifier (e.g., a UUID) for maintaining
+  /// context across multiple related tasks or interactions.
   String get contextId;
 
   /// The current status of the task, including its state and a descriptive
@@ -42,7 +38,8 @@ mixin _$Task {
   /// identifier.
   Map<String, dynamic>? get metadata;
 
-  /// The type of this object, used as a discriminator. Always 'task' for a Task.
+  /// The type of this object, used as a discriminator. Always 'task' for a
+  /// Task.
   String get kind;
 
   /// Create a copy of Task
@@ -373,8 +370,8 @@ class _Task implements Task {
   @override
   final String id;
 
-  /// A server-generated unique identifier (e.g., a UUID) for maintaining context
-  /// across multiple related tasks or interactions.
+  /// A server-generated unique identifier (e.g., a UUID) for maintaining
+  /// context across multiple related tasks or interactions.
   @override
   final String contextId;
 
@@ -428,7 +425,8 @@ class _Task implements Task {
     return EqualUnmodifiableMapView(value);
   }
 
-  /// The type of this object, used as a discriminator. Always 'task' for a Task.
+  /// The type of this object, used as a discriminator. Always 'task' for a
+  /// Task.
   @override
   @JsonKey()
   final String kind;
@@ -944,8 +942,8 @@ class __$TaskStatusCopyWithImpl<$Res> implements _$TaskStatusCopyWith<$Res> {
 
 /// @nodoc
 mixin _$Artifact {
-  /// A unique identifier (e.g., a UUID) for the artifact within the scope of the
-  /// task.
+  /// A unique identifier (e.g., a UUID) for the artifact within the scope of
+  /// the task.
   String get artifactId;
 
   /// An optional, human-readable name for the artifact.
@@ -1266,8 +1264,8 @@ class _Artifact implements Artifact {
   factory _Artifact.fromJson(Map<String, dynamic> json) =>
       _$ArtifactFromJson(json);
 
-  /// A unique identifier (e.g., a UUID) for the artifact within the scope of the
-  /// task.
+  /// A unique identifier (e.g., a UUID) for the artifact within the scope of
+  /// the task.
   @override
   final String artifactId;
 

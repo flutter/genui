@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -31,8 +27,8 @@ mixin _$AgentSkill {
   /// A set of keywords describing the skill's capabilities.
   List<String> get tags;
 
-  /// Example prompts or scenarios that this skill can handle, providing a hint
-  /// to the client on how to use the skill.
+  /// Example prompts or scenarios that this skill can handle, providing a
+  /// hint to the client on how to use the skill.
   List<String>? get examples;
 
   /// The set of supported input MIME types for this skill, overriding the
@@ -420,12 +416,12 @@ class _AgentSkill implements AgentSkill {
     return EqualUnmodifiableListView(_tags);
   }
 
-  /// Example prompts or scenarios that this skill can handle, providing a hint
-  /// to the client on how to use the skill.
+  /// Example prompts or scenarios that this skill can handle, providing a
+  /// hint to the client on how to use the skill.
   final List<String>? _examples;
 
-  /// Example prompts or scenarios that this skill can handle, providing a hint
-  /// to the client on how to use the skill.
+  /// Example prompts or scenarios that this skill can handle, providing a
+  /// hint to the client on how to use the skill.
   @override
   List<String>? get examples {
     final value = _examples;

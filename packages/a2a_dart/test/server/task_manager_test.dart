@@ -39,5 +39,12 @@ void main() {
       expect(retrievedTask, isNotNull);
       expect(retrievedTask!.status.state, equals(TaskState.working));
     });
+
+    test('getTask returns null if task is not found', () {
+      final taskManager = TaskManager();
+      final retrievedTask = taskManager.getTask('non-existent-id');
+
+      expect(retrievedTask, isNull);
+    });
   });
 }

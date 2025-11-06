@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -390,7 +386,8 @@ class APIKeySecurityScheme implements SecurityScheme {
   /// The name of the header, query or cookie parameter to be used.
   final String name;
 
-  /// The location of the API key. Valid values are "query", "header" or "cookie".
+  /// The location of the API key. Valid values are "query", "header" or
+  /// "cookie".
   @JsonKey(name: 'in')
   final String in_;
 
@@ -506,9 +503,10 @@ class HttpAuthSecurityScheme implements SecurityScheme {
   @override
   final String? description;
 
-  /// The name of the HTTP Authorization scheme to be used in the Authorization
-  /// header defined in RFC7235. The values used should be registered in the
-  /// IANA "Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry".
+  /// The name of the HTTP Authorization scheme to be used in the
+  /// Authorization header defined in RFC7235. The values used should be
+  /// registered in the IANA "Hypertext Transfer Protocol (HTTP)
+  /// Authentication Scheme Registry".
   final String scheme;
 
   /// A hint to the client to identify how the bearer token is formatted.
@@ -622,7 +620,8 @@ class OAuth2SecurityScheme implements SecurityScheme {
   @override
   final String? description;
 
-  /// An object containing configuration information for the supported OAuth Flows.
+  /// An object containing configuration information for the supported OAuth
+  /// Flows.
   final OAuthFlows flows;
 
   /// Create a copy of SecurityScheme

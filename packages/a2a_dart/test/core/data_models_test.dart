@@ -24,6 +24,7 @@ void main() {
       final newAgentCard = AgentCard.fromJson(json);
 
       expect(newAgentCard, equals(agentCard));
+      expect(newAgentCard.name, equals('Test Agent'));
     });
 
     test(
@@ -58,6 +59,7 @@ void main() {
       final newMessage = Message.fromJson(json);
 
       expect(newMessage, equals(message));
+      expect(newMessage.role, equals(Role.user));
     });
 
     test('Message with empty parts can be serialized and deserialized', () {
@@ -112,6 +114,7 @@ void main() {
       final newTask = Task.fromJson(json);
 
       expect(newTask, equals(task));
+      expect(newTask.id, equals('task-123'));
     });
 
     test('Task with optional fields null can be serialized and deserialized',

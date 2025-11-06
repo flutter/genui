@@ -94,6 +94,23 @@ void main() {
       );
     });
 
+    test('handles http errors', () async {
+      final mockHttp = MockClient.streaming((request, body) async {
+        return http.StreamedResponse(Stream.value([]), 400,
+            reasonPhrase: 'Bad Request');
+      });
+      final transport = SseTransport(
+        url: 'http://localhost:8080',
+        client: mockHttp,
+        log: Logger('A2AClient'),
+      );
+      final stream = transport.sendStream({});
+      expect(
+        stream,
+        emitsError(isA<A2AException>()),
+      );
+    });
+
     test('handles parsing errors', () async {
       final mockHttp = MockClient((request) async {
         final stream = Stream.fromIterable([

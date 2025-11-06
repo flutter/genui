@@ -11,6 +11,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
 
+import '../a2a_server_exception.dart';
 import '../handler_result.dart';
 import '../request_handler.dart';
 
@@ -56,8 +57,13 @@ class A2AServer {
   })  : _requestedPort = port,
         _log = logger {
     for (final handler in handlers) {
-      _handlers[handler.method] = handler;
+      registerHandler(handler);
     }
+  }
+
+  /// Registers a [RequestHandler] with the server.
+  void registerHandler(RequestHandler handler) {
+    _handlers[handler.method] = handler;
   }
 
   /// The logger used for logging messages.
@@ -79,99 +85,123 @@ class A2AServer {
   ///
   /// The server will listen on a random available port.
   Future<void> start() async {
-    final router = Router();
-
-    router.post('/rpc', (Request request) async {
-      Map<String, dynamic> json;
-      _log?.info('Received request: ${request.method} ${request.requestedUri}');
-      final body = await request.readAsString();
-      _log?.fine('Request body: $body');
-
-      dynamic id;
-      try {
-        json = jsonDecode(body) as Map<String, dynamic>;
-        id = json['id'];
-      } on FormatException {
-        return Response.badRequest(
-          body: jsonEncode({
-            'jsonrpc': '2.0',
-            'error': {'code': -32700, 'message': 'Parse error'},
-            'id': null,
-          }),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-
-      try {
-        final method = json['method'] as String?;
-        final params = json['params'] as Map<String, dynamic>?;
-
-        if (method == null || params == null) {
-          return Response.badRequest(
-            body: jsonEncode({
-              'jsonrpc': '2.0',
-              'error': {'code': -32600, 'message': 'Invalid Request'},
-              'id': id,
-            }),
-            headers: {'Content-Type': 'application/json'},
-          );
-        }
-
-        final handler = _handlers[method];
-        if (handler != null) {
-          final result = await handler.handle(params);
-          _log?.info('Returning successful response for method $method');
-
-          return switch (result) {
-            SingleResult(data: final data) => Response.ok(
-                jsonEncode({'jsonrpc': '2.0', 'result': data, 'id': id}),
-                headers: {'Content-Type': 'application/json'},
-              ),
-            StreamResult(stream: final stream) => Response.ok(
-                stream.map((event) {
-                  return utf8.encode(
-                    'data: ${jsonEncode({
-                          'jsonrpc': '2.0',
-                          'result': event,
-                          'id': id
-                        })}\n\n',
-                  );
-                }),
-                headers: {
-                  'Content-Type': 'text/event-stream',
-                  'Cache-Control': 'no-cache',
-                  'Connection': 'keep-alive',
-                },
-              ),
-          };
-        } else {
-          return Response.notFound(
-            jsonEncode({
-              'jsonrpc': '2.0',
-              'error': {'code': -32601, 'message': 'Method not found'},
-              'id': id,
-            }),
-            headers: {'Content-Type': 'application/json'},
-          );
-        }
-      } catch (e) {
-        return Response.internalServerError(
-          body: jsonEncode({
-            'jsonrpc': '2.0',
-            'error': {'code': -32000, 'message': 'Server error'},
-            'id': id,
-          }),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-    });
-
+    final router = Router()..post('/rpc', _handleRpcRequest);
     final handler =
         const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
     _server = await io.serve(handler, host, _requestedPort);
     _log?.info(
         'A2A server started on ${_server!.address.host}:${_server!.port}');
+  }
+
+  Future<Response> _handleRpcRequest(Request request) async {
+    _log?.info('Received request: ${request.method} ${request.requestedUri}');
+    final body = await request.readAsString();
+    _log?.fine('Request body: $body');
+
+    dynamic id;
+    Map<String, dynamic> json;
+    try {
+      json = jsonDecode(body) as Map<String, dynamic>;
+      id = json['id'];
+    } on FormatException {
+      return _jsonRpcError(id: null, code: -32700, message: 'Parse error');
+    }
+
+    try {
+      final method = json['method'] as String?;
+      final params = json['params'] as Map<String, dynamic>?;
+
+      if (method == null || params == null) {
+        return _jsonRpcError(
+          id: id,
+          code: -32600,
+          message: 'Invalid Request',
+        );
+      }
+
+      final handler = _handlers[method];
+      if (handler == null) {
+        return _jsonRpcError(
+          id: id,
+          code: -32601,
+          message: 'Method not found',
+          responseCode: 404,
+        );
+      }
+      return _executeHandler(handler, params, id);
+    } catch (e) {
+      return _jsonRpcError(
+        id: id,
+        code: -32000,
+        message: 'Server error: $e',
+        responseCode: 500,
+      );
+    }
+  }
+
+  Future<Response> _executeHandler(
+    RequestHandler handler,
+    Map<String, dynamic> params,
+    dynamic id,
+  ) async {
+    try {
+      final result = await handler.handle(params);
+      _log?.info('Returning successful response for method ${handler.method}');
+
+      return switch (result) {
+        SingleResult(data: final data) => Response.ok(
+            jsonEncode({'jsonrpc': '2.0', 'result': data, 'id': id}),
+            headers: {'Content-Type': 'application/json'},
+          ),
+        StreamResult(stream: final stream) => Response.ok(
+            stream.map((event) {
+              return utf8.encode(
+                'data: ${jsonEncode({
+                      'jsonrpc': '2.0',
+                      'result': event,
+                      'id': id
+                    })}\n\n',
+              );
+            }),
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+            },
+          ),
+      };
+    } on A2AServerException catch (e) {
+      return _jsonRpcError(
+        id: id,
+        code: e.code,
+        message: e.message,
+        responseCode: 500,
+      );
+    } catch (e, stackTrace) {
+      _log?.severe('Unhandled server error', e, stackTrace);
+      return _jsonRpcError(
+        id: id,
+        code: -32000,
+        message: 'Server error: $e',
+        responseCode: 500,
+      );
+    }
+  }
+
+  Response _jsonRpcError({
+    required dynamic id,
+    required int code,
+    required String message,
+    int responseCode = 400,
+  }) {
+    final body = jsonEncode({
+      'jsonrpc': '2.0',
+      'error': {'code': code, 'message': message},
+      'id': id,
+    });
+    final headers = {'Content-Type': 'application/json'};
+    return Response(responseCode, body: body, headers: headers);
   }
 
   /// Stops the server.

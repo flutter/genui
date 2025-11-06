@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -66,7 +62,8 @@ mixin _$AgentCard {
   /// The skills or functionalities that the agent can perform.
   List<AgentSkill> get skills;
 
-  /// Indicates whether the agent supports authenticated extended card requests.
+  /// Indicates whether the agent supports authenticated extended card
+  /// requests.
   bool? get supportsAuthenticatedExtendedCard;
 
   /// Create a copy of AgentCard
@@ -707,7 +704,8 @@ class _AgentCard implements AgentCard {
     return EqualUnmodifiableListView(_skills);
   }
 
-  /// Indicates whether the agent supports authenticated extended card requests.
+  /// Indicates whether the agent supports authenticated extended card
+  /// requests.
   @override
   final bool? supportsAuthenticatedExtendedCard;
 

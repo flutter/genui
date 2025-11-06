@@ -16,7 +16,7 @@ Add the following to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  a2a_dart: ^0.1.0
+  a2a_dart: ^0.1.0 # or the latest version
 ```
 
 ## Usage
@@ -47,9 +47,13 @@ void main() async {
   print('Created task: ${task.id}');
 
   // Execute the task and stream the results.
-  final stream = client.executeTask(task.id);
-  await for (final event in stream) {
-    print('Received event: ${event.type}');
+  try {
+    final stream = client.executeTask(task.id);
+    await for (final event in stream) {
+      print('Received event: ${event.type}');
+    }
+  } on A2AException catch (e) {
+    print('Error executing task: ${e.message}');
   }
 }
 ```

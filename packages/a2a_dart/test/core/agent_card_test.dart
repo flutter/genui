@@ -5,8 +5,36 @@
 import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
-
 import 'package:test/test.dart';
+
+void main() {
+  group('AgentCard', () {
+    test('can be instantiated', () {
+      final agentCard = const AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      expect(agentCard, isNotNull);
+    });
+
+    test('can be serialized and deserialized from JSON', () {
+      final json = jsonDecode(agentCardJson) as Map<String, dynamic>;
+      final agentCard = AgentCard.fromJson(json);
+      final serializedJson = agentCard.toJson();
+      final agentCard2 = AgentCard.fromJson(serializedJson);
+      expect(agentCard2, equals(agentCard));
+      expect(agentCard.name, equals('GeoSpatial Route Planner Agent'));
+      expect(agentCard.skills.length, equals(2));
+    });
+  });
+}
 
 const agentCardJson = '''
 {
@@ -118,30 +146,3 @@ const agentCardJson = '''
   "supportsAuthenticatedExtendedCard": true
 }
 ''';
-
-void main() {
-  group('AgentCard', () {
-    test('can be instantiated', () {
-      final agentCard = const AgentCard(
-        protocolVersion: '0.2.9',
-        name: 'Test Agent',
-        description: 'A test agent.',
-        url: 'https://example.com/a2a',
-        version: '1.0.0',
-        capabilities: AgentCapabilities(),
-        defaultInputModes: [],
-        defaultOutputModes: [],
-        skills: [],
-      );
-      expect(agentCard, isNotNull);
-    });
-
-    test('can be serialized and deserialized from JSON', () {
-      final json = jsonDecode(agentCardJson) as Map<String, dynamic>;
-      final agentCard = AgentCard.fromJson(json);
-      final serializedJson = agentCard.toJson();
-      final agentCard2 = AgentCard.fromJson(serializedJson);
-      expect(agentCard2, equals(agentCard));
-    });
-  });
-}

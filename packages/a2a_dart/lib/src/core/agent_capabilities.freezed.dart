@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -21,15 +17,16 @@ mixin _$AgentCapabilities {
   /// Indicates whether the agent supports Server-Sent Events (SSE) for
   /// streaming responses.
   ///
-  /// If `true`, the agent can send multiple responses over a single connection.
+  /// If `true`, the agent can send multiple responses over a single
+  /// connection.
   bool? get streaming;
 
   /// Indicates whether the agent supports sending push notifications for
   /// asynchronous task updates.
   bool? get pushNotifications;
 
-  /// Indicates whether the agent provides a history of state transitions for a
-  /// task.
+  /// Indicates whether the agent provides a history of state transitions for
+  /// a task.
   bool? get stateTransitionHistory;
 
   /// A list of protocol extensions that the agent supports.
@@ -305,7 +302,8 @@ class _AgentCapabilities implements AgentCapabilities {
   /// Indicates whether the agent supports Server-Sent Events (SSE) for
   /// streaming responses.
   ///
-  /// If `true`, the agent can send multiple responses over a single connection.
+  /// If `true`, the agent can send multiple responses over a single
+  /// connection.
   @override
   final bool? streaming;
 
@@ -314,8 +312,8 @@ class _AgentCapabilities implements AgentCapabilities {
   @override
   final bool? pushNotifications;
 
-  /// Indicates whether the agent provides a history of state transitions for a
-  /// task.
+  /// Indicates whether the agent provides a history of state transitions for
+  /// a task.
   @override
   final bool? stateTransitionHistory;
 

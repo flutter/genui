@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -479,8 +475,8 @@ class TaskArtifactUpdateEvent implements StreamingEvent {
   /// The artifact that was updated.
   final Artifact artifact;
 
-  /// A boolean indicating if the content of the artifact should be appended to
-  /// the existing content.
+  /// A boolean indicating if the content of the artifact should be appended
+  /// to the existing content.
   final bool append;
 
   /// A boolean indicating if this is the last chunk of the artifact.
