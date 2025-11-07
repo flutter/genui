@@ -1,8 +1,8 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 // Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'task.dart';
 
@@ -10,21 +10,21 @@ part of 'task.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_Task _$TaskFromJson(Map<String, Object?> json) => _Task(
+_Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
   id: json['id'] as String,
   contextId: json['contextId'] as String,
-  status: TaskStatus.fromJson(json['status'] as Map<String, Object?>),
-  history: (json['history'] as List<Object?>?)
-      ?.map((e) => Message.fromJson(e as Map<String, Object?>))
+  status: TaskStatus.fromJson(json['status'] as Map<String, dynamic>),
+  history: (json['history'] as List<dynamic>?)
+      ?.map((e) => Message.fromJson(e as Map<String, dynamic>))
       .toList(),
-  artifacts: (json['artifacts'] as List<Object?>?)
-      ?.map((e) => Artifact.fromJson(e as Map<String, Object?>))
+  artifacts: (json['artifacts'] as List<dynamic>?)
+      ?.map((e) => Artifact.fromJson(e as Map<String, dynamic>))
       .toList(),
-  metadata: json['metadata'] as Map<String, Object?>?,
+  metadata: json['metadata'] as Map<String, dynamic>?,
   kind: json['kind'] as String? ?? 'task',
 );
 
-Map<String, Object?> _$TaskToJson(_Task instance) => <String, Object?>{
+Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
   'id': instance.id,
   'contextId': instance.contextId,
   'status': instance.status.toJson(),
@@ -34,16 +34,16 @@ Map<String, Object?> _$TaskToJson(_Task instance) => <String, Object?>{
   'kind': instance.kind,
 };
 
-_TaskStatus _$TaskStatusFromJson(Map<String, Object?> json) => _TaskStatus(
+_TaskStatus _$TaskStatusFromJson(Map<String, dynamic> json) => _TaskStatus(
   state: $enumDecode(_$TaskStateEnumMap, json['state']),
   message: json['message'] == null
       ? null
-      : Message.fromJson(json['message'] as Map<String, Object?>),
+      : Message.fromJson(json['message'] as Map<String, dynamic>),
   timestamp: json['timestamp'] as String?,
 );
 
-Map<String, Object?> _$TaskStatusToJson(_TaskStatus instance) =>
-    <String, Object?>{
+Map<String, dynamic> _$TaskStatusToJson(_TaskStatus instance) =>
+    <String, dynamic>{
       'state': _$TaskStateEnumMap[instance.state]!,
       'message': instance.message?.toJson(),
       'timestamp': instance.timestamp,
@@ -61,20 +61,20 @@ const _$TaskStateEnumMap = {
   TaskState.unknown: 'unknown',
 };
 
-_Artifact _$ArtifactFromJson(Map<String, Object?> json) => _Artifact(
+_Artifact _$ArtifactFromJson(Map<String, dynamic> json) => _Artifact(
   artifactId: json['artifactId'] as String,
   name: json['name'] as String?,
   description: json['description'] as String?,
-  parts: (json['parts'] as List<Object?>)
-      .map((e) => Part.fromJson(e as Map<String, Object?>))
+  parts: (json['parts'] as List<dynamic>)
+      .map((e) => Part.fromJson(e as Map<String, dynamic>))
       .toList(),
-  metadata: json['metadata'] as Map<String, Object?>?,
-  extensions: (json['extensions'] as List<Object?>?)
+  metadata: json['metadata'] as Map<String, dynamic>?,
+  extensions: (json['extensions'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
 );
 
-Map<String, Object?> _$ArtifactToJson(_Artifact instance) => <String, Object?>{
+Map<String, dynamic> _$ArtifactToJson(_Artifact instance) => <String, dynamic>{
   'artifactId': instance.artifactId,
   'name': instance.name,
   'description': instance.description,

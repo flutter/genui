@@ -21,7 +21,10 @@ abstract class Transport {
   /// Sends a request to the server and expects a single response.
   ///
   /// The [request] is a JSON-RPC 2.0 compliant [Map].
-  Future<Map<String, Object?>> send(Map<String, Object?> request);
+  Future<Map<String, Object?>> send(
+    Map<String, Object?> request, {
+    String path = '/rpc',
+  });
 
   /// Sends a request to the server and returns a stream of responses.
   ///

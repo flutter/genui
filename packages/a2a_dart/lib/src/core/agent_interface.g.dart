@@ -1,8 +1,8 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 // Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'agent_interface.dart';
 
@@ -10,14 +10,14 @@ part of 'agent_interface.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentInterface _$AgentInterfaceFromJson(Map<String, Object?> json) =>
+_AgentInterface _$AgentInterfaceFromJson(Map<String, dynamic> json) =>
     _AgentInterface(
       url: json['url'] as String,
       transport: $enumDecode(_$TransportProtocolEnumMap, json['transport']),
     );
 
-Map<String, Object?> _$AgentInterfaceToJson(_AgentInterface instance) =>
-    <String, Object?>{
+Map<String, dynamic> _$AgentInterfaceToJson(_AgentInterface instance) =>
+    <String, dynamic>{
       'url': instance.url,
       'transport': _$TransportProtocolEnumMap[instance.transport]!,
     };

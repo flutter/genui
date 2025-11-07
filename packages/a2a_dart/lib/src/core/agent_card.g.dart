@@ -1,8 +1,8 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 // Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'agent_card.dart';
 
@@ -10,7 +10,7 @@ part of 'agent_card.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentCard _$AgentCardFromJson(Map<String, Object?> json) => _AgentCard(
+_AgentCard _$AgentCardFromJson(Map<String, dynamic> json) => _AgentCard(
   protocolVersion: json['protocolVersion'] as String,
   name: json['name'] as String,
   description: json['description'] as String,
@@ -19,47 +19,47 @@ _AgentCard _$AgentCardFromJson(Map<String, Object?> json) => _AgentCard(
     _$TransportProtocolEnumMap,
     json['preferredTransport'],
   ),
-  additionalInterfaces: (json['additionalInterfaces'] as List<Object?>?)
-      ?.map((e) => AgentInterface.fromJson(e as Map<String, Object?>))
+  additionalInterfaces: (json['additionalInterfaces'] as List<dynamic>?)
+      ?.map((e) => AgentInterface.fromJson(e as Map<String, dynamic>))
       .toList(),
   iconUrl: json['iconUrl'] as String?,
   provider: json['provider'] == null
       ? null
-      : AgentProvider.fromJson(json['provider'] as Map<String, Object?>),
+      : AgentProvider.fromJson(json['provider'] as Map<String, dynamic>),
   version: json['version'] as String,
   documentationUrl: json['documentationUrl'] as String?,
   capabilities: AgentCapabilities.fromJson(
-    json['capabilities'] as Map<String, Object?>,
+    json['capabilities'] as Map<String, dynamic>,
   ),
-  securitySchemes: (json['securitySchemes'] as Map<String, Object?>?)?.map(
-    (k, e) => MapEntry(k, SecurityScheme.fromJson(e as Map<String, Object?>)),
+  securitySchemes: (json['securitySchemes'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, SecurityScheme.fromJson(e as Map<String, dynamic>)),
   ),
-  security: (json['security'] as List<Object?>?)
+  security: (json['security'] as List<dynamic>?)
       ?.map(
-        (e) => (e as Map<String, Object?>).map(
+        (e) => (e as Map<String, dynamic>).map(
           (k, e) => MapEntry(
             k,
-            (e as List<Object?>).map((e) => e as String).toList(),
+            (e as List<dynamic>).map((e) => e as String).toList(),
           ),
         ),
       )
       .toList(),
-  defaultInputModes: (json['defaultInputModes'] as List<Object?>)
+  defaultInputModes: (json['defaultInputModes'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  defaultOutputModes: (json['defaultOutputModes'] as List<Object?>)
+  defaultOutputModes: (json['defaultOutputModes'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  skills: (json['skills'] as List<Object?>)
-      .map((e) => AgentSkill.fromJson(e as Map<String, Object?>))
+  skills: (json['skills'] as List<dynamic>)
+      .map((e) => AgentSkill.fromJson(e as Map<String, dynamic>))
       .toList(),
   supportsAuthenticatedExtendedCard:
       json['supportsAuthenticatedExtendedCard'] as bool?,
 );
 
-Map<String, Object?> _$AgentCardToJson(
+Map<String, dynamic> _$AgentCardToJson(
   _AgentCard instance,
-) => <String, Object?>{
+) => <String, dynamic>{
   'protocolVersion': instance.protocolVersion,
   'name': instance.name,
   'description': instance.description,

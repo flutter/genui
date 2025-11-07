@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:a2a_dart/a2a_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
@@ -25,8 +29,9 @@ void main() async {
     print('Created task: ${task.id}');
 
     final stream = client.executeTask(task.id);
+    var pauseSent = false;
     await for (final event in stream) {
-      event.when(
+      await event.when(
         taskStatusUpdate: (kind, taskId, contextId, status, final_) {},
         taskArtifactUpdate:
             (kind, taskId, contextId, artifact, append, lastChunk) async {
@@ -34,20 +39,15 @@ void main() async {
               if (part is TextPart) {
                 final text = part.text;
                 print('Received event: $text');
-                if (text.contains('5')) {
+                if (text.contains('5') && !pauseSent) {
+                  pauseSent = true;
                   print('Pausing countdown');
                   final pauseMessage = Message(
                     messageId: const Uuid().v4(),
                     role: Role.user,
                     parts: [Part.text(text: 'pause ${task.id}')],
                   );
-                  await client.send({
-                    'method': 'execute_task',
-                    'params': {
-                      'task_id': task.id,
-                      'message': pauseMessage.toJson(),
-                    },
-                  });
+                  await client.message(pauseMessage);
                 }
               }
             },

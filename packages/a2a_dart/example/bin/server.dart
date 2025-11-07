@@ -1,8 +1,33 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 
 import 'package:a2a_dart/a2a_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
+
+void main() async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
+  final taskManager = CountdownTaskManager();
+  final server = A2AServer(
+    [
+      CreateCountdownTaskHandler(taskManager),
+      ExecuteCountdownTaskHandler(taskManager),
+      MessageHandler(taskManager),
+    ],
+    port: 8080,
+    agentCard: agentCard,
+  );
+
+  await server.start();
+  print('Server started on port ${server.port}');
+}
 
 // A simple in-memory task manager.
 class CountdownTaskManager {
@@ -57,6 +82,46 @@ class CreateCountdownTaskHandler extends RequestHandler {
   }
 }
 
+class MessageHandler extends RequestHandler {
+  final CountdownTaskManager _taskManager;
+  final _log = Logger('MessageHandler');
+
+  MessageHandler(this._taskManager);
+
+  @override
+  String get method => 'message';
+
+  @override
+  Future<HandlerResult> handle(Map<String, Object?> params) async {
+    final message = Message.fromJson(params['message'] as Map<String, dynamic>);
+    final part = message.parts.first;
+    if (part is TextPart && part.text.startsWith('pause')) {
+      final taskId = part.text.split(' ').last;
+      final task = _taskManager.getTask(taskId);
+      if (task == null) {
+        throw A2AServerException('Task not found: $taskId', -32602);
+      }
+      _log.info('Pausing task $taskId');
+      _taskManager.pauseTask(taskId);
+      final event = Event.taskStatusUpdate(
+        taskId: taskId,
+        contextId: task.contextId,
+        status: TaskStatus(
+          state: TaskState.working,
+          message: Message(
+            messageId: const Uuid().v4(),
+            role: Role.agent,
+            parts: const [Part.text(text: 'Task paused for 3 seconds')],
+          ),
+        ),
+        final_: false,
+      );
+      return SingleResult(event.toJson());
+    }
+    throw A2AServerException('Could not determine action', -32602);
+  }
+}
+
 class ExecuteCountdownTaskHandler extends RequestHandler {
   final CountdownTaskManager _taskManager;
   final _log = Logger('ExecuteCountdownTaskHandler');
@@ -103,49 +168,43 @@ class ExecuteCountdownTaskHandler extends RequestHandler {
     final countdownStart = int.tryParse(messageText.split(' ').last) ?? 10;
     _log.info('Starting countdown from $countdownStart for task ${task.id}');
 
-    Timer? timer;
-
-    controller.onCancel = () {
-      timer?.cancel();
-    };
-
-    var countdown = countdownStart;
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (controller.isClosed) {
-        timer.cancel();
-        return;
-      }
-      if (!_taskManager.isPaused(task.id)) {
-        if (countdown > 0) {
+    unawaited(() async {
+      var countdown = countdownStart;
+      while (countdown > 0) {
+        if (controller.isClosed) {
+          return;
+        }
+        if (!_taskManager.isPaused(task.id)) {
           final event = StreamingEvent.taskArtifactUpdate(
             taskId: task.id,
             contextId: task.contextId,
             artifact: Artifact(
               artifactId: const Uuid().v4(),
-              parts: [Part.text(text: 'Countdown at $countdown!')],
+              parts: [
+                Part.text(text: 'Countdown at $countdown! (${DateTime.now()})'),
+              ],
             ),
             append: true,
             lastChunk: false,
           );
           controller.add(event.toJson());
           countdown--;
-        } else {
-          final event = StreamingEvent.taskArtifactUpdate(
-            taskId: task.id,
-            contextId: task.contextId,
-            artifact: Artifact(
-              artifactId: const Uuid().v4(),
-              parts: [const Part.text(text: 'Liftoff!')],
-            ),
-            append: true,
-            lastChunk: true,
-          );
-          controller.add(event.toJson());
-          controller.close();
-          timer.cancel();
         }
+        await Future<void>.delayed(const Duration(seconds: 1));
       }
-    });
+      final event = StreamingEvent.taskArtifactUpdate(
+        taskId: task.id,
+        contextId: task.contextId,
+        artifact: Artifact(
+          artifactId: const Uuid().v4(),
+          parts: [const Part.text(text: 'Liftoff!')],
+        ),
+        append: true,
+        lastChunk: true,
+      );
+      controller.add(event.toJson());
+      await controller.close();
+    }());
 
     return StreamResult(controller.stream);
   }
@@ -162,23 +221,3 @@ final agentCard = const AgentCard(
   defaultOutputModes: ['text/plain'],
   skills: [],
 );
-
-void main() async {
-  Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
-  });
-
-  final taskManager = CountdownTaskManager();
-  final server = A2AServer(
-    [
-      CreateCountdownTaskHandler(taskManager),
-      ExecuteCountdownTaskHandler(taskManager),
-    ],
-    port: 8080,
-    agentCard: agentCard,
-  );
-
-  await server.start();
-  print('Server started on port ${server.port}');
-}

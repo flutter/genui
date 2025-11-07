@@ -41,7 +41,10 @@ class FakeTransport implements Transport {
   }
 
   @override
-  Future<Map<String, Object?>> send(Map<String, Object?> request) async {
+  Future<Map<String, Object?>> send(
+    Map<String, Object?> request, {
+    String path = '/rpc',
+  }) async {
     return response;
   }
 

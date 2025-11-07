@@ -117,6 +117,31 @@ class A2AClient {
   /// This method is used for streaming communication with the server. It sends
   /// a [Message] and returns a [Stream] of [Map]s, where each map is a JSON
   /// object received from the server.
+  /// Sends a message to the server and returns a single response.
+  ///
+  /// This method is used for non-streaming communication with the server. It
+  /// sends a [Message] and returns a [Future] of an [Event].
+  Future<Event> message(Message message) async {
+    final request = {
+      'jsonrpc': '2.0',
+      'method': 'message',
+      'params': {'message': message.toJson()},
+      'id': _nextId++,
+    };
+    _log?.info('Sending message: ${message.toJson()}');
+    final response = await transport.send(request);
+    _log?.info('Received response from message: $response');
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+        data: error['data'] as Map<String, Object?>?,
+      );
+    }
+    return Event.fromJson(response['result'] as Map<String, Object?>);
+  }
+
   Stream<StreamingEvent> messageStream(Message message) {
     final request = {
       'jsonrpc': '2.0',
