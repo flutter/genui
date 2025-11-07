@@ -41,7 +41,7 @@ void main() {
       ),
     );
 
-    final slider = tester.widget<Slider>(find.byType(Slider));
+    final Slider slider = tester.widget<Slider>(find.byType(Slider));
     expect(slider.value, 0.5);
 
     await tester.drag(find.byType(Slider), const Offset(100, 0));

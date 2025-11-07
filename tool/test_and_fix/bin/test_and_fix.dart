@@ -29,14 +29,14 @@ Future<int> main(List<String> arguments) async {
           'skipped.',
     );
 
-  final argResults = parser.parse(arguments);
+  final ArgResults argResults = parser.parse(arguments);
 
   if (argResults['help'] as bool) {
     print(parser.usage);
     return 0;
   }
 
-  final success = await TestAndFix().run(
+  final bool success = await TestAndFix().run(
     verbose: argResults['verbose'] as bool,
     all: argResults['all'] as bool,
   );

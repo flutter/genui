@@ -64,24 +64,23 @@ final multipleChoice = CatalogItem(
     final multipleChoiceData = _MultipleChoiceData.fromMap(
       itemContext.data as JsonMap,
     );
-    final selectionsNotifier = itemContext.dataContext.subscribeToObjectArray(
-      multipleChoiceData.selections,
-    );
+    final ValueNotifier<List<Object?>?> selectionsNotifier = itemContext
+        .dataContext
+        .subscribeToObjectArray(multipleChoiceData.selections);
 
     return ValueListenableBuilder<List<Object?>?>(
       valueListenable: selectionsNotifier,
       builder: (context, selections, child) {
         return Column(
           children: multipleChoiceData.options.map((option) {
-            final labelNotifier = itemContext.dataContext.subscribeToString(
-              option['label'] as JsonMap,
-            );
+            final ValueNotifier<String?> labelNotifier = itemContext.dataContext
+                .subscribeToString(option['label'] as JsonMap);
             final value = option['value'] as String;
             return ValueListenableBuilder<String?>(
               valueListenable: labelNotifier,
               builder: (context, label, child) {
                 if (multipleChoiceData.maxAllowedSelections == 1) {
-                  final groupValue = selections?.isNotEmpty == true
+                  final Object? groupValue = selections?.isNotEmpty == true
                       ? selections!.first
                       : null;
                   return RadioListTile<String>(
@@ -118,7 +117,7 @@ final multipleChoice = CatalogItem(
                       if (path == null) {
                         return;
                       }
-                      final newSelections =
+                      final List<String> newSelections =
                           selections?.map((e) => e.toString()).toList() ??
                           <String>[];
                       if (newValue ?? false) {

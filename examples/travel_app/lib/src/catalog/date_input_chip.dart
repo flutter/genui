@@ -66,7 +66,7 @@ class _DateInputChipState extends State<_DateInputChip> {
 
   @override
   Widget build(BuildContext context) {
-    final text = _selectedDate == null
+    final String text = _selectedDate == null
         ? widget.label ?? 'Date'
         : '${widget.label}: ${DateFormat.yMMMd().format(_selectedDate!)}';
     return FilterChip(
@@ -90,7 +90,7 @@ class _DateInputChipState extends State<_DateInputChip> {
                         setState(() {
                           _selectedDate = newDate;
                         });
-                        final formattedDate = DateFormat(
+                        final String formattedDate = DateFormat(
                           'yyyy-MM-dd',
                         ).format(newDate);
                         widget.onChanged(formattedDate);
@@ -130,9 +130,8 @@ final dateInputChip = CatalogItem(
   ],
   widgetBuilder: (context) {
     final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
-    final notifier = context.dataContext.subscribeToString(
-      datePickerData.value,
-    );
+    final ValueNotifier<String?> notifier = context.dataContext
+        .subscribeToString(datePickerData.value);
     final path = datePickerData.value?['path'] as String?;
 
     return ValueListenableBuilder<String?>(

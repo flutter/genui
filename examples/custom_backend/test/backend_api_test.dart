@@ -13,7 +13,7 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
   });
 
-  for (final savedResponse in savedResponseAssets) {
+  for (final String? savedResponse in savedResponseAssets) {
     // TODO: fix Gemini API keys to get live test working.
     if (savedResponse == null) {
       continue;
@@ -26,7 +26,7 @@ void main() {
       'sendRequest works for $savedResponse',
       () async {
         final protocol = Backend(uiSchema);
-        final result = await protocol.sendRequest(
+        final ParsedToolCall? result = await protocol.sendRequest(
           requestText,
           savedResponse: savedResponse,
         );

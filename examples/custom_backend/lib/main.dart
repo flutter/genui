@@ -60,7 +60,7 @@ class _IntegrationTester extends StatefulWidget {
   State<_IntegrationTester> createState() => _IntegrationTesterState();
 }
 
-final _catalog = CoreCatalogItems.asCatalog();
+final Catalog _catalog = CoreCatalogItems.asCatalog();
 const _toolName = 'uiGenerationTool';
 final uiSchema = UiSchemaDefinition(
   prompt: genUiTechPrompt([_toolName]),
@@ -102,10 +102,11 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
                 'Sending request for _selectedResponse = '
                 '$_selectedResponse ...',
               );
-              final parsedToolCall = await _protocol.sendRequest(
-                _controller.text,
-                savedResponse: _selectedResponse,
-              );
+              final ParsedToolCall? parsedToolCall = await _protocol
+                  .sendRequest(
+                    _controller.text,
+                    savedResponse: _selectedResponse,
+                  );
               if (parsedToolCall == null) {
                 print('No UI received.');
                 setState(() {
@@ -114,7 +115,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
                 return;
               }
               _surfaceId = parsedToolCall.surfaceId;
-              for (final message in parsedToolCall.messages) {
+              for (final A2uiMessage message in parsedToolCall.messages) {
                 _genUi.handleMessage(message);
               }
               print('UI received for surfaceId=${parsedToolCall.surfaceId}');
@@ -150,7 +151,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (_errorMessage != null) {
       return Text('$_errorMessage');
     }
-    final surfaceId = _surfaceId;
+    final String? surfaceId = _surfaceId;
     if (surfaceId == null) {
       return const Text('_surfaceId == null');
     }

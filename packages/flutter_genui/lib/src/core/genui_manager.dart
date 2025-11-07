@@ -125,7 +125,7 @@ class GenUiManager implements GenUiHost {
       return;
     }
 
-    final eventJsonString = jsonEncode({'userAction': event.toMap()});
+    final String eventJsonString = jsonEncode({'userAction': event.toMap()});
     _onSubmit.add(UserUiInteractionMessage.text(eventJsonString));
   }
 
@@ -149,7 +149,7 @@ class GenUiManager implements GenUiHost {
   void dispose() {
     _surfaceUpdates.close();
     _onSubmit.close();
-    for (final notifier in _surfaces.values) {
+    for (final ValueNotifier<UiDefinition?> notifier in _surfaces.values) {
       notifier.dispose();
     }
   }
@@ -161,12 +161,17 @@ class GenUiManager implements GenUiHost {
         // No need for SurfaceAdded here because A2uiMessage will never generate
         // those. We decide here if the surface is new or not, and generate a
         // SurfaceAdded event if so.
-        final surfaceId = message.surfaceId;
-        final notifier = getSurfaceNotifier(surfaceId);
+        final String surfaceId = message.surfaceId;
+        final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
+          surfaceId,
+        );
         final isNew = notifier.value == null;
-        var uiDefinition = notifier.value ?? UiDefinition(surfaceId: surfaceId);
-        final newComponents = Map.of(uiDefinition.components);
-        for (final component in message.components) {
+        UiDefinition uiDefinition =
+            notifier.value ?? UiDefinition(surfaceId: surfaceId);
+        final Map<String, Component> newComponents = Map.of(
+          uiDefinition.components,
+        );
+        for (final Component component in message.components) {
           newComponents[component.id] = component;
         }
         uiDefinition = uiDefinition.copyWith(components: newComponents);
@@ -180,30 +185,34 @@ class GenUiManager implements GenUiHost {
         }
       case BeginRendering():
         dataModelForSurface(message.surfaceId);
-        final notifier = getSurfaceNotifier(message.surfaceId);
-        final uiDefinition =
+        final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
+          message.surfaceId,
+        );
+        final UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: message.surfaceId);
-        final newUiDefinition = uiDefinition.copyWith(
+        final UiDefinition newUiDefinition = uiDefinition.copyWith(
           rootComponentId: message.root,
         );
         notifier.value = newUiDefinition;
         genUiLogger.info('Started rendering ${message.surfaceId}');
         _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, newUiDefinition));
       case DataModelUpdate():
-        final path = message.path ?? '/';
+        final String path = message.path ?? '/';
         genUiLogger.info(
           'Updating data model for surface ${message.surfaceId} at path '
           '$path with contents:\n'
           '${const JsonEncoder.withIndent('  ').convert(message.contents)}',
         );
-        final dataModel = dataModelForSurface(message.surfaceId);
+        final DataModel dataModel = dataModelForSurface(message.surfaceId);
         dataModel.update(DataPath(path), message.contents);
         break;
       case SurfaceDeletion():
-        final surfaceId = message.surfaceId;
+        final String surfaceId = message.surfaceId;
         if (_surfaces.containsKey(surfaceId)) {
           genUiLogger.info('Deleting surface $surfaceId');
-          final notifier = _surfaces.remove(surfaceId);
+          final ValueNotifier<UiDefinition?>? notifier = _surfaces.remove(
+            surfaceId,
+          );
           notifier?.dispose();
           _dataModels.remove(surfaceId);
           _surfaceUpdates.add(SurfaceRemoved(surfaceId));

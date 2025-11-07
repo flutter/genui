@@ -14,7 +14,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await mockNetworkImagesFor(() async {
-        final data = {
+        final Map<String, List<Map<String, Object>>> data = {
           'items': [
             {
               'description': {'literalString': 'Item 1'},
@@ -78,7 +78,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await mockNetworkImagesFor(() async {
-        final data = {
+        final Map<String, List<Map<String, Object>>> data = {
           'items': [
             {
               'description': {'literalString': 'Item 1'},

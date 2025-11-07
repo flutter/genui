@@ -15,12 +15,10 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  flutter_genui:
-    path: ../../packages/flutter_genui
+  flutter_genui: ^0.4.0
   json_schema_builder: ^0.1.3
 
 dev_dependencies:
-  dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
 

@@ -31,7 +31,7 @@ void main() {
         configuration: const GenUiConfiguration(),
       );
 
-      final args = {
+      final Map<String, Object> args = {
         surfaceIdKey: 'testSurface',
         'components': [
           {
@@ -45,7 +45,7 @@ void main() {
         ],
       };
 
-      final future = expectLater(
+      final Future<void> future = expectLater(
         genUiManager.surfaceUpdates,
         emits(
           isA<SurfaceAdded>()
@@ -73,7 +73,10 @@ void main() {
         handleMessage: genUiManager.handleMessage,
       );
 
-      final args = {surfaceIdKey: 'testSurface', 'root': 'root'};
+      final Map<String, String> args = {
+        surfaceIdKey: 'testSurface',
+        'root': 'root',
+      };
 
       // First, add a component to the surface so that the root can be set.
       genUiManager.handleMessage(
@@ -93,7 +96,7 @@ void main() {
       );
 
       // Use expectLater to wait for the stream to emit the correct event.
-      final future = expectLater(
+      final Future<void> future = expectLater(
         genUiManager.surfaceUpdates,
         emits(
           isA<SurfaceUpdated>()

@@ -8,11 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Core Catalog Validation', () {
-    final mergedCatalog = CoreCatalogItems.asCatalog();
+    final Catalog mergedCatalog = CoreCatalogItems.asCatalog();
 
-    for (final item in mergedCatalog.items) {
+    for (final CatalogItem item in mergedCatalog.items) {
       test('CatalogItem ${item.name} examples are valid', () async {
-        final errors = await validateCatalogItemExamples(item, mergedCatalog);
+        final List<ExampleValidationError> errors =
+            await validateCatalogItemExamples(item, mergedCatalog);
         expect(errors, isEmpty, reason: errors.join('\n'));
       });
     }

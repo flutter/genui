@@ -9,7 +9,7 @@ import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
 // ignore: implementation_imports
 import 'package:firebase_ai/src/api.dart' show ModalityTokenCount;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui/flutter_genui.dart' hide Part;
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 import 'gemini_content_converter.dart';
@@ -111,7 +111,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       final messages = [...?history, message];
-      final response = await _generate(
+      final Object? response = await _generate(
         messages: messages,
         // This turns on forced function calling.
         outputSchema: dsb.S.object(properties: {'response': dsb.S.string()}),
@@ -160,7 +160,8 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       '${isForcedToolCalling ? ' with forced tool calling' : ''}',
     );
     // Create an "output" tool that copies its args into the output.
-    final finalOutputAiTool = isForcedToolCalling
+    final DynamicAiTool<Map<String, Object?>>? finalOutputAiTool =
+        isForcedToolCalling
         ? DynamicAiTool<Map<String, Object?>>(
             name: outputToolName,
             description:
@@ -172,7 +173,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
           )
         : null;
 
-    final allTools = isForcedToolCalling
+    final List<AiTool<JsonMap>> allTools = isForcedToolCalling
         ? [...availableTools, finalOutputAiTool!]
         : availableTools;
     genUiLogger.fine(
@@ -195,10 +196,12 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     }
 
     final functionDeclarations = <FunctionDeclaration>[];
-    for (final tool in uniqueAiToolsByName.values) {
+    for (final AiTool<JsonMap> tool in uniqueAiToolsByName.values) {
       Schema? adaptedParameters;
       if (tool.parameters != null) {
-        final result = adapter.adapt(tool.parameters!);
+        final GeminiSchemaAdapterResult result = adapter.adapt(
+          tool.parameters!,
+        );
         if (result.errors.isNotEmpty) {
           genUiLogger.warning(
             'Errors adapting parameters for tool ${tool.name}: '
@@ -207,7 +210,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
         }
         adaptedParameters = result.schema;
       }
-      final parameters = adaptedParameters?.properties;
+      final Map<String, Schema>? parameters = adaptedParameters?.properties;
       functionDeclarations.add(
         FunctionDeclaration(
           tool.name,
@@ -230,7 +233,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       '${functionDeclarations.map((d) => d.name).join(', ')}',
     );
 
-    final generativeAiTools = functionDeclarations.isNotEmpty
+    final List<Tool>? generativeAiTools = functionDeclarations.isNotEmpty
         ? [Tool.functionDeclarations(functionDeclarations)]
         : null;
 
@@ -293,7 +296,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
         break;
       }
 
-      final aiTool = availableTools.firstWhere(
+      final AiTool<JsonMap> aiTool = availableTools.firstWhere(
         (t) => t.name == call.name || t.fullName == call.name,
         orElse: () => throw Exception('Unknown tool ${call.name} called.'),
       );
@@ -335,7 +338,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     final converter = GeminiContentConverter();
     final adapter = GeminiSchemaAdapter();
 
-    final availableTools = [
+    final List<AiTool<JsonMap>> availableTools = [
       if (configuration.actions.allowCreate ||
           configuration.actions.allowUpdate) ...[
         SurfaceUpdateTool(
@@ -352,9 +355,14 @@ class FirebaseAiContentGenerator implements ContentGenerator {
 
     // A local copy of the incoming messages which is updated with tool results
     // as they are generated.
-    final mutableContent = converter.toFirebaseAiContent(messages);
+    final List<Content> mutableContent = converter.toFirebaseAiContent(
+      messages,
+    );
 
-    final (:generativeAiTools, :allowedFunctionNames) = _setupToolsAndFunctions(
+    final (
+      :List<Tool>? generativeAiTools,
+      :Set<String> allowedFunctionNames,
+    ) = _setupToolsAndFunctions(
       isForcedToolCalling: isForcedToolCalling,
       availableTools: availableTools,
       adapter: adapter,
@@ -365,7 +373,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     const maxToolUsageCycles = 40; // Safety break for tool loops
     Object? capturedResult;
 
-    final model = modelCreator(
+    final GeminiGenerativeModelInterface model = modelCreator(
       configuration: this,
       systemInstruction: systemInstruction == null
           ? null
@@ -388,7 +396,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       }
       toolUsageCycle++;
 
-      final concatenatedContents = mutableContent
+      final String concatenatedContents = mutableContent
           .map((c) => const JsonEncoder.withIndent('  ').convert(c.toJson()))
           .join('\n');
 
@@ -410,7 +418,7 @@ With functions:
         _errorController.add(ContentGeneratorError(e, st));
         rethrow;
       }
-      final elapsed = DateTime.now().difference(inferenceStartTime);
+      final Duration elapsed = DateTime.now().difference(inferenceStartTime);
 
       if (response.usageMetadata != null) {
         inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
@@ -430,8 +438,8 @@ With functions:
         return isForcedToolCalling ? null : '';
       }
 
-      final candidate = response.candidates.first;
-      final functionCalls = candidate.content.parts
+      final Candidate candidate = response.candidates.first;
+      final List<FunctionCall> functionCalls = candidate.content.parts
           .whereType<FunctionCall>()
           .toList();
 
@@ -454,7 +462,7 @@ With functions:
           );
           return null;
         } else {
-          final text = candidate.text ?? '';
+          final String text = candidate.text ?? '';
           mutableContent.add(candidate.content);
           genUiLogger.fine('Returning text response: "$text"');
           _textResponseController.add(text);
@@ -471,14 +479,19 @@ With functions:
         'parts to conversation.',
       );
 
-      final result = await _processFunctionCalls(
+      final ({
+        Object? capturedResult,
+        List<FunctionResponse> functionResponseParts,
+      })
+      result = await _processFunctionCalls(
         functionCalls: functionCalls,
         isForcedToolCalling: isForcedToolCalling,
         availableTools: availableTools,
         capturedResult: capturedResult,
       );
       capturedResult = result.capturedResult;
-      final functionResponseParts = result.functionResponseParts;
+      final List<FunctionResponse> functionResponseParts =
+          result.functionResponseParts;
 
       if (functionResponseParts.isNotEmpty) {
         mutableContent.add(Content.functionResponses(functionResponseParts));
@@ -535,7 +548,8 @@ String _usageMetadata(UsageMetadata? metadata) {
     '  toolUsePromptTokenCount: ${metadata.toolUsePromptTokenCount},',
   );
   buffer.writeln('  promptTokensDetails: [');
-  for (final detail in metadata.promptTokensDetails ?? <ModalityTokenCount>[]) {
+  for (final ModalityTokenCount detail
+      in metadata.promptTokensDetails ?? <ModalityTokenCount>[]) {
     buffer.writeln('    ModalityTokenCount(');
     buffer.writeln('      modality: ${detail.modality},');
     buffer.writeln('      tokenCount: ${detail.tokenCount},');
@@ -543,7 +557,7 @@ String _usageMetadata(UsageMetadata? metadata) {
   }
   buffer.writeln('  ],');
   buffer.writeln('  candidatesTokensDetails: [');
-  for (final detail
+  for (final ModalityTokenCount detail
       in metadata.candidatesTokensDetails ?? <ModalityTokenCount>[]) {
     buffer.writeln('    ModalityTokenCount(');
     buffer.writeln('      ${detail.modality},');
@@ -552,7 +566,7 @@ String _usageMetadata(UsageMetadata? metadata) {
   }
   buffer.writeln('  ],');
   buffer.writeln('  toolUsePromptTokensDetails: [');
-  for (final detail
+  for (final ModalityTokenCount detail
       in metadata.toolUsePromptTokensDetails ?? <ModalityTokenCount>[]) {
     buffer.writeln('    ModalityTokenCount(');
     buffer.writeln('      ${detail.modality},');
@@ -570,14 +584,14 @@ String _responseToString(GenerateContentResponse response) {
   buffer.writeln('  usageMetadata: ${_usageMetadata(response.usageMetadata)},');
   buffer.writeln('  promptFeedback: ${response.promptFeedback},');
   buffer.writeln('  candidates: [');
-  for (final candidate in response.candidates) {
+  for (final Candidate candidate in response.candidates) {
     buffer.writeln('    Candidate(');
     buffer.writeln('      finishReason: ${candidate.finishReason},');
     buffer.writeln('      finishMessage: "${candidate.finishMessage}",');
     buffer.writeln('      content: Content(');
     buffer.writeln('        role: "${candidate.content.role}",');
     buffer.writeln('        parts: [');
-    for (final part in candidate.content.parts) {
+    for (final Part part in candidate.content.parts) {
       if (part is TextPart) {
         buffer.writeln(
           '          TextPart(text: "${(part as TextPart).text}"),',
@@ -585,7 +599,7 @@ String _responseToString(GenerateContentResponse response) {
       } else if (part is FunctionCall) {
         buffer.writeln('          FunctionCall(');
         buffer.writeln('            name: "${part.name}",');
-        final indentedLines = (const JsonEncoder.withIndent(
+        final String indentedLines = (const JsonEncoder.withIndent(
           '  ',
         ).convert(part.args)).split('\n').join('\n            ');
         buffer.writeln('            args: $indentedLines,');

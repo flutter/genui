@@ -173,7 +173,7 @@ void main() {
         '${expectedDate.month.toString().padLeft(2, '0')}-10';
     expect(dataModel.getValue<String>(DataPath('/testDate')), formatted);
 
-    final month = DateFormat.MMM().format(expectedDate);
+    final String month = DateFormat.MMM().format(expectedDate);
     expect(
       find.text('Test Date: $month 10, ${expectedDate.year}'),
       findsOneWidget,

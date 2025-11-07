@@ -89,7 +89,7 @@ enum AvailableIcons {
       values.map<String>((icon) => icon.name).toList();
 
   static AvailableIcons? fromName(String name) {
-    for (final iconName in AvailableIcons.values) {
+    for (final AvailableIcons iconName in AvailableIcons.values) {
       if (iconName.name == name) {
         return iconName;
       }
@@ -108,11 +108,11 @@ final icon = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final iconData = _IconData.fromMap(itemContext.data as JsonMap);
-    final literalName = iconData.literalName;
-    final namePath = iconData.namePath;
+    final String? literalName = iconData.literalName;
+    final String? namePath = iconData.namePath;
 
     if (literalName != null) {
-      final icon =
+      final IconData icon =
           AvailableIcons.fromName(literalName)?.iconData ?? Icons.broken_image;
       return Icon(icon);
     }
@@ -121,15 +121,14 @@ final icon = CatalogItem(
       return const Icon(Icons.broken_image);
     }
 
-    final notifier = itemContext.dataContext.subscribe<String>(
-      DataPath(namePath),
-    );
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribe<String>(DataPath(namePath));
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
-        final iconName = currentValue ?? '';
-        final icon =
+        final String iconName = currentValue ?? '';
+        final IconData icon =
             AvailableIcons.fromName(iconName)?.iconData ?? Icons.broken_image;
         return Icon(icon);
       },

@@ -91,7 +91,7 @@ class GenUiConversation {
         onSurfaceAdded?.call(update);
       case SurfaceUpdated():
         final newConversation = List<ChatMessage>.from(_conversation.value);
-        final index = newConversation.lastIndexWhere(
+        final int index = newConversation.lastIndexWhere(
           (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
         );
         final newMessage = AiUiMessage(
@@ -145,7 +145,7 @@ class GenUiConversation {
 
   /// Sends a user message to the AI to generate a UI response.
   Future<void> sendRequest(ChatMessage message) async {
-    final history = _conversation.value;
+    final List<ChatMessage> history = _conversation.value;
     if (message is! UserUiInteractionMessage) {
       _conversation.value = [...history, message];
     }

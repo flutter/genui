@@ -42,12 +42,10 @@ final checkBox = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final checkBoxData = _CheckBoxData.fromMap(itemContext.data as JsonMap);
-    final labelNotifier = itemContext.dataContext.subscribeToString(
-      checkBoxData.label,
-    );
-    final valueNotifier = itemContext.dataContext.subscribeToBool(
-      checkBoxData.value,
-    );
+    final ValueNotifier<String?> labelNotifier = itemContext.dataContext
+        .subscribeToString(checkBoxData.label);
+    final ValueNotifier<bool?> valueNotifier = itemContext.dataContext
+        .subscribeToBool(checkBoxData.value);
     return ValueListenableBuilder<String?>(
       valueListenable: labelNotifier,
       builder: (context, label, child) {

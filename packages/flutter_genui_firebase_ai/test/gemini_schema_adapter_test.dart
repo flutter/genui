@@ -26,7 +26,7 @@ void main() {
           description: 'A person object.',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -60,7 +60,7 @@ void main() {
           additionalProperties: dsb.Schema.boolean(),
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -89,7 +89,7 @@ void main() {
           description: 'A list of items.',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -103,7 +103,7 @@ void main() {
 
       test('should log an error if items is missing', () {
         final dsbSchema = dsb.Schema.fromMap({'type': 'array'});
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isNotEmpty);
         expect(
           result.errors.first.message,
@@ -118,7 +118,7 @@ void main() {
           uniqueItems: true,
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(1));
         expect(
@@ -138,7 +138,7 @@ void main() {
           description: 'A choice of fruit.',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -158,7 +158,7 @@ void main() {
           pattern: r'^[a-zA-Z]+$',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -182,7 +182,7 @@ void main() {
       test('should adapt a simple number schema', () {
         final dsbSchema = dsb.Schema.number(minimum: 0.0, maximum: 100.0);
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -198,7 +198,7 @@ void main() {
           multipleOf: 5.0,
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -222,7 +222,7 @@ void main() {
       test('should adapt a simple integer schema', () {
         final dsbSchema = dsb.Schema.integer(minimum: 0, maximum: 100);
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -238,7 +238,7 @@ void main() {
           multipleOf: 5,
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -261,7 +261,7 @@ void main() {
     group('adaptBoolean', () {
       test('should adapt a boolean schema', () {
         final dsbSchema = dsb.Schema.boolean();
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.boolean);
@@ -271,7 +271,7 @@ void main() {
     group('adaptNull', () {
       test('should adapt a null schema to a nullable object', () {
         final dsbSchema = dsb.Schema.nil();
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.object);
         expect(result.schema!.nullable, isTrue);
@@ -281,7 +281,7 @@ void main() {
     group('General Error Handling', () {
       test('should log an error for an unknown type', () {
         final dsbSchema = dsb.Schema.fromMap({'type': 'unknown'});
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isNotEmpty);
         expect(
           result.errors.first.message,
@@ -292,7 +292,7 @@ void main() {
 
       test('should log an error for a schema with no type', () {
         final dsbSchema = dsb.Schema.fromMap({});
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isNotEmpty);
         expect(
           result.errors.first.message,
@@ -306,7 +306,7 @@ void main() {
         final dsbSchema = dsb.Schema.fromMap({
           'type': ['string', 'integer'],
         });
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, hasLength(1));
         expect(
           result.errors.first.message,
@@ -319,7 +319,7 @@ void main() {
 
       test('should handle an empty type array', () {
         final dsbSchema = dsb.Schema.fromMap({'type': []});
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, hasLength(1));
         expect(
           result.errors.first.message,
@@ -346,7 +346,7 @@ void main() {
           ],
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
@@ -354,14 +354,14 @@ void main() {
         expect(result.schema!.properties, isNull);
         expect(result.schema!.anyOf, isNotNull);
         expect(result.schema!.anyOf, hasLength(2));
-        final firstAnyOf = result.schema!.anyOf![0];
+        final firebase_ai.Schema firstAnyOf = result.schema!.anyOf![0];
         expect(firstAnyOf.type, firebase_ai.SchemaType.object);
         expect(firstAnyOf.properties, hasLength(1));
         expect(
           firstAnyOf.properties!['bar']!.type,
           firebase_ai.SchemaType.number,
         );
-        final secondAnyOf = result.schema!.anyOf![1];
+        final firebase_ai.Schema secondAnyOf = result.schema!.anyOf![1];
         expect(secondAnyOf.type, firebase_ai.SchemaType.object);
         expect(secondAnyOf.properties, hasLength(1));
         expect(
@@ -373,7 +373,7 @@ void main() {
       test('should report an error for an empty anyOf list', () {
         final dsbSchema = dsb.Schema.fromMap({'type': 'object', 'anyOf': []});
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(1));
         expect(
@@ -388,7 +388,7 @@ void main() {
           'anyOf': 'not-a-list',
         });
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(1));
         expect(
@@ -403,7 +403,7 @@ void main() {
           'anyOf': ['not-a-schema'],
         });
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(1));
         expect(
@@ -427,15 +427,16 @@ void main() {
           },
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final userSchema = result.schema!.properties!['user']!;
+        final firebase_ai.Schema userSchema =
+            result.schema!.properties!['user']!;
         expect(userSchema.type, firebase_ai.SchemaType.object);
         expect(userSchema.properties, hasLength(2));
         expect(userSchema.optionalProperties, equals(['roles']));
-        final rolesSchema = userSchema.properties!['roles']!;
+        final firebase_ai.Schema rolesSchema = userSchema.properties!['roles']!;
         expect(rolesSchema.type, firebase_ai.SchemaType.array);
         expect(rolesSchema.items!.type, firebase_ai.SchemaType.string);
       });
@@ -446,7 +447,7 @@ void main() {
             'name': {'type': 'string'},
           },
         });
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.object);
@@ -456,7 +457,7 @@ void main() {
         final dsbSchema = dsb.Schema.fromMap({
           'items': {'type': 'string'},
         });
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.array);
@@ -464,7 +465,7 @@ void main() {
 
       test('should handle an empty object schema', () {
         final dsbSchema = dsb.Schema.object(properties: {});
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.object);
@@ -480,7 +481,7 @@ void main() {
           },
           required: ['name', 'age'],
         );
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.optionalProperties, isEmpty);
@@ -493,7 +494,7 @@ void main() {
             'age': dsb.Schema.integer(),
           },
         );
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(
@@ -512,11 +513,11 @@ void main() {
             required: ['name'],
           ),
         );
-        final result = adapter.adapt(dsbSchema);
+        final GeminiSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.type, firebase_ai.SchemaType.array);
-        final itemsSchema = result.schema!.items!;
+        final firebase_ai.Schema itemsSchema = result.schema!.items!;
         expect(itemsSchema.type, firebase_ai.SchemaType.object);
         expect(itemsSchema.properties, hasLength(2));
         expect(itemsSchema.optionalProperties, equals(['value']));

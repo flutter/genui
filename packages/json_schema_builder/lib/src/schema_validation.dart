@@ -134,11 +134,11 @@ extension SchemaValidation on Schema {
     SchemaRegistry? schemaRegistry,
     LoggingContext? loggingContext,
   }) async {
-    final registry =
+    final SchemaRegistry registry =
         schemaRegistry ?? SchemaRegistry(loggingContext: loggingContext);
     ValidationResult? result;
     try {
-      final baseUri = sourceUri ?? Uri.parse('local://schema');
+      final Uri baseUri = sourceUri ?? Uri.parse('local://schema');
       registry.addSchema(baseUri, this);
       final context = ValidationContext(
         this,
@@ -173,7 +173,7 @@ extension SchemaValidation on Schema {
       // already been applied to the base URI.
       if (!($id!.endsWith('/') &&
           context.sourceUri!.path.endsWith('/${$id}'))) {
-        final newUri = context.sourceUri!.resolve($id!);
+        final Uri newUri = context.sourceUri!.resolve($id!);
         currentContext = context.withSourceUri(newUri);
       }
     }
@@ -184,16 +184,16 @@ extension SchemaValidation on Schema {
     );
     final newDynamicScope = [...dynamicScope, this];
     final errors = <ValidationError>[];
-    var allAnnotations = initialAnnotations ?? AnnotationSet.empty();
+    AnnotationSet allAnnotations = initialAnnotations ?? AnnotationSet.empty();
 
     if ($schema != null) {
       try {
-        final metaSchemaUri = Uri.parse($schema!);
-        final metaSchema = await currentContext.schemaRegistry.resolve(
+        final Uri metaSchemaUri = Uri.parse($schema!);
+        final Schema? metaSchema = await currentContext.schemaRegistry.resolve(
           metaSchemaUri,
         );
         if (metaSchema != null) {
-          final vocabulary = metaSchema.value['\$vocabulary'];
+          final Object? vocabulary = metaSchema.value['\$vocabulary'];
           if (vocabulary is Map) {
             currentContext = currentContext.withVocabularies(
               vocabulary.cast<String, bool>(),
@@ -224,33 +224,32 @@ extension SchemaValidation on Schema {
     }
 
     if ($dynamicRef case final ref?) {
-      final resolution = await resolveDynamicRef(
+      final (Schema, Uri)? resolution = await resolveDynamicRef(
         ref,
         newDynamicScope,
         currentContext,
       );
       if (resolution case (final referencedSchema, final referencedUri)?) {
-        final newContext = currentContext.withSourceUri(referencedUri);
-        final refResult = await referencedSchema.validateSchema(
-          data,
-          currentPath,
-          newContext,
-          newDynamicScope,
+        final ValidationContext newContext = currentContext.withSourceUri(
+          referencedUri,
         );
+        final ValidationResult refResult = await referencedSchema
+            .validateSchema(data, currentPath, newContext, newDynamicScope);
         errors.addAll(refResult.errors);
         allAnnotations = allAnnotations.merge(refResult.annotations);
 
-        final siblingSchemaMap = {...value};
+        final Map<String, Object?> siblingSchemaMap = {...value};
         siblingSchemaMap.remove(kDynamicRef);
         if (siblingSchemaMap.isNotEmpty) {
           final siblingSchema = Schema.fromMap(siblingSchemaMap);
-          final siblingResult = await siblingSchema.validateSchema(
-            data,
-            currentPath,
-            currentContext,
-            newDynamicScope,
-            initialAnnotations: allAnnotations,
-          );
+          final ValidationResult siblingResult = await siblingSchema
+              .validateSchema(
+                data,
+                currentPath,
+                currentContext,
+                newDynamicScope,
+                initialAnnotations: allAnnotations,
+              );
           errors.addAll(siblingResult.errors);
           allAnnotations = allAnnotations.merge(siblingResult.annotations);
         }
@@ -267,36 +266,35 @@ extension SchemaValidation on Schema {
     }
 
     if ($ref case final ref?) {
-      final resolution = await resolveRef(
+      final (Schema, Uri)? resolution = await resolveRef(
         ref,
         currentContext.rootSchema,
         currentContext,
       );
       if (resolution case (final referencedSchema, final referencedUri)?) {
-        final newContext = currentContext.withSourceUri(referencedUri);
-        final refResult = await referencedSchema.validateSchema(
-          data,
-          currentPath,
-          newContext,
-          newDynamicScope,
+        final ValidationContext newContext = currentContext.withSourceUri(
+          referencedUri,
         );
+        final ValidationResult refResult = await referencedSchema
+            .validateSchema(data, currentPath, newContext, newDynamicScope);
         context.loggingContext?.log(
           'Annotations from $ref: ${refResult.annotations.evaluatedKeys}',
         );
         errors.addAll(refResult.errors);
         allAnnotations = allAnnotations.merge(refResult.annotations);
 
-        final siblingSchemaMap = {...value};
+        final Map<String, Object?> siblingSchemaMap = {...value};
         siblingSchemaMap.remove(kRef);
         if (siblingSchemaMap.isNotEmpty) {
           final siblingSchema = Schema.fromMap(siblingSchemaMap);
-          final siblingResult = await siblingSchema.validateSchema(
-            data,
-            currentPath,
-            currentContext,
-            newDynamicScope,
-            initialAnnotations: allAnnotations,
-          );
+          final ValidationResult siblingResult = await siblingSchema
+              .validateSchema(
+                data,
+                currentPath,
+                currentContext,
+                newDynamicScope,
+                initialAnnotations: allAnnotations,
+              );
           errors.addAll(siblingResult.errors);
           allAnnotations = allAnnotations.merge(siblingResult.annotations);
         }
@@ -314,7 +312,7 @@ extension SchemaValidation on Schema {
 
     // 1. Conditional Applicators: if/then/else
     if (ifSchema case final ifS?) {
-      final ifResult = await validateSubSchema(
+      final ValidationResult ifResult = await validateSubSchema(
         ifS,
         data,
         currentPath,
@@ -324,7 +322,7 @@ extension SchemaValidation on Schema {
       if (ifResult.isValid) {
         allAnnotations = allAnnotations.merge(ifResult.annotations);
         if (thenSchema case final thenS?) {
-          final thenResult = await validateSubSchema(
+          final ValidationResult thenResult = await validateSubSchema(
             thenS,
             data,
             currentPath,
@@ -338,7 +336,7 @@ extension SchemaValidation on Schema {
         }
       } else {
         if (elseSchema case final elseS?) {
-          final elseResult = await validateSubSchema(
+          final ValidationResult elseResult = await validateSubSchema(
             elseS,
             data,
             currentPath,
@@ -357,7 +355,7 @@ extension SchemaValidation on Schema {
     if (allOf case final List allOfList?) {
       final allOfAnnotations = <AnnotationSet>[];
       for (final subSchema in allOfList) {
-        final result = await validateSubSchema(
+        final ValidationResult result = await validateSubSchema(
           subSchema,
           data,
           currentPath,
@@ -377,7 +375,7 @@ extension SchemaValidation on Schema {
       final anyOfAnnotations = <AnnotationSet>[];
       final allAnyOfErrors = <ValidationError>[];
       for (final subSchema in anyOfList) {
-        final result = await validateSubSchema(
+        final ValidationResult result = await validateSubSchema(
           subSchema,
           data,
           currentPath,
@@ -403,7 +401,7 @@ extension SchemaValidation on Schema {
       var passedCount = 0;
       AnnotationSet? oneOfAnnotations;
       for (final subSchema in oneOfList) {
-        final result = await validateSubSchema(
+        final ValidationResult result = await validateSubSchema(
           subSchema,
           data,
           currentPath,
@@ -431,7 +429,7 @@ extension SchemaValidation on Schema {
     }
 
     if (not case final notSchema?) {
-      final result = await validateSubSchema(
+      final ValidationResult result = await validateSubSchema(
         notSchema,
         data,
         currentPath,
@@ -450,7 +448,7 @@ extension SchemaValidation on Schema {
 
     // 3. Generic Validation Keywords
     if (value.containsKey(kConst)) {
-      final constV = value[kConst];
+      final Object? constV = value[kConst];
       if (!deepEquals(data, constV)) {
         errors.add(
           ValidationError(
@@ -475,7 +473,7 @@ extension SchemaValidation on Schema {
     }
 
     // 4. Type-Specific Validation
-    final typeResult = await validateTypeSpecificKeywords(
+    final ValidationResult typeResult = await validateTypeSpecificKeywords(
       data,
       currentPath,
       currentContext,
@@ -492,10 +490,10 @@ extension SchemaValidation on Schema {
           'Annotations: ${allAnnotations.evaluatedKeys}',
         );
         final newlyEvaluatedKeys = <String>{};
-        for (final dataKey in data.keys) {
+        for (final String dataKey in data.keys) {
           if (!allAnnotations.evaluatedKeys.contains(dataKey)) {
             final newPath = [...currentPath, dataKey];
-            final result = await validateSubSchema(
+            final ValidationResult result = await validateSubSchema(
               up,
               data[dataKey],
               newPath,
@@ -517,7 +515,7 @@ extension SchemaValidation on Schema {
         for (var i = 0; i < data.length; i++) {
           if (!allAnnotations.evaluatedItems.contains(i)) {
             final newPath = [...currentPath, i.toString()];
-            final result = await validateSubSchema(
+            final ValidationResult result = await validateSubSchema(
               ui,
               data[i],
               newPath,
@@ -546,13 +544,13 @@ extension SchemaValidation on Schema {
     ValidationContext context,
     List<Schema> dynamicScope,
   ) async {
-    final actualType = getJsonType(data);
+    final JsonType actualType = getJsonType(data);
     final errors = <ValidationError>[];
 
     // First, validate against the `type` keyword if it exists.
-    final typeValue = type;
+    final Object? typeValue = type;
     if (typeValue != null) {
-      final types = switch (typeValue) {
+      final List<JsonType> types = switch (typeValue) {
         String() => [
           JsonType.values.firstWhere((t) => t.typeName == typeValue),
         ],
@@ -641,7 +639,7 @@ extension SchemaValidation on Schema {
           }
           if ((this as StringSchema).format case final format?
               when context.strictFormat) {
-            final validator = formatValidators[format];
+            final FormatValidator? validator = formatValidators[format];
             if (validator != null && !validator(data as String)) {
               errors.add(
                 ValidationError(
@@ -766,7 +764,7 @@ extension SchemaValidation on Schema {
         );
       }
 
-      for (final reqProp in objectSchema.required ?? const []) {
+      for (final String reqProp in objectSchema.required ?? const []) {
         if (!data.containsKey(reqProp)) {
           errors.add(
             ValidationError(
@@ -779,9 +777,9 @@ extension SchemaValidation on Schema {
       }
 
       if (objectSchema.dependentRequired case final dr?) {
-        for (final entry in dr.entries) {
+        for (final MapEntry<String, List<String>> entry in dr.entries) {
           if (data.containsKey(entry.key)) {
-            for (final requiredProp in entry.value) {
+            for (final String requiredProp in entry.value) {
               if (!data.containsKey(requiredProp)) {
                 errors.add(
                   ValidationError(
@@ -800,9 +798,9 @@ extension SchemaValidation on Schema {
     }
 
     if (objectSchema.dependentSchemas case final ds?) {
-      for (final entry in ds.entries) {
+      for (final MapEntry<String, Schema> entry in ds.entries) {
         if (data.containsKey(entry.key)) {
-          final result = await validateSubSchema(
+          final ValidationResult result = await validateSubSchema(
             entry.value,
             data,
             currentPath,
@@ -817,11 +815,11 @@ extension SchemaValidation on Schema {
 
     final evaluatedKeys = <String>{};
     if (objectSchema.properties case final props?) {
-      for (final entry in props.entries) {
+      for (final MapEntry<String, Schema> entry in props.entries) {
         if (data.containsKey(entry.key)) {
-          final newPath = [...currentPath, entry.key];
+          final List<String> newPath = [...currentPath, entry.key];
           evaluatedKeys.add(entry.key);
-          final result = await entry.value.validateSchema(
+          final ValidationResult result = await entry.value.validateSchema(
             data[entry.key],
             newPath,
             context,
@@ -834,13 +832,13 @@ extension SchemaValidation on Schema {
     }
 
     if (objectSchema.patternProperties case final patternProps?) {
-      for (final entry in patternProps.entries) {
+      for (final MapEntry<String, Schema> entry in patternProps.entries) {
         final pattern = RegExp(entry.key);
-        for (final dataKey in data.keys) {
+        for (final String dataKey in data.keys) {
           if (pattern.hasMatch(dataKey)) {
             final newPath = [...currentPath, dataKey];
             evaluatedKeys.add(dataKey);
-            final result = await entry.value.validateSchema(
+            final ValidationResult result = await entry.value.validateSchema(
               data[dataKey],
               newPath,
               context,
@@ -854,8 +852,8 @@ extension SchemaValidation on Schema {
     }
 
     if (objectSchema.propertyNames case final propNamesSchema?) {
-      for (final key in data.keys) {
-        final result = await propNamesSchema.validateSchema(
+      for (final String key in data.keys) {
+        final ValidationResult result = await propNamesSchema.validateSchema(
           key,
           currentPath,
           context,
@@ -866,12 +864,12 @@ extension SchemaValidation on Schema {
       }
     }
 
-    for (final dataKey in data.keys) {
+    for (final String dataKey in data.keys) {
       if (evaluatedKeys.contains(dataKey)) continue;
 
       if (objectSchema.additionalProperties case final ap?) {
         final newPath = [...currentPath, dataKey];
-        final result = await ap.validateSchema(
+        final ValidationResult result = await ap.validateSchema(
           data[dataKey],
           newPath,
           context,
@@ -958,7 +956,7 @@ extension SchemaValidation on Schema {
     if (listSchema.contains case final containsSchema?) {
       final matches = <int>[];
       for (var i = 0; i < data.length; i++) {
-        final result = await validateSubSchema(
+        final ValidationResult result = await validateSubSchema(
           containsSchema,
           data[i],
           currentPath,
@@ -977,7 +975,7 @@ extension SchemaValidation on Schema {
       if (context
               .vocabularies['https://json-schema.org/draft/2020-12/vocab/validation'] ==
           true) {
-        final matchCount = matches.length;
+        final int matchCount = matches.length;
         if (listSchema.minContains == 0 && data.isEmpty) {
           // This is a valid case.
         } else if (matchCount == 0 &&
@@ -1019,7 +1017,7 @@ extension SchemaValidation on Schema {
       for (var i = 0; i < pItems.length && i < data.length; i++) {
         evaluatedItems.add(i);
         final newPath = [...currentPath, i.toString()];
-        final result = await validateSubSchema(
+        final ValidationResult result = await validateSubSchema(
           pItems[i],
           data[i],
           newPath,
@@ -1030,11 +1028,11 @@ extension SchemaValidation on Schema {
       }
     }
     if (listSchema.items case final itemSchema?) {
-      final startIndex = listSchema.prefixItems?.length ?? 0;
+      final int startIndex = listSchema.prefixItems?.length ?? 0;
       for (var i = startIndex; i < data.length; i++) {
         evaluatedItems.add(i);
         final newPath = [...currentPath, i.toString()];
-        final result = await validateSubSchema(
+        final ValidationResult result = await validateSubSchema(
           itemSchema,
           data[i],
           newPath,
@@ -1074,10 +1072,10 @@ extension SchemaValidation on Schema {
     Schema rootSchema,
     ValidationContext context,
   ) async {
-    final baseUri = context.sourceUri!;
-    final refUri = baseUri.resolve(ref);
+    final Uri baseUri = context.sourceUri!;
+    final Uri refUri = baseUri.resolve(ref);
     try {
-      final schema = await context.schemaRegistry.resolve(refUri);
+      final Schema? schema = await context.schemaRegistry.resolve(refUri);
       if (schema == null) return null;
       return (schema, refUri);
     } on SchemaFetchException {
@@ -1092,14 +1090,18 @@ extension SchemaValidation on Schema {
     ValidationContext context,
   ) async {
     // 1. Initial resolution, just like $ref
-    final initialResolution = await resolveRef(ref, dynamicScope.last, context);
+    final (Schema, Uri)? initialResolution = await resolveRef(
+      ref,
+      dynamicScope.last,
+      context,
+    );
     if (initialResolution == null) {
       // Can't resolve initially, so it's an error.
       return null;
     }
 
-    final (initialSchema, initialUri) = initialResolution;
-    final fragment = initialUri.fragment;
+    final (Schema initialSchema, Uri initialUri) = initialResolution;
+    final String fragment = initialUri.fragment;
 
     if (fragment.isEmpty || fragment.startsWith('/')) {
       // Not a plain name fragment, so not a dynamic anchor.
@@ -1118,13 +1120,13 @@ extension SchemaValidation on Schema {
     for (final scopeSchema in dynamicScope) {
       if (scopeSchema.$id != null) {
         // This is a schema resource
-        final found = _findDynamicAnchorInSchema(fragment, scopeSchema);
+        final Schema? found = _findDynamicAnchorInSchema(fragment, scopeSchema);
         if (found != null) {
-          final resourceUri = context.schemaRegistry.getUriForSchema(
+          final Uri? resourceUri = context.schemaRegistry.getUriForSchema(
             scopeSchema,
           );
           if (resourceUri != null) {
-            final newUri = resourceUri.replace(fragment: fragment);
+            final Uri newUri = resourceUri.replace(fragment: fragment);
             // Found the outermost, so we can use it.
             return (found, newUri);
           }
@@ -1157,11 +1159,11 @@ extension SchemaValidation on Schema {
           return;
         }
 
-        for (final value in current.values) {
+        for (final Object? value in current.values) {
           visit(value, isRootOfResource: false);
         }
       } else if (current is List) {
-        for (final item in current) {
+        for (final Object? item in current) {
           visit(item, isRootOfResource: false);
         }
       }

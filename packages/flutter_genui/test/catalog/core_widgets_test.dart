@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Core Widgets', () {
-    final testCatalog = CoreCatalogItems.asCatalog();
+    final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
     GenUiManager? manager;
@@ -150,9 +150,9 @@ void main() {
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
-      final textFieldFinder = find.byType(TextField);
+      final Finder textFieldFinder = find.byType(TextField);
       expect(find.widgetWithText(TextField, 'initial'), findsOneWidget);
-      final textField = tester.widget<TextField>(textFieldFinder);
+      final TextField textField = tester.widget<TextField>(textFieldFinder);
       expect(textField.decoration?.labelText, 'My Label');
 
       // Test onChanged

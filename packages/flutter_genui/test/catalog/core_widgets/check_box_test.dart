@@ -43,7 +43,7 @@ void main() {
     );
 
     expect(find.text('Check me'), findsOneWidget);
-    final checkbox = tester.widget<CheckboxListTile>(
+    final CheckboxListTile checkbox = tester.widget<CheckboxListTile>(
       find.byType(CheckboxListTile),
     );
     expect(checkbox.value, isTrue);

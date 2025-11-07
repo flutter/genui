@@ -4,13 +4,14 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
-import 'package:simple_chat/message.dart';
-import 'firebase_options.dart';
 import 'package:logging/logging.dart';
+
+import 'firebase_options.dart';
+import 'message.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    final catalog = CoreCatalogItems.asCatalog();
+    final Catalog catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
     final contentGenerator = FirebaseAiContentGenerator(
       catalog: catalog,
@@ -105,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 controller: _scrollController,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
-                  final message = _messages[index];
+                  final MessageController message = _messages[index];
                   return ListTile(
                     title: MessageView(message, _genUiConversation.host),
                   );
@@ -151,7 +152,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    final text = _textController.text;
+    final String text = _textController.text;
     if (text.isEmpty) {
       return;
     }

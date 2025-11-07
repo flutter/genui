@@ -106,10 +106,11 @@ final tabbedSections = CatalogItem(
     final tabbedSectionsData = _TabbedSectionsData.fromMap(
       context.data as Map<String, Object?>,
     );
-    final sections = tabbedSectionsData.sections.map((section) {
-      final titleNotifier = context.dataContext.subscribeToString(
-        section.title,
-      );
+    final List<_TabSectionData> sections = tabbedSectionsData.sections.map((
+      section,
+    ) {
+      final ValueNotifier<String?> titleNotifier = context.dataContext
+          .subscribeToString(section.title);
       return _TabSectionData(
         titleNotifier: titleNotifier,
         childId: section.childId,

@@ -84,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
         genUiLogger.info('Surface removed: ${update.surfaceId}');
         if (_surfaceIds.contains(update.surfaceId)) {
           setState(() {
-            final removeIndex = _surfaceIds.indexOf(update.surfaceId);
+            final int removeIndex = _surfaceIds.indexOf(update.surfaceId);
             _surfaceIds.removeAt(removeIndex);
             if (_surfaceIds.isEmpty) {
               _currentSurfaceIndex = 0;
@@ -142,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
         body: const Center(child: Text('No surfaces available.')),
       );
     }
-    final currentSurfaceId = _surfaceIds[_currentSurfaceIndex];
+    final String currentSurfaceId = _surfaceIds[_currentSurfaceIndex];
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

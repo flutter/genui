@@ -123,14 +123,13 @@ final inputGroup = CatalogItem(
       itemContext.data as Map<String, Object?>,
     );
 
-    final notifier = itemContext.dataContext.subscribeToString(
-      inputGroupData.submitLabel,
-    );
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(inputGroupData.submitLabel);
 
-    final children = inputGroupData.children;
-    final actionData = inputGroupData.action;
+    final List<String> children = inputGroupData.children;
+    final JsonMap actionData = inputGroupData.action;
     final name = actionData['name'] as String;
-    final contextDefinition =
+    final List<Object?> contextDefinition =
         (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
     return Card(
@@ -151,7 +150,7 @@ final inputGroup = CatalogItem(
               builder: (builderContext, submitLabel, child) {
                 return ElevatedButton(
                   onPressed: () {
-                    final resolvedContext = resolveContext(
+                    final JsonMap resolvedContext = resolveContext(
                       itemContext.dataContext,
                       contextDefinition,
                     );

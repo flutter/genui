@@ -34,7 +34,9 @@ class Catalog {
   /// If an item with the same name already exists in the catalog, it will be
   /// replaced with the new item.
   Catalog copyWith(List<CatalogItem> newItems) {
-    final itemsByName = {for (final item in items) item.name: item};
+    final Map<String, CatalogItem> itemsByName = {
+      for (final item in items) item.name: item,
+    };
     itemsByName.addAll({for (final item in newItems) item.name: item});
     return Catalog(itemsByName.values);
   }
@@ -42,8 +44,10 @@ class Catalog {
   /// Returns a new [Catalog] instance containing the items from this catalog
   /// with the specified items removed.
   Catalog copyWithout(Iterable<CatalogItem> itemNames) {
-    final namesToRemove = itemNames.map<String>((item) => item.name).toSet();
-    final updatedItems = items
+    final Set<String> namesToRemove = itemNames
+        .map<String>((item) => item.name)
+        .toSet();
+    final List<CatalogItem> updatedItems = items
         .where((item) => !namesToRemove.contains(item.name))
         .toList();
     return Catalog(updatedItems);
@@ -52,8 +56,10 @@ class Catalog {
   /// Builds a Flutter widget from a JSON-like data structure.
   Widget buildWidget(CatalogItemContext itemContext) {
     final widgetData = itemContext.data as JsonMap;
-    final widgetType = widgetData.keys.firstOrNull;
-    final item = items.firstWhereOrNull((item) => item.name == widgetType);
+    final String? widgetType = widgetData.keys.firstOrNull;
+    final CatalogItem? item = items.firstWhereOrNull(
+      (item) => item.name == widgetType,
+    );
     if (item == null) {
       genUiLogger.severe('Item $widgetType was not found in catalog');
       return Container();
@@ -86,7 +92,7 @@ class Catalog {
   /// the generative AI model about the available UI components and their
   /// expected data structures.
   Schema get definition {
-    final componentProperties = {
+    final Map<String, Schema> componentProperties = {
       for (var item in items) item.name: item.dataSchema,
     };
 

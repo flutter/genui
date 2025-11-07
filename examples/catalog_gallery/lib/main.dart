@@ -19,7 +19,7 @@ class CatalogGalleryApp extends StatefulWidget {
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final catalog = CoreCatalogItems.asCatalog().copyWithout([
+  final Catalog catalog = CoreCatalogItems.asCatalog().copyWithout([
     // Excluded, because they are flexible:
     CoreCatalogItems.tabs,
     CoreCatalogItems.list,

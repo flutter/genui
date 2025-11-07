@@ -63,9 +63,8 @@ final dateTimeInput = CatalogItem(
     final dateTimeInputData = _DateTimeInputData.fromMap(
       itemContext.data as JsonMap,
     );
-    final valueNotifier = itemContext.dataContext.subscribeToString(
-      dateTimeInputData.value,
-    );
+    final ValueNotifier<String?> valueNotifier = itemContext.dataContext
+        .subscribeToString(dateTimeInputData.value);
 
     return ValueListenableBuilder<String?>(
       valueListenable: valueNotifier,
@@ -78,7 +77,7 @@ final dateTimeInput = CatalogItem(
               return;
             }
             if (dateTimeInputData.enableDate) {
-              final date = await showDatePicker(
+              final DateTime? date = await showDatePicker(
                 context: itemContext.buildContext,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2000),
@@ -92,7 +91,7 @@ final dateTimeInput = CatalogItem(
               }
             }
             if (dateTimeInputData.enableTime) {
-              final time = await showTimePicker(
+              final TimeOfDay? time = await showTimePicker(
                 context: itemContext.buildContext,
                 initialTime: TimeOfDay.now(),
               );

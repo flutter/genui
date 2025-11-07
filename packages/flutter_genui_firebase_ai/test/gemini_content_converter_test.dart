@@ -20,7 +20,9 @@ void main() {
 
     test('toFirebaseAiContent converts $UserMessage with $TextPart', () {
       final messages = [UserMessage.text('Hello')];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
 
       expect(result, hasLength(1));
       expect(result.first.role, 'user');
@@ -31,7 +33,9 @@ void main() {
 
     test('toFirebaseAiContent converts $AiTextMessage with $TextPart', () {
       final messages = [AiTextMessage.text('Hi there')];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
 
       expect(result, hasLength(1));
       expect(result.first.role, 'model');
@@ -46,7 +50,9 @@ void main() {
     test('toFirebaseAiContent converts $AiUiMessage', () {
       final definition = UiDefinition(surfaceId: 'testSurface');
       final messages = [AiUiMessage(definition: definition)];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       expect(result, hasLength(1));
       expect(result.first.role, 'model');
       expect(result.first.parts, hasLength(1));
@@ -59,7 +65,9 @@ void main() {
 
     test('toFirebaseAiContent ignores $InternalMessage', () {
       final messages = [const InternalMessage('Thinking...')];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       expect(result, isEmpty);
     });
 
@@ -70,7 +78,9 @@ void main() {
           ImagePart.fromBytes(Uint8List(0), mimeType: 'image/png'),
         ]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
 
       expect(result, hasLength(1));
       expect(result.first.role, 'user');
@@ -84,7 +94,9 @@ void main() {
       final messages = [
         UserMessage([DataPart(data)]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       final part = result.first.parts.first as firebase_ai.InlineDataPart;
       expect(part.mimeType, 'application/json');
       expect(utf8.decode(part.bytes), jsonEncode(data));
@@ -95,7 +107,9 @@ void main() {
       final messages = [
         UserMessage([ImagePart.fromBytes(bytes, mimeType: 'image/jpeg')]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       final part = result.first.parts.first as firebase_ai.InlineDataPart;
       expect(part.mimeType, 'image/jpeg');
       expect(part.bytes, bytes);
@@ -108,18 +122,22 @@ void main() {
           const ImagePart.fromBase64(base64String, mimeType: 'image/png'),
         ]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       final part = result.first.parts.first as firebase_ai.InlineDataPart;
       expect(part.mimeType, 'image/png');
       expect(part.bytes, base64.decode(base64String));
     });
 
     test('toFirebaseAiContent converts $ImagePart from URL', () {
-      final url = Uri.parse('http://example.com/image.jpg');
+      final Uri url = Uri.parse('http://example.com/image.jpg');
       final messages = [
         UserMessage([ImagePart.fromUrl(url)]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       final part = result.first.parts.first as firebase_ai.TextPart;
       expect(part.text, 'Image at $url');
     });
@@ -134,7 +152,9 @@ void main() {
           ),
         ]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       final part = result.first.parts.first as firebase_ai.FunctionCall;
       expect(part.name, 'doSomething');
       expect(part.args, {'arg': 'value'});
@@ -146,7 +166,9 @@ void main() {
           ToolResultPart(callId: 'call1', result: jsonEncode({'data': 'ok'})),
         ]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       expect(result.first.role, 'user');
       final part = result.first.parts.first as firebase_ai.FunctionResponse;
       expect(part.name, 'call1');
@@ -157,7 +179,9 @@ void main() {
       final messages = [
         AiTextMessage([const ThinkingPart('working on it')]),
       ];
-      final result = converter.toFirebaseAiContent(messages);
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
       final part = result.first.parts.first as firebase_ai.TextPart;
       expect(part.text, 'Thinking: working on it');
     });
@@ -165,12 +189,14 @@ void main() {
     test(
       'toFirebaseAiContent handles multiple messages of different types',
       () {
-        final messages = [
+        final List<ChatMessage> messages = [
           UserMessage.text('First message'),
           AiTextMessage.text('Second message'),
           UserMessage.text('Third message'),
         ];
-        final result = converter.toFirebaseAiContent(messages);
+        final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+          messages,
+        );
 
         expect(result, hasLength(3));
         expect(result[0].role, 'user');

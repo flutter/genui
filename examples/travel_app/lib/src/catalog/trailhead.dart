@@ -107,7 +107,9 @@ class _Trailhead extends StatelessWidget {
         spacing: 8.0,
         runSpacing: 8.0,
         children: topics.map((topicRef) {
-          final notifier = dataContext.subscribeToString(topicRef);
+          final ValueNotifier<String?> notifier = dataContext.subscribeToString(
+            topicRef,
+          );
 
           return ValueListenableBuilder<String?>(
             valueListenable: notifier,
@@ -119,9 +121,9 @@ class _Trailhead extends StatelessWidget {
                 label: Text(topic),
                 onPressed: () {
                   final name = action['name'] as String;
-                  final contextDefinition =
+                  final List<Object?> contextDefinition =
                       (action['context'] as List<Object?>?) ?? <Object?>[];
-                  final resolvedContext = resolveContext(
+                  final JsonMap resolvedContext = resolveContext(
                     dataContext,
                     contextDefinition,
                   );

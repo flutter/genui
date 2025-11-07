@@ -30,7 +30,7 @@ class SchemaRegistry {
   /// The schema is stored in the registry and can be resolved later using its
   /// URI. This method also registers any `$id`s found within the schema.
   void addSchema(Uri uri, Schema schema) {
-    final uriWithoutFragment = uri.removeFragment();
+    final Uri uriWithoutFragment = uri.removeFragment();
     _schemas[uriWithoutFragment] = schema;
     _registerIds(schema, uriWithoutFragment);
   }
@@ -43,13 +43,13 @@ class SchemaRegistry {
   ///
   /// This method can also resolve fragments and JSON pointers within a schema.
   Future<Schema?> resolve(Uri uri) async {
-    final uriWithoutFragment = uri.removeFragment();
+    final Uri uriWithoutFragment = uri.removeFragment();
     if (_schemas.containsKey(uriWithoutFragment)) {
       return _getSchemaFromFragment(uri, _schemas[uriWithoutFragment]!);
     }
 
     try {
-      final schema = await _schemaCache.get(uriWithoutFragment);
+      final Schema? schema = await _schemaCache.get(uriWithoutFragment);
       if (schema == null) {
         return null;
       }
@@ -67,7 +67,7 @@ class SchemaRegistry {
   /// This method performs a deep comparison to find a matching schema in the
   /// registry.
   Uri? getUriForSchema(Schema schema) {
-    for (final entry in _schemas.entries) {
+    for (final MapEntry<Uri, Schema> entry in _schemas.entries) {
       if (deepEquals(entry.value.value, schema.value)) {
         return entry.key;
       }
@@ -80,14 +80,14 @@ class SchemaRegistry {
   }
 
   void _registerIds(Schema schema, Uri baseUri) {
-    final id = schema.$id;
+    final String? id = schema.$id;
     if (id != null) {
       // This is a heuristic to avoid re-resolving a relative path that has
       // already been applied to the base URI.
       if (id.endsWith('/') && baseUri.path.endsWith('/$id')) {
         _schemas[baseUri.removeFragment()] = schema;
       } else {
-        final newUri = baseUri.resolve(id);
+        final Uri newUri = baseUri.resolve(id);
         _schemas[newUri.removeFragment()] = schema;
         baseUri = newUri;
       }
@@ -106,15 +106,15 @@ class SchemaRegistry {
     }
 
     // Keywords with map-of-schemas values
-    const mapOfSchemasKeywords = [
+    const mapOfSchemasKeywords = <String>[
       'properties',
       'patternProperties',
       'dependentSchemas',
       '\$defs',
     ];
     for (final keyword in mapOfSchemasKeywords) {
-      if (schema.value[keyword] case final Map map?) {
-        for (final value in map.values) {
+      if (schema.value[keyword] case final Map<String, Object?> map?) {
+        for (final Object? value in map.values) {
           if (value is Map<String, Object?>) {
             recurseOnMap(value);
           }
@@ -155,7 +155,7 @@ class SchemaRegistry {
       return schema;
     }
 
-    final fragment = uri.fragment;
+    final String fragment = uri.fragment;
     if (fragment.startsWith('/')) {
       return _resolveJsonPointer(schema, fragment);
     } else {
@@ -164,10 +164,10 @@ class SchemaRegistry {
   }
 
   Schema? _resolveJsonPointer(Schema schema, String pointer) {
-    final parts = pointer.substring(1).split('/');
+    final List<String> parts = pointer.substring(1).split('/');
     Object? current = schema;
     for (final part in parts) {
-      final decodedPart = Uri.decodeComponent(
+      final String decodedPart = Uri.decodeComponent(
         part,
       ).replaceAll('~1', '/').replaceAll('~0', '~');
       if (current is Schema) {
@@ -178,7 +178,7 @@ class SchemaRegistry {
       } else if (current is Map && current.containsKey(decodedPart)) {
         current = current[decodedPart];
       } else if (current is List && int.tryParse(decodedPart) != null) {
-        final index = int.parse(decodedPart);
+        final int index = int.parse(decodedPart);
         if (index < current.length) {
           current = current[index];
         } else {
@@ -222,11 +222,11 @@ class SchemaRegistry {
           return;
         }
 
-        for (final value in current.values) {
+        for (final Object? value in current.values) {
           visit(value, isRootOfResource: false);
         }
       } else if (current is List) {
-        for (final item in current) {
+        for (final Object? item in current) {
           visit(item, isRootOfResource: false);
         }
       }

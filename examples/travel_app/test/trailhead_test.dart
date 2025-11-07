@@ -12,7 +12,7 @@ void main() {
     testWidgets('builds widget correctly and handles tap', (
       WidgetTester tester,
     ) async {
-      final data = {
+      final Map<String, Object> data = {
         'topics': [
           {'literalString': 'Topic A'},
           {'literalString': 'Topic B'},
@@ -62,7 +62,7 @@ void main() {
     testWidgets('builds widget correctly with no topics', (
       WidgetTester tester,
     ) async {
-      final data = {
+      final Map<String, Object> data = {
         'topics': <Map<String, String>>[],
         'action': {'name': 'selectTopic'},
       };

@@ -35,50 +35,50 @@ void main() {
     test('fetches and caches a schema from a file URI', () async {
       final tempFile = File('temp_schema.json')..createSync();
       await tempFile.writeAsString(jsonEncode({'type': 'string'}));
-      final uri = tempFile.absolute.uri;
+      final Uri uri = tempFile.absolute.uri;
 
-      final schema = await schemaCache.get(uri);
+      final Schema? schema = await schemaCache.get(uri);
 
       expect(schema?.value, equals({'type': 'string'}));
 
       // Verify it's cached
-      final cachedSchema = await schemaCache.get(uri);
+      final Schema? cachedSchema = await schemaCache.get(uri);
       expect(cachedSchema, same(schema));
 
       await tempFile.delete();
     });
 
     test('fetches and caches a schema from an HTTP URI', () async {
-      final uri = Uri.parse('http://example.com/schema.json');
+      final Uri uri = Uri.parse('http://example.com/schema.json');
       final schemaJson = {'type': 'number'};
-      final responseBody = jsonEncode(schemaJson);
+      final String responseBody = jsonEncode(schemaJson);
 
       when(
         mockHttpClient.get(uri),
       ).thenAnswer((_) async => http.Response(responseBody, 200));
 
-      final schema = await schemaCache.get(uri);
+      final Schema? schema = await schemaCache.get(uri);
 
       expect(schema, isA<Schema>());
       expect(schema!.type, 'number');
 
       // Verify it's cached
-      final cachedSchema = await schemaCache.get(uri);
+      final Schema? cachedSchema = await schemaCache.get(uri);
       expect(cachedSchema, same(schema));
     });
 
     test('throws for unsupported URI schemes', () async {
-      final uri = Uri.parse('ftp://example.com/schema.json');
+      final Uri uri = Uri.parse('ftp://example.com/schema.json');
       expect(() => schemaCache.get(uri), throwsA(isA<SchemaFetchException>()));
     });
 
     test('throws for non-existent file URI', () async {
-      final uri = Uri.parse('file:///non/existent/file.json');
+      final Uri uri = Uri.parse('file:///non/existent/file.json');
       expect(() => schemaCache.get(uri), throwsA(isA<SchemaFetchException>()));
     });
 
     test('throws for failed HTTP request', () async {
-      final uri = Uri.parse('http://example.com/schema.json');
+      final Uri uri = Uri.parse('http://example.com/schema.json');
       when(
         mockHttpClient.get(uri),
       ).thenAnswer((_) async => http.Response('Not Found', 404));

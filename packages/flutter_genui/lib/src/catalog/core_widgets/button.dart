@@ -62,17 +62,21 @@ final button = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final buttonData = _ButtonData.fromMap(itemContext.data as JsonMap);
-    final child = itemContext.buildChild(buttonData.child);
-    final actionData = buttonData.action;
+    final Widget child = itemContext.buildChild(buttonData.child);
+    final JsonMap actionData = buttonData.action;
     final actionName = actionData['name'] as String;
-    final contextDefinition =
+    final List<Object?> contextDefinition =
         (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
     genUiLogger.info('Building Button with child: ${buttonData.child}');
-    final colorScheme = Theme.of(itemContext.buildContext).colorScheme;
-    final primary = buttonData.primary;
+    final ColorScheme colorScheme = Theme.of(
+      itemContext.buildContext,
+    ).colorScheme;
+    final bool primary = buttonData.primary;
 
-    final textStyle = Theme.of(itemContext.buildContext).textTheme.bodyLarge
+    final TextStyle? textStyle = Theme.of(itemContext.buildContext)
+        .textTheme
+        .bodyLarge
         ?.copyWith(
           color: primary ? colorScheme.onPrimary : colorScheme.onSurface,
         );
@@ -85,7 +89,7 @@ final button = CatalogItem(
             : colorScheme.onSurface,
       ).copyWith(textStyle: WidgetStatePropertyAll(textStyle)),
       onPressed: () {
-        final resolvedContext = resolveContext(
+        final JsonMap resolvedContext = resolveContext(
           itemContext.dataContext,
           contextDefinition,
         );

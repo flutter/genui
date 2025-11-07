@@ -108,9 +108,10 @@ final optionsFilterChipInput = CatalogItem(
       }
     }
 
-    final valueRef = optionsFilterChipData.value;
+    final JsonMap? valueRef = optionsFilterChipData.value;
     final path = valueRef?['path'] as String?;
-    final notifier = context.dataContext.subscribeToString(valueRef);
+    final ValueNotifier<String?> notifier = context.dataContext
+        .subscribeToString(valueRef);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -180,7 +181,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            var tempValue = _value;
+            String? tempValue = _value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(

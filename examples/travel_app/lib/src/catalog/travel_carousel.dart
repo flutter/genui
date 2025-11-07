@@ -70,14 +70,12 @@ final travelCarousel = CatalogItem(
       itemContext.data as Map<String, Object?>,
     );
 
-    final titleNotifier = itemContext.dataContext.subscribeToString(
-      carouselData.title,
-    );
+    final ValueNotifier<String?> titleNotifier = itemContext.dataContext
+        .subscribeToString(carouselData.title);
 
-    final items = carouselData.items.map((item) {
-      final descriptionNotifier = itemContext.dataContext.subscribeToString(
-        item.description,
-      );
+    final List<_TravelCarouselItemData> items = carouselData.items.map((item) {
+      final ValueNotifier<String?> descriptionNotifier = itemContext.dataContext
+          .subscribeToString(item.description);
 
       return _TravelCarouselItemData(
         descriptionNotifier: descriptionNotifier,
@@ -238,9 +236,9 @@ class _TravelCarouselItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           final name = data.action['name'] as String;
-          final contextDefinition =
+          final List<Object?> contextDefinition =
               (data.action['context'] as List<Object?>?) ?? <Object?>[];
-          final resolvedContext = resolveContext(
+          final JsonMap resolvedContext = resolveContext(
             dataContext,
             contextDefinition,
           );
@@ -290,7 +288,7 @@ class _TravelCarouselItem extends StatelessWidget {
 }
 
 String _hotelExample() {
-  final hotels = BookingService.instance.listHotelsSync(
+  final HotelSearchResult hotels = BookingService.instance.listHotelsSync(
     HotelSearch(
       query: '',
       checkIn: DateTime.now(),
@@ -298,8 +296,8 @@ String _hotelExample() {
       guests: 2,
     ),
   );
-  final hotel1 = hotels.listings[0];
-  final hotel2 = hotels.listings[1];
+  final HotelListing hotel1 = hotels.listings[0];
+  final HotelListing hotel2 = hotels.listings[1];
 
   return jsonEncode([
     {

@@ -17,7 +17,7 @@ void main() {
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
       const surfaceId = 's1';
-      final messages = [
+      final List<ChatMessage> messages = [
         UserMessage.text('Hello'),
         AiUiMessage(
           surfaceId: surfaceId,

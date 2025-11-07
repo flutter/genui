@@ -35,10 +35,19 @@ abstract class GeminiClient {
       return null;
     }
 
-    final response = jsonDecode(rawResponse);
+    final response = jsonDecode(rawResponse) as JsonMap;
+
+    Map<String, Object?> extractToolCallPart(JsonMap response) {
+      final candidates = response['candidates'] as List<Object?>;
+      final firstCandidate = candidates.first as Map<String, Object?>;
+      final content = firstCandidate['content'] as Map<String, Object?>;
+      final parts = content['parts'] as List<Object?>;
+      return parts.first as Map<String, Object?>;
+    }
+
     debugSaveToFileObject('full-response', response);
-    final toolCallPart = response['candidates'][0]['content']['parts'][0];
-    final functionCall = toolCallPart['functionCall'];
+    final Map<String, Object?> toolCallPart = extractToolCallPart(response);
+    final Object? functionCall = toolCallPart['functionCall'];
     if (functionCall == null) return null;
     return ToolCall.fromJson(functionCall as JsonMap);
   }
@@ -52,16 +61,16 @@ abstract class GeminiClient {
   ) async {
     debugSaveToFileObject('tools', tools);
 
-    final apiKey = Platform.environment['GEMINI_API_KEY'];
+    final String? apiKey = Platform.environment['GEMINI_API_KEY'];
     if (apiKey == null) {
       throw Exception('GEMINI_API_KEY environment variable not set.');
     }
 
-    final url = Uri.parse(
+    final Uri url = Uri.parse(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=$apiKey',
     );
 
-    final body = jsonEncode({
+    final String body = jsonEncode({
       'contents': [
         {
           'role': 'user',
@@ -81,7 +90,7 @@ abstract class GeminiClient {
       },
     });
 
-    final response = await http.post(
+    final http.Response response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: body,

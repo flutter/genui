@@ -68,7 +68,7 @@ class GeminiSchemaAdapter {
   /// [firebase_ai.Schema] and a list of any errors that occurred.
   GeminiSchemaAdapterResult adapt(dsb.Schema schema) {
     _errors.clear();
-    final firebaseSchema = _adapt(schema, ['#']);
+    final firebase_ai.Schema? firebaseSchema = _adapt(schema, ['#']);
     return GeminiSchemaAdapterResult(
       firebaseSchema,
       List.unmodifiable(_errors),
@@ -83,11 +83,11 @@ class GeminiSchemaAdapter {
     checkUnsupportedGlobalKeywords(schema, path);
 
     if (schema.value.containsKey('anyOf')) {
-      final anyOfList = schema.value['anyOf'];
+      final Object? anyOfList = schema.value['anyOf'];
       if (anyOfList is List && anyOfList.isNotEmpty) {
         final schemas = <firebase_ai.Schema>[];
         for (var i = 0; i < anyOfList.length; i++) {
-          final subSchemaMap = anyOfList[i];
+          final Object? subSchemaMap = anyOfList[i];
           if (subSchemaMap is! Map<String, Object?>) {
             _errors.add(
               GeminiSchemaAdapterError(
@@ -99,7 +99,7 @@ class GeminiSchemaAdapter {
           }
           final subSchema = dsb.Schema.fromMap(subSchemaMap);
           final subPath = [...path, 'anyOf', i.toString()];
-          final adaptedSchema = _adapt(subSchema, subPath);
+          final firebase_ai.Schema? adaptedSchema = _adapt(subSchema, subPath);
           if (adaptedSchema != null) {
             schemas.add(adaptedSchema);
           }
@@ -117,7 +117,7 @@ class GeminiSchemaAdapter {
       }
     }
 
-    final type = schema.type;
+    final Object? type = schema.type;
     String? typeName;
     if (type is String) {
       typeName = type;
@@ -227,9 +227,13 @@ class GeminiSchemaAdapter {
     final objectSchema = dsb.ObjectSchema.fromMap(dsbSchema.value);
     final properties = <String, firebase_ai.Schema>{};
     if (objectSchema.properties != null) {
-      for (final entry in objectSchema.properties!.entries) {
-        final propertyPath = [...path, 'properties', entry.key];
-        final adaptedProperty = _adapt(entry.value, propertyPath);
+      for (final MapEntry<String, dsb.Schema> entry
+          in objectSchema.properties!.entries) {
+        final List<String> propertyPath = [...path, 'properties', entry.key];
+        final firebase_ai.Schema? adaptedProperty = _adapt(
+          entry.value,
+          propertyPath,
+        );
         if (adaptedProperty != null) {
           properties[entry.key] = adaptedProperty;
         }
@@ -293,9 +297,9 @@ class GeminiSchemaAdapter {
       );
     }
 
-    final allProperties = properties.keys.toSet();
-    final requiredProperties = objectSchema.required?.toSet() ?? {};
-    final optionalProperties = allProperties
+    final Set<String> allProperties = properties.keys.toSet();
+    final Set<String> requiredProperties = objectSchema.required?.toSet() ?? {};
+    final List<String> optionalProperties = allProperties
         .difference(requiredProperties)
         .toList();
 
@@ -322,7 +326,10 @@ class GeminiSchemaAdapter {
     }
 
     final itemsPath = [...path, 'items'];
-    final adaptedItems = _adapt(listSchema.items!, itemsPath);
+    final firebase_ai.Schema? adaptedItems = _adapt(
+      listSchema.items!,
+      itemsPath,
+    );
     if (adaptedItems == null) {
       return null;
     }

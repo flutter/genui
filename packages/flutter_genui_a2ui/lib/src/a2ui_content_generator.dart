@@ -62,7 +62,7 @@ class A2uiContentGenerator implements ContentGenerator {
           'A2uiContentGenerator is stateful and ignores history.',
         );
       }
-      final responseText = await connector.connectAndSend(message);
+      final String? responseText = await connector.connectAndSend(message);
       if (responseText != null && responseText.isNotEmpty) {
         _textResponseController.add(responseText);
       }

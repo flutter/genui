@@ -19,7 +19,7 @@ void main() {
       }
     }
 
-    final testData = {
+    final Map<String, Object> testData = {
       'title': {'literalString': 'My Awesome Trip'},
       'subheading': {'literalString': 'A 3-day adventure'},
       'imageChildId': 'image1',
@@ -46,7 +46,7 @@ void main() {
       ],
     };
 
-    final itineraryWidget = itinerary.widgetBuilder(
+    final Widget itineraryWidget = itinerary.widgetBuilder(
       CatalogItemContext(
         data: testData,
         id: 'itinerary1',

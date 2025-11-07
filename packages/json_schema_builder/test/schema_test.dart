@@ -17,11 +17,13 @@ void main() {
     String? reason,
     bool strictFormat = false,
   }) async {
-    final actualErrors = await schema.validate(
+    final List<ValidationError> actualErrors = await schema.validate(
       data,
       strictFormat: strictFormat,
     );
-    final actualErrorTypes = actualErrors.map((e) => e.error).toSet();
+    final Set<ValidationErrorType> actualErrorTypes = actualErrors
+        .map((e) => e.error)
+        .toSet();
     expect(
       actualErrorTypes,
       equals(expectedErrorTypes.toSet()),
@@ -39,14 +41,14 @@ void main() {
     String? reason,
     bool strictFormat = false,
   }) async {
-    final actualErrors = await schema.validate(
+    final List<ValidationError> actualErrors = await schema.validate(
       data,
       strictFormat: strictFormat,
     );
-    final actualErrorStrings = actualErrors
+    final Set<String> actualErrorStrings = actualErrors
         .map((e) => e.toErrorString())
         .toSet();
-    final expectedErrorStrings = expectedErrorsWithPaths
+    final Set<String> expectedErrorStrings = expectedErrorsWithPaths
         .map((e) => e.toErrorString())
         .toSet();
 
