@@ -10,46 +10,46 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'part.freezed.dart';
 part 'part.g.dart';
 
-/// A discriminated union representing a part of a [Message].
+/// A discriminated union representing a distinct piece of content within a
+/// [Message] or `Artifact`.
 ///
-/// A message can be composed of multiple parts, which can be text, a file, or
-/// structured data. The `kind` field is used as a discriminator to determine
-/// the type of the part.
+/// A `Part` can be text, a file, or structured data. The `kind` field is used
+/// as a discriminator to determine the type of the part.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 abstract class Part with _$Part {
-  /// A text part of a message.
+  /// For conveying plain textual content.
   const factory Part.text({
-    /// The type of this part, always 'text'.
+    /// The type of this part.
     @Default('text') String kind,
 
-    /// The text content.
+    /// The string content of the text part.
     required String text,
 
-    /// Optional metadata for the part.
+    /// Optional metadata associated with this part.
     Map<String, Object?>? metadata,
   }) = TextPart;
 
-  /// A file part of a message.
+  /// For conveying file-based content.
   const factory Part.file({
-    /// The type of this part, always 'file'.
+    /// The type of this part.
     @Default('file') String kind,
 
-    /// The file to be included in the message.
+    /// The file content, represented as either a URI or as base64-encoded bytes.
     required FileType file,
 
-    /// Optional metadata for the part.
+    /// Optional metadata associated with this part.
     Map<String, Object?>? metadata,
   }) = FilePart;
 
-  /// A structured data part of a message.
+  /// For conveying structured JSON data.
   const factory Part.data({
-    /// The type of this part, always 'data'.
+    /// The type of this part.
     @Default('data') String kind,
 
-    /// The structured data, represented as a JSON object.
+    /// The structured data content.
     required Map<String, Object?> data,
 
-    /// Optional metadata for the part.
+    /// Optional metadata associated with this part.
     Map<String, Object?>? metadata,
   }) = DataPart;
 
@@ -57,13 +57,12 @@ abstract class Part with _$Part {
   factory Part.fromJson(Map<String, Object?> json) => _$PartFromJson(json);
 }
 
-/// Represents a file with its content located at a specific URI or bytes.
+/// Represents a file, used within a [FilePart].
 ///
-/// This class is used in [FilePart] to specify a file that is part of a
-/// [Message].
+/// The file content can be provided either directly as bytes or as a URI.
 @Freezed(unionKey: 'type')
 abstract class FileType with _$FileType {
-  /// A file represented by a URI.
+  /// Represents a file with its content located at a specific URI.
   const factory FileType.uri({
     /// A URL pointing to the file's content.
     required String uri,
@@ -75,7 +74,8 @@ abstract class FileType with _$FileType {
     String? mimeType,
   }) = FileWithUri;
 
-  /// A file represented by its raw bytes.
+  /// Represents a file with its content provided directly as a base64-encoded
+  /// string.
   const factory FileType.bytes({
     /// The base64-encoded content of the file.
     required String bytes,

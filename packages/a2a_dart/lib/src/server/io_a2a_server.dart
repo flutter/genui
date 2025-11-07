@@ -19,7 +19,11 @@ import 'request_handler.dart';
 /// A server for handling A2A RPC calls.
 ///
 /// This class provides a simple and extensible server for handling A2A RPC
-/// calls. It uses a request handler pipeline to process incoming requests.
+/// calls based on the `shelf` package. It uses a request handler pipeline to
+/// process incoming requests. Each RPC method is implemented as a
+/// [RequestHandler].
+///
+/// The server supports both single-shot and streaming responses.
 class A2AServer {
   final Logger? _log;
   HttpServer? _server;
@@ -29,22 +33,24 @@ class A2AServer {
 
   /// The port the server is listening on.
   ///
-  /// This is only valid after [start] has been called.
+  /// This is only valid after [start] has been called. If the server is not
+  /// running, this will be -1.
   int get port => _server?.port ?? -1;
   final int _requestedPort;
 
   final Map<String, RequestHandler> _handlers = {};
 
-  /// The agent card for this server.
+  /// The public agent card for this server.
   ///
-  /// If this is set, the server will respond to requests for
-  /// `/.well-known/agent-card.json`.
+  /// If this is set, the server will respond to unauthenticated requests to
+  /// `/.well-known/agent-card.json` with this card.
   AgentCard? agentCard;
 
   /// The extended agent card for this server.
   ///
   /// This is returned when a request to `/.well-known/agent-card.json`
-  /// includes an `Authorization` header.
+  /// includes an `Authorization` header. If this is not set, the public
+  /// [agentCard] is returned for all requests.
   AgentCard? extendedAgentCard;
 
   /// Creates an [A2AServer].
@@ -53,8 +59,11 @@ class A2AServer {
   /// process incoming requests. Each handler is responsible for a single RPC
   /// method.
   ///
-  /// To listen to log messages from the server, you can listen to the
-  /// [logger]'s `onRecord` stream:
+  /// The [host] and [port] determine where the server will listen. If [port] is
+  /// 0, a random available port will be chosen.
+  ///
+  /// The [logger] is used for logging messages from the server. To listen to
+  /// log messages, you can subscribe to the [logger]'s `onRecord` stream:
   ///
   /// ```dart
   /// final server = A2AServer([...]);
@@ -77,6 +86,8 @@ class A2AServer {
   }
 
   /// Registers a [RequestHandler] with the server.
+  ///
+  /// This can be used to add handlers after the server has been created.
   void registerHandler(RequestHandler handler) {
     _handlers[handler.method] = handler;
   }
@@ -85,7 +96,7 @@ class A2AServer {
   ///
   /// This can be listened to in order to receive log messages from the server.
   ///
-  /// To listen to log messages from the server, you can listen to the
+  /// To listen to log messages from the server, you can subscribe to the
   /// [logger]'s `onRecord` stream:
   ///
   /// ```dart
@@ -98,7 +109,9 @@ class A2AServer {
 
   /// Starts the server.
   ///
-  /// The server will listen on a random available port.
+  /// The server will listen on the configured [host] and [port]. If the port was
+  /// configured to 0, it will listen on a random available port. The actual
+  /// port can be retrieved from the [port] getter after this method completes.
   Future<void> start() async {
     final router = Router()
       ..post('/rpc', _handleRpcRequest)
@@ -273,7 +286,7 @@ class A2AServer {
     return Response(responseCode, body: body, headers: headers);
   }
 
-  /// Stops the server.
+  /// Stops the server and closes all active connections.
   Future<void> stop() async {
     await _server?.close();
     _log?.info('A2A server stopped');

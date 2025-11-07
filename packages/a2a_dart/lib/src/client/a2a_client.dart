@@ -17,6 +17,10 @@ import 'http_transport.dart';
 import 'transport.dart';
 
 /// A client for interacting with an A2A server.
+///
+/// This class provides methods for all the RPC calls defined in the A2A
+/// specification. It handles the JSON-RPC 2.0 protocol and uses a [Transport]
+/// to communicate with the server.
 class A2AClient {
   /// The URL of the A2A server.
   final String url;
@@ -27,8 +31,10 @@ class A2AClient {
   /// Creates an [A2AClient].
   ///
   /// The [url] is the base URL of the A2A server.
+  ///
   /// The [transport] is the transport to use for communication. If not
   /// provided, an [HttpTransport] will be used.
+  ///
   /// The [log] is the logger to use for logging.
   A2AClient({required this.url, Transport? transport, Logger? log})
     : _transport = transport ?? HttpTransport(url: url, log: log),
@@ -36,7 +42,8 @@ class A2AClient {
 
   /// Fetches the agent card from the server.
   ///
-  /// The agent card contains metadata about the agent.
+  /// The agent card contains metadata about the agent. This is typically
+  /// requested from the `/.well-known/agent-card.json` endpoint.
   Future<AgentCard> getAgentCard() async {
     _log?.info('Fetching agent card...');
     final response = await _transport.get('/.well-known/agent-card.json');
@@ -45,6 +52,10 @@ class A2AClient {
   }
 
   /// Fetches the authenticated extended agent card from the server.
+  ///
+  /// This method is used to get a more detailed agent card that may be
+  /// available to authenticated users. It sends an `Authorization` header
+  /// with the given [token].
   Future<AgentCard> getAuthenticatedExtendedCard(String token) async {
     _log?.info('Fetching authenticated agent card...');
     final response = await _transport.get(
@@ -55,8 +66,13 @@ class A2AClient {
     return AgentCard.fromJson(response);
   }
 
-  /// This method is used for single-shot interactions with the agent. The
-  /// returned [Task] contains the initial state of the task.
+  /// Sends a message to the agent for a single-shot interaction.
+  ///
+  /// This method is used for synchronous request/response interactions. The
+  /// returned [Task] contains the initial state of the task. For long-running
+  /// tasks, the client can poll the task status using [getTask].
+  ///
+  /// Throws an [A2AException] if the server returns an error.
   Future<Task> messageSend(Message message) async {
     _log?.info('Sending message: ${message.messageId}');
     final response = await _transport.send({
@@ -76,10 +92,13 @@ class A2AClient {
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// This method is used for streaming interactions with the agent.
+  /// Sends a message to the agent and subscribes to real-time updates.
   ///
-  /// The returned stream will emit [Event] objects as they are received from
-  /// the server.
+  /// This method is used for streaming interactions with the agent. The returned
+  /// stream will emit [Event] objects as they are received from the server via
+  /// Server-Sent Events (SSE).
+  ///
+  /// Throws an [A2AException] if the server returns an error in the stream.
   Stream<Event> messageStream(Message message) {
     _log?.info('Sending message for stream: ${message.messageId}');
     return _transport
@@ -101,7 +120,10 @@ class A2AClient {
         });
   }
 
-  /// Retrieves a task from the server.
+  /// Retrieves the current state of a task from the server.
+  ///
+  /// This is typically used for polling the status of a task that was initiated
+  /// with [messageSend].
   Future<Task> getTask(String taskId) async {
     _log?.info('Getting task: $taskId');
     final response = await _transport.send({
@@ -114,7 +136,9 @@ class A2AClient {
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Lists tasks on the server.
+  /// Retrieves a list of tasks from the server.
+  ///
+  /// The optional [params] can be used to filter and paginate the results.
   Future<ListTasksResult> listTasks([ListTasksParams? params]) async {
     _log?.info('Listing tasks...');
     final response = await _transport.send({
@@ -127,7 +151,11 @@ class A2AClient {
     return ListTasksResult.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Cancels a task on the server.
+  /// Requests the cancellation of an ongoing task.
+  ///
+  /// The server will attempt to cancel the task, but success is not guaranteed.
+  /// The returned [Task] will contain the state of the task after the
+  /// cancellation request.
   Future<Task> cancelTask(String taskId) async {
     _log?.info('Canceling task: $taskId');
     final response = await _transport.send({
@@ -140,7 +168,10 @@ class A2AClient {
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Resubscribes to a task on the server.
+  /// Resubscribes to an SSE stream for an ongoing task.
+  ///
+  /// This can be used to reconnect to a stream after a disconnection. The
+  /// returned stream will emit subsequent [Event] objects for the task.
   Stream<Event> resubscribeToTask(String taskId) {
     _log?.info('Resubscribing to task: $taskId');
     return _transport

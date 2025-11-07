@@ -9,30 +9,38 @@ import 'task.dart';
 part 'list_tasks_params.freezed.dart';
 part 'list_tasks_params.g.dart';
 
-/// Parameters for listing tasks with optional filtering criteria.
+/// Parameters for the `tasks/list` RPC method.
 @freezed
 abstract class ListTasksParams with _$ListTasksParams {
   /// Creates a [ListTasksParams].
   const factory ListTasksParams({
-    /// Filter tasks by context ID.
+    /// Filter tasks by context ID to get tasks from a specific conversation or
+    /// session.
     String? contextId,
 
-    /// Filter tasks by their current status state.
+    /// Filter tasks by their current status.
     TaskState? status,
 
-    /// Maximum number of tasks to return.
+    /// Maximum number of tasks to return. Must be between 1 and 100.
+    /// Defaults to 50 if not specified.
     @Default(50) int pageSize,
 
-    /// Token for pagination.
+    /// Token for pagination. Use the `nextPageToken` from a previous
+    /// `ListTasksResult` response.
     String? pageToken,
 
-    /// Number of recent messages to include in each task's history.
+    /// Number of recent messages to include in each task's history. Must be
+    /// non-negative. Defaults to 0 if not specified.
     @Default(0) int historyLength,
 
     /// Filter tasks updated after this timestamp (milliseconds since epoch).
+    ///
+    /// Only tasks with a last updated time greater than or equal to this value
+    /// will be returned.
     int? lastUpdatedAfter,
 
-    /// Whether to include artifacts in the returned tasks.
+    /// Whether to include artifacts in the returned tasks. Defaults to false to
+    /// reduce payload size.
     @Default(false) bool includeArtifacts,
 
     /// Request-specific metadata.

@@ -20,7 +20,7 @@ class CreateTaskHandler implements RequestHandler {
 
   /// Creates a [CreateTaskHandler].
   ///
-  /// The handler will use the provided [_taskManager] to create new tasks.
+  /// The handler will use the provided [taskManager] to create new tasks.
   CreateTaskHandler(this._taskManager);
 
   @override

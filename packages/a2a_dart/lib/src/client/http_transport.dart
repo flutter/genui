@@ -10,7 +10,11 @@ import 'package:logging/logging.dart';
 import 'a2a_exception.dart';
 import 'transport.dart';
 
-/// An implementation of the [Transport] interface that uses HTTP.
+/// An implementation of the [Transport] interface that uses HTTP for
+/// communication.
+///
+/// This transport is used for single-shot GET and POST requests. It does not
+/// support streaming.
 class HttpTransport implements Transport {
   /// The URL of the A2A server.
   final String url;
@@ -22,6 +26,11 @@ class HttpTransport implements Transport {
   final Logger? log;
 
   /// Creates an [HttpTransport].
+  ///
+  /// The [url] is the base URL of the A2A server.
+  /// The [client] is an optional HTTP client to use for requests. If not
+  /// provided, a new one will be created.
+  /// The [log] is an optional logger.
   HttpTransport({required this.url, http.Client? client, this.log})
     : client = client ?? http.Client();
 
@@ -67,6 +76,7 @@ class HttpTransport implements Transport {
 
   @override
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
+    // This transport does not support streaming.
     throw UnimplementedError('SSE is not implemented for HttpTransport');
   }
 }

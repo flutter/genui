@@ -25,7 +25,8 @@ class SseTransport extends HttpTransport {
   /// Creates an [SseTransport].
   ///
   /// The [url] is the base URL of the A2A server. An optional [client] can be
-  /// provided for testing or to customize the HTTP client.
+  /// provided for testing or to customize the HTTP client. The [log] is an
+  /// optional logger.
   SseTransport({required super.url, super.client, super.log});
 
   @override

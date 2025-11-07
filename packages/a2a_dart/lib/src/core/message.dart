@@ -9,30 +9,33 @@ import 'part.dart';
 part 'message.freezed.dart';
 part 'message.g.dart';
 
-/// Identifies the sender of a message.
+/// Identifies the sender of a [Message].
 enum Role {
-  /// The message is from the user (i.e., the client).
+  /// The message is from the user (i.e., the A2A client).
   user,
 
-  /// The message is from the agent (i.e., the server).
+  /// The message is from the agent (i.e., the A2A server).
   agent,
 }
 
-/// Represents a single message in the conversation between a user and an agent.
+/// Represents a single communication turn between a client and an agent.
 ///
-/// A message is composed of one or more [Part]s, which can be text, images, or
-/// other types of content.
+/// Messages are used for instructions, prompts, replies, and status updates.
+/// A message is composed of one or more [Part]s.
 @freezed
 abstract class Message with _$Message {
   /// Creates a [Message].
   const factory Message({
-    /// Identifies the sender of the message.
+    /// Identifies the sender of the message. `user` for the client, `agent` for
+    /// the service.
     required Role role,
 
-    /// An array of content parts that form the message body.
+    /// An array of content parts that form the message body. A message can be
+    /// composed of multiple parts of different types (e.g., text and files).
     required List<Part> parts,
 
-    /// Optional metadata for extensions.
+    /// Optional metadata for extensions. The key is an extension-specific
+    /// identifier.
     Map<String, Object?>? metadata,
 
     /// The URIs of extensions that are relevant to this message.
@@ -46,7 +49,8 @@ abstract class Message with _$Message {
     /// sender.
     required String messageId,
 
-    /// The ID of the task this message is part of.
+    /// The ID of the task this message is part of. Can be omitted for the first
+    /// message of a new task.
     String? taskId,
 
     /// The context ID for this message, used to group related interactions.

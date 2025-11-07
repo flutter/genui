@@ -9,8 +9,7 @@ import 'task.dart';
 part 'list_tasks_result.freezed.dart';
 part 'list_tasks_result.g.dart';
 
-/// Result object for tasks/list method containing an array of tasks and
-/// pagination information.
+/// The result of a `tasks/list` RPC call.
 @freezed
 abstract class ListTasksResult with _$ListTasksResult {
   /// Creates a [ListTasksResult].
@@ -24,7 +23,8 @@ abstract class ListTasksResult with _$ListTasksResult {
     /// Maximum number of tasks returned in this response.
     required int pageSize,
 
-    /// Token for retrieving the next page.
+    /// Token for retrieving the next page. An empty string if no more results
+    /// are available.
     required String nextPageToken,
   }) = _ListTasksResult;
 

@@ -12,19 +12,16 @@ import 'agent_extension.dart';
 part 'agent_capabilities.freezed.dart';
 part 'agent_capabilities.g.dart';
 
-/// Defines the optional capabilities that an agent supports.
+/// Defines optional capabilities supported by an agent.
 ///
-/// This class is part of the [AgentCard] and provides a way for an agent to
-/// advertise its features, such as support for streaming or push notifications.
+/// Part of the [AgentCard], this class allows an agent to advertise its
+/// features, such as support for streaming or push notifications.
 @freezed
 abstract class AgentCapabilities with _$AgentCapabilities {
   /// Creates an [AgentCapabilities] object.
   const factory AgentCapabilities({
-    /// Indicates whether the agent supports Server-Sent Events (SSE) for
-    /// streaming responses.
-    ///
-    /// If `true`, the agent can send multiple responses over a single
-    /// connection.
+    /// Indicates if the agent supports Server-Sent Events (SSE) for streaming
+    /// responses.
     bool? streaming,
 
     /// Indicates whether the agent supports sending push notifications for
@@ -35,7 +32,7 @@ abstract class AgentCapabilities with _$AgentCapabilities {
     /// a task.
     bool? stateTransitionHistory,
 
-    /// A list of protocol extensions that the agent supports.
+    /// A list of protocol extensions supported by the agent.
     List<AgentExtension>? extensions,
   }) = _AgentCapabilities;
 

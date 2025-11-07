@@ -13,65 +13,81 @@ import 'security_scheme.dart';
 part 'agent_card.freezed.dart';
 part 'agent_card.g.dart';
 
-/// A self-describing manifest for an agent, providing essential metadata.
+/// A self-describing manifest for an agent.
 ///
-/// The AgentCard includes the agent's identity, capabilities, skills, supported
-/// communication methods, and security requirements. It serves as a discovery
-/// mechanism for clients to understand how to interact with the agent.
+/// The AgentCard provides essential metadata about an agent, including its
+/// identity, capabilities, skills, supported communication methods, and
+/// security requirements. It serves as a discovery mechanism for clients to
+/// understand how to interact with the agent.
 @freezed
 abstract class AgentCard with _$AgentCard {
   /// Creates an [AgentCard].
   const factory AgentCard({
-    /// The version of the A2A protocol that this agent supports.
+    /// The version of the A2A protocol that this agent supports (e.g., "0.3.0").
     required String protocolVersion,
 
-    /// A human-readable name for the agent (e.g., "Weather Bot").
+    /// A human-readable name for the agent (e.g., "Recipe Agent").
     required String name,
 
-    /// A brief summary of the agent's purpose and capabilities.
+    /// A human-readable description of the agent, assisting users and other
+    /// agents in understanding its purpose.
     required String description,
 
-    /// A URL for the agent's website or relevant documentation.
+    /// The preferred endpoint URL for interacting with the agent.
     required String url,
 
-    /// The preferred transport protocol for this agent (e.g., "sse").
+    /// The transport protocol for the preferred endpoint.
+    ///
+    /// If not specified, defaults to [TransportProtocol.jsonrpc].
     TransportProtocol? preferredTransport,
 
-    /// A list of additional communication interfaces the agent supports.
+    /// A list of additional supported interfaces (transport and URL combinations).
+    ///
+    /// This allows agents to expose multiple transports, potentially at different
+    /// URLs.
     List<AgentInterface>? additionalInterfaces,
 
-    /// A URL for an icon representing the agent.
+    /// An optional URL to an icon for the agent.
     String? iconUrl,
 
-    /// Information about the entity that provides the agent.
+    /// Information about the agent's service provider.
     AgentProvider? provider,
 
-    /// The version of the agent's software (e.g., "1.2.3").
+    /// The agent's own version number. The format is defined by the provider.
     required String version,
 
-    /// A URL for the agent's detailed documentation.
+    /// An optional URL to the agent's documentation.
     String? documentationUrl,
 
-    /// The capabilities of the agent, such as supported extensions.
+    /// A declaration of optional capabilities supported by the agent.
     required AgentCapabilities capabilities,
 
-    /// The security schemes supported by the agent (e.g., OAuth 2.0).
+    /// A declaration of the security schemes available to authorize requests.
+    ///
+    /// The key is the scheme name. Follows the OpenAPI 3.0 Security Scheme
+    /// Object.
     Map<String, SecurityScheme>? securitySchemes,
 
-    /// The security requirements for accessing the agent's services.
+    /// A list of security requirement objects that apply to all agent
+    /// interactions.
+    ///
+    /// Each object lists security schemes that can be used. Follows the OpenAPI
+    /// 3.0 Security Requirement Object.
     List<Map<String, List<String>>>? security,
 
-    /// The default input modes for the agent (e.g., "text/plain").
+    /// Default set of supported input MIME types for all skills, which can be
+    /// overridden on a per-skill basis.
     required List<String> defaultInputModes,
 
-    /// The default output modes for the agent (e.g., "application/json").
+    /// Default set of supported output MIME types for all skills, which can be
+    /// overridden on a per-skill basis.
     required List<String> defaultOutputModes,
 
-    /// The skills or functionalities that the agent can perform.
+    /// The set of skills, or distinct capabilities, that the agent can perform.
     required List<AgentSkill> skills,
 
-    /// Indicates whether the agent supports authenticated extended card
-    /// requests.
+    /// If true, the agent can provide an extended agent card with additional
+    /// details to authenticated users. Defaults to false.
     bool? supportsAuthenticatedExtendedCard,
   }) = _AgentCard;
 

@@ -11,13 +11,13 @@ part 'security_scheme.g.dart';
 
 /// Defines a security scheme that can be used to secure an agent's endpoints.
 ///
-/// This is a discriminated union type based on the OpenAPI 3.0 Security Scheme
+/// This is a discriminated union based on the OpenAPI 3.0 Security Scheme
 /// Object. The `type` field is used as a discriminator.
 @Freezed(unionKey: 'type')
 abstract class SecurityScheme with _$SecurityScheme {
   /// An API key security scheme.
   const factory SecurityScheme.apiKey({
-    /// The type of the security scheme, always 'apiKey'.
+    /// The type of the security scheme.
     @Default('apiKey') String type,
 
     /// A short description for the API key.
@@ -33,7 +33,7 @@ abstract class SecurityScheme with _$SecurityScheme {
 
   /// An HTTP authentication security scheme.
   const factory SecurityScheme.http({
-    /// The type of the security scheme, always 'http'.
+    /// The type of the security scheme.
     @Default('http') String type,
 
     /// A short description for the HTTP security scheme.
@@ -51,7 +51,7 @@ abstract class SecurityScheme with _$SecurityScheme {
 
   /// An OAuth 2.0 security scheme.
   const factory SecurityScheme.oauth2({
-    /// The type of the security scheme, always 'oauth2'.
+    /// The type of the security scheme.
     @Default('oauth2') String type,
 
     /// A short description for the OAuth 2.0 security scheme.
@@ -64,7 +64,7 @@ abstract class SecurityScheme with _$SecurityScheme {
 
   /// An OpenID Connect security scheme.
   const factory SecurityScheme.openIdConnect({
-    /// The type of the security scheme, always 'openIdConnect'.
+    /// The type of the security scheme.
     @Default('openIdConnect') String type,
 
     /// A short description for the OpenID Connect security scheme.
@@ -76,7 +76,7 @@ abstract class SecurityScheme with _$SecurityScheme {
 
   /// A mutual TLS security scheme.
   const factory SecurityScheme.mutualTls({
-    /// The type of the security scheme, always 'mutualTls'.
+    /// The type of the security scheme.
     @Default('mutualTls') String type,
 
     /// A short description for the mutual TLS security scheme.
@@ -88,7 +88,7 @@ abstract class SecurityScheme with _$SecurityScheme {
       _$SecuritySchemeFromJson(json);
 }
 
-/// Defines the OAuth 2.0 flows.
+/// Defines the OAuth 2.0 flows supported by an agent.
 @freezed
 abstract class OAuthFlows with _$OAuthFlows {
   /// Creates an [OAuthFlows] object.

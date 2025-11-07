@@ -10,10 +10,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'agent_provider.freezed.dart';
 part 'agent_provider.g.dart';
 
-/// Represents the service provider of an agent.
+/// Information about the agent's service provider.
 ///
-/// This class is part of the [AgentCard] and provides information about the
-/// entity that created and maintains the agent.
+/// Part of the [AgentCard], this provides information about the entity that
+/// created and maintains the agent.
 @freezed
 abstract class AgentProvider with _$AgentProvider {
   /// Creates an [AgentProvider].

@@ -9,13 +9,13 @@ import 'task.dart';
 part 'events.freezed.dart';
 part 'events.g.dart';
 
-/// A discriminated union representing events that can be sent from the server
-/// to the client during a streaming task.
+/// A discriminated union representing events sent from the server to the client
+/// during a streaming task.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 abstract class StreamingEvent with _$StreamingEvent {
   /// An event indicating that the status of a task has been updated.
   const factory StreamingEvent.taskStatusUpdate({
-    /// The type of this event, always 'task_status_update'.
+    /// The type of this event.
     @Default('task_status_update') String kind,
 
     /// The unique identifier of the task that was updated.
@@ -27,29 +27,29 @@ abstract class StreamingEvent with _$StreamingEvent {
     /// The new status of the task.
     required TaskStatus status,
 
-    /// A boolean indicating if this is the final update for the task.
+    /// If true, this is the final event in the stream for this interaction.
     required bool final_,
   }) = TaskStatusUpdateEvent;
 
-  /// An event indicating that an artifact has been updated.
+  /// An event indicating that an artifact has been generated or updated.
   const factory StreamingEvent.taskArtifactUpdate({
-    /// The type of this event, always 'task_artifact_update'.
+    /// The type of this event.
     @Default('task_artifact_update') String kind,
 
-    /// The unique identifier of the task that was updated.
+    /// The ID of the task this artifact belongs to.
     required String taskId,
 
-    /// The unique identifier of the context for the task.
+    /// The context ID associated with the task.
     required String contextId,
 
-    /// The artifact that was updated.
+    /// The artifact that was generated or updated.
     required Artifact artifact,
 
-    /// A boolean indicating if the content of the artifact should be appended
-    /// to the existing content.
+    /// If true, the content of this artifact should be appended to a previously
+    /// sent artifact with the same ID.
     required bool append,
 
-    /// A boolean indicating if this is the last chunk of the artifact.
+    /// If true, this is the final chunk of the artifact.
     required bool lastChunk,
   }) = TaskArtifactUpdateEvent;
 
@@ -58,12 +58,14 @@ abstract class StreamingEvent with _$StreamingEvent {
       _$StreamingEventFromJson(json);
 }
 
-/// Represents a single, non-streaming event from the server.
+/// A discriminated union representing events that can be received from the server.
+///
+/// This is used by the client to represent events from a stream.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 sealed class Event with _$Event {
   /// An event indicating that the status of a task has been updated.
   const factory Event.taskStatusUpdate({
-    /// The type of this event, always 'task_status_update'.
+    /// The type of this event.
     @Default('task_status_update') String kind,
 
     /// The unique identifier of the task that was updated.
@@ -75,29 +77,29 @@ sealed class Event with _$Event {
     /// The new status of the task.
     required TaskStatus status,
 
-    /// A boolean indicating if this is the final update for the task.
+    /// If true, this is the final event in the stream for this interaction.
     required bool final_,
   }) = TaskStatusUpdate;
 
-  /// An event indicating that an artifact has been updated.
+  /// An event indicating that an artifact has been generated or updated.
   const factory Event.taskArtifactUpdate({
-    /// The type of this event, always 'task_artifact_update'.
+    /// The type of this event.
     @Default('task_artifact_update') String kind,
 
-    /// The unique identifier of the task that was updated.
+    /// The ID of the task this artifact belongs to.
     required String taskId,
 
-    /// The unique identifier of the context for the task.
+    /// The context ID associated with the task.
     required String contextId,
 
-    /// The artifact that was updated.
+    /// The artifact that was generated or updated.
     required Artifact artifact,
 
-    /// A boolean indicating if the content of the artifact should be appended
-    /// to the existing content.
+    /// If true, the content of this artifact should be appended to a previously
+    /// sent artifact with the same ID.
     required bool append,
 
-    /// A boolean indicating if this is the last chunk of the artifact.
+    /// If true, this is the final chunk of the artifact.
     required bool lastChunk,
   }) = TaskArtifactUpdate;
 
