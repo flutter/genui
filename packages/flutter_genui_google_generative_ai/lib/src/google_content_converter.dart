@@ -114,6 +114,10 @@ class GoogleContentConverter {
         case ThinkingPart():
           // Represent thoughts as text.
           result.add(google_ai.Part(text: 'Thinking: ${part.text}'));
+        case DataPart():
+          throw GoogleAiClientException(
+            'DataPart is not supported for Google AI conversion.',
+          );
       }
     }
     return result;
