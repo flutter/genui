@@ -8,6 +8,12 @@ import 'package:a2a_dart/a2a_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
+/// This is an example of how to write a server for the A2A protocol.
+/// It demonstrates the use of the A2AServer class to create a server
+/// that can handle various A2A requests.
+///
+/// It performs a countdown from 10 to 0, pausing if it is
+/// asked to pause, and resuming when it is asked to resume.
 void main() async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
@@ -17,9 +23,12 @@ void main() async {
   final taskManager = CountdownTaskManager();
   final server = A2AServer(
     [
-      CreateCountdownTaskHandler(taskManager),
-      ExecuteCountdownTaskHandler(taskManager),
-      MessageHandler(taskManager),
+      MessageSendHandler(taskManager),
+      MessageStreamHandler(taskManager),
+      GetTaskHandler(taskManager),
+      ListTasksHandler(taskManager),
+      CancelTaskHandler(taskManager),
+      ResubscribeHandler(taskManager),
     ],
     port: 8080,
     agentCard: agentCard,
@@ -30,143 +39,16 @@ void main() async {
 }
 
 // A simple in-memory task manager.
-class CountdownTaskManager {
-  final Map<String, Task> _tasks = {};
-  final Map<String, StreamController<Map<String, Object?>>> _controllers = {};
+class CountdownTaskManager implements TaskManager {
+  final _tasks = <String, Task>{};
+  final _events = <String, List<Event>>{};
+  final Map<String, StreamController<Map<String, Object?>>> _controllers =
+      <String, StreamController<Map<String, Object?>>>{};
   final Set<String> _pausedTasks = {};
 
-  Task createTask(Message message) {
-    final taskId = const Uuid().v4();
-    final task = Task(
-      id: taskId,
-      contextId: const Uuid().v4(),
-      status: const TaskStatus(state: TaskState.submitted),
-      history: [message],
-    );
-    _tasks[task.id] = task;
-    return task;
-  }
-
-  Task? getTask(String id) => _tasks[id];
-
-  void pauseTask(String taskId) {
-    _pausedTasks.add(taskId);
-    Timer(const Duration(seconds: 3), () {
-      _pausedTasks.remove(taskId);
-    });
-  }
-
-  bool isPaused(String taskId) => _pausedTasks.contains(taskId);
-
-  void registerController(
-    String taskId,
-    StreamController<Map<String, Object?>> controller,
-  ) {
-    _controllers[taskId] = controller;
-  }
-}
-
-class CreateCountdownTaskHandler extends RequestHandler {
-  final CountdownTaskManager _taskManager;
-
-  CreateCountdownTaskHandler(this._taskManager);
-
-  @override
-  String get method => 'create_task';
-
-  @override
-  Future<HandlerResult> handle(Map<String, Object?> params) async {
-    final message = Message.fromJson(params['message'] as Map<String, dynamic>);
-    final task = _taskManager.createTask(message);
-    return SingleResult(task.toJson());
-  }
-}
-
-class MessageHandler extends RequestHandler {
-  final CountdownTaskManager _taskManager;
-  final _log = Logger('MessageHandler');
-
-  MessageHandler(this._taskManager);
-
-  @override
-  String get method => 'message';
-
-  @override
-  Future<HandlerResult> handle(Map<String, Object?> params) async {
-    final message = Message.fromJson(params['message'] as Map<String, dynamic>);
-    final part = message.parts.first;
-    if (part is TextPart && part.text.startsWith('pause')) {
-      final taskId = part.text.split(' ').last;
-      final task = _taskManager.getTask(taskId);
-      if (task == null) {
-        throw A2AServerException('Task not found: $taskId', -32602);
-      }
-      _log.info('Pausing task $taskId');
-      _taskManager.pauseTask(taskId);
-      final event = Event.taskStatusUpdate(
-        taskId: taskId,
-        contextId: task.contextId,
-        status: TaskStatus(
-          state: TaskState.working,
-          message: Message(
-            messageId: const Uuid().v4(),
-            role: Role.agent,
-            parts: const [Part.text(text: 'Task paused for 3 seconds')],
-          ),
-        ),
-        final_: false,
-      );
-      return SingleResult(event.toJson());
-    }
-    throw A2AServerException('Could not determine action', -32602);
-  }
-}
-
-class ExecuteCountdownTaskHandler extends RequestHandler {
-  final CountdownTaskManager _taskManager;
-  final _log = Logger('ExecuteCountdownTaskHandler');
-
-  ExecuteCountdownTaskHandler(this._taskManager);
-
-  @override
-  String get method => 'execute_task';
-
-  @override
-  Future<HandlerResult> handle(Map<String, Object?> params) async {
-    final taskId = params['task_id'] as String;
-    final messageParam = params['message'] as Map<String, Object?>?;
-    if (messageParam != null) {
-      final message = Message.fromJson(messageParam);
-      final part = message.parts.first;
-      if (part is TextPart && part.text.startsWith('pause')) {
-        _log.info('Pausing task $taskId');
-        _taskManager.pauseTask(taskId);
-        return SingleResult({'status': 'paused'});
-      }
-    }
-
-    final task = _taskManager.getTask(taskId);
-    if (task == null) {
-      throw A2AServerException('Task not found: $taskId', -32602);
-    }
-
-    final part = task.history?.first.parts.first;
-    if (part is TextPart) {
-      final messageText = part.text;
-      if (messageText.startsWith('start')) {
-        return _startCountdown(task, messageText);
-      }
-    }
-
-    throw A2AServerException('Could not determine action', -32602);
-  }
-
-  HandlerResult _startCountdown(Task task, String messageText) {
-    final controller = StreamController<Map<String, Object?>>();
-    _taskManager.registerController(task.id, controller);
-
-    final countdownStart = int.tryParse(messageText.split(' ').last) ?? 10;
-    _log.info('Starting countdown from $countdownStart for task ${task.id}');
+  Stream<Map<String, Object?>> startCountdown(Task task, int countdownStart) {
+    final controller = StreamController<Map<String, Object?>>.broadcast();
+    _controllers[task.id] = controller;
 
     unawaited(() async {
       var countdown = countdownStart;
@@ -174,7 +56,7 @@ class ExecuteCountdownTaskHandler extends RequestHandler {
         if (controller.isClosed) {
           return;
         }
-        if (!_taskManager.isPaused(task.id)) {
+        if (!isPaused(task.id)) {
           final event = StreamingEvent.taskArtifactUpdate(
             taskId: task.id,
             contextId: task.contextId,
@@ -206,7 +88,135 @@ class ExecuteCountdownTaskHandler extends RequestHandler {
       await controller.close();
     }());
 
-    return StreamResult(controller.stream);
+    return controller.stream;
+  }
+
+
+
+  @override
+  Future<Task> createTask([Message? message]) async {
+    final taskId = const Uuid().v4();
+    final task = Task(
+      id: taskId,
+      contextId: const Uuid().v4(),
+      status: const TaskStatus(state: TaskState.submitted),
+      history: [if (message != null) message],
+    );
+    _tasks[task.id] = task;
+    return task;
+  }
+
+  @override
+  Future<Task?> getTask(String id) async => _tasks[id];
+
+  @override
+  Future<void> updateTask(Task task) async {
+    _tasks[task.id] = task;
+  }
+
+  @override
+  Stream<Event> resubscribeToTask(String taskId) {
+    return Stream.fromIterable(_events[taskId] ?? []);
+  }
+
+  @override
+  Future<void> addEvent(String taskId, Event event) async {
+    _events.putIfAbsent(taskId, () => []).add(event);
+  }
+
+  @override
+  Future<Task?> cancelTask(String taskId) async {
+    final task = _tasks[taskId];
+    if (task != null) {
+      final canceledTask = task.copyWith(
+        status: const TaskStatus(state: TaskState.canceled),
+      );
+      _tasks[taskId] = canceledTask;
+      return canceledTask;
+    }
+    return null;
+  }
+
+  @override
+  Future<ListTasksResult> listTasks(ListTasksParams params) async {
+    // This is a simple implementation for the example and does not support
+    // filtering or pagination.
+    return ListTasksResult(
+      tasks: _tasks.values.toList(),
+      totalSize: _tasks.length,
+      pageSize: _tasks.length,
+      nextPageToken: '',
+    );
+  }
+
+  void pauseTask(String taskId) {
+    _pausedTasks.add(taskId);
+    Timer(const Duration(seconds: 3), () {
+      _pausedTasks.remove(taskId);
+    });
+  }
+
+  bool isPaused(String taskId) => _pausedTasks.contains(taskId);
+}
+
+class MessageSendHandler extends RequestHandler {
+  final TaskManager _taskManager;
+
+  MessageSendHandler(this._taskManager);
+
+  @override
+  String get method => 'message/send';
+
+  @override
+  Future<HandlerResult> handle(Map<String, Object?> parameters) async {
+    final message = Message.fromJson(
+      parameters['message'] as Map<String, Object?>,
+    );
+    final task = _taskManager.createTask(message);
+    return SingleResult((await task).toJson());
+  }
+}
+
+class MessageStreamHandler extends RequestHandler {
+  final CountdownTaskManager _taskManager;
+  final _log = Logger('MessageStreamHandler');
+
+  MessageStreamHandler(this._taskManager);
+
+  @override
+  String get method => 'message/stream';
+
+  @override
+  Future<HandlerResult> handle(Map<String, Object?> params) async {
+    final message = Message.fromJson(params['message'] as Map<String, dynamic>);
+
+    final Task task;
+    if (message.taskId == null) {
+      task = await _taskManager.createTask(message);
+    } else {
+      final existingTask = await _taskManager.getTask(message.taskId!);
+      if (existingTask == null) {
+        throw A2AServerException('Task not found: ${message.taskId!}', -32602);
+      }
+      task = existingTask;
+    }
+
+    final part = message.parts.first;
+    if (part is TextPart) {
+      final messageText = part.text;
+      if (messageText.startsWith('start')) {
+        return _startCountdown(task, messageText);
+      }
+    }
+
+    throw A2AServerException('Could not determine action for stream', -32602);
+  }
+
+  HandlerResult _startCountdown(Task task, String messageText) {
+    final countdownStart = int.tryParse(messageText.split(' ').last) ?? 10;
+    _log.info('Starting countdown from $countdownStart for task ${task.id}');
+    final stream = _taskManager.startCountdown(task, countdownStart);
+    return StreamResult(stream);
   }
 }
 

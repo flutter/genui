@@ -21,6 +21,7 @@ _Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
       ?.map((e) => Artifact.fromJson(e as Map<String, dynamic>))
       .toList(),
   metadata: json['metadata'] as Map<String, dynamic>?,
+  lastUpdated: (json['lastUpdated'] as num?)?.toInt(),
   kind: json['kind'] as String? ?? 'task',
 );
 
@@ -31,6 +32,7 @@ Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
   'history': instance.history?.map((e) => e.toJson()).toList(),
   'artifacts': instance.artifacts?.map((e) => e.toJson()).toList(),
   'metadata': instance.metadata,
+  'lastUpdated': instance.lastUpdated,
   'kind': instance.kind,
 };
 

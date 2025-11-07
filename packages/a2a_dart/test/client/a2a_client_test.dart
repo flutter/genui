@@ -42,29 +42,31 @@ void main() {
       expect(result.name, equals(agentCard.name));
     });
 
-    test('createTask returns a Task on success', () async {
+    test('messageSend returns an Event on success', () async {
       final message = const Message(
         messageId: '1',
         role: Role.user,
         parts: [Part.text(text: 'Hello')],
       );
       final taskJson = {
+        'kind': 'task',
         'id': '123',
         'contextId': '456',
         'status': {'state': 'submitted'},
       };
-      final task = Task.fromJson(taskJson);
+
       client = A2AClient(
         url: 'http://localhost:8080',
         transport: FakeTransport(response: {'result': taskJson}),
       );
 
-      final result = await client.createTask(message);
+      final result = await client.messageSend(message);
 
-      expect(result.id, equals(task.id));
+      expect(result, isA<Task>());
+      expect(result.id, equals(Task.fromJson(taskJson).id));
     });
 
-    test('createTask throws an exception on error', () {
+    test('messageSend throws an exception on error', () {
       final message = const Message(
         messageId: '1',
         role: Role.user,
@@ -74,55 +76,35 @@ void main() {
         url: 'http://localhost:8080',
         transport: FakeTransport(
           response: {
+            'jsonrpc': '2.0',
             'error': {'code': -32600, 'message': 'Invalid Request'},
+            'id': 0,
           },
         ),
       );
 
-      expect(client.createTask(message), throwsA(isA<A2AException>()));
-    });
-
-    test('executeTask returns a stream of StreamingEvents on success', () {
-      final streamController = StreamController<Map<String, Object?>>();
-      final eventJson = {
-        'kind': 'task_status_update',
-        'taskId': '123',
-        'contextId': '456',
-        'status': {'state': 'working'},
-        'final_': false,
-      };
-      final event = StreamingEvent.fromJson(eventJson);
-      client = A2AClient(
-        url: 'http://localhost:8080',
-        transport: FakeTransport(
-          response: {},
-          streamResponse: streamController.stream,
-        ),
-      );
-
-      final stream = client.executeTask('test-task-id');
-
-      expect(stream, emitsInOrder([event, emitsDone]));
-
-      streamController.add(eventJson);
-      streamController.close();
+      expect(client.messageSend(message), throwsA(isA<A2AException>()));
     });
 
     test('messageStream returns a stream of StreamingEvents on success', () {
       final streamController = StreamController<Map<String, Object?>>();
       final eventJson = {
-        'kind': 'task_status_update',
-        'taskId': '123',
-        'contextId': '456',
-        'status': {'state': 'working'},
-        'final_': false,
+        'jsonrpc': '2.0',
+        'method': 'message/stream',
+        'params': {
+          'kind': 'task_status_update',
+          'taskId': '123',
+          'contextId': '456',
+          'status': {'state': 'working'},
+          'final_': false,
+        }
       };
-      final event = StreamingEvent.fromJson(eventJson);
+      final event = Event.fromJson(eventJson['params'] as Map<String, Object?>);
       client = A2AClient(
         url: 'http://localhost:8080',
         transport: FakeTransport(
           response: {},
-          streamResponse: streamController.stream,
+          stream: streamController.stream,
         ),
       );
 

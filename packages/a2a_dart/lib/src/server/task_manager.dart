@@ -2,46 +2,35 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:uuid/uuid.dart';
 
+import '../core/list_tasks_params.dart';
+import '../core/list_tasks_result.dart';
 import '../core/message.dart';
+import '../core/events.dart';
 import '../core/task.dart';
 
-/// Manages the lifecycle of A2A tasks in memory.
-///
-/// This class is responsible for creating, retrieving, and updating tasks. It
-/// uses a [Map] to store tasks, with the task ID as the key.
-class TaskManager {
-  final _tasks = <String, Task>{};
-  final _uuid = const Uuid();
-
-  /// Creates a new [Task] with a unique ID and `submitted` status.
-  ///
-  /// The new task is stored in the task manager and then returned.
-  Task createTask([Message? message]) {
-    final taskId = _uuid.v4();
-    final contextId = _uuid.v4();
-    final task = Task(
-      id: taskId,
-      contextId: contextId,
-      history: [if (message != null) message],
-      status: const TaskStatus(state: TaskState.submitted),
-    );
-    _tasks[taskId] = task;
-    return task;
-  }
+/// Manages the lifecycle of A2A tasks.
+abstract class TaskManager {
+  /// Creates a new task.
+  Future<Task> createTask([Message? message]);
 
   /// Retrieves a task by its ID.
-  ///
-  /// Returns the [Task] if it exists, otherwise returns `null`.
-  Task? getTask(String taskId) {
-    return _tasks[taskId];
-  }
+  Future<Task?> getTask(String id);
 
-  /// Updates the state of an existing task.
-  ///
-  /// If a task with the same ID already exists, it will be overwritten.
-  void updateTask(Task task) {
-    _tasks[task.id] = task;
-  }
+  /// Adds an event to a task's event stream.
+  Future<void> addEvent(String taskId, Event event);
+
+  /// Resubscribes to a task's event stream.
+  Stream<Event> resubscribeToTask(String taskId);
+
+  /// Updates a task.
+  Future<void> updateTask(Task task);
+
+  /// Cancels a task.
+  Future<Task?> cancelTask(String taskId);
+
+  /// Lists tasks, with optional filtering and pagination.
+  Future<ListTasksResult> listTasks(ListTasksParams params);
+
+
 }

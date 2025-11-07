@@ -14,9 +14,12 @@ import 'dart:async';
 /// and streaming communication.
 abstract class Transport {
   /// Fetches a resource from the server using an HTTP GET request.
-  ///
-  /// The [path] is appended to the base URL of the server.
-  Future<Map<String, Object?>> get(String path);
+  /// Sends a GET request to the given [path] and returns the JSON-decoded
+  /// response.
+  Future<Map<String, Object?>> get(
+    String path, {
+    Map<String, String> headers = const {},
+  });
 
   /// Sends a request to the server and expects a single response.
   ///

@@ -1,7 +1,3 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -15,339 +11,279 @@ part of 'a2a_exception.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-A2AException _$A2AExceptionFromJson(Map<String, Object?> json) {
-  switch (json['runtimeType']) {
-    case 'jsonRpc':
-      return A2AJsonRpcException.fromJson(json);
-    case 'http':
-      return A2AHttpException.fromJson(json);
-    case 'network':
-      return A2ANetworkException.fromJson(json);
-    case 'parsing':
-      return A2AParsingException.fromJson(json);
-
-    default:
-      throw CheckedFromJsonException(json, 'runtimeType', 'A2AException',
-          'Invalid union type "${json['runtimeType']}"!');
-  }
+A2AException _$A2AExceptionFromJson(
+  Map<String, dynamic> json
+) {
+        switch (json['runtimeType']) {
+                  case 'jsonRpc':
+          return A2AJsonRpcException.fromJson(
+            json
+          );
+                case 'http':
+          return A2AHttpException.fromJson(
+            json
+          );
+                case 'network':
+          return A2ANetworkException.fromJson(
+            json
+          );
+                case 'parsing':
+          return A2AParsingException.fromJson(
+            json
+          );
+        
+          default:
+            throw CheckedFromJsonException(
+  json,
+  'runtimeType',
+  'A2AException',
+  'Invalid union type "${json['runtimeType']}"!'
+);
+        }
+      
 }
 
 /// @nodoc
 mixin _$A2AException {
+
+
+
   /// Serializes this A2AException to a JSON map.
-  Map<String, Object?> toJson();
+  Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is A2AException);
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => runtimeType.hashCode;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is A2AException);
+}
 
-  @override
-  String toString() {
-    return 'A2AException()';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'A2AException()';
+}
+
+
 }
 
 /// @nodoc
-class $A2AExceptionCopyWith<$Res> {
-  $A2AExceptionCopyWith(A2AException _, $Res Function(A2AException) __);
+class $A2AExceptionCopyWith<$Res>  {
+$A2AExceptionCopyWith(A2AException _, $Res Function(A2AException) __);
 }
+
 
 /// Adds pattern-matching-related methods to [A2AException].
 extension A2AExceptionPatterns on A2AException {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(A2AJsonRpcException value)? jsonRpc,
-    TResult Function(A2AHttpException value)? http,
-    TResult Function(A2ANetworkException value)? network,
-    TResult Function(A2AParsingException value)? parsing,
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case A2AJsonRpcException() when jsonRpc != null:
-        return jsonRpc(_that);
-      case A2AHttpException() when http != null:
-        return http(_that);
-      case A2ANetworkException() when network != null:
-        return network(_that);
-      case A2AParsingException() when parsing != null:
-        return parsing(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( A2AJsonRpcException value)?  jsonRpc,TResult Function( A2AHttpException value)?  http,TResult Function( A2ANetworkException value)?  network,TResult Function( A2AParsingException value)?  parsing,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case A2AJsonRpcException() when jsonRpc != null:
+return jsonRpc(_that);case A2AHttpException() when http != null:
+return http(_that);case A2ANetworkException() when network != null:
+return network(_that);case A2AParsingException() when parsing != null:
+return parsing(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(A2AJsonRpcException value) jsonRpc,
-    required TResult Function(A2AHttpException value) http,
-    required TResult Function(A2ANetworkException value) network,
-    required TResult Function(A2AParsingException value) parsing,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case A2AJsonRpcException():
-        return jsonRpc(_that);
-      case A2AHttpException():
-        return http(_that);
-      case A2ANetworkException():
-        return network(_that);
-      case A2AParsingException():
-        return parsing(_that);
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( A2AJsonRpcException value)  jsonRpc,required TResult Function( A2AHttpException value)  http,required TResult Function( A2ANetworkException value)  network,required TResult Function( A2AParsingException value)  parsing,}){
+final _that = this;
+switch (_that) {
+case A2AJsonRpcException():
+return jsonRpc(_that);case A2AHttpException():
+return http(_that);case A2ANetworkException():
+return network(_that);case A2AParsingException():
+return parsing(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( A2AJsonRpcException value)?  jsonRpc,TResult? Function( A2AHttpException value)?  http,TResult? Function( A2ANetworkException value)?  network,TResult? Function( A2AParsingException value)?  parsing,}){
+final _that = this;
+switch (_that) {
+case A2AJsonRpcException() when jsonRpc != null:
+return jsonRpc(_that);case A2AHttpException() when http != null:
+return http(_that);case A2ANetworkException() when network != null:
+return network(_that);case A2AParsingException() when parsing != null:
+return parsing(_that);case _:
+  return null;
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(A2AJsonRpcException value)? jsonRpc,
-    TResult? Function(A2AHttpException value)? http,
-    TResult? Function(A2ANetworkException value)? network,
-    TResult? Function(A2AParsingException value)? parsing,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case A2AJsonRpcException() when jsonRpc != null:
-        return jsonRpc(_that);
-      case A2AHttpException() when http != null:
-        return http(_that);
-      case A2ANetworkException() when network != null:
-        return network(_that);
-      case A2AParsingException() when parsing != null:
-        return parsing(_that);
-      case _:
-        return null;
-    }
-  }
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int code,  String message,  Map<String, Object?>? data)?  jsonRpc,TResult Function( int statusCode,  String? reason)?  http,TResult Function( String message)?  network,TResult Function( String message)?  parsing,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case A2AJsonRpcException() when jsonRpc != null:
+return jsonRpc(_that.code,_that.message,_that.data);case A2AHttpException() when http != null:
+return http(_that.statusCode,_that.reason);case A2ANetworkException() when network != null:
+return network(_that.message);case A2AParsingException() when parsing != null:
+return parsing(_that.message);case _:
+  return orElse();
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(int code, String message, Map<String, Object?>? data)?
-        jsonRpc,
-    TResult Function(int statusCode, String? reason)? http,
-    TResult Function(String message)? network,
-    TResult Function(String message)? parsing,
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case A2AJsonRpcException() when jsonRpc != null:
-        return jsonRpc(_that.code, _that.message, _that.data);
-      case A2AHttpException() when http != null:
-        return http(_that.statusCode, _that.reason);
-      case A2ANetworkException() when network != null:
-        return network(_that.message);
-      case A2AParsingException() when parsing != null:
-        return parsing(_that.message);
-      case _:
-        return orElse();
-    }
-  }
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int code,  String message,  Map<String, Object?>? data)  jsonRpc,required TResult Function( int statusCode,  String? reason)  http,required TResult Function( String message)  network,required TResult Function( String message)  parsing,}) {final _that = this;
+switch (_that) {
+case A2AJsonRpcException():
+return jsonRpc(_that.code,_that.message,_that.data);case A2AHttpException():
+return http(_that.statusCode,_that.reason);case A2ANetworkException():
+return network(_that.message);case A2AParsingException():
+return parsing(_that.message);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(
-            int code, String message, Map<String, Object?>? data)
-        jsonRpc,
-    required TResult Function(int statusCode, String? reason) http,
-    required TResult Function(String message) network,
-    required TResult Function(String message) parsing,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case A2AJsonRpcException():
-        return jsonRpc(_that.code, _that.message, _that.data);
-      case A2AHttpException():
-        return http(_that.statusCode, _that.reason);
-      case A2ANetworkException():
-        return network(_that.message);
-      case A2AParsingException():
-        return parsing(_that.message);
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int code,  String message,  Map<String, Object?>? data)?  jsonRpc,TResult? Function( int statusCode,  String? reason)?  http,TResult? Function( String message)?  network,TResult? Function( String message)?  parsing,}) {final _that = this;
+switch (_that) {
+case A2AJsonRpcException() when jsonRpc != null:
+return jsonRpc(_that.code,_that.message,_that.data);case A2AHttpException() when http != null:
+return http(_that.statusCode,_that.reason);case A2ANetworkException() when network != null:
+return network(_that.message);case A2AParsingException() when parsing != null:
+return parsing(_that.message);case _:
+  return null;
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(int code, String message, Map<String, Object?>? data)?
-        jsonRpc,
-    TResult? Function(int statusCode, String? reason)? http,
-    TResult? Function(String message)? network,
-    TResult? Function(String message)? parsing,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case A2AJsonRpcException() when jsonRpc != null:
-        return jsonRpc(_that.code, _that.message, _that.data);
-      case A2AHttpException() when http != null:
-        return http(_that.statusCode, _that.reason);
-      case A2ANetworkException() when network != null:
-        return network(_that.message);
-      case A2AParsingException() when parsing != null:
-        return parsing(_that.message);
-      case _:
-        return null;
-    }
-  }
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class A2AJsonRpcException implements A2AException {
-  const A2AJsonRpcException(
-      {required this.code,
-      required this.message,
-      final Map<String, Object?>? data,
-      final String? $type})
-      : _data = data,
-        $type = $type ?? 'jsonRpc';
-  factory A2AJsonRpcException.fromJson(Map<String, Object?> json) =>
-      _$A2AJsonRpcExceptionFromJson(json);
+  const A2AJsonRpcException({required this.code, required this.message, final  Map<String, Object?>? data, final  String? $type}): _data = data,$type = $type ?? 'jsonRpc';
+  factory A2AJsonRpcException.fromJson(Map<String, dynamic> json) => _$A2AJsonRpcExceptionFromJson(json);
 
-  /// The JSON-RPC error code.
-  final int code;
+/// The JSON-RPC error code.
+ final  int code;
+/// The JSON-RPC error message.
+ final  String message;
+/// Optional data associated with the error.
+ final  Map<String, Object?>? _data;
+/// Optional data associated with the error.
+ Map<String, Object?>? get data {
+  final value = _data;
+  if (value == null) return null;
+  if (_data is EqualUnmodifiableMapView) return _data;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
 
-  /// The JSON-RPC error message.
-  final String message;
 
-  /// Optional data associated with the error.
-  final Map<String, Object?>? _data;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Optional data associated with the error.
-  Map<String, Object?>? get data {
-    final value = _data;
-    if (value == null) return null;
-    if (_data is EqualUnmodifiableMapView) return _data;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
-  }
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$A2AJsonRpcExceptionCopyWith<A2AJsonRpcException> get copyWith => _$A2AJsonRpcExceptionCopyWithImpl<A2AJsonRpcException>(this, _$identity);
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $A2AJsonRpcExceptionCopyWith<A2AJsonRpcException> get copyWith =>
-      _$A2AJsonRpcExceptionCopyWithImpl<A2AJsonRpcException>(this, _$identity);
+@override
+Map<String, dynamic> toJson() {
+  return _$A2AJsonRpcExceptionToJson(this, );
+}
 
-  @override
-  Map<String, Object?> toJson() {
-    return _$A2AJsonRpcExceptionToJson(
-      this,
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is A2AJsonRpcException&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._data, _data));
+}
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is A2AJsonRpcException &&
-            (identical(other.code, code) || other.code == code) &&
-            (identical(other.message, message) || other.message == message) &&
-            const DeepCollectionEquality().equals(other._data, _data));
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,message,const DeepCollectionEquality().hash(_data));
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, code, message, const DeepCollectionEquality().hash(_data));
+@override
+String toString() {
+  return 'A2AException.jsonRpc(code: $code, message: $message, data: $data)';
+}
 
-  @override
-  String toString() {
-    return 'A2AException.jsonRpc(code: $code, message: $message, data: $data)';
-  }
+
 }
 
 /// @nodoc
-abstract mixin class $A2AJsonRpcExceptionCopyWith<$Res>
-    implements $A2AExceptionCopyWith<$Res> {
-  factory $A2AJsonRpcExceptionCopyWith(
-          A2AJsonRpcException value, $Res Function(A2AJsonRpcException) _then) =
-      _$A2AJsonRpcExceptionCopyWithImpl;
-  @useResult
-  $Res call({int code, String message, Map<String, Object?>? data});
-}
+abstract mixin class $A2AJsonRpcExceptionCopyWith<$Res> implements $A2AExceptionCopyWith<$Res> {
+  factory $A2AJsonRpcExceptionCopyWith(A2AJsonRpcException value, $Res Function(A2AJsonRpcException) _then) = _$A2AJsonRpcExceptionCopyWithImpl;
+@useResult
+$Res call({
+ int code, String message, Map<String, Object?>? data
+});
 
+
+
+
+}
 /// @nodoc
 class _$A2AJsonRpcExceptionCopyWithImpl<$Res>
     implements $A2AJsonRpcExceptionCopyWith<$Res> {
@@ -356,90 +292,74 @@ class _$A2AJsonRpcExceptionCopyWithImpl<$Res>
   final A2AJsonRpcException _self;
   final $Res Function(A2AJsonRpcException) _then;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? code = null,
-    Object? message = null,
-    Object? data = freezed,
-  }) {
-    return _then(A2AJsonRpcException(
-      code: null == code
-          ? _self.code
-          : code // ignore: cast_nullable_to_non_nullable
-              as int,
-      message: null == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-      data: freezed == data
-          ? _self._data
-          : data // ignore: cast_nullable_to_non_nullable
-              as Map<String, Object?>?,
-    ));
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? code = null,Object? message = null,Object? data = freezed,}) {
+  return _then(A2AJsonRpcException(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as int,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,data: freezed == data ? _self._data : data // ignore: cast_nullable_to_non_nullable
+as Map<String, Object?>?,
+  ));
+}
+
+
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class A2AHttpException implements A2AException {
-  const A2AHttpException(
-      {required this.statusCode, this.reason, final String? $type})
-      : $type = $type ?? 'http';
-  factory A2AHttpException.fromJson(Map<String, Object?> json) =>
-      _$A2AHttpExceptionFromJson(json);
+  const A2AHttpException({required this.statusCode, this.reason, final  String? $type}): $type = $type ?? 'http';
+  factory A2AHttpException.fromJson(Map<String, dynamic> json) => _$A2AHttpExceptionFromJson(json);
 
-  final int statusCode;
-  final String? reason;
+ final  int statusCode;
+ final  String? reason;
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $A2AHttpExceptionCopyWith<A2AHttpException> get copyWith =>
-      _$A2AHttpExceptionCopyWithImpl<A2AHttpException>(this, _$identity);
 
-  @override
-  Map<String, Object?> toJson() {
-    return _$A2AHttpExceptionToJson(
-      this,
-    );
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$A2AHttpExceptionCopyWith<A2AHttpException> get copyWith => _$A2AHttpExceptionCopyWithImpl<A2AHttpException>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is A2AHttpException &&
-            (identical(other.statusCode, statusCode) ||
-                other.statusCode == statusCode) &&
-            (identical(other.reason, reason) || other.reason == reason));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$A2AHttpExceptionToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, statusCode, reason);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is A2AHttpException&&(identical(other.statusCode, statusCode) || other.statusCode == statusCode)&&(identical(other.reason, reason) || other.reason == reason));
+}
 
-  @override
-  String toString() {
-    return 'A2AException.http(statusCode: $statusCode, reason: $reason)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,statusCode,reason);
+
+@override
+String toString() {
+  return 'A2AException.http(statusCode: $statusCode, reason: $reason)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $A2AHttpExceptionCopyWith<$Res>
-    implements $A2AExceptionCopyWith<$Res> {
-  factory $A2AHttpExceptionCopyWith(
-          A2AHttpException value, $Res Function(A2AHttpException) _then) =
-      _$A2AHttpExceptionCopyWithImpl;
-  @useResult
-  $Res call({int statusCode, String? reason});
-}
+abstract mixin class $A2AHttpExceptionCopyWith<$Res> implements $A2AExceptionCopyWith<$Res> {
+  factory $A2AHttpExceptionCopyWith(A2AHttpException value, $Res Function(A2AHttpException) _then) = _$A2AHttpExceptionCopyWithImpl;
+@useResult
+$Res call({
+ int statusCode, String? reason
+});
 
+
+
+
+}
 /// @nodoc
 class _$A2AHttpExceptionCopyWithImpl<$Res>
     implements $A2AHttpExceptionCopyWith<$Res> {
@@ -448,81 +368,72 @@ class _$A2AHttpExceptionCopyWithImpl<$Res>
   final A2AHttpException _self;
   final $Res Function(A2AHttpException) _then;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? statusCode = null,
-    Object? reason = freezed,
-  }) {
-    return _then(A2AHttpException(
-      statusCode: null == statusCode
-          ? _self.statusCode
-          : statusCode // ignore: cast_nullable_to_non_nullable
-              as int,
-      reason: freezed == reason
-          ? _self.reason
-          : reason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? statusCode = null,Object? reason = freezed,}) {
+  return _then(A2AHttpException(
+statusCode: null == statusCode ? _self.statusCode : statusCode // ignore: cast_nullable_to_non_nullable
+as int,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class A2ANetworkException implements A2AException {
-  const A2ANetworkException({required this.message, final String? $type})
-      : $type = $type ?? 'network';
-  factory A2ANetworkException.fromJson(Map<String, Object?> json) =>
-      _$A2ANetworkExceptionFromJson(json);
+  const A2ANetworkException({required this.message, final  String? $type}): $type = $type ?? 'network';
+  factory A2ANetworkException.fromJson(Map<String, dynamic> json) => _$A2ANetworkExceptionFromJson(json);
 
-  final String message;
+ final  String message;
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $A2ANetworkExceptionCopyWith<A2ANetworkException> get copyWith =>
-      _$A2ANetworkExceptionCopyWithImpl<A2ANetworkException>(this, _$identity);
 
-  @override
-  Map<String, Object?> toJson() {
-    return _$A2ANetworkExceptionToJson(
-      this,
-    );
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$A2ANetworkExceptionCopyWith<A2ANetworkException> get copyWith => _$A2ANetworkExceptionCopyWithImpl<A2ANetworkException>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is A2ANetworkException &&
-            (identical(other.message, message) || other.message == message));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$A2ANetworkExceptionToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is A2ANetworkException&&(identical(other.message, message) || other.message == message));
+}
 
-  @override
-  String toString() {
-    return 'A2AException.network(message: $message)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'A2AException.network(message: $message)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $A2ANetworkExceptionCopyWith<$Res>
-    implements $A2AExceptionCopyWith<$Res> {
-  factory $A2ANetworkExceptionCopyWith(
-          A2ANetworkException value, $Res Function(A2ANetworkException) _then) =
-      _$A2ANetworkExceptionCopyWithImpl;
-  @useResult
-  $Res call({String message});
-}
+abstract mixin class $A2ANetworkExceptionCopyWith<$Res> implements $A2AExceptionCopyWith<$Res> {
+  factory $A2ANetworkExceptionCopyWith(A2ANetworkException value, $Res Function(A2ANetworkException) _then) = _$A2ANetworkExceptionCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
 
+
+
+
+}
 /// @nodoc
 class _$A2ANetworkExceptionCopyWithImpl<$Res>
     implements $A2ANetworkExceptionCopyWith<$Res> {
@@ -531,77 +442,72 @@ class _$A2ANetworkExceptionCopyWithImpl<$Res>
   final A2ANetworkException _self;
   final $Res Function(A2ANetworkException) _then;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? message = null,
-  }) {
-    return _then(A2ANetworkException(
-      message: null == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(A2ANetworkException(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class A2AParsingException implements A2AException {
-  const A2AParsingException({required this.message, final String? $type})
-      : $type = $type ?? 'parsing';
-  factory A2AParsingException.fromJson(Map<String, Object?> json) =>
-      _$A2AParsingExceptionFromJson(json);
+  const A2AParsingException({required this.message, final  String? $type}): $type = $type ?? 'parsing';
+  factory A2AParsingException.fromJson(Map<String, dynamic> json) => _$A2AParsingExceptionFromJson(json);
 
-  /// The error message.
-  final String message;
+/// The error message.
+ final  String message;
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $A2AParsingExceptionCopyWith<A2AParsingException> get copyWith =>
-      _$A2AParsingExceptionCopyWithImpl<A2AParsingException>(this, _$identity);
 
-  @override
-  Map<String, Object?> toJson() {
-    return _$A2AParsingExceptionToJson(
-      this,
-    );
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$A2AParsingExceptionCopyWith<A2AParsingException> get copyWith => _$A2AParsingExceptionCopyWithImpl<A2AParsingException>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is A2AParsingException &&
-            (identical(other.message, message) || other.message == message));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$A2AParsingExceptionToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is A2AParsingException&&(identical(other.message, message) || other.message == message));
+}
 
-  @override
-  String toString() {
-    return 'A2AException.parsing(message: $message)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'A2AException.parsing(message: $message)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $A2AParsingExceptionCopyWith<$Res>
-    implements $A2AExceptionCopyWith<$Res> {
-  factory $A2AParsingExceptionCopyWith(
-          A2AParsingException value, $Res Function(A2AParsingException) _then) =
-      _$A2AParsingExceptionCopyWithImpl;
-  @useResult
-  $Res call({String message});
-}
+abstract mixin class $A2AParsingExceptionCopyWith<$Res> implements $A2AExceptionCopyWith<$Res> {
+  factory $A2AParsingExceptionCopyWith(A2AParsingException value, $Res Function(A2AParsingException) _then) = _$A2AParsingExceptionCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
 
+
+
+
+}
 /// @nodoc
 class _$A2AParsingExceptionCopyWithImpl<$Res>
     implements $A2AParsingExceptionCopyWith<$Res> {
@@ -610,19 +516,16 @@ class _$A2AParsingExceptionCopyWithImpl<$Res>
   final A2AParsingException _self;
   final $Res Function(A2AParsingException) _then;
 
-  /// Create a copy of A2AException
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? message = null,
-  }) {
-    return _then(A2AParsingException(
-      message: null == message
-          ? _self.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(A2AParsingException(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 // dart format on

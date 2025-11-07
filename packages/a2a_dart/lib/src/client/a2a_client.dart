@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'package:a2a_dart/src/client/sse_transport.dart';
-library;
-
 import 'dart:async';
 
 import 'package:logging/logging.dart';
 
 import '../core/agent_card.dart';
 import '../core/events.dart';
+import '../core/list_tasks_params.dart';
+import '../core/list_tasks_result.dart';
 import '../core/message.dart';
 import '../core/task.dart';
 import 'a2a_exception.dart';
@@ -18,154 +17,141 @@ import 'http_transport.dart';
 import 'transport.dart';
 
 /// A client for interacting with an A2A server.
-///
-/// This class provides a high-level API for communicating with an A2A server,
-/// abstracting the underlying transport mechanism. It supports both standard
-/// request-response interactions and streaming communication using Server-Sent
-/// Events (SSE).
 class A2AClient {
-  final Logger? _log;
-  int _nextId = 1;
-
-  /// The base URL of the A2A server.
+  /// The URL of the A2A server.
   final String url;
 
-  /// The transport used for communication with the server.
-  ///
-  /// Defaults to [HttpTransport] if not specified. For streaming capabilities,
-  /// an [SseTransport] instance should be provided.
-  late final Transport transport;
+  final Transport _transport;
+  final Logger? _log;
 
-  /// Creates a client for interacting with an A2A server.
+  /// Creates an [A2AClient].
   ///
-  /// The [url] is the base URL of the server. An optional [transport] can be
-  /// provided to customize the communication mechanism. If no transport is
-  /// provided, an [HttpTransport] instance will be created by default.
-  ///
-  /// To listen to log messages from the client, you can listen to the
-  /// [logger]'s `onRecord` stream:
-  ///
-  /// ```dart
-  /// // For streaming, use SseTransport.
-  /// final transport = SseTransport(url: 'http://localhost:8080');
-  /// final client = A2AClient(
-  ///   url: 'http://localhost:8080',
-  ///   transport: transport,
-  /// );
-  /// client.logger?.onRecord.listen((record) {
-  ///   print('${record.level.name}: ${record.time}: ${record.message}');
-  /// });
-  /// ```
-  A2AClient({required this.url, Transport? transport, Logger? logger})
-    : _log = logger {
-    this.transport = transport ?? HttpTransport(url: url, log: _log);
-  }
+  /// The [url] is the base URL of the A2A server.
+  /// The [transport] is the transport to use for communication. If not
+  /// provided, an [HttpTransport] will be used.
+  /// The [log] is the logger to use for logging.
+  A2AClient({required this.url, Transport? transport, Logger? log})
+    : _transport = transport ?? HttpTransport(url: url, log: log),
+      _log = log;
 
-  /// The logger used for logging messages.
+  /// Fetches the agent card from the server.
   ///
-  /// This can be listened to in order to receive log messages from the client.
-  ///
-  /// To listen to log messages from the client, you can listen to the
-  /// [logger]'s `onRecord` stream:
-  ///
-  /// ```dart
-  /// final client = A2AClient(url: 'http://localhost:8080');
-  /// client.logger?.onRecord.listen((record) {
-  ///   print('${record.level.name}: ${record.time}: ${record.message}');
-  /// });
-  /// ```
-  Logger? get logger => _log;
-
-  /// Fetches the agent's capabilities and metadata from the server.
-  ///
-  /// This method retrieves the [AgentCard], which contains information about
-  /// the agent, such as its name, version, and supported extensions.
+  /// The agent card contains metadata about the agent.
   Future<AgentCard> getAgentCard() async {
-    _log?.info('Getting agent card');
-    final response = await transport.get('.well-known/agent-card.json');
-    _log?.info('Received agent card');
+    _log?.info('Fetching agent card...');
+    final response = await _transport.get('/.well-known/agent-card.json');
+    _log?.fine('Received agent card: $response');
     return AgentCard.fromJson(response);
   }
 
-  /// Creates a new task on the server by sending a message.
-  ///
-  /// This method sends a [Message] to the server and returns a [Task] object
-  /// that represents the asynchronous operation.
-  Future<Task> createTask(Message message) async {
-    final request = {
+  /// Fetches the authenticated extended agent card from the server.
+  Future<AgentCard> getAuthenticatedExtendedCard(String token) async {
+    _log?.info('Fetching authenticated agent card...');
+    final response = await _transport.get(
+      '/.well-known/agent-card.json',
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    _log?.fine('Received authenticated agent card: $response');
+    return AgentCard.fromJson(response);
+  }
+
+  /// This method is used for single-shot interactions with the agent. The
+  /// returned [Task] contains the initial state of the task.
+  Future<Task> messageSend(Message message) async {
+    _log?.info('Sending message: ${message.messageId}');
+    final response = await _transport.send({
       'jsonrpc': '2.0',
-      'method': 'create_task',
-      'params': {'message': message.toJson()},
-      'id': _nextId++,
-    };
-    _log?.info('Creating task with message: ${message.toJson()}');
-    final response = await transport.send(request);
-    _log?.info('Received response from create_task: $response');
+      'method': 'message/send',
+      'params': message.toJson(),
+      'id': 0,
+    });
+    _log?.fine('Received response from message/send: $response');
     if (response.containsKey('error')) {
       final error = response['error'] as Map<String, Object?>;
       throw A2AException.jsonRpc(
         code: error['code'] as int,
         message: error['message'] as String,
-        data: error['data'] as Map<String, Object?>?,
       );
     }
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Sends a message to the server and returns a stream of responses.
+  /// This method is used for streaming interactions with the agent.
   ///
-  /// This method is used for streaming communication with the server. It sends
-  /// a [Message] and returns a [Stream] of [Map]s, where each map is a JSON
-  /// object received from the server.
-  /// Sends a message to the server and returns a single response.
-  ///
-  /// This method is used for non-streaming communication with the server. It
-  /// sends a [Message] and returns a [Future] of an [Event].
-  Future<Event> message(Message message) async {
-    final request = {
+  /// The returned stream will emit [Event] objects as they are received from
+  /// the server.
+  Stream<Event> messageStream(Message message) {
+    _log?.info('Sending message for stream: ${message.messageId}');
+    return _transport
+        .sendStream({
       'jsonrpc': '2.0',
-      'method': 'message',
-      'params': {'message': message.toJson()},
-      'id': _nextId++,
-    };
-    _log?.info('Sending message: ${message.toJson()}');
-    final response = await transport.send(request);
-    _log?.info('Received response from message: $response');
-    if (response.containsKey('error')) {
-      final error = response['error'] as Map<String, Object?>;
-      throw A2AException.jsonRpc(
-        code: error['code'] as int,
-        message: error['message'] as String,
-        data: error['data'] as Map<String, Object?>?,
-      );
-    }
-    return Event.fromJson(response['result'] as Map<String, Object?>);
+          'method': 'message/stream',
+          'params': message.toJson(),
+        })
+        .map((data) {
+          _log?.fine('Received event from stream: $data');
+          if (data.containsKey('error')) {
+            final error = data['error'] as Map<String, Object?>;
+            throw A2AException.jsonRpc(
+              code: error['code'] as int,
+              message: error['message'] as String,
+            );
+          }
+          return Event.fromJson(data['params'] as Map<String, Object?>);
+        });
   }
 
-  Stream<StreamingEvent> messageStream(Message message) {
-    final request = {
+  /// Retrieves a task from the server.
+  Future<Task> getTask(String taskId) async {
+    _log?.info('Getting task: $taskId');
+    final response = await _transport.send({
       'jsonrpc': '2.0',
-      'method': 'message/stream',
-      'params': {'message': message.toJson()},
-      'id': _nextId++,
-    };
-    _log?.info('Sending message stream: ${message.toJson()}');
-    return transport.sendStream(request).map(StreamingEvent.fromJson);
+      'method': 'tasks/get',
+      'params': {'id': taskId},
+      'id': 0,
+    });
+    _log?.fine('Received response from tasks/get: $response');
+    return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Executes a task on the server and returns a stream of [StreamingEvent]s.
-  ///
-  /// This method is used to execute a task that has been previously created. It
-  /// takes a [taskId] and returns a [Stream] of [StreamingEvent]s from the
-  /// server.
-  Stream<StreamingEvent> executeTask(String taskId) {
-    final request = {
+  /// Lists tasks on the server.
+  Future<ListTasksResult> listTasks([ListTasksParams? params]) async {
+    _log?.info('Listing tasks...');
+    final response = await _transport.send({
       'jsonrpc': '2.0',
-      'method': 'execute_task',
-      'params': {'task_id': taskId},
-      'id': _nextId++,
-    };
-    _log?.info('Executing task $taskId');
-    return transport.sendStream(request).map(StreamingEvent.fromJson);
+      'method': 'tasks/list',
+      'params': params?.toJson() ?? {},
+      'id': 0,
+    });
+    _log?.fine('Received response from tasks/list: $response');
+    return ListTasksResult.fromJson(response['result'] as Map<String, Object?>);
+  }
+
+  /// Cancels a task on the server.
+  Future<Task> cancelTask(String taskId) async {
+    _log?.info('Canceling task: $taskId');
+    final response = await _transport.send({
+      'jsonrpc': '2.0',
+      'method': 'tasks/cancel',
+      'params': {'id': taskId},
+      'id': 0,
+    });
+    _log?.fine('Received response from tasks/cancel: $response');
+    return Task.fromJson(response['result'] as Map<String, Object?>);
+  }
+
+  /// Resubscribes to a task on the server.
+  Stream<Event> resubscribeToTask(String taskId) {
+    _log?.info('Resubscribing to task: $taskId');
+    return _transport
+        .sendStream({
+          'jsonrpc': '2.0',
+          'method': 'tasks/resubscribe',
+          'params': {'id': taskId},
+        })
+        .map((data) {
+          _log?.fine('Received event from resubscribe stream: $data');
+          return Event.fromJson(data['params'] as Map<String, Object?>);
+        });
   }
 }

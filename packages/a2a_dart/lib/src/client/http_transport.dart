@@ -7,42 +7,39 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
+import 'a2a_exception.dart';
 import 'transport.dart';
 
-/// An implementation of [Transport] that uses HTTP for communication.
-///
-/// This class is used for standard request-response interactions with the A2A
-/// server. It does not support streaming.
+/// An implementation of the [Transport] interface that uses HTTP.
 class HttpTransport implements Transport {
-  /// The base URL of the A2A server.
+  /// The URL of the A2A server.
   final String url;
 
-  /// The [http.Client] used to make requests.
+  /// The HTTP client to use for requests.
   final http.Client client;
 
+  /// The logger to use for logging.
   final Logger? log;
 
   /// Creates an [HttpTransport].
-  ///
-  /// The [url] is the base URL of the A2A server. An optional [client] can be
-  /// provided for testing or to customize the HTTP client.
   HttpTransport({required this.url, http.Client? client, this.log})
     : client = client ?? http.Client();
 
   @override
-  Future<Map<String, Object?>> get(String path) async {
-    final uri = Uri.parse('$url/$path');
+  Future<Map<String, Object?>> get(
+    String path, {
+    Map<String, String> headers = const {},
+  }) async {
+    final uri = Uri.parse('$url$path');
     log?.fine('Sending GET request to $uri');
-    final response = await client.get(uri);
-    log?.fine(
-      'Received response from GET $uri: '
-      '${response.statusCode} ${response.body}',
-    );
-
+    final response = await client.get(uri, headers: headers);
+    log?.fine('Received response from GET $uri: ${response.body}');
     if (response.statusCode != 200) {
-      throw Exception('Failed to get agent card: ${response.statusCode}');
+      throw A2AException.http(
+        statusCode: response.statusCode,
+        reason: response.reasonPhrase,
+      );
     }
-
     return jsonDecode(response.body) as Map<String, Object?>;
   }
 
@@ -51,32 +48,25 @@ class HttpTransport implements Transport {
     Map<String, Object?> request, {
     String path = '/rpc',
   }) async {
-    final uri = Uri.parse('$url/rpc');
-    final body = jsonEncode(request);
-    log?.fine('Sending POST request to $uri with body: $body');
+    final uri = Uri.parse('$url$path');
+    log?.fine('Sending POST request to $uri with body: $request');
     final response = await client.post(
       uri,
-      body: body,
       headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(request),
     );
-    log?.fine(
-      'Received response from POST $uri: '
-      '${response.statusCode} ${response.body}',
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, Object?>;
-    } else {
-      throw Exception('Failed to send message: ${response.statusCode}');
+    log?.fine('Received response from POST $uri: ${response.body}');
+    if (response.statusCode != 200) {
+      throw A2AException.network(
+        message:
+            'Failed to send request: ${response.statusCode} ${response.body}',
+      );
     }
+    return jsonDecode(response.body) as Map<String, Object?>;
   }
 
   @override
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
-    // HTTP transport does not support streaming.
-    throw UnimplementedError(
-      'Streaming is not supported by HttpTransport. '
-      'Use SseTransport instead.',
-    );
+    throw UnimplementedError('SSE is not implemented for HttpTransport');
   }
 }

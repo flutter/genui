@@ -2,41 +2,49 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelf/shelf.dart';
 
-class FakeHttpClient extends http.BaseClient {
+class FakeHttpClient implements http.Client {
   final Map<String, Object?> response;
   final int statusCode;
 
-  FakeHttpClient({required this.response, this.statusCode = 200});
+  FakeHttpClient(this.response, {this.statusCode = 200});
 
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    final responseBody = jsonEncode(response);
-    final stream = Stream.value(utf8.encode(responseBody));
-    return http.StreamedResponse(
-      stream,
-      statusCode,
-      headers: {'content-type': 'application/json'},
-    );
+  Future<http.Response> get(Uri url, {Map<String, String>? headers}) async {
+    return http.Response(jsonEncode(response), statusCode);
   }
+
+  @override
+  Future<http.Response> post(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) async {
+    return http.Response(jsonEncode(response), statusCode);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class FakeTransport implements Transport {
   final Map<String, Object?> response;
-  final Stream<Map<String, Object?>> streamResponse;
+  final Stream<Map<String, Object?>> stream;
 
-  FakeTransport({
-    required this.response,
-    Stream<Map<String, Object?>>? streamResponse,
-  }) : streamResponse = streamResponse ?? Stream.value(response);
+  FakeTransport({required this.response, Stream<Map<String, Object?>>? stream})
+    : stream = stream ?? Stream.value(response);
 
   @override
-  Future<Map<String, Object?>> get(String method) async {
+  Future<Map<String, Object?>> get(
+    String path, {
+    Map<String, String> headers = const {},
+  }) async {
     return response;
   }
 
@@ -50,25 +58,59 @@ class FakeTransport implements Transport {
 
   @override
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
-    return streamResponse;
+    return stream;
   }
 }
 
 class FakeTaskManager implements TaskManager {
-  final Task taskToReturn;
+  final _events = <String, List<Event>>{};
+  final Task? taskToReturn;
+  final Stream<Map<String, Object?>>? stream;
 
-  FakeTaskManager({required this.taskToReturn});
+  FakeTaskManager({this.taskToReturn, this.stream});
 
   @override
-  Task createTask([Message? message]) {
-    return taskToReturn;
+  Future<Task> createTask([Message? message]) async => taskToReturn!;
+
+  @override
+  Stream<Event> resubscribeToTask(String taskId) {
+    return Stream.fromIterable(_events[taskId] ?? []);
   }
 
   @override
-  Task? getTask(String taskId) {
-    return null;
+  Future<void> addEvent(String taskId, Event event) async {
+    _events.putIfAbsent(taskId, () => []).add(event);
   }
 
   @override
-  void updateTask(Task task) {}
+  Future<void> updateTask(Task task) async {}
+
+  @override
+  Future<Task?> getTask(String taskId) async => taskToReturn;
+
+  @override
+  Future<Task?> cancelTask(String taskId) async {
+    return taskToReturn?.copyWith(
+      status: const TaskStatus(state: TaskState.canceled),
+    );
+  }
+
+  @override
+  Future<ListTasksResult> listTasks(ListTasksParams params) async {
+    return ListTasksResult(
+      tasks: [if (taskToReturn != null) taskToReturn!],
+      totalSize: taskToReturn == null ? 0 : 1,
+      pageSize: 1,
+      nextPageToken: '',
+    );
+  }
+
+
+}
+
+Response ok(Map<String, Object?> body) {
+  return Response.ok(
+    jsonEncode(body),
+    headers: {'Content-Type': 'application/json'},
+  );
 }

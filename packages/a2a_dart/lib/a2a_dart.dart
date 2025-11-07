@@ -15,6 +15,8 @@ export 'src/core/agent_capabilities.dart';
 // Core data models and exceptions.
 export 'src/core/agent_card.dart';
 export 'src/core/events.dart';
+export 'src/core/list_tasks_params.dart';
+export 'src/core/list_tasks_result.dart';
 export 'src/core/message.dart';
 export 'src/core/part.dart';
 export 'src/core/security_scheme.dart';
@@ -22,7 +24,11 @@ export 'src/core/task.dart';
 // Server exports (conditionally exported).
 export 'src/server/a2a_server.dart';
 export 'src/server/a2a_server_exception.dart';
-export 'src/server/create_task_handler.dart';
+export 'src/server/cancel_task_handler.dart';
+export 'src/server/get_task_handler.dart';
 export 'src/server/handler_result.dart';
+export 'src/server/in_memory_task_manager.dart';
+export 'src/server/list_tasks_handler.dart';
 export 'src/server/request_handler.dart';
+export 'src/server/resubscribe_handler.dart';
 export 'src/server/task_manager.dart';

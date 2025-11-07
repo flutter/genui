@@ -27,7 +27,8 @@ mixin _$Task {
 /// the task.
  List<Artifact>? get artifacts;/// Optional metadata for extensions. The key is an extension-specific
 /// identifier.
- Map<String, Object?>? get metadata;/// The type of this object, used as a discriminator. Always 'task' for a
+ Map<String, Object?>? get metadata;/// The timestamp of the last update to the task.
+ int? get lastUpdated;/// The type of this object, used as a discriminator. Always 'task' for a
 /// Task.
  String get kind;
 /// Create a copy of Task
@@ -42,16 +43,16 @@ $TaskCopyWith<Task> get copyWith => _$TaskCopyWithImpl<Task>(this as Task, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Task&&(identical(other.id, id) || other.id == id)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.history, history)&&const DeepCollectionEquality().equals(other.artifacts, artifacts)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.kind, kind) || other.kind == kind));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Task&&(identical(other.id, id) || other.id == id)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.history, history)&&const DeepCollectionEquality().equals(other.artifacts, artifacts)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.lastUpdated, lastUpdated) || other.lastUpdated == lastUpdated)&&(identical(other.kind, kind) || other.kind == kind));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,contextId,status,const DeepCollectionEquality().hash(history),const DeepCollectionEquality().hash(artifacts),const DeepCollectionEquality().hash(metadata),kind);
+int get hashCode => Object.hash(runtimeType,id,contextId,status,const DeepCollectionEquality().hash(history),const DeepCollectionEquality().hash(artifacts),const DeepCollectionEquality().hash(metadata),lastUpdated,kind);
 
 @override
 String toString() {
-  return 'Task(id: $id, contextId: $contextId, status: $status, history: $history, artifacts: $artifacts, metadata: $metadata, kind: $kind)';
+  return 'Task(id: $id, contextId: $contextId, status: $status, history: $history, artifacts: $artifacts, metadata: $metadata, lastUpdated: $lastUpdated, kind: $kind)';
 }
 
 
@@ -62,7 +63,7 @@ abstract mixin class $TaskCopyWith<$Res>  {
   factory $TaskCopyWith(Task value, $Res Function(Task) _then) = _$TaskCopyWithImpl;
 @useResult
 $Res call({
- String id, String contextId, TaskStatus status, List<Message>? history, List<Artifact>? artifacts, Map<String, Object?>? metadata, String kind
+ String id, String contextId, TaskStatus status, List<Message>? history, List<Artifact>? artifacts, Map<String, Object?>? metadata, int? lastUpdated, String kind
 });
 
 
@@ -79,7 +80,7 @@ class _$TaskCopyWithImpl<$Res>
 
 /// Create a copy of Task
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? contextId = null,Object? status = null,Object? history = freezed,Object? artifacts = freezed,Object? metadata = freezed,Object? kind = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? contextId = null,Object? status = null,Object? history = freezed,Object? artifacts = freezed,Object? metadata = freezed,Object? lastUpdated = freezed,Object? kind = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,contextId: null == contextId ? _self.contextId : contextId // ignore: cast_nullable_to_non_nullable
@@ -87,7 +88,8 @@ as String,status: null == status ? _self.status : status // ignore: cast_nullabl
 as TaskStatus,history: freezed == history ? _self.history : history // ignore: cast_nullable_to_non_nullable
 as List<Message>?,artifacts: freezed == artifacts ? _self.artifacts : artifacts // ignore: cast_nullable_to_non_nullable
 as List<Artifact>?,metadata: freezed == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
-as Map<String, Object?>?,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as Map<String, Object?>?,lastUpdated: freezed == lastUpdated ? _self.lastUpdated : lastUpdated // ignore: cast_nullable_to_non_nullable
+as int?,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -182,10 +184,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String contextId,  TaskStatus status,  List<Message>? history,  List<Artifact>? artifacts,  Map<String, Object?>? metadata,  String kind)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String contextId,  TaskStatus status,  List<Message>? history,  List<Artifact>? artifacts,  Map<String, Object?>? metadata,  int? lastUpdated,  String kind)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Task() when $default != null:
-return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifacts,_that.metadata,_that.kind);case _:
+return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifacts,_that.metadata,_that.lastUpdated,_that.kind);case _:
   return orElse();
 
 }
@@ -203,10 +205,10 @@ return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String contextId,  TaskStatus status,  List<Message>? history,  List<Artifact>? artifacts,  Map<String, Object?>? metadata,  String kind)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String contextId,  TaskStatus status,  List<Message>? history,  List<Artifact>? artifacts,  Map<String, Object?>? metadata,  int? lastUpdated,  String kind)  $default,) {final _that = this;
 switch (_that) {
 case _Task():
-return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifacts,_that.metadata,_that.kind);case _:
+return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifacts,_that.metadata,_that.lastUpdated,_that.kind);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -223,10 +225,10 @@ return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String contextId,  TaskStatus status,  List<Message>? history,  List<Artifact>? artifacts,  Map<String, Object?>? metadata,  String kind)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String contextId,  TaskStatus status,  List<Message>? history,  List<Artifact>? artifacts,  Map<String, Object?>? metadata,  int? lastUpdated,  String kind)?  $default,) {final _that = this;
 switch (_that) {
 case _Task() when $default != null:
-return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifacts,_that.metadata,_that.kind);case _:
+return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifacts,_that.metadata,_that.lastUpdated,_that.kind);case _:
   return null;
 
 }
@@ -238,7 +240,7 @@ return $default(_that.id,_that.contextId,_that.status,_that.history,_that.artifa
 @JsonSerializable()
 
 class _Task implements Task {
-  const _Task({required this.id, required this.contextId, required this.status, final  List<Message>? history, final  List<Artifact>? artifacts, final  Map<String, Object?>? metadata, this.kind = 'task'}): _history = history,_artifacts = artifacts,_metadata = metadata;
+  const _Task({required this.id, required this.contextId, required this.status, final  List<Message>? history, final  List<Artifact>? artifacts, final  Map<String, Object?>? metadata, this.lastUpdated, this.kind = 'task'}): _history = history,_artifacts = artifacts,_metadata = metadata;
   factory _Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
 
 /// A unique identifier (e.g., a UUID) for the task, generated by the server
@@ -289,6 +291,8 @@ class _Task implements Task {
   return EqualUnmodifiableMapView(value);
 }
 
+/// The timestamp of the last update to the task.
+@override final  int? lastUpdated;
 /// The type of this object, used as a discriminator. Always 'task' for a
 /// Task.
 @override@JsonKey() final  String kind;
@@ -306,16 +310,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Task&&(identical(other.id, id) || other.id == id)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._history, _history)&&const DeepCollectionEquality().equals(other._artifacts, _artifacts)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.kind, kind) || other.kind == kind));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Task&&(identical(other.id, id) || other.id == id)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._history, _history)&&const DeepCollectionEquality().equals(other._artifacts, _artifacts)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.lastUpdated, lastUpdated) || other.lastUpdated == lastUpdated)&&(identical(other.kind, kind) || other.kind == kind));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,contextId,status,const DeepCollectionEquality().hash(_history),const DeepCollectionEquality().hash(_artifacts),const DeepCollectionEquality().hash(_metadata),kind);
+int get hashCode => Object.hash(runtimeType,id,contextId,status,const DeepCollectionEquality().hash(_history),const DeepCollectionEquality().hash(_artifacts),const DeepCollectionEquality().hash(_metadata),lastUpdated,kind);
 
 @override
 String toString() {
-  return 'Task(id: $id, contextId: $contextId, status: $status, history: $history, artifacts: $artifacts, metadata: $metadata, kind: $kind)';
+  return 'Task(id: $id, contextId: $contextId, status: $status, history: $history, artifacts: $artifacts, metadata: $metadata, lastUpdated: $lastUpdated, kind: $kind)';
 }
 
 
@@ -326,7 +330,7 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
   factory _$TaskCopyWith(_Task value, $Res Function(_Task) _then) = __$TaskCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String contextId, TaskStatus status, List<Message>? history, List<Artifact>? artifacts, Map<String, Object?>? metadata, String kind
+ String id, String contextId, TaskStatus status, List<Message>? history, List<Artifact>? artifacts, Map<String, Object?>? metadata, int? lastUpdated, String kind
 });
 
 
@@ -343,7 +347,7 @@ class __$TaskCopyWithImpl<$Res>
 
 /// Create a copy of Task
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? contextId = null,Object? status = null,Object? history = freezed,Object? artifacts = freezed,Object? metadata = freezed,Object? kind = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? contextId = null,Object? status = null,Object? history = freezed,Object? artifacts = freezed,Object? metadata = freezed,Object? lastUpdated = freezed,Object? kind = null,}) {
   return _then(_Task(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,contextId: null == contextId ? _self.contextId : contextId // ignore: cast_nullable_to_non_nullable
@@ -351,7 +355,8 @@ as String,status: null == status ? _self.status : status // ignore: cast_nullabl
 as TaskStatus,history: freezed == history ? _self._history : history // ignore: cast_nullable_to_non_nullable
 as List<Message>?,artifacts: freezed == artifacts ? _self._artifacts : artifacts // ignore: cast_nullable_to_non_nullable
 as List<Artifact>?,metadata: freezed == metadata ? _self._metadata : metadata // ignore: cast_nullable_to_non_nullable
-as Map<String, Object?>?,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as Map<String, Object?>?,lastUpdated: freezed == lastUpdated ? _self.lastUpdated : lastUpdated // ignore: cast_nullable_to_non_nullable
+as int?,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

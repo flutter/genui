@@ -41,6 +41,12 @@ class A2AServer {
   /// `/.well-known/agent-card.json`.
   AgentCard? agentCard;
 
+  /// The extended agent card for this server.
+  ///
+  /// This is returned when a request to `/.well-known/agent-card.json`
+  /// includes an `Authorization` header.
+  AgentCard? extendedAgentCard;
+
   /// Creates an [A2AServer].
   ///
   /// The [handlers] are a list of [RequestHandler]s that will be used to
@@ -62,6 +68,7 @@ class A2AServer {
     int port = 0,
     Logger? logger,
     this.agentCard,
+    this.extendedAgentCard,
   }) : _requestedPort = port,
        _log = logger {
     for (final handler in handlers) {
@@ -120,11 +127,18 @@ class A2AServer {
   }
 
   Future<Response> _handleAgentCardRequest(Request request) async {
-    if (agentCard == null) {
+    final isAuthenticated = request.headers.containsKey('Authorization');
+    AgentCard? card;
+    if (isAuthenticated && extendedAgentCard != null) {
+      card = extendedAgentCard;
+    } else {
+      card = agentCard;
+    }
+    if (card == null) {
       return Response.notFound('Agent card not configured');
     }
     return Response.ok(
-      jsonEncode(agentCard!.toJson()),
+      jsonEncode(card.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
   }
@@ -161,11 +175,20 @@ class A2AServer {
         );
       }
       return _executeHandler(handler, params, id);
-    } catch (e) {
+    } on Exception catch (exception, stackTrace) {
+      _log?.severe('Unhandled server exception', exception, stackTrace);
       return _jsonRpcError(
         id: id,
         code: -32000,
-        message: 'Server error: $e',
+        message: 'Server exception: $exception',
+        responseCode: 500,
+      );
+    } catch (exception, stackTrace) {
+      _log?.severe('Unhandled server error', exception, stackTrace);
+      return _jsonRpcError(
+        id: id,
+        code: -32000,
+        message: 'Server error: $exception\n$stackTrace',
         responseCode: 500,
       );
     }
@@ -201,19 +224,35 @@ class A2AServer {
           },
         ),
       };
-    } on A2AServerException catch (e) {
+    } on A2AServerException catch (exception) {
       return _jsonRpcError(
         id: id,
-        code: e.code,
-        message: e.message,
+        code: exception.code,
+        message: exception.message,
         responseCode: 500,
       );
-    } catch (e, stackTrace) {
-      _log?.severe('Unhandled server error', e, stackTrace);
+    } on Exception catch (exception, stackTrace) {
+      _log?.severe(
+        'Unhandled server exception in ${handler.method}',
+        exception,
+        stackTrace,
+      );
       return _jsonRpcError(
         id: id,
         code: -32000,
-        message: 'Server error: $e',
+        message: 'Server exception: $exception\n$stackTrace',
+        responseCode: 500,
+      );
+    } catch (exception, stackTrace) {
+      _log?.severe(
+        'Unhandled server error in ${handler.method}',
+        exception,
+        stackTrace,
+      );
+      return _jsonRpcError(
+        id: id,
+        code: -32000,
+        message: 'Server error: $exception\n$stackTrace',
         responseCode: 500,
       );
     }

@@ -15,7 +15,7 @@ void main() {
       };
       final transport = HttpTransport(
         url: 'http://localhost:8080',
-        client: FakeHttpClient(response: response),
+        client: FakeHttpClient(response),
       );
 
       final result = await transport.send({});
@@ -27,10 +27,10 @@ void main() {
       final response = {'message': 'success'};
       final transport = HttpTransport(
         url: 'http://localhost:8080',
-        client: FakeHttpClient(response: response),
+        client: FakeHttpClient(response),
       );
 
-      final result = await transport.get('test');
+      final result = await transport.get('/test');
 
       expect(result, equals(response));
     });
@@ -38,7 +38,7 @@ void main() {
     test('send throws an exception on error', () {
       final transport = HttpTransport(
         url: 'http://localhost:8080',
-        client: FakeHttpClient(response: {}, statusCode: 400),
+        client: FakeHttpClient({}, statusCode: 400),
       );
 
       expect(transport.send({}), throwsException);

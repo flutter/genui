@@ -41,9 +41,11 @@ class SseTransport extends HttpTransport {
     try {
       final response = await client.send(httpRequest);
       if (response.statusCode >= 400) {
+        final body = await response.stream.bytesToString();
+        log?.severe('Received error response: ${response.statusCode} $body');
         throw A2AException.http(
           statusCode: response.statusCode,
-          reason: response.reasonPhrase,
+          reason: '${response.reasonPhrase} $body',
         );
       }
       final lines = response.stream

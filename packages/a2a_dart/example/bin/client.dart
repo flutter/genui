@@ -6,59 +6,71 @@ import 'package:a2a_dart/a2a_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
+/// This is an example of how to write a client for the A2A protocol.
+/// It demonstrates the use of the A2AClient class to connect to an A2A server
+/// and perform various operations.
+///
+/// It connects to the server and asks it to start a countdown from 10 to zero.
+/// Then it demonstrates how to pause the countdown, and then resumes it after a
+/// three second pause.
 void main() async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  final log = Logger('A2AClient');
-  final transport = SseTransport(url: 'http://localhost:8080', log: log);
-  final client = A2AClient(url: 'http://localhost:8080', transport: transport);
+  final client = A2AClient(url: 'http://localhost:8080');
 
   try {
     final agentCard = await client.getAgentCard();
     print('Agent: ${agentCard.name}');
 
-    final startMessage = Message(
+    final message = Message(
       messageId: const Uuid().v4(),
       role: Role.user,
-      parts: [const Part.text(text: 'start 10')],
+      parts: const [Part.text(text: 'start 10')],
     );
-    final task = await client.createTask(startMessage);
-    print('Created task: ${task.id}');
+    final stream = client.messageStream(message);
+    Task? task;
 
-    final stream = client.executeTask(task.id);
-    var pauseSent = false;
     await for (final event in stream) {
-      await event.when(
-        taskStatusUpdate: (kind, taskId, contextId, status, final_) {},
-        taskArtifactUpdate:
-            (kind, taskId, contextId, artifact, append, lastChunk) async {
-              final part = artifact.parts.first;
-              if (part is TextPart) {
-                final text = part.text;
-                print('Received event: $text');
-                if (text.contains('5') && !pauseSent) {
-                  pauseSent = true;
-                  print('Pausing countdown');
-                  final pauseMessage = Message(
-                    messageId: const Uuid().v4(),
-                    role: Role.user,
-                    parts: [Part.text(text: 'pause ${task.id}')],
-                  );
-                  await client.message(pauseMessage);
-                }
-              }
-            },
-      );
+      switch (event) {
+        case TaskStatusUpdate():
+          task = await client.getTask(event.taskId);
+          print('Task ${task.id} updated: ${task.status.state.name}');
+          break;
+        case TaskArtifactUpdate():
+          for (final part in event.artifact.parts) {
+            if (part is TextPart) {
+              print(part.text);
+            }
+          }
+      }
     }
-  } on A2AException catch (e) {
-    e.when(
-      jsonRpc: (code, message, data) => print('JSON-RPC Error: $message'),
-      http: (statusCode, reason) => print('HTTP Error: $statusCode'),
-      network: (message) => print('Network Error: $message'),
-      parsing: (message) => print('Parsing Error: $message'),
+
+    print('---');
+
+    // Demonstrate messageSend
+    final task2 = await client.messageSend(
+      Message(
+        messageId: const Uuid().v4(),
+        role: Role.user,
+        parts: const [Part.text(text: 'pause')],
+      ),
     );
+    print('Created task ${task2.id}');
+
+    // Demonstrate listTasks
+    final tasks = await client.listTasks();
+    print('Found ${tasks.tasks.length} tasks:');
+    for (final t in tasks.tasks) {
+      print('  - ${t.id}');
+      final task = await client.getTask(t.id);
+      // cancel the task
+      final canceledTask = await client.cancelTask(task.id);
+      print('    - Canceled task: ${canceledTask.id}');
+    }
+  } on A2AException catch (exception) {
+    print('Error: $exception');
   }
 }

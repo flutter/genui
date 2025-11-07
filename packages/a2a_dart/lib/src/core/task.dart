@@ -41,6 +41,9 @@ abstract class Task with _$Task {
     /// identifier.
     Map<String, Object?>? metadata,
 
+    /// The timestamp of the last update to the task.
+    int? lastUpdated,
+
     /// The type of this object, used as a discriminator. Always 'task' for a
     /// Task.
     @Default('task') String kind,
