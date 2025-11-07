@@ -14,10 +14,10 @@ void main() {
 
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
-      final mockAiClient = FakeContentGenerator();
-      mockAiClient.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
+      final mockContentGenerator = FakeContentGenerator();
+      mockContentGenerator.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
 
-      runApp(app.TravelApp(contentGenerator: mockAiClient));
+      runApp(app.TravelApp(contentGenerator: mockContentGenerator));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'Plan a trip to Bali');
       await tester.tap(find.byIcon(Icons.send));

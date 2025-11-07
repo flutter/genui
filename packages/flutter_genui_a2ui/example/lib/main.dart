@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_a2ui/flutter_genui_a2ui.dart';
@@ -22,7 +24,7 @@ class GenUIExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'A2UI Example',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: const ChatScreen(),
     );
   }
@@ -44,6 +46,9 @@ class _ChatScreenState extends State<ChatScreen> {
   );
   late final A2uiContentGenerator _contentGenerator;
   late final GenUiConversation _genUiConversation;
+  final List<String> _surfaceIds = ['default'];
+  int _currentSurfaceIndex = 0;
+  StreamSubscription<GenUiUpdate>? _surfaceSubscription;
 
   @override
   void initState() {
@@ -55,12 +60,54 @@ class _ChatScreenState extends State<ChatScreen> {
       contentGenerator: _contentGenerator,
       genUiManager: _genUiManager,
     );
+    // Initialize with existing surfaces
+    _surfaceIds.addAll(
+      _genUiManager.surfaces.keys.where((id) => !_surfaceIds.contains(id)),
+    );
+
+    _surfaceSubscription = _genUiManager.surfaceUpdates.listen((update) {
+      if (update is SurfaceAdded) {
+        genUiLogger.info('Surface added: ${update.surfaceId}');
+        if (!_surfaceIds.contains(update.surfaceId)) {
+          setState(() {
+            _surfaceIds.add(update.surfaceId);
+            // Switch to the new surface
+            _currentSurfaceIndex = _surfaceIds.length - 1;
+          });
+        }
+      } else if (update is SurfaceUpdated) {
+        genUiLogger.info('Surface updated: ${update.surfaceId}');
+        // The surface will redraw itself, but we call setState here to ensure
+        // that any other dependent widgets are also updated.
+        setState(() {});
+      } else if (update is SurfaceRemoved) {
+        genUiLogger.info('Surface removed: ${update.surfaceId}');
+        if (_surfaceIds.contains(update.surfaceId)) {
+          setState(() {
+            final removeIndex = _surfaceIds.indexOf(update.surfaceId);
+            _surfaceIds.removeAt(removeIndex);
+            if (_surfaceIds.isEmpty) {
+              _currentSurfaceIndex = 0;
+            } else {
+              if (_currentSurfaceIndex >= removeIndex &&
+                  _currentSurfaceIndex > 0) {
+                _currentSurfaceIndex--;
+              }
+              if (_currentSurfaceIndex >= _surfaceIds.length) {
+                _currentSurfaceIndex = _surfaceIds.length - 1;
+              }
+            }
+          });
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _textController.dispose();
     _genUiConversation.dispose();
+    _surfaceSubscription?.cancel();
     _genUiManager.dispose();
     _contentGenerator.dispose();
     super.dispose();
@@ -71,10 +118,53 @@ class _ChatScreenState extends State<ChatScreen> {
     _genUiConversation.sendRequest(UserMessage.text(text));
   }
 
+  void _previousSurface() {
+    if (_currentSurfaceIndex > 0) {
+      setState(() {
+        _currentSurfaceIndex--;
+      });
+    }
+  }
+
+  void _nextSurface() {
+    if (_currentSurfaceIndex < _surfaceIds.length - 1) {
+      setState(() {
+        _currentSurfaceIndex++;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_surfaceIds.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('A2UI Example')),
+        body: const Center(child: Text('No surfaces available.')),
+      );
+    }
+    final currentSurfaceId = _surfaceIds[_currentSurfaceIndex];
     return Scaffold(
-      appBar: AppBar(title: const Text('A2UI Example')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _previousSurface,
+          tooltip: 'Previous Surface',
+          color: _currentSurfaceIndex > 0
+              ? null
+              : Theme.of(context).disabledColor,
+        ),
+        title: Text('Surface: $currentSurfaceId'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            onPressed: _nextSurface,
+            tooltip: 'Next Surface',
+            color: _currentSurfaceIndex < _surfaceIds.length - 1
+                ? null
+                : Theme.of(context).disabledColor,
+          ),
+        ],
+      ),
       body: Row(
         children: <Widget>[
           ConstrainedBox(
@@ -105,7 +195,11 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              child: GenUiSurface(host: _genUiManager, surfaceId: 'default'),
+              child: GenUiSurface(
+                key: ValueKey(currentSurfaceId),
+                host: _genUiManager,
+                surfaceId: currentSurfaceId,
+              ),
             ),
           ),
         ],

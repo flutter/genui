@@ -8,15 +8,15 @@ import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_genui/flutter_genui.dart';
 
 /// An exception thrown by this package.
-class AiClientException implements Exception {
-  /// Creates an [AiClientException] with the given [message].
-  AiClientException(this.message);
+class ContentConverterException implements Exception {
+  /// Creates an [ContentConverterException] with the given [message].
+  ContentConverterException(this.message);
 
   /// The message associated with the exception.
   final String message;
 
   @override
-  String toString() => '$AiClientException: $message';
+  String toString() => '$ContentConverterException: $message';
 }
 
 /// A class to convert between the generic `ChatMessage` and the `firebase_ai`
@@ -55,6 +55,13 @@ class GeminiContentConverter {
       switch (part) {
         case TextPart():
           result.add(firebase_ai.TextPart(part.text));
+        case DataPart():
+          result.add(
+            firebase_ai.InlineDataPart(
+              'application/json',
+              utf8.encode(jsonEncode(part.data)),
+            ),
+          );
         case ImagePart():
           if (part.bytes != null) {
             result.add(firebase_ai.InlineDataPart(part.mimeType!, part.bytes!));
@@ -72,7 +79,7 @@ class GeminiContentConverter {
             // representation.
             result.add(firebase_ai.TextPart('Image at ${part.url}'));
           } else {
-            throw AiClientException('ImagePart has no data.');
+            throw ContentConverterException('ImagePart has no data.');
           }
         case ToolCallPart():
           result.add(firebase_ai.FunctionCall(part.toolName, part.arguments));

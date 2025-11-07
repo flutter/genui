@@ -60,60 +60,90 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
 final multipleChoice = CatalogItem(
   name: 'MultipleChoice',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final multipleChoiceData = _MultipleChoiceData.fromMap(data as JsonMap);
-        final selectionsNotifier = dataContext.subscribeToObjectArray(
-          multipleChoiceData.selections,
-        );
+  widgetBuilder: (itemContext) {
+    final multipleChoiceData = _MultipleChoiceData.fromMap(
+      itemContext.data as JsonMap,
+    );
+    final selectionsNotifier = itemContext.dataContext.subscribeToObjectArray(
+      multipleChoiceData.selections,
+    );
 
-        return ValueListenableBuilder<List<Object?>?>(
-          valueListenable: selectionsNotifier,
-          builder: (context, selections, child) {
-            return Column(
-              children: multipleChoiceData.options.map((option) {
-                final labelNotifier = dataContext.subscribeToString(
-                  option['label'] as JsonMap,
-                );
-                final value = option['value'] as String;
-                return ValueListenableBuilder<String?>(
-                  valueListenable: labelNotifier,
-                  builder: (context, label, child) {
-                    return CheckboxListTile(
-                      title: Text(label ?? ''),
-                      value: selections?.contains(value) ?? false,
-                      onChanged: (newValue) {
-                        final path =
-                            multipleChoiceData.selections['path'] as String?;
-                        if (path == null) {
-                          return;
-                        }
-                        final newSelections = List<String>.from(
-                          selections ?? [],
-                        );
-                        if (newValue ?? false) {
-                          newSelections.add(value);
-                        } else {
-                          newSelections.remove(value);
-                        }
-                        dataContext.update(DataPath(path), newSelections);
-                      },
-                    );
-                  },
-                );
-              }).toList(),
+    return ValueListenableBuilder<List<Object?>?>(
+      valueListenable: selectionsNotifier,
+      builder: (context, selections, child) {
+        return Column(
+          children: multipleChoiceData.options.map((option) {
+            final labelNotifier = itemContext.dataContext.subscribeToString(
+              option['label'] as JsonMap,
             );
-          },
+            final value = option['value'] as String;
+            return ValueListenableBuilder<String?>(
+              valueListenable: labelNotifier,
+              builder: (context, label, child) {
+                if (multipleChoiceData.maxAllowedSelections == 1) {
+                  final groupValue = selections?.isNotEmpty == true
+                      ? selections!.first
+                      : null;
+                  return RadioListTile<String>(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    dense: true,
+                    title: Text(
+                      label ?? '',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    value: value,
+                    // ignore: deprecated_member_use
+                    groupValue: groupValue is String ? groupValue : null,
+                    // ignore: deprecated_member_use
+                    onChanged: (newValue) {
+                      final path =
+                          multipleChoiceData.selections['path'] as String?;
+                      if (path == null || newValue == null) {
+                        return;
+                      }
+                      itemContext.dataContext.update(DataPath(path), [
+                        newValue,
+                      ]);
+                    },
+                  );
+                } else {
+                  return CheckboxListTile(
+                    title: Text(label ?? ''),
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: selections?.contains(value) ?? false,
+                    onChanged: (newValue) {
+                      final path =
+                          multipleChoiceData.selections['path'] as String?;
+                      if (path == null) {
+                        return;
+                      }
+                      final newSelections =
+                          selections?.map((e) => e.toString()).toList() ??
+                          <String>[];
+                      if (newValue ?? false) {
+                        if (multipleChoiceData.maxAllowedSelections == null ||
+                            newSelections.length <
+                                multipleChoiceData.maxAllowedSelections!) {
+                          newSelections.add(value);
+                        }
+                      } else {
+                        newSelections.remove(value);
+                      }
+                      itemContext.dataContext.update(
+                        DataPath(path),
+                        newSelections,
+                      );
+                    },
+                  );
+                }
+              },
+            );
+          }).toList(),
         );
       },
+    );
+  },
   exampleData: [
     () => '''
       [

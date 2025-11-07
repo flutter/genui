@@ -45,45 +45,36 @@ extension type _TabsData.fromMap(JsonMap _json) {
 final tabs = CatalogItem(
   name: 'Tabs',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final tabsData = _TabsData.fromMap(data as JsonMap);
-        return DefaultTabController(
-          length: tabsData.tabItems.length,
-          child: Column(
-            children: [
-              TabBar(
-                tabs: tabsData.tabItems.map((tabItem) {
-                  final titleNotifier = dataContext.subscribeToString(
-                    tabItem['title'] as JsonMap,
-                  );
-                  return ValueListenableBuilder<String?>(
-                    valueListenable: titleNotifier,
-                    builder: (context, title, child) {
-                      return Tab(text: title ?? '');
-                    },
-                  );
-                }).toList(),
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: tabsData.tabItems.map((tabItem) {
-                    return buildChild(tabItem['child'] as String);
-                  }).toList(),
-                ),
-              ),
-            ],
+  widgetBuilder: (itemContext) {
+    final tabsData = _TabsData.fromMap(itemContext.data as JsonMap);
+    return DefaultTabController(
+      length: tabsData.tabItems.length,
+      child: Column(
+        children: [
+          TabBar(
+            tabs: tabsData.tabItems.map((tabItem) {
+              final titleNotifier = itemContext.dataContext.subscribeToString(
+                tabItem['title'] as JsonMap,
+              );
+              return ValueListenableBuilder<String?>(
+                valueListenable: titleNotifier,
+                builder: (context, title, child) {
+                  return Tab(text: title ?? '');
+                },
+              );
+            }).toList(),
           ),
-        );
-      },
+          Expanded(
+            child: TabBarView(
+              children: tabsData.tabItems.map((tabItem) {
+                return itemContext.buildChild(tabItem['child'] as String);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  },
   exampleData: [
     () => '''
       [

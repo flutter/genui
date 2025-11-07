@@ -42,7 +42,7 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
 }
 
 /// Parses a [ToolCall] into a [ParsedToolCall].
-Future<ParsedToolCall> parseToolCall(ToolCall toolCall, String toolName) async {
+ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
   assert(toolCall.name == toolName);
 
   final messageJson = {'surfaceUpdate': toolCall.args};

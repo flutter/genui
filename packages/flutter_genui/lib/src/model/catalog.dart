@@ -10,7 +10,6 @@ import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
 import 'data_model.dart';
-import 'ui_models.dart';
 
 /// Represents a collection of UI components that a generative AI model can use
 /// to construct a user interface.
@@ -51,26 +50,8 @@ class Catalog {
   }
 
   /// Builds a Flutter widget from a JSON-like data structure.
-  ///
-  /// This method looks up the appropriate [CatalogItem] based on the `widget`
-  /// field in the [widgetData] map and uses its `widgetBuilder` to construct
-  /// the widget.
-  ///
-  /// * [widgetData]: The deserialized JSON data for the widget to build.
-  /// * [buildChild]: A function that can be called to recursively build child
-  ///   widgets by their ID.
-  /// * [dispatchEvent]: A callback to send UI events, like button presses or
-  ///   value changes, back to the model.
-  /// * [context]: The build context for the widget.
-  Widget buildWidget({
-    required String id,
-    required JsonMap widgetData,
-    required ChildBuilderCallback buildChild,
-    required DispatchEventCallback dispatchEvent,
-    required BuildContext context,
-    required DataContext dataContext,
-    required GetComponentCallback getComponent,
-  }) {
+  Widget buildWidget(CatalogItemContext itemContext) {
+    final widgetData = itemContext.data as JsonMap;
     final widgetType = widgetData.keys.firstOrNull;
     final item = items.firstWhereOrNull((item) => item.name == widgetType);
     if (item == null) {
@@ -78,16 +59,22 @@ class Catalog {
       return Container();
     }
 
-    genUiLogger.info('Building widget ${item.name} with id $id');
+    genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
     return item.widgetBuilder(
-      data: JsonMap.from(widgetData[widgetType]! as Map),
-      id: id,
-      buildChild: (String childId, [DataContext? childDataContext]) =>
-          buildChild(childId, childDataContext ?? dataContext),
-      dispatchEvent: dispatchEvent,
-      context: context,
-      dataContext: dataContext,
-      getComponent: getComponent,
+      CatalogItemContext(
+        data: JsonMap.from(widgetData[widgetType]! as Map),
+        id: itemContext.id,
+        buildChild: (String childId, [DataContext? childDataContext]) =>
+            itemContext.buildChild(
+              childId,
+              childDataContext ?? itemContext.dataContext,
+            ),
+        dispatchEvent: itemContext.dispatchEvent,
+        buildContext: itemContext.buildContext,
+        dataContext: itemContext.dataContext,
+        getComponent: itemContext.getComponent,
+        surfaceId: itemContext.surfaceId,
+      ),
     );
   }
 

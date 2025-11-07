@@ -22,6 +22,15 @@ final class TextPart implements MessagePart {
   const TextPart(this.text);
 }
 
+/// A data part that can send structured data to the model.
+final class DataPart implements MessagePart {
+  /// The data content.
+  final Map<String, Object>? data;
+
+  /// Creates a [DataPart] with the given [data].
+  const DataPart(this.data);
+}
+
 /// An image part of a message.
 ///
 /// Use the factory constructors to create an instance from different sources.

@@ -50,39 +50,46 @@ extension type _SliderData.fromMap(JsonMap _json) {
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final sliderData = _SliderData.fromMap(data as JsonMap);
-        final valueNotifier = dataContext.subscribeToValue<num>(
-          sliderData.value,
-          'literalNumber',
-        );
+  widgetBuilder: (CatalogItemContext itemContext) {
+    final sliderData = _SliderData.fromMap(itemContext.data as JsonMap);
+    final valueNotifier = itemContext.dataContext.subscribeToValue<num>(
+      sliderData.value,
+      'literalNumber',
+    );
 
-        return ValueListenableBuilder<num?>(
-          valueListenable: valueNotifier,
-          builder: (context, value, child) {
-            return Slider(
-              value: (value ?? 0.0).toDouble(),
-              min: sliderData.minValue,
-              max: sliderData.maxValue,
-              onChanged: (newValue) {
-                final path = sliderData.value['path'] as String?;
-                if (path != null) {
-                  dataContext.update(DataPath(path), newValue);
-                }
-              },
-            );
-          },
+    return ValueListenableBuilder<num?>(
+      valueListenable: valueNotifier,
+      builder: (context, value, child) {
+        return Padding(
+          padding: const EdgeInsetsDirectional.only(end: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Slider(
+                  value: (value ?? sliderData.minValue).toDouble(),
+                  min: sliderData.minValue,
+                  max: sliderData.maxValue,
+                  divisions: (sliderData.maxValue - sliderData.minValue)
+                      .toInt(),
+                  onChanged: (newValue) {
+                    final path = sliderData.value['path'] as String?;
+                    if (path != null) {
+                      itemContext.dataContext.update(DataPath(path), newValue);
+                    }
+                  },
+                ),
+              ),
+              Text(
+                value?.toStringAsFixed(0) ??
+                    sliderData.minValue.toStringAsFixed(0),
+              ),
+            ],
+          ),
         );
       },
+    );
+  },
   exampleData: [
     () => '''
       [

@@ -50,16 +50,16 @@ final catalog = CoreCatalogItems.asCatalog().copyWith([
 
 /// Initializing the library.
 final genUiManager = GenUiManager(catalog: catalog);
-final aiClient = FirebaseAiClient(
+final contentGenerator = FirebaseAiContentGenerator(
+  catalog: catalog,
   systemInstruction: '''
   You are a bicycle maintenance assistant who is an expert in diagnosing issues and
   giving step-by-step instructions.
   ''',
-  tools: genUiManager.getTools(),
 );
 late final _genUiConversation = GenUiConversation(
   genUiManager: genUiManager,
-  aiClient: aiClient,
+  contentGenerator: contentGenerator,
   onSurfaceAdded: _onSurfaceAdded,
   onSurfaceDeleted: (_) {},
   onTextResponse: (_) {},
@@ -81,7 +81,7 @@ void _onSurfaceAdded(SurfaceAdded surface) {
 Widget build(BuildContext context) {
    if (type == MessageType.genUi) {
      return GenUiSurface(
-       host: _genUiConversation.host,
+       host: _genUiConversation.genUiManager.host,
        surfaceId: _surfaceId,
        onEvent: _handleEvent,
      );

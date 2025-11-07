@@ -58,11 +58,8 @@ class A2uiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       if (history != null && history.isNotEmpty) {
-        _errorResponseController.add(
-          ContentGeneratorError(
-            'A2uiContentGenerator is stateful and ignores history.',
-            StackTrace.current,
-          ),
+        genUiLogger.warning(
+          'A2uiContentGenerator is stateful and ignores history.',
         );
       }
       final responseText = await connector.connectAndSend(message);

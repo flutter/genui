@@ -79,6 +79,17 @@ void main() {
       expect(result.first.parts[1], isA<firebase_ai.InlineDataPart>());
     });
 
+    test('toFirebaseAiContent converts $DataPart', () {
+      final data = {'key': 'value'};
+      final messages = [
+        UserMessage([DataPart(data)]),
+      ];
+      final result = converter.toFirebaseAiContent(messages);
+      final part = result.first.parts.first as firebase_ai.InlineDataPart;
+      expect(part.mimeType, 'application/json');
+      expect(utf8.decode(part.bytes), jsonEncode(data));
+    });
+
     test('toFirebaseAiContent converts $ImagePart from bytes', () {
       final bytes = Uint8List.fromList([1, 2, 3]);
       final messages = [

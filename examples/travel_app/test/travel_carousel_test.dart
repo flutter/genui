@@ -40,15 +40,18 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),
@@ -102,15 +105,18 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),
@@ -139,13 +145,16 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: (data, [_]) => Text(data),
-                    dispatchEvent: (event) {},
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: (data, [_]) => Text(data),
+                      dispatchEvent: (event) {},
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),

@@ -27,15 +27,18 @@ void main() {
             body: Builder(
               builder: (context) {
                 return trailhead.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEvent = event;
-                  },
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {
+                      dispatchedEvent = event;
+                    },
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),
@@ -70,13 +73,16 @@ void main() {
             body: Builder(
               builder: (context) {
                 return trailhead.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_, [_]) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),

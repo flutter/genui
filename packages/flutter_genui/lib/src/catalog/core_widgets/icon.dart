@@ -32,38 +32,54 @@ extension type _IconData.fromMap(JsonMap _json) {
 }
 
 enum AvailableIcons {
+  accountCircle(Icons.account_circle),
   add(Icons.add),
   arrowBack(Icons.arrow_back),
   arrowForward(Icons.arrow_forward),
-  build(Icons.build),
-  cameraAlt(Icons.camera_alt),
+  attachFile(Icons.attach_file),
+  calendarToday(Icons.calendar_today),
+  call(Icons.call),
+  camera(Icons.camera_alt),
   check(Icons.check),
   close(Icons.close),
   delete(Icons.delete),
   download(Icons.download),
   edit(Icons.edit),
+  error(Icons.error),
   event(Icons.event),
   favorite(Icons.favorite),
+  favoriteOff(Icons.favorite_outline),
+  folder(Icons.folder),
+  help(Icons.help),
   home(Icons.home),
-  info(Icons.info),
+  info(Icons.info_outline),
   locationOn(Icons.location_on),
-  lockOpen(Icons.lock_open),
-  lock(Icons.lock),
-  mail(Icons.mail),
+  lock(Icons.lock_outline),
+  lockOpen(Icons.lock_open_outlined),
+  mail(Icons.mail_outline),
   menu(Icons.menu),
-  notificationsActive(Icons.notifications_active),
+  moreHoriz(Icons.more_horiz),
+  moreVert(Icons.more_vert),
   notifications(Icons.notifications),
+  notificationsOff(Icons.notifications_none),
   payment(Icons.payment),
   person(Icons.person),
   phone(Icons.phone),
-  photoLibrary(Icons.photo_library),
+  photo(Icons.photo),
+  print(Icons.print),
+  refresh(Icons.refresh),
   search(Icons.search),
+  send(Icons.send),
   settings(Icons.settings),
   share(Icons.share),
   shoppingCart(Icons.shopping_cart),
+  star(Icons.star),
+  starHalf(Icons.star_half_outlined),
+  starOff(Icons.star_outline),
   upload(Icons.upload),
+  visibility(Icons.visibility),
   visibilityOff(Icons.visibility_off),
-  visibility(Icons.visibility);
+  warning(Icons.warning);
 
   const AvailableIcons(this.iconData);
 
@@ -90,44 +106,35 @@ enum AvailableIcons {
 final icon = CatalogItem(
   name: 'Icon',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final iconData = _IconData.fromMap(data as JsonMap);
-        final literalName = iconData.literalName;
-        final namePath = iconData.namePath;
+  widgetBuilder: (itemContext) {
+    final iconData = _IconData.fromMap(itemContext.data as JsonMap);
+    final literalName = iconData.literalName;
+    final namePath = iconData.namePath;
 
-        if (literalName != null) {
-          final icon =
-              AvailableIcons.fromName(literalName)?.iconData ??
-              Icons.broken_image;
-          return Icon(icon);
-        }
+    if (literalName != null) {
+      final icon =
+          AvailableIcons.fromName(literalName)?.iconData ?? Icons.broken_image;
+      return Icon(icon);
+    }
 
-        if (namePath == null) {
-          return const Icon(Icons.broken_image);
-        }
+    if (namePath == null) {
+      return const Icon(Icons.broken_image);
+    }
 
-        final notifier = dataContext.subscribe<String>(DataPath(namePath));
+    final notifier = itemContext.dataContext.subscribe<String>(
+      DataPath(namePath),
+    );
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            final iconName = currentValue ?? '';
-            final icon =
-                AvailableIcons.fromName(iconName)?.iconData ??
-                Icons.broken_image;
-            return Icon(icon);
-          },
-        );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentValue, child) {
+        final iconName = currentValue ?? '';
+        final icon =
+            AvailableIcons.fromName(iconName)?.iconData ?? Icons.broken_image;
+        return Icon(icon);
       },
+    );
+  },
   exampleData: [
     () => '''
       [

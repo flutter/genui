@@ -23,23 +23,29 @@ typedef ChildBuilderCallback =
 typedef ExampleBuilderCallback = String Function();
 
 /// A callback that builds a widget for a catalog item.
-typedef CatalogWidgetBuilder =
-    Widget Function({
-      // The actual deserialized JSON data for this widget. The format of this
-      // data will exactly match [CatalogItem.dataSchema].
-      required Object data,
-      // The ID of this widget.
-      required String id,
-      // A function used to build a child based on the given ID.
-      required ChildBuilderCallback buildChild,
-      // A function used to dispatch an event.
-      required DispatchEventCallback dispatchEvent,
-      required BuildContext context,
-      // The current data context for this widget.
-      required DataContext dataContext,
-      // A function to retrieve a component definition by its ID.
-      required GetComponentCallback getComponent,
-    });
+typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext itemContext);
+
+class CatalogItemContext {
+  CatalogItemContext({
+    required this.data,
+    required this.id,
+    required this.buildChild,
+    required this.dispatchEvent,
+    required this.buildContext,
+    required this.dataContext,
+    required this.getComponent,
+    required this.surfaceId,
+  });
+
+  final Object data;
+  final String id;
+  final ChildBuilderCallback buildChild;
+  final DispatchEventCallback dispatchEvent;
+  final BuildContext buildContext;
+  final DataContext dataContext;
+  final GetComponentCallback getComponent;
+  final String surfaceId;
+}
 
 /// Defines a UI layout type, its schema, and how to build its widget.
 @immutable

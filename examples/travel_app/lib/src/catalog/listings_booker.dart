@@ -52,38 +52,29 @@ extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
 final listingsBooker = CatalogItem(
   name: 'ListingsBooker',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final listingsBookerData = _ListingsBookerData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: (context) {
+    final listingsBookerData = _ListingsBookerData.fromMap(
+      context.data as Map<String, Object?>,
+    );
 
-        final itineraryNameNotifier = dataContext.subscribeToString(
-          listingsBookerData.itineraryName,
-        );
+    final itineraryNameNotifier = context.dataContext.subscribeToString(
+      listingsBookerData.itineraryName,
+    );
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: itineraryNameNotifier,
-          builder: (context, itineraryName, _) {
-            return _ListingsBooker(
-              listingSelectionIds: listingsBookerData.listingSelectionIds,
-              itineraryName: itineraryName ?? '',
-              dispatchEvent: dispatchEvent,
-              widgetId: id,
-              modifyAction: listingsBookerData.modifyAction,
-              dataContext: dataContext,
-            );
-          },
+    return ValueListenableBuilder<String?>(
+      valueListenable: itineraryNameNotifier,
+      builder: (builderContext, itineraryName, _) {
+        return _ListingsBooker(
+          listingSelectionIds: listingsBookerData.listingSelectionIds,
+          itineraryName: itineraryName ?? '',
+          dispatchEvent: context.dispatchEvent,
+          widgetId: context.id,
+          modifyAction: listingsBookerData.modifyAction,
+          dataContext: context.dataContext,
         );
       },
+    );
+  },
   exampleData: [
     () {
       final start1 = DateTime.now().add(const Duration(days: 5));

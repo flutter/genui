@@ -101,62 +101,55 @@ final checkboxFilterChipsInput = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
-          data as Map<String, Object?>,
+  widgetBuilder: (context) {
+    final checkboxFilterChipsData = _CheckboxFilterChipsInputData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+    IconData? icon;
+    if (checkboxFilterChipsData.iconName != null) {
+      try {
+        icon = iconFor(
+          TravelIcon.values.byName(checkboxFilterChipsData.iconName!),
         );
-        IconData? icon;
-        if (checkboxFilterChipsData.iconName != null) {
-          try {
-            icon = iconFor(
-              TravelIcon.values.byName(checkboxFilterChipsData.iconName!),
-            );
-          } catch (e) {
-            developer.log(
-              'Invalid icon name: ${checkboxFilterChipsData.iconName}',
-              name: 'CheckboxFilterChipsInput',
-              error: e,
-            );
-            icon = null;
-          }
-        }
+      } catch (e) {
+        developer.log(
+          'Invalid icon name: ${checkboxFilterChipsData.iconName}',
+          name: 'CheckboxFilterChipsInput',
+          error: e,
+        );
+        icon = null;
+      }
+    }
 
-        final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-        final notifier = dataContext.subscribeToObjectArray(selectedOptionsRef);
+    final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
+    final notifier = context.dataContext.subscribeToObjectArray(
+      selectedOptionsRef,
+    );
 
-        return ValueListenableBuilder<List<Object?>?>(
-          valueListenable: notifier,
-          builder: (context, currentSelectedValues, child) {
-            final selectedOptionsSet = (currentSelectedValues ?? [])
-                .cast<String>()
-                .toSet();
-            return _CheckboxFilterChip(
-              chipLabel: checkboxFilterChipsData.chipLabel,
-              options: checkboxFilterChipsData.options,
-              icon: icon,
-              selectedOptions: selectedOptionsSet,
-              onChanged: (newSelectedOptions) {
-                final path = selectedOptionsRef['path'] as String?;
-                if (path != null) {
-                  dataContext.update(
-                    DataPath(path),
-                    newSelectedOptions.toList(),
-                  );
-                }
-              },
-            );
+    return ValueListenableBuilder<List<Object?>?>(
+      valueListenable: notifier,
+      builder: (buildContext, currentSelectedValues, child) {
+        final selectedOptionsSet = (currentSelectedValues ?? [])
+            .cast<String>()
+            .toSet();
+        return _CheckboxFilterChip(
+          chipLabel: checkboxFilterChipsData.chipLabel,
+          options: checkboxFilterChipsData.options,
+          icon: icon,
+          selectedOptions: selectedOptionsSet,
+          onChanged: (newSelectedOptions) {
+            final path = selectedOptionsRef['path'] as String?;
+            if (path != null) {
+              context.dataContext.update(
+                DataPath(path),
+                newSelectedOptions.toList(),
+              );
+            }
           },
         );
       },
+    );
+  },
 );
 
 class _CheckboxFilterChip extends StatelessWidget {

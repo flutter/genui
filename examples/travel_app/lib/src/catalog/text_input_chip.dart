@@ -71,40 +71,31 @@ final textInputChip = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final textInputChipData = _TextInputChipData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: (context) {
+    final textInputChipData = _TextInputChipData.fromMap(
+      context.data as Map<String, Object?>,
+    );
 
-        final valueRef = textInputChipData.value;
-        final path = valueRef?['path'] as String?;
-        final notifier = dataContext.subscribeToString(valueRef);
+    final valueRef = textInputChipData.value;
+    final path = valueRef?['path'] as String?;
+    final notifier = context.dataContext.subscribeToString(valueRef);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return _TextInputChip(
-              label: textInputChipData.label,
-              value: currentValue,
-              obscured: textInputChipData.obscured,
-              onChanged: (newValue) {
-                if (path != null) {
-                  dataContext.update(DataPath(path), newValue);
-                }
-              },
-            );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (builderContext, currentValue, child) {
+        return _TextInputChip(
+          label: textInputChipData.label,
+          value: currentValue,
+          obscured: textInputChipData.obscured,
+          onChanged: (newValue) {
+            if (path != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
 );
 
 class _TextInputChip extends StatefulWidget {

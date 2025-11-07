@@ -64,40 +64,32 @@ final image = CatalogItem(
       ]
     ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-        required getComponent,
-      }) {
-        final imageData = _ImageData.fromMap(data as JsonMap);
-        final notifier = dataContext.subscribeToString(imageData.url);
+  widgetBuilder: (itemContext) {
+    final imageData = _ImageData.fromMap(itemContext.data as JsonMap);
+    final notifier = itemContext.dataContext.subscribeToString(imageData.url);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentLocation, child) {
-            final location = currentLocation;
-            if (location == null || location.isEmpty) {
-              genUiLogger.warning(
-                'Image widget created with no URL at path: ${dataContext.path}',
-              );
-              return const SizedBox.shrink();
-            }
-            final fit = imageData.fit;
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (context, currentLocation, child) {
+        final location = currentLocation;
+        if (location == null || location.isEmpty) {
+          genUiLogger.warning(
+            'Image widget created with no URL at path: '
+            '${itemContext.dataContext.path}',
+          );
+          return const SizedBox.shrink();
+        }
+        final fit = imageData.fit;
 
-            late Widget child;
+        late Widget child;
 
-            if (location.startsWith('assets/')) {
-              child = Image.asset(location, fit: fit);
-            } else {
-              child = Image.network(location, fit: fit);
-            }
-            return SizedBox(width: 150, height: 150, child: child);
-          },
-        );
+        if (location.startsWith('assets/')) {
+          child = Image.asset(location, fit: fit);
+        } else {
+          child = Image.network(location, fit: fit);
+        }
+        return SizedBox(height: 150, child: child);
       },
+    );
+  },
 );

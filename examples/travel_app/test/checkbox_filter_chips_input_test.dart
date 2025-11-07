@@ -18,20 +18,23 @@ void main() {
             builder: (context) {
               return Center(
                 child: checkboxFilterChipsInput.widgetBuilder(
-                  data: {
-                    'chipLabel': 'Amenities',
-                    'options': ['Wifi', 'Pool', 'Gym'],
-                    'selectedOptions': {
-                      'literalArray': ['Wifi', 'Gym'],
+                  CatalogItemContext(
+                    data: {
+                      'chipLabel': 'Amenities',
+                      'options': ['Wifi', 'Pool', 'Gym'],
+                      'selectedOptions': {
+                        'literalArray': ['Wifi', 'Gym'],
+                      },
+                      'iconName': 'hotel',
                     },
-                    'iconName': 'hotel',
-                  },
-                  id: 'test',
-                  buildChild: (_, [_]) => const SizedBox(),
-                  dispatchEvent: (_) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
-                  getComponent: (String componentId) => null,
+                    id: 'test',
+                    buildChild: (_, [_]) => const SizedBox(),
+                    dispatchEvent: (_) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 ),
               );
             },
