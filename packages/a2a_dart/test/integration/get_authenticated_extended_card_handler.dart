@@ -11,6 +11,9 @@ class GetAuthenticatedExtendedCardHandler implements RequestHandler {
   String get method => 'agent/getAuthenticatedExtendedCard';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) {
     return SingleResult(
       const AgentCard(

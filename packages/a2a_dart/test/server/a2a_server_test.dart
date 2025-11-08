@@ -17,6 +17,9 @@ class MockRequestHandler implements RequestHandler {
   String get method => 'test_method';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) {
     if (params.containsKey('throw_error')) {
       throw A2AServerException('Test error', -32001);

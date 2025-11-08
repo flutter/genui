@@ -19,6 +19,9 @@ class SetPushConfigHandler implements RequestHandler {
   String get method => 'tasks/pushNotificationConfig/set';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   Future<HandlerResult> handle(Map<String, Object?> params) async {
     final taskPushConfig = TaskPushNotificationConfig.fromJson(params);
     final taskId = taskPushConfig.taskId;

@@ -25,14 +25,22 @@ class HttpTransport implements Transport {
   /// The logger to use for logging.
   final Logger? log;
 
+  /// Default headers to include in all requests.
+  final Map<String, String> defaultHeaders;
+
   /// Creates an [HttpTransport].
   ///
   /// The [url] is the base URL of the A2A server.
   /// The [client] is an optional HTTP client to use for requests. If not
   /// provided, a new one will be created.
   /// The [log] is an optional logger.
-  HttpTransport({required this.url, http.Client? client, this.log})
-    : client = client ?? http.Client();
+  /// The [defaultHeaders] are optional headers to include in all requests.
+  HttpTransport({
+    required this.url,
+    http.Client? client,
+    this.log,
+    this.defaultHeaders = const {},
+  }) : client = client ?? http.Client();
 
   @override
   Future<Map<String, Object?>> get(
@@ -40,8 +48,9 @@ class HttpTransport implements Transport {
     Map<String, String> headers = const {},
   }) async {
     final uri = Uri.parse('$url$path');
-    log?.fine('Sending GET request to $uri');
-    final response = await client.get(uri, headers: headers);
+    final mergedHeaders = {...defaultHeaders, ...headers};
+    log?.fine('Sending GET request to $uri with headers: $mergedHeaders');
+    final response = await client.get(uri, headers: mergedHeaders);
     log?.fine('Received response from GET $uri: ${response.body}');
     if (response.statusCode != 200) {
       throw A2AException.http(
@@ -59,9 +68,13 @@ class HttpTransport implements Transport {
   }) async {
     final uri = Uri.parse('$url$path');
     log?.fine('Sending POST request to $uri with body: $request');
+    final mergedHeaders = {
+      'Content-Type': 'application/json',
+      ...defaultHeaders,
+    };
     final response = await client.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: mergedHeaders,
       body: jsonEncode(request),
     );
     log?.fine('Received response from POST $uri: ${response.body}');

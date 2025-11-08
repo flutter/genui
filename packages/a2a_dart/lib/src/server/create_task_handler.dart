@@ -27,6 +27,9 @@ class CreateTaskHandler implements RequestHandler {
   String get method => 'create_task';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     if (!params.containsKey('message')) {
       throw A2AServerException('`message` parameter is required.', -32602);

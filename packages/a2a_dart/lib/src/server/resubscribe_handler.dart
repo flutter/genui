@@ -21,6 +21,9 @@ class ResubscribeHandler extends RequestHandler {
   String get method => 'tasks/resubscribe';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     final taskId = params['id'] as String?;
     if (taskId == null) {

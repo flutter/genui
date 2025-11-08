@@ -27,16 +27,25 @@ class SseTransport extends HttpTransport {
   /// The [url] is the base URL of the A2A server. An optional [client] can be
   /// provided for testing or to customize the HTTP client. The [log] is an
   /// optional logger.
-  SseTransport({required super.url, super.client, super.log});
+  SseTransport({
+    required super.url,
+    super.client,
+    super.log,
+    super.defaultHeaders,
+  });
 
   @override
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) async* {
     final uri = Uri.parse('$url/rpc');
     final body = jsonEncode(request);
     log?.fine('Sending SSE request to $uri with body: $body');
+    final mergedHeaders = {
+      'Content-Type': 'application/json',
+      'Accept': 'text/event-stream',
+      ...defaultHeaders,
+    };
     final httpRequest = http.Request('POST', uri)
-      ..headers['Content-Type'] = 'application/json'
-      ..headers['Accept'] = 'text/event-stream'
+      ..headers.addAll(mergedHeaders)
       ..body = body;
 
     try {

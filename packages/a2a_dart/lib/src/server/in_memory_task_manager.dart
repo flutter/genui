@@ -20,7 +20,6 @@ class InMemoryTaskManager implements TaskManager {
   final _pushConfigs = <String, Map<String, PushNotificationConfig>>{};
 
   @override
-  @override
   Future<Task> createTask([Message? message]) async {
     final taskId = _uuid.v4();
     final contextId = _uuid.v4();
@@ -36,10 +35,8 @@ class InMemoryTaskManager implements TaskManager {
   }
 
   @override
-  @override
   Future<Task?> getTask(String id) async => _tasks[id];
 
-  @override
   @override
   Future<void> updateTask(Task task) async {
     _tasks[task.id] = task.copyWith(
@@ -47,7 +44,6 @@ class InMemoryTaskManager implements TaskManager {
     );
   }
 
-  @override
   @override
   Future<Task?> cancelTask(String taskId) async {
     final task = _tasks[taskId];
@@ -62,7 +58,6 @@ class InMemoryTaskManager implements TaskManager {
     return null;
   }
 
-  @override
   @override
   Future<ListTasksResult> listTasks(ListTasksParams params) async {
     var tasks = _tasks.values.toList();

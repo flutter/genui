@@ -24,6 +24,7 @@ class A2AServer {
     int port = 0,
     Logger? logger,
     AgentCard? agentCard,
+    Object? initialMiddleware,
   }) {
     throw UnsupportedError('Cannot create an A2AServer on the web.');
   }

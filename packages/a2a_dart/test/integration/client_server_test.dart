@@ -365,6 +365,9 @@ class MessageStreamHandler implements RequestHandler {
   String get method => 'message/stream';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     final streamController = StreamController<Map<String, Object?>>();
     final message = Message.fromJson(params);
@@ -420,6 +423,9 @@ class MessageSendHandler implements RequestHandler {
 
   @override
   String get method => 'message/send';
+
+  @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
 
   @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {

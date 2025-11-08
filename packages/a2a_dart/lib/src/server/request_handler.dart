@@ -16,6 +16,13 @@ abstract class RequestHandler {
   /// The name of the RPC method this handler supports (e.g., 'tasks/get').
   String get method;
 
+  /// The security requirements for this handler. Each map represents a security
+  /// scheme, where the key is the scheme name (from AgentCard.securitySchemes)
+  /// and the value is a list of scopes required for this method.
+  /// An empty list means the handler is public.
+  /// Defaults to null, meaning the server's default security applies.
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
   /// Handles an incoming request.
   ///
   /// The [params] are the parameters of the RPC call. This method should return

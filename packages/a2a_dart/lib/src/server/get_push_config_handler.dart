@@ -19,6 +19,9 @@ class GetPushConfigHandler implements RequestHandler {
   String get method => 'tasks/pushNotificationConfig/get';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   Future<HandlerResult> handle(Map<String, Object?> params) async {
     final taskId = params['id'] as String?;
     final configId = params['pushNotificationConfigId'] as String?;

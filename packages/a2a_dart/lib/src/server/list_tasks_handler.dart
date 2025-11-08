@@ -21,6 +21,9 @@ class ListTasksHandler extends RequestHandler {
   String get method => 'tasks/list';
 
   @override
+  List<Map<String, List<String>>>? get securityRequirements => null;
+
+  @override
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     final listTasksParams = ListTasksParams.fromJson(params);
     final tasks = await taskManager.listTasks(listTasksParams);

@@ -8,7 +8,7 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:shelf/shelf.dart';
-import 'package:shelf/shelf_io.dart' as io;
+import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
 
 import '../core/agent_card.dart';
@@ -44,6 +44,8 @@ class A2AServer {
   final int _requestedPort;
 
   final Map<String, RequestHandler> _handlers = {};
+  final TaskManager taskManager;
+  final Middleware? initialMiddleware;
 
   /// The public agent card for this server.
   ///
@@ -78,12 +80,13 @@ class A2AServer {
   /// ```
   A2AServer(
     List<RequestHandler> handlers,
-    TaskManager taskManager, {
+    this.taskManager, {
     this.host = 'localhost',
     int port = 0,
     Logger? logger,
     this.agentCard,
     this.extendedAgentCard,
+    this.initialMiddleware,
   }) : _requestedPort = port,
        _log = logger {
     for (final handler in handlers) {
@@ -128,6 +131,9 @@ class A2AServer {
       ..get('/.well-known/agent-card.json', _handleAgentCardRequest);
 
     var pipeline = const Pipeline();
+    if (initialMiddleware != null) {
+      pipeline = pipeline.addMiddleware(initialMiddleware!);
+    }
     if (_log != null) {
       pipeline = pipeline.addMiddleware(
         logRequests(
@@ -144,7 +150,7 @@ class A2AServer {
     final handler = pipeline.addHandler(router.call);
 
     _log?.info('Starting A2A server on $host:$_requestedPort...');
-    _server = await io.serve(handler, host, _requestedPort);
+    _server = await shelf_io.serve(handler, host, _requestedPort);
     _log?.info(
       'A2A server started on ${_server!.address.host}:${_server!.port}',
     );
@@ -169,19 +175,23 @@ class A2AServer {
 
   Future<Response> _handleRpcRequest(Request request) async {
     _log?.info('Received request: ${request.method} ${request.requestedUri}');
-    final body = await request.readAsString();
-    _log?.fine('Request body: $body');
 
     Object? id;
-    Map<String, Object?> json;
-    try {
-      json = jsonDecode(body) as Map<String, Object?>;
-      id = json['id'];
-    } on FormatException {
-      return _jsonRpcError(id: null, code: -32700, message: 'Parse error');
+    var json = request.context['a2a_body'] as Map<String, Object?>?;
+
+    if (json == null) {
+      // This should not happen if the security middleware ran first for /rpc requests
+      final body = await request.readAsString();
+      _log?.fine('Request body: $body');
+      try {
+        json = jsonDecode(body) as Map<String, Object?>;
+      } on FormatException {
+        return _jsonRpcError(id: null, code: -32700, message: 'Parse error');
+      }
     }
 
     try {
+      id = json['id'];
       final method = json['method'] as String?;
       final params = json['params'] as Map<String, Object?>?;
 
@@ -198,6 +208,54 @@ class A2AServer {
           responseCode: 404,
         );
       }
+      // Security Check
+      final securityRequirements = handler.securityRequirements;
+      if (securityRequirements != null && securityRequirements.isNotEmpty) {
+        final authContext =
+            request.context['a2a_auth'] as Map<String, dynamic>?;
+
+        if (authContext == null || authContext['isAuthenticated'] != true) {
+          return _jsonRpcError(
+            id: id,
+            code: -32002,
+            message: 'Unauthorized: Missing or failed authentication.',
+            responseCode: 401,
+          );
+        }
+
+        final authenticatedSchemes =
+            authContext['schemes'] as Map<String, List<String>>? ?? {};
+        var authorized = false;
+        for (final requirement in securityRequirements) {
+          var requirementMet = true;
+          for (final schemeName in requirement.keys) {
+            final requiredScopes = requirement[schemeName]!;
+            if (!authenticatedSchemes.containsKey(schemeName)) {
+              requirementMet = false;
+              break;
+            }
+            final grantedScopes = authenticatedSchemes[schemeName]!;
+            if (!requiredScopes.every(grantedScopes.contains)) {
+              requirementMet = false;
+              break;
+            }
+          }
+          if (requirementMet) {
+            authorized = true;
+            break;
+          }
+        }
+
+        if (!authorized) {
+          return _jsonRpcError(
+            id: id,
+            code: -32002,
+            message: 'Unauthorized: Insufficient permissions for this method.',
+            responseCode: 401,
+          );
+        }
+      }
+
       return _executeHandler(handler, params, id);
     } on Exception catch (exception, stackTrace) {
       _log?.severe('Unhandled server exception', exception, stackTrace);
