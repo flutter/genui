@@ -30,10 +30,6 @@ void main() {
     );
 
     setUp(() async {
-      Logger.root.level = Level.ALL;
-      Logger.root.onRecord.listen((record) {
-        print('${record.level.name}: ${record.time}: ${record.message}');
-      });
       taskManager = InMemoryTaskManager();
       final handlers = [
         MessageSendHandler(taskManager),
@@ -44,12 +40,7 @@ void main() {
         ResubscribeHandler(taskManager),
         GetAuthenticatedExtendedCardHandler(),
       ];
-      server = A2AServer(
-        handlers,
-        host: 'localhost',
-        agentCard: agentCard,
-        logger: Logger.root,
-      )
+      server = A2AServer(handlers, host: 'localhost', agentCard: agentCard)
         ..extendedAgentCard = agentCard.copyWith(name: 'Extended Test Agent');
       await server.start();
     });
@@ -93,34 +84,20 @@ void main() {
         role: Role.user,
         parts: const [TextPart(text: 'Hello')],
       );
-      print('resubscribe test: awaiting initial stream');
       final stream = client.messageStream(message);
       final events = <Event>[];
       await for (final event in stream) {
         switch (event) {
-          case TaskStatusUpdateEvent():
-            print('resubscribe test: task update: $event');
+          case TaskStatusUpdate():
             events.add(event);
-            break;
-          case TaskArtifactUpdateEvent():
-            print('resubscribe test: artifact update: $event');
+          case TaskArtifactUpdate():
             events.add(event);
-            break;
-          default:
-            print('resubscribe test: unknown event: $event');
-            events.add(event);
-            break;
         }
       }
-      print('resubscribe test: initial stream complete');
       expect(events, isNotEmpty);
-      final taskId = (events.first as TaskStatusUpdateEvent).taskId;
-
-      print('resubscribe test: awaiting resubscribed stream');
+      final taskId = (events.first as TaskStatusUpdate).taskId;
       final resubscribedStream = client.resubscribeToTask(taskId);
       final resubscribedEvents = await resubscribedStream.toList();
-      print('resubscribe test: resubscribed stream complete');
-      print('resubscribe test: resubscribed stream complete');
       expect(resubscribedEvents, equals(events));
     });
 
@@ -153,29 +130,27 @@ void main() {
         parts: [Part.text(text: 'Hello')],
       );
 
-      print('create and execute test: awaiting stream');
       final stream = client.messageStream(message);
       final events = await stream.toList();
-      print('create and execute test: stream complete');
 
       expect(events, hasLength(3));
-      expect(events[0], isA<TaskStatusUpdateEvent>());
+      expect(events[0].kind, equals('task_status_update'));
       expect(
-        (events[0] as TaskStatusUpdateEvent).status.state,
+        (events[0] as TaskStatusUpdate).status.state,
         equals(TaskState.working),
       );
-      expect(events[1], isA<TaskArtifactUpdateEvent>());
+      expect(events[1].kind, equals('task_artifact_update'));
       expect(
-        (events[1] as TaskArtifactUpdateEvent).artifact.artifactId,
+        (events[1] as TaskArtifactUpdate).artifact.artifactId,
         equals('artifact-1'),
       );
       expect(
-        (events[1] as TaskArtifactUpdateEvent).artifact.parts[0],
+        (events[1] as TaskArtifactUpdate).artifact.parts[0],
         const Part.text(text: 'Here is your artifact'),
       );
-      expect(events[2], isA<TaskStatusUpdateEvent>());
+      expect(events[2].kind, equals('task_status_update'));
       expect(
-        (events[2] as TaskStatusUpdateEvent).status.state,
+        (events[2] as TaskStatusUpdate).status.state,
         equals(TaskState.completed),
       );
     });
