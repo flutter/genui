@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:a2a_dart/a2a_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
@@ -11,15 +14,20 @@ import 'package:uuid/uuid.dart';
 /// and perform various operations.
 ///
 /// It connects to the server and asks it to start a countdown from 10 to zero.
-/// Then it demonstrates how to pause the countdown, and then resumes it after a
-/// three second pause.
+/// Then at 5 it demonstrates how to pause the countdown, and then resumes it
+/// after a three second pause.
 void main() async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  final client = A2AClient(url: 'http://localhost:8080');
+  await Future<void>.delayed(const Duration(seconds: 1));
+
+  final client = A2AClient(
+    url: 'http://localhost:8080',
+    transport: SseTransport(url: 'http://localhost:8080'),
+  );
 
   try {
     final agentCard = await client.getAgentCard();
@@ -31,18 +39,31 @@ void main() async {
       parts: const [Part.text(text: 'start 10')],
     );
     final stream = client.messageStream(message);
-    Task? task;
+    String? taskId;
 
     await for (final event in stream) {
+      taskId ??= event.taskId;
       switch (event) {
         case TaskStatusUpdate():
-          task = await client.getTask(event.taskId);
+          final task = await client.getTask(event.taskId);
           print('Task ${task.id} updated: ${task.status.state.name}');
           break;
         case TaskArtifactUpdate():
           for (final part in event.artifact.parts) {
             if (part is TextPart) {
               print(part.text);
+              if (part.text.contains('Countdown at 5')) {
+                unawaited(
+                  client.messageSend(
+                    Message(
+                      messageId: const Uuid().v4(),
+                      role: Role.user,
+                      parts: const [Part.text(text: 'pause')],
+                      taskId: taskId,
+                    ),
+                  ),
+                );
+              }
             }
           }
       }
@@ -72,5 +93,9 @@ void main() async {
     }
   } on A2AException catch (exception) {
     print('Error: $exception');
+    exit(1);
+  } finally {
+    client.close();
+    exit(0);
   }
 }

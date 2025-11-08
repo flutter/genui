@@ -29,13 +29,20 @@ class SseParser {
       await for (final line in lines) {
         log?.finer('Received SSE line: $line');
         if (line.isEmpty) {
-          if (data.isNotEmpty) {
+          if (data.isNotEmpty && data.first.isNotEmpty) {
+            // SSE keep-alive
             final dataString = data.join('\n');
             data = [];
             try {
               final jsonData = jsonDecode(dataString) as Map<String, Object?>;
+              log?.finer('Parsed JSON: $jsonData');
               if (jsonData.containsKey('result')) {
-                yield jsonData['result'] as Map<String, Object?>;
+                final result = jsonData['result'];
+                if (result != null) {
+                  yield result as Map<String, Object?>;
+                } else {
+                  log?.warning('Received a null result in the SSE stream.');
+                }
               } else if (jsonData.containsKey('error')) {
                 final error = jsonData['error'] as Map<String, Object?>;
                 throw A2AException.jsonRpc(

@@ -18,7 +18,8 @@ mixin _$ListTasksResult {
 /// Array of tasks matching the specified criteria.
  List<Task> get tasks;/// Total number of tasks available (before pagination).
  int get totalSize;/// Maximum number of tasks returned in this response.
- int get pageSize;/// Token for retrieving the next page.
+ int get pageSize;/// Token for retrieving the next page. An empty string if no more results
+/// are available.
  String get nextPageToken;
 /// Create a copy of ListTasksResult
 /// with the given fields replaced by the non-null parameter values.
@@ -232,7 +233,8 @@ class _ListTasksResult implements ListTasksResult {
 @override final  int totalSize;
 /// Maximum number of tasks returned in this response.
 @override final  int pageSize;
-/// Token for retrieving the next page.
+/// Token for retrieving the next page. An empty string if no more results
+/// are available.
 @override final  String nextPageToken;
 
 /// Create a copy of ListTasksResult

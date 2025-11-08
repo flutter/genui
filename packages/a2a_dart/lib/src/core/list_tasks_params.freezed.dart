@@ -15,13 +15,21 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ListTasksParams {
 
-/// Filter tasks by context ID.
- String? get contextId;/// Filter tasks by their current status state.
- TaskState? get status;/// Maximum number of tasks to return.
- int get pageSize;/// Token for pagination.
- String? get pageToken;/// Number of recent messages to include in each task's history.
+/// Filter tasks by context ID to get tasks from a specific conversation or
+/// session.
+ String? get contextId;/// Filter tasks by their current status.
+ TaskState? get status;/// Maximum number of tasks to return. Must be between 1 and 100.
+/// Defaults to 50 if not specified.
+ int get pageSize;/// Token for pagination. Use the `nextPageToken` from a previous
+/// `ListTasksResult` response.
+ String? get pageToken;/// Number of recent messages to include in each task's history. Must be
+/// non-negative. Defaults to 0 if not specified.
  int get historyLength;/// Filter tasks updated after this timestamp (milliseconds since epoch).
- int? get lastUpdatedAfter;/// Whether to include artifacts in the returned tasks.
+///
+/// Only tasks with a last updated time greater than or equal to this value
+/// will be returned.
+ int? get lastUpdatedAfter;/// Whether to include artifacts in the returned tasks. Defaults to false to
+/// reduce payload size.
  bool get includeArtifacts;/// Request-specific metadata.
  Map<String, Object?>? get metadata;
 /// Create a copy of ListTasksParams
@@ -227,19 +235,27 @@ class _ListTasksParams implements ListTasksParams {
   const _ListTasksParams({this.contextId, this.status, this.pageSize = 50, this.pageToken, this.historyLength = 0, this.lastUpdatedAfter, this.includeArtifacts = false, final  Map<String, Object?>? metadata}): _metadata = metadata;
   factory _ListTasksParams.fromJson(Map<String, dynamic> json) => _$ListTasksParamsFromJson(json);
 
-/// Filter tasks by context ID.
+/// Filter tasks by context ID to get tasks from a specific conversation or
+/// session.
 @override final  String? contextId;
-/// Filter tasks by their current status state.
+/// Filter tasks by their current status.
 @override final  TaskState? status;
-/// Maximum number of tasks to return.
+/// Maximum number of tasks to return. Must be between 1 and 100.
+/// Defaults to 50 if not specified.
 @override@JsonKey() final  int pageSize;
-/// Token for pagination.
+/// Token for pagination. Use the `nextPageToken` from a previous
+/// `ListTasksResult` response.
 @override final  String? pageToken;
-/// Number of recent messages to include in each task's history.
+/// Number of recent messages to include in each task's history. Must be
+/// non-negative. Defaults to 0 if not specified.
 @override@JsonKey() final  int historyLength;
 /// Filter tasks updated after this timestamp (milliseconds since epoch).
+///
+/// Only tasks with a last updated time greater than or equal to this value
+/// will be returned.
 @override final  int? lastUpdatedAfter;
-/// Whether to include artifacts in the returned tasks.
+/// Whether to include artifacts in the returned tasks. Defaults to false to
+/// reduce payload size.
 @override@JsonKey() final  bool includeArtifacts;
 /// Request-specific metadata.
  final  Map<String, Object?>? _metadata;

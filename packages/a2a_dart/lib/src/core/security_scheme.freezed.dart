@@ -50,7 +50,7 @@ SecurityScheme _$SecuritySchemeFromJson(
 /// @nodoc
 mixin _$SecurityScheme {
 
-/// The type of the security scheme, always 'apiKey'.
+/// The type of the security scheme.
  String get type;/// A short description for the API key.
  String? get description;
 /// Create a copy of SecurityScheme
@@ -274,7 +274,7 @@ class APIKeySecurityScheme implements SecurityScheme {
   const APIKeySecurityScheme({this.type = 'apiKey', this.description, required this.name, @JsonKey(name: 'in') required this.in_});
   factory APIKeySecurityScheme.fromJson(Map<String, dynamic> json) => _$APIKeySecuritySchemeFromJson(json);
 
-/// The type of the security scheme, always 'apiKey'.
+/// The type of the security scheme.
 @override@JsonKey() final  String type;
 /// A short description for the API key.
 @override final  String? description;
@@ -354,7 +354,7 @@ class HttpAuthSecurityScheme implements SecurityScheme {
   const HttpAuthSecurityScheme({this.type = 'http', this.description, required this.scheme, this.bearerFormat});
   factory HttpAuthSecurityScheme.fromJson(Map<String, dynamic> json) => _$HttpAuthSecuritySchemeFromJson(json);
 
-/// The type of the security scheme, always 'http'.
+/// The type of the security scheme.
 @override@JsonKey() final  String type;
 /// A short description for the HTTP security scheme.
 @override final  String? description;
@@ -436,7 +436,7 @@ class OAuth2SecurityScheme implements SecurityScheme {
   const OAuth2SecurityScheme({this.type = 'oauth2', this.description, required this.flows});
   factory OAuth2SecurityScheme.fromJson(Map<String, dynamic> json) => _$OAuth2SecuritySchemeFromJson(json);
 
-/// The type of the security scheme, always 'oauth2'.
+/// The type of the security scheme.
 @override@JsonKey() final  String type;
 /// A short description for the OAuth 2.0 security scheme.
 @override final  String? description;
@@ -522,7 +522,7 @@ class OpenIdConnectSecurityScheme implements SecurityScheme {
   const OpenIdConnectSecurityScheme({this.type = 'openIdConnect', this.description, required this.openIdConnectUrl});
   factory OpenIdConnectSecurityScheme.fromJson(Map<String, dynamic> json) => _$OpenIdConnectSecuritySchemeFromJson(json);
 
-/// The type of the security scheme, always 'openIdConnect'.
+/// The type of the security scheme.
 @override@JsonKey() final  String type;
 /// A short description for the OpenID Connect security scheme.
 @override final  String? description;
@@ -598,7 +598,7 @@ class MutualTlsSecurityScheme implements SecurityScheme {
   const MutualTlsSecurityScheme({this.type = 'mutualTls', this.description});
   factory MutualTlsSecurityScheme.fromJson(Map<String, dynamic> json) => _$MutualTlsSecuritySchemeFromJson(json);
 
-/// The type of the security scheme, always 'mutualTls'.
+/// The type of the security scheme.
 @override@JsonKey() final  String type;
 /// A short description for the mutual TLS security scheme.
 @override final  String? description;

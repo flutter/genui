@@ -15,16 +15,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AgentCapabilities {
 
-/// Indicates whether the agent supports Server-Sent Events (SSE) for
-/// streaming responses.
-///
-/// If `true`, the agent can send multiple responses over a single
-/// connection.
+/// Indicates if the agent supports Server-Sent Events (SSE) for streaming
+/// responses.
  bool? get streaming;/// Indicates whether the agent supports sending push notifications for
 /// asynchronous task updates.
  bool? get pushNotifications;/// Indicates whether the agent provides a history of state transitions for
 /// a task.
- bool? get stateTransitionHistory;/// A list of protocol extensions that the agent supports.
+ bool? get stateTransitionHistory;/// A list of protocol extensions supported by the agent.
  List<AgentExtension>? get extensions;
 /// Create a copy of AgentCapabilities
 /// with the given fields replaced by the non-null parameter values.
@@ -225,11 +222,8 @@ class _AgentCapabilities implements AgentCapabilities {
   const _AgentCapabilities({this.streaming, this.pushNotifications, this.stateTransitionHistory, final  List<AgentExtension>? extensions}): _extensions = extensions;
   factory _AgentCapabilities.fromJson(Map<String, dynamic> json) => _$AgentCapabilitiesFromJson(json);
 
-/// Indicates whether the agent supports Server-Sent Events (SSE) for
-/// streaming responses.
-///
-/// If `true`, the agent can send multiple responses over a single
-/// connection.
+/// Indicates if the agent supports Server-Sent Events (SSE) for streaming
+/// responses.
 @override final  bool? streaming;
 /// Indicates whether the agent supports sending push notifications for
 /// asynchronous task updates.
@@ -237,9 +231,9 @@ class _AgentCapabilities implements AgentCapabilities {
 /// Indicates whether the agent provides a history of state transitions for
 /// a task.
 @override final  bool? stateTransitionHistory;
-/// A list of protocol extensions that the agent supports.
+/// A list of protocol extensions supported by the agent.
  final  List<AgentExtension>? _extensions;
-/// A list of protocol extensions that the agent supports.
+/// A list of protocol extensions supported by the agent.
 @override List<AgentExtension>? get extensions {
   final value = _extensions;
   if (value == null) return null;

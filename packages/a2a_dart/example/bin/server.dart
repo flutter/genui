@@ -91,8 +91,6 @@ class CountdownTaskManager implements TaskManager {
     return controller.stream;
   }
 
-
-
   @override
   Future<Task> createTask([Message? message]) async {
     final taskId = const Uuid().v4();
@@ -169,9 +167,7 @@ class MessageSendHandler extends RequestHandler {
 
   @override
   Future<HandlerResult> handle(Map<String, Object?> parameters) async {
-    final message = Message.fromJson(
-      parameters['message'] as Map<String, Object?>,
-    );
+    final message = Message.fromJson(parameters);
     final task = _taskManager.createTask(message);
     return SingleResult((await task).toJson());
   }
@@ -188,7 +184,7 @@ class MessageStreamHandler extends RequestHandler {
 
   @override
   Future<HandlerResult> handle(Map<String, Object?> params) async {
-    final message = Message.fromJson(params['message'] as Map<String, dynamic>);
+    final message = Message.fromJson(params);
 
     final Task task;
     if (message.taskId == null) {
@@ -206,6 +202,9 @@ class MessageStreamHandler extends RequestHandler {
       final messageText = part.text;
       if (messageText.startsWith('start')) {
         return _startCountdown(task, messageText);
+      } else if (messageText == 'pause') {
+        _taskManager.pauseTask(task.id);
+        return SingleResult({});
       }
     }
 

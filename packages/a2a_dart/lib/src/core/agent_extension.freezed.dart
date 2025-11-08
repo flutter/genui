@@ -15,9 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AgentExtension {
 
-/// A unique URI that identifies the extension.
- String get uri;/// A human-readable description of how this agent uses the extension.
- String? get description;/// If `true`, the client must understand and comply with the extension's
+/// The unique URI identifying the extension.
+ String get uri;/// A human-readable description of the extension.
+ String? get description;/// If true, the client must understand and comply with the extension's
 /// requirements to interact with the agent.
  bool? get required;/// Optional, extension-specific configuration parameters.
  Map<String, Object?>? get params;
@@ -220,11 +220,11 @@ class _AgentExtension implements AgentExtension {
   const _AgentExtension({required this.uri, this.description, this.required, final  Map<String, Object?>? params}): _params = params;
   factory _AgentExtension.fromJson(Map<String, dynamic> json) => _$AgentExtensionFromJson(json);
 
-/// A unique URI that identifies the extension.
+/// The unique URI identifying the extension.
 @override final  String uri;
-/// A human-readable description of how this agent uses the extension.
+/// A human-readable description of the extension.
 @override final  String? description;
-/// If `true`, the client must understand and comply with the extension's
+/// If true, the client must understand and comply with the extension's
 /// requirements to interact with the agent.
 @override final  bool? required;
 /// Optional, extension-specific configuration parameters.

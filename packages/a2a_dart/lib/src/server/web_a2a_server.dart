@@ -26,6 +26,13 @@ class A2AServer {
     throw UnsupportedError('Cannot create an A2AServer on the web.');
   }
 
+  /// The handler for the server.
+  ///
+  /// Throws an [UnsupportedError] because the server is not supported on the
+  /// web.
+  Object get handler =>
+      throw UnsupportedError('Cannot get the handler on the web.');
+
   /// The host that the server is listening on.
   ///
   /// Throws an [UnsupportedError] because the server is not supported on the

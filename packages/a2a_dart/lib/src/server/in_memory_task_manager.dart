@@ -68,17 +68,20 @@ class InMemoryTaskManager implements TaskManager {
     }
     if (params.lastUpdatedAfter != null) {
       tasks = tasks
-          .where((t) =>
-              t.lastUpdated != null &&
-              t.lastUpdated! > params.lastUpdatedAfter!)
+          .where(
+            (t) =>
+                t.lastUpdated != null &&
+                t.lastUpdated! > params.lastUpdatedAfter!,
+          )
           .toList();
     }
 
     tasks.sort((a, b) => b.lastUpdated!.compareTo(a.lastUpdated!));
 
     final totalSize = tasks.length;
-    final pageToken =
-        params.pageToken != null ? int.parse(params.pageToken!) : 0;
+    final pageToken = params.pageToken != null
+        ? int.parse(params.pageToken!)
+        : 0;
     final startIndex = pageToken * params.pageSize;
     final endIndex = (startIndex + params.pageSize > totalSize)
         ? totalSize
@@ -86,8 +89,9 @@ class InMemoryTaskManager implements TaskManager {
 
     final paginatedTasks = tasks.sublist(startIndex, endIndex);
 
-    final nextPageToken =
-        endIndex < totalSize ? (pageToken + 1).toString() : '';
+    final nextPageToken = endIndex < totalSize
+        ? (pageToken + 1).toString()
+        : '';
 
     return ListTasksResult(
       tasks: paginatedTasks,

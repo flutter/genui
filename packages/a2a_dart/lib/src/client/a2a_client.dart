@@ -94,30 +94,37 @@ class A2AClient {
 
   /// Sends a message to the agent and subscribes to real-time updates.
   ///
-  /// This method is used for streaming interactions with the agent. The returned
-  /// stream will emit [Event] objects as they are received from the server via
-  /// Server-Sent Events (SSE).
+  /// This method is used for streaming interactions with the agent. The
+  /// returned stream will emit [Event] objects as they are received from the
+  /// server via Server-Sent Events (SSE).
   ///
   /// Throws an [A2AException] if the server returns an error in the stream.
   Stream<Event> messageStream(Message message) {
     _log?.info('Sending message for stream: ${message.messageId}');
-    return _transport
-        .sendStream({
+    final stream = _transport.sendStream({
       'jsonrpc': '2.0',
-          'method': 'message/stream',
-          'params': message.toJson(),
-        })
-        .map((data) {
+      'method': 'message/stream',
+      'params': message.toJson(),
+    });
+
+    return stream.transform(
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
           _log?.fine('Received event from stream: $data');
           if (data.containsKey('error')) {
             final error = data['error'] as Map<String, Object?>;
-            throw A2AException.jsonRpc(
-              code: error['code'] as int,
-              message: error['message'] as String,
+            sink.addError(
+              A2AException.jsonRpc(
+                code: error['code'] as int,
+                message: error['message'] as String,
+              ),
             );
+          } else {
+            sink.add(Event.fromJson(data));
           }
-          return Event.fromJson(data['params'] as Map<String, Object?>);
-        });
+        },
+      ),
+    );
   }
 
   /// Retrieves the current state of a task from the server.
@@ -180,9 +187,15 @@ class A2AClient {
           'method': 'tasks/resubscribe',
           'params': {'id': taskId},
         })
+        .where((data) => data['kind'] != null)
         .map((data) {
-          _log?.fine('Received event from resubscribe stream: $data');
-          return Event.fromJson(data['params'] as Map<String, Object?>);
+          _log?.fine('Received event from stream: $data');
+          return Event.fromJson(data);
         });
+  }
+
+  /// Closes the underlying transport.
+  void close() {
+    _transport.close();
   }
 }

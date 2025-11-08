@@ -30,6 +30,10 @@ void main() {
     );
 
     setUp(() async {
+      Logger.root.level = Level.ALL;
+      Logger.root.onRecord.listen((record) {
+        print('${record.level.name}: ${record.time}: ${record.message}');
+      });
       taskManager = InMemoryTaskManager();
       final handlers = [
         MessageSendHandler(taskManager),
@@ -44,13 +48,14 @@ void main() {
         handlers,
         host: 'localhost',
         agentCard: agentCard,
+        logger: Logger.root,
       )
         ..extendedAgentCard = agentCard.copyWith(name: 'Extended Test Agent');
       await server.start();
     });
 
-    tearDown(() {
-      server.stop();
+    tearDown(() async {
+      await server.stop();
     });
 
     test('client can list tasks on the server', () async {
@@ -86,15 +91,36 @@ void main() {
       final message = Message(
         messageId: const Uuid().v4(),
         role: Role.user,
-        parts: const [],
+        parts: const [TextPart(text: 'Hello')],
       );
+      print('resubscribe test: awaiting initial stream');
       final stream = client.messageStream(message);
-      final events = await stream.toList();
+      final events = <Event>[];
+      await for (final event in stream) {
+        switch (event) {
+          case TaskStatusUpdateEvent():
+            print('resubscribe test: task update: $event');
+            events.add(event);
+            break;
+          case TaskArtifactUpdateEvent():
+            print('resubscribe test: artifact update: $event');
+            events.add(event);
+            break;
+          default:
+            print('resubscribe test: unknown event: $event');
+            events.add(event);
+            break;
+        }
+      }
+      print('resubscribe test: initial stream complete');
       expect(events, isNotEmpty);
       final taskId = (events.first as TaskStatusUpdateEvent).taskId;
 
+      print('resubscribe test: awaiting resubscribed stream');
       final resubscribedStream = client.resubscribeToTask(taskId);
       final resubscribedEvents = await resubscribedStream.toList();
+      print('resubscribe test: resubscribed stream complete');
+      print('resubscribe test: resubscribed stream complete');
       expect(resubscribedEvents, equals(events));
     });
 
@@ -127,8 +153,10 @@ void main() {
         parts: [Part.text(text: 'Hello')],
       );
 
+      print('create and execute test: awaiting stream');
       final stream = client.messageStream(message);
       final events = await stream.toList();
+      print('create and execute test: stream complete');
 
       expect(events, hasLength(3));
       expect(events[0], isA<TaskStatusUpdateEvent>());
@@ -168,6 +196,79 @@ void main() {
   });
 }
 
+class InMemoryTaskManager implements TaskManager {
+  final Map<String, Task> _tasks = {};
+  final Map<String, List<Event>> _events = {};
+
+  @override
+  Future<Task> createTask([Message? message]) async {
+    final task = Task(
+      id: const Uuid().v4(),
+      contextId: const Uuid().v4(),
+      status: const TaskStatus(state: TaskState.submitted),
+    );
+    _tasks[task.id] = task;
+    _events[task.id] = [];
+    return task;
+  }
+
+  @override
+  Future<Task> getTask(String id) async {
+    if (_tasks.containsKey(id)) {
+      return _tasks[id]!;
+    }
+    throw A2AServerException('Task not found', -32602);
+  }
+
+  @override
+  Future<ListTasksResult> listTasks(ListTasksParams params) async {
+    return ListTasksResult(
+      tasks: _tasks.values.toList(),
+      totalSize: _tasks.length,
+      pageSize: _tasks.length,
+      nextPageToken: '',
+    );
+  }
+
+  @override
+  Future<Task> updateTask(Task task) async {
+    if (_tasks.containsKey(task.id)) {
+      _tasks[task.id] = task;
+      return task;
+    }
+    throw A2AServerException('Task not found', -32602);
+  }
+
+  @override
+  Future<void> addEvent(String taskId, Event event) async {
+    if (_events.containsKey(taskId)) {
+      _events[taskId]!.add(event);
+    } else {
+      throw A2AServerException('Task not found', -32602);
+    }
+  }
+
+  @override
+  Stream<Event> resubscribeToTask(String taskId) {
+    if (_events.containsKey(taskId)) {
+      return Stream.fromIterable(_events[taskId]!);
+    }
+    throw A2AServerException('Task not found', -32602);
+  }
+
+  @override
+  Future<Task> cancelTask(String id) async {
+    if (_tasks.containsKey(id)) {
+      final task = _tasks[id]!;
+      final canceledTask = task.copyWith(
+        status: const TaskStatus(state: TaskState.canceled),
+      );
+      _tasks[id] = canceledTask;
+      return canceledTask;
+    }
+    throw A2AServerException('Task not found', -32602);
+  }
+}
 
 class MessageStreamHandler implements RequestHandler {
   MessageStreamHandler(this.taskManager);
@@ -220,7 +321,7 @@ class MessageStreamHandler implements RequestHandler {
     );
     streamController.add(completedEvent.toJson());
     await taskManager.addEvent(task.id, completedEvent);
-    await streamController.close();
+    unawaited(Future<void>.delayed(Duration.zero, streamController.close));
 
     return StreamResult(streamController.stream);
   }

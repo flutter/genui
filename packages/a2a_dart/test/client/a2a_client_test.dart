@@ -88,24 +88,16 @@ void main() {
 
     test('messageStream returns a stream of StreamingEvents on success', () {
       final streamController = StreamController<Map<String, Object?>>();
-      final eventJson = {
-        'jsonrpc': '2.0',
-        'method': 'message/stream',
-        'params': {
-          'kind': 'task_status_update',
-          'taskId': '123',
-          'contextId': '456',
-          'status': {'state': 'working'},
-          'final_': false,
-        }
-      };
-      final event = Event.fromJson(eventJson['params'] as Map<String, Object?>);
+      final event = const Event.taskStatusUpdate(
+        taskId: '123',
+        contextId: '456',
+        status: TaskStatus(state: TaskState.working),
+        final_: false,
+      );
+
       client = A2AClient(
         url: 'http://localhost:8080',
-        transport: FakeTransport(
-          response: {},
-          stream: streamController.stream,
-        ),
+        transport: FakeTransport(response: {}, stream: streamController.stream),
       );
 
       final stream = client.messageStream(
@@ -118,7 +110,7 @@ void main() {
 
       expect(stream, emitsInOrder([event, emitsDone]));
 
-      streamController.add(eventJson);
+      streamController.add(event.toJson());
       streamController.close();
     });
   });

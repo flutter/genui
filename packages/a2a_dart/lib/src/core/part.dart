@@ -34,7 +34,8 @@ abstract class Part with _$Part {
     /// The type of this part.
     @Default('file') String kind,
 
-    /// The file content, represented as either a URI or as base64-encoded bytes.
+    /// The file content, represented as either a URI or as base64-encoded
+    /// bytes.
     required FileType file,
 
     /// Optional metadata associated with this part.

@@ -17,7 +17,7 @@ mixin _$AgentInterface {
 
 /// The URL where this interface is available.
 ///
-/// In a production environment, this must be a valid absolute HTTPS URL.
+/// In production, this must be a valid absolute HTTPS URL.
  String get url;/// The transport protocol supported at this URL.
  TransportProtocol get transport;
 /// Create a copy of AgentInterface
@@ -219,7 +219,7 @@ class _AgentInterface implements AgentInterface {
 
 /// The URL where this interface is available.
 ///
-/// In a production environment, this must be a valid absolute HTTPS URL.
+/// In production, this must be a valid absolute HTTPS URL.
 @override final  String url;
 /// The transport protocol supported at this URL.
 @override final  TransportProtocol transport;

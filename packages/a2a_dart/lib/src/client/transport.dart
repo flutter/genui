@@ -23,7 +23,8 @@ abstract class Transport {
     Map<String, String> headers = const {},
   });
 
-  /// Sends a single JSON-RPC request to the server and expects a single response.
+  /// Sends a single JSON-RPC request to the server and expects a single
+  /// response.
   ///
   /// The [request] is a JSON-RPC 2.0 compliant [Map].
   Future<Map<String, Object?>> send(
@@ -36,4 +37,7 @@ abstract class Transport {
   /// The [request] is a JSON-RPC 2.0 compliant [Map]. This method is used for
   /// streaming communication, such as with Server-Sent Events (SSE).
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request);
+
+  /// Closes the transport and releases any underlying resources.
+  void close();
 }

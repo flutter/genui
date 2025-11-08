@@ -23,7 +23,7 @@ part 'agent_card.g.dart';
 abstract class AgentCard with _$AgentCard {
   /// Creates an [AgentCard].
   const factory AgentCard({
-    /// The version of the A2A protocol that this agent supports (e.g., "0.3.0").
+    /// The version of the A2A protocol that this agent supports.
     required String protocolVersion,
 
     /// A human-readable name for the agent (e.g., "Recipe Agent").
@@ -41,10 +41,11 @@ abstract class AgentCard with _$AgentCard {
     /// If not specified, defaults to [TransportProtocol.jsonrpc].
     TransportProtocol? preferredTransport,
 
-    /// A list of additional supported interfaces (transport and URL combinations).
+    /// A list of additional supported interfaces (transport and URL
+    /// combinations).
     ///
-    /// This allows agents to expose multiple transports, potentially at different
-    /// URLs.
+    /// This allows agents to expose multiple transports, potentially at
+    /// different URLs.
     List<AgentInterface>? additionalInterfaces,
 
     /// An optional URL to an icon for the agent.

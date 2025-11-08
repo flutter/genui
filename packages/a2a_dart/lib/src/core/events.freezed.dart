@@ -38,7 +38,7 @@ StreamingEvent _$StreamingEventFromJson(
 /// @nodoc
 mixin _$StreamingEvent {
 
-/// The type of this event, always 'task_status_update'.
+/// The type of this event.
  String get kind;/// The unique identifier of the task that was updated.
  String get taskId;/// The unique identifier of the context for the task.
  String get contextId;
@@ -246,7 +246,7 @@ class TaskStatusUpdateEvent implements StreamingEvent {
   const TaskStatusUpdateEvent({this.kind = 'task_status_update', required this.taskId, required this.contextId, required this.status, required this.final_});
   factory TaskStatusUpdateEvent.fromJson(Map<String, dynamic> json) => _$TaskStatusUpdateEventFromJson(json);
 
-/// The type of this event, always 'task_status_update'.
+/// The type of this event.
 @override@JsonKey() final  String kind;
 /// The unique identifier of the task that was updated.
 @override final  String taskId;
@@ -254,7 +254,7 @@ class TaskStatusUpdateEvent implements StreamingEvent {
 @override final  String contextId;
 /// The new status of the task.
  final  TaskStatus status;
-/// A boolean indicating if this is the final update for the task.
+/// If true, this is the final event in the stream for this interaction.
  final  bool final_;
 
 /// Create a copy of StreamingEvent
@@ -337,18 +337,18 @@ class TaskArtifactUpdateEvent implements StreamingEvent {
   const TaskArtifactUpdateEvent({this.kind = 'task_artifact_update', required this.taskId, required this.contextId, required this.artifact, required this.append, required this.lastChunk});
   factory TaskArtifactUpdateEvent.fromJson(Map<String, dynamic> json) => _$TaskArtifactUpdateEventFromJson(json);
 
-/// The type of this event, always 'task_artifact_update'.
+/// The type of this event.
 @override@JsonKey() final  String kind;
-/// The unique identifier of the task that was updated.
+/// The ID of the task this artifact belongs to.
 @override final  String taskId;
-/// The unique identifier of the context for the task.
+/// The context ID associated with the task.
 @override final  String contextId;
-/// The artifact that was updated.
+/// The artifact that was generated or updated.
  final  Artifact artifact;
-/// A boolean indicating if the content of the artifact should be appended
-/// to the existing content.
+/// If true, the content of this artifact should be appended to a previously
+/// sent artifact with the same ID.
  final  bool append;
-/// A boolean indicating if this is the last chunk of the artifact.
+/// If true, this is the final chunk of the artifact.
  final  bool lastChunk;
 
 /// Create a copy of StreamingEvent
@@ -452,7 +452,7 @@ Event _$EventFromJson(
 /// @nodoc
 mixin _$Event {
 
-/// The type of this event, always 'task_status_update'.
+/// The type of this event.
  String get kind;/// The unique identifier of the task that was updated.
  String get taskId;/// The unique identifier of the context for the task.
  String get contextId;
@@ -654,7 +654,7 @@ class TaskStatusUpdate implements Event {
   const TaskStatusUpdate({this.kind = 'task_status_update', required this.taskId, required this.contextId, required this.status, required this.final_});
   factory TaskStatusUpdate.fromJson(Map<String, dynamic> json) => _$TaskStatusUpdateFromJson(json);
 
-/// The type of this event, always 'task_status_update'.
+/// The type of this event.
 @override@JsonKey() final  String kind;
 /// The unique identifier of the task that was updated.
 @override final  String taskId;
@@ -662,7 +662,7 @@ class TaskStatusUpdate implements Event {
 @override final  String contextId;
 /// The new status of the task.
  final  TaskStatus status;
-/// A boolean indicating if this is the final update for the task.
+/// If true, this is the final event in the stream for this interaction.
  final  bool final_;
 
 /// Create a copy of Event
@@ -745,18 +745,18 @@ class TaskArtifactUpdate implements Event {
   const TaskArtifactUpdate({this.kind = 'task_artifact_update', required this.taskId, required this.contextId, required this.artifact, required this.append, required this.lastChunk});
   factory TaskArtifactUpdate.fromJson(Map<String, dynamic> json) => _$TaskArtifactUpdateFromJson(json);
 
-/// The type of this event, always 'task_artifact_update'.
+/// The type of this event.
 @override@JsonKey() final  String kind;
-/// The unique identifier of the task that was updated.
+/// The ID of the task this artifact belongs to.
 @override final  String taskId;
-/// The unique identifier of the context for the task.
+/// The context ID associated with the task.
 @override final  String contextId;
-/// The artifact that was updated.
+/// The artifact that was generated or updated.
  final  Artifact artifact;
-/// A boolean indicating if the content of the artifact should be appended
-/// to the existing content.
+/// If true, the content of this artifact should be appended to a previously
+/// sent artifact with the same ID.
  final  bool append;
-/// A boolean indicating if this is the last chunk of the artifact.
+/// If true, this is the final chunk of the artifact.
  final  bool lastChunk;
 
 /// Create a copy of Event

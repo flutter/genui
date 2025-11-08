@@ -16,23 +16,39 @@ T _$identity<T>(T value) => value;
 mixin _$AgentCard {
 
 /// The version of the A2A protocol that this agent supports.
- String get protocolVersion;/// A human-readable name for the agent (e.g., "Weather Bot").
- String get name;/// A brief summary of the agent's purpose and capabilities.
- String get description;/// A URL for the agent's website or relevant documentation.
- String get url;/// The preferred transport protocol for this agent (e.g., "sse").
- TransportProtocol? get preferredTransport;/// A list of additional communication interfaces the agent supports.
- List<AgentInterface>? get additionalInterfaces;/// A URL for an icon representing the agent.
- String? get iconUrl;/// Information about the entity that provides the agent.
- AgentProvider? get provider;/// The version of the agent's software (e.g., "1.2.3").
- String get version;/// A URL for the agent's detailed documentation.
- String? get documentationUrl;/// The capabilities of the agent, such as supported extensions.
- AgentCapabilities get capabilities;/// The security schemes supported by the agent (e.g., OAuth 2.0).
- Map<String, SecurityScheme>? get securitySchemes;/// The security requirements for accessing the agent's services.
- List<Map<String, List<String>>>? get security;/// The default input modes for the agent (e.g., "text/plain").
- List<String> get defaultInputModes;/// The default output modes for the agent (e.g., "application/json").
- List<String> get defaultOutputModes;/// The skills or functionalities that the agent can perform.
- List<AgentSkill> get skills;/// Indicates whether the agent supports authenticated extended card
-/// requests.
+ String get protocolVersion;/// A human-readable name for the agent (e.g., "Recipe Agent").
+ String get name;/// A human-readable description of the agent, assisting users and other
+/// agents in understanding its purpose.
+ String get description;/// The preferred endpoint URL for interacting with the agent.
+ String get url;/// The transport protocol for the preferred endpoint.
+///
+/// If not specified, defaults to [TransportProtocol.jsonrpc].
+ TransportProtocol? get preferredTransport;/// A list of additional supported interfaces (transport and URL
+/// combinations).
+///
+/// This allows agents to expose multiple transports, potentially at
+/// different URLs.
+ List<AgentInterface>? get additionalInterfaces;/// An optional URL to an icon for the agent.
+ String? get iconUrl;/// Information about the agent's service provider.
+ AgentProvider? get provider;/// The agent's own version number. The format is defined by the provider.
+ String get version;/// An optional URL to the agent's documentation.
+ String? get documentationUrl;/// A declaration of optional capabilities supported by the agent.
+ AgentCapabilities get capabilities;/// A declaration of the security schemes available to authorize requests.
+///
+/// The key is the scheme name. Follows the OpenAPI 3.0 Security Scheme
+/// Object.
+ Map<String, SecurityScheme>? get securitySchemes;/// A list of security requirement objects that apply to all agent
+/// interactions.
+///
+/// Each object lists security schemes that can be used. Follows the OpenAPI
+/// 3.0 Security Requirement Object.
+ List<Map<String, List<String>>>? get security;/// Default set of supported input MIME types for all skills, which can be
+/// overridden on a per-skill basis.
+ List<String> get defaultInputModes;/// Default set of supported output MIME types for all skills, which can be
+/// overridden on a per-skill basis.
+ List<String> get defaultOutputModes;/// The set of skills, or distinct capabilities, that the agent can perform.
+ List<AgentSkill> get skills;/// If true, the agent can provide an extended agent card with additional
+/// details to authenticated users. Defaults to false.
  bool? get supportsAuthenticatedExtendedCard;
 /// Create a copy of AgentCard
 /// with the given fields replaced by the non-null parameter values.
@@ -269,17 +285,28 @@ class _AgentCard implements AgentCard {
 
 /// The version of the A2A protocol that this agent supports.
 @override final  String protocolVersion;
-/// A human-readable name for the agent (e.g., "Weather Bot").
+/// A human-readable name for the agent (e.g., "Recipe Agent").
 @override final  String name;
-/// A brief summary of the agent's purpose and capabilities.
+/// A human-readable description of the agent, assisting users and other
+/// agents in understanding its purpose.
 @override final  String description;
-/// A URL for the agent's website or relevant documentation.
+/// The preferred endpoint URL for interacting with the agent.
 @override final  String url;
-/// The preferred transport protocol for this agent (e.g., "sse").
+/// The transport protocol for the preferred endpoint.
+///
+/// If not specified, defaults to [TransportProtocol.jsonrpc].
 @override final  TransportProtocol? preferredTransport;
-/// A list of additional communication interfaces the agent supports.
+/// A list of additional supported interfaces (transport and URL
+/// combinations).
+///
+/// This allows agents to expose multiple transports, potentially at
+/// different URLs.
  final  List<AgentInterface>? _additionalInterfaces;
-/// A list of additional communication interfaces the agent supports.
+/// A list of additional supported interfaces (transport and URL
+/// combinations).
+///
+/// This allows agents to expose multiple transports, potentially at
+/// different URLs.
 @override List<AgentInterface>? get additionalInterfaces {
   final value = _additionalInterfaces;
   if (value == null) return null;
@@ -288,19 +315,25 @@ class _AgentCard implements AgentCard {
   return EqualUnmodifiableListView(value);
 }
 
-/// A URL for an icon representing the agent.
+/// An optional URL to an icon for the agent.
 @override final  String? iconUrl;
-/// Information about the entity that provides the agent.
+/// Information about the agent's service provider.
 @override final  AgentProvider? provider;
-/// The version of the agent's software (e.g., "1.2.3").
+/// The agent's own version number. The format is defined by the provider.
 @override final  String version;
-/// A URL for the agent's detailed documentation.
+/// An optional URL to the agent's documentation.
 @override final  String? documentationUrl;
-/// The capabilities of the agent, such as supported extensions.
+/// A declaration of optional capabilities supported by the agent.
 @override final  AgentCapabilities capabilities;
-/// The security schemes supported by the agent (e.g., OAuth 2.0).
+/// A declaration of the security schemes available to authorize requests.
+///
+/// The key is the scheme name. Follows the OpenAPI 3.0 Security Scheme
+/// Object.
  final  Map<String, SecurityScheme>? _securitySchemes;
-/// The security schemes supported by the agent (e.g., OAuth 2.0).
+/// A declaration of the security schemes available to authorize requests.
+///
+/// The key is the scheme name. Follows the OpenAPI 3.0 Security Scheme
+/// Object.
 @override Map<String, SecurityScheme>? get securitySchemes {
   final value = _securitySchemes;
   if (value == null) return null;
@@ -309,9 +342,17 @@ class _AgentCard implements AgentCard {
   return EqualUnmodifiableMapView(value);
 }
 
-/// The security requirements for accessing the agent's services.
+/// A list of security requirement objects that apply to all agent
+/// interactions.
+///
+/// Each object lists security schemes that can be used. Follows the OpenAPI
+/// 3.0 Security Requirement Object.
  final  List<Map<String, List<String>>>? _security;
-/// The security requirements for accessing the agent's services.
+/// A list of security requirement objects that apply to all agent
+/// interactions.
+///
+/// Each object lists security schemes that can be used. Follows the OpenAPI
+/// 3.0 Security Requirement Object.
 @override List<Map<String, List<String>>>? get security {
   final value = _security;
   if (value == null) return null;
@@ -320,35 +361,39 @@ class _AgentCard implements AgentCard {
   return EqualUnmodifiableListView(value);
 }
 
-/// The default input modes for the agent (e.g., "text/plain").
+/// Default set of supported input MIME types for all skills, which can be
+/// overridden on a per-skill basis.
  final  List<String> _defaultInputModes;
-/// The default input modes for the agent (e.g., "text/plain").
+/// Default set of supported input MIME types for all skills, which can be
+/// overridden on a per-skill basis.
 @override List<String> get defaultInputModes {
   if (_defaultInputModes is EqualUnmodifiableListView) return _defaultInputModes;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_defaultInputModes);
 }
 
-/// The default output modes for the agent (e.g., "application/json").
+/// Default set of supported output MIME types for all skills, which can be
+/// overridden on a per-skill basis.
  final  List<String> _defaultOutputModes;
-/// The default output modes for the agent (e.g., "application/json").
+/// Default set of supported output MIME types for all skills, which can be
+/// overridden on a per-skill basis.
 @override List<String> get defaultOutputModes {
   if (_defaultOutputModes is EqualUnmodifiableListView) return _defaultOutputModes;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_defaultOutputModes);
 }
 
-/// The skills or functionalities that the agent can perform.
+/// The set of skills, or distinct capabilities, that the agent can perform.
  final  List<AgentSkill> _skills;
-/// The skills or functionalities that the agent can perform.
+/// The set of skills, or distinct capabilities, that the agent can perform.
 @override List<AgentSkill> get skills {
   if (_skills is EqualUnmodifiableListView) return _skills;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_skills);
 }
 
-/// Indicates whether the agent supports authenticated extended card
-/// requests.
+/// If true, the agent can provide an extended agent card with additional
+/// details to authenticated users. Defaults to false.
 @override final  bool? supportsAuthenticatedExtendedCard;
 
 /// Create a copy of AgentCard

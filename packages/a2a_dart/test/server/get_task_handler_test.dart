@@ -31,10 +31,7 @@ void main() {
     });
 
     test('throws an exception when id is missing', () {
-      expect(
-        () => handler.handle({}),
-        throwsA(isA<A2AServerException>()),
-      );
+      expect(() => handler.handle({}), throwsA(isA<A2AServerException>()));
     });
   });
 }

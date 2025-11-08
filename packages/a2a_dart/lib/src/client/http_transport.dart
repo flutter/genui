@@ -79,4 +79,9 @@ class HttpTransport implements Transport {
     // This transport does not support streaming.
     throw UnimplementedError('SSE is not implemented for HttpTransport');
   }
+
+  @override
+  void close() {
+    client.close();
+  }
 }

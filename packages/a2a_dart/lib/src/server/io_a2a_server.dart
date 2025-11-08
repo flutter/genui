@@ -109,8 +109,8 @@ class A2AServer {
 
   /// Starts the server.
   ///
-  /// The server will listen on the configured [host] and [port]. If the port was
-  /// configured to 0, it will listen on a random available port. The actual
+  /// The server will listen on the configured [host] and [port]. If the port
+  /// was configured to 0, it will listen on a random available port. The actual
   /// port can be retrieved from the [port] getter after this method completes.
   Future<void> start() async {
     final router = Router()
@@ -133,6 +133,7 @@ class A2AServer {
     }
     final handler = pipeline.addHandler(router.call);
 
+    _log?.info('Starting A2A server on $host:$_requestedPort...');
     _server = await io.serve(handler, host, _requestedPort);
     _log?.info(
       'A2A server started on ${_server!.address.host}:${_server!.port}',

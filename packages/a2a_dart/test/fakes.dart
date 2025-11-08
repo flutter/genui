@@ -60,6 +60,9 @@ class FakeTransport implements Transport {
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
     return stream;
   }
+
+  @override
+  void close() {}
 }
 
 class FakeTaskManager implements TaskManager {
@@ -104,8 +107,6 @@ class FakeTaskManager implements TaskManager {
       nextPageToken: '',
     );
   }
-
-
 }
 
 Response ok(Map<String, Object?> body) {

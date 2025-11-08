@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
+import '../core/events.dart';
 import '../core/list_tasks_params.dart';
 import '../core/list_tasks_result.dart';
 import '../core/message.dart';
-import '../core/events.dart';
 import '../core/task.dart';
 
 /// Manages the lifecycle of A2A tasks.
@@ -31,6 +30,4 @@ abstract class TaskManager {
 
   /// Lists tasks, with optional filtering and pagination.
   Future<ListTasksResult> listTasks(ListTasksParams params);
-
-
 }

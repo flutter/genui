@@ -42,8 +42,8 @@ Part _$PartFromJson(
 /// @nodoc
 mixin _$Part {
 
-/// The type of this part, always 'text'.
- String get kind;/// Optional metadata for the part.
+/// The type of this part.
+ String get kind;/// Optional metadata associated with this part.
  Map<String, Object?>? get metadata;
 /// Create a copy of Part
 /// with the given fields replaced by the non-null parameter values.
@@ -254,13 +254,13 @@ class TextPart implements Part {
   const TextPart({this.kind = 'text', required this.text, final  Map<String, Object?>? metadata}): _metadata = metadata;
   factory TextPart.fromJson(Map<String, dynamic> json) => _$TextPartFromJson(json);
 
-/// The type of this part, always 'text'.
+/// The type of this part.
 @override@JsonKey() final  String kind;
-/// The text content.
+/// The string content of the text part.
  final  String text;
-/// Optional metadata for the part.
+/// Optional metadata associated with this part.
  final  Map<String, Object?>? _metadata;
-/// Optional metadata for the part.
+/// Optional metadata associated with this part.
 @override Map<String, Object?>? get metadata {
   final value = _metadata;
   if (value == null) return null;
@@ -339,13 +339,14 @@ class FilePart implements Part {
   const FilePart({this.kind = 'file', required this.file, final  Map<String, Object?>? metadata}): _metadata = metadata;
   factory FilePart.fromJson(Map<String, dynamic> json) => _$FilePartFromJson(json);
 
-/// The type of this part, always 'file'.
+/// The type of this part.
 @override@JsonKey() final  String kind;
-/// The file to be included in the message.
+/// The file content, represented as either a URI or as base64-encoded
+/// bytes.
  final  FileType file;
-/// Optional metadata for the part.
+/// Optional metadata associated with this part.
  final  Map<String, Object?>? _metadata;
-/// Optional metadata for the part.
+/// Optional metadata associated with this part.
 @override Map<String, Object?>? get metadata {
   final value = _metadata;
   if (value == null) return null;
@@ -433,20 +434,20 @@ class DataPart implements Part {
   const DataPart({this.kind = 'data', required final  Map<String, Object?> data, final  Map<String, Object?>? metadata}): _data = data,_metadata = metadata;
   factory DataPart.fromJson(Map<String, dynamic> json) => _$DataPartFromJson(json);
 
-/// The type of this part, always 'data'.
+/// The type of this part.
 @override@JsonKey() final  String kind;
-/// The structured data, represented as a JSON object.
+/// The structured data content.
  final  Map<String, Object?> _data;
-/// The structured data, represented as a JSON object.
+/// The structured data content.
  Map<String, Object?> get data {
   if (_data is EqualUnmodifiableMapView) return _data;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_data);
 }
 
-/// Optional metadata for the part.
+/// Optional metadata associated with this part.
  final  Map<String, Object?>? _metadata;
-/// Optional metadata for the part.
+/// Optional metadata associated with this part.
 @override Map<String, Object?>? get metadata {
   final value = _metadata;
   if (value == null) return null;
