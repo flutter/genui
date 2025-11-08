@@ -9,12 +9,17 @@ import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
-/// A [RequestHandler] that handles `tasks/get` requests.
+/// Handles JSON-RPC requests for the `tasks/get` method.
+///
+/// This handler retrieves the current state of a specific task by its ID
+/// using the [TaskManager].
 class GetTaskHandler extends RequestHandler {
   /// Creates a [GetTaskHandler].
+  ///
+  /// Requires a [TaskManager] instance to access task data.
   GetTaskHandler(this.taskManager);
 
-  /// The task manager used to retrieve tasks.
+  /// The task manager used to retrieve task information.
   final TaskManager taskManager;
 
   @override
@@ -27,12 +32,18 @@ class GetTaskHandler extends RequestHandler {
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     final taskId = params['id'] as String?;
     if (taskId == null) {
-      throw A2AServerException('`id` parameter is required.', -32602);
+      throw A2AServerException(
+        'Missing required parameter: id',
+        -32602, // Invalid params
+      );
     }
 
     final task = await taskManager.getTask(taskId);
     if (task == null) {
-      throw A2AServerException('Task not found', -32602);
+      throw A2AServerException(
+        'Task not found: $taskId',
+        -32001, // Custom: Task not found
+      );
     }
     return SingleResult(task.toJson());
   }

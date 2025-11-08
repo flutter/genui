@@ -8,11 +8,16 @@ import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
-/// Handles the `tasks/pushNotificationConfig/set` RPC method.
+/// Handles JSON-RPC requests for the `tasks/pushNotificationConfig/set` method.
+///
+/// This handler creates or updates a push notification configuration for a
+/// specific task using the [TaskManager].
 class SetPushConfigHandler implements RequestHandler {
   final TaskManager _taskManager;
 
   /// Creates a [SetPushConfigHandler].
+  ///
+  /// Requires a [TaskManager] instance to manage push configurations.
   SetPushConfigHandler(this._taskManager);
 
   @override
@@ -23,19 +28,28 @@ class SetPushConfigHandler implements RequestHandler {
 
   @override
   Future<HandlerResult> handle(Map<String, Object?> params) async {
-    final taskPushConfig = TaskPushNotificationConfig.fromJson(params);
-    final taskId = taskPushConfig.taskId;
-    final config = taskPushConfig.pushNotificationConfig;
+    try {
+      final taskPushConfig = TaskPushNotificationConfig.fromJson(params);
+      final taskId = taskPushConfig.taskId;
+      final config = taskPushConfig.pushNotificationConfig;
 
-    final task = await _taskManager.getTask(taskId);
-    if (task == null) {
+      final task = await _taskManager.getTask(taskId);
+      if (task == null) {
+        throw A2AServerException(
+          'Task not found: $taskId',
+          -32001, // Custom: Task not found
+        );
+      }
+
+      await _taskManager.setPushNotificationConfig(taskId, config);
+      // The spec says to return the config, but the TaskPushNotificationConfig
+      // is the request object, so we return that.
+      return SingleResult(taskPushConfig.toJson());
+    } on FormatException catch (e) {
       throw A2AServerException(
-        'Task not found: $taskId',
-        -32001,
-      ); // Task not found
+        'Invalid parameters for tasks/pushNotificationConfig/set: $e',
+        -32602, // Invalid params
+      );
     }
-
-    await _taskManager.setPushNotificationConfig(taskId, config);
-    return SingleResult(taskPushConfig.toJson());
   }
 }

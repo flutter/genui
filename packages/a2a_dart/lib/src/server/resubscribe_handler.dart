@@ -9,12 +9,18 @@ import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
-/// A [RequestHandler] that handles `tasks/resubscribe` requests.
+/// Handles JSON-RPC requests for the `tasks/resubscribe` method.
+///
+/// This handler allows a client to resume receiving events from a task's
+/// stream, typically after a disconnection. It retrieves any buffered events
+/// for the given task ID from the [TaskManager].
 class ResubscribeHandler extends RequestHandler {
   /// Creates a [ResubscribeHandler].
+  ///
+  /// Requires a [TaskManager] instance to access task event streams.
   ResubscribeHandler(this.taskManager);
 
-  /// The task manager used to retrieve task streams.
+  /// The task manager used to retrieve task event streams.
   final TaskManager taskManager;
 
   @override
@@ -27,13 +33,27 @@ class ResubscribeHandler extends RequestHandler {
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     final taskId = params['id'] as String?;
     if (taskId == null) {
-      throw A2AServerException('`id` parameter is required.', -32602);
+      throw A2AServerException(
+        'Missing required parameter: id',
+        -32602, // Invalid params
+      );
     }
     final task = await taskManager.getTask(taskId);
     if (task == null) {
-      throw A2AServerException('Task not found: $taskId', -32001);
+      throw A2AServerException(
+        'Task not found: $taskId',
+        -32001, // Custom: Task not found
+      );
     }
-    final stream = taskManager.resubscribeToTask(taskId);
-    return StreamResult(stream.map((event) => event.toJson()));
+    try {
+      final stream = taskManager.resubscribeToTask(taskId);
+      return StreamResult(stream.map((event) => event.toJson()));
+      // ignore: avoid_catching_errors
+    } on StateError catch (e) {
+      throw A2AServerException(
+        'Error resubscribing to task $taskId: $e',
+        -32000, // Server error
+      );
+    }
   }
 }

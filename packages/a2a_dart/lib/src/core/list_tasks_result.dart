@@ -9,26 +9,31 @@ import 'task.dart';
 part 'list_tasks_result.freezed.dart';
 part 'list_tasks_result.g.dart';
 
-/// The result of a `tasks/list` RPC call.
+/// Represents the response from the `tasks/list` RPC method.
+///
+/// Contains a paginated list of tasks matching the request criteria.
 @freezed
 abstract class ListTasksResult with _$ListTasksResult {
-  /// Creates a [ListTasksResult].
+  /// Creates a [ListTasksResult] instance.
   const factory ListTasksResult({
-    /// Array of tasks matching the specified criteria.
+    /// The list of [Task] objects matching the specified filters and
+    /// pagination.
     required List<Task> tasks,
 
-    /// Total number of tasks available (before pagination).
+    /// The total number of tasks available on the server that match the filter
+    /// criteria (ignoring pagination).
     required int totalSize,
 
-    /// Maximum number of tasks returned in this response.
+    /// The maximum number of tasks requested per page.
     required int pageSize,
 
-    /// Token for retrieving the next page. An empty string if no more results
-    /// are available.
+    /// An opaque token for retrieving the next page of results.
+    ///
+    /// If this string is empty, there are no more pages.
     required String nextPageToken,
   }) = _ListTasksResult;
 
-  /// Creates a [ListTasksResult] from a JSON object.
+  /// Deserializes a [ListTasksResult] instance from a JSON object.
   factory ListTasksResult.fromJson(Map<String, Object?> json) =>
       _$ListTasksResultFromJson(json);
 }

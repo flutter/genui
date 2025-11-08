@@ -4,29 +4,45 @@
 
 import 'dart:async';
 
+import '../../a2a_dart.dart' show A2AServerException;
 import 'a2a_server.dart';
+import 'a2a_server_exception.dart' show A2AServerException;
 import 'handler_result.dart';
 
-/// An interface for a handler of a specific A2A RPC method.
+/// Defines the interface for handling a specific A2A JSON-RPC method.
 ///
-/// Implement this class to create a handler for a specific RPC method. The
-/// [A2AServer] will delegate requests to the appropriate handler based on the
-/// method name.
+/// Implementations of this class are responsible for processing requests for
+/// a single RPC method. The [A2AServer] uses these handlers to delegate
+/// incoming requests based on the method name.
 abstract class RequestHandler {
-  /// The name of the RPC method this handler supports (e.g., 'tasks/get').
+  /// The name of the JSON-RPC method this handler is responsible for.
+  ///
+  /// Example: 'tasks/get', 'message/send'.
   String get method;
 
-  /// The security requirements for this handler. Each map represents a security
-  /// scheme, where the key is the scheme name (from AgentCard.securitySchemes)
-  /// and the value is a list of scopes required for this method.
-  /// An empty list means the handler is public.
-  /// Defaults to null, meaning the server's default security applies.
+  /// Specifies the security requirements for invoking this method.
+  ///
+  /// This is a list of security requirement objects, where each object maps
+  /// security scheme names (defined in the agent's `AgentCard.securitySchemes`)
+  /// to a list of required scopes.
+  ///
+  /// An empty list (`[]`) means the handler is public and requires no
+  /// authentication. A `null` value means the server's default security
+  /// policies apply.
+  ///
+  /// Example: `[{ "bearerAuth": ["read:tasks"] }]` - Requires Bearer
+  /// authentication with the `read:tasks` scope.
   List<Map<String, List<String>>>? get securityRequirements => null;
 
-  /// Handles an incoming request.
+  /// Processes an incoming JSON-RPC request for this handler's [method].
   ///
-  /// The [params] are the parameters of the RPC call. This method should return
-  /// a [FutureOr] of a [HandlerResult] which will be sent as the `result` of
-  /// the JSON-RPC 2.0 response.
+  /// The [params] map contains the parameters provided in the JSON-RPC request.
+  /// This method should return a [FutureOr] of a [HandlerResult], which can be
+  /// either a [SingleResult] for a standard response or a [StreamResult] for
+  /// a streaming response.
+  ///
+  /// Implementations should throw [A2AServerException] for expected error
+  /// conditions that need to be communicated back to the client as JSON-RPC
+  /// errors.
   FutureOr<HandlerResult> handle(Map<String, Object?> params);
 }

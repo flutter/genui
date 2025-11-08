@@ -13,6 +13,10 @@ import '../core/task.dart';
 import 'task_manager.dart';
 
 /// An in-memory implementation of the [TaskManager] interface.
+///
+/// This class stores all task data, events, and push configurations in memory.
+/// It is suitable for testing, development, or simple server deployments where
+/// persistence is not required.
 class InMemoryTaskManager implements TaskManager {
   final _tasks = <String, Task>{};
   final _events = <String, List<Event>>{};
@@ -22,7 +26,7 @@ class InMemoryTaskManager implements TaskManager {
   @override
   Future<Task> createTask([Message? message]) async {
     final taskId = _uuid.v4();
-    final contextId = _uuid.v4();
+    final contextId = message?.contextId ?? _uuid.v4();
     final task = Task(
       id: taskId,
       contextId: contextId,
@@ -39,6 +43,9 @@ class InMemoryTaskManager implements TaskManager {
 
   @override
   Future<void> updateTask(Task task) async {
+    if (!_tasks.containsKey(task.id)) {
+      throw StateError('Task not found: ${task.id}');
+    }
     _tasks[task.id] = task.copyWith(
       lastUpdated: DateTime.now().millisecondsSinceEpoch,
     );
@@ -73,7 +80,7 @@ class InMemoryTaskManager implements TaskManager {
           .where(
             (t) =>
                 t.lastUpdated != null &&
-                t.lastUpdated! > params.lastUpdatedAfter!,
+                t.lastUpdated! >= params.lastUpdatedAfter!,
           )
           .toList();
     }
@@ -81,10 +88,20 @@ class InMemoryTaskManager implements TaskManager {
     tasks.sort((a, b) => b.lastUpdated!.compareTo(a.lastUpdated!));
 
     final totalSize = tasks.length;
-    final pageToken = params.pageToken != null
+    final pageToken = params.pageToken != null && params.pageToken!.isNotEmpty
         ? int.parse(params.pageToken!)
         : 0;
     final startIndex = pageToken * params.pageSize;
+
+    if (startIndex >= totalSize) {
+      return ListTasksResult(
+        tasks: [],
+        totalSize: totalSize,
+        pageSize: params.pageSize,
+        nextPageToken: '',
+      );
+    }
+
     final endIndex = (startIndex + params.pageSize > totalSize)
         ? totalSize
         : startIndex + params.pageSize;
@@ -105,11 +122,17 @@ class InMemoryTaskManager implements TaskManager {
 
   @override
   Stream<Event> resubscribeToTask(String taskId) {
+    if (!_tasks.containsKey(taskId)) {
+      return Stream.error(StateError('Task not found: $taskId'));
+    }
     return Stream.fromIterable(_events[taskId] ?? []);
   }
 
   @override
   Future<void> addEvent(String taskId, Event event) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw StateError('Task not found: $taskId');
+    }
     _events.putIfAbsent(taskId, () => []).add(event);
   }
 
@@ -119,7 +142,7 @@ class InMemoryTaskManager implements TaskManager {
     PushNotificationConfig config,
   ) async {
     if (!_tasks.containsKey(taskId)) {
-      throw Exception('Task not found: $taskId');
+      throw StateError('Task not found: $taskId');
     }
     final configId = config.id ?? _uuid.v4();
     final newConfig = config.id == null
@@ -140,6 +163,9 @@ class InMemoryTaskManager implements TaskManager {
   Future<List<PushNotificationConfig>> listPushNotificationConfigs(
     String taskId,
   ) async {
+    if (!_tasks.containsKey(taskId)) {
+      return [];
+    }
     return _pushConfigs[taskId]?.values.toList() ?? [];
   }
 
@@ -148,6 +174,11 @@ class InMemoryTaskManager implements TaskManager {
     String taskId,
     String configId,
   ) async {
-    _pushConfigs[taskId]?.remove(configId);
+    if (!_tasks.containsKey(taskId)) {
+      throw StateError('Task not found: $taskId');
+    }
+    if (_pushConfigs[taskId]?.remove(configId) == null) {
+      throw StateError('Push config not found: $configId');
+    }
   }
 }

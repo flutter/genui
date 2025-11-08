@@ -17,34 +17,39 @@ import 'a2a_exception.dart';
 import 'http_transport.dart';
 import 'transport.dart';
 
-/// A client for interacting with an A2A server.
+/// A client for interacting with an A2A (Agent-to-Agent) server.
 ///
 /// This class provides methods for all the RPC calls defined in the A2A
 /// specification. It handles the JSON-RPC 2.0 protocol and uses a [Transport]
-/// to communicate with the server.
+/// instance to communicate with the server, which defaults to [HttpTransport].
 class A2AClient {
-  /// The URL of the A2A server.
+  /// The base URL of the A2A server.
   final String url;
 
   final Transport _transport;
   final Logger? _log;
 
-  /// Creates an [A2AClient].
+  /// Creates an [A2AClient] instance.
   ///
-  /// The [url] is the base URL of the A2A server.
+  /// The [url] parameter is required and specifies the base URL of the A2A
+  /// server (e.g., `http://localhost:8000`).
   ///
-  /// The [transport] is the transport to use for communication. If not
-  /// provided, an [HttpTransport] will be used.
+  /// An optional [transport] can be provided to customize the communication
+  /// layer. If omitted, an [HttpTransport] is created using the provided [url].
   ///
-  /// The [log] is the logger to use for logging.
+  /// An optional [log] instance can be provided for logging client activities.
   A2AClient({required this.url, Transport? transport, Logger? log})
     : _transport = transport ?? HttpTransport(url: url, log: log),
       _log = log;
 
-  /// Fetches the agent card from the server.
+  /// Fetches the public agent card from the server.
   ///
-  /// The agent card contains metadata about the agent. This is typically
-  /// requested from the `/.well-known/agent-card.json` endpoint.
+  /// The agent card contains metadata about the agent, such as its capabilities
+  /// and security schemes. This method typically requests the card from the
+  /// `/.well-known/agent-card.json` endpoint on the server.
+  ///
+  /// Returns an [AgentCard] object.
+  /// Throws an [A2AException] if the request fails or the response is invalid.
   Future<AgentCard> getAgentCard() async {
     _log?.info('Fetching agent card...');
     final response = await _transport.get('/.well-known/agent-card.json');
@@ -54,9 +59,13 @@ class A2AClient {
 
   /// Fetches the authenticated extended agent card from the server.
   ///
-  /// This method is used to get a more detailed agent card that may be
-  /// available to authenticated users. It sends an `Authorization` header
-  /// with the given [token].
+  /// This method retrieves a potentially more detailed [AgentCard] that is only
+  /// available to authenticated users. It includes an `Authorization` header
+  /// with the provided Bearer [token] in the request to
+  /// `/.well-known/agent-card.json`.
+  ///
+  /// Returns an [AgentCard] object.
+  /// Throws an [A2AException] if the request fails or the response is invalid.
   Future<AgentCard> getAuthenticatedExtendedCard(String token) async {
     _log?.info('Fetching authenticated agent card...');
     final response = await _transport.get(
@@ -67,13 +76,19 @@ class A2AClient {
     return AgentCard.fromJson(response);
   }
 
-  /// Sends a message to the agent for a single-shot interaction.
+  /// Sends a message to the agent for a single-shot interaction via
+  /// `message/send`.
   ///
   /// This method is used for synchronous request/response interactions. The
-  /// returned [Task] contains the initial state of the task. For long-running
-  /// tasks, the client can poll the task status using [getTask].
+  /// server is expected to process the [message] and return a result relatively
+  /// quickly. The returned [Task] contains the initial state of the task as
+  /// reported by the server.
   ///
-  /// Throws an [A2AException] if the server returns an error.
+  /// For operations that are expected to take longer, consider using
+  /// [messageStream] or polling the task status using [getTask].
+  ///
+  /// Returns the initial [Task] state. Throws an [A2AException] if the server
+  /// returns a JSON-RPC error.
   Future<Task> messageSend(Message message) async {
     _log?.info('Sending message: ${message.messageId}');
     final response = await _transport.send({
@@ -93,13 +108,17 @@ class A2AClient {
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Sends a message to the agent and subscribes to real-time updates.
+  /// Sends a message to the agent and subscribes to real-time updates via
+  /// `message/stream`.
   ///
-  /// This method is used for streaming interactions with the agent. The
-  /// returned stream will emit [Event] objects as they are received from the
-  /// server via Server-Sent Events (SSE).
+  /// This method is used for streaming interactions. The agent can send
+  /// multiple updates over time. The returned stream emits [Event] objects as
+  /// they are received from the server, typically using Server-Sent Events
+  /// (SSE).
   ///
-  /// Throws an [A2AException] if the server returns an error in the stream.
+  /// Returns a [Stream] of [Event] objects. The stream will emit an
+  /// [A2AException] if the server sends a JSON-RPC error within the event
+  /// stream.
   Stream<Event> messageStream(Message message) {
     _log?.info('Sending message for stream: ${message.messageId}');
     final stream = _transport.sendStream({
@@ -131,10 +150,13 @@ class A2AClient {
     );
   }
 
-  /// Retrieves the current state of a task from the server.
+  /// Retrieves the current state of a task from the server using `tasks/get`.
   ///
-  /// This is typically used for polling the status of a task that was initiated
-  /// with [messageSend].
+  /// This method is used to poll the status of a task, identified by [taskId],
+  /// that was previously initiated (e.g., via [messageSend]).
+  ///
+  /// Returns the current [Task] state. Throws an [A2AException] if the server
+  /// returns a JSON-RPC error (e.g., task not found).
   Future<Task> getTask(String taskId) async {
     _log?.info('Getting task: $taskId');
     final response = await _transport.send({
@@ -144,12 +166,23 @@ class A2AClient {
       'id': 0,
     });
     _log?.fine('Received response from tasks/get: $response');
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Retrieves a list of tasks from the server.
+  /// Retrieves a list of tasks from the server using `tasks/list`.
   ///
-  /// The optional [params] can be used to filter and paginate the results.
+  /// The optional [params] of type [ListTasksParams] can be provided to filter,
+  /// sort, and paginate the task list.
+  ///
+  /// Returns a [ListTasksResult] containing the list of tasks and pagination
+  /// info. Throws an [A2AException] if the server returns a JSON-RPC error.
   Future<ListTasksResult> listTasks([ListTasksParams? params]) async {
     _log?.info('Listing tasks...');
     final response = await _transport.send({
@@ -159,14 +192,24 @@ class A2AClient {
       'id': 0,
     });
     _log?.fine('Received response from tasks/list: $response');
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
     return ListTasksResult.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Requests the cancellation of an ongoing task.
+  /// Requests the cancellation of an ongoing task using `tasks/cancel`.
   ///
-  /// The server will attempt to cancel the task, but success is not guaranteed.
-  /// The returned [Task] will contain the state of the task after the
-  /// cancellation request.
+  /// The server will attempt to cancel the task identified by [taskId].
+  /// Success is not guaranteed, as the task might have already completed or may
+  /// not support cancellation.
+  ///
+  /// Returns the updated [Task] state after the cancellation request.
+  /// Throws an [A2AException] if the server returns a JSON-RPC error.
   Future<Task> cancelTask(String taskId) async {
     _log?.info('Canceling task: $taskId');
     final response = await _transport.send({
@@ -176,13 +219,25 @@ class A2AClient {
       'id': 0,
     });
     _log?.fine('Received response from tasks/cancel: $response');
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
     return Task.fromJson(response['result'] as Map<String, Object?>);
   }
 
-  /// Resubscribes to an SSE stream for an ongoing task.
+  /// Resubscribes to an SSE stream for an ongoing task using
+  /// `tasks/resubscribe`.
   ///
-  /// This can be used to reconnect to a stream after a disconnection. The
+  /// This method allows a client to reconnect to the event stream of a task
+  /// identified by [taskId], for instance, after a network interruption. The
   /// returned stream will emit subsequent [Event] objects for the task.
+  ///
+  /// Returns a [Stream] of [Event] objects. The stream will emit an
+  /// [A2AException] if the server returns a JSON-RPC error.
   Stream<Event> resubscribeToTask(String taskId) {
     _log?.info('Resubscribing to task: $taskId');
     return _transport
@@ -193,16 +248,31 @@ class A2AClient {
         })
         .map((data) {
           _log?.fine('Received event from stream: $data');
+          if (data.containsKey('error')) {
+            final error = data['error'] as Map<String, Object?>;
+            throw A2AException.jsonRpc(
+              code: error['code'] as int,
+              message: error['message'] as String,
+            );
+          }
           return Event.fromJson(data);
         });
   }
 
-  /// Closes the underlying transport.
+  /// Closes the underlying transport connection.
+  ///
+  /// This should be called when the client is no longer needed to release
+  /// resources.
   void close() {
     _transport.close();
   }
 
   /// Sets or updates the push notification configuration for a task.
+  ///
+  /// Uses the `tasks/pushNotificationConfig/set` method.
+  ///
+  /// Returns the updated [TaskPushNotificationConfig].
+  /// Throws an [A2AException] if the server returns a JSON-RPC error.
   Future<TaskPushNotificationConfig> setPushNotificationConfig(
     TaskPushNotificationConfig params,
   ) async {
@@ -229,6 +299,12 @@ class A2AClient {
   }
 
   /// Retrieves a specific push notification configuration for a task.
+  ///
+  /// Uses the `tasks/pushNotificationConfig/get` method, identified by [taskId]
+  /// and [configId].
+  ///
+  /// Returns the requested [TaskPushNotificationConfig].
+  /// Throws an [A2AException] if the server returns a JSON-RPC error.
   Future<TaskPushNotificationConfig> getPushNotificationConfig(
     String taskId,
     String configId,
@@ -255,7 +331,12 @@ class A2AClient {
     );
   }
 
-  /// Lists all push notification configurations for a task.
+  /// Lists all push notification configurations for a given task.
+  ///
+  /// Uses the `tasks/pushNotificationConfig/list` method, identified by [taskId].
+  ///
+  /// Returns a List of [PushNotificationConfig] objects.
+  /// Throws an [A2AException] if the server returns a JSON-RPC error.
   Future<List<PushNotificationConfig>> listPushNotificationConfigs(
     String taskId,
   ) async {
@@ -287,6 +368,11 @@ class A2AClient {
   }
 
   /// Deletes a specific push notification configuration for a task.
+  ///
+  /// Uses the `tasks/pushNotificationConfig/delete` method, identified by [taskId]
+  /// and [configId].
+  ///
+  /// Throws an [A2AException] if the server returns a JSON-RPC error.
   Future<void> deletePushNotificationConfig(
     String taskId,
     String configId,

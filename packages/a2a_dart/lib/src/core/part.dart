@@ -10,85 +10,84 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'part.freezed.dart';
 part 'part.g.dart';
 
-/// A discriminated union representing a distinct piece of content within a
-/// [Message] or `Artifact`.
+/// Represents a distinct piece of content within a [Message] or Artifact.
 ///
-/// A `Part` can be text, a file, or structured data. The `kind` field is used
-/// as a discriminator to determine the type of the part.
+/// A [Part] can be text, a file reference, or structured data. The `kind` field
+/// acts as a discriminator to determine the specific type of the content part.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 abstract class Part with _$Part {
-  /// For conveying plain textual content.
+  /// Represents a plain text content part.
   const factory Part.text({
-    /// The type of this part.
+    /// The type discriminator, always 'text'.
     @Default('text') String kind,
 
-    /// The string content of the text part.
+    /// The string content.
     required String text,
 
-    /// Optional metadata associated with this part.
+    /// Optional metadata associated with this text part.
     Map<String, Object?>? metadata,
   }) = TextPart;
 
-  /// For conveying file-based content.
+  /// Represents a file content part.
   const factory Part.file({
-    /// The type of this part.
+    /// The type discriminator, always 'file'.
     @Default('file') String kind,
 
-    /// The file content, represented as either a URI or as base64-encoded
-    /// bytes.
+    /// The file details, specifying the file's location (URI) or content
+    /// (bytes).
     required FileType file,
 
-    /// Optional metadata associated with this part.
+    /// Optional metadata associated with this file part.
     Map<String, Object?>? metadata,
   }) = FilePart;
 
-  /// For conveying structured JSON data.
+  /// Represents a structured JSON data content part.
   const factory Part.data({
-    /// The type of this part.
+    /// The type discriminator, always 'data'.
     @Default('data') String kind,
 
-    /// The structured data content.
+    /// The structured data, represented as a map.
     required Map<String, Object?> data,
 
-    /// Optional metadata associated with this part.
+    /// Optional metadata associated with this data part.
     Map<String, Object?>? metadata,
   }) = DataPart;
 
-  /// Creates a [Part] from a JSON object.
+  /// Deserializes a [Part] instance from a JSON object.
   factory Part.fromJson(Map<String, Object?> json) => _$PartFromJson(json);
 }
 
-/// Represents a file, used within a [FilePart].
+/// Represents file data, used within a [FilePart].
 ///
-/// The file content can be provided either directly as bytes or as a URI.
+/// The file content can be provided either as a URI pointing to the file or
+/// directly as base64-encoded bytes.
 @Freezed(unionKey: 'type')
 abstract class FileType with _$FileType {
-  /// Represents a file with its content located at a specific URI.
+  /// Represents a file located at a specific URI.
   const factory FileType.uri({
-    /// A URL pointing to the file's content.
+    /// The Uniform Resource Identifier (URI) pointing to the file's content.
     required String uri,
 
     /// An optional name for the file (e.g., "document.pdf").
     String? name,
 
-    /// The MIME type of the file (e.g., "application/pdf").
+    /// The MIME type of the file (e.g., "application/pdf"), if known.
     String? mimeType,
   }) = FileWithUri;
 
-  /// Represents a file with its content provided directly as a base64-encoded
-  /// string.
+  /// Represents a file with its content embedded as a base64-encoded string.
   const factory FileType.bytes({
-    /// The base64-encoded content of the file.
+    /// The base64-encoded binary content of the file.
     required String bytes,
 
-    /// An optional name for the file (e.g., "document.pdf").
+    /// An optional name for the file (e.g., "image.png").
     String? name,
 
-    /// The MIME type of the file (e.g., "application/pdf").
+    /// The MIME type of the file (e.g., "image/png"), if known.
     String? mimeType,
   }) = FileWithBytes;
 
-  /// Creates a [FileType] from a JSON object.
+  /// Deserializes a [FileType] instance from a JSON object.
   factory FileType.fromJson(Map<String, Object?> json) =>
       _$FileTypeFromJson(json);
 }

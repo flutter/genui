@@ -9,101 +9,103 @@ import 'task.dart';
 part 'events.freezed.dart';
 part 'events.g.dart';
 
-/// A discriminated union representing events sent from the server to the client
-/// during a streaming task.
+/// Represents an event sent from the server during a streaming task.
+///
+/// This is a legacy name, [Event] should be used instead.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 abstract class StreamingEvent with _$StreamingEvent {
-  /// An event indicating that the status of a task has been updated.
+  /// Indicates an update to the task's status.
   const factory StreamingEvent.taskStatusUpdate({
-    /// The type of this event.
+    /// The type of this event, always 'task_status_update'.
     @Default('task_status_update') String kind,
 
-    /// The unique identifier of the task that was updated.
+    /// The unique ID of the updated task.
     required String taskId,
 
-    /// The unique identifier of the context for the task.
+    /// The unique context ID for the task.
     required String contextId,
 
     /// The new status of the task.
     required TaskStatus status,
 
-    /// If true, this is the final event in the stream for this interaction.
+    /// If `true`, this is the final event for this task stream.
     required bool final_,
   }) = TaskStatusUpdateEvent;
 
-  /// An event indicating that an artifact has been generated or updated.
+  /// Indicates a new or updated artifact related to the task.
   const factory StreamingEvent.taskArtifactUpdate({
-    /// The type of this event.
+    /// The type of this event, always 'task_artifact_update'.
     @Default('task_artifact_update') String kind,
 
-    /// The ID of the task this artifact belongs to.
+    /// The unique ID of the task this artifact belongs to.
     required String taskId,
 
-    /// The context ID associated with the task.
+    /// The unique context ID for the task.
     required String contextId,
 
-    /// The artifact that was generated or updated.
+    /// The artifact data.
     required Artifact artifact,
 
-    /// If true, the content of this artifact should be appended to a previously
-    /// sent artifact with the same ID.
+    /// If `true`, this artifact's content should be appended to any previous
+    /// content for the same `artifact.artifactId`.
     required bool append,
 
-    /// If true, this is the final chunk of the artifact.
+    /// If `true`, this is the last chunk of data for this artifact.
     required bool lastChunk,
   }) = TaskArtifactUpdateEvent;
 
-  /// Creates a [StreamingEvent] from a JSON object.
+  /// Deserializes a [StreamingEvent] from a JSON object.
   factory StreamingEvent.fromJson(Map<String, Object?> json) =>
       _$StreamingEventFromJson(json);
 }
 
-/// A discriminated union representing events that can be received from the
-/// server.
+/// Represents an event received from the server, typically during a stream.
 ///
-/// This is used by the client to represent events from a stream.
+/// This is a discriminated union based on the `kind` field. It's used by the
+/// client to handle various types of updates from the server in a type-safe
+/// way.
 @Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
 sealed class Event with _$Event {
-  /// An event indicating that the status of a task has been updated.
+  /// Indicates an update to the task's status.
   const factory Event.taskStatusUpdate({
-    /// The type of this event.
+    /// The type of this event, always 'task_status_update'.
     @Default('task_status_update') String kind,
 
-    /// The unique identifier of the task that was updated.
+    /// The unique ID of the updated task.
     required String taskId,
 
-    /// The unique identifier of the context for the task.
+    /// The unique context ID for the task.
     required String contextId,
 
     /// The new status of the task.
     required TaskStatus status,
 
-    /// If true, this is the final event in the stream for this interaction.
+    /// If `true`, this is the final event for this task stream.
     required bool final_,
   }) = TaskStatusUpdate;
 
-  /// An event indicating that an artifact has been generated or updated.
+  /// Indicates a new or updated artifact related to the task.
   const factory Event.taskArtifactUpdate({
-    /// The type of this event.
+    /// The type of this event, always 'task_artifact_update'.
     @Default('task_artifact_update') String kind,
 
-    /// The ID of the task this artifact belongs to.
+    /// The unique ID of the task this artifact belongs to.
     required String taskId,
 
-    /// The context ID associated with the task.
+    /// The unique context ID for the task.
     required String contextId,
 
-    /// The artifact that was generated or updated.
+    /// The artifact data.
     required Artifact artifact,
 
-    /// If true, the content of this artifact should be appended to a previously
-    /// sent artifact with the same ID.
+    /// If `true`, this artifact's content should be appended to any previous
+    /// content for the same `artifact.artifactId`.
     required bool append,
 
-    /// If true, this is the final chunk of the artifact.
+    /// If `true`, this is the last chunk of data for this artifact.
     required bool lastChunk,
   }) = TaskArtifactUpdate;
 
-  /// Creates an [Event] from a JSON object.
+  /// Deserializes an [Event] from a JSON object.
   factory Event.fromJson(Map<String, Object?> json) => _$EventFromJson(json);
 }

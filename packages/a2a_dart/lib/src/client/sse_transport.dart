@@ -9,24 +9,25 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart' show Logger;
 
 import 'a2a_exception.dart';
 import 'http_transport.dart';
 import 'sse_parser.dart';
 
-/// An implementation of [Transport] that uses Server-Sent Events (SSE) for
-/// streaming communication.
+/// A [Transport] implementation using Server-Sent Events (SSE) for streaming.
 ///
-/// This class extends [HttpTransport] and adds support for streaming responses
-/// from the server. It should be used when real-time, bidirectional
-/// communication is required. For simple request-response interactions,
-/// [HttpTransport] is sufficient.
+/// This class extends [HttpTransport] to add support for streaming responses
+/// from the server via an SSE connection. It should be used for methods like
+/// `message/stream` where the server pushes multiple events over time.
 class SseTransport extends HttpTransport {
-  /// Creates an [SseTransport].
+  /// Creates an [SseTransport] instance.
   ///
-  /// The [url] is the base URL of the A2A server. An optional [client] can be
-  /// provided for testing or to customize the HTTP client. The [log] is an
-  /// optional logger.
+  /// Inherits parameters from [HttpTransport]:
+  /// - [url]: The base URL of the A2A server.
+  /// - [client]: Optional [http.Client] for custom configurations or testing.
+  /// - [log]: Optional [Logger] instance.
+  /// - [defaultHeaders]: Optional default headers for all requests.
   SseTransport({
     required super.url,
     super.client,
@@ -51,22 +52,27 @@ class SseTransport extends HttpTransport {
     try {
       final response = await client.send(httpRequest);
       if (response.statusCode >= 400) {
-        final body = await response.stream.bytesToString();
-        log?.severe('Received error response: ${response.statusCode} $body');
+        final responseBody = await response.stream.bytesToString();
+        log?.severe(
+          'Received error response: ${response.statusCode} $responseBody',
+        );
         throw A2AException.http(
           statusCode: response.statusCode,
-          reason: '${response.reasonPhrase} $body',
+          reason: '${response.reasonPhrase} $responseBody',
         );
       }
       final lines = response.stream
           .transform(utf8.decoder)
           .transform(const LineSplitter());
       yield* SseParser(log: log).parse(lines);
+    } on http.ClientException catch (e) {
+      throw A2AException.network(message: e.toString());
     } catch (e) {
       if (e is A2AException) {
         rethrow;
       }
-      throw A2AException.network(message: e.toString());
+      // Catch any other unexpected errors during stream processing.
+      throw A2AException.network(message: 'SSE stream error: $e');
     }
   }
 }

@@ -7,11 +7,17 @@ import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
-/// Handles the `tasks/pushNotificationConfig/list` RPC method.
+/// Handles JSON-RPC requests for the `tasks/pushNotificationConfig/list`
+/// method.
+///
+/// This handler retrieves all push notification configurations associated with
+/// a specific task ID using the [TaskManager].
 class ListPushConfigsHandler implements RequestHandler {
   final TaskManager _taskManager;
 
   /// Creates a [ListPushConfigsHandler].
+  ///
+  /// Requires a [TaskManager] instance to access push configuration data.
   ListPushConfigsHandler(this._taskManager);
 
   @override
@@ -27,16 +33,16 @@ class ListPushConfigsHandler implements RequestHandler {
     if (taskId == null) {
       throw A2AServerException(
         'Missing required parameter: id',
-        -32602,
-      ); // Invalid params
+        -32602, // Invalid params
+      );
     }
 
     final task = await _taskManager.getTask(taskId);
     if (task == null) {
       throw A2AServerException(
         'Task not found: $taskId',
-        -32001,
-      ); // Task not found
+        -32001, // Custom: Task not found
+      );
     }
 
     final configs = await _taskManager.listPushNotificationConfigs(taskId);

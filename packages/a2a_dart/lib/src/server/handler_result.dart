@@ -7,21 +7,32 @@ library;
 
 import 'dart:async';
 
-/// A sealed class representing the result of a [RequestHandler].
+/// Represents the result of a [RequestHandler.handle] call.
+///
+/// This sealed class distinguishes between single, immediate responses and
+/// streaming responses.
 sealed class HandlerResult {}
 
-/// A [HandlerResult] that represents a single, non-streaming response.
+/// Represents a single, non-streaming JSON-RPC response.
+///
+/// The [data] will be used as the value for the "result" field in the
+/// JSON-RPC response object.
 class SingleResult extends HandlerResult {
-  /// The data to be returned in the response.
+  /// The data payload to be returned in the response.
   final Map<String, Object?> data;
 
   /// Creates a [SingleResult] with the given [data].
   SingleResult(this.data);
 }
 
-/// A [HandlerResult] that represents a streaming response.
+/// Represents a streaming JSON-RPC response, typically using Server-Sent
+/// Events.
+///
+/// The [stream] will emit multiple JSON objects over time.
 class StreamResult extends HandlerResult {
   /// The stream of data to be returned in the response.
+  ///
+  /// Each event in the stream should be a Map representing a JSON object.
   final Stream<Map<String, Object?>> stream;
 
   /// Creates a [StreamResult] with the given [stream].

@@ -12,31 +12,39 @@ import 'agent_extension.dart';
 part 'agent_capabilities.freezed.dart';
 part 'agent_capabilities.g.dart';
 
-/// Defines optional capabilities supported by an agent.
+/// Describes the optional features and extensions an A2A agent supports.
 ///
-/// Part of the [AgentCard], this class allows an agent to advertise its
-/// features, such as support for streaming or push notifications.
+/// This class is part of the [AgentCard] and allows an agent to advertise
+/// its capabilities to clients, such as support for streaming, push
+/// notifications, and custom protocol extensions.
 @freezed
 abstract class AgentCapabilities with _$AgentCapabilities {
-  /// Creates an [AgentCapabilities] object.
+  /// Creates an instance of [AgentCapabilities].
+  ///
+  /// All parameters are optional and default to null if not provided,
+  /// indicating the capability is not specified.
   const factory AgentCapabilities({
-    /// Indicates if the agent supports Server-Sent Events (SSE) for streaming
-    /// responses.
+    /// Indicates if the agent supports streaming responses, typically via
+    /// Server-Sent Events (SSE).
+    ///
+    /// A value of `true` means the client can use methods like `message/stream`.
     bool? streaming,
 
-    /// Indicates whether the agent supports sending push notifications for
-    /// asynchronous task updates.
+    /// Indicates if the agent supports sending push notifications for
+    /// asynchronous task updates to a client-specified endpoint.
     bool? pushNotifications,
 
-    /// Indicates whether the agent provides a history of state transitions for
-    /// a task.
+    /// Indicates if the agent maintains and can provide a history of state
+    /// transitions for tasks.
     bool? stateTransitionHistory,
 
-    /// A list of protocol extensions supported by the agent.
+    /// A list of non-standard protocol extensions supported by the agent.
+    ///
+    /// See [AgentExtension] for more details.
     List<AgentExtension>? extensions,
   }) = _AgentCapabilities;
 
-  /// Creates an [AgentCapabilities] from a JSON object.
+  /// Deserializes an [AgentCapabilities] instance from a JSON object.
   factory AgentCapabilities.fromJson(Map<String, Object?> json) =>
       _$AgentCapabilitiesFromJson(json);
 }

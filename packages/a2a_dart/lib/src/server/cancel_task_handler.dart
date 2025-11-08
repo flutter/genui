@@ -9,12 +9,17 @@ import 'handler_result.dart';
 import 'request_handler.dart';
 import 'task_manager.dart';
 
-/// A [RequestHandler] that handles `tasks/cancel` requests.
+/// Handles JSON-RPC requests for the `tasks/cancel` method.
+///
+/// This handler attempts to cancel an ongoing task managed by the
+/// [TaskManager].
 class CancelTaskHandler extends RequestHandler {
   /// Creates a [CancelTaskHandler].
+  ///
+  /// Requires a [TaskManager] instance to interact with task data.
   CancelTaskHandler(this.taskManager);
 
-  /// The task manager used to cancel tasks.
+  /// The task manager used to aCcess and modify task states.
   final TaskManager taskManager;
 
   @override
@@ -24,11 +29,17 @@ class CancelTaskHandler extends RequestHandler {
   FutureOr<HandlerResult> handle(Map<String, Object?> params) async {
     final taskId = params['id'] as String?;
     if (taskId == null) {
-      throw A2AServerException('`id` parameter is required.', -32602);
+      throw A2AServerException(
+        'Missing required parameter: id',
+        -32602, // Invalid params
+      );
     }
     final task = await taskManager.cancelTask(taskId);
     if (task == null) {
-      throw A2AServerException('Task not found: $taskId', -32001);
+      throw A2AServerException(
+        'Task not found: $taskId',
+        -32001,
+      ); // Custom: Task not found
     }
     return SingleResult(task.toJson());
   }

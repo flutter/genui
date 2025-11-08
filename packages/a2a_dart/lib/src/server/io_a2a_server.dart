@@ -21,63 +21,63 @@ import 'request_handler.dart';
 import 'set_push_config_handler.dart';
 import 'task_manager.dart';
 
-/// A server for handling A2A RPC calls.
+/// An A2A (Agent-to-Agent) server implementation using the `shelf` package.
 ///
-/// This class provides a simple and extensible server for handling A2A RPC
-/// calls based on the `shelf` package. It uses a request handler pipeline to
-/// process incoming requests. Each RPC method is implemented as a
-/// [RequestHandler].
+/// This server handles A2A JSON-RPC calls, dispatching requests to the
+/// appropriate [RequestHandler] based on the method name. It supports standard
+/// A2A methods like task management and message sending, as well as streaming
+/// responses via Server-Sent Events (SSE).
 ///
-/// The server supports both single-shot and streaming responses.
+/// The server also provides endpoints for agent discovery via an [AgentCard].
 class A2AServer {
   final Logger? _log;
   HttpServer? _server;
 
-  /// The host the server is listening on.
+  /// The hostname or IP address the server will listen on.
   final String host;
 
-  /// The port the server is listening on.
+  /// The port number the server is currently listening on.
   ///
-  /// This is only valid after [start] has been called. If the server is not
-  /// running, this will be -1.
+  /// This property is only accurate after [start] has successfully completed.
+  /// It returns -1 if the server is not running.
   int get port => _server?.port ?? -1;
   final int _requestedPort;
 
   final Map<String, RequestHandler> _handlers = {};
+
+  /// The [TaskManager] instance used by the server to manage task lifecycles.
   final TaskManager taskManager;
+
+  /// Optional middleware to be run at the beginning of the request pipeline.
+  ///
+  /// This is typically used for authentication, logging, or request
+  /// modification before the A2A-specific middleware and handlers.
   final Middleware? initialMiddleware;
 
-  /// The public agent card for this server.
+  /// The public [AgentCard] for this server.
   ///
-  /// If this is set, the server will respond to unauthenticated requests to
-  /// `/.well-known/agent-card.json` with this card.
+  /// This card is returned for unauthenticated requests to
+  /// `/.well-known/agent-card.json`.
   AgentCard? agentCard;
 
-  /// The extended agent card for this server.
+  /// An optional extended [AgentCard] for this server.
   ///
-  /// This is returned when a request to `/.well-known/agent-card.json`
-  /// includes an `Authorization` header. If this is not set, the public
-  /// [agentCard] is returned for all requests.
+  /// If provided, this card is returned for authenticated requests to
+  /// `/.well-known/agent-card.json`. If `null`, the public [agentCard] is always
+  /// returned.
   AgentCard? extendedAgentCard;
 
-  /// Creates an [A2AServer].
+  /// Creates an [A2AServer] instance.
   ///
-  /// The [handlers] are a list of [RequestHandler]s that will be used to
-  /// process incoming requests. Each handler is responsible for a single RPC
-  /// method.
-  ///
-  /// The [host] and [port] determine where the server will listen. If [port] is
-  /// 0, a random available port will be chosen.
-  ///
-  /// The [logger] is used for logging messages from the server. To listen to
-  /// log messages, you can subscribe to the [logger]'s `onRecord` stream:
-  ///
-  /// ```dart
-  /// final server = A2AServer([...]);
-  /// server.logger?.onRecord.listen((record) {
-  ///   print('${record.level.name}: ${record.time}: ${record.message}');
-  /// });
-  /// ```
+  /// - [handlers]: A list of [RequestHandler]s to handle specific RPC methods.
+  /// - [taskManager]: Manages task state and lifecycle.
+  /// - [host]: The hostname or IP address to bind to (defaults to 'localhost').
+  /// - [port]: The port to listen on. If 0 (default), a random available port
+  ///   is chosen.
+  /// - [logger]: Optional [Logger] for server-side logging.
+  /// - [agentCard]: The public [AgentCard] for discovery.
+  /// - [extendedAgentCard]: Optional [AgentCard] for authenticated discovery.
+  /// - [initialMiddleware]: Optional middleware to run before A2A handling.
   A2AServer(
     List<RequestHandler> handlers,
     this.taskManager, {
@@ -92,39 +92,32 @@ class A2AServer {
     for (final handler in handlers) {
       registerHandler(handler);
     }
+    // Register built-in handlers for push notification config
     registerHandler(SetPushConfigHandler(taskManager));
     registerHandler(GetPushConfigHandler(taskManager));
     registerHandler(ListPushConfigsHandler(taskManager));
     registerHandler(DeletePushConfigHandler(taskManager));
   }
 
-  /// Registers a [RequestHandler] with the server.
+  /// Registers a [RequestHandler] to handle a specific RPC method.
   ///
-  /// This can be used to add handlers after the server has been created.
+  /// This allows adding or overriding method handlers after the server is
+  /// instantiated.
   void registerHandler(RequestHandler handler) {
     _handlers[handler.method] = handler;
   }
 
-  /// The logger used for logging messages.
+  /// The [Logger] used by the server for logging.
   ///
-  /// This can be listened to in order to receive log messages from the server.
-  ///
-  /// To listen to log messages from the server, you can subscribe to the
-  /// [logger]'s `onRecord` stream:
-  ///
-  /// ```dart
-  /// final server = A2AServer([...]);
-  /// server.logger?.onRecord.listen((record) {
-  ///   print('${record.level.name}: ${record.time}: ${record.message}');
-  /// });
-  /// ```
+  /// Consumers can listen to the [Logger.onRecord] stream to receive log
+  /// messages.
   Logger? get logger => _log;
 
-  /// Starts the server.
+  /// Starts the HTTP server and begins listening for incoming requests.
   ///
-  /// The server will listen on the configured [host] and [port]. If the port
-  /// was configured to 0, it will listen on a random available port. The actual
-  /// port can be retrieved from the [port] getter after this method completes.
+  /// The server will listen on the configured [host] and `_requestedPort`.
+  /// If `_requestedPort` was 0, an ephemeral port will be chosen. The actual
+  /// port can be retrieved using the [port] getter after the Future completes.
   Future<void> start() async {
     final router = Router()
       ..post('/rpc', _handleRpcRequest)
@@ -156,6 +149,11 @@ class A2AServer {
     );
   }
 
+  /// Handles GET requests for the AgentCard.
+  ///
+  /// Serves `/.well-known/agent-card.json`. Returns [extendedAgentCard] if the
+  /// request is authenticated (has an Authorization header) and
+  /// [extendedAgentCard] is set, otherwise returns [agentCard].
   Future<Response> _handleAgentCardRequest(Request request) async {
     final isAuthenticated = request.headers.containsKey('Authorization');
     AgentCard? card;
@@ -173,6 +171,11 @@ class A2AServer {
     );
   }
 
+  /// Handles incoming JSON-RPC requests to the `/rpc` endpoint.
+  ///
+  /// This method parses the JSON-RPC request, finds the appropriate
+  /// [RequestHandler], performs security checks, and delegates to
+  /// [_executeHandler].
   Future<Response> _handleRpcRequest(Request request) async {
     _log?.info('Received request: ${request.method} ${request.requestedUri}');
 
@@ -180,7 +183,7 @@ class A2AServer {
     var json = request.context['a2a_body'] as Map<String, Object?>?;
 
     if (json == null) {
-      // This should not happen if the security middleware ran first for /rpc requests
+      // Fallback if initialMiddleware didn't parse the body.
       final body = await request.readAsString();
       _log?.fine('Request body: $body');
       try {
@@ -196,7 +199,11 @@ class A2AServer {
       final params = json['params'] as Map<String, Object?>?;
 
       if (method == null || params == null) {
-        return _jsonRpcError(id: id, code: -32600, message: 'Invalid Request');
+        return _jsonRpcError(
+          id: id,
+          code: -32600,
+          message: 'Invalid Request: Missing method or params',
+        );
       }
 
       final handler = _handlers[method];
@@ -204,11 +211,12 @@ class A2AServer {
         return _jsonRpcError(
           id: id,
           code: -32601,
-          message: 'Method not found',
+          message: 'Method not found: $method',
           responseCode: 404,
         );
       }
-      // Security Check
+
+      // Security Check: Enforce handler.securityRequirements
       final securityRequirements = handler.securityRequirements;
       if (securityRequirements != null && securityRequirements.isNotEmpty) {
         final authContext =
@@ -258,7 +266,11 @@ class A2AServer {
 
       return _executeHandler(handler, params, id);
     } on Exception catch (exception, stackTrace) {
-      _log?.severe('Unhandled server exception', exception, stackTrace);
+      _log?.severe(
+        'Unhandled server exception in _handleRpcRequest',
+        exception,
+        stackTrace,
+      );
       return _jsonRpcError(
         id: id,
         code: -32000,
@@ -266,7 +278,11 @@ class A2AServer {
         responseCode: 500,
       );
     } catch (exception, stackTrace) {
-      _log?.severe('Unhandled server error', exception, stackTrace);
+      _log?.severe(
+        'Unhandled server error in _handleRpcRequest',
+        exception,
+        stackTrace,
+      );
       return _jsonRpcError(
         id: id,
         code: -32000,
@@ -276,6 +292,11 @@ class A2AServer {
     }
   }
 
+  /// Executes the handler and formats the response.
+  ///
+  /// Handles both [SingleResult] and [StreamResult] from the [RequestHandler].
+  /// Catches exceptions and converts them to appropriate JSON-RPC error
+  /// responses.
   Future<Response> _executeHandler(
     RequestHandler handler,
     Map<String, Object?> params,
@@ -340,6 +361,7 @@ class A2AServer {
     }
   }
 
+  /// Constructs a JSON-RPC error response.
   Response _jsonRpcError({
     required Object? id,
     required int code,
@@ -355,7 +377,7 @@ class A2AServer {
     return Response(responseCode, body: body, headers: headers);
   }
 
-  /// Stops the server and closes all active connections.
+  /// Stops the server and releases any held resources.
   Future<void> stop() async {
     await _server?.close();
     _log?.info('A2A server stopped');

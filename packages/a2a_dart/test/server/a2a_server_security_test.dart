@@ -19,7 +19,7 @@ class SecuredHandler implements RequestHandler {
   final List<Map<String, List<String>>>? _securityRequirements;
 
   SecuredHandler({List<Map<String, List<String>>>? securityRequirements})
-      : _securityRequirements = securityRequirements;
+    : _securityRequirements = securityRequirements;
 
   @override
   List<Map<String, List<String>>>? get securityRequirements =>
@@ -92,18 +92,26 @@ void main() {
 
     test('allows handler with no security requirements', () async {
       await startServer(handler: SecuredHandler(), authContext: null);
-      final response = await http.post(Uri.parse('http://localhost:$port/rpc'), body: testRpcBody);
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/rpc'),
+        body: testRpcBody,
+      );
       expect(response.statusCode, 200);
     });
 
     test('denies if security required but no authContext', () async {
       await startServer(
-        handler: SecuredHandler(securityRequirements: [
-          {'schemeA': <String>[]}
-        ]),
+        handler: SecuredHandler(
+          securityRequirements: [
+            {'schemeA': <String>[]},
+          ],
+        ),
         authContext: null,
       );
-      final response = await http.post(Uri.parse('http://localhost:$port/rpc'), body: testRpcBody);
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/rpc'),
+        body: testRpcBody,
+      );
       expect(response.statusCode, 401);
       final body = jsonDecode(response.body) as Map<String, Object?>;
       expect(
@@ -114,23 +122,30 @@ void main() {
 
     test('denies if authContext shows not authenticated', () async {
       await startServer(
-        handler: SecuredHandler(securityRequirements: [
-          {'schemeA': <String>[]}
-        ]),
+        handler: SecuredHandler(
+          securityRequirements: [
+            {'schemeA': <String>[]},
+          ],
+        ),
         authContext: {'isAuthenticated': false},
       );
-      final response = await http.post(Uri.parse('http://localhost:$port/rpc'), body: testRpcBody);
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/rpc'),
+        body: testRpcBody,
+      );
       expect(response.statusCode, 401);
     });
 
     test('denies if required scheme not in authContext', () async {
       await startServer(
-        handler: SecuredHandler(securityRequirements: [
-          {'schemeA': <String>[]}
-        ]),
+        handler: SecuredHandler(
+          securityRequirements: [
+            {'schemeA': <String>[]},
+          ],
+        ),
         authContext: {
           'isAuthenticated': true,
-          'schemes': <String, List<String>>{'schemeB': []}
+          'schemes': <String, List<String>>{'schemeB': []},
         },
       );
       final response = await http.post(
@@ -147,33 +162,47 @@ void main() {
 
     test('denies if required scope not granted', () async {
       await startServer(
-        handler: SecuredHandler(securityRequirements: [
-          {'schemeB': ['read']}
-        ]),
+        handler: SecuredHandler(
+          securityRequirements: [
+            {
+              'schemeB': ['read'],
+            },
+          ],
+        ),
         authContext: {
           'isAuthenticated': true,
           'schemes': <String, List<String>>{
-            'schemeB': ['write']
-          }
+            'schemeB': ['write'],
+          },
         },
       );
-      final response = await http.post(Uri.parse('http://localhost:$port/rpc'), body: testRpcBody);
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/rpc'),
+        body: testRpcBody,
+      );
       expect(response.statusCode, 401);
     });
 
     test('allows if scheme and scopes match', () async {
       await startServer(
-        handler: SecuredHandler(securityRequirements: [
-          {'schemeB': ['read']}
-        ]),
+        handler: SecuredHandler(
+          securityRequirements: [
+            {
+              'schemeB': ['read'],
+            },
+          ],
+        ),
         authContext: {
           'isAuthenticated': true,
           'schemes': <String, List<String>>{
-            'schemeB': ['read', 'write']
-          }
+            'schemeB': ['read', 'write'],
+          },
         },
       );
-      final response = await http.post(Uri.parse('http://localhost:$port/rpc'), body: testRpcBody);
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/rpc'),
+        body: testRpcBody,
+      );
       expect(response.statusCode, 200);
       expect((jsonDecode(response.body) as Map<String, Object?>)['result'], {
         'success': true,
@@ -182,18 +211,25 @@ void main() {
 
     test('allows if one of OR requirements met', () async {
       await startServer(
-        handler: SecuredHandler(securityRequirements: [
-          {'schemeA': <String>[]}, // This one won't match
-          {'schemeB': ['read']}, // This one will match
-        ]),
+        handler: SecuredHandler(
+          securityRequirements: [
+            {'schemeA': <String>[]}, // This one won't match
+            {
+              'schemeB': ['read'],
+            }, // This one will match
+          ],
+        ),
         authContext: {
           'isAuthenticated': true,
           'schemes': <String, List<String>>{
-            'schemeB': ['read']
-          }
+            'schemeB': ['read'],
+          },
         },
       );
-      final response = await http.post(Uri.parse('http://localhost:$port/rpc'), body: testRpcBody);
+      final response = await http.post(
+        Uri.parse('http://localhost:$port/rpc'),
+        body: testRpcBody,
+      );
       expect(response.statusCode, 200);
     });
   });

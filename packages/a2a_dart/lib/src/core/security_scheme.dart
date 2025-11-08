@@ -9,127 +9,141 @@ part 'security_scheme.g.dart';
 
 // ignore_for_file: invalid_annotation_target
 
-/// Defines a security scheme that can be used to secure an agent's endpoints.
+/// Defines a security scheme used to protect an agent's API endpoints.
 ///
-/// This is a discriminated union based on the OpenAPI 3.0 Security Scheme
-/// Object. The `type` field is used as a discriminator.
+/// This class is a Dart representation of the OpenAPI 3.0 Security Scheme
+/// Object. It's a discriminated union based on the `type` field, allowing for
+/// various authentication and authorization mechanisms.
 @Freezed(unionKey: 'type')
 abstract class SecurityScheme with _$SecurityScheme {
-  /// An API key security scheme.
+  /// Represents an API key-based security scheme.
   const factory SecurityScheme.apiKey({
-    /// The type of the security scheme.
+    /// The type discriminator, always 'apiKey'.
     @Default('apiKey') String type,
 
-    /// A short description for the API key.
+    /// An optional description of the API key security scheme.
     String? description,
 
-    /// The name of the header, query or cookie parameter to be used.
+    /// The name of the header, query, or cookie parameter used to transmit
+    /// the API key.
     required String name,
 
-    /// The location of the API key. Valid values are "query", "header" or
-    /// "cookie".
+    /// Specifies the location of the API key.
+    ///
+    /// Valid values are "query", "header", or "cookie".
     @JsonKey(name: 'in') required String in_,
   }) = APIKeySecurityScheme;
 
-  /// An HTTP authentication security scheme.
+  /// Represents an HTTP authentication scheme (e.g., Basic, Bearer).
   const factory SecurityScheme.http({
-    /// The type of the security scheme.
+    /// The type discriminator, always 'http'.
     @Default('http') String type,
 
-    /// A short description for the HTTP security scheme.
+    /// An optional description of the HTTP security scheme.
     String? description,
 
-    /// The name of the HTTP Authorization scheme to be used in the
-    /// Authorization header defined in RFC7235. The values used should be
-    /// registered in the IANA "Hypertext Transfer Protocol (HTTP)
-    /// Authentication Scheme Registry".
+    /// The name of the HTTP Authorization scheme, e.g., "Bearer", "Basic".
+    ///
+    /// Values should be registered in the IANA "Hypertext Transfer Protocol
+    /// (HTTP) Authentication Scheme Registry".
     required String scheme,
 
-    /// A hint to the client to identify how the bearer token is formatted.
+    /// An optional hint about the format of the bearer token (e.g., "JWT").
+    ///
+    /// Only relevant when `scheme` is "Bearer".
     String? bearerFormat,
   }) = HttpAuthSecurityScheme;
 
-  /// An OAuth 2.0 security scheme.
+  /// Represents an OAuth 2.0 security scheme.
   const factory SecurityScheme.oauth2({
-    /// The type of the security scheme.
+    /// The type discriminator, always 'oauth2'.
     @Default('oauth2') String type,
 
-    /// A short description for the OAuth 2.0 security scheme.
+    /// An optional description of the OAuth 2.0 security scheme.
     String? description,
 
-    /// An object containing configuration information for the supported OAuth
-    /// Flows.
+    /// Configuration details for the supported OAuth 2.0 flows.
     required OAuthFlows flows,
   }) = OAuth2SecurityScheme;
 
-  /// An OpenID Connect security scheme.
+  /// Represents an OpenID Connect security scheme.
   const factory SecurityScheme.openIdConnect({
-    /// The type of the security scheme.
+    /// The type discriminator, always 'openIdConnect'.
     @Default('openIdConnect') String type,
 
-    /// A short description for the OpenID Connect security scheme.
+    /// An optional description of the OpenID Connect security scheme.
     String? description,
 
-    /// OpenID Connect Discovery URL.
+    /// The OpenID Connect Discovery URL (e.g., ending in `.well-known/openid-configuration`).
     required String openIdConnectUrl,
   }) = OpenIdConnectSecurityScheme;
 
-  /// A mutual TLS security scheme.
+  /// Represents a mutual TLS authentication scheme.
   const factory SecurityScheme.mutualTls({
-    /// The type of the security scheme.
+    /// The type discriminator, always 'mutualTls'.
     @Default('mutualTls') String type,
 
-    /// A short description for the mutual TLS security scheme.
+    /// An optional description of the mutual TLS security scheme.
     String? description,
   }) = MutualTlsSecurityScheme;
 
-  /// Creates a [SecurityScheme] from a JSON object.
+  /// Deserializes a [SecurityScheme] instance from a JSON object.
   factory SecurityScheme.fromJson(Map<String, Object?> json) =>
       _$SecuritySchemeFromJson(json);
 }
 
-/// Defines the OAuth 2.0 flows supported by an agent.
+/// Container for the OAuth 2.0 flows supported by a [SecurityScheme.oauth2].
+///
+/// Each property represents a different OAuth 2.0 grant type.
 @freezed
 abstract class OAuthFlows with _$OAuthFlows {
-  /// Creates an [OAuthFlows] object.
+  /// Creates an [OAuthFlows] instance.
   const factory OAuthFlows({
-    /// The implicit flow.
+    /// Configuration for the Implicit Grant flow.
     OAuthFlow? implicit,
 
-    /// The password flow.
+    /// Configuration for the Resource Owner Password Credentials Grant flow.
     OAuthFlow? password,
 
-    /// The client credentials flow.
+    /// Configuration for the Client Credentials Grant flow.
     OAuthFlow? clientCredentials,
 
-    /// The authorization code flow.
+    /// Configuration for the Authorization Code Grant flow.
     OAuthFlow? authorizationCode,
   }) = _OAuthFlows;
 
-  /// Creates an [OAuthFlows] from a JSON object.
+  /// Deserializes an [OAuthFlows] instance from a JSON object.
   factory OAuthFlows.fromJson(Map<String, Object?> json) =>
       _$OAuthFlowsFromJson(json);
 }
 
-/// Defines a single OAuth 2.0 flow.
+/// Configuration details for a single OAuth 2.0 flow.
 @freezed
 abstract class OAuthFlow with _$OAuthFlow {
-  /// Creates an [OAuthFlow] object.
+  /// Creates an [OAuthFlow] instance.
   const factory OAuthFlow({
-    /// The authorization URL for the flow.
+    /// The Authorization URL for this flow.
+    ///
+    /// Required for `implicit` and `authorizationCode` flows.
     String? authorizationUrl,
 
-    /// The token URL for the flow.
+    /// The Token URL for this flow.
+    ///
+    /// Required for `password`, `clientCredentials`, and `authorizationCode`
+    /// flows.
     String? tokenUrl,
 
-    /// The refresh URL for the flow.
+    /// The Refresh URL to obtain a new access token.
     String? refreshUrl,
 
-    /// The available scopes for the flow.
+    /// A map of available scopes for this flow.
+    ///
+    /// The keys are scope names, and the values are human-readable
+    /// descriptions.
     required Map<String, String> scopes,
   }) = _OAuthFlow;
 
-  /// Creates an [OAuthFlow] from a JSON object.
+  /// Deserializes an [OAuthFlow] instance from a JSON object.
   factory OAuthFlow.fromJson(Map<String, Object?> json) =>
       _$OAuthFlowFromJson(json);
 }

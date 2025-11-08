@@ -10,31 +10,34 @@ import 'package:logging/logging.dart';
 import 'a2a_exception.dart';
 import 'transport.dart';
 
-/// An implementation of the [Transport] interface that uses HTTP for
-/// communication.
+/// An implementation of the [Transport] interface using standard HTTP requests.
 ///
-/// This transport is used for single-shot GET and POST requests. It does not
-/// support streaming.
+/// This transport is suitable for single-shot GET requests and POST requests
+/// for non-streaming JSON-RPC calls. It does not support [sendStream].
 class HttpTransport implements Transport {
-  /// The URL of the A2A server.
+  /// The base URL of the target A2A server.
   final String url;
 
-  /// The HTTP client to use for requests.
+  /// The underlying [http.Client] used for making requests.
   final http.Client client;
 
-  /// The logger to use for logging.
+  /// Optional logger for debugging and tracing transport activities.
   final Logger? log;
 
-  /// Default headers to include in all requests.
+  /// Headers to be included in every request made by this transport.
   final Map<String, String> defaultHeaders;
 
-  /// Creates an [HttpTransport].
+  /// Creates an [HttpTransport] instance.
   ///
-  /// The [url] is the base URL of the A2A server.
-  /// The [client] is an optional HTTP client to use for requests. If not
-  /// provided, a new one will be created.
-  /// The [log] is an optional logger.
-  /// The [defaultHeaders] are optional headers to include in all requests.
+  /// The [url] is the base URL of the A2A server (e.g., `http://localhost:8000`).
+  ///
+  /// An optional [http.Client] can be provided, for example, for testing with a
+  /// mock client. If null, a default client is created.
+  ///
+  /// [log] can be used to inject a [Logger].
+  ///
+  /// [defaultHeaders] allows specifying headers (like API keys) to be sent
+  /// with every request.
   HttpTransport({
     required this.url,
     http.Client? client,
@@ -50,15 +53,19 @@ class HttpTransport implements Transport {
     final uri = Uri.parse('$url$path');
     final mergedHeaders = {...defaultHeaders, ...headers};
     log?.fine('Sending GET request to $uri with headers: $mergedHeaders');
-    final response = await client.get(uri, headers: mergedHeaders);
-    log?.fine('Received response from GET $uri: ${response.body}');
-    if (response.statusCode != 200) {
-      throw A2AException.http(
-        statusCode: response.statusCode,
-        reason: response.reasonPhrase,
-      );
+    try {
+      final response = await client.get(uri, headers: mergedHeaders);
+      log?.fine('Received response from GET $uri: ${response.body}');
+      if (response.statusCode >= 400) {
+        throw A2AException.http(
+          statusCode: response.statusCode,
+          reason: response.reasonPhrase,
+        );
+      }
+      return jsonDecode(response.body) as Map<String, Object?>;
+    } on http.ClientException catch (e) {
+      throw A2AException.network(message: e.toString());
     }
-    return jsonDecode(response.body) as Map<String, Object?>;
   }
 
   @override
@@ -72,25 +79,34 @@ class HttpTransport implements Transport {
       'Content-Type': 'application/json',
       ...defaultHeaders,
     };
-    final response = await client.post(
-      uri,
-      headers: mergedHeaders,
-      body: jsonEncode(request),
-    );
-    log?.fine('Received response from POST $uri: ${response.body}');
-    if (response.statusCode != 200) {
-      throw A2AException.network(
-        message:
-            'Failed to send request: ${response.statusCode} ${response.body}',
+    try {
+      final response = await client.post(
+        uri,
+        headers: mergedHeaders,
+        body: jsonEncode(request),
       );
+      log?.fine('Received response from POST $uri: ${response.body}');
+      if (response.statusCode >= 400) {
+        throw A2AException.http(
+          statusCode: response.statusCode,
+          reason: response.reasonPhrase,
+        );
+      }
+      return jsonDecode(response.body) as Map<String, Object?>;
+    } on http.ClientException catch (e) {
+      throw A2AException.network(message: e.toString());
+    } on FormatException catch (e) {
+      throw A2AException.parsing(message: e.toString());
     }
-    return jsonDecode(response.body) as Map<String, Object?>;
   }
 
   @override
   Stream<Map<String, Object?>> sendStream(Map<String, Object?> request) {
-    // This transport does not support streaming.
-    throw UnimplementedError('SSE is not implemented for HttpTransport');
+    throw const A2AException.network(
+      message:
+          'Streaming is not supported by HttpTransport. Use SseTransport '
+          'instead.',
+    );
   }
 
   @override

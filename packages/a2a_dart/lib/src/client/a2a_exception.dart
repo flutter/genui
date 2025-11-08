@@ -7,36 +7,61 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'a2a_exception.freezed.dart';
 part 'a2a_exception.g.dart';
 
-/// A sealed class for all A2A client-side exceptions.
+/// Base class for exceptions thrown by the A2A client.
+///
+/// This sealed class hierarchy represents different categories of errors
+/// that can occur during communication with an A2A server.
 @freezed
 sealed class A2AException with _$A2AException implements Exception {
-  /// An exception that represents a JSON-RPC error from the server.
+  /// Represents a JSON-RPC error returned by the server.
+  ///
+  /// This exception is thrown when the server responds with a JSON-RPC error
+  /// object, indicating a problem with the request as understood by the A2A
+  /// protocol.
   const factory A2AException.jsonRpc({
-    /// The JSON-RPC error code.
+    /// The integer error code as defined by the JSON-RPC 2.0 specification
+    /// or A2A-specific error codes.
     required int code,
 
-    /// The JSON-RPC error message.
+    /// A human-readable string describing the error.
     required String message,
 
-    /// Optional data associated with the error.
+    /// Optional additional data provided by the server about the error.
     Map<String, Object?>? data,
   }) = A2AJsonRpcException;
 
-  /// An exception that represents an HTTP error.
-  const factory A2AException.http({required int statusCode, String? reason}) =
-      A2AHttpException;
+  /// Represents an error related to the HTTP transport layer.
+  ///
+  /// This exception is thrown when an HTTP request fails with a non-2xx status
+  /// code, and the issue is not a specific JSON-RPC error.
+  const factory A2AException.http({
+    /// The HTTP status code (e.g., 404, 500).
+    required int statusCode,
 
-  /// An exception that represents a network error.
-  const factory A2AException.network({required String message}) =
-      A2ANetworkException;
+    /// An optional human-readable reason phrase associated with the status
+    /// code.
+    String? reason,
+  }) = A2AHttpException;
 
-  /// An exception that represents a parsing error.
+  /// Represents a network connectivity issue.
+  ///
+  /// This exception is thrown when a connection to the server cannot be
+  /// established or is interrupted.
+  const factory A2AException.network({
+    /// A message describing the network error.
+    required String message,
+  }) = A2ANetworkException;
+
+  /// Represents an error during the parsing of a server response.
+  ///
+  /// This exception is thrown if the client fails to parse the server's
+  /// response, for example, due to malformed JSON.
   const factory A2AException.parsing({
-    /// The error message.
+    /// A message describing the parsing failure.
     required String message,
   }) = A2AParsingException;
 
-  /// Creates an [A2AException] from a JSON object.
+  /// Deserializes an [A2AException] from a JSON object.
   factory A2AException.fromJson(Map<String, Object?> json) =>
       _$A2AExceptionFromJson(json);
 }
