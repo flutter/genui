@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:a2a_dart/a2a_dart.dart' hide A2AServer;
+import 'package:a2a_dart/src/core/push_notification.dart';
 import 'package:a2a_dart/src/server/io_a2a_server.dart';
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
@@ -40,8 +41,12 @@ void main() {
         ResubscribeHandler(taskManager),
         GetAuthenticatedExtendedCardHandler(),
       ];
-      server = A2AServer(handlers, host: 'localhost', agentCard: agentCard)
-        ..extendedAgentCard = agentCard.copyWith(name: 'Extended Test Agent');
+      server = A2AServer(
+        handlers,
+        taskManager,
+        host: 'localhost',
+        agentCard: agentCard,
+      )..extendedAgentCard = agentCard.copyWith(name: 'Extended Test Agent');
       await server.start();
     });
 
@@ -168,12 +173,74 @@ void main() {
 
       expect(client.messageSend(message), throwsException);
     });
+
+    group('Push Notification Config', () {
+      final configId = 'test-push-config';
+      final pushConfig = PushNotificationConfig(
+        id: configId,
+        url: 'https://example.com/push',
+      );
+
+      test(
+        'client can set, get, list, and delete push notification configs',
+        () async {
+          final client = A2AClient(url: 'http://localhost:${server.port}');
+          final message = Message(
+            messageId: const Uuid().v4(),
+            role: Role.user,
+            parts: const [],
+          );
+          final task = await client.messageSend(message);
+          final taskId = task.id;
+
+          // Set
+          final taskPushConfig = TaskPushNotificationConfig(
+            taskId: taskId,
+            pushNotificationConfig: pushConfig,
+          );
+          final setResult = await client.setPushNotificationConfig(
+            taskPushConfig,
+          );
+          expect(setResult.taskId, taskId);
+          expect(setResult.pushNotificationConfig, pushConfig);
+
+          // Get
+          final getResult = await client.getPushNotificationConfig(
+            taskId,
+            configId,
+          );
+          expect(getResult.taskId, taskId);
+          expect(getResult.pushNotificationConfig, pushConfig);
+
+          // List
+          final listResult = await client.listPushNotificationConfigs(taskId);
+          expect(listResult, hasLength(1));
+          expect(listResult[0], pushConfig);
+
+          // Delete
+          await client.deletePushNotificationConfig(taskId, configId);
+
+          // Verify Deletion by Getting
+          expect(
+            () => client.getPushNotificationConfig(taskId, configId),
+            throwsA(isA<A2AException>()),
+          );
+
+          // Verify Deletion by Listing
+          final listAfterDelete = await client.listPushNotificationConfigs(
+            taskId,
+          );
+          expect(listAfterDelete, isEmpty);
+        },
+      );
+    });
   });
 }
 
 class InMemoryTaskManager implements TaskManager {
   final Map<String, Task> _tasks = {};
   final Map<String, List<Event>> _events = {};
+  final Map<String, Map<String, PushNotificationConfig>> _pushConfigs = {};
 
   @override
   Future<Task> createTask([Message? message]) async {
@@ -242,6 +309,50 @@ class InMemoryTaskManager implements TaskManager {
       return canceledTask;
     }
     throw A2AServerException('Task not found', -32602);
+  }
+
+  @override
+  Future<void> setPushNotificationConfig(
+    String taskId,
+    PushNotificationConfig config,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    _pushConfigs.putIfAbsent(taskId, () => {});
+    _pushConfigs[taskId]![config.id!] = config;
+  }
+
+  @override
+  Future<PushNotificationConfig?> getPushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    return _pushConfigs[taskId]?[configId];
+  }
+
+  @override
+  Future<List<PushNotificationConfig>> listPushNotificationConfigs(
+    String taskId,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    return _pushConfigs[taskId]?.values.toList() ?? [];
+  }
+
+  @override
+  Future<void> deletePushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    _pushConfigs[taskId]?.remove(configId);
   }
 }
 

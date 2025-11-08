@@ -4,7 +4,6 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'part.dart';
 import 'task.dart';
 
 part 'events.freezed.dart';
@@ -106,21 +105,5 @@ sealed class Event with _$Event {
   }) = TaskArtifactUpdate;
 
   /// Creates an [Event] from a JSON object.
-  factory Event.fromJson(Map<String, Object?> json) {
-    if (json['kind'] == null) {
-      // This can happen with SSE keep-alive messages.
-      // We'll just return an empty text event.
-      return const Event.taskArtifactUpdate(
-        taskId: '',
-        contextId: '',
-        artifact: Artifact(
-          artifactId: '',
-          parts: [Part.text(text: '')],
-        ),
-        append: false,
-        lastChunk: false,
-      );
-    }
-    return _$EventFromJson(json);
-  }
+  factory Event.fromJson(Map<String, Object?> json) => _$EventFromJson(json);
 }

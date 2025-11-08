@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:a2a_dart/a2a_dart.dart';
+import 'package:a2a_dart/src/core/push_notification.dart';
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf.dart';
 
@@ -67,13 +68,37 @@ class FakeTransport implements Transport {
 
 class FakeTaskManager implements TaskManager {
   final _events = <String, List<Event>>{};
-  final Task? taskToReturn;
+  final _pushConfigs = <String, Map<String, PushNotificationConfig>>{};
+  Task? taskToReturn;
   final Stream<Map<String, Object?>>? stream;
 
   FakeTaskManager({this.taskToReturn, this.stream});
 
   @override
-  Future<Task> createTask([Message? message]) async => taskToReturn!;
+  Future<Task> createTask([Message? message]) async {
+    final task =
+        taskToReturn ??
+        const Task(
+          id: 'default-task-id',
+          contextId: 'default-context',
+          status: TaskStatus(state: TaskState.working),
+        );
+    if (_events.containsKey(task.id)) {
+      throw Exception('Task with id ${task.id} already exists');
+    }
+    _events[task.id] = [];
+    _pushConfigs[task.id] = {};
+    taskToReturn = task; // Set this for subsequent getTask calls if needed
+    return task;
+  }
+
+  // Helper to ensure task exists in tests
+  Future<void> ensureTaskExists(Task task) async {
+    if (!_events.containsKey(task.id)) {
+      _events[task.id] = [];
+      _pushConfigs[task.id] = {};
+    }
+  }
 
   @override
   Stream<Event> resubscribeToTask(String taskId) {
@@ -89,7 +114,9 @@ class FakeTaskManager implements TaskManager {
   Future<void> updateTask(Task task) async {}
 
   @override
-  Future<Task?> getTask(String taskId) async => taskToReturn;
+  Future<Task?> getTask(String taskId) async {
+    return _events.containsKey(taskId) ? taskToReturn : null;
+  }
 
   @override
   Future<Task?> cancelTask(String taskId) async {
@@ -106,6 +133,33 @@ class FakeTaskManager implements TaskManager {
       pageSize: 1,
       nextPageToken: '',
     );
+  }
+
+  @override
+  Future<void> setPushNotificationConfig(
+    String taskId,
+    PushNotificationConfig config,
+  ) async {
+    _pushConfigs[taskId]?[config.id!] = config;
+  }
+
+  @override
+  Future<PushNotificationConfig?> getPushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async => _pushConfigs[taskId]?[configId];
+
+  @override
+  Future<List<PushNotificationConfig>> listPushNotificationConfigs(
+    String taskId,
+  ) async => _pushConfigs[taskId]?.values.toList() ?? [];
+
+  @override
+  Future<void> deletePushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    _pushConfigs[taskId]?.remove(configId);
   }
 }
 

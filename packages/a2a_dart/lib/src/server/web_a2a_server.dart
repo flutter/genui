@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 
 import '../core/agent_card.dart';
 import 'request_handler.dart';
+import 'task_manager.dart';
 
 /// A class that represents an A2A server.
 ///
@@ -17,7 +18,8 @@ class A2AServer {
   /// Throws an [UnsupportedError] because the server is not supported on the
   /// web.
   A2AServer(
-    List<RequestHandler> handlers, {
+    List<RequestHandler> handlers,
+    TaskManager taskManager, {
     String host = 'localhost',
     int port = 0,
     Logger? logger,

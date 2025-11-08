@@ -4,13 +4,20 @@
 
 import 'package:uuid/uuid.dart';
 
-import '../../a2a_dart.dart';
+import '../core/events.dart';
+import '../core/list_tasks_params.dart';
+import '../core/list_tasks_result.dart';
+import '../core/message.dart';
+import '../core/push_notification.dart';
+import '../core/task.dart';
+import 'task_manager.dart';
 
 /// An in-memory implementation of the [TaskManager] interface.
 class InMemoryTaskManager implements TaskManager {
   final _tasks = <String, Task>{};
   final _events = <String, List<Event>>{};
   final _uuid = const Uuid();
+  final _pushConfigs = <String, Map<String, PushNotificationConfig>>{};
 
   @override
   @override
@@ -109,5 +116,43 @@ class InMemoryTaskManager implements TaskManager {
   @override
   Future<void> addEvent(String taskId, Event event) async {
     _events.putIfAbsent(taskId, () => []).add(event);
+  }
+
+  @override
+  Future<void> setPushNotificationConfig(
+    String taskId,
+    PushNotificationConfig config,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw Exception('Task not found: $taskId');
+    }
+    final configId = config.id ?? _uuid.v4();
+    final newConfig = config.id == null
+        ? config.copyWith(id: configId)
+        : config;
+    _pushConfigs.putIfAbsent(taskId, () => {})[configId] = newConfig;
+  }
+
+  @override
+  Future<PushNotificationConfig?> getPushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    return _pushConfigs[taskId]?[configId];
+  }
+
+  @override
+  Future<List<PushNotificationConfig>> listPushNotificationConfigs(
+    String taskId,
+  ) async {
+    return _pushConfigs[taskId]?.values.toList() ?? [];
+  }
+
+  @override
+  Future<void> deletePushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    _pushConfigs[taskId]?.remove(configId);
   }
 }

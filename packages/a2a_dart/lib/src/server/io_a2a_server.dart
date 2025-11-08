@@ -13,8 +13,13 @@ import 'package:shelf_router/shelf_router.dart';
 
 import '../core/agent_card.dart';
 import 'a2a_server_exception.dart';
+import 'delete_push_config_handler.dart';
+import 'get_push_config_handler.dart';
 import 'handler_result.dart';
+import 'list_push_configs_handler.dart';
 import 'request_handler.dart';
+import 'set_push_config_handler.dart';
+import 'task_manager.dart';
 
 /// A server for handling A2A RPC calls.
 ///
@@ -72,7 +77,8 @@ class A2AServer {
   /// });
   /// ```
   A2AServer(
-    List<RequestHandler> handlers, {
+    List<RequestHandler> handlers,
+    TaskManager taskManager, {
     this.host = 'localhost',
     int port = 0,
     Logger? logger,
@@ -83,6 +89,10 @@ class A2AServer {
     for (final handler in handlers) {
       registerHandler(handler);
     }
+    registerHandler(SetPushConfigHandler(taskManager));
+    registerHandler(GetPushConfigHandler(taskManager));
+    registerHandler(ListPushConfigsHandler(taskManager));
+    registerHandler(DeletePushConfigHandler(taskManager));
   }
 
   /// Registers a [RequestHandler] with the server.

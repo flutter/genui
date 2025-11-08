@@ -11,6 +11,7 @@ import '../core/events.dart';
 import '../core/list_tasks_params.dart';
 import '../core/list_tasks_result.dart';
 import '../core/message.dart';
+import '../core/push_notification.dart';
 import '../core/task.dart';
 import 'a2a_exception.dart';
 import 'http_transport.dart';
@@ -120,7 +121,10 @@ class A2AClient {
               ),
             );
           } else {
-            sink.add(Event.fromJson(data));
+            if (data['kind'] != null) {
+              // Skip keepalive events
+              sink.add(Event.fromJson(data));
+            }
           }
         },
       ),
@@ -187,7 +191,6 @@ class A2AClient {
           'method': 'tasks/resubscribe',
           'params': {'id': taskId},
         })
-        .where((data) => data['kind'] != null)
         .map((data) {
           _log?.fine('Received event from stream: $data');
           return Event.fromJson(data);
@@ -197,5 +200,113 @@ class A2AClient {
   /// Closes the underlying transport.
   void close() {
     _transport.close();
+  }
+
+  /// Sets or updates the push notification configuration for a task.
+  Future<TaskPushNotificationConfig> setPushNotificationConfig(
+    TaskPushNotificationConfig params,
+  ) async {
+    _log?.info('Setting push notification config for task: ${params.taskId}');
+    final response = await _transport.send({
+      'jsonrpc': '2.0',
+      'method': 'tasks/pushNotificationConfig/set',
+      'params': params.toJson(),
+      'id': 0,
+    });
+    _log?.fine(
+      'Received response from tasks/pushNotificationConfig/set: $response',
+    );
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
+    return TaskPushNotificationConfig.fromJson(
+      response['result'] as Map<String, Object?>,
+    );
+  }
+
+  /// Retrieves a specific push notification configuration for a task.
+  Future<TaskPushNotificationConfig> getPushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    _log?.info('Getting push notification config $configId for task: $taskId');
+    final response = await _transport.send({
+      'jsonrpc': '2.0',
+      'method': 'tasks/pushNotificationConfig/get',
+      'params': {'id': taskId, 'pushNotificationConfigId': configId},
+      'id': 0,
+    });
+    _log?.fine(
+      'Received response from tasks/pushNotificationConfig/get: $response',
+    );
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
+    return TaskPushNotificationConfig.fromJson(
+      response['result'] as Map<String, Object?>,
+    );
+  }
+
+  /// Lists all push notification configurations for a task.
+  Future<List<PushNotificationConfig>> listPushNotificationConfigs(
+    String taskId,
+  ) async {
+    _log?.info('Listing push notification configs for task: $taskId');
+    final response = await _transport.send({
+      'jsonrpc': '2.0',
+      'method': 'tasks/pushNotificationConfig/list',
+      'params': {'id': taskId},
+      'id': 0,
+    });
+    _log?.fine(
+      'Received response from tasks/pushNotificationConfig/list: $response',
+    );
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
+    final result = response['result'] as Map<String, Object?>;
+    final configs = result['configs'] as List<Object?>;
+    return configs
+        .map(
+          (item) =>
+              PushNotificationConfig.fromJson(item as Map<String, Object?>),
+        )
+        .toList();
+  }
+
+  /// Deletes a specific push notification configuration for a task.
+  Future<void> deletePushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    _log?.info('Deleting push notification config $configId for task: $taskId');
+    final response = await _transport.send({
+      'jsonrpc': '2.0',
+      'method': 'tasks/pushNotificationConfig/delete',
+      'params': {'id': taskId, 'pushNotificationConfigId': configId},
+      'id': 0,
+    });
+    _log?.fine(
+      'Received response from tasks/pushNotificationConfig/delete: $response',
+    );
+    if (response.containsKey('error')) {
+      final error = response['error'] as Map<String, Object?>;
+      throw A2AException.jsonRpc(
+        code: error['code'] as int,
+        message: error['message'] as String,
+      );
+    }
   }
 }

@@ -5,6 +5,11 @@
 import 'dart:async';
 
 import 'package:a2a_dart/a2a_dart.dart';
+import 'package:a2a_dart/src/core/push_notification.dart';
+import 'package:a2a_dart/src/server/delete_push_config_handler.dart';
+import 'package:a2a_dart/src/server/get_push_config_handler.dart';
+import 'package:a2a_dart/src/server/list_push_configs_handler.dart';
+import 'package:a2a_dart/src/server/set_push_config_handler.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
@@ -29,7 +34,12 @@ void main() async {
       ListTasksHandler(taskManager),
       CancelTaskHandler(taskManager),
       ResubscribeHandler(taskManager),
+      SetPushConfigHandler(taskManager),
+      GetPushConfigHandler(taskManager),
+      ListPushConfigsHandler(taskManager),
+      DeletePushConfigHandler(taskManager),
     ],
+    taskManager,
     port: 8080,
     agentCard: agentCard,
   );
@@ -45,6 +55,7 @@ class CountdownTaskManager implements TaskManager {
   final Map<String, StreamController<Map<String, Object?>>> _controllers =
       <String, StreamController<Map<String, Object?>>>{};
   final Set<String> _pausedTasks = {};
+  final _pushConfigs = <String, Map<String, PushNotificationConfig>>{};
 
   Stream<Map<String, Object?>> startCountdown(Task task, int countdownStart) {
     final controller = StreamController<Map<String, Object?>>.broadcast();
@@ -155,6 +166,50 @@ class CountdownTaskManager implements TaskManager {
   }
 
   bool isPaused(String taskId) => _pausedTasks.contains(taskId);
+
+  @override
+  Future<void> setPushNotificationConfig(
+    String taskId,
+    PushNotificationConfig config,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    _pushConfigs.putIfAbsent(taskId, () => {});
+    _pushConfigs[taskId]![config.id!] = config;
+  }
+
+  @override
+  Future<PushNotificationConfig?> getPushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    return _pushConfigs[taskId]?[configId];
+  }
+
+  @override
+  Future<List<PushNotificationConfig>> listPushNotificationConfigs(
+    String taskId,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    return _pushConfigs[taskId]?.values.toList() ?? [];
+  }
+
+  @override
+  Future<void> deletePushNotificationConfig(
+    String taskId,
+    String configId,
+  ) async {
+    if (!_tasks.containsKey(taskId)) {
+      throw A2AServerException('Task not found', -32001);
+    }
+    _pushConfigs[taskId]?.remove(configId);
+  }
 }
 
 class MessageSendHandler extends RequestHandler {

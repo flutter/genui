@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:a2a_dart/a2a_dart.dart';
+import 'package:a2a_dart/src/core/push_notification.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -174,6 +175,37 @@ void main() {
       final newSecurityScheme = SecurityScheme.fromJson(json);
 
       expect(newSecurityScheme, equals(securityScheme));
+    });
+
+    test('PushNotificationConfig can be serialized and deserialized', () {
+      final config = const PushNotificationConfig(
+        id: 'config-1',
+        url: 'https://example.com/push',
+        authentication: PushNotificationAuthenticationInfo(
+          schemes: ['Bearer'],
+          credentials: 'test-token',
+        ),
+      );
+
+      final json = config.toJson();
+      final newConfig = PushNotificationConfig.fromJson(json);
+
+      expect(newConfig, equals(config));
+    });
+
+    test('TaskPushNotificationConfig can be serialized and deserialized', () {
+      final taskConfig = const TaskPushNotificationConfig(
+        taskId: 'task-123',
+        pushNotificationConfig: PushNotificationConfig(
+          id: 'config-1',
+          url: 'https://example.com/push',
+        ),
+      );
+
+      final json = taskConfig.toJson();
+      final newTaskConfig = TaskPushNotificationConfig.fromJson(json);
+
+      expect(newTaskConfig, equals(taskConfig));
     });
   });
 }

@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
+import '../fakes.dart';
+
 class MockRequestHandler implements RequestHandler {
   @override
   String get method => 'test_method';
@@ -36,7 +38,7 @@ void main() {
     late A2AServer server;
 
     setUp(() async {
-      server = A2AServer([MockRequestHandler()], port: 8081);
+      server = A2AServer([MockRequestHandler()], FakeTaskManager(), port: 8081);
       await server.start();
     });
 
@@ -123,14 +125,19 @@ void main() {
 
     test('server uses the specified host', () async {
       await server.stop();
-      server = A2AServer([MockRequestHandler()], host: '127.0.0.1', port: 8081);
+      server = A2AServer(
+        [MockRequestHandler()],
+        FakeTaskManager(),
+        host: '127.0.0.1',
+        port: 8081,
+      );
       await server.start();
       expect(server.host, equals('127.0.0.1'));
     });
 
     test('server uses the specified port', () async {
       await server.stop();
-      server = A2AServer([MockRequestHandler()], port: 8081);
+      server = A2AServer([MockRequestHandler()], FakeTaskManager(), port: 8081);
       await server.start();
       expect(server.port, equals(8081));
     });

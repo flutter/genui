@@ -24,6 +24,7 @@ void main() {
         taskToReturn: task,
         stream: Stream.value({}),
       );
+      await (taskManager as FakeTaskManager).ensureTaskExists(task);
       handler = ResubscribeHandler(taskManager);
 
       final result = await handler.handle({'id': task.id});

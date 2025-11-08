@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import '../core/events.dart';
 import '../core/list_tasks_params.dart';
 import '../core/list_tasks_result.dart';
 import '../core/message.dart';
+import '../core/push_notification.dart';
 import '../core/task.dart';
 
 /// Manages the lifecycle of A2A tasks.
@@ -30,4 +33,24 @@ abstract class TaskManager {
 
   /// Lists tasks, with optional filtering and pagination.
   Future<ListTasksResult> listTasks(ListTasksParams params);
+
+  /// Sets or updates a push notification configuration for a task.
+  Future<void> setPushNotificationConfig(
+    String taskId,
+    PushNotificationConfig config,
+  );
+
+  /// Retrieves a specific push notification configuration for a task.
+  Future<PushNotificationConfig?> getPushNotificationConfig(
+    String taskId,
+    String configId,
+  );
+
+  /// Lists all push notification configurations for a task.
+  Future<List<PushNotificationConfig>> listPushNotificationConfigs(
+    String taskId,
+  );
+
+  /// Deletes a specific push notification configuration for a task.
+  Future<void> deletePushNotificationConfig(String taskId, String configId);
 }
