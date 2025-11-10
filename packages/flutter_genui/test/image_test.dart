@@ -51,7 +51,9 @@ void main() {
     });
   });
 
-  testWidgets('Image widget renders with avatar hint', (WidgetTester tester) async {
+  testWidgets('Image widget renders with avatar hint', (
+    WidgetTester tester,
+  ) async {
     await mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(
@@ -60,10 +62,7 @@ void main() {
               body: image.widgetBuilder(
                 CatalogItemContext(
                   data: {
-                    'url': {
-                      'literalString':
-                          'https://example.com/avatar.png',
-                    },
+                    'url': {'literalString': 'https://example.com/avatar.png'},
                     'hint': 'avatar',
                   },
                   id: 'test_image_avatar',
@@ -80,7 +79,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(ClipOval), findsOneWidget);
+      expect(find.byType(CircleAvatar), findsOneWidget);
       final sizeBoxFinder = find.ancestor(
         of: find.byType(Image),
         matching: find.byType(SizedBox),
@@ -92,7 +91,9 @@ void main() {
     });
   });
 
-  testWidgets('Image widget renders with header hint', (WidgetTester tester) async {
+  testWidgets('Image widget renders with header hint', (
+    WidgetTester tester,
+  ) async {
     await mockNetworkImagesFor(() async {
       await tester.pumpWidget(
         MaterialApp(
@@ -101,10 +102,7 @@ void main() {
               body: image.widgetBuilder(
                 CatalogItemContext(
                   data: {
-                    'url': {
-                      'literalString':
-                          'https://example.com/header.png',
-                    },
+                    'url': {'literalString': 'https://example.com/header.png'},
                     'hint': 'header',
                   },
                   id: 'test_image_header',

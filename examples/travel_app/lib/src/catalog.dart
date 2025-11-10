@@ -31,7 +31,6 @@ final travelAppCatalog = CoreCatalogItems.asCatalog()
       CoreCatalogItems.checkBox,
       CoreCatalogItems.dateTimeInput,
       CoreCatalogItems.divider,
-      CoreCatalogItems.heading,
       CoreCatalogItems.textField,
       CoreCatalogItems.list,
       CoreCatalogItems.modal,

@@ -57,11 +57,6 @@ class CoreCatalogItems {
   /// Represents a thin horizontal line used to separate content.
   static final CatalogItem divider = divider_item.divider;
 
-  /// Represents a text heading, typically used to title sections of content.
-  ///
-  /// Supports different levels to indicate hierarchy.
-  static final CatalogItem heading = heading_item.heading;
-
   /// An icon.
   static final CatalogItem icon = icon_item.icon;
 
@@ -116,7 +111,6 @@ class CoreCatalogItems {
       column,
       dateTimeInput,
       divider,
-      heading,
       icon,
       image,
       list,

@@ -7,10 +7,13 @@ import 'package:flutter_genui/src/catalog/core_widgets/text.dart';
 import 'package:flutter_genui/src/model/catalog_item.dart';
 import 'package:flutter_genui/src/model/data_model.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Text widget renders literal string', (WidgetTester tester) async {
+  testWidgets('Text widget renders literal string', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(
@@ -62,27 +65,34 @@ void main() {
       ),
     );
 
+    // MarkdownBody renders RichText, so find.text still works for simple text.
     final textFinder = find.text('Heading 1');
     expect(textFinder, findsOneWidget);
 
-    final textWidget = tester.widget<Text>(textFinder);
-    final context = tester.element(textFinder);
-    final expectedStyle = Theme.of(context).textTheme.headlineLarge;
-    expect(textWidget.style, expectedStyle);
-
+    // Verify padding
     final paddingFinder = find.ancestor(
       of: textFinder,
       matching: find.byType(Padding),
     );
     expect(paddingFinder, findsOneWidget);
     final paddingWidget = tester.widget<Padding>(paddingFinder);
-    expect(
-      paddingWidget.padding,
-      const EdgeInsets.symmetric(vertical: 20.0),
-    );
+    expect(paddingWidget.padding, const EdgeInsets.symmetric(vertical: 20.0));
+
+    // Verify MarkdownBody is present
+    final markdownBodyFinder = find.byType(MarkdownBody);
+    expect(markdownBodyFinder, findsOneWidget);
+    final markdownBody = tester.widget<MarkdownBody>(markdownBodyFinder);
+
+    // Verify data
+    expect(markdownBody.data, 'Heading 1');
+
+    // Verify styleSheet has correct p style
+    final context = tester.element(textFinder);
+    final expectedStyle = Theme.of(context).textTheme.headlineLarge;
+    expect(markdownBody.styleSheet?.p?.fontSize, expectedStyle?.fontSize);
   });
 
-  testWidgets('Text widget renders with caption hint', (WidgetTester tester) async {
+  testWidgets('Text widget renders markdown bold', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(
@@ -90,10 +100,9 @@ void main() {
             body: text.widgetBuilder(
               CatalogItemContext(
                 data: {
-                  'text': {'literalString': 'Caption Text'},
-                  'hint': 'caption',
+                  'text': {'literalString': 'Hello **Bold**'},
                 },
-                id: 'test_text_caption',
+                id: 'test_text_markdown',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
@@ -107,12 +116,13 @@ void main() {
       ),
     );
 
-    final textFinder = find.text('Caption Text');
-    expect(textFinder, findsOneWidget);
+    // We can verify that MarkdownBody is present and has the correct data.
+    expect(find.byType(MarkdownBody), findsOneWidget);
+    final markdownBody = tester.widget<MarkdownBody>(find.byType(MarkdownBody));
+    expect(markdownBody.data, 'Hello **Bold**');
 
-    final textWidget = tester.widget<Text>(textFinder);
-    final context = tester.element(textFinder);
-    final expectedStyle = Theme.of(context).textTheme.bodySmall;
-    expect(textWidget.style, expectedStyle);
+    // Flutter test `find.text` matches the whole string.
+    // `find.textContaining` matches substring.
+    expect(find.textContaining('Bold', findRichText: true), findsOneWidget);
   });
 }

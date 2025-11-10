@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../core/widget_utilities.dart';
@@ -26,7 +27,7 @@ extension type _TextData.fromMap(JsonMap _json) {
 ///
 /// ## Parameters:
 ///
-/// - `text`: The text to display. This does *not* support markdown.
+/// - `text`: The text to display. This supports markdown.
 /// - `hint`: A hint for the text style. One of 'h1', 'h2', 'h3', 'h4', 'h5',
 ///   'caption', 'body'.
 final text = CatalogItem(
@@ -34,10 +35,11 @@ final text = CatalogItem(
   dataSchema: S.object(
     properties: {
       'text': A2uiSchemas.stringReference(
-        description: 'This does *not* support markdown.',
+        description:
+            '''While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.''',
       ),
       'hint': S.string(
-        description: 'A hint for the text style.',
+        description: 'A hint for the base text style.',
         enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
       ),
     },
@@ -69,7 +71,7 @@ final text = CatalogItem(
       builder: (context, currentValue, child) {
         final textTheme = Theme.of(context).textTheme;
         final hint = textData.hint ?? 'body';
-        final style = switch (hint) {
+        final baseStyle = switch (hint) {
           'h1' => textTheme.headlineLarge,
           'h2' => textTheme.headlineMedium,
           'h3' => textTheme.headlineSmall,
@@ -86,9 +88,15 @@ final text = CatalogItem(
           'h5' => 4.0,
           _ => 0.0,
         };
+
         return Padding(
           padding: EdgeInsets.symmetric(vertical: verticalPadding),
-          child: Text(currentValue ?? '', style: style),
+          child: MarkdownBody(
+            data: currentValue ?? '',
+            styleSheet: MarkdownStyleSheet.fromTheme(
+              Theme.of(context),
+            ).copyWith(p: baseStyle),
+          ),
         );
       },
     );
