@@ -86,8 +86,8 @@ void main() {
       );
       expect(sizeBoxFinder, findsOneWidget);
       final sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
-      expect(sizeBox.width, 48.0);
-      expect(sizeBox.height, 48.0);
+      expect(sizeBox.width, 32.0);
+      expect(sizeBox.height, 32.0);
     });
   });
 

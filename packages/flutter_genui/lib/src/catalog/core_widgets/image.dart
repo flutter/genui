@@ -114,7 +114,7 @@ final image = CatalogItem(
         }
 
         final size = switch (hint) {
-          'icon' || 'avatar' => 48.0,
+          'icon' || 'avatar' => 32.0,
           'smallFeature' => 50.0,
           'mediumFeature' => 150.0,
           'largeFeature' => 400.0,

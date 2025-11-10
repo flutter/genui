@@ -92,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
         if (googleApiKey.isEmpty) {
           throw Exception(
             'Google API key is required when using google backend. '
-            'Run the app with a GOOGLE_API_KEY '
+            'Run the app with a GEMINI_API_KEY '
             'as a Dart environment variable, for example with '
             '-D GEMINI_API_KEY=\$GEMINI_API_KEY',
           );
