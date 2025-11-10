@@ -11,7 +11,6 @@ import 'core_widgets/check_box.dart' as check_box_item;
 import 'core_widgets/column.dart' as column_item;
 import 'core_widgets/date_time_input.dart' as date_time_input_item;
 import 'core_widgets/divider.dart' as divider_item;
-import 'core_widgets/heading.dart' as heading_item;
 import 'core_widgets/icon.dart' as icon_item;
 import 'core_widgets/image.dart' as image_item;
 import 'core_widgets/list.dart' as list_item;

@@ -10,8 +10,10 @@ This package provides the core functionality for GenUI. For a concrete implement
 
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
 - **Simplified Conversation Flow**: A high-level `GenUiConversation` facade manages the interaction loop with the AI.
-- **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
-- **Extensible Content Generator**: Abstract interface for connecting to different AI model backends.
+- **Customizable Widget- **Text**: A widget for displaying text with various styles (`h1`-`h5`, `body`, `caption`).
+- **Image**: A widget for displaying images with various styles (`icon`, `avatar`, `header`, etc.).
+- **TextField**: A widget for user input.
+ Generator**: Abstract interface for connecting to different AI model backends.
 - **Event Handling**: Capture user interactions (button clicks, text input), update a client-side data model, and send the state back to the AI as context for the next turn in the conversation.
 - **Reactive UI**: Widgets automatically rebuild when the data they are bound to changes in the data model.
 

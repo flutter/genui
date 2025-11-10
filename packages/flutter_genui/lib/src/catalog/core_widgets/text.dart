@@ -11,10 +11,11 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
-  factory _TextData({required JsonMap text}) =>
-      _TextData.fromMap({'text': text});
+  factory _TextData({required JsonMap text, String? hint}) =>
+      _TextData.fromMap({'text': text, 'hint': hint});
 
   JsonMap get text => _json['text'] as JsonMap;
+  String? get hint => _json['hint'] as String?;
 }
 
 /// A catalog item representing a block of styled text.
@@ -26,12 +27,18 @@ extension type _TextData.fromMap(JsonMap _json) {
 /// ## Parameters:
 ///
 /// - `text`: The text to display. This does *not* support markdown.
+/// - `hint`: A hint for the text style. One of 'h1', 'h2', 'h3', 'h4', 'h5',
+///   'caption', 'body'.
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
     properties: {
       'text': A2uiSchemas.stringReference(
         description: 'This does *not* support markdown.',
+      ),
+      'hint': S.string(
+        description: 'A hint for the text style.',
+        enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
       ),
     },
     required: ['text'],
@@ -45,7 +52,8 @@ final text = CatalogItem(
             "Text": {
               "text": {
                 "literalString": "Hello World"
-              }
+              },
+              "hint": "h1"
             }
           }
         }
@@ -59,7 +67,29 @@ final text = CatalogItem(
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
-        return Text(currentValue ?? '');
+        final textTheme = Theme.of(context).textTheme;
+        final hint = textData.hint ?? 'body';
+        final style = switch (hint) {
+          'h1' => textTheme.headlineLarge,
+          'h2' => textTheme.headlineMedium,
+          'h3' => textTheme.headlineSmall,
+          'h4' => textTheme.titleLarge,
+          'h5' => textTheme.titleMedium,
+          'caption' => textTheme.bodySmall,
+          _ => textTheme.bodyMedium,
+        };
+        final verticalPadding = switch (hint) {
+          'h1' => 20.0,
+          'h2' => 16.0,
+          'h3' => 12.0,
+          'h4' => 8.0,
+          'h5' => 4.0,
+          _ => 0.0,
+        };
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: verticalPadding),
+          child: Text(currentValue ?? '', style: style),
+        );
       },
     );
   },

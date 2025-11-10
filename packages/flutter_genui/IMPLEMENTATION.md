@@ -57,8 +57,9 @@ graph TD
 This layer is responsible for all communication with the generative AI model.
 
 - **`ContentGenerator`**: An abstract interface defining the contract for a client that interacts with an AI model. This allows for different LLM backends to be implemented. It exposes the following streams:
-  - `a2uiMessageStream`: Emits `A2uiMessage` objects representing AI commands to modify the UI or data model.
-  - `textResponseStream`: Emits simple text responses from the AI.
+  - `a2uiMessageStream`: Emits `A2uiMessage` objects representing AI commands to modify- `Text`: Displays text with optional styling hints (`h1`-`h5`, `body`, `caption`).
+- `Image`: Displays an image with optional sizing/styling hints (`icon`, `avatar`, `header`, etc.).
+ text responses from the AI.
   - `errorStream`: Emits `ContentGeneratorError` objects when issues occur during AI interaction.
 - **Example Implementations**: The `flutter_genui_firebase_ai` package provides a concrete implementation that uses Google's Gemini models via Firebase. It handles the complexities of interacting with the Gemini API, including model configuration, retry logic, and tool management.
 - **`AiTool`**: An abstract class for defining tools that the AI can invoke. These tools are the bridge between the AI and the application's capabilities. The `DynamicAiTool` provides a convenient way to create tools from simple functions.

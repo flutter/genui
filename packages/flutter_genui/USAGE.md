@@ -374,21 +374,24 @@ For example, to display a user's name in a `Text` widget, the AI would generate:
 
 ```json
 {
-  "id": "user_name_text",
-  "widget": {
-    "Text": {
-      "text": { "path": "/user/name" }
-    }
+  "Text": {
+    "text": {
+      "literalString": "Welcome to GenUI"
+    },
+    "hint": "h1"
   }
 }
 ```
 
-And the `DataModel` would contain:
+### Image
 
 ```json
 {
-  "user": {
-    "name": "Alice"
+  "Image": {
+    "url": {
+      "literalString": "https://example.com/image.png"
+    },
+    "hint": "mediumFeature"
   }
 }
 ```

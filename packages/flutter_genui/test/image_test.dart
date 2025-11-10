@@ -50,4 +50,85 @@ void main() {
       );
     });
   });
+
+  testWidgets('Image widget renders with avatar hint', (WidgetTester tester) async {
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: image.widgetBuilder(
+                CatalogItemContext(
+                  data: {
+                    'url': {
+                      'literalString':
+                          'https://example.com/avatar.png',
+                    },
+                    'hint': 'avatar',
+                  },
+                  id: 'test_image_avatar',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(DataModel(), '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ClipOval), findsOneWidget);
+      final sizeBoxFinder = find.ancestor(
+        of: find.byType(Image),
+        matching: find.byType(SizedBox),
+      );
+      expect(sizeBoxFinder, findsOneWidget);
+      final sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
+      expect(sizeBox.width, 48.0);
+      expect(sizeBox.height, 48.0);
+    });
+  });
+
+  testWidgets('Image widget renders with header hint', (WidgetTester tester) async {
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: image.widgetBuilder(
+                CatalogItemContext(
+                  data: {
+                    'url': {
+                      'literalString':
+                          'https://example.com/header.png',
+                    },
+                    'hint': 'header',
+                  },
+                  id: 'test_image_header',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(DataModel(), '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final sizeBoxFinder = find.ancestor(
+        of: find.byType(Image),
+        matching: find.byType(SizedBox),
+      );
+      expect(sizeBoxFinder, findsOneWidget);
+      final sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
+      expect(sizeBox.width, double.infinity);
+      expect(sizeBox.height, null);
+    });
+  });
 }
