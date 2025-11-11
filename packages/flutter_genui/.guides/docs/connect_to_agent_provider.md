@@ -8,7 +8,9 @@ description: |
 Follow these steps to connect `flutter_genui` to an agent provider and give
 your app the ability to send messages and receive/display generated UI.
 
-The instructions below use a placeholder `YourContentGenerator`. You should substitute this with your actual `ContentGenerator` implementation (e.g., `FirebaseAiContentGenerator` from the `flutter_genui_firebase_ai` package).
+The instructions below use a placeholder `YourContentGenerator`. You should
+substitute this with your actual `ContentGenerator` implementation (e.g.,
+`FirebaseAiContentGenerator` from the `flutter_genui_firebase_ai` package).
 
 ## 1. Create the `GenUiConversation`
 
@@ -23,9 +25,10 @@ and a `ContentGenerator`.
     configurations here.
 3.  Create a `GenUiConversation`, passing in the `GenUiManager` and
     `ContentGenerator` instances. You can also provide callbacks for UI
-    events like `onSurfaceAdded`, `onTextResponse`, etc.
+    events like `onSurfaceAdded`, `onSurfaceUpdated`, `onSurfaceDeleted`, `onTextResponse`, etc.
 
     For example:
+
     ```dart
     import 'package:flutter/material.dart';
     import 'package:flutter_genui/flutter_genui.dart';
@@ -42,7 +45,10 @@ and a `ContentGenerator`.
       @override
       ValueListenable<bool> get isProcessing => ValueNotifier(false); // Replace
       @override
-      Future<void> sendRequest(Iterable<ChatMessage> messages) async { /* ... */ }
+      Future<void> sendRequest(
+        ChatMessage message, {
+        Iterable<ChatMessage>? history,
+      }) async { /* ... */ }
       @override
       void dispose() { /* ... */ }
     }
@@ -67,6 +73,7 @@ and a `ContentGenerator`.
           genUiManager: _genUiManager,
           contentGenerator: contentGenerator,
           onSurfaceAdded: _onSurfaceAdded,
+          onSurfaceUpdated: _onSurfaceUpdated, // Example callback
           onSurfaceDeleted: _onSurfaceDeleted,
           onTextResponse: (text) => print('AI Text: $text'),
           onError: (error) => print('AI Error: ${error.error}'),
@@ -75,6 +82,11 @@ and a `ContentGenerator`.
 
       void _onSurfaceAdded(SurfaceAdded update) {
         setState(() => _surfaceIds.add(update.surfaceId));
+      }
+
+      void _onSurfaceUpdated(SurfaceUpdated update) {
+        // Handle surface updates if needed
+        print('Surface ${update.surfaceId} updated');
       }
 
       void _onSurfaceDeleted(SurfaceRemoved update) {
@@ -120,6 +132,7 @@ To receive and display generated UI:
 
       // Callbacks for GenUiConversation (defined in initState example above)
       // void _onSurfaceAdded(SurfaceAdded update) { ... }
+      // void _onSurfaceUpdated(SurfaceUpdated update) { ... }
       // void _onSurfaceDeleted(SurfaceRemoved update) { ... }
 
       @override

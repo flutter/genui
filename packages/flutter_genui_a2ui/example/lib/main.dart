@@ -54,6 +54,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _contentGenerator = A2uiContentGenerator(
+      // Replace this with the address of the A2A server (one that supports the
+      // A2UI extension) that you wish to connect to.
       serverUrl: Uri.parse('http://localhost:10002'),
     );
     _genUiConversation = GenUiConversation(

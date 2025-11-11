@@ -1,3 +1,5 @@
+# `json_schema_builder` Change Log
+
 ## 0.1.3
 
 - Use [`email_validator`](https://pub.dev/packages/email_validator) package to

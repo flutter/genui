@@ -27,17 +27,8 @@ Logic, follow these instructions:
 
    ```yaml
    dependencies:
-     # ...
-     flutter_genui:
-       git:
-         url: https://github.com/flutter/genui.git
-         path: packages/flutter_genui
-         ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
-     flutter_genui_firebase_ai:
-       git:
-         url: https://github.com/flutter/genui.git
-         path: packages/flutter_genui_firebase_ai
-         ref: fc7efa9c69529b655e531f3037bb12b9b241d6aa
+     flutter_genui: ^0.5.0 # Or the latest version
+     flutter_genui_firebase_ai: ^0.5.0 # Or the latest version
    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,

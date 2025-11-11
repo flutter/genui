@@ -1,4 +1,4 @@
-# `flutter_genui_a2ui` Change Log
+# `flutter_genui_firebas_ai` Change Log
 
 ## 0.5.0
 

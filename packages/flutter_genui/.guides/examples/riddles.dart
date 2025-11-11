@@ -66,7 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
       catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
     );
     final contentGenerator = FirebaseAiContentGenerator(
-      catalog: genUiManager.catalog,
       systemInstruction: '''
           You are an expert in creating funny riddles. Every time I give you a
           word, you should generate a RiddleCard that displays one new riddle
@@ -129,13 +128,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   AiTextMessage() => ChatMessageWidget(
                       text: message.text,
-                      icon: Icons.computer,
-                      alignment: MainAxisAlignment.start,
+                    isUser: false,
                     ),
                   UserMessage() => ChatMessageWidget(
                       text: message.text,
-                      icon: Icons.person,
-                      alignment: MainAxisAlignment.end,
+                    isUser: true,
                     ),
                   InternalMessage() =>
                     InternalMessageWidget(content: message.text),
@@ -169,6 +166,65 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class ChatMessageWidget extends StatelessWidget {
+  const ChatMessageWidget({
+    super.key,
+    required this.text,
+    required this.isUser,
+  });
+
+  final String text;
+  final bool isUser;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: isUser
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      children: [
+        Icon(isUser ? Icons.person : Icons.computer),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: isUser ? Colors.blue[100] : Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(text),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class InternalMessageWidget extends StatelessWidget {
+  const InternalMessageWidget({super.key, required this.content});
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.yellow[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.warning, color: Colors.orange),
+          const SizedBox(width: 8),
+          Expanded(child: Text(content)),
         ],
       ),
     );
