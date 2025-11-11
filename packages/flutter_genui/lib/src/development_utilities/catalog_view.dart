@@ -115,8 +115,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Text(
-                  surfaceId, style: Theme.of(context).textTheme.titleLarge),
+                Text(surfaceId, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8.0),
                 SizedBox(height: widget.itemHeight, child: surfaceWidget),
               ],

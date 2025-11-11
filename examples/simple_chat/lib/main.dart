@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -90,7 +89,6 @@ class _ChatScreenState extends State<ChatScreen> {
     // Create the appropriate content generator based on configuration
     final ContentGenerator contentGenerator = switch (aiBackend) {
       AiBackend.googleGenerativeAi => () {
-
         return GoogleGenerativeAiContentGenerator(
           catalog: catalog,
           systemInstruction: systemInstruction,
