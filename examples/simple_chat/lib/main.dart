@@ -6,7 +6,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
@@ -17,7 +16,7 @@ import 'package:logging/logging.dart';
 
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
-import 'web_get_api_key.dart' if (kIsWeb) 'io_get_api_key.dart';
+import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';
 
 /// Enum for selecting which AI backend to use.
 enum AiBackend {
