@@ -51,7 +51,7 @@ void main() {
     });
   });
 
-  testWidgets('Image widget renders with avatar hint', (
+  testWidgets('Image widget renders with avatar usage hint', (
     WidgetTester tester,
   ) async {
     await mockNetworkImagesFor(() async {
@@ -63,7 +63,7 @@ void main() {
                 CatalogItemContext(
                   data: {
                     'url': {'literalString': 'https://example.com/avatar.png'},
-                    'hint': 'avatar',
+                    'usageHint': 'avatar',
                   },
                   id: 'test_image_avatar',
                   buildChild: (_, [_]) => const SizedBox(),
@@ -103,7 +103,7 @@ void main() {
                 CatalogItemContext(
                   data: {
                     'url': {'literalString': 'https://example.com/header.png'},
-                    'hint': 'header',
+                    'usageHint': 'header',
                   },
                   id: 'test_image_header',
                   buildChild: (_, [_]) => const SizedBox(),

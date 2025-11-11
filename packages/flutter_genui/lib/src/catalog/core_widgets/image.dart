@@ -21,8 +21,14 @@ final _schema = S.object(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
     ),
-    'hint': S.string(
-      description: 'A hint for the image size and style.',
+    'usageHint': S.string(
+      description: '''A hint for the image size and style. One of:
+      - icon: Small square icon.
+      - avatar: Circular avatar image.
+      - smallFeature: Small feature image.
+      - mediumFeature: Medium feature image.
+      - largeFeature: Large feature image.
+      - header: Full-width, full bleed, header image.''',
       enumValues: [
         'icon',
         'avatar',
@@ -36,14 +42,14 @@ final _schema = S.object(
 );
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({required JsonMap url, String? fit, String? hint}) =>
-      _ImageData.fromMap({'url': url, 'fit': fit, 'hint': hint});
+  factory _ImageData({required JsonMap url, String? fit, String? usageHint}) =>
+      _ImageData.fromMap({'url': url, 'fit': fit, 'usageHint': usageHint});
 
   JsonMap get url => _json['url'] as JsonMap;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
-  String? get hint => _json['hint'] as String?;
+  String? get usageHint => _json['usageHint'] as String?;
 }
 
 /// A catalog item representing a widget that displays an image.
@@ -57,8 +63,8 @@ extension type _ImageData.fromMap(JsonMap _json) {
 ///   asset path.
 /// - `fit`: How the image should be inscribed into the box. See [BoxFit] for
 ///   possible values.
-/// - `hint`: A hint for the image size and style. One of 'icon', 'avatar',
-///   'smallFeature', 'mediumFeature', 'largeFeature', 'header'.
+/// - `usageHint`: A usage hint for the image size and style. One of 'icon',
+///   'avatar', 'smallFeature', 'mediumFeature', 'largeFeature', 'header'.
 final image = CatalogItem(
   name: 'Image',
   dataSchema: _schema,
@@ -72,7 +78,7 @@ final image = CatalogItem(
               "url": {
                 "literalString": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png"
               },
-              "hint": "mediumFeature"
+              "usageHint": "mediumFeature"
             }
           }
         }
@@ -96,7 +102,7 @@ final image = CatalogItem(
           return const SizedBox.shrink();
         }
         final BoxFit? fit = imageData.fit;
-        final String? hint = imageData.hint;
+        final String? usageHint = imageData.usageHint;
 
         late Widget child;
 
@@ -106,15 +112,15 @@ final image = CatalogItem(
           child = Image.network(location, fit: fit);
         }
 
-        if (hint == 'avatar') {
+        if (usageHint == 'avatar') {
           child = CircleAvatar(child: child);
         }
 
-        if (hint == 'header') {
+        if (usageHint == 'header') {
           return SizedBox(width: double.infinity, child: child);
         }
 
-        final double size = switch (hint) {
+        final double size = switch (usageHint) {
           'icon' || 'avatar' => 32.0,
           'smallFeature' => 50.0,
           'mediumFeature' => 150.0,
