@@ -4,13 +4,13 @@
 
 /// API key for Google Generative AI (only needed if using google backend).
 /// Get an API key from https://aistudio.google.com/app/apikey
-const String googleApiKey = String.fromEnvironment('GEMINI_API_KEY');
+const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 String getApiKey() {
-  if (googleApiKey.isEmpty) {
+  if (geminiApiKey.isEmpty) {
     throw Exception(
-      '''Google API key is required when using google backend. Run the app with a GOOGLE_API_KEY as a Dart environment variable. You can do this by running with -D GEMINI_API_KEY=\$GEMINI_API_KEY''',
+      '''Gemini API key is required when using google backend. Run the app with a GEMINI_API_KEY as a Dart environment variable. You can do this by running with -D GEMINI_API_KEY=\$GEMINI_API_KEY''',
     );
   }
-  return googleApiKey;
+  return geminiApiKey;
 }
