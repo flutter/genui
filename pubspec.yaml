@@ -20,6 +20,7 @@ workspace:
   - examples/custom_backend
   - examples/simple_chat
   - examples/travel_app
+  - examples/verdure/client
   - tool/fix_copyright
   - tool/test_and_fix
 
