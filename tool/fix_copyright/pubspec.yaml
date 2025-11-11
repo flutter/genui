@@ -13,7 +13,6 @@ resolution: workspace
 
 dependencies:
   args: ^2.7.0
-  dart_flutter_team_lints: ^3.5.2
   file: ^7.0.1
   path: ^1.9.0
   process: ^5.0.5

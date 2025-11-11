@@ -224,13 +224,11 @@ final itinerary = CatalogItem(
       context.data as Map<String, Object?>,
     );
 
-    final titleNotifier = context.dataContext.subscribeToString(
-      itineraryData.title,
-    );
-    final subheadingNotifier = context.dataContext.subscribeToString(
-      itineraryData.subheading,
-    );
-    final imageChild = context.buildChild(itineraryData.imageChildId);
+    final ValueNotifier<String?> titleNotifier = context.dataContext
+        .subscribeToString(itineraryData.title);
+    final ValueNotifier<String?> subheadingNotifier = context.dataContext
+        .subscribeToString(itineraryData.subheading);
+    final Widget imageChild = context.buildChild(itineraryData.imageChildId);
 
     return _Itinerary(
       titleNotifier: titleNotifier,
@@ -399,11 +397,15 @@ class _ItineraryDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final titleNotifier = dataContext.subscribeToString(data.title);
-    final subtitleNotifier = dataContext.subscribeToString(data.subtitle);
-    final descriptionNotifier = dataContext.subscribeToString(data.description);
-    final imageChild = buildChild(data.imageChildId);
+    final ThemeData theme = Theme.of(context);
+    final ValueNotifier<String?> titleNotifier = dataContext.subscribeToString(
+      data.title,
+    );
+    final ValueNotifier<String?> subtitleNotifier = dataContext
+        .subscribeToString(data.subtitle);
+    final ValueNotifier<String?> descriptionNotifier = dataContext
+        .subscribeToString(data.description);
+    final Widget imageChild = buildChild(data.imageChildId);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -496,13 +498,21 @@ class _ItineraryEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final titleNotifier = dataContext.subscribeToString(data.title);
-    final subtitleNotifier = dataContext.subscribeToString(data.subtitle);
-    final bodyTextNotifier = dataContext.subscribeToString(data.bodyText);
-    final addressNotifier = dataContext.subscribeToString(data.address);
-    final timeNotifier = dataContext.subscribeToString(data.time);
-    final totalCostNotifier = dataContext.subscribeToString(data.totalCost);
+    final ThemeData theme = Theme.of(context);
+    final ValueNotifier<String?> titleNotifier = dataContext.subscribeToString(
+      data.title,
+    );
+    final ValueNotifier<String?> subtitleNotifier = dataContext
+        .subscribeToString(data.subtitle);
+    final ValueNotifier<String?> bodyTextNotifier = dataContext
+        .subscribeToString(data.bodyText);
+    final ValueNotifier<String?> addressNotifier = dataContext
+        .subscribeToString(data.address);
+    final ValueNotifier<String?> timeNotifier = dataContext.subscribeToString(
+      data.time,
+    );
+    final ValueNotifier<String?> totalCostNotifier = dataContext
+        .subscribeToString(data.totalCost);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -534,15 +544,16 @@ class _ItineraryEntry extends StatelessWidget {
                         valueListenable: titleNotifier,
                         builder: (context, title, _) => FilledButton(
                           onPressed: () {
-                            final actionData = data.choiceRequiredAction;
+                            final JsonMap? actionData =
+                                data.choiceRequiredAction;
                             if (actionData == null) {
                               return;
                             }
                             final actionName = actionData['name'] as String;
-                            final contextDefinition =
+                            final List<Object?> contextDefinition =
                                 (actionData['context'] as List<Object?>?) ??
                                 <Object>[];
-                            final resolvedContext = resolveContext(
+                            final JsonMap resolvedContext = resolveContext(
                               dataContext,
                               contextDefinition,
                             );

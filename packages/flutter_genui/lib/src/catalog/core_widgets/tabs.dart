@@ -53,9 +53,9 @@ final tabs = CatalogItem(
         children: [
           TabBar(
             tabs: tabsData.tabItems.map((tabItem) {
-              final titleNotifier = itemContext.dataContext.subscribeToString(
-                tabItem['title'] as JsonMap,
-              );
+              final ValueNotifier<String?> titleNotifier = itemContext
+                  .dataContext
+                  .subscribeToString(tabItem['title'] as JsonMap);
               return ValueListenableBuilder<String?>(
                 valueListenable: titleNotifier,
                 builder: (context, title, child) {

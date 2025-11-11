@@ -8,7 +8,7 @@ generative UI to their applications.
 This is a highly experimental package, which means the API will change (sometimes drastically).
 [Feedback is very welcome](https://github.com/flutter/genui/issues/new/choose).
 
-## TL;DR
+## Summary
 
 Our goal for the GenUI SDK for Flutter is to help you replace static "walls of text" from your LLM with
 dynamic, interactive, graphical UI.
@@ -93,7 +93,7 @@ Widget build(BuildContext context) {
 
 ### Interactive [Travel App Example](examples/travel_app/)
 
-<img src="misc/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
+<img src="docs/assets/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
 
 _The GIF above shows how GenUI enables dynamic, interactive UI generation,_
 _instead of text descriptions or code from a traditional AI coding agent._
@@ -103,7 +103,7 @@ _instead of text descriptions or code from a traditional AI coding agent._
 This UI is not generated in the form of code; rather, it's generated at runtime
 based on a widget catalog from the developers' project.
 
-<img src="misc/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
+<img src="docs/assets/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
 
 ## Implementation goals
 
@@ -133,9 +133,9 @@ based on a widget catalog from the developers' project.
 
 | Package                                                          | Description                                                                   |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [flutter_genui](packages/flutter_genui/)                         | (work in progress) A framework to employ Generative UI.                       |
-| [flutter_genui_firebase_ai](packages/flutter_genui_firebase_ai/) | (work in progress) Firebase AI integration for flutter_genui.                 |
-| [json_schema_builder](packages/json_schema_builder/)             | (work in progress) A fully featured Dart JSON Schema package with validation. |
+| [flutter_genui](packages/flutter_genui/)                         | A framework to employ Generative UI.                       |
+| [flutter_genui_firebase_ai](packages/flutter_genui_firebase_ai/) | Firebase AI integration for flutter_genui.                 |
+| [json_schema_builder](packages/json_schema_builder/)             | A fully featured Dart JSON Schema package with validation. |
 
 ## Usage
 
@@ -143,7 +143,7 @@ See [packages/flutter_genui/USAGE.md](packages/flutter_genui/USAGE.md).
 
 ## Constraints
 
-This repo requires Flutter version >3.37.0.
+This repo requires Flutter version >=3.35.7.
 
 ## Contribute
 

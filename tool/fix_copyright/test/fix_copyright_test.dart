@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file/memory.dart';
+import 'package:file/src/interface/file.dart';
 import 'package:fix_copyright/fix_copyright.dart';
 import 'package:process/process.dart';
 import 'package:test/test.dart';
@@ -80,9 +81,9 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with an incorrect date', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright());
-    final result = await runFixCopyrights(paths: ['test.dart']);
+    final int result = await runFixCopyrights(paths: ['test.dart']);
     expect(result, equals(1));
     expect(log, equals(['/test.dart']));
     expect(
@@ -94,9 +95,12 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with an incorrect date when forced', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright());
-    final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+    final int result = await runFixCopyrights(
+      paths: ['test.dart'],
+      force: true,
+    );
     expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
@@ -108,9 +112,9 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with a non-matching copyright', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(wrongCopyright);
-    final result = await runFixCopyrights(paths: ['test.dart']);
+    final int result = await runFixCopyrights(paths: ['test.dart']);
     expect(result, equals(1));
     expect(log, equals(['/test.dart']));
     expect(
@@ -122,9 +126,12 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with a non-matching copyright when forced', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(wrongCopyright);
-    final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+    final int result = await runFixCopyrights(
+      paths: ['test.dart'],
+      force: true,
+    );
     expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
@@ -136,9 +143,9 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with no copyright', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(randomPreamble);
-    final result = await runFixCopyrights(paths: ['test.dart']);
+    final int result = await runFixCopyrights(paths: ['test.dart']);
     expect(result, equals(1));
     expect(log, equals(['/test.dart']));
     expect(
@@ -150,9 +157,12 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with no copyright when forced', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(randomPreamble);
-    final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+    final int result = await runFixCopyrights(
+      paths: ['test.dart'],
+      force: true,
+    );
     expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
@@ -167,18 +177,18 @@ $prefix found in the LICENSE file.''';
 
   test('updates a shell script with a shebang and bad copyright', () async {
     mockGitLsFiles(paths: ['test.sh'], stdout: 'test.sh');
-    final testFile = fileSystem.file('test.sh')
+    final File testFile = fileSystem.file('test.sh')
       ..writeAsStringSync(
         '$bashShebang\n${getBadCopyright(prefix: '#')}\n$randomShellPreamble',
       );
-    final result = await runFixCopyrights(paths: ['test.sh'], force: true);
+    final int result = await runFixCopyrights(paths: ['test.sh'], force: true);
     expect(result, equals(0));
     expect(log, equals(['/test.sh']));
     expect(
       error,
       contains('Found 1 files which have out-of-compliance copyrights.'),
     );
-    final shCopyright = copyright.replaceAll('//', '#');
+    final String shCopyright = copyright.replaceAll('//', '#');
     expect(
       testFile.readAsStringSync(),
       equals('$bashShebang\n$shCopyright\n\n$randomShellPreamble'),
@@ -187,18 +197,18 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with an unrecognized shebang', () async {
     mockGitLsFiles(paths: ['test.sh'], stdout: 'test.sh');
-    final testFile = fileSystem.file('test.sh')
+    final File testFile = fileSystem.file('test.sh')
       ..writeAsStringSync(
         '$badShebang\n${getBadCopyright(prefix: "#")}\n$randomPreamble',
       );
-    final result = await runFixCopyrights(paths: ['test.sh'], force: true);
+    final int result = await runFixCopyrights(paths: ['test.sh'], force: true);
     expect(result, equals(0));
     expect(log, equals(['/test.sh']));
     expect(
       error,
       contains('Found 1 files which have out-of-compliance copyrights.'),
     );
-    final shCopyright = copyright.replaceAll('//', '#');
+    final String shCopyright = copyright.replaceAll('//', '#');
     expect(
       testFile.readAsStringSync(),
       equals('$badShebang\n$shCopyright\n\n$randomPreamble'),
@@ -207,9 +217,9 @@ $prefix found in the LICENSE file.''';
 
   test('does not update a file that is OK', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync('$copyright\n\n$randomPreamble');
-    final result = await runFixCopyrights(paths: ['test.dart']);
+    final int result = await runFixCopyrights(paths: ['test.dart']);
     expect(result, equals(0));
     expect(log, isEmpty);
     expect(error, isEmpty);
@@ -221,15 +231,15 @@ $prefix found in the LICENSE file.''';
 
   test('updates a directory of files', () async {
     mockGitLsFiles(stdout: 'test1.dart\ntest2.dart\ntest3.dart\ntest4.dart');
-    final testFile1 = fileSystem.file('test1.dart')
+    final File testFile1 = fileSystem.file('test1.dart')
       ..writeAsStringSync(getBadCopyright());
-    final testFile2 = fileSystem.file('test2.dart')
+    final File testFile2 = fileSystem.file('test2.dart')
       ..writeAsStringSync(wrongCopyright);
-    final testFile3 = fileSystem.file('test3.dart')
+    final File testFile3 = fileSystem.file('test3.dart')
       ..writeAsStringSync(randomPreamble);
-    final testFile4 = fileSystem.file('test4.dart')
+    final File testFile4 = fileSystem.file('test4.dart')
       ..writeAsStringSync('$copyright\n\n$randomPreamble');
-    final result = await runFixCopyrights(force: true);
+    final int result = await runFixCopyrights(force: true);
     expect(result, equals(0));
     expect(log, unorderedEquals(['/test1.dart', '/test2.dart', '/test3.dart']));
     expect(
@@ -250,8 +260,11 @@ $prefix found in the LICENSE file.''';
 
   test('does not update an empty file', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')..writeAsStringSync('');
-    final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+    final File testFile = fileSystem.file('test.dart')..writeAsStringSync('');
+    final int result = await runFixCopyrights(
+      paths: ['test.dart'],
+      force: true,
+    );
     expect(result, equals(0));
     expect(log, isEmpty);
     expect(error, isEmpty);
@@ -260,9 +273,12 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with case-insensitive copyright', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright().toLowerCase());
-    final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+    final int result = await runFixCopyrights(
+      paths: ['test.dart'],
+      force: true,
+    );
     expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
@@ -274,9 +290,12 @@ $prefix found in the LICENSE file.''';
 
   test('updates a file with windows line endings', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync(getBadCopyright().replaceAll('\n', '\r\n'));
-    final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+    final int result = await runFixCopyrights(
+      paths: ['test.dart'],
+      force: true,
+    );
     expect(result, equals(0));
     expect(log, equals(['/test.dart']));
     expect(
@@ -293,9 +312,9 @@ $prefix found in the LICENSE file.''';
 <!-- Copyright 2025 The Flutter Authors.
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file. -->''';
-    final testFile = fileSystem.file('test.xml')
+    final File testFile = fileSystem.file('test.xml')
       ..writeAsStringSync(xmlPreamble);
-    final result = await runFixCopyrights(paths: ['test.xml'], force: true);
+    final int result = await runFixCopyrights(paths: ['test.xml'], force: true);
     expect(result, equals(0));
     expect(log, equals(['/test.xml']));
     expect(
@@ -312,9 +331,9 @@ found in the LICENSE file. -->''';
 
   test('fails a file with a generated code header but no copyright', () async {
     mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final testFile = fileSystem.file('test.dart')
+    final File testFile = fileSystem.file('test.dart')
       ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
-    final result = await runFixCopyrights(paths: ['test.dart']);
+    final int result = await runFixCopyrights(paths: ['test.dart']);
     expect(result, equals(1));
     expect(log, equals(['/test.dart']));
     expect(
@@ -331,9 +350,12 @@ found in the LICENSE file. -->''';
     'updates a file with a generated code header but no copyright when forced',
     () async {
       mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-      final testFile = fileSystem.file('test.dart')
+      final File testFile = fileSystem.file('test.dart')
         ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
-      final result = await runFixCopyrights(paths: ['test.dart'], force: true);
+      final int result = await runFixCopyrights(
+        paths: ['test.dart'],
+        force: true,
+      );
       expect(result, equals(0));
       expect(log, equals(['/test.dart']));
       expect(
@@ -385,7 +407,7 @@ class FakeProcessManager implements ProcessManager {
     Encoding? stderrEncoding = systemEncoding,
   }) {
     commands.add(command.cast<String>());
-    final mock = mockCommands.firstWhere(
+    final MockCommand mock = mockCommands.firstWhere(
       (mock) => mock.command.join(' ') == command.join(' '),
       orElse: () => MockCommand(command: command.cast<String>(), exitCode: 1),
     );
@@ -410,7 +432,7 @@ class FakeProcessManager implements ProcessManager {
     Encoding? stderrEncoding = systemEncoding,
   }) {
     commands.add(command.cast<String>());
-    final mock = mockCommands.firstWhere(
+    final MockCommand mock = mockCommands.firstWhere(
       (mock) => mock.command.join(' ') == command.join(' '),
       orElse: () => MockCommand(command: command.cast<String>(), exitCode: 1),
     );

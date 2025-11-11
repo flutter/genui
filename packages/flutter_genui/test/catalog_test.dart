@@ -46,7 +46,7 @@ void main() {
         ),
       );
       expect(find.byType(Column), findsOneWidget);
-      final column = tester.widget<Column>(find.byType(Column));
+      final Column column = tester.widget<Column>(find.byType(Column));
       expect(column.children.length, 1);
     });
 
@@ -54,14 +54,14 @@ void main() {
       WidgetTester tester,
     ) async {
       final catalog = const Catalog([]);
-      final data = {
+      final Map<String, Object> data = {
         'id': 'text1',
         'widget': {
           'unknown_widget': {'text': 'hello'},
         },
       };
 
-      final logFuture = expectLater(
+      final Future<void> logFuture = expectLater(
         genUiLogger.onRecord,
         emits(
           isA<LogRecord>().having(
@@ -76,7 +76,7 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                final widget = catalog.buildWidget(
+                final Widget widget = catalog.buildWidget(
                   CatalogItemContext(
                     id: data['id'] as String,
                     data: data['widget'] as JsonMap,
@@ -106,7 +106,8 @@ void main() {
       expect(schema.properties?.containsKey('styles'), isTrue);
 
       final componentsSchema = schema.properties!['components'] as ObjectSchema;
-      final componentProperties = componentsSchema.properties!;
+      final Map<String, Schema> componentProperties =
+          componentsSchema.properties!;
 
       expect(componentProperties.keys, contains('Text'));
       expect(componentProperties.keys, contains('Button'));

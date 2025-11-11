@@ -12,7 +12,10 @@ import '../primitives/simple_items.dart';
 @immutable
 class DataPath {
   factory DataPath(String path) {
-    final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+    final List<String> segments = path
+        .split('/')
+        .where((s) => s.isNotEmpty)
+        .toList();
     return DataPath._(segments, path.startsWith(_separator));
   }
 
@@ -50,7 +53,7 @@ class DataPath {
 
   @override
   String toString() {
-    final path = segments.join(_separator);
+    final String path = segments.join(_separator);
     return isAbsolute ? '$_separator$path' : path;
   }
 
@@ -78,26 +81,26 @@ class DataContext {
 
   /// Subscribes to a path, resolving it against the current context.
   ValueNotifier<T?> subscribe<T>(DataPath relativeOrAbsolutePath) {
-    final absolutePath = resolvePath(relativeOrAbsolutePath);
+    final DataPath absolutePath = resolvePath(relativeOrAbsolutePath);
     return _dataModel.subscribe<T>(absolutePath);
   }
 
   /// Gets a static value, resolving the path against the current context.
   T? getValue<T>(DataPath relativeOrAbsolutePath) {
-    final absolutePath = resolvePath(relativeOrAbsolutePath);
+    final DataPath absolutePath = resolvePath(relativeOrAbsolutePath);
     return _dataModel.getValue<T>(absolutePath);
   }
 
   /// Updates the data model, resolving the path against the current context.
   void update(DataPath relativeOrAbsolutePath, Object? contents) {
-    final absolutePath = resolvePath(relativeOrAbsolutePath);
+    final DataPath absolutePath = resolvePath(relativeOrAbsolutePath);
     _dataModel.update(absolutePath, contents);
   }
 
   /// Creates a new, nested DataContext for a child widget.
   /// Used by list/template widgets for their children.
   DataContext nested(DataPath relativePath) {
-    final newPath = resolvePath(relativePath);
+    final DataPath newPath = resolvePath(relativePath);
     return DataContext._(_dataModel, newPath);
   }
 
@@ -155,7 +158,7 @@ class DataModel {
   /// Subscribes to a specific absolute path in the data model.
   ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
     genUiLogger.info('DataModel.subscribe: path=$absolutePath');
-    final initialValue = getValue<T>(absolutePath);
+    final T? initialValue = getValue<T>(absolutePath);
     if (_subscriptions.containsKey(absolutePath)) {
       final notifier = _subscriptions[absolutePath]! as ValueNotifier<T?>;
       notifier.value = initialValue;
@@ -170,7 +173,7 @@ class DataModel {
   /// when the value at that exact path changes.
   ValueNotifier<T?> subscribeToValue<T>(DataPath absolutePath) {
     genUiLogger.info('DataModel.subscribeToValue: path=$absolutePath');
-    final initialValue = getValue<T>(absolutePath);
+    final T? initialValue = getValue<T>(absolutePath);
     if (_valueSubscriptions.containsKey(absolutePath)) {
       final notifier = _valueSubscriptions[absolutePath]! as ValueNotifier<T?>;
       notifier.value = initialValue;
@@ -258,13 +261,13 @@ class DataModel {
       return current;
     }
 
-    final segment = segments.first;
-    final remaining = segments.sublist(1);
+    final String segment = segments.first;
+    final List<String> remaining = segments.sublist(1);
 
     if (current is Map) {
       return _getValue(current[segment], remaining);
     } else if (current is List) {
-      final index = int.tryParse(segment);
+      final int? index = int.tryParse(segment);
       if (index != null && index >= 0 && index < current.length) {
         return _getValue(current[index], remaining);
       }
@@ -284,8 +287,8 @@ class DataModel {
       return;
     }
 
-    final segment = segments.first;
-    final remaining = segments.sublist(1);
+    final String segment = segments.first;
+    final List<String> remaining = segments.sublist(1);
 
     if (current is Map) {
       if (remaining.isEmpty) {
@@ -294,18 +297,20 @@ class DataModel {
       }
 
       // If we are here, remaining is not empty.
-      var nextNode = current[segment];
+      Object? nextNode = current[segment];
       if (nextNode == null) {
         // Create the node if it doesn't exist, so the recursive call can
         // populate it.
-        final nextSegment = remaining.first;
-        final isNextSegmentListIndex = nextSegment.startsWith(RegExp(r'^\d+$'));
+        final String nextSegment = remaining.first;
+        final bool isNextSegmentListIndex = nextSegment.startsWith(
+          RegExp(r'^\d+$'),
+        );
         nextNode = isNextSegmentListIndex ? <dynamic>[] : <String, dynamic>{};
         current[segment] = nextNode;
       }
       _updateValue(nextNode, remaining, value);
     } else if (current is List) {
-      final index = int.tryParse(segment);
+      final int? index = int.tryParse(segment);
       if (index != null && index >= 0) {
         if (remaining.isEmpty) {
           if (index < current.length) {
@@ -348,10 +353,10 @@ class DataModel {
       'DataModel._notifySubscribers: notifying '
       '${_subscriptions.length} subscribers for path=$path',
     );
-    for (final p in _subscriptions.keys) {
+    for (final DataPath p in _subscriptions.keys) {
       if (p.startsWith(path) || path.startsWith(p)) {
         genUiLogger.info('  - Notifying subscriber for path=$p');
-        final subscriber = _subscriptions[p];
+        final ValueNotifier<Object?>? subscriber = _subscriptions[p];
         if (subscriber != null) {
           subscriber.value = getValue<Object?>(p);
         }
@@ -359,7 +364,7 @@ class DataModel {
     }
     if (_valueSubscriptions.containsKey(path)) {
       genUiLogger.info('  - Notifying value subscriber for path=$path');
-      final subscriber = _valueSubscriptions[path];
+      final ValueNotifier<Object?>? subscriber = _valueSubscriptions[path];
       if (subscriber != null) {
         subscriber.value = getValue<Object?>(path);
       }

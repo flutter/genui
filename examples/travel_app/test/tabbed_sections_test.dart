@@ -23,8 +23,8 @@ void main() {
       }
 
       // Create a CatalogItem instance with test data
-      final catalogItem = tabbedSections;
-      final data = {
+      final CatalogItem catalogItem = tabbedSections;
+      final Map<String, List<Map<String, Object>>> data = {
         'sections': [
           {
             'title': {'literalString': 'Tab 1'},

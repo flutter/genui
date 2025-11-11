@@ -14,9 +14,10 @@ void main() {
       ...CoreCatalogItems.asCatalog().items,
     ]);
 
-    for (final item in travelAppCatalog.items) {
+    for (final CatalogItem item in travelAppCatalog.items) {
       test('CatalogItem ${item.name} examples are valid', () async {
-        final errors = await validateCatalogItemExamples(item, mergedCatalog);
+        final List<ExampleValidationError> errors =
+            await validateCatalogItemExamples(item, mergedCatalog);
         expect(errors, isEmpty, reason: errors.join('\n'));
       });
     }

@@ -34,7 +34,7 @@ void main() {
         ..description = 'A test agent'
         ..version = '1.0.0';
 
-      final agentCard = await connector.getAgentCard();
+      final AgentCard agentCard = await connector.getAgentCard();
 
       expect(agentCard.name, 'Test Agent');
       expect(agentCard.description, 'A test agent');
@@ -78,11 +78,12 @@ void main() {
         const genui.TextPart('Hi'),
         const genui.TextPart('There'),
       ]);
-      final responseText = await connector.connectAndSend(userMessage);
+      final String? responseText = await connector.connectAndSend(userMessage);
 
       expect(responseText, 'Hello');
       expect(fakeClient.lastSendMessageParams, isNotNull);
-      final sentMessage = fakeClient.lastSendMessageParams!.message;
+      final a2a.A2AMessage sentMessage =
+          fakeClient.lastSendMessageParams!.message;
       expect(sentMessage.parts!.length, 2);
       expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hi');
       expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'There');
@@ -112,7 +113,8 @@ void main() {
 
       expect(fakeClient.sendMessageStreamCalled, 1);
       expect(fakeClient.lastSendMessageParams, isNotNull);
-      final sentMessage = fakeClient.lastSendMessageParams!.message;
+      final a2a.A2AMessage sentMessage =
+          fakeClient.lastSendMessageParams!.message;
       expect(sentMessage.parts!.length, 2);
       expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hello');
       expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'World');
@@ -140,7 +142,7 @@ void main() {
         contextId: 'context1',
       );
       connector.taskId = 'task1';
-      final event = {
+      final Map<String, Object> event = {
         'action': 'testAction',
         'sourceComponentId': 'c1',
         'context': {'key': 'value'},
@@ -149,7 +151,8 @@ void main() {
       await connector.sendEvent(event);
 
       expect(fakeClient.sendMessageCalled, 1);
-      final sentMessage = fakeClient.lastSendMessageParams!.message;
+      final a2a.A2AMessage sentMessage =
+          fakeClient.lastSendMessageParams!.message;
       expect(sentMessage.referenceTaskIds, ['task1']);
       expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts!.first as a2a.A2ADataPart;

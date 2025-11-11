@@ -66,29 +66,31 @@ void main() {
     );
 
     // MarkdownBody renders RichText, so find.text still works for simple text.
-    final textFinder = find.text('Heading 1');
+    final Finder textFinder = find.text('Heading 1');
     expect(textFinder, findsOneWidget);
 
     // Verify padding
-    final paddingFinder = find.ancestor(
+    final Finder paddingFinder = find.ancestor(
       of: textFinder,
       matching: find.byType(Padding),
     );
     expect(paddingFinder, findsOneWidget);
-    final paddingWidget = tester.widget<Padding>(paddingFinder);
+    final Padding paddingWidget = tester.widget<Padding>(paddingFinder);
     expect(paddingWidget.padding, const EdgeInsets.symmetric(vertical: 20.0));
 
     // Verify MarkdownBody is present
-    final markdownBodyFinder = find.byType(MarkdownBody);
+    final Finder markdownBodyFinder = find.byType(MarkdownBody);
     expect(markdownBodyFinder, findsOneWidget);
-    final markdownBody = tester.widget<MarkdownBody>(markdownBodyFinder);
+    final MarkdownBody markdownBody = tester.widget<MarkdownBody>(
+      markdownBodyFinder,
+    );
 
     // Verify data
     expect(markdownBody.data, 'Heading 1');
 
     // Verify styleSheet has correct p style
-    final context = tester.element(textFinder);
-    final expectedStyle = Theme.of(context).textTheme.headlineLarge;
+    final Element context = tester.element(textFinder);
+    final TextStyle? expectedStyle = Theme.of(context).textTheme.headlineLarge;
     expect(markdownBody.styleSheet?.p?.fontSize, expectedStyle?.fontSize);
   });
 
@@ -118,7 +120,9 @@ void main() {
 
     // We can verify that MarkdownBody is present and has the correct data.
     expect(find.byType(MarkdownBody), findsOneWidget);
-    final markdownBody = tester.widget<MarkdownBody>(find.byType(MarkdownBody));
+    final MarkdownBody markdownBody = tester.widget<MarkdownBody>(
+      find.byType(MarkdownBody),
+    );
     expect(markdownBody.data, 'Hello **Bold**');
 
     // Flutter test `find.text` matches the whole string.

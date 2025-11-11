@@ -24,7 +24,7 @@ import 'catalog/travel_carousel.dart';
 /// for a travel planning experience, such as [travelCarousel], [itinerary],
 /// and [inputGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
-final travelAppCatalog = CoreCatalogItems.asCatalog()
+final Catalog travelAppCatalog = CoreCatalogItems.asCatalog()
     .copyWithout([
       CoreCatalogItems.audioPlayer,
       CoreCatalogItems.card,

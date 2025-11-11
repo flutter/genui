@@ -76,9 +76,10 @@ final textInputChip = CatalogItem(
       context.data as Map<String, Object?>,
     );
 
-    final valueRef = textInputChipData.value;
+    final JsonMap? valueRef = textInputChipData.value;
     final path = valueRef?['path'] as String?;
-    final notifier = context.dataContext.subscribeToString(valueRef);
+    final ValueNotifier<String?> notifier = context.dataContext
+        .subscribeToString(valueRef);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -165,7 +166,7 @@ class _TextInputChipState extends State<_TextInputChip> {
                   const SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () {
-                      final newValue = _textController.text;
+                      final String newValue = _textController.text;
                       if (newValue.isNotEmpty) {
                         widget.onChanged(newValue);
                         Navigator.pop(context);

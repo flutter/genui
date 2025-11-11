@@ -64,14 +64,15 @@ final text = CatalogItem(
   ],
   widgetBuilder: (itemContext) {
     final textData = _TextData.fromMap(itemContext.data as JsonMap);
-    final notifier = itemContext.dataContext.subscribeToString(textData.text);
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(textData.text);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
-        final textTheme = Theme.of(context).textTheme;
-        final hint = textData.hint ?? 'body';
-        final baseStyle = switch (hint) {
+        final TextTheme textTheme = Theme.of(context).textTheme;
+        final String hint = textData.hint ?? 'body';
+        final TextStyle? baseStyle = switch (hint) {
           'h1' => textTheme.headlineLarge,
           'h2' => textTheme.headlineMedium,
           'h3' => textTheme.headlineSmall,
@@ -80,7 +81,7 @@ final text = CatalogItem(
           'caption' => textTheme.bodySmall,
           _ => textTheme.bodyMedium,
         };
-        final verticalPadding = switch (hint) {
+        final double verticalPadding = switch (hint) {
           'h1' => 20.0,
           'h2' => 16.0,
           'h3' => 12.0,

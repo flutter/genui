@@ -12,7 +12,7 @@ void main() {
     testWidgets(
       'renders children and dispatches submit event on button press',
       (WidgetTester tester) async {
-        final data = {
+        final Map<String, Object> data = {
           'submitLabel': {'literalString': 'Submit'},
           'children': ['child1', 'child2'],
           'action': {'name': 'submitAction'},
@@ -49,7 +49,7 @@ void main() {
         // Verify that children and the submit button are rendered.
         expect(find.text('child1'), findsOneWidget);
         expect(find.text('child2'), findsOneWidget);
-        final button = find.widgetWithText(ElevatedButton, 'Submit');
+        final Finder button = find.widgetWithText(ElevatedButton, 'Submit');
         expect(button, findsOneWidget);
 
         // Verify that the submit event is dispatched on tap.
@@ -64,7 +64,7 @@ void main() {
     testWidgets('renders correctly with no children', (
       WidgetTester tester,
     ) async {
-      final data = {
+      final Map<String, Object> data = {
         'submitLabel': {'literalString': 'Submit'},
         'children': <String>[],
         'action': {'name': 'submitAction'},

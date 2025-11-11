@@ -21,7 +21,7 @@ void main() {
         },
       );
 
-      final json = definition.toJson();
+      final JsonMap json = definition.toJson();
 
       expect(json[surfaceIdKey], 'testSurface');
       expect(json['rootComponentId'], 'root');

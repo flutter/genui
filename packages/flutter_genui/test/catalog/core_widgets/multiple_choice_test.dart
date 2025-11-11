@@ -55,11 +55,11 @@ void main() {
 
     expect(find.text('Option 1'), findsOneWidget);
     expect(find.text('Option 2'), findsOneWidget);
-    final checkbox1 = tester.widget<CheckboxListTile>(
+    final CheckboxListTile checkbox1 = tester.widget<CheckboxListTile>(
       find.byType(CheckboxListTile).first,
     );
     expect(checkbox1.value, isTrue);
-    final checkbox2 = tester.widget<CheckboxListTile>(
+    final CheckboxListTile checkbox2 = tester.widget<CheckboxListTile>(
       find.byType(CheckboxListTile).last,
     );
     expect(checkbox2.value, isFalse);

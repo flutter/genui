@@ -48,11 +48,11 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
   CatalogItem item,
   Catalog catalog,
 ) async {
-  final schema = A2uiSchemas.surfaceUpdateSchema(catalog);
+  final Schema schema = A2uiSchemas.surfaceUpdateSchema(catalog);
   final errors = <ExampleValidationError>[];
 
   for (var i = 0; i < item.exampleData.length; i++) {
-    final exampleJsonString = item.exampleData[i]();
+    final String exampleJsonString = item.exampleData[i]();
     final List<Object?> exampleData;
     try {
       exampleData = jsonDecode(exampleJsonString) as List<Object?>;
@@ -63,7 +63,7 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       continue;
     }
 
-    final components = exampleData
+    final List<Component> components = exampleData
         .map((e) => Component.fromJson(e as JsonMap))
         .toList();
 
@@ -81,7 +81,9 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       components: components,
     );
 
-    final validationErrors = await schema.validate(surfaceUpdate.toJson());
+    final List<ValidationError> validationErrors = await schema.validate(
+      surfaceUpdate.toJson(),
+    );
     if (validationErrors.isNotEmpty) {
       errors.add(
         ExampleValidationError(

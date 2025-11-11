@@ -4,6 +4,7 @@
 
 import 'package:flutter_genui/src/model/tools.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
+import 'package:flutter_genui/src/primitives/simple_items.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -55,7 +56,7 @@ void main() {
         context: {'key': 'value'},
       );
 
-      final map = event.toMap();
+      final JsonMap map = event.toMap();
 
       expect(map[surfaceIdKey], 'testSurface');
       expect(map['name'], 'testAction');

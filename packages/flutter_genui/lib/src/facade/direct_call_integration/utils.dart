@@ -45,7 +45,7 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
 ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
   assert(toolCall.name == toolName);
 
-  final messageJson = {'surfaceUpdate': toolCall.args};
+  final Map<String, Object?> messageJson = {'surfaceUpdate': toolCall.args};
   final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
 
   final surfaceId = (toolCall.args as JsonMap)[surfaceIdKey] as String;

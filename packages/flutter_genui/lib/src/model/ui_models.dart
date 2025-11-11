@@ -126,7 +126,7 @@ class UiDefinition {
 
   /// Converts a UI definition into a blob of text
   String asContextDescriptionText() {
-    final text = jsonEncode(this);
+    final String text = jsonEncode(this);
     return 'A user interface is shown with the following content:\n$text.';
   }
 }

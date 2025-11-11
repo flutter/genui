@@ -81,7 +81,8 @@ final image = CatalogItem(
   ],
   widgetBuilder: (itemContext) {
     final imageData = _ImageData.fromMap(itemContext.data as JsonMap);
-    final notifier = itemContext.dataContext.subscribeToString(imageData.url);
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(imageData.url);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -94,8 +95,8 @@ final image = CatalogItem(
           );
           return const SizedBox.shrink();
         }
-        final fit = imageData.fit;
-        final hint = imageData.hint;
+        final BoxFit? fit = imageData.fit;
+        final String? hint = imageData.hint;
 
         late Widget child;
 
@@ -113,7 +114,7 @@ final image = CatalogItem(
           return SizedBox(width: double.infinity, child: child);
         }
 
-        final size = switch (hint) {
+        final double size = switch (hint) {
           'icon' || 'avatar' => 32.0,
           'smallFeature' => 50.0,
           'mediumFeature' => 150.0,

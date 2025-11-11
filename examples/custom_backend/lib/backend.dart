@@ -40,7 +40,7 @@ class Backend {
     String request, {
     required String? savedResponse,
   }) async {
-    final toolCall = await GeminiClient.sendRequest(
+    final ToolCall? toolCall = await GeminiClient.sendRequest(
       tools: schema.tools,
       request: '${schema.prompt}\n\nUser request:\n$request',
       savedResponse: savedResponse,

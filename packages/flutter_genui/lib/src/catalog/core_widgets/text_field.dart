@@ -167,12 +167,12 @@ final textField = CatalogItem(
   ],
   widgetBuilder: (itemContext) {
     final textFieldData = _TextFieldData.fromMap(itemContext.data as JsonMap);
-    final valueRef = textFieldData.text;
+    final JsonMap? valueRef = textFieldData.text;
     final path = valueRef?['path'] as String?;
-    final notifier = itemContext.dataContext.subscribeToString(valueRef);
-    final labelNotifier = itemContext.dataContext.subscribeToString(
-      textFieldData.label,
-    );
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(valueRef);
+    final ValueNotifier<String?> labelNotifier = itemContext.dataContext
+        .subscribeToString(textFieldData.label);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -191,14 +191,14 @@ final textField = CatalogItem(
                 }
               },
               onSubmitted: (newValue) {
-                final actionData = textFieldData.onSubmittedAction;
+                final JsonMap? actionData = textFieldData.onSubmittedAction;
                 if (actionData == null) {
                   return;
                 }
                 final actionName = actionData['name'] as String;
-                final contextDefinition =
+                final List<Object?> contextDefinition =
                     (actionData['context'] as List<Object?>?) ?? <Object?>[];
-                final resolvedContext = resolveContext(
+                final JsonMap resolvedContext = resolveContext(
                   itemContext.dataContext,
                   contextDefinition,
                 );

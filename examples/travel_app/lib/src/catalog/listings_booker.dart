@@ -57,9 +57,8 @@ final listingsBooker = CatalogItem(
       context.data as Map<String, Object?>,
     );
 
-    final itineraryNameNotifier = context.dataContext.subscribeToString(
-      listingsBookerData.itineraryName,
-    );
+    final ValueNotifier<String?> itineraryNameNotifier = context.dataContext
+        .subscribeToString(listingsBookerData.itineraryName);
 
     return ValueListenableBuilder<String?>(
       valueListenable: itineraryNameNotifier,
@@ -77,19 +76,19 @@ final listingsBooker = CatalogItem(
   },
   exampleData: [
     () {
-      final start1 = DateTime.now().add(const Duration(days: 5));
-      final end1 = start1.add(const Duration(days: 2));
-      final start2 = end1.add(const Duration(days: 1));
-      final end2 = start2.add(const Duration(days: 2));
+      final DateTime start1 = DateTime.now().add(const Duration(days: 5));
+      final DateTime end1 = start1.add(const Duration(days: 2));
+      final DateTime start2 = end1.add(const Duration(days: 1));
+      final DateTime end2 = start2.add(const Duration(days: 2));
 
-      final listingSelectionId1 = BookingService.instance
+      final String listingSelectionId1 = BookingService.instance
           .listHotelsSync(
             HotelSearch(query: '', checkIn: start1, checkOut: end1, guests: 1),
           )
           .listings
           .first
           .listingSelectionId;
-      final listingSelectionId2 = BookingService.instance
+      final String listingSelectionId2 = BookingService.instance
           .listHotelsSync(
             HotelSearch(query: '', checkIn: start2, checkOut: end2, guests: 1),
           )
@@ -247,8 +246,8 @@ class _ListingsBookerState extends State<_ListingsBooker> {
 
   @override
   Widget build(BuildContext context) {
-    final grandTotal = _selections.fold<double>(0.0, (sum, listing) {
-      final duration = listing.search.checkOut.difference(
+    final double grandTotal = _selections.fold<double>(0.0, (sum, listing) {
+      final Duration duration = listing.search.checkOut.difference(
         listing.search.checkIn,
       );
       return sum + (duration.inDays * listing.pricePerNight);
@@ -270,11 +269,11 @@ class _ListingsBookerState extends State<_ListingsBooker> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _selections.length,
           itemBuilder: (context, index) {
-            final listing = _selections[index];
-            final checkIn = listing.search.checkIn;
-            final checkOut = listing.search.checkOut;
-            final duration = checkOut.difference(checkIn);
-            final totalPrice = duration.inDays * listing.pricePerNight;
+            final HotelListing listing = _selections[index];
+            final DateTime checkIn = listing.search.checkIn;
+            final DateTime checkOut = listing.search.checkOut;
+            final Duration duration = checkOut.difference(checkIn);
+            final double totalPrice = duration.inDays * listing.pricePerNight;
             final dateFormat = DateFormat.yMMMd();
 
             return Card(
@@ -329,15 +328,15 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                             const SizedBox(width: 8),
                             TextButton(
                               onPressed: () {
-                                final actionData = widget.modifyAction;
+                                final JsonMap? actionData = widget.modifyAction;
                                 if (actionData == null) {
                                   return;
                                 }
                                 final actionName = actionData['name'] as String;
-                                final contextDefinition =
+                                final List<Object?> contextDefinition =
                                     (actionData['context'] as List<Object?>?) ??
                                     <Object?>[];
-                                final resolvedContext = resolveContext(
+                                final JsonMap resolvedContext = resolveContext(
                                   widget.dataContext,
                                   contextDefinition,
                                 );

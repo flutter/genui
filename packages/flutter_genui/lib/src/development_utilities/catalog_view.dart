@@ -12,6 +12,7 @@ import '../core/genui_manager.dart';
 import '../core/genui_surface.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
+import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
@@ -59,16 +60,16 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       _subscription = null;
     }
 
-    for (final item in widget.catalog.items) {
+    for (final CatalogItem item in widget.catalog.items) {
       for (var i = 0; i < item.exampleData.length; i++) {
-        final exampleBuilder = item.exampleData[i];
+        final ExampleBuilderCallback exampleBuilder = item.exampleData[i];
         final indexPart = item.exampleData.length > 1 ? '-$i' : '';
         final surfaceId = '${item.name}$indexPart';
 
-        final exampleJsonString = exampleBuilder();
+        final String exampleJsonString = exampleBuilder();
         final exampleData = jsonDecode(exampleJsonString) as List<Object?>;
 
-        final components = exampleData
+        final List<Component> components = exampleData
             .map((e) => Component.fromJson(e as JsonMap))
             .toList();
 
@@ -106,7 +107,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
     return ListView.builder(
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
-        final surfaceId = surfaceIds[index];
+        final String surfaceId = surfaceIds[index];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,

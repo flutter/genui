@@ -10,6 +10,7 @@ import '../model/data_model.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
+import '../primitives/simple_items.dart';
 
 /// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
@@ -52,7 +53,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
-        final rootId = definition.rootComponentId;
+        final String? rootId = definition.rootComponentId;
         if (rootId == null || definition.components.isEmpty) {
           genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
           return const SizedBox.shrink();
@@ -75,13 +76,13 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     String widgetId,
     DataContext dataContext,
   ) {
-    var data = definition.components[widgetId];
+    Component? data = definition.components[widgetId];
     if (data == null) {
       genUiLogger.severe('Widget with id: $widgetId not found.');
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    final widgetData = data.componentProperties;
+    final JsonMap widgetData = data.componentProperties;
     genUiLogger.finest('Building widget $widgetId');
     return widget.host.catalog.buildWidget(
       CatalogItemContext(
@@ -101,10 +102,12 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
   void _dispatchEvent(UiEvent event) {
     if (event is UserActionEvent && event.name == 'showModal') {
-      final definition = widget.host.getSurfaceNotifier(widget.surfaceId).value;
+      final UiDefinition? definition = widget.host
+          .getSurfaceNotifier(widget.surfaceId)
+          .value;
       if (definition == null) return;
       final modalId = event.context['modalId'] as String;
-      final modalComponent = definition.components[modalId];
+      final Component? modalComponent = definition.components[modalId];
       if (modalComponent == null) return;
       final contentChildId =
           (modalComponent.componentProperties['Modal'] as Map)['contentChild']
@@ -121,8 +124,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     }
 
     // The event comes in without a surfaceId, which we add here.
-    final eventMap = {...event.toMap(), surfaceIdKey: widget.surfaceId};
-    final newEvent = event is UserActionEvent
+    final Map<String, Object?> eventMap = {
+      ...event.toMap(),
+      surfaceIdKey: widget.surfaceId,
+    };
+    final UiEvent newEvent = event is UserActionEvent
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);
     widget.host.handleUiEvent(newEvent);

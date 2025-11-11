@@ -27,7 +27,7 @@ class TestAndFix {
     bool all = false,
   }) async {
     root ??= fs.currentDirectory;
-    final projects = await findProjects(root, all: all);
+    final List<Directory> projects = await findProjects(root, all: all);
     final jobs = <WorkerJob>[];
 
     // Global jobs
@@ -61,7 +61,7 @@ class TestAndFix {
         ),
       );
       if (fs.directory(path.join(project.path, 'test')).existsSync()) {
-        final isFlutter = project
+        final bool isFlutter = project
             .childFile('pubspec.yaml')
             .readAsStringSync()
             .contains('sdk: flutter');
@@ -84,12 +84,12 @@ class TestAndFix {
       processRunner: processRunner,
     );
     ProcessPool.defaultPrintReport(jobs.length, 0, 0, jobs.length, 0);
-    final results = await pool.runToCompletion(jobs);
+    final List<WorkerJob> results = await pool.runToCompletion(jobs);
 
-    final successfulJobs = results
+    final List<WorkerJob> successfulJobs = results
         .where((job) => job.result.exitCode == 0)
         .toList();
-    final failedJobs = results
+    final List<WorkerJob> failedJobs = results
         .where((job) => job.result.exitCode != 0)
         .toList();
 
@@ -121,12 +121,12 @@ class TestAndFix {
     bool all = false,
   }) async {
     final projects = <Directory>[];
-    await for (final entity in root.list(recursive: true)) {
+    await for (final FileSystemEntity entity in root.list(recursive: true)) {
       if (entity is! File || path.basename(entity.path) != 'pubspec.yaml') {
         continue;
       }
-      final pubspec = entity;
-      final projectDir = pubspec.parent;
+      final File pubspec = entity;
+      final Directory projectDir = pubspec.parent;
       if (isProjectAllowed(projectDir, all: all)) {
         projects.add(projectDir);
       }
@@ -146,7 +146,7 @@ class TestAndFix {
       if (!all) 'fix_copyright',
       if (!all) 'test_and_fix',
     ];
-    final components = fs.path.split(projectPath.path);
+    final List<String> components = fs.path.split(projectPath.path);
     for (final exclude in excluded) {
       if (components.contains(exclude)) {
         return false;

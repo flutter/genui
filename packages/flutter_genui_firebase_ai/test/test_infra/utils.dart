@@ -22,12 +22,12 @@ class FakeGenerativeModel implements GeminiGenerativeModelInterface {
   ) async {
     generateContentCallCount++;
     if (exception != null) {
-      final e = exception;
+      final Exception? e = exception;
       exception = null; // Reset for next call
       throw e!;
     }
     if (responses.isNotEmpty) {
-      final response = responses.removeAt(0);
+      final GenerateContentResponse response = responses.removeAt(0);
       return GenerateContentResponse(response.candidates, promptFeedback);
     }
     if (response != null) {

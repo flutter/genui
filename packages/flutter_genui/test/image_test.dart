@@ -42,7 +42,7 @@ void main() {
       );
 
       expect(find.byType(Image), findsOneWidget);
-      final imageWidget = tester.widget<Image>(find.byType(Image));
+      final Image imageWidget = tester.widget<Image>(find.byType(Image));
       expect(imageWidget.image, isA<NetworkImage>());
       expect(
         (imageWidget.image as NetworkImage).url,
@@ -80,12 +80,12 @@ void main() {
       );
 
       expect(find.byType(CircleAvatar), findsOneWidget);
-      final sizeBoxFinder = find.ancestor(
+      final Finder sizeBoxFinder = find.ancestor(
         of: find.byType(Image),
         matching: find.byType(SizedBox),
       );
       expect(sizeBoxFinder, findsOneWidget);
-      final sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
+      final SizedBox sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
       expect(sizeBox.width, 32.0);
       expect(sizeBox.height, 32.0);
     });
@@ -119,12 +119,12 @@ void main() {
         ),
       );
 
-      final sizeBoxFinder = find.ancestor(
+      final Finder sizeBoxFinder = find.ancestor(
         of: find.byType(Image),
         matching: find.byType(SizedBox),
       );
       expect(sizeBoxFinder, findsOneWidget);
-      final sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
+      final SizedBox sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
       expect(sizeBox.width, double.infinity);
       expect(sizeBox.height, null);
     });
