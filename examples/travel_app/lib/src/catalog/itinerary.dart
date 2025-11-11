@@ -201,7 +201,7 @@ final itinerary = CatalogItem(
           "component": {
             "Image": {
               "url": {
-                "literalString": "assets/travel_images/beach.jpg"
+                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
               }
             }
           }
@@ -211,7 +211,7 @@ final itinerary = CatalogItem(
           "component": {
             "Image": {
               "url": {
-                "literalString": "assets/travel_images/city.jpg"
+                "literalString": "assets/travel_images/brooklyn_bridge_new_york.jpg"
               }
             }
           }

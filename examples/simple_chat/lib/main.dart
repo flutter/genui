@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
@@ -12,6 +14,10 @@ import 'package:flutter_genui_google_generative_ai/flutter_genui_google_generati
 import 'package:simple_chat/message.dart';
 import 'firebase_options_stub.dart';
 import 'package:logging/logging.dart';
+
+// Conditionally import non-web version so we can read from shell env vars in
+// non-web version.
+import 'web_get_api_key.dart' if (kIsWeb) 'io_get_api_key.dart';
 
 /// Enum for selecting which AI backend to use.
 enum AiBackend {
@@ -25,10 +31,6 @@ enum AiBackend {
 /// Configuration for which AI backend to use.
 /// Change this value to switch between backends.
 const AiBackend aiBackend = AiBackend.googleGenerativeAi;
-
-/// API key for Google Generative AI (only needed if using google backend).
-/// Get an API key from https://aistudio.google.com/app/apikey
-const String googleApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,18 +91,11 @@ class _ChatScreenState extends State<ChatScreen> {
     // Create the appropriate content generator based on configuration
     final ContentGenerator contentGenerator = switch (aiBackend) {
       AiBackend.googleGenerativeAi => () {
-        if (googleApiKey.isEmpty) {
-          throw Exception(
-            'Google API key is required when using google backend. '
-            'Run the app with a GOOGLE_API_KEY '
-            'as a Dart environment variable, for example with '
-            '-D GEMINI_API_KEY=\$GEMINI_API_KEY',
-          );
-        }
+
         return GoogleGenerativeAiContentGenerator(
           catalog: catalog,
           systemInstruction: systemInstruction,
-          apiKey: googleApiKey,
+          apiKey: getApiKey(),
         );
       }(),
       AiBackend.firebase => FirebaseAiContentGenerator(

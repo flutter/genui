@@ -74,7 +74,7 @@ final informationCard = CatalogItem(
           "component": {
             "Image": {
               "url": {
-                "literalString": "assets/travel_images/beach.jpg"
+                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
               }
             }
           }
