@@ -10,7 +10,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser()..addOption('schema', abbr: 's', mandatory: true);
-  final argResults = parser.parse(arguments);
+  final ArgResults argResults = parser.parse(arguments);
 
   final schemaFile = File(argResults['schema'] as String);
   if (!schemaFile.existsSync()) {
@@ -27,7 +27,7 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
-  for (final filePath in argResults.rest) {
+  for (final String filePath in argResults.rest) {
     final file = File(filePath);
     if (!file.existsSync()) {
       print('Error: JSON file not found: ${file.path}');
@@ -35,10 +35,10 @@ Future<void> main(List<String> arguments) async {
     }
 
     print('Validating ${file.path}...');
-    final fileContent = file.readAsStringSync();
-    final jsonData = jsonDecode(fileContent);
+    final String fileContent = file.readAsStringSync();
+    final Object? jsonData = jsonDecode(fileContent);
 
-    final errors = await schema.validate(jsonData);
+    final List<ValidationError> errors = await schema.validate(jsonData);
 
     if (errors.isEmpty) {
       print('  SUCCESS: ${file.path} is valid.');

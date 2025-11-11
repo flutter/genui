@@ -41,7 +41,7 @@ class SchemaCache {
       if (uri.scheme == 'file') {
         content = await _fileLoader.getFile(uri);
       } else if (uri.scheme == 'http' || uri.scheme == 'https') {
-        final response = await _httpClient.get(uri);
+        final http.Response response = await _httpClient.get(uri);
         if (response.statusCode != 200) {
           throw SchemaFetchException(
             uri,

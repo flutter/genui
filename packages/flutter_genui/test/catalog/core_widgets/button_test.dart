@@ -51,7 +51,7 @@ void main() {
       ),
     );
 
-    final buttonFinder = find.byType(ElevatedButton);
+    final Finder buttonFinder = find.byType(ElevatedButton);
     expect(buttonFinder, findsOneWidget);
     expect(
       find.descendant(of: buttonFinder, matching: find.text('Click Me')),

@@ -111,7 +111,7 @@ extension type NumberSchema.fromMap(Map<String, Object?> _value)
       );
     }
     if (multipleOf case final multOf? when multOf != 0) {
-      final remainder = data / multOf;
+      final double remainder = data / multOf;
       if (remainder.isInfinite || remainder.isNaN) {
         accumulatedFailures.add(
           ValidationError(

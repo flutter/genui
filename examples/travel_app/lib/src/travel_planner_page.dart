@@ -70,7 +70,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _userMessageSubscription = genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
-    final contentGenerator =
+    final ContentGenerator contentGenerator =
         widget.contentGenerator ??
         FirebaseAiContentGenerator(
           catalog: travelAppCatalog,

@@ -41,7 +41,7 @@ void main() {
     // The spinner should be showing.
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.byIcon(Icons.send), findsNothing);
-    var textField = tester.widget<TextField>(find.byType(TextField));
+    TextField textField = tester.widget<TextField>(find.byType(TextField));
     expect(textField.enabled, isFalse);
 
     // Complete the response.

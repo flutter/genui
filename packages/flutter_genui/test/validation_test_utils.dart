@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:flutter_genui/src/model/a2ui_message.dart';
 import 'package:flutter_genui/src/model/a2ui_schemas.dart';
 import 'package:flutter_genui/src/model/catalog.dart';
+import 'package:flutter_genui/src/model/catalog_item.dart';
 import 'package:flutter_genui/src/model/ui_models.dart';
 import 'package:flutter_genui/src/primitives/simple_items.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,13 +22,13 @@ void validateCatalogExamples(
     ...catalog.items,
     ...additionalCatalogs.expand((c) => c.items),
   ]);
-  final schema = A2uiSchemas.surfaceUpdateSchema(mergedCatalog);
+  final Schema schema = A2uiSchemas.surfaceUpdateSchema(mergedCatalog);
 
-  for (final item in catalog.items) {
+  for (final CatalogItem item in catalog.items) {
     group('CatalogItem ${item.name}', () {
       for (var i = 0; i < item.exampleData.length; i++) {
         test('example $i is valid', () async {
-          final exampleJsonString = item.exampleData[i]();
+          final String exampleJsonString = item.exampleData[i]();
           final List<Object?> exampleData;
           try {
             exampleData = jsonDecode(exampleJsonString) as List<Object?>;
@@ -37,7 +38,7 @@ void validateCatalogExamples(
             );
           }
 
-          final components = exampleData
+          final List<Component> components = exampleData
               .map((e) => Component.fromJson(e as JsonMap))
               .toList();
 
@@ -52,7 +53,7 @@ void validateCatalogExamples(
             components: components,
           );
 
-          final validationErrors = await schema.validate(
+          final List<ValidationError> validationErrors = await schema.validate(
             surfaceUpdate.toJson(),
           );
           expect(validationErrors, isEmpty);

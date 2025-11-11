@@ -23,7 +23,7 @@ void main() {
         ..name = 'Test Agent'
         ..description = 'A test agent'
         ..version = '1.0.0';
-      final fakeUrl = Uri.parse('http://fake.url');
+      final Uri fakeUrl = Uri.parse('http://fake.url');
       fakeConnector = FakeA2uiAgentConnector(url: fakeUrl)
         ..client = fakeA2AClient;
 
@@ -42,7 +42,7 @@ void main() {
       final userMessage = UserMessage([const TextPart('Hello')]);
 
       expect(contentGenerator.isProcessing.value, isFalse);
-      final future = contentGenerator.sendRequest(userMessage);
+      final Future<void> future = contentGenerator.sendRequest(userMessage);
       expect(contentGenerator.isProcessing.value, isTrue);
 
       await future;
@@ -68,7 +68,7 @@ void main() {
       final testError = Exception('Test Error');
       fakeConnector.addError(testError);
 
-      final capturedError = await completer.future;
+      final ContentGeneratorError capturedError = await completer.future;
       expect(capturedError.error, testError);
     });
 
@@ -91,7 +91,7 @@ void main() {
       });
       fakeConnector.addMessage(testMessage);
 
-      final capturedMessage = await completer.future;
+      final A2uiMessage capturedMessage = await completer.future;
       expect(capturedMessage, testMessage);
     });
   });

@@ -54,7 +54,8 @@ final text = CatalogItem(
   ],
   widgetBuilder: (itemContext) {
     final textData = _TextData.fromMap(itemContext.data as JsonMap);
-    final notifier = itemContext.dataContext.subscribeToString(textData.text);
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(textData.text);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,

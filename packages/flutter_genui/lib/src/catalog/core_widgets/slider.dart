@@ -52,10 +52,8 @@ final slider = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (CatalogItemContext itemContext) {
     final sliderData = _SliderData.fromMap(itemContext.data as JsonMap);
-    final valueNotifier = itemContext.dataContext.subscribeToValue<num>(
-      sliderData.value,
-      'literalNumber',
-    );
+    final ValueNotifier<num?> valueNotifier = itemContext.dataContext
+        .subscribeToValue<num>(sliderData.value, 'literalNumber');
 
     return ValueListenableBuilder<num?>(
       valueListenable: valueNotifier,

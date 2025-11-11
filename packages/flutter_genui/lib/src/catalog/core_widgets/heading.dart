@@ -41,16 +41,15 @@ final heading = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final headingData = _HeadingData.fromMap(itemContext.data as JsonMap);
-    final notifier = itemContext.dataContext.subscribeToString(
-      headingData.text,
-    );
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(headingData.text);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
-        final textTheme = Theme.of(context).textTheme;
-        final level = int.tryParse(headingData.level ?? '5') ?? 5;
-        final style = switch (level) {
+        final TextTheme textTheme = Theme.of(context).textTheme;
+        final int level = int.tryParse(headingData.level ?? '5') ?? 5;
+        final TextStyle? style = switch (level) {
           1 => textTheme.headlineLarge,
           2 => textTheme.headlineMedium,
           3 => textTheme.headlineSmall,
@@ -58,7 +57,7 @@ final heading = CatalogItem(
           5 => textTheme.titleMedium,
           _ => textTheme.titleSmall,
         };
-        final verticalPadding = switch (level) {
+        final double verticalPadding = switch (level) {
           1 => 20.0,
           2 => 16.0,
           3 => 12.0,

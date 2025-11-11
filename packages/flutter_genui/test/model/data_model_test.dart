@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:flutter_genui/src/model/data_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -99,7 +100,7 @@ void main() {
     });
 
     test('nested creates a new context', () {
-      final nested = rootContext.nested(DataPath('a'));
+      final DataContext nested = rootContext.nested(DataPath('a'));
       expect(nested.path, DataPath('/a'));
     });
   });
@@ -137,7 +138,9 @@ void main() {
 
     group('subscribe', () {
       test('notifies on direct updates', () {
-        final notifier = dataModel.subscribe<int>(DataPath('/a'));
+        final ValueNotifier<int?> notifier = dataModel.subscribe<int>(
+          DataPath('/a'),
+        );
         int? value;
         notifier.addListener(() => value = notifier.value);
         dataModel.update(DataPath('/a'), 1);
@@ -145,7 +148,8 @@ void main() {
       });
 
       test('notifies on child updates', () {
-        final notifier = dataModel.subscribe<Map>(DataPath('/a'));
+        final ValueNotifier<Map<dynamic, dynamic>?> notifier = dataModel
+            .subscribe<Map>(DataPath('/a'));
         Map? value;
         notifier.addListener(() => value = notifier.value);
         dataModel.update(DataPath('/a/b'), 1);
@@ -154,7 +158,9 @@ void main() {
 
       test('notifies on parent updates', () {
         dataModel.update(DataPath('/a/b'), 1);
-        final notifier = dataModel.subscribe<int>(DataPath('/a/b'));
+        final ValueNotifier<int?> notifier = dataModel.subscribe<int>(
+          DataPath('/a/b'),
+        );
         int? value;
         notifier.addListener(() => value = notifier.value);
         dataModel.update(DataPath('/a'), {'b': 2});
@@ -164,7 +170,9 @@ void main() {
 
     group('subscribeToValue', () {
       test('notifies on direct updates', () {
-        final notifier = dataModel.subscribeToValue<int>(DataPath('/a'));
+        final ValueNotifier<int?> notifier = dataModel.subscribeToValue<int>(
+          DataPath('/a'),
+        );
         int? value;
         notifier.addListener(() => value = notifier.value);
         dataModel.update(DataPath('/a'), 1);
@@ -172,7 +180,8 @@ void main() {
       });
 
       test('does not notify on child updates', () {
-        final notifier = dataModel.subscribeToValue<Map>(DataPath('/a'));
+        final ValueNotifier<Map<dynamic, dynamic>?> notifier = dataModel
+            .subscribeToValue<Map>(DataPath('/a'));
         var callCount = 0;
         notifier.addListener(() => callCount++);
         dataModel.update(DataPath('/a/b'), 1);
@@ -181,7 +190,9 @@ void main() {
 
       test('does not notify on parent updates', () {
         dataModel.update(DataPath('/a/b'), 1);
-        final notifier = dataModel.subscribeToValue<int>(DataPath('/a/b'));
+        final ValueNotifier<int?> notifier = dataModel.subscribeToValue<int>(
+          DataPath('/a/b'),
+        );
         var callCount = 0;
         notifier.addListener(() => callCount++);
         dataModel.update(DataPath('/a'), {'b': 2});

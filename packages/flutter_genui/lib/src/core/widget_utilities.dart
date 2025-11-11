@@ -50,7 +50,7 @@ extension DataContextExtensions on DataContext {
     );
     if (ref == null) return ValueNotifier<T?>(null);
     final path = ref['path'] as String?;
-    final literal = ref[literalKey];
+    final Object? literal = ref[literalKey];
 
     if (path != null) {
       final dataPath = DataPath(path);

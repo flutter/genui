@@ -21,18 +21,18 @@ void main() {
     });
 
     test('finds Flutter projects', () async {
-      final project1 = fs.directory(path.join(root.path, 'project1'))
+      final Directory project1 = fs.directory(path.join(root.path, 'project1'))
         ..createSync();
       fs
           .file(path.join(project1.path, 'pubspec.yaml'))
           .writeAsStringSync('sdk: flutter');
-      final project2 = fs.directory(path.join(root.path, 'project2'))
+      final Directory project2 = fs.directory(path.join(root.path, 'project2'))
         ..createSync();
       fs
           .file(path.join(project2.path, 'pubspec.yaml'))
           .writeAsStringSync('sdk: flutter');
 
-      final projects = await testAndFix.findProjects(root);
+      final List<Directory> projects = await testAndFix.findProjects(root);
 
       expect(
         projects.map((d) => d.path).toList()..sort(),
@@ -52,14 +52,14 @@ void main() {
       ];
 
       for (final exclude in excluded) {
-        final project = fs.directory(path.join(root.path, exclude))
+        final Directory project = fs.directory(path.join(root.path, exclude))
           ..createSync(recursive: true);
         fs
             .file(path.join(project.path, 'pubspec.yaml'))
             .writeAsStringSync('sdk: flutter');
       }
 
-      final projects = await testAndFix.findProjects(root);
+      final List<Directory> projects = await testAndFix.findProjects(root);
 
       expect(projects, isEmpty);
     });
@@ -68,14 +68,17 @@ void main() {
       final excluded = ['.dart_tool', 'ephemeral', 'firebase_core', 'build'];
 
       for (final exclude in excluded) {
-        final project = fs.directory(path.join(root.path, exclude))
+        final Directory project = fs.directory(path.join(root.path, exclude))
           ..createSync(recursive: true);
         fs
             .file(path.join(project.path, 'pubspec.yaml'))
             .writeAsStringSync('sdk: flutter');
       }
 
-      final projects = await testAndFix.findProjects(root, all: true);
+      final List<Directory> projects = await testAndFix.findProjects(
+        root,
+        all: true,
+      );
 
       expect(projects, isEmpty);
     });

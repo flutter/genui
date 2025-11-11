@@ -53,9 +53,9 @@ The project uses standard `flutter` and `dart` commands. A comprehensive script 
 
 ### Code Style and Formatting
 
-- The project follows the `dart_flutter_team_lints` linting rules, which is the combination of this [analysis_options.yaml](https://raw.githubusercontent.com/dart-lang/ecosystem/refs/heads/main/pkgs/dart_flutter_team_lints/lib/analysis_options.yaml) file and the [recommended](https://raw.githubusercontent.com/dart-lang/core/refs/heads/main/pkgs/lints/lib/recommended.yaml) and [core](https://raw.githubusercontent.com/dart-lang/core/refs/heads/main/pkgs/lints/lib/core.yaml) lints.
+- The project follows the linting rules in the `analysis_options.yaml` file at the top of the repo.
 - Code formatting is enforced using the `dart_format` tool.
-- The `tool/run_all_tests_and_fixes.sh` script should be run before committing to ensure all files are correctly formatted and analyzed.
+- The `tool/run_all_tests_and_fixes.sh` script should be run before committing to ensure all files are correctly formatted and analyzed.  Don't run it every time you want to test something, just before you commit, since it does more than just test things, and takes a while.
 
 ### Testing
 

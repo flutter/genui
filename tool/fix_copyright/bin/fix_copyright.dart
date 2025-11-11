@@ -66,7 +66,7 @@ Future<int> main(List<String> arguments) async {
     exit(0);
   }
 
-  final exitCode = await fixCopyrights(
+  final int exitCode = await fixCopyrights(
     fileSystem,
     force: parsedArguments['force'] as bool,
     year: parsedArguments['year']! as String,

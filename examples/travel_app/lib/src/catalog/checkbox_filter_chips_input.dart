@@ -121,15 +121,14 @@ final checkboxFilterChipsInput = CatalogItem(
       }
     }
 
-    final selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-    final notifier = context.dataContext.subscribeToObjectArray(
-      selectedOptionsRef,
-    );
+    final JsonMap selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
+    final ValueNotifier<List<Object?>?> notifier = context.dataContext
+        .subscribeToObjectArray(selectedOptionsRef);
 
     return ValueListenableBuilder<List<Object?>?>(
       valueListenable: notifier,
       builder: (buildContext, currentSelectedValues, child) {
-        final selectedOptionsSet = (currentSelectedValues ?? [])
+        final Set<String> selectedOptionsSet = (currentSelectedValues ?? [])
             .cast<String>()
             .toSet();
         return _CheckboxFilterChip(

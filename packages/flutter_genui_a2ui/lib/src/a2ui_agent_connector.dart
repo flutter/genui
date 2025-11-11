@@ -5,12 +5,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2a/a2a.dart';
+import 'package:a2a/a2a.dart' hide Logger;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_genui/flutter_genui.dart' as genui;
+import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
-final _log = genui.genUiLogger;
+final Logger _log = genui.genUiLogger;
 
 /// A class to hold the agent card details.
 class AgentCard {
@@ -68,7 +69,7 @@ class A2uiAgentConnector {
   /// The agent card contains metadata about the agent, such as its name,
   /// description, and version.
   Future<AgentCard> getAgentCard() async {
-    final card = await client.getAgentCard();
+    final A2AAgentCard card = await client.getAgentCard();
     return AgentCard(
       name: card.name,
       description: card.description,
@@ -80,7 +81,7 @@ class A2uiAgentConnector {
   ///
   /// Returns the text response from the agent, if any.
   Future<String?> connectAndSend(genui.ChatMessage chatMessage) async {
-    final parts = (chatMessage is genui.UserMessage)
+    final List<Object> parts = (chatMessage is genui.UserMessage)
         ? chatMessage.parts
         : (chatMessage is genui.UserUiInteractionMessage)
         ? chatMessage.parts
@@ -140,7 +141,8 @@ class A2uiAgentConnector {
     );
     _log.info('----------------------');
 
-    final events = client.sendMessageStream(payload);
+    final Stream<A2ASendStreamMessageResponse> events = client
+        .sendMessageStream(payload);
 
     String? responseText;
     try {
@@ -148,12 +150,12 @@ class A2uiAgentConnector {
       await for (final event in events) {
         _log.info('Received raw A2A event: ${event.toJson()}');
         const encoder = JsonEncoder.withIndent('  ');
-        final prettyJson = encoder.convert(event.toJson());
+        final String prettyJson = encoder.convert(event.toJson());
         _log.info('Received A2A event:\n$prettyJson');
 
         if (event.isError) {
           final errorResponse = event as A2AJSONRPCErrorResponseSSM;
-          final code = errorResponse.error?.rpcErrorCode;
+          final int? code = errorResponse.error?.rpcErrorCode;
           final errorMessage = 'A2A Error: $code';
           _log.severe(errorMessage);
           if (!_errorController.isClosed) {
@@ -163,7 +165,7 @@ class A2uiAgentConnector {
         }
 
         final response = event as A2ASendStreamMessageSuccessResponse;
-        final result = response.result;
+        final A2AResult? result = response.result;
         if (result is A2ATask) {
           taskId = result.id;
           _contextId = result.contextId;
@@ -181,9 +183,9 @@ class A2uiAgentConnector {
         if (message != null) {
           finalResponse = message;
           const encoder = JsonEncoder.withIndent('  ');
-          final prettyJson = encoder.convert(message.toJson());
+          final String prettyJson = encoder.convert(message.toJson());
           _log.info('Received A2A Message:\n$prettyJson');
-          for (final part in message.parts ?? []) {
+          for (final A2APart part in message.parts ?? []) {
             if (part is A2ADataPart) {
               _processA2uiMessages(part.data);
             }
@@ -191,7 +193,7 @@ class A2uiAgentConnector {
         }
       }
       if (finalResponse != null) {
-        for (final part in finalResponse.parts ?? []) {
+        for (final A2APart part in finalResponse.parts ?? []) {
           if (part is A2ATextPart) {
             responseText = part.text;
           }
@@ -213,7 +215,7 @@ class A2uiAgentConnector {
       return;
     }
 
-    final clientEvent = {
+    final Map<String, Object?> clientEvent = {
       'actionName': event['action'],
       'sourceComponentId': event['sourceComponentId'],
       'timestamp': DateTime.now().toIso8601String(),

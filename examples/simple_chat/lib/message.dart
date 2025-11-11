@@ -21,7 +21,7 @@ class MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surfaceId = controller.surfaceId;
+    final String? surfaceId = controller.surfaceId;
 
     if (surfaceId == null) return Text(controller.text ?? '');
 

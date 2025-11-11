@@ -35,7 +35,7 @@ void main() {
         configuration: const GenUiConfiguration(),
       );
 
-      final args = {
+      final Map<String, Object> args = {
         surfaceIdKey: 'testSurface',
         'components': [
           {
@@ -71,7 +71,7 @@ void main() {
 
       final tool = DeleteSurfaceTool(handleMessage: fakeHandleMessage);
 
-      final args = {surfaceIdKey: 'testSurface'};
+      final Map<String, String> args = {surfaceIdKey: 'testSurface'};
 
       await tool.invoke(args);
 
@@ -92,7 +92,10 @@ void main() {
 
       final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
 
-      final args = {surfaceIdKey: 'testSurface', 'root': 'rootWidget'};
+      final Map<String, String> args = {
+        surfaceIdKey: 'testSurface',
+        'root': 'rootWidget',
+      };
 
       await tool.invoke(args);
 

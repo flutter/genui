@@ -32,7 +32,7 @@ class Conversation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final renderedMessages = messages.where((message) {
+    final List<ChatMessage> renderedMessages = messages.where((message) {
       if (showInternalMessages) {
         return true;
       }
@@ -42,7 +42,7 @@ class Conversation extends StatelessWidget {
       controller: scrollController,
       itemCount: renderedMessages.length,
       itemBuilder: (context, index) {
-        final message = renderedMessages[index];
+        final ChatMessage message = renderedMessages[index];
         switch (message) {
           case UserMessage():
             return userPromptBuilder != null
@@ -56,7 +56,7 @@ class Conversation extends StatelessWidget {
                     alignment: MainAxisAlignment.end,
                   );
           case AiTextMessage():
-            final text = message.parts
+            final String text = message.parts
                 .whereType<TextPart>()
                 .map((part) => part.text)
                 .join('\n');

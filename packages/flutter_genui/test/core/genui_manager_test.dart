@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -40,23 +41,24 @@ void main() {
         ),
       ];
 
-      final futureAdded = manager.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureAdded = manager.surfaceUpdates.first;
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      final addedUpdate = await futureAdded;
+      final GenUiUpdate addedUpdate = await futureAdded;
       expect(addedUpdate, isA<SurfaceAdded>());
       expect(addedUpdate.surfaceId, surfaceId);
 
-      final futureUpdated = manager.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
       manager.handleMessage(
         const BeginRendering(surfaceId: surfaceId, root: 'root'),
       );
-      final updatedUpdate = await futureUpdated;
+      final GenUiUpdate updatedUpdate = await futureUpdated;
 
       expect(updatedUpdate, isA<SurfaceUpdated>());
       expect(updatedUpdate.surfaceId, surfaceId);
-      final definition = (updatedUpdate as SurfaceUpdated).definition;
+      final UiDefinition definition =
+          (updatedUpdate as SurfaceUpdated).definition;
       expect(definition, isNotNull);
       expect(definition.rootComponentId, 'root');
       expect(manager.surfaces[surfaceId]!.value, isNotNull);
@@ -88,15 +90,16 @@ void main() {
           ),
         ];
 
-        final futureUpdate = manager.surfaceUpdates.first;
+        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
         manager.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
         );
-        final update = await futureUpdate;
+        final GenUiUpdate update = await futureUpdate;
 
         expect(update, isA<SurfaceUpdated>());
         expect(update.surfaceId, surfaceId);
-        final updatedDefinition = (update as SurfaceUpdated).definition;
+        final UiDefinition updatedDefinition =
+            (update as SurfaceUpdated).definition;
         expect(updatedDefinition.components['root'], newComponents[0]);
         expect(manager.surfaces[surfaceId]!.value, updatedDefinition);
       },
@@ -116,9 +119,9 @@ void main() {
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
 
-      final futureUpdate = manager.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
       manager.handleMessage(const SurfaceDeletion(surfaceId: surfaceId));
-      final update = await futureUpdate;
+      final GenUiUpdate update = await futureUpdate;
 
       expect(update, isA<SurfaceRemoved>());
       expect(update.surfaceId, surfaceId);
@@ -126,8 +129,12 @@ void main() {
     });
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
-      final notifier1 = manager.getSurfaceNotifier('s1');
-      final notifier2 = manager.getSurfaceNotifier('s1');
+      final ValueNotifier<UiDefinition?> notifier1 = manager.getSurfaceNotifier(
+        's1',
+      );
+      final ValueNotifier<UiDefinition?> notifier2 = manager.getSurfaceNotifier(
+        's1',
+      );
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
     });
@@ -151,7 +158,7 @@ void main() {
       manager
           .dataModelForSurface('testSurface')
           .update(DataPath('/myValue'), 'testValue');
-      final future = manager.onSubmit.first;
+      final Future<UserUiInteractionMessage> future = manager.onSubmit.first;
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
@@ -161,9 +168,9 @@ void main() {
         context: {'key': 'value'},
       );
       manager.handleUiEvent(event);
-      final message = await future;
+      final UserUiInteractionMessage message = await future;
       expect(message, isA<UserUiInteractionMessage>());
-      final expectedJson = jsonEncode({
+      final String expectedJson = jsonEncode({
         'userAction': {
           'surfaceId': 'testSurface',
           'name': 'testAction',

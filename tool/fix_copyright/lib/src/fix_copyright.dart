@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file/file.dart';
+import 'package:path/path.dart';
 import 'package:process/process.dart';
 
 typedef LogFunction = void Function(String);
@@ -23,19 +24,19 @@ Future<int> fixCopyrights(
   LogFunction? log,
   LogFunction? error,
 }) async {
-  final path = fileSystem.path;
-  final extensionMap = _generateExtensionMap(year);
+  final Context path = fileSystem.path;
+  final Map<String, CopyrightInfo> extensionMap = _generateExtensionMap(year);
   void stdLog(String message) =>
       (log ?? stdout.writeln as LogFunction).call(message);
   void stdErr(String message) =>
       (error ?? stderr.writeln as LogFunction).call(message);
 
   String getExtension(File file) {
-    final pathExtension = path.extension(file.path);
+    final String pathExtension = path.extension(file.path);
     return pathExtension.isNotEmpty ? pathExtension.substring(1) : '';
   }
 
-  final gitRootResult = await processManager.run([
+  final ProcessResult gitRootResult = await processManager.run([
     'git',
     'rev-parse',
     '--show-toplevel',
@@ -47,9 +48,9 @@ Future<int> fixCopyrights(
     );
     return 1;
   }
-  final repoRoot = gitRootResult.stdout.toString().trim();
+  final String repoRoot = gitRootResult.stdout.toString().trim();
 
-  final gitFilesResult = await processManager.run([
+  final ProcessResult gitFilesResult = await processManager.run([
     'git',
     'ls-files',
     ...paths,
@@ -60,7 +61,7 @@ Future<int> fixCopyrights(
     return 1;
   }
 
-  final files = gitFilesResult.stdout
+  final List<File> files = gitFilesResult.stdout
       .toString()
       .split('\n')
       .where((line) => line.trim().isNotEmpty)
@@ -71,7 +72,7 @@ Future<int> fixCopyrights(
   final nonCompliantFiles = <File>[];
   for (final file in files) {
     try {
-      final extension = getExtension(file);
+      final String extension = getExtension(file);
       if (!extensionMap.containsKey(extension)) {
         stdErr(
           'Warning: File ${file.path} does not have an extension that requires '
@@ -79,9 +80,9 @@ Future<int> fixCopyrights(
         );
         continue;
       }
-      final info = extensionMap[extension]!;
-      final inputFile = file.absolute;
-      final originalContents = inputFile.readAsStringSync();
+      final CopyrightInfo info = extensionMap[extension]!;
+      final File inputFile = file.absolute;
+      final String originalContents = inputFile.readAsStringSync();
       if (_hasCorrectLicense(originalContents, info)) {
         continue;
       }
@@ -89,10 +90,10 @@ Future<int> fixCopyrights(
       nonCompliantFiles.add(file);
 
       if (force) {
-        var contents = originalContents.replaceAll('\r\n', '\n');
+        String contents = originalContents.replaceAll('\r\n', '\n');
         String? generatedCodeHeader;
         if (info.generatedCodePattern != null) {
-          final match = RegExp(
+          final RegExpMatch? match = RegExp(
             info.generatedCodePattern!,
             caseSensitive: false,
           ).firstMatch(contents);
@@ -104,7 +105,7 @@ Future<int> fixCopyrights(
 
         String? fileHeader;
         if (info.headerPattern != null) {
-          final match = RegExp(
+          final RegExpMatch? match = RegExp(
             info.headerPattern!,
             caseSensitive: false,
           ).firstMatch(contents);
@@ -230,8 +231,8 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     String? suffix,
     String? generatedCodePattern,
   }) {
-    final escapedPrefix = RegExp.escape(prefix ?? '');
-    final escapedSuffix = RegExp.escape(suffix ?? '');
+    final String escapedPrefix = RegExp.escape(prefix ?? '');
+    final String escapedSuffix = RegExp.escape(suffix ?? '');
 
     return '($escapedPrefix'
         '${generatedCodePattern ?? r'GENERATED CODE.*\n?'}'
@@ -242,8 +243,8 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     required String prefix,
     String suffix = '',
   }) {
-    final escapedPrefix = RegExp.escape(prefix);
-    final escapedSuffix = RegExp.escape(suffix);
+    final String escapedPrefix = RegExp.escape(prefix);
+    final String escapedSuffix = RegExp.escape(suffix);
 
     return '($escapedPrefix'
         r'Copyright (\d+) ([\w ]+)\.?(?:\s*All rights reserved.)?'
@@ -329,7 +330,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
 
 bool _hasCorrectLicense(String rawContents, CopyrightInfo info) {
   // Normalize line endings.
-  var contents = rawContents.replaceAll('\r\n', '\n');
+  String contents = rawContents.replaceAll('\r\n', '\n');
   // Ignore empty files.
   if (contents.isEmpty) {
     return true;

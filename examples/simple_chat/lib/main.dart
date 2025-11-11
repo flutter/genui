@@ -4,18 +4,18 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:flutter_genui_google_generative_ai/flutter_genui_google_generative_ai.dart';
-import 'package:simple_chat/message.dart';
-import 'firebase_options_stub.dart';
 import 'package:logging/logging.dart';
 
+import 'firebase_options_stub.dart';
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
 import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';
+import 'message.dart';
 
 /// Enum for selecting which AI backend to use.
 enum AiBackend {
@@ -75,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    final catalog = CoreCatalogItems.asCatalog();
+    final Catalog catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
 
     final systemInstruction =
@@ -134,7 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = switch (aiBackend) {
+    final String title = switch (aiBackend) {
       AiBackend.googleGenerativeAi => 'Chat with Google Generative AI',
       AiBackend.firebase => 'Chat with Firebase AI',
     };
@@ -149,7 +149,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 controller: _scrollController,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
-                  final message = _messages[index];
+                  final MessageController message = _messages[index];
                   return ListTile(
                     title: MessageView(message, _genUiConversation.host),
                   );
@@ -195,7 +195,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    final text = _textController.text;
+    final String text = _textController.text;
     if (text.isEmpty) {
       return;
     }

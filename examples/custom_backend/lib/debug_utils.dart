@@ -23,6 +23,6 @@ void debugSaveToFile(String name, String content, {String extension = 'txt'}) {
 
 void debugSaveToFileObject(String name, Object? content) {
   final encoder = const JsonEncoder.withIndent('  ');
-  final prettyJson = encoder.convert(content);
+  final String prettyJson = encoder.convert(content);
   debugSaveToFile(name, prettyJson, extension: 'json');
 }

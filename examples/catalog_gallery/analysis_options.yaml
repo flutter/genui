@@ -1,7 +1,0 @@
-# Copyright 2025 The Flutter Authors.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-include: package:dart_flutter_team_lints/analysis_options.yaml
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options

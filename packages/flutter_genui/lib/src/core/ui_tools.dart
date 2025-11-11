@@ -37,7 +37,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
-    final components = (args['components'] as List).map((e) {
+    final List<Component> components = (args['components'] as List).map((e) {
       final component = e as JsonMap;
       return Component(
         id: component['id'] as String,

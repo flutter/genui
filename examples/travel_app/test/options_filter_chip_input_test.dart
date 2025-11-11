@@ -13,7 +13,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final dataModel = DataModel();
-      final data = {
+      final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
         'iconName': 'wallet',
@@ -76,7 +76,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final dataModel = DataModel();
-      final data = {
+      final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
         'value': {'path': '/price'},

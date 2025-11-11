@@ -42,7 +42,7 @@ void main() {
       );
 
       expect(find.byType(Image), findsOneWidget);
-      final imageWidget = tester.widget<Image>(find.byType(Image));
+      final Image imageWidget = tester.widget<Image>(find.byType(Image));
       expect(imageWidget.image, isA<NetworkImage>());
       expect(
         (imageWidget.image as NetworkImage).url,

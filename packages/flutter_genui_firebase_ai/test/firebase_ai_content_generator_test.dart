@@ -37,7 +37,7 @@ void main() {
       );
 
       expect(generator.isProcessing.value, isFalse);
-      final future = generator.sendRequest(
+      final Future<void> future = generator.sendRequest(
         genui.UserMessage([const genui.TextPart('Hi')]),
       );
       expect(generator.isProcessing.value, isTrue);
@@ -89,7 +89,7 @@ void main() {
       final completer = Completer<String>();
       unawaited(generator.textResponseStream.first.then(completer.complete));
       await generator.sendRequest(hi);
-      final response = await completer.future;
+      final String response = await completer.future;
       expect(response, 'Tool called');
     });
 
@@ -120,7 +120,7 @@ void main() {
       final completer = Completer<String>();
       unawaited(generator.textResponseStream.first.then(completer.complete));
       await generator.sendRequest(hi);
-      final response = await completer.future;
+      final String response = await completer.future;
       expect(response, 'Hello');
     });
   });

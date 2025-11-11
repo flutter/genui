@@ -78,7 +78,7 @@ class ComponentChildrenBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final explicitList = (childrenData is List)
+    final List<String>? explicitList = (childrenData is List)
         ? (childrenData as List).cast<String>()
         : ((childrenData as JsonMap?)?['explicitList'] as List?)
               ?.cast<String>();
@@ -101,9 +101,8 @@ class ComponentChildrenBuilder extends StatelessWidget {
         genUiLogger.finest(
           'Widget $componentId subscribing to ${dataContext.path}',
         );
-        final dataNotifier = dataContext.subscribe<Map<String, Object?>>(
-          DataPath(dataBinding),
-        );
+        final ValueNotifier<Map<String, Object?>?> dataNotifier = dataContext
+            .subscribe<Map<String, Object?>>(DataPath(dataBinding));
         return ValueListenableBuilder<Map<String, Object?>?>(
           valueListenable: dataNotifier,
           builder: (context, data, child) {
@@ -136,8 +135,8 @@ Widget buildWeightedChild({
   required ChildBuilderCallback buildChild,
   required Component? component,
 }) {
-  final weight = component?.weight;
-  final childWidget = buildChild(componentId, dataContext);
+  final int? weight = component?.weight;
+  final Widget childWidget = buildChild(componentId, dataContext);
   if (weight != null) {
     return Flexible(flex: weight, child: childWidget);
   }

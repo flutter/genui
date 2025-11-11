@@ -172,7 +172,7 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
     /// must be valid for the object if the key is present.
     Map<String, Schema>? dependentSchemas,
   }) {
-    final typeValue = switch (type) {
+    final Object? typeValue = switch (type) {
       JsonType() => type.typeName,
       List<JsonType>() => type.map((t) => t.typeName).toList(),
       _ => null,
@@ -337,7 +337,7 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
   /// Some keywords in JSON Schema can be a schema object or a boolean. This
   /// method correctly interprets a boolean as a valid subschema.
   Schema? schemaOrBool(String key) {
-    final v = _value[key];
+    final Object? v = _value[key];
     if (v == null) return null;
     if (v is bool) {
       return Schema.fromBoolean(v, jsonPath: [key]);
@@ -350,7 +350,7 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
   /// This is used for keywords like `properties` where the value is a map of
   /// schemas, and those schemas themselves can be boolean values.
   Map<String, Schema>? mapToSchemaOrBool(String key) {
-    final v = _value[key];
+    final Object? v = _value[key];
     if (v is Map) {
       return v.map((key, value) {
         if (value is bool) {

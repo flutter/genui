@@ -53,7 +53,7 @@ final list = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final listData = _ListData.fromMap(itemContext.data as JsonMap);
-    final direction = listData.direction == 'horizontal'
+    final Axis direction = listData.direction == 'horizontal'
         ? Axis.horizontal
         : Axis.vertical;
     return ComponentChildrenBuilder(
@@ -70,16 +70,15 @@ final list = CatalogItem(
       },
       templateListWidgetBuilder:
           (context, Map<String, Object?> data, componentId, dataBinding) {
-            final values = data.values.toList();
-            final keys = data.keys.toList();
+            final List<Object?> values = data.values.toList();
+            final List<String> keys = data.keys.toList();
             return ListView.builder(
               shrinkWrap: true,
               scrollDirection: direction,
               itemCount: values.length,
               itemBuilder: (context, index) {
-                final itemDataContext = itemContext.dataContext.nested(
-                  DataPath('$dataBinding/${keys[index]}'),
-                );
+                final DataContext itemDataContext = itemContext.dataContext
+                    .nested(DataPath('$dataBinding/${keys[index]}'));
                 return itemContext.buildChild(componentId, itemDataContext);
               },
             );
