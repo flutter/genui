@@ -100,8 +100,8 @@ class _LoadingMessagesState extends State<_LoadingMessages> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     if (_messages.isEmpty) {
       return const SizedBox.shrink();

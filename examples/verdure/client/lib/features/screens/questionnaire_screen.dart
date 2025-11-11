@@ -29,7 +29,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
         setState(() {
           _initialRequestSent = true;
         });
-        final aiState = next.value;
+        final AiClientState? aiState = next.value;
         aiState?.conversation.sendRequest(
           UserMessage.text('USER_SUBMITTED_DETAILS'),
         );

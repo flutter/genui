@@ -52,7 +52,7 @@ class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
     final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
-    final connector = ref.watch(a2uiAgentConnectorProvider);
+    final A2uiAgentConnector connector = ref.watch(a2uiAgentConnectorProvider);
     final contentGenerator = A2uiContentGenerator(
       serverUrl: Uri.parse(a2aServerUrl),
       connector: connector,

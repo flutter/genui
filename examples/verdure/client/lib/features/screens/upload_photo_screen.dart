@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,11 +101,11 @@ class UploadPhotoScreen extends ConsumerWidget {
 
   Future<void> _pickAndSendImage(WidgetRef ref, ImageSource source) async {
     final picker = ImagePicker();
-    final image = await picker.pickImage(source: source);
+    final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
-      final bytes = await image.readAsBytes();
-      final mimeType = lookupMimeType(image.path) ?? 'image/jpeg';
+      final Uint8List bytes = await image.readAsBytes();
+      final String mimeType = lookupMimeType(image.path) ?? 'image/jpeg';
 
       ref.read(aiProvider).whenData((aiState) {
         aiState.conversation.sendRequest(

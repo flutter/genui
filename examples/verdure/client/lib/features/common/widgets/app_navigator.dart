@@ -30,7 +30,7 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
     super.initState();
     // It's safe to use ref.read here because we are not rebuilding the widget
     // when the provider changes, but instead subscribing to a stream.
-    final aiState = ref.read(aiProvider);
+    final AsyncValue<AiClientState> aiState = ref.read(aiProvider);
     if (aiState is AsyncData) {
       _subscription = aiState.value!.surfaceUpdateController.stream.listen(
         _onSurfaceUpdate,
