@@ -84,7 +84,8 @@ Logic, follow these instructions:
 
 To use `flutter_genui` with another agent provider, you need to follow that
 provider's instructions to configure your app, and then create your own subclass
-of `ContentGenerator` to connect to that provider. Use `FirebaseAiContentGenerator` as an example
+of `ContentGenerator` to connect to that provider. Use `FirebaseAiContentGenerator` or
+`A2uiContentGenerator` (from the `flutter_genui_a2ui` package) as examples
 of how to do so.
 
 ### 2. Create the connection to an agent

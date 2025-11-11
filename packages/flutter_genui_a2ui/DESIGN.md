@@ -2,121 +2,65 @@
 
 ## Overview
 
-This document outlines the design for the `flutter_genui_a2ui` package, a new addition to the `flutter_genui` family of packages. Its primary purpose is to enable Flutter applications to connect to an A2A (Agent-to-Agent) server, receive A2UI (Agent-to-UI) protocol messages, and render dynamic user interfaces using the core `flutter_genui` rendering capabilities. This package will provide a high-quality, first-class integration, including comprehensive tests and an example application.
+This document outlines the design for the `flutter_genui_a2ui` package, an integration layer connecting the `flutter_genui` framework with servers implementing the [A2UI Streaming UI Protocol](https://a2ui.org). Its primary purpose is to enable Flutter applications to dynamically render UIs and handle interactions based on messages received from an A2A (Agent-to-Agent) server.
 
-## Detailed Analysis of the Goal or Problem
+## Goal
 
-The existing `flutter_genui` package provides a robust framework for building generative UIs, including a `GenUiManager` for state management, a `Catalog` for widget definitions, and a `GenUiSurface` for rendering. It also defines `A2uiMessage` types (e.g., `SurfaceUpdate`, `DataModelUpdate`, `BeginRendering`, `SurfaceDeletion`) that align with the A2UI protocol.
+To provide a seamless and robust way for Flutter applications using `flutter_genui` to consume A2UI streams, leveraging `flutter_genui`'s existing capabilities for UI rendering and state management, without tightly coupling the core `flutter_genui` package to the A2A protocol specifics.
 
-The `a2ui_client` spike demonstrates a working client for the A2UI Streaming UI Protocol, handling communication with an A2A server and interpreting the incoming JSONL messages to build a UI. However, this spike uses its own `A2uiInterpreter` and `WidgetRegistry` for rendering, which duplicates functionality already present in `flutter_genui`.
+## Core Components & Design
 
-The problem is to integrate the A2A communication and A2UI message parsing from the `a2ui_client` spike with the sophisticated UI rendering and state management of `flutter_genui`, creating a cohesive and high-quality package that leverages the strengths of both. The new package should not depend on Firebase.
+The architecture of `flutter_genui_a2ui` revolves around two main classes:
 
-## Alternatives Considered
+1.  **`A2uiContentGenerator`**: This class implements the `ContentGenerator` interface from `flutter_genui`. It serves as the primary bridge between `GenUiConversation` (the application's interface to the generative UI system) and the A2A server. Instead of generating content locally or calling a direct model API, it delegates communication to the `A2uiAgentConnector`.
+    -   Manages the connection lifecycle.
+    -   Exposes a `Stream<A2uiMessage>` (`a2uiMessageStream`) which `GenUiManager` consumes to update the UI.
+    -   Exposes a `Stream<String>` (`textResponseStream`) for any text-based agent responses.
+    -   Exposes a `Stream<ContentGeneratorError>` (`errorStream`) for handling communication errors.
+    -   Implements `sendRequest` to send user messages/actions to the A2A server.
 
-1.  **Directly porting `a2ui_client`'s rendering logic into `flutter_genui_a2ui`:** This was immediately rejected as it would lead to code duplication and prevent leveraging the existing, more mature `flutter_genui` rendering pipeline. The core requirement is to _use_ `flutter_genui` for rendering, not to re-implement it.
+2.  **`A2uiAgentConnector`**: This class encapsulates the low-level details of the A2A protocol, using the `package:a2a` client library.
+    -   Handles WebSocket connection management.
+    -   Constructs and sends A2A messages (including user input and UI events).
+    -   Receives `A2AStreamEvent`s from the server.
+    -   Parses `A2ADataPart`s within the events to extract JSON-encoded A2UI messages.
+    -   Converts the JSON A2UI messages into type-safe `A2uiMessage` objects defined in `flutter_genui`.
+    -   Manages conversation state like `taskId` and `contextId` as provided by the A2A server.
+    -   Streams the parsed `A2uiMessage` objects to the `A2uiContentGenerator`.
 
-2.  **Modifying `flutter_genui` directly to include A2A client capabilities:** This was considered but rejected. `flutter_genui` is designed to be a core, AI-agnostic UI generation framework. Adding A2A-specific client logic would couple it to a particular communication protocol, violating the principle of separation of concerns. A dedicated package is more appropriate for this integration.
-
-3.  **Creating a thin wrapper around `flutter_genui` using code from the `a2ui_client` spike:** This is the chosen approach. It allows for clear separation of responsibilities, where `flutter_genui_a2ui` acts as the bridge, handling A2A communication and translating A2UI messages into a format consumable by `flutter_genui`'s `GenUiManager`.
-
-## Detailed Design for the New Package
-
-The `flutter_genui_a2ui` package will consist of the following key components:
-
-### 1. `A2uiContentGenerator` (implements `ContentGenerator` from `flutter_genui`)
-
-This will be the central class for connecting the A2A server to the `flutter_genui`'s `GenUiConversation`. It will implement the `ContentGenerator` interface, but instead of performing AI inference, it will manage the A2A connection and process incoming A2UI messages.
-
-- **Dependencies:** `flutter_genui`, `a2a` (for A2A communication).
-- **Constructor:**
-  - `A2uiContentGenerator({required Uri serverUrl, required GenUiManager genUiManager})`
-- **Internal State:**
-  - `A2AClient _a2aClient`: An instance of the A2A client for communication.
-  - `GenUiManager _genUiManager`: The `GenUiManager` instance provided by the `GenUiConversation`.
-  - `StreamController<A2uiMessage> _a2uiMessageController`: A stream controller to process incoming A2UI messages from the A2A server.
-  - `String? _taskId`, `String? _contextId`: To manage the A2A conversation context.
-  - `ValueNotifier<int> _activeRequests`: To implement the `activeRequests` getter from `ContentGenerator`.
-- **Key Methods:**
-  - `Future<AgentCard> getAgentCard()`: Fetches the agent card from the A2A server, similar to `A2uiAgentConnector.getAgentCard` in the spike.
-  - `Future<void> sendUserMessage(String messageText, {void Function(String)? onResponse})`: Sends a user message to the A2A server. This will be called by the `GenUiConversation`.
-  - `Future<T?> generateContent<T extends Object>(List<ChatMessage> conversation, Schema outputSchema, {Iterable<AiTool> additionalTools = const []})`: This method will be the entry point for `GenUiConversation` to send messages. It will extract the latest user message from the `conversation` and send it to the A2A server via `_a2aClient`. It will then listen to the `_a2uiMessageController` and pass the `A2uiMessage`s to `_genUiManager.handleMessage`. The `outputSchema` will be ignored as the UI is driven by the A2UI stream, not direct AI output.
-  - `Future<String> generateText(List<ChatMessage> conversation, {Iterable<AiTool> additionalTools = const []})`: This method will also extract the latest user message and send it. It will return an empty string or a placeholder, as text responses are handled by `onResponse` in `sendUserMessage`.
-  - `void _processA2aStream(Stream<A2AStreamEvent> events)`: An internal method to process the raw A2A stream events, extract A2UI messages, and add them to `_a2uiMessageController`.
-  - `void _handleUiEvent(UiEvent event)`: This method will be registered with `_genUiManager.onSubmit` to capture user interactions from the rendered UI and send them back to the A2A server via `_a2aClient.sendMessage`.
-
-### 2. Example Application
-
-A comprehensive example application will be created within the `example/` directory of the new package. This application will demonstrate how to integrate `flutter_genui_a2ui` into a Flutter app.
-
-- **Features:**
-  - A chat conversation view to display user input and text responses from the A2A server.
-  - A fixed UI surface (using `GenUiSurface`) that renders the A2UI-generated interface.
-  - Input field for sending messages to the A2A agent.
-  - Clear demonstration of how to initialize `A2uiContentGenerator` and `GenUiConversation`.
-  - Basic error handling and loading indicators.
-
-### 3. `A2uiAgentConnector` (Adapted from spike)
-
-The core logic for connecting to the A2A server and handling the raw A2A stream will be **copied and adapted** from the `a2ui_client` spike's `A2uiAgentConnector`. **The spike will not be a direct dependency.** This class will be responsible for:
-
-- Establishing and maintaining the WebSocket connection.
-- Sending A2A messages (user input, UI events).
-- Receiving A2A stream events.
-- Parsing A2A stream events to extract A2UI protocol messages.
-
-This adapted class will be internal to `flutter_genui_a2ui` and will be used by `A2uiContentGenerator`.
-
-### 4. `AgentCard` (Adapted from spike)
-
-The `AgentCard` class, representing metadata about the A2A agent, will also be **copied and adapted** from the spike and included in the new package.
-
-## Diagrams
+### Data Flow
 
 ```mermaid
 graph TD
-    subgraph Flutter App
-        GenUiConversation -- "sends UserMessage" --> A2uiContentGenerator
-        A2uiContentGenerator -- "sends A2AMessage" --> A2A_Server["A2A Server"]
-        A2A_Server -- "sends A2AStreamEvent" --> A2uiContentGenerator
-        A2uiContentGenerator -- "processes A2uiMessage" --> GenUiManager
-        GenUiManager -- "emits GenUiUpdate" --> GenUiSurface
-        GenUiSurface -- "renders UI" --> User
-        User -- "interacts with UI" --> GenUiSurface
-        GenUiSurface -- "dispatches UiEvent" --> GenUiManager
-        GenUiManager -- "emits UserMessage (from UiEvent)" --> A2uiContentGenerator
-    end
-
-    subgraph `flutter_genui_a2ui` Package
-        A2uiContentGenerator
-        A2uiAgentConnector
-        AgentCard
-    end
-
-    subgraph `flutter_genui` Package
-        GenUiConversation
-        GenUiManager
-        GenUiSurface
-        Catalog
-        DataModel
-    end
-
-    subgraph `a2a` Package
-        A2AClient
-    end
-
-    A2uiContentGenerator -- uses --> A2uiAgentConnector
-    A2uiAgentConnector -- uses --> A2AClient
-    A2uiContentGenerator -- uses --> GenUiManager
-    GenUiConversation -- uses --> A2uiContentGenerator
-    GenUiConversation -- uses --> GenUiManager
-    GenUiSurface -- uses --> GenUiManager
+    User --> FlutterApp[Flutter Application]
+    FlutterApp --> GenUiConversation[GenUiConversation \n flutter_genui]
+    GenUiConversation -- sendRequest --> A2uiContentGenerator
+    A2uiContentGenerator -- connectAndSend --> A2uiAgentConnector
+    A2uiAgentConnector -- A2AClient --> A2AServer[A2A Server]
+    A2AServer -- A2AStreamEvent --> A2uiAgentConnector
+    A2uiAgentConnector -- A2uiMessage --> A2uiContentGenerator
+    A2uiContentGenerator -- a2uiMessageStream --> GenUiManager[GenUiManager \n flutter_genui]
+    GenUiManager --> GenUiSurface[GenUiSurface \n flutter_genui]
+    GenUiSurface --> FlutterApp
+    GenUiManager -- UiEvent --> A2uiContentGenerator
+    A2uiContentGenerator -- sendEvent --> A2uiAgentConnector
 ```
 
-## Summary of the Design
+1.  User input is sent via `GenUiConversation.sendRequest`.
+2.  `A2uiContentGenerator` delegates to `A2uiAgentConnector` to send the message to the A2A Server.
+3.  The server streams back `A2AStreamEvent`s containing A2UI messages.
+4.  `A2uiAgentConnector` parses these into `A2uiMessage` objects.
+5.  `A2uiContentGenerator` forwards these messages to `GenUiManager` via the `a2uiMessageStream`.
+6.  `GenUiManager` updates the state, causing `GenUiSurface` to re-render.
+7.  User interactions on `GenUiSurface` generate `UiEvent`s, which are sent back to the server via `A2uiContentGenerator` and `A2uiAgentConnector`'s `sendEvent` method.
 
-The `flutter_genui_a2ui` package will act as a specialized `ContentGenerator` for `flutter_genui`, enabling seamless integration with A2A servers. It will encapsulate the A2A communication logic, translate incoming A2UI messages into `flutter_genui`'s internal UI update mechanisms, and forward user interactions back to the A2A server. This design promotes modularity, reusability, and adherence to the existing `flutter_genui` architecture.
+### Alternatives Considered
 
-## References to Research URLs
+-   **Embedding A2A logic directly in `flutter_genui`**: Rejected to keep the core framework decoupled from specific communication protocols.
+-   **Re-implementing rendering logic**: Rejected in favor of leveraging `flutter_genui`'s established `GenUiManager` and `GenUiSurface` for UI rendering and state management.
 
-No external web research was performed for this design, as all necessary information was derived from the provided local file content.
+The chosen approach of a separate integration package (`flutter_genui_a2ui`) provides the best separation of concerns.
+
+## Summary
+
+`flutter_genui_a2ui` acts as a specialized `ContentGenerator` for `flutter_genui`. It uses `A2uiAgentConnector` to interact with an A2A server, receives A2UI messages, and feeds them into the `GenUiManager` to dynamically drive the Flutter UI. This design ensures modularity and reusability.

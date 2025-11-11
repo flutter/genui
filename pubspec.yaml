@@ -4,6 +4,7 @@
 
 name: genui
 publish_to: none
+license: BSD-3-Clause
 
 environment:
   sdk: ">=3.9.2 <4.0.0"

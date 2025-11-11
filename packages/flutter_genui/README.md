@@ -4,7 +4,7 @@ A Flutter package for building dynamic, conversational user interfaces powered b
 
 `flutter_genui` allows you to create applications where the UI is not static or predefined, but is instead constructed by an AI in real-time based on a conversation with the user. This enables highly flexible, context-aware, and interactive user experiences.
 
-This package provides the core functionality for GenUI. For a concrete implementation that uses Firebase AI, see the `flutter_genui_firebase_ai` package.
+This package provides the core functionality for GenUI. For concrete implementations, see the `flutter_genui_firebase_ai` package (for Firebase AI) or the `flutter_genui_a2ui` package (for a generic A2UI server).
 
 ## Features
 

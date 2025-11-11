@@ -25,6 +25,11 @@ class ContentConverterException implements Exception {
 /// This class is responsible for translating the abstract [ChatMessage]
 /// representation into the concrete `firebase_ai.Content` representation
 /// required by the `firebase_ai` package.
+///
+/// **Note on Image Handling:** [ImagePart] instances that are provided with
+/// only a `url` (and no `bytes` or `base64` data) will be converted to a
+/// simple text representation of the URL (e.g., "Image at {url}"). The image
+/// data is not automatically fetched from the URL by this converter.
 class GeminiContentConverter {
   /// Converts a list of `ChatMessage` objects to a list of
   /// `firebase_ai.Content` objects.
@@ -73,10 +78,6 @@ class GeminiContentConverter {
               ),
             );
           } else if (part.url != null) {
-            // TODO(gspencer): Gemini doesn't directly support URLs in parts
-            // like some other APIs. A more complete implementation would
-            // download the data. For now, we'll just send a text
-            // representation.
             result.add(firebase_ai.TextPart('Image at ${part.url}'));
           } else {
             throw ContentConverterException('ImagePart has no data.');

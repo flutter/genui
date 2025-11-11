@@ -4,8 +4,10 @@
 
 name: flutter_genui_a2ui
 description: Integration package for flutter_genui and A2UI Streaming UI Protocol.
-publish_to: "none"
-version: 0.1.0
+version: 0.5.0
+homepage: https://github.com/flutter/genui/packages/flutter_genui_a2ui
+license: BSD-3-Clause
+issue_tracker: https://github.com/flutter/genui/issues
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
@@ -14,14 +16,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  # Revert to the published version when the following PRs have landed:
-  # https://github.com/shamblett/a2a/pull/53
-  # https://github.com/shamblett/a2a/pull/52
-  # a2a: ^3.0.0
-  a2a:
-    git:
-      url: https://github.com/gspencergoog/shamblett_a2a.git
-      ref: genui
+  a2a: ^3.1.0
   flutter:
     sdk: flutter
   flutter_genui: ^0.4.0

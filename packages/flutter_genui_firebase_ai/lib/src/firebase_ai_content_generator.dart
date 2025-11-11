@@ -28,6 +28,10 @@ typedef GenerativeModelFactory =
     });
 
 /// A [ContentGenerator] that uses the Firebase AI API to generate content.
+///
+/// This generator utilizes a [GeminiGenerativeModelInterface] to interact with
+/// the Firebase AI API. The actual model instance is created by the
+/// [modelCreator] function, which defaults to [defaultGenerativeModelFactory].
 class FirebaseAiContentGenerator implements ContentGenerator {
   /// Creates a [FirebaseAiContentGenerator] instance with specified
   /// configurations.
