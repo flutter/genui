@@ -12,6 +12,9 @@ import 'package:flutter_genui_google_generative_ai/flutter_genui_google_generati
 import 'package:logging/logging.dart';
 
 import 'firebase_options_stub.dart';
+// Conditionally import non-web version so we can read from shell env vars in
+// non-web version.
+import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';
 import 'message.dart';
 
 /// Enum for selecting which AI backend to use.
@@ -26,10 +29,6 @@ enum AiBackend {
 /// Configuration for which AI backend to use.
 /// Change this value to switch between backends.
 const AiBackend aiBackend = AiBackend.googleGenerativeAi;
-
-/// API key for Google Generative AI (only needed if using google backend).
-/// Get an API key from https://aistudio.google.com/app/apikey
-const String googleApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,18 +89,10 @@ class _ChatScreenState extends State<ChatScreen> {
     // Create the appropriate content generator based on configuration
     final ContentGenerator contentGenerator = switch (aiBackend) {
       AiBackend.googleGenerativeAi => () {
-        if (googleApiKey.isEmpty) {
-          throw Exception(
-            'Google API key is required when using google backend. '
-            'Run the app with a GEMINI_API_KEY '
-            'as a Dart environment variable, for example with '
-            '-D GEMINI_API_KEY=\$GEMINI_API_KEY',
-          );
-        }
         return GoogleGenerativeAiContentGenerator(
           catalog: catalog,
           systemInstruction: systemInstruction,
-          apiKey: googleApiKey,
+          apiKey: getApiKey(),
         );
       }(),
       AiBackend.firebase => FirebaseAiContentGenerator(

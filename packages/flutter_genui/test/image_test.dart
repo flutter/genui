@@ -24,7 +24,7 @@ void main() {
                   data: {
                     'url': {
                       'literalString':
-                          'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+                          'https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png',
                     },
                   },
                   id: 'test_image',
@@ -46,7 +46,7 @@ void main() {
       expect(imageWidget.image, isA<NetworkImage>());
       expect(
         (imageWidget.image as NetworkImage).url,
-        'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+        'https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png',
       );
     });
   });

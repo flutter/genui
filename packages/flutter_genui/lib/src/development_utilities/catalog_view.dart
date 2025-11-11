@@ -108,19 +108,20 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              '$surfaceId:',
-              style: const TextStyle(decoration: TextDecoration.underline),
+        final surfaceWidget = GenUiSurface(host: _genUi, surfaceId: surfaceId);
+        return Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(surfaceId, style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 8.0),
+                SizedBox(height: widget.itemHeight, child: surfaceWidget),
+              ],
             ),
-            SizedBox(
-              height: widget.itemHeight,
-              child: GenUiSurface(host: _genUi, surfaceId: surfaceId),
-            ),
-          ],
+          ),
         );
       },
     );
