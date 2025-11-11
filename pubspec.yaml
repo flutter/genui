@@ -14,6 +14,7 @@ workspace:
   - packages/flutter_genui_a2ui
   - packages/flutter_genui_a2ui/example
   - packages/flutter_genui_firebase_ai
+  - packages/flutter_genui_google_generative_ai
   - packages/json_schema_builder
   - examples/catalog_gallery
   - examples/custom_backend

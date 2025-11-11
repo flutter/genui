@@ -8,14 +8,38 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
+import 'package:flutter_genui_google_generative_ai/flutter_genui_google_generative_ai.dart';
+import 'package:simple_chat/message.dart';
+import 'firebase_options_stub.dart';
 import 'package:logging/logging.dart';
 
-import 'firebase_options.dart';
-import 'message.dart';
+/// Enum for selecting which AI backend to use.
+enum AiBackend {
+  /// Use Firebase AI
+  firebase,
+
+  /// Use Google Generative AI
+  googleGenerativeAi,
+}
+
+/// Configuration for which AI backend to use.
+/// Change this value to switch between backends.
+const AiBackend aiBackend = AiBackend.googleGenerativeAi;
+
+/// API key for Google Generative AI (only needed if using google backend).
+/// Get an API key from https://aistudio.google.com/app/apikey
+const String googleApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Only initialize Firebase if using firebase backend
+  if (aiBackend == AiBackend.firebase) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   configureGenUiLogging(level: Level.ALL);
 
   runApp(const MyApp());
@@ -53,16 +77,38 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     final Catalog catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
-    final contentGenerator = FirebaseAiContentGenerator(
-      catalog: catalog,
-      systemInstruction:
-          'You are a helpful assistant who chats with a user, '
-          'giving exactly one response for each user message. '
-          'Your responses should contain acknowledgment '
-          'of the user message.'
-          '\n\n'
-          '${GenUiPromptFragments.basicChat}',
-    );
+
+    final systemInstruction =
+        'You are a helpful assistant who chats with a user, '
+        'giving exactly one response for each user message. '
+        'Your responses should contain acknowledgment '
+        'of the user message.'
+        '\n\n'
+        '${GenUiPromptFragments.basicChat}';
+
+    // Create the appropriate content generator based on configuration
+    final ContentGenerator contentGenerator = switch (aiBackend) {
+      AiBackend.googleGenerativeAi => () {
+        if (googleApiKey.isEmpty) {
+          throw Exception(
+            'Google API key is required when using google backend. '
+            'Run the app with a GOOGLE_API_KEY '
+            'as a Dart environment variable, for example with '
+            '-D GEMINI_API_KEY=\$GEMINI_API_KEY',
+          );
+        }
+        return GoogleGenerativeAiContentGenerator(
+          catalog: catalog,
+          systemInstruction: systemInstruction,
+          apiKey: googleApiKey,
+        );
+      }(),
+      AiBackend.firebase => FirebaseAiContentGenerator(
+        catalog: catalog,
+        systemInstruction: systemInstruction,
+      ),
+    };
+
     _genUiConversation = GenUiConversation(
       genUiManager: _genUiManager,
       contentGenerator: contentGenerator,
@@ -96,8 +142,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final title = switch (aiBackend) {
+      AiBackend.googleGenerativeAi => 'Chat with Google Generative AI',
+      AiBackend.firebase => 'Chat with Firebase AI',
+    };
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat with Firebase AI')),
+      appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: Column(
           children: [

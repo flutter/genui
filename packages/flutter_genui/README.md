@@ -17,7 +17,7 @@ This package provides the core functionality for GenUI. For a concrete implement
 
 ## Core Concepts
 
-The package is built around four main components:
+The package is built around the following main components:
 
 1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
 
