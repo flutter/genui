@@ -102,7 +102,14 @@ class LandscapeAgentExecutor(AgentExecutor):
                         logger.info(f"  Extracting {len(part.root.file.bytes)} bytes")
                         try:
                             image_bytes = base64.b64decode(file_data.bytes)
-                            filename = f"{uuid.uuid4()}.jpg" # Default to jpg, or try to detect
+                            mime_type = file_data.mime_type
+                            extension = {
+                                "image/png": ".png",
+                                "image/jpeg": ".jpg",
+                                "image/heic": ".heic",
+                                "image/webp": ".webp",
+                            }.get(mime_type, ".jpg")
+                            filename = f"{uuid.uuid4()}{extension}"
                             images_dir = os.path.join(os.path.dirname(__file__), "images", "uploads")
                             os.makedirs(images_dir, exist_ok=True)
                             filepath = os.path.join(images_dir, filename)
