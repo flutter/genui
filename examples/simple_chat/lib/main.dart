@@ -9,9 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
 import 'package:flutter_genui_google_generative_ai/flutter_genui_google_generative_ai.dart';
-import 'package:simple_chat/message.dart';
-import 'firebase_options_stub.dart';
 import 'package:logging/logging.dart';
+
+import 'firebase_options_stub.dart';
+import 'message.dart';
 
 /// Enum for selecting which AI backend to use.
 enum AiBackend {
@@ -142,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = switch (aiBackend) {
+    final String title = switch (aiBackend) {
       AiBackend.googleGenerativeAi => 'Chat with Google Generative AI',
       AiBackend.firebase => 'Chat with Firebase AI',
     };
