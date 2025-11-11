@@ -8,7 +8,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../ai/ai_provider.dart';
+import '../ai/ai_provider.dart';
 import '../state/loading_state.dart';
 
 class GlobalProgressIndicator extends ConsumerWidget {

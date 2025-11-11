@@ -14,7 +14,7 @@ import 'package:mime/mime.dart';
 import '../../core/logging.dart';
 import '../../core/theme/theme.dart';
 import '../ai/ai_provider.dart';
-import '../common/state/loading_state.dart';
+import '../state/loading_state.dart';
 
 class UploadPhotoScreen extends ConsumerWidget {
   const UploadPhotoScreen({super.key});

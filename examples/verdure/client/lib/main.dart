@@ -5,16 +5,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'core/logging.dart';
 import 'core/theme/theme.dart';
-import 'features/common/widgets/app_navigator.dart';
-import 'features/common/widgets/global_progress_indicator.dart';
 import 'features/screens/order_confirmation_screen.dart';
 import 'features/screens/presentation_screen.dart';
 import 'features/screens/questionnaire_screen.dart';
 import 'features/screens/shopping_cart_screen.dart';
 import 'features/screens/upload_photo_screen.dart';
 import 'features/screens/welcome_screen.dart';
+import 'features/widgets/app_navigator.dart';
+import 'features/widgets/global_progress_indicator.dart';
 
 void main() {
   initLogging();

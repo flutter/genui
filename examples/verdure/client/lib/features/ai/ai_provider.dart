@@ -9,7 +9,7 @@ import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_genui_a2ui/flutter_genui_a2ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../common/state/loading_state.dart';
+import '../state/loading_state.dart';
 
 part 'ai_provider.g.dart';
 

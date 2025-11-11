@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/logging.dart';
+import '../../core/logging.dart';
 
-import '../../ai/ai_provider.dart';
+import '../ai/ai_provider.dart';
 
 class AppNavigator extends ConsumerStatefulWidget {
   const AppNavigator({super.key, required this.child, required this.router});
