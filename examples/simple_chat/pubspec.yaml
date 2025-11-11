@@ -16,8 +16,6 @@ dependencies:
   firebase_core: ^4.0.0
   flutter:
     sdk: flutter
-
-  firebase_core: ^4.0.0
   flutter_genui: ^0.4.0
   flutter_genui_firebase_ai: ^0.1.0
   flutter_genui_google_generative_ai: ^0.1.0

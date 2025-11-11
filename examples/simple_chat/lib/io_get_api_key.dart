@@ -10,7 +10,7 @@ import 'dart:io';
 const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 String getApiKey() {
-  var apiKey = geminiApiKey.isEmpty
+  String apiKey = geminiApiKey.isEmpty
       ? Platform.environment['GEMINI_API_KEY'] ?? ''
       : geminiApiKey;
   if (apiKey.isEmpty) {

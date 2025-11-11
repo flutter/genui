@@ -107,7 +107,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
     return ListView.builder(
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
-        final surfaceId = surfaceIds[index];
+        final String surfaceId = surfaceIds[index];
         final surfaceWidget = GenUiSurface(host: _genUi, surfaceId: surfaceId);
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,
