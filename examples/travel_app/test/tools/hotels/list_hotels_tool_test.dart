@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_genui/src/primitives/simple_items.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/src/primitives/simple_items.dart';
 import 'package:travel_app/src/tools/booking/list_hotels_tool.dart';
 import 'package:travel_app/src/tools/booking/model.dart';
 

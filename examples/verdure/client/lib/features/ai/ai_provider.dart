@@ -5,8 +5,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui_a2ui/flutter_genui_a2ui.dart';
+import 'package:genui/genui.dart';
+import 'package:genui_a2ui/genui_a2ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../state/loading_state.dart';

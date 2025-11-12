@@ -1,0 +1,186 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:convert';
+
+import 'package:flutter/src/foundation/change_notifier.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
+
+void main() {
+  group('$GenUiManager', () {
+    late GenUiManager manager;
+
+    setUp(() {
+      manager = GenUiManager(
+        catalog: CoreCatalogItems.asCatalog(),
+        configuration: const GenUiConfiguration(
+          actions: ActionsConfig(
+            allowCreate: true,
+            allowUpdate: true,
+            allowDelete: true,
+          ),
+        ),
+      );
+    });
+
+    tearDown(() {
+      manager.dispose();
+    });
+
+    test('handleMessage adds a new surface and fires SurfaceAdded with '
+        'definition', () async {
+      const surfaceId = 's1';
+      final components = [
+        const Component(
+          id: 'root',
+          componentProperties: {
+            'Text': {'text': 'Hello'},
+          },
+        ),
+      ];
+
+      final Future<GenUiUpdate> futureAdded = manager.surfaceUpdates.first;
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      final GenUiUpdate addedUpdate = await futureAdded;
+      expect(addedUpdate, isA<SurfaceAdded>());
+      expect(addedUpdate.surfaceId, surfaceId);
+
+      final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
+      manager.handleMessage(
+        const BeginRendering(surfaceId: surfaceId, root: 'root'),
+      );
+      final GenUiUpdate updatedUpdate = await futureUpdated;
+
+      expect(updatedUpdate, isA<SurfaceUpdated>());
+      expect(updatedUpdate.surfaceId, surfaceId);
+      final UiDefinition definition =
+          (updatedUpdate as SurfaceUpdated).definition;
+      expect(definition, isNotNull);
+      expect(definition.rootComponentId, 'root');
+      expect(manager.surfaces[surfaceId]!.value, isNotNull);
+      expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
+    });
+
+    test(
+      'handleMessage updates an existing surface and fires SurfaceUpdated',
+      () async {
+        const surfaceId = 's1';
+        final oldComponents = [
+          const Component(
+            id: 'root',
+            componentProperties: {
+              'Text': {'text': 'Old'},
+            },
+          ),
+        ];
+        manager.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
+        );
+
+        final newComponents = [
+          const Component(
+            id: 'root',
+            componentProperties: {
+              'Text': {'text': 'New'},
+            },
+          ),
+        ];
+
+        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+        manager.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
+        );
+        final GenUiUpdate update = await futureUpdate;
+
+        expect(update, isA<SurfaceUpdated>());
+        expect(update.surfaceId, surfaceId);
+        final UiDefinition updatedDefinition =
+            (update as SurfaceUpdated).definition;
+        expect(updatedDefinition.components['root'], newComponents[0]);
+        expect(manager.surfaces[surfaceId]!.value, updatedDefinition);
+      },
+    );
+
+    test('handleMessage removes a surface and fires SurfaceRemoved', () async {
+      const surfaceId = 's1';
+      final components = [
+        const Component(
+          id: 'root',
+          componentProperties: {
+            'Text': {'text': 'Hello'},
+          },
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+
+      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+      manager.handleMessage(const SurfaceDeletion(surfaceId: surfaceId));
+      final GenUiUpdate update = await futureUpdate;
+
+      expect(update, isA<SurfaceRemoved>());
+      expect(update.surfaceId, surfaceId);
+      expect(manager.surfaces.containsKey(surfaceId), isFalse);
+    });
+
+    test('surface() creates a new ValueNotifier if one does not exist', () {
+      final ValueNotifier<UiDefinition?> notifier1 = manager.getSurfaceNotifier(
+        's1',
+      );
+      final ValueNotifier<UiDefinition?> notifier2 = manager.getSurfaceNotifier(
+        's1',
+      );
+      expect(notifier1, same(notifier2));
+      expect(notifier1.value, isNull);
+    });
+
+    test('dispose() closes the updates stream', () async {
+      var isClosed = false;
+      manager.surfaceUpdates.listen(
+        null,
+        onDone: () {
+          isClosed = true;
+        },
+      );
+
+      manager.dispose();
+
+      await Future<void>.delayed(Duration.zero);
+      expect(isClosed, isTrue);
+    });
+
+    test('can handle UI event', () async {
+      manager
+          .dataModelForSurface('testSurface')
+          .update(DataPath('/myValue'), 'testValue');
+      final Future<UserUiInteractionMessage> future = manager.onSubmit.first;
+      final now = DateTime.now();
+      final event = UserActionEvent(
+        surfaceId: 'testSurface',
+        name: 'testAction',
+        sourceComponentId: 'testWidget',
+        timestamp: now,
+        context: {'key': 'value'},
+      );
+      manager.handleUiEvent(event);
+      final UserUiInteractionMessage message = await future;
+      expect(message, isA<UserUiInteractionMessage>());
+      final String expectedJson = jsonEncode({
+        'userAction': {
+          'surfaceId': 'testSurface',
+          'name': 'testAction',
+          'sourceComponentId': 'testWidget',
+          'timestamp': now.toIso8601String(),
+          'isAction': true,
+          'context': {'key': 'value'},
+        },
+      });
+      expect(message.text, expectedJson);
+    });
+  });
+}

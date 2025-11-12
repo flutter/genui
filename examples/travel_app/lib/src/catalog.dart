@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/date_input_chip.dart';

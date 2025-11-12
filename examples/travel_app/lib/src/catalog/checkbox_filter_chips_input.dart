@@ -8,7 +8,7 @@ library;
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'common.dart';

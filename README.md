@@ -1,4 +1,4 @@
-# Generative UI SDK for Flutter (flutter_genui)
+# Generative UI SDK for Flutter (genui)
 
 A Flutter library to enable developers to easily add interactive
 generative UI to their applications.
@@ -133,13 +133,13 @@ based on a widget catalog from the developers' project.
 
 | Package                                                          | Description                                                                   |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [flutter_genui](packages/flutter_genui/)                         | A framework to employ Generative UI.                       |
-| [flutter_genui_firebase_ai](packages/flutter_genui_firebase_ai/) | Firebase AI integration for flutter_genui.                 |
+| [genui](packages/genui/)                         | A framework to employ Generative UI.                       |
+| [genui_firebase_ai](packages/genui_firebase_ai/) | Firebase AI integration for genui.                 |
 | [json_schema_builder](packages/json_schema_builder/)             | A fully featured Dart JSON Schema package with validation. |
 
 ## Usage
 
-See [packages/flutter_genui/USAGE.md](packages/flutter_genui/USAGE.md).
+See [packages/genui/USAGE.md](packages/genui/USAGE.md).
 
 ## Constraints
 

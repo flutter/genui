@@ -5,8 +5,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/test/fake_content_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/test/fake_content_generator.dart';
 import 'package:travel_app/main.dart' as app;
 
 void main() {

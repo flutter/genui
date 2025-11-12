@@ -1,10 +1,10 @@
 # Simple Chat Example
 
-This application is a minimal example of how to use the `flutter_genui` package to create a simple, conversational chat application.
+This application is a minimal example of how to use the `genui` package to create a simple, conversational chat application.
 
 ## Purpose
 
-The main goal of this example is to demonstrate the fundamental concepts of `flutter_genui` in a straightforward chat context. It shows how to:
+The main goal of this example is to demonstrate the fundamental concepts of `genui` in a straightforward chat context. It shows how to:
 
 1. Initialize and use the `GenUiConversation`, the primary facade for the package.
 2. Provide a simple system prompt to guide the AI's behavior.
@@ -14,7 +14,7 @@ The main goal of this example is to demonstrate the fundamental concepts of `flu
 6. Manage a conversation history that interleaves user text messages with AI-generated UI responses.
 7. Support multiple AI backends (Firebase AI or Google Generative AI).
 
-Unlike more complex examples, this app does not define a custom widget catalog. Instead, it relies on the default `coreCatalog` provided by `flutter_genui`, meaning the AI can only respond with basic widgets like `Text`, `Column`, `ElevatedButton`, etc.
+Unlike more complex examples, this app does not define a custom widget catalog. Instead, it relies on the default `coreCatalog` provided by `genui`, meaning the AI can only respond with basic widgets like `Text`, `Column`, `ElevatedButton`, etc.
 
 ## How it Works
 
@@ -65,7 +65,7 @@ This example supports two AI backends: **Google Generative AI** (default) and **
 
 ### Option 2: Using Firebase AI
 
-1. **Configure Firebase**: Follow the instructions in the main `flutter_genui` [USAGE.md](../../packages/flutter_genui/USAGE.md) to add Firebase to your Flutter app. You will need to:
+1. **Configure Firebase**: Follow the instructions in the main `genui` [USAGE.md](../../packages/genui/USAGE.md) to add Firebase to your Flutter app. You will need to:
    - Set up a Firebase project
    - Generate a `firebase_options.dart` file using the FlutterFire CLI
    - Update `lib/main.dart` to import `firebase_options.dart` instead of `firebase_options_stub.dart`

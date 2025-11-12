@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genui/genui.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/theme.dart';

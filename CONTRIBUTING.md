@@ -85,8 +85,8 @@ incrementing only the minor number for breaking changes and the patch number for
 non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
 major number for breaking changes.
 
-We release `flutter_genui`, `flutter_genui_firebase_ai`,
-`flutter_genui_google_generative_ui`, and `flutter_genui_a2ui` in lock step,
+We release `genui`, `genui_firebase_ai`,
+`genui_google_generative_ui`, and `genui_a2ui` in lock step,
 with the same version number, so when one is released, they are all released.
 
 `json_schema_builder` is released independently on its own schedule, with its
@@ -101,7 +101,7 @@ owner.
 [Semver]: https://semver.org/
 [for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled
 [flutter_guidelines]: https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md
-[usage_md]: packages/flutter_genui/USAGE.md#configure-firebase
+[usage_md]: packages/genui/USAGE.md#configure-firebase
 [assigned_p2_p3_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP2%2CP3%20assignee%3A*
 [p0_p1_issues_without_milestone]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP1%2CP0%20no%3Amilestone
 [projectless_open_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20no%3Aproject

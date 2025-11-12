@@ -1,6 +1,6 @@
 # Travel App Example
 
-This application is a demonstration of the `flutter_genui` package, showcasing how to build a dynamic, conversational user interface powered by a generative AI model (like Google's Gemini).
+This application is a demonstration of the `genui` package, showcasing how to build a dynamic, conversational user interface powered by a generative AI model (like Google's Gemini).
 
 The app functions as a travel planning assistant. Users can describe their desired trip, and the AI will respond by generating a rich, interactive UI to help them plan and refine their itinerary.
 
@@ -18,13 +18,13 @@ All of the UI is generated dynamically and streamed into a chat-like view, creat
 
 ## Key Features Demonstrated
 
-This example highlights several core concepts of the `flutter_genui` package:
+This example highlights several core concepts of the `genui` package:
 
 - **Dynamic UI Generation**: The entire user interface is constructed on-the-fly by the AI based on the conversation.
 - **Component Catalog**: The AI builds the UI from a custom, domain-specific catalog of widgets defined in `lib/src/catalog.dart`. This includes widgets like `TravelCarousel`, `ItineraryEntry`, and `OptionsFilterChipInput`.
 - **System Prompt Engineering**: The behavior of the AI is guided by a detailed system prompt located in `lib/src/travel_planner_page.dart`. This prompt instructs the AI on how to act like a travel agent and which widgets to use in various scenarios.
-- **Dynamic UI State Management**: The `GenUiConversation` and `GenUiManager` from `flutter_genui` handle the orchestration of AI interaction, state of the dynamically generated UI surfaces, and event processing. The application's main page (`TravelPlannerPage`) uses `GenUiConversation` to manage the overall conversation flow and UI updates.
-- **Firebase Integration**: The application uses `FirebaseAiContentGenerator` from `flutter_genui_firebase_ai` to connect to a Firebase backend for AI model access, as shown in `lib/src/travel_planner_page.dart`.
+- **Dynamic UI State Management**: The `GenUiConversation` and `GenUiManager` from `genui` handle the orchestration of AI interaction, state of the dynamically generated UI surfaces, and event processing. The application's main page (`TravelPlannerPage`) uses `GenUiConversation` to manage the overall conversation flow and UI updates.
+- **Firebase Integration**: The application uses `FirebaseAiContentGenerator` from `genui_firebase_ai` to connect to a Firebase backend for AI model access, as shown in `lib/src/travel_planner_page.dart`.
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ To run this application, you will need to have a Firebase project set up and con
 
 1. **Configure Firebase**: Follow the instructions to add Firebase to your
    Flutter app for the platforms you intend to support (Android, iOS, web,
-   etc.). See [USAGE.md](../../packages/flutter_genui/USAGE.md) for steps to
+   etc.). See [USAGE.md](../../packages/genui/USAGE.md) for steps to
    configure Firebase. You will need to replace the placeholder values in
    `lib/firebase_options.dart` with the configuration from your own Firebase
    project.

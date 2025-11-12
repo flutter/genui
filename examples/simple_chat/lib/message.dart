@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 class MessageController {
   MessageController({this.text, this.surfaceId})

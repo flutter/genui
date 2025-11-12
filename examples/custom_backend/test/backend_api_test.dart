@@ -5,8 +5,8 @@
 import 'package:custom_backend/backend.dart';
 import 'package:custom_backend/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 
 void main() {
   setUpAll(() async {

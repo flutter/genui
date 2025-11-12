@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 typedef UserPromptBuilder =
     Widget Function(BuildContext context, UserMessage message);

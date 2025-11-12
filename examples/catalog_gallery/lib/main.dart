@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 void main() {
   runApp(const CatalogGalleryApp());
