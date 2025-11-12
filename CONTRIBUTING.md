@@ -97,6 +97,9 @@ pull request containing the version bump has passed CI. The packages must be
 published by someone with permission to publish under the labs.flutter.org
 owner.
 
+Use the [release tool](tool/release/README.md) to help automate the process of
+releasing a new version.
+
 [pub.dev]: https://pub.dev
 [Semver]: https://semver.org/
 [for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled
