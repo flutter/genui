@@ -3,87 +3,33 @@ import 'dart:io';
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_runner/process_runner.dart';
-import 'package:yaml/yaml.dart';
 
-import 'src/bump.dart';
-import 'src/publish.dart';
+import 'utils.dart';
 
-export 'src/bump.dart';
-export 'src/publish.dart';
-
-const _excludedPackages = ['json_schema_builder'];
-
-class ReleaseTool {
+class BumpCommand {
   final FileSystem fileSystem;
   final ProcessRunner processRunner;
   final String repoRoot;
 
-  late final BumpCommand _bumpCommand;
-  late final PublishCommand _publishCommand;
-
-  ReleaseTool({
+  BumpCommand({
     required this.fileSystem,
     required this.processRunner,
     required this.repoRoot,
-    required StdinReader stdinReader,
-  }) {
-    _bumpCommand = BumpCommand(
-      fileSystem: fileSystem,
-      processRunner: processRunner,
-      repoRoot: repoRoot,
-    );
-    _publishCommand = PublishCommand(
-      fileSystem: fileSystem,
-      processRunner: processRunner,
-      repoRoot: repoRoot,
-      stdinReader: stdinReader,
-    );
-  }
-
-  Future<void> bump(String bumpLevel) => _bumpCommand.run(bumpLevel);
-
-  Future<void> publish({required bool force}) =>
-      _publishCommand.run(force: force);
+  });
 
   Future<void> run(String bumpLevel) async {
-    final List<Directory> packages = await _findPackages();
+    final List<Directory> packages = await findPackages(fileSystem, repoRoot);
 
     for (final packageDir in packages) {
       print('Processing package: ${p.basename(packageDir.path)}');
       await _bumpVersion(packageDir, bumpLevel);
-      final String newVersion = await _getNewVersion(packageDir);
+      final String newVersion = await getPackageVersion(fileSystem, packageDir);
       await _updateChangelog(packageDir, newVersion);
     }
 
     print('Upgrading dependencies in the monorepo...');
     await _upgradeDependencies();
-    print('Release tool finished.');
-  }
-
-  Future<List<Directory>> _findPackages() async {
-    final Directory packagesDir =
-        fileSystem.directory(p.join(repoRoot, 'packages'));
-    if (!await packagesDir.exists()) {
-      print('Error: packages directory not found at ${packagesDir.path}');
-      return [];
-    }
-
-    final packages = <Directory>[];
-    await for (final FileSystemEntity entity in packagesDir.list()) {
-      if (entity is Directory) {
-        final String packageName = p.basename(entity.path);
-        if (_excludedPackages.contains(packageName)) {
-          print('Skipping excluded package: $packageName');
-          continue;
-        }
-        final File pubspecFile =
-            fileSystem.file(p.join(entity.path, 'pubspec.yaml'));
-        if (await pubspecFile.exists()) {
-          packages.add(entity);
-        }
-      }
-    }
-    return packages;
+    print('Bump command finished.');
   }
 
   Future<void> _bumpVersion(Directory packageDir, String level) async {
@@ -97,14 +43,6 @@ class ReleaseTool {
       exit(1);
     }
     print('Bumped $level version in ${p.basename(packageDir.path)}');
-  }
-
-  Future<String> _getNewVersion(Directory packageDir) async {
-    final File pubspecFile =
-        fileSystem.file(p.join(packageDir.path, 'pubspec.yaml'));
-    final String content = await pubspecFile.readAsString();
-    final yamlMap = loadYaml(content) as Map;
-    return yamlMap['version'] as String;
   }
 
   Future<void> _updateChangelog(Directory packageDir, String newVersion) async {

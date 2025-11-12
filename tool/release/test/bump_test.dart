@@ -9,7 +9,7 @@ import 'package:release/release.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('ReleaseTool', () {
+  group('BumpCommand', () {
     late MemoryFileSystem fileSystem;
     late FakeProcessManager processManager;
     late ReleaseTool releaseTool;
@@ -25,6 +25,7 @@ void main() {
         fileSystem: fileSystem,
         processRunner: ProcessRunner(processManager: processManager),
         repoRoot: repoRoot,
+        stdinReader: () => null, // Not used in bump tests
       );
 
       final Directory packagesDir =
@@ -71,7 +72,7 @@ version: 1.0.1
         ],
       };
 
-      await releaseTool.run('patch');
+      await releaseTool.bump('patch');
 
       final String pubspecContent =
           packageADir.childFile('pubspec.yaml').readAsStringSync();
@@ -116,7 +117,7 @@ version: 1.1.0
         ],
       };
 
-      await releaseTool.run('minor');
+      await releaseTool.bump('minor');
 
       final String changelogContent =
           packageADir.childFile('CHANGELOG.md').readAsStringSync();
