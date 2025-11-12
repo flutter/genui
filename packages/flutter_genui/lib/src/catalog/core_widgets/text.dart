@@ -12,11 +12,11 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
-  factory _TextData({required JsonMap text, String? hint}) =>
-      _TextData.fromMap({'text': text, 'hint': hint});
+  factory _TextData({required JsonMap text, String? usageHint}) =>
+      _TextData.fromMap({'text': text, 'usageHint': usageHint});
 
   JsonMap get text => _json['text'] as JsonMap;
-  String? get hint => _json['hint'] as String?;
+  String? get usageHint => _json['usageHint'] as String?;
 }
 
 /// A catalog item representing a block of styled text.
@@ -28,8 +28,8 @@ extension type _TextData.fromMap(JsonMap _json) {
 /// ## Parameters:
 ///
 /// - `text`: The text to display. This supports markdown.
-/// - `hint`: A hint for the text style. One of 'h1', 'h2', 'h3', 'h4', 'h5',
-///   'caption', 'body'.
+/// - `usageHint`: A usage hint for the text size and style. One of 'h1', 'h2',
+///   'h3', 'h4', 'h5', 'caption', 'body'.
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
@@ -38,8 +38,8 @@ final text = CatalogItem(
         description:
             '''While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.''',
       ),
-      'hint': S.string(
-        description: 'A hint for the base text style.',
+      'usageHint': S.string(
+        description: 'A usage hint for the base text style.',
         enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
       ),
     },
@@ -55,7 +55,7 @@ final text = CatalogItem(
               "text": {
                 "literalString": "Hello World"
               },
-              "hint": "h1"
+              "usageHint": "h1"
             }
           }
         }
@@ -71,8 +71,8 @@ final text = CatalogItem(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
         final TextTheme textTheme = Theme.of(context).textTheme;
-        final String hint = textData.hint ?? 'body';
-        final TextStyle? baseStyle = switch (hint) {
+        final String usageHint = textData.usageHint ?? 'body';
+        final TextStyle? baseStyle = switch (usageHint) {
           'h1' => textTheme.headlineLarge,
           'h2' => textTheme.headlineMedium,
           'h3' => textTheme.headlineSmall,
@@ -81,7 +81,7 @@ final text = CatalogItem(
           'caption' => textTheme.bodySmall,
           _ => textTheme.bodyMedium,
         };
-        final double verticalPadding = switch (hint) {
+        final double verticalPadding = switch (usageHint) {
           'h1' => 20.0,
           'h2' => 16.0,
           'h3' => 12.0,

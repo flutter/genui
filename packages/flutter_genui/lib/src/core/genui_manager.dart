@@ -205,7 +205,6 @@ class GenUiManager implements GenUiHost {
         );
         final DataModel dataModel = dataModelForSurface(message.surfaceId);
         dataModel.update(DataPath(path), message.contents);
-        break;
       case SurfaceDeletion():
         final String surfaceId = message.surfaceId;
         if (_surfaces.containsKey(surfaceId)) {

@@ -1,0 +1,104 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_genui_a2ui/flutter_genui_a2ui.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../state/loading_state.dart';
+
+part 'ai_provider.g.dart';
+
+final a2aServerUrl = Platform.isAndroid
+    ? 'http://10.0.2.2:10002'
+    : 'http://localhost:10002';
+
+/// A provider for the A2UI agent connector.
+@Riverpod(keepAlive: true)
+A2uiAgentConnector a2uiAgentConnector(Ref ref) {
+  return A2uiAgentConnector(url: Uri.parse(a2aServerUrl));
+}
+
+/// The state of the AI client provider.
+class AiClientState {
+  /// Creates an [AiClientState].
+  AiClientState({
+    required this.genUiManager,
+    required this.contentGenerator,
+    required this.conversation,
+    required this.surfaceUpdateController,
+  });
+
+  /// The GenUI manager.
+  final GenUiManager genUiManager;
+
+  /// The content generator.
+  final A2uiContentGenerator contentGenerator;
+
+  /// The conversation manager.
+  final GenUiConversation conversation;
+
+  /// A stream that emits the ID of the most recently updated surface.
+  final StreamController<String> surfaceUpdateController;
+}
+
+/// The AI provider.
+@Riverpod(keepAlive: true)
+class Ai extends _$Ai {
+  @override
+  Future<AiClientState> build() async {
+    final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+    final A2uiAgentConnector connector = ref.watch(a2uiAgentConnectorProvider);
+    final contentGenerator = A2uiContentGenerator(
+      serverUrl: Uri.parse(a2aServerUrl),
+      connector: connector,
+    );
+    final conversation = GenUiConversation(
+      contentGenerator: contentGenerator,
+      genUiManager: genUiManager,
+    );
+    final surfaceUpdateController = StreamController<String>.broadcast();
+
+    contentGenerator.a2uiMessageStream.listen((message) {
+      switch (message) {
+        case BeginRendering():
+          surfaceUpdateController.add(message.surfaceId);
+        case SurfaceUpdate():
+        case DataModelUpdate():
+        case SurfaceDeletion():
+        // We only navigate on BeginRendering.
+      }
+    });
+
+    // Fetch the agent card to initialize the connection.
+    await contentGenerator.connector.getAgentCard();
+
+    void updateProcessingState() {
+      LoadingState.instance.isProcessing.value =
+          contentGenerator.isProcessing.value;
+    }
+
+    contentGenerator.isProcessing.addListener(updateProcessingState);
+
+    ref.onDispose(() {
+      contentGenerator.isProcessing.removeListener(updateProcessingState);
+      // Reset the loading state when the provider is disposed.
+      LoadingState.instance.isProcessing.value = false;
+      conversation.dispose();
+      // contentGenerator is disposed by conversation.dispose(), so we don't
+      // need to dispose it again.
+      surfaceUpdateController.close();
+    });
+
+    return AiClientState(
+      genUiManager: genUiManager,
+      contentGenerator: contentGenerator,
+      conversation: conversation,
+      surfaceUpdateController: surfaceUpdateController,
+    );
+  }
+}

@@ -651,7 +651,6 @@ extension SchemaValidation on Schema {
             }
           }
         }
-        break;
       case JsonType.num:
       case JsonType.int:
         {
@@ -712,11 +711,9 @@ extension SchemaValidation on Schema {
             }
           }
         }
-        break;
       case JsonType.boolean:
       case JsonType.nil:
-        // No specific keywords for bool or null besides generic ones.
-        break;
+      // No specific keywords for bool or null besides generic ones.
     }
     return ValidationResult.fromErrors(errors, AnnotationSet.empty());
   }

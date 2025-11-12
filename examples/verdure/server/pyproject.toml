@@ -1,0 +1,14 @@
+[project]
+name = "verdure-server"
+version = "0.1.0"
+description = "A top-level project to manage the Verdure server example."
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "a2ui_extension",
+    "verdure"
+]
+
+[tool.uv.sources]
+a2ui-ext = { path = "a2ui_extension", editable = true }

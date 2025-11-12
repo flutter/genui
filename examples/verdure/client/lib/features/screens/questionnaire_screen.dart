@@ -1,0 +1,83 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/logging.dart';
+import '../../core/theme/theme.dart';
+import '../ai/ai_provider.dart';
+
+class QuestionnaireScreen extends ConsumerStatefulWidget {
+  const QuestionnaireScreen({super.key});
+
+  @override
+  ConsumerState<QuestionnaireScreen> createState() =>
+      _QuestionnaireScreenState();
+}
+
+class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
+  bool _initialRequestSent = false;
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AsyncValue<AiClientState>>(aiProvider, (previous, next) {
+      if (next is AsyncData && !_initialRequestSent) {
+        setState(() {
+          _initialRequestSent = true;
+        });
+        final AiClientState? aiState = next.value;
+        aiState?.conversation.sendRequest(
+          UserMessage.text('USER_SUBMITTED_DETAILS'),
+        );
+      }
+    });
+
+    return Scaffold(
+      backgroundColor: backgroundLight,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            appLogger.info('AiQuestionnaireScreen: Back button tapped');
+            context.pop();
+          },
+        ),
+        title: const Text('Envision Your Landscape'),
+        centerTitle: true,
+      ),
+      body: ref
+          .watch(aiProvider)
+          .when(
+            data: (aiState) {
+              return ValueListenableBuilder<UiDefinition?>(
+                valueListenable: aiState.genUiManager.getSurfaceNotifier(
+                  'questionnaire',
+                ),
+                builder: (context, definition, child) {
+                  if (definition == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    child: GenUiSurface(
+                      host: aiState.genUiManager,
+                      surfaceId: 'questionnaire',
+                    ),
+                  );
+                },
+              );
+            },
+            loading: () {
+              return const Center(child: CircularProgressIndicator());
+            },
+            error: (error, stackTrace) {
+              return Center(child: Text('Error: $error'));
+            },
+          ),
+    );
+  }
+}

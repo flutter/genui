@@ -40,7 +40,9 @@ void main() {
     expect(find.text('Hello World'), findsOneWidget);
   });
 
-  testWidgets('Text widget renders with h1 hint', (WidgetTester tester) async {
+  testWidgets('Text widget renders with h1 usage hint', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(
@@ -49,7 +51,7 @@ void main() {
               CatalogItemContext(
                 data: {
                   'text': {'literalString': 'Heading 1'},
-                  'hint': 'h1',
+                  'usageHint': 'h1',
                 },
                 id: 'test_text_h1',
                 buildChild: (_, [_]) => const SizedBox(),
