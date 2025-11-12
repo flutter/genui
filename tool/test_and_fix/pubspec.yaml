@@ -16,9 +16,9 @@ resolution: workspace
 dependencies:
   args: ^2.7.0
   file: ^7.0.1
-  path: ^1.9.0
+  path: ^1.9.1
   process: ^5.0.5
-  process_runner: ^4.2.3
+  process_runner: ^4.2.4
 
 dev_dependencies:
   test: ^1.26.2
