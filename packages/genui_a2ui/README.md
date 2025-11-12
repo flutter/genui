@@ -26,9 +26,9 @@ Add the following to your `pubspec.yaml`:
 dependencies:
   flutter:
     sdk: flutter
-  genui: ^0.1.0 # Or the latest version
-  genui_a2ui: ^0.1.0 # Or the latest version
-  a2a: ^0.1.0 # Or the latest version
+  genui: ^0.5.0 # Or the latest version
+  genui_a2ui: ^0.5.0 # Or the latest version
+  a2a: ^3.1.0 # Or the latest version
 ```
 
 Then run `flutter pub get`.
