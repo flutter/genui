@@ -29,108 +29,6 @@ The package is built around the following main components:
 
 5.  **`A2uiMessage`**: A message sent from the AI (via the `ContentGenerator`) to the UI, instructing it to perform actions like `beginRendering`, `surfaceUpdate`, `dataModelUpdate`, or `deleteSurface`.
 
-## Getting Started
-
-To use `flutter_genui`, you need to initialize a `GenUiConversation`, provide it with a system prompt, and render the UI surfaces it manages.
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
-
-// Replace with your actual ContentGenerator implementation
-class YourContentGenerator implements ContentGenerator {
-  // ... implementation details ...
-  @override
-  Stream<A2uiMessage> get a2uiMessageStream => Stream.empty(); // Replace
-  @override
-  Stream<String> get textResponseStream => Stream.empty(); // Replace
-  @override
-  Stream<ContentGeneratorError> get errorStream => Stream.empty(); // Replace
-  @override
-  ValueListenable<bool> get isProcessing => ValueNotifier(false); // Replace
-  @override
-  Future<void> sendRequest(ChatMessage message, {Iterable<ChatMessage>? history}) async { /* ... */ }
-  @override
-  void dispose() { /* ... */ }
-}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late final GenUiConversation _genUiConversation;
-  final List<String> _surfaceIds = [];
-  String _lastTextResponse = '';
-  String _lastError = '';
-
-  @override
-  void initState() {
-    super.initState();
-
-    final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
-    // NOTE: You need a concrete implementation of ContentGenerator here.
-    // The 'flutter_genui_firebase_ai' package provides implementations
-    // like FirebaseAiContentGenerator.
-    final contentGenerator = YourContentGenerator();
-
-    _genUiConversation = GenUiConversation(
-      genUiManager: genUiManager,
-      contentGenerator: contentGenerator,
-      onSurfaceAdded: (update) => setState(() => _surfaceIds.add(update.surfaceId)),
-      onSurfaceDeleted: (update) => setState(() => _surfaceIds.remove(update.surfaceId)),
-      onTextResponse: (text) => setState(() => _lastTextResponse = text),
-      onError: (error) => setState(() => _lastError = error.error.toString()),
-    );
-  }
-
-  void _sendPrompt(String text) {
-    if (text.trim().isEmpty) return;
-    _genUiConversation.sendRequest(UserMessage.text(text));
-  }
-
-  @override
-  void dispose() {
-    _genUiConversation.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('GenUI Demo')),
-        body: Column(
-          children: [
-            if (_lastTextResponse.isNotEmpty) Text('AI: $_lastTextResponse'),
-            if (_lastError.isNotEmpty) Text('Error: $_lastError', style: TextStyle(color: Colors.red)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _surfaceIds.length,
-                itemBuilder: (context, index) {
-                  return GenUiSurface(
-                                         host: _genUiConversation.host,
-                    surfaceId: _surfaceIds[index],
-                  );
-                },
-              ),
-            ),
-            // Your chat input widget would go here, calling _sendPrompt
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
-
 ## How It Works
 
 The `GenUiConversation` manages the interaction cycle:
@@ -169,4 +67,431 @@ graph TD
     GenUiManager -- "sends user input to" --> GenUiConversation;
 ```
 
-See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for more detailed information about the design.
+See [DESIGN.md](./DESIGN.md) for more detailed information about the design.
+
+## Getting Started with `flutter_genui`
+
+This guidance explains how to quickly get started with the
+[`flutter_genui`](https://pub.dev/packages/flutter_genui) package.
+
+### 1. Add `flutter_genui` to your app
+
+Use the following instructions to add `flutter_genui` to your Flutter app. The
+code examples show how to perform the instructions on a brand new app created by
+running `flutter create`.
+
+### 2. Configure your agent provider
+
+`flutter_genui` can connect to a variety of agent providers. Choose the section
+below for your preferred provider.
+
+#### Configure Firebase AI Logic
+
+To use the built-in `FirebaseAiContentGenerator` to connect to Gemini via Firebase AI
+Logic, follow these instructions:
+
+1. [Create a new Firebase project](https://support.google.com/appsheet/answer/10104995)
+   using the Firebase Console.
+2. [Enable the Gemini API](https://firebase.google.com/docs/gemini-in-firebase/set-up-gemini)
+   for that project.
+3. Follow the first three steps in
+   [Firebase's Flutter Setup guide](https://firebase.google.com/docs/flutter/setup)
+   to add Firebase to your app.
+4. In `pubspec.yaml`, add `flutter_genui` and `flutter_genui_firebase_ai` to the
+   `dependencies` section. As of this writing, it's best to use pub's git
+   dependency to refer directly to this project's source.
+
+   ```yaml
+   dependencies:
+     # ...
+     flutter_genui:
+       git:
+         url: https://github.com/flutter/genui.git
+         path: packages/flutter_genui
+         ref: main
+     flutter_genui_firebase_ai:
+       git:
+         url: https://github.com/flutter/genui.git
+         path: packages/flutter_genui_firebase_ai
+         ref: main
+   ```
+
+5. In your app's `main` method, ensure that the widget bindings are initialized,
+   and then initialize Firebase.
+
+   ```dart
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+     runApp(const MyApp());
+   }
+   ```
+
+#### Configure another agent provider
+
+To use `flutter_genui` with another agent provider, you need to follow that
+provider's instructions to configure your app, and then create your own subclass
+of `ContentGenerator` to connect to that provider. Use `FirebaseAiContentGenerator` or
+`A2uiContentGenerator` (from the `flutter_genui_a2ui` package) as examples
+of how to do so.
+
+### 3. Create the connection to an agent
+
+If you build your Flutter project for iOS or macOS, add this key to your
+`{ios,macos}/Runner/*.entitlements` file(s) to enable outbound network
+requests:
+
+```xml
+<dict>
+...
+<key>com.apple.security.network.client</key>
+<true/>
+</dict>
+```
+
+Next, use the following instructions to connect your app to your chosen agent
+provider.
+
+1. Create a `GenUiManager`, and provide it with the catalog of widgets you want
+   to make available to the agent.
+2. Create a `ContentGenerator`, and provide it with a system instruction and a set of
+   tools (functions you want the agent to be able to invoke). You should always
+   include those provided by `GenUiManager`, but feel free to include others.
+3. Create a `GenUiConversation` using the instances of `ContentGenerator` and `GenUiManager`. Your
+   app will primarily interact with this object to get things done.
+
+   For example:
+
+   ```dart
+   class _MyHomePageState extends State<MyHomePage> {
+     late final GenUiManager _genUiManager;
+     late final GenUiConversation _genUiConversation;
+
+     @override
+     void initState() {
+       super.initState();
+
+       // Create a GenUiManager with a widget catalog.
+       // The CoreCatalogItems contain basic widgets for text, markdown, and images.
+       _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+
+       // Create a ContentGenerator to communicate with the LLM.
+       // Provide system instructions and the tools from the GenUiManager.
+       final contentGenerator = FirebaseAiContentGenerator(
+         systemInstruction: '''
+           You are an expert in creating funny riddles. Every time I give you a word,
+           you should generate UI that displays one new riddle related to that word.
+           Each riddle should have both a question and an answer.
+           ''',
+         tools: _genUiManager.getTools(),
+       );
+
+       // Create the GenUiConversation to orchestrate everything.
+       _genUiConversation = GenUiConversation(
+         genUiManager: _genUiManager,
+         contentGenerator: contentGenerator,
+         onSurfaceAdded: _onSurfaceAdded, // Added in the next step.
+         onSurfaceDeleted: _onSurfaceDeleted, // Added in the next step.
+       );
+     }
+
+     @override
+     void dispose() {
+       _textController.dispose();
+       _genUiConversation.dispose();
+
+       super.dispose();
+     }
+   }
+   ```
+
+### 4. Send messages and display the agent's responses
+
+Send a message to the agent using the `sendRequest` method in the `GenUiConversation`
+class.
+
+To receive and display generated UI:
+
+1. Use `GenUiConversation`'s callbacks to track the addition and removal of UI surfaces as
+   they are generated. These events include a "surface ID" for each surface.
+2. Build a `GenUiSurface` widget for each active surface using the surface IDs
+   received in the previous step.
+
+   For example:
+
+   ```dart
+   class _MyHomePageState extends State<MyHomePage> {
+
+     // ...
+
+     final _textController = TextEditingController();
+     final _surfaceIds = <String>[];
+
+     // Send a message containing the user's text to the agent.
+     void _sendMessage(String text) {
+       if (text.trim().isEmpty) return;
+       _genUiConversation.sendRequest(UserMessage.text(text));
+     }
+
+     // A callback invoked by the [GenUiConversation] when a new UI surface is generated.
+     // Here, the ID is stored so the build method can create a GenUiSurface to
+     // display it.
+     void _onSurfaceAdded(SurfaceAdded update) {
+       setState(() {
+         _surfaceIds.add(update.surfaceId);
+       });
+     }
+
+     // A callback invoked by GenUiConversation when a UI surface is removed.
+     void _onSurfaceDeleted(SurfaceRemoved update) {
+       setState(() {
+         _surfaceIds.remove(update.surfaceId);
+       });
+     }
+
+     @override
+     Widget build(BuildContext context) {
+       return Scaffold(
+         appBar: AppBar(
+           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+           title: Text(widget.title),
+         ),
+         body: Column(
+           children: [
+             Expanded(
+               child: ListView.builder(
+                 itemCount: _surfaceIds.length,
+                 itemBuilder: (context, index) {
+                   // For each surface, create a GenUiSurface to display it.
+                   final id = _surfaceIds[index];
+                   return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
+                 },
+               ),
+             ),
+             SafeArea(
+               child: Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                 child: Row(
+                   children: [
+                     Expanded(
+                       child: TextField(
+                         controller: _textController,
+                         decoration: const InputDecoration(
+                           hintText: 'Enter a message',
+                         ),
+                       ),
+                     ),
+                     const SizedBox(width: 16),
+                     ElevatedButton(
+                       onPressed: () {
+                         // Send the user's text to the agent.
+                         _sendMessage(_textController.text);
+                         _textController.clear();
+                       },
+                       child: const Text('Send'),
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+           ],
+         ),
+       );
+     }
+   }
+   ```
+
+### 5. [Optional] Add your own widgets to the catalog
+
+In addition to using the catalog of widgets in `CoreCatalogItems`, you can
+create custom widgets for the agent to generate. Use the following
+instructions.
+
+#### Import `json_schema_builder`
+
+Add the `json_schema_builder` package as a dependency in `pubspec.yaml`. Use the
+same commit reference as the one for `flutter_genui`.
+
+```yaml
+dependencies:
+  # ...
+  json_schema_builder:
+    git:
+      url: https://github.com/flutter/genui.git
+      path: packages/json_schema_builder
+
+```
+
+#### Create the new widget's schema
+
+Each catalog item needs a schema that defines the data required to populate it.
+Using the `json_schema_builder` package, define one for the new widget.
+
+```dart
+import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_genui/flutter_genui.dart';
+
+final _schema = S.object(
+  properties: {
+    'question': S.string(description: 'The question part of a riddle.'),
+    'answer': S.string(description: 'The answer part of a riddle.'),
+  },
+  required: ['question', 'answer'],
+);
+```
+
+#### Create a `CatalogItem`
+
+Each `CatalogItem` represents a type of widget that the agent is allowed to
+generate. To do that, combines a name, a schema, and a builder function that
+produces the widgets that compose the generated UI.
+
+```dart
+final riddleCard = CatalogItem(
+  name: 'RiddleCard',
+  dataSchema: _schema,
+  widgetBuilder:
+      ({
+        required data,
+        required id,
+        required buildChild,
+        required dispatchEvent,
+        required context,
+        required dataContext,
+      }) {
+        final json = data as Map<String, Object?>;
+        final question = json['question'] as String;
+        final answer = json['answer'] as String;
+
+        return Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          decoration: BoxDecoration(border: Border.all()),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(question, style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 8.0),
+              Text(answer, style: Theme.of(context).textTheme.headlineSmall),
+            ],
+          ),
+        );
+      },
+);
+```
+
+#### Add the `CatalogItem` to the catalog
+
+Include your catalog items when instantiating `GenUiManager`.
+
+```dart
+_genUiManager = GenUiManager(
+  catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
+);
+```
+
+#### Update the system instruction to use the new widget
+
+In order to make sure the agent knows to use your new widget, use the system
+instruction to explicitly tell it how and when to do so. Provide the name from
+the CatalogItem when you do.
+
+```dart
+final contentGenerator = FirebaseAiContentGenerator(
+  systemInstruction: '''
+      You are an expert in creating funny riddles. Every time I give you a word,
+      you should generate a RiddleCard that displays one new riddle related to that word.
+      Each riddle should have both a question and an answer.
+      ''',
+  tools: _genUiManager.getTools(),
+);
+```
+
+### Data Model and Data Binding
+
+A core concept in `flutter_genui` is the **`DataModel`**, a centralized, observable store for all dynamic UI state. Instead of widgets managing their own state, their state is stored in the `DataModel`.
+
+Widgets are "bound" to data in this model. When data in the model changes, only the widgets that depend on that specific piece of data are rebuilt. This is achieved through a `DataContext` object that is passed to each widget's builder function.
+
+#### Binding to the Data Model
+
+To bind a widget's property to the data model, you use a special JSON object in the data sent from the AI. This object can contain either a `literalString` (for static values) or a `path` (to bind to a value in the data model).
+
+For example, to display a user's name in a `Text` widget, the AI would generate:
+
+```json
+{
+  "Text": {
+    "text": {
+      "literalString": "Welcome to GenUI"
+    },
+    "hint": "h1"
+  }
+}
+```
+
+#### Image
+
+```json
+{
+  "Image": {
+    "url": {
+      "literalString": "https://example.com/image.png"
+    },
+    "hint": "mediumFeature"
+  }
+}
+```
+
+#### Updating the Data Model
+
+Input widgets, like `TextField`, update the `DataModel` directly. When the user types in a text field that is bound to `/user/name`, the `DataModel` is updated, and any other widgets bound to that same path will automatically rebuild to show the new value.
+
+This reactive data flow simplifies state management and creates a powerful, high-bandwidth interaction loop between the user, the UI, and the AI.
+
+### Next steps
+
+Check out the [examples](../../examples) included in this repo! The
+[travel app](../../examples/travel_app) shows how to define your own widget
+`Catalog` that the agent can use to generate domain-specific UI.
+
+If something is unclear or missing, please
+[create an issue](https://github.com/flutter/genui/issues/new/choose).
+
+### System instructions
+
+The `flutter_genui` package gives the LLM a set of tools it can use to generate
+UI. To get the LLM to use these tools, the `systemInstruction` provided to
+`ContentGenerator` must explicitly tell it to do so. This is why the previous example
+includes a system instruction for the agent with the line "Every time I give
+you a word, you should generate UI that displays one new riddle...".
+
+### Troubleshooting / FAQ
+
+#### How can I configure logging?
+
+To observe communication between your app and the agent, enable logging in your
+`main` method.
+
+```dart
+import 'package:logging/logging.dart';
+
+final logger = configureGenUiLogging(level: Level.ALL);
+
+void main() async {
+  logger.onRecord.listen((record) {
+    debugPrint('${record.loggerName}: ${record.message}');
+  });
+
+  // Additional initialization of bindings and Firebase.
+}
+```
+
+#### I'm getting errors about my minimum macOS/iOS version.
+
+Firebase has a
+[minimum version requirement](https://firebase.google.com/support/release-notes/ios)
+for Apple's platforms, which might be higher than Flutter's default. Check your
+`Podfile` (for iOS) and `CMakeLists.txt` (for macOS) to ensure you're targeting
+a version that meets or exceeds Firebase's requirements.
