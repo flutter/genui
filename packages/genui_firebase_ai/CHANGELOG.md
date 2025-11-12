@@ -1,4 +1,6 @@
-# `genui_firebase_ai` Change Log
+# `genui_firebase_ai` Changelog
+
+## 0.5.2 (in progress)
 
 ## 0.5.1
 

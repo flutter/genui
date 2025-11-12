@@ -1,5 +1,7 @@
 # `genui` Changelog
 
+## 0.5.2 (in progress)
+
 ## 0.5.1
 
 - Homepage URL was updated.
