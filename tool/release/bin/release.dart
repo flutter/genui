@@ -37,8 +37,9 @@ void main(List<String> arguments) async {
   }
 
   if (argResults.command == null) {
-    print('Usage: dart run tool/release/bin/release.dart <command> [options]');
-    print(parser.usage);
+    stderr.writeln(
+        'Usage: dart run tool/release/bin/release.dart <command> [options]');
+    stderr.writeln(parser.usage);
     exit(1);
   }
 
@@ -48,7 +49,6 @@ void main(List<String> arguments) async {
   // Find the repo root, assuming the script is in <repo_root>/tool/release/bin
   final File scriptFile = fileSystem.file(Platform.script.toFilePath());
   final Directory repoDir = scriptFile.parent.parent.parent.parent;
-  print('Detected repo root: ${repoDir.path}');
   final tool = ReleaseTool(
     fileSystem: fileSystem,
     processRunner: processRunner,

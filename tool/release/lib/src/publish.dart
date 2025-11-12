@@ -125,9 +125,8 @@ class PublishCommand {
 
   Future<void> _createTags(Map<String, String> versionsToPublish) async {
     printer('\n--- Creating Git Tags ---');
-    for (final String packageName in versionsToPublish.keys) {
-      final String version = versionsToPublish[packageName]!;
-      final tagName = '$packageName-$version';
+    for (final MapEntry<String, String> entry in versionsToPublish.entries) {
+      final tagName = '${entry.key}-${entry.value}';
       printer('Creating tag: $tagName');
       final ProcessRunnerResult result = await processRunner.runProcess(
         ['git', 'tag', tagName],

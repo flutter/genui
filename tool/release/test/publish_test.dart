@@ -82,7 +82,7 @@ version: 0.1.0
     });
 
     test(
-        'PublishCommand publish --force with yes should publish, tag, and bump',
+        'PublishCommand publish --force with yes should publish, tag, and update changelog',
         () async {
       fakeStdinLines = ['yes'];
       final ReleaseTool releaseTool = buildReleaseTool(printer: (_) {});
@@ -103,44 +103,32 @@ version: 0.1.0
             workingDirectory: packageADir.path): [
           ProcessResult(0, 0, '', ''),
         ],
-        FakeInvocationRecord(const ['git', 'tag', 'package_a-1.3.0'],
+        FakeInvocationRecord(const ['git', 'tag', 'package_a-1.2.3'],
             workingDirectory: repoRoot.path): [
           ProcessResult(0, 0, '', ''),
-        ],
-        FakeInvocationRecord(const ['dart', 'pub', 'bump', 'minor'],
-            workingDirectory: packageADir.path): [
-          () {
-            packageADir.childFile('pubspec.yaml').writeAsStringSync('''
-name: package_a
-version: 1.3.0
-''');
-            return ProcessResult(0, 0, '', '');
-          }(),
         ],
       };
 
       await releaseTool.publish(force: true);
 
-      expect(processManager.invocations.length, 4);
+      expect(processManager.invocations.length, 3);
       expect(processManager.invocations[0].invocation.skip(1),
           ['pub', 'publish', '--dry-run']);
       expect(processManager.invocations[1].invocation.skip(1),
           ['pub', 'publish', '--force']);
       expect(processManager.invocations[2].invocation.skip(1),
-          ['tag', 'package_a-1.3.0']);
-      expect(processManager.invocations[3].invocation.skip(1),
-          ['pub', 'bump', 'minor']);
+          ['tag', 'package_a-1.2.3']);
 
       final String pubspecContent =
           packageADir.childFile('pubspec.yaml').readAsStringSync();
-      expect(pubspecContent, contains('version: 1.3.0'));
+      expect(pubspecContent, contains('version: 1.2.3'));
 
       final String changelogContent =
           packageADir.childFile('CHANGELOG.md').readAsStringSync();
       expect(
         changelogContent,
         startsWith(
-            '# `package_a` Changelog\n\n## 1.3.0 (in progress)\n\n## 1.2.3\n\n'
+            '# `package_a` Changelog\n\n## 1.2.4 (in progress)\n\n## 1.2.3\n\n'
             '- Release version.'),
       );
     });

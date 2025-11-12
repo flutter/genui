@@ -25,7 +25,7 @@ dart run tool/release/bin/release.dart bump --level <level>
 
 ### 2. Publish and Prepare for Next Publish Cycle with `publish`
 
-After you have committed the changes from the `bump` command, you can publish the new version. The `publish` command will publish the packages, create git tags, and then prepare the repository for the next development cycle by bumping the version again and adding a new `(in progress)` section to top of the CHANGELOG.md files.
+After you have committed the changes from the `bump` command, you can publish the new version. The `publish` command will publish the packages, create git tags, and then prepare the repository for the next development cycle by adding a new `(in progress)` section to top of the CHANGELOG.md files.
 
 By default, `publish` runs in dry-run mode, which simulates the publish process without actually uploading packages.
 

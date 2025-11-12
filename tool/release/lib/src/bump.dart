@@ -1,4 +1,3 @@
-
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_runner/process_runner.dart';
@@ -55,9 +54,9 @@ class BumpCommand {
     final title = '# `$packageName` Changelog\n';
 
     if (!await changelogFile.exists()) {
-      printer('Warning: CHANGELOG.md not found in ${packageDir.path}');
-      await changelogFile
-          .writeAsString('$title\n## $newVersion (in progress)\n\n');
+      printer('Warning: CHANGELOG.md not found in ${packageDir.path}, '
+          'creating one.');
+      await changelogFile.writeAsString('$title\n## $newVersion\n\n');
       return;
     }
 
@@ -99,7 +98,6 @@ class BumpCommand {
       lines.insert(insertIndex, versionHeader);
       lines.insert(insertIndex + 1, ''); // Blank line after new entry
     }
-
 
     await changelogFile.writeAsString(lines.join('\n'));
     printer('Updated CHANGELOG.md in ${packageDir.path}');
