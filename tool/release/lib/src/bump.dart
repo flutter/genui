@@ -9,7 +9,7 @@ import 'utils.dart';
 class BumpCommand {
   final FileSystem fileSystem;
   final ProcessRunner processRunner;
-  final String repoRoot;
+  final Directory repoRoot;
 
   BumpCommand({
     required this.fileSystem,
@@ -18,12 +18,12 @@ class BumpCommand {
   });
 
   Future<void> run(String bumpLevel) async {
-    final List<Directory> packages = await findPackages(fileSystem, repoRoot);
+    final List<Directory> packages = await findPackages(repoRoot);
 
     for (final packageDir in packages) {
       print('Processing package: ${p.basename(packageDir.path)}');
       await _bumpVersion(packageDir, bumpLevel);
-      final String newVersion = await getPackageVersion(fileSystem, packageDir);
+      final String newVersion = await getPackageVersion(packageDir);
       await _updateChangelog(packageDir, newVersion);
     }
 
@@ -46,25 +46,60 @@ class BumpCommand {
   }
 
   Future<void> _updateChangelog(Directory packageDir, String newVersion) async {
+    final String packageName = p.basename(packageDir.path);
     final File changelogFile =
         fileSystem.file(p.join(packageDir.path, 'CHANGELOG.md'));
+    final title = '# `$packageName` Changelog\n';
+
     if (!await changelogFile.exists()) {
       print('Warning: CHANGELOG.md not found in ${packageDir.path}');
-      await changelogFile.writeAsString('## $newVersion (in progress)\n\n');
+      await changelogFile
+          .writeAsString('$title\n## $newVersion (in progress)\n\n');
       return;
     }
 
     String content = await changelogFile.readAsString();
-    content = content.replaceAllMapped(
-      RegExp(r'^## (.*) \(in progress\)', multiLine: true),
-      (match) => '## ${match[1]}',
-    );
+    List<String> lines = content.split('\n');
 
-    final newEntry = '## $newVersion (in progress)\n\n';
-    content = newEntry + content;
+    // Ensure the title is present and correct
+    if (lines.isEmpty || !lines[0].startsWith('# `$packageName` Changelog')) {
+      // Remove any existing incorrect title
+      if (lines.isNotEmpty && lines[0].startsWith('# ')) {
+        lines.removeAt(0);
+        // Remove potential blank lines after the old title
+        while (lines.isNotEmpty && lines[0].trim().isEmpty) {
+          lines.removeAt(0);
+        }
+      }
+      content = '$title\n${lines.join('\n')}';
+      lines = content.split('\n');
+    }
 
-    await changelogFile.writeAsString(content);
-    print('Updated CHANGELOG.md in ${p.basename(packageDir.path)}');
+    // Find the top-most version entry and update it.
+    final versionHeader = '## $newVersion';
+    var versionHeaderIndex = -1;
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith('## ')) {
+        versionHeaderIndex = i;
+        break;
+      }
+    }
+
+    if (versionHeaderIndex != -1) {
+      lines[versionHeaderIndex] = versionHeader;
+    } else {
+      // If no version entry exists, add one.
+      var insertIndex = 1;
+      while (insertIndex < lines.length && lines[insertIndex].trim().isEmpty) {
+        insertIndex++;
+      }
+      lines.insert(insertIndex, versionHeader);
+      lines.insert(insertIndex + 1, ''); // Blank line after new entry
+    }
+
+
+    await changelogFile.writeAsString(lines.join('\n'));
+    print('Updated CHANGELOG.md in ${packageDir.path}');
   }
 
   Future<void> _upgradeDependencies() async {

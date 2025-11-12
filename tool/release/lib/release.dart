@@ -16,7 +16,7 @@ const _excludedPackages = ['json_schema_builder'];
 class ReleaseTool {
   final FileSystem fileSystem;
   final ProcessRunner processRunner;
-  final String repoRoot;
+  final Directory repoRoot;
 
   late final BumpCommand _bumpCommand;
   late final PublishCommand _publishCommand;
@@ -61,8 +61,7 @@ class ReleaseTool {
   }
 
   Future<List<Directory>> _findPackages() async {
-    final Directory packagesDir =
-        fileSystem.directory(p.join(repoRoot, 'packages'));
+    final Directory packagesDir = repoRoot.childDirectory('packages');
     if (!await packagesDir.exists()) {
       print('Error: packages directory not found at ${packagesDir.path}');
       return [];

@@ -4,10 +4,8 @@ import 'package:yaml/yaml.dart';
 
 const excludedPackages = ['json_schema_builder'];
 
-Future<List<Directory>> findPackages(
-    FileSystem fileSystem, String repoRoot) async {
-  final Directory packagesDir =
-      fileSystem.directory(p.join(repoRoot, 'packages'));
+Future<List<Directory>> findPackages(Directory repoRoot) async {
+  final Directory packagesDir = repoRoot.childDirectory('packages');
   if (!await packagesDir.exists()) {
     print('Error: packages directory not found at ${packagesDir.path}');
     return [];
@@ -21,8 +19,7 @@ Future<List<Directory>> findPackages(
         print('Skipping excluded package: $packageName');
         continue;
       }
-      final File pubspecFile =
-          fileSystem.file(p.join(entity.path, 'pubspec.yaml'));
+      final File pubspecFile = entity.childFile('pubspec.yaml');
       if (await pubspecFile.exists()) {
         packages.add(entity);
       }
@@ -31,10 +28,8 @@ Future<List<Directory>> findPackages(
   return packages;
 }
 
-Future<String> getPackageVersion(
-    FileSystem fileSystem, Directory packageDir) async {
-  final File pubspecFile =
-      fileSystem.file(p.join(packageDir.path, 'pubspec.yaml'));
+Future<String> getPackageVersion(Directory packageDir) async {
+  final File pubspecFile = packageDir.childFile('pubspec.yaml');
   final String content = await pubspecFile.readAsString();
   final yamlMap = loadYaml(content) as Map;
   return yamlMap['version'] as String;
