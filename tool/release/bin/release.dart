@@ -6,6 +6,7 @@ import 'package:file/src/interface/directory.dart';
 import 'package:file/src/interface/file.dart';
 import 'package:process_runner/process_runner.dart';
 import 'package:release/release.dart';
+import 'package:release/src/exceptions.dart';
 
 void main(List<String> arguments) async {
   final parser = ArgParser();
@@ -56,12 +57,17 @@ void main(List<String> arguments) async {
   );
 
   final ArgResults command = argResults.command!;
-  switch (command.name) {
-    case 'bump':
-      await tool.bump(command['level'] as String);
-      break;
-    case 'publish':
-      await tool.publish(force: command['force'] as bool);
-      break;
+  try {
+    switch (command.name) {
+      case 'bump':
+        await tool.bump(command['level'] as String);
+        break;
+      case 'publish':
+        await tool.publish(force: command['force'] as bool);
+        break;
+    }
+  } on ReleaseException catch (e) {
+    print(e);
+    exit(1);
   }
 }

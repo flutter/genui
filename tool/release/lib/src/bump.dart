@@ -1,9 +1,9 @@
-import 'dart:io';
 
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_runner/process_runner.dart';
 
+import 'exceptions.dart';
 import 'utils.dart';
 
 class BumpCommand {
@@ -42,7 +42,8 @@ class BumpCommand {
     );
     if (result.exitCode != 0) {
       printer('Error bumping version in ${packageDir.path}: ${result.stderr}');
-      exit(1);
+      throw ReleaseException(
+          'Error bumping version in ${packageDir.path}: ${result.stderr}');
     }
     printer('Bumped $level version in ${p.basename(packageDir.path)}');
   }

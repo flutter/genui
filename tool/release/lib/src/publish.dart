@@ -1,9 +1,9 @@
-import 'dart:io';
 
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_runner/process_runner.dart';
 
+import 'exceptions.dart';
 import 'utils.dart';
 
 typedef StdinReader = String? Function();
@@ -27,7 +27,7 @@ class PublishCommand {
     final List<Directory> packages = await findPackages(repoRoot, printer);
 
     if (!await _performDryRun(packages)) {
-      exit(1);
+      throw ReleaseException('Dry run failed.');
     }
 
     if (!force) {
@@ -113,10 +113,9 @@ class PublishCommand {
         failOk: true,
       );
       if (result.exitCode != 0) {
-        printer('ERROR: Failed to publish $packageName');
         printer(result.stdout);
         printer(result.stderr);
-        exit(1);
+        throw ReleaseException('Failed to publish $packageName');
       }
       printer('$packageName published successfully.');
     }
