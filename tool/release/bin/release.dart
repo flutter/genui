@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:file/file.dart';
 import 'package:file/local.dart';
-import 'package:file/src/interface/directory.dart';
-import 'package:file/src/interface/file.dart';
 import 'package:process_runner/process_runner.dart';
 import 'package:release/release.dart';
 import 'package:release/src/exceptions.dart';
@@ -30,9 +29,10 @@ void main(List<String> arguments) async {
   try {
     argResults = parser.parse(arguments);
   } on FormatException catch (e) {
-    print(e.message);
-    print('Usage: dart run tool/release/bin/release.dart <command> [options]');
-    print(parser.usage);
+    stderr.writeln(e.message);
+    stderr.writeln(
+        'Usage: dart run tool/release/bin/release.dart <command> [options]');
+    stderr.writeln(parser.usage);
     exit(1);
   }
 
@@ -67,7 +67,7 @@ void main(List<String> arguments) async {
         break;
     }
   } on ReleaseException catch (e) {
-    print(e);
+    stderr.writeln(e);
     exit(1);
   }
 }

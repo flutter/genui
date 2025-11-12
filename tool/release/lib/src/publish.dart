@@ -88,7 +88,7 @@ class PublishCommand {
       }
     }
     printer('--- Dry Run Finished ---');
-    print(accumulatedProblems.join('\n'));
+    printer(accumulatedProblems.join('\n'));
     return !dryRunFailed;
   }
 
