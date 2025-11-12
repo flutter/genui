@@ -27,8 +27,8 @@ Logic, follow these instructions:
 
    ```yaml
    dependencies:
-     genui: ^0.5.0 # Or the latest version
-     genui_firebase_ai: ^0.5.0 # Or the latest version
+     genui: ^0.5.1 # Or the latest version
+     genui_firebase_ai: ^0.5.1 # Or the latest version
    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,

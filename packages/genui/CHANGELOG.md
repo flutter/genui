@@ -1,5 +1,10 @@
 # `genui` Changelog
 
+## 0.5.1
+
+- Homepage URL was updated.
+- Deprecated `flutter_markdown` package was replaced with `flutter_markdown_plus`.
+
 ## 0.5.0
 
 - Initial published release.
