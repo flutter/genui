@@ -2,6 +2,7 @@
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_runner/process_runner.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 import 'exceptions.dart';
 import 'utils.dart';
@@ -140,33 +141,23 @@ class PublishCommand {
       }
     }
     printer('--- Tagging Finished ---');
-    printer('\nTo push tags, run: git push --tags');
+    printer('\nTo push tags, run: "git push upstream --tags"');
   }
 
   Future<void> _prepareNextCycle(List<Directory> packages) async {
     printer('\n--- Preparing for next development cycle ---');
     for (final packageDir in packages) {
-      final String packageName = p.basename(packageDir.path);
-      printer('Bumping version for $packageName...');
-      final ProcessRunnerResult bumpResult = await processRunner.runProcess(
-        ['dart', 'pub', 'bump', 'minor'],
-        workingDirectory: packageDir,
-        failOk: true,
-      );
-      if (bumpResult.exitCode != 0) {
-        printer(
-            'Error bumping version for $packageName:\n${bumpResult.stderr}');
-        continue;
-      }
-      printer('Version bumped for $packageName.');
-      await _addNewChangelogSection(packageDir);
+      final String newVersion = await getPackageVersion(packageDir);
+      var version = Version.parse(newVersion);
+      await _addNewChangelogSection(
+          packageDir, version.nextPatch.canonicalizedVersion);
     }
     printer('--- Next cycle preparation finished ---');
   }
 
-  Future<void> _addNewChangelogSection(Directory packageDir) async {
+  Future<void> _addNewChangelogSection(
+      Directory packageDir, String newVersion) async {
     final String packageName = p.basename(packageDir.path);
-    final String newVersion = await getPackageVersion(packageDir);
 
     final File changelogFile =
         fileSystem.file(p.join(packageDir.path, 'CHANGELOG.md'));
@@ -180,6 +171,11 @@ class PublishCommand {
     }
 
     content = await changelogFile.readAsString();
+    if (content.contains('(in progress)')) {
+      printer('CHANGELOG.md in ${packageDir.path} already has an '
+          '"in progress" section. Skipping.');
+      return;
+    }
     List<String> lines = content.split('\n');
 
     // Ensure the title is present and correct
