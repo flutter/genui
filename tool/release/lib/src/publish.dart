@@ -13,120 +13,156 @@ class PublishCommand {
   final ProcessRunner processRunner;
   final Directory repoRoot;
   final StdinReader stdinReader;
+  final Printer printer;
 
   PublishCommand({
     required this.fileSystem,
     required this.processRunner,
     required this.repoRoot,
     required this.stdinReader,
+    required this.printer,
   });
 
   Future<void> run({required bool force}) async {
-    final List<Directory> packages = await findPackages(repoRoot);
-    final dryRunResults = <Directory, ProcessRunnerResult>{};
-    var dryRunFailed = false;
+    final List<Directory> packages = await findPackages(repoRoot, printer);
 
-    print('--- Starting Dry Run ---');
+    if (!await _performDryRun(packages)) {
+      exit(1);
+    }
+
+    if (!force) {
+      printer('Dry run successful. The following tags would be created:');
+      for (final packageDir in packages) {
+        final String packageName = p.basename(packageDir.path);
+        final String version = await getPackageVersion(packageDir);
+        printer('  $packageName-$version');
+      }
+      printer('Run with --force to publish.');
+      return;
+    }
+
+    printer('\nProceed with publishing? (yes/No)');
+    final String? confirmation = stdinReader()?.toLowerCase();
+    if (confirmation != 'yes' && confirmation != 'y') {
+      printer('Publish aborted.');
+      return;
+    }
+
+    final Map<String, String> versionsToPublish =
+        await _getVersionsToPublish(packages);
+
+    await _performPublish(packages);
+    await _createTags(versionsToPublish);
+    await _prepareNextCycle(packages);
+  }
+
+  Future<bool> _performDryRun(List<Directory> packages) async {
+    printer('--- Starting Dry Run ---');
+    var dryRunFailed = false;
+    final accumulatedProblems = <String>[];
     for (final packageDir in packages) {
       final String packageName = p.basename(packageDir.path);
-      print('Dry running publish for $packageName...');
+      printer('Dry running publish for $packageName...');
       final ProcessRunnerResult result = await processRunner.runProcess(
         ['dart', 'pub', 'publish', '--dry-run'],
         workingDirectory: packageDir,
         failOk: true,
       );
-      dryRunResults[packageDir] = result;
-      print(result.stdout);
+      printer(result.stdout);
       if (result.exitCode != 0) {
-        print('ERROR: Dry run failed for $packageName');
-        print(result.stderr);
-        dryRunFailed = true;
+        // Check and see if the problem was actual errors or just warnings, etc.
+        // Warning output includes "Package has 2 warnings."
+        // Failed output includes:
+        //   "your package is missing some requirements"
+        if (result.stderr
+            .contains('your package is missing some requirements')) {
+          accumulatedProblems.add('ERROR: Dry run failed for $packageName');
+          dryRunFailed = true;
+        } else {
+          accumulatedProblems.add(
+              'WARNING: Dry run has some warnings or hints for $packageName');
+        }
+        printer(result.stderr);
       } else {
-        print('Dry run for $packageName successful.');
+        accumulatedProblems.add('Dry run for $packageName successful.');
       }
     }
-    print('--- Dry Run Finished ---');
+    printer('--- Dry Run Finished ---');
+    print(accumulatedProblems.join('\n'));
+    return !dryRunFailed;
+  }
 
-    if (dryRunFailed) {
-      print('One or more dry runs failed. Aborting.');
-      exit(1);
-    }
-
-    if (!force) {
-      print('Dry run successful. Run with --force to publish.');
-      return;
-    }
-
-    print('\nProceed with publishing? (yes/No)');
-    final String? confirmation = stdinReader();
-    if (confirmation?.toLowerCase() != 'yes') {
-      print('Publish aborted.');
-      return;
-    }
-
+  Future<Map<String, String>> _getVersionsToPublish(
+      List<Directory> packages) async {
     final versionsToPublish = <String, String>{};
     for (final packageDir in packages) {
       final String packageName = p.basename(packageDir.path);
       versionsToPublish[packageName] = await getPackageVersion(packageDir);
     }
+    return versionsToPublish;
+  }
 
-    print('--- Starting Actual Publish ---');
+  Future<void> _performPublish(List<Directory> packages) async {
+    printer('--- Starting Actual Publish ---');
     for (final packageDir in packages) {
       final String packageName = p.basename(packageDir.path);
-      print('Publishing $packageName...');
+      printer('Publishing $packageName...');
       final ProcessRunnerResult result = await processRunner.runProcess(
         ['dart', 'pub', 'publish', '--force'],
         workingDirectory: packageDir,
         failOk: true,
       );
       if (result.exitCode != 0) {
-        print('ERROR: Failed to publish $packageName');
-        print(result.stdout);
-        print(result.stderr);
+        printer('ERROR: Failed to publish $packageName');
+        printer(result.stdout);
+        printer(result.stderr);
         exit(1);
       }
-      print('$packageName published successfully.');
+      printer('$packageName published successfully.');
     }
-    print('--- Publish Finished ---');
+    printer('--- Publish Finished ---');
+  }
 
-    print('\n--- Creating Git Tags ---');
+  Future<void> _createTags(Map<String, String> versionsToPublish) async {
+    printer('\n--- Creating Git Tags ---');
     for (final String packageName in versionsToPublish.keys) {
       final String version = versionsToPublish[packageName]!;
       final tagName = '$packageName-$version';
-      print('Creating tag: $tagName');
+      printer('Creating tag: $tagName');
       final ProcessRunnerResult result = await processRunner.runProcess(
         ['git', 'tag', tagName],
         workingDirectory: repoRoot,
         failOk: true,
       );
       if (result.exitCode != 0) {
-        print('ERROR: Failed to create tag $tagName');
-        print(result.stderr);
+        printer('ERROR: Failed to create tag $tagName');
+        printer(result.stderr);
         // Don't exit, just warn
       }
     }
+    printer('--- Tagging Finished ---');
+    printer('\nTo push tags, run: git push --tags');
+  }
 
-    print('--- Tagging Finished ---');
-    print('\nTo push tags, run: git push --tags');
-
-    print('\n--- Preparing for next development cycle ---');
-    final List<Directory> packagesToBump = await findPackages(repoRoot);
-    for (final packageDir in packagesToBump) {
+  Future<void> _prepareNextCycle(List<Directory> packages) async {
+    printer('\n--- Preparing for next development cycle ---');
+    for (final packageDir in packages) {
       final String packageName = p.basename(packageDir.path);
-      print('Bumping version for $packageName...');
+      printer('Bumping version for $packageName...');
       final ProcessRunnerResult bumpResult = await processRunner.runProcess(
         ['dart', 'pub', 'bump', 'minor'],
         workingDirectory: packageDir,
         failOk: true,
       );
       if (bumpResult.exitCode != 0) {
-        print('Error bumping version for $packageName:\n${bumpResult.stderr}');
+        printer(
+            'Error bumping version for $packageName:\n${bumpResult.stderr}');
         continue;
       }
-      print('Version bumped for $packageName.');
+      printer('Version bumped for $packageName.');
       await _addNewChangelogSection(packageDir);
     }
-    print('--- Next cycle preparation finished ---');
+    printer('--- Next cycle preparation finished ---');
   }
 
   Future<void> _addNewChangelogSection(Directory packageDir) async {
@@ -140,7 +176,7 @@ class PublishCommand {
     if (!await changelogFile.exists()) {
       content = '$title\n## $newVersion (in progress)\n\n';
       await changelogFile.writeAsString(content);
-      print('Created and updated CHANGELOG.md in ${packageDir.path}');
+      printer('Created and updated CHANGELOG.md in ${packageDir.path}');
       return;
     }
 
@@ -169,6 +205,6 @@ class PublishCommand {
     lines.insert(insertIndex, newEntry);
 
     await changelogFile.writeAsString(lines.join('\n'));
-    print('Added new section to CHANGELOG.md in ${packageDir.path}');
+    printer('Added new section to CHANGELOG.md in ${packageDir.path}');
   }
 }

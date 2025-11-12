@@ -10,26 +10,28 @@ class BumpCommand {
   final FileSystem fileSystem;
   final ProcessRunner processRunner;
   final Directory repoRoot;
+  final Printer printer;
 
   BumpCommand({
     required this.fileSystem,
     required this.processRunner,
     required this.repoRoot,
+    required this.printer,
   });
 
   Future<void> run(String bumpLevel) async {
-    final List<Directory> packages = await findPackages(repoRoot);
+    final List<Directory> packages = await findPackages(repoRoot, printer);
 
     for (final packageDir in packages) {
-      print('Processing package: ${p.basename(packageDir.path)}');
+      printer('Processing package: ${p.basename(packageDir.path)}');
       await _bumpVersion(packageDir, bumpLevel);
       final String newVersion = await getPackageVersion(packageDir);
       await _updateChangelog(packageDir, newVersion);
     }
 
-    print('Upgrading dependencies in the monorepo...');
+    printer('Upgrading dependencies in the monorepo...');
     await _upgradeDependencies();
-    print('Bump command finished.');
+    printer('Bump command finished.');
   }
 
   Future<void> _bumpVersion(Directory packageDir, String level) async {
@@ -39,10 +41,10 @@ class BumpCommand {
       failOk: true,
     );
     if (result.exitCode != 0) {
-      print('Error bumping version in ${packageDir.path}: ${result.stderr}');
+      printer('Error bumping version in ${packageDir.path}: ${result.stderr}');
       exit(1);
     }
-    print('Bumped $level version in ${p.basename(packageDir.path)}');
+    printer('Bumped $level version in ${p.basename(packageDir.path)}');
   }
 
   Future<void> _updateChangelog(Directory packageDir, String newVersion) async {
@@ -52,7 +54,7 @@ class BumpCommand {
     final title = '# `$packageName` Changelog\n';
 
     if (!await changelogFile.exists()) {
-      print('Warning: CHANGELOG.md not found in ${packageDir.path}');
+      printer('Warning: CHANGELOG.md not found in ${packageDir.path}');
       await changelogFile
           .writeAsString('$title\n## $newVersion (in progress)\n\n');
       return;
@@ -99,7 +101,7 @@ class BumpCommand {
 
 
     await changelogFile.writeAsString(lines.join('\n'));
-    print('Updated CHANGELOG.md in ${packageDir.path}');
+    printer('Updated CHANGELOG.md in ${packageDir.path}');
   }
 
   Future<void> _upgradeDependencies() async {
@@ -109,7 +111,7 @@ class BumpCommand {
       failOk: true,
     );
     if (result.exitCode != 0) {
-      print('Error running pub upgrade: ${result.stderr}');
+      printer('Error running pub upgrade: ${result.stderr}');
     }
   }
 }

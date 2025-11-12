@@ -25,6 +25,7 @@ void main() {
         processRunner: ProcessRunner(processManager: processManager),
         repoRoot: repoRoot,
         stdinReader: () => null, // Not used in bump tests
+        printer: (_) {},
       );
 
       final Directory packagesDir = repoRoot.childDirectory('packages');

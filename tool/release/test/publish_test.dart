@@ -5,6 +5,7 @@ import 'package:file/memory.dart';
 import 'package:process_runner/process_runner.dart';
 import 'package:process_runner/test/fake_process_manager.dart';
 import 'package:release/release.dart';
+import 'package:release/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -23,12 +24,13 @@ void main() {
       return null;
     }
 
-    ReleaseTool buildReleaseTool() {
+    ReleaseTool buildReleaseTool({Printer? printer}) {
       return ReleaseTool(
         fileSystem: fileSystem,
         processRunner: ProcessRunner(processManager: processManager),
         repoRoot: repoRoot,
         stdinReader: fakeStdinReader,
+        printer: printer,
       );
     }
 
@@ -58,8 +60,12 @@ version: 0.1.0
 ''');
     });
 
-    test('PublishCommand dry run should only call dry-run', () async {
-      final ReleaseTool releaseTool = buildReleaseTool();
+    test('PublishCommand dry run should only call dry-run and print tags',
+        () async {
+      final printOutput = <String>[];
+      final ReleaseTool releaseTool =
+          buildReleaseTool(printer: printOutput.add);
+
       processManager.fakeResults = {
         FakeInvocationRecord(const ['dart', 'pub', 'publish', '--dry-run'],
             workingDirectory: packageADir.path): [
@@ -70,16 +76,16 @@ version: 0.1.0
       await releaseTool.publish(force: false);
 
       expect(processManager.invocations.length, 1);
-      expect(processManager.invocations[0].invocation[0], 'dart');
       expect(processManager.invocations[0].invocation.skip(1),
           ['pub', 'publish', '--dry-run']);
+      expect(printOutput.join('\n'), contains('package_a-1.2.3'));
     });
 
     test(
         'PublishCommand publish --force with yes should publish, tag, and bump',
         () async {
       fakeStdinLines = ['yes'];
-      final ReleaseTool releaseTool = buildReleaseTool();
+      final ReleaseTool releaseTool = buildReleaseTool(printer: (_) {});
       packageADir.childFile('CHANGELOG.md').writeAsStringSync('''
 # `package_a` Changelog
 
@@ -97,7 +103,7 @@ version: 0.1.0
             workingDirectory: packageADir.path): [
           ProcessResult(0, 0, '', ''),
         ],
-        FakeInvocationRecord(const ['git', 'tag', 'package_a-1.2.3'],
+        FakeInvocationRecord(const ['git', 'tag', 'package_a-1.3.0'],
             workingDirectory: repoRoot.path): [
           ProcessResult(0, 0, '', ''),
         ],
@@ -121,7 +127,7 @@ version: 1.3.0
       expect(processManager.invocations[1].invocation.skip(1),
           ['pub', 'publish', '--force']);
       expect(processManager.invocations[2].invocation.skip(1),
-          ['tag', 'package_a-1.2.3']);
+          ['tag', 'package_a-1.3.0']);
       expect(processManager.invocations[3].invocation.skip(1),
           ['pub', 'bump', 'minor']);
 
@@ -134,13 +140,14 @@ version: 1.3.0
       expect(
         changelogContent,
         startsWith(
-            '# `package_a` Changelog\n\n## 1.3.0 (in progress)\n\n## 1.2.3\n\n- Release version.'),
+            '# `package_a` Changelog\n\n## 1.3.0 (in progress)\n\n## 1.2.3\n\n'
+            '- Release version.'),
       );
     });
 
     test('PublishCommand publish --force with no should abort', () async {
       fakeStdinLines = ['no'];
-      final ReleaseTool releaseTool = buildReleaseTool();
+      final ReleaseTool releaseTool = buildReleaseTool(printer: (_) {});
 
       processManager.fakeResults = {
         FakeInvocationRecord(const ['dart', 'pub', 'publish', '--dry-run'],

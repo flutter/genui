@@ -7,6 +7,7 @@ import 'package:yaml/yaml.dart';
 
 import 'src/bump.dart';
 import 'src/publish.dart';
+import 'src/utils.dart';
 
 export 'src/bump.dart';
 export 'src/publish.dart';
@@ -26,17 +27,22 @@ class ReleaseTool {
     required this.processRunner,
     required this.repoRoot,
     required StdinReader stdinReader,
+    Printer? printer,
   }) {
+    final Printer print =
+        printer ?? ((String message) => stdout.writeln(message));
     _bumpCommand = BumpCommand(
       fileSystem: fileSystem,
       processRunner: processRunner,
       repoRoot: repoRoot,
+      printer: print,
     );
     _publishCommand = PublishCommand(
       fileSystem: fileSystem,
       processRunner: processRunner,
       repoRoot: repoRoot,
       stdinReader: stdinReader,
+      printer: print,
     );
   }
 
