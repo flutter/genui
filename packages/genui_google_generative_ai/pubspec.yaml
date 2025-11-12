@@ -5,7 +5,7 @@
 name: genui_google_generative_ai
 description: Integration package for genui and Google Cloud Generative Language API.
 version: 0.5.0
-homepage: https://github.com/flutter/genui/packages/genui_google_generative_ai
+homepage: https://github.com/flutter/genui/tree/main/packages/genui_google_generative_ai
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
 publish_to: none
