@@ -78,6 +78,27 @@ Triage issues ready for second-line review:
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
 
+## Versioning
+
+We use [Semver] for package versioning, although before 1.0.0, we will be
+incrementing only the minor number for breaking changes and the patch number for
+non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
+major number for breaking changes.
+
+We release `flutter_genui`, `flutter_genui_firebase_ai`,
+`flutter_genui_google_generative_ui`, and `flutter_genui_a2ui` in lock step,
+with the same version number, so when one is released, they are all released.
+
+`json_schema_builder` is released independently on its own schedule, with its
+own version number.
+
+"Releasing" consititutes manually publishing them all to [pub.dev] after the
+pull request containing the version bump has passed CI. The packages must be
+published by someone with permission to publish under the labs.flutter.org
+owner.
+
+[pub.dev]: https://pub.dev
+[Semver]: https://semver.org/
 [for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled
 [flutter_guidelines]: https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md
 [usage_md]: packages/flutter_genui/USAGE.md#configure-firebase
