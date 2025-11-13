@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -11,18 +15,22 @@ void main(List<String> arguments) async {
   final parser = ArgParser();
 
   final bumpParser = ArgParser()
-    ..addOption('level',
-        abbr: 'l',
-        allowed: ['breaking', 'major', 'minor', 'patch'],
-        help: 'The level to bump the version by.',
-        mandatory: true);
+    ..addOption(
+      'level',
+      abbr: 'l',
+      allowed: ['breaking', 'major', 'minor', 'patch'],
+      help: 'The level to bump the version by.',
+      mandatory: true,
+    );
   parser.addCommand('bump', bumpParser);
 
   final publishParser = ArgParser()
-    ..addFlag('force',
-        abbr: 'f',
-        negatable: false,
-        help: 'Actually publish packages and create tags.');
+    ..addFlag(
+      'force',
+      abbr: 'f',
+      negatable: false,
+      help: 'Actually publish packages and create tags.',
+    );
   parser.addCommand('publish', publishParser);
 
   final ArgResults argResults;
@@ -31,14 +39,16 @@ void main(List<String> arguments) async {
   } on FormatException catch (e) {
     stderr.writeln(e.message);
     stderr.writeln(
-        'Usage: dart run tool/release/bin/release.dart <command> [options]');
+      'Usage: dart run tool/release/bin/release.dart <command> [options]',
+    );
     stderr.writeln(parser.usage);
     exit(1);
   }
 
   if (argResults.command == null) {
     stderr.writeln(
-        'Usage: dart run tool/release/bin/release.dart <command> [options]');
+      'Usage: dart run tool/release/bin/release.dart <command> [options]',
+    );
     stderr.writeln(parser.usage);
     exit(1);
   }

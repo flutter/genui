@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
@@ -5,7 +9,9 @@ import 'package:yaml/yaml.dart';
 const excludedPackages = ['json_schema_builder'];
 
 Future<List<Directory>> findPackages(
-    Directory repoRoot, Printer printer) async {
+  Directory repoRoot,
+  Printer printer,
+) async {
   final Directory packagesDir = repoRoot.childDirectory('packages');
   if (!await packagesDir.exists()) {
     printer('Error: packages directory not found at ${packagesDir.path}');

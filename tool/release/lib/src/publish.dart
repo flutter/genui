@@ -1,3 +1,6 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
@@ -49,8 +52,9 @@ class PublishCommand {
       return;
     }
 
-    final Map<String, String> versionsToPublish =
-        await _getVersionsToPublish(packages);
+    final Map<String, String> versionsToPublish = await _getVersionsToPublish(
+      packages,
+    );
 
     await _performPublish(packages);
     await _createTags(versionsToPublish);
@@ -75,13 +79,15 @@ class PublishCommand {
         // Warning output includes "Package has 2 warnings."
         // Failed output includes:
         //   "your package is missing some requirements"
-        if (result.stderr
-            .contains('your package is missing some requirements')) {
+        if (result.stderr.contains(
+          'your package is missing some requirements',
+        )) {
           accumulatedProblems.add('ERROR: Dry run failed for $packageName');
           dryRunFailed = true;
         } else {
           accumulatedProblems.add(
-              'WARNING: Dry run has some warnings or hints for $packageName');
+            'WARNING: Dry run has some warnings or hints for $packageName',
+          );
         }
         printer(result.stderr);
       } else {
@@ -94,7 +100,8 @@ class PublishCommand {
   }
 
   Future<Map<String, String>> _getVersionsToPublish(
-      List<Directory> packages) async {
+    List<Directory> packages,
+  ) async {
     final versionsToPublish = <String, String>{};
     for (final packageDir in packages) {
       final String packageName = p.basename(packageDir.path);
@@ -149,17 +156,22 @@ class PublishCommand {
       final String newVersion = await getPackageVersion(packageDir);
       var version = Version.parse(newVersion);
       await _addNewChangelogSection(
-          packageDir, version.nextPatch.canonicalizedVersion);
+        packageDir,
+        version.nextPatch.canonicalizedVersion,
+      );
     }
     printer('--- Next cycle preparation finished ---');
   }
 
   Future<void> _addNewChangelogSection(
-      Directory packageDir, String newVersion) async {
+    Directory packageDir,
+    String newVersion,
+  ) async {
     final String packageName = p.basename(packageDir.path);
 
-    final File changelogFile =
-        fileSystem.file(p.join(packageDir.path, 'CHANGELOG.md'));
+    final File changelogFile = fileSystem.file(
+      p.join(packageDir.path, 'CHANGELOG.md'),
+    );
     final title = '# `$packageName` Changelog\n';
     String content;
     if (!await changelogFile.exists()) {
@@ -171,8 +183,10 @@ class PublishCommand {
 
     content = await changelogFile.readAsString();
     if (content.contains('(in progress)')) {
-      printer('CHANGELOG.md in ${packageDir.path} already has an '
-          '"in progress" section. Skipping.');
+      printer(
+        'CHANGELOG.md in ${packageDir.path} already has an '
+        '"in progress" section. Skipping.',
+      );
       return;
     }
     List<String> lines = content.split('\n');

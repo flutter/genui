@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:io';
 
 import 'package:file/memory.dart';
@@ -17,8 +21,7 @@ void main() {
 
     setUp(() {
       fileSystem = MemoryFileSystem();
-      repoRoot =
-          fileSystem.systemTempDirectory.createTempSync('genui_repo');
+      repoRoot = fileSystem.systemTempDirectory.createTempSync('genui_repo');
       processManager = FakeProcessManager((input) {}); // Stdin callback
       releaseTool = ReleaseTool(
         fileSystem: fileSystem,
@@ -43,8 +46,9 @@ version: 1.0.0
 - Initial release.
 ''');
 
-      final Directory excludedPackage =
-          packagesDir.childDirectory('json_schema_builder');
+      final Directory excludedPackage = packagesDir.childDirectory(
+        'json_schema_builder',
+      );
       excludedPackage.createSync();
       excludedPackage.childFile('pubspec.yaml').writeAsStringSync('''
 name: json_schema_builder
@@ -65,35 +69,46 @@ version: 0.1.0
 - Initial release.
 ''');
       processManager.fakeResults = {
-        FakeInvocationRecord(const ['dart', 'pub', 'bump', 'patch'],
-            workingDirectory: packageADir.path): [
+        FakeInvocationRecord(const [
+          'dart',
+          'pub',
+          'bump',
+          'patch',
+        ], workingDirectory: packageADir.path): [
           () {
             packageADir.childFile('pubspec.yaml').writeAsStringSync('''
 name: package_a
 version: 1.0.1
 ''');
             return ProcessResult(0, 0, '', '');
-          }()
+          }(),
         ],
-        FakeInvocationRecord(
-            const ['dart', 'pub', 'upgrade', '--major-versions'],
-            workingDirectory: repoRoot.path): [
+        FakeInvocationRecord(const [
+          'dart',
+          'pub',
+          'upgrade',
+          '--major-versions',
+        ], workingDirectory: repoRoot.path): [
           ProcessResult(0, 0, '', ''),
         ],
       };
 
       await releaseTool.bump('patch');
 
-      final String pubspecContent =
-          packageADir.childFile('pubspec.yaml').readAsStringSync();
+      final String pubspecContent = packageADir
+          .childFile('pubspec.yaml')
+          .readAsStringSync();
       expect(pubspecContent, contains('version: 1.0.1'));
 
-      final String changelogContent =
-          packageADir.childFile('CHANGELOG.md').readAsStringSync();
+      final String changelogContent = packageADir
+          .childFile('CHANGELOG.md')
+          .readAsStringSync();
       expect(
-          changelogContent,
-          startsWith(
-              '# `package_a` Changelog\n\n## 1.0.1\n\n- Work in progress.'));
+        changelogContent,
+        startsWith(
+          '# `package_a` Changelog\n\n## 1.0.1\n\n- Work in progress.',
+        ),
+      );
     });
   });
 }

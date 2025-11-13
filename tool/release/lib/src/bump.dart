@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:process_runner/process_runner.dart';
@@ -42,20 +46,24 @@ class BumpCommand {
     if (result.exitCode != 0) {
       printer('Error bumping version in ${packageDir.path}: ${result.stderr}');
       throw ReleaseException(
-          'Error bumping version in ${packageDir.path}: ${result.stderr}');
+        'Error bumping version in ${packageDir.path}: ${result.stderr}',
+      );
     }
     printer('Bumped $level version in ${p.basename(packageDir.path)}');
   }
 
   Future<void> _updateChangelog(Directory packageDir, String newVersion) async {
     final String packageName = p.basename(packageDir.path);
-    final File changelogFile =
-        fileSystem.file(p.join(packageDir.path, 'CHANGELOG.md'));
+    final File changelogFile = fileSystem.file(
+      p.join(packageDir.path, 'CHANGELOG.md'),
+    );
     final title = '# `$packageName` Changelog\n';
 
     if (!await changelogFile.exists()) {
-      printer('Warning: CHANGELOG.md not found in ${packageDir.path}, '
-          'creating one.');
+      printer(
+        'Warning: CHANGELOG.md not found in ${packageDir.path}, '
+        'creating one.',
+      );
       await changelogFile.writeAsString('$title\n## $newVersion\n\n');
       return;
     }
