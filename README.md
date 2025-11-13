@@ -139,7 +139,7 @@ based on a widget catalog from the developers' project.
 
 ## Usage
 
-See [packages/genui/USAGE.md](packages/genui/USAGE.md).
+See [packages/genui/README.md](packages/genui/README.md).
 
 ## Constraints
 
