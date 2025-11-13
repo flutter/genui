@@ -82,7 +82,8 @@ version: 0.1.0
     });
 
     test(
-        'PublishCommand publish --force with yes should publish, tag, and update changelog',
+        'PublishCommand publish --force with yes should publish, tag, and '
+        'update changelog',
         () async {
       fakeStdinLines = ['yes'];
       final ReleaseTool releaseTool = buildReleaseTool(printer: (_) {});

@@ -24,6 +24,7 @@ workspace:
   - examples/verdure/client
   - tool/fix_copyright
   - tool/test_and_fix
+  - tool/release
 
 flutter:
   uses-material-design: true
