@@ -15,6 +15,13 @@ import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a Material Design elevated button.
+
+This widget displays an interactive button. When pressed, it dispatches
+the specified `action` event. The button's appearance can be styled as
+a primary action.
+''',
   properties: {
     'child': A2uiSchemas.componentReference(
       description:

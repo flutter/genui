@@ -12,6 +12,13 @@ import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a Material Design checkbox with a label.
+
+This widget displays a checkbox a [Text] label. The checkbox's state
+is bidirectionally bound to the data model path specified in the `value`
+parameter.
+''',
   properties: {
     'label': A2uiSchemas.stringReference(),
     'value': A2uiSchemas.booleanReference(),
