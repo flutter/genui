@@ -12,6 +12,13 @@ import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a layout widget that displays its children in a
+horizontal array.
+
+This widget is analogous to Flutter's [Row] widget. It arranges a list of
+child components from left to right.
+''',
   properties: {
     'children': A2uiSchemas.componentArrayReference(
       description:

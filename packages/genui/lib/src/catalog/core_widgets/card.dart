@@ -10,6 +10,13 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a Material Design card.
+
+This widget displays a card, which is a container for a single `child`
+widget. Cards often have rounded corners and a shadow, and are used to group
+related content.
+''',
   properties: {'child': A2uiSchemas.componentReference()},
   required: ['child'],
 );

@@ -11,6 +11,13 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a text heading.
+
+Headings are used to title sections of content. The visual appearance is
+determined by the `level` parameter, which maps to standard [TextTheme]
+styles.
+''',
   properties: {
     'text': A2uiSchemas.stringReference(),
     'level': S.string(enumValues: ['1', '2', '3', '4', '5']),

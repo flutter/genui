@@ -11,6 +11,13 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a Material Design tab layout.
+
+This widget displays a [TabBar] and a [TabBarView] to allow navigation
+between different child components. Each tab in `tabItems` has a title and
+a corresponding child component ID to display when selected.
+''',
   properties: {
     'tabItems': S.list(
       items: S.object(
