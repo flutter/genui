@@ -12,6 +12,13 @@ import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a multiple choice selection widget.
+
+This widget displays a list of options, each with a checkbox. The
+`selections` parameter, which should be a data model path, is updated to
+reflect the list of *values* of the currently selected options.
+''',
   properties: {
     'selections': A2uiSchemas.stringArrayReference(),
     'options': S.list(

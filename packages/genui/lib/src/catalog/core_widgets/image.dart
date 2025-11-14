@@ -41,7 +41,15 @@ Schema _schema({required bool enableUsageHint}) {
       ],
     );
   }
-  return S.object(properties: properties);
+  return S.object(
+    description: '''
+A catalog item representing a widget that displays an image.
+
+The image source is specified by the `url` parameter, which can be a network
+URL (e.g., `https://...`) or a local asset path (e.g., `assets/...`).
+''',
+    properties: properties,
+  );
 }
 
 extension type _ImageData.fromMap(JsonMap _json) {

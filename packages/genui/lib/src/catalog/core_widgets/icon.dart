@@ -11,6 +11,9 @@ import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item for an icon.
+''',
   properties: {
     'name': A2uiSchemas.stringReference(
       description:

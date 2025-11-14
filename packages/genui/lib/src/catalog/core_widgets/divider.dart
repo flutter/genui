@@ -9,6 +9,12 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a Material Design divider.
+
+This widget displays a thin line to separate content, either horizontally
+or vertically.
+''',
   properties: {
     'axis': S.string(enumValues: ['horizontal', 'vertical']),
   },

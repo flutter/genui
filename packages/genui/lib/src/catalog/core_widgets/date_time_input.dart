@@ -12,6 +12,13 @@ import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a Material Design date and/or time input field.
+
+This widget displays a field that, when tapped, opens the native date and/or
+time pickers. The selected value is stored as a string in the data model
+path specified by the `value` parameter.
+''',
   properties: {
     'value': A2uiSchemas.stringReference(
       description: 'The selected date and/or time.',

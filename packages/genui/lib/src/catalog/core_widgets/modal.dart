@@ -12,6 +12,14 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a modal bottom sheet.
+
+This component doesn't render the modal content directly. Instead, it
+renders the `entryPointChild` widget. The `entryPointChild` is expected to
+trigger an action (e.g., on button press) that causes the `contentChild` to
+be displayed within a modal bottom sheet by the [GenUiSurface].
+''',
   properties: {
     'entryPointChild': A2uiSchemas.componentReference(
       description: 'The widget that opens the modal.',

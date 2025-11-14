@@ -9,6 +9,12 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item for an audio player.
+
+This widget displays a placeholder for an audio player, used to represent
+a component capable of playing audio from a given URL.
+''',
   properties: {
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the audio to play.',
