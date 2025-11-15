@@ -14,17 +14,21 @@ class MessageController {
 }
 
 class MessageView extends StatelessWidget {
-  const MessageView(this.controller, this.host, {super.key});
+  const MessageView(
+    this.messageController,
+    this.surfaceController, {
+    super.key,
+  });
 
-  final MessageController controller;
-  final GenUiHost host;
+  final MessageController messageController;
+  final SurfaceController? surfaceController;
 
   @override
   Widget build(BuildContext context) {
-    final String? surfaceId = controller.surfaceId;
+    final SurfaceController? controller = surfaceController;
 
-    if (surfaceId == null) return Text(controller.text ?? '');
+    if (controller == null) return Text(messageController.text ?? '');
 
-    return GenUiSurface(host: host, surfaceId: surfaceId);
+    return GenUiSurface(controller: controller);
   }
 }

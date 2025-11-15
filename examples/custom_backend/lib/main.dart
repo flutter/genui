@@ -155,9 +155,9 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (surfaceId == null) {
       return const Text('_surfaceId == null');
     }
+    final SurfaceController controller = _genUi.getSurfaceController(surfaceId);
     return GenUiSurface(
-      surfaceId: surfaceId,
-      host: _genUi,
+      controller: controller,
       defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
     );
   }

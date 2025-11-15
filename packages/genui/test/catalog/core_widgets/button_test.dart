@@ -17,6 +17,9 @@ void main() {
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'button',
@@ -45,9 +48,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
+        home: Scaffold(body: GenUiSurface(controller: controller)),
       ),
     );
 

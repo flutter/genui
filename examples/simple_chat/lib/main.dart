@@ -116,10 +116,10 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _handleSurfaceAdded(SurfaceAdded surface) {
+  void _handleSurfaceAdded(SurfaceController controller) {
     if (!mounted) return;
     setState(() {
-      _messages.add(MessageController(surfaceId: surface.surfaceId));
+      _messages.add(MessageController(surfaceId: controller.surfaceId));
     });
     _scrollToBottom();
   }
@@ -150,9 +150,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final MessageController message = _messages[index];
-                  return ListTile(
-                    title: MessageView(message, _genUiConversation.host),
-                  );
+                  final SurfaceController? controller =
+                      message.surfaceId == null
+                      ? null
+                      : _genUiConversation.getSurfaceController(
+                          message.surfaceId!,
+                        );
+                  return ListTile(title: MessageView(message, controller));
                 },
               ),
             ),

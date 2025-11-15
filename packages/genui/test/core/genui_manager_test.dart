@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
@@ -29,84 +28,43 @@ void main() {
       manager.dispose();
     });
 
-    test('handleMessage adds a new surface and fires SurfaceAdded with '
-        'definition', () async {
-      const surfaceId = 's1';
-      final components = [
-        const Component(
-          id: 'root',
-          componentProperties: {
-            'Text': {'text': 'Hello'},
-          },
-        ),
-      ];
-
-      final Future<GenUiUpdate> futureAdded = manager.surfaceUpdates.first;
-      manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
-      );
-      final GenUiUpdate addedUpdate = await futureAdded;
-      expect(addedUpdate, isA<SurfaceAdded>());
-      expect(addedUpdate.surfaceId, surfaceId);
-
-      final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
-      manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'root'),
-      );
-      final GenUiUpdate updatedUpdate = await futureUpdated;
-
-      expect(updatedUpdate, isA<SurfaceUpdated>());
-      expect(updatedUpdate.surfaceId, surfaceId);
-      final UiDefinition definition =
-          (updatedUpdate as SurfaceUpdated).definition;
-      expect(definition, isNotNull);
-      expect(definition.rootComponentId, 'root');
-      expect(manager.surfaces[surfaceId]!.value, isNotNull);
-      expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
-    });
-
     test(
-      'handleMessage updates an existing surface and fires SurfaceUpdated',
+      'getSurfaceController creates a new controller and fires SurfaceAdded',
       () async {
         const surfaceId = 's1';
-        final oldComponents = [
-          const Component(
-            id: 'root',
-            componentProperties: {
-              'Text': {'text': 'Old'},
-            },
-          ),
-        ];
-        manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
+        final Future<GenUiUpdate> futureAdded = manager.surfaceUpdates.first;
+
+        final SurfaceController controller = manager.getSurfaceController(
+          surfaceId,
         );
+        expect(controller, isA<SurfaceController>());
+        expect(controller.surfaceId, surfaceId);
 
-        final newComponents = [
-          const Component(
-            id: 'root',
-            componentProperties: {
-              'Text': {'text': 'New'},
-            },
-          ),
-        ];
-
-        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-        manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
-        );
-        final GenUiUpdate update = await futureUpdate;
-
-        expect(update, isA<SurfaceUpdated>());
-        expect(update.surfaceId, surfaceId);
-        final UiDefinition updatedDefinition =
-            (update as SurfaceUpdated).definition;
-        expect(updatedDefinition.components['root'], newComponents[0]);
-        expect(manager.surfaces[surfaceId]!.value, updatedDefinition);
+        final GenUiUpdate update = await futureAdded;
+        expect(update, isA<SurfaceAdded>());
+        expect(update.controller, same(controller));
       },
     );
 
-    test('handleMessage removes a surface and fires SurfaceRemoved', () async {
+    test(
+      'getSurfaceController returns the same controller for the same id',
+      () {
+        const surfaceId = 's1';
+        final SurfaceController controller1 = manager.getSurfaceController(
+          surfaceId,
+        );
+        final SurfaceController controller2 = manager.getSurfaceController(
+          surfaceId,
+        );
+        expect(controller1, same(controller2));
+      },
+    );
+
+    test('handleMessage delegates to the correct SurfaceController', () {
       const surfaceId = 's1';
+      final SurfaceController controller = manager.getSurfaceController(
+        surfaceId,
+      );
       final components = [
         const Component(
           id: 'root',
@@ -115,29 +73,40 @@ void main() {
           },
         ),
       ];
-      manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      final message = SurfaceUpdate(
+        surfaceId: surfaceId,
+        components: components,
       );
 
-      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-      manager.handleMessage(const SurfaceDeletion(surfaceId: surfaceId));
-      final GenUiUpdate update = await futureUpdate;
+      manager.handleMessage(message);
 
-      expect(update, isA<SurfaceRemoved>());
-      expect(update.surfaceId, surfaceId);
-      expect(manager.surfaces.containsKey(surfaceId), isFalse);
+      final UiDefinition? definition = controller.uiDefinitionNotifier.value;
+      expect(definition, isNotNull);
+      expect(definition!.components['root'], components.first);
     });
 
-    test('surface() creates a new ValueNotifier if one does not exist', () {
-      final ValueNotifier<UiDefinition?> notifier1 = manager.getSurfaceNotifier(
-        's1',
-      );
-      final ValueNotifier<UiDefinition?> notifier2 = manager.getSurfaceNotifier(
-        's1',
-      );
-      expect(notifier1, same(notifier2));
-      expect(notifier1.value, isNull);
-    });
+    test(
+      'handleMessage with SurfaceDeletion removes and disposes controller',
+      () async {
+        const surfaceId = 's1';
+        final SurfaceController controller = manager.getSurfaceController(
+          surfaceId,
+        );
+        final Future<GenUiUpdate> futureRemoved = manager.surfaceUpdates.first;
+
+        manager.handleMessage(const SurfaceDeletion(surfaceId: surfaceId));
+
+        final GenUiUpdate update = await futureRemoved;
+        expect(update, isA<SurfaceRemoved>());
+        expect(update.controller, same(controller));
+
+        // Verify controller is disposed
+        expect(
+          () => controller.uiDefinitionNotifier.addListener(() {}),
+          throwsA(isA<Error>()),
+        );
+      },
+    );
 
     test('dispose() closes the updates stream', () async {
       var isClosed = false;
@@ -155,9 +124,10 @@ void main() {
     });
 
     test('can handle UI event', () async {
-      manager
-          .dataModelForSurface('testSurface')
-          .update(DataPath('/myValue'), 'testValue');
+      final SurfaceController controller = manager.getSurfaceController(
+        'testSurface',
+      );
+      controller.dataModel.update(DataPath('/myValue'), 'testValue');
       final Future<UserUiInteractionMessage> future = manager.onSubmit.first;
       final now = DateTime.now();
       final event = UserActionEvent(

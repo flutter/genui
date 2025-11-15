@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../core/genui_manager.dart';
+import '../core/surface_controller.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
 import '../model/tools.dart';
@@ -17,21 +17,17 @@ typedef UiEventCallback = void Function(UiEvent event);
 
 /// A widget that builds a UI dynamically from a JSON-like definition.
 ///
-/// It reports user interactions via the [host].
+/// It reports user interactions via the [controller].
 class GenUiSurface extends StatefulWidget {
   /// Creates a new [GenUiSurface].
   const GenUiSurface({
     super.key,
-    required this.host,
-    required this.surfaceId,
+    required this.controller,
     this.defaultBuilder,
   });
 
-  /// The manager that holds the state of the UI.
-  final GenUiHost host;
-
-  /// The ID of the surface that this UI belongs to.
-  final String surfaceId;
+  /// The controller that holds the state of the UI.
+  final SurfaceController controller;
 
   /// A builder for the widget to display when the surface has no definition.
   final WidgetBuilder? defaultBuilder;
@@ -43,25 +39,29 @@ class GenUiSurface extends StatefulWidget {
 class _GenUiSurfaceState extends State<GenUiSurface> {
   @override
   Widget build(BuildContext context) {
-    genUiLogger.fine('Outer Building surface ${widget.surfaceId}');
+    genUiLogger.fine('Outer Building surface ${widget.controller.surfaceId}');
     return ValueListenableBuilder<UiDefinition?>(
-      valueListenable: widget.host.getSurfaceNotifier(widget.surfaceId),
+      valueListenable: widget.controller.uiDefinitionNotifier,
       builder: (context, definition, child) {
-        genUiLogger.fine('Building surface ${widget.surfaceId}');
+        genUiLogger.fine('Building surface ${widget.controller.surfaceId}');
         if (definition == null) {
-          genUiLogger.info('Surface ${widget.surfaceId} has no definition.');
+          genUiLogger.info(
+            'Surface ${widget.controller.surfaceId} has no definition.',
+          );
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
         final String? rootId = definition.rootComponentId;
         if (rootId == null || definition.components.isEmpty) {
-          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
+          genUiLogger.warning(
+            'Surface ${widget.controller.surfaceId} has no widgets.',
+          );
           return const SizedBox.shrink();
         }
         return _buildWidget(
           definition,
           rootId,
-          DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
+          DataContext(widget.controller.dataModel, '/'),
         );
       },
     );
@@ -84,7 +84,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
     final JsonMap widgetData = data.componentProperties;
     genUiLogger.finest('Building widget $widgetId');
-    return widget.host.catalog.buildWidget(
+    return widget.controller.catalog.buildWidget(
       CatalogItemContext(
         id: widgetId,
         data: widgetData,
@@ -95,16 +95,15 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         dataContext: dataContext,
         getComponent: (String componentId) =>
             definition.components[componentId],
-        surfaceId: widget.surfaceId,
+        surfaceId: widget.controller.surfaceId,
       ),
     );
   }
 
   void _dispatchEvent(UiEvent event) {
     if (event is UserActionEvent && event.name == 'showModal') {
-      final UiDefinition? definition = widget.host
-          .getSurfaceNotifier(widget.surfaceId)
-          .value;
+      final UiDefinition? definition =
+          widget.controller.uiDefinitionNotifier.value;
       if (definition == null) return;
       final modalId = event.context['modalId'] as String;
       final Component? modalComponent = definition.components[modalId];
@@ -117,7 +116,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         builder: (context) => _buildWidget(
           definition,
           contentChildId,
-          DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
+          DataContext(widget.controller.dataModel, '/'),
         ),
       );
       return;
@@ -126,11 +125,11 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
     // The event comes in without a surfaceId, which we add here.
     final Map<String, Object?> eventMap = {
       ...event.toMap(),
-      surfaceIdKey: widget.surfaceId,
+      surfaceIdKey: widget.controller.surfaceId,
     };
     final UiEvent newEvent = event is UserActionEvent
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);
-    widget.host.handleUiEvent(newEvent);
+    widget.controller.onUiEvent(newEvent);
   }
 }

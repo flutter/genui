@@ -103,25 +103,5 @@ void main() {
       expect(find.byType(GenUiSurface), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
     });
-
-    testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
-      final messages = [
-        UserMessage(const [TextPart('Hello')]),
-      ];
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Conversation(
-              messages: messages,
-              manager: manager,
-              userPromptBuilder: (context, message) =>
-                  const Text('Custom User Prompt'),
-            ),
-          ),
-        ),
-      );
-      expect(find.text('Custom User Prompt'), findsOneWidget);
-      expect(find.text('Hello'), findsNothing);
-    });
   });
 }

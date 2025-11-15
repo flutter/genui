@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import '../content_generator.dart';
 import '../core/genui_manager.dart';
+import '../core/surface_controller.dart';
 import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
@@ -55,13 +56,13 @@ class GenUiConversation {
   final GenUiManager genUiManager;
 
   /// A callback for when a new surface is added by the AI.
-  final ValueChanged<SurfaceAdded>? onSurfaceAdded;
+  final ValueChanged<SurfaceController>? onSurfaceAdded;
 
   /// A callback for when a surface is deleted by the AI.
-  final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
+  final ValueChanged<SurfaceController>? onSurfaceDeleted;
 
   /// A callback for when a surface is updated by the AI.
-  final ValueChanged<SurfaceUpdated>? onSurfaceUpdated;
+  final ValueChanged<SurfaceController>? onSurfaceUpdated;
 
   /// A callback for when a text response is received from the AI.
   final ValueChanged<String>? onTextResponse;
@@ -79,42 +80,61 @@ class GenUiConversation {
       ValueNotifier<List<ChatMessage>>([]);
 
   void _handleSurfaceUpdate(GenUiUpdate update) {
+    final SurfaceController controller = update.controller;
     switch (update) {
       case SurfaceAdded():
-        _conversation.value = [
-          ..._conversation.value,
-          AiUiMessage(
-            definition: update.definition,
-            surfaceId: update.surfaceId,
-          ),
-        ];
-        onSurfaceAdded?.call(update);
-      case SurfaceUpdated():
-        final newConversation = List<ChatMessage>.from(_conversation.value);
-        final int index = newConversation.lastIndexWhere(
-          (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
-        );
-        final newMessage = AiUiMessage(
-          definition: update.definition,
-          surfaceId: update.surfaceId,
-        );
-        if (index != -1) {
-          newConversation[index] = newMessage;
-        } else {
-          // This can happen if a surface is created and updated in the same
-          // turn.
-          newConversation.add(newMessage);
+        onSurfaceAdded?.call(controller);
+        // Listen for updates to this specific controller to manage history.
+        // We don't store a reference to the listener, so it can't be removed
+        // later. However, since the lifecycle of the controller is managed by
+        // the GenUiManager and tied to the conversation, this should not
+        // result in a memory leak in practice as the controller itself will be
+        // disposed.
+        controller.uiDefinitionNotifier.addListener(() {
+          _handleDefinitionUpdate(controller);
+        });
+        final UiDefinition? initialDefinition =
+            controller.uiDefinitionNotifier.value;
+        if (initialDefinition != null) {
+          _conversation.value = [
+            ..._conversation.value,
+            AiUiMessage(
+              definition: initialDefinition,
+              surfaceId: controller.surfaceId,
+            ),
+          ];
         }
-        _conversation.value = newConversation;
-        onSurfaceUpdated?.call(update);
       case SurfaceRemoved():
+        onSurfaceDeleted?.call(controller);
         final newConversation = List<ChatMessage>.from(_conversation.value);
         newConversation.removeWhere(
-          (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
+          (m) => m is AiUiMessage && m.surfaceId == controller.surfaceId,
         );
         _conversation.value = newConversation;
-        onSurfaceDeleted?.call(update);
     }
+  }
+
+  void _handleDefinitionUpdate(SurfaceController controller) {
+    onSurfaceUpdated?.call(controller);
+    final UiDefinition? newDefinition = controller.uiDefinitionNotifier.value;
+    if (newDefinition == null) return;
+
+    final newConversation = List<ChatMessage>.from(_conversation.value);
+    final int index = newConversation.lastIndexWhere(
+      (m) => m is AiUiMessage && m.surfaceId == controller.surfaceId,
+    );
+    final newMessage = AiUiMessage(
+      definition: newDefinition,
+      surfaceId: controller.surfaceId,
+    );
+    if (index != -1) {
+      newConversation[index] = newMessage;
+    } else {
+      // This can happen if a surface is created and updated in the same
+      // turn.
+      newConversation.add(newMessage);
+    }
+    _conversation.value = newConversation;
   }
 
   /// Disposes of the resources used by this agent.
@@ -128,9 +148,6 @@ class GenUiConversation {
     genUiManager.dispose();
   }
 
-  /// The host for the UI surfaces managed by this agent.
-  GenUiHost get host => genUiManager;
-
   /// A [ValueListenable] that provides the current conversation history.
   ValueListenable<List<ChatMessage>> get conversation => _conversation;
 
@@ -138,9 +155,9 @@ class GenUiConversation {
   /// processing a request.
   ValueListenable<bool> get isProcessing => contentGenerator.isProcessing;
 
-  /// Returns a [ValueNotifier] for the given [surfaceId].
-  ValueNotifier<UiDefinition?> surface(String surfaceId) {
-    return genUiManager.getSurfaceNotifier(surfaceId);
+  /// Returns the [SurfaceController] for the given [surfaceId].
+  SurfaceController getSurfaceController(String surfaceId) {
+    return genUiManager.getSurfaceController(surfaceId);
   }
 
   /// Sends a user message to the AI to generate a UI response.

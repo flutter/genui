@@ -15,6 +15,9 @@ void main() {
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'slider',
@@ -31,13 +34,14 @@ void main() {
     manager.handleMessage(
       const BeginRendering(surfaceId: surfaceId, root: 'slider'),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
+    manager
+        .getSurfaceController(surfaceId)
+        .dataModel
+        .update(DataPath('/myValue'), 0.5);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
+        home: Scaffold(body: GenUiSurface(controller: controller)),
       ),
     );
 
@@ -47,7 +51,8 @@ void main() {
     await tester.drag(find.byType(Slider), const Offset(100, 0));
     expect(
       manager
-          .dataModelForSurface(surfaceId)
+          .getSurfaceController(surfaceId)
+          .dataModel
           .getValue<double>(DataPath('/myValue')),
       greaterThan(0.5),
     );

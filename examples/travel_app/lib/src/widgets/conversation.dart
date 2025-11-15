@@ -69,13 +69,12 @@ class Conversation extends StatelessWidget {
               alignment: MainAxisAlignment.start,
             );
           case AiUiMessage():
+            final SurfaceController controller = manager.getSurfaceController(
+              message.surfaceId,
+            );
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: GenUiSurface(
-                key: message.uiKey,
-                host: manager,
-                surfaceId: message.surfaceId,
-              ),
+              child: GenUiSurface(key: message.uiKey, controller: controller),
             );
           case InternalMessage():
             return InternalMessageWidget(content: message.text);

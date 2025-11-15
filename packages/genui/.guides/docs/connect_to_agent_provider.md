@@ -144,16 +144,17 @@ To receive and display generated UI:
           ),
           body: Column(
             children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _surfaceIds.length,
-                  itemBuilder: (context, index) {
-                    // For each surface, create a GenUiSurface to display it.
-                    final id = _surfaceIds[index];
-                    return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
-                  },
-                ),
-              ),
+             Expanded(
+               child: ListView.builder(
+                 itemCount: _surfaceIds.length,
+                 itemBuilder: (context, index) {
+                   // For each surface, create a GenUiSurface to display it.
+                   final id = _surfaceIds[index];
+                   final controller = _genUiConversation.getSurfaceController(id);
+                   return GenUiSurface(controller: controller);
+                 },
+               ),
+             ),
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),

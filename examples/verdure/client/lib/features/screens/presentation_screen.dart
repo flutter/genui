@@ -50,20 +50,17 @@ class _PresentationScreenState extends ConsumerState<PresentationScreen> {
           .watch(aiProvider)
           .when(
             data: (aiState) {
+              final SurfaceController controller = aiState.genUiManager
+                  .getSurfaceController('options');
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.genUiManager.getSurfaceNotifier(
-                  'options',
-                ),
+                valueListenable: controller.uiDefinitionNotifier,
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                    child: GenUiSurface(
-                      host: aiState.genUiManager,
-                      surfaceId: 'options',
-                    ),
+                    child: GenUiSurface(controller: controller),
                   );
                 },
               );

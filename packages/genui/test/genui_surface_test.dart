@@ -17,6 +17,9 @@ void main() {
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'root',
@@ -44,9 +47,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: GenUiSurface(host: manager, surfaceId: surfaceId),
-      ),
+      MaterialApp(home: GenUiSurface(controller: controller)),
     );
 
     expect(find.text('Hello'), findsOneWidget);
@@ -59,6 +60,9 @@ void main() {
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'root',
@@ -86,9 +90,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: GenUiSurface(host: manager, surfaceId: surfaceId),
-      ),
+      MaterialApp(home: GenUiSurface(controller: controller)),
     );
 
     await tester.tap(find.byType(ElevatedButton));

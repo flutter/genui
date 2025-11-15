@@ -15,6 +15,9 @@ void main() {
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'icon',
@@ -34,9 +37,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
+        home: Scaffold(body: GenUiSurface(controller: controller)),
       ),
     );
 
@@ -51,6 +52,9 @@ void main() {
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'icon',
@@ -77,9 +81,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
+        home: Scaffold(body: GenUiSurface(controller: controller)),
       ),
     );
 

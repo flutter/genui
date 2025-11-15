@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
@@ -49,14 +51,22 @@ void main() {
         genUiManager.surfaceUpdates,
         emits(
           isA<SurfaceAdded>()
-              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
+              .having((e) => e.controller.surfaceId, 'surfaceId', 'testSurface')
               .having(
-                (e) => e.definition.components.length,
+                (e) =>
+                    e.controller.uiDefinitionNotifier.value!.components.length,
                 'components.length',
                 1,
               )
               .having(
-                (e) => e.definition.components.values.first.id,
+                (e) => e
+                    .controller
+                    .uiDefinitionNotifier
+                    .value!
+                    .components
+                    .values
+                    .first
+                    .id,
                 'components.first.id',
                 'root',
               ),
@@ -95,23 +105,30 @@ void main() {
         ),
       );
 
-      // Use expectLater to wait for the stream to emit the correct event.
-      final Future<void> future = expectLater(
-        genUiManager.surfaceUpdates,
-        emits(
-          isA<SurfaceUpdated>()
-              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
-              .having(
-                (e) => e.definition.rootComponentId,
-                'rootComponentId',
-                'root',
-              ),
-        ),
-      );
+      final completer = Completer<void>();
+      void listener() {
+        final UiDefinition? definition = genUiManager
+            .getSurfaceController('testSurface')
+            .uiDefinitionNotifier
+            .value;
+        if (definition != null && definition.rootComponentId == 'root') {
+          completer.complete();
+        }
+      }
+
+      genUiManager
+          .getSurfaceController('testSurface')
+          .uiDefinitionNotifier
+          .addListener(listener);
 
       await tool.invoke(args);
 
-      await future; // Wait for the expectation to be met.
+      await completer.future; // Wait for the expectation to be met.
+
+      genUiManager
+          .getSurfaceController('testSurface')
+          .uiDefinitionNotifier
+          .removeListener(listener);
     });
   });
 }

@@ -76,12 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
     conversation = GenUiConversation(
       contentGenerator: contentGenerator,
       genUiManager: genUiManager,
-      onSurfaceAdded: (update) {
+      onSurfaceAdded: (controller) {
         setState(() {
           messages.add(
             AiUiMessage(
-              definition: update.definition,
-              surfaceId: update.surfaceId,
+              definition: controller.uiDefinitionNotifier.value!,
+              surfaceId: controller.surfaceId,
             ),
           );
         });
@@ -123,8 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 return switch (message) {
                   AiUiMessage() => GenUiSurface(
                       key: message.uiKey,
-                      host: conversation.host,
-                      surfaceId: message.surfaceId,
+                      controller:
+                          conversation.getSurfaceController(message.surfaceId),
                     ),
                   AiTextMessage() => ChatMessageWidget(
                       text: message.text,

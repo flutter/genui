@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
 import '../core/genui_surface.dart';
+import '../core/surface_controller.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
@@ -108,7 +109,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
-        final surfaceWidget = GenUiSurface(host: _genUi, surfaceId: surfaceId);
+        final SurfaceController controller = _genUi.getSurfaceController(
+          surfaceId,
+        );
+        final surfaceWidget = GenUiSurface(controller: controller);
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,
           child: Padding(

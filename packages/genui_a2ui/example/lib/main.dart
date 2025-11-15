@@ -63,30 +63,24 @@ class _ChatScreenState extends State<ChatScreen> {
       genUiManager: _genUiManager,
     );
     // Initialize with existing surfaces
-    _surfaceIds.addAll(
-      _genUiManager.surfaces.keys.where((id) => !_surfaceIds.contains(id)),
-    );
 
     _surfaceSubscription = _genUiManager.surfaceUpdates.listen((update) {
       if (update is SurfaceAdded) {
-        genUiLogger.info('Surface added: ${update.surfaceId}');
-        if (!_surfaceIds.contains(update.surfaceId)) {
+        genUiLogger.info('Surface added: ${update.controller.surfaceId}');
+        if (!_surfaceIds.contains(update.controller.surfaceId)) {
           setState(() {
-            _surfaceIds.add(update.surfaceId);
+            _surfaceIds.add(update.controller.surfaceId);
             // Switch to the new surface
             _currentSurfaceIndex = _surfaceIds.length - 1;
           });
         }
-      } else if (update is SurfaceUpdated) {
-        genUiLogger.info('Surface updated: ${update.surfaceId}');
-        // The surface will redraw itself, but we call setState here to ensure
-        // that any other dependent widgets are also updated.
-        setState(() {});
       } else if (update is SurfaceRemoved) {
-        genUiLogger.info('Surface removed: ${update.surfaceId}');
-        if (_surfaceIds.contains(update.surfaceId)) {
+        genUiLogger.info('Surface removed: ${update.controller.surfaceId}');
+        if (_surfaceIds.contains(update.controller.surfaceId)) {
           setState(() {
-            final int removeIndex = _surfaceIds.indexOf(update.surfaceId);
+            final int removeIndex = _surfaceIds.indexOf(
+              update.controller.surfaceId,
+            );
             _surfaceIds.removeAt(removeIndex);
             if (_surfaceIds.isEmpty) {
               _currentSurfaceIndex = 0;
@@ -145,6 +139,9 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
     final String currentSurfaceId = _surfaceIds[_currentSurfaceIndex];
+    final SurfaceController controller = _genUiManager.getSurfaceController(
+      currentSurfaceId,
+    );
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -199,8 +196,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: SingleChildScrollView(
               child: GenUiSurface(
                 key: ValueKey(currentSurfaceId),
-                host: _genUiManager,
-                surfaceId: currentSurfaceId,
+                controller: controller,
               ),
             ),
           ),

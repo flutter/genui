@@ -16,6 +16,7 @@ export 'src/core/genui_configuration.dart';
 export 'src/core/genui_manager.dart';
 export 'src/core/genui_surface.dart';
 export 'src/core/prompt_fragments.dart';
+export 'src/core/surface_controller.dart';
 export 'src/core/ui_tools.dart';
 export 'src/core/widget_utilities.dart';
 export 'src/core/widgets/chat_primitives.dart';

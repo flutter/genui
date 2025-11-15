@@ -26,6 +26,9 @@ void main() {
       );
       manager!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
+      final SurfaceController controller = manager!.getSurfaceController(
+        surfaceId,
+      );
       manager!.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
@@ -34,9 +37,7 @@ void main() {
       );
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: GenUiSurface(host: manager!, surfaceId: surfaceId),
-          ),
+          home: Scaffold(body: GenUiSurface(controller: controller)),
         ),
       );
     }
@@ -85,7 +86,8 @@ void main() {
 
       await pumpWidgetWithDefinition(tester, 'text', components);
       manager!
-          .dataModelForSurface('testSurface')
+          .getSurfaceController('testSurface')
+          .dataModel
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
 
@@ -146,7 +148,8 @@ void main() {
 
       await pumpWidgetWithDefinition(tester, 'field', components);
       manager!
-          .dataModelForSurface('testSurface')
+          .getSurfaceController('testSurface')
+          .dataModel
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
@@ -159,7 +162,8 @@ void main() {
       await tester.enterText(textFieldFinder, 'new value');
       expect(
         manager!
-            .dataModelForSurface('testSurface')
+            .getSurfaceController('testSurface')
+            .dataModel
             .getValue<String>(DataPath('/myValue')),
         'new value',
       );

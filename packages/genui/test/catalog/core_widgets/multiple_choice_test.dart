@@ -15,6 +15,9 @@ void main() {
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
+    final SurfaceController controller = manager.getSurfaceController(
+      surfaceId,
+    );
     final components = [
       const Component(
         id: 'multiple_choice',
@@ -41,15 +44,14 @@ void main() {
     manager.handleMessage(
       const BeginRendering(surfaceId: surfaceId, root: 'multiple_choice'),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
-      '1',
-    ]);
+    manager.getSurfaceController(surfaceId).dataModel.update(
+      DataPath('/mySelections'),
+      ['1'],
+    );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
+        home: Scaffold(body: GenUiSurface(controller: controller)),
       ),
     );
 
@@ -67,7 +69,8 @@ void main() {
     await tester.tap(find.text('Option 2'));
     expect(
       manager
-          .dataModelForSurface(surfaceId)
+          .getSurfaceController(surfaceId)
+          .dataModel
           .getValue<List<Object?>>(DataPath('/mySelections')),
       ['1', '2'],
     );

@@ -26,18 +26,15 @@ class OrderConfirmationScreen extends ConsumerWidget {
           .watch(aiProvider)
           .when(
             data: (aiState) {
+              final SurfaceController controller = aiState.genUiManager
+                  .getSurfaceController('confirmation');
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.genUiManager.getSurfaceNotifier(
-                  'confirmation',
-                ),
+                valueListenable: controller.uiDefinitionNotifier,
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  return GenUiSurface(
-                    host: aiState.genUiManager,
-                    surfaceId: 'confirmation',
-                  );
+                  return GenUiSurface(controller: controller);
                 },
               );
             },

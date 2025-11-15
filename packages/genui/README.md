@@ -255,7 +255,8 @@ To receive and display generated UI:
                  itemBuilder: (context, index) {
                    // For each surface, create a GenUiSurface to display it.
                    final id = _surfaceIds[index];
-                   return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
+                   final controller = _genUiConversation.getSurfaceController(id);
+                   return GenUiSurface(controller: controller);
                  },
                ),
              ),
