@@ -8,7 +8,6 @@ version: 0.5.1
 homepage: https://github.com/flutter/genui/tree/main/packages/genui_google_generative_ai
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
-publish_to: none
 
 environment:
   sdk: ">=3.9.2 <4.0.0"

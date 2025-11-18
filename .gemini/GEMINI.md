@@ -73,12 +73,16 @@ The project uses standard `flutter` and `dart` commands. A comprehensive script 
 - The examples and the `genui_firebase_ai` package use Firebase.
 - A script at `tool/stub_firebase_options.sh` is used in CI to create a stub `firebase_options.dart` file. For local development, developers need to configure their own Firebase project by following the instructions in `packages/genui/USAGE.md`.
 
-## Folder `spikes`
+## Updating the Guides (`packages/genui/.guides`)
 
-The folder `spikes` contains experiments and proof of concepts,
-that does not have to be of good quality.
+When asked to update the developer guides located in `packages/genui/.guides`, it is critical to ensure the documentation accurately reflects the current state of the codebase. Before making any changes to the guides, you must read *all* the Dart code in the following packages:
 
-Skip this folder when reviewing code.
+-   `packages/genui`
+-   `packages/genui_firebase_ai`
+-   `packages/genui_google_generative_ai`
+-   `packages/genui_a2ui`
+
+This ensures that any code examples, API references, and architectural explanations in the guides are up-to-date and consistent with the actual implementation.
 
 ## Draft pull requests
 

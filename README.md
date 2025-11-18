@@ -72,6 +72,34 @@ based on a widget catalog from the developers' project.
 - **Basic Layout:** LLM-driven basic layout generation.
 - **Any Model:** Integrate with any LLM that can generate structured JSON output.
 
+## Connecting to an AI Agent
+
+The `genui` framework uses a `ContentGenerator` to communicate with a generative AI model,
+allowing `genui` to be backend agnostic. You can choose the implementation that best fits
+your needs, whether it's `FirebaseAiContentGenerator` for production apps,
+`GoogleGenerativeAiContentGenerator` for rapid prototyping, or `A2uiContentGenerator` for
+custom agent servers.
+
+See the package table below for more details on each.
+
+## Packages
+
+| Package                                                            | Description                                                                                                                                                                  |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [genui](packages/genui/)                                           | The core framework to employ Generative UI.                                                                                                                                  |
+| [genui_firebase_ai](packages/genui_firebase_ai/)                   | Provides **`FirebaseAiContentGenerator`** to connect to Gemini via Firebase AI Logic. This is the recommended approach for production apps based on client-side agents.      |
+| [genui_google_generative_ai](packages/genui_google_generative_ai/) | Provides **`GoogleGenerativeAiContentGenerator`** for connecting to the Google Generative AI API with only an API key. Ideal for getting started quickly.                    |
+| [genui_a2ui](packages/genui_a2ui/)                                 | Provides **`A2uiContentGenerator`** for connecting to any server that implements the [A2UI protocol](https://a2ui.org). Use this for integrating with custom agent backends. |
+| [json_schema_builder](packages/json_schema_builder/)               | A fully featured Dart JSON Schema package with validation, used by the core framework to define widget data structures.                                                      |
+
+## Getting Started
+
+See the [genui getting started guide](packages/genui/README.md#getting-started-with-genui).
+
+## Constraints
+
+This repo requires Flutter version >=3.35.7.
+
 ## Some things we're thinking about
 
 - **Genkit Integration:** Integration with Genkit.
@@ -81,22 +109,6 @@ based on a widget catalog from the developers' project.
 - **Full-Screen Composition:** Enable LLM-driven composition and navigation of entire app screens.
 - **A2A Agent Support:** Support for A2A agent interactions.
 - **Dart Bytecode:** Future support for Dart Bytecode for even greater dynamism and flexibility.
-
-## Packages
-
-| Package                                                          | Description                                                                   |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [genui](packages/genui/)                         | A framework to employ Generative UI.                       |
-| [genui_firebase_ai](packages/genui_firebase_ai/) | Firebase AI integration for genui.                 |
-| [json_schema_builder](packages/json_schema_builder/)             | A fully featured Dart JSON Schema package with validation. |
-
-## Usage
-
-See [packages/genui/USAGE.md](packages/genui/USAGE.md).
-
-## Constraints
-
-This repo requires Flutter version >=3.35.7.
 
 ## Contribute
 

@@ -2,7 +2,8 @@
 title: Connecting to an agent provider
 description: |
   Instructions for connecting `genui` to the agent provider of your
-  choice.
+  choice. See `setup.md` for a description of the different `ContentGenerator`
+  implementations that are available.
 ---
 
 Follow these steps to connect `genui` to an agent provider and give
@@ -32,31 +33,12 @@ and a `ContentGenerator`.
     ```dart
     import 'package:flutter/material.dart';
     import 'package:genui/genui.dart';
-
-    // Replace with your actual ContentGenerator implementation
-    class YourContentGenerator implements ContentGenerator {
-      // ... implementation details ...
-      @override
-      Stream<A2uiMessage> get a2uiMessageStream => Stream.empty(); // Replace
-      @override
-      Stream<String> get textResponseStream => Stream.empty(); // Replace
-      @override
-      Stream<ContentGeneratorError> get errorStream => Stream.empty(); // Replace
-      @override
-      ValueListenable<bool> get isProcessing => ValueNotifier(false); // Replace
-      @override
-      Future<void> sendRequest(
-        ChatMessage message, {
-        Iterable<ChatMessage>? history,
-      }) async { /* ... */ }
-      @override
-      void dispose() { /* ... */ }
-    }
+    import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 
     class _MyHomePageState extends State<MyHomePage> {
       late final GenUiManager _genUiManager;
       late final GenUiConversation _genUiConversation;
-      final _surfaceIds = <String>[];
+      final _messages = <ChatMessage>[];
 
       @override
       void initState() {
@@ -64,16 +46,18 @@ and a `ContentGenerator`.
 
         _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
 
-        // NOTE: You need a concrete implementation of ContentGenerator here.
-        // The 'genui_firebase_ai' package provides implementations
-        // like FirebaseAiContentGenerator.
-        final contentGenerator = YourContentGenerator();
+        // Use a concrete implementation of ContentGenerator.
+        final contentGenerator = FirebaseAiContentGenerator(
+          catalog: _genUiManager.catalog,
+          systemInstruction: 'You are a helpful assistant.',
+          additionalTools: const [],
+        );
 
         _genUiConversation = GenUiConversation(
           genUiManager: _genUiManager,
           contentGenerator: contentGenerator,
           onSurfaceAdded: _onSurfaceAdded,
-          onSurfaceUpdated: _onSurfaceUpdated, // Example callback
+          onSurfaceUpdated: _onSurfaceUpdated,
           onSurfaceDeleted: _onSurfaceDeleted,
           onTextResponse: (text) => print('AI Text: $text'),
           onError: (error) => print('AI Error: ${error.error}'),
@@ -81,16 +65,28 @@ and a `ContentGenerator`.
       }
 
       void _onSurfaceAdded(SurfaceAdded update) {
-        setState(() => _surfaceIds.add(update.surfaceId));
+        setState(() {
+          _messages.add(
+            AiUiMessage(
+              definition: update.definition,
+              surfaceId: update.surfaceId,
+            ),
+          );
+        });
       }
 
       void _onSurfaceUpdated(SurfaceUpdated update) {
-        // Handle surface updates if needed
+        // Handle surface updates if needed. For example, you might want to
+        // scroll to the bottom of a list when a surface is updated.
         print('Surface ${update.surfaceId} updated');
       }
 
       void _onSurfaceDeleted(SurfaceRemoved update) {
-        setState(() => _surfaceIds.remove(update.surfaceId));
+        setState(
+          () => _messages.removeWhere(
+            (m) => m is AiUiMessage && m.surfaceId == update.surfaceId,
+          ),
+        );
       }
 
       @override
@@ -122,18 +118,28 @@ To receive and display generated UI:
       // ...
 
       final _textController = TextEditingController();
-      final _surfaceIds = <String>[];
+      final _messages = <ChatMessage>[];
 
       // Send a message containing the user's text to the agent.
       void _sendMessage(String text) {
         if (text.trim().isEmpty) return;
-        _genUiConversation.sendRequest(UserMessage.text(text));
+        final message = UserMessage.text(text);
+        setState(() => _messages.add(message));
+        _genUiConversation.sendRequest(message);
       }
 
-      // Callbacks for GenUiConversation (defined in initState example above)
-      // void _onSurfaceAdded(SurfaceAdded update) { ... }
-      // void _onSurfaceUpdated(SurfaceUpdated update) { ... }
-      // void _onSurfaceDeleted(SurfaceRemoved update) { ... }
+      void _onSurfaceAdded(SurfaceAdded update) {
+        setState(() {
+          _messages.add(
+            AiUiMessage(
+              definition: update.definition,
+              surfaceId: update.surfaceId,
+            ),
+          );
+        });
+      }
+
+      // ... other callbacks
 
       @override
       Widget build(BuildContext context) {
@@ -146,40 +152,22 @@ To receive and display generated UI:
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: _surfaceIds.length,
+                  itemCount: _messages.length,
                   itemBuilder: (context, index) {
-                    // For each surface, create a GenUiSurface to display it.
-                    final id = _surfaceIds[index];
-                    return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
+                    final message = _messages[index];
+                    return switch (message) {
+                      AiUiMessage() => GenUiSurface(
+                          host: _genUiConversation.host,
+                          surfaceId: message.surfaceId,
+                        ),
+                      AiTextMessage() => ListTile(title: Text(message.text)),
+                      UserMessage() => ListTile(title: Text(message.text)),
+                      _ => const SizedBox.shrink(),
+                    };
                   },
                 ),
               ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _textController,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter a message',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Send the user's text to the agent.
-                          _sendMessage(_textController.text);
-                          _textController.clear();
-                        },
-                        child: const Text('Send'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // ... text input row
             ],
           ),
         );

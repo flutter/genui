@@ -254,8 +254,6 @@ final riddleCard = CatalogItem(
     required context,
     required dataContext,
   }) {
-    final json = data as Map<String, Object?>;
-
     final questionNotifier =
         dataContext.subscribeToString(json['question'] as Map<String, Object?>?);
     final answerNotifier =

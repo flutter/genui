@@ -60,21 +60,10 @@ final riddleCard = CatalogItem(
   }) {
     final json = data as Map<String, Object?>;
 
-    // 1. Resolve the question reference
-    final questionRef = json['question'] as Map<String, Object?>;
-    final questionPath = questionRef['path'] as String?;
-    final questionLiteral = questionRef['literalString'] as String?;
-    final questionNotifier = questionPath != null
-        ? dataContext.subscribe<String>(questionPath)
-        : ValueNotifier<String?>(questionLiteral);
-
-    // 2. Resolve the answer reference
-    final answerRef = json['answer'] as Map<String, Object?>;
-    final answerPath = answerRef['path'] as String?;
-    final answerLiteral = answerRef['literalString'] as String?;
-    final answerNotifier = answerPath != null
-        ? dataContext.subscribe<String>(answerPath)
-        : ValueNotifier<String?>(answerLiteral);
+    final questionNotifier =
+        dataContext.subscribeToString(json['question'] as Map<String, Object?>?);
+    final answerNotifier =
+        dataContext.subscribeToString(json['answer'] as Map<String, Object?>?);
 
     // 3. Use ValueListenableBuilder to build the UI reactively
     return ValueListenableBuilder<String?>(

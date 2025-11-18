@@ -85,18 +85,28 @@ class A2uiSchemas {
       'name': S.string(),
       'context': S.list(
         description:
-            'A list of name-value pairs to be sent with the action. The '
-            'values are bind to the data model with a path, and should '
-            'bind to all of the related data for this action.',
+            'A list of name-value pairs to be sent with the action to include '
+            'data associated with the action, e.g. values that are submitted.',
         items: S.object(
           properties: {
             'key': S.string(),
             'value': S.object(
               properties: {
-                'path': S.string(),
-                'literalString': S.string(),
-                'literalNumber': S.number(),
-                'literalBoolean': S.boolean(),
+                'path': S.string(
+                  description:
+                      'A path in the data model which should be bound to an '
+                      'input element, e.g. a string reference for a text '
+                      'field, or number reference for a slider.',
+                ),
+                'literalString': S.string(
+                  description: 'A literal string relevant to the action',
+                ),
+                'literalNumber': S.number(
+                  description: 'A literal number relevant to the action',
+                ),
+                'literalBoolean': S.boolean(
+                  description: 'A literal boolean relevant to the action',
+                ),
               },
             ),
           },
