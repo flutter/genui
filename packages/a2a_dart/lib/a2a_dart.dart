@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// A library for building Agent-to-Agent (A2A) clients.
+/// A library for building Agent-to-Agent (A2A) clients and servers.
 library;
 
 // Client exports.
@@ -19,6 +19,16 @@ export 'src/core/list_tasks_params.dart';
 export 'src/core/list_tasks_result.dart';
 export 'src/core/message.dart';
 export 'src/core/part.dart';
-export 'src/core/push_notification.dart';
 export 'src/core/security_scheme.dart';
 export 'src/core/task.dart';
+// Server exports (conditionally exported).
+export 'src/server/a2a_server.dart';
+export 'src/server/a2a_server_exception.dart';
+export 'src/server/cancel_task_handler.dart';
+export 'src/server/get_task_handler.dart';
+export 'src/server/handler_result.dart';
+export 'src/server/in_memory_task_manager.dart';
+export 'src/server/list_tasks_handler.dart';
+export 'src/server/request_handler.dart';
+export 'src/server/resubscribe_handler.dart';
+export 'src/server/task_manager.dart';

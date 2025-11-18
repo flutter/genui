@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 name: a2a_dart
-description: A Dart client implementation of the A2A (Agent-to-Agent) protocol.
+description: A Dart implementation of the A2A (Agent-to-Agent) protocol.
 version: 0.1.0
 publish_to: none
 repository: https://github.com/flutter/genui.git
@@ -17,7 +17,8 @@ dependencies:
   http: ^1.2.1
   json_annotation: ^4.9.0
   logging: ^1.3.0
-
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
   sse_channel: ^0.2.2
   uuid: ^4.5.2
 
@@ -27,5 +28,5 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.8.0
   lints: ^6.0.0
-
+  shelf_test_handler: ^2.0.2
   test: ^1.25.2

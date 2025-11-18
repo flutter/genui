@@ -39,7 +39,7 @@ SecurityScheme _$SecuritySchemeFromJson(
           return MutualTlsSecurityScheme.fromJson(
             json
           );
-        
+
           default:
             throw CheckedFromJsonException(
   json,
@@ -48,7 +48,7 @@ SecurityScheme _$SecuritySchemeFromJson(
   'Invalid union type "${json['type']}"!'
 );
         }
-      
+
 }
 
 /// @nodoc
@@ -515,7 +515,7 @@ as OAuthFlows,
 @override
 @pragma('vm:prefer-inline')
 $OAuthFlowsCopyWith<$Res> get flows {
-  
+
   return $OAuthFlowsCopyWith<$Res>(_self.flows, (value) {
     return _then(_self.copyWith(flows: value));
   });

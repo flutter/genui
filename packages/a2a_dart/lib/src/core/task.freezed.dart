@@ -103,7 +103,7 @@ as String,
 @override
 @pragma('vm:prefer-inline')
 $TaskStatusCopyWith<$Res> get status {
-  
+
   return $TaskStatusCopyWith<$Res>(_self.status, (value) {
     return _then(_self.copyWith(status: value));
   });
@@ -372,7 +372,7 @@ as String,
 @override
 @pragma('vm:prefer-inline')
 $TaskStatusCopyWith<$Res> get status {
-  
+
   return $TaskStatusCopyWith<$Res>(_self.status, (value) {
     return _then(_self.copyWith(status: value));
   });

@@ -31,7 +31,7 @@ Part _$PartFromJson(
           return DataPart.fromJson(
             json
           );
-        
+
           default:
             throw CheckedFromJsonException(
   json,
@@ -40,7 +40,7 @@ Part _$PartFromJson(
   'Invalid union type "${json['kind']}"!'
 );
         }
-      
+
 }
 
 /// @nodoc
@@ -424,7 +424,7 @@ as Map<String, Object?>?,
 @override
 @pragma('vm:prefer-inline')
 $FileTypeCopyWith<$Res> get file {
-  
+
   return $FileTypeCopyWith<$Res>(_self.file, (value) {
     return _then(_self.copyWith(file: value));
   });
@@ -535,7 +535,7 @@ FileType _$FileTypeFromJson(
           return FileWithBytes.fromJson(
             json
           );
-        
+
           default:
             throw CheckedFromJsonException(
   json,
@@ -544,7 +544,7 @@ FileType _$FileTypeFromJson(
   'Invalid union type "${json['type']}"!'
 );
         }
-      
+
 }
 
 /// @nodoc
