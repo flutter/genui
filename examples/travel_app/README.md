@@ -29,13 +29,10 @@ This example highlights several core concepts of the `genui` package:
 ## Getting Started
 
 To run this application, you will need to have a Firebase project set up and configured.
+1. **Configure Firebase**: Follow the instructions in the main `genui` package [README.md](../../packages/genui/README.md#configure-firebase-ai-logic) to add Firebase to your Flutter app. You will need to:
+   - Set up a Firebase project
+   - Generate a `firebase_options.dart` file using the FlutterFire CLI. You can run `sh tool/refresh_firebase.sh <project_id>` from the repo root to help you set this up.
 
-1. **Configure Firebase**: Follow the instructions to add Firebase to your
-   Flutter app for the platforms you intend to support (Android, iOS, web,
-   etc.). See [README.md](../../packages/genui/README.md#configure-firebase-ai-logic) for steps to
-   configure Firebase. You will need to replace the placeholder values in
-   `lib/firebase_options.dart` with the configuration from your own Firebase
-   project.
 2. **Run the App**: Once Firebase is configured, you can run the app like any other Flutter project:
 
    ```bash
