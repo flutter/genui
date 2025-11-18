@@ -162,13 +162,13 @@ final inputGroup = CatalogItem(
                       ),
                     );
                   },
-                  child: Text(submitLabel ?? ''),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(
                       builderContext,
                     ).colorScheme.primary,
                     foregroundColor: Colors.white,
                   ),
+                  child: Text(submitLabel ?? ''),
                 );
               },
             ),

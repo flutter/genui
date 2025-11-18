@@ -11,45 +11,31 @@ import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
 import 'package:logging/logging.dart';
 
-// If you are seeing uri_does_not_exist analyzer errors on the next line, run:
+import 'configuration.dart';
+// If you want to convert to using Firebase AI, run:
 //
 //   sh tool/refresh_firebase.sh <project_id>
 //
-// to refresh the Firebase configuration for a specific project.
-//
-// If you just want to get rid of the analyzer errors, you can run
-//
-//   sh tool/stub_firebase_options.sh
-//
-// to create a stub firebase_options.dart file.  You won't be able to run the
-// app with Firebase AI until you have a valid Firebase configuration, however.
-import 'firebase_options.dart';
+// to refresh the Firebase configuration for a specific Firebase project.
+// and uncomment the Firebase initialization code and import below that is
+// marked with UNCOMMENT_FOR_FIREBASE.
+
+// UNCOMMENT_FOR_FIREBASE
+// import 'firebase_options.dart';
 
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
 import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';
 import 'message.dart';
 
-/// Enum for selecting which AI backend to use.
-enum AiBackend {
-  /// Use Firebase AI
-  firebase,
-
-  /// Use Google Generative AI
-  googleGenerativeAi,
-}
-
-/// Configuration for which AI backend to use.
-/// Change this value to switch between backends.
-const AiBackend aiBackend = AiBackend.googleGenerativeAi;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Only initialize Firebase if using firebase backend
+  // Only initialize Firebase if using firebase backend.
   if (aiBackend == AiBackend.firebase) {
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+      // UNCOMMENT_FOR_FIREBASE
+      // options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 

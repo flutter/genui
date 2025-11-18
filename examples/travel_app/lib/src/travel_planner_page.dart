@@ -7,9 +7,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_firebase_ai/genui_firebase_ai.dart';
+import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
 
 import 'asset_images.dart';
 import 'catalog.dart';
+import 'config/configuration.dart';
+// Conditionally import non-web version so we can read from shell env vars in
+// non-web version.
+import 'config/io_get_api_key.dart'
+    if (dart.library.html) 'config/web_get_api_key.dart';
 import 'tools/booking/booking_service.dart';
 import 'tools/booking/list_hotels_tool.dart';
 import 'widgets/conversation.dart';
@@ -70,15 +76,28 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _userMessageSubscription = genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
-    final ContentGenerator contentGenerator =
-        widget.contentGenerator ??
-        FirebaseAiContentGenerator(
+
+    // Create the appropriate content generator based on configuration
+    final ContentGenerator contentGenerator = switch (aiBackend) {
+      AiBackend.googleGenerativeAi => () {
+        return GoogleGenerativeAiContentGenerator(
           catalog: travelAppCatalog,
           systemInstruction: prompt,
           additionalTools: [
             ListHotelsTool(onListHotels: BookingService.instance.listHotels),
           ],
+          apiKey: getApiKey(),
         );
+      }(),
+      AiBackend.firebase => FirebaseAiContentGenerator(
+        catalog: travelAppCatalog,
+        systemInstruction: prompt,
+        additionalTools: [
+          ListHotelsTool(onListHotels: BookingService.instance.listHotels),
+        ],
+      ),
+    };
+
     _uiConversation = GenUiConversation(
       genUiManager: genUiManager,
       contentGenerator: contentGenerator,

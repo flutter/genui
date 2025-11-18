@@ -2,40 +2,53 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Be sure to uncomment these Firebase initialization code and these imports
+// if using Firebase AI.
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
-import 'package:genui_firebase_ai/genui_firebase_ai.dart';
+import 'package:genui_firebase_ai/genui_firebase_ai.dart'
+    show FirebaseAiContentGenerator;
 import 'package:logging/logging.dart';
 
-// If you are seeing uri_does_not_exist analyzer errors on the next line, run:
+import 'src/catalog.dart';
+import 'src/config/configuration.dart';
+import 'src/travel_planner_page.dart';
+
+// If you want to convert to using Firebase AI, run:
 //
 //   sh tool/refresh_firebase.sh <project_id>
 //
-// to refresh the Firebase configuration for a specific project.
-//
-// If you just want to get rid of the analyzer errors, you can run
-//
-//   sh tool/stub_firebase_options.sh
-//
-// to create a stub firebase_options.dart file.  You won't be able to run the
-// app with Firebase AI until you have a valid Firebase configuration, however.
-import 'firebase_options.dart';
+// to refresh the Firebase configuration for a specific Firebase project.
+// and uncomment the Firebase initialization code and import below that is
+// marked with UNCOMMENT_FOR_FIREBASE.
 
-import 'src/catalog.dart';
-import 'src/travel_planner_page.dart';
+// UNCOMMENT_FOR_FIREBASE
+// import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseAppCheck.instance.activate(
-    providerApple: const AppleDebugProvider(),
-    providerAndroid: const AndroidDebugProvider(),
-    providerWeb: ReCaptchaV3Provider('debug'),
-  );
+
+  // Only initialize Firebase if using firebase backend
+  //
+  // Be sure to uncomment if using Firebase AI.
+
+  if (aiBackend == AiBackend.firebase) {
+    await Firebase.initializeApp(
+      // UNCOMMENT_FOR_FIREBASE
+      // options: DefaultFirebaseOptions.currentPlatform,
+    );
+    await FirebaseAppCheck.instance.activate(
+      providerApple: const AppleDebugProvider(),
+      providerAndroid: const AndroidDebugProvider(),
+      providerWeb: ReCaptchaV3Provider('debug'),
+    );
+  }
+
   await loadImagesJson();
   configureGenUiLogging(level: Level.ALL);
+
   runApp(const TravelApp());
 }
 
@@ -63,13 +76,13 @@ class TravelApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: _TravelAppBody(contentGenerator),
+      home: _TravelAppBody(contentGenerator: contentGenerator),
     );
   }
 }
 
 class _TravelAppBody extends StatelessWidget {
-  _TravelAppBody(this.contentGenerator);
+  const _TravelAppBody({this.contentGenerator});
 
   /// The AI client to use for the application.
   ///
