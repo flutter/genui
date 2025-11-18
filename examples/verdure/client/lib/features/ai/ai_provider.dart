@@ -5,22 +5,38 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_a2ui/genui_a2ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/logging.dart';
 import '../state/loading_state.dart';
 
 part 'ai_provider.g.dart';
 
-final a2aServerUrl = Platform.isAndroid
-    ? 'http://10.0.2.2:10002'
-    : 'http://localhost:10002';
+/// A provider for the A2A server URL.
+@riverpod
+Future<String> a2aServerUrl(Ref ref) async {
+  if (!kIsWeb && Platform.isAndroid) {
+    final deviceInfo = DeviceInfoPlugin();
+    final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    if (!androidInfo.isPhysicalDevice) {
+      // Running on an emulator.
+      return 'http://10.0.2.2:10002';
+    }
+  }
+  return 'http://localhost:10002';
+}
 
 /// A provider for the A2UI agent connector.
 @Riverpod(keepAlive: true)
-A2uiAgentConnector a2uiAgentConnector(Ref ref) {
-  return A2uiAgentConnector(url: Uri.parse(a2aServerUrl));
+Future<A2uiAgentConnector> a2uiAgentConnector(Ref ref) async {
+  final String urlString = await ref.watch(a2aServerUrlProvider.future);
+  final Uri url = Uri.parse(urlString);
+  appLogger.info('A2UI server URL: ${url.toString()}');
+  return A2uiAgentConnector(url: url);
 }
 
 /// The state of the AI client provider.
@@ -52,9 +68,12 @@ class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
     final genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
-    final A2uiAgentConnector connector = ref.watch(a2uiAgentConnectorProvider);
+    final A2uiAgentConnector connector = await ref.watch(
+      a2uiAgentConnectorProvider.future,
+    );
+    final String serverUrl = await ref.watch(a2aServerUrlProvider.future);
     final contentGenerator = A2uiContentGenerator(
-      serverUrl: Uri.parse(a2aServerUrl),
+      serverUrl: Uri.parse(serverUrl),
       connector: connector,
     );
     final conversation = GenUiConversation(

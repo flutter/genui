@@ -19,15 +19,7 @@ class CatalogGalleryApp extends StatefulWidget {
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final Catalog catalog = CoreCatalogItems.asCatalog().copyWithout([
-    // Excluded, because they are flexible:
-    CoreCatalogItems.tabs,
-    CoreCatalogItems.list,
-
-    // Excluded, because something is wrong with image:
-    // NetworkImageLoadException was thrown resolving an image codec...
-    CoreCatalogItems.image,
-  ]);
+  final Catalog catalog = CoreCatalogItems.asCatalog();
 
   @override
   Widget build(BuildContext context) {

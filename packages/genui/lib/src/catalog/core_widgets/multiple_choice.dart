@@ -149,22 +149,88 @@ final multipleChoice = CatalogItem(
         {
           "id": "root",
           "component": {
+            "Column": {
+              "children": {
+                "explicitList": [
+                  "heading1",
+                  "singleChoice",
+                  "heading2",
+                  "multiChoice"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "heading1",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Single Selection (maxAllowedSelections: 1)"
+              }
+            }
+          }
+        },
+        {
+          "id": "singleChoice",
+          "component": {
             "MultipleChoice": {
               "selections": {
-                "path": "/mySelections"
+                "path": "/singleSelection"
+              },
+              "maxAllowedSelections": 1,
+              "options": [
+                {
+                  "label": {
+                    "literalString": "Option A"
+                  },
+                  "value": "A"
+                },
+                {
+                  "label": {
+                    "literalString": "Option B"
+                  },
+                  "value": "B"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "heading2",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Multiple Selections (unlimited)"
+              }
+            }
+          }
+        },
+        {
+          "id": "multiChoice",
+          "component": {
+            "MultipleChoice": {
+              "selections": {
+                "path": "/multiSelection"
               },
               "options": [
                 {
                   "label": {
-                    "literalString": "Option 1"
+                    "literalString": "Option X"
                   },
-                  "value": "1"
+                  "value": "X"
                 },
                 {
                   "label": {
-                    "literalString": "Option 2"
+                    "literalString": "Option Y"
                   },
-                  "value": "2"
+                  "value": "Y"
+                },
+                {
+                  "label": {
+                    "literalString": "Option Z"
+                  },
+                  "value": "Z"
                 }
               ]
             }

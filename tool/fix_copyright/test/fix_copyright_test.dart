@@ -329,25 +329,25 @@ found in the LICENSE file. -->''';
     );
   });
 
-  test('fails a file with a generated code header but no copyright', () async {
-    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final File testFile = fileSystem.file('test.dart')
-      ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
-    final int result = await runFixCopyrights(paths: ['test.dart']);
-    expect(result, equals(1));
-    expect(log, equals(['/test.dart']));
-    expect(
-      error,
-      contains('Found 1 files which have out-of-compliance copyrights.'),
-    );
-    expect(
-      testFile.readAsStringSync(),
-      '// GENERATED CODE - DO NOT MODIFY BY HAND\n',
-    );
-  });
+  test(
+    'ignores a file with a generated code header but no copyright',
+    () async {
+      mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
+      final File testFile = fileSystem.file('test.dart')
+        ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
+      final int result = await runFixCopyrights(paths: ['test.dart']);
+      expect(result, equals(0));
+      expect(log, isEmpty);
+      expect(error, isEmpty);
+      expect(
+        testFile.readAsStringSync(),
+        '// GENERATED CODE - DO NOT MODIFY BY HAND\n',
+      );
+    },
+  );
 
   test(
-    'updates a file with a generated code header but no copyright when forced',
+    'ignores a file with a generated code header but no copyright when forced',
     () async {
       mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
       final File testFile = fileSystem.file('test.dart')
@@ -357,14 +357,11 @@ found in the LICENSE file. -->''';
         force: true,
       );
       expect(result, equals(0));
-      expect(log, equals(['/test.dart']));
-      expect(
-        error,
-        contains('Found 1 files which have out-of-compliance copyrights.'),
-      );
+      expect(log, isEmpty);
+      expect(error, isEmpty);
       expect(
         testFile.readAsStringSync(),
-        equals('// GENERATED CODE - DO NOT MODIFY BY HAND\n$copyright\n\n'),
+        equals('// GENERATED CODE - DO NOT MODIFY BY HAND\n'),
       );
     },
   );
