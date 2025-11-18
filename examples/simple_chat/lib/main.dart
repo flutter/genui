@@ -11,7 +11,7 @@ import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
 import 'package:logging/logging.dart';
 
-import 'firebase_options_stub.dart';
+import 'firebase_options.dart';
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
 import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';

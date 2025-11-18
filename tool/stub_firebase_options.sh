@@ -3,7 +3,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Runs `pub get` for all code in the repo.
+# Run this script if you're not planning on running the examples, but you
+# just don't want to see analyzer issues.  See refresh_firebase.sh for
+# instructions on how to run the examples.
 
 # Fast fail the script on failures.
 set -ex

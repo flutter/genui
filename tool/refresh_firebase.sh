@@ -10,12 +10,13 @@
 #   1. Follow https://github.com/flutter/genui/blob/main/packages/genui/README.md#configure-firebase-ai-logic
 #   2. Run 'firebase login' to authenticate with Firebase CLI.
 #
-# To run this script for your firebase project:
-#   1. Copy the script to `refresh_firebase.sh` (it will be gitignored).
-#   2. Update value of PROJECT_ID to to be your firebase project ID.
-#   3. Run the script with one of two ways:
-#      - Run `sh tool/refresh_firebase.sh`
-#      - Open in VSCode and  press `Cmd+Shift+B`.
+# You can run the script with the ID of your project as the first argument,
+# or you can run it without any arguments, in which case it will use the
+# default project ID in the environment variable GENUI_PROJECT_ID, or
+# `fluttergenui` if that is not set.
+#
+# Run `sh tool/refresh_firebase.sh` to run the script.
+#
 # Troubleshooting:
 #   1. If the script fails with "No Firebase project found",
 #      run `firebase logout` and `firebase login`.
@@ -26,7 +27,9 @@ set -ex
 # The directory that this script is located in.
 TOOL_DIR=$(dirname "$0")
 
-PROJECT_ID="fluttergenui"
+DEFAULT_PROJECT_ID=${GENUI_PROJECT_ID:-"fluttergenui"}
+
+PROJECT_ID=${1:-${DEFAULT_PROJECT_ID}}
 
 EXAMPLES=(
     "simple_chat"

@@ -68,7 +68,6 @@ This example supports two AI backends: **Google Generative AI** (default) and **
 1. **Configure Firebase**: Follow the instructions in the main `genui` package [README.md](../../packages/genui/README.md#configure-firebase-ai-logic) to add Firebase to your Flutter app. You will need to:
    - Set up a Firebase project
    - Generate a `firebase_options.dart` file using the FlutterFire CLI
-   - Update `lib/main.dart` to import `firebase_options.dart` instead of `firebase_options_stub.dart`
 
 2. **Switch the Backend**: In `lib/main.dart`, change the
    `aiBackend` constant to use Firebase:
