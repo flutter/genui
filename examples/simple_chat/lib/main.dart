@@ -21,7 +21,7 @@ import 'configuration.dart';
 // marked with UNCOMMENT_FOR_FIREBASE.
 
 // UNCOMMENT_FOR_FIREBASE
-// import 'firebase_options.dart';
+import 'firebase_options.dart';
 
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
@@ -35,7 +35,7 @@ void main() async {
   if (aiBackend == AiBackend.firebase) {
     await Firebase.initializeApp(
       // UNCOMMENT_FOR_FIREBASE
-      // options: DefaultFirebaseOptions.currentPlatform,
+      options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 
