@@ -64,12 +64,20 @@ final tabs = CatalogItem(
               );
             }).toList(),
           ),
-          Expanded(
-            child: TabBarView(
-              children: tabsData.tabItems.map((tabItem) {
-                return itemContext.buildChild(tabItem['child'] as String);
-              }).toList(),
-            ),
+          Builder(
+            builder: (context) {
+              final TabController tabController = DefaultTabController.of(
+                context,
+              );
+              return AnimatedBuilder(
+                animation: tabController,
+                builder: (context, child) {
+                  return itemContext.buildChild(
+                    tabsData.tabItems[tabController.index]['child'] as String,
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
@@ -85,13 +93,13 @@ final tabs = CatalogItem(
               "tabItems": [
                 {
                   "title": {
-                    "literalString": "Tab 1"
+                    "literalString": "Overview"
                   },
                   "child": "text1"
                 },
                 {
                   "title": {
-                    "literalString": "Tab 2"
+                    "literalString": "Details"
                   },
                   "child": "text2"
                 }
@@ -104,7 +112,7 @@ final tabs = CatalogItem(
           "component": {
             "Text": {
               "text": {
-                "literalString": "This is the first tab."
+                "literalString": "This is a short summary of the item."
               }
             }
           }
@@ -114,7 +122,7 @@ final tabs = CatalogItem(
           "component": {
             "Text": {
               "text": {
-                "literalString": "This is the second tab."
+                "literalString": "This is a much longer, more detailed description of the item, providing in-depth information and context. It can span multiple lines and include rich formatting if needed."
               }
             }
           }

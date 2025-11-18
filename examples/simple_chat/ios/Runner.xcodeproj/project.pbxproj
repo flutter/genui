@@ -89,12 +89,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0FF38C0DE60523A00C090E29 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				238CBA884696395134813285 /* Pods-Runner.debug.xcconfig */,
+				5E3B4A8BDEF2FF6E6FC6EDCC /* Pods-Runner.release.xcconfig */,
+				508DF401F69417764E1E5B66 /* Pods-Runner.profile.xcconfig */,
+				6EEB7E7FB6E5A6E29821B663 /* Pods-RunnerTests.debug.xcconfig */,
+				9A097EFF4049C4AE69A97A4F /* Pods-RunnerTests.release.xcconfig */,
+				429904E3B2952C32432502DE /* Pods-RunnerTests.profile.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
 				331C807B294A618700263BE5 /* RunnerTests.swift */,
 			);
 			path = RunnerTests;
+			sourceTree = "<group>";
+		};
+		47AB846AF9F050FE2C708492 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D8CE641C45D7677CAFE8A9D5 /* Pods_Runner.framework */,
+				4986175F9B388CE631CC1EC2 /* Pods_RunnerTests.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		9740EEB11CF90186004384FC /* Flutter */ = {

@@ -24,7 +24,7 @@ LANDSCAPE_UI_EXAMPLES = """
     "components": [
       {{ "id": "welcome-column", "component": {{ "Column": {{ "alignment": "center", "distribution": "center", "children": {{ "explicitList": ["logo-image", "welcome-title", "welcome-subtitle", "button-row"] }} }} }} }},
       {{ "id": "logo-image", "component": {{ "Image": {{ "url": {{ "literalString": "{base_url}/images/verdure_logo.png" }}, "fit": "contain" }} }} }},
-      {{ "id": "welcome-title", "component": {{ "Heading": {{ "level": "1", "text": {{ "literalString": "Envision Your Dream Landscape" }} }} }} }},
+      {{ "id": "welcome-title", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Envision Your Dream Landscape" }} }} }} }},
       {{ "id": "welcome-subtitle", "component": {{ "Text": {{ "text": {{ "literalString": "Bring your perfect outdoor space to life with our AI-powered design tools." }} }} }} }},
 
       {{ "id": "button-row", "component": {{ "Row": {{ "distribution": "spaceEvenly", "alignment": "center", "children": {{ "explicitList": ["start-button", "explore-button", "returning-user-button"] }} }} }} }},
@@ -61,25 +61,25 @@ LANDSCAPE_UI_EXAMPLES = """
 
       {{ "id": "header-row", "component": {{ "Row": {{ "distribution": "start", "alignment": "center", "children": {{ "explicitList": ["back-arrow", "header-title"] }} }} }} }},
       {{ "id": "back-arrow", "component": {{ "Icon": {{ "name": {{ "literalString": "arrow-back" }} }} }} }},
-      {{ "id": "header-title", "component": {{ "Heading": {{ "level": "3", "text": {{ "literalString": "Visualize Your Garden" }} }} }} }},
+      {{ "id": "header-title", "component": {{ "Text": {{ "usageHint": "h3", "text": {{ "literalString": "Visualize Your Garden" }} }} }} }},
 
       {{ "id": "hero-image", "component": {{ "Image": {{ "url": {{ "literalString": "{base_url}/images/header_image.png" }}, "fit": "cover" }} }} }},
 
-      {{ "id": "transformation-title", "component": {{ "Heading": {{ "level": "1", "text": {{ "literalString": "Let's Start Your Transformation" }} }} }} }},
+      {{ "id": "transformation-title", "component": {{ "Text": {{ "usageHint": "h1", "text": {{ "literalString": "Let's Start Your Transformation" }} }} }} }},
       {{ "id": "transformation-subtitle", "component": {{ "Text": {{ "text": {{ "literalString": "Upload a photo of your front or back yard, and our designers will use it to create a custom vision. Get ready to see the potential." }} }} }} }},
 
       {{ "id": "take-photo-card", "component": {{ "Card": {{ "child": "take-photo-row" }} }} }},
       {{ "id": "take-photo-row", "component": {{ "Row": {{ "distribution": "start", "alignment": "center", "children": {{ "explicitList": ["take-photo-icon", "take-photo-column"] }} }} }} }},
       {{ "id": "take-photo-icon", "component": {{ "Icon": {{ "name": {{ "literalString": "camera-alt" }} }} }} }},
       {{ "id": "take-photo-column", "component": {{ "Column": {{ "children": {{ "explicitList": ["take-photo-title", "take-photo-subtitle"] }} }} }} }},
-      {{ "id": "take-photo-title", "component": {{ "Heading": {{ "level": 4, "text": {{ "literalString": "Take a Photo" }} }} }} }},
+      {{ "id": "take-photo-title", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "literalString": "Take a Photo" }} }} }} }},
       {{ "id": "take-photo-subtitle", "component": {{ "Text": {{ "text": {{ "literalString": "Capture your space directly from the app." }} }} }} }},
 
       {{ "id": "choose-library-card", "component": {{ "Card": {{ "child": "choose-library-row" }} }} }},
       {{ "id": "choose-library-row", "component": {{ "Row": {{ "distribution": "start", "alignment": "center", "children": {{ "explicitList": ["choose-library-icon", "choose-library-column"] }} }} }} }},
       {{ "id": "choose-library-icon", "component": {{ "Icon": {{ "name": {{ "literalString": "photo-library" }} }} }} }},
       {{ "id": "choose-library-column", "component": {{ "Column": {{  "children": {{ "explicitList": ["choose-library-title", "choose-library-subtitle"] }} }} }} }},
-      {{ "id": "choose-library-title", "component": {{ "Heading": {{ "level": 4, "text": {{ "literalString": "Choose from Library" }} }} }} }},
+      {{ "id": "choose-library-title", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "literalString": "Choose from Library" }} }} }} }},
       {{ "id": "choose-library-subtitle", "component": {{ "Text": {{ "text": {{ "literalString": "Select a photo from your phone's gallery." }} }} }} }},
 
       {{ "id": "tips-row", "component": {{ "Row": {{ "distribution": "center", "alignment": "center", "children": {{ "explicitList": ["tips-icon", "tips-text"] }} }} }} }},
@@ -114,12 +114,12 @@ LANDSCAPE_UI_EXAMPLES = """
 
       {{ "id": "user-photo", "component": {{ "Image": {{ "url": {{ "path": "imageUrl" }}, "fit": "cover" }} }} }},
 
-      {{ "id": "q-entertain-slider-title", "component": {{ "Heading": {{ "level": "5", "text": {{ "literalString": "Outdoor entertaining size (number of people)" }} }} }} }},
+      {{ "id": "q-entertain-slider-title", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "literalString": "Outdoor entertaining size (number of people)" }} }} }} }},
       {{ "id": "q-entertain-slider", "component": {{ "Slider": {{ "value": {{ "path": "guestCount" }}, "minValue": 2, "maxValue": 12 }} }} }},
 
       {{ "id": "q-preserve-bushes-check", "component": {{ "CheckBox": {{ "label": {{ "literalString": "Preserve established bushes/trees?" }}, "value": {{ "path": "preserveBushes" }} }} }} }},
 
-      {{ "id": "q-patio-title", "component": {{ "Heading": {{ "level": "5", "text": {{ "literalString": "That concrete patio... what's the plan?" }} }} }} }},
+      {{ "id": "q-patio-title", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "literalString": "That concrete patio... what's the plan?" }} }} }} }},
       {{ "id": "q-patio-options", "component": {{ "MultipleChoice": {{
         "selections": {{ "path": "patioPlan" }},
         "maxAllowedSelections": 1,
@@ -165,9 +165,9 @@ LANDSCAPE_UI_EXAMPLES = """
       {{ "id": "option-layout-1", "component": {{ "Column": {{ "alignment": "center",  "distribution": "center", "children": {{ "explicitList": ["option-image-1", "option-details-1"] }} }} }} }},
       {{ "id": "option-image-1", "component": {{ "Image": {{ "url": {{ "path": "/items/option1/imageUrl" }}, "fit": "cover" }} }} }},
       {{ "id": "option-details-1", "component": {{ "Column": {{  "alignment": "stretch","distribution": "center", "children": {{ "explicitList": ["option-name-1", "option-price-1", "option-time-1", "option-detail-1", "option-tradeoffs-1", "select-button-1"] }} }} }} }},
-      {{ "id": "option-name-1", "component": {{ "Heading": {{ "level": "4", "text": {{ "path": "/items/option1/name" }} }} }} }},
-      {{ "id": "option-price-1", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "/items/option1/price" }} }} }} }},
-      {{ "id": "option-time-1", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "/items/option1/time" }} }} }} }},
+      {{ "id": "option-name-1", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "path": "/items/option1/name" }} }} }} }},
+      {{ "id": "option-price-1", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "/items/option1/price" }} }} }} }},
+      {{ "id": "option-time-1", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "/items/option1/time" }} }} }} }},
       {{ "id": "option-detail-1", "component": {{ "Text": {{ "text": {{ "path": "/items/option1/detail" }} }} }} }},
       {{ "id": "option-tradeoffs-1", "component": {{ "Text": {{ "text": {{ "path": "/items/option1/tradeoffs" }} }} }} }},
       {{ "id": "select-button-1", "component": {{ "Button": {{ "primary": true, "child": "select-text-1", "action": {{ "name": "select_option", "context": [ {{ "key": "optionName", "value": {{ "path": "/items/option1/name" }} }}, {{ "key": "optionPrice", "value": {{ "path": "/items/option1/price" }} }} ] }} }} }} }},
@@ -177,9 +177,9 @@ LANDSCAPE_UI_EXAMPLES = """
       {{ "id": "option-layout-2", "component": {{ "Column": {{ "alignment": "center", "distribution": "center", "children": {{ "explicitList": ["option-image-2", "option-details-2"] }} }} }} }},
       {{ "id": "option-image-2", "component": {{ "Image": {{ "url": {{ "path": "/items/option2/imageUrl" }}, "fit": "cover" }} }} }} }},
       {{ "id": "option-details-2", "component": {{ "Column": {{ "alignment": "stretch","distribution": "center", "children": {{ "explicitList": ["option-name-2", "option-price-2", "option-time-2", "option-detail-2", "option-tradeoffs-2", "select-button-2"] }} }} }} }},
-      {{ "id": "option-name-2", "component": {{ "Heading": {{ "level": "4", "text": {{ "path": "/items/option2/name" }} }} }} }},
-      {{ "id": "option-price-2", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "/items/option2/price" }} }} }} }},
-      {{ "id": "option-time-2", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "/items/option2/time" }} }} }} }},
+      {{ "id": "option-name-2", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "path": "/items/option2/name" }} }} }} }},
+      {{ "id": "option-price-2", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "/items/option2/price" }} }} }} }},
+      {{ "id": "option-time-2", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "/items/option2/time" }} }} }} }},
       {{ "id": "option-detail-2", "component": {{ "Text": {{ "text": {{ "path": "/items/option2/detail" }} }} }} }},
       {{ "id": "option-tradeoffs-2", "component": {{ "Text": {{ "text": {{ "path": "/items/option2/tradeoffs" }} }} }} }},
       {{ "id": "select-button-2", "component": {{ "Button": {{ "primary": true, "child": "select-text-2", "action": {{ "name": "select_option", "context": [ {{ "key": "optionName", "value": {{ "path": "/items/option2/name" }} }}, {{ "key": "optionPrice", "value": {{ "path": "/items/option2/price" }} }} ] }} }} }} }},
@@ -221,12 +221,12 @@ LANDSCAPE_UI_EXAMPLES = """
     "components": [
       {{ "id": "cart-card", "weight": 1, "component": {{ "Card": {{ "child": "cart-column" }} }} }},
       {{ "id": "cart-column", "component": {{ "Column": {{ "alignment": "stretch", "children": {{ "explicitList": ["cart-subtitle", "item-list", "total-price", "checkout-button"] }} }} }} }},
-      {{ "id": "cart-subtitle", "component": {{ "Heading": {{ "level": "4", "text": {{ "path": "optionName" }} }} }} }},
+      {{ "id": "cart-subtitle", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "path": "optionName" }} }} }} }},
       {{ "id": "item-list", "component": {{ "List": {{ "direction": "vertical", "children": {{ "template": {{ "componentId": "item-template", "dataBinding": "/cartItems" }} }} }} }} }},
       {{ "id": "item-template", "component": {{ "Row": {{ "distribution": "spaceBetween", "children": {{ "explicitList": ["template-item-name", "template-item-price"] }} }} }} }},
       {{ "id": "template-item-name", "component": {{ "Text": {{ "text": {{ "path": "name" }} }} }} }},
       {{ "id": "template-item-price", "component": {{ "Text": {{ "text": {{ "path": "price" }} }} }} }},
-      {{ "id": "total-price", "component": {{ "Heading": {{ "level": "4", "text": {{ "path": "totalPrice" }} }} }} }},
+      {{ "id": "total-price", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "path": "totalPrice" }} }} }} }},
       {{ "id": "checkout-button", "component": {{ "Button": {{ "child": "checkout-text", "primary": true, "action": {{ "name": "checkout", "context": [ {{ "key": "optionName", "value": {{ "path": "optionName" }} }}, {{ "key": "totalPrice", "value": {{ "path": "totalPrice" }} }} ] }} }} }} }},
       {{ "id": "checkout-text", "component": {{ "Text": {{ "text": {{ "literalString": "Purchase" }} }} }} }}
     ]
@@ -260,14 +260,14 @@ LANDSCAPE_UI_EXAMPLES = """
       {{ "id": "confirm-icon", "component": {{ "Icon": {{ "name": {{ "literalString": "check" }} }} }} }},
       {{ "id": "details-column", "component": {{ "Column": {{ "alignment": "stretch", "children": {{ "explicitList": ["design-name-row", "price-row", "order-number-row"] }} }} }} }},
       {{ "id": "design-name-row", "component": {{ "Row": {{ "children": {{ "explicitList": ["design-name-label", "design-name-value"] }} }} }} }},
-      {{ "id": "design-name-label", "component": {{ "Heading": {{ "level": "5", "text": {{ "literalString": "Design: " }} }} }} }},
-      {{ "id": "design-name-value", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "designName" }} }} }} }},
+      {{ "id": "design-name-label", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "literalString": "Design: " }} }} }} }},
+      {{ "id": "design-name-value", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "designName" }} }} }} }},
       {{ "id": "price-row", "component": {{ "Row": {{ "children": {{ "explicitList": ["price-label", "price-value"] }} }} }} }},
-      {{ "id": "price-label", "component": {{ "Heading": {{ "level": "5", "text": {{ "literalString": "Price: " }} }} }} }},
-      {{ "id": "price-value", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "price" }} }} }} }},
+      {{ "id": "price-label", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "literalString": "Price: " }} }} }} }},
+      {{ "id": "price-value", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "price" }} }} }} }},
       {{ "id": "order-number-row", "component": {{ "Row": {{ "children": {{ "explicitList": ["order-number-label", "order-number-value"] }} }} }} }},
-      {{ "id": "order-number-label", "component": {{ "Heading": {{ "level": "5", "text": {{ "literalString": "Order #: " }} }} }} }},
-      {{ "id": "order-number-value", "component": {{ "Heading": {{ "level": "5", "text": {{ "path": "orderNumber" }} }} }} }},
+      {{ "id": "order-number-label", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "literalString": "Order #: " }} }} }} }},
+      {{ "id": "order-number-value", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "orderNumber" }} }} }} }},
       {{ "id": "confirm-next-steps", "component": {{ "Text": {{ "text": {{ "literalString": "Our design team will contact you within 48 hours to schedule an on-site consultation." }} }} }} }}
     ]
   }} }},

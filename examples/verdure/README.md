@@ -56,6 +56,29 @@ c. Run the Flutter application on your desired device:
 
 The Flutter application will connect to the server running on `localhost:10002` to interact with the landscape design agent.
 
+### Running on an Android Emulator
+
+When running the client on an Android emulator, you need to start the server with a special flag to ensure the emulator can connect to it. This is because the Android emulator uses `10.0.2.2` as an alias for the host machine's `localhost`.
+
+1.  **Start the Server with the `--base-url` flag:**
+
+    In the `server/verdure` directory, run the following command:
+
+    ```bash
+    uv run . --base-url="http://10.0.2.2:10002"
+    ```
+
+    This tells the server to advertise its agent card with the emulator-accessible IP address, even though it still binds to `localhost`.
+
+2.  **Run the Client:**
+
+    Follow the standard instructions to run the client. The client code is already configured to use `http://10.0.2.2:10002` when it detects it's running on an Android emulator.
+
+    ```bash
+    cd client
+    flutter run -d emulator
+    ```
+
 ## Disclaimer
 
 Important: The sample code provided is for demonstration purposes and illustrates the mechanics of the Agent-to-Agent (A2A) protocol. When building production applications, it is critical to treat any agent operating outside of your direct control as a potentially untrusted entity.
