@@ -7,6 +7,7 @@
 // runners that don't contain copyrights when generated.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file/file.dart';
@@ -161,11 +162,8 @@ bool _isGeneratedFile(String contents) {
   return const LineSplitter()
       .convert(contents)
       .take(10)
-      .any((line) => regex.hasMatch(line));
+      .any(regex.hasMatch);
 }
-
-
-
 
 class CopyrightInfo {
   CopyrightInfo(
