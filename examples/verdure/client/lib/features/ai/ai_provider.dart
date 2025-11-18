@@ -9,6 +9,7 @@ import 'package:genui/genui.dart';
 import 'package:genui_a2ui/genui_a2ui.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/logging.dart';
 import '../state/loading_state.dart';
 
 part 'ai_provider.g.dart';
@@ -20,7 +21,9 @@ final a2aServerUrl = Platform.isAndroid
 /// A provider for the A2UI agent connector.
 @Riverpod(keepAlive: true)
 A2uiAgentConnector a2uiAgentConnector(Ref ref) {
-  return A2uiAgentConnector(url: Uri.parse(a2aServerUrl));
+  final Uri url = Uri.parse(a2aServerUrl);
+  appLogger.info('A2UI server URL: ${url.toString()}');
+  return A2uiAgentConnector(url: url);
 }
 
 /// The state of the AI client provider.
