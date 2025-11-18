@@ -1,4 +1,5 @@
 import 'package:a2a_dart/a2a_dart.dart';
+import 'package:a2a_dart/src/core/push_notification.dart';
 import 'package:test/test.dart';
 
 import '../fakes.dart';

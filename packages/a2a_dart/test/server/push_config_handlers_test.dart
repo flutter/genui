@@ -42,7 +42,7 @@ void main() {
       getHandler = GetPushConfigHandler(fakeTaskManager);
       listHandler = ListPushConfigsHandler(fakeTaskManager);
       deleteHandler = DeletePushConfigHandler(fakeTaskManager);
-      fakeTaskManager.ensureTaskExists(testTask);
+      fakeTaskManager.ensureTaskExists(testTask.id);
     });
 
     group('SetPushConfigHandler', () {

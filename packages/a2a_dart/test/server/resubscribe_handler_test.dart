@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:a2a_dart/a2a_dart.dart';
 import 'package:test/test.dart';
 
@@ -22,9 +20,8 @@ void main() {
       );
       taskManager = FakeTaskManager(
         taskToReturn: task,
-        stream: Stream.value({}),
       );
-      await (taskManager as FakeTaskManager).ensureTaskExists(task);
+      (taskManager as FakeTaskManager).ensureTaskExists(task.id);
       handler = ResubscribeHandler(taskManager);
 
       final result = await handler.handle({'id': task.id});
