@@ -9,7 +9,20 @@ import 'package:genui/genui.dart';
 import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 import 'package:logging/logging.dart';
 
+// If you are seeing uri_does_not_exist analyzer errors on the next line, run:
+//
+//   sh tool/refresh_firebase.sh <project_id>
+//
+// to refresh the Firebase configuration for a specific project.
+//
+// If you just want to get rid of the analyzer errors, you can run
+//
+//   sh tool/stub_firebase_options.sh
+//
+// to create a stub firebase_options.dart file.  You won't be able to run the
+// app with Firebase AI until you have a valid Firebase configuration, however.
 import 'firebase_options.dart';
+
 import 'src/catalog.dart';
 import 'src/travel_planner_page.dart';
 
