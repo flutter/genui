@@ -94,7 +94,7 @@ See the package table below for more details on each.
 
 ## Getting Started
 
-To get started, check out [packages/genui/README.md](packages/genui/README.md).
+See the [genui getting started guide](packages/genui/README.md#getting-started-with-genui).
 
 ## Constraints
 
