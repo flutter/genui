@@ -152,7 +152,7 @@ $AgentProviderCopyWith<$Res>? get provider {
 @override
 @pragma('vm:prefer-inline')
 $AgentCapabilitiesCopyWith<$Res> get capabilities {
-
+  
   return $AgentCapabilitiesCopyWith<$Res>(_self.capabilities, (value) {
     return _then(_self.copyWith(capabilities: value));
   });
@@ -519,7 +519,7 @@ $AgentProviderCopyWith<$Res>? get provider {
 @override
 @pragma('vm:prefer-inline')
 $AgentCapabilitiesCopyWith<$Res> get capabilities {
-
+  
   return $AgentCapabilitiesCopyWith<$Res>(_self.capabilities, (value) {
     return _then(_self.copyWith(capabilities: value));
   });

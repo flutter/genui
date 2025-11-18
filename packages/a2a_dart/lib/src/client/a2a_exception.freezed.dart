@@ -47,7 +47,7 @@ A2AException _$A2AExceptionFromJson(
           return A2AParsingException.fromJson(
             json
           );
-
+        
           default:
             throw CheckedFromJsonException(
   json,
@@ -56,7 +56,7 @@ A2AException _$A2AExceptionFromJson(
   'Invalid union type "${json['runtimeType']}"!'
 );
         }
-
+      
 }
 
 /// @nodoc

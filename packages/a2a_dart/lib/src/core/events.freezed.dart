@@ -23,7 +23,7 @@ StreamingEvent _$StreamingEventFromJson(
           return TaskArtifactUpdateEvent.fromJson(
             json
           );
-
+        
           default:
             throw CheckedFromJsonException(
   json,
@@ -32,7 +32,7 @@ StreamingEvent _$StreamingEventFromJson(
   'Invalid union type "${json['kind']}"!'
 );
         }
-
+      
 }
 
 /// @nodoc
@@ -323,7 +323,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $TaskStatusCopyWith<$Res> get status {
-
+  
   return $TaskStatusCopyWith<$Res>(_self.status, (value) {
     return _then(_self.copyWith(status: value));
   });
@@ -418,7 +418,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $ArtifactCopyWith<$Res> get artifact {
-
+  
   return $ArtifactCopyWith<$Res>(_self.artifact, (value) {
     return _then(_self.copyWith(artifact: value));
   });
@@ -437,7 +437,7 @@ Event _$EventFromJson(
           return TaskArtifactUpdate.fromJson(
             json
           );
-
+        
           default:
             throw CheckedFromJsonException(
   json,
@@ -446,7 +446,7 @@ Event _$EventFromJson(
   'Invalid union type "${json['kind']}"!'
 );
         }
-
+      
 }
 
 /// @nodoc
@@ -731,7 +731,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $TaskStatusCopyWith<$Res> get status {
-
+  
   return $TaskStatusCopyWith<$Res>(_self.status, (value) {
     return _then(_self.copyWith(status: value));
   });
@@ -826,7 +826,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $ArtifactCopyWith<$Res> get artifact {
-
+  
   return $ArtifactCopyWith<$Res>(_self.artifact, (value) {
     return _then(_self.copyWith(artifact: value));
   });
