@@ -76,7 +76,7 @@ class CatalogItem {
   /// the entry point for rendering.
   ///
   /// To catch real data returned by the AI for debugging or creating new
-  /// examples, [configure logging](https://github.com/flutter/genui/blob/main/packages/genui/USAGE.md#configure-logging)
+  /// examples, [configure logging](https://github.com/flutter/genui/blob/main/packages/genui/README.md#how-can-i-configure-logging)
   /// to `Level.ALL` and search for the string `"definition": {` in the logs.
   final List<ExampleBuilderCallback> exampleData;
 }

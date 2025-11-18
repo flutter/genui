@@ -71,7 +71,7 @@ The project uses standard `flutter` and `dart` commands. A comprehensive script 
 ### Firebase Integration
 
 - The examples and the `genui_firebase_ai` package use Firebase.
-- A script at `tool/stub_firebase_options.sh` is used in CI to create a stub `firebase_options.dart` file. For local development, developers need to configure their own Firebase project by following the instructions in `packages/genui/USAGE.md`.
+- A script at `tool/stub_firebase_options.sh` is used in CI to create a stub `firebase_options.dart` file. For local development, developers need to configure their own Firebase project by following the instructions in [`packages/genui/README.md`](packages/genui/README.md#configure-firebase-ai-logic).
 
 ## Updating the Guides (`packages/genui/.guides`)
 
