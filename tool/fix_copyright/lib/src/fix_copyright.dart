@@ -83,6 +83,9 @@ Future<int> fixCopyrights(
       final CopyrightInfo info = extensionMap[extension]!;
       final File inputFile = file.absolute;
       final String originalContents = inputFile.readAsStringSync();
+      if (_isGeneratedFile(originalContents)) {
+        continue;
+      }
       if (_hasCorrectLicense(originalContents, info)) {
         continue;
       }
@@ -91,17 +94,6 @@ Future<int> fixCopyrights(
 
       if (force) {
         String contents = originalContents.replaceAll('\r\n', '\n');
-        String? generatedCodeHeader;
-        if (info.generatedCodePattern != null) {
-          final RegExpMatch? match = RegExp(
-            info.generatedCodePattern!,
-            caseSensitive: false,
-          ).firstMatch(contents);
-          if (match != null && match.start == 0) {
-            generatedCodeHeader = match.group(0);
-            contents = contents.substring(match.end);
-          }
-        }
 
         String? fileHeader;
         if (info.headerPattern != null) {
@@ -134,10 +126,6 @@ Future<int> fixCopyrights(
           newContents = '${info.combined}$contents';
         }
 
-        if (generatedCodeHeader != null) {
-          newContents = '$generatedCodeHeader$newContents';
-        }
-
         if (newContents != originalContents.replaceAll('\r\n', '\n')) {
           inputFile.writeAsStringSync(newContents);
         }
@@ -168,13 +156,22 @@ All files were given correct copyright notices, but please check them all manual
   return 0;
 }
 
+bool _isGeneratedFile(String contents) {
+  final List<String> lines = contents.split('\n');
+  final int linesToCheck = lines.length < 10 ? lines.length : 10;
+  final String headerToCheck = lines.sublist(0, linesToCheck).join('\n');
+  return RegExp(
+    r'generated.*(file|code)',
+    caseSensitive: false,
+  ).hasMatch(headerToCheck);
+}
+
 class CopyrightInfo {
   CopyrightInfo(
     this.copyright, {
     required this.copyrightPattern,
     this.header,
     this.headerPattern,
-    this.generatedCodePattern,
     this.trailingBlank = true,
   }) : assert(!copyright.endsWith('\n'));
 
@@ -183,14 +180,12 @@ class CopyrightInfo {
   final bool trailingBlank;
   final String? header;
   final String? headerPattern;
-  final String? generatedCodePattern;
 
   RegExp? _pattern;
 
   RegExp get pattern {
     return _pattern ??= RegExp(
-      '^(?:${generatedCodePattern ?? ''})?'
-      '(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
+      '^(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
       multiLine: true,
     );
@@ -226,18 +221,7 @@ ${isParagraph ? '' : prefix}Use of this source code is governed by a BSD-style l
 ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
 
-  String? generateGeneratedCodePattern({
-    String? prefix,
-    String? suffix,
-    String? generatedCodePattern,
-  }) {
-    final String escapedPrefix = RegExp.escape(prefix ?? '');
-    final String escapedSuffix = RegExp.escape(suffix ?? '');
 
-    return '($escapedPrefix'
-        '${generatedCodePattern ?? r'GENERATED CODE.*\n?'}'
-        '${escapedSuffix}s*\n?)';
-  }
 
   String generateCopyrightPattern({
     required String prefix,
@@ -262,7 +246,6 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     String suffix = '',
     String? header,
     String? headerPattern,
-    String? generatedCodePattern,
     bool isParagraph = false,
     bool trailingBlank = true,
   }) {
@@ -278,11 +261,6 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
       ),
       header: header,
       headerPattern: headerPattern,
-      generatedCodePattern: generateGeneratedCodePattern(
-        prefix: prefix,
-        suffix: suffix,
-        generatedCodePattern: generatedCodePattern,
-      ),
       trailingBlank: trailingBlank,
     );
   }
