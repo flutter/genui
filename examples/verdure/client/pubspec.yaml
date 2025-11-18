@@ -13,6 +13,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  device_info_plus: ^12.2.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.0.3
