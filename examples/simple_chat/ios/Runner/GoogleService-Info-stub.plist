@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+  <key>API_KEY</key>
+	<string>123456789</string>
+  <key>GOOGLE_APP_ID</key>
+	<string>1:234:ios:56789</string>
+</dict>
+</plist>
