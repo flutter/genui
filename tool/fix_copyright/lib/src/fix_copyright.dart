@@ -157,14 +157,15 @@ All files were given correct copyright notices, but please check them all manual
 }
 
 bool _isGeneratedFile(String contents) {
-  final List<String> lines = contents.split('\n');
-  final int linesToCheck = lines.length < 10 ? lines.length : 10;
-  final String headerToCheck = lines.sublist(0, linesToCheck).join('\n');
-  return RegExp(
-    r'generated.*(file|code)',
-    caseSensitive: false,
-  ).hasMatch(headerToCheck);
+  final regex = RegExp(r'generated.*(file|code)', caseSensitive: false);
+  return const LineSplitter()
+      .convert(contents)
+      .take(10)
+      .any((line) => regex.hasMatch(line));
 }
+
+
+
 
 class CopyrightInfo {
   CopyrightInfo(
