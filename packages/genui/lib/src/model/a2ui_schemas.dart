@@ -201,7 +201,7 @@ class A2uiSchemas {
             ),
             'component': S.object(
               description:
-                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Heading'). The value is an object containing the properties for that specific component.''',
+                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Text'). The value is an object containing the properties for that specific component.''',
               properties: {
                 for (var entry
                     in ((catalog.definition as ObjectSchema)
