@@ -18,9 +18,7 @@ void main() {
         contextId: 'context-1',
         status: TaskStatus(state: TaskState.working),
       );
-      taskManager = FakeTaskManager(
-        taskToReturn: task,
-      );
+      taskManager = FakeTaskManager(taskToReturn: task);
       (taskManager as FakeTaskManager).ensureTaskExists(task.id);
       handler = ResubscribeHandler(taskManager);
 
