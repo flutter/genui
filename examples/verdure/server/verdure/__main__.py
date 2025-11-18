@@ -39,8 +39,10 @@ class MissingAPIKeyError(Exception):
 
 @click.command()
 @click.option("--host", default="localhost")
-@click.option("--port", default=10002)
-def main(host, port):
+@click.option("--port", default=10002, help="The port to bind to.")
+@click.option("--base-url", help="The public base URL for the agent card. Use when running on an Android emulator so you can override the default host with 10.0.2.2, for instance.")
+def main(host: str, port: int, base_url: str | None):
+    """Runs the Verdure landscape design agent server."""
     try:
         # Check for API key only if Vertex AI is not configured
         if not os.getenv("GOOGLE_GENAI_USE_VERTEXAI") == "TRUE":
@@ -64,7 +66,8 @@ def main(host, port):
             examples=["Design my backyard", "Start a new landscape project"],
         )
 
-        base_url = f"http://{host}:{port}"
+        if base_url is None:
+            base_url = f"http://{host}:{port}"
 
         agent_card = AgentCard(
             name="A2UIScape Design",
