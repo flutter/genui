@@ -159,10 +159,7 @@ All files were given correct copyright notices, but please check them all manual
 
 bool _isGeneratedFile(String contents) {
   final regex = RegExp(r'generated.*(file|code)', caseSensitive: false);
-  return const LineSplitter()
-      .convert(contents)
-      .take(10)
-      .any(regex.hasMatch);
+  return const LineSplitter().convert(contents).take(10).any(regex.hasMatch);
 }
 
 class CopyrightInfo {
@@ -219,8 +216,6 @@ Map<String, CopyrightInfo> _generateExtensionMap(String year) {
 ${isParagraph ? '' : prefix}Use of this source code is governed by a BSD-style license that can be${isParagraph ? '' : suffix}
 ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
   }
-
-
 
   String generateCopyrightPattern({
     required String prefix,

@@ -332,18 +332,19 @@ found in the LICENSE file. -->''';
   test(
     'ignores a file with a generated code header but no copyright',
     () async {
-    mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
-    final File testFile = fileSystem.file('test.dart')
-      ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
-    final int result = await runFixCopyrights(paths: ['test.dart']);
+      mockGitLsFiles(paths: ['test.dart'], stdout: 'test.dart');
+      final File testFile = fileSystem.file('test.dart')
+        ..writeAsStringSync('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
+      final int result = await runFixCopyrights(paths: ['test.dart']);
       expect(result, equals(0));
       expect(log, isEmpty);
       expect(error, isEmpty);
-    expect(
-      testFile.readAsStringSync(),
-      '// GENERATED CODE - DO NOT MODIFY BY HAND\n',
-    );
-  });
+      expect(
+        testFile.readAsStringSync(),
+        '// GENERATED CODE - DO NOT MODIFY BY HAND\n',
+      );
+    },
+  );
 
   test(
     'ignores a file with a generated code header but no copyright when forced',
