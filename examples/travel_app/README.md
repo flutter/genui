@@ -32,7 +32,7 @@ To run this application, you will need to have a Firebase project set up and con
 
 1. **Configure Firebase**: Follow the instructions to add Firebase to your
    Flutter app for the platforms you intend to support (Android, iOS, web,
-   etc.). See [USAGE.md](../../packages/genui/USAGE.md) for steps to
+   etc.). See [README.md](../../packages/genui/README.md#configure-firebase-ai-logic) for steps to
    configure Firebase. You will need to replace the placeholder values in
    `lib/firebase_options.dart` with the configuration from your own Firebase
    project.

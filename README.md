@@ -92,9 +92,9 @@ See the package table below for more details on each.
 | [genui_a2ui](packages/genui_a2ui/)                                 | Provides **`A2uiContentGenerator`** for connecting to any server that implements the [A2UI protocol](https://a2ui.org). Use this for integrating with custom agent backends. |
 | [json_schema_builder](packages/json_schema_builder/)               | A fully featured Dart JSON Schema package with validation, used by the core framework to define widget data structures.                                                      |
 
-## Usage
+## Getting Started
 
-See [packages/genui/USAGE.md](packages/genui/USAGE.md).
+See the [genui getting started guide](packages/genui/README.md#getting-started-with-genui).
 
 ## Constraints
 

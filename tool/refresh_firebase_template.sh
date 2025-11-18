@@ -7,7 +7,7 @@
 # to refresh firebase configuration.
 #
 # Prerequisites:
-#   1. Follow https://github.com/flutter/genui/blob/main/doc/USAGE.md#configure-firebase
+#   1. Follow https://github.com/flutter/genui/blob/main/packages/genui/README.md#configure-firebase-ai-logic
 #   2. Run 'firebase login' to authenticate with Firebase CLI.
 #
 # To run this script for your firebase project:
