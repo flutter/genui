@@ -78,25 +78,29 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     );
 
     // Create the appropriate content generator based on configuration
-    final ContentGenerator contentGenerator = switch (aiBackend) {
-      AiBackend.googleGenerativeAi => () {
-        return GoogleGenerativeAiContentGenerator(
-          catalog: travelAppCatalog,
-          systemInstruction: prompt,
-          additionalTools: [
-            ListHotelsTool(onListHotels: BookingService.instance.listHotels),
-          ],
-          apiKey: getApiKey(),
-        );
-      }(),
-      AiBackend.firebase => FirebaseAiContentGenerator(
-        catalog: travelAppCatalog,
-        systemInstruction: prompt,
-        additionalTools: [
-          ListHotelsTool(onListHotels: BookingService.instance.listHotels),
-        ],
-      ),
-    };
+    final ContentGenerator contentGenerator =
+        widget.contentGenerator ??
+        switch (aiBackend) {
+          AiBackend.googleGenerativeAi => () {
+            return GoogleGenerativeAiContentGenerator(
+              catalog: travelAppCatalog,
+              systemInstruction: prompt,
+              additionalTools: [
+                ListHotelsTool(
+                  onListHotels: BookingService.instance.listHotels,
+                ),
+              ],
+              apiKey: getApiKey(),
+            );
+          }(),
+          AiBackend.firebase => FirebaseAiContentGenerator(
+            catalog: travelAppCatalog,
+            systemInstruction: prompt,
+            additionalTools: [
+              ListHotelsTool(onListHotels: BookingService.instance.listHotels),
+            ],
+          ),
+        };
 
     _uiConversation = GenUiConversation(
       genUiManager: genUiManager,
