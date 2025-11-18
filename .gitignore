@@ -28,9 +28,6 @@ dist/
 .coverage
 htmlcov/
 
-# Flutter custom ignored option
-pubspec.lock
-
 # ==============================================================================
 #
 # STANDARD FLUTTER GITIGNORE
