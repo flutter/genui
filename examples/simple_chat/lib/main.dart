@@ -12,16 +12,17 @@ import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
 import 'package:logging/logging.dart';
 
 import 'configuration.dart';
+
 // If you want to convert to using Firebase AI, run:
 //
 //   sh tool/refresh_firebase.sh <project_id>
 //
 // to refresh the Firebase configuration for a specific Firebase project.
 // and uncomment the Firebase initialization code and import below that is
-// marked with UNCOMMENT_FOR_FIREBASE.
+// marked with UNCOMMENT_FOR_FIREBASE, and set the value of `aiBackend` to
+// `AiBackend.firebase` in `lib/configuration.dart`.
 
-// UNCOMMENT_FOR_FIREBASE
-import 'firebase_options.dart';
+// import 'firebase_options.dart'; // UNCOMMENT_FOR_FIREBASE
 
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
@@ -31,11 +32,11 @@ import 'message.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Only initialize Firebase if using firebase backend.
+  // Only initialize Firebase if we are using the Firebase backend.
   if (aiBackend == AiBackend.firebase) {
     await Firebase.initializeApp(
-      // UNCOMMENT_FOR_FIREBASE
-      options: DefaultFirebaseOptions.currentPlatform,
+      // UNCOMMENT_FOR_FIREBASE (See top of file for details)
+      // options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 

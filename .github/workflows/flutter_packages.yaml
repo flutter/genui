@@ -121,8 +121,6 @@ jobs:
       - name: Update submodules
         working-directory: ${{ matrix.package.path }}
         run: git submodule update --init --recursive
-      - name: Stub firebase_options.dart
-        run: sh tool/stub_firebase_options.sh
       - name: Install dependencies
         working-directory: ${{ matrix.package.path }}
         run: dart pub get

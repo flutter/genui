@@ -22,21 +22,18 @@ import 'src/travel_planner_page.dart';
 //
 // to refresh the Firebase configuration for a specific Firebase project.
 // and uncomment the Firebase initialization code and import below that is
-// marked with UNCOMMENT_FOR_FIREBASE.
+// marked with UNCOMMENT_FOR_FIREBASE, and set the value of `aiBackend` to
+// `AiBackend.firebase` in `lib/config/configuration.dart`.
 
-// UNCOMMENT_FOR_FIREBASE
-// import 'firebase_options.dart';
+// import 'firebase_options.dart'; // UNCOMMENT_FOR_FIREBASE
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Only initialize Firebase if using firebase backend
-  //
-  // Be sure to uncomment if using Firebase AI.
-
+  // Only initialize Firebase if we are using the Firebase backend.
   if (aiBackend == AiBackend.firebase) {
     await Firebase.initializeApp(
-      // UNCOMMENT_FOR_FIREBASE
+      // UNCOMMENT_FOR_FIREBASE (See top of file for details)
       // options: DefaultFirebaseOptions.currentPlatform,
     );
     await FirebaseAppCheck.instance.activate(
@@ -106,7 +103,7 @@ class _TravelAppBody extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Icon(Icons.local_airport),
-              SizedBox(width: 16.0), // Add spacing between icon and text
+              SizedBox(width: 16.0),
               Text(_title),
             ],
           ),

@@ -69,7 +69,7 @@ This example supports two AI backends: **Google Generative AI** (default) and **
    - Set up a Firebase project
    - Generate a `firebase_options.dart` file using the FlutterFire CLI. You can run `sh tool/refresh_firebase.sh <project_id>` from the repo root to help you set this up.
 
-2. **Switch the Backend**: In `lib/main.dart`, change the
+2. **Switch the Backend**: In `lib/configuration.dart`, change the
    `aiBackend` constant to use Firebase:
 
    ```dart
@@ -85,7 +85,7 @@ This example supports two AI backends: **Google Generative AI** (default) and **
 ### Switching Between Backends
 
 To switch backends, modify the `aiBackend` constant in
-`lib/main.dart`:
-- `AiBackend.google` (default) - Uses Google Generative AI with
+`lib/configuration.dart`:
+- `AiBackend.googleGenerativeAi` (default) - Uses Google Generative AI with
   an API key
 - `AiBackend.firebase` - Uses Firebase AI
