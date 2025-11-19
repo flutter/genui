@@ -12,8 +12,10 @@ The project is structured as a monorepo containing several Dart and Flutter pack
 
 | Package                              | Description                                                             |
 | ------------------------------------ | ----------------------------------------------------------------------- |
-| `packages/genui`             | The core framework for employing Generative UI.                         |
-| `packages/genui_firebase_ai` | Firebase AI integration for `genui`.                            |
+| `packages/genui`                     | The core framework for employing Generative UI.                         |
+| `packages/genui_a2ui`                | Integration with the A2UI Streaming UI Protocol.                        |
+| `packages/genui_firebase_ai`         | Firebase AI integration for `genui`.                                    |
+| `packages/genui_google_generative_ai`| Integration with Google Cloud Generative Language API.                  |
 | `packages/json_schema_builder`       | A Dart JSON Schema package with validation, used by the core framework. |
 
 ### Example Applications
@@ -25,6 +27,8 @@ The `examples` directory contains sample applications demonstrating the usage of
 | `simple_chat`     | A minimal example of a conversational chat application. It demonstrates the fundamental concepts of `genui`, such as initializing the `GenUiConversation`, sending user messages, and rendering the AI-generated UI surfaces using the default core widget catalog. |
 | `travel_app`      | A more advanced example of a travel planning assistant. It showcases dynamic UI generation, the use of a custom, domain-specific widget catalog, and how user interactions with the UI can be fed back to the AI to refine the conversation.                      |
 | `catalog_gallery` | A simple application that displays the widgets available in the catalog. It's a useful tool for developers to visualize the components that the AI can use to build UIs.                                                                                          |
+| `verdure`         | A full-stack example (Flutter client + Python server) of a landscape design agent using the A2A protocol.                                                                                                                                                         |
+| `custom_backend`  | Demonstrates how a custom backend can interact with `genui`.                                                                                                                                                                                                      |
 
 The `simple_chat` and `travel_app` examples are good starting points for understanding the library's capabilities.
 
@@ -32,8 +36,7 @@ The `simple_chat` and `travel_app` examples are good starting points for underst
 
 For a deeper understanding of the project's architecture and data flow, refer to the following documents:
 
-- **`packages/genui/IMPLEMENTATION.md`**: Provides a comprehensive overview of the core `genui` package's architecture, purpose, and implementation.
-- **`examples/travel_app/IMPLEMENTATION.md`**: Describes the architecture and implementation of the `travel_app` example, showcasing how the `genui` package is used to build a dynamic, conversational UI.
+- **`packages/genui/DESIGN.md`**: Provides a comprehensive overview of the core `genui` package's architecture, purpose, and implementation.
 
 ## Building and Running
 
@@ -47,7 +50,7 @@ The project uses standard `flutter` and `dart` commands. A comprehensive script 
   ./tool/run_all_tests_and_fixes.sh
   ```
 
-  This is a script used by CI for ensuring code quality. It runs `dart fix`, `dart format`, `flutter test`, and `flutter analyze` for all packages and examples in the repository.
+  This script wraps the `test_and_fix` Dart tool (`tool/test_and_fix`) to run `dart fix`, `dart format`, `fix_copyright` (in `tool/fix_copyright`), `flutter test`, and `flutter analyze` for all packages and examples in the repository. It is used by developers before comitting code. It takes a while to run, and is not idempotent: it will reformat code and add copyright notices if necessary.
 
 ## Development Conventions
 
