@@ -16,7 +16,7 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   description: '''
-A catalog item representing a Material Design elevated button.
+A catalog item representing an elevated button.
 
 This widget displays an interactive button. When pressed, it dispatches
 the specified `action` event. The button's appearance can be styled as

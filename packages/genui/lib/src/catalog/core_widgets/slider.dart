@@ -13,11 +13,10 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   description: '''
-A catalog item representing a Material Design slider.
+A catalog item representing a slider.
 
 This widget allows the user to select a value from a range by sliding a
 thumb along a track. The `value` is bidirectionally bound to the data model.
-This is analogous to Flutter's [Slider] widget.
 ''',
   properties: {
     'value': A2uiSchemas.numberReference(),

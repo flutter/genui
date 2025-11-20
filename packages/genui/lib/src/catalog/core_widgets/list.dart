@@ -14,9 +14,6 @@ import 'widget_helpers.dart';
 final _schema = S.object(
   description: '''
 A catalog item representing a scrollable list of widgets.
-
-This widget is analogous to Flutter's [ListView] widget. It can display
-children in either a vertical or horizontal direction.
 ''',
   properties: {
     'children': A2uiSchemas.componentArrayReference(),

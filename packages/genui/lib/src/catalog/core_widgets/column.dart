@@ -16,9 +16,6 @@ final _schema = S.object(
   description: '''
 A catalog item representing a layout widget that displays its children in a
 vertical array.
-
-This widget is analogous to Flutter's [Column] widget. It arranges a list of
-child components from top to bottom.
 ''',
   properties: {
     'distribution': S.string(

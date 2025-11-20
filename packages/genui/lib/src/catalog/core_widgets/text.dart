@@ -36,8 +36,8 @@ final text = CatalogItem(
     description: '''
 A catalog item representing a block of styled text.
 
-This widget displays a string of text, analogous to Flutter's [Text] widget.
-The content is taken from the `text` parameter, which can be a literal
+This widget displays a string of text. The content is taken from the `text`
+parameter, which can be a literal
 string or a data model binding.
 ''',
     properties: {
