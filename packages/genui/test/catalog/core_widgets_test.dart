@@ -30,7 +30,7 @@ void main() {
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
       manager!.handleMessage(
-        BeginRendering(surfaceId: surfaceId, root: rootId),
+        const CreateSurface(surfaceId: surfaceId),
       );
       await tester.pumpWidget(
         MaterialApp(
@@ -45,7 +45,7 @@ void main() {
       final components = [
         const Component(
           id: 'button',
-          componentProperties: {
+          props: {
             'Button': {
               'child': 'text',
               'action': {'name': 'testAction'},
@@ -54,7 +54,7 @@ void main() {
         ),
         const Component(
           id: 'text',
-          componentProperties: {
+          props: {
             'Text': {
               'text': {'literalString': 'Click Me'},
             },
@@ -75,7 +75,7 @@ void main() {
       final components = [
         const Component(
           id: 'text',
-          componentProperties: {
+          props: {
             'Text': {
               'text': {'path': '/myText'},
             },
@@ -96,7 +96,7 @@ void main() {
       final components = [
         const Component(
           id: 'col',
-          componentProperties: {
+          props: {
             'Column': {
               'children': {
                 'explicitList': ['text1', 'text2'],
@@ -106,7 +106,7 @@ void main() {
         ),
         const Component(
           id: 'text1',
-          componentProperties: {
+          props: {
             'Text': {
               'text': {'literalString': 'First'},
             },
@@ -114,7 +114,7 @@ void main() {
         ),
         const Component(
           id: 'text2',
-          componentProperties: {
+          props: {
             'Text': {
               'text': {'literalString': 'Second'},
             },
@@ -134,7 +134,7 @@ void main() {
       final components = [
         const Component(
           id: 'field',
-          componentProperties: {
+          props: {
             'TextField': {
               'text': {'path': '/myValue'},
               'label': {'literalString': 'My Label'},

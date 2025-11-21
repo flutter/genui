@@ -40,7 +40,7 @@ void main() {
         'components': [
           {
             'id': 'rootWidget',
-            'component': {
+            'props': {
               'Text': {'text': 'Hello'},
             },
           },
@@ -55,7 +55,7 @@ void main() {
       expect(surfaceUpdate.surfaceId, 'testSurface');
       expect(surfaceUpdate.components.length, 1);
       expect(surfaceUpdate.components[0].id, 'rootWidget');
-      expect(surfaceUpdate.components[0].componentProperties, {
+      expect(surfaceUpdate.components[0].props, {
         'Text': {'text': 'Hello'},
       });
     });
@@ -82,7 +82,7 @@ void main() {
     });
   });
 
-  group('BeginRenderingTool', () {
+  group('CreateSurfaceTool', () {
     test('invoke calls handleMessage with correct arguments', () async {
       final messages = <A2uiMessage>[];
 
@@ -90,20 +90,18 @@ void main() {
         messages.add(message);
       }
 
-      final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
+      final tool = CreateSurfaceTool(handleMessage: fakeHandleMessage);
 
-      final Map<String, String> args = {
+      final Map<String, Object> args = {
         surfaceIdKey: 'testSurface',
-        'root': 'rootWidget',
       };
 
       await tool.invoke(args);
 
       expect(messages.length, 1);
-      expect(messages[0], isA<BeginRendering>());
-      final beginRendering = messages[0] as BeginRendering;
-      expect(beginRendering.surfaceId, 'testSurface');
-      expect(beginRendering.root, 'rootWidget');
+      expect(messages[0], isA<CreateSurface>());
+      final createSurface = messages[0] as CreateSurface;
+      expect(createSurface.surfaceId, 'testSurface');
     });
   });
 }

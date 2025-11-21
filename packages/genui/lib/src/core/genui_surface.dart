@@ -53,8 +53,8 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
-        final String? rootId = definition.rootComponentId;
-        if (rootId == null || definition.components.isEmpty) {
+        final String rootId = definition.rootComponentId ?? 'root';
+        if (definition.components.isEmpty) {
           genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
           return const SizedBox.shrink();
         }
@@ -82,7 +82,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    final JsonMap widgetData = data.componentProperties;
+    final JsonMap widgetData = data.props;
     genUiLogger.finest('Building widget $widgetId');
     return widget.host.catalog.buildWidget(
       CatalogItemContext(
@@ -110,7 +110,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       final Component? modalComponent = definition.components[modalId];
       if (modalComponent == null) return;
       final contentChildId =
-          (modalComponent.componentProperties['Modal'] as Map)['contentChild']
+          (modalComponent.props['Modal'] as Map)['contentChild']
               as String;
       showModalBottomSheet<void>(
         context: context,

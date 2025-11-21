@@ -155,56 +155,51 @@ final column = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Column": {
-              "children": {
-                "explicitList": [
-                  "advice_text",
-                  "advice_options",
-                  "submit_button"
-                ]
-              }
+          "props": {
+            "component": "Column",
+            "children": {
+              "explicitList": [
+                "advice_text",
+                "advice_options",
+                "submit_button"
+              ]
             }
           }
         },
         {
           "id": "advice_text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "What kind of advice are you looking for?"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "What kind of advice are you looking for?"
             }
           }
         },
         {
           "id": "advice_options",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Some advice options."
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Some advice options."
             }
           }
         },
         {
           "id": "submit_button",
-          "component": {
-            "Button": {
-              "child": "submit_button_text",
-              "action": {
-                "name": "submit"
-              }
+          "props": {
+            "component": "Button",
+            "child": "submit_button_text",
+            "action": {
+              "name": "submit"
             }
           }
         },
         {
           "id": "submit_button_text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Submit"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Submit"
             }
           }
         }

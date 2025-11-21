@@ -18,10 +18,9 @@ void main() {
     final components = [
       const Component(
         id: 'datetime',
-        componentProperties: {
-          'DateTimeInput': {
-            'value': {'path': '/myDateTime'},
-          },
+        props: {
+          'component': 'DateTimeInput',
+          'value': {'path': '/myDateTime'},
         },
       ),
     ];
@@ -29,7 +28,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'datetime'),
+      const CreateSurface(surfaceId: surfaceId),
     );
     manager
         .dataModelForSurface(surfaceId)

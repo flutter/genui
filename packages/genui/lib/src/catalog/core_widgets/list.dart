@@ -90,34 +90,31 @@ final list = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "List": {
-              "children": {
-                "explicitList": [
-                  "text1",
-                  "text2"
-                ]
-              }
+          "props": {
+            "component": "List",
+            "children": {
+              "explicitList": [
+                "text1",
+                "text2"
+              ]
             }
           }
         },
         {
           "id": "text1",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "First"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "First"
             }
           }
         },
         {
           "id": "text2",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Second"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Second"
             }
           }
         }

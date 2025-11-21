@@ -21,6 +21,7 @@ void main() {
             body: text.widgetBuilder(
               CatalogItemContext(
                 data: {
+                  'component': 'Text',
                   'text': {'literalString': 'Hello World'},
                 },
                 id: 'test_text',
@@ -50,6 +51,7 @@ void main() {
             body: text.widgetBuilder(
               CatalogItemContext(
                 data: {
+                  'component': 'Text',
                   'text': {'literalString': 'Heading 1'},
                   'usageHint': 'h1',
                 },

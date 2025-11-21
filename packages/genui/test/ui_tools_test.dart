@@ -36,7 +36,7 @@ void main() {
         'components': [
           {
             'id': 'root',
-            'component': {
+            'props': {
               'Text': {
                 'text': {'literalString': 'Hello'},
               },
@@ -68,14 +68,13 @@ void main() {
       await future;
     });
 
-    test('BeginRenderingTool sends BeginRendering message', () async {
-      final tool = BeginRenderingTool(
+    test('CreateSurfaceTool sends CreateSurface message', () async {
+      final tool = CreateSurfaceTool(
         handleMessage: genUiManager.handleMessage,
       );
 
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
-        'root': 'root',
       };
 
       // First, add a component to the surface so that the root can be set.
@@ -85,7 +84,7 @@ void main() {
           components: [
             Component(
               id: 'root',
-              componentProperties: {
+              props: {
                 'Text': {
                   'text': {'literalString': 'Hello'},
                 },
@@ -100,12 +99,11 @@ void main() {
         genUiManager.surfaceUpdates,
         emits(
           isA<SurfaceUpdated>()
-              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
               .having(
-                (e) => e.definition.rootComponentId,
-                'rootComponentId',
-                'root',
-              ),
+            (e) => e.surfaceId,
+            surfaceIdKey,
+            'testSurface',
+          ),
         ),
       );
 

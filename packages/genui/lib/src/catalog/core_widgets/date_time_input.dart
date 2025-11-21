@@ -112,11 +112,10 @@ final dateTimeInput = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "DateTimeInput": {
-              "value": {
-                "path": "/myDateTime"
-              }
+          "props": {
+            "component": "DateTimeInput",
+            "value": {
+              "path": "/myDateTime"
             }
           }
         }

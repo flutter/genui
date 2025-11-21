@@ -20,19 +20,17 @@ void main() {
     final components = [
       const Component(
         id: 'button',
-        componentProperties: {
-          'Button': {
-            'child': 'button_text',
-            'action': {'name': 'testAction'},
-          },
+        props: {
+          'component': 'Button',
+          'child': 'button_text',
+          'action': {'name': 'testAction'},
         },
       ),
       const Component(
         id: 'button_text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Click Me'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Click Me'},
         },
       ),
     ];
@@ -40,7 +38,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'button'),
+      const CreateSurface(surfaceId: surfaceId),
     );
 
     await tester.pumpWidget(

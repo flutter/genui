@@ -82,8 +82,7 @@ void main() {
           'components': [
             {
               'id': 'c1',
-              'component': {
-                'Column': {'children': <Object?>[]},
+              'props': {'component': 'Column', 'children': <Object?>[],
               },
             },
           ],

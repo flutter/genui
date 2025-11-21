@@ -18,24 +18,23 @@ void main() {
     final components = [
       const Component(
         id: 'tabs',
-        componentProperties: {
-          'Tabs': {
-            'tabItems': [
-              {
-                'title': {'literalString': 'Tab 1'},
-                'child': 'text1',
-              },
-              {
-                'title': {'literalString': 'Tab 2'},
-                'child': 'text2',
-              },
-            ],
-          },
+        props: {
+          'component': 'Tabs',
+          'tabItems': [
+            {
+              'title': {'literalString': 'Tab 1'},
+              'child': 'text1',
+            },
+            {
+              'title': {'literalString': 'Tab 2'},
+              'child': 'text2',
+            },
+          ],
         },
       ),
       const Component(
         id: 'text1',
-        componentProperties: {
+        props: {
           'Text': {
             'text': {'literalString': 'This is the first tab.'},
           },
@@ -43,7 +42,7 @@ void main() {
       ),
       const Component(
         id: 'text2',
-        componentProperties: {
+        props: {
           'Text': {
             'text': {'literalString': 'This is the second tab.'},
           },
@@ -54,7 +53,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'tabs'),
+      const CreateSurface(surfaceId: surfaceId),
     );
 
     await tester.pumpWidget(

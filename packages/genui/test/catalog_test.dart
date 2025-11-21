@@ -15,10 +15,9 @@ void main() {
     ) async {
       final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
       final widgetData = {
-        'Column': {
-          'children': {
-            'explicitList': ['child1'],
-          },
+        'component': 'Column',
+        'children': {
+          'explicitList': ['child1'],
         },
       };
 
@@ -57,7 +56,7 @@ void main() {
       final Map<String, Object> data = {
         'id': 'text1',
         'widget': {
-          'unknown_widget': {'text': 'hello'},
+          'component': 'unknown_widget', 'text': 'hello',
         },
       };
 

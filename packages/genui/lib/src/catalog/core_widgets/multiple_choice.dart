@@ -148,92 +148,87 @@ final multipleChoice = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Column": {
-              "children": {
-                "explicitList": [
-                  "heading1",
-                  "singleChoice",
-                  "heading2",
-                  "multiChoice"
-                ]
-              }
+          "props": {
+            "component": "Column",
+            "children": {
+              "explicitList": [
+                "heading1",
+                "singleChoice",
+                "heading2",
+                "multiChoice"
+              ]
             }
           }
         },
         {
           "id": "heading1",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Single Selection (maxAllowedSelections: 1)"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Single Selection (maxAllowedSelections: 1)"
             }
           }
         },
         {
           "id": "singleChoice",
-          "component": {
-            "MultipleChoice": {
-              "selections": {
-                "path": "/singleSelection"
-              },
-              "maxAllowedSelections": 1,
-              "options": [
-                {
-                  "label": {
-                    "literalString": "Option A"
-                  },
-                  "value": "A"
+          "props": {
+            "component": "MultipleChoice",
+            "selections": {
+              "path": "/singleSelection"
+            },
+            "maxAllowedSelections": 1,
+            "options": [
+              {
+                "label": {
+                  "literalString": "Option A"
                 },
-                {
-                  "label": {
-                    "literalString": "Option B"
-                  },
-                  "value": "B"
-                }
-              ]
-            }
+                "value": "A"
+              },
+              {
+                "label": {
+                  "literalString": "Option B"
+                },
+                "value": "B"
+              }
+            ]
           }
         },
         {
           "id": "heading2",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Multiple Selections (unlimited)"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Multiple Selections (unlimited)"
             }
           }
         },
         {
           "id": "multiChoice",
-          "component": {
-            "MultipleChoice": {
-              "selections": {
-                "path": "/multiSelection"
+          "props": {
+            "component": "MultipleChoice",
+            "selections": {
+              "path": "/multiSelection"
+            },
+            "options": [
+              {
+                "label": {
+                  "literalString": "Option X"
+                },
+                "value": "X"
               },
-              "options": [
-                {
-                  "label": {
-                    "literalString": "Option X"
-                  },
-                  "value": "X"
+              {
+                "label": {
+                  "literalString": "Option Y"
                 },
-                {
-                  "label": {
-                    "literalString": "Option Y"
-                  },
-                  "value": "Y"
+                "value": "Y"
+              },
+              {
+                "label": {
+                  "literalString": "Option Z"
                 },
-                {
-                  "label": {
-                    "literalString": "Option Z"
-                  },
-                  "value": "Z"
-                }
-              ]
-            }
+                "value": "Z"
+              }
+            ]
           }
         }
       ]

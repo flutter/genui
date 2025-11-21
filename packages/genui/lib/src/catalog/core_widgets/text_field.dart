@@ -133,14 +133,13 @@ final textField = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TextField": {
-              "text": {
-                "literalString": "Hello World"
-              },
-              "label": {
-                "literalString": "Greeting"
-              }
+          "props": {
+            "component": "TextField",
+            "text": {
+              "literalString": "Hello World"
+            },
+            "label": {
+              "literalString": "Greeting"
             }
           }
         }
@@ -150,16 +149,15 @@ final textField = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TextField": {
-              "text": {
-                "literalString": "password123"
-              },
-              "label": {
-                "literalString": "Password"
-              },
-              "textFieldType": "obscured"
-            }
+          "props": {
+            "component": "TextField",
+            "text": {
+              "literalString": "password123"
+            },
+            "label": {
+              "literalString": "Password"
+            },
+            "textFieldType": "obscured"
           }
         }
       ]

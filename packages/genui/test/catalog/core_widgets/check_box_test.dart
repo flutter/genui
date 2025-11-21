@@ -18,11 +18,10 @@ void main() {
     final components = [
       const Component(
         id: 'checkbox',
-        componentProperties: {
-          'CheckBox': {
-            'label': {'literalString': 'Check me'},
-            'value': {'path': '/myValue'},
-          },
+        props: {
+          'component': 'CheckBox',
+          'label': {'literalString': 'Check me'},
+          'value': {'path': '/myValue'},
         },
       ),
     ];
@@ -30,7 +29,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'checkbox'),
+      const CreateSurface(surfaceId: surfaceId),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
 

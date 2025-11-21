@@ -18,10 +18,9 @@ void main() {
     final components = [
       const Component(
         id: 'slider',
-        componentProperties: {
-          'Slider': {
-            'value': {'path': '/myValue'},
-          },
+        props: {
+          'component': 'Slider',
+          'value': {'path': '/myValue'},
         },
       ),
     ];
@@ -29,7 +28,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'slider'),
+      const CreateSurface(surfaceId: surfaceId),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
 

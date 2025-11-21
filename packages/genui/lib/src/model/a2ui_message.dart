@@ -23,8 +23,8 @@ sealed class A2uiMessage {
     if (json.containsKey('dataModelUpdate')) {
       return DataModelUpdate.fromJson(json['dataModelUpdate'] as JsonMap);
     }
-    if (json.containsKey('beginRendering')) {
-      return BeginRendering.fromJson(json['beginRendering'] as JsonMap);
+    if (json.containsKey('createSurface')) {
+      return CreateSurface.fromJson(json['createSurface'] as JsonMap);
     }
     if (json.containsKey('deleteSurface')) {
       return SurfaceDeletion.fromJson(json['deleteSurface'] as JsonMap);
@@ -41,7 +41,7 @@ sealed class A2uiMessage {
       properties: {
         'surfaceUpdate': A2uiSchemas.surfaceUpdateSchema(catalog),
         'dataModelUpdate': A2uiSchemas.dataModelUpdateSchema(),
-        'beginRendering': A2uiSchemas.beginRenderingSchema(),
+        'createSurface': A2uiSchemas.createSurfaceSchema(),
         'deleteSurface': A2uiSchemas.surfaceDeletionSchema(),
       },
     );
@@ -107,31 +107,26 @@ final class DataModelUpdate extends A2uiMessage {
 }
 
 /// An A2UI message that signals the client to begin rendering.
-final class BeginRendering extends A2uiMessage {
-  /// Creates a [BeginRendering] message.
-  const BeginRendering({
+final class CreateSurface extends A2uiMessage {
+  /// Creates a [CreateSurface] message.
+  const CreateSurface({
     required this.surfaceId,
-    required this.root,
-    this.styles,
+    this.theme,
   });
 
-  /// Creates a [BeginRendering] message from a JSON map.
-  factory BeginRendering.fromJson(JsonMap json) {
-    return BeginRendering(
+  /// Creates a [CreateSurface] message from a JSON map.
+  factory CreateSurface.fromJson(JsonMap json) {
+    return CreateSurface(
       surfaceId: json[surfaceIdKey] as String,
-      root: json['root'] as String,
-      styles: json['styles'] as JsonMap?,
+      theme: json['theme'] as JsonMap?,
     );
   }
 
   /// The ID of the surface that this message applies to.
   final String surfaceId;
 
-  /// The ID of the root component.
-  final String root;
-
-  /// The styles to apply to the UI.
-  final JsonMap? styles;
+  /// The theme to apply to the UI.
+  final JsonMap? theme;
 }
 
 /// An A2UI message that deletes a surface.

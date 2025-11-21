@@ -35,7 +35,7 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          componentProperties: {
+          props: {
             'Text': {'text': 'Hello'},
           },
         ),
@@ -51,7 +51,7 @@ void main() {
 
       final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
       manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'root'),
+        const CreateSurface(surfaceId: surfaceId),
       );
       final GenUiUpdate updatedUpdate = await futureUpdated;
 
@@ -60,9 +60,9 @@ void main() {
       final UiDefinition definition =
           (updatedUpdate as SurfaceUpdated).definition;
       expect(definition, isNotNull);
-      expect(definition.rootComponentId, 'root');
+      // expect(definition.rootComponentId, 'root'); // CreateSurface no longer sets root
       expect(manager.surfaces[surfaceId]!.value, isNotNull);
-      expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
+      // expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
     });
 
     test(
@@ -72,7 +72,7 @@ void main() {
         final oldComponents = [
           const Component(
             id: 'root',
-            componentProperties: {
+            props: {
               'Text': {'text': 'Old'},
             },
           ),
@@ -84,7 +84,7 @@ void main() {
         final newComponents = [
           const Component(
             id: 'root',
-            componentProperties: {
+            props: {
               'Text': {'text': 'New'},
             },
           ),
@@ -110,7 +110,7 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          componentProperties: {
+          props: {
             'Text': {'text': 'Hello'},
           },
         ),

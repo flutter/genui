@@ -12,8 +12,8 @@ void main() {
 name: Test Sample
 description: A test description
 ---
-{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "component": {"Text": {"text": {"literalString": "Hello"}}}}]}}
-{"beginRendering": {"surfaceId": "default", "root": "text1"}}
+{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "props": {"component": "Text", "text": {"literalString": "Hello"}}}]}}
+{"createSurface": {"surfaceId": "default"}}
 ''';
 
     final Sample sample = SampleParser.parseString(sampleContent);
@@ -24,16 +24,15 @@ description: A test description
     final List<A2uiMessage> messages = await sample.messages.toList();
     expect(messages.length, 2);
     expect(messages.first, isA<SurfaceUpdate>());
-    expect(messages.last, isA<BeginRendering>());
+    expect(messages.last, isA<CreateSurface>());
 
     final update = messages.first as SurfaceUpdate;
     expect(update.surfaceId, 'default');
     expect(update.components.length, 1);
     expect(update.components.first.type, 'Text');
 
-    final begin = messages.last as BeginRendering;
+    final begin = messages.last as CreateSurface;
     expect(begin.surfaceId, 'default');
-    expect(begin.root, 'text1');
   });
 
   test('SampleParser throws on missing separator', () {

@@ -16,16 +16,14 @@ void main() {
     final components = [
       const Component(
         id: 'card',
-        componentProperties: {
-          'Card': {'child': 'text'},
+        props: {'component': 'Card', 'child': 'text',
         },
       ),
       const Component(
         id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is a card.'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'This is a card.'},
         },
       ),
     ];
@@ -33,7 +31,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'card'),
+      const CreateSurface(surfaceId: surfaceId),
     );
 
     await tester.pumpWidget(

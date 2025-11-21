@@ -350,7 +350,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
           catalog: catalog,
           configuration: configuration,
         ),
-        BeginRenderingTool(handleMessage: _a2uiMessageController.add),
+        CreateSurfaceTool(handleMessage: _a2uiMessageController.add),
       ],
       if (configuration.actions.allowDelete)
         DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
@@ -377,11 +377,16 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     const maxToolUsageCycles = 40; // Safety break for tool loops
     Object? capturedResult;
 
+    final String definition = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(catalog.definition.toJson());
     final GeminiGenerativeModelInterface model = modelCreator(
       configuration: this,
-      systemInstruction: systemInstruction == null
-          ? null
-          : Content.system(systemInstruction!),
+      systemInstruction: Content.system(
+        '${systemInstruction ?? ''}\n\n'
+        'You have access to the following UI components:\n'
+        '$definition',
+      ),
       tools: generativeAiTools,
       toolConfig: isForcedToolCalling
           ? ToolConfig(

@@ -109,22 +109,20 @@ final button = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Button": {
-              "child": "text",
-              "action": {
-                "name": "button_pressed"
-              }
+          "props": {
+            "component": "Button",
+            "child": "text",
+            "action": {
+              "name": "button_pressed"
             }
           }
         },
         {
           "id": "text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Hello World"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Hello World"
             }
           }
         }
@@ -134,54 +132,49 @@ final button = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Column": {
-              "children": {
-                "explicitList": ["primaryButton", "secondaryButton"]
-              }
+          "props": {
+            "component": "Column",
+            "children": {
+              "explicitList": ["primaryButton", "secondaryButton"]
             }
           }
         },
         {
           "id": "primaryButton",
-          "component": {
-            "Button": {
-              "child": "primaryText",
-              "primary": true,
-              "action": {
-                "name": "primary_pressed"
-              }
+          "props": {
+            "component": "Button",
+            "child": "primaryText",
+            "primary": true,
+            "action": {
+              "name": "primary_pressed"
             }
           }
         },
         {
           "id": "secondaryButton",
-          "component": {
-            "Button": {
-              "child": "secondaryText",
-              "action": {
-                "name": "secondary_pressed"
-              }
+          "props": {
+            "component": "Button",
+            "child": "secondaryText",
+            "action": {
+              "name": "secondary_pressed"
             }
           }
         },
         {
           "id": "primaryText",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Primary Button"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Primary Button"
             }
           }
         },
         {
           "id": "secondaryText",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Secondary Button"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Secondary Button"
             }
           }
         }

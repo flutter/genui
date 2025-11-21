@@ -18,20 +18,19 @@ void main() {
     final components = [
       const Component(
         id: 'multiple_choice',
-        componentProperties: {
-          'MultipleChoice': {
-            'selections': {'path': '/mySelections'},
-            'options': [
-              {
-                'label': {'literalString': 'Option 1'},
-                'value': '1',
-              },
-              {
-                'label': {'literalString': 'Option 2'},
-                'value': '2',
-              },
-            ],
-          },
+        props: {
+          'component': 'MultipleChoice',
+          'selections': {'path': '/mySelections'},
+          'options': [
+            {
+              'label': {'literalString': 'Option 1'},
+              'value': '1',
+            },
+            {
+              'label': {'literalString': 'Option 2'},
+              'value': '2',
+            },
+          ],
         },
       ),
     ];
@@ -39,7 +38,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'multiple_choice'),
+      const CreateSurface(surfaceId: surfaceId),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
       '1',

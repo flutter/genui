@@ -41,7 +41,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
       final component = e as JsonMap;
       return Component(
         id: component['id'] as String,
-        componentProperties: component['component'] as JsonMap,
+        props: component['props'] as JsonMap,
       );
     }).toList();
     handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
@@ -83,43 +83,28 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
   }
 }
 
-/// An [AiTool] for signaling the client to begin rendering.
+/// An [AiTool] for signaling the client to create a surface.
 ///
-/// This tool allows the AI to specify the root component of a UI surface.
-class BeginRenderingTool extends AiTool<JsonMap> {
-  /// Creates a [BeginRenderingTool].
-  BeginRenderingTool({required this.handleMessage})
+/// This tool allows the AI to initialize a UI surface.
+class CreateSurfaceTool extends AiTool<JsonMap> {
+  /// Creates a [CreateSurfaceTool].
+  CreateSurfaceTool({required this.handleMessage})
     : super(
-        name: 'beginRendering',
-        description:
-            'Signals the client to begin rendering a surface with a '
-            'root component.',
-        parameters: S.object(
-          properties: {
-            surfaceIdKey: S.string(
-              description:
-                  'The unique identifier for the UI surface to render.',
-            ),
-            'root': S.string(
-              description:
-                  'The ID of the root widget. This ID must correspond to '
-                  'the ID of one of the widgets in the `components` list.',
-            ),
-          },
-          required: [surfaceIdKey, 'root'],
-        ),
+        name: 'createSurface',
+        description: 'Signals the client to create a surface.',
+        parameters: A2uiSchemas.createSurfaceSchema(),
       );
 
-  /// The callback to invoke when signaling to begin rendering.
+  /// The callback to invoke when signaling to create a surface.
   final void Function(A2uiMessage message) handleMessage;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
-    final root = args['root'] as String;
-    handleMessage(BeginRendering(surfaceId: surfaceId, root: root));
+    final theme = args['theme'] as JsonMap?;
+    handleMessage(CreateSurface(surfaceId: surfaceId, theme: theme));
     return {
-      'status': 'Surface $surfaceId rendered and waiting for user input.',
+      'status': 'Surface $surfaceId created.',
     };
   }
 }

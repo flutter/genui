@@ -351,7 +351,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
             catalog: catalog,
             configuration: configuration,
           ),
-          BeginRenderingTool(handleMessage: _a2uiMessageController.add),
+          CreateSurfaceTool(handleMessage: _a2uiMessageController.add),
         ],
         if (configuration.actions.allowDelete)
           DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
@@ -375,13 +375,19 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       Object? capturedResult;
 
       // Build system instruction if provided
-      final systemInstructionContent = systemInstruction != null
-          ? [
-              google_ai.Content(
-                parts: [google_ai.Part(text: systemInstruction)],
-              ),
-            ]
-          : <google_ai.Content>[];
+      final definition = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(catalog.definition.toJson());
+      final effectiveSystemInstruction =
+          '${systemInstruction ?? ''}\n\n'
+          'You have access to the following UI components:\n'
+          '$definition';
+
+      final systemInstructionContent = [
+        google_ai.Content(
+          parts: [google_ai.Part(text: effectiveSystemInstruction)],
+        ),
+      ];
 
       while (toolUsageCycle < maxToolUsageCycles) {
         genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');

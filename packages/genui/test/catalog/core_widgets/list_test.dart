@@ -16,28 +16,25 @@ void main() {
     final components = [
       const Component(
         id: 'list',
-        componentProperties: {
-          'List': {
-            'children': {
-              'explicitList': ['text1', 'text2'],
-            },
+        props: {
+          'component': 'List',
+          'children': {
+            'explicitList': ['text1', 'text2'],
           },
         },
       ),
       const Component(
         id: 'text1',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'First'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'First'},
         },
       ),
       const Component(
         id: 'text2',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Second'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Second'},
         },
       ),
     ];
@@ -45,7 +42,7 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'list'),
+      const CreateSurface(surfaceId: surfaceId),
     );
 
     await tester.pumpWidget(

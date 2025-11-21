@@ -131,20 +131,13 @@ class A2uiSchemas {
     },
   );
 
-  /// Schema for a beginRendering message, which provides the root widget ID for
-  /// the given surface so that the surface can be rendered.
-  static Schema beginRenderingSchema() => S.object(
+  /// Schema for a createSurface message, which initializes a surface.
+  static Schema createSurfaceSchema() => S.object(
     properties: {
       surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
+        description: 'The surface ID of the surface to create.',
       ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'styles': S.object(
+      'theme': S.object(
         properties: {
           'font': S.string(description: 'The base font for this surface'),
           'primaryColor': S.string(
@@ -153,7 +146,7 @@ class A2uiSchemas {
         },
       ),
     },
-    required: [surfaceIdKey, 'root'],
+    required: [surfaceIdKey],
   );
 
   /// Schema for a `deleteSurface` message which will delete the given surface.
@@ -199,21 +192,33 @@ class A2uiSchemas {
               description:
                   'Optional layout weight for use in Row/Column children.',
             ),
-            'component': S.object(
+            'props': S.object(
               description:
-                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Text'). The value is an object containing the properties for that specific component.''',
+                  "A wrapper object that MUST contain a 'component' key "
+                  "specifying the component type (e.g., 'Text'), and other "
+                  'properties for that specific component.',
               properties: {
-                for (var entry
-                    in ((catalog.definition as ObjectSchema)
-                                .properties!['components']!
-                            as ObjectSchema)
-                        .properties!
-                        .entries)
-                  entry.key: entry.value,
+                'component': S.string(
+                  description: 'The type of the component.',
+                  enumValues:
+                      ((catalog.definition as ObjectSchema)
+                                  .properties!['components']!
+                              as ObjectSchema)
+                          .properties!
+                          .keys
+                          .toList(),
+                ),
+                // We can't easily enumerate all possible properties here
+                // without a more complex schema structure that uses 'oneOf' or
+                // 'discriminator', but for now we'll allow additional
+                // properties and rely on the AI to follow the catalog
+                // definition. Ideally, we would merge the component schemas
+                // here.
               },
+              additionalProperties: true,
             ),
           },
-          required: ['id', 'component'],
+          required: ['id', 'props'],
         ),
       ),
     },

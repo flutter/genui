@@ -25,9 +25,10 @@ void main() {
     final File sampleFile = samplesDir.childFile('test.sample');
     sampleFile.writeAsStringSync('''
 name: Test Sample
-description: A test description
+description: This is a test sample to verify the parser.
 ---
-{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "component": {"Text": {"text": {"literalString": "Hello"}}}}]}}
+{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "component": {"Text": {"text": {"literalString": "Hello World"}}}}]}}
+{"beginRendering": {"surfaceId": "default", "root": "text1"}}
 ''');
 
     await tester.pumpWidget(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
