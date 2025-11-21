@@ -130,7 +130,7 @@ class TestAndFix {
     List<Directory> projects, {
     required bool all,
   }) async {
-    final List<String> excludedDirs = _getExcludedDirectories(all: all);
+    final Set<String> excludedDirs = _getExcludedDirectories(all: all);
     try {
       await for (final FileSystemEntity entity in dir.list(
         followLinks: false,
@@ -146,27 +146,31 @@ class TestAndFix {
           }
         }
       }
-    } catch (e) {
-      // Ignore errors
+    } on FileSystemException catch (exception) {
+      print(
+        'Warning: Failed to list directory contents while searching for '
+        'projects: $exception',
+      );
     }
   }
 
-  List<String> _getExcludedDirectories({required bool all}) {
-    return [
+  Set<String> _getExcludedDirectories({required bool all}) {
+    return {
       '.dart_tool',
       'ephemeral',
       'firebase_core',
       'build',
       if (!all) 'spikes',
       if (!all) 'fix_copyright',
+      if (!all) 'release',
       if (!all) 'test_and_fix',
-    ];
+    };
   }
 
   bool isProjectAllowed(Directory projectPath, {bool all = false}) {
     // Skip the things that we really don't ever want to traverse, but skip the
     // non-essential packages unless --all is specified.
-    final List<String> excluded = _getExcludedDirectories(all: all);
+    final Set<String> excluded = _getExcludedDirectories(all: all);
     final List<String> components = fs.path.split(projectPath.path);
     for (final exclude in excluded) {
       if (components.contains(exclude)) {
