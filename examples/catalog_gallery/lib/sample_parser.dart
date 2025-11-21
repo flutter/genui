@@ -28,6 +28,9 @@ class SampleParser {
 
   static Sample parseString(String content) {
     final List<String> lines = const LineSplitter().convert(content);
+    if (lines.firstOrNull == '---') {
+      lines.removeAt(0);
+    }
     final int separatorIndex = lines.indexOf('---');
 
     if (separatorIndex == -1) {

@@ -56,7 +56,7 @@ class Catalog {
   /// Builds a Flutter widget from a JSON-like data structure.
   Widget buildWidget(CatalogItemContext itemContext) {
     final widgetData = itemContext.data as JsonMap;
-    final String? widgetType = widgetData['component'] as String?;
+    final widgetType = widgetData['component'] as String?;
     final CatalogItem? item = items.firstWhereOrNull(
       (item) => item.name == widgetType,
     );

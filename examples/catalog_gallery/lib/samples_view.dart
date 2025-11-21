@@ -98,6 +98,7 @@ class _SamplesViewState extends State<SamplesView> {
         .toList();
     setState(() {
       _sampleFiles = files;
+      _sampleFiles.sort((a, b) => a.path.compareTo(b.path));
     });
   }
 
@@ -129,11 +130,13 @@ class _SamplesViewState extends State<SamplesView> {
           );
         },
       );
-    } catch (e) {
-      print('Error parsing sample: $e');
+    } catch (exception, stackTrace) {
+      print('Error parsing sample: $exception\n$stackTrace');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error parsing sample: $e')));
+      ).showSnackBar(
+        SnackBar(content: Text('Error parsing sample: $exception')),
+      );
     }
   }
 

@@ -7,10 +7,9 @@ import 'dart:convert';
 
 import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
 // ignore: implementation_imports
-import 'package:firebase_ai/src/api.dart' show ModalityTokenCount;
+
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart' hide Part;
-import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 import 'gemini_content_converter.dart';
 import 'gemini_generative_model.dart';
@@ -38,7 +37,6 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   FirebaseAiContentGenerator({
     required this.catalog,
     this.systemInstruction,
-    this.outputToolName = 'provideFinalOutput',
     this.modelCreator = defaultGenerativeModelFactory,
     this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
@@ -51,15 +49,6 @@ class FirebaseAiContentGenerator implements ContentGenerator {
 
   /// The system instruction to use for the AI model.
   final String? systemInstruction;
-
-  /// The name of an internal pseudo-tool used to retrieve the final structured
-  /// output from the AI.
-  ///
-  /// This only needs to be provided in case of name collision with another
-  /// tool.
-  ///
-  /// Defaults to 'provideFinalOutput'.
-  final String outputToolName;
 
   /// A function to use for creating the model itself.
   ///
@@ -115,15 +104,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       final messages = [...?history, message];
-      final Object? response = await _generate(
-        messages: messages,
-        // This turns on forced function calling.
-        outputSchema: dsb.S.object(properties: {'response': dsb.S.string()}),
-      );
-      // Convert any response to a text response to the user.
-      if (response is Map && response.containsKey('response')) {
-        _textResponseController.add(response['response']! as String);
-      }
+      await _generate(messages: messages);
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
@@ -154,32 +135,12 @@ class FirebaseAiContentGenerator implements ContentGenerator {
 
   ({List<Tool>? generativeAiTools, Set<String> allowedFunctionNames})
   _setupToolsAndFunctions({
-    required bool isForcedToolCalling,
     required List<AiTool> availableTools,
     required GeminiSchemaAdapter adapter,
-    required dsb.Schema? outputSchema,
   }) {
-    genUiLogger.fine(
-      'Setting up tools'
-      '${isForcedToolCalling ? ' with forced tool calling' : ''}',
-    );
-    // Create an "output" tool that copies its args into the output.
-    final DynamicAiTool<Map<String, Object?>>? finalOutputAiTool =
-        isForcedToolCalling
-        ? DynamicAiTool<Map<String, Object?>>(
-            name: outputToolName,
-            description:
-                '''Returns the final output. Call this function when you are done with the current turn of the conversation. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
-            // Wrap the outputSchema in an object so that the output schema
-            // isn't limited to objects.
-            parameters: dsb.S.object(properties: {'output': outputSchema!}),
-            invokeFunction: (args) async => args, // Invoke is a pass-through
-          )
-        : null;
+    genUiLogger.fine('Setting up tools');
 
-    final List<AiTool<JsonMap>> allTools = isForcedToolCalling
-        ? [...availableTools, finalOutputAiTool!]
-        : availableTools;
+    final allTools = availableTools;
     genUiLogger.fine(
       'Available tools: ${allTools.map((t) => t.name).join(', ')}',
     );
@@ -263,14 +224,9 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     );
   }
 
-  Future<
-    ({List<FunctionResponse> functionResponseParts, Object? capturedResult})
-  >
-  _processFunctionCalls({
+  Future<List<FunctionResponse>> _processFunctionCalls({
     required List<FunctionCall> functionCalls,
-    required bool isForcedToolCalling,
     required List<AiTool> availableTools,
-    Object? capturedResult,
   }) async {
     genUiLogger.fine(
       'Processing ${functionCalls.length} function calls from model.',
@@ -280,25 +236,6 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       genUiLogger.fine(
         'Processing function call: ${call.name} with args: ${call.args}',
       );
-      if (isForcedToolCalling && call.name == outputToolName) {
-        try {
-          capturedResult = call.args['output'];
-          genUiLogger.fine(
-            'Captured final output from tool "$outputToolName".',
-          );
-        } catch (exception, stack) {
-          genUiLogger.severe(
-            'Unable to read output: $call [${call.args}]',
-            exception,
-            stack,
-          );
-        }
-        genUiLogger.info(
-          '****** Gen UI Output ******.\n'
-          '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
-        );
-        break;
-      }
 
       final AiTool<JsonMap> aiTool = availableTools.firstWhere(
         (t) => t.name == call.name || t.fullName == call.name,
@@ -328,34 +265,14 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       'Finished processing function calls. Returning '
       '${functionResponseParts.length} responses.',
     );
-    return (
-      functionResponseParts: functionResponseParts,
-      capturedResult: capturedResult,
-    );
+    return functionResponseParts;
   }
 
-  Future<Object?> _generate({
-    required Iterable<ChatMessage> messages,
-    dsb.Schema? outputSchema,
-  }) async {
-    final isForcedToolCalling = outputSchema != null;
+  Future<void> _generate({required Iterable<ChatMessage> messages}) async {
     final converter = GeminiContentConverter();
     final adapter = GeminiSchemaAdapter();
 
-    final List<AiTool<JsonMap>> availableTools = [
-      if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate) ...[
-        SurfaceUpdateTool(
-          handleMessage: _a2uiMessageController.add,
-          catalog: catalog,
-          configuration: configuration,
-        ),
-        CreateSurfaceTool(handleMessage: _a2uiMessageController.add),
-      ],
-      if (configuration.actions.allowDelete)
-        DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
-      ...additionalTools,
-    ];
+    final List<AiTool<JsonMap>> availableTools = [...additionalTools];
 
     // A local copy of the incoming messages which is updated with tool results
     // as they are generated.
@@ -367,15 +284,12 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       :List<Tool>? generativeAiTools,
       :Set<String> allowedFunctionNames,
     ) = _setupToolsAndFunctions(
-      isForcedToolCalling: isForcedToolCalling,
       availableTools: availableTools,
       adapter: adapter,
-      outputSchema: outputSchema,
     );
 
     var toolUsageCycle = 0;
     const maxToolUsageCycles = 40; // Safety break for tool loops
-    Object? capturedResult;
 
     final String definition = const JsonEncoder.withIndent(
       '  ',
@@ -385,24 +299,22 @@ class FirebaseAiContentGenerator implements ContentGenerator {
       systemInstruction: Content.system(
         '${systemInstruction ?? ''}\n\n'
         'You have access to the following UI components:\n'
-        '$definition',
+        '$definition\n\n'
+        'You must output your response as a stream of JSON objects, one per '
+        'line (JSONL). Each line can be either a plain text response or a '
+        'structured A2UI message (e.g., createSurface, surfaceUpdate). '
+        'Do not wrap the JSON objects in a list or any other structure. '
+        'Just output one JSON object per line.',
       ),
       tools: generativeAiTools,
-      toolConfig: isForcedToolCalling
-          ? ToolConfig(
-              functionCallingConfig: FunctionCallingConfig.any(
-                allowedFunctionNames.toSet(),
-              ),
-            )
-          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
+      toolConfig: ToolConfig(
+        functionCallingConfig: FunctionCallingConfig.auto(),
+      ),
     );
 
+    toolLoop:
     while (toolUsageCycle < maxToolUsageCycles) {
       genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');
-      if (isForcedToolCalling && capturedResult != null) {
-        genUiLogger.fine('Captured result found, exiting tool usage loop.');
-        break;
-      }
       toolUsageCycle++;
 
       final String concatenatedContents = mutableContent
@@ -416,206 +328,107 @@ With functions:
   ''',
       );
       final inferenceStartTime = DateTime.now();
-      GenerateContentResponse response;
 
-      response = await model.generateContent(mutableContent);
-      genUiLogger.finest('Raw model response: ${_responseToString(response)}');
+      // We use generateContentStream to handle streaming responses
+      final Stream<GenerateContentResponse> responseStream = model
+          .generateContentStream(mutableContent);
 
-      final Duration elapsed = DateTime.now().difference(inferenceStartTime);
+      final currentLineBuffer = StringBuffer();
 
-      if (response.usageMetadata != null) {
-        inputTokenUsage += response.usageMetadata!.promptTokenCount ?? 0;
-        outputTokenUsage += response.usageMetadata!.candidatesTokenCount ?? 0;
-      }
-      genUiLogger.info(
-        '****** Completed Inference ******\n'
-        'Latency = ${elapsed.inMilliseconds}ms\n'
-        'Output tokens = ${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
-        'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
-      );
+      await for (final GenerateContentResponse response in responseStream) {
+        if (response.candidates.isEmpty) {
+          continue;
+        }
+        final Candidate candidate = response.candidates.first;
 
-      if (response.candidates.isEmpty) {
-        genUiLogger.warning(
-          'Response has no candidates: ${response.promptFeedback}',
-        );
-        return isForcedToolCalling ? null : '';
-      }
+        // Handle function calls if any (though we prefer JSONL now, tools
+        // might still be used for other things)
+        final List<FunctionCall> functionCalls = candidate.content.parts
+            .whereType<FunctionCall>()
+            .toList();
 
-      final Candidate candidate = response.candidates.first;
-      final List<FunctionCall> functionCalls = candidate.content.parts
-          .whereType<FunctionCall>()
-          .toList();
-
-      if (functionCalls.isEmpty) {
-        genUiLogger.fine('Model response contained no function calls.');
-        if (isForcedToolCalling) {
-          genUiLogger.warning(
-            'Model did not call any function. FinishReason: '
-            '${candidate.finishReason}. Text: "${candidate.text}" ',
-          );
-          if (candidate.text != null && candidate.text!.trim().isNotEmpty) {
-            genUiLogger.warning(
-              'Model returned direct text instead of a tool call. This might '
-              'be an error or unexpected AI behavior for forced tool calling.',
-            );
-          }
+        if (functionCalls.isNotEmpty) {
           genUiLogger.fine(
-            'Model returned text but no function calls with forced tool '
-            'calling, so returning null.',
+            'Model response contained ${functionCalls.length} function calls.',
           );
-          return null;
-        } else {
-          final String text = candidate.text ?? '';
           mutableContent.add(candidate.content);
-          genUiLogger.fine('Returning text response: "$text"');
-          _textResponseController.add(text);
-          return text;
+          final List<FunctionResponse> functionResponseParts =
+              await _processFunctionCalls(
+                functionCalls: functionCalls,
+                availableTools: availableTools,
+              );
+
+          if (functionResponseParts.isNotEmpty) {
+            mutableContent.add(
+              Content.functionResponses(functionResponseParts),
+            );
+            genUiLogger.fine(
+              'Added tool response message with '
+              '${functionResponseParts.length} parts to conversation.',
+            );
+            // Continue the loop to send tool outputs back to the model
+            continue toolLoop;
+          }
+        }
+
+        // Handle text content for JSONL parsing
+        final String? text = candidate.text;
+        if (text != null && text.isNotEmpty) {
+          for (var i = 0; i < text.length; i++) {
+            final String char = text[i];
+            if (char == '\n') {
+              _processLine(currentLineBuffer.toString());
+              currentLineBuffer.clear();
+            } else {
+              currentLineBuffer.write(char);
+            }
+          }
         }
       }
 
-      genUiLogger.fine(
-        'Model response contained ${functionCalls.length} function calls.',
-      );
-      mutableContent.add(candidate.content);
-      genUiLogger.fine(
-        'Added assistant message with ${candidate.content.parts.length} '
-        'parts to conversation.',
-      );
-
-      final ({
-        Object? capturedResult,
-        List<FunctionResponse> functionResponseParts,
-      })
-      result = await _processFunctionCalls(
-        functionCalls: functionCalls,
-        isForcedToolCalling: isForcedToolCalling,
-        availableTools: availableTools,
-        capturedResult: capturedResult,
-      );
-      capturedResult = result.capturedResult;
-      final List<FunctionResponse> functionResponseParts =
-          result.functionResponseParts;
-
-      if (functionResponseParts.isNotEmpty) {
-        mutableContent.add(Content.functionResponses(functionResponseParts));
-        genUiLogger.fine(
-          'Added tool response message with ${functionResponseParts.length} '
-          'parts to conversation.',
-        );
+      // Process any remaining content in the buffer
+      if (currentLineBuffer.isNotEmpty) {
+        _processLine(currentLineBuffer.toString());
       }
 
-      // If the model returned a text response, we assume it's the final
-      // response and we should stop the tool calling loop.
-      if (!isForcedToolCalling &&
-          candidate.text != null &&
-          candidate.text!.trim().isNotEmpty) {
-        genUiLogger.fine(
-          'Model returned a text response of "${candidate.text!.trim()}". '
-          'Exiting tool loop.',
-        );
-        _textResponseController.add(candidate.text!);
-        return candidate.text;
-      }
+      final Duration elapsed = DateTime.now().difference(inferenceStartTime);
+      genUiLogger.info(
+        '****** Completed Inference ******\n'
+        'Latency = ${elapsed.inMilliseconds}ms',
+      );
+
+      // If we reached here, it means the stream finished.
+      // If there were function calls, the loop would have continued via
+      // `continue`. If there were no function calls, we are done.
+      break;
     }
+  }
 
-    if (isForcedToolCalling) {
-      if (toolUsageCycle >= maxToolUsageCycles) {
-        genUiLogger.severe(
-          'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-          'No final output was produced.',
-          StackTrace.current,
-        );
+  void _processLine(String line) {
+    line = line.trim();
+    if (line.isEmpty) return;
+
+    try {
+      final dynamic json = jsonDecode(line);
+      if (json is Map<String, Object?>) {
+        // Check if it's an A2UI message
+        // We can try to parse it as an A2uiMessage, or check for specific keys
+        // Ideally A2uiMessage.fromJson would handle it or throw
+        try {
+          final message = A2uiMessage.fromJson(json);
+          _a2uiMessageController.add(message);
+          return;
+        } catch (_) {
+          // Not an A2UI message, treat as text/other JSON
+        }
       }
-      genUiLogger.fine('Exited tool usage loop. Returning captured result.');
-      return capturedResult;
-    } else {
-      genUiLogger.severe(
-        'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-        'No final output was produced.',
-        StackTrace.current,
-      );
-      return '';
+    } catch (_) {
+      // Not JSON, treat as text
     }
+    _textResponseController.add(line);
   }
 }
 
-String _usageMetadata(UsageMetadata? metadata) {
-  if (metadata == null) return '';
-  final buffer = StringBuffer();
-  buffer.writeln('UsageMetadata(');
-  buffer.writeln('  promptTokenCount: ${metadata.promptTokenCount},');
-  buffer.writeln('  candidatesTokenCount: ${metadata.candidatesTokenCount},');
-  buffer.writeln('  totalTokenCount: ${metadata.totalTokenCount},');
-  buffer.writeln('  thoughtsTokenCount: ${metadata.thoughtsTokenCount},');
-  buffer.writeln(
-    '  toolUsePromptTokenCount: ${metadata.toolUsePromptTokenCount},',
-  );
-  buffer.writeln('  promptTokensDetails: [');
-  for (final ModalityTokenCount detail
-      in metadata.promptTokensDetails ?? <ModalityTokenCount>[]) {
-    buffer.writeln('    ModalityTokenCount(');
-    buffer.writeln('      modality: ${detail.modality},');
-    buffer.writeln('      tokenCount: ${detail.tokenCount},');
-    buffer.writeln('    ),');
-  }
-  buffer.writeln('  ],');
-  buffer.writeln('  candidatesTokensDetails: [');
-  for (final ModalityTokenCount detail
-      in metadata.candidatesTokensDetails ?? <ModalityTokenCount>[]) {
-    buffer.writeln('    ModalityTokenCount(');
-    buffer.writeln('      ${detail.modality},');
-    buffer.writeln('      ${detail.tokenCount},');
-    buffer.writeln('    ),');
-  }
-  buffer.writeln('  ],');
-  buffer.writeln('  toolUsePromptTokensDetails: [');
-  for (final ModalityTokenCount detail
-      in metadata.toolUsePromptTokensDetails ?? <ModalityTokenCount>[]) {
-    buffer.writeln('    ModalityTokenCount(');
-    buffer.writeln('      ${detail.modality},');
-    buffer.writeln('      ${detail.tokenCount},');
-    buffer.writeln('    ),');
-  }
-  buffer.writeln('  ],');
-  buffer.writeln(')');
-  return buffer.toString();
-}
 
-String _responseToString(GenerateContentResponse response) {
-  final buffer = StringBuffer();
-  buffer.writeln('GenerateContentResponse(');
-  buffer.writeln('  usageMetadata: ${_usageMetadata(response.usageMetadata)},');
-  buffer.writeln('  promptFeedback: ${response.promptFeedback},');
-  buffer.writeln('  candidates: [');
-  for (final Candidate candidate in response.candidates) {
-    buffer.writeln('    Candidate(');
-    buffer.writeln('      finishReason: ${candidate.finishReason},');
-    buffer.writeln('      finishMessage: "${candidate.finishMessage}",');
-    buffer.writeln('      content: Content(');
-    buffer.writeln('        role: "${candidate.content.role}",');
-    buffer.writeln('        parts: [');
-    for (final Part part in candidate.content.parts) {
-      if (part is TextPart) {
-        buffer.writeln(
-          '          TextPart(text: "${(part as TextPart).text}"),',
-        );
-      } else if (part is FunctionCall) {
-        buffer.writeln('          FunctionCall(');
-        buffer.writeln('            name: "${part.name}",');
-        final String indentedLines = (const JsonEncoder.withIndent(
-          '  ',
-        ).convert(part.args)).split('\n').join('\n            ');
-        buffer.writeln('            args: $indentedLines,');
-        buffer.writeln('          ),');
-      } else {
-        buffer.writeln('          Unknown Part: ${part.runtimeType},');
-      }
-    }
-    buffer.writeln('        ],');
-    buffer.writeln('      ),');
-    buffer.writeln('    ),');
-  }
-  buffer.writeln('  ],');
-  buffer.writeln(')');
-  return buffer.toString();
-}
+
+

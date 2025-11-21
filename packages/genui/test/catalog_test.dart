@@ -14,7 +14,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
-      final widgetData = {
+      final Map<String, Object> widgetData = {
         'component': 'Column',
         'children': {
           'explicitList': ['child1'],

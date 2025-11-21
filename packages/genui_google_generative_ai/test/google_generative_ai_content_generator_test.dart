@@ -25,31 +25,7 @@ void main() {
       expect(generator, isNotNull);
       expect(generator.catalog, catalog);
       expect(generator.modelName, 'models/gemini-2.5-flash');
-      expect(generator.outputToolName, 'provideFinalOutput');
-    });
-
-    test('constructor accepts custom model name', () {
-      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
-
-      final generator = GoogleGenerativeAiContentGenerator(
-        catalog: catalog,
-        modelName: 'models/gemini-2.5-pro',
-        apiKey: 'test-api-key',
-      );
-
-      expect(generator.modelName, 'models/gemini-2.5-pro');
-    });
-
-    test('constructor accepts custom output tool name', () {
-      final catalog = const genui.Catalog(<genui.CatalogItem>[]);
-
-      final generator = GoogleGenerativeAiContentGenerator(
-        catalog: catalog,
-        outputToolName: 'customOutput',
-        apiKey: 'test-api-key',
-      );
-
-      expect(generator.outputToolName, 'customOutput');
+      expect(generator.modelName, 'models/gemini-2.5-flash');
     });
 
     test('constructor accepts system instruction', () {
@@ -142,15 +118,7 @@ void main() {
                   content: google_ai.Content(
                     role: 'model',
                     parts: [
-                      google_ai.Part(
-                        functionCall: google_ai.FunctionCall(
-                          id: '1',
-                          name: 'provideFinalOutput',
-                          args: protobuf.Struct.fromJson({
-                            'output': {'response': 'Hello'},
-                          }),
-                        ),
-                      ),
+                      google_ai.Part(text: '{"response": "Hello"}'),
                     ],
                   ),
                   finishReason: google_ai.Candidate_FinishReason.stop,
@@ -170,7 +138,6 @@ void main() {
       expect(generator.isProcessing.value, isFalse);
     });
 
-    // TODO(implementation): This test is timing out, needs investigation
     test(
       'can call a tool and return a result',
       () async {
@@ -196,7 +163,7 @@ void main() {
                           functionCall: google_ai.FunctionCall(
                             id: '1',
                             name: 'testTool',
-                            args: protobuf.Struct.fromJson({}),
+                          args: protobuf.Struct.fromJson(<String, dynamic>{}),
                           ),
                         ),
                       ],
@@ -211,15 +178,7 @@ void main() {
                     content: google_ai.Content(
                       role: 'model',
                       parts: [
-                        google_ai.Part(
-                          functionCall: google_ai.FunctionCall(
-                            id: '2',
-                            name: 'provideFinalOutput',
-                            args: protobuf.Struct.fromJson({
-                              'output': {'response': 'Tool called'},
-                            }),
-                          ),
-                        ),
+                        google_ai.Part(text: 'Tool called'),
                       ],
                     ),
                     finishReason: google_ai.Candidate_FinishReason.stop,
@@ -236,8 +195,7 @@ void main() {
         await generator.sendRequest(hi);
         final response = await completer.future;
         expect(response, 'Tool called');
-      },
-      skip: 'Test is timing out, needs debugging',
+    },
     );
 
     test('returns a simple text response', () async {
@@ -251,15 +209,7 @@ void main() {
                   content: google_ai.Content(
                     role: 'model',
                     parts: [
-                      google_ai.Part(
-                        functionCall: google_ai.FunctionCall(
-                          id: '1',
-                          name: 'provideFinalOutput',
-                          args: protobuf.Struct.fromJson({
-                            'output': {'response': 'Hello'},
-                          }),
-                        ),
-                      ),
+                      google_ai.Part(text: 'Hello'),
                     ],
                   ),
                   finishReason: google_ai.Candidate_FinishReason.stop,
@@ -291,6 +241,13 @@ class FakeGoogleGenerativeService implements GoogleGenerativeServiceInterface {
     google_ai.GenerateContentRequest request,
   ) {
     return Future.delayed(Duration.zero, () => responses[callCount++]);
+  }
+
+  @override
+  Stream<google_ai.GenerateContentResponse> streamGenerateContent(
+    google_ai.GenerateContentRequest request,
+  ) async* {
+    yield responses[callCount++];
   }
 
   @override

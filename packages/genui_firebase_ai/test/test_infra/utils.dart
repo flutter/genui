@@ -37,4 +37,28 @@ class FakeGenerativeModel implements GeminiGenerativeModelInterface {
       'No response or exception configured for FakeGenerativeModel',
     );
   }
+
+  @override
+  Stream<GenerateContentResponse> generateContentStream(
+    Iterable<Content> content,
+  ) async* {
+    generateContentCallCount++;
+    if (exception != null) {
+      final Exception? e = exception;
+      exception = null; // Reset for next call
+      throw e!;
+    }
+    if (responses.isNotEmpty) {
+      final GenerateContentResponse response = responses.removeAt(0);
+      yield GenerateContentResponse(response.candidates, promptFeedback);
+      return;
+    }
+    if (response != null) {
+      yield GenerateContentResponse(response!.candidates, promptFeedback);
+      return;
+    }
+    throw StateError(
+      'No response or exception configured for FakeGenerativeModel',
+    );
+  }
 }

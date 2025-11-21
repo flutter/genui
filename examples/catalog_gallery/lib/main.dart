@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+
 import 'package:args/args.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
+import 'package:logging/logging.dart';
 
 import 'samples_view.dart';
 
@@ -27,6 +29,8 @@ void main(List<String> args) {
       samplesDir = defaultSamples;
     }
   }
+
+  configureGenUiLogging(level: Level.ALL);
 
   runApp(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
 }

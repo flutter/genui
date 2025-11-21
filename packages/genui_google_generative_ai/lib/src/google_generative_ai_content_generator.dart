@@ -10,7 +10,6 @@ import 'package:genui/genui.dart';
 import 'package:google_cloud_ai_generativelanguage_v1beta/generativelanguage.dart'
     as google_ai;
 import 'package:google_cloud_protobuf/protobuf.dart' as protobuf;
-import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 import 'google_content_converter.dart';
 import 'google_generative_service_interface.dart';
@@ -32,7 +31,6 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
   GoogleGenerativeAiContentGenerator({
     required this.catalog,
     this.systemInstruction,
-    this.outputToolName = 'provideFinalOutput',
     this.serviceFactory = defaultGenerativeServiceFactory,
     this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
@@ -47,15 +45,6 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
   /// The system instruction to use for the AI model.
   final String? systemInstruction;
-
-  /// The name of an internal pseudo-tool used to retrieve the final structured
-  /// output from the AI.
-  ///
-  /// This only needs to be provided in case of name collision with another
-  /// tool.
-  ///
-  /// Defaults to 'provideFinalOutput'.
-  final String outputToolName;
 
   /// A function to use for creating the service itself.
   ///
@@ -117,15 +106,9 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       final messages = [...?history, message];
-      final response = await _generate(
+      await _generate(
         messages: messages,
-        // This turns on forced function calling.
-        outputSchema: dsb.S.object(properties: {'response': dsb.S.string()}),
       );
-      // Convert any response to a text response to the user.
-      if (response is Map && response.containsKey('response')) {
-        _textResponseController.add(response['response']! as String);
-      }
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
@@ -149,31 +132,12 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
   ({List<google_ai.Tool>? tools, Set<String> allowedFunctionNames})
   _setupToolsAndFunctions({
-    required bool isForcedToolCalling,
     required List<AiTool> availableTools,
     required GoogleSchemaAdapter adapter,
-    required dsb.Schema? outputSchema,
   }) {
-    genUiLogger.fine(
-      'Setting up tools'
-      '${isForcedToolCalling ? ' with forced tool calling' : ''}',
-    );
-    // Create an "output" tool that copies its args into the output.
-    final finalOutputAiTool = isForcedToolCalling
-        ? DynamicAiTool<Map<String, Object?>>(
-            name: outputToolName,
-            description:
-                '''Returns the final output. Call this function when you are done with the current turn of the conversation. Do not call this if you need to use other tools first. You MUST call this tool when you are done.''',
-            // Wrap the outputSchema in an object so that the output schema
-            // isn't limited to objects.
-            parameters: dsb.S.object(properties: {'output': outputSchema!}),
-            invokeFunction: (args) async => args, // Invoke is a pass-through
-          )
-        : null;
+    genUiLogger.fine('Setting up tools');
 
-    final allTools = isForcedToolCalling
-        ? [...availableTools, finalOutputAiTool!]
-        : availableTools;
+    final allTools = availableTools;
     genUiLogger.fine(
       'Available tools: ${allTools.map((t) => t.name).join(', ')}',
     );
@@ -251,12 +215,9 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     return (tools: tools, allowedFunctionNames: allowedFunctionNames);
   }
 
-  Future<({List<google_ai.Part> functionResponseParts, Object? capturedResult})>
-  _processFunctionCalls({
+  Future<({List<google_ai.Part> functionResponseParts})> _processFunctionCalls({
     required List<google_ai.FunctionCall> functionCalls,
-    required bool isForcedToolCalling,
     required List<AiTool> availableTools,
-    Object? capturedResult,
   }) async {
     genUiLogger.fine(
       'Processing ${functionCalls.length} function calls from model.',
@@ -266,27 +227,6 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       genUiLogger.fine(
         'Processing function call: ${call.name} with args: ${call.args}',
       );
-      if (isForcedToolCalling && call.name == outputToolName) {
-        try {
-          // Convert Struct args to Map to extract output
-          final argsMap = call.args?.toJson() as Map<String, Object?>?;
-          capturedResult = argsMap?['output'];
-          genUiLogger.fine(
-            'Captured final output from tool "$outputToolName".',
-          );
-        } catch (exception, stack) {
-          genUiLogger.severe(
-            'Unable to read output: $call [${call.args}]',
-            exception,
-            stack,
-          );
-        }
-        genUiLogger.info(
-          '****** Gen UI Output ******.\n'
-          '${const JsonEncoder.withIndent('  ').convert(capturedResult)}',
-        );
-        break;
-      }
 
       final aiTool = availableTools.firstWhere(
         (t) => t.name == call.name || t.fullName == call.name,
@@ -326,17 +266,12 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       'Finished processing function calls. Returning '
       '${functionResponseParts.length} responses.',
     );
-    return (
-      functionResponseParts: functionResponseParts,
-      capturedResult: capturedResult,
-    );
+    return (functionResponseParts: functionResponseParts);
   }
 
-  Future<Object?> _generate({
+  Future<void> _generate({
     required Iterable<ChatMessage> messages,
-    dsb.Schema? outputSchema,
   }) async {
-    final isForcedToolCalling = outputSchema != null;
     final converter = GoogleContentConverter();
     final adapter = GoogleSchemaAdapter();
 
@@ -364,15 +299,12 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       final content = converter.toGoogleAiContent(messages);
 
       final (:tools, :allowedFunctionNames) = _setupToolsAndFunctions(
-        isForcedToolCalling: isForcedToolCalling,
         availableTools: availableTools,
         adapter: adapter,
-        outputSchema: outputSchema,
       );
 
       var toolUsageCycle = 0;
       const maxToolUsageCycles = 40; // Safety break for tool loops
-      Object? capturedResult;
 
       // Build system instruction if provided
       final definition = const JsonEncoder.withIndent(
@@ -381,7 +313,12 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       final effectiveSystemInstruction =
           '${systemInstruction ?? ''}\n\n'
           'You have access to the following UI components:\n'
-          '$definition';
+          '$definition\n\n'
+          'You must output your response as a stream of JSON objects, one per '
+          'line (JSONL). Each line can be either a plain text response or a '
+          'structured A2UI message (e.g., createSurface, surfaceUpdate). '
+          'Do not wrap the JSON objects in a list or any other structure. '
+          'Just output one JSON object per line.';
 
       final systemInstructionContent = [
         google_ai.Content(
@@ -389,12 +326,9 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
         ),
       ];
 
+      toolLoop:
       while (toolUsageCycle < maxToolUsageCycles) {
         genUiLogger.fine('Starting tool usage cycle ${toolUsageCycle + 1}.');
-        if (isForcedToolCalling && capturedResult != null) {
-          genUiLogger.fine('Captured result found, exiting tool usage loop.');
-          break;
-        }
         toolUsageCycle++;
 
         final concatenatedContents = content
@@ -408,227 +342,127 @@ With functions:
   ''',
         );
         final inferenceStartTime = DateTime.now();
-        google_ai.GenerateContentResponse response;
-        try {
-          final request = google_ai.GenerateContentRequest(
-            model: modelName,
-            contents: [...systemInstructionContent, ...content],
-            tools: tools,
-            toolConfig: isForcedToolCalling
-                ? google_ai.ToolConfig(
-                    functionCallingConfig: google_ai.FunctionCallingConfig(
-                      mode: google_ai.FunctionCallingConfig_Mode.any,
-                      allowedFunctionNames: allowedFunctionNames.toList(),
-                    ),
-                  )
-                : google_ai.ToolConfig(
-                    functionCallingConfig: google_ai.FunctionCallingConfig(
-                      mode: google_ai.FunctionCallingConfig_Mode.auto,
-                    ),
-                  ),
-          );
-          response = await service.generateContent(request);
-          genUiLogger.finest(
-            'Raw model response: ${_responseToString(response)}',
-          );
-        } catch (e, st) {
-          genUiLogger.severe('Error from service.generateContent', e, st);
-          _errorController.add(ContentGeneratorError(e, st));
-          rethrow;
-        }
-        final elapsed = DateTime.now().difference(inferenceStartTime);
 
-        if (response.usageMetadata != null) {
-          inputTokenUsage += (response.usageMetadata!.promptTokenCount ?? 0)
-              .toInt();
-          outputTokenUsage +=
-              (response.usageMetadata!.candidatesTokenCount ?? 0).toInt();
-        }
-        genUiLogger.info(
-          '****** Completed Inference ******\n'
-          'Latency = ${elapsed.inMilliseconds}ms\n'
-          'Output tokens = '
-          '${response.usageMetadata?.candidatesTokenCount ?? 0}\n'
-          'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
+        final request = google_ai.GenerateContentRequest(
+          model: modelName,
+          contents: [...systemInstructionContent, ...content],
+          tools: tools,
+          toolConfig: google_ai.ToolConfig(
+            functionCallingConfig: google_ai.FunctionCallingConfig(
+              mode: google_ai.FunctionCallingConfig_Mode.auto,
+            ),
+          ),
         );
 
-        if (response.candidates == null || response.candidates!.isEmpty) {
-          genUiLogger.warning(
-            'Response has no candidates: ${response.promptFeedback}',
-          );
-          return isForcedToolCalling ? null : '';
-        }
+        final responseStream = service.streamGenerateContent(request);
 
-        final candidate = response.candidates!.first;
-        final functionCalls = <google_ai.FunctionCall>[];
-        if (candidate.content?.parts != null) {
-          for (final part in candidate.content!.parts!) {
-            if (part.functionCall != null) {
-              functionCalls.add(part.functionCall!);
+        final currentLineBuffer = StringBuffer();
+
+        await for (final google_ai.GenerateContentResponse response
+            in responseStream) {
+          if (response.candidates == null || response.candidates!.isEmpty) {
+            continue;
+          }
+
+          final candidate = response.candidates!.first;
+
+          // Handle function calls
+          final functionCalls = <google_ai.FunctionCall>[];
+          if (candidate.content?.parts != null) {
+            for (final part in candidate.content!.parts!) {
+              if (part.functionCall != null) {
+                functionCalls.add(part.functionCall!);
+              }
             }
           }
-        }
 
-        if (functionCalls.isEmpty) {
-          genUiLogger.fine('Model response contained no function calls.');
-          if (isForcedToolCalling) {
-            genUiLogger.warning(
-              'Model did not call any function. FinishReason: '
-              '${candidate.finishReason}.',
-            );
-            // Extract text from parts
-            String? text;
-            if (candidate.content?.parts != null) {
-              final textParts = candidate.content!.parts!
-                  .where((google_ai.Part p) => p.text != null)
-                  .map((google_ai.Part p) => p.text!)
-                  .toList();
-              text = textParts.join('');
-            }
-            if (text != null && text.trim().isNotEmpty) {
-              genUiLogger.warning(
-                'Model returned direct text instead of a tool call. '
-                'This might be an error or unexpected AI behavior for '
-                'forced tool calling.',
-              );
-            }
+          if (functionCalls.isNotEmpty) {
             genUiLogger.fine(
-              'Model returned text but no function calls with forced tool '
-              'calling, so returning null.',
+              'Model response contained ${functionCalls.length} '
+              'function calls.',
             );
-            return null;
-          } else {
-            // Extract text from parts
-            var text = '';
-            if (candidate.content?.parts != null) {
-              final textParts = candidate.content!.parts!
-                  .where((google_ai.Part p) => p.text != null)
-                  .map((google_ai.Part p) => p.text!)
-                  .toList();
-              text = textParts.join('');
-            }
             if (candidate.content != null) {
               content.add(candidate.content!);
             }
-            genUiLogger.fine('Returning text response: "$text"');
-            _textResponseController.add(text);
-            return text;
-          }
-        }
 
-        genUiLogger.fine(
-          'Model response contained ${functionCalls.length} function calls.',
-        );
-        if (candidate.content != null) {
-          content.add(candidate.content!);
-        }
-        genUiLogger.fine(
-          'Added assistant message with '
-          '${candidate.content?.parts?.length ?? 0} '
-          'parts to conversation.',
-        );
-
-        final result = await _processFunctionCalls(
-          functionCalls: functionCalls,
-          isForcedToolCalling: isForcedToolCalling,
-          availableTools: availableTools,
-          capturedResult: capturedResult,
-        );
-        capturedResult = result.capturedResult;
-        final functionResponseParts = result.functionResponseParts;
-
-        if (functionResponseParts.isNotEmpty) {
-          content.add(
-            google_ai.Content(role: 'user', parts: functionResponseParts),
-          );
-          genUiLogger.fine(
-            'Added tool response message with ${functionResponseParts.length} '
-            'parts to conversation.',
-          );
-        }
-
-        // If the model returned a text response, we assume it's the final
-        // response and we should stop the tool calling loop.
-        if (!isForcedToolCalling && candidate.content?.parts != null) {
-          final textParts = candidate.content!.parts!
-              .where((google_ai.Part p) => p.text != null)
-              .map((google_ai.Part p) => p.text!)
-              .toList();
-          final text = textParts.join('');
-          if (text.trim().isNotEmpty) {
-            genUiLogger.fine(
-              'Model returned a text response of "${text.trim()}". '
-              'Exiting tool loop.',
+            final result = await _processFunctionCalls(
+              functionCalls: functionCalls,
+              availableTools: availableTools,
             );
-            _textResponseController.add(text);
-            return text;
+            final functionResponseParts = result.functionResponseParts;
+
+            if (functionResponseParts.isNotEmpty) {
+              content.add(
+                google_ai.Content(role: 'user', parts: functionResponseParts),
+              );
+              genUiLogger.fine(
+                'Added tool response message with '
+                '${functionResponseParts.length} parts to conversation.',
+              );
+              continue toolLoop;
+            }
+          }
+
+          // Handle text content for JSONL parsing
+          if (candidate.content?.parts != null) {
+            for (final part in candidate.content!.parts!) {
+              final text = part.text;
+              if (text != null && text.isNotEmpty) {
+                for (var i = 0; i < text.length; i++) {
+                  final char = text[i];
+                  if (char == '\n') {
+                    _processLine(currentLineBuffer.toString());
+                    currentLineBuffer.clear();
+                  } else {
+                    currentLineBuffer.write(char);
+                  }
+                }
+              }
+            }
           }
         }
-      }
 
-      if (isForcedToolCalling) {
-        if (toolUsageCycle >= maxToolUsageCycles) {
-          genUiLogger.severe(
-            'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-            'No final output was produced.',
-            StackTrace.current,
-          );
+        // Process any remaining content in the buffer
+        if (currentLineBuffer.isNotEmpty) {
+          _processLine(currentLineBuffer.toString());
         }
-        genUiLogger.fine('Exited tool usage loop. Returning captured result.');
-        return capturedResult;
-      } else {
-        genUiLogger.severe(
-          'Error: Tool usage cycle exceeded maximum of $maxToolUsageCycles. ',
-          'No final output was produced.',
-          StackTrace.current,
+
+        final elapsed = DateTime.now().difference(inferenceStartTime);
+        genUiLogger.info(
+          '****** Completed Inference ******\n'
+          'Latency = ${elapsed.inMilliseconds}ms',
         );
-        return '';
+
+        // If we reached here, it means the stream finished.
+        // If there were function calls, the loop would have continued via
+        // `continue toolLoop`. If there were no function calls, we are done.
+        break;
       }
     } finally {
       service.close();
     }
   }
-}
 
-String _responseToString(google_ai.GenerateContentResponse response) {
-  final buffer = StringBuffer();
-  buffer.writeln('GenerateContentResponse(');
-  buffer.writeln('  usageMetadata: ${response.usageMetadata},');
-  buffer.writeln('  promptFeedback: ${response.promptFeedback},');
-  buffer.writeln('  candidates: [');
-  if (response.candidates != null) {
-    for (final candidate in response.candidates!) {
-      buffer.writeln('    Candidate(');
-      buffer.writeln('      finishReason: ${candidate.finishReason},');
-      buffer.writeln('      finishMessage: "${candidate.finishMessage}",');
-      buffer.writeln('      content: Content(');
-      buffer.writeln('        role: "${candidate.content?.role}",');
-      buffer.writeln('        parts: [');
-      if (candidate.content?.parts != null) {
-        for (final part in candidate.content!.parts!) {
-          if (part.text != null) {
-            buffer.writeln('          Part(text: "${part.text}"),');
-          } else if (part.functionCall != null) {
-            buffer.writeln('          Part(functionCall:');
-            buffer.writeln('            FunctionCall(');
-            buffer.writeln('              name: "${part.functionCall!.name}",');
-            final indentedLines = (const JsonEncoder.withIndent('  ').convert(
-              part.functionCall!.args ?? {},
-            )).split('\n').join('\n              ');
-            buffer.writeln('              args: $indentedLines,');
-            buffer.writeln('            ),');
-            buffer.writeln('          ),');
-          } else {
-            buffer.writeln('          Unknown Part,');
-          }
+  void _processLine(String line) {
+    line = line.trim();
+    if (line.isEmpty) return;
+
+    try {
+      final json = jsonDecode(line);
+      if (json is Map<String, dynamic>) {
+        try {
+          final message = A2uiMessage.fromJson(json);
+          _a2uiMessageController.add(message);
+          return;
+        } catch (_) {
+          // Not an A2UI message, treat as text/other JSON
         }
       }
-      buffer.writeln('        ],');
-      buffer.writeln('      ),');
-      buffer.writeln('    ),');
+    } catch (_) {
+      // Not JSON, treat as text
     }
+    _textResponseController.add(line);
   }
-  buffer.writeln('  ],');
-  buffer.writeln(')');
-  return buffer.toString();
 }
+
+
