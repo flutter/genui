@@ -3,22 +3,24 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
-import 'package:path/path.dart' as path;
 
 import 'sample_parser.dart';
 
 class SamplesView extends StatefulWidget {
   final Directory samplesDir;
   final Catalog catalog;
+  final FileSystem fs;
 
   const SamplesView({
     super.key,
     required this.samplesDir,
     required this.catalog,
+    this.fs = const LocalFileSystem(),
   });
 
   @override
@@ -157,7 +159,7 @@ class _SamplesViewState extends State<SamplesView> {
                   itemCount: _sampleFiles.length,
                   itemBuilder: (context, index) {
                     final File file = _sampleFiles[index];
-                    final String fileName = path.basename(file.path);
+                    final String fileName = widget.fs.path.basename(file.path);
 
                     return ListTile(
                       title: Text(fileName),

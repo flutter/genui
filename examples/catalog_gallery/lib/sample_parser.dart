@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:file/file.dart';
 import 'package:genui/genui.dart';
 import 'package:yaml/yaml.dart';
 

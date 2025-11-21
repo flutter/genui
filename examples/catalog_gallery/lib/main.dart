@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:args/args.dart';
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
@@ -16,24 +16,30 @@ void main(List<String> args) {
     ..addOption('samples', abbr: 's', help: 'Path to the samples directory');
   final ArgResults results = parser.parse(args);
 
+  const FileSystem fs = LocalFileSystem();
   Directory? samplesDir;
   if (results.wasParsed('samples')) {
-    samplesDir = Directory(results['samples'] as String);
+    samplesDir = fs.directory(results['samples'] as String);
   } else {
-    final Directory current = Directory.current;
-    final defaultSamples = Directory('${current.path}/samples');
+    final Directory current = fs.currentDirectory;
+    final Directory defaultSamples = fs.directory('${current.path}/samples');
     if (defaultSamples.existsSync()) {
       samplesDir = defaultSamples;
     }
   }
 
-  runApp(CatalogGalleryApp(samplesDir: samplesDir));
+  runApp(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
 }
 
 class CatalogGalleryApp extends StatefulWidget {
   final Directory? samplesDir;
+  final FileSystem fs;
 
-  const CatalogGalleryApp({super.key, this.samplesDir});
+  const CatalogGalleryApp({
+    super.key,
+    this.samplesDir,
+    this.fs = const LocalFileSystem(),
+  });
 
   @override
   State<CatalogGalleryApp> createState() => _CatalogGalleryAppState();
