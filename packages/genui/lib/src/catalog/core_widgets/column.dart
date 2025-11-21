@@ -130,6 +130,9 @@ final column = CatalogItem(
         );
       },
       templateListWidgetBuilder: (context, list, componentId, dataBinding) {
+        if (list is! List) {
+          return const SizedBox.shrink();
+        }
         return Column(
           mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
           crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),

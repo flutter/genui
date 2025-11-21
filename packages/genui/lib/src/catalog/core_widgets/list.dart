@@ -69,7 +69,10 @@ final list = CatalogItem(
         );
       },
       templateListWidgetBuilder:
-          (context, Map<String, Object?> data, componentId, dataBinding) {
+          (context, Object? data, componentId, dataBinding) {
+            if (data is! Map<String, Object?>) {
+              return const SizedBox.shrink();
+            }
             final List<Object?> values = data.values.toList();
             final List<String> keys = data.keys.toList();
             return ListView.builder(

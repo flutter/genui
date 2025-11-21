@@ -188,6 +188,7 @@ class GenUiManager implements GenUiHost {
         final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
           message.surfaceId,
         );
+        final isNew = notifier.value == null;
         final UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: message.surfaceId);
         final UiDefinition newUiDefinition = uiDefinition.copyWith(
@@ -195,7 +196,13 @@ class GenUiManager implements GenUiHost {
         );
         notifier.value = newUiDefinition;
         genUiLogger.info('Created surface ${message.surfaceId}');
-        _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, newUiDefinition));
+        if (isNew) {
+          _surfaceUpdates.add(SurfaceAdded(message.surfaceId, newUiDefinition));
+        } else {
+          _surfaceUpdates.add(
+            SurfaceUpdated(message.surfaceId, newUiDefinition),
+          );
+        }
       case DataModelUpdate():
         final String path = message.path ?? '/';
         genUiLogger.info(

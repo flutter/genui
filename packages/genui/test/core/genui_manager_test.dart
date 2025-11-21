@@ -66,6 +66,52 @@ void main() {
     });
 
     test(
+      'handleMessage fires SurfaceAdded when CreateSurface is received for a '
+      'new surface',
+      () async {
+        const surfaceId = 'newSurface';
+        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+        manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+        final GenUiUpdate update = await futureUpdate;
+
+        expect(update, isA<SurfaceAdded>());
+        expect(update.surfaceId, surfaceId);
+      },
+    );
+
+    test(
+      'handleMessage updates surface when SurfaceUpdate follows CreateSurface',
+      () async {
+        const surfaceId = 's2';
+        // 1. CreateSurface
+        final Future<GenUiUpdate> futureCreate = manager.surfaceUpdates.first;
+        manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+        final GenUiUpdate createUpdate = await futureCreate;
+        expect(createUpdate, isA<SurfaceAdded>());
+
+        // 2. SurfaceUpdate
+        final components = [
+          const Component(
+            id: 'root',
+            props: {
+              'Text': {'text': 'Updated'},
+            },
+          ),
+        ];
+        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+        manager.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: components),
+        );
+        final GenUiUpdate update = await futureUpdate;
+
+        expect(update, isA<SurfaceUpdated>());
+        expect(update.surfaceId, surfaceId);
+        final UiDefinition definition = (update as SurfaceUpdated).definition;
+        expect(definition.components['root'], components[0]);
+      },
+    );
+
+    test(
       'handleMessage updates an existing surface and fires SurfaceUpdated',
       () async {
         const surfaceId = 's1';

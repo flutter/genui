@@ -66,23 +66,12 @@ class _SamplesViewState extends State<SamplesView> {
           });
         }
       } else if (update is SurfaceRemoved) {
-        if (_surfaceIds.contains(update.surfaceId)) {
-          setState(() {
-            final int removeIndex = _surfaceIds.indexOf(update.surfaceId);
-            _surfaceIds.removeAt(removeIndex);
-            if (_surfaceIds.isEmpty) {
-              _currentSurfaceIndex = 0;
-            } else {
-              if (_currentSurfaceIndex >= removeIndex &&
-                  _currentSurfaceIndex > 0) {
-                _currentSurfaceIndex--;
-              }
-              if (_currentSurfaceIndex >= _surfaceIds.length) {
-                _currentSurfaceIndex = _surfaceIds.length - 1;
-              }
-            }
-          });
-        }
+        setState(() {
+          _surfaceIds.remove(update.surfaceId);
+          if (_currentSurfaceIndex >= _surfaceIds.length) {
+            _currentSurfaceIndex = 0;
+          }
+        });
       }
     });
   }
