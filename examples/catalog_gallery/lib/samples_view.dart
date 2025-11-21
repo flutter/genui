@@ -12,16 +12,16 @@ import 'package:genui/genui.dart';
 import 'sample_parser.dart';
 
 class SamplesView extends StatefulWidget {
-  final Directory samplesDir;
-  final Catalog catalog;
-  final FileSystem fs;
-
   const SamplesView({
     super.key,
     required this.samplesDir,
     required this.catalog,
     this.fs = const LocalFileSystem(),
   });
+
+  final Directory samplesDir;
+  final Catalog catalog;
+  final FileSystem fs;
 
   @override
   State<SamplesView> createState() => _SamplesViewState();
@@ -31,9 +31,7 @@ class _SamplesViewState extends State<SamplesView> {
   List<File> _sampleFiles = [];
   File? _selectedFile;
   Sample? _selectedSample;
-  GenUiManager _genUiManager = GenUiManager(
-    catalog: CoreCatalogItems.asCatalog(),
-  );
+  late GenUiManager _genUiManager;
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
   StreamSubscription<GenUiUpdate>? _surfaceSubscription;
@@ -42,6 +40,7 @@ class _SamplesViewState extends State<SamplesView> {
   @override
   void initState() {
     super.initState();
+    _genUiManager = GenUiManager(catalog: widget.catalog);
     _loadSamples();
     _setupSurfaceListener();
   }
@@ -66,8 +65,6 @@ class _SamplesViewState extends State<SamplesView> {
             }
           });
         }
-      } else if (update is SurfaceUpdated) {
-        setState(() {});
       } else if (update is SurfaceRemoved) {
         if (_surfaceIds.contains(update.surfaceId)) {
           setState(() {
@@ -94,10 +91,10 @@ class _SamplesViewState extends State<SamplesView> {
     if (!widget.samplesDir.existsSync()) {
       return;
     }
-    final List<File> files = widget.samplesDir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.sample'))
+    final List<File> files = await widget.samplesDir
+        .list()
+        .where((entity) => entity is File && entity.path.endsWith('.sample'))
+        .cast<File>()
         .toList();
     setState(() {
       _sampleFiles = files;
@@ -105,7 +102,7 @@ class _SamplesViewState extends State<SamplesView> {
   }
 
   Future<void> _selectSample(File file) async {
-    _messageSubscription?.cancel();
+    await _messageSubscription?.cancel();
     // Reset surfaces
     setState(() {
       _surfaceIds.clear();
@@ -113,7 +110,7 @@ class _SamplesViewState extends State<SamplesView> {
     });
     // Re-create GenUiManager to ensure a clean state for the new sample.
     _genUiManager.dispose();
-    _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+    _genUiManager = GenUiManager(catalog: widget.catalog);
     _setupSurfaceListener();
 
     try {
@@ -205,7 +202,7 @@ class _SamplesViewState extends State<SamplesView> {
                                 color: isSelected
                                     ? Theme.of(
                                         context,
-                                      ).primaryColor.withOpacity(0.1)
+                                      ).primaryColor.withValues(alpha: 0.1)
                                     : null,
                                 alignment: Alignment.center,
                                 child: Text(

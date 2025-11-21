@@ -33,14 +33,15 @@ description: A test description
     await tester.pumpWidget(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
     await tester.pumpAndSettle();
 
-    // Verify that the "Samples" tab is present (since we provided a valid samplesDir)
+    // Verify that the "Samples" tab is present (since we provided a valid
+    // samplesDir).
     expect(find.text('Samples'), findsOneWidget);
 
-    // Tap on the Samples tab
+    // Tap on the Samples tab.
     await tester.tap(find.text('Samples'));
     await tester.pumpAndSettle();
 
-    // Verify that the sample file is listed
+    // Verify that the sample file is listed.
     expect(find.text('test.sample'), findsOneWidget);
   });
 }

@@ -88,7 +88,11 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
                 },
               ),
               if (showSamples)
-                SamplesView(samplesDir: widget.samplesDir!, catalog: catalog),
+                SamplesView(
+                  samplesDir: widget.samplesDir!,
+                  catalog: catalog,
+                  fs: widget.fs,
+                ),
             ],
           ),
         ),

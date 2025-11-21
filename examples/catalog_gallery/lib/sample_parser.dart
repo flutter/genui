@@ -27,17 +27,18 @@ class SampleParser {
   }
 
   static Sample parseString(String content) {
-    final List<String> parts = content.split('---');
-    if (parts.length < 2) {
+    final List<String> lines = const LineSplitter().convert(content);
+    final int separatorIndex = lines.indexOf('---');
+
+    if (separatorIndex == -1) {
       throw const FormatException(
-        'Sample file must contain a YAML header and a JSONL body separated by "---"',
+        'Sample file must contain a YAML header and a JSONL body separated '
+        'by "---"',
       );
     }
 
-    final String yamlHeader = parts[0];
-    final String jsonlBody = parts
-        .sublist(1)
-        .join('---'); // Rejoin in case body contains "---"
+    final String yamlHeader = lines.sublist(0, separatorIndex).join('\n');
+    final String jsonlBody = lines.sublist(separatorIndex + 1).join('\n');
 
     final header = loadYaml(yamlHeader) as YamlMap;
     final String name = header['name'] as String? ?? 'Untitled Sample';
@@ -54,7 +55,7 @@ class SampleParser {
                 return A2uiMessage.fromJson(json);
               }
               throw FormatException('Invalid JSON line: $line');
-            } catch (e) {
+            } on FormatException catch (e) {
               print('Error parsing line: $line, error: $e');
               rethrow;
             }
