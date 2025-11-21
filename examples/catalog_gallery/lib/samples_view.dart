@@ -121,9 +121,7 @@ class _SamplesViewState extends State<SamplesView> {
       );
     } catch (exception, stackTrace) {
       print('Error parsing sample: $exception\n$stackTrace');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error parsing sample: $exception')),
       );
     }

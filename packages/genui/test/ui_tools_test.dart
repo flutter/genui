@@ -69,13 +69,9 @@ void main() {
     });
 
     test('CreateSurfaceTool sends CreateSurface message', () async {
-      final tool = CreateSurfaceTool(
-        handleMessage: genUiManager.handleMessage,
-      );
+      final tool = CreateSurfaceTool(handleMessage: genUiManager.handleMessage);
 
-      final Map<String, String> args = {
-        surfaceIdKey: 'testSurface',
-      };
+      final Map<String, String> args = {surfaceIdKey: 'testSurface'};
 
       // First, add a component to the surface so that the root can be set.
       genUiManager.handleMessage(
@@ -98,8 +94,7 @@ void main() {
       final Future<void> future = expectLater(
         genUiManager.surfaceUpdates,
         emits(
-          isA<SurfaceUpdated>()
-              .having(
+          isA<SurfaceUpdated>().having(
             (e) => e.surfaceId,
             surfaceIdKey,
             'testSurface',

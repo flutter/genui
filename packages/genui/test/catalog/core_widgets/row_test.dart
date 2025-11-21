@@ -15,7 +15,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
+        id: 'root',
         props: {
           'component': 'Row',
           'children': {
@@ -41,9 +41,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -67,7 +65,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
+        id: 'root',
         props: {
           'component': 'Row',
           'children': {
@@ -102,9 +100,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

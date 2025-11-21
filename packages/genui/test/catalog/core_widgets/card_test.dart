@@ -15,9 +15,8 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'card',
-        props: {'component': 'Card', 'child': 'text',
-        },
+        id: 'root',
+        props: {'component': 'Card', 'child': 'text'},
       ),
       const Component(
         id: 'text',
@@ -30,9 +29,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

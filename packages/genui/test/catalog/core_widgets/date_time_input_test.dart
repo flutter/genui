@@ -17,7 +17,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'datetime',
+        id: 'root',
         props: {
           'component': 'DateTimeInput',
           'value': {'path': '/myDateTime'},
@@ -27,9 +27,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
     manager
         .dataModelForSurface(surfaceId)
         .update(DataPath('/myDateTime'), '2025-10-15');

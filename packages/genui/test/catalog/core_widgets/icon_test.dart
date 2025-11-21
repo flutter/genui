@@ -17,7 +17,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'icon',
+        id: 'root',
         props: {
           'component': 'Icon',
           'name': {'literalString': 'add'},
@@ -27,9 +27,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -52,7 +50,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'icon',
+        id: 'root',
         props: {
           'component': 'Icon',
           'name': {'path': '/iconName'},
@@ -69,9 +67,7 @@ void main() {
         contents: 'close',
       ),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

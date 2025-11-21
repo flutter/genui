@@ -103,8 +103,6 @@ class CreateSurfaceTool extends AiTool<JsonMap> {
     final surfaceId = args[surfaceIdKey] as String;
     final theme = args['theme'] as JsonMap?;
     handleMessage(CreateSurface(surfaceId: surfaceId, theme: theme));
-    return {
-      'status': 'Surface $surfaceId created.',
-    };
+    return {'status': 'Surface $surfaceId created.'};
   }
 }

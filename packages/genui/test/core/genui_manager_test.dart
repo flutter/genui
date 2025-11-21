@@ -50,9 +50,7 @@ void main() {
       expect(addedUpdate.surfaceId, surfaceId);
 
       final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
-      manager.handleMessage(
-        const CreateSurface(surfaceId: surfaceId),
-      );
+      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
       final GenUiUpdate updatedUpdate = await futureUpdated;
 
       expect(updatedUpdate, isA<SurfaceUpdated>());

@@ -92,9 +92,7 @@ void main() {
 
       final tool = CreateSurfaceTool(handleMessage: fakeHandleMessage);
 
-      final Map<String, Object> args = {
-        surfaceIdKey: 'testSurface',
-      };
+      final Map<String, Object> args = {surfaceIdKey: 'testSurface'};
 
       await tool.invoke(args);
 

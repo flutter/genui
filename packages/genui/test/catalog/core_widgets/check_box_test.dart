@@ -17,7 +17,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'checkbox',
+        id: 'root',
         props: {
           'component': 'CheckBox',
           'label': {'literalString': 'Check me'},
@@ -28,9 +28,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
 
     await tester.pumpWidget(

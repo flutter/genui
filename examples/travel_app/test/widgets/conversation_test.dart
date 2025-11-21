@@ -37,9 +37,7 @@ void main() {
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
-        const CreateSurface(surfaceId: surfaceId),
-      );
+      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -89,9 +87,7 @@ void main() {
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
-        const CreateSurface(surfaceId: surfaceId),
-      );
+      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

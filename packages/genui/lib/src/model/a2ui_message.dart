@@ -109,10 +109,7 @@ final class DataModelUpdate extends A2uiMessage {
 /// An A2UI message that signals the client to begin rendering.
 final class CreateSurface extends A2uiMessage {
   /// Creates a [CreateSurface] message.
-  const CreateSurface({
-    required this.surfaceId,
-    this.theme,
-  });
+  const CreateSurface({required this.surfaceId, this.theme});
 
   /// Creates a [CreateSurface] message from a JSON map.
   factory CreateSurface.fromJson(JsonMap json) {

@@ -50,9 +50,7 @@ ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
 
   final surfaceId = (toolCall.args as JsonMap)[surfaceIdKey] as String;
 
-  final createSurfaceMessage = CreateSurface(
-    surfaceId: surfaceId,
-  );
+  final createSurfaceMessage = CreateSurface(surfaceId: surfaceId);
 
   return ParsedToolCall(
     messages: [surfaceUpdateMessage, createSurfaceMessage],

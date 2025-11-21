@@ -15,7 +15,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'column',
+        id: 'root',
         props: {
           'component': 'Column',
           'children': {
@@ -41,9 +41,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -67,7 +65,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'column',
+        id: 'root',
         props: {
           'component': 'Column',
           'children': {
@@ -103,9 +101,7 @@ void main() {
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

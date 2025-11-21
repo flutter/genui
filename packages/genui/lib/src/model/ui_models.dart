@@ -134,11 +134,7 @@ class UiDefinition {
 /// A component in the UI.
 final class Component {
   /// Creates a [Component].
-  const Component({
-    required this.id,
-    required this.props,
-    this.weight,
-  });
+  const Component({required this.id, required this.props, this.weight});
 
   /// Creates a [Component] from a JSON map.
   factory Component.fromJson(JsonMap json) {
@@ -163,11 +159,7 @@ final class Component {
 
   /// Converts this object to a JSON map.
   JsonMap toJson() {
-    return {
-      'id': id,
-      'props': props,
-      if (weight != null) 'weight': weight,
-    };
+    return {'id': id, 'props': props, if (weight != null) 'weight': weight};
   }
 
   /// The type of the component.
@@ -178,14 +170,9 @@ final class Component {
       other is Component &&
       id == other.id &&
       weight == other.weight &&
-      const DeepCollectionEquality().equals(
-        props, other.props,
-      );
+      const DeepCollectionEquality().equals(props, other.props);
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    weight,
-    const DeepCollectionEquality().hash(props),
-  );
+  int get hashCode =>
+      Object.hash(id, weight, const DeepCollectionEquality().hash(props));
 }

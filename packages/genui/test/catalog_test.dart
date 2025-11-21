@@ -55,9 +55,7 @@ void main() {
       final catalog = const Catalog([]);
       final Map<String, Object> data = {
         'id': 'text1',
-        'widget': {
-          'component': 'unknown_widget', 'text': 'hello',
-        },
+        'widget': {'component': 'unknown_widget', 'text': 'hello'},
       };
 
       final Future<void> logFuture = expectLater(

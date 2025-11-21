@@ -106,9 +106,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       final messages = [...?history, message];
-      await _generate(
-        messages: messages,
-      );
+      await _generate(messages: messages);
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));
@@ -269,9 +267,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     return (functionResponseParts: functionResponseParts);
   }
 
-  Future<void> _generate({
-    required Iterable<ChatMessage> messages,
-  }) async {
+  Future<void> _generate({required Iterable<ChatMessage> messages}) async {
     final converter = GoogleContentConverter();
     final adapter = GoogleSchemaAdapter();
 
@@ -464,5 +460,3 @@ With functions:
     _textResponseController.add(line);
   }
 }
-
-

@@ -17,7 +17,7 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'tabs',
+        id: 'root',
         props: {
           'component': 'Tabs',
           'tabItems': [
@@ -35,26 +35,22 @@ void main() {
       const Component(
         id: 'text1',
         props: {
-          'Text': {
-            'text': {'literalString': 'This is the first tab.'},
-          },
+          'component': 'Text',
+          'text': {'literalString': 'This is the first tab.'},
         },
       ),
       const Component(
         id: 'text2',
         props: {
-          'Text': {
-            'text': {'literalString': 'This is the second tab.'},
-          },
+          'component': 'Text',
+          'text': {'literalString': 'This is the second tab.'},
         },
       ),
     ];
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

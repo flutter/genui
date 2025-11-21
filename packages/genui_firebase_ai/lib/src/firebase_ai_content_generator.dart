@@ -428,7 +428,3 @@ With functions:
     _textResponseController.add(line);
   }
 }
-
-
-
-
