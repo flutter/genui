@@ -121,23 +121,38 @@ class TestAndFix {
     bool all = false,
   }) async {
     final projects = <Directory>[];
-    await for (final FileSystemEntity entity in root.list(recursive: true)) {
-      if (entity is! File || path.basename(entity.path) != 'pubspec.yaml') {
-        continue;
-      }
-      final File pubspec = entity;
-      final Directory projectDir = pubspec.parent;
-      if (isProjectAllowed(projectDir, all: all)) {
-        projects.add(projectDir);
-      }
-    }
+    await _findProjectsRecursive(root, projects, all: all);
     return projects;
   }
 
-  bool isProjectAllowed(Directory projectPath, {bool all = false}) {
-    // Skip the things that we really don't ever want to traverse, but skip the
-    // non-essential packages unless --all is specified.
-    final excluded = [
+  Future<void> _findProjectsRecursive(
+    Directory dir,
+    List<Directory> projects, {
+    required bool all,
+  }) async {
+    final List<String> excludedDirs = _getExcludedDirectories(all: all);
+    try {
+      await for (final FileSystemEntity entity in dir.list(
+        followLinks: false,
+      )) {
+        if (entity is File && fs.path.basename(entity.path) == 'pubspec.yaml') {
+          final Directory projectDir = entity.parent;
+          if (isProjectAllowed(projectDir, all: all)) {
+            projects.add(projectDir);
+          }
+        } else if (entity is Directory) {
+          if (!excludedDirs.contains(fs.path.basename(entity.path))) {
+            await _findProjectsRecursive(entity, projects, all: all);
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
+  List<String> _getExcludedDirectories({required bool all}) {
+    return [
       '.dart_tool',
       'ephemeral',
       'firebase_core',
@@ -146,6 +161,12 @@ class TestAndFix {
       if (!all) 'fix_copyright',
       if (!all) 'test_and_fix',
     ];
+  }
+
+  bool isProjectAllowed(Directory projectPath, {bool all = false}) {
+    // Skip the things that we really don't ever want to traverse, but skip the
+    // non-essential packages unless --all is specified.
+    final List<String> excluded = _getExcludedDirectories(all: all);
     final List<String> components = fs.path.split(projectPath.path);
     for (final exclude in excluded) {
       if (components.contains(exclude)) {

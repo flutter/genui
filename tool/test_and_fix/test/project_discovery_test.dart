@@ -64,6 +64,23 @@ void main() {
       expect(projects, isEmpty);
     });
 
+    test('ignores nested projects in excluded directories', () async {
+      final excluded = ['.dart_tool', 'build', 'ephemeral', 'firebase_core'];
+
+      for (final exclude in excluded) {
+        final Directory project = fs.directory(
+          path.join(root.path, exclude, 'nested_project'),
+        )..createSync(recursive: true);
+        fs
+            .file(path.join(project.path, 'pubspec.yaml'))
+            .writeAsStringSync('sdk: flutter');
+      }
+
+      final List<Directory> projects = await testAndFix.findProjects(root);
+
+      expect(projects, isEmpty);
+    });
+
     test('ignores some excluded directories with --all', () async {
       final excluded = ['.dart_tool', 'ephemeral', 'firebase_core', 'build'];
 
