@@ -274,20 +274,6 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     final service = serviceFactory(configuration: this);
 
     try {
-      final availableTools = [
-        if (configuration.actions.allowCreate ||
-            configuration.actions.allowUpdate) ...[
-          SurfaceUpdateTool(
-            handleMessage: _a2uiMessageController.add,
-            catalog: catalog,
-            configuration: configuration,
-          ),
-          CreateSurfaceTool(handleMessage: _a2uiMessageController.add),
-        ],
-        if (configuration.actions.allowDelete)
-          DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
-        ...additionalTools,
-      ];
 
       // A local copy of the incoming messages which is updated with
       // tool results
@@ -295,7 +281,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       final content = converter.toGoogleAiContent(messages);
 
       final (:tools, :allowedFunctionNames) = _setupToolsAndFunctions(
-        availableTools: availableTools,
+        availableTools: additionalTools,
         adapter: adapter,
       );
 
@@ -343,11 +329,13 @@ With functions:
           model: modelName,
           contents: [...systemInstructionContent, ...content],
           tools: tools,
-          toolConfig: google_ai.ToolConfig(
-            functionCallingConfig: google_ai.FunctionCallingConfig(
-              mode: google_ai.FunctionCallingConfig_Mode.auto,
-            ),
-          ),
+          toolConfig: tools == null
+              ? null
+              : google_ai.ToolConfig(
+                  functionCallingConfig: google_ai.FunctionCallingConfig(
+                    mode: google_ai.FunctionCallingConfig_Mode.auto,
+                  ),
+                ),
         );
 
         final responseStream = service.streamGenerateContent(request);
@@ -361,6 +349,11 @@ With functions:
           }
 
           final candidate = response.candidates!.first;
+          genUiLogger.fine(
+            'Received candidate: content=${candidate.content}, '
+            'finishReason=${candidate.finishReason}, '
+            'safetyRatings=${candidate.safetyRatings}',
+          );
 
           // Handle function calls
           final functionCalls = <google_ai.FunctionCall>[];
@@ -383,7 +376,7 @@ With functions:
 
             final result = await _processFunctionCalls(
               functionCalls: functionCalls,
-              availableTools: availableTools,
+              availableTools: additionalTools,
             );
             final functionResponseParts = result.functionResponseParts;
 
@@ -404,6 +397,7 @@ With functions:
             for (final part in candidate.content!.parts!) {
               final text = part.text;
               if (text != null && text.isNotEmpty) {
+                genUiLogger.fine('Received text part: $text');
                 for (var i = 0; i < text.length; i++) {
                   final char = text[i];
                   if (char == '\n') {
@@ -443,19 +437,24 @@ With functions:
     line = line.trim();
     if (line.isEmpty) return;
 
+    genUiLogger.fine('Processing line: $line');
+
     try {
       final json = jsonDecode(line);
       if (json is Map<String, dynamic>) {
         try {
           final message = A2uiMessage.fromJson(json);
+          genUiLogger.fine('Parsed A2UI message: $message');
           _a2uiMessageController.add(message);
           return;
-        } catch (_) {
+        } catch (e) {
           // Not an A2UI message, treat as text/other JSON
+          genUiLogger.fine('Failed to parse as A2UI message: $e');
         }
       }
-    } catch (_) {
+    } catch (e) {
       // Not JSON, treat as text
+      genUiLogger.fine('Failed to parse as JSON: $e');
     }
     _textResponseController.add(line);
   }

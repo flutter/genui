@@ -307,9 +307,9 @@ class FirebaseAiContentGenerator implements ContentGenerator {
         'Just output one JSON object per line.',
       ),
       tools: generativeAiTools,
-      toolConfig: ToolConfig(
-        functionCallingConfig: FunctionCallingConfig.auto(),
-      ),
+      toolConfig: generativeAiTools == null
+          ? null
+          : ToolConfig(functionCallingConfig: FunctionCallingConfig.auto()),
     );
 
     toolLoop:
