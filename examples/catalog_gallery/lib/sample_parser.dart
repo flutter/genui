@@ -49,16 +49,11 @@ class SampleParser {
           .convert(jsonlBody)
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
-            try {
-              final dynamic json = jsonDecode(line);
-              if (json is Map<String, dynamic>) {
-                return A2uiMessage.fromJson(json);
-              }
-              throw FormatException('Invalid JSON line: $line');
-            } on FormatException catch (e) {
-              print('Error parsing line: $line, error: $e');
-              rethrow;
+            final dynamic json = jsonDecode(line);
+            if (json is Map<String, dynamic>) {
+              return A2uiMessage.fromJson(json);
             }
+            throw FormatException('Invalid JSON line: $line');
           }),
     );
 

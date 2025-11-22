@@ -91,10 +91,9 @@ class _SamplesViewState extends State<SamplesView> {
     if (!widget.samplesDir.existsSync()) {
       return;
     }
-    final List<File> files = await widget.samplesDir
-        .list()
-        .where((entity) => entity is File && entity.path.endsWith('.sample'))
-        .cast<File>()
+    final List<File> files = (await widget.samplesDir.list().toList())
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.sample'))
         .toList();
     setState(() {
       _sampleFiles = files;
@@ -123,14 +122,16 @@ class _SamplesViewState extends State<SamplesView> {
       _messageSubscription = sample.messages.listen(
         _genUiManager.handleMessage,
         onError: (Object e) {
-          print('Error processing message: $e');
+          debugPrint('Error processing message: $e');
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error processing sample: $e')),
           );
         },
       );
     } catch (e) {
-      print('Error parsing sample: $e');
+      debugPrint('Error parsing sample: $e');
+      if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error parsing sample: $e')));
@@ -146,23 +147,20 @@ class _SamplesViewState extends State<SamplesView> {
           width: 250,
           child: Column(
             children: [
-              AppBar(
-                title: const Text('Samples'),
-                automaticallyImplyLeading: false,
-                elevation: 0,
-              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: _sampleFiles.length,
                   itemBuilder: (context, index) {
                     final File file = _sampleFiles[index];
-                    final String fileName = widget.fs.path.basename(file.path);
+                    final String fileName = widget.fs.path
+                        .basenameWithoutExtension(file.path);
 
                     return ListTile(
                       title: Text(fileName),
-                      selected:
-                          _selectedFile?.path ==
-                          file.path, // Compare file paths for selection
+                      selected: _selectedFile?.path == file.path,
+                      selectedTileColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       onTap: () => _selectSample(file),
                     );
                   },
@@ -200,9 +198,7 @@ class _SamplesViewState extends State<SamplesView> {
                                   vertical: 8,
                                 ),
                                 color: isSelected
-                                    ? Theme.of(
-                                        context,
-                                      ).primaryColor.withValues(alpha: 0.1)
+                                    ? Theme.of(context).colorScheme.primary
                                     : null,
                                 alignment: Alignment.center,
                                 child: Text(
@@ -212,7 +208,9 @@ class _SamplesViewState extends State<SamplesView> {
                                         ? FontWeight.bold
                                         : FontWeight.normal,
                                     color: isSelected
-                                        ? Theme.of(context).primaryColor
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary
                                         : null,
                                   ),
                                 ),

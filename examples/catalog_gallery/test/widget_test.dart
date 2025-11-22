@@ -42,6 +42,6 @@ description: A test description
     await tester.pumpAndSettle();
 
     // Verify that the sample file is listed.
-    expect(find.text('test.sample'), findsOneWidget);
+    expect(find.text('test'), findsOneWidget);
   });
 }
