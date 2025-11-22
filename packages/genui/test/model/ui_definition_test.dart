@@ -14,7 +14,7 @@ void main() {
         components: {
           'root': const Component(
             id: 'root',
-            componentProperties: {
+            props: {
               'Text': {'text': 'Hello'},
             },
           ),
@@ -28,7 +28,7 @@ void main() {
       expect(json['components'], {
         'root': {
           'id': 'root',
-          'component': {
+          'props': {
             'Text': {'text': 'Hello'},
           },
         },

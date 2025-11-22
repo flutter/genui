@@ -15,38 +15,33 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'list',
-        componentProperties: {
-          'List': {
-            'children': {
-              'explicitList': ['text1', 'text2'],
-            },
+        id: 'root',
+        props: {
+          'component': 'List',
+          'children': {
+            'explicitList': ['text1', 'text2'],
           },
         },
       ),
       const Component(
         id: 'text1',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'First'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'First'},
         },
       ),
       const Component(
         id: 'text2',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Second'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Second'},
         },
       ),
     ];
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'list'),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

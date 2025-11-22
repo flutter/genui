@@ -27,7 +27,7 @@ void main() {
       final components = [
         const Component(
           id: 'r1',
-          componentProperties: {
+          props: {
             'Text': {
               'text': {'literalString': 'Hi there!'},
             },
@@ -37,9 +37,7 @@ void main() {
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'r1'),
-      );
+      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
       await tester.pumpWidget(
         MaterialApp(
@@ -79,7 +77,7 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          componentProperties: {
+          props: {
             'Text': {
               'text': {'literalString': 'UI Content'},
             },
@@ -89,9 +87,7 @@ void main() {
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'root'),
-      );
+      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

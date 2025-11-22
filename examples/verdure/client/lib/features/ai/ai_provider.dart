@@ -84,7 +84,7 @@ class Ai extends _$Ai {
 
     contentGenerator.a2uiMessageStream.listen((message) {
       switch (message) {
-        case BeginRendering():
+        case CreateSurface():
           surfaceUpdateController.add(message.surfaceId);
         case SurfaceUpdate():
         case DataModelUpdate():

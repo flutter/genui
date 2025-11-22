@@ -15,26 +15,21 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'card',
-        componentProperties: {
-          'Card': {'child': 'text'},
-        },
+        id: 'root',
+        props: {'component': 'Card', 'child': 'text'},
       ),
       const Component(
         id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is a card.'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'This is a card.'},
         },
       ),
     ];
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'card'),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

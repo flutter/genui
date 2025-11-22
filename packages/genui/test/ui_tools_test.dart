@@ -36,7 +36,7 @@ void main() {
         'components': [
           {
             'id': 'root',
-            'component': {
+            'props': {
               'Text': {
                 'text': {'literalString': 'Hello'},
               },
@@ -68,15 +68,10 @@ void main() {
       await future;
     });
 
-    test('BeginRenderingTool sends BeginRendering message', () async {
-      final tool = BeginRenderingTool(
-        handleMessage: genUiManager.handleMessage,
-      );
+    test('CreateSurfaceTool sends CreateSurface message', () async {
+      final tool = CreateSurfaceTool(handleMessage: genUiManager.handleMessage);
 
-      final Map<String, String> args = {
-        surfaceIdKey: 'testSurface',
-        'root': 'root',
-      };
+      final Map<String, String> args = {surfaceIdKey: 'testSurface'};
 
       // First, add a component to the surface so that the root can be set.
       genUiManager.handleMessage(
@@ -85,7 +80,7 @@ void main() {
           components: [
             Component(
               id: 'root',
-              componentProperties: {
+              props: {
                 'Text': {
                   'text': {'literalString': 'Hello'},
                 },
@@ -99,13 +94,11 @@ void main() {
       final Future<void> future = expectLater(
         genUiManager.surfaceUpdates,
         emits(
-          isA<SurfaceUpdated>()
-              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
-              .having(
-                (e) => e.definition.rootComponentId,
-                'rootComponentId',
-                'root',
-              ),
+          isA<SurfaceUpdated>().having(
+            (e) => e.surfaceId,
+            surfaceIdKey,
+            'testSurface',
+          ),
         ),
       );
 

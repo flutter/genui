@@ -14,17 +14,12 @@ void main() {
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'divider',
-        componentProperties: {'Divider': <String, Object?>{}},
-      ),
+      const Component(id: 'root', props: {'component': 'Divider'}),
     ];
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'divider'),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

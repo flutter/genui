@@ -17,20 +17,17 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'icon',
-        componentProperties: {
-          'Icon': {
-            'name': {'literalString': 'add'},
-          },
+        id: 'root',
+        props: {
+          'component': 'Icon',
+          'name': {'literalString': 'add'},
         },
       ),
     ];
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'icon'),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -53,11 +50,10 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'icon',
-        componentProperties: {
-          'Icon': {
-            'name': {'path': '/iconName'},
-          },
+        id: 'root',
+        props: {
+          'component': 'Icon',
+          'name': {'path': '/iconName'},
         },
       ),
     ];
@@ -71,9 +67,7 @@ void main() {
         contents: 'close',
       ),
     );
-    manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'icon'),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
 
     await tester.pumpWidget(
       MaterialApp(

@@ -39,11 +39,10 @@ final audioPlayer = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "AudioPlayer": {
-              "url": {
-                "literalString": "https://example.com/audio.mp3"
-              }
+          "props": {
+            "component": "AudioPlayer",
+            "url": {
+              "literalString": "https://example.com/audio.mp3"
             }
           }
         }

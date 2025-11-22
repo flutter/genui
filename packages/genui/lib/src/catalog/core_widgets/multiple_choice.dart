@@ -14,15 +14,7 @@ import '../../primitives/simple_items.dart';
 final _schema = S.object(
   properties: {
     'selections': A2uiSchemas.stringArrayReference(),
-    'options': S.list(
-      items: S.object(
-        properties: {
-          'label': A2uiSchemas.stringReference(),
-          'value': S.string(),
-        },
-        required: ['label', 'value'],
-      ),
-    ),
+    'options': A2uiSchemas.objectArrayReference(),
     'maxAllowedSelections': S.integer(),
   },
   required: ['selections', 'options'],
@@ -31,7 +23,7 @@ final _schema = S.object(
 extension type _MultipleChoiceData.fromMap(JsonMap _json) {
   factory _MultipleChoiceData({
     required JsonMap selections,
-    required List<JsonMap> options,
+    required JsonMap options,
     int? maxAllowedSelections,
   }) => _MultipleChoiceData.fromMap({
     'selections': selections,
@@ -40,7 +32,7 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
   });
 
   JsonMap get selections => _json['selections'] as JsonMap;
-  List<JsonMap> get options => (_json['options'] as List).cast<JsonMap>();
+  JsonMap get options => _json['options'] as JsonMap;
   int? get maxAllowedSelections => _json['maxAllowedSelections'] as int?;
 }
 
@@ -67,78 +59,98 @@ final multipleChoice = CatalogItem(
     final ValueNotifier<List<Object?>?> selectionsNotifier = itemContext
         .dataContext
         .subscribeToObjectArray(multipleChoiceData.selections);
+    final ValueNotifier<List<Object?>?> optionsNotifier = itemContext
+        .dataContext
+        .subscribeToObjectArray(multipleChoiceData.options);
 
     return ValueListenableBuilder<List<Object?>?>(
       valueListenable: selectionsNotifier,
       builder: (context, selections, child) {
-        return Column(
-          children: multipleChoiceData.options.map((option) {
-            final ValueNotifier<String?> labelNotifier = itemContext.dataContext
-                .subscribeToString(option['label'] as JsonMap);
-            final value = option['value'] as String;
-            return ValueListenableBuilder<String?>(
-              valueListenable: labelNotifier,
-              builder: (context, label, child) {
-                if (multipleChoiceData.maxAllowedSelections == 1) {
-                  final Object? groupValue = selections?.isNotEmpty == true
-                      ? selections!.first
-                      : null;
-                  return RadioListTile<String>(
-                    controlAffinity: ListTileControlAffinity.leading,
-                    dense: true,
-                    title: Text(
-                      label ?? '',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    value: value,
-                    // ignore: deprecated_member_use
-                    groupValue: groupValue is String ? groupValue : null,
-                    // ignore: deprecated_member_use
-                    onChanged: (newValue) {
-                      final path =
-                          multipleChoiceData.selections['path'] as String?;
-                      if (path == null || newValue == null) {
-                        return;
-                      }
-                      itemContext.dataContext.update(DataPath(path), [
-                        newValue,
-                      ]);
-                    },
-                  );
+        return ValueListenableBuilder<List<Object?>?>(
+          valueListenable: optionsNotifier,
+          builder: (context, options, child) {
+            if (options == null) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              children: options.map((optionObj) {
+                final option = optionObj as JsonMap;
+                final Object? labelObj = option['label'];
+                final ValueNotifier<String?> labelNotifier;
+                if (labelObj is String) {
+                  labelNotifier = ValueNotifier<String?>(labelObj);
                 } else {
-                  return CheckboxListTile(
-                    title: Text(label ?? ''),
-                    dense: true,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    value: selections?.contains(value) ?? false,
-                    onChanged: (newValue) {
-                      final path =
-                          multipleChoiceData.selections['path'] as String?;
-                      if (path == null) {
-                        return;
-                      }
-                      final List<String> newSelections =
-                          selections?.map((e) => e.toString()).toList() ??
-                          <String>[];
-                      if (newValue ?? false) {
-                        if (multipleChoiceData.maxAllowedSelections == null ||
-                            newSelections.length <
-                                multipleChoiceData.maxAllowedSelections!) {
-                          newSelections.add(value);
-                        }
-                      } else {
-                        newSelections.remove(value);
-                      }
-                      itemContext.dataContext.update(
-                        DataPath(path),
-                        newSelections,
-                      );
-                    },
+                  labelNotifier = itemContext.dataContext.subscribeToString(
+                    labelObj as JsonMap?,
                   );
                 }
-              },
+                final value = option['value'] as String;
+                return ValueListenableBuilder<String?>(
+                  valueListenable: labelNotifier,
+                  builder: (context, label, child) {
+                    if (multipleChoiceData.maxAllowedSelections == 1) {
+                      final Object? groupValue = selections?.isNotEmpty == true
+                          ? selections!.first
+                          : null;
+                      return RadioListTile<String>(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        dense: true,
+                        title: Text(
+                          label ?? '',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        value: value,
+                        // ignore: deprecated_member_use
+                        groupValue: groupValue is String ? groupValue : null,
+                        // ignore: deprecated_member_use
+                        onChanged: (newValue) {
+                          final path =
+                              multipleChoiceData.selections['path'] as String?;
+                          if (path == null || newValue == null) {
+                            return;
+                          }
+                          itemContext.dataContext.update(DataPath(path), [
+                            newValue,
+                          ]);
+                        },
+                      );
+                    } else {
+                      return CheckboxListTile(
+                        title: Text(label ?? ''),
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: selections?.contains(value) ?? false,
+                        onChanged: (newValue) {
+                          final path =
+                              multipleChoiceData.selections['path'] as String?;
+                          if (path == null) {
+                            return;
+                          }
+                          final List<String> newSelections =
+                              selections?.map((e) => e.toString()).toList() ??
+                              <String>[];
+                          if (newValue ?? false) {
+                            if (multipleChoiceData.maxAllowedSelections ==
+                                    null ||
+                                newSelections.length <
+                                    multipleChoiceData.maxAllowedSelections!) {
+                              newSelections.add(value);
+                            }
+                          } else {
+                            newSelections.remove(value);
+                          }
+                          itemContext.dataContext.update(
+                            DataPath(path),
+                            newSelections,
+                          );
+                        },
+                      );
+                    }
+                  },
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         );
       },
     );
@@ -148,38 +160,37 @@ final multipleChoice = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Column": {
-              "children": {
-                "explicitList": [
-                  "heading1",
-                  "singleChoice",
-                  "heading2",
-                  "multiChoice"
-                ]
-              }
+          "props": {
+            "component": "Column",
+            "children": {
+              "explicitList": [
+                "heading1",
+                "singleChoice",
+                "heading2",
+                "multiChoice"
+              ]
             }
           }
         },
         {
           "id": "heading1",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Single Selection (maxAllowedSelections: 1)"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Single Selection (maxAllowedSelections: 1)"
             }
           }
         },
         {
           "id": "singleChoice",
-          "component": {
-            "MultipleChoice": {
-              "selections": {
-                "path": "/singleSelection"
-              },
-              "maxAllowedSelections": 1,
-              "options": [
+          "props": {
+            "component": "MultipleChoice",
+            "selections": {
+              "path": "/singleSelection"
+            },
+            "maxAllowedSelections": 1,
+            "options": {
+              "literalArray": [
                 {
                   "label": {
                     "literalString": "Option A"
@@ -198,22 +209,22 @@ final multipleChoice = CatalogItem(
         },
         {
           "id": "heading2",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Multiple Selections (unlimited)"
-              }
+          "props": {
+            "component": "Text",
+            "text": {
+              "literalString": "Multiple Selections (unlimited)"
             }
           }
         },
         {
           "id": "multiChoice",
-          "component": {
-            "MultipleChoice": {
-              "selections": {
-                "path": "/multiSelection"
-              },
-              "options": [
+          "props": {
+            "component": "MultipleChoice",
+            "selections": {
+              "path": "/multiSelection"
+            },
+            "options": {
+              "literalArray": [
                 {
                   "label": {
                     "literalString": "Option X"

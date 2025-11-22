@@ -58,8 +58,9 @@ void main() {
                     'components': [
                       {
                         'id': 'c1',
-                        'component': {
-                          'Column': {'children': <Object?>[]},
+                        'props': {
+                          'component': 'Column',
+                          'children': <Object?>[],
                         },
                       },
                     ],
@@ -84,9 +85,13 @@ void main() {
       expect(fakeClient.lastSendMessageParams, isNotNull);
       final a2a.A2AMessage sentMessage =
           fakeClient.lastSendMessageParams!.message;
-      expect(sentMessage.parts!.length, 2);
+      expect(sentMessage.parts!.length, 3); // +1 for clientUiCapabilities
       expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hi');
       expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'There');
+      expect(
+        sentMessage.parts![2],
+        isA<a2a.A2ADataPart>(),
+      ); // clientUiCapabilities
       expect(connector.taskId, 'task1');
       expect(connector.contextId, 'context1');
       expect(fakeClient.sendMessageStreamCalled, 1);
@@ -115,7 +120,7 @@ void main() {
       expect(fakeClient.lastSendMessageParams, isNotNull);
       final a2a.A2AMessage sentMessage =
           fakeClient.lastSendMessageParams!.message;
-      expect(sentMessage.parts!.length, 2);
+      expect(sentMessage.parts!.length, 3); // +1 for clientUiCapabilities
       expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hello');
       expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'World');
     });
@@ -157,9 +162,9 @@ void main() {
       expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts!.first as a2a.A2ADataPart;
       final a2uiEvent = dataPart.data['a2uiEvent'] as Map<String, Object?>;
-      expect(a2uiEvent['actionName'], 'testAction');
+      expect(a2uiEvent['action'], 'testAction');
       expect(a2uiEvent['sourceComponentId'], 'c1');
-      expect(a2uiEvent['resolvedContext'], {'key': 'value'});
+      expect(a2uiEvent['context'], {'key': 'value'});
     });
 
     test('sendEvent does nothing if taskId is null', () async {

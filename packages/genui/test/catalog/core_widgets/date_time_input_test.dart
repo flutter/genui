@@ -17,20 +17,17 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'datetime',
-        componentProperties: {
-          'DateTimeInput': {
-            'value': {'path': '/myDateTime'},
-          },
+        id: 'root',
+        props: {
+          'component': 'DateTimeInput',
+          'value': {'path': '/myDateTime'},
         },
       ),
     ];
     manager.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'datetime'),
-    );
+    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
     manager
         .dataModelForSurface(surfaceId)
         .update(DataPath('/myDateTime'), '2025-10-15');

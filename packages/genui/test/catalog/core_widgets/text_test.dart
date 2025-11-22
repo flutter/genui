@@ -21,9 +21,10 @@ void main() {
             body: text.widgetBuilder(
               CatalogItemContext(
                 data: {
+                  'component': 'Text',
                   'text': {'literalString': 'Hello World'},
                 },
-                id: 'test_text',
+                id: 'root',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
@@ -50,10 +51,11 @@ void main() {
             body: text.widgetBuilder(
               CatalogItemContext(
                 data: {
+                  'component': 'Text',
                   'text': {'literalString': 'Heading 1'},
                   'usageHint': 'h1',
                 },
-                id: 'test_text_h1',
+                id: 'root',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
@@ -106,7 +108,7 @@ void main() {
                 data: {
                   'text': {'literalString': 'Hello **Bold**'},
                 },
-                id: 'test_text_markdown',
+                id: 'root',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,

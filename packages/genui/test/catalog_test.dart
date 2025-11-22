@@ -14,11 +14,10 @@ void main() {
       WidgetTester tester,
     ) async {
       final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
-      final widgetData = {
-        'Column': {
-          'children': {
-            'explicitList': ['child1'],
-          },
+      final Map<String, Object> widgetData = {
+        'component': 'Column',
+        'children': {
+          'explicitList': ['child1'],
         },
       };
 
@@ -56,9 +55,7 @@ void main() {
       final catalog = const Catalog([]);
       final Map<String, Object> data = {
         'id': 'text1',
-        'widget': {
-          'unknown_widget': {'text': 'hello'},
-        },
+        'widget': {'component': 'unknown_widget', 'text': 'hello'},
       };
 
       final Future<void> logFuture = expectLater(

@@ -183,19 +183,26 @@ class GenUiManager implements GenUiHost {
           genUiLogger.info('Updating surface $surfaceId');
           _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
         }
-      case BeginRendering():
+      case CreateSurface():
         dataModelForSurface(message.surfaceId);
         final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
           message.surfaceId,
         );
+        final isNew = notifier.value == null;
         final UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: message.surfaceId);
         final UiDefinition newUiDefinition = uiDefinition.copyWith(
-          rootComponentId: message.root,
+          theme: message.theme,
         );
         notifier.value = newUiDefinition;
-        genUiLogger.info('Started rendering ${message.surfaceId}');
-        _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, newUiDefinition));
+        genUiLogger.info('Created surface ${message.surfaceId}');
+        if (isNew) {
+          _surfaceUpdates.add(SurfaceAdded(message.surfaceId, newUiDefinition));
+        } else {
+          _surfaceUpdates.add(
+            SurfaceUpdated(message.surfaceId, newUiDefinition),
+          );
+        }
       case DataModelUpdate():
         final String path = message.path ?? '/';
         genUiLogger.info(

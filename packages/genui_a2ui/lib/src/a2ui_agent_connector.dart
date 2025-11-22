@@ -122,6 +122,17 @@ class A2uiAgentConnector {
         }
       }).toList();
 
+    // Add client capabilities
+    message.parts!.add(
+      A2ADataPart()
+        ..data = {
+          'clientUiCapabilities': {
+            'inlineCatalog': true,
+            'supportedComponents': ['*'], // Or list specific components
+          },
+        },
+    );
+
     if (taskId != null) {
       message.referenceTaskIds = [taskId!];
     }
@@ -130,7 +141,7 @@ class A2uiAgentConnector {
     }
 
     final payload = A2AMessageSendParams()..message = message;
-    payload.extensions = ['https://a2ui.org/ext/a2a-ui/v0.1'];
+    payload.extensions = ['https://a2ui.org/ext/a2a-ui/v0.9'];
 
     _log.info('--- OUTGOING REQUEST ---');
     _log.info('URL: ${url.toString()}');
@@ -216,10 +227,10 @@ class A2uiAgentConnector {
     }
 
     final Map<String, Object?> clientEvent = {
-      'actionName': event['action'],
+      'action': event['action'],
       'sourceComponentId': event['sourceComponentId'],
       'timestamp': DateTime.now().toIso8601String(),
-      'resolvedContext': event['context'],
+      'context': event['context'],
     };
 
     _log.finest('Sending client event: $clientEvent');
@@ -251,7 +262,7 @@ class A2uiAgentConnector {
     );
     if (data.containsKey('surfaceUpdate') ||
         data.containsKey('dataModelUpdate') ||
-        data.containsKey('beginRendering') ||
+        data.containsKey('createSurface') ||
         data.containsKey('deleteSurface')) {
       if (!_controller.isClosed) {
         _log.finest(

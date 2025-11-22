@@ -21,11 +21,7 @@ void main() {
               return FakeGeminiGenerativeModel([
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([
-                      const FunctionCall('provideFinalOutput', {
-                        'output': {'response': 'Hello'},
-                      }),
-                    ]),
+                    Content.model([const TextPart('{"response": "Hello"}')]),
                     [],
                     null,
                     FinishReason.stop,
@@ -70,11 +66,7 @@ void main() {
                 ], null),
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([
-                      const FunctionCall('provideFinalOutput', {
-                        'output': {'response': 'Tool called'},
-                      }),
-                    ]),
+                    Content.model([const TextPart('Tool called')]),
                     [],
                     null,
                     FinishReason.stop,
@@ -101,11 +93,7 @@ void main() {
               return FakeGeminiGenerativeModel([
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([
-                      const FunctionCall('provideFinalOutput', {
-                        'output': {'response': 'Hello'},
-                      }),
-                    ]),
+                    Content.model([const TextPart('Hello')]),
                     [],
                     null,
                     FinishReason.stop,
@@ -134,6 +122,13 @@ class FakeGeminiGenerativeModel implements GeminiGenerativeModelInterface {
 
   @override
   Future<GenerateContentResponse> generateContent(Iterable<Content> content) {
-    return Future.delayed(Duration.zero, () => responses[callCount++]);
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<GenerateContentResponse> generateContentStream(
+    Iterable<Content> content,
+  ) async* {
+    yield responses[callCount++];
   }
 }

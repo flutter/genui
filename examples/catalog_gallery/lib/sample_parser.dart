@@ -28,6 +28,9 @@ class SampleParser {
 
   static Sample parseString(String content) {
     final List<String> lines = const LineSplitter().convert(content);
+    if (lines.firstOrNull == '---') {
+      lines.removeAt(0);
+    }
     final int separatorIndex = lines.indexOf('---');
 
     if (separatorIndex == -1) {
@@ -49,11 +52,16 @@ class SampleParser {
           .convert(jsonlBody)
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
-            final dynamic json = jsonDecode(line);
-            if (json is Map<String, dynamic>) {
-              return A2uiMessage.fromJson(json);
+            try {
+              final dynamic json = jsonDecode(line);
+              if (json is Map<String, dynamic>) {
+                return A2uiMessage.fromJson(json);
+              }
+              throw FormatException('Invalid JSON line: $line');
+            } on FormatException catch (e) {
+              print('Error parsing line: $line, error: $e');
+              rethrow;
             }
-            throw FormatException('Invalid JSON line: $line');
           }),
     );
 

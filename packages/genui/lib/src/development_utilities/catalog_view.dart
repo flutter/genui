@@ -87,9 +87,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
         _genUi.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: components),
         );
-        _genUi.handleMessage(
-          BeginRendering(surfaceId: surfaceId, root: rootComponent.id),
-        );
+        _genUi.handleMessage(CreateSurface(surfaceId: surfaceId));
         surfaceIds.add(surfaceId);
       }
     }
