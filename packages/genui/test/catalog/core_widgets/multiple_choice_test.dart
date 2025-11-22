@@ -21,16 +21,18 @@ void main() {
         props: {
           'component': 'MultipleChoice',
           'selections': {'path': '/mySelections'},
-          'options': [
-            {
-              'label': {'literalString': 'Option 1'},
-              'value': '1',
-            },
-            {
-              'label': {'literalString': 'Option 2'},
-              'value': '2',
-            },
-          ],
+          'options': {
+            'literalArray': [
+              {
+                'label': {'literalString': 'Option 1'},
+                'value': '1',
+              },
+              {
+                'label': {'literalString': 'Option 2'},
+                'value': '2',
+              },
+            ],
+          },
         },
       ),
     ];
@@ -69,4 +71,52 @@ void main() {
       ['1', '2'],
     );
   });
+
+  testWidgets(
+    'MultipleChoice widget handles simple string labels from data model',
+    (WidgetTester tester) async {
+      final manager = GenUiManager(
+        catalog: Catalog([CoreCatalogItems.multipleChoice]),
+        configuration: const GenUiConfiguration(),
+      );
+      const surfaceId = 'testSurfaceSimple';
+      final components = [
+        const Component(
+          id: 'root',
+          props: {
+            'component': 'MultipleChoice',
+            'selections': {'path': '/mySelections'},
+            'options': {'path': '/myOptions'},
+          },
+        ),
+      ];
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+      manager.handleMessage(
+        const DataModelUpdate(
+          surfaceId: surfaceId,
+          contents: {
+            'mySelections': <String>[],
+            'myOptions': [
+              {'label': 'Simple Option 1', 'value': 's1'},
+              {'label': 'Simple Option 2', 'value': 's2'},
+            ],
+          },
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          ),
+        ),
+      );
+
+      expect(find.text('Simple Option 1'), findsOneWidget);
+      expect(find.text('Simple Option 2'), findsOneWidget);
+    },
+  );
 }

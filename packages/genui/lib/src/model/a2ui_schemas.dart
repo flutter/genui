@@ -131,6 +131,20 @@ class A2uiSchemas {
     },
   );
 
+  /// Schema for a value that can be either a literal array of objects (maps)
+  /// or a data-bound path to an array of objects in the DataModel. If both
+  /// path and literalArray are provided, the value at the path will be
+  /// initialized with the literalArray.
+  static Schema objectArrayReference({String? description}) => S.object(
+    description: description,
+    properties: {
+      'path': S.string(
+        description: 'A relative or absolute path in the data model.',
+      ),
+      'literalArray': S.list(items: S.object(additionalProperties: true)),
+    },
+  );
+
   /// Schema for a createSurface message, which initializes a surface.
   static Schema createSurfaceSchema() => S.object(
     properties: {
