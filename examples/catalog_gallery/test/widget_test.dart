@@ -45,7 +45,7 @@ description: This is a test sample to verify the parser.
 
     // Verify that the sample file is listed.
     // Verify that the sample file is listed.
-    expect(find.text('test.sample'), findsOneWidget);
+    expect(find.text('test'), findsOneWidget);
   });
 
   testWidgets('Loads sample with CreateSurface before SurfaceUpdate', (
@@ -74,10 +74,10 @@ description: Testing order.
     await tester.pumpAndSettle();
 
     // Verify sample is listed
-    expect(find.text('ordered.sample'), findsOneWidget);
+    expect(find.text('ordered'), findsOneWidget);
 
     // Tap on sample
-    await tester.tap(find.text('ordered.sample'));
+    await tester.tap(find.text('ordered'));
     await tester.pumpAndSettle();
 
     // Verify surface is created and content is shown
