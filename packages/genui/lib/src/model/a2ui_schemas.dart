@@ -201,7 +201,11 @@ class A2uiSchemas {
               'Represents a *single* component in a UI widget tree. '
               'This component could be one of many supported types.',
           properties: {
-            'id': S.string(),
+            'id': S.string(
+              description:
+                  'The unique identifier for this component. The root component '
+                  "of the surface MUST have the id 'root'.",
+            ),
             'weight': S.integer(
               description:
                   'Optional layout weight for use in Row/Column children.',

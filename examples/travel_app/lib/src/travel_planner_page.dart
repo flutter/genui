@@ -433,110 +433,14 @@ ${_imagesJson ?? ''}
 
 ## Example
 
-Here is an example of the arguments to the `surfaceUpdate` tool. Note that the
-`root` widget ID must be present in the `widgets` list, and it should contain
-the other widgets.
+Here is an example of a `surfaceUpdate` message. Note that the `root` component
+ID must be present in the `components` list, and it should contain the other
+components.
 
-```json
-{
-  "surfaceId": "mexico_trip_planner",
-  "definition": {
-    "root": "root_column",
-    "widgets": [
-      {
-        "id": "root_column",
-        "widget": {
-          "Column": {
-            "children": ["trip_title", "itinerary"]
-          }
-        }
-      },
-      {
-        "id": "trip_title",
-        "widget": {
-          "Text": {
-            "text": "Trip to Mexico City"
-          }
-        }
-      },
-      {
-        "id": "itinerary",
-        "widget": {
-          "ItineraryWithDetails": {
-            "title": "Mexico City Adventure",
-            "subheading": "3-day Itinerary",
-            "imageChildId": "mexico_city_image",
-            "child": "itinerary_details"
-          }
-        }
-      },
-      {
-        "id": "mexico_city_image",
-        "widget": {
-          "Image": {
-            "location": "assets/travel_images/mexico_city.jpg"
-          }
-        }
-      },
-      {
-        "id": "itinerary_details",
-        "widget": {
-          "Column": {
-            "children": ["day1"]
-          }
-        }
-      },
-      {
-        "id": "day1",
-        "widget": {
-          "ItineraryDay": {
-            "title": "Day 1",
-            "subtitle": "Arrival and Exploration",
-            "description": "Your first day in Mexico City will be focused on settling in and exploring the historic center.",
-            "imageChildId": "day1_image",
-            "children": ["day1_entry1", "day1_entry2"]
-          }
-        }
-      },
-      {
-        "id": "day1_image",
-        "widget": {
-          "Image": {
-            "location": "assets/travel_images/mexico_city.jpg"
-          }
-        }
-      },
-      {
-        "id": "day1_entry1",
-        "widget": {
-          "ItineraryEntry": {
-            "type": "transport",
-            "title": "Arrival at MEX Airport",
-            "time": "2:00 PM",
-            "bodyText": "Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage.",
-            "status": "noBookingRequired"
-          }
-        }
-      },
-      {
-        "id": "day1_entry2",
-        "widget": {
-          "ItineraryEntry": {
-            "type": "activity",
-            "title": "Explore the Zocalo",
-            "subtitle": "Historic Center",
-            "time": "4:00 PM - 6:00 PM",
-            "address": "Plaza de la Constitución S/N, Centro Histórico, Ciudad de México",
-            "bodyText": "Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace.",
-            "status": "noBookingRequired"
-          }
-        }
-      }
-    ]
-  }
-}
+```jsonl
+{"surfaceUpdate":{"surfaceId":"mexico_trip_planner","components":[{"id":"root","props":{"component":"Column","children":{"explicitList":["trip_title","itinerary"]}}},{"id":"trip_title","props":{"component":"Text","text":{"literalString":"Trip to Mexico City"}}},{"id":"itinerary","props":{"component":"Itinerary","title":{"literalString":"Mexico City Adventure"},"subheading":{"literalString":"3-day Itinerary"},"imageChildId":"mexico_city_image","days":[{"title":{"literalString":"Day 1"},"subtitle":{"literalString":"Arrival and Exploration"},"description":{"literalString":"Your first day in Mexico City will be focused on settling in and exploring the historic center."},"imageChildId":"day1_image","entries":[{"type":"transport","title":{"literalString":"Arrival at MEX Airport"},"time":{"literalString":"2:00 PM"},"bodyText":{"literalString":"Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage."},"status":"noBookingRequired"},{"type":"activity","title":{"literalString":"Explore the Zocalo"},"subtitle":{"literalString":"Historic Center"},"time":{"literalString":"4:00 PM - 6:00 PM"},"address":{"literalString":"Plaza de la Constitución S/N, Centro Histórico, Ciudad de México"},"bodyText":{"literalString":"Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace."},"status":"noBookingRequired"}]}]}},{"id":"mexico_city_image","props":{"component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}}},{"id":"day1_image","props":{"component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}}}]}}
 ```
 
-When updating or showing UIs, **ALWAYS** use the surfaceUpdate tool to supply
+When updating or showing UIs, **ALWAYS** send a `surfaceUpdate` message to supply
 them. Prefer to collect and show information by creating a UI for it.
 ''';
