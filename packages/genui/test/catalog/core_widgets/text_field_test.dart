@@ -32,10 +32,9 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
-    manager.dataModelForSurface(surfaceId).update(
-      DataPath('/myValue'),
-      'initial',
-    );
+    manager
+        .dataModelForSurface(surfaceId)
+        .update(DataPath('/myValue'), 'initial');
 
     await tester.pumpWidget(
       MaterialApp(

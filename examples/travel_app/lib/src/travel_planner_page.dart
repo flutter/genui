@@ -353,11 +353,9 @@ the user can return to the main booking flow once they have done some research.
 
 ## Controlling the UI
 
-Use the provided tools to build and manage the user interface in response to the
-user's requests. To display or update a UI, you must first call the
-`surfaceUpdate` tool to define all the necessary components. After defining the
-components, you must call the `beginRendering` tool to specify the root
-component that should be displayed.
+To display or update a UI, you must output a `surfaceUpdate` message in JSONL format.
+The `surfaceUpdate` message must define all necessary components and specify the root
+component in the `components` list. The root component must have the ID "root".
 
 - Adding surfaces: Most of the time, you should only add new surfaces to the
   conversation. This is less confusing for the user, because they can easily
@@ -367,9 +365,6 @@ component that should be displayed.
   an itinerary or a booking accommodation etc. This is less confusing for the
   user because it avoids confusing the conversation with many versions of the
   same itinerary etc.
-
-Once you add or update a surface and are waiting for user input, the
-conversation turn is complete, and you should call the provideFinalOutput tool.
 
 If you are displaying more than one component, you should use a `Column` widget
 as the root and add the other components as children.

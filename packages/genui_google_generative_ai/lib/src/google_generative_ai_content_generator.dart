@@ -274,7 +274,6 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     final service = serviceFactory(configuration: this);
 
     try {
-
       // A local copy of the incoming messages which is updated with
       // tool results
       // as they are generated.
@@ -435,7 +434,17 @@ With functions:
 
   void _processLine(String line) {
     line = line.trim();
-    if (line.isEmpty) return;
+    if (line.isEmpty) {
+      return;
+    }
+
+    // If the line doesn't start with '{', it's not a JSONL object.
+    // We ignore it to prevent markdown artifacts or other noise from being
+    // treated as text.
+    if (!line.startsWith('{')) {
+      genUiLogger.fine('Ignored non-JSONL line: $line');
+      return;
+    }
 
     genUiLogger.fine('Processing line: $line');
 

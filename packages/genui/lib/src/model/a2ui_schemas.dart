@@ -203,8 +203,8 @@ class A2uiSchemas {
           properties: {
             'id': S.string(
               description:
-                  'The unique identifier for this component. The root component '
-                  "of the surface MUST have the id 'root'.",
+                  'The unique identifier for this component. The root '
+                  "component of the surface MUST have the id 'root'.",
             ),
             'weight': S.integer(
               description:
