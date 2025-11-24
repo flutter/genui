@@ -169,12 +169,15 @@ provider.
        // Create a ContentGenerator to communicate with the LLM.
        // Provide system instructions and the tools from the GenUiManager.
        final contentGenerator = FirebaseAiContentGenerator(
+         catalog: CoreCatalogItems.asCatalog(),
          systemInstruction: '''
            You are an expert in creating funny riddles. Every time I give you a word,
            you should generate UI that displays one new riddle related to that word.
            Each riddle should have both a question and an answer.
            ''',
-         tools: _genUiManager.getTools(),
+         additionalTools: [
+          // Additional tools to be provided to the AI model. Schema [AiTool] (required String name, required String description, Schema? parameters, String? prefix)
+         ],
        );
 
        // Create the GenUiConversation to orchestrate everything.
