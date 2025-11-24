@@ -1,6 +1,7 @@
 # `genui` Changelog
 
 ## 0.5.2 (in progress)
+- Updated README sample code to reflect current `FirebaseAiContentGenerator` API (added `catalog` parameter and replaced `tools` with `additionalTools`).
 
 ## 0.5.1
 
