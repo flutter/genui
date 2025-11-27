@@ -67,6 +67,9 @@ based on a widget catalog from the developers' project.
   true interactive loop where the UI influences the agent's next steps.
 - **Framework Agnostic:** Be integrated into your agent library or LLM framework of choice.
 - **JSON Based:** Use a simple, open standard for UI definition—no proprietary formats.
+  The underlying representation of the UIs is based on the
+  [A2UI Streaming UI Protocol](https://a2ui.org). See the
+  [A2UI Message Lifecycle](docs/a2ui_messages_guide.md) guide for more details.
 - **Cross-Platform Flutter:** Work anywhere Flutter works (mobile, iOS, Android, Web, and more).
 - **Widget Composition:** Support nested layouts and composition of widgets for complex UIs.
 - **Basic Layout:** LLM-driven basic layout generation.
