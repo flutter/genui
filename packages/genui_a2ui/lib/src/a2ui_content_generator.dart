@@ -54,6 +54,7 @@ class A2uiContentGenerator implements ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   }) async {
     _isProcessing.value = true;
     try {
@@ -62,7 +63,10 @@ class A2uiContentGenerator implements ContentGenerator {
           'A2uiContentGenerator is stateful and ignores history.',
         );
       }
-      final String? responseText = await connector.connectAndSend(message);
+      final String? responseText = await connector.connectAndSend(
+        message,
+        clientCapabilities: clientCapabilities,
+      );
       if (responseText != null && responseText.isNotEmpty) {
         _textResponseController.add(responseText);
       }

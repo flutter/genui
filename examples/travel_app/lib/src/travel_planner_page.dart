@@ -63,16 +63,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   @override
   void initState() {
     super.initState();
-    final genUiManager = GenUiManager(
-      catalog: travelAppCatalog,
-      configuration: const GenUiConfiguration(
-        actions: ActionsConfig(
-          allowCreate: true,
-          allowUpdate: true,
-          allowDelete: true,
-        ),
-      ),
-    );
+    final genUiManager = GenUiManager(catalogs: [travelAppCatalog]);
     _userMessageSubscription = genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );

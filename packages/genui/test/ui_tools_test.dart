@@ -13,7 +13,7 @@ void main() {
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
       genUiManager = GenUiManager(
-        catalog: catalog,
+        catalogs: [catalog],
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
             allowCreate: true,
@@ -74,6 +74,7 @@ void main() {
     test('BeginRenderingTool sends BeginRendering message', () async {
       final tool = BeginRenderingTool(
         handleMessage: genUiManager.handleMessage,
+        catalogId: 'test_catalog',
       );
 
       final Map<String, String> args = {
@@ -108,6 +109,11 @@ void main() {
                 (e) => e.definition.rootComponentId,
                 'rootComponentId',
                 'root',
+              )
+              .having(
+                (e) => e.definition.catalogId,
+                'catalogId',
+                'test_catalog',
               ),
         ),
       );

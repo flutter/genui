@@ -53,7 +53,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   void initState() {
     super.initState();
 
-    _genUi = GenUiManager(catalog: widget.catalog);
+    _genUi = GenUiManager(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
       _subscription = _genUi.onSubmit.listen(widget.onSubmit);
     } else {

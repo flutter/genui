@@ -21,7 +21,7 @@ void main() {
       message = null;
       manager?.dispose();
       manager = GenUiManager(
-        catalog: testCatalog,
+        catalogs: [testCatalog],
         configuration: const GenUiConfiguration(),
       );
       manager!.onSubmit.listen((event) => message = event);
@@ -30,7 +30,11 @@ void main() {
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
       manager!.handleMessage(
-        BeginRendering(surfaceId: surfaceId, root: rootId),
+        BeginRendering(
+          surfaceId: surfaceId,
+          root: rootId,
+          catalogId: testCatalog.catalogId,
+        ),
       );
       await tester.pumpWidget(
         MaterialApp(

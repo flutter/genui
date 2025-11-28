@@ -88,36 +88,28 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
 /// This tool allows the AI to specify the root component of a UI surface.
 class BeginRenderingTool extends AiTool<JsonMap> {
   /// Creates a [BeginRenderingTool].
-  BeginRenderingTool({required this.handleMessage})
+  BeginRenderingTool({required this.handleMessage, this.catalogId})
     : super(
         name: 'beginRendering',
         description:
             'Signals the client to begin rendering a surface with a '
             'root component.',
-        parameters: S.object(
-          properties: {
-            surfaceIdKey: S.string(
-              description:
-                  'The unique identifier for the UI surface to render.',
-            ),
-            'root': S.string(
-              description:
-                  'The ID of the root widget. This ID must correspond to '
-                  'the ID of one of the widgets in the `components` list.',
-            ),
-          },
-          required: [surfaceIdKey, 'root'],
-        ),
+        parameters: A2uiSchemas.beginRenderingSchemaNoCatalogId(),
       );
 
   /// The callback to invoke when signaling to begin rendering.
   final void Function(A2uiMessage message) handleMessage;
 
+  /// The ID of the catalog to use for rendering this surface.
+  final String? catalogId;
+
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
     final root = args['root'] as String;
-    handleMessage(BeginRendering(surfaceId: surfaceId, root: root));
+    handleMessage(
+      BeginRendering(surfaceId: surfaceId, root: root, catalogId: catalogId),
+    );
     return {
       'status': 'Surface $surfaceId rendered and waiting for user input.',
     };

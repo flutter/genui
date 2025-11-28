@@ -9,7 +9,12 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('List widget renders children', (WidgetTester tester) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.list, CoreCatalogItems.text]),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.list,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -45,7 +50,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'list'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'list',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

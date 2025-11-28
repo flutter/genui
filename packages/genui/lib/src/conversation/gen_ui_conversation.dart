@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import '../content_generator.dart';
 import '../core/genui_manager.dart';
+import '../model/a2ui_client_capabilities.dart';
 import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
@@ -149,7 +150,18 @@ class GenUiConversation {
     if (message is! UserUiInteractionMessage) {
       _conversation.value = [...history, message];
     }
-    return contentGenerator.sendRequest(message, history: history);
+    final clientCapabilities = A2UiClientCapabilities(
+      supportedCatalogIds: genUiManager.catalogs
+          .map((c) => c.catalogId)
+          .where((id) => id != null)
+          .cast<String>()
+          .toList(),
+    );
+    return contentGenerator.sendRequest(
+      message,
+      history: history,
+      clientCapabilities: clientCapabilities,
+    );
   }
 
   void _handleTextResponse(String text) {

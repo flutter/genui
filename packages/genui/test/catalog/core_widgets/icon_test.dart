@@ -11,7 +11,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
+      catalogs: [
+        Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -29,7 +31,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'icon'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'icon',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(
@@ -47,7 +53,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
+      catalogs: [
+        Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -72,7 +80,11 @@ void main() {
       ),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'icon'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'icon',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

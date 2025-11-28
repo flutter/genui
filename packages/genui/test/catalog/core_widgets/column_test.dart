@@ -9,7 +9,12 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.column,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -45,7 +50,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'column'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'column',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(
@@ -64,7 +73,12 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.column,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -110,7 +124,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'column'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'column',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

@@ -12,7 +12,12 @@ void main() {
   ) async {
     ChatMessage? message;
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.button, CoreCatalogItems.text]),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.button,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     manager.onSubmit.listen((event) => message = event);
@@ -40,7 +45,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'button'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'button',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

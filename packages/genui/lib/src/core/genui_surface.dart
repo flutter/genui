@@ -2,13 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../core/genui_manager.dart';
+import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
+import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
@@ -58,8 +61,15 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
           return const SizedBox.shrink();
         }
+
+        final Catalog? catalog = _findCatalogForDefinition(definition);
+        if (catalog == null) {
+          return Container();
+        }
+
         return _buildWidget(
           definition,
+          catalog,
           rootId,
           DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
         );
@@ -73,6 +83,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   /// and constructs the corresponding Flutter widget.
   Widget _buildWidget(
     UiDefinition definition,
+    Catalog catalog,
     String widgetId,
     DataContext dataContext,
   ) {
@@ -84,12 +95,17 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
 
     final JsonMap widgetData = data.componentProperties;
     genUiLogger.finest('Building widget $widgetId');
-    return widget.host.catalog.buildWidget(
+    return catalog.buildWidget(
       CatalogItemContext(
         id: widgetId,
         data: widgetData,
         buildChild: (String childId, [DataContext? childDataContext]) =>
-            _buildWidget(definition, childId, childDataContext ?? dataContext),
+            _buildWidget(
+              definition,
+              catalog,
+              childId,
+              childDataContext ?? dataContext,
+            ),
         dispatchEvent: _dispatchEvent,
         buildContext: context,
         dataContext: dataContext,
@@ -106,6 +122,16 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           .getSurfaceNotifier(widget.surfaceId)
           .value;
       if (definition == null) return;
+
+      final Catalog? catalog = _findCatalogForDefinition(definition);
+      if (catalog == null) {
+        genUiLogger.severe(
+          'Cannot show modal for surface "${widget.surfaceId}" because '
+          'a catalog was not found.',
+        );
+        return;
+      }
+
       final modalId = event.context['modalId'] as String;
       final Component? modalComponent = definition.components[modalId];
       if (modalComponent == null) return;
@@ -116,6 +142,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         context: context,
         builder: (context) => _buildWidget(
           definition,
+          catalog,
           contentChildId,
           DataContext(widget.host.dataModelForSurface(widget.surfaceId), '/'),
         ),
@@ -132,5 +159,21 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);
     widget.host.handleUiEvent(newEvent);
+  }
+
+  Catalog? _findCatalogForDefinition(UiDefinition definition) {
+    final String catalogId = definition.catalogId ?? standardCatalogId;
+    final Catalog? catalog = widget.host.catalogs.firstWhereOrNull(
+      (c) => c.catalogId == catalogId,
+    );
+
+    if (catalog == null) {
+      genUiLogger.severe(
+        'Catalog with id "$catalogId" not found for surface '
+        '"${widget.surfaceId}". Ensure the catalog is provided to '
+        'GenUiManager.',
+      );
+    }
+    return catalog;
   }
 }
