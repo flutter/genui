@@ -175,9 +175,6 @@ provider.
            you should generate UI that displays one new riddle related to that word.
            Each riddle should have both a question and an answer.
            ''',
-         additionalTools: [
-          // Additional tools to be provided to the AI model. Schema [AiTool] (required String name, required String description, Schema? parameters, String? prefix)
-         ],
        );
 
        // Create the GenUiConversation to orchestrate everything.
