@@ -9,6 +9,9 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a divider.
+''',
   properties: {
     'axis': S.string(enumValues: ['horizontal', 'vertical']),
   },
