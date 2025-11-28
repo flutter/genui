@@ -7,6 +7,18 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'catalog.dart';
 import 'tools.dart';
 
+/// Defines the allowed operations for a surface update tool.
+enum SurfaceUpdateMode {
+  /// The tool can only create new surfaces.
+  create,
+
+  /// The tool can only update existing surfaces.
+  update,
+
+  /// The tool can both create and update surfaces.
+  both,
+}
+
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 class A2uiSchemas {
@@ -133,28 +145,54 @@ class A2uiSchemas {
 
   /// Schema for a beginRendering message, which provides the root widget ID for
   /// the given surface so that the surface can be rendered.
-  static Schema beginRenderingSchema() => S.object(
-    properties: {
-      surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
-      ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'styles': S.object(
-        properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
-          ),
-        },
-      ),
-    },
-    required: [surfaceIdKey, 'root'],
-  );
+  static Schema beginRenderingSchema({
+    SurfaceUpdateMode updateMode = SurfaceUpdateMode.both,
+  }) {
+    final String surfaceIdDescription;
+    switch (updateMode) {
+      case SurfaceUpdateMode.create:
+        surfaceIdDescription =
+            'The unique identifier for the new UI surface to render. This '
+            '*must* be a new, unique identifier that matches the surfaceId '
+            'of a `surfaceCreate` call.';
+        break;
+      case SurfaceUpdateMode.update:
+        surfaceIdDescription =
+            'The unique identifier for the existing UI surface to render.';
+        break;
+      case SurfaceUpdateMode.both:
+        surfaceIdDescription =
+            'The unique identifier for the UI surface to render. This may be a '
+            'new or existing surface ID.';
+        break;
+    }
+    return S.object(
+      description:
+          'A message which can be sent before or after surfaceUpdate to '
+          'begin rendering a surface with a given ID. Any surfaceUpdate messages '
+          'sent before this message will be cached but not trigger any rendering '
+          ' yet. The surfaceId *must* match associated surfaceUpdate or '
+          'dataModelUpdate messages.',
+      properties: {
+        surfaceIdKey: S.string(description: surfaceIdDescription),
+        'root': S.string(
+          description:
+              'The root widget ID for the surface. '
+              'All components must be descendents of this root in order to be '
+              'displayed.',
+        ),
+        'styles': S.object(
+          properties: {
+            'font': S.string(description: 'The base font for this surface'),
+            'primaryColor': S.string(
+              description: 'The seed color for the theme of this surface.',
+            ),
+          },
+        ),
+      },
+      required: [surfaceIdKey, 'root'],
+    );
+  }
 
   /// Schema for a `deleteSurface` message which will delete the given surface.
   static Schema surfaceDeletionSchema() => S.object(
@@ -177,46 +215,65 @@ class A2uiSchemas {
 
   /// Schema for a `surfaceUpdate` message which defines the components to be
   /// rendered on a surface.
-  static Schema surfaceUpdateSchema(Catalog catalog) => S.object(
-    properties: {
-      surfaceIdKey: S.string(
-        description:
+  static Schema surfaceUpdateSchema(
+    Catalog catalog, {
+    SurfaceUpdateMode updateMode = SurfaceUpdateMode.both,
+  }) {
+    final String surfaceIdDescription;
+    switch (updateMode) {
+      case SurfaceUpdateMode.create:
+        surfaceIdDescription =
+            'The unique identifier for the new UI surface to create. This '
+            '*must* be a new identifier different to any existing surfaces '
+            'that have already been displayed.';
+        break;
+      case SurfaceUpdateMode.update:
+        surfaceIdDescription =
+            'The unique identifier for the existing UI surface to update.';
+        break;
+      case SurfaceUpdateMode.both:
+        surfaceIdDescription =
             'The unique identifier for the UI surface to create or '
             'update. If you are adding a new surface this *must* be a '
             'new, unique identified that has never been used for any '
-            'existing surfaces shown.',
-      ),
-      'components': S.list(
-        description: 'A list of component definitions.',
-        minItems: 1,
-        items: S.object(
-          description:
-              'Represents a *single* component in a UI widget tree. '
-              'This component could be one of many supported types.',
-          properties: {
-            'id': S.string(),
-            'weight': S.integer(
-              description:
-                  'Optional layout weight for use in Row/Column children.',
-            ),
-            'component': S.object(
-              description:
-                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Text'). The value is an object containing the properties for that specific component.''',
-              properties: {
-                for (var entry
-                    in ((catalog.definition as ObjectSchema)
-                                .properties!['components']!
-                            as ObjectSchema)
-                        .properties!
-                        .entries)
-                  entry.key: entry.value,
-              },
-            ),
-          },
-          required: ['id', 'component'],
+            'existing surfaces shown.';
+        break;
+    }
+    return S.object(
+      properties: {
+        surfaceIdKey: S.string(description: surfaceIdDescription),
+        'components': S.list(
+          description: 'A list of component definitions.',
+          minItems: 1,
+          items: S.object(
+            description:
+                'Represents a *single* component in a UI widget tree. '
+                'This component could be one of many supported types.',
+            properties: {
+              'id': S.string(),
+              'weight': S.integer(
+                description:
+                    'Optional layout weight for use in Row/Column children.',
+              ),
+              'component': S.object(
+                description:
+                    '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Text'). The value is an object containing the properties for that specific component.''',
+                properties: {
+                  for (var entry
+                      in ((catalog.definition as ObjectSchema)
+                                  .properties!['components']!
+                              as ObjectSchema)
+                          .properties!
+                          .entries)
+                    entry.key: entry.value,
+                },
+              ),
+            },
+            required: ['id', 'component'],
+          ),
         ),
-      ),
-    },
-    required: [surfaceIdKey, 'components'],
-  );
+      },
+      required: [surfaceIdKey, 'components'],
+    );
+  }
 }
