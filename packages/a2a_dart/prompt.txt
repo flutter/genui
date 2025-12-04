@@ -1,0 +1,4 @@
+We have ported the @packages/spikes/a2a-python library to Dart.  The a2a spec is in @a2a.md and I'd like you to keep some guidelines in mind for creating Dart code in @flutter.md and @create-package.md Please make sure that all functionality for all of the capabilities described by the A2A specification is provided, using the implementation in the python version as a guide for the specific details of implementation. There is a comprehensive and detailed design document in a2a_dart/DESIGN.md
+
+There are some things that aren't done, though: the integration test has been disabled, there are TODOs in the code, and the SSE transport is not implemented.
+Please finish the integration test, implement the SSE transport, and address all TODOs.
