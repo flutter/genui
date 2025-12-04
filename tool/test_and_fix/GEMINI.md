@@ -4,6 +4,8 @@
 
 The `test_and_fix` package is a command-line tool designed to automate the process of running tests, analysis, and code formatting across all Dart and Flutter projects within the `genui` monorepo. It replaces the functionality of the original `run_all_tests_and_fixes.sh` script with a more robust and platform-independent Dart solution.
 
+It is not meant to be used to run specific tests, but rather as something that is run right before committing code to ensure that the code is in a good state.
+
 ## Implementation Details
 
 The tool is architected with a separation of concerns: the command-line argument parsing and the core logic.
