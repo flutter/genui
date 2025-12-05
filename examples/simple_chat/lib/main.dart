@@ -76,18 +76,18 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     final Catalog catalog = CoreCatalogItems.asCatalog();
-    _genUiManager = GenUiManager(catalog: catalog);
+    _genUiManager = GenUiManager(
+      catalog: catalog,
+      configuration: const GenUiConfiguration(
+        actions: ActionsConfig.createOnly(),
+      ),
+    );
 
     final systemInstruction =
         '''You are a helpful assistant who chats with a user,
 giving exactly one response for each user message.
 Your responses should contain acknowledgment
 of the user message.
-
-
-IMPORTANT: When you generate UI in a response, you MUST always create
-a new surface with a unique `surfaceId`. Do NOT reuse or update
-existing `surfaceId`s. Each UI response must be in its own new surface.
 
 ${GenUiPromptFragments.basicChat}''';
 
