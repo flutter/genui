@@ -11,7 +11,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.slider]),
+      catalogs: [
+        Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -29,7 +31,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'slider'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'slider',
+        catalogId: 'test_catalog',
+      ),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
 

@@ -31,6 +31,9 @@ class FakeContentGenerator implements ContentGenerator {
   /// The last history passed to [sendRequest].
   Iterable<ChatMessage>? lastHistory;
 
+  /// The last client capabilities passed to [sendRequest].
+  A2UiClientCapabilities? lastClientCapabilities;
+
   @override
   Stream<A2uiMessage> get a2uiMessageStream => _a2uiMessageController.stream;
 
@@ -55,12 +58,14 @@ class FakeContentGenerator implements ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   }) async {
     _isProcessing.value = true;
     try {
       sendRequestCallCount++;
       lastMessage = message;
       lastHistory = history;
+      lastClientCapabilities = clientCapabilities;
       if (sendRequestCompleter != null) {
         await sendRequestCompleter!.future;
       }

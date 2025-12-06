@@ -3,6 +3,10 @@
 ## 0.5.2 (in progress)
 - Updated README sample code to reflect current `FirebaseAiContentGenerator` API (added `catalog` parameter and replaced `tools` with `additionalTools`).
 
+- **Feature**: `GenUiManager` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
+- **Feature**: `catalogId` property added to `UiDefinition` to specify which catalog a UI surface should use.
+- **Refactor**: Moved `standardCatalogId` constant from `core_catalog.dart` to `primitives/constants.dart` for better organization and accessibility.
+
 ## 0.5.1
 
 - Homepage URL was updated.

@@ -11,6 +11,7 @@ void main() {
       final definition = UiDefinition(
         surfaceId: 'testSurface',
         rootComponentId: 'root',
+        catalogId: 'test_catalog',
         components: {
           'root': const Component(
             id: 'root',

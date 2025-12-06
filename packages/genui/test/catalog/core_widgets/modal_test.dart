@@ -11,11 +11,13 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([
-        CoreCatalogItems.modal,
-        CoreCatalogItems.button,
-        CoreCatalogItems.text,
-      ]),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.modal,
+          CoreCatalogItems.button,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -64,7 +66,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'modal'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'modal',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

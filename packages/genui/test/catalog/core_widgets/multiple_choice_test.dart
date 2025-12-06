@@ -11,7 +11,12 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.multipleChoice]),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.multipleChoice,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
       configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
@@ -39,7 +44,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'multiple_choice'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'multiple_choice',
+        catalogId: 'test_catalog',
+      ),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
       '1',

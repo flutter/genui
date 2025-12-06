@@ -22,6 +22,7 @@ export 'src/core/widgets/chat_primitives.dart';
 export 'src/development_utilities/catalog_view.dart';
 export 'src/facade/direct_call_integration/model.dart';
 export 'src/facade/direct_call_integration/utils.dart';
+export 'src/model/a2ui_client_capabilities.dart';
 export 'src/model/a2ui_message.dart';
 export 'src/model/a2ui_schemas.dart';
 export 'src/model/catalog.dart';

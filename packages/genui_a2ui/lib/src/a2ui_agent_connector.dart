@@ -80,7 +80,10 @@ class A2uiAgentConnector {
   /// Connects to the agent and sends a message.
   ///
   /// Returns the text response from the agent, if any.
-  Future<String?> connectAndSend(genui.ChatMessage chatMessage) async {
+  Future<String?> connectAndSend(
+    genui.ChatMessage chatMessage, {
+    genui.A2UiClientCapabilities? clientCapabilities,
+  }) async {
     final List<Object> parts = (chatMessage is genui.UserMessage)
         ? chatMessage.parts
         : (chatMessage is genui.UserUiInteractionMessage)
@@ -128,7 +131,11 @@ class A2uiAgentConnector {
     if (contextId != null) {
       message.contextId = contextId;
     }
-
+    if (clientCapabilities != null) {
+      message.metadata = {
+        'a2uiClientCapabilities': clientCapabilities.toJson(),
+      };
+    }
     final payload = A2AMessageSendParams()..message = message;
     payload.extensions = ['https://a2ui.org/a2a-extension/a2ui/v0.8'];
 

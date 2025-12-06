@@ -31,7 +31,7 @@ void main() {
             },
             dataSchema: Schema.object(properties: {}),
           ),
-        ]),
+        ], catalogId: 'test_catalog'),
         configuration: const GenUiConfiguration(),
       );
 
@@ -90,7 +90,10 @@ void main() {
         messages.add(message);
       }
 
-      final tool = BeginRenderingTool(handleMessage: fakeHandleMessage);
+      final tool = BeginRenderingTool(
+        handleMessage: fakeHandleMessage,
+        catalogId: 'test_catalog',
+      );
 
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
@@ -104,6 +107,7 @@ void main() {
       final beginRendering = messages[0] as BeginRendering;
       expect(beginRendering.surfaceId, 'testSurface');
       expect(beginRendering.root, 'rootWidget');
+      expect(beginRendering.catalogId, 'test_catalog');
     });
   });
 }

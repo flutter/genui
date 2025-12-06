@@ -4,6 +4,7 @@
 
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
+import '../primitives/constants.dart';
 import 'core_widgets/audio_player.dart' as audio_player_item;
 import 'core_widgets/button.dart' as button_item;
 import 'core_widgets/card.dart' as card_item;
@@ -129,6 +130,6 @@ class CoreCatalogItems {
       text,
       textField,
       video,
-    ]);
+    ], catalogId: standardCatalogId);
   }
 }

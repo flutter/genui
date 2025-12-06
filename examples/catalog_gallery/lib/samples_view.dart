@@ -40,7 +40,7 @@ class _SamplesViewState extends State<SamplesView> {
   @override
   void initState() {
     super.initState();
-    _genUiManager = GenUiManager(catalog: widget.catalog);
+    _genUiManager = GenUiManager(catalogs: [widget.catalog]);
     _loadSamples();
     _setupSurfaceListener();
   }
@@ -109,7 +109,7 @@ class _SamplesViewState extends State<SamplesView> {
     });
     // Re-create GenUiManager to ensure a clean state for the new sample.
     _genUiManager.dispose();
-    _genUiManager = GenUiManager(catalog: widget.catalog);
+    _genUiManager = GenUiManager(catalogs: [widget.catalog]);
     _setupSurfaceListener();
 
     try {

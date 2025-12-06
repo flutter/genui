@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:flutter/src/foundation/change_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
@@ -14,7 +14,7 @@ void main() {
 
     setUp(() {
       manager = GenUiManager(
-        catalog: CoreCatalogItems.asCatalog(),
+        catalogs: [CoreCatalogItems.asCatalog()],
         configuration: const GenUiConfiguration(
           actions: ActionsConfig(
             allowCreate: true,
@@ -27,6 +27,15 @@ void main() {
 
     tearDown(() {
       manager.dispose();
+    });
+
+    test('can be initialized with multiple catalogs', () {
+      final catalog1 = const Catalog([], catalogId: 'cat1');
+      final catalog2 = const Catalog([], catalogId: 'cat2');
+      final multiManager = GenUiManager(catalogs: [catalog1, catalog2]);
+      expect(multiManager.catalogs, contains(catalog1));
+      expect(multiManager.catalogs, contains(catalog2));
+      expect(multiManager.catalogs.length, 2);
     });
 
     test('handleMessage adds a new surface and fires SurfaceAdded with '
@@ -47,7 +56,11 @@ void main() {
 
       final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
       manager.handleMessage(
-        const BeginRendering(surfaceId: surfaceId, root: 'root'),
+        const BeginRendering(
+          surfaceId: surfaceId,
+          root: 'root',
+          catalogId: 'test_catalog',
+        ),
       );
       final GenUiUpdate update = await futureUpdate;
 
@@ -56,8 +69,10 @@ void main() {
       final UiDefinition definition = (update as SurfaceAdded).definition;
       expect(definition, isNotNull);
       expect(definition.rootComponentId, 'root');
+      expect(definition.catalogId, 'test_catalog');
       expect(manager.surfaces[surfaceId]!.value, isNotNull);
       expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
+      expect(manager.surfaces[surfaceId]!.value!.catalogId, 'test_catalog');
     });
 
     test(

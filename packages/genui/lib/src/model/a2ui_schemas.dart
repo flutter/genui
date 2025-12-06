@@ -144,6 +144,35 @@ class A2uiSchemas {
             'All components must be descendents of this root in order to be '
             'displayed.',
       ),
+      'catalogId': S.string(
+        description:
+            'The identifier of the component catalog to use for this surface.',
+      ),
+      'styles': S.object(
+        properties: {
+          'font': S.string(description: 'The base font for this surface'),
+          'primaryColor': S.string(
+            description: 'The seed color for the theme of this surface.',
+          ),
+        },
+      ),
+    },
+    required: [surfaceIdKey, 'root'],
+  );
+
+  /// Schema for a beginRendering message, which provides the root widget ID for
+  /// the given surface so that the surface can be rendered.
+  static Schema beginRenderingSchemaNoCatalogId() => S.object(
+    properties: {
+      surfaceIdKey: S.string(
+        description: 'The surface ID of the surface to render.',
+      ),
+      'root': S.string(
+        description:
+            'The root widget ID for the surface. '
+            'All components must be descendents of this root in order to be '
+            'displayed.',
+      ),
       'styles': S.object(
         properties: {
           'font': S.string(description: 'The base font for this surface'),
