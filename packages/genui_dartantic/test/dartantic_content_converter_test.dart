@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dartantic_interface/dartantic_interface.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart' as genui;
 import 'package:genui_dartantic/genui_dartantic.dart';
@@ -138,6 +139,114 @@ void main() {
         final String result = converter.toPromptText(message);
 
         expect(result, '');
+      });
+    });
+
+    group('toHistory', () {
+      test('returns empty list for null history', () {
+        final List<di.ChatMessage> result = converter.toHistory(null);
+
+        expect(result, isEmpty);
+      });
+
+      test('returns empty list for empty history', () {
+        final List<di.ChatMessage> result = converter.toHistory([]);
+
+        expect(result, isEmpty);
+      });
+
+      test('includes system instruction as first message', () {
+        final List<di.ChatMessage> result = converter.toHistory(
+          null,
+          systemInstruction: 'You are a helpful assistant.',
+        );
+
+        expect(result, hasLength(1));
+        expect(result[0].role, di.ChatMessageRole.system);
+        expect(result[0].text, 'You are a helpful assistant.');
+      });
+
+      test('converts UserMessage to user role', () {
+        final history = [genui.UserMessage.text('Hello')];
+
+        final List<di.ChatMessage> result = converter.toHistory(history);
+
+        expect(result, hasLength(1));
+        expect(result[0].role, di.ChatMessageRole.user);
+        expect(result[0].text, 'Hello');
+      });
+
+      test('converts UserUiInteractionMessage to user role', () {
+        final history = [genui.UserUiInteractionMessage.text('Clicked button')];
+
+        final List<di.ChatMessage> result = converter.toHistory(history);
+
+        expect(result, hasLength(1));
+        expect(result[0].role, di.ChatMessageRole.user);
+        expect(result[0].text, 'Clicked button');
+      });
+
+      test('converts AiTextMessage to model role', () {
+        final history = [genui.AiTextMessage.text('AI response')];
+
+        final List<di.ChatMessage> result = converter.toHistory(history);
+
+        expect(result, hasLength(1));
+        expect(result[0].role, di.ChatMessageRole.model);
+        expect(result[0].text, 'AI response');
+      });
+
+      test('skips InternalMessage', () {
+        final history = [
+          genui.UserMessage.text('Hello'),
+          const genui.InternalMessage('Internal note'),
+          genui.AiTextMessage.text('Response'),
+        ];
+
+        final List<di.ChatMessage> result = converter.toHistory(history);
+
+        expect(result, hasLength(2));
+        expect(result[0].role, di.ChatMessageRole.user);
+        expect(result[1].role, di.ChatMessageRole.model);
+      });
+
+      test('skips ToolResponseMessage', () {
+        final history = [
+          genui.UserMessage.text('Hello'),
+          const genui.ToolResponseMessage([
+            genui.ToolResultPart(callId: 'call1', result: '{}'),
+          ]),
+          genui.AiTextMessage.text('Response'),
+        ];
+
+        final List<di.ChatMessage> result = converter.toHistory(history);
+
+        expect(result, hasLength(2));
+        expect(result[0].role, di.ChatMessageRole.user);
+        expect(result[1].role, di.ChatMessageRole.model);
+      });
+
+      test('handles full conversation with system instruction', () {
+        final history = [
+          genui.UserMessage.text('What is 2+2?'),
+          genui.AiTextMessage.text('2+2 equals 4.'),
+          genui.UserMessage.text('And 3+3?'),
+        ];
+
+        final List<di.ChatMessage> result = converter.toHistory(
+          history,
+          systemInstruction: 'You are a math tutor.',
+        );
+
+        expect(result, hasLength(4));
+        expect(result[0].role, di.ChatMessageRole.system);
+        expect(result[0].text, 'You are a math tutor.');
+        expect(result[1].role, di.ChatMessageRole.user);
+        expect(result[1].text, 'What is 2+2?');
+        expect(result[2].role, di.ChatMessageRole.model);
+        expect(result[2].text, '2+2 equals 4.');
+        expect(result[3].role, di.ChatMessageRole.user);
+        expect(result[3].text, 'And 3+3?');
       });
     });
   });

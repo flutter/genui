@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dartantic_interface/dartantic_interface.dart' as di;
 import 'package:genui/genui.dart' as genui;
 
 /// An exception thrown by this package.
@@ -48,6 +49,53 @@ class DartanticContentConverter {
       case genui.InternalMessage():
         return message.text;
     }
+  }
+
+  /// Converts GenUI chat history to a list of dartantic [di.ChatMessage].
+  ///
+  /// Maps GenUI message types to dartantic roles:
+  /// - [genui.UserMessage], [genui.UserUiInteractionMessage] ->
+  ///   [di.ChatMessage.user]
+  /// - [genui.AiTextMessage], [genui.AiUiMessage] -> [di.ChatMessage.model]
+  /// - [genui.InternalMessage] -> skipped (not sent to AI)
+  /// - [genui.ToolResponseMessage] -> skipped (handled internally by dartantic)
+  ///
+  /// If [systemInstruction] is provided, it is added as the first message
+  /// using [di.ChatMessage.system].
+  List<di.ChatMessage> toHistory(
+    Iterable<genui.ChatMessage>? history, {
+    String? systemInstruction,
+  }) {
+    final result = <di.ChatMessage>[];
+
+    // Add system instruction first if provided
+    if (systemInstruction != null) {
+      result.add(di.ChatMessage.system(systemInstruction));
+    }
+
+    // Convert each GenUI message to dartantic format
+    if (history != null) {
+      for (final genui.ChatMessage message in history) {
+        switch (message) {
+          case genui.UserMessage():
+            result.add(di.ChatMessage.user(_extractText(message.parts)));
+          case genui.UserUiInteractionMessage():
+            result.add(di.ChatMessage.user(_extractText(message.parts)));
+          case genui.AiTextMessage():
+            result.add(di.ChatMessage.model(_extractText(message.parts)));
+          case genui.AiUiMessage():
+            result.add(di.ChatMessage.model(_extractText(message.parts)));
+          case genui.InternalMessage():
+            // Skip internal messages - not sent to AI
+            break;
+          case genui.ToolResponseMessage():
+            // Skip tool messages - dartantic handles tools internally
+            break;
+        }
+      }
+    }
+
+    return result;
   }
 
   /// Extracts text content from a list of [genui.MessagePart] instances.

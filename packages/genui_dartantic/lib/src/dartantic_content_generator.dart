@@ -22,6 +22,10 @@ import 'dartantic_schema_adapter.dart';
 /// The generator creates tools from the GenUI catalog and any additional tools
 /// provided, then uses dartantic's built-in tool calling and structured output
 /// capabilities to generate UI content.
+///
+/// This implementation is **stateless** - it does not maintain internal
+/// conversation history. Instead, it uses the history provided by
+/// [GenUiConversation] via the [sendRequest] method's `history` parameter.
 class DartanticContentGenerator implements ContentGenerator {
   /// Creates a [DartanticContentGenerator] instance.
   ///
@@ -60,16 +64,7 @@ class DartanticContentGenerator implements ContentGenerator {
     final List<di.Tool> dartanticTools = _convertTools(genUiTools);
 
     // Create agent with converted tools
-    final agent = dartantic.Agent.forProvider(provider, tools: dartanticTools);
-
-    // Create chat with system instruction as initial history
-    _chat = dartantic.Chat(
-      agent,
-      history: [
-        if (systemInstruction != null)
-          di.ChatMessage.system(systemInstruction!),
-      ],
-    );
+    _agent = dartantic.Agent.forProvider(provider, tools: dartanticTools);
   }
 
   /// The catalog of UI components available to the AI.
@@ -81,7 +76,7 @@ class DartanticContentGenerator implements ContentGenerator {
   /// The configuration of the GenUI system.
   final GenUiConfiguration configuration;
 
-  late final dartantic.Chat _chat;
+  late final dartantic.Agent _agent;
   final DartanticContentConverter _converter = DartanticContentConverter();
 
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
@@ -131,25 +126,26 @@ class DartanticContentGenerator implements ContentGenerator {
   }) async {
     _isProcessing.value = true;
     try {
-      if (history != null && history.isNotEmpty) {
-        genUiLogger.warning(
-          'DartanticContentGenerator is stateful and ignores '
-          'history parameter.',
-        );
-      }
+      // Convert GenUI history to dartantic ChatMessage list
+      final List<di.ChatMessage> dartanticHistory = _converter.toHistory(
+        history,
+        systemInstruction: systemInstruction,
+      );
 
       // Convert GenUI message to prompt text
       final String promptText = _converter.toPromptText(message);
 
       genUiLogger.info('Sending request to Dartantic: "$promptText"');
+      genUiLogger.fine('History contains ${dartanticHistory.length} messages');
 
-      // Use sendFor with output schema for structured response
+      // Use Agent.sendFor directly with history
       // Tool calls will be executed automatically by dartantic
-      final di.ChatResult<Map<String, dynamic>> result = await _chat
+      final di.ChatResult<Map<String, dynamic>> result = await _agent
           .sendFor<Map<String, dynamic>>(
-            promptText,
-            outputSchema: _outputSchema,
-          );
+        promptText,
+        outputSchema: _outputSchema,
+        history: dartanticHistory,
+      );
 
       genUiLogger.info('Received response from Dartantic');
 
