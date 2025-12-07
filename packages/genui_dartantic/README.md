@@ -60,7 +60,7 @@ The following AI providers are supported through dartantic_ai:
 ## API Keys
 
 API keys can be configured in dartantic_ai via environment variables:
-- `GOOGLE_API_KEY` for Google/Gemini
+- `GEMINI_API_KEY` for Google/Gemini
 - `OPENAI_API_KEY` for OpenAI
 - `ANTHROPIC_API_KEY` for Anthropic
 - etc.

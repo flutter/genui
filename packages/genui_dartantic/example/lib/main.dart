@@ -31,21 +31,97 @@ void main() async {
   runApp(const TravelApp());
 }
 
+const _title = 'Agentic Travel Inc (Dartantic)';
+
+/// The root widget for the travel application.
+///
+/// This widget sets up the [MaterialApp], which configures the overall theme,
+/// title, and home page for the app. It serves as the main entry point for the
+/// user interface.
 class TravelApp extends StatelessWidget {
-  const TravelApp({super.key});
+  /// Creates a new [TravelApp].
+  ///
+  /// The optional [contentGenerator] can be used to inject a specific AI
+  /// client, which is useful for testing with a mock implementation.
+  const TravelApp({this.contentGenerator, super.key});
+
+  final ContentGenerator? contentGenerator;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Travel Planner (Dartantic)',
       debugShowCheckedModeBanner: false,
+      title: _title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
       ),
-      home: const TravelPlannerPage(),
+      home: _TravelAppBody(contentGenerator: contentGenerator),
     );
   }
+}
+
+class _TravelAppBody extends StatelessWidget {
+  const _TravelAppBody({this.contentGenerator});
+
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default [DartanticContentGenerator] will be created by the
+  /// [TravelPlannerPage].
+  final ContentGenerator? contentGenerator;
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, StatefulWidget> tabs = {
+      'Travel': TravelPlannerPage(contentGenerator: contentGenerator),
+      'Widget Catalog': const CatalogTab(),
+    };
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          leading: const Icon(Icons.menu),
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.local_airport),
+              SizedBox(width: 16.0),
+              Text(_title),
+            ],
+          ),
+          actions: const [
+            Icon(Icons.person_outline),
+            SizedBox(width: 8.0),
+          ],
+          bottom: TabBar(
+            tabs: tabs.entries.map((entry) => Tab(text: entry.key)).toList(),
+          ),
+        ),
+        body: TabBarView(
+          children: tabs.entries.map((entry) => entry.value).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class CatalogTab extends StatefulWidget {
+  const CatalogTab({super.key});
+
+  @override
+  State<CatalogTab> createState() => _CatalogTabState();
+}
+
+class _CatalogTabState extends State<CatalogTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return DebugCatalogView(catalog: travelAppCatalog);
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 /// Loads the asset image catalog JSON for use in the prompt.
@@ -70,25 +146,36 @@ Future<String> assetImageCatalogJson() async {
 /// This uses [DartanticContentGenerator] to interact with AI providers
 /// (Google, OpenAI, Anthropic, etc.) through the dartantic_ai package.
 class TravelPlannerPage extends StatefulWidget {
-  const TravelPlannerPage({super.key});
+  /// Creates a new [TravelPlannerPage].
+  ///
+  /// An optional [contentGenerator] can be provided, which is useful for
+  /// testing or using a custom AI client implementation. If not provided, a
+  /// default [DartanticContentGenerator] is created.
+  const TravelPlannerPage({this.contentGenerator, super.key});
+
+  /// The AI client to use for the application.
+  ///
+  /// If null, a default instance of [DartanticContentGenerator] will be
+  /// created within the page's state.
+  final ContentGenerator? contentGenerator;
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
 }
 
-class _TravelPlannerPageState extends State<TravelPlannerPage> {
+class _TravelPlannerPageState extends State<TravelPlannerPage>
+    with AutomaticKeepAliveClientMixin {
   late final GenUiConversation _uiConversation;
   late final StreamSubscription<ChatMessage> _userMessageSubscription;
-  late final DartanticContentGenerator _contentGenerator;
 
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
 
   // API key from dart-define
-  static const String _googleApiKeyEnv =
-      String.fromEnvironment('GOOGLE_API_KEY');
-  static String? get _googleApiKey =>
-      _googleApiKeyEnv.isEmpty ? null : _googleApiKeyEnv;
+  static const String _geminiApiKeyEnv =
+      String.fromEnvironment('GEMINI_API_KEY');
+  static String? get _geminiApiKey =>
+      _geminiApiKeyEnv.isEmpty ? null : _geminiApiKeyEnv;
 
   @override
   void initState() {
@@ -108,18 +195,20 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
     );
 
     // Create the DartanticContentGenerator with GoogleProvider
-    _contentGenerator = DartanticContentGenerator(
-      provider: dartantic.GoogleProvider(apiKey: _googleApiKey),
-      catalog: travelAppCatalog,
-      systemInstruction: prompt,
-      additionalTools: [
-        ListHotelsTool(onListHotels: BookingService.instance.listHotels),
-      ],
-    );
+    final ContentGenerator contentGenerator =
+        widget.contentGenerator ??
+        DartanticContentGenerator(
+          provider: dartantic.GoogleProvider(apiKey: _geminiApiKey),
+          catalog: travelAppCatalog,
+          systemInstruction: prompt,
+          additionalTools: [
+            ListHotelsTool(onListHotels: BookingService.instance.listHotels),
+          ],
+        );
 
     _uiConversation = GenUiConversation(
       genUiManager: genUiManager,
-      contentGenerator: _contentGenerator,
+      contentGenerator: contentGenerator,
       onSurfaceUpdated: (update) {
         _scrollToBottom();
       },
@@ -173,49 +262,47 @@ class _TravelPlannerPageState extends State<TravelPlannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Travel Planner (Dartantic)'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            children: [
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1000),
-                  child: ValueListenableBuilder<List<ChatMessage>>(
-                    valueListenable: _uiConversation.conversation,
-                    builder: (context, messages, child) {
-                      return Conversation(
-                        messages: messages,
-                        manager: _uiConversation.genUiManager,
-                        scrollController: _scrollController,
-                      );
-                    },
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: _uiConversation.isProcessing,
-                  builder: (context, isThinking, child) {
-                    return _ChatInput(
-                      controller: _textController,
-                      isThinking: isThinking,
-                      onSend: _sendPrompt,
+    super.build(context);
+    return SafeArea(
+      child: Center(
+        child: Column(
+          children: [
+            Expanded(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1000),
+                child: ValueListenableBuilder<List<ChatMessage>>(
+                  valueListenable: _uiConversation.conversation,
+                  builder: (context, messages, child) {
+                    return Conversation(
+                      messages: messages,
+                      manager: _uiConversation.genUiManager,
+                      scrollController: _scrollController,
                     );
                   },
                 ),
               ),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _uiConversation.isProcessing,
+                builder: (context, isThinking, child) {
+                  return _ChatInput(
+                    controller: _textController,
+                    isThinking: isThinking,
+                    onSend: _sendPrompt,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _ChatInput extends StatelessWidget {
