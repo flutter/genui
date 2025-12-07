@@ -51,18 +51,26 @@ class _ChatScreenState extends State<ChatScreen> {
   int _currentSurfaceIndex = 0;
   StreamSubscription<GenUiUpdate>? _surfaceSubscription;
 
+  // API key passed via --dart-define=GOOGLE_API_KEY=...
+  static const String _googleApiKeyEnv = String.fromEnvironment(
+    'GOOGLE_API_KEY',
+  );
+  static String? get _googleApiKey =>
+      _googleApiKeyEnv.isEmpty ? null : _googleApiKeyEnv;
+
   @override
   void initState() {
     super.initState();
 
-    // Use Google provider by default. The API key should be set in the
-    // GOOGLE_API_KEY environment variable.
+    // Use Google provider by default. The API key can be passed via:
+    //   1. --dart-define=GOOGLE_API_KEY=your-key (for VS Code launch)
+    //   2. GEMINI_API_KEY environment variable (dartantic default)
     // You can also use other providers like:
     //   - dartantic.Providers.openai (requires OPENAI_API_KEY)
     //   - dartantic.Providers.anthropic (requires ANTHROPIC_API_KEY)
     //   - dartantic.Providers.ollama (local, no API key required)
     _contentGenerator = DartanticContentGenerator(
-      provider: dartantic.Providers.google,
+      provider: dartantic.GoogleProvider(apiKey: _googleApiKey),
       catalog: CoreCatalogItems.asCatalog(),
       systemInstruction:
           'You are a helpful assistant that creates UI widgets. '

@@ -25,12 +25,12 @@ void main() {
           description: 'A person object.',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         // Verify the schema map structure
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['type'], 'object');
         expect(schemaMap['description'], 'A person object.');
         expect(schemaMap['properties'], isA<Map>());
@@ -45,7 +45,7 @@ void main() {
           additionalProperties: dsb.Schema.boolean(),
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -73,11 +73,11 @@ void main() {
           description: 'A list of items.',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['type'], 'array');
         expect(schemaMap['description'], 'A list of items.');
         expect(schemaMap['minItems'], 1);
@@ -86,7 +86,7 @@ void main() {
 
       test('should log an error if items is missing', () {
         final dsbSchema = dsb.Schema.fromMap({'type': 'array'});
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isNotEmpty);
         expect(
           result.errors.first.message,
@@ -101,7 +101,7 @@ void main() {
           uniqueItems: true,
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(1));
         expect(
@@ -120,11 +120,11 @@ void main() {
           description: 'An email address.',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['type'], 'string');
         expect(schemaMap['description'], 'An email address.');
         expect(schemaMap['format'], 'email');
@@ -138,7 +138,7 @@ void main() {
           pattern: r'^[a-zA-Z]+$',
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -161,11 +161,11 @@ void main() {
       test('should adapt a simple number schema', () {
         final dsbSchema = dsb.Schema.number(minimum: 0.0, maximum: 100.0);
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['type'], 'number');
         expect(schemaMap['minimum'], 0.0);
         expect(schemaMap['maximum'], 100.0);
@@ -178,7 +178,7 @@ void main() {
           multipleOf: 5.0,
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -201,11 +201,11 @@ void main() {
       test('should adapt a simple integer schema', () {
         final dsbSchema = dsb.Schema.integer(minimum: 0, maximum: 100);
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['type'], 'integer');
         expect(schemaMap['minimum'], 0);
         expect(schemaMap['maximum'], 100);
@@ -218,7 +218,7 @@ void main() {
           multipleOf: 5,
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(3));
         expect(
@@ -240,7 +240,7 @@ void main() {
     group('adaptBoolean', () {
       test('should adapt a boolean schema', () {
         final dsbSchema = dsb.Schema.boolean();
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.schemaMap!['type'], 'boolean');
@@ -250,7 +250,7 @@ void main() {
     group('adaptNull', () {
       test('should adapt a null schema', () {
         final dsbSchema = dsb.Schema.nil();
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.schema, isNotNull);
         expect(result.schema!.schemaMap!['type'], 'null');
       });
@@ -258,14 +258,14 @@ void main() {
 
     group('General Error Handling', () {
       test('should return null schema for null input', () {
-        final result = adapter.adapt(null);
+        final DartanticSchemaAdapterResult result = adapter.adapt(null);
         expect(result.schema, isNull);
         expect(result.errors, isEmpty);
       });
 
       test('should log an error for an unknown type', () {
         final dsbSchema = dsb.Schema.fromMap({'type': 'unknown'});
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isNotEmpty);
         expect(
           result.errors.first.message,
@@ -276,7 +276,7 @@ void main() {
 
       test('should log an error for a schema with no type', () {
         final dsbSchema = dsb.Schema.fromMap({});
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isNotEmpty);
         expect(
           result.errors.first.message,
@@ -290,7 +290,7 @@ void main() {
         final dsbSchema = dsb.Schema.fromMap({
           'type': ['string', 'integer'],
         });
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, hasLength(1));
         expect(
           result.errors.first.message,
@@ -303,7 +303,7 @@ void main() {
 
       test('should handle an empty type array', () {
         final dsbSchema = dsb.Schema.fromMap({'type': []});
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, hasLength(1));
         expect(
           result.errors.first.message,
@@ -330,19 +330,19 @@ void main() {
           ],
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['anyOf'], isA<List>());
-        expect((schemaMap['anyOf'] as List), hasLength(2));
+        expect(schemaMap['anyOf'] as List, hasLength(2));
       });
 
       test('should report an error for an empty anyOf list', () {
         final dsbSchema = dsb.Schema.fromMap({'type': 'object', 'anyOf': []});
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, hasLength(1));
         expect(
@@ -366,11 +366,11 @@ void main() {
           },
         );
 
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
 
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
-        final schemaMap = result.schema!.schemaMap!;
+        final Map<dynamic, dynamic> schemaMap = result.schema!.schemaMap!;
         expect(schemaMap['type'], 'object');
         expect(schemaMap['properties'], isA<Map>());
         expect(schemaMap['properties']['user'], isA<Map>());
@@ -382,7 +382,7 @@ void main() {
             'name': {'type': 'string'},
           },
         });
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.schemaMap!['type'], 'object');
@@ -392,7 +392,7 @@ void main() {
         final dsbSchema = dsb.Schema.fromMap({
           'items': {'type': 'string'},
         });
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.schemaMap!['type'], 'array');
@@ -400,7 +400,7 @@ void main() {
 
       test('should handle an empty object schema', () {
         final dsbSchema = dsb.Schema.object(properties: {});
-        final result = adapter.adapt(dsbSchema);
+        final DartanticSchemaAdapterResult result = adapter.adapt(dsbSchema);
         expect(result.errors, isEmpty);
         expect(result.schema, isNotNull);
         expect(result.schema!.schemaMap!['type'], 'object');

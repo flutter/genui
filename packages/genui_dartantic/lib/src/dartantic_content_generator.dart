@@ -145,11 +145,11 @@ class DartanticContentGenerator implements ContentGenerator {
 
       // Use sendFor with output schema for structured response
       // Tool calls will be executed automatically by dartantic
-      final di.ChatResult<Map<String, dynamic>> result =
-          await _chat.sendFor<Map<String, dynamic>>(
-        promptText,
-        outputSchema: _outputSchema,
-      );
+      final di.ChatResult<Map<String, dynamic>> result = await _chat
+          .sendFor<Map<String, dynamic>>(
+            promptText,
+            outputSchema: _outputSchema,
+          );
 
       genUiLogger.info('Received response from Dartantic');
 
@@ -173,7 +173,9 @@ class DartanticContentGenerator implements ContentGenerator {
   List<di.Tool> _convertTools(List<AiTool<JsonMap>> tools) {
     final adapter = DartanticSchemaAdapter();
     return tools.map((aiTool) {
-      final schemaResult = adapter.adapt(aiTool.parameters);
+      final DartanticSchemaAdapterResult schemaResult = adapter.adapt(
+        aiTool.parameters,
+      );
       if (schemaResult.errors.isNotEmpty) {
         genUiLogger.warning(
           'Errors adapting parameters for tool ${aiTool.name}: '

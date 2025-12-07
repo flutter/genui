@@ -72,8 +72,9 @@ class DartanticSchemaAdapter {
       return DartanticSchemaAdapterResult(null, List.unmodifiable(_errors));
     }
     final Map<String, dynamic>? schemaMap = _adaptToMap(schema, ['#']);
-    final JsonSchema? dartanticSchema =
-        schemaMap != null ? JsonSchema.create(schemaMap) : null;
+    final JsonSchema? dartanticSchema = schemaMap != null
+        ? JsonSchema.create(schemaMap)
+        : null;
     return DartanticSchemaAdapterResult(
       dartanticSchema,
       List.unmodifiable(_errors),
@@ -104,8 +105,10 @@ class DartanticSchemaAdapter {
           }
           final subSchema = jsb.Schema.fromMap(subSchemaMap);
           final subPath = [...path, 'anyOf', i.toString()];
-          final Map<String, dynamic>? adaptedSchema =
-              _adaptToMap(subSchema, subPath);
+          final Map<String, dynamic>? adaptedSchema = _adaptToMap(
+            subSchema,
+            subPath,
+          );
           if (adaptedSchema != null) {
             schemas.add(adaptedSchema);
           }
@@ -239,8 +242,10 @@ class DartanticSchemaAdapter {
       for (final MapEntry<String, jsb.Schema> entry
           in objectSchema.properties!.entries) {
         final List<String> propertyPath = [...path, 'properties', entry.key];
-        final Map<String, dynamic>? adaptedProperty =
-            _adaptToMap(entry.value, propertyPath);
+        final Map<String, dynamic>? adaptedProperty = _adaptToMap(
+          entry.value,
+          propertyPath,
+        );
         if (adaptedProperty != null) {
           properties[entry.key] = adaptedProperty;
         }
@@ -287,8 +292,10 @@ class DartanticSchemaAdapter {
     }
 
     final itemsPath = [...path, 'items'];
-    final Map<String, dynamic>? adaptedItems =
-        _adaptToMap(listSchema.items!, itemsPath);
+    final Map<String, dynamic>? adaptedItems = _adaptToMap(
+      listSchema.items!,
+      itemsPath,
+    );
     if (adaptedItems == null) {
       return null;
     }

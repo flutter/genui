@@ -18,7 +18,7 @@ void main() {
       test('converts UserMessage with text to prompt string', () {
         final message = genui.UserMessage.text('Hello, world!');
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'Hello, world!');
       });
@@ -29,7 +29,7 @@ void main() {
           const genui.TextPart('Second part'),
         ]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'First part\nSecond part');
       });
@@ -37,7 +37,7 @@ void main() {
       test('converts UserUiInteractionMessage to prompt string', () {
         final message = genui.UserUiInteractionMessage.text('UI interaction');
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'UI interaction');
       });
@@ -45,7 +45,7 @@ void main() {
       test('converts AiTextMessage to prompt string', () {
         final message = genui.AiTextMessage.text('AI response');
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'AI response');
       });
@@ -53,7 +53,7 @@ void main() {
       test('converts InternalMessage to prompt string', () {
         const message = genui.InternalMessage('System instruction');
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'System instruction');
       });
@@ -75,7 +75,7 @@ void main() {
           const genui.DataPart({'key': 'value'}),
         ]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, contains('Check this data:'));
         expect(result, contains('Data:'));
@@ -88,7 +88,7 @@ void main() {
           genui.ImagePart.fromUrl(Uri.parse('https://example.com/image.png')),
         ]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, contains('Look at this image:'));
         expect(result, contains('Image at https://example.com/image.png'));
@@ -100,7 +100,7 @@ void main() {
           const genui.TextPart('Here is my answer.'),
         ]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, contains('Thinking: Let me think about this...'));
         expect(result, contains('Here is my answer.'));
@@ -116,7 +116,7 @@ void main() {
           ),
         ]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'Calling a tool');
       });
@@ -127,7 +127,7 @@ void main() {
           const genui.ToolResultPart(callId: 'call1', result: '{}'),
         ]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, 'Got result');
       });
@@ -135,7 +135,7 @@ void main() {
       test('handles empty message parts', () {
         final message = genui.UserMessage([]);
 
-        final result = converter.toPromptText(message);
+        final String result = converter.toPromptText(message);
 
         expect(result, '');
       });

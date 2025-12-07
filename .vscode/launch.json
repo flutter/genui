@@ -29,6 +29,15 @@
       "type": "dart"
     },
     {
+      "name": "genui_dartantic_example",
+      "cwd": "packages/genui_dartantic/example",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define=GOOGLE_API_KEY=${env:GEMINI_API_KEY}"
+      ]
+    },
+    {
       "name": "fix_copyright",
       "request": "launch",
       "program": "bin/fix_copyright.dart",
