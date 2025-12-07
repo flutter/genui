@@ -8,6 +8,7 @@ import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:dartantic_interface/dartantic_interface.dart' as di;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
+import 'package:json_schema/json_schema.dart';
 
 import 'dartantic_content_converter.dart';
 import 'dartantic_schema_adapter.dart';
@@ -82,6 +83,21 @@ class DartanticContentGenerator implements ContentGenerator {
   final _textResponseController = StreamController<String>.broadcast();
   final _errorController = StreamController<ContentGeneratorError>.broadcast();
   final _isProcessing = ValueNotifier<bool>(false);
+
+  /// The output schema for structured responses.
+  ///
+  /// This matches the schema used by FirebaseAiContentGenerator to ensure
+  /// consistent behavior.
+  static final JsonSchema _outputSchema = JsonSchema.create({
+    'type': 'object',
+    'properties': {
+      'response': {
+        'type': 'string',
+        'description': 'The text response to the user.',
+      },
+    },
+    'required': ['response'],
+  });
 
   @override
   Stream<A2uiMessage> get a2uiMessageStream => _a2uiMessageController.stream;

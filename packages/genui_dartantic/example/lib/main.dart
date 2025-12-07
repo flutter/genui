@@ -385,7 +385,7 @@ component that should be displayed.
   same itinerary etc.
 
 Once you add or update a surface and are waiting for user input, the
-conversation turn is complete, and you should call the provideFinalOutput tool.
+conversation turn is complete.
 
 If you are displaying more than one component, you should use a `Column` widget
 as the root and add the other components as children.
