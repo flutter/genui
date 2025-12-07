@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart' as genui;
 import 'package:genui_dartantic/genui_dartantic.dart';
-import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 
 void main() {
   group('DartanticContentGenerator', () {

@@ -29,8 +29,10 @@ class DartanticContentGenerator implements ContentGenerator {
   ///   `Providers.openai`, `Providers.anthropic`).
   /// - [catalog]: The catalog of UI components available to the AI.
   /// - [systemInstruction]: Optional system instruction for the AI model.
-  /// - [configuration]: Configuration for allowed actions (create/update/delete).
-  /// - [additionalTools]: Additional GenUI [AiTool] instances to make available.
+  /// - [configuration]: Configuration for allowed actions
+  ///   (create/update/delete).
+  /// - [additionalTools]: Additional GenUI [AiTool] instances to make
+  ///   available.
   DartanticContentGenerator({
     required di.Provider provider,
     required this.catalog,
@@ -55,7 +57,7 @@ class DartanticContentGenerator implements ContentGenerator {
     ];
 
     // Convert all tools to dartantic format
-    final dartanticTools = _convertTools(genUiTools);
+    final List<di.Tool> dartanticTools = _convertTools(genUiTools);
 
     // Create agent with converted tools
     final agent = dartantic.Agent.forProvider(provider, tools: dartanticTools);
@@ -80,7 +82,7 @@ class DartanticContentGenerator implements ContentGenerator {
   final GenUiConfiguration configuration;
 
   late final dartantic.Chat _chat;
-  final _converter = DartanticContentConverter();
+  final DartanticContentConverter _converter = DartanticContentConverter();
 
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
@@ -91,7 +93,7 @@ class DartanticContentGenerator implements ContentGenerator {
   ///
   /// This matches the schema used by FirebaseAiContentGenerator to ensure
   /// consistent behavior.
-  static final _outputSchema = JsonSchema.create({
+  static final JsonSchema _outputSchema = JsonSchema.create({
     'type': 'object',
     'properties': {
       'response': {
@@ -131,18 +133,20 @@ class DartanticContentGenerator implements ContentGenerator {
     try {
       if (history != null && history.isNotEmpty) {
         genUiLogger.warning(
-          'DartanticContentGenerator is stateful and ignores history parameter.',
+          'DartanticContentGenerator is stateful and ignores '
+          'history parameter.',
         );
       }
 
       // Convert GenUI message to prompt text
-      final promptText = _converter.toPromptText(message);
+      final String promptText = _converter.toPromptText(message);
 
       genUiLogger.info('Sending request to Dartantic: "$promptText"');
 
       // Use sendFor with output schema for structured response
       // Tool calls will be executed automatically by dartantic
-      final result = await _chat.sendFor<Map<String, dynamic>>(
+      final di.ChatResult<Map<String, dynamic>> result =
+          await _chat.sendFor<Map<String, dynamic>>(
         promptText,
         outputSchema: _outputSchema,
       );
@@ -150,12 +154,10 @@ class DartanticContentGenerator implements ContentGenerator {
       genUiLogger.info('Received response from Dartantic');
 
       // Extract the response text from structured output
-      if (result.output is Map && result.output.containsKey('response')) {
-        final responseText = result.output['response'] as String;
-        if (responseText.isNotEmpty) {
-          _textResponseController.add(responseText);
-        }
-      } else if (result.output != null) {
+      final Object? responseValue = result.output['response'];
+      if (responseValue is String && responseValue.isNotEmpty) {
+        _textResponseController.add(responseValue);
+      } else {
         // Fallback: convert output to string
         _textResponseController.add(result.output.toString());
       }
@@ -184,7 +186,7 @@ class DartanticContentGenerator implements ContentGenerator {
         inputSchema: schemaResult.schema,
         onCall: (Map<String, dynamic> args) async {
           genUiLogger.fine('Invoking tool: ${aiTool.name} with args: $args');
-          final result = await aiTool.invoke(args);
+          final JsonMap result = await aiTool.invoke(args);
           genUiLogger.fine('Tool ${aiTool.name} returned: $result');
           return result;
         },

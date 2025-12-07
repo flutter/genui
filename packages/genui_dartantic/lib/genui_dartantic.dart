@@ -4,8 +4,8 @@
 
 /// Integration package for GenUI and Dartantic AI.
 ///
-/// This library provides a [DartanticContentGenerator] that implements
-/// the GenUI [ContentGenerator] interface using the dartantic_ai package.
+/// This library provides a `DartanticContentGenerator` that implements
+/// the GenUI `ContentGenerator` interface using the dartantic_ai package.
 /// It supports multiple AI providers including OpenAI, Anthropic, Google,
 /// Mistral, Cohere, and Ollama.
 ///

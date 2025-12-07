@@ -321,7 +321,8 @@ class DartanticSchemaAdapter {
     return {
       'type': 'string',
       if (stringSchema.format != null) 'format': stringSchema.format,
-      if (stringSchema.enumValues != null && stringSchema.enumValues!.isNotEmpty)
+      if (stringSchema.enumValues != null &&
+          stringSchema.enumValues!.isNotEmpty)
         'enum': stringSchema.enumValues,
       if (dsbSchema.description != null) 'description': dsbSchema.description,
     };
