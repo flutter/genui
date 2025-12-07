@@ -29,7 +29,7 @@
       "type": "dart"
     },
     {
-      "name": "genui_dartantic_example",
+      "name": "travel_app (dartantic)",
       "cwd": "packages/genui_dartantic/example",
       "request": "launch",
       "type": "dart",
