@@ -29,6 +29,7 @@ void main() {
         handleMessage: genUiManager.handleMessage,
         catalog: catalog,
         configuration: const GenUiConfiguration(),
+        updateMode: SurfaceUpdateMode.both,
       );
 
       final Map<String, Object> args = {

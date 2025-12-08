@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/core/genui_configuration.dart';
 import 'package:genui/src/core/ui_tools.dart';
 import 'package:genui/src/model/a2ui_message.dart';
+import 'package:genui/src/model/a2ui_schemas.dart';
 import 'package:genui/src/model/catalog.dart';
 import 'package:genui/src/model/catalog_item.dart';
 import 'package:genui/src/model/tools.dart';
@@ -33,6 +34,7 @@ void main() {
           ),
         ]),
         configuration: const GenUiConfiguration(),
+        updateMode: SurfaceUpdateMode.both,
       );
 
       final Map<String, Object> args = {

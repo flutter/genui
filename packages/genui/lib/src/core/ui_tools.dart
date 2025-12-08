@@ -22,10 +22,14 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
     required this.handleMessage,
     required Catalog catalog,
     required this.configuration,
+    required SurfaceUpdateMode updateMode,
+    super.name = 'surfaceUpdate',
+    super.description = 'Updates a surface with a new set of components.',
   }) : super(
-         name: 'surfaceUpdate',
-         description: 'Updates a surface with a new set of components.',
-         parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
+         parameters: A2uiSchemas.surfaceUpdateSchema(
+           catalog,
+           updateMode: updateMode,
+         ),
        );
 
   /// The callback to invoke when adding or updating a surface.
@@ -88,27 +92,16 @@ class DeleteSurfaceTool extends AiTool<JsonMap> {
 /// This tool allows the AI to specify the root component of a UI surface.
 class BeginRenderingTool extends AiTool<JsonMap> {
   /// Creates a [BeginRenderingTool].
-  BeginRenderingTool({required this.handleMessage})
-    : super(
-        name: 'beginRendering',
-        description:
-            'Signals the client to begin rendering a surface with a '
-            'root component.',
-        parameters: S.object(
-          properties: {
-            surfaceIdKey: S.string(
-              description:
-                  'The unique identifier for the UI surface to render.',
-            ),
-            'root': S.string(
-              description:
-                  'The ID of the root widget. This ID must correspond to '
-                  'the ID of one of the widgets in the `components` list.',
-            ),
-          },
-          required: [surfaceIdKey, 'root'],
-        ),
-      );
+  BeginRenderingTool({
+    required this.handleMessage,
+    SurfaceUpdateMode updateMode = SurfaceUpdateMode.both,
+  }) : super(
+         name: 'beginRendering',
+         description:
+             'Signals the client to begin rendering a surface with a '
+             'root component.',
+         parameters: A2uiSchemas.beginRenderingSchema(updateMode: updateMode),
+       );
 
   /// The callback to invoke when signaling to begin rendering.
   final void Function(A2uiMessage message) handleMessage;
