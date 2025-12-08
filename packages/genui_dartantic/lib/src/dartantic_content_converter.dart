@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:dartantic_interface/dartantic_interface.dart' as di;
 import 'package:genui/genui.dart' as genui;
 
@@ -24,31 +26,37 @@ class ContentConverterException implements Exception {
 /// and accepts simple string prompts, this converter primarily extracts text
 /// content from GenUI messages.
 class DartanticContentConverter {
-  /// Converts a GenUI [genui.ChatMessage] to a text string suitable for
-  /// sending to dartantic_ai.
-  ///
-  /// For [genui.UserMessage] and [genui.UserUiInteractionMessage], extracts
-  /// the text content from all [genui.TextPart] instances.
-  ///
-  /// Throws [ContentConverterException] if the message type is not supported
-  /// for conversion to a prompt.
-  String toPromptText(genui.ChatMessage message) {
-    switch (message) {
-      case genui.UserMessage():
-        return _extractText(message.parts);
-      case genui.UserUiInteractionMessage():
-        return _extractText(message.parts);
-      case genui.AiTextMessage():
-        return _extractText(message.parts);
-      case genui.AiUiMessage():
-        return _extractText(message.parts);
-      case genui.ToolResponseMessage():
-        throw ContentConverterException(
-          'ToolResponseMessage cannot be converted to prompt text directly.',
-        );
-      case genui.InternalMessage():
-        return message.text;
-    }
+  /// Converts a GenUI [genui.ChatMessage] into a prompt string plus dartantic
+  /// parts so we can send full multimodal content (text, data, tools).
+  ({String prompt, List<di.Part> parts}) toPromptAndParts(
+    genui.ChatMessage message,
+  ) {
+    return switch (message) {
+      genui.UserMessage() => (
+          prompt: _extractText(message.parts),
+          parts: _toPartsWithoutText(message.parts),
+        ),
+      genui.UserUiInteractionMessage() => (
+          prompt: _extractText(message.parts),
+          parts: _toPartsWithoutText(message.parts),
+        ),
+      genui.AiTextMessage() => (
+          prompt: _extractText(message.parts),
+          parts: _toPartsWithoutText(message.parts),
+        ),
+      genui.AiUiMessage() => (
+          prompt: _extractText(message.parts),
+          parts: _toPartsWithoutText(message.parts),
+        ),
+      genui.ToolResponseMessage() => (
+          prompt: _extractToolResponseText(message.results),
+          parts: _toolResultPartsToDiParts(message.results),
+        ),
+      genui.InternalMessage() => (
+          prompt: message.text,
+          parts: const <di.Part>[],
+        ),
+    };
   }
 
   /// Converts GenUI chat history to a list of dartantic [di.ChatMessage].
@@ -57,8 +65,8 @@ class DartanticContentConverter {
   /// - [genui.UserMessage], [genui.UserUiInteractionMessage] ->
   ///   [di.ChatMessage.user]
   /// - [genui.AiTextMessage], [genui.AiUiMessage] -> [di.ChatMessage.model]
-  /// - [genui.InternalMessage] -> skipped (not sent to AI)
-  /// - [genui.ToolResponseMessage] -> skipped (handled internally by dartantic)
+  /// - [genui.ToolResponseMessage] -> [di.ChatMessage.user] with tool results
+  /// - [genui.InternalMessage] -> [di.ChatMessage.system]
   ///
   /// If [systemInstruction] is provided, it is added as the first message
   /// using [di.ChatMessage.system].
@@ -78,19 +86,42 @@ class DartanticContentConverter {
       for (final genui.ChatMessage message in history) {
         switch (message) {
           case genui.UserMessage():
-            result.add(di.ChatMessage.user(_extractText(message.parts)));
+            result.add(
+              di.ChatMessage(
+                role: di.ChatMessageRole.user,
+                parts: _toParts(message.parts),
+              ),
+            );
           case genui.UserUiInteractionMessage():
-            result.add(di.ChatMessage.user(_extractText(message.parts)));
+            result.add(
+              di.ChatMessage(
+                role: di.ChatMessageRole.user,
+                parts: _toParts(message.parts),
+              ),
+            );
           case genui.AiTextMessage():
-            result.add(di.ChatMessage.model(_extractText(message.parts)));
+            result.add(
+              di.ChatMessage(
+                role: di.ChatMessageRole.model,
+                parts: _toParts(message.parts),
+              ),
+            );
           case genui.AiUiMessage():
-            result.add(di.ChatMessage.model(_extractText(message.parts)));
+            result.add(
+              di.ChatMessage(
+                role: di.ChatMessageRole.model,
+                parts: _toParts(message.parts),
+              ),
+            );
           case genui.InternalMessage():
-            // Skip internal messages - not sent to AI
-            break;
+            result.add(di.ChatMessage.system(message.text));
           case genui.ToolResponseMessage():
-            // Skip tool messages - dartantic handles tools internally
-            break;
+            result.add(
+              di.ChatMessage(
+                role: di.ChatMessageRole.user,
+                parts: _toolResultPartsToDiParts(message.results),
+              ),
+            );
         }
       }
     }
@@ -108,9 +139,8 @@ class DartanticContentConverter {
         case genui.TextPart():
           textParts.add(part.text);
         case genui.DataPart():
-          // Include data as JSON-like text representation
           if (part.data != null) {
-            textParts.add('Data: ${part.data}');
+            textParts.add('Data: ${jsonEncode(part.data)}');
           }
         case genui.ImagePart():
           // Note: dartantic_ai may support images natively in some providers,
@@ -121,15 +151,122 @@ class DartanticContentConverter {
             textParts.add('[Image data]');
           }
         case genui.ToolCallPart():
-          // Tool calls are handled by dartantic internally
-          break;
+          textParts.add(
+            'ToolCall(${part.toolName}): ${jsonEncode(part.arguments)}',
+          );
         case genui.ToolResultPart():
-          // Tool results are handled by dartantic internally
-          break;
+          textParts.add('ToolResult(${part.callId}): ${part.result}');
         case genui.ThinkingPart():
           textParts.add('Thinking: ${part.text}');
       }
     }
     return textParts.join('\n');
+  }
+
+  /// Converts tool response parts to a textual form for prompts.
+  String _extractToolResponseText(List<genui.ToolResultPart> results) {
+    return results
+        .map(
+          (r) => 'ToolResult(${r.callId}): ${r.result}',
+        )
+        .join('\n');
+  }
+
+  /// Converts GenUI message parts to dartantic parts.
+  List<di.Part> _toParts(List<genui.MessagePart> parts) {
+    final converted = <di.Part>[];
+    for (final part in parts) {
+      switch (part) {
+        case genui.TextPart():
+          converted.add(di.TextPart(part.text));
+        case genui.DataPart():
+          final Map<String, Object>? data = part.data;
+          if (data != null) {
+            converted.add(
+              di.DataPart(
+                utf8.encode(jsonEncode(data)),
+                mimeType: 'application/json',
+              ),
+            );
+          }
+        case genui.ImagePart():
+          if (part.url != null) {
+            converted.add(
+              di.LinkPart(
+                part.url!,
+                mimeType: part.mimeType,
+                name: null,
+              ),
+            );
+          } else if (part.base64 != null && part.mimeType != null) {
+            converted.add(
+              di.DataPart(
+                base64Decode(part.base64!),
+                mimeType: part.mimeType!,
+              ),
+            );
+          } else if (part.bytes != null && part.mimeType != null) {
+            converted.add(
+              di.DataPart(
+                part.bytes!,
+                mimeType: part.mimeType!,
+              ),
+            );
+          } else {
+            converted.add(const di.TextPart('[Image data]'));
+          }
+        case genui.ToolCallPart():
+          converted.add(
+            di.ToolPart.call(
+              id: part.id,
+              name: part.toolName,
+              arguments: part.arguments,
+            ),
+          );
+        case genui.ToolResultPart():
+          converted.add(
+            di.ToolPart.result(
+              id: part.callId,
+              name: 'tool_response',
+              result: _decodeMaybeJson(part.result),
+            ),
+          );
+        case genui.ThinkingPart():
+          converted.add(di.TextPart('Thinking: ${part.text}'));
+      }
+    }
+    return converted;
+  }
+
+  /// Converts GenUI message parts to dartantic parts, excluding text parts to
+  /// avoid duplicate text in both prompt and attachments.
+  List<di.Part> _toPartsWithoutText(List<genui.MessagePart> parts) {
+    final List<genui.MessagePart> filtered =
+        parts.where((p) => p is! genui.TextPart).toList();
+    return _toParts(filtered);
+  }
+
+  /// Converts tool result parts from GenUI to dartantic ToolParts.
+  List<di.ToolPart> _toolResultPartsToDiParts(
+    List<genui.ToolResultPart> results,
+  ) {
+    return results
+        .map(
+          (r) => di.ToolPart.result(
+            id: r.callId,
+            name: 'tool_response',
+            result: _decodeMaybeJson(r.result),
+          ),
+        )
+        .toList();
+  }
+
+  /// Attempts to decode a JSON string; returns the original string on failure.
+  dynamic _decodeMaybeJson(String input) {
+    try {
+      return jsonDecode(input);
+    } catch (_) {
+      return input;
+    }
   }
 }

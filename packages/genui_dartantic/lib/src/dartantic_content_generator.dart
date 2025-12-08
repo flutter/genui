@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// ignore_for_file: specify_nonobvious_local_variable_types
+
 import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
@@ -41,6 +43,7 @@ class DartanticContentGenerator implements ContentGenerator {
     required di.Provider provider,
     required this.catalog,
     this.systemInstruction,
+    this.modelName,
     this.configuration = const GenUiConfiguration(),
     List<AiTool<JsonMap>> additionalTools = const [],
   }) {
@@ -64,7 +67,11 @@ class DartanticContentGenerator implements ContentGenerator {
     final List<di.Tool> dartanticTools = _convertTools(genUiTools);
 
     // Create agent with converted tools
-    _agent = dartantic.Agent.forProvider(provider, tools: dartanticTools);
+    _agent = dartantic.Agent.forProvider(
+      provider,
+      chatModelName: modelName,
+      tools: dartanticTools,
+    );
   }
 
   /// The catalog of UI components available to the AI.
@@ -72,6 +79,9 @@ class DartanticContentGenerator implements ContentGenerator {
 
   /// The system instruction to use for the AI model.
   final String? systemInstruction;
+
+  /// The model name to use.
+  final String? modelName;
 
   /// The configuration of the GenUI system.
   final GenUiConfiguration configuration;
@@ -84,10 +94,7 @@ class DartanticContentGenerator implements ContentGenerator {
   final _errorController = StreamController<ContentGeneratorError>.broadcast();
   final _isProcessing = ValueNotifier<bool>(false);
 
-  /// The output schema for structured responses.
-  ///
-  /// This matches the schema used by FirebaseAiContentGenerator to ensure
-  /// consistent behavior.
+  /// Structured output schema: a simple object with a required string response.
   static final JsonSchema _outputSchema = JsonSchema.create({
     'type': 'object',
     'properties': {
@@ -132,31 +139,37 @@ class DartanticContentGenerator implements ContentGenerator {
         systemInstruction: systemInstruction,
       );
 
-      // Convert GenUI message to prompt text
-      final String promptText = _converter.toPromptText(message);
+      // Convert the current GenUI message into prompt text plus parts so we
+      // preserve text, data, and tool content.
+      final ({String prompt, List<di.Part> parts}) promptAndParts = _converter
+          .toPromptAndParts(message);
 
-      genUiLogger.info('Sending request to Dartantic: "$promptText"');
+      // We should never have tool calls or results in request message.
+      assert(promptAndParts.parts.every((part) => part is! di.ToolPart));
+
+      genUiLogger.info(
+        'Sending request to Dartantic: "${promptAndParts.prompt}"',
+      );
       genUiLogger.fine('History contains ${dartanticHistory.length} messages');
 
-      // Use Agent.sendFor directly with history
-      // Tool calls will be executed automatically by dartantic
+      // Use Agent.sendFor with structured output so the model returns a single
+      // response string instead of dumping JSON/tool content as text.
       final di.ChatResult<Map<String, dynamic>> result = await _agent
           .sendFor<Map<String, dynamic>>(
-        promptText,
+        promptAndParts.prompt,
         outputSchema: _outputSchema,
         history: dartanticHistory,
+        attachments: promptAndParts.parts,
       );
-
-      genUiLogger.info('Received response from Dartantic');
 
       // Extract the response text from structured output
       final Object? responseValue = result.output['response'];
-      if (responseValue is String && responseValue.isNotEmpty) {
-        _textResponseController.add(responseValue);
-      } else {
-        // Fallback: convert output to string
-        _textResponseController.add(result.output.toString());
-      }
+      final String responseText =
+          responseValue is String && responseValue.isNotEmpty
+              ? responseValue
+              : result.output.toString();
+      _textResponseController.add(responseText);
+      genUiLogger.info('Received response from Dartantic: $responseText');
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
       _errorController.add(ContentGeneratorError(e, st));

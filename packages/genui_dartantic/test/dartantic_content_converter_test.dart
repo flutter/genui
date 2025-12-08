@@ -15,13 +15,15 @@ void main() {
       converter = DartanticContentConverter();
     });
 
-    group('toPromptText', () {
+    group('toPromptAndParts', () {
       test('converts UserMessage with text to prompt string', () {
         final message = genui.UserMessage.text('Hello, world!');
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'Hello, world!');
+        expect(result.prompt, 'Hello, world!');
+        expect(result.parts, isNotEmpty);
       });
 
       test('converts UserMessage with multiple text parts', () {
@@ -30,44 +32,51 @@ void main() {
           const genui.TextPart('Second part'),
         ]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'First part\nSecond part');
+        expect(result.prompt, 'First part\nSecond part');
+        expect(result.parts.whereType<di.TextPart>(), isNotEmpty);
       });
 
       test('converts UserUiInteractionMessage to prompt string', () {
         final message = genui.UserUiInteractionMessage.text('UI interaction');
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'UI interaction');
+        expect(result.prompt, 'UI interaction');
       });
 
       test('converts AiTextMessage to prompt string', () {
         final message = genui.AiTextMessage.text('AI response');
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'AI response');
+        expect(result.prompt, 'AI response');
       });
 
       test('converts InternalMessage to prompt string', () {
         const message = genui.InternalMessage('System instruction');
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'System instruction');
+        expect(result.prompt, 'System instruction');
+        expect(result.parts.single, isA<di.TextPart>());
       });
 
-      test('throws for ToolResponseMessage', () {
+      test('handles ToolResponseMessage', () {
         const message = genui.ToolResponseMessage([
           genui.ToolResultPart(callId: 'call1', result: '{"status": "ok"}'),
         ]);
 
-        expect(
-          () => converter.toPromptText(message),
-          throwsA(isA<ContentConverterException>()),
-        );
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
+
+        expect(result.prompt, contains('ToolResult(call1)'));
+        expect(result.parts, isNotEmpty);
       });
 
       test('handles DataPart in message', () {
@@ -76,11 +85,15 @@ void main() {
           const genui.DataPart({'key': 'value'}),
         ]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, contains('Check this data:'));
-        expect(result, contains('Data:'));
-        expect(result, contains('key'));
+        expect(result.prompt, contains('Check this data:'));
+        expect(result.prompt, contains('Data:'));
+        expect(
+          result.parts.whereType<di.DataPart>().length,
+          greaterThanOrEqualTo(1),
+        );
       });
 
       test('handles ImagePart with URL in message', () {
@@ -89,10 +102,12 @@ void main() {
           genui.ImagePart.fromUrl(Uri.parse('https://example.com/image.png')),
         ]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, contains('Look at this image:'));
-        expect(result, contains('Image at https://example.com/image.png'));
+        expect(result.prompt, contains('Look at this image:'));
+        expect(result.prompt, contains('Image at https://example.com/image.png'));
+        expect(result.parts.whereType<di.LinkPart>(), isNotEmpty);
       });
 
       test('handles ThinkingPart in message', () {
@@ -101,13 +116,14 @@ void main() {
           const genui.TextPart('Here is my answer.'),
         ]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, contains('Thinking: Let me think about this...'));
-        expect(result, contains('Here is my answer.'));
+        expect(result.prompt, contains('Thinking: Let me think about this...'));
+        expect(result.prompt, contains('Here is my answer.'));
       });
 
-      test('ignores ToolCallPart in message', () {
+      test('includes ToolCallPart in prompt', () {
         final message = genui.AiTextMessage([
           const genui.TextPart('Calling a tool'),
           const genui.ToolCallPart(
@@ -117,28 +133,33 @@ void main() {
           ),
         ]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'Calling a tool');
+        expect(result.prompt, contains('ToolCall(test_tool)'));
+        expect(result.parts.whereType<di.ToolPart>(), isNotEmpty);
       });
 
-      test('ignores ToolResultPart in message', () {
+      test('includes ToolResultPart in prompt', () {
         final message = genui.AiTextMessage([
           const genui.TextPart('Got result'),
           const genui.ToolResultPart(callId: 'call1', result: '{}'),
         ]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, 'Got result');
+        expect(result.prompt, contains('ToolResult(call1)'));
+        expect(result.parts.whereType<di.ToolPart>(), isNotEmpty);
       });
 
       test('handles empty message parts', () {
         final message = genui.UserMessage([]);
 
-        final String result = converter.toPromptText(message);
+        final ({String prompt, List<di.Part> parts}) result =
+            converter.toPromptAndParts(message);
 
-        expect(result, '');
+        expect(result.prompt, '');
       });
     });
 
@@ -196,8 +217,8 @@ void main() {
         expect(result[0].text, 'AI response');
       });
 
-      test('skips InternalMessage', () {
-        final history = [
+      test('includes InternalMessage as system', () {
+        final List<genui.ChatMessage> history = [
           genui.UserMessage.text('Hello'),
           const genui.InternalMessage('Internal note'),
           genui.AiTextMessage.text('Response'),
@@ -205,13 +226,14 @@ void main() {
 
         final List<di.ChatMessage> result = converter.toHistory(history);
 
-        expect(result, hasLength(2));
+        expect(result, hasLength(3));
         expect(result[0].role, di.ChatMessageRole.user);
-        expect(result[1].role, di.ChatMessageRole.model);
+        expect(result[1].role, di.ChatMessageRole.system);
+        expect(result[2].role, di.ChatMessageRole.model);
       });
 
-      test('skips ToolResponseMessage', () {
-        final history = [
+      test('includes ToolResponseMessage as user tool results', () {
+        final List<genui.ChatMessage> history = [
           genui.UserMessage.text('Hello'),
           const genui.ToolResponseMessage([
             genui.ToolResultPart(callId: 'call1', result: '{}'),
@@ -221,13 +243,18 @@ void main() {
 
         final List<di.ChatMessage> result = converter.toHistory(history);
 
-        expect(result, hasLength(2));
+        expect(result, hasLength(3));
         expect(result[0].role, di.ChatMessageRole.user);
-        expect(result[1].role, di.ChatMessageRole.model);
+        expect(result[1].role, di.ChatMessageRole.user);
+        expect(
+          result[1].parts.whereType<di.ToolPart>().length,
+          greaterThanOrEqualTo(1),
+        );
+        expect(result[2].role, di.ChatMessageRole.model);
       });
 
       test('handles full conversation with system instruction', () {
-        final history = [
+        final List<genui.ChatMessage> history = [
           genui.UserMessage.text('What is 2+2?'),
           genui.AiTextMessage.text('2+2 equals 4.'),
           genui.UserMessage.text('And 3+3?'),

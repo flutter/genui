@@ -56,8 +56,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   final _scrollController = ScrollController();
 
   // API key from dart-define
-  static const String _geminiApiKeyEnv =
-      String.fromEnvironment('GEMINI_API_KEY');
+  static const String _geminiApiKeyEnv = String.fromEnvironment(
+    'GEMINI_API_KEY',
+  );
   static String? get _geminiApiKey =>
       _geminiApiKeyEnv.isEmpty ? null : _geminiApiKeyEnv;
 
@@ -83,8 +84,9 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         widget.contentGenerator ??
         DartanticContentGenerator(
           provider: dartantic.GoogleProvider(apiKey: _geminiApiKey),
+          // modelName: 'gemini-2.5-pro',
           catalog: travelAppCatalog,
-          systemInstruction: prompt,
+          systemInstruction: systemInstruction,
           additionalTools: [
             ListHotelsTool(onListHotels: BookingService.instance.listHotels),
           ],
@@ -239,7 +241,8 @@ class _ChatInput extends StatelessWidget {
 
 String? _imagesJson;
 
-final prompt = '''
+final systemInstruction =
+    '''
 # Instructions
 
 You are a helpful travel agent assistant that communicates by creating and
@@ -346,6 +349,10 @@ user's requests. To display or update a UI, you must first call the
 components, you must call the `beginRendering` tool to specify the root
 component that should be displayed.
 
+- Tool names are camelCase: use `surfaceUpdate` and `beginRendering` exactly
+  (do not use snake_case variants).
+- In a single turn, issue at most one `surfaceUpdate` + `beginRendering` pair
+  for a given surface, then stop and wait for the next user input.
 - Adding surfaces: Most of the time, you should only add new surfaces to the
   conversation. This is less confusing for the user, because they can easily
   find this new content at the bottom of the conversation.
