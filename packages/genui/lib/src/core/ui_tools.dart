@@ -10,7 +10,6 @@ import '../model/catalog.dart';
 import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
-import 'genui_configuration.dart';
 
 /// An [AiTool] for adding or updating a UI surface.
 ///
@@ -18,21 +17,15 @@ import 'genui_configuration.dart';
 /// one with a new definition.
 class SurfaceUpdateTool extends AiTool<JsonMap> {
   /// Creates an [SurfaceUpdateTool].
-  SurfaceUpdateTool({
-    required this.handleMessage,
-    required Catalog catalog,
-    required this.configuration,
-  }) : super(
-         name: 'surfaceUpdate',
-         description: 'Updates a surface with a new set of components.',
-         parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
-       );
+  SurfaceUpdateTool({required this.handleMessage, required Catalog catalog})
+    : super(
+        name: 'surfaceUpdate',
+        description: 'Updates a surface with a new set of components.',
+        parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
+      );
 
   /// The callback to invoke when adding or updating a surface.
   final void Function(A2uiMessage message) handleMessage;
-
-  /// The configuration of the Gen UI system.
-  final GenUiConfiguration configuration;
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {

@@ -34,13 +34,10 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     this.systemInstruction,
     this.outputToolName = 'provideFinalOutput',
     this.serviceFactory = defaultGenerativeServiceFactory,
-    this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
     this.modelName = 'models/gemini-2.5-flash',
     this.apiKey,
   });
-
-  final GenUiConfiguration configuration;
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;
@@ -332,11 +329,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     );
   }
 
-  Future<Object?> _generate({
-    required Iterable<ChatMessage> messages,
-    dsb.Schema? outputSchema,
-  }) async {
-    final isForcedToolCalling = outputSchema != null;
+  Future<Object?> _generate({required Iterable<ChatMessage> messages}) async {
     final converter = GoogleContentConverter();
     final adapter = GoogleSchemaAdapter();
 
@@ -344,18 +337,13 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
     try {
       final availableTools = [
-        if (configuration.actions.allowCreate ||
-            configuration.actions.allowUpdate) ...[
-          SurfaceUpdateTool(
-            handleMessage: _a2uiMessageController.add,
-            catalog: catalog,
-            configuration: configuration,
-          ),
-          BeginRenderingTool(handleMessage: _a2uiMessageController.add),
-        ],
-        if (configuration.actions.allowDelete)
-          DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
-        ...additionalTools,
+        SurfaceUpdateTool(
+          handleMessage: _a2uiMessageController.add,
+          catalog: catalog,
+        ),
+        BeginRenderingTool(handleMessage: _a2uiMessageController.add),
+
+        DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
       ];
 
       // A local copy of the incoming messages which is updated with

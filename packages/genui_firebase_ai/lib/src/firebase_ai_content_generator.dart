@@ -40,11 +40,8 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     this.systemInstruction,
     this.outputToolName = 'provideFinalOutput',
     this.modelCreator = defaultGenerativeModelFactory,
-    this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
   });
-
-  final GenUiConfiguration configuration;
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;

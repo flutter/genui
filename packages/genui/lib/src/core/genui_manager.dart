@@ -13,7 +13,6 @@ import '../model/chat_message.dart';
 import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import 'genui_configuration.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -88,12 +87,7 @@ class GenUiManager implements GenUiHost {
   /// Creates a new [GenUiManager].
   ///
   /// The [catalog] defines the set of widgets available to the AI.
-  GenUiManager({
-    required this.catalog,
-    this.configuration = const GenUiConfiguration(),
-  });
-
-  final GenUiConfiguration configuration;
+  GenUiManager({required this.catalog});
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
