@@ -1,6 +1,5 @@
-// Copyright 2025 The Flutter Authors.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2025 The Flutter Authors. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
 
 import 'package:dartantic_interface/dartantic_interface.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
@@ -19,11 +18,13 @@ void main() {
       test('converts UserMessage with text to prompt string', () {
         final message = genui.UserMessage.text('Hello, world!');
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, 'Hello, world!');
-        expect(result.parts, isNotEmpty);
+        // Text parts are excluded from parts to avoid duplication (text is in
+        // prompt)
+        expect(result.parts, isEmpty);
       });
 
       test('converts UserMessage with multiple text parts', () {
@@ -32,18 +33,20 @@ void main() {
           const genui.TextPart('Second part'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, 'First part\nSecond part');
-        expect(result.parts.whereType<di.TextPart>(), isNotEmpty);
+        // Text parts are excluded from parts to avoid duplication (text is in
+        // prompt)
+        expect(result.parts, isEmpty);
       });
 
       test('converts UserUiInteractionMessage to prompt string', () {
         final message = genui.UserUiInteractionMessage.text('UI interaction');
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, 'UI interaction');
       });
@@ -51,8 +54,8 @@ void main() {
       test('converts AiTextMessage to prompt string', () {
         final message = genui.AiTextMessage.text('AI response');
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, 'AI response');
       });
@@ -60,11 +63,12 @@ void main() {
       test('converts InternalMessage to prompt string', () {
         const message = genui.InternalMessage('System instruction');
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, 'System instruction');
-        expect(result.parts.single, isA<di.TextPart>());
+        // InternalMessage returns empty parts (text is in prompt only)
+        expect(result.parts, isEmpty);
       });
 
       test('handles ToolResponseMessage', () {
@@ -72,8 +76,8 @@ void main() {
           genui.ToolResultPart(callId: 'call1', result: '{"status": "ok"}'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, contains('ToolResult(call1)'));
         expect(result.parts, isNotEmpty);
@@ -85,8 +89,8 @@ void main() {
           const genui.DataPart({'key': 'value'}),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, contains('Check this data:'));
         expect(result.prompt, contains('Data:'));
@@ -102,11 +106,14 @@ void main() {
           genui.ImagePart.fromUrl(Uri.parse('https://example.com/image.png')),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, contains('Look at this image:'));
-        expect(result.prompt, contains('Image at https://example.com/image.png'));
+        expect(
+          result.prompt,
+          contains('Image at https://example.com/image.png'),
+        );
         expect(result.parts.whereType<di.LinkPart>(), isNotEmpty);
       });
 
@@ -116,8 +123,8 @@ void main() {
           const genui.TextPart('Here is my answer.'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, contains('Thinking: Let me think about this...'));
         expect(result.prompt, contains('Here is my answer.'));
@@ -133,8 +140,8 @@ void main() {
           ),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, contains('ToolCall(test_tool)'));
         expect(result.parts.whereType<di.ToolPart>(), isNotEmpty);
@@ -146,8 +153,8 @@ void main() {
           const genui.ToolResultPart(callId: 'call1', result: '{}'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, contains('ToolResult(call1)'));
         expect(result.parts.whereType<di.ToolPart>(), isNotEmpty);
@@ -156,8 +163,8 @@ void main() {
       test('handles empty message parts', () {
         final message = genui.UserMessage([]);
 
-        final ({String prompt, List<di.Part> parts}) result =
-            converter.toPromptAndParts(message);
+        final ({String prompt, List<di.Part> parts}) result = converter
+            .toPromptAndParts(message);
 
         expect(result.prompt, '');
       });
