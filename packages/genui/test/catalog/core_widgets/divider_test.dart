@@ -6,11 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.divider]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([CoreCatalogItems.divider], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [

@@ -6,14 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('TextField renders and handles changes/submissions', (
     WidgetTester tester,
   ) async {
     ChatMessage? message;
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.textField]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([CoreCatalogItems.textField], catalogId: standardCatalogId),
+      ],
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';

@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.slider]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([CoreCatalogItems.slider], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -56,8 +59,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.slider]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([CoreCatalogItems.slider], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [

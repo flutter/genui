@@ -42,7 +42,12 @@ void main() {
       final userMessage = UserMessage([const TextPart('Hello')]);
 
       expect(contentGenerator.isProcessing.value, isFalse);
-      final Future<void> future = contentGenerator.sendRequest(userMessage);
+      final Future<void> future = contentGenerator.sendRequest(
+        userMessage,
+        clientCapabilities: const A2UiClientCapabilities(
+          supportedCatalogIds: ['test_catalog'],
+        ),
+      );
       expect(contentGenerator.isProcessing.value, isTrue);
 
       await future;
@@ -51,12 +56,31 @@ void main() {
       expect(fakeConnector.lastConnectAndSendChatMessage, userMessage);
     });
 
+    test('sendRequest passes clientCapabilities to connector', () async {
+      final userMessage = UserMessage([const TextPart('Test')]);
+      const capabilities = A2UiClientCapabilities(
+        supportedCatalogIds: ['test_catalog'],
+      );
+
+      await contentGenerator.sendRequest(
+        userMessage,
+        clientCapabilities: capabilities,
+      );
+
+      expect(fakeConnector.lastClientCapabilities, capabilities);
+    });
+
     test('sendRequest adds response to textResponseStream', () async {
       final userMessage = UserMessage([const TextPart('Test')]);
       final completer = Completer<String>();
       contentGenerator.textResponseStream.listen(completer.complete);
 
-      await contentGenerator.sendRequest(userMessage);
+      await contentGenerator.sendRequest(
+        userMessage,
+        clientCapabilities: const A2UiClientCapabilities(
+          supportedCatalogIds: ['test_catalog'],
+        ),
+      );
 
       expect(await completer.future, 'Fake AI Response');
     });

@@ -6,13 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('Tabs widget renders and handles taps', (
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.tabs, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.tabs,
+          CoreCatalogItems.text,
+        ], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [

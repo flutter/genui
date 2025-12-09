@@ -13,7 +13,6 @@ import '../model/chat_message.dart';
 import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import 'genui_configuration.dart';
 
 /// A sealed class representing an update to the UI managed by [GenUiManager].
 ///
@@ -64,8 +63,8 @@ abstract interface class GenUiHost {
   /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId);
 
-  /// The catalog of UI components available to the AI.
-  Catalog get catalog;
+  /// The catalogs of UI components available to the AI.
+  Iterable<Catalog> get catalogs;
 
   /// A map of data models for storing the UI state of each surface.
   Map<String, DataModel> get dataModels;
@@ -85,15 +84,11 @@ abstract interface class GenUiHost {
 /// `beginRendering`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
 class GenUiManager implements GenUiHost {
-  /// Creates a new [GenUiManager].
-  ///
-  /// The [catalog] defines the set of widgets available to the AI.
-  GenUiManager({
-    required this.catalog,
-    this.configuration = const GenUiConfiguration(),
-  });
+  /// Creates a new [GenUiManager] with a list of supported widget catalogs.
+  GenUiManager({required this.catalogs});
 
-  final GenUiConfiguration configuration;
+  @override
+  final Iterable<Catalog> catalogs;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
@@ -130,9 +125,6 @@ class GenUiManager implements GenUiHost {
   }
 
   @override
-  final Catalog catalog;
-
-  @override
   ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId) {
     if (!_surfaces.containsKey(surfaceId)) {
       genUiLogger.fine('Adding new surface $surfaceId');
@@ -158,14 +150,11 @@ class GenUiManager implements GenUiHost {
   void handleMessage(A2uiMessage message) {
     switch (message) {
       case SurfaceUpdate():
-        // No need for SurfaceAdded here because A2uiMessage will never generate
-        // those. We decide here if the surface is new or not, and generate a
-        // SurfaceAdded event if so.
         final String surfaceId = message.surfaceId;
         final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
           surfaceId,
         );
-        final isNew = notifier.value == null;
+
         UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: surfaceId);
         final Map<String, Component> newComponents = Map.of(
@@ -176,21 +165,26 @@ class GenUiManager implements GenUiHost {
         }
         uiDefinition = uiDefinition.copyWith(components: newComponents);
         notifier.value = uiDefinition;
-        if (isNew) {
-          genUiLogger.info('Adding surface $surfaceId');
-          _surfaceUpdates.add(SurfaceAdded(surfaceId, uiDefinition));
-        } else {
+
+        // Notify UI ONLY if rendering has begun (i.e., rootComponentId is set or 'root' exists)
+        if (uiDefinition.rootComponentId != null ||
+            uiDefinition.components.containsKey('root')) {
           genUiLogger.info('Updating surface $surfaceId');
           _surfaceUpdates.add(SurfaceUpdated(surfaceId, uiDefinition));
+        } else {
+          genUiLogger.info(
+            'Caching components for surface $surfaceId (pre-rendering)',
+          );
         }
       case CreateSurface():
-        dataModelForSurface(message.surfaceId);
+        final String surfaceId = message.surfaceId;
+        dataModelForSurface(surfaceId);
         final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
-          message.surfaceId,
+          surfaceId,
         );
         final isNew = notifier.value == null;
         final UiDefinition uiDefinition =
-            notifier.value ?? UiDefinition(surfaceId: message.surfaceId);
+            notifier.value ?? UiDefinition(surfaceId: surfaceId);
         final UiDefinition newUiDefinition = uiDefinition.copyWith(
           theme: message.theme,
         );
@@ -212,6 +206,15 @@ class GenUiManager implements GenUiHost {
         );
         final DataModel dataModel = dataModelForSurface(message.surfaceId);
         dataModel.update(DataPath(path), message.contents);
+
+        // Notify UI of an update if the surface is already rendering
+        final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
+          message.surfaceId,
+        );
+        final UiDefinition? uiDefinition = notifier.value;
+        if (uiDefinition != null && uiDefinition.rootComponentId != null) {
+          _surfaceUpdates.add(SurfaceUpdated(message.surfaceId, uiDefinition));
+        }
       case SurfaceDeletion():
         final String surfaceId = message.surfaceId;
         if (_surfaces.containsKey(surfaceId)) {

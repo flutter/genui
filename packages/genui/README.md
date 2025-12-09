@@ -164,17 +164,17 @@ provider.
 
        // Create a GenUiManager with a widget catalog.
        // The CoreCatalogItems contain basic widgets for text, markdown, and images.
-       _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+       _genUiManager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
 
        // Create a ContentGenerator to communicate with the LLM.
        // Provide system instructions and the tools from the GenUiManager.
        final contentGenerator = FirebaseAiContentGenerator(
+         catalog: CoreCatalogItems.asCatalog(),
          systemInstruction: '''
            You are an expert in creating funny riddles. Every time I give you a word,
            you should generate UI that displays one new riddle related to that word.
            Each riddle should have both a question and an answer.
            ''',
-         tools: _genUiManager.getTools(),
        );
 
        // Create the GenUiConversation to orchestrate everything.
@@ -378,7 +378,7 @@ Include your catalog items when instantiating `GenUiManager`.
 
 ```dart
 _genUiManager = GenUiManager(
-  catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
+  catalogs: [CoreCatalogItems.asCatalog().copyWith([riddleCard])],
 );
 ```
 

@@ -76,7 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     final Catalog catalog = CoreCatalogItems.asCatalog();
-    _genUiManager = GenUiManager(catalog: catalog);
+    _genUiManager = GenUiManager(catalogs: [catalog]);
 
     final systemInstruction =
         '''You are a helpful assistant who chats with a user,

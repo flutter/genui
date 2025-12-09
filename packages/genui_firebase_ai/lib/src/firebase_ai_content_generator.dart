@@ -38,11 +38,8 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     required this.catalog,
     this.systemInstruction,
     this.modelCreator = defaultGenerativeModelFactory,
-    this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
   });
-
-  final GenUiConfiguration configuration;
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;
@@ -100,6 +97,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   }) async {
     _isProcessing.value = true;
     try {

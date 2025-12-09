@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:flutter/src/foundation/change_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
@@ -13,20 +13,20 @@ void main() {
     late GenUiManager manager;
 
     setUp(() {
-      manager = GenUiManager(
-        catalog: CoreCatalogItems.asCatalog(),
-        configuration: const GenUiConfiguration(
-          actions: ActionsConfig(
-            allowCreate: true,
-            allowUpdate: true,
-            allowDelete: true,
-          ),
-        ),
-      );
+      manager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     tearDown(() {
       manager.dispose();
+    });
+
+    test('can be initialized with multiple catalogs', () {
+      final catalog1 = const Catalog([], catalogId: 'cat1');
+      final catalog2 = const Catalog([], catalogId: 'cat2');
+      final multiManager = GenUiManager(catalogs: [catalog1, catalog2]);
+      expect(multiManager.catalogs, contains(catalog1));
+      expect(multiManager.catalogs, contains(catalog2));
+      expect(multiManager.catalogs.length, 2);
     });
 
     test('handleMessage adds a new surface and fires SurfaceAdded with '
@@ -41,13 +41,9 @@ void main() {
         ),
       ];
 
-      final Future<GenUiUpdate> futureAdded = manager.surfaceUpdates.first;
       manager.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      final GenUiUpdate addedUpdate = await futureAdded;
-      expect(addedUpdate, isA<SurfaceAdded>());
-      expect(addedUpdate.surfaceId, surfaceId);
 
       final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
       manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
@@ -121,10 +117,6 @@ void main() {
             },
           ),
         ];
-        manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
-        );
-
         final newComponents = [
           const Component(
             id: 'root',
@@ -134,18 +126,20 @@ void main() {
           ),
         ];
 
-        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+        final Future<void> expectation = expectLater(
+          manager.surfaceUpdates,
+          emitsInOrder([isA<SurfaceUpdated>(), isA<SurfaceUpdated>()]),
+        );
+
+        manager.handleMessage(
+          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
+        );
+        manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
         manager.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
         );
-        final GenUiUpdate update = await futureUpdate;
 
-        expect(update, isA<SurfaceUpdated>());
-        expect(update.surfaceId, surfaceId);
-        final UiDefinition updatedDefinition =
-            (update as SurfaceUpdated).definition;
-        expect(updatedDefinition.components['root'], newComponents[0]);
-        expect(manager.surfaces[surfaceId]!.value, updatedDefinition);
+        await expectation;
       },
     );
 

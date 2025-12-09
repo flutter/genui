@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'model/a2ui_client_capabilities.dart';
 import 'model/a2ui_message.dart';
 import 'model/chat_message.dart';
 
@@ -49,6 +50,7 @@ abstract interface class ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   });
 
   /// Disposes of the resources used by this generator.

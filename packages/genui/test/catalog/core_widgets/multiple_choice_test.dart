@@ -5,14 +5,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
+import 'package:genui/src/primitives/constants.dart';
 
 void main() {
   testWidgets('MultipleChoice widget renders and handles changes', (
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.multipleChoice]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.multipleChoice,
+          CoreCatalogItems.text,
+        ], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -76,8 +81,11 @@ void main() {
     'MultipleChoice widget handles simple string labels from data model',
     (WidgetTester tester) async {
       final manager = GenUiManager(
-        catalog: Catalog([CoreCatalogItems.multipleChoice]),
-        configuration: const GenUiConfiguration(),
+        catalogs: [
+          Catalog([
+            CoreCatalogItems.multipleChoice,
+          ], catalogId: standardCatalogId),
+        ],
       );
       const surfaceId = 'testSurfaceSimple';
       final components = [

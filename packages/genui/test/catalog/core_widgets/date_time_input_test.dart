@@ -6,13 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('DateTimeInput widget renders and handles changes', (
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.dateTimeInput]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.dateTimeInput,
+          CoreCatalogItems.text,
+        ], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [

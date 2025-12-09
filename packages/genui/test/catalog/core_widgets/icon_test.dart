@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([CoreCatalogItems.icon], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -44,8 +47,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([CoreCatalogItems.icon], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [

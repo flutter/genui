@@ -12,23 +12,13 @@ void main() {
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      genUiManager = GenUiManager(
-        catalog: catalog,
-        configuration: const GenUiConfiguration(
-          actions: ActionsConfig(
-            allowCreate: true,
-            allowUpdate: true,
-            allowDelete: true,
-          ),
-        ),
-      );
+      genUiManager = GenUiManager(catalogs: [catalog]);
     });
 
     test('SurfaceUpdateTool sends SurfaceUpdate message', () async {
       final tool = SurfaceUpdateTool(
         handleMessage: genUiManager.handleMessage,
         catalog: catalog,
-        configuration: const GenUiConfiguration(),
       );
 
       final Map<String, Object> args = {
@@ -48,7 +38,7 @@ void main() {
       final Future<void> future = expectLater(
         genUiManager.surfaceUpdates,
         emits(
-          isA<SurfaceAdded>()
+          isA<SurfaceUpdated>()
               .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
               .having(
                 (e) => e.definition.components.length,
@@ -64,6 +54,7 @@ void main() {
       );
 
       await tool.invoke(args);
+      genUiManager.handleMessage(const CreateSurface(surfaceId: 'testSurface'));
 
       await future;
     });

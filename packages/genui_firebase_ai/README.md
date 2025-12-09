@@ -19,7 +19,7 @@ Then, you can create an instance of `FirebaseAiContentGenerator` and pass it to 
 
 ```dart
 final catalog = CoreCatalogItems.asCatalog();
-final genUiManager = GenUiManager(catalog: catalog);
+final genUiManager = GenUiManager(catalogs: [catalog]);
 // Example of a custom tool
 final myCustomTool = DynamicAiTool<Map<String, Object?>>(
   name: 'my_custom_action',

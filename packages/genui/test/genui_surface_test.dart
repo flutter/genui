@@ -6,16 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
-  final testCatalog = Catalog([CoreCatalogItems.button, CoreCatalogItems.text]);
+  late GenUiManager manager;
+  final testCatalog = Catalog([
+    CoreCatalogItems.button,
+    CoreCatalogItems.text,
+  ], catalogId: standardCatalogId);
+
+  setUp(() {
+    manager = GenUiManager(catalogs: [testCatalog]);
+  });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: testCatalog,
-      configuration: const GenUiConfiguration(),
-    );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -50,10 +56,6 @@ void main() {
   });
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
-    final manager = GenUiManager(
-      catalog: testCatalog,
-      configuration: const GenUiConfiguration(),
-    );
     const surfaceId = 'testSurface';
     final components = [
       const Component(

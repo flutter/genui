@@ -32,13 +32,10 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     required this.catalog,
     this.systemInstruction,
     this.serviceFactory = defaultGenerativeServiceFactory,
-    this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
     this.modelName = 'models/gemini-2.5-flash',
     this.apiKey,
   });
-
-  final GenUiConfiguration configuration;
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;
@@ -102,6 +99,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   }) async {
     _isProcessing.value = true;
     try {
@@ -439,12 +437,11 @@ With functions:
     }
 
     // If the line doesn't start with '{', it's not a JSONL object.
-    // We ignore it to prevent markdown artifacts or other noise from being
-    // treated as text.
-    if (!line.startsWith('{')) {
-      genUiLogger.fine('Ignored non-JSONL line: $line');
-      return;
-    }
+    // However, we still want to emit it as text if it's not JSON.
+    // if (!line.startsWith('{')) {
+    //   genUiLogger.fine('Ignored non-JSONL line: $line');
+    //   return;
+    // }
 
     genUiLogger.fine('Processing line: $line');
 

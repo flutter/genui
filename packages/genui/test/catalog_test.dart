@@ -10,6 +10,13 @@ import 'package:logging/logging.dart';
 
 void main() {
   group('Catalog', () {
+    test('has a catalogId', () {
+      final catalog = Catalog([
+        CoreCatalogItems.text,
+      ], catalogId: 'test_catalog');
+      expect(catalog.catalogId, 'test_catalog');
+    });
+
     testWidgets('buildWidget finds and builds the correct widget', (
       WidgetTester tester,
     ) async {

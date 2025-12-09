@@ -6,14 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
   ) async {
     ChatMessage? message;
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.button, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.button,
+          CoreCatalogItems.text,
+        ], catalogId: standardCatalogId),
+      ],
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';

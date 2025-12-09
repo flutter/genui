@@ -6,11 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'package:genui/src/primitives/constants.dart';
+
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.column,
+          CoreCatalogItems.text,
+        ], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -59,8 +65,12 @@ void main() {
     WidgetTester tester,
   ) async {
     final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.column, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.column,
+          CoreCatalogItems.text,
+        ], catalogId: standardCatalogId),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
