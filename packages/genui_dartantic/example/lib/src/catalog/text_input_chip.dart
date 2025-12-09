@@ -129,7 +129,13 @@ class _TextInputChipState extends State<_TextInputChip> {
   void didUpdateWidget(_TextInputChip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value) {
-      _textController.text = widget.value ?? '';
+      // Defer to avoid setState during build - the parent ValueListenableBuilder
+      // may be rebuilding us, and setting controller.text triggers listeners.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _textController.text = widget.value ?? '';
+        }
+      });
     }
   }
 
