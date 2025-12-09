@@ -11,9 +11,7 @@ void main() {
   testWidgets('TextField in Row with no weight uses a static default width', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalogs: [CoreCatalogItems.asCatalog()],
-    );
+    final manager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -66,9 +64,7 @@ void main() {
   testWidgets('TextField in Row (with weight) expands', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalogs: [CoreCatalogItems.asCatalog()],
-    );
+    final manager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
