@@ -145,7 +145,24 @@ ${GenUiPromptFragments.basicChat}''';
     };
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          Row(
+            children: [
+              const Text('Padding'),
+              Switch(
+                value: DebugFlags.enableLeafPadding,
+                onChanged: (value) {
+                  setState(() {
+                    DebugFlags.enableLeafPadding = value;
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [

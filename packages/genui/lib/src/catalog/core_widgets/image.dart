@@ -10,6 +10,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
+import 'widget_helpers.dart';
 
 Schema _schema({required bool enableUsageHint}) {
   final Map<String, Schema> properties = {
@@ -126,6 +127,13 @@ CatalogItem _imageCatalogItem({
             'largeFeature' => 400.0,
             _ => 150.0,
           };
+
+          if (DebugFlags.enableLeafPadding) {
+            return Padding(
+              padding: kDefaultLeafComponentPadding,
+              child: SizedBox(width: size, height: size, child: child),
+            );
+          }
 
           return SizedBox(width: size, height: size, child: child);
         },

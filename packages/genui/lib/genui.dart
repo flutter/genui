@@ -10,6 +10,7 @@
 library;
 
 export 'src/catalog/core_catalog.dart';
+export 'src/catalog/core_widgets/widget_helpers.dart';
 export 'src/content_generator.dart';
 export 'src/core/a2ui_message_processor.dart';
 export 'src/core/genui_surface.dart';

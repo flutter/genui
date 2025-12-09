@@ -13,6 +13,7 @@ import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
@@ -87,6 +88,7 @@ final button = CatalogItem(
         foregroundColor: primary
             ? colorScheme.onPrimary
             : colorScheme.onSurface,
+        padding: DebugFlags.enableLeafPadding ? EdgeInsets.zero : null,
       ).copyWith(textStyle: WidgetStatePropertyAll(textStyle)),
       onPressed: () {
         final JsonMap resolvedContext = resolveContext(

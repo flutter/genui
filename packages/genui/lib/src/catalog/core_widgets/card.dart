@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {'child': A2uiSchemas.componentReference()},
@@ -37,10 +38,12 @@ final card = CatalogItem(
     final cardData = _CardData.fromMap(itemContext.data as JsonMap);
     return Card(
       color: Theme.of(itemContext.buildContext).colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: itemContext.buildChild(cardData.child),
-      ),
+      child: DebugFlags.enableLeafPadding
+          ? itemContext.buildChild(cardData.child)
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: itemContext.buildChild(cardData.child),
+            ),
     );
   },
   exampleData: [

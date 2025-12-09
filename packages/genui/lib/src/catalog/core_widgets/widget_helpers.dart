@@ -9,6 +9,15 @@ import '../../model/data_model.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
+const EdgeInsets kDefaultLeafComponentPadding = EdgeInsets.symmetric(
+  horizontal: 16.0,
+  vertical: 12.0,
+);
+
+class DebugFlags {
+  static bool enableLeafPadding = true;
+}
+
 /// Builder function for creating a widget from a template and a list of data.
 ///
 /// This is used by [ComponentChildrenBuilder] when children are defined by a
