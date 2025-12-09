@@ -308,13 +308,13 @@ String _hotelExample() {
             {
               'description': {'literalString': hotel1.description},
               'imageChildId': 'image_1',
-              'listingSelectionId': '12345',
+              'listingSelectionId': hotel1.listingSelectionId,
               'action': {'name': 'selectHotel'},
             },
             {
               'description': {'literalString': hotel2.description},
               'imageChildId': 'image_2',
-              'listingSelectionId': '12346',
+              'listingSelectionId': hotel2.listingSelectionId,
               'action': {'name': 'selectHotel'},
             },
           ],
