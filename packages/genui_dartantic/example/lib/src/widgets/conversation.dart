@@ -59,7 +59,8 @@ class Conversation extends StatelessWidget {
             final String text = message.parts
                 .whereType<TextPart>()
                 .map((part) => part.text)
-                .join('\n');
+                .join('\n')
+                .trim();
             if (text.trim().isEmpty) {
               return const SizedBox.shrink();
             }

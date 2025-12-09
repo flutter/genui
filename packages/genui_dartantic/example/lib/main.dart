@@ -3,10 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
-import 'src/catalog.dart';
 import 'src/travel_planner_page.dart';
 
 void main() async {
@@ -15,103 +13,43 @@ void main() async {
   // Configure logging
   Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
-    debugPrint('[${record.level.name}] ${record.loggerName}: ${record.message}');
+    debugPrint(
+      '[${record.level.name}] ${record.loggerName}: ${record.message}',
+    );
   });
 
   await loadImagesJson();
-
   runApp(const TravelApp());
 }
 
 const _title = 'Agentic Travel Inc (Dartantic)';
 
-/// The root widget for the travel application.
-///
-/// This widget sets up the [MaterialApp], which configures the overall theme,
-/// title, and home page for the app. It serves as the main entry point for the
-/// user interface.
 class TravelApp extends StatelessWidget {
-  /// Creates a new [TravelApp].
-  ///
-  /// The optional [contentGenerator] can be used to inject a specific AI
-  /// client, which is useful for testing with a mock implementation.
-  const TravelApp({this.contentGenerator, super.key});
-
-  final ContentGenerator? contentGenerator;
+  const TravelApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: _title,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+  Widget build(BuildContext context) => MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: _title,
+    home: TravelPlannerHomePage(),
+  );
+}
+
+class TravelPlannerHomePage extends StatelessWidget {
+  const TravelPlannerHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.local_airport),
+          SizedBox(width: 16.0),
+          Text(_title),
+        ],
       ),
-      home: _TravelAppBody(contentGenerator: contentGenerator),
-    );
-  }
-}
-
-class _TravelAppBody extends StatelessWidget {
-  const _TravelAppBody({this.contentGenerator});
-
-  /// The AI client to use for the application.
-  ///
-  /// If null, a default [DartanticContentGenerator] will be created by the
-  /// [TravelPlannerPage].
-  final ContentGenerator? contentGenerator;
-
-  @override
-  Widget build(BuildContext context) {
-    final Map<String, StatefulWidget> tabs = {
-      'Travel': TravelPlannerPage(contentGenerator: contentGenerator),
-      'Widget Catalog': const CatalogTab(),
-    };
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          leading: const Icon(Icons.menu),
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.local_airport),
-              SizedBox(width: 16.0),
-              Text(_title),
-            ],
-          ),
-          actions: const [
-            Icon(Icons.person_outline),
-            SizedBox(width: 8.0),
-          ],
-          bottom: TabBar(
-            tabs: tabs.entries.map((entry) => Tab(text: entry.key)).toList(),
-          ),
-        ),
-        body: TabBarView(
-          children: tabs.entries.map((entry) => entry.value).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class CatalogTab extends StatefulWidget {
-  const CatalogTab({super.key});
-
-  @override
-  State<CatalogTab> createState() => _CatalogTabState();
-}
-
-class _CatalogTabState extends State<CatalogTab>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return DebugCatalogView(catalog: travelAppCatalog);
-  }
-
-  @override
-  bool get wantKeepAlive => true;
+    ),
+    body: TravelPlannerView(),
+  );
 }

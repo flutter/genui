@@ -19,35 +19,14 @@ Future<void> loadImagesJson() async {
   _imagesJson = await assetImageCatalogJson();
 }
 
-/// The main page for the travel planner application.
-///
-/// This stateful widget manages the core user interface and application logic.
-/// It initializes the [GenUiManager] and [ContentGenerator], maintains the
-/// conversation history, and handles the interaction between the user, the AI,
-/// and the dynamically generated UI.
-///
-/// The page allows users to interact with the generative AI to plan trips. It
-/// features a text field to send prompts, a view to display the dynamically
-/// generated UI, and a menu to switch between different AI models.
-class TravelPlannerPage extends StatefulWidget {
-  /// Creates a new [TravelPlannerPage].
-  ///
-  /// An optional [contentGenerator] can be provided, which is useful for
-  /// testing or using a custom AI client implementation. If not provided, a
-  /// default [DartanticContentGenerator] is created.
-  const TravelPlannerPage({this.contentGenerator, super.key});
-
-  /// The AI client to use for the application.
-  ///
-  /// If null, a default instance of [DartanticContentGenerator] will be
-  /// created within the page's state.
-  final ContentGenerator? contentGenerator;
+class TravelPlannerView extends StatefulWidget {
+  const TravelPlannerView({super.key});
 
   @override
-  State<TravelPlannerPage> createState() => _TravelPlannerPageState();
+  State<TravelPlannerView> createState() => _TravelPlannerViewState();
 }
 
-class _TravelPlannerPageState extends State<TravelPlannerPage>
+class _TravelPlannerViewState extends State<TravelPlannerView>
     with AutomaticKeepAliveClientMixin {
   late final GenUiConversation _uiConversation;
   late final StreamSubscription<ChatMessage> _userMessageSubscription;
@@ -56,15 +35,15 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   final _scrollController = ScrollController();
 
   // API key from dart-define
-  static const String _geminiApiKeyEnv = String.fromEnvironment(
-    'GEMINI_API_KEY',
-  );
-  static String? get _geminiApiKey =>
+  static const _geminiApiKeyEnv = String.fromEnvironment('GEMINI_API_KEY');
+
+  static get _geminiApiKey =>
       _geminiApiKeyEnv.isEmpty ? null : _geminiApiKeyEnv;
 
   @override
   void initState() {
     super.initState();
+
     final genUiManager = GenUiManager(
       catalog: travelAppCatalog,
       configuration: const GenUiConfiguration(
@@ -75,38 +54,29 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         ),
       ),
     );
+
     _userMessageSubscription = genUiManager.onSubmit.listen(
       _handleUserMessageFromUi,
     );
 
-    // Create the DartanticContentGenerator with GoogleProvider
-    final ContentGenerator contentGenerator =
-        widget.contentGenerator ??
-        DartanticContentGenerator(
-          provider: dartantic.GoogleProvider(apiKey: _geminiApiKey),
-          // modelName: 'gemini-2.5-pro',
-          catalog: travelAppCatalog,
-          systemInstruction: systemInstruction,
-          additionalTools: [
-            ListHotelsTool(onListHotels: BookingService.instance.listHotels),
-          ],
-        );
+    final contentGenerator = DartanticContentGenerator(
+      provider: dartantic.GoogleProvider(apiKey: _geminiApiKey),
+      // TODO (csells): use flash when dartantic supports tool forcing.
+      // modelName: 'gemini-2.5-flash',
+      modelName: 'gemini-2.5-pro',
+      catalog: travelAppCatalog,
+      systemInstruction: systemInstruction,
+      additionalTools: [
+        ListHotelsTool(onListHotels: BookingService.instance.listHotels),
+      ],
+    );
 
     _uiConversation = GenUiConversation(
       genUiManager: genUiManager,
       contentGenerator: contentGenerator,
-      onSurfaceUpdated: (update) {
-        _scrollToBottom();
-      },
-      onSurfaceAdded: (update) {
-        _scrollToBottom();
-      },
-      onTextResponse: (text) {
-        if (!mounted) return;
-        if (text.isNotEmpty) {
-          _scrollToBottom();
-        }
-      },
+      onSurfaceUpdated: (_) => _scrollToBottom(),
+      onSurfaceAdded: (_) => _scrollToBottom(),
+      onTextResponse: (_) => _scrollToBottom(),
     );
   }
 
@@ -131,13 +101,10 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     });
   }
 
-  Future<void> _triggerInference(ChatMessage message) async {
-    await _uiConversation.sendRequest(message);
-  }
+  Future<void> _triggerInference(ChatMessage message) =>
+      _uiConversation.sendRequest(message);
 
-  void _handleUserMessageFromUi(ChatMessage message) {
-    _scrollToBottom();
-  }
+  void _handleUserMessageFromUi(ChatMessage message) => _scrollToBottom();
 
   void _sendPrompt(String text) {
     if (_uiConversation.isProcessing.value || text.trim().isEmpty) return;
@@ -203,12 +170,16 @@ class _ChatInput extends StatelessWidget {
   final void Function(String) onSend;
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 2.0,
-      borderRadius: BorderRadius.circular(25.0),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.all(8),
         child: Row(
           children: [
             Expanded(
@@ -235,8 +206,8 @@ class _ChatInput extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 String? _imagesJson;
@@ -244,6 +215,11 @@ String? _imagesJson;
 final systemInstruction =
     '''
 # Instructions
+
+MANDATORY TOOL USAGE:
+- Every turn must issue exactly one `surfaceUpdate` followed by one `beginRendering` (camelCase) before finishing the turn. No turn may complete without those two tool calls.
+- You may include brief text to describe what you rendered, but never replace the tools with text-only responses.
+- Stop after emitting that single tool pair and the short text; wait for the next user input.
 
 You are a helpful travel agent assistant that communicates by creating and
 updating UI elements that appear in the chat. Your job is to help customers
@@ -370,9 +346,9 @@ as the root and add the other components as children.
 
 ## UI style
 
-Always prefer to communicate using UI elements rather than text. Only respond
-with text if you need to provide a short explanation of how you've updated the
-UI.
+You MUST communicate using UI elements. Text alone is never acceptable. Every
+response MUST include surfaceUpdate + beginRendering tool calls. You may include
+a brief text explanation of what you rendered, but text without tools is forbidden.
 
 - TravelCarousel: Always make sure there are at least four options in the
   carousel. If there are only 2 or 3 obvious options, just think of some
@@ -531,6 +507,7 @@ the other widgets.
 }
 ```
 
-When updating or showing UIs, **ALWAYS** use the surfaceUpdate tool to supply
-them. Prefer to collect and show information by creating a UI for it.
+When updating or showing UIs, you MUST use the surfaceUpdate tool followed by
+beginRendering. Text-only responses are forbidden. Every turn MUST call both
+tools before completing.
 ''';

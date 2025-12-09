@@ -154,20 +154,16 @@ class DartanticContentGenerator implements ContentGenerator {
 
       // Use Agent.sendFor with structured output so the model returns a single
       // response string instead of dumping JSON/tool content as text.
-      final di.ChatResult<Map<String, dynamic>> result = await _agent
-          .sendFor<Map<String, dynamic>>(
+      final di.ChatResult<Map<String, dynamic>> result =
+          await _agent.sendFor<Map<String, dynamic>>(
         promptAndParts.prompt,
         outputSchema: _outputSchema,
         history: dartanticHistory,
         attachments: promptAndParts.parts,
       );
 
-      // Extract the response text from structured output
-      final Object? responseValue = result.output['response'];
-      final String responseText =
-          responseValue is String && responseValue.isNotEmpty
-              ? responseValue
-              : result.output.toString();
+      final String responseText = _parseResponse(result.output);
+
       _textResponseController.add(responseText);
       genUiLogger.info('Received response from Dartantic: $responseText');
     } catch (e, st) {
@@ -203,5 +199,20 @@ class DartanticContentGenerator implements ContentGenerator {
         },
       );
     }).toList();
+  }
+
+  /// Validates and extracts the response text from the structured output.
+  String _parseResponse(Map<String, dynamic> output) {
+    final Object? responseValue = output['response'];
+    if (responseValue is! String) {
+      throw StateError(
+        'Dartantic returned a non-string response: $responseValue',
+      );
+    }
+    final String responseText = responseValue.trim();
+    if (responseText.isEmpty) {
+      throw StateError('Dartantic returned an empty response string.');
+    }
+    return responseText;
   }
 }
