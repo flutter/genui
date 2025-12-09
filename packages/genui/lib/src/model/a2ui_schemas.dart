@@ -226,7 +226,11 @@ class A2uiSchemas {
             'id': S.string(),
             'weight': S.integer(
               description:
-                  'Optional layout weight for use in Row/Column children.',
+                  'Optional layout weight. If set, this component expands to '
+                  'fill the available space in a Row or Column. The value '
+                  'determines the relative proportion of space it takes '
+                  'compared to other weighted components (e.g., a weight of 2 '
+                  'takes twice the space of a weight of 1).',
             ),
             'component': S.object(
               description:

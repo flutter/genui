@@ -10,7 +10,12 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
+import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
+
+/// The default width used when the TextField is unbounded.
+@visibleForTesting
+const double kDefaultTextFieldWidth = 300.0;
 
 final _schema = S.object(
   properties: {
@@ -180,35 +185,60 @@ final textField = CatalogItem(
         return ValueListenableBuilder(
           valueListenable: labelNotifier,
           builder: (context, label, child) {
-            return _TextField(
-              initialValue: currentValue ?? '',
-              label: label,
-              textFieldType: textFieldData.textFieldType,
-              validationRegexp: textFieldData.validationRegexp,
-              onChanged: (newValue) {
-                if (path != null) {
-                  itemContext.dataContext.update(DataPath(path), newValue);
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                // example: Inside a row without Flexible/Expanded.
+                final bool isUnbounded = !constraints.hasBoundedWidth;
+
+                if (isUnbounded) {
+                  genUiLogger.warning(
+                    'TextField (id: ${itemContext.id}) has unbounded width '
+                    'and will default to ${kDefaultTextFieldWidth}px. To make '
+                    'it fill the available space, the generated component JSON '
+                    'must include "weight": 1.',
+                  );
                 }
-              },
-              onSubmitted: (newValue) {
-                final JsonMap? actionData = textFieldData.onSubmittedAction;
-                if (actionData == null) {
-                  return;
+
+                Widget textFieldWidget = _TextField(
+                  initialValue: currentValue ?? '',
+                  label: label,
+                  textFieldType: textFieldData.textFieldType,
+                  validationRegexp: textFieldData.validationRegexp,
+                  onChanged: (newValue) {
+                    if (path != null) {
+                      itemContext.dataContext.update(DataPath(path), newValue);
+                    }
+                  },
+                  onSubmitted: (newValue) {
+                    final JsonMap? actionData = textFieldData.onSubmittedAction;
+                    if (actionData == null) {
+                      return;
+                    }
+                    final actionName = actionData['name'] as String;
+                    final List<Object?> contextDefinition =
+                        (actionData['context'] as List<Object?>?) ??
+                        <Object?>[];
+                    final JsonMap resolvedContext = resolveContext(
+                      itemContext.dataContext,
+                      contextDefinition,
+                    );
+                    itemContext.dispatchEvent(
+                      UserActionEvent(
+                        name: actionName,
+                        sourceComponentId: itemContext.id,
+                        context: resolvedContext,
+                      ),
+                    );
+                  },
+                );
+
+                if (isUnbounded) {
+                  return SizedBox(
+                    width: kDefaultTextFieldWidth,
+                    child: textFieldWidget,
+                  );
                 }
-                final actionName = actionData['name'] as String;
-                final List<Object?> contextDefinition =
-                    (actionData['context'] as List<Object?>?) ?? <Object?>[];
-                final JsonMap resolvedContext = resolveContext(
-                  itemContext.dataContext,
-                  contextDefinition,
-                );
-                itemContext.dispatchEvent(
-                  UserActionEvent(
-                    name: actionName,
-                    sourceComponentId: itemContext.id,
-                    context: resolvedContext,
-                  ),
-                );
+                return textFieldWidget;
               },
             );
           },
