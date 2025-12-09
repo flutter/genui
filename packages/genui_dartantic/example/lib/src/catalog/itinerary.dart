@@ -148,10 +148,7 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
 }
 
 class _ActionData {
-  const _ActionData({
-    required this.name,
-    required this.context,
-  });
+  const _ActionData({required this.name, required this.context});
 
   final String name;
   final List<Object?> context;
@@ -566,9 +563,12 @@ class _ItineraryEntry extends StatelessWidget {
                             if (actionData == null) {
                               return;
                             }
-                            final _ActionData action = _ActionData.fromMap(actionData);
+                            final _ActionData action = _ActionData.fromMap(
+                              actionData,
+                            );
                             final actionName = action.name;
-                            final List<Object?> contextDefinition = action.context;
+                            final List<Object?> contextDefinition =
+                                action.context;
                             final JsonMap resolvedContext = resolveContext(
                               dataContext,
                               contextDefinition,

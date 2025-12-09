@@ -37,8 +37,9 @@ class _TravelPlannerViewState extends State<TravelPlannerView>
   // API key from dart-define
   static const _geminiApiKeyEnv = String.fromEnvironment('GEMINI_API_KEY');
 
-  static final String? _geminiApiKey =
-      _geminiApiKeyEnv.isEmpty ? null : _geminiApiKeyEnv;
+  static final String? _geminiApiKey = _geminiApiKeyEnv.isEmpty
+      ? null
+      : _geminiApiKeyEnv;
 
   @override
   void initState() {

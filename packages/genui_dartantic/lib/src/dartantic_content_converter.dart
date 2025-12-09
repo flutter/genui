@@ -33,29 +33,29 @@ class DartanticContentConverter {
   ) {
     return switch (message) {
       genui.UserMessage() => (
-          prompt: _extractText(message.parts),
-          parts: _toPartsWithoutText(message.parts),
-        ),
+        prompt: _extractText(message.parts),
+        parts: _toPartsWithoutText(message.parts),
+      ),
       genui.UserUiInteractionMessage() => (
-          prompt: _extractText(message.parts),
-          parts: _toPartsWithoutText(message.parts),
-        ),
+        prompt: _extractText(message.parts),
+        parts: _toPartsWithoutText(message.parts),
+      ),
       genui.AiTextMessage() => (
-          prompt: _extractText(message.parts),
-          parts: _toPartsWithoutText(message.parts),
-        ),
+        prompt: _extractText(message.parts),
+        parts: _toPartsWithoutText(message.parts),
+      ),
       genui.AiUiMessage() => (
-          prompt: _extractText(message.parts),
-          parts: _toPartsWithoutText(message.parts),
-        ),
+        prompt: _extractText(message.parts),
+        parts: _toPartsWithoutText(message.parts),
+      ),
       genui.ToolResponseMessage() => (
-          prompt: _extractToolResponseText(message.results),
-          parts: _toolResultPartsToDiParts(message.results),
-        ),
+        prompt: _extractToolResponseText(message.results),
+        parts: _toolResultPartsToDiParts(message.results),
+      ),
       genui.InternalMessage() => (
-          prompt: message.text,
-          parts: const <di.Part>[],
-        ),
+        prompt: message.text,
+        parts: const <di.Part>[],
+      ),
     };
   }
 
@@ -166,9 +166,7 @@ class DartanticContentConverter {
   /// Converts tool response parts to a textual form for prompts.
   String _extractToolResponseText(List<genui.ToolResultPart> results) {
     return results
-        .map(
-          (r) => 'ToolResult(${r.callId}): ${r.result}',
-        )
+        .map((r) => 'ToolResult(${r.callId}): ${r.result}')
         .join('\n');
   }
 
@@ -192,26 +190,14 @@ class DartanticContentConverter {
         case genui.ImagePart():
           if (part.url != null) {
             converted.add(
-              di.LinkPart(
-                part.url!,
-                mimeType: part.mimeType,
-                name: null,
-              ),
+              di.LinkPart(part.url!, mimeType: part.mimeType, name: null),
             );
           } else if (part.base64 != null && part.mimeType != null) {
             converted.add(
-              di.DataPart(
-                base64Decode(part.base64!),
-                mimeType: part.mimeType!,
-              ),
+              di.DataPart(base64Decode(part.base64!), mimeType: part.mimeType!),
             );
           } else if (part.bytes != null && part.mimeType != null) {
-            converted.add(
-              di.DataPart(
-                part.bytes!,
-                mimeType: part.mimeType!,
-              ),
-            );
+            converted.add(di.DataPart(part.bytes!, mimeType: part.mimeType!));
           } else {
             converted.add(const di.TextPart('[Image data]'));
           }
@@ -241,8 +227,9 @@ class DartanticContentConverter {
   /// Converts GenUI message parts to dartantic parts, excluding text parts to
   /// avoid duplicate text in both prompt and attachments.
   List<di.Part> _toPartsWithoutText(List<genui.MessagePart> parts) {
-    final List<genui.MessagePart> filtered =
-        parts.where((p) => p is! genui.TextPart).toList();
+    final List<genui.MessagePart> filtered = parts
+        .where((p) => p is! genui.TextPart)
+        .toList();
     return _toParts(filtered);
   }
 

@@ -154,13 +154,13 @@ class DartanticContentGenerator implements ContentGenerator {
 
       // Use Agent.sendFor with structured output so the model returns a single
       // response string instead of dumping JSON/tool content as text.
-      final di.ChatResult<Map<String, dynamic>> result =
-          await _agent.sendFor<Map<String, dynamic>>(
-        promptAndParts.prompt,
-        outputSchema: _outputSchema,
-        history: dartanticHistory,
-        attachments: promptAndParts.parts,
-      );
+      final di.ChatResult<Map<String, dynamic>> result = await _agent
+          .sendFor<Map<String, dynamic>>(
+            promptAndParts.prompt,
+            outputSchema: _outputSchema,
+            history: dartanticHistory,
+            attachments: promptAndParts.parts,
+          );
 
       final String responseText = _parseResponse(result.output);
 
