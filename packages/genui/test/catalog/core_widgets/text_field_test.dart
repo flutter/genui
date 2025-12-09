@@ -13,7 +13,6 @@ void main() {
   ) async {
     final manager = GenUiManager(
       catalogs: [CoreCatalogItems.asCatalog()],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -69,7 +68,6 @@ void main() {
   ) async {
     final manager = GenUiManager(
       catalogs: [CoreCatalogItems.asCatalog()],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

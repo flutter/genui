@@ -64,7 +64,6 @@ void main() {
       final tool = SurfaceUpdateTool(
         handleMessage: messages.add,
         catalog: const Catalog([], catalogId: 'test_catalog'),
-        configuration: const GenUiConfiguration(),
       );
 
       final Map<String, Object> args = {
@@ -90,7 +89,6 @@ void main() {
       final tool = SurfaceUpdateTool(
         handleMessage: messages.add,
         catalog: const Catalog([], catalogId: 'test_catalog'),
-        configuration: const GenUiConfiguration(),
       );
 
       final Map<String, Object> args = {
