@@ -15,10 +15,7 @@ void main() {
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    manager = GenUiManager(
-      catalogs: [testCatalog],
-      configuration: const GenUiConfiguration(),
-    );
+    manager = GenUiManager(catalogs: [testCatalog]);
   });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (

@@ -18,7 +18,6 @@ void main() {
           CoreCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

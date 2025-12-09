@@ -12,23 +12,13 @@ void main() {
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      genUiManager = GenUiManager(
-        catalogs: [catalog],
-        configuration: const GenUiConfiguration(
-          actions: ActionsConfig(
-            allowCreate: true,
-            allowUpdate: true,
-            allowDelete: true,
-          ),
-        ),
-      );
+      genUiManager = GenUiManager(catalogs: [catalog]);
     });
 
     test('SurfaceUpdateTool sends SurfaceUpdate message', () async {
       final tool = SurfaceUpdateTool(
         handleMessage: genUiManager.handleMessage,
         catalog: catalog,
-        configuration: const GenUiConfiguration(),
       );
 
       final Map<String, Object> args = {

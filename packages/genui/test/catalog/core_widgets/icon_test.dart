@@ -14,7 +14,6 @@ void main() {
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -56,7 +55,6 @@ void main() {
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

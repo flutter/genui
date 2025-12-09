@@ -12,7 +12,6 @@ void main() {
       catalogs: [
         Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
