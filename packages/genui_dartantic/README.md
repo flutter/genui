@@ -13,8 +13,8 @@ applications.
   including OpenAI, Anthropic, Google, Mistral, Cohere, and Ollama.
 - **DartanticContentConverter:** Converts between GenUI `ChatMessage` types and
   dartantic_ai `ChatMessage` types.
-- **DartanticSchemaAdapter:** Adapts schemas from `json_schema_builder` to the
-  dartantic_ai `JsonSchema` format.
+- **Schema Adaptation:** Converts schemas from `json_schema_builder` to the
+  `json_schema` format used by dartantic_ai.
 - **Additional Tools:** Supports adding custom `AiTool`s to extend the AI's
   capabilities via the `additionalTools` parameter.
 - **Error Handling:** Exposes an `errorStream` to listen for and handle any

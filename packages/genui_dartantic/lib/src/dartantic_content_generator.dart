@@ -175,31 +175,21 @@ class DartanticContentGenerator implements ContentGenerator {
   }
 
   /// Converts GenUI [AiTool] instances to dartantic [di.Tool] instances.
-  List<di.Tool> _convertTools(List<AiTool<JsonMap>> tools) {
-    final adapter = DartanticSchemaAdapter();
-    return tools.map((aiTool) {
-      final DartanticSchemaAdapterResult schemaResult = adapter.adapt(
-        aiTool.parameters,
-      );
-      if (schemaResult.errors.isNotEmpty) {
-        genUiLogger.warning(
-          'Errors adapting parameters for tool ${aiTool.name}: '
-          '${schemaResult.errors.join('\n')}',
-        );
-      }
-      return di.Tool(
-        name: aiTool.name,
-        description: aiTool.description,
-        inputSchema: schemaResult.schema,
-        onCall: (Map<String, dynamic> args) async {
-          genUiLogger.fine('Invoking tool: ${aiTool.name} with args: $args');
-          final JsonMap result = await aiTool.invoke(args);
-          genUiLogger.fine('Tool ${aiTool.name} returned: $result');
-          return result;
-        },
-      );
-    }).toList();
-  }
+  List<di.Tool> _convertTools(List<AiTool<JsonMap>> tools) => tools
+      .map(
+        (aiTool) => di.Tool(
+          name: aiTool.name,
+          description: aiTool.description,
+          inputSchema: adaptSchema(aiTool.parameters),
+          onCall: (Map<String, dynamic> args) async {
+            genUiLogger.fine('Invoking tool: ${aiTool.name} with args: $args');
+            final JsonMap result = await aiTool.invoke(args);
+            genUiLogger.fine('Tool ${aiTool.name} returned: $result');
+            return result;
+          },
+        ),
+      )
+      .toList();
 
   /// Validates and extracts the response text from the structured output.
   String _parseResponse(Map<String, dynamic> output) {
