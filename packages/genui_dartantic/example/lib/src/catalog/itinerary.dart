@@ -549,10 +549,9 @@ class _ItineraryEntry extends StatelessWidget {
                             if (actionData == null) {
                               return;
                             }
-                            final actionName = actionData['name'] as String;
-                            final List<Object?> contextDefinition =
-                                (actionData['context'] as List<Object?>?) ??
-                                <Object>[];
+                            final _ActionData action = _ActionData.fromMap(actionData);
+                            final actionName = action.name;
+                            final List<Object?> contextDefinition = action.context;
                             final JsonMap resolvedContext = resolveContext(
                               dataContext,
                               contextDefinition,
