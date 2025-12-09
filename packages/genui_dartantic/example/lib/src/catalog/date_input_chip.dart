@@ -66,9 +66,10 @@ class _DateInputChipState extends State<_DateInputChip> {
 
   @override
   Widget build(BuildContext context) {
+    final String labelText = widget.label ?? 'Date';
     final String text = _selectedDate == null
-        ? widget.label ?? 'Date'
-        : '${widget.label}: ${DateFormat.yMMMd().format(_selectedDate!)}';
+        ? labelText
+        : '$labelText: ${DateFormat.yMMMd().format(_selectedDate!)}';
     return FilterChip(
       label: Text(text),
       selected: false,
