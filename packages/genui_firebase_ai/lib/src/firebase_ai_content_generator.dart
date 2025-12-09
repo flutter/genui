@@ -349,7 +349,6 @@ class FirebaseAiContentGenerator implements ContentGenerator {
         handleMessage: _a2uiMessageController.add,
         catalogId: catalog.catalogId,
       ),
-
       DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
       ...additionalTools,
     ];
