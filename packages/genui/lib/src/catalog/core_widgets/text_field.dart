@@ -18,6 +18,10 @@ import '../../primitives/simple_items.dart';
 const double kDefaultTextFieldWidth = 300.0;
 
 final _schema = S.object(
+  description:
+      'A text input field. IMPORTANT: If this is placed inside a Row, '
+      'you MUST set the "weight": 1 property on the component wrapper '
+      'to prevent a runtime error due to unbounded width.',
   properties: {
     'text': A2uiSchemas.stringReference(
       description: 'The initial value of the text field.',

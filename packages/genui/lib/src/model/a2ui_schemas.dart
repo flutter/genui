@@ -229,8 +229,9 @@ class A2uiSchemas {
                   'Optional layout weight. If set, this component expands to '
                   'fill the available space in a Row or Column. The value '
                   'determines the relative proportion of space it takes '
-                  'compared to other weighted components (e.g., a weight of 2 '
-                  'takes twice the space of a weight of 1).',
+                  'compared to other weighted components'
+                  'You MUST set this for any TextField inside a Row to '
+                  'prevent it from being clipped or causing layout errors.',
             ),
             'component': S.object(
               description:
