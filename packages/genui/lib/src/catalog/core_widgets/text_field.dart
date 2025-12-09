@@ -11,6 +11,7 @@ import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
@@ -180,7 +181,7 @@ final textField = CatalogItem(
         return ValueListenableBuilder(
           valueListenable: labelNotifier,
           builder: (context, label, child) {
-            return _TextField(
+            final textFieldWidget = _TextField(
               initialValue: currentValue ?? '',
               label: label,
               textFieldType: textFieldData.textFieldType,
@@ -211,6 +212,14 @@ final textField = CatalogItem(
                 );
               },
             );
+
+            if (DebugFlags.enableLeafPadding) {
+              return Padding(
+                padding: kDefaultLeafComponentPadding,
+                child: textFieldWidget,
+              );
+            }
+            return textFieldWidget;
           },
         );
       },
