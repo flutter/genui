@@ -13,10 +13,15 @@ const assetImageCatalogJsonFile = '$assetImageCatalogPath/_images.json';
 /// Loads the asset image catalog from the asset bundle and prepends the asset
 /// path to the image file names.
 Future<String> assetImageCatalogJson() async {
-  String result = await rootBundle.loadString(assetImageCatalogJsonFile);
-  result = result.replaceAll(
-    '"image_file_name": "',
-    '"image_file_name": "$assetImageCatalogPath/',
-  );
-  return result;
+  final String jsonString = await rootBundle.loadString(assetImageCatalogJsonFile);
+  final List<dynamic> imageList = jsonDecode(jsonString) as List<dynamic>;
+
+  for (final item in imageList) {
+    if (item is Map<String, dynamic> && item.containsKey('image_file_name')) {
+      item['image_file_name'] =
+          '$assetImageCatalogPath/${item['image_file_name']}';
+    }
+  }
+
+  return jsonEncode(imageList);
 }
