@@ -147,6 +147,23 @@ extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
       _json['choiceRequiredAction'] as JsonMap?;
 }
 
+class _ActionData {
+  const _ActionData({
+    required this.name,
+    required this.context,
+  });
+
+  final String name;
+  final List<Object?> context;
+
+  factory _ActionData.fromMap(JsonMap action) {
+    return _ActionData(
+      name: action['name'] as String,
+      context: (action['context'] as List<Object?>?) ?? <Object>[],
+    );
+  }
+}
+
 final itinerary = CatalogItem(
   name: 'Itinerary',
   dataSchema: _schema,
