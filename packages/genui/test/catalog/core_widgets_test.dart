@@ -20,10 +20,7 @@ void main() {
     ) async {
       message = null;
       manager?.dispose();
-      manager = GenUiManager(
-        catalog: testCatalog,
-        configuration: const GenUiConfiguration(),
-      );
+      manager = GenUiManager(catalog: testCatalog);
       manager!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
       manager!.handleMessage(
