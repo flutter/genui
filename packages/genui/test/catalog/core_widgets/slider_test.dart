@@ -14,7 +14,6 @@ void main() {
       catalogs: [
         Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

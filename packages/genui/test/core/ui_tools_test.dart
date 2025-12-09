@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/core/genui_configuration.dart';
 import 'package:genui/src/core/ui_tools.dart';
 import 'package:genui/src/model/a2ui_message.dart';
 import 'package:genui/src/model/catalog.dart';
@@ -32,7 +31,6 @@ void main() {
             dataSchema: Schema.object(properties: {}),
           ),
         ], catalogId: 'test_catalog'),
-        configuration: const GenUiConfiguration(),
       );
 
       final Map<String, Object> args = {

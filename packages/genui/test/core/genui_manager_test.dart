@@ -13,16 +13,7 @@ void main() {
     late GenUiManager manager;
 
     setUp(() {
-      manager = GenUiManager(
-        catalogs: [CoreCatalogItems.asCatalog()],
-        configuration: const GenUiConfiguration(
-          actions: ActionsConfig(
-            allowCreate: true,
-            allowUpdate: true,
-            allowDelete: true,
-          ),
-        ),
-      );
+      manager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     tearDown(() {

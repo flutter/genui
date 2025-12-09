@@ -18,7 +18,6 @@ void main() {
           CoreCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';
