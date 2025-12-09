@@ -43,10 +43,7 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.icon]),
-      configuration: const GenUiConfiguration(),
-    );
+    final manager = GenUiManager(catalog: Catalog([CoreCatalogItems.icon]));
     const surfaceId = 'testSurface';
     final components = [
       const Component(

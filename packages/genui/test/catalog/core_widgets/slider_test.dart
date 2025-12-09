@@ -10,10 +10,7 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.slider]),
-      configuration: const GenUiConfiguration(),
-    );
+    final manager = GenUiManager(catalog: Catalog([CoreCatalogItems.slider]));
     const surfaceId = 'testSurface';
     final components = [
       const Component(
