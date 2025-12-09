@@ -12,10 +12,7 @@ void main() {
   testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: testCatalog,
-      configuration: const GenUiConfiguration(),
-    );
+    final manager = GenUiManager(catalog: testCatalog);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -54,10 +51,7 @@ void main() {
   });
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
-    final manager = GenUiManager(
-      catalog: testCatalog,
-      configuration: const GenUiConfiguration(),
-    );
+    final manager = GenUiManager(catalog: testCatalog);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
