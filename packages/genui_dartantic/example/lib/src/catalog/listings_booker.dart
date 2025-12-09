@@ -148,7 +148,7 @@ class _ListingsBooker extends StatefulWidget {
   State<_ListingsBooker> createState() => _ListingsBookerState();
 }
 
-class _CustomRadio<T> extends StatefulWidget {
+class _CustomRadio<T> extends StatelessWidget {
   final T value;
   final T? groupValue;
   final ValueChanged<T?>? onChanged;
@@ -160,17 +160,12 @@ class _CustomRadio<T> extends StatefulWidget {
   });
 
   @override
-  State<_CustomRadio<T>> createState() => _CustomRadioState<T>();
-}
-
-class _CustomRadioState<T> extends State<_CustomRadio<T>> {
-  @override
   Widget build(BuildContext context) {
-    final isSelected = widget.value == widget.groupValue;
+    final isSelected = value == groupValue;
     return InkWell(
       onTap: () {
-        if (widget.onChanged != null) {
-          widget.onChanged!(widget.value);
+        if (onChanged != null) {
+          onChanged!(value);
         }
       },
       child: Container(
