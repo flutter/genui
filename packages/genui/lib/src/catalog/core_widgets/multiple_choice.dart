@@ -41,7 +41,8 @@ extension type _MultipleChoiceData.fromMap(JsonMap _json) {
 
   JsonMap get selections => _json['selections'] as JsonMap;
   List<JsonMap> get options => (_json['options'] as List).cast<JsonMap>();
-  int? get maxAllowedSelections => _json['maxAllowedSelections'] as int?;
+  int? get maxAllowedSelections =>
+      (_json['maxAllowedSelections'] as num?)?.toInt();
 }
 
 /// A catalog item representing a multiple choice selection widget.

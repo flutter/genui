@@ -81,4 +81,66 @@ void main() {
       ['1', '2'],
     );
   });
+
+  testWidgets(
+    'MultipleChoice widget handles non-integer maxAllowedSelections from JSON',
+    (WidgetTester tester) async {
+      final manager = GenUiManager(
+        catalogs: [
+          Catalog([
+            CoreCatalogItems.multipleChoice,
+            CoreCatalogItems.text,
+          ], catalogId: 'test_catalog'),
+        ],
+        configuration: const GenUiConfiguration(),
+      );
+      const surfaceId = 'testSurface';
+
+      final components = [
+        const Component(
+          id: 'multiple_choice',
+          componentProperties: {
+            'MultipleChoice': {
+              'selections': {'path': '/mySelections'},
+              'maxAllowedSelections': 3.0,
+              'options': [
+                {
+                  'label': {'literalString': 'Option 1'},
+                  'value': '1',
+                },
+                {
+                  'label': {'literalString': 'Option 2'},
+                  'value': '2',
+                },
+              ],
+            },
+          },
+        ),
+      ];
+
+      manager.handleMessage(
+        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      );
+      manager.handleMessage(
+        const BeginRendering(
+          surfaceId: surfaceId,
+          root: 'multiple_choice',
+          catalogId: 'test_catalog',
+        ),
+      );
+
+      manager
+          .dataModelForSurface(surfaceId)
+          .update(DataPath('/mySelections'), []);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          ),
+        ),
+      );
+
+      // No exception was thrown.
+    },
+  );
 }
