@@ -1,0 +1,5 @@
+name: Test Sample
+description: This is a test sample to verify the parser.
+---
+{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "component": {"Text": {"text": {"literalString": "Hello World"}}}}]}}
+{"beginRendering": {"surfaceId": "default", "root": "text1"}}

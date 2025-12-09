@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:travel_app/src/catalog/options_filter_chip_input.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final dataModel = DataModel();
-      final data = {
+      final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
         'iconName': 'wallet',
@@ -26,12 +26,16 @@ void main() {
             body: Builder(
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  context: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),
@@ -65,14 +69,14 @@ void main() {
       expect(find.text('\$\$'), findsOneWidget);
 
       // Check if the data model is updated.
-      expect(dataModel.getValue<String>('/price'), '\$\$');
+      expect(dataModel.getValue<String>(DataPath('/price')), '\$\$');
     });
 
     testWidgets('renders correctly and handles selection without an icon', (
       WidgetTester tester,
     ) async {
       final dataModel = DataModel();
-      final data = {
+      final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
         'value': {'path': '/price'},
@@ -84,12 +88,16 @@ void main() {
             body: Builder(
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  context: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),
@@ -114,7 +122,7 @@ void main() {
       expect(find.text('\$\$\$'), findsOneWidget);
 
       // Check if the data model is updated.
-      expect(dataModel.getValue<String>('/price'), '\$\$\$');
+      expect(dataModel.getValue<String>(DataPath('/price')), '\$\$\$');
     });
   });
 }

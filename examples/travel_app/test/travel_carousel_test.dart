@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:travel_app/src/catalog/travel_carousel.dart';
 
@@ -14,7 +14,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await mockNetworkImagesFor(() async {
-        final data = {
+        final Map<String, List<Map<String, Object>>> data = {
           'items': [
             {
               'description': {'literalString': 'Item 1'},
@@ -30,7 +30,7 @@ void main() {
         };
         UiEvent? dispatchedEvent;
 
-        Widget buildChild(String id) {
+        Widget buildChild(String id, [_]) {
           return Image.network('https://example.com/image.jpg');
         }
 
@@ -40,14 +40,18 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),
@@ -74,7 +78,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await mockNetworkImagesFor(() async {
-        final data = {
+        final Map<String, List<Map<String, Object>>> data = {
           'items': [
             {
               'description': {'literalString': 'Item 1'},
@@ -91,7 +95,7 @@ void main() {
         };
         UiEvent? dispatchedEvent;
 
-        Widget buildChild(String id) {
+        Widget buildChild(String id, [_]) {
           return Image.network('https://example.com/image.jpg');
         }
 
@@ -101,14 +105,18 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),
@@ -137,12 +145,16 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: (_) => const SizedBox.shrink(),
-                    dispatchEvent: (event) {},
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: (data, [_]) => Text(data),
+                      dispatchEvent: (event) {},
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),

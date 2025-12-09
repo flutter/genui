@@ -1,0 +1,69 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/src/model/tools.dart';
+import 'package:genui/src/model/ui_models.dart';
+import 'package:genui/src/primitives/simple_items.dart';
+
+void main() {
+  group('UserActionEvent', () {
+    test('can be created and read', () {
+      final now = DateTime.now();
+      final event = UserActionEvent(
+        surfaceId: 'testSurface',
+        name: 'testAction',
+        sourceComponentId: 'testWidget',
+        timestamp: now,
+        context: {'key': 'value'},
+      );
+
+      expect(event.surfaceId, 'testSurface');
+      expect(event.name, 'testAction');
+      expect(event.sourceComponentId, 'testWidget');
+      expect(event.timestamp, now);
+      expect(event.isAction, isTrue);
+      expect(event.context, {'key': 'value'});
+    });
+
+    test('can be created from map and read', () {
+      final now = DateTime.now();
+      final event = UserActionEvent.fromMap({
+        surfaceIdKey: 'testSurface',
+        'name': 'testAction',
+        'sourceComponentId': 'testWidget',
+        'timestamp': now.toIso8601String(),
+        'isAction': true,
+        'context': {'key': 'value'},
+      });
+
+      expect(event.surfaceId, 'testSurface');
+      expect(event.name, 'testAction');
+      expect(event.sourceComponentId, 'testWidget');
+      expect(event.timestamp, now);
+      expect(event.isAction, isTrue);
+      expect(event.context, {'key': 'value'});
+    });
+
+    test('can be converted to map', () {
+      final now = DateTime.now();
+      final event = UserActionEvent(
+        surfaceId: 'testSurface',
+        name: 'testAction',
+        sourceComponentId: 'testWidget',
+        timestamp: now,
+        context: {'key': 'value'},
+      );
+
+      final JsonMap map = event.toMap();
+
+      expect(map[surfaceIdKey], 'testSurface');
+      expect(map['name'], 'testAction');
+      expect(map['sourceComponentId'], 'testWidget');
+      expect(map['timestamp'], now.toIso8601String());
+      expect(map['isAction'], isTrue);
+      expect(map['context'], {'key': 'value'});
+    });
+  });
+}

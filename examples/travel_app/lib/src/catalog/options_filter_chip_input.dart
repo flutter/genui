@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'common.dart';
@@ -72,66 +72,64 @@ final optionsFilterChipInput = CatalogItem(
   name: 'OptionsFilterChipInput',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'options_filter_chip_input',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'options_filter_chip_input',
-          'widget': {
-            'OptionsFilterChipInput': {
-              'chipLabel': 'Budget',
-              'options': ['\$', '\$\$', '\$\$\$'],
-              'value': {'literalString': '\$\$'},
-            },
-          },
-        },
-      ],
-    },
-  ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
-          data as Map<String, Object?>,
-        );
-        IconData? icon;
-        if (optionsFilterChipData.iconName != null) {
-          try {
-            icon = iconFor(
-              TravelIcon.values.byName(optionsFilterChipData.iconName!),
-            );
-          } catch (e) {
-            icon = null;
+          "id": "root",
+          "component": {
+            "OptionsFilterChipInput": {
+              "chipLabel": "Budget",
+              "options": [
+                "\$",
+                "\$\$",
+                "\$\$\$"
+              ],
+              "value": {
+                "literalString": "\$\$"
+              }
+            }
           }
         }
+      ]
+    ''',
+  ],
+  widgetBuilder: (context) {
+    final optionsFilterChipData = _OptionsFilterChipInputData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+    IconData? icon;
+    if (optionsFilterChipData.iconName != null) {
+      try {
+        icon = iconFor(
+          TravelIcon.values.byName(optionsFilterChipData.iconName!),
+        );
+      } catch (e) {
+        icon = null;
+      }
+    }
 
-        final valueRef = optionsFilterChipData.value;
-        final path = valueRef?['path'] as String?;
-        final notifier = dataContext.subscribeToString(valueRef);
+    final JsonMap? valueRef = optionsFilterChipData.value;
+    final path = valueRef?['path'] as String?;
+    final ValueNotifier<String?> notifier = context.dataContext
+        .subscribeToString(valueRef);
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return _OptionsFilterChip(
-              chipLabel: optionsFilterChipData.chipLabel,
-              options: optionsFilterChipData.options,
-              icon: icon,
-              value: currentValue,
-              onChanged: (newValue) {
-                if (path != null && newValue != null) {
-                  dataContext.update(path, newValue);
-                }
-              },
-            );
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (builderContext, currentValue, child) {
+        return _OptionsFilterChip(
+          chipLabel: optionsFilterChipData.chipLabel,
+          options: optionsFilterChipData.options,
+          icon: icon,
+          value: currentValue,
+          onChanged: (newValue) {
+            if (path != null && newValue != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
 );
 
 class _OptionsFilterChip extends StatefulWidget {
@@ -183,6 +181,7 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
+            String? tempValue = _value;
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
                 return Column(
@@ -192,11 +191,11 @@ class _OptionsFilterChipState extends State<_OptionsFilterChip> {
                       title: Text(option),
                       value: option,
                       // ignore: deprecated_member_use
-                      groupValue: _value,
+                      groupValue: tempValue,
                       // ignore: deprecated_member_use
                       onChanged: (String? newValue) {
                         setModalState(() {
-                          _value = newValue;
+                          tempValue = newValue;
                         });
                         widget.onChanged(newValue);
                         if (newValue != null) {

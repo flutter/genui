@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../utils.dart';
@@ -50,63 +50,60 @@ final informationCard = CatalogItem(
   name: 'InformationCard',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'information_card',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'information_card',
-          'widget': {
-            'InformationCard': {
-              'title': {'literalString': 'Beautiful Scenery'},
-              'subtitle': {'literalString': 'A stunning view'},
-              'body': {
-                'literalString':
-                    'This is a beautiful place to visit in the summer.',
+          "id": "root",
+          "component": {
+            "InformationCard": {
+              "title": {
+                "literalString": "Beautiful Scenery"
               },
-              'imageChildId': 'image1',
-            },
-          },
+              "subtitle": {
+                "literalString": "A stunning view"
+              },
+              "body": {
+                "literalString": "This is a beautiful place to visit in the summer."
+              },
+              "imageChildId": "image1"
+            }
+          }
         },
         {
-          'id': 'image1',
-          'widget': {
-            'Image': {
-              'url': {'literalString': 'assets/travel_images/beach.jpg'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "image1",
+          "component": {
+            "Image": {
+              "url": {
+                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final cardData = _InformationCardData.fromMap(
-          data as Map<String, Object?>,
-        );
-        final imageChild = cardData.imageChildId != null
-            ? buildChild(cardData.imageChildId!)
-            : null;
+  widgetBuilder: (context) {
+    final cardData = _InformationCardData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+    final Widget? imageChild = cardData.imageChildId != null
+        ? context.buildChild(cardData.imageChildId!)
+        : null;
 
-        final titleNotifier = dataContext.subscribeToString(cardData.title);
-        final subtitleNotifier = dataContext.subscribeToString(
-          cardData.subtitle,
-        );
-        final bodyNotifier = dataContext.subscribeToString(cardData.body);
+    final ValueNotifier<String?> titleNotifier = context.dataContext
+        .subscribeToString(cardData.title);
+    final ValueNotifier<String?> subtitleNotifier = context.dataContext
+        .subscribeToString(cardData.subtitle);
+    final ValueNotifier<String?> bodyNotifier = context.dataContext
+        .subscribeToString(cardData.body);
 
-        return _InformationCard(
-          imageChild: imageChild,
-          titleNotifier: titleNotifier,
-          subtitleNotifier: subtitleNotifier,
-          bodyNotifier: bodyNotifier,
-        );
-      },
+    return _InformationCard(
+      imageChild: imageChild,
+      titleNotifier: titleNotifier,
+      subtitleNotifier: subtitleNotifier,
+      bodyNotifier: bodyNotifier,
+    );
+  },
 );
 
 class _InformationCard extends StatelessWidget {

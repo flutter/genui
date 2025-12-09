@@ -1,6 +1,6 @@
 # Travel App Example
 
-This application is a demonstration of the `flutter_genui` package, showcasing how to build a dynamic, conversational user interface powered by a generative AI model (like Google's Gemini).
+This application is a demonstration of the `genui` package, showcasing how to build a dynamic, conversational user interface powered by a generative AI model (like Google's Gemini).
 
 The app functions as a travel planning assistant. Users can describe their desired trip, and the AI will respond by generating a rich, interactive UI to help them plan and refine their itinerary.
 
@@ -18,26 +18,44 @@ All of the UI is generated dynamically and streamed into a chat-like view, creat
 
 ## Key Features Demonstrated
 
-This example highlights several core concepts of the `flutter_genui` package:
+This example highlights several core concepts of the `genui` package:
 
 - **Dynamic UI Generation**: The entire user interface is constructed on-the-fly by the AI based on the conversation.
 - **Component Catalog**: The AI builds the UI from a custom, domain-specific catalog of widgets defined in `lib/src/catalog.dart`. This includes widgets like `TravelCarousel`, `ItineraryEntry`, and `OptionsFilterChipInput`.
 - **System Prompt Engineering**: The behavior of the AI is guided by a detailed system prompt located in `lib/src/travel_planner_page.dart`. This prompt instructs the AI on how to act like a travel agent and which widgets to use in various scenarios.
-- **Dynamic UI State Management**: The `GenUiManager` from `flutter_genui` handles the state of the dynamically generated UI surfaces, manages the widget tree, and processes events between the user and the AI. The application's main page (`TravelPlannerPage`) manages the overall conversation history.
-- **Firebase Integration**: The application is configured to use Firebase for backend services, as shown in `lib/firebase_options.dart`.
+- **Dynamic UI State Management**: The `GenUiConversation` and `GenUiManager` from `genui` handle the orchestration of AI interaction, state of the dynamically generated UI surfaces, and event processing.
+- **Multiple AI Backends**: The app supports switching between **Google Generative AI** (direct API) and **Firebase Vertex AI**. This is configured in `lib/src/config/configuration.dart`.
+- **Tool Use**: The AI uses tools like `ListHotelsTool` to fetch real-world data (mocked in this example) and present it to the user.
+- **Widget Catalog**: A dedicated tab allows developers to inspect all available widgets in the catalog, facilitating development and debugging.
 
 ## Getting Started
 
-To run this application, you will need to have a Firebase project set up and configured.
+This application can be run using either the **Google Generative AI** API directly (default) or **Firebase Vertex AI**.
 
-1. **Configure Firebase**: Follow the instructions to add Firebase to your
-   Flutter app for the platforms you intend to support (Android, iOS, web,
-   etc.). See [USAGE.md](../../packages/flutter_genui/USAGE.md) for steps to
-   configure Firebase. You will need to replace the placeholder values in
-   `lib/firebase_options.dart` with the configuration from your own Firebase
-   project.
-2. **Run the App**: Once Firebase is configured, you can run the app like any other Flutter project:
+### Option 1: Google Generative AI (Default)
 
-   ```bash
-   flutter run
-   ```
+This is the simplest way to get started.
+
+1.  **Get an API Key**: Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+2.  **Run the App**: Pass your API key as a dart-define or environment variable:
+
+    ```bash
+    flutter run --dart-define=GEMINI_API_KEY=YOUR_API_KEY
+    ```
+
+    *Alternatively, you can set the `GEMINI_API_KEY` environment variable in your shell.*
+
+### Option 2: Firebase Vertex AI
+
+To use Firebase, you need to configure the project and update the code.
+
+1.  **Configure Firebase**: Follow the instructions in the main `genui` package [README.md](../../packages/genui/README.md#configure-firebase-ai-logic) to add Firebase to your Flutter app.
+    *   Set up a Firebase project.
+    *   Generate `firebase_options.dart` using `flutterfire configure`.
+2.  **Update Configuration**:
+    *   Open `lib/src/config/configuration.dart` and change `aiBackend` to `AiBackend.firebase`.
+    *   Open `lib/main.dart` and uncomment the Firebase initialization code and imports (look for `UNCOMMENT_FOR_FIREBASE`).
+3.  **Run the App**:
+    ```bash
+    flutter run
+    ```

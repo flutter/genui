@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
@@ -54,123 +54,127 @@ extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
 /// is useful for refining a search or query with multiple parameters.
 final inputGroup = CatalogItem(
   exampleData: [
-    () => {
-      'root': 'input_group',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'input_group',
-          'widget': {
-            'InputGroup': {
-              'submitLabel': {'literalString': 'Submit'},
-              'children': [
-                'check_in',
-                'check_out',
-                'text_input1',
-                'text_input2',
+          "id": "root",
+          "component": {
+            "InputGroup": {
+              "submitLabel": {
+                "literalString": "Submit"
+              },
+              "children": [
+                "check_in",
+                "check_out",
+                "text_input1",
+                "text_input2"
               ],
-              'action': {'name': 'submit_form'},
-            },
-          },
+              "action": {
+                "name": "submit_form"
+              }
+            }
+          }
         },
         {
-          'id': 'check_in',
-          'widget': {
-            'DateInputChip': {
-              'value': {'literalString': '2026-07-22'},
-              'label': 'Check-in date',
-            },
-          },
+          "id": "check_in",
+          "component": {
+            "DateInputChip": {
+              "value": {
+                "literalString": "2026-07-22"
+              },
+              "label": "Check-in date"
+            }
+          }
         },
         {
-          'id': 'check_out',
-          'widget': {
-            'DateInputChip': {'label': 'Check-out date'},
-          },
+          "id": "check_out",
+          "component": {
+            "DateInputChip": {
+              "label": "Check-out date"
+            }
+          }
         },
         {
-          'id': 'text_input1',
-          'widget': {
-            'TextInputChip': {
-              'value': {'literalString': 'John Doe'},
-              'label': 'Enter your name',
-            },
-          },
+          "id": "text_input1",
+          "component": {
+            "TextInputChip": {
+              "value": {
+                "literalString": "John Doe"
+              },
+              "label": "Enter your name"
+            }
+          }
         },
         {
-          'id': 'text_input2',
-          'widget': {
-            'TextInputChip': {'label': 'Enter your friend\'s name'},
-          },
-        },
-      ],
-    },
+          "id": "text_input2",
+          "component": {
+            "TextInputChip": {
+              "label": "Enter your friend's name"
+            }
+          }
+        }
+      ]
+    ''',
   ],
   name: 'InputGroup',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final inputGroupData = _InputGroupData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: (itemContext) {
+    final inputGroupData = _InputGroupData.fromMap(
+      itemContext.data as Map<String, Object?>,
+    );
 
-        final notifier = dataContext.subscribeToString(
-          inputGroupData.submitLabel,
-        );
+    final ValueNotifier<String?> notifier = itemContext.dataContext
+        .subscribeToString(inputGroupData.submitLabel);
 
-        final children = inputGroupData.children;
-        final actionData = inputGroupData.action;
-        final name = actionData['name'] as String;
-        final contextDefinition =
-            (actionData['context'] as List<Object?>?) ?? <Object?>[];
+    final List<String> children = inputGroupData.children;
+    final JsonMap actionData = inputGroupData.action;
+    final name = actionData['name'] as String;
+    final List<Object?> contextDefinition =
+        (actionData['context'] as List<Object?>?) ?? <Object?>[];
 
-        return Card(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  runSpacing: 16.0,
-                  spacing: 8.0,
-                  children: children.map(buildChild).toList(),
-                ),
-                const SizedBox(height: 16.0),
-                ValueListenableBuilder<String?>(
-                  valueListenable: notifier,
-                  builder: (context, submitLabel, child) {
-                    return ElevatedButton(
-                      onPressed: () {
-                        final resolvedContext = resolveContext(
-                          dataContext,
-                          contextDefinition,
-                        );
-                        dispatchEvent(
-                          UserActionEvent(
-                            name: name,
-                            sourceComponentId: id,
-                            context: resolvedContext,
-                          ),
-                        );
-                      },
-                      child: Text(submitLabel ?? ''),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
+    return Card(
+      color: Theme.of(itemContext.buildContext).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              runSpacing: 16.0,
+              spacing: 8.0,
+              children: children.map(itemContext.buildChild).toList(),
+            ),
+            const SizedBox(height: 16.0),
+            ValueListenableBuilder<String?>(
+              valueListenable: notifier,
+              builder: (builderContext, submitLabel, child) {
+                return ElevatedButton(
+                  onPressed: () {
+                    final JsonMap resolvedContext = resolveContext(
+                      itemContext.dataContext,
+                      contextDefinition,
+                    );
+                    itemContext.dispatchEvent(
+                      UserActionEvent(
+                        name: name,
+                        sourceComponentId: itemContext.id,
+                        context: resolvedContext,
                       ),
                     );
                   },
-                ),
-              ],
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(
+                      builderContext,
+                    ).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(submitLabel ?? ''),
+                );
+              },
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
+    );
+  },
 );

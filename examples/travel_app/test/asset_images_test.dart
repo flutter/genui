@@ -13,9 +13,9 @@ void main() {
   test(
     'assetImageCatalogJson should return a valid and non-empty JSON object',
     () async {
-      final result = await assetImageCatalogJson();
-      final decoded = jsonDecode(result);
-      expect(decoded, isA<List<dynamic>>());
+      final String result = await assetImageCatalogJson();
+      final Object? decoded = jsonDecode(result);
+      expect(decoded, isA<List<Object?>>());
       expect(decoded, isNotEmpty);
     },
   );

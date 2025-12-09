@@ -3,52 +3,100 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-
+import 'package:args/args.dart';
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
-void main() {
-  runApp(const CatalogGalleryApp());
+import 'samples_view.dart';
+
+void main(List<String> args) {
+  final parser = ArgParser()
+    ..addOption('samples', abbr: 's', help: 'Path to the samples directory');
+  final ArgResults results = parser.parse(args);
+
+  const FileSystem fs = LocalFileSystem();
+  Directory? samplesDir;
+  if (results.wasParsed('samples')) {
+    samplesDir = fs.directory(results['samples'] as String);
+  } else {
+    final Directory current = fs.currentDirectory;
+    final Directory defaultSamples = fs
+        .directory(current.path)
+        .childDirectory('samples');
+    if (defaultSamples.existsSync()) {
+      samplesDir = defaultSamples;
+    }
+  }
+
+  runApp(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
 }
 
 class CatalogGalleryApp extends StatefulWidget {
-  const CatalogGalleryApp({super.key});
+  final Directory? samplesDir;
+  final FileSystem fs;
+
+  const CatalogGalleryApp({
+    super.key,
+    this.samplesDir,
+    this.fs = const LocalFileSystem(),
+  });
 
   @override
   State<CatalogGalleryApp> createState() => _CatalogGalleryAppState();
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final catalog = CoreCatalogItems.asCatalog().copyWithout([
-    // Excluded, because they are flexible:
-    CoreCatalogItems.tabs,
-    CoreCatalogItems.list,
-
-    // Excluded, because something is wrong with image:
-    // NetworkImageLoadException was thrown resolving an image codec...
-    CoreCatalogItems.image,
-  ]);
+  final Catalog catalog = CoreCatalogItems.asCatalog();
 
   @override
   Widget build(BuildContext context) {
+    final bool showSamples =
+        widget.samplesDir != null && widget.samplesDir!.existsSync();
+
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Catalog items that has "exampleData" field set'),
-        ),
-        body: DebugCatalogView(
-          catalog: catalog,
-          onSubmit: (message) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('User action: ${jsonEncode(message.parts.last)}'),
+      home: DefaultTabController(
+        length: showSamples ? 2 : 1,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: const Text('Catalog Gallery'),
+            bottom: showSamples
+                ? const TabBar(
+                    tabs: [
+                      Tab(text: 'Catalog'),
+                      Tab(text: 'Samples'),
+                    ],
+                  )
+                : null,
+          ),
+          body: TabBarView(
+            children: [
+              DebugCatalogView(
+                catalog: catalog,
+                onSubmit: (message) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'User action: '
+                        '${jsonEncode(message.parts.last)}',
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
+              if (showSamples)
+                SamplesView(
+                  samplesDir: widget.samplesDir!,
+                  catalog: catalog,
+                  fs: widget.fs,
+                ),
+            ],
+          ),
         ),
       ),
     );

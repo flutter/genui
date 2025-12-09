@@ -4,10 +4,13 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 typedef UserPromptBuilder =
     Widget Function(BuildContext context, UserMessage message);
+
+typedef UserUiInteractionBuilder =
+    Widget Function(BuildContext context, UserUiInteractionMessage message);
 
 class Conversation extends StatelessWidget {
   const Conversation({
@@ -15,6 +18,7 @@ class Conversation extends StatelessWidget {
     required this.messages,
     required this.manager,
     this.userPromptBuilder,
+    this.userUiInteractionBuilder,
     this.showInternalMessages = false,
     this.scrollController,
   });
@@ -22,24 +26,23 @@ class Conversation extends StatelessWidget {
   final List<ChatMessage> messages;
   final GenUiManager manager;
   final UserPromptBuilder? userPromptBuilder;
+  final UserUiInteractionBuilder? userUiInteractionBuilder;
   final bool showInternalMessages;
   final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
-    final renderedMessages = messages.where((message) {
+    final List<ChatMessage> renderedMessages = messages.where((message) {
       if (showInternalMessages) {
         return true;
       }
-      return message is! InternalMessage &&
-          message is! ToolResponseMessage &&
-          message is! UserUiInteractionMessage;
+      return message is! InternalMessage && message is! ToolResponseMessage;
     }).toList();
     return ListView.builder(
       controller: scrollController,
       itemCount: renderedMessages.length,
       itemBuilder: (context, index) {
-        final message = renderedMessages[index];
+        final ChatMessage message = renderedMessages[index];
         switch (message) {
           case UserMessage():
             return userPromptBuilder != null
@@ -53,7 +56,7 @@ class Conversation extends StatelessWidget {
                     alignment: MainAxisAlignment.end,
                   );
           case AiTextMessage():
-            final text = message.parts
+            final String text = message.parts
                 .whereType<TextPart>()
                 .map((part) => part.text)
                 .join('\n');
@@ -77,12 +80,9 @@ class Conversation extends StatelessWidget {
           case InternalMessage():
             return InternalMessageWidget(content: message.text);
           case UserUiInteractionMessage():
-            return InternalMessageWidget(
-              content: message.parts
-                  .whereType<TextPart>()
-                  .map((part) => part.text)
-                  .join('\n'),
-            );
+            return userUiInteractionBuilder != null
+                ? userUiInteractionBuilder!(context, message)
+                : const SizedBox.shrink();
           case ToolResponseMessage():
             return InternalMessageWidget(content: message.results.toString());
         }

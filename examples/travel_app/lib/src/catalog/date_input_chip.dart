@@ -5,7 +5,7 @@
 // ignore_for_file: avoid_dynamic_calls
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:intl/intl.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -66,7 +66,7 @@ class _DateInputChipState extends State<_DateInputChip> {
 
   @override
   Widget build(BuildContext context) {
-    final text = _selectedDate == null
+    final String text = _selectedDate == null
         ? widget.label ?? 'Date'
         : '${widget.label}: ${DateFormat.yMMMd().format(_selectedDate!)}';
     return FilterChip(
@@ -90,7 +90,7 @@ class _DateInputChipState extends State<_DateInputChip> {
                         setState(() {
                           _selectedDate = newDate;
                         });
-                        final formattedDate = DateFormat(
+                        final String formattedDate = DateFormat(
                           'yyyy-MM-dd',
                         ).format(newDate);
                         widget.onChanged(formattedDate);
@@ -112,47 +112,41 @@ final dateInputChip = CatalogItem(
   name: 'DateInputChip',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'date_picker',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'date_picker',
-          'widget': {
-            'DateInputChip': {
-              'value': {'literalString': '1871-07-22'},
-              'label': 'Your birth date',
-            },
-          },
-        },
-      ],
-    },
-  ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final datePickerData = _DatePickerData.fromMap(data as JsonMap);
-        final notifier = dataContext.subscribeToString(datePickerData.value);
-        final path = datePickerData.value?['path'] as String?;
-
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return _DateInputChip(
-              initialValue: currentValue,
-              label: datePickerData.label,
-              onChanged: (newValue) {
-                if (path != null) {
-                  dataContext.update(path, newValue);
-                }
+          "id": "root",
+          "component": {
+            "DateInputChip": {
+              "value": {
+                "literalString": "1871-07-22"
               },
-            );
+              "label": "Your birth date"
+            }
+          }
+        }
+      ]
+    ''',
+  ],
+  widgetBuilder: (context) {
+    final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
+    final ValueNotifier<String?> notifier = context.dataContext
+        .subscribeToString(datePickerData.value);
+    final path = datePickerData.value?['path'] as String?;
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (buildContext, currentValue, child) {
+        return _DateInputChip(
+          initialValue: currentValue,
+          label: datePickerData.label,
+          onChanged: (newValue) {
+            if (path != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
 );

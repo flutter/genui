@@ -1,0 +1,23 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: release
+description: A tool for managing releases in the genui monorepo.
+publish_to: none
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  args: ^2.7.0
+  file: ^7.0.1
+  path: ^1.9.1
+  process_runner: ^4.2.4
+  pub_semver: ^2.2.0
+  yaml: ^3.1.3
+
+dev_dependencies:
+  test: ^1.26.2

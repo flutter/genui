@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
@@ -42,65 +42,61 @@ final textInputChip = CatalogItem(
   name: 'TextInputChip',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'text_input',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'text_input',
-          'widget': {
-            'TextInputChip': {
-              'value': {'literalString': 'John Doe'},
-              'label': 'Enter your name',
-            },
-          },
-        },
-      ],
-    },
-    () => {
-      'root': 'password_input',
-      'widgets': [
-        {
-          'id': 'password_input',
-          'widget': {
-            'TextInputChip': {'label': 'Enter your password', 'obscured': true},
-          },
-        },
-      ],
-    },
-  ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final textInputChipData = _TextInputChipData.fromMap(
-          data as Map<String, Object?>,
-        );
-
-        final valueRef = textInputChipData.value;
-        final path = valueRef?['path'] as String?;
-        final notifier = dataContext.subscribeToString(valueRef);
-
-        return ValueListenableBuilder<String?>(
-          valueListenable: notifier,
-          builder: (context, currentValue, child) {
-            return _TextInputChip(
-              label: textInputChipData.label,
-              value: currentValue,
-              obscured: textInputChipData.obscured,
-              onChanged: (newValue) {
-                if (path != null) {
-                  dataContext.update(path, newValue);
-                }
+          "id": "root",
+          "component": {
+            "TextInputChip": {
+              "value": {
+                "literalString": "John Doe"
               },
-            );
+              "label": "Enter your name"
+            }
+          }
+        }
+      ]
+    ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": {
+            "TextInputChip": {
+              "label": "Enter your password",
+              "obscured": true
+            }
+          }
+        }
+      ]
+    ''',
+  ],
+  widgetBuilder: (context) {
+    final textInputChipData = _TextInputChipData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+
+    final JsonMap? valueRef = textInputChipData.value;
+    final path = valueRef?['path'] as String?;
+    final ValueNotifier<String?> notifier = context.dataContext
+        .subscribeToString(valueRef);
+
+    return ValueListenableBuilder<String?>(
+      valueListenable: notifier,
+      builder: (builderContext, currentValue, child) {
+        return _TextInputChip(
+          label: textInputChipData.label,
+          value: currentValue,
+          obscured: textInputChipData.obscured,
+          onChanged: (newValue) {
+            if (path != null) {
+              context.dataContext.update(DataPath(path), newValue);
+            }
           },
         );
       },
+    );
+  },
 );
 
 class _TextInputChip extends StatefulWidget {
@@ -170,7 +166,7 @@ class _TextInputChipState extends State<_TextInputChip> {
                   const SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () {
-                      final newValue = _textController.text;
+                      final String newValue = _textController.text;
                       if (newValue.isNotEmpty) {
                         widget.onChanged(newValue);
                         Navigator.pop(context);

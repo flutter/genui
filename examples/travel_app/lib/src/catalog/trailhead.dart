@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
@@ -44,45 +44,44 @@ final trailhead = CatalogItem(
   name: 'Trailhead',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'trailhead',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'trailhead',
-          'widget': {
-            'Trailhead': {
-              'topics': [
-                {'literalString': 'Topic 1'},
-                {'literalString': 'Topic 2'},
-                {'literalString': 'Topic 3'},
+          "id": "root",
+          "component": {
+            "Trailhead": {
+              "topics": [
+                {
+                  "literalString": "Topic 1"
+                },
+                {
+                  "literalString": "Topic 2"
+                },
+                {
+                  "literalString": "Topic 3"
+                }
               ],
-              'action': {'name': 'select_topic'},
-            },
-          },
-        },
-      ],
-    },
+              "action": {
+                "name": "select_topic"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final trailheadData = _TrailheadData.fromMap(
-          data as Map<String, Object?>,
-        );
-        return _Trailhead(
-          topics: trailheadData.topics,
-          action: trailheadData.action,
-          widgetId: id,
-          dispatchEvent: dispatchEvent,
-          dataContext: dataContext,
-        );
-      },
+  widgetBuilder: (itemContext) {
+    final trailheadData = _TrailheadData.fromMap(
+      itemContext.data as Map<String, Object?>,
+    );
+    return _Trailhead(
+      topics: trailheadData.topics,
+      action: trailheadData.action,
+      widgetId: itemContext.id,
+      dispatchEvent: itemContext.dispatchEvent,
+      dataContext: itemContext.dataContext,
+    );
+  },
 );
 
 class _Trailhead extends StatelessWidget {
@@ -108,7 +107,9 @@ class _Trailhead extends StatelessWidget {
         spacing: 8.0,
         runSpacing: 8.0,
         children: topics.map((topicRef) {
-          final notifier = dataContext.subscribeToString(topicRef);
+          final ValueNotifier<String?> notifier = dataContext.subscribeToString(
+            topicRef,
+          );
 
           return ValueListenableBuilder<String?>(
             valueListenable: notifier,
@@ -120,9 +121,9 @@ class _Trailhead extends StatelessWidget {
                 label: Text(topic),
                 onPressed: () {
                   final name = action['name'] as String;
-                  final contextDefinition =
+                  final List<Object?> contextDefinition =
                       (action['context'] as List<Object?>?) ?? <Object?>[];
-                  final resolvedContext = resolveContext(
+                  final JsonMap resolvedContext = resolveContext(
                     dataContext,
                     contextDefinition,
                   );

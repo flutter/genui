@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../utils.dart';
@@ -151,89 +151,96 @@ final itinerary = CatalogItem(
   name: 'Itinerary',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'itinerary',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'itinerary',
-          'widget': {
-            'Itinerary': {
-              'title': {'literalString': 'My Awesome Trip'},
-              'subheading': {'literalString': 'A 3-day adventure'},
-              'imageChildId': 'image1',
-              'days': [
+          "id": "root",
+          "component": {
+            "Itinerary": {
+              "title": {
+                "literalString": "My Awesome Trip"
+              },
+              "subheading": {
+                "literalString": "A 3-day adventure"
+              },
+              "imageChildId": "image1",
+              "days": [
                 {
-                  'title': {'literalString': 'Day 1'},
-                  'subtitle': {'literalString': 'Arrival and Exploration'},
-                  'description': {'literalString': 'Welcome to the city!'},
-                  'imageChildId': 'image2',
-                  'entries': [
+                  "title": {
+                    "literalString": "Day 1"
+                  },
+                  "subtitle": {
+                    "literalString": "Arrival and Exploration"
+                  },
+                  "description": {
+                    "literalString": "Welcome to the city!"
+                  },
+                  "imageChildId": "image2",
+                  "entries": [
                     {
-                      'title': {'literalString': 'Check-in to Hotel'},
-                      'bodyText': {
-                        'literalString': 'Check-in to your hotel and relax.',
+                      "title": {
+                        "literalString": "Check-in to Hotel"
                       },
-                      'time': {'literalString': '3:00 PM'},
-                      'type': 'accommodation',
-                      'status': 'noBookingRequired',
-                    },
-                  ],
-                },
-              ],
-            },
-          },
+                      "bodyText": {
+                        "literalString": "Check-in to your hotel and relax."
+                      },
+                      "time": {
+                        "literalString": "3:00 PM"
+                      },
+                      "type": "accommodation",
+                      "status": "noBookingRequired"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
         },
         {
-          'id': 'image1',
-          'widget': {
-            'Image': {
-              'url': {'literalString': 'assets/travel_images/beach.jpg'},
-            },
-          },
+          "id": "image1",
+          "component": {
+            "Image": {
+              "url": {
+                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
+              }
+            }
+          }
         },
         {
-          'id': 'image2',
-          'widget': {
-            'Image': {
-              'url': {'literalString': 'assets/travel_images/city.jpg'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "image2",
+          "component": {
+            "Image": {
+              "url": {
+                "literalString": "assets/travel_images/brooklyn_bridge_new_york.jpg"
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final itineraryData = _ItineraryData.fromMap(
-          data as Map<String, Object?>,
-        );
+  widgetBuilder: (context) {
+    final itineraryData = _ItineraryData.fromMap(
+      context.data as Map<String, Object?>,
+    );
 
-        final titleNotifier = dataContext.subscribeToString(
-          itineraryData.title,
-        );
-        final subheadingNotifier = dataContext.subscribeToString(
-          itineraryData.subheading,
-        );
-        final imageChild = buildChild(itineraryData.imageChildId);
+    final ValueNotifier<String?> titleNotifier = context.dataContext
+        .subscribeToString(itineraryData.title);
+    final ValueNotifier<String?> subheadingNotifier = context.dataContext
+        .subscribeToString(itineraryData.subheading);
+    final Widget imageChild = context.buildChild(itineraryData.imageChildId);
 
-        return _Itinerary(
-          titleNotifier: titleNotifier,
-          subheadingNotifier: subheadingNotifier,
-          imageChild: imageChild,
-          days: itineraryData.days,
-          widgetId: id,
-          buildChild: buildChild,
-          dispatchEvent: dispatchEvent,
-          dataContext: dataContext,
-        );
-      },
+    return _Itinerary(
+      titleNotifier: titleNotifier,
+      subheadingNotifier: subheadingNotifier,
+      imageChild: imageChild,
+      days: itineraryData.days,
+      widgetId: context.id,
+      buildChild: context.buildChild,
+      dispatchEvent: context.dispatchEvent,
+      dataContext: context.dataContext,
+    );
+  },
 );
 
 class _Itinerary extends StatelessWidget {
@@ -390,11 +397,15 @@ class _ItineraryDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final titleNotifier = dataContext.subscribeToString(data.title);
-    final subtitleNotifier = dataContext.subscribeToString(data.subtitle);
-    final descriptionNotifier = dataContext.subscribeToString(data.description);
-    final imageChild = buildChild(data.imageChildId);
+    final ThemeData theme = Theme.of(context);
+    final ValueNotifier<String?> titleNotifier = dataContext.subscribeToString(
+      data.title,
+    );
+    final ValueNotifier<String?> subtitleNotifier = dataContext
+        .subscribeToString(data.subtitle);
+    final ValueNotifier<String?> descriptionNotifier = dataContext
+        .subscribeToString(data.description);
+    final Widget imageChild = buildChild(data.imageChildId);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -487,13 +498,21 @@ class _ItineraryEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final titleNotifier = dataContext.subscribeToString(data.title);
-    final subtitleNotifier = dataContext.subscribeToString(data.subtitle);
-    final bodyTextNotifier = dataContext.subscribeToString(data.bodyText);
-    final addressNotifier = dataContext.subscribeToString(data.address);
-    final timeNotifier = dataContext.subscribeToString(data.time);
-    final totalCostNotifier = dataContext.subscribeToString(data.totalCost);
+    final ThemeData theme = Theme.of(context);
+    final ValueNotifier<String?> titleNotifier = dataContext.subscribeToString(
+      data.title,
+    );
+    final ValueNotifier<String?> subtitleNotifier = dataContext
+        .subscribeToString(data.subtitle);
+    final ValueNotifier<String?> bodyTextNotifier = dataContext
+        .subscribeToString(data.bodyText);
+    final ValueNotifier<String?> addressNotifier = dataContext
+        .subscribeToString(data.address);
+    final ValueNotifier<String?> timeNotifier = dataContext.subscribeToString(
+      data.time,
+    );
+    final ValueNotifier<String?> totalCostNotifier = dataContext
+        .subscribeToString(data.totalCost);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -525,15 +544,16 @@ class _ItineraryEntry extends StatelessWidget {
                         valueListenable: titleNotifier,
                         builder: (context, title, _) => FilledButton(
                           onPressed: () {
-                            final actionData = data.choiceRequiredAction;
+                            final JsonMap? actionData =
+                                data.choiceRequiredAction;
                             if (actionData == null) {
                               return;
                             }
                             final actionName = actionData['name'] as String;
-                            final contextDefinition =
+                            final List<Object?> contextDefinition =
                                 (actionData['context'] as List<Object?>?) ??
                                 <Object>[];
-                            final resolvedContext = resolveContext(
+                            final JsonMap resolvedContext = resolveContext(
                               dataContext,
                               contextDefinition,
                             );

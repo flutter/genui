@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
+import 'package:genui/test/fake_content_generator.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:travel_app/main.dart' as app;
 
@@ -13,10 +14,10 @@ void main() {
 
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
-      final mockAiClient = FakeAiClient();
-      mockAiClient.response = _baliResponse;
+      final mockContentGenerator = FakeContentGenerator();
+      mockContentGenerator.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
 
-      runApp(app.TravelApp(aiClient: mockAiClient));
+      runApp(app.TravelApp(contentGenerator: mockContentGenerator));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'Plan a trip to Bali');
       await tester.tap(find.byIcon(Icons.send));

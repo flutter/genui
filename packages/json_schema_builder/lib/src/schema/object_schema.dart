@@ -92,7 +92,7 @@ extension type ObjectSchema.fromMap(Map<String, Object?> _value)
   /// A map where the keys are property names, and the values are a list of
   /// property names that must be present in the object if the key is present.
   Map<String, List<String>>? get dependentRequired {
-    final value = _value[kDependentRequired];
+    final Object? value = _value[kDependentRequired];
     if (value is Map) {
       return value.map(
         (key, value) => MapEntry(key as String, (value as List).cast<String>()),

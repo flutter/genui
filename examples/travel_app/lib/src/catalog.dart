@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 import 'catalog/checkbox_filter_chips_input.dart';
 import 'catalog/date_input_chip.dart';
@@ -24,14 +24,13 @@ import 'catalog/travel_carousel.dart';
 /// for a travel planning experience, such as [travelCarousel], [itinerary],
 /// and [inputGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
-final travelAppCatalog = CoreCatalogItems.asCatalog()
+final Catalog travelAppCatalog = CoreCatalogItems.asCatalog()
     .copyWithout([
       CoreCatalogItems.audioPlayer,
       CoreCatalogItems.card,
       CoreCatalogItems.checkBox,
       CoreCatalogItems.dateTimeInput,
       CoreCatalogItems.divider,
-      CoreCatalogItems.heading,
       CoreCatalogItems.textField,
       CoreCatalogItems.list,
       CoreCatalogItems.modal,
@@ -39,8 +38,12 @@ final travelAppCatalog = CoreCatalogItems.asCatalog()
       CoreCatalogItems.slider,
       CoreCatalogItems.tabs,
       CoreCatalogItems.video,
+      CoreCatalogItems.icon,
+      CoreCatalogItems.row,
+      CoreCatalogItems.image,
     ])
     .copyWith([
+      CoreCatalogItems.imageFixedSize,
       checkboxFilterChipsInput,
       dateInputChip,
       informationCard,

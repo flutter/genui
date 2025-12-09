@@ -1,0 +1,48 @@
+# Monorepo Release Tool
+
+This Dart-based command-line tool automates the package publishing process for this monorepo using a safe, two-stage workflow.
+
+## Two-Stage Publish Workflow
+
+The process is split into two distinct commands, `bump` and `publish`, to separate release preparation from the act of publishing.
+
+### 1. Prepare for Publish with `bump`
+
+First, run the `bump` command to prepare the repository for a new release. This will bump the version numbers, finalize the changelogs, and upgrade dependencies. After running this command, you should review the changes, make any necessary manual adjustments, and then commit the changes to your version control system.
+
+**Syntax:**
+
+```bash
+dart run tool/release/bin/release.dart bump --level <level>
+```
+
+**`<level>` can be one of:**
+
+- `breaking`: Increments the major version for breaking changes.
+- `major`: Increments the major version.
+- `minor`: Increments the minor version for new features.
+- `patch`: Increments the patch version for bug fixes.
+
+### 2. Publish and Prepare for Next Publish Cycle with `publish`
+
+After you have committed the changes from the `bump` command, you can publish the new version. The `publish` command will publish the packages, create git tags, and then prepare the repository for the next development cycle by adding a new `(in progress)` section to top of the CHANGELOG.md files.
+
+By default, `publish` runs in dry-run mode, which simulates the publish process without actually uploading packages.
+
+**Command:**
+
+```bash
+dart run tool/release/bin/release.dart publish
+```
+
+#### Actual Publish
+
+To perform a real publish, use the `--force` flag. The tool will first perform a dry run. If successful, it will prompt for confirmation before proceeding.
+
+**Command:**
+
+```bash
+dart run tool/release/bin/release.dart publish --force
+```
+
+After a successful publish, the tool will create local git tags for each published package and print the command needed to push them to the remote repository. You should then push the tags, and commit the new changes to the `CHANGELOG.md` files to start the next development cycle.

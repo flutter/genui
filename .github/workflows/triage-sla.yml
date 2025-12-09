@@ -1,0 +1,74 @@
+name: Check Triage SLA
+
+on:
+  issues:
+    types:
+      - labeled
+
+jobs:
+  check-sla:
+    # Run this job only when the 'status: triaged' label is added
+    if: | 
+      (github.event.label.name == 'status: triaged')
+    runs-on: ubuntu-latest
+    permissions:
+      # Need write privileges to add labels
+      issues: write 
+
+    steps:
+      - name: Check time since issue was created
+        # github actions script version 7.1
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          retries: 3
+          script: |
+            const SLA_HOURS = 24; 
+            const TRIGGER_LABEL = 'status: triaged';
+            const SUCCESS_LABEL = 'sla: met';
+            const FAILURE_LABEL = 'sla: missed';
+
+            console.log(`Trigger label '${TRIGGER_LABEL}' detected. Running SLA check...`);
+
+            const createdAt = new Date(context.payload.issue.created_at);
+            const triagedAt = new Date(); 
+
+            //  Working Hours Calculation (24/5, Mon-Fri) 
+            let workingMs = 0;
+            let current = new Date(createdAt.getTime()); 
+
+            while (current < triagedAt) {
+              let next = new Date(current.getFullYear(), current.getMonth(), current.getDate() + 1);
+              if (next > triagedAt) {
+                next = triagedAt;
+              }
+
+              const day = current.getDay();
+              // Days of the week: 0 = Sunday, 6 = Saturday
+              if (day !== 0 && day !== 6) {
+                // It's a weekday, add the milliseconds from this chunk
+                workingMs += (next - current);
+              }
+              current = next;
+            }
+
+            const hoursPassed = workingMs / (1000 * 60 * 60);
+
+            const issueNumber = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let slaLabel;
+            if (hoursPassed > SLA_HOURS) {
+              console.log(`SLA MISSED: Issue #${issueNumber} was triaged in ${hoursPassed.toFixed(2)} working hours.`);
+              slaLabel = FAILURE_LABEL;
+            } else {
+              console.log(`SLA MET: Issue #${issueNumber} was triaged in ${hoursPassed.toFixed(2)} working hours.`);
+              slaLabel = SUCCESS_LABEL;
+            }
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: issueNumber,
+              labels: [slaLabel]
+            });

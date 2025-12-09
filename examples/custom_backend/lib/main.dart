@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
-import 'protocol/protocol.dart';
+import 'backend.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,14 +60,28 @@ class _IntegrationTester extends StatefulWidget {
   State<_IntegrationTester> createState() => _IntegrationTesterState();
 }
 
+final Catalog _catalog = CoreCatalogItems.asCatalog();
+const _toolName = 'uiGenerationTool';
+final uiSchema = UiSchemaDefinition(
+  prompt: genUiTechPrompt([_toolName]),
+  tools: [
+    catalogToFunctionDeclaration(
+      _catalog,
+      _toolName,
+      'Generates Flutter UI based on user requests.',
+    ),
+  ],
+);
+
 class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
-  final _protocol = Protocol();
-  late final GenUiManager _genUi = GenUiManager(catalog: _protocol.catalog);
+
+  final _protocol = Backend(uiSchema);
+  late final GenUiManager _genUi = GenUiManager(catalog: _catalog);
   String? _selectedResponse;
   bool _isLoading = false;
-  String? _surfaceId;
   String? _errorMessage;
+  String? _surfaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -76,36 +90,37 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
         TextField(controller: _controller),
         const SizedBox(height: 20.0),
         _ResponseSelector((selected) => _selectedResponse = selected),
-
         const SizedBox(height: 20.0),
         IconButton(
           onPressed: () async {
-            setState(() => _isLoading = true);
+            setState(() {
+              _isLoading = true;
+              _errorMessage = null;
+            });
             try {
               print(
                 'Sending request for _selectedResponse = '
                 '$_selectedResponse ...',
               );
-              // ignore: omit_local_variable_types
-              final SurfaceUpdate? ui = await _protocol.sendRequest(
-                _controller.text,
-                savedResponse: _selectedResponse,
-              );
-              if (ui == null) {
+              final ParsedToolCall? parsedToolCall = await _protocol
+                  .sendRequest(
+                    _controller.text,
+                    savedResponse: _selectedResponse,
+                  );
+              if (parsedToolCall == null) {
                 print('No UI received.');
-                _surfaceId = null;
                 setState(() {
                   _isLoading = false;
-                  _errorMessage = null;
                 });
                 return;
               }
-              _genUi.handleMessage(ui);
-              _surfaceId = ui.surfaceId;
-              print('UI received for surfaceId=$_surfaceId');
+              _surfaceId = parsedToolCall.surfaceId;
+              for (final A2uiMessage message in parsedToolCall.messages) {
+                _genUi.handleMessage(message);
+              }
+              print('UI received for surfaceId=${parsedToolCall.surfaceId}');
               setState(() => _isLoading = false);
             } catch (e, callStack) {
-              _surfaceId = null;
               print('Error connecting to backend: $e\n$callStack');
               setState(() {
                 _isLoading = false;
@@ -136,10 +151,15 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (_errorMessage != null) {
       return Text('$_errorMessage');
     }
-    if (_surfaceId == null) {
-      return const Text('No UI 🤷‍♀️');
+    final String? surfaceId = _surfaceId;
+    if (surfaceId == null) {
+      return const Text('_surfaceId == null');
     }
-    return GenUiSurface(surfaceId: _surfaceId!, host: _genUi);
+    return GenUiSurface(
+      surfaceId: surfaceId,
+      host: _genUi,
+      defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
+    );
   }
 }
 
@@ -175,7 +195,7 @@ class _ResponseSelectorState extends State<_ResponseSelector> {
   }
 }
 
-const _numberOfSavedResponses = 4;
+const _numberOfSavedResponses = 3;
 final Iterable<String?> savedResponseAssets = List.generate(
   _numberOfSavedResponses + 1,
   (index) => index == 0 ? null : 'assets/data/saved-response-$index.json',

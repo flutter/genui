@@ -27,7 +27,7 @@ class TestAndFix {
     bool all = false,
   }) async {
     root ??= fs.currentDirectory;
-    final projects = await findProjects(root, all: all);
+    final List<Directory> projects = await findProjects(root, all: all);
     final jobs = <WorkerJob>[];
 
     // Global jobs
@@ -61,7 +61,7 @@ class TestAndFix {
         ),
       );
       if (fs.directory(path.join(project.path, 'test')).existsSync()) {
-        final isFlutter = project
+        final bool isFlutter = project
             .childFile('pubspec.yaml')
             .readAsStringSync()
             .contains('sdk: flutter');
@@ -84,12 +84,12 @@ class TestAndFix {
       processRunner: processRunner,
     );
     ProcessPool.defaultPrintReport(jobs.length, 0, 0, jobs.length, 0);
-    final results = await pool.runToCompletion(jobs);
+    final List<WorkerJob> results = await pool.runToCompletion(jobs);
 
-    final successfulJobs = results
+    final List<WorkerJob> successfulJobs = results
         .where((job) => job.result.exitCode == 0)
         .toList();
-    final failedJobs = results
+    final List<WorkerJob> failedJobs = results
         .where((job) => job.result.exitCode != 0)
         .toList();
 
@@ -121,32 +121,57 @@ class TestAndFix {
     bool all = false,
   }) async {
     final projects = <Directory>[];
-    await for (final entity in root.list(recursive: true)) {
-      if (entity is! File || path.basename(entity.path) != 'pubspec.yaml') {
-        continue;
-      }
-      final pubspec = entity;
-      final projectDir = pubspec.parent;
-      if (isProjectAllowed(projectDir, all: all)) {
-        projects.add(projectDir);
-      }
-    }
+    await _findProjectsRecursive(root, projects, all: all);
     return projects;
   }
 
-  bool isProjectAllowed(Directory projectPath, {bool all = false}) {
-    // Skip the things that we really don't ever want to traverse, but skip the
-    // non-essential packages unless --all is specified.
-    final excluded = [
+  Future<void> _findProjectsRecursive(
+    Directory dir,
+    List<Directory> projects, {
+    required bool all,
+  }) async {
+    final Set<String> excludedDirs = _getExcludedDirectories(all: all);
+    try {
+      await for (final FileSystemEntity entity in dir.list(
+        followLinks: false,
+      )) {
+        if (entity is File && fs.path.basename(entity.path) == 'pubspec.yaml') {
+          final Directory projectDir = entity.parent;
+          if (isProjectAllowed(projectDir, all: all)) {
+            projects.add(projectDir);
+          }
+        } else if (entity is Directory) {
+          if (!excludedDirs.contains(fs.path.basename(entity.path))) {
+            await _findProjectsRecursive(entity, projects, all: all);
+          }
+        }
+      }
+    } on FileSystemException catch (exception) {
+      print(
+        'Warning: Failed to list directory contents while searching for '
+        'projects: $exception',
+      );
+    }
+  }
+
+  Set<String> _getExcludedDirectories({required bool all}) {
+    return {
       '.dart_tool',
       'ephemeral',
       'firebase_core',
       'build',
       if (!all) 'spikes',
       if (!all) 'fix_copyright',
+      if (!all) 'release',
       if (!all) 'test_and_fix',
-    ];
-    final components = fs.path.split(projectPath.path);
+    };
+  }
+
+  bool isProjectAllowed(Directory projectPath, {bool all = false}) {
+    // Skip the things that we really don't ever want to traverse, but skip the
+    // non-essential packages unless --all is specified.
+    final Set<String> excluded = _getExcludedDirectories(all: all);
+    final List<String> components = fs.path.split(projectPath.path);
     for (final exclude in excluded) {
       if (components.contains(exclude)) {
         return false;

@@ -107,7 +107,7 @@ Future<void> main() async {
   // =========================================================================
 
   print('--- 1. Validating a Correct Login Event ---');
-  final validLoginEvent = {
+  final Map<String, Object> validLoginEvent = {
     'eventId': 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
     'timestamp': '2025-07-28T10:00:00Z',
     'eventType': 'user_login',
@@ -116,7 +116,7 @@ Future<void> main() async {
   await validateAndPrintResults(systemEventSchema, validLoginEvent);
 
   print('\n--- 2. Validating a Correct File Upload Event ---');
-  final validFileUploadEvent = {
+  final Map<String, Object> validFileUploadEvent = {
     'eventId': 'b2c3d4e5-f6a7-8901-2345-67890abcdef1',
     'timestamp': '2025-07-28T11:30:00Z',
     'eventType': 'file_upload',
@@ -135,7 +135,7 @@ Future<void> main() async {
   await validateAndPrintResults(systemEventSchema, validFileUploadEvent);
 
   print('\n--- 3. Validating an Invalid Event (Multiple Errors) ---');
-  final invalidEvent = {
+  final Map<String, Object> invalidEvent = {
     'eventId': 'not-a-uuid', // Fails pattern
     'timestamp': '2025-07-28 12:00:00', // Fails pattern (not ISO 8601)
     'eventType': 'user_logout', // Fails enumValues
@@ -148,7 +148,7 @@ Future<void> main() async {
   await validateAndPrintResults(systemEventSchema, invalidEvent);
 
   print('\n--- 4. Validating an Invalid Login Event Payload ---');
-  final invalidLoginPayload = {
+  final Map<String, Object> invalidLoginPayload = {
     'eventId': 'c3d4e5f6-a7b8-9012-3456-7890abcdef12',
     'timestamp': '2025-07-28T14:00:00Z',
     'eventType': 'user_login',
@@ -167,7 +167,7 @@ Future<void> validateAndPrintResults(
   Schema schema,
   Map<String, Object?> data,
 ) async {
-  final errors = await schema.validate(data);
+  final List<ValidationError> errors = await schema.validate(data);
 
   if (errors.isEmpty) {
     print('✅ Success! The data is valid.');

@@ -12,8 +12,8 @@ class MarkdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
     return GptMarkdownTheme(
       gptThemeData: GptMarkdownThemeData(
         brightness: theme.brightness,

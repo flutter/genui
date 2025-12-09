@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_app/src/catalog/date_input_chip.dart';
 
@@ -19,15 +19,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'literalString': '2025-09-20'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
+                CatalogItemContext(
+                  data: {
+                    'value': {'literalString': '2025-09-20'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -42,7 +46,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final dataModel = DataModel();
-    dataModel.update('/testDate', '2025-09-20');
+    dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -50,15 +54,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'path': '/testDate'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
+                CatalogItemContext(
+                  data: {
+                    'value': {'path': '/testDate'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -69,7 +77,7 @@ void main() {
     expect(find.text('Test Date: Sep 20, 2025'), findsOneWidget);
 
     // Update the data model and expect the UI to change
-    dataModel.update('/testDate', '2025-10-15');
+    dataModel.update(DataPath('/testDate'), '2025-10-15');
     await tester.pump();
     expect(find.text('Test Date: Oct 15, 2025'), findsOneWidget);
   });
@@ -78,7 +86,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final dataModel = DataModel();
-    dataModel.update('/testDate', '2025-09-20');
+    dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -86,15 +94,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'path': '/testDate'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
+                CatalogItemContext(
+                  data: {
+                    'value': {'path': '/testDate'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -108,7 +120,7 @@ void main() {
     await tester.tap(find.text('10'));
     await tester.pumpAndSettle();
 
-    expect(dataModel.getValue<String>('/testDate'), '2025-09-10');
+    expect(dataModel.getValue<String>(DataPath('/testDate')), '2025-09-10');
     expect(find.text('Test Date: Sep 10, 2025'), findsOneWidget);
   });
 
@@ -123,15 +135,19 @@ void main() {
           body: Builder(
             builder: (context) {
               return dateInputChip.widgetBuilder(
-                data: {
-                  'value': {'path': '/testDate'},
-                  'label': 'Test Date',
-                },
-                id: 'test_chip',
-                buildChild: (data) => const SizedBox(),
-                dispatchEvent: (event) {},
-                context: context,
-                dataContext: DataContext(dataModel, '/'),
+                CatalogItemContext(
+                  data: {
+                    'value': {'path': '/testDate'},
+                    'label': 'Test Date',
+                  },
+                  id: 'test_chip',
+                  buildChild: (data, [_]) => const SizedBox(),
+                  dispatchEvent: (event) {},
+                  buildContext: context,
+                  dataContext: DataContext(dataModel, '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
               );
             },
           ),
@@ -155,9 +171,9 @@ void main() {
     final formatted =
         '${expectedDate.year}-'
         '${expectedDate.month.toString().padLeft(2, '0')}-10';
-    expect(dataModel.getValue<String>('/testDate'), formatted);
+    expect(dataModel.getValue<String>(DataPath('/testDate')), formatted);
 
-    final month = DateFormat.MMM().format(expectedDate);
+    final String month = DateFormat.MMM().format(expectedDate);
     expect(
       find.text('Test Date: $month 10, ${expectedDate.year}'),
       findsOneWidget,

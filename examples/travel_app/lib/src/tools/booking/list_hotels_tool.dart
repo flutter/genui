@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'model.dart';
@@ -42,7 +42,7 @@ class ListHotelsTool extends AiTool<Map<String, Object?>> {
 
   @override
   Future<JsonMap> invoke(JsonMap args) async {
-    final search = HotelSearch.fromJson(args);
+    final HotelSearch search = HotelSearch.fromJson(args);
     return (await onListHotels(search)).toAiInput();
   }
 }

@@ -40,10 +40,10 @@ final Map<String, FormatValidator> formatValidators = {
   },
   'email': EmailValidator.validate,
   'ipv4': (value) {
-    final parts = value.split('.');
+    final List<String> parts = value.split('.');
     if (parts.length != 4) return false;
     return parts.every((part) {
-      final n = int.tryParse(part);
+      final int? n = int.tryParse(part);
       return n != null && n >= 0 && n <= 255;
     });
   },

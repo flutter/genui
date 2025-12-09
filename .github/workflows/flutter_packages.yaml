@@ -44,8 +44,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Find all directories containing pubspec.yaml in packages and examples.
-          ALL_DIRS=$(find packages examples -name pubspec.yaml -not -path "*/.dart_tool/*" -exec dirname {} \;)
+          # Find all directories containing pubspec.yaml in packages, tools, and examples.
+          ALL_DIRS=$(find packages examples tool -name pubspec.yaml -not -path "*/.dart_tool/*" -exec dirname {} \;)
 
           # Get the list of changed files. The method depends on the event type.
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -97,7 +97,7 @@ jobs:
       fail-fast: false
       matrix:
         package: ${{ fromJson(needs.matrix.outputs.matrix) }}
-        flutter_version: [beta]
+        flutter_version: [beta, stable]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
@@ -121,8 +121,6 @@ jobs:
       - name: Update submodules
         working-directory: ${{ matrix.package.path }}
         run: git submodule update --init --recursive
-      - name: Stub firebase_options.dart
-        run: sh tool/stub_firebase_options.sh
       - name: Install dependencies
         working-directory: ${{ matrix.package.path }}
         run: dart pub get

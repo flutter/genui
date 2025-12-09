@@ -9,13 +9,15 @@ import 'validation_error.dart';
 /// Performs a deep equality check on two objects.
 ///
 /// This function can handle nested maps and lists.
-final deepEquals = const DeepCollectionEquality().equals;
+final bool Function(Object? e1, Object? e2) deepEquals =
+    const DeepCollectionEquality().equals;
 
 /// Computes a deep hash code for an object.
 ///
 /// This function can handle nested maps and lists, and is order-independent
 /// for maps.
-final deepHashCode = const DeepCollectionEquality().hash;
+final int Function(Object? o) deepHashCode =
+    const DeepCollectionEquality().hash;
 
 /// Creates a [HashSet] for [ValidationError]s that uses deep equality.
 HashSet<ValidationError> createHashSet() {

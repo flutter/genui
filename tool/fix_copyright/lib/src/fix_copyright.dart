@@ -7,9 +7,11 @@
 // runners that don't contain copyrights when generated.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file/file.dart';
+import 'package:path/path.dart';
 import 'package:process/process.dart';
 
 typedef LogFunction = void Function(String);
@@ -23,19 +25,19 @@ Future<int> fixCopyrights(
   LogFunction? log,
   LogFunction? error,
 }) async {
-  final path = fileSystem.path;
-  final extensionMap = _generateExtensionMap(year);
+  final Context path = fileSystem.path;
+  final Map<String, CopyrightInfo> extensionMap = _generateExtensionMap(year);
   void stdLog(String message) =>
       (log ?? stdout.writeln as LogFunction).call(message);
   void stdErr(String message) =>
       (error ?? stderr.writeln as LogFunction).call(message);
 
   String getExtension(File file) {
-    final pathExtension = path.extension(file.path);
+    final String pathExtension = path.extension(file.path);
     return pathExtension.isNotEmpty ? pathExtension.substring(1) : '';
   }
 
-  final gitRootResult = await processManager.run([
+  final ProcessResult gitRootResult = await processManager.run([
     'git',
     'rev-parse',
     '--show-toplevel',
@@ -47,9 +49,9 @@ Future<int> fixCopyrights(
     );
     return 1;
   }
-  final repoRoot = gitRootResult.stdout.toString().trim();
+  final String repoRoot = gitRootResult.stdout.toString().trim();
 
-  final gitFilesResult = await processManager.run([
+  final ProcessResult gitFilesResult = await processManager.run([
     'git',
     'ls-files',
     ...paths,
@@ -60,7 +62,7 @@ Future<int> fixCopyrights(
     return 1;
   }
 
-  final files = gitFilesResult.stdout
+  final List<File> files = gitFilesResult.stdout
       .toString()
       .split('\n')
       .where((line) => line.trim().isNotEmpty)
@@ -71,7 +73,7 @@ Future<int> fixCopyrights(
   final nonCompliantFiles = <File>[];
   for (final file in files) {
     try {
-      final extension = getExtension(file);
+      final String extension = getExtension(file);
       if (!extensionMap.containsKey(extension)) {
         stdErr(
           'Warning: File ${file.path} does not have an extension that requires '
@@ -79,9 +81,12 @@ Future<int> fixCopyrights(
         );
         continue;
       }
-      final info = extensionMap[extension]!;
-      final inputFile = file.absolute;
-      final originalContents = inputFile.readAsStringSync();
+      final CopyrightInfo info = extensionMap[extension]!;
+      final File inputFile = file.absolute;
+      final String originalContents = inputFile.readAsStringSync();
+      if (_isGeneratedFile(originalContents)) {
+        continue;
+      }
       if (_hasCorrectLicense(originalContents, info)) {
         continue;
       }
@@ -89,10 +94,11 @@ Future<int> fixCopyrights(
       nonCompliantFiles.add(file);
 
       if (force) {
-        var contents = originalContents.replaceAll('\r\n', '\n');
+        String contents = originalContents.replaceAll('\r\n', '\n');
+
         String? fileHeader;
         if (info.headerPattern != null) {
-          final match = RegExp(
+          final RegExpMatch? match = RegExp(
             info.headerPattern!,
             caseSensitive: false,
           ).firstMatch(contents);
@@ -140,14 +146,20 @@ Future<int> fixCopyrights(
     }
     if (!force) {
       stdErr('\nRun with --force to update them.');
+      return 1;
     } else {
       stdErr(
-        '''\nAll files were given correct copyright notices, but please check them all manually. If a file had an out-of-compliance copyright that didn't match a known pattern, it may have been left intact, leaving a duplicate.''',
+        '''
+All files were given correct copyright notices, but please check them all manually. If a file had an out-of-compliance copyright that didn't match a known pattern, it may have been left intact, leaving a duplicate.''',
       );
     }
-    return 1;
   }
   return 0;
+}
+
+bool _isGeneratedFile(String contents) {
+  final regex = RegExp(r'generated.*(file|code)', caseSensitive: false);
+  return const LineSplitter().convert(contents).take(10).any(regex.hasMatch);
 }
 
 class CopyrightInfo {
@@ -165,8 +177,10 @@ class CopyrightInfo {
   final String? header;
   final String? headerPattern;
 
+  RegExp? _pattern;
+
   RegExp get pattern {
-    return RegExp(
+    return _pattern ??= RegExp(
       '^(?:${headerPattern ?? (header != null ? RegExp.escape(header!) : '')})?'
       '${RegExp.escape(copyright)}\n${trailingBlank ? r'\n' : ''}',
       multiLine: true,
@@ -207,8 +221,8 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
     required String prefix,
     String suffix = '',
   }) {
-    final escapedPrefix = RegExp.escape(prefix);
-    final escapedSuffix = RegExp.escape(suffix);
+    final String escapedPrefix = RegExp.escape(prefix);
+    final String escapedSuffix = RegExp.escape(suffix);
 
     return '($escapedPrefix'
         r'Copyright (\d+) ([\w ]+)\.?(?:\s*All rights reserved.)?'
@@ -288,7 +302,7 @@ ${isParagraph ? '' : prefix}found in the LICENSE file.$suffix''';
 
 bool _hasCorrectLicense(String rawContents, CopyrightInfo info) {
   // Normalize line endings.
-  var contents = rawContents.replaceAll('\r\n', '\n');
+  String contents = rawContents.replaceAll('\r\n', '\n');
   // Ignore empty files.
   if (contents.isEmpty) {
     return true;

@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:travel_app/src/catalog/trailhead.dart';
 
 void main() {
@@ -12,7 +12,7 @@ void main() {
     testWidgets('builds widget correctly and handles tap', (
       WidgetTester tester,
     ) async {
-      final data = {
+      final Map<String, Object> data = {
         'topics': [
           {'literalString': 'Topic A'},
           {'literalString': 'Topic B'},
@@ -27,14 +27,18 @@ void main() {
             body: Builder(
               builder: (context) {
                 return trailhead.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {
-                    dispatchedEvent = event;
-                  },
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {
+                      dispatchedEvent = event;
+                    },
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),
@@ -58,7 +62,7 @@ void main() {
     testWidgets('builds widget correctly with no topics', (
       WidgetTester tester,
     ) async {
-      final data = {
+      final Map<String, Object> data = {
         'topics': <Map<String, String>>[],
         'action': {'name': 'selectTopic'},
       };
@@ -69,12 +73,16 @@ void main() {
             body: Builder(
               builder: (context) {
                 return trailhead.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (event) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),

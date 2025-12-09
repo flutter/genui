@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
@@ -56,67 +56,69 @@ final tabbedSections = CatalogItem(
   name: 'TabbedSections',
   dataSchema: _schema,
   exampleData: [
-    () => {
-      'root': 'tabbed_sections',
-      'widgets': [
+    () => '''
+      [
         {
-          'id': 'tabbed_sections',
-          'widget': {
-            'TabbedSections': {
-              'sections': [
+          "id": "root",
+          "component": {
+            "TabbedSections": {
+              "sections": [
                 {
-                  'title': {'literalString': 'Tab 1'},
-                  'child': 'tab1_content',
+                  "title": {
+                    "literalString": "Tab 1"
+                  },
+                  "child": "tab1_content"
                 },
                 {
-                  'title': {'literalString': 'Tab 2'},
-                  'child': 'tab2_content',
-                },
-              ],
-            },
-          },
+                  "title": {
+                    "literalString": "Tab 2"
+                  },
+                  "child": "tab2_content"
+                }
+              ]
+            }
+          }
         },
         {
-          'id': 'tab1_content',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is the content of Tab 1.'},
-            },
-          },
+          "id": "tab1_content",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is the content of Tab 1."
+              }
+            }
+          }
         },
         {
-          'id': 'tab2_content',
-          'widget': {
-            'Text': {
-              'text': {'literalString': 'This is the content of Tab 2.'},
-            },
-          },
-        },
-      ],
-    },
+          "id": "tab2_content",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "This is the content of Tab 2."
+              }
+            }
+          }
+        }
+      ]
+    ''',
   ],
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final tabbedSectionsData = _TabbedSectionsData.fromMap(
-          data as Map<String, Object?>,
-        );
-        final sections = tabbedSectionsData.sections.map((section) {
-          final titleNotifier = dataContext.subscribeToString(section.title);
-          return _TabSectionData(
-            titleNotifier: titleNotifier,
-            childId: section.childId,
-          );
-        }).toList();
+  widgetBuilder: (context) {
+    final tabbedSectionsData = _TabbedSectionsData.fromMap(
+      context.data as Map<String, Object?>,
+    );
+    final List<_TabSectionData> sections = tabbedSectionsData.sections.map((
+      section,
+    ) {
+      final ValueNotifier<String?> titleNotifier = context.dataContext
+          .subscribeToString(section.title);
+      return _TabSectionData(
+        titleNotifier: titleNotifier,
+        childId: section.childId,
+      );
+    }).toList();
 
-        return _TabbedSections(sections: sections, buildChild: buildChild);
-      },
+    return _TabbedSections(sections: sections, buildChild: context.buildChild);
+  },
 );
 
 class _TabSectionData {

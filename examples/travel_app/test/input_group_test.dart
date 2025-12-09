@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:travel_app/src/catalog/input_group.dart';
 
 void main() {
@@ -12,14 +12,14 @@ void main() {
     testWidgets(
       'renders children and dispatches submit event on button press',
       (WidgetTester tester) async {
-        final data = {
+        final Map<String, Object> data = {
           'submitLabel': {'literalString': 'Submit'},
           'children': ['child1', 'child2'],
           'action': {'name': 'submitAction'},
         };
         UiEvent? dispatchedEvent;
 
-        Widget buildChild(String id) => Text(id);
+        Widget buildChild(String id, [_]) => Text(id);
 
         await tester.pumpWidget(
           MaterialApp(
@@ -27,14 +27,18 @@ void main() {
               body: Builder(
                 builder: (context) {
                   return inputGroup.widgetBuilder(
-                    data: data,
-                    id: 'testId',
-                    buildChild: buildChild,
-                    dispatchEvent: (event) {
-                      dispatchedEvent = event;
-                    },
-                    context: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    CatalogItemContext(
+                      data: data,
+                      id: 'testId',
+                      buildChild: buildChild,
+                      dispatchEvent: (event) {
+                        dispatchedEvent = event;
+                      },
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      surfaceId: 'surface1',
+                    ),
                   );
                 },
               ),
@@ -45,7 +49,7 @@ void main() {
         // Verify that children and the submit button are rendered.
         expect(find.text('child1'), findsOneWidget);
         expect(find.text('child2'), findsOneWidget);
-        final button = find.widgetWithText(ElevatedButton, 'Submit');
+        final Finder button = find.widgetWithText(ElevatedButton, 'Submit');
         expect(button, findsOneWidget);
 
         // Verify that the submit event is dispatched on tap.
@@ -60,7 +64,7 @@ void main() {
     testWidgets('renders correctly with no children', (
       WidgetTester tester,
     ) async {
-      final data = {
+      final Map<String, Object> data = {
         'submitLabel': {'literalString': 'Submit'},
         'children': <String>[],
         'action': {'name': 'submitAction'},
@@ -72,12 +76,16 @@ void main() {
             body: Builder(
               builder: (context) {
                 return inputGroup.widgetBuilder(
-                  data: data,
-                  id: 'testId',
-                  buildChild: (_) => const SizedBox.shrink(),
-                  dispatchEvent: (UiEvent _) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
+                  CatalogItemContext(
+                    data: data,
+                    id: 'testId',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (UiEvent _) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 );
               },
             ),

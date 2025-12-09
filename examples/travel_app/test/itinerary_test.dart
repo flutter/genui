@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:travel_app/src/catalog/itinerary.dart';
 
 void main() {
@@ -19,7 +19,7 @@ void main() {
       }
     }
 
-    final testData = {
+    final Map<String, Object> testData = {
       'title': {'literalString': 'My Awesome Trip'},
       'subheading': {'literalString': 'A 3-day adventure'},
       'imageChildId': 'image1',
@@ -38,7 +38,7 @@ void main() {
               'status': 'choiceRequired',
               'choiceRequiredAction': {
                 'name': 'testAction',
-                'context': <Object?>[],
+                'context': <Object>[],
               },
             },
           ],
@@ -46,13 +46,17 @@ void main() {
       ],
     };
 
-    final itineraryWidget = itinerary.widgetBuilder(
-      data: testData,
-      id: 'itinerary1',
-      buildChild: (id) => SizedBox(key: Key(id)),
-      dispatchEvent: mockDispatchEvent,
-      context: tester.element(find.byType(Container)),
-      dataContext: DataContext(DataModel(), '/'),
+    final Widget itineraryWidget = itinerary.widgetBuilder(
+      CatalogItemContext(
+        data: testData,
+        id: 'itinerary1',
+        buildChild: (data, [_]) => SizedBox(key: Key(data)),
+        dispatchEvent: mockDispatchEvent,
+        buildContext: tester.element(find.byType(Container)),
+        dataContext: DataContext(DataModel(), '/'),
+        getComponent: (String componentId) => null,
+        surfaceId: 'surface1',
+      ),
     );
 
     // 2. Pump the widget

@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:travel_app/src/catalog/tabbed_sections.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
       WidgetTester tester,
     ) async {
       // Mock buildChild function
-      Widget mockBuildChild(String id) {
+      Widget mockBuildChild(String id, [_]) {
         if (id == 'child1') {
           return const Text('Content for Tab 1');
         } else if (id == 'child2') {
@@ -23,8 +23,8 @@ void main() {
       }
 
       // Create a CatalogItem instance with test data
-      final catalogItem = tabbedSections;
-      final data = {
+      final CatalogItem catalogItem = tabbedSections;
+      final Map<String, List<Map<String, Object>>> data = {
         'sections': [
           {
             'title': {'literalString': 'Tab 1'},
@@ -47,12 +47,16 @@ void main() {
                   child: Builder(
                     builder: (context) {
                       return catalogItem.widgetBuilder(
-                        data: data,
-                        id: 'testId',
-                        buildChild: mockBuildChild,
-                        dispatchEvent: (event) {},
-                        context: context,
-                        dataContext: DataContext(DataModel(), '/'),
+                        CatalogItemContext(
+                          data: data,
+                          id: 'testId',
+                          buildChild: mockBuildChild,
+                          dispatchEvent: (event) {},
+                          buildContext: context,
+                          dataContext: DataContext(DataModel(), '/'),
+                          getComponent: (String componentId) => null,
+                          surfaceId: 'surface1',
+                        ),
                       );
                     },
                   ),

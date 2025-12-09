@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/genui.dart';
 import 'package:travel_app/src/catalog/checkbox_filter_chips_input.dart';
 
 void main() {
@@ -18,19 +18,23 @@ void main() {
             builder: (context) {
               return Center(
                 child: checkboxFilterChipsInput.widgetBuilder(
-                  data: {
-                    'chipLabel': 'Amenities',
-                    'options': ['Wifi', 'Pool', 'Gym'],
-                    'selectedOptions': {
-                      'literalArray': ['Wifi', 'Gym'],
+                  CatalogItemContext(
+                    data: {
+                      'chipLabel': 'Amenities',
+                      'options': ['Wifi', 'Pool', 'Gym'],
+                      'selectedOptions': {
+                        'literalArray': ['Wifi', 'Gym'],
+                      },
+                      'iconName': 'hotel',
                     },
-                    'iconName': 'hotel',
-                  },
-                  id: 'test',
-                  buildChild: (_) => const SizedBox(),
-                  dispatchEvent: (_) {},
-                  context: context,
-                  dataContext: DataContext(DataModel(), '/'),
+                    id: 'test',
+                    buildChild: (_, [_]) => const SizedBox(),
+                    dispatchEvent: (_) {},
+                    buildContext: context,
+                    dataContext: DataContext(DataModel(), '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
                 ),
               );
             },

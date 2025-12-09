@@ -4,17 +4,42 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_genui/flutter_genui.dart';
-import 'package:flutter_genui_firebase_ai/flutter_genui_firebase_ai.dart';
-import 'package:simple_chat/message.dart';
-import 'firebase_options.dart';
+import 'package:flutter/material.dart';
+import 'package:genui/genui.dart';
+import 'package:genui_firebase_ai/genui_firebase_ai.dart';
+import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
 import 'package:logging/logging.dart';
+
+import 'configuration.dart';
+
+// If you want to convert to using Firebase AI, run:
+//
+//   sh tool/refresh_firebase.sh <project_id>
+//
+// to refresh the Firebase configuration for a specific Firebase project.
+// and uncomment the Firebase initialization code and import below that is
+// marked with UNCOMMENT_FOR_FIREBASE, and set the value of `aiBackend` to
+// `AiBackend.firebase` in `lib/configuration.dart`.
+
+// import 'firebase_options.dart'; // UNCOMMENT_FOR_FIREBASE
+
+// Conditionally import non-web version so we can read from shell env vars in
+// non-web version.
+import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';
+import 'message.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Only initialize Firebase if we are using the Firebase backend.
+  if (aiBackend == AiBackend.firebase) {
+    await Firebase.initializeApp(
+      // UNCOMMENT_FOR_FIREBASE (See top of file for details)
+      // options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   configureGenUiLogging(level: Level.ALL);
 
   runApp(const MyApp());
@@ -43,32 +68,56 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
+  late final GenUiConversation _genUiConversation;
   late final GenUiManager _genUiManager;
-  late final UiAgent _uiAgent;
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    final catalog = CoreCatalogItems.asCatalog();
+    final Catalog catalog = CoreCatalogItems.asCatalog();
     _genUiManager = GenUiManager(catalog: catalog);
-    final aiClient = FirebaseAiClient(
-      systemInstruction:
-          'You are a helpful assistant who chats with a user, '
-          'giving exactly one response for each user message. '
-          'Your responses should contain acknowledgment '
-          'of the user message.'
-          '\n\n'
-          '${GenUiPromptFragments.basicChat}',
-      tools: _genUiManager.getTools(),
-    );
-    _uiAgent = UiAgent(
+
+    final systemInstruction =
+        '''You are a helpful assistant who chats with a user,
+giving exactly one response for each user message.
+Your responses should contain acknowledgment
+of the user message.
+
+
+IMPORTANT: When you generate UI in a response, you MUST always create
+a new surface with a unique `surfaceId`. Do NOT reuse or update
+existing `surfaceId`s. Each UI response must be in its own new surface.
+
+${GenUiPromptFragments.basicChat}''';
+
+    // Create the appropriate content generator based on configuration
+    final ContentGenerator contentGenerator = switch (aiBackend) {
+      AiBackend.googleGenerativeAi => () {
+        return GoogleGenerativeAiContentGenerator(
+          catalog: catalog,
+          systemInstruction: systemInstruction,
+          apiKey: getApiKey(),
+        );
+      }(),
+      AiBackend.firebase => FirebaseAiContentGenerator(
+        catalog: catalog,
+        systemInstruction: systemInstruction,
+      ),
+    };
+
+    _genUiConversation = GenUiConversation(
       genUiManager: _genUiManager,
-      aiClient: aiClient,
+      contentGenerator: contentGenerator,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,
-      // ignore: avoid_print
-      onWarning: (value) => print('Warning from UiAgent: $value'),
+      onError: (error) {
+        genUiLogger.severe(
+          'Error from content generator',
+          error.error,
+          error.stackTrace,
+        );
+      },
     );
   }
 
@@ -90,8 +139,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String title = switch (aiBackend) {
+      AiBackend.googleGenerativeAi => 'Chat with Google Generative AI',
+      AiBackend.firebase => 'Chat with Firebase AI',
+    };
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat with Firebase AI')),
+      appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: Column(
           children: [
@@ -100,14 +154,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 controller: _scrollController,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return ListTile(title: MessageView(message, _uiAgent.host));
+                  final MessageController message = _messages[index];
+                  return ListTile(
+                    title: MessageView(message, _genUiConversation.host),
+                  );
                 },
               ),
             ),
 
             ValueListenableBuilder(
-              valueListenable: _uiAgent.isProcessing,
+              valueListenable: _genUiConversation.isProcessing,
               builder: (_, isProcessing, _) {
                 if (!isProcessing) return Container();
                 return const Padding(
@@ -144,7 +200,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    final text = _textController.text;
+    final String text = _textController.text;
     if (text.isEmpty) {
       return;
     }
@@ -156,7 +212,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _scrollToBottom();
 
-    unawaited(_uiAgent.sendRequest(UserMessage([TextPart(text)])));
+    unawaited(_genUiConversation.sendRequest(UserMessage([TextPart(text)])));
   }
 
   void _scrollToBottom() {
@@ -173,7 +229,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _uiAgent.dispose();
+    _genUiConversation.dispose();
     super.dispose();
   }
 }

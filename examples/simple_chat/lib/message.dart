@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_genui/flutter_genui.dart';
+import 'package:genui/genui.dart';
 
 class MessageController {
   MessageController({this.text, this.surfaceId})
@@ -21,7 +21,7 @@ class MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surfaceId = controller.surfaceId;
+    final String? surfaceId = controller.surfaceId;
 
     if (surfaceId == null) return Text(controller.text ?? '');
 

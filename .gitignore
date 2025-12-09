@@ -1,7 +1,38 @@
-# These files are regularly auto-updated, but they should not be ignored:
-# **/project.pbxproj
-# **/settings.gradle.kts
-# **/build.gradle.kts
+# Diagrams, produced by https://pub.dev/packages/layerlens.
+DEPS.md
+
+# Firebase
+google-services.json
+**/lib/firebase_options.dart
+firebase.json
+GoogleService-Info.plist
+.firebase
+.firebaserc
+
+# This package's specific logs.
+*.log.*
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+.env
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==============================================================================
+#
+# STANDARD FLUTTER GITIGNORE
+#
+# ==============================================================================
 
 # Miscellaneous
 *.class
@@ -15,11 +46,6 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-**/firepit-log.txt
-**/pglite-debug.log
-
-# Diagrams, produced by https://pub.dev/packages/layerlens.
-DEPS.md
 
 # IntelliJ related
 *.iml
@@ -27,23 +53,20 @@ DEPS.md
 *.iws
 .idea/
 
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
-**/.dart_tool/
-**/.flutter-plugins-dependencies
-**/.pub-cache/
-**/.pub/
-**/build/
-**/coverage/
-**/pubspec.lock
-**/generated_plugins.cmake
-**/GeneratedPluginRegistrant.*
-**/generated_plugin_registrant.*
-**/Podfile
-**/Podfile.lock
-**/Runner-Bridging-Header.h
-**/contents.xcworkspacedata
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
 
 # Symbolication related
 app.*.symbols
@@ -52,17 +75,6 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
-**/android/app/debug
-**/android/app/profile
-**/android/app/release
-
-# Firebase
-**/google-services.json
-**/lib/firebase_options.dart
-**/firebase.json
-**/GoogleService-Info.plist
-**/.firebase
-**/.firebaserc
-
-# This package's specific logs.
-**/*.log.*
+/android/app/debug
+/android/app/profile
+/android/app/release

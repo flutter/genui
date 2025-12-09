@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file/memory.dart';
+import 'package:file/src/interface/directory.dart';
 import 'package:process_runner/test/fake_process_manager.dart';
 import 'package:test/test.dart';
 import 'package:test_and_fix/test_and_fix.dart';
@@ -25,7 +26,7 @@ void main() {
     });
 
     test('handles no projects found', () async {
-      final root = fs.directory('test_root').absolute..createSync();
+      final Directory root = fs.directory('test_root').absolute..createSync();
       processManager.fakeResults = {
         FakeInvocationRecord(const [
           'dart',
@@ -52,7 +53,7 @@ void main() {
         ],
       };
       await testAndFix.run(root: root);
-      final commands = processManager.invocations
+      final List<List<String>> commands = processManager.invocations
           .map((e) => e.invocation)
           .toList();
       expect(commands, hasLength(3));
@@ -75,8 +76,8 @@ void main() {
     });
 
     test('creates jobs for a single project', () async {
-      final root = fs.directory('test_root').absolute..createSync();
-      final project = root.childDirectory('project')..createSync();
+      final Directory root = fs.directory('test_root').absolute..createSync();
+      final Directory project = root.childDirectory('project')..createSync();
       project.childFile('pubspec.yaml').writeAsStringSync('sdk: flutter');
       project.childDirectory('test').createSync();
 
@@ -124,8 +125,8 @@ void main() {
     });
 
     test('disallowed projects are not skipped with --all', () async {
-      final root = fs.directory('test_root').absolute..createSync();
-      final project =
+      final Directory root = fs.directory('test_root').absolute..createSync();
+      final Directory project =
           root
               .childDirectory('packages')
               .childDirectory('spikes')
@@ -207,7 +208,7 @@ void main() {
     });
 
     test('handles command failure', () async {
-      final root = fs.directory('test_root').absolute..createSync();
+      final Directory root = fs.directory('test_root').absolute..createSync();
       processManager.fakeResults = {
         FakeInvocationRecord(const [
           'dart',
