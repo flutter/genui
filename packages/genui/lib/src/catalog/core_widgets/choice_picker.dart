@@ -13,55 +13,61 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'selections': A2uiSchemas.stringArrayReference(),
+    'value': A2uiSchemas.stringArrayReference(),
     'options': A2uiSchemas.objectArrayReference(),
-    'maxAllowedSelections': S.integer(),
+    'usageHint': S.string(
+      description: 'Hint for how the choice picker should be displayed.',
+      enumValues: ['multipleSelection', 'mutuallyExclusive'],
+    ),
   },
-  required: ['selections', 'options'],
+  required: ['value', 'options'],
 );
 
-extension type _MultipleChoiceData.fromMap(JsonMap _json) {
-  factory _MultipleChoiceData({
-    required JsonMap selections,
+extension type _ChoicePickerData.fromMap(JsonMap _json) {
+  factory _ChoicePickerData({
+    required JsonMap value,
     required JsonMap options,
-    int? maxAllowedSelections,
-  }) => _MultipleChoiceData.fromMap({
-    'selections': selections,
+    String? usageHint,
+  }) => _ChoicePickerData.fromMap({
+    'value': value,
     'options': options,
-    'maxAllowedSelections': maxAllowedSelections,
+    'usageHint': usageHint,
   });
 
-  JsonMap get selections => _json['selections'] as JsonMap;
+  JsonMap get value => _json['value'] as JsonMap;
   JsonMap get options => _json['options'] as JsonMap;
-  int? get maxAllowedSelections => _json['maxAllowedSelections'] as int?;
+  String? get usageHint => _json['usageHint'] as String?;
 }
 
-/// A catalog item representing a multiple choice selection widget.
+/// A catalog item representing a choice picker widget.
 ///
-/// This widget displays a list of options, each with a checkbox. The
-/// `selections` parameter, which should be a data model path, is updated to
+/// This widget displays a list of options, each with a checkbox or radio
+/// button.
+///
+/// The `value` parameter, which should be a data model path, is updated to
 /// reflect the list of *values* of the currently selected options.
 ///
 /// ## Parameters:
 ///
-/// - `selections`: A list of the values of the selected options.
+/// - `value`: A list of the values of the selected options.
 /// - `options`: A list of options to display, each with a `label` and a
 ///   `value`.
-/// - `maxAllowedSelections`: The maximum number of options that can be
-///   selected.
-final multipleChoice = CatalogItem(
-  name: 'MultipleChoice',
+/// - `usageHint`: Hints at how the picker should behave. 'mutuallyExclusive'
+///   implies single selection (radio buttons), while 'multipleSelection'
+///   implies multiple selection (checkboxes). Defaults to 'multipleSelection'.
+final choicePicker = CatalogItem(
+  name: 'ChoicePicker',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
-    final multipleChoiceData = _MultipleChoiceData.fromMap(
+    final choicePickerData = _ChoicePickerData.fromMap(
       itemContext.data as JsonMap,
     );
     final ValueNotifier<List<Object?>?> selectionsNotifier = itemContext
         .dataContext
-        .subscribeToObjectArray(multipleChoiceData.selections);
+        .subscribeToObjectArray(choicePickerData.value);
     final ValueNotifier<List<Object?>?> optionsNotifier = itemContext
         .dataContext
-        .subscribeToObjectArray(multipleChoiceData.options);
+        .subscribeToObjectArray(choicePickerData.options);
 
     return ValueListenableBuilder<List<Object?>?>(
       valueListenable: selectionsNotifier,
@@ -88,7 +94,7 @@ final multipleChoice = CatalogItem(
                 return ValueListenableBuilder<String?>(
                   valueListenable: labelNotifier,
                   builder: (context, label, child) {
-                    if (multipleChoiceData.maxAllowedSelections == 1) {
+                    if (choicePickerData.usageHint == 'mutuallyExclusive') {
                       final Object? groupValue = selections?.isNotEmpty == true
                           ? selections!.first
                           : null;
@@ -105,7 +111,7 @@ final multipleChoice = CatalogItem(
                         // ignore: deprecated_member_use
                         onChanged: (newValue) {
                           final path =
-                              multipleChoiceData.selections['path'] as String?;
+                              choicePickerData.value['path'] as String?;
                           if (path == null || newValue == null) {
                             return;
                           }
@@ -122,7 +128,7 @@ final multipleChoice = CatalogItem(
                         value: selections?.contains(value) ?? false,
                         onChanged: (newValue) {
                           final path =
-                              multipleChoiceData.selections['path'] as String?;
+                              choicePickerData.value['path'] as String?;
                           if (path == null) {
                             return;
                           }
@@ -130,10 +136,7 @@ final multipleChoice = CatalogItem(
                               selections?.map((e) => e.toString()).toList() ??
                               <String>[];
                           if (newValue ?? false) {
-                            if (multipleChoiceData.maxAllowedSelections ==
-                                    null ||
-                                newSelections.length <
-                                    multipleChoiceData.maxAllowedSelections!) {
+                            if (!newSelections.contains(value)) {
                               newSelections.add(value);
                             }
                           } else {
@@ -160,91 +163,81 @@ final multipleChoice = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Column",
-            "children": {
-              "explicitList": [
-                "heading1",
-                "singleChoice",
-                "heading2",
-                "multiChoice"
-              ]
-            }
+          "component": "Column",
+          "children": {
+            "explicitList": [
+              "heading1",
+              "singleChoice",
+              "heading2",
+              "multiChoice"
+            ]
           }
         },
         {
           "id": "heading1",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "Single Selection (maxAllowedSelections: 1)"
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Single Selection (mutuallyExclusive)"
           }
         },
         {
           "id": "singleChoice",
-          "props": {
-            "component": "MultipleChoice",
-            "selections": {
-              "path": "/singleSelection"
-            },
-            "maxAllowedSelections": 1,
-            "options": {
-              "literalArray": [
-                {
-                  "label": {
-                    "literalString": "Option A"
-                  },
-                  "value": "A"
+          "component": "ChoicePicker",
+          "value": {
+            "path": "/singleSelection"
+          },
+          "usageHint": "mutuallyExclusive",
+          "options": {
+            "literalArray": [
+              {
+                "label": {
+                  "literalString": "Option A"
                 },
-                {
-                  "label": {
-                    "literalString": "Option B"
-                  },
-                  "value": "B"
-                }
-              ]
-            }
+                "value": "A"
+              },
+              {
+                "label": {
+                  "literalString": "Option B"
+                },
+                "value": "B"
+              }
+            ]
           }
         },
         {
           "id": "heading2",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "Multiple Selections (unlimited)"
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Multiple Selections"
           }
         },
         {
           "id": "multiChoice",
-          "props": {
-            "component": "MultipleChoice",
-            "selections": {
-              "path": "/multiSelection"
-            },
-            "options": {
-              "literalArray": [
-                {
-                  "label": {
-                    "literalString": "Option X"
-                  },
-                  "value": "X"
+          "component": "ChoicePicker",
+          "value": {
+            "path": "/multiSelection"
+          },
+          "options": {
+            "literalArray": [
+              {
+                "label": {
+                  "literalString": "Option X"
                 },
-                {
-                  "label": {
-                    "literalString": "Option Y"
-                  },
-                  "value": "Y"
+                "value": "X"
+              },
+              {
+                "label": {
+                  "literalString": "Option Y"
                 },
-                {
-                  "label": {
-                    "literalString": "Option Z"
-                  },
-                  "value": "Z"
-                }
-              ]
-            }
+                "value": "Y"
+              },
+              {
+                "label": {
+                  "literalString": "Option Z"
+                },
+                "value": "Z"
+              }
+            ]
           }
         }
       ]

@@ -50,7 +50,26 @@ class CatalogGalleryApp extends StatefulWidget {
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final Catalog catalog = CoreCatalogItems.asCatalog();
+  final Catalog catalog = Catalog([
+    CoreCatalogItems.audioPlayer,
+    CoreCatalogItems.button,
+    CoreCatalogItems.card,
+    CoreCatalogItems.checkBox,
+    CoreCatalogItems.column,
+    CoreCatalogItems.dateTimeInput,
+    CoreCatalogItems.divider,
+    CoreCatalogItems.icon,
+    CoreCatalogItems.image,
+    CoreCatalogItems.list,
+    CoreCatalogItems.modal,
+    CoreCatalogItems.choicePicker,
+    CoreCatalogItems.row,
+    CoreCatalogItems.slider,
+    CoreCatalogItems.tabs,
+    CoreCatalogItems.text,
+    CoreCatalogItems.textField,
+    CoreCatalogItems.video,
+  ], catalogId: 'default');
 
   @override
   Widget build(BuildContext context) {

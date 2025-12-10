@@ -12,8 +12,8 @@ void main() {
 name: Test Sample
 description: A test description
 ---
-{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "props": {"component": "Text", "text": {"literalString": "Hello"}}}]}}
-{"createSurface": {"surfaceId": "default"}}
+{"updateComponents": {"surfaceId": "default", "components": [{"id": "text1", "component": "Text", "text": {"literalString": "Hello"}}]}}
+{"createSurface": {"surfaceId": "default", "catalogId": "standard"}}
 ''';
 
     final Sample sample = SampleParser.parseString(sampleContent);
@@ -23,10 +23,10 @@ description: A test description
 
     final List<A2uiMessage> messages = await sample.messages.toList();
     expect(messages.length, 2);
-    expect(messages.first, isA<SurfaceUpdate>());
+    expect(messages.first, isA<UpdateComponents>());
     expect(messages.last, isA<CreateSurface>());
 
-    final update = messages.first as SurfaceUpdate;
+    final update = messages.first as UpdateComponents;
     expect(update.surfaceId, 'default');
     expect(update.components.length, 1);
     expect(update.components.first.type, 'Text');

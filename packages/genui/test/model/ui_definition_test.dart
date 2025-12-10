@@ -15,9 +15,7 @@ void main() {
         components: {
           'root': const Component(
             id: 'root',
-            props: {
-              'Text': {'text': 'Hello'},
-            },
+            props: {'component': 'Text', 'text': 'Hello'},
           ),
         },
       );
@@ -27,12 +25,7 @@ void main() {
       expect(json[surfaceIdKey], 'testSurface');
       expect(json['rootComponentId'], 'root');
       expect(json['components'], {
-        'root': {
-          'id': 'root',
-          'props': {
-            'Text': {'text': 'Hello'},
-          },
-        },
+        'root': {'id': 'root', 'component': 'Text', 'text': 'Hello'},
       });
     });
   });

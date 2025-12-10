@@ -18,7 +18,7 @@ final _schema = S.object(
       description: 'The initial value of the text field.',
     ),
     'label': A2uiSchemas.stringReference(),
-    'textFieldType': S.string(
+    'usageHint': S.string(
       enumValues: ['shortText', 'longText', 'number', 'date', 'obscured'],
     ),
     'validationRegexp': S.string(),
@@ -30,20 +30,20 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
     JsonMap? text,
     JsonMap? label,
-    String? textFieldType,
+    String? usageHint,
     String? validationRegexp,
     JsonMap? onSubmittedAction,
   }) => _TextFieldData.fromMap({
     'text': text,
     'label': label,
-    'textFieldType': textFieldType,
+    'usageHint': usageHint,
     'validationRegexp': validationRegexp,
     'onSubmittedAction': onSubmittedAction,
   });
 
   JsonMap? get text => _json['text'] as JsonMap?;
   JsonMap? get label => _json['label'] as JsonMap?;
-  String? get textFieldType => _json['textFieldType'] as String?;
+  String? get usageHint => _json['usageHint'] as String?;
   String? get validationRegexp => _json['validationRegexp'] as String?;
   JsonMap? get onSubmittedAction => _json['onSubmittedAction'] as JsonMap?;
 }
@@ -52,7 +52,7 @@ class _TextField extends StatefulWidget {
   const _TextField({
     required this.initialValue,
     this.label,
-    this.textFieldType,
+    this.usageHint,
     this.validationRegexp,
     required this.onChanged,
     required this.onSubmitted,
@@ -60,7 +60,7 @@ class _TextField extends StatefulWidget {
 
   final String initialValue;
   final String? label;
-  final String? textFieldType;
+  final String? usageHint;
   final String? validationRegexp;
   final void Function(String) onChanged;
   final void Function(String) onSubmitted;
@@ -97,8 +97,8 @@ class _TextFieldState extends State<_TextField> {
     return TextField(
       controller: _controller,
       decoration: InputDecoration(labelText: widget.label),
-      obscureText: widget.textFieldType == 'obscured',
-      keyboardType: switch (widget.textFieldType) {
+      obscureText: widget.usageHint == 'obscured',
+      keyboardType: switch (widget.usageHint) {
         'number' => TextInputType.number,
         'longText' => TextInputType.multiline,
         'date' => TextInputType.datetime,
@@ -120,7 +120,7 @@ class _TextFieldState extends State<_TextField> {
 ///
 /// - `text`: The initial value of the text field.
 /// - `label`: The text to display as the label for the text field.
-/// - `textFieldType`: The type of text field. Can be `shortText`, `longText`,
+/// - `usageHint`: The type of text field. Can be `shortText`, `longText`,
 ///   `number`, `date`, or `obscured`.
 /// - `validationRegexp`: A regular expression to validate the input.
 /// - `onSubmittedAction`: The action to perform when the user submits the
@@ -133,14 +133,12 @@ final textField = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "TextField",
-            "text": {
-              "literalString": "Hello World"
-            },
-            "label": {
-              "literalString": "Greeting"
-            }
+          "component": "TextField",
+          "text": {
+            "literalString": "Hello World"
+          },
+          "label": {
+            "literalString": "Greeting"
           }
         }
       ]
@@ -149,16 +147,14 @@ final textField = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "TextField",
-            "text": {
-              "literalString": "password123"
-            },
-            "label": {
-              "literalString": "Password"
-            },
-            "textFieldType": "obscured"
-          }
+          "component": "TextField",
+          "text": {
+            "literalString": "password123"
+          },
+          "label": {
+            "literalString": "Password"
+          },
+          "usageHint": "obscured"
         }
       ]
     ''',
@@ -181,7 +177,7 @@ final textField = CatalogItem(
             return _TextField(
               initialValue: currentValue ?? '',
               label: label,
-              textFieldType: textFieldData.textFieldType,
+              usageHint: textFieldData.usageHint,
               validationRegexp: textFieldData.validationRegexp,
               onChanged: (newValue) {
                 if (path != null) {
@@ -194,8 +190,8 @@ final textField = CatalogItem(
                   return;
                 }
                 final actionName = actionData['name'] as String;
-                final List<Object?> contextDefinition =
-                    (actionData['context'] as List<Object?>?) ?? <Object?>[];
+                final Map<String, Object?> contextDefinition =
+                    (actionData['context'] as Map<String, Object?>?) ?? {};
                 final JsonMap resolvedContext = resolveContext(
                   itemContext.dataContext,
                   contextDefinition,

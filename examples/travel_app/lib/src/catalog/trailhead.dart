@@ -48,23 +48,20 @@ final trailhead = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Trailhead": {
-              "topics": [
-                {
-                  "literalString": "Topic 1"
-                },
-                {
-                  "literalString": "Topic 2"
-                },
-                {
-                  "literalString": "Topic 3"
-                }
-              ],
-              "action": {
-                "name": "select_topic"
-              }
+          "component": "Trailhead",
+          "topics": [
+            {
+              "literalString": "Topic 1"
+            },
+            {
+              "literalString": "Topic 2"
+            },
+            {
+              "literalString": "Topic 3"
             }
+          ],
+          "action": {
+            "name": "select_topic"
           }
         }
       ]
@@ -121,8 +118,8 @@ class _Trailhead extends StatelessWidget {
                 label: Text(topic),
                 onPressed: () {
                   final name = action['name'] as String;
-                  final List<Object?> contextDefinition =
-                      (action['context'] as List<Object?>?) ?? <Object?>[];
+                  final Map<String, Object?> contextDefinition =
+                      (action['context'] as Map<String, Object?>?) ?? {};
                   final JsonMap resolvedContext = resolveContext(
                     dataContext,
                     contextDefinition,

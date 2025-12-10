@@ -6,6 +6,7 @@ import '../../model/a2ui_message.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog.dart';
 import '../../model/tools.dart';
+import '../../primitives/constants.dart';
 import '../../primitives/simple_items.dart';
 import 'model.dart';
 
@@ -37,7 +38,7 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
   return GenUiFunctionDeclaration(
     description: toolDescription,
     name: toolName,
-    parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
+    parameters: A2uiSchemas.updateComponentsSchema(catalog),
   );
 }
 
@@ -45,12 +46,15 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
 ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
   assert(toolCall.name == toolName);
 
-  final Map<String, Object?> messageJson = {'surfaceUpdate': toolCall.args};
+  final Map<String, Object?> messageJson = {'updateComponents': toolCall.args};
   final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
 
   final surfaceId = (toolCall.args as JsonMap)[surfaceIdKey] as String;
 
-  final createSurfaceMessage = CreateSurface(surfaceId: surfaceId);
+  final createSurfaceMessage = CreateSurface(
+    surfaceId: surfaceId,
+    catalogId: standardCatalogId,
+  );
 
   return ParsedToolCall(
     messages: [surfaceUpdateMessage, createSurfaceMessage],
@@ -64,11 +68,11 @@ ToolCall catalogExampleToToolCall(
   String toolName,
   String surfaceId,
 ) {
-  final messageJson = {'surfaceUpdate': example};
+  final messageJson = {'updateComponents': example};
   final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
 
   return ToolCall(
     name: toolName,
-    args: {surfaceIdKey: surfaceId, 'surfaceUpdate': surfaceUpdateMessage},
+    args: {surfaceIdKey: surfaceId, 'updateComponents': surfaceUpdateMessage},
   );
 }

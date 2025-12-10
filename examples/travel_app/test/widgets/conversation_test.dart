@@ -26,18 +26,19 @@ void main() {
       ];
       final components = [
         const Component(
-          id: 'r1',
+          id: 'root',
           props: {
-            'Text': {
-              'text': {'literalString': 'Hi there!'},
-            },
+            'component': 'Text',
+            'text': {'literalString': 'Hi there!'},
           },
         ),
       ];
       manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+        const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
       );
-      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+      manager.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -78,16 +79,17 @@ void main() {
         const Component(
           id: 'root',
           props: {
-            'Text': {
-              'text': {'literalString': 'UI Content'},
-            },
+            'component': 'Text',
+            'text': {'literalString': 'UI Content'},
           },
         ),
       ];
       manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+        const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
       );
-      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+      manager.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
+      );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

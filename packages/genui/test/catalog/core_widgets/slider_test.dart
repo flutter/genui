@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
-import 'package:genui/src/primitives/constants.dart';
-
 void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
@@ -24,15 +22,17 @@ void main() {
         props: {
           'component': 'Slider',
           'value': {'path': '/myValue'},
-          'minValue': {'literalNumber': 0.0},
-          'maxValue': {'literalNumber': 1.0},
+          'min': {'literalNumber': 0.0},
+          'max': {'literalNumber': 1.0},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
 
     await tester.pumpWidget(
@@ -70,19 +70,21 @@ void main() {
         props: {
           'component': 'Slider',
           'value': {'path': '/myValue'},
-          'minValue': {'path': '/myMin'},
-          'maxValue': {'path': '/myMax'},
+          'min': {'path': '/myMin'},
+          'max': {'path': '/myMax'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
     manager.handleMessage(
-      const DataModelUpdate(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
+    manager.handleMessage(
+      const UpdateDataModel(
         surfaceId: surfaceId,
-        contents: {'myValue': 5.0, 'myMin': 0.0, 'myMax': 10.0},
+        value: {'myValue': 5.0, 'myMin': 0.0, 'myMax': 10.0},
       ),
     );
 
@@ -101,9 +103,9 @@ void main() {
 
     // Update min/max via data model
     manager.handleMessage(
-      const DataModelUpdate(
+      const UpdateDataModel(
         surfaceId: surfaceId,
-        contents: {'myMin': 2.0, 'myMax': 8.0},
+        value: {'myMin': 2.0, 'myMax': 8.0},
       ),
     );
     await tester.pumpAndSettle();

@@ -88,40 +88,34 @@ final tabs = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Tabs",
-            "tabItems": [
-              {
-                "title": {
-                  "literalString": "Overview"
-                },
-                "child": "text1"
+          "component": "Tabs",
+          "tabItems": [
+            {
+              "title": {
+                "literalString": "Overview"
               },
-              {
-                "title": {
-                  "literalString": "Details"
-                },
-                "child": "text2"
-              }
-            ]
-          }
+              "child": "text1"
+            },
+            {
+              "title": {
+                "literalString": "Details"
+              },
+              "child": "text2"
+            }
+          ]
         },
         {
           "id": "text1",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "This is a short summary of the item."
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "This is a short summary of the item."
           }
         },
         {
           "id": "text2",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "This is a much longer, more detailed description of the item, providing in-depth information and context. It can span multiple lines and include rich formatting if needed."
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "This is a much longer, more detailed description of the item, providing in-depth information and context. It can span multiple lines and include rich formatting if needed."
           }
         }
       ]

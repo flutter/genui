@@ -39,11 +39,9 @@ final video = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Video",
-            "url": {
-              "literalString": "https://example.com/video.mp4"
-            }
+          "component": "Video",
+          "url": {
+            "literalString": "https://example.com/video.mp4"
           }
         }
       ]

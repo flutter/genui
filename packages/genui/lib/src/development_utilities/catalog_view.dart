@@ -15,6 +15,7 @@ import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 
 /// A widget that displays a GenUI catalog widgets.
@@ -85,9 +86,11 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
         }
 
         _genUi.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: components),
+          UpdateComponents(surfaceId: surfaceId, components: components),
         );
-        _genUi.handleMessage(CreateSurface(surfaceId: surfaceId));
+        _genUi.handleMessage(
+          CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+        );
         surfaceIds.add(surfaceId);
       }
     }

@@ -50,13 +50,11 @@ final text = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "Hello World"
-            },
-            "usageHint": "h1"
-          }
+          "component": "Text",
+          "text": {
+            "literalString": "Hello World"
+          },
+          "usageHint": "h1"
         }
       ]
     ''',

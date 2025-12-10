@@ -85,13 +85,12 @@ extension DataContextExtensions on DataContext {
 ///
 JsonMap resolveContext(
   DataContext dataContext,
-  List<Object?> contextDefinitions,
+  Map<String, Object?> contextDefinitions,
 ) {
   final resolved = <String, Object?>{};
-  for (final contextEntry in contextDefinitions) {
-    final entry = contextEntry as JsonMap;
-    final key = entry['key']! as String;
-    final value = entry['value'] as JsonMap;
+  for (final MapEntry<String, Object?> entry in contextDefinitions.entries) {
+    final String key = entry.key;
+    final value = entry.value as JsonMap;
     if (value.containsKey('path')) {
       resolved[key] = dataContext.getValue(DataPath(value['path'] as String));
     } else if (value.containsKey('literalString')) {

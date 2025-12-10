@@ -125,27 +125,11 @@ class A2uiAgentConnector {
         }
       }).toList();
 
-    // Add client capabilities
-    message.parts!.add(
-      A2ADataPart()
-        ..data = {
-          'clientUiCapabilities': {
-            'inlineCatalog': true,
-            'supportedComponents': ['*'], // Or list specific components
-          },
-        },
-    );
-
     if (taskId != null) {
       message.referenceTaskIds = [taskId!];
     }
     if (contextId != null) {
       message.contextId = contextId;
-    }
-    if (clientCapabilities != null) {
-      message.metadata = {
-        'a2uiClientCapabilities': clientCapabilities.toJson(),
-      };
     }
     final payload = A2AMessageSendParams()..message = message;
     payload.extensions = ['https://a2ui.org/ext/a2a-ui/v0.9'];
@@ -267,10 +251,11 @@ class A2uiAgentConnector {
       'Processing a2ui messages from data part:\n'
       '${const JsonEncoder.withIndent('  ').convert(data)}',
     );
-    if (data.containsKey('surfaceUpdate') ||
-        data.containsKey('dataModelUpdate') ||
+    if (data.containsKey('updateComponents') ||
+        data.containsKey('updateDataModel') ||
         data.containsKey('createSurface') ||
-        data.containsKey('deleteSurface')) {
+        data.containsKey('deleteSurface') ||
+        data.containsKey('error')) {
       if (!_controller.isClosed) {
         _log.finest(
           'Adding message to stream: '

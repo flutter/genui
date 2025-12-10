@@ -42,26 +42,6 @@ void main() {
       expect(fakeClient.getAgentCardCalled, 1);
     });
 
-    test('connectAndSend includes clientCapabilities in metadata', () async {
-      const capabilities = genui.A2UiClientCapabilities(
-        supportedCatalogIds: ['cat1', 'cat2'],
-      );
-      fakeClient.sendMessageStreamHandler = (_) => const Stream.empty();
-
-      await connector.connectAndSend(
-        genui.UserMessage.text('Hi'),
-        clientCapabilities: capabilities,
-      );
-
-      expect(fakeClient.sendMessageStreamCalled, 1);
-      final a2a.A2AMessage sentMessage =
-          fakeClient.lastSendMessageParams!.message;
-      expect(sentMessage.metadata, isNotNull);
-      expect(sentMessage.metadata!['a2uiClientCapabilities'], {
-        'supportedCatalogIds': ['cat1', 'cat2'],
-      });
-    });
-
     test('connectAndSend processes stream and returns text response', () async {
       final responses = [
         a2a.A2ASendStreamMessageSuccessResponse()
@@ -73,15 +53,13 @@ void main() {
             ..parts = [
               a2a.A2ADataPart()
                 ..data = {
-                  'surfaceUpdate': {
+                  'updateComponents': {
                     'surfaceId': 's1',
                     'components': [
                       {
                         'id': 'c1',
-                        'props': {
-                          'component': 'Column',
-                          'children': <Object?>[],
-                        },
+                        'component': 'Column',
+                        'children': <Object?>[],
                       },
                     ],
                   },
@@ -105,18 +83,14 @@ void main() {
       expect(fakeClient.lastSendMessageParams, isNotNull);
       final a2a.A2AMessage sentMessage =
           fakeClient.lastSendMessageParams!.message;
-      expect(sentMessage.parts!.length, 3); // +1 for clientUiCapabilities
+      expect(sentMessage.parts!.length, 2);
       expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hi');
       expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'There');
-      expect(
-        sentMessage.parts![2],
-        isA<a2a.A2ADataPart>(),
-      ); // clientUiCapabilities
       expect(connector.taskId, 'task1');
       expect(connector.contextId, 'context1');
       expect(fakeClient.sendMessageStreamCalled, 1);
       expect(messages.length, 1);
-      expect(messages.first, isA<genui.SurfaceUpdate>());
+      expect(messages.first, isA<genui.UpdateComponents>());
     });
 
     test('connectAndSend sends multiple text parts', () async {
@@ -140,7 +114,7 @@ void main() {
       expect(fakeClient.lastSendMessageParams, isNotNull);
       final a2a.A2AMessage sentMessage =
           fakeClient.lastSendMessageParams!.message;
-      expect(sentMessage.parts!.length, 3); // +1 for clientUiCapabilities
+      expect(sentMessage.parts!.length, 2);
       expect((sentMessage.parts![0] as a2a.A2ATextPart).text, 'Hello');
       expect((sentMessage.parts![1] as a2a.A2ATextPart).text, 'World');
     });

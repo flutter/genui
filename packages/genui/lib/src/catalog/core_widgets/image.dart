@@ -72,13 +72,11 @@ CatalogItem _imageCatalogItem({
       [
         {
           "id": "root",
-          "props": {
-            "component": "Image",
-            "url": {
-              "literalString": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png"
-            },
-            "usageHint": "mediumFeature"
-          }
+          "component": "Image",
+          "url": {
+            "literalString": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png"
+          },
+          "usageHint": "mediumFeature"
         }
       ]
     ''',

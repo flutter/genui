@@ -14,26 +14,19 @@ import '../../primitives/simple_items.dart';
 final _schema = S.object(
   properties: {
     'value': A2uiSchemas.numberReference(),
-    'minValue': A2uiSchemas.numberReference(),
-    'maxValue': A2uiSchemas.numberReference(),
+    'min': A2uiSchemas.numberReference(),
+    'max': A2uiSchemas.numberReference(),
   },
   required: ['value'],
 );
 
 extension type _SliderData.fromMap(JsonMap _json) {
-  factory _SliderData({
-    required JsonMap value,
-    JsonMap? minValue,
-    JsonMap? maxValue,
-  }) => _SliderData.fromMap({
-    'value': value,
-    'minValue': minValue,
-    'maxValue': maxValue,
-  });
+  factory _SliderData({required JsonMap value, JsonMap? min, JsonMap? max}) =>
+      _SliderData.fromMap({'value': value, 'min': min, 'max': max});
 
   JsonMap get value => _json['value'] as JsonMap;
-  JsonMap? get minValue => _json['minValue'] as JsonMap?;
-  JsonMap? get maxValue => _json['maxValue'] as JsonMap?;
+  JsonMap? get min => _json['min'] as JsonMap?;
+  JsonMap? get max => _json['max'] as JsonMap?;
 }
 
 /// A catalog item representing a Material Design slider.
@@ -45,8 +38,8 @@ extension type _SliderData.fromMap(JsonMap _json) {
 /// ## Parameters:
 ///
 /// - `value`: The current value of the slider.
-/// - `minValue`: The minimum value of the slider. Defaults to 0.0.
-/// - `maxValue`: The maximum value of the slider. Defaults to 1.0.
+/// - `min`: The minimum value of the slider. Defaults to 0.0.
+/// - `max`: The maximum value of the slider. Defaults to 1.0.
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
@@ -56,12 +49,12 @@ final slider = CatalogItem(
         .subscribeToValue<num>(sliderData.value, 'literalNumber');
     final ValueNotifier<num?> minNotifier = itemContext.dataContext
         .subscribeToValue<num>(
-          sliderData.minValue ?? {'literalNumber': 0.0},
+          sliderData.min ?? {'literalNumber': 0.0},
           'literalNumber',
         );
     final ValueNotifier<num?> maxNotifier = itemContext.dataContext
         .subscribeToValue<num>(
-          sliderData.maxValue ?? {'literalNumber': 1.0},
+          sliderData.max ?? {'literalNumber': 1.0},
           'literalNumber',
         );
 
@@ -110,14 +103,12 @@ final slider = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Slider",
-            "minValue": {"literalNumber": 0},
-            "maxValue": {"literalNumber": 10},
-            "value": {
-              "path": "/myValue",
-              "literalNumber": 5
-            }
+          "component": "Slider",
+          "min": {"literalNumber": 0},
+          "max": {"literalNumber": 10},
+          "value": {
+            "path": "/myValue",
+            "literalNumber": 5
           }
         }
       ]

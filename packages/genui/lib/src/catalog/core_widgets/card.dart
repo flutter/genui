@@ -48,18 +48,14 @@ final card = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Card",
-            "child": "text"
-          }
+          "component": "Card",
+          "child": "text"
         },
         {
           "id": "text",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "This is a card."
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "This is a card."
           }
         }
       ]

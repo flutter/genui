@@ -84,12 +84,16 @@ class Ai extends _$Ai {
 
     contentGenerator.a2uiMessageStream.listen((message) {
       switch (message) {
-        case CreateSurface():
-          surfaceUpdateController.add(message.surfaceId);
-        case SurfaceUpdate():
-        case DataModelUpdate():
+        case CreateSurface(:final surfaceId):
+        case UpdateComponents(:final surfaceId):
+          surfaceUpdateController.add(surfaceId);
+        case UpdateDataModel(:final surfaceId):
+          surfaceUpdateController.add(surfaceId);
         case SurfaceDeletion():
-        // We only navigate on BeginRendering.
+          // We only navigate on BeginRendering.
+          break;
+        case ErrorMessage(:final code, :final message):
+          appLogger.severe('Received A2UI Error: $code: $message');
       }
     });
 

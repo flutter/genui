@@ -17,17 +17,20 @@ sealed class A2uiMessage {
 
   /// Creates an [A2uiMessage] from a JSON map.
   factory A2uiMessage.fromJson(JsonMap json) {
-    if (json.containsKey('surfaceUpdate')) {
-      return SurfaceUpdate.fromJson(json['surfaceUpdate'] as JsonMap);
+    if (json.containsKey('updateComponents')) {
+      return UpdateComponents.fromJson(json['updateComponents'] as JsonMap);
     }
-    if (json.containsKey('dataModelUpdate')) {
-      return DataModelUpdate.fromJson(json['dataModelUpdate'] as JsonMap);
+    if (json.containsKey('updateDataModel')) {
+      return UpdateDataModel.fromJson(json['updateDataModel'] as JsonMap);
     }
     if (json.containsKey('createSurface')) {
       return CreateSurface.fromJson(json['createSurface'] as JsonMap);
     }
     if (json.containsKey('deleteSurface')) {
       return SurfaceDeletion.fromJson(json['deleteSurface'] as JsonMap);
+    }
+    if (json.containsKey('error')) {
+      return ErrorMessage.fromJson(json['error'] as JsonMap);
     }
     throw ArgumentError('Unknown A2UI message type: $json');
   }
@@ -37,25 +40,26 @@ sealed class A2uiMessage {
     return S.object(
       title: 'A2UI Message Schema',
       description:
-          """Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces. A message MUST contain exactly ONE of the action properties: 'beginRendering', 'surfaceUpdate', 'dataModelUpdate', or 'deleteSurface'.""",
+          """Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces. A message MUST contain exactly ONE of the action properties: 'createSurface', 'updateComponents', 'updateDataModel', or 'deleteSurface'.""",
       properties: {
-        'surfaceUpdate': A2uiSchemas.surfaceUpdateSchema(catalog),
-        'dataModelUpdate': A2uiSchemas.dataModelUpdateSchema(),
+        'updateComponents': A2uiSchemas.updateComponentsSchema(catalog),
+        'updateDataModel': A2uiSchemas.updateDataModelSchema(),
         'createSurface': A2uiSchemas.createSurfaceSchema(),
         'deleteSurface': A2uiSchemas.surfaceDeletionSchema(),
+        'error': A2uiSchemas.errorSchema(),
       },
     );
   }
 }
 
 /// An A2UI message that updates a surface with new components.
-final class SurfaceUpdate extends A2uiMessage {
-  /// Creates a [SurfaceUpdate] message.
-  const SurfaceUpdate({required this.surfaceId, required this.components});
+final class UpdateComponents extends A2uiMessage {
+  /// Creates a [UpdateComponents] message.
+  const UpdateComponents({required this.surfaceId, required this.components});
 
-  /// Creates a [SurfaceUpdate] message from a JSON map.
-  factory SurfaceUpdate.fromJson(JsonMap json) {
-    return SurfaceUpdate(
+  /// Creates a [UpdateComponents] message from a JSON map.
+  factory UpdateComponents.fromJson(JsonMap json) {
+    return UpdateComponents(
       surfaceId: json[surfaceIdKey] as String,
       components: (json['components'] as List<Object?>)
           .map((e) => Component.fromJson(e as JsonMap))
@@ -79,20 +83,22 @@ final class SurfaceUpdate extends A2uiMessage {
 }
 
 /// An A2UI message that updates the data model.
-final class DataModelUpdate extends A2uiMessage {
-  /// Creates a [DataModelUpdate] message.
-  const DataModelUpdate({
+final class UpdateDataModel extends A2uiMessage {
+  /// Creates a [UpdateDataModel] message.
+  const UpdateDataModel({
     required this.surfaceId,
     this.path,
-    required this.contents,
+    this.op = 'replace',
+    required this.value,
   });
 
-  /// Creates a [DataModelUpdate] message from a JSON map.
-  factory DataModelUpdate.fromJson(JsonMap json) {
-    return DataModelUpdate(
+  /// Creates a [UpdateDataModel] message from a JSON map.
+  factory UpdateDataModel.fromJson(JsonMap json) {
+    return UpdateDataModel(
       surfaceId: json[surfaceIdKey] as String,
       path: json['path'] as String?,
-      contents: json['contents'] as Object,
+      op: json['op'] as String? ?? 'replace',
+      value: json['value'] as Object,
     );
   }
 
@@ -102,28 +108,31 @@ final class DataModelUpdate extends A2uiMessage {
   /// The path in the data model to update.
   final String? path;
 
-  /// The new contents to write to the data model.
-  final Object contents;
+  /// The operation to perform (add, replace, remove).
+  final String op;
+
+  /// The new value to write to the data model.
+  final Object value;
 }
 
 /// An A2UI message that signals the client to begin rendering.
 final class CreateSurface extends A2uiMessage {
   /// Creates a [CreateSurface] message.
-  const CreateSurface({required this.surfaceId, this.theme});
+  const CreateSurface({required this.surfaceId, required this.catalogId});
 
   /// Creates a [CreateSurface] message from a JSON map.
   factory CreateSurface.fromJson(JsonMap json) {
     return CreateSurface(
       surfaceId: json[surfaceIdKey] as String,
-      theme: json['theme'] as JsonMap?,
+      catalogId: json['catalogId'] as String,
     );
   }
 
   /// The ID of the surface that this message applies to.
   final String surfaceId;
 
-  /// The theme to apply to the UI.
-  final JsonMap? theme;
+  /// The catalog ID used for this surface.
+  final String catalogId;
 }
 
 /// An A2UI message that deletes a surface.
@@ -138,4 +147,37 @@ final class SurfaceDeletion extends A2uiMessage {
 
   /// The ID of the surface that this message applies to.
   final String surfaceId;
+}
+
+/// An A2UI message that reports an error.
+final class ErrorMessage extends A2uiMessage {
+  /// Creates a [ErrorMessage] message.
+  const ErrorMessage({
+    required this.code,
+    required this.message,
+    this.surfaceId,
+    this.path,
+  });
+
+  /// Creates a [ErrorMessage] message from a JSON map.
+  factory ErrorMessage.fromJson(JsonMap json) {
+    return ErrorMessage(
+      code: json['code'] as String,
+      message: json['message'] as String,
+      surfaceId: json['surfaceId'] as String?,
+      path: json['path'] as String?,
+    );
+  }
+
+  /// The error code.
+  final String code;
+
+  /// The error message.
+  final String message;
+
+  /// The ID of the surface that this error applies to.
+  final String? surfaceId;
+
+  /// The path in the data model that this error applies to.
+  final String? path;
 }

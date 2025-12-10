@@ -58,8 +58,8 @@ description: This is a test sample to verify the parser.
 name: Ordered Sample
 description: Testing order.
 ---
-{"createSurface": {"surfaceId": "s1"}}
-{"surfaceUpdate": {"surfaceId": "s1", "components": [{"id": "root", "props": {"component": "Text", "text": {"literalString": "Ordered Success"}}}]}}
+{"createSurface": {"surfaceId": "s1", "catalogId": "default"}}
+{"updateComponents": {"surfaceId": "s1", "components": [{"id": "root", "component": "Text", "text": {"literalString": "Ordered Success"}}]}}
 ''');
 
     await tester.pumpWidget(Container()); // Clear previous widget tree

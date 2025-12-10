@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
-import 'package:genui/src/primitives/constants.dart';
-
 void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
     final manager = GenUiManager(
@@ -20,9 +18,11 @@ void main() {
       const Component(id: 'root', props: {'component': 'Divider'}),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
 
     await tester.pumpWidget(
       MaterialApp(

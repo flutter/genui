@@ -48,7 +48,7 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
   CatalogItem item,
   Catalog catalog,
 ) async {
-  final Schema schema = A2uiSchemas.surfaceUpdateSchema(catalog);
+  final Schema schema = A2uiSchemas.updateComponentsSchema(catalog);
   final errors = <ExampleValidationError>[];
 
   for (var i = 0; i < item.exampleData.length; i++) {
@@ -76,7 +76,7 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       );
     }
 
-    final surfaceUpdate = SurfaceUpdate(
+    final surfaceUpdate = UpdateComponents(
       surfaceId: 'test-surface',
       components: components,
     );

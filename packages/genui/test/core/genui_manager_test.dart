@@ -35,18 +35,18 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          props: {
-            'Text': {'text': 'Hello'},
-          },
+          props: {'component': 'Text', 'text': 'Hello'},
         ),
       ];
 
       manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
       final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
-      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+      manager.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+      );
       final GenUiUpdate updatedUpdate = await futureUpdated;
 
       expect(updatedUpdate, isA<SurfaceUpdated>());
@@ -65,7 +65,12 @@ void main() {
       () async {
         const surfaceId = 'newSurface';
         final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-        manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+        manager.handleMessage(
+          const CreateSurface(
+            surfaceId: surfaceId,
+            catalogId: standardCatalogId,
+          ),
+        );
         final GenUiUpdate update = await futureUpdate;
 
         expect(update, isA<SurfaceAdded>());
@@ -73,37 +78,35 @@ void main() {
       },
     );
 
-    test(
-      'handleMessage updates surface when SurfaceUpdate follows CreateSurface',
-      () async {
-        const surfaceId = 's2';
-        // 1. CreateSurface
-        final Future<GenUiUpdate> futureCreate = manager.surfaceUpdates.first;
-        manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
-        final GenUiUpdate createUpdate = await futureCreate;
-        expect(createUpdate, isA<SurfaceAdded>());
+    test('handleMessage updates surface when UpdateComponents follows '
+        'CreateSurface', () async {
+      const surfaceId = 's2';
+      // 1. CreateSurface
+      final Future<GenUiUpdate> futureCreate = manager.surfaceUpdates.first;
+      manager.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+      );
+      final GenUiUpdate createUpdate = await futureCreate;
+      expect(createUpdate, isA<SurfaceAdded>());
 
-        // 2. SurfaceUpdate
-        final components = [
-          const Component(
-            id: 'root',
-            props: {
-              'Text': {'text': 'Updated'},
-            },
-          ),
-        ];
-        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-        manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: components),
-        );
-        final GenUiUpdate update = await futureUpdate;
+      // 2. UpdateComponents
+      final components = [
+        const Component(
+          id: 'root',
+          props: {'component': 'Text', 'text': 'Updated'},
+        ),
+      ];
+      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
+      manager.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
+      );
+      final GenUiUpdate update = await futureUpdate;
 
-        expect(update, isA<SurfaceUpdated>());
-        expect(update.surfaceId, surfaceId);
-        final UiDefinition definition = (update as SurfaceUpdated).definition;
-        expect(definition.components['root'], components[0]);
-      },
-    );
+      expect(update, isA<SurfaceUpdated>());
+      expect(update.surfaceId, surfaceId);
+      final UiDefinition definition = (update as SurfaceUpdated).definition;
+      expect(definition.components['root'], components[0]);
+    });
 
     test(
       'handleMessage updates an existing surface and fires SurfaceUpdated',
@@ -112,17 +115,13 @@ void main() {
         final oldComponents = [
           const Component(
             id: 'root',
-            props: {
-              'Text': {'text': 'Old'},
-            },
+            props: {'component': 'Text', 'text': 'Old'},
           ),
         ];
         final newComponents = [
           const Component(
             id: 'root',
-            props: {
-              'Text': {'text': 'New'},
-            },
+            props: {'component': 'Text', 'text': 'New'},
           ),
         ];
 
@@ -132,11 +131,16 @@ void main() {
         );
 
         manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: oldComponents),
+          UpdateComponents(surfaceId: surfaceId, components: oldComponents),
         );
-        manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
         manager.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: newComponents),
+          const CreateSurface(
+            surfaceId: surfaceId,
+            catalogId: standardCatalogId,
+          ),
+        );
+        manager.handleMessage(
+          UpdateComponents(surfaceId: surfaceId, components: newComponents),
         );
 
         await expectation;
@@ -148,13 +152,11 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          props: {
-            'Text': {'text': 'Hello'},
-          },
+          props: {'component': 'Text', 'text': 'Hello'},
         ),
       ];
       manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
       final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;

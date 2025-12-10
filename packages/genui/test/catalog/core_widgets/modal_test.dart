@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
-import 'package:genui/src/primitives/constants.dart';
-
 void main() {
   testWidgets('Modal widget renders and handles taps', (
     WidgetTester tester,
@@ -38,12 +36,9 @@ void main() {
           'child': 'button_text',
           'action': {
             'name': 'showModal',
-            'context': [
-              {
-                'key': 'modalId',
-                'value': {'literalString': 'root'},
-              },
-            ],
+            'context': {
+              'modalId': {'literalString': 'root'},
+            },
           },
         },
       ),
@@ -63,9 +58,11 @@ void main() {
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -74,6 +71,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Open Modal'), findsOneWidget);
     expect(find.text('This is a modal.'), findsNothing);

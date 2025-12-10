@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
-import 'package:genui/src/primitives/constants.dart';
-
 void main() {
   testWidgets('TextField renders and handles changes/submissions', (
     WidgetTester tester,
@@ -32,9 +30,11 @@ void main() {
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
     manager
         .dataModelForSurface(surfaceId)
         .update(DataPath('/myValue'), 'initial');

@@ -99,12 +99,9 @@ final listingsBooker = CatalogItem(
       return jsonEncode([
         {
           'id': 'root',
-          'component': {
-            'ListingsBooker': {
-              'listingSelectionIds': [listingSelectionId1, listingSelectionId2],
-              'itineraryName': {'literalString': 'Dart and Flutter deep dive'},
-            },
-          },
+          'component': 'ListingsBooker',
+          'listingSelectionIds': [listingSelectionId1, listingSelectionId2],
+          'itineraryName': {'literalString': 'Dart and Flutter deep dive'},
         },
       ]);
     },
@@ -333,9 +330,10 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                   return;
                                 }
                                 final actionName = actionData['name'] as String;
-                                final List<Object?> contextDefinition =
-                                    (actionData['context'] as List<Object?>?) ??
-                                    <Object?>[];
+                                final Map<String, Object?> contextDefinition =
+                                    (actionData['context']
+                                        as Map<String, Object?>?) ??
+                                    {};
                                 final JsonMap resolvedContext = resolveContext(
                                   widget.dataContext,
                                   contextDefinition,

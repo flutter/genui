@@ -91,16 +91,12 @@ class UiDefinition {
   Map<String, Component> get components => UnmodifiableMapView(_components);
   final Map<String, Component> _components;
 
-  /// (Future) The theme for this surface.
-  final JsonMap? theme;
-
   /// Creates a [UiDefinition].
   UiDefinition({
     required this.surfaceId,
     this.rootComponentId,
     this.catalogId,
     Map<String, Component> components = const {},
-    this.theme,
   }) : _components = components;
 
   /// Creates a copy of this [UiDefinition] with the given fields replaced.
@@ -108,14 +104,12 @@ class UiDefinition {
     String? rootComponentId,
     String? catalogId,
     Map<String, Component>? components,
-    JsonMap? theme,
   }) {
     return UiDefinition(
       surfaceId: surfaceId,
       rootComponentId: rootComponentId ?? this.rootComponentId,
       catalogId: catalogId ?? this.catalogId,
       components: components ?? _components,
-      theme: theme ?? this.theme,
     );
   }
 
@@ -144,14 +138,12 @@ final class Component {
 
   /// Creates a [Component] from a JSON map.
   factory Component.fromJson(JsonMap json) {
-    if (json['props'] == null) {
-      throw ArgumentError('Component.fromJson: props property is null');
-    }
-    return Component(
-      id: json['id'] as String,
-      props: json['props'] as JsonMap,
-      weight: json['weight'] as int?,
-    );
+    final id = json['id'] as String;
+    final weight = json['weight'] as int?;
+    final Map<String, dynamic> props = Map.of(json);
+    props.remove('id');
+    props.remove('weight');
+    return Component(id: id, props: props, weight: weight);
   }
 
   /// The unique ID of the component.
@@ -165,7 +157,7 @@ final class Component {
 
   /// Converts this object to a JSON map.
   JsonMap toJson() {
-    return {'id': id, 'props': props, if (weight != null) 'weight': weight};
+    return {'id': id, if (weight != null) 'weight': weight, ...props};
   }
 
   /// The type of the component.

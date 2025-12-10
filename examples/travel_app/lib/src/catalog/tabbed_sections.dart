@@ -60,43 +60,34 @@ final tabbedSections = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TabbedSections": {
-              "sections": [
-                {
-                  "title": {
-                    "literalString": "Tab 1"
-                  },
-                  "child": "tab1_content"
-                },
-                {
-                  "title": {
-                    "literalString": "Tab 2"
-                  },
-                  "child": "tab2_content"
-                }
-              ]
+          "component": "TabbedSections",
+          "sections": [
+            {
+              "title": {
+                "literalString": "Tab 1"
+              },
+              "child": "tab1_content"
+            },
+            {
+              "title": {
+                "literalString": "Tab 2"
+              },
+              "child": "tab2_content"
             }
-          }
+          ]
         },
         {
           "id": "tab1_content",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is the content of Tab 1."
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "This is the content of Tab 1."
           }
         },
         {
           "id": "tab2_content",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is the content of Tab 2."
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "This is the content of Tab 2."
           }
         }
       ]

@@ -101,13 +101,10 @@ void main() {
       contentGenerator.a2uiMessageStream.listen(completer.complete);
 
       final testMessage = A2uiMessage.fromJson({
-        'surfaceUpdate': {
+        'updateComponents': {
           'surfaceId': 's1',
           'components': [
-            {
-              'id': 'c1',
-              'props': {'component': 'Column', 'children': <Object?>[]},
-            },
+            {'id': 'c1', 'component': 'Column', 'children': <Object?>[]},
           ],
         },
       });

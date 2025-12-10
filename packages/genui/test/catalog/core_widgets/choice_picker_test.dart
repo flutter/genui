@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:genui/src/primitives/constants.dart';
 
 void main() {
   testWidgets('MultipleChoice widget renders and handles changes', (
@@ -14,7 +13,7 @@ void main() {
     final manager = GenUiManager(
       catalogs: [
         Catalog([
-          CoreCatalogItems.multipleChoice,
+          CoreCatalogItems.choicePicker,
           CoreCatalogItems.text,
         ], catalogId: standardCatalogId),
       ],
@@ -24,8 +23,8 @@ void main() {
       const Component(
         id: 'root',
         props: {
-          'component': 'MultipleChoice',
-          'selections': {'path': '/mySelections'},
+          'component': 'ChoicePicker',
+          'value': {'path': '/mySelections'},
           'options': {
             'literalArray': [
               {
@@ -42,9 +41,11 @@ void main() {
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
     manager.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
       '1',
     ]);
@@ -83,7 +84,7 @@ void main() {
       final manager = GenUiManager(
         catalogs: [
           Catalog([
-            CoreCatalogItems.multipleChoice,
+            CoreCatalogItems.choicePicker,
           ], catalogId: standardCatalogId),
         ],
       );
@@ -92,20 +93,22 @@ void main() {
         const Component(
           id: 'root',
           props: {
-            'component': 'MultipleChoice',
-            'selections': {'path': '/mySelections'},
+            'component': 'ChoicePicker',
+            'value': {'path': '/mySelections'},
             'options': {'path': '/myOptions'},
           },
         ),
       ];
       manager.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
       manager.handleMessage(
-        const DataModelUpdate(
+        const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+      );
+      manager.handleMessage(
+        const UpdateDataModel(
           surfaceId: surfaceId,
-          contents: {
+          value: {
             'mySelections': <String>[],
             'myOptions': [
               {'label': 'Simple Option 1', 'value': 's1'},

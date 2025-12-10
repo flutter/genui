@@ -15,13 +15,13 @@ import '../primitives/simple_items.dart';
 ///
 /// This tool allows the AI to create a new UI surface or update an existing
 /// one with a new definition.
-class SurfaceUpdateTool extends AiTool<JsonMap> {
-  /// Creates an [SurfaceUpdateTool].
-  SurfaceUpdateTool({required this.handleMessage, required Catalog catalog})
+class UpdateComponentsTool extends AiTool<JsonMap> {
+  /// Creates an [UpdateComponentsTool].
+  UpdateComponentsTool({required this.handleMessage, required Catalog catalog})
     : super(
-        name: 'surfaceUpdate',
+        name: 'updateComponents',
         description: 'Updates a surface with a new set of components.',
-        parameters: A2uiSchemas.surfaceUpdateSchema(catalog),
+        parameters: A2uiSchemas.updateComponentsSchema(catalog),
       );
 
   /// The callback to invoke when adding or updating a surface.
@@ -31,13 +31,11 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
     final List<Component> components = (args['components'] as List).map((e) {
-      final component = e as JsonMap;
-      return Component(
-        id: component['id'] as String,
-        props: component['props'] as JsonMap,
-      );
+      return Component.fromJson(e as JsonMap);
     }).toList();
-    handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
+    handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
     return {
       surfaceIdKey: surfaceId,
       'status': 'UI Surface $surfaceId updated.',
@@ -94,8 +92,8 @@ class CreateSurfaceTool extends AiTool<JsonMap> {
   @override
   Future<JsonMap> invoke(JsonMap args) async {
     final surfaceId = args[surfaceIdKey] as String;
-    final theme = args['theme'] as JsonMap?;
-    handleMessage(CreateSurface(surfaceId: surfaceId, theme: theme));
+    final catalogId = args['catalogId'] as String;
+    handleMessage(CreateSurface(surfaceId: surfaceId, catalogId: catalogId));
     return {'status': 'Surface $surfaceId created.'};
   }
 }

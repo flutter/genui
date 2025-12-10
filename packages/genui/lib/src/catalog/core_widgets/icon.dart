@@ -139,11 +139,9 @@ final icon = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Icon",
-            "name": {
-              "literalString": "add"
-            }
+          "component": "Icon",
+          "name": {
+            "literalString": "add"
           }
         }
       ]

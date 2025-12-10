@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
-import 'package:genui/src/primitives/constants.dart';
-
 void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
@@ -28,9 +26,11 @@ void main() {
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -62,16 +62,18 @@ void main() {
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const DataModelUpdate(
+      const UpdateDataModel(
         surfaceId: 'testSurface',
         path: '/iconName',
-        contents: 'close',
+        value: 'close',
       ),
     );
-    manager.handleMessage(const CreateSurface(surfaceId: surfaceId));
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
 
     await tester.pumpWidget(
       MaterialApp(

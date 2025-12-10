@@ -80,8 +80,8 @@ abstract interface class GenUiHost {
 ///
 /// This class is the core state manager for the dynamic UI. It maintains a map
 /// of all active UI "surfaces", where each surface is represented by a
-/// `UiDefinition`. It provides the tools (`surfaceUpdate`, `deleteSurface`,
-/// `beginRendering`) that the AI uses to manipulate the UI. It exposes a stream
+/// `UiDefinition`. It provides the tools (`updateComponents`, `deleteSurface`,
+/// `createSurface`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
 class GenUiManager implements GenUiHost {
   /// Creates a new [GenUiManager] with a list of supported widget catalogs.
@@ -149,7 +149,7 @@ class GenUiManager implements GenUiHost {
   /// Handles an [A2uiMessage] and updates the UI accordingly.
   void handleMessage(A2uiMessage message) {
     switch (message) {
-      case SurfaceUpdate():
+      case UpdateComponents():
         final String surfaceId = message.surfaceId;
         final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
           surfaceId,
@@ -166,7 +166,8 @@ class GenUiManager implements GenUiHost {
         uiDefinition = uiDefinition.copyWith(components: newComponents);
         notifier.value = uiDefinition;
 
-        // Notify UI ONLY if rendering has begun (i.e., rootComponentId is set or 'root' exists)
+        // Notify UI ONLY if rendering has begun (i.e., rootComponentId is set
+        // or 'root' exists)
         if (uiDefinition.rootComponentId != null ||
             uiDefinition.components.containsKey('root')) {
           genUiLogger.info('Updating surface $surfaceId');
@@ -186,7 +187,7 @@ class GenUiManager implements GenUiHost {
         final UiDefinition uiDefinition =
             notifier.value ?? UiDefinition(surfaceId: surfaceId);
         final UiDefinition newUiDefinition = uiDefinition.copyWith(
-          theme: message.theme,
+          catalogId: message.catalogId,
         );
         notifier.value = newUiDefinition;
         genUiLogger.info('Created surface ${message.surfaceId}');
@@ -197,15 +198,17 @@ class GenUiManager implements GenUiHost {
             SurfaceUpdated(message.surfaceId, newUiDefinition),
           );
         }
-      case DataModelUpdate():
+      case UpdateDataModel():
         final String path = message.path ?? '/';
         genUiLogger.info(
           'Updating data model for surface ${message.surfaceId} at path '
           '$path with contents:\n'
-          '${const JsonEncoder.withIndent('  ').convert(message.contents)}',
+          '${const JsonEncoder.withIndent('  ').convert(message.value)}',
         );
         final DataModel dataModel = dataModelForSurface(message.surfaceId);
-        dataModel.update(DataPath(path), message.contents);
+        // TODO: Handle 'op' (add/replace/remove)
+        // For now, assuming replace/add behavior similar to old update
+        dataModel.update(DataPath(path), message.value);
 
         // Notify UI of an update if the surface is already rendering
         final ValueNotifier<UiDefinition?> notifier = getSurfaceNotifier(
@@ -226,6 +229,8 @@ class GenUiManager implements GenUiHost {
           _dataModels.remove(surfaceId);
           _surfaceUpdates.add(SurfaceRemoved(surfaceId));
         }
+      case ErrorMessage(:final code, :final message):
+        genUiLogger.severe('Received A2UI Error: $code: $message');
     }
   }
 }

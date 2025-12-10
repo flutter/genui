@@ -158,52 +158,42 @@ final column = CatalogItem(
       [
         {
           "id": "root",
-          "props": {
-            "component": "Column",
-            "children": {
-              "explicitList": [
-                "advice_text",
-                "advice_options",
-                "submit_button"
-              ]
-            }
+          "component": "Column",
+          "children": {
+            "explicitList": [
+              "advice_text",
+              "advice_options",
+              "submit_button"
+            ]
           }
         },
         {
           "id": "advice_text",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "What kind of advice are you looking for?"
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "What kind of advice are you looking for?"
           }
         },
         {
           "id": "advice_options",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "Some advice options."
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Some advice options."
           }
         },
         {
           "id": "submit_button",
-          "props": {
-            "component": "Button",
-            "child": "submit_button_text",
-            "action": {
-              "name": "submit"
-            }
+          "component": "Button",
+          "child": "submit_button_text",
+          "action": {
+            "name": "submit"
           }
         },
         {
           "id": "submit_button_text",
-          "props": {
-            "component": "Text",
-            "text": {
-              "literalString": "Submit"
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Submit"
           }
         }
       ]
