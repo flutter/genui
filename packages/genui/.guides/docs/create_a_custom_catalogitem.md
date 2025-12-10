@@ -97,10 +97,10 @@ final riddleCard = CatalogItem(
 
 ## 4. Add the `CatalogItem` to the catalog
 
-Include your catalog items when instantiating `GenUiManager`.
+Include your catalog items when instantiating `A2uiMessageProcessor`.
 
 ```dart
-final genUiManager = GenUiManager(
+final a2uiMessageProcessor = A2uiMessageProcessor(
   catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
 );
 ```

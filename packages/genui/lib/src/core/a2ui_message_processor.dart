@@ -13,9 +13,9 @@ import '../model/chat_message.dart';
 import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
-import 'genui_configuration.dart';
 
-/// A sealed class representing an update to the UI managed by [GenUiManager].
+/// A sealed class representing an update to the UI managed by
+/// [A2uiMessageProcessor].
 ///
 /// This class has three subclasses: [SurfaceAdded], [SurfaceUpdated], and
 /// [SurfaceRemoved].
@@ -64,8 +64,8 @@ abstract interface class GenUiHost {
   /// Returns a [ValueNotifier] for the surface with the given [surfaceId].
   ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId);
 
-  /// The catalog of UI components available to the AI.
-  Catalog get catalog;
+  /// The catalogs of UI components available to the AI.
+  Iterable<Catalog> get catalogs;
 
   /// A map of data models for storing the UI state of each surface.
   Map<String, DataModel> get dataModels;
@@ -84,16 +84,13 @@ abstract interface class GenUiHost {
 /// `UiDefinition`. It provides the tools (`surfaceUpdate`, `deleteSurface`,
 /// `beginRendering`) that the AI uses to manipulate the UI. It exposes a stream
 /// of `GenUiUpdate` events so that the application can react to changes.
-class GenUiManager implements GenUiHost {
-  /// Creates a new [GenUiManager].
-  ///
-  /// The [catalog] defines the set of widgets available to the AI.
-  GenUiManager({
-    required this.catalog,
-    this.configuration = const GenUiConfiguration(),
-  });
+class A2uiMessageProcessor implements GenUiHost {
+  /// Creates a new [A2uiMessageProcessor] with a list of supported widget
+  /// catalogs.
+  A2uiMessageProcessor({required this.catalogs});
 
-  final GenUiConfiguration configuration;
+  @override
+  final Iterable<Catalog> catalogs;
 
   final _surfaces = <String, ValueNotifier<UiDefinition?>>{};
   final _surfaceUpdates = StreamController<GenUiUpdate>.broadcast();
@@ -128,9 +125,6 @@ class GenUiManager implements GenUiHost {
     final String eventJsonString = jsonEncode({'userAction': event.toMap()});
     _onSubmit.add(UserUiInteractionMessage.text(eventJsonString));
   }
-
-  @override
-  final Catalog catalog;
 
   @override
   ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId) {
@@ -195,6 +189,7 @@ class GenUiManager implements GenUiHost {
             notifier.value ?? UiDefinition(surfaceId: surfaceId);
         final UiDefinition newUiDefinition = uiDefinition.copyWith(
           rootComponentId: message.root,
+          catalogId: message.catalogId,
         );
         notifier.value = newUiDefinition;
 

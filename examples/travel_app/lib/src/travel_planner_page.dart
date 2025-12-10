@@ -27,9 +27,9 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [GenUiManager] and [ContentGenerator], maintains the
-/// conversation history, and handles the interaction between the user, the AI,
-/// and the dynamically generated UI.
+/// It initializes the [A2uiMessageProcessor] and [ContentGenerator], maintains
+/// the conversation history, and handles the interaction between the user, the
+/// AI, and the dynamically generated UI.
 ///
 /// The page allows users to interact with the generative AI to plan trips. It
 /// features a text field to send prompts, a view to display the dynamically
@@ -63,17 +63,10 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   @override
   void initState() {
     super.initState();
-    final genUiManager = GenUiManager(
-      catalog: travelAppCatalog,
-      configuration: const GenUiConfiguration(
-        actions: ActionsConfig(
-          allowCreate: true,
-          allowUpdate: true,
-          allowDelete: true,
-        ),
-      ),
+    final a2uiMessageProcessor = A2uiMessageProcessor(
+      catalogs: [travelAppCatalog],
     );
-    _userMessageSubscription = genUiManager.onSubmit.listen(
+    _userMessageSubscription = a2uiMessageProcessor.onSubmit.listen(
       _handleUserMessageFromUi,
     );
 
@@ -103,7 +96,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         };
 
     _uiConversation = GenUiConversation(
-      genUiManager: genUiManager,
+      a2uiMessageProcessor: a2uiMessageProcessor,
       contentGenerator: contentGenerator,
       onSurfaceUpdated: (update) {
         _scrollToBottom();
@@ -171,7 +164,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
                   builder: (context, messages, child) {
                     return Conversation(
                       messages: messages,
-                      manager: _uiConversation.genUiManager,
+                      manager: _uiConversation.a2uiMessageProcessor,
                       scrollController: _scrollController,
                     );
                   },

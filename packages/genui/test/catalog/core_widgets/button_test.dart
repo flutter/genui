@@ -11,9 +11,13 @@ void main() {
     WidgetTester tester,
   ) async {
     ChatMessage? message;
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.button, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+    final manager = A2uiMessageProcessor(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.button,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';
@@ -40,7 +44,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'button'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'button',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

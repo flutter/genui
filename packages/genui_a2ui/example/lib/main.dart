@@ -41,8 +41,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final GenUiManager _genUiManager = GenUiManager(
-    catalog: CoreCatalogItems.asCatalog(),
+  final A2uiMessageProcessor _a2uiMessageProcessor = A2uiMessageProcessor(
+    catalogs: [CoreCatalogItems.asCatalog()],
   );
   late final A2uiContentGenerator _contentGenerator;
   late final GenUiConversation _genUiConversation;
@@ -60,14 +60,18 @@ class _ChatScreenState extends State<ChatScreen> {
     );
     _genUiConversation = GenUiConversation(
       contentGenerator: _contentGenerator,
-      genUiManager: _genUiManager,
+      a2uiMessageProcessor: _a2uiMessageProcessor,
     );
     // Initialize with existing surfaces
     _surfaceIds.addAll(
-      _genUiManager.surfaces.keys.where((id) => !_surfaceIds.contains(id)),
+      _a2uiMessageProcessor.surfaces.keys.where(
+        (id) => !_surfaceIds.contains(id),
+      ),
     );
 
-    _surfaceSubscription = _genUiManager.surfaceUpdates.listen((update) {
+    _surfaceSubscription = _a2uiMessageProcessor.surfaceUpdates.listen((
+      update,
+    ) {
       if (update is SurfaceAdded) {
         genUiLogger.info('Surface added: ${update.surfaceId}');
         if (!_surfaceIds.contains(update.surfaceId)) {
@@ -110,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _textController.dispose();
     _genUiConversation.dispose();
     _surfaceSubscription?.cancel();
-    _genUiManager.dispose();
+    _a2uiMessageProcessor.dispose();
     _contentGenerator.dispose();
     super.dispose();
   }
@@ -199,7 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: SingleChildScrollView(
               child: GenUiSurface(
                 key: ValueKey(currentSurfaceId),
-                host: _genUiManager,
+                host: _a2uiMessageProcessor,
                 surfaceId: currentSurfaceId,
               ),
             ),

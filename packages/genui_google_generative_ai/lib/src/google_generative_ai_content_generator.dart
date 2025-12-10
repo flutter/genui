@@ -34,13 +34,10 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     this.systemInstruction,
     this.outputToolName = 'provideFinalOutput',
     this.serviceFactory = defaultGenerativeServiceFactory,
-    this.configuration = const GenUiConfiguration(),
     this.additionalTools = const [],
     this.modelName = 'models/gemini-2.5-flash',
     this.apiKey,
   });
-
-  final GenUiConfiguration configuration;
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;
@@ -113,6 +110,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   }) async {
     _isProcessing.value = true;
     try {
@@ -344,17 +342,15 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
     try {
       final availableTools = [
-        if (configuration.actions.allowCreate ||
-            configuration.actions.allowUpdate) ...[
-          SurfaceUpdateTool(
-            handleMessage: _a2uiMessageController.add,
-            catalog: catalog,
-            configuration: configuration,
-          ),
-          BeginRenderingTool(handleMessage: _a2uiMessageController.add),
-        ],
-        if (configuration.actions.allowDelete)
-          DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
+        SurfaceUpdateTool(
+          handleMessage: _a2uiMessageController.add,
+          catalog: catalog,
+        ),
+        BeginRenderingTool(
+          handleMessage: _a2uiMessageController.add,
+          catalogId: catalog.catalogId,
+        ),
+        DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
         ...additionalTools,
       ];
 

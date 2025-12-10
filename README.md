@@ -7,7 +7,7 @@ See the [Getting started with GenUI](https://www.youtube.com/watch?v=nWr6eZKM6no
 
 [<img src="docs/assets/genui_intro_video_still.png" alt="GenUI Intro video still" height="500">](https://www.youtube.com/watch?v=nWr6eZKM6no)
 
-## Status: Highly Experimental
+## Status: highly experimental
 
 This is a highly experimental package, which means the API will change (sometimes drastically).
 [Feedback is very welcome](https://github.com/flutter/genui/issues/new/choose).
@@ -41,16 +41,16 @@ chatbots and next-generation agent-based user experiences.
 - Create dynamically composed UIs: an agent can generate a complete form with sliders, date pickers,
   and text fields on the fly based on a user's request to "book a flight."
 
-## Look & Feel
+## Look & feel
 
-### Interactive [Travel App Example](examples/travel_app/)
+### Interactive [travel app example](examples/travel_app/)
 
 <img src="docs/assets/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
 
 _The GIF above shows how GenUI enables dynamic, interactive UI generation,_
 _instead of text descriptions or code from a traditional AI coding agent._
 
-### Core Difference
+### Core difference
 
 This UI is not generated in the form of code; rather, it's generated at runtime
 based on a widget catalog from the developers' project.
@@ -72,7 +72,7 @@ based on a widget catalog from the developers' project.
 - **Basic Layout:** LLM-driven basic layout generation.
 - **Any Model:** Integrate with any LLM that can generate structured JSON output.
 
-## Connecting to an AI Agent
+## Connecting to an AI agent
 
 The `genui` framework uses a `ContentGenerator` to communicate with a generative AI model,
 allowing `genui` to be backend agnostic. You can choose the implementation that best fits
@@ -84,15 +84,25 @@ See the package table below for more details on each.
 
 ## Packages
 
-| Package                                                            | Description                                                                                                                                                                  |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [genui](packages/genui/)                                           | The core framework to employ Generative UI.                                                                                                                                  |
-| [genui_firebase_ai](packages/genui_firebase_ai/)                   | Provides **`FirebaseAiContentGenerator`** to connect to Gemini via Firebase AI Logic. This is the recommended approach for production apps based on client-side agents.      |
-| [genui_google_generative_ai](packages/genui_google_generative_ai/) | Provides **`GoogleGenerativeAiContentGenerator`** for connecting to the Google Generative AI API with only an API key. Ideal for getting started quickly.                    |
-| [genui_a2ui](packages/genui_a2ui/)                                 | Provides **`A2uiContentGenerator`** for connecting to any server that implements the [A2UI protocol](https://a2ui.org). Use this for integrating with custom agent backends. |
-| [json_schema_builder](packages/json_schema_builder/)               | A fully featured Dart JSON Schema package with validation, used by the core framework to define widget data structures.                                                      |
+| Package | Description | Version |
+| :--- | :--- | :--- |
+| [genui](packages/genui/) | The core framework to employ Generative UI. | [![pub package](https://img.shields.io/pub/v/genui.svg)](https://pub.dev/packages/genui) |
+| [genui_firebase_ai](packages/genui_firebase_ai/) | Provides **`FirebaseAiContentGenerator`** to connect to Gemini via Firebase AI Logic. This is the recommended approach for production apps based on client-side agents. | [![pub package](https://img.shields.io/pub/v/genui_firebase_ai.svg)](https://pub.dev/packages/genui_firebase_ai) |
+| [genui_google_generative_ai](packages/genui_google_generative_ai/) | Provides **`GoogleGenerativeAiContentGenerator`** for connecting to the Google Generative AI API with only an API key. Ideal for getting started quickly. | [![pub package](https://img.shields.io/pub/v/genui_google_generative_ai.svg)](https://pub.dev/packages/genui_google_generative_ai) |
+| [genui_a2ui](packages/genui_a2ui/) | Provides **`A2uiContentGenerator`** for connecting to any server that implements the [A2UI protocol](https://a2ui.org). Use this for integrating with custom agent backends. | [![pub package](https://img.shields.io/pub/v/genui_a2ui.svg)](https://pub.dev/packages/genui_a2ui) |
+| [json_schema_builder](packages/json_schema_builder/) | A fully featured Dart JSON Schema package with validation, used by the core framework to define widget data structures. | [![pub package](https://img.shields.io/pub/v/json_schema_builder.svg)](https://pub.dev/packages/json_schema_builder) |
 
-## Getting Started
+### How the packages depend on each other:
+
+```mermaid
+graph TD
+  genui --> json_schema_builder
+  genui_a2ui --> genui
+  genui_firebase_ai --> genui
+  genui_google_generative_ai --> genui
+```
+
+## Getting started
 
 See the [genui getting started guide](packages/genui/README.md#getting-started-with-genui).
 
