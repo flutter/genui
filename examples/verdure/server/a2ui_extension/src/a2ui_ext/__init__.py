@@ -22,7 +22,7 @@ from a2a.types import AgentExtension, Task
 logger = logging.getLogger(__name__)
 
 # --- Define a2ui UI constants ---
-_CORE_PATH = "a2ui.org/ext/a2a-ui/v0.1"
+_CORE_PATH = "a2ui.org/a2a-extension/a2ui/v0.8"
 URI = f"https://{_CORE_PATH}"
 a2ui_MIME_TYPE = "application/json+a2ui"
 
