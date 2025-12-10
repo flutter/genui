@@ -92,13 +92,17 @@ See the package table below for more details on each.
 | [genui_a2ui](packages/genui_a2ui/) | Provides **`A2uiContentGenerator`** for connecting to any server that implements the [A2UI protocol](https://a2ui.org). Use this for integrating with custom agent backends. | [![pub package](https://img.shields.io/pub/v/genui_a2ui.svg)](https://pub.dev/packages/genui_a2ui) |
 | [json_schema_builder](packages/json_schema_builder/) | A fully featured Dart JSON Schema package with validation, used by the core framework to define widget data structures. | [![pub package](https://img.shields.io/pub/v/json_schema_builder.svg)](https://pub.dev/packages/json_schema_builder) |
 
-### How the packages depend on each other:
+### Dependencies
+
+This diagram shows how packages depend on each other and how examples use them.
 
 ```mermaid
 graph TD
   examples/simple_chat --> genui_google_generative_ai
   examples/simple_chat --> genui_firebase_ai
   examples/travel_app --> genui_google_generative_ai
+  examples/travel_app --> genui_firebase_ai
+  examples/verdure --> genui_a2ui
   genui --> json_schema_builder
   genui_a2ui --> genui
   genui_firebase_ai --> genui
