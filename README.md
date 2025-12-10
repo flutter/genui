@@ -97,6 +97,8 @@ See the package table below for more details on each.
 ```mermaid
 graph TD
   examples/simple_chat --> genui_google_generative_ai
+  examples/simple_chat --> genui_firebase_ai
+  examples/travel_app --> genui_google_generative_ai
   genui --> json_schema_builder
   genui_a2ui --> genui
   genui_firebase_ai --> genui

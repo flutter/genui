@@ -19,7 +19,6 @@ dependencies:
   flutter:
     sdk: flutter
   genui: ^0.5.1
-  genui_firebase_ai: ^0.5.1
   genui_google_generative_ai: ^0.5.1
   gpt_markdown: ^1.1.4
   intl: ^0.20.2
