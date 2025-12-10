@@ -175,7 +175,7 @@ LANDSCAPE_UI_EXAMPLES = """
 
       {{ "id": "option-card-2", "weight": 1, "component": {{ "Card": {{ "child": "option-layout-2" }} }} }},
       {{ "id": "option-layout-2", "component": {{ "Column": {{ "alignment": "center", "distribution": "center", "children": {{ "explicitList": ["option-image-2", "option-details-2"] }} }} }} }},
-      {{ "id": "option-image-2", "component": {{ "Image": {{ "url": {{ "path": "/items/option2/imageUrl" }}, "fit": "cover" }} }} }} }},
+      {{ "id": "option-image-2", "component": {{ "Image": {{ "url": {{ "path": "/items/option2/imageUrl" }}, "fit": "cover" }} }} }},
       {{ "id": "option-details-2", "component": {{ "Column": {{ "alignment": "stretch","distribution": "center", "children": {{ "explicitList": ["option-name-2", "option-price-2", "option-time-2", "option-detail-2", "option-tradeoffs-2", "select-button-2"] }} }} }} }},
       {{ "id": "option-name-2", "component": {{ "Text": {{ "usageHint": "h4", "text": {{ "path": "/items/option2/name" }} }} }} }},
       {{ "id": "option-price-2", "component": {{ "Text": {{ "usageHint": "h5", "text": {{ "path": "/items/option2/price" }} }} }} }},
