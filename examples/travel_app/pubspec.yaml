@@ -10,17 +10,19 @@ version: 0.1.0
 environment:
   sdk: ">=3.8.0 <4.0.0"
 
+resolution: workspace
+
 dependencies:
-  dart_schema_builder:
-    path: ../../packages/dart_schema_builder
+  json_schema_builder:
+    path: ../../packages/json_schema_builder
   firebase_app_check: ^0.4.0
   firebase_core: ^4.0.0
   flutter:
     sdk: flutter
-  flutter_genui:
-    path: ../../packages/flutter_genui
-  flutter_genui_firebase_ai:
-    path: ../../packages/flutter_genui_firebase_ai
+  genui:
+    path: ../../packages/genui
+  genui_firebase_ai:
+    path: ../../packages/genui_firebase_ai
   flutter_markdown: ^0.7.1
   logging: ^1.3.0
 
