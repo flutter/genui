@@ -37,10 +37,14 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     this.additionalTools = const [],
     this.modelName = 'models/gemini-2.5-flash',
     this.apiKey,
-  });
+    A2uiProtocol? protocol,
+  }) : protocol = protocol ?? const A2uiProtocolV0_8();
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;
+
+  /// The A2UI protocol to use.
+  final A2uiProtocol protocol;
 
   /// The system instruction to use for the AI model.
   final String? systemInstruction;
@@ -115,14 +119,30 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       final messages = [...?history, message];
+      // Use outputSchema to force tool calling only if systemPreamble is null
+      // (implying v0.8 / tool-based protocol).
+      // For v0.9 (prompt-first), systemPreamble is set, so we don't force tool.
+      final forceToolCalling = protocol.systemPreamble == null;
       final response = await _generate(
         messages: messages,
-        // This turns on forced function calling.
-        outputSchema: dsb.S.object(properties: {'response': dsb.S.string()}),
+        outputSchema: forceToolCalling
+            ? dsb.S.object(properties: {'response': dsb.S.string()})
+            : null,
       );
       // Convert any response to a text response to the user.
       if (response is Map && response.containsKey('response')) {
         _textResponseController.add(response['response']! as String);
+      } else if (response is String) {
+        _textResponseController.add(response);
+        // Also try to parse the text response as A2UI messages (for v0.9).
+        protocol
+            .parsePayload(response)
+            .listen(
+              _a2uiMessageController.add,
+              onError: (Object e) {
+                genUiLogger.warning('Error parsing A2UI payload from text', e);
+              },
+            );
       }
     } catch (e, st) {
       genUiLogger.severe('Error generating content', e, st);
@@ -342,15 +362,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
     try {
       final availableTools = [
-        SurfaceUpdateTool(
-          handleMessage: _a2uiMessageController.add,
-          catalog: catalog,
-        ),
-        BeginRenderingTool(
-          handleMessage: _a2uiMessageController.add,
-          catalogId: catalog.catalogId,
-        ),
-        DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
+        ...protocol.getTools(catalog, _a2uiMessageController.add),
         ...additionalTools,
       ];
 
@@ -371,10 +383,15 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
       Object? capturedResult;
 
       // Build system instruction if provided
-      final systemInstructionContent = systemInstruction != null
+      final systemInstructionText = [
+        if (protocol.systemPreamble != null) protocol.systemPreamble,
+        if (systemInstruction != null) systemInstruction,
+      ].join('\n\n');
+
+      final systemInstructionContent = systemInstructionText.isNotEmpty
           ? [
               google_ai.Content(
-                parts: [google_ai.Part(text: systemInstruction)],
+                parts: [google_ai.Part(text: systemInstructionText)],
               ),
             ]
           : <google_ai.Content>[];

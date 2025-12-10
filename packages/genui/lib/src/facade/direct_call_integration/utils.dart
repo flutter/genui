@@ -6,6 +6,7 @@ import '../../model/a2ui_message.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog.dart';
 import '../../model/tools.dart';
+import '../../model/v0_8/a2ui_protocol_v0_8.dart';
 import '../../primitives/simple_items.dart';
 import 'model.dart';
 
@@ -46,7 +47,9 @@ ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
   assert(toolCall.name == toolName);
 
   final Map<String, Object?> messageJson = {'surfaceUpdate': toolCall.args};
-  final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
+  final A2uiMessage surfaceUpdateMessage = const A2uiProtocolV0_8().parseJson(
+    messageJson,
+  );
 
   final surfaceId = (toolCall.args as JsonMap)[surfaceIdKey] as String;
 
@@ -68,7 +71,9 @@ ToolCall catalogExampleToToolCall(
   String surfaceId,
 ) {
   final messageJson = {'surfaceUpdate': example};
-  final surfaceUpdateMessage = A2uiMessage.fromJson(messageJson);
+  final A2uiMessage surfaceUpdateMessage = const A2uiProtocolV0_8().parseJson(
+    messageJson,
+  );
 
   return ToolCall(
     name: toolName,

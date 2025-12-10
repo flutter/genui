@@ -129,6 +129,9 @@ class FakeA2uiAgentConnector implements A2uiAgentConnector {
   @override
   final Uri url;
 
+  @override
+  genui.A2uiProtocol get protocol => const genui.A2uiProtocolV0_8();
+
   final _streamController = StreamController<genui.A2uiMessage>.broadcast();
   final _errorController = StreamController<Object>.broadcast();
 

@@ -9,6 +9,7 @@ import 'a2ui_schemas.dart';
 import 'catalog.dart';
 import 'tools.dart';
 import 'ui_models.dart';
+import 'v0_8/a2ui_protocol_v0_8.dart';
 
 /// A sealed class representing a message in the A2UI stream.
 sealed class A2uiMessage {
@@ -16,20 +17,9 @@ sealed class A2uiMessage {
   const A2uiMessage();
 
   /// Creates an [A2uiMessage] from a JSON map.
+  @Deprecated('Use A2uiProtocol.parsePayload instead.')
   factory A2uiMessage.fromJson(JsonMap json) {
-    if (json.containsKey('surfaceUpdate')) {
-      return SurfaceUpdate.fromJson(json['surfaceUpdate'] as JsonMap);
-    }
-    if (json.containsKey('dataModelUpdate')) {
-      return DataModelUpdate.fromJson(json['dataModelUpdate'] as JsonMap);
-    }
-    if (json.containsKey('beginRendering')) {
-      return BeginRendering.fromJson(json['beginRendering'] as JsonMap);
-    }
-    if (json.containsKey('deleteSurface')) {
-      return SurfaceDeletion.fromJson(json['deleteSurface'] as JsonMap);
-    }
-    throw ArgumentError('Unknown A2UI message type: $json');
+    return const A2uiProtocolV0_8().parseJson(json);
   }
 
   /// Returns the JSON schema for an A2UI message.

@@ -38,13 +38,21 @@ class AgentCard {
 /// the agent card, sending messages, and receiving the A2UI protocol stream.
 class A2uiAgentConnector {
   /// Creates a [A2uiAgentConnector] that connects to the given [url].
-  A2uiAgentConnector({required this.url, A2AClient? client, String? contextId})
-    : _contextId = contextId {
+  A2uiAgentConnector({
+    required this.url,
+    genui.A2uiProtocol? protocol,
+    A2AClient? client,
+    String? contextId,
+  }) : _contextId = contextId,
+       protocol = protocol ?? const genui.A2uiProtocolV0_8() {
     this.client = client ?? A2AClient(url.toString());
   }
 
   /// The URL of the A2UI Agent.
   final Uri url;
+
+  /// The A2UI protocol to use.
+  final genui.A2uiProtocol protocol;
 
   final _controller = StreamController<genui.A2uiMessage>.broadcast();
   final _errorController = StreamController<Object>.broadcast();
@@ -137,7 +145,10 @@ class A2uiAgentConnector {
       };
     }
     final payload = A2AMessageSendParams()..message = message;
-    payload.extensions = ['https://a2ui.org/a2a-extension/a2ui/v0.8'];
+    // Map protocol version to extension URL.
+    final extensionUrl =
+        'https://a2ui.org/a2a-extension/a2ui/${protocol.version.label}';
+    payload.extensions = [extensionUrl];
 
     _log.info('--- OUTGOING REQUEST ---');
     _log.info('URL: ${url.toString()}');
@@ -239,7 +250,15 @@ class A2uiAgentConnector {
       ..referenceTaskIds = [taskId!];
 
     final payload = A2AMessageSendParams()..message = message;
-    payload.extensions = ['https://a2ui.org/a2a-extension/a2ui/v0.8'];
+    // Map protocol version to extension URL.
+    // Map protocol version to extension URL.
+    final String extensionUrl = switch (protocol.version) {
+      genui.A2uiProtocolVersion.v0_8 =>
+        'https://a2ui.org/a2a-extension/a2ui/v0.8',
+      genui.A2uiProtocolVersion.v0_9 =>
+        'https://a2ui.org/a2a-extension/a2ui/v0.9',
+    };
+    payload.extensions = [extensionUrl];
 
     try {
       await client.sendMessage(payload);
@@ -256,20 +275,22 @@ class A2uiAgentConnector {
       'Processing a2ui messages from data part:\n'
       '${const JsonEncoder.withIndent('  ').convert(data)}',
     );
-    if (data.containsKey('surfaceUpdate') ||
-        data.containsKey('dataModelUpdate') ||
-        data.containsKey('beginRendering') ||
-        data.containsKey('deleteSurface')) {
-      if (!_controller.isClosed) {
-        _log.finest(
-          'Adding message to stream: '
-          '${const JsonEncoder.withIndent('  ').convert(data)}',
+    protocol
+        .parsePayload(data)
+        .listen(
+          (message) {
+            if (!_controller.isClosed) {
+              _log.finest(
+                'Adding message to stream: '
+                '${const JsonEncoder.withIndent('  ').convert(message)}',
+              );
+              _controller.add(message);
+            }
+          },
+          onError: (Object error) {
+            _log.warning('Error parsing A2UI message: $error');
+          },
         );
-        _controller.add(genui.A2uiMessage.fromJson(data));
-      }
-    } else {
-      _log.warning('A2A data part did not contain any known A2UI messages.');
-    }
   }
 
   /// Closes the connection to the agent.

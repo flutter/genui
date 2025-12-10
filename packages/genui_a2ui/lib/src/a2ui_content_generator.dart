@@ -15,8 +15,12 @@ class A2uiContentGenerator implements ContentGenerator {
   ///
   /// If optional `connector` is not supplied, then one will be created with the
   /// given `serverUrl`.
-  A2uiContentGenerator({required Uri serverUrl, A2uiAgentConnector? connector})
-    : connector = connector ?? A2uiAgentConnector(url: serverUrl) {
+  A2uiContentGenerator({
+    required Uri serverUrl,
+    A2uiAgentConnector? connector,
+    A2uiProtocol? protocol,
+  }) : connector =
+           connector ?? A2uiAgentConnector(url: serverUrl, protocol: protocol) {
     this.connector.errorStream.listen((Object error) {
       _errorResponseController.add(
         ContentGeneratorError(error, StackTrace.current),
