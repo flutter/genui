@@ -40,5 +40,4 @@ linter:
     - unreachable_from_main
 
     - omit_obvious_local_variable_types
-    - specify_nonobvious_local_variable_types
     - specify_nonobvious_property_types
