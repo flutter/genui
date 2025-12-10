@@ -119,4 +119,4 @@ releasing a new version.
 `pubspec.lock` files are not git ignored to make the bots faster.
 
 If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
-when you have latest Flutter at beta channel.
+when your Flutter is latest at beta channel.
