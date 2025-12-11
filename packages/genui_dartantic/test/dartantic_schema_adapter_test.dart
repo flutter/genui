@@ -94,9 +94,7 @@ void main() {
       final schema = jsb.Schema.object(
         properties: {
           'user': jsb.Schema.object(
-            properties: {
-              'tags': jsb.Schema.list(items: jsb.Schema.string()),
-            },
+            properties: {'tags': jsb.Schema.list(items: jsb.Schema.string())},
           ),
         },
       );
