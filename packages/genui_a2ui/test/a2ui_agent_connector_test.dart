@@ -42,26 +42,6 @@ void main() {
       expect(fakeClient.getAgentCardCalled, 1);
     });
 
-    test('connectAndSend includes clientCapabilities in metadata', () async {
-      const capabilities = genui.A2UiClientCapabilities(
-        supportedCatalogIds: ['cat1', 'cat2'],
-      );
-      fakeClient.sendMessageStreamHandler = (_) => const Stream.empty();
-
-      await connector.connectAndSend(
-        genui.UserMessage.text('Hi'),
-        clientCapabilities: capabilities,
-      );
-
-      expect(fakeClient.sendMessageStreamCalled, 1);
-      final a2a.A2AMessage sentMessage =
-          fakeClient.lastSendMessageParams!.message;
-      expect(sentMessage.metadata, isNotNull);
-      expect(sentMessage.metadata!['a2uiClientCapabilities'], {
-        'supportedCatalogIds': ['cat1', 'cat2'],
-      });
-    });
-
     test('connectAndSend processes stream and returns text response', () async {
       final responses = [
         a2a.A2ASendStreamMessageSuccessResponse()
@@ -73,14 +53,13 @@ void main() {
             ..parts = [
               a2a.A2ADataPart()
                 ..data = {
-                  'surfaceUpdate': {
+                  'updateComponents': {
                     'surfaceId': 's1',
                     'components': [
                       {
                         'id': 'c1',
-                        'component': {
-                          'Column': {'children': <Object?>[]},
-                        },
+                        'component': 'Column',
+                        'children': <Object?>[],
                       },
                     ],
                   },
@@ -111,7 +90,7 @@ void main() {
       expect(connector.contextId, 'context1');
       expect(fakeClient.sendMessageStreamCalled, 1);
       expect(messages.length, 1);
-      expect(messages.first, isA<genui.SurfaceUpdate>());
+      expect(messages.first, isA<genui.UpdateComponents>());
     });
 
     test('connectAndSend sends multiple text parts', () async {
@@ -177,9 +156,9 @@ void main() {
       expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts!.first as a2a.A2ADataPart;
       final a2uiEvent = dataPart.data['a2uiEvent'] as Map<String, Object?>;
-      expect(a2uiEvent['actionName'], 'testAction');
+      expect(a2uiEvent['action'], 'testAction');
       expect(a2uiEvent['sourceComponentId'], 'c1');
-      expect(a2uiEvent['resolvedContext'], {'key': 'value'});
+      expect(a2uiEvent['context'], {'key': 'value'});
     });
 
     test('sendEvent does nothing if taskId is null', () async {

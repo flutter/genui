@@ -14,26 +14,19 @@ import '../../primitives/simple_items.dart';
 final _schema = S.object(
   properties: {
     'value': A2uiSchemas.numberReference(),
-    'minValue': S.number(),
-    'maxValue': S.number(),
+    'min': A2uiSchemas.numberReference(),
+    'max': A2uiSchemas.numberReference(),
   },
   required: ['value'],
 );
 
 extension type _SliderData.fromMap(JsonMap _json) {
-  factory _SliderData({
-    required JsonMap value,
-    double? minValue,
-    double? maxValue,
-  }) => _SliderData.fromMap({
-    'value': value,
-    'minValue': minValue,
-    'maxValue': maxValue,
-  });
+  factory _SliderData({required JsonMap value, JsonMap? min, JsonMap? max}) =>
+      _SliderData.fromMap({'value': value, 'min': min, 'max': max});
 
   JsonMap get value => _json['value'] as JsonMap;
-  double get minValue => (_json['minValue'] as num?)?.toDouble() ?? 0.0;
-  double get maxValue => (_json['maxValue'] as num?)?.toDouble() ?? 1.0;
+  JsonMap? get min => _json['min'] as JsonMap?;
+  JsonMap? get max => _json['max'] as JsonMap?;
 }
 
 /// A catalog item representing a Material Design slider.
@@ -45,8 +38,8 @@ extension type _SliderData.fromMap(JsonMap _json) {
 /// ## Parameters:
 ///
 /// - `value`: The current value of the slider.
-/// - `minValue`: The minimum value of the slider. Defaults to 0.0.
-/// - `maxValue`: The maximum value of the slider. Defaults to 1.0.
+/// - `min`: The minimum value of the slider. Defaults to 0.0.
+/// - `max`: The maximum value of the slider. Defaults to 1.0.
 final slider = CatalogItem(
   name: 'Slider',
   dataSchema: _schema,
@@ -54,10 +47,29 @@ final slider = CatalogItem(
     final sliderData = _SliderData.fromMap(itemContext.data as JsonMap);
     final ValueNotifier<num?> valueNotifier = itemContext.dataContext
         .subscribeToValue<num>(sliderData.value, 'literalNumber');
+    final ValueNotifier<num?> minNotifier = itemContext.dataContext
+        .subscribeToValue<num>(
+          sliderData.min ?? {'literalNumber': 0.0},
+          'literalNumber',
+        );
+    final ValueNotifier<num?> maxNotifier = itemContext.dataContext
+        .subscribeToValue<num>(
+          sliderData.max ?? {'literalNumber': 1.0},
+          'literalNumber',
+        );
 
-    return ValueListenableBuilder<num?>(
-      valueListenable: valueNotifier,
-      builder: (context, value, child) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([valueNotifier, minNotifier, maxNotifier]),
+      builder: (context, child) {
+        final double min = (minNotifier.value ?? 0.0).toDouble();
+        final double max = (maxNotifier.value ?? 1.0).toDouble();
+        // Ensure min < max to avoid errors
+        final effectiveMin = min;
+        final double effectiveMax = max > min ? max : min + 1.0;
+
+        final double val = (valueNotifier.value ?? effectiveMin).toDouble();
+        final double effectiveVal = val.clamp(effectiveMin, effectiveMax);
+
         return Padding(
           padding: const EdgeInsetsDirectional.only(end: 16.0),
           child: Row(
@@ -65,11 +77,12 @@ final slider = CatalogItem(
             children: [
               Expanded(
                 child: Slider(
-                  value: (value ?? sliderData.minValue).toDouble(),
-                  min: sliderData.minValue,
-                  max: sliderData.maxValue,
-                  divisions: (sliderData.maxValue - sliderData.minValue)
-                      .toInt(),
+                  value: effectiveVal,
+                  min: effectiveMin,
+                  max: effectiveMax,
+                  divisions: (effectiveMax - effectiveMin) > 0
+                      ? (effectiveMax - effectiveMin).toInt()
+                      : 1,
                   onChanged: (newValue) {
                     final path = sliderData.value['path'] as String?;
                     if (path != null) {
@@ -78,10 +91,7 @@ final slider = CatalogItem(
                   },
                 ),
               ),
-              Text(
-                value?.toStringAsFixed(0) ??
-                    sliderData.minValue.toStringAsFixed(0),
-              ),
+              Text(effectiveVal.toStringAsFixed(0)),
             ],
           ),
         );
@@ -93,15 +103,12 @@ final slider = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Slider": {
-              "minValue": 0,
-              "maxValue": 10,
-              "value": {
-                "path": "/myValue",
-                "literalNumber": 5
-              }
-            }
+          "component": "Slider",
+          "min": {"literalNumber": 0},
+          "max": {"literalNumber": 10},
+          "value": {
+            "path": "/myValue",
+            "literalNumber": 5
           }
         }
       ]

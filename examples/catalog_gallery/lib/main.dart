@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+
 import 'package:args/args.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
+import 'package:logging/logging.dart';
 
 import 'samples_view.dart';
 
@@ -22,13 +24,13 @@ void main(List<String> args) {
     samplesDir = fs.directory(results['samples'] as String);
   } else {
     final Directory current = fs.currentDirectory;
-    final Directory defaultSamples = fs
-        .directory(current.path)
-        .childDirectory('samples');
+    final Directory defaultSamples = fs.directory('${current.path}/samples');
     if (defaultSamples.existsSync()) {
       samplesDir = defaultSamples;
     }
   }
+
+  configureGenUiLogging(level: Level.ALL);
 
   runApp(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
 }
@@ -48,7 +50,26 @@ class CatalogGalleryApp extends StatefulWidget {
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final Catalog catalog = CoreCatalogItems.asCatalog();
+  final Catalog catalog = Catalog([
+    CoreCatalogItems.audioPlayer,
+    CoreCatalogItems.button,
+    CoreCatalogItems.card,
+    CoreCatalogItems.checkBox,
+    CoreCatalogItems.column,
+    CoreCatalogItems.dateTimeInput,
+    CoreCatalogItems.divider,
+    CoreCatalogItems.icon,
+    CoreCatalogItems.image,
+    CoreCatalogItems.list,
+    CoreCatalogItems.modal,
+    CoreCatalogItems.choicePicker,
+    CoreCatalogItems.row,
+    CoreCatalogItems.slider,
+    CoreCatalogItems.tabs,
+    CoreCatalogItems.text,
+    CoreCatalogItems.textField,
+    CoreCatalogItems.video,
+  ], catalogId: 'default');
 
   @override
   Widget build(BuildContext context) {

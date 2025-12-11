@@ -69,7 +69,10 @@ final list = CatalogItem(
         );
       },
       templateListWidgetBuilder:
-          (context, Map<String, Object?> data, componentId, dataBinding) {
+          (context, Object? data, componentId, dataBinding) {
+            if (data is! Map<String, Object?>) {
+              return const SizedBox.shrink();
+            }
             final List<Object?> values = data.values.toList();
             final List<String> keys = data.keys.toList();
             return ListView.builder(
@@ -90,35 +93,26 @@ final list = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "List": {
-              "children": {
-                "explicitList": [
-                  "text1",
-                  "text2"
-                ]
-              }
-            }
+          "component": "List",
+          "children": {
+            "explicitList": [
+              "text1",
+              "text2"
+            ]
           }
         },
         {
           "id": "text1",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "First"
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "First"
           }
         },
         {
           "id": "text2",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Second"
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Second"
           }
         }
       ]

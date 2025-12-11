@@ -44,9 +44,7 @@ final divider = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Divider": {}
-          }
+          "component": "Divider"
         }
       ]
     ''',

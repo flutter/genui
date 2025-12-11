@@ -15,29 +15,24 @@ void main() {
         Catalog([
           CoreCatalogItems.dateTimeInput,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog'),
+        ], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'datetime',
-        componentProperties: {
-          'DateTimeInput': {
-            'value': {'path': '/myDateTime'},
-          },
+        id: 'root',
+        props: {
+          'component': 'DateTimeInput',
+          'value': {'path': '/myDateTime'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'datetime',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
     manager
         .dataModelForSurface(surfaceId)

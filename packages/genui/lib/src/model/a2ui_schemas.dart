@@ -83,35 +83,11 @@ class A2uiSchemas {
     description: description,
     properties: {
       'name': S.string(),
-      'context': S.list(
+      'context': S.object(
         description:
-            'A list of name-value pairs to be sent with the action to include '
+            'A map of name-value pairs to be sent with the action to include '
             'data associated with the action, e.g. values that are submitted.',
-        items: S.object(
-          properties: {
-            'key': S.string(),
-            'value': S.object(
-              properties: {
-                'path': S.string(
-                  description:
-                      'A path in the data model which should be bound to an '
-                      'input element, e.g. a string reference for a text '
-                      'field, or number reference for a slider.',
-                ),
-                'literalString': S.string(
-                  description: 'A literal string relevant to the action',
-                ),
-                'literalNumber': S.number(
-                  description: 'A literal number relevant to the action',
-                ),
-                'literalBoolean': S.boolean(
-                  description: 'A literal boolean relevant to the action',
-                ),
-              },
-            ),
-          },
-          required: ['key', 'value'],
-        ),
+        additionalProperties: true,
       ),
     },
     required: ['name'],
@@ -131,58 +107,31 @@ class A2uiSchemas {
     },
   );
 
-  /// Schema for a beginRendering message, which provides the root widget ID for
-  /// the given surface so that the surface can be rendered.
-  static Schema beginRenderingSchema() => S.object(
+  /// Schema for a value that can be either a literal array of objects (maps)
+  /// or a data-bound path to an array of objects in the DataModel. If both
+  /// path and literalArray are provided, the value at the path will be
+  /// initialized with the literalArray.
+  static Schema objectArrayReference({String? description}) => S.object(
+    description: description,
     properties: {
-      surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
+      'path': S.string(
+        description: 'A relative or absolute path in the data model.',
       ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'catalogId': S.string(
-        description:
-            'The identifier of the component catalog to use for this surface.',
-      ),
-      'styles': S.object(
-        properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
-          ),
-        },
-      ),
+      'literalArray': S.list(items: S.object(additionalProperties: true)),
     },
-    required: [surfaceIdKey, 'root'],
   );
 
-  /// Schema for a beginRendering message, which provides the root widget ID for
-  /// the given surface so that the surface can be rendered.
-  static Schema beginRenderingSchemaNoCatalogId() => S.object(
+  /// Schema for a createSurface message, which initializes a surface.
+  static Schema createSurfaceSchema() => S.object(
     properties: {
       surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
+        description: 'The surface ID of the surface to create.',
       ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'styles': S.object(
-        properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
-          ),
-        },
+      'catalogId': S.string(
+        description: 'The catalog ID to use for this surface.',
       ),
     },
-    required: [surfaceIdKey, 'root'],
+    required: [surfaceIdKey, 'catalogId'],
   );
 
   /// Schema for a `deleteSurface` message which will delete the given surface.
@@ -191,22 +140,24 @@ class A2uiSchemas {
     required: [surfaceIdKey],
   );
 
-  /// Schema for a `dataModelUpdate` message which will update the given path in
+  /// Schema for a `updateDataModel` message which will update the given path in
   /// the data model. If the path is omitted, the entire data model is replaced.
-  static Schema dataModelUpdateSchema() => S.object(
+  static Schema updateDataModelSchema() => S.object(
     properties: {
       surfaceIdKey: S.string(),
       'path': S.string(),
-      'contents': S.any(
-        description: 'The new contents to write to the data model.',
+      'op': S.string(
+        description: 'The operation to perform (add, replace, remove).',
+        enumValues: ['add', 'replace', 'remove'],
       ),
+      'value': S.any(description: 'The new value to write to the data model.'),
     },
-    required: [surfaceIdKey, 'contents'],
+    required: [surfaceIdKey, 'value'],
   );
 
-  /// Schema for a `surfaceUpdate` message which defines the components to be
+  /// Schema for a `updateComponents` message which defines the components to be
   /// rendered on a surface.
-  static Schema surfaceUpdateSchema(Catalog catalog) => S.object(
+  static Schema updateComponentsSchema(Catalog catalog) => S.object(
     properties: {
       surfaceIdKey: S.string(
         description:
@@ -223,29 +174,42 @@ class A2uiSchemas {
               'Represents a *single* component in a UI widget tree. '
               'This component could be one of many supported types.',
           properties: {
-            'id': S.string(),
+            'id': S.string(
+              description:
+                  'The unique identifier for this component. The root '
+                  "component of the surface MUST have the id 'root'.",
+            ),
             'weight': S.integer(
               description:
                   'Optional layout weight for use in Row/Column children.',
             ),
-            'component': S.object(
-              description:
-                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Text'). The value is an object containing the properties for that specific component.''',
-              properties: {
-                for (var entry
-                    in ((catalog.definition as ObjectSchema)
-                                .properties!['components']!
-                            as ObjectSchema)
-                        .properties!
-                        .entries)
-                  entry.key: entry.value,
-              },
+            'component': S.string(
+              description: 'The type of the component.',
+              enumValues:
+                  ((catalog.definition as ObjectSchema)
+                              .properties!['components']!
+                          as ObjectSchema)
+                      .properties!
+                      .keys
+                      .toList(),
             ),
           },
           required: ['id', 'component'],
+          additionalProperties: true,
         ),
       ),
     },
     required: [surfaceIdKey, 'components'],
+  );
+
+  /// Schema for an `error` message which reports an error.
+  static Schema errorSchema() => S.object(
+    properties: {
+      'code': S.string(),
+      'message': S.string(),
+      'surfaceId': S.string(),
+      'path': S.string(),
+    },
+    required: ['code', 'message'],
   );
 }

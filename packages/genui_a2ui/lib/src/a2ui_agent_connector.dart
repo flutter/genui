@@ -131,13 +131,8 @@ class A2uiAgentConnector {
     if (contextId != null) {
       message.contextId = contextId;
     }
-    if (clientCapabilities != null) {
-      message.metadata = {
-        'a2uiClientCapabilities': clientCapabilities.toJson(),
-      };
-    }
     final payload = A2AMessageSendParams()..message = message;
-    payload.extensions = ['https://a2ui.org/a2a-extension/a2ui/v0.8'];
+    payload.extensions = ['https://a2ui.org/ext/a2a-ui/v0.9'];
 
     _log.info('--- OUTGOING REQUEST ---');
     _log.info('URL: ${url.toString()}');
@@ -223,10 +218,10 @@ class A2uiAgentConnector {
     }
 
     final Map<String, Object?> clientEvent = {
-      'actionName': event['action'],
+      'action': event['action'],
       'sourceComponentId': event['sourceComponentId'],
       'timestamp': DateTime.now().toIso8601String(),
-      'resolvedContext': event['context'],
+      'context': event['context'],
     };
 
     _log.finest('Sending client event: $clientEvent');
@@ -256,10 +251,11 @@ class A2uiAgentConnector {
       'Processing a2ui messages from data part:\n'
       '${const JsonEncoder.withIndent('  ').convert(data)}',
     );
-    if (data.containsKey('surfaceUpdate') ||
-        data.containsKey('dataModelUpdate') ||
-        data.containsKey('beginRendering') ||
-        data.containsKey('deleteSurface')) {
+    if (data.containsKey('updateComponents') ||
+        data.containsKey('updateDataModel') ||
+        data.containsKey('createSurface') ||
+        data.containsKey('deleteSurface') ||
+        data.containsKey('error')) {
       if (!_controller.isClosed) {
         _log.finest(
           'Adding message to stream: '

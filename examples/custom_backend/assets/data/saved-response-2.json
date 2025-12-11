@@ -10,57 +10,45 @@
                 "surfaceId": "helpOptions",
                 "components": [
                   {
-                    "component": {
-                      "Column": {
-                        "children": {
-                          "explicitList": [
-                            "heading",
-                            "options"
-                          ]
-                        }
-                      }
+                    "component": "Column",
+                    "children": {
+                      "explicitList": ["heading", "options"]
                     },
                     "id": "root"
                   },
                   {
-                    "component": {
-                      "Heading": {
-                        "level": "2",
-                        "text": {
-                          "literalString": "What can I help you with?"
-                        }
-                      }
+                    "component": "Heading",
+                    "level": "2",
+                    "text": {
+                      "literalString": "What can I help you with?"
                     },
                     "id": "heading"
                   },
                   {
-                    "component": {
-                      "MultipleChoice": {
-                        "maxAllowedSelections": 1,
-                        "options": [
-                          {
-                            "value": "answer_questions",
-                            "label": {
-                              "literalString": "Answer questions"
-                            }
-                          },
-                          {
-                            "value": "generate_ui",
-                            "label": {
-                              "literalString": "Generate UI"
-                            }
-                          },
-                          {
-                            "label": {
-                              "literalString": "Write code"
-                            },
-                            "value": "write_code"
-                          }
-                        ],
-                        "selections": {
-                          "path": "selection"
+                    "component": "ChoicePicker",
+                    "usageHint": 1,
+                    "options": [
+                      {
+                        "value": "answer_questions",
+                        "label": {
+                          "literalString": "Answer questions"
                         }
+                      },
+                      {
+                        "value": "generate_ui",
+                        "label": {
+                          "literalString": "Generate UI"
+                        }
+                      },
+                      {
+                        "label": {
+                          "literalString": "Write code"
+                        },
+                        "value": "write_code"
                       }
+                    ],
+                    "value": {
+                      "path": "selection"
                     },
                     "id": "options"
                   }

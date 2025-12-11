@@ -9,57 +9,45 @@
               "args": {
                 "components": [
                   {
-                    "component": {
-                      "Column": {
-                        "children": {
-                          "explicitList": [
-                            "heading_1",
-                            "multiple_choice_1"
-                          ]
-                        }
-                      }
+                    "component": "Column",
+                    "children": {
+                      "explicitList": ["heading_1", "multiple_choice_1"]
                     },
                     "id": "root"
                   },
                   {
-                    "component": {
-                      "Heading": {
-                        "level": "1",
-                        "text": {
-                          "literalString": "How can I help you?"
-                        }
-                      }
+                    "component": "Heading",
+                    "level": "1",
+                    "text": {
+                      "literalString": "How can I help you?"
                     },
                     "id": "heading_1"
                   },
                   {
-                    "component": {
-                      "MultipleChoice": {
-                        "selections": {
-                          "path": "component.multiple_choice_1.selections"
-                        },
-                        "options": [
-                          {
-                            "label": {
-                              "literalString": "Generate UI"
-                            },
-                            "value": "generate_ui"
-                          },
-                          {
-                            "label": {
-                              "literalString": "Answer questions"
-                            },
-                            "value": "answer_questions"
-                          },
-                          {
-                            "value": "summarize_text",
-                            "label": {
-                              "literalString": "Summarize text"
-                            }
-                          }
-                        ]
-                      }
+                    "component": "ChoicePicker",
+                    "value": {
+                      "path": "component.multiple_choice_1.value"
                     },
+                    "options": [
+                      {
+                        "label": {
+                          "literalString": "Generate UI"
+                        },
+                        "value": "generate_ui"
+                      },
+                      {
+                        "label": {
+                          "literalString": "Answer questions"
+                        },
+                        "value": "answer_questions"
+                      },
+                      {
+                        "value": "summarize_text",
+                        "label": {
+                          "literalString": "Summarize text"
+                        }
+                      }
+                    ],
                     "id": "multiple_choice_1"
                   }
                 ],

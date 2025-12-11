@@ -17,7 +17,7 @@ import '../../primitives/simple_items.dart';
 typedef TemplateListWidgetBuilder =
     Widget Function(
       BuildContext context,
-      Map<String, Object?> data,
+      Object? data,
       String componentId,
       String dataBinding,
     );
@@ -101,9 +101,9 @@ class ComponentChildrenBuilder extends StatelessWidget {
         genUiLogger.finest(
           'Widget $componentId subscribing to ${dataContext.path}',
         );
-        final ValueNotifier<Map<String, Object?>?> dataNotifier = dataContext
-            .subscribe<Map<String, Object?>>(DataPath(dataBinding));
-        return ValueListenableBuilder<Map<String, Object?>?>(
+        final ValueNotifier<Object?> dataNotifier = dataContext
+            .subscribe<Object?>(DataPath(dataBinding));
+        return ValueListenableBuilder<Object?>(
           valueListenable: dataNotifier,
           builder: (context, data, child) {
             genUiLogger.info(

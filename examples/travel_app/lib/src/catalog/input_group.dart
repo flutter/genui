@@ -58,60 +58,45 @@ final inputGroup = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "InputGroup": {
-              "submitLabel": {
-                "literalString": "Submit"
-              },
-              "children": [
-                "check_in",
-                "check_out",
-                "text_input1",
-                "text_input2"
-              ],
-              "action": {
-                "name": "submit_form"
-              }
-            }
+          "component": "InputGroup",
+          "submitLabel": {
+            "literalString": "Submit"
+          },
+          "children": [
+            "check_in",
+            "check_out",
+            "text_input1",
+            "text_input2"
+          ],
+          "action": {
+            "name": "submit_form"
           }
         },
         {
           "id": "check_in",
-          "component": {
-            "DateInputChip": {
-              "value": {
-                "literalString": "2026-07-22"
-              },
-              "label": "Check-in date"
-            }
-          }
+          "component": "DateInputChip",
+          "value": {
+            "literalString": "2026-07-22"
+          },
+          "label": "Check-in date"
         },
         {
           "id": "check_out",
-          "component": {
-            "DateInputChip": {
-              "label": "Check-out date"
-            }
-          }
+          "component": "DateInputChip",
+          "label": "Check-out date"
         },
         {
           "id": "text_input1",
-          "component": {
-            "TextInputChip": {
-              "value": {
-                "literalString": "John Doe"
-              },
-              "label": "Enter your name"
-            }
-          }
+          "component": "TextInputChip",
+          "value": {
+            "literalString": "John Doe"
+          },
+          "label": "Enter your name"
         },
         {
           "id": "text_input2",
-          "component": {
-            "TextInputChip": {
-              "label": "Enter your friend's name"
-            }
-          }
+          "component": "TextInputChip",
+          "label": "Enter your friend's name"
         }
       ]
     ''',
@@ -129,8 +114,8 @@ final inputGroup = CatalogItem(
     final List<String> children = inputGroupData.children;
     final JsonMap actionData = inputGroupData.action;
     final name = actionData['name'] as String;
-    final List<Object?> contextDefinition =
-        (actionData['context'] as List<Object?>?) ?? <Object?>[];
+    final Map<String, Object?> contextDefinition =
+        (actionData['context'] as Map<String, Object?>?) ?? {};
 
     return Card(
       color: Theme.of(itemContext.buildContext).colorScheme.primaryContainer,

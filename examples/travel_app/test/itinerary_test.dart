@@ -38,7 +38,7 @@ void main() {
               'status': 'choiceRequired',
               'choiceRequiredAction': {
                 'name': 'testAction',
-                'context': <Object>[],
+                'context': <String, Object?>{},
               },
             },
           ],

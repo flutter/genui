@@ -76,16 +76,13 @@ final checkBox = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "CheckBox": {
-              "label": {
-                "literalString": "Check me"
-              },
-              "value": {
-                "path": "/myValue",
-                "literalBoolean": true
-              }
-            }
+          "component": "CheckBox",
+          "label": {
+            "literalString": "Check me"
+          },
+          "value": {
+            "path": "/myValue",
+            "literalBoolean": true
           }
         }
       ]

@@ -13,47 +13,40 @@ void main() {
         Catalog([
           CoreCatalogItems.row,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog'),
+        ], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
-        componentProperties: {
-          'Row': {
-            'children': {
-              'explicitList': ['text1', 'text2'],
-            },
+        id: 'root',
+        props: {
+          'component': 'Row',
+          'children': {
+            'explicitList': ['text1', 'text2'],
           },
         },
       ),
       const Component(
         id: 'text1',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'First'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'First'},
         },
       ),
       const Component(
         id: 'text2',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Second'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Second'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'row',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
 
     await tester.pumpWidget(
@@ -76,57 +69,49 @@ void main() {
         Catalog([
           CoreCatalogItems.row,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog'),
+        ], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
-        componentProperties: {
-          'Row': {
-            'children': {
-              'explicitList': ['text1', 'text2', 'text3'],
-            },
+        id: 'root',
+        props: {
+          'component': 'Row',
+          'children': {
+            'explicitList': ['text1', 'text2', 'text3'],
           },
         },
       ),
       const Component(
         id: 'text1',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'First'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'First'},
         },
         weight: 1,
       ),
       const Component(
         id: 'text2',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Second'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Second'},
         },
         weight: 2,
       ),
       const Component(
         id: 'text3',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Third'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Third'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'row',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
 
     await tester.pumpWidget(

@@ -2,110 +2,97 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/core/ui_tools.dart';
-import 'package:genui/src/model/a2ui_message.dart';
-import 'package:genui/src/model/catalog.dart';
-import 'package:genui/src/model/catalog_item.dart';
-import 'package:genui/src/model/tools.dart';
-import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:genui/genui.dart';
 
 void main() {
-  group('$SurfaceUpdateTool', () {
-    test('invoke calls handleMessage with correct arguments', () async {
-      final messages = <A2uiMessage>[];
+  group('UI Tools', () {
+    late A2uiMessageProcessor genUiManager;
+    late Catalog catalog;
 
-      void fakeHandleMessage(A2uiMessage message) {
-        messages.add(message);
-      }
+    setUp(() {
+      catalog = CoreCatalogItems.asCatalog();
+      genUiManager = A2uiMessageProcessor(catalogs: [catalog]);
+    });
 
-      final tool = SurfaceUpdateTool(
-        handleMessage: fakeHandleMessage,
-        catalog: Catalog([
-          CatalogItem(
-            name: 'Text',
-            widgetBuilder: (_) {
-              return const Text('');
-            },
-            dataSchema: Schema.object(properties: {}),
-          ),
-        ], catalogId: 'test_catalog'),
+    test('UpdateComponentsTool sends UpdateComponents message', () async {
+      final tool = UpdateComponentsTool(
+        handleMessage: genUiManager.handleMessage,
+        catalog: catalog,
       );
 
       final Map<String, Object> args = {
         surfaceIdKey: 'testSurface',
         'components': [
-          {
-            'id': 'rootWidget',
-            'component': {
-              'Text': {'text': 'Hello'},
-            },
-          },
+          {'id': 'root', 'component': 'Text', 'text': 'Hello'},
         ],
       };
 
-      await tool.invoke(args);
-
-      expect(messages.length, 1);
-      expect(messages[0], isA<SurfaceUpdate>());
-      final surfaceUpdate = messages[0] as SurfaceUpdate;
-      expect(surfaceUpdate.surfaceId, 'testSurface');
-      expect(surfaceUpdate.components.length, 1);
-      expect(surfaceUpdate.components[0].id, 'rootWidget');
-      expect(surfaceUpdate.components[0].componentProperties, {
-        'Text': {'text': 'Hello'},
-      });
-    });
-  });
-
-  group('DeleteSurfaceTool', () {
-    test('invoke calls handleMessage with correct arguments', () async {
-      final messages = <A2uiMessage>[];
-
-      void fakeHandleMessage(A2uiMessage message) {
-        messages.add(message);
-      }
-
-      final tool = DeleteSurfaceTool(handleMessage: fakeHandleMessage);
-
-      final Map<String, String> args = {surfaceIdKey: 'testSurface'};
-
-      await tool.invoke(args);
-
-      expect(messages.length, 1);
-      expect(messages[0], isA<SurfaceDeletion>());
-      final deleteSurface = messages[0] as SurfaceDeletion;
-      expect(deleteSurface.surfaceId, 'testSurface');
-    });
-  });
-
-  group('BeginRenderingTool', () {
-    test('invoke calls handleMessage with correct arguments', () async {
-      final messages = <A2uiMessage>[];
-
-      void fakeHandleMessage(A2uiMessage message) {
-        messages.add(message);
-      }
-
-      final tool = BeginRenderingTool(
-        handleMessage: fakeHandleMessage,
-        catalogId: 'test_catalog',
+      final Future<void> future = expectLater(
+        genUiManager.surfaceUpdates,
+        emits(
+          isA<SurfaceUpdated>()
+              .having((e) => e.surfaceId, surfaceIdKey, 'testSurface')
+              .having(
+                (e) => e.definition.components.length,
+                'components.length',
+                1,
+              )
+              .having(
+                (e) => e.definition.components.values.first.id,
+                'components.first.id',
+                'root',
+              ),
+        ),
       );
+
+      await tool.invoke(args);
+      genUiManager.handleMessage(
+        const CreateSurface(
+          surfaceId: 'testSurface',
+          catalogId: standardCatalogId,
+        ),
+      );
+
+      await future;
+    });
+
+    test('CreateSurfaceTool sends CreateSurface message', () async {
+      final tool = CreateSurfaceTool(handleMessage: genUiManager.handleMessage);
 
       final Map<String, String> args = {
         surfaceIdKey: 'testSurface',
-        'root': 'rootWidget',
+        'catalogId': standardCatalogId,
       };
+
+      // First, add a component to the surface so that the root can be set.
+      genUiManager.handleMessage(
+        const UpdateComponents(
+          surfaceId: 'testSurface',
+          components: [
+            Component(
+              id: 'root',
+              props: {'component': 'Text', 'text': 'Hello'},
+            ),
+          ],
+        ),
+      );
+
+      // Use expectLater to wait for the stream to emit the correct event.
+      final Future<void> future = expectLater(
+        genUiManager.surfaceUpdates,
+        emits(
+          isA<SurfaceUpdated>().having(
+            (e) => e.surfaceId,
+            surfaceIdKey,
+            'testSurface',
+          ),
+        ),
+      );
 
       await tool.invoke(args);
 
-      expect(messages.length, 1);
-      expect(messages[0], isA<BeginRendering>());
-      final beginRendering = messages[0] as BeginRendering;
-      expect(beginRendering.surfaceId, 'testSurface');
-      expect(beginRendering.root, 'rootWidget');
-      expect(beginRendering.catalogId, 'test_catalog');
+      await future; // Wait for the expectation to be met.
     });
   });
 }

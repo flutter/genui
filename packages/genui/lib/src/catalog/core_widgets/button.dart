@@ -65,8 +65,8 @@ final button = CatalogItem(
     final Widget child = itemContext.buildChild(buttonData.child);
     final JsonMap actionData = buttonData.action;
     final actionName = actionData['name'] as String;
-    final List<Object?> contextDefinition =
-        (actionData['context'] as List<Object?>?) ?? <Object?>[];
+    final Map<String, Object?> contextDefinition =
+        (actionData['context'] as Map<String, Object?>?) ?? {};
 
     genUiLogger.info('Building Button with child: ${buttonData.child}');
     final ColorScheme colorScheme = Theme.of(
@@ -109,23 +109,17 @@ final button = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Button": {
-              "child": "text",
-              "action": {
-                "name": "button_pressed"
-              }
-            }
+          "component": "Button",
+          "child": "text",
+          "action": {
+            "name": "button_pressed"
           }
         },
         {
           "id": "text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Hello World"
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Hello World"
           }
         }
       ]
@@ -134,55 +128,40 @@ final button = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Column": {
-              "children": {
-                "explicitList": ["primaryButton", "secondaryButton"]
-              }
-            }
+          "component": "Column",
+          "children": {
+            "explicitList": ["primaryButton", "secondaryButton"]
           }
         },
         {
           "id": "primaryButton",
-          "component": {
-            "Button": {
-              "child": "primaryText",
-              "primary": true,
-              "action": {
-                "name": "primary_pressed"
-              }
-            }
+          "component": "Button",
+          "child": "primaryText",
+          "primary": true,
+          "action": {
+            "name": "primary_pressed"
           }
         },
         {
           "id": "secondaryButton",
-          "component": {
-            "Button": {
-              "child": "secondaryText",
-              "action": {
-                "name": "secondary_pressed"
-              }
-            }
+          "component": "Button",
+          "child": "secondaryText",
+          "action": {
+            "name": "secondary_pressed"
           }
         },
         {
           "id": "primaryText",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Primary Button"
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Primary Button"
           }
         },
         {
           "id": "secondaryText",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Secondary Button"
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Secondary Button"
           }
         }
       ]

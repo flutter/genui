@@ -91,16 +91,12 @@ class UiDefinition {
   Map<String, Component> get components => UnmodifiableMapView(_components);
   final Map<String, Component> _components;
 
-  /// (Future) The styles for this surface.
-  final JsonMap? styles;
-
   /// Creates a [UiDefinition].
   UiDefinition({
     required this.surfaceId,
     this.rootComponentId,
     this.catalogId,
     Map<String, Component> components = const {},
-    this.styles,
   }) : _components = components;
 
   /// Creates a copy of this [UiDefinition] with the given fields replaced.
@@ -108,14 +104,12 @@ class UiDefinition {
     String? rootComponentId,
     String? catalogId,
     Map<String, Component>? components,
-    JsonMap? styles,
   }) {
     return UiDefinition(
       surfaceId: surfaceId,
       rootComponentId: rootComponentId ?? this.rootComponentId,
       catalogId: catalogId ?? this.catalogId,
       components: components ?? _components,
-      styles: styles ?? this.styles,
     );
   }
 
@@ -140,59 +134,43 @@ class UiDefinition {
 /// A component in the UI.
 final class Component {
   /// Creates a [Component].
-  const Component({
-    required this.id,
-    required this.componentProperties,
-    this.weight,
-  });
+  const Component({required this.id, required this.props, this.weight});
 
   /// Creates a [Component] from a JSON map.
   factory Component.fromJson(JsonMap json) {
-    if (json['component'] == null) {
-      throw ArgumentError('Component.fromJson: component property is null');
-    }
-    return Component(
-      id: json['id'] as String,
-      componentProperties: json['component'] as JsonMap,
-      weight: json['weight'] as int?,
-    );
+    final id = json['id'] as String;
+    final weight = json['weight'] as int?;
+    final Map<String, dynamic> props = Map.of(json);
+    props.remove('id');
+    props.remove('weight');
+    return Component(id: id, props: props, weight: weight);
   }
 
   /// The unique ID of the component.
   final String id;
 
   /// The properties of the component.
-  final JsonMap componentProperties;
+  final JsonMap props;
 
   /// The weight of the component, used for layout in Row/Column.
   final int? weight;
 
   /// Converts this object to a JSON map.
   JsonMap toJson() {
-    return {
-      'id': id,
-      'component': componentProperties,
-      if (weight != null) 'weight': weight,
-    };
+    return {'id': id, if (weight != null) 'weight': weight, ...props};
   }
 
   /// The type of the component.
-  String get type => componentProperties.keys.first;
+  String get type => props['component'] as String;
 
   @override
   bool operator ==(Object other) =>
       other is Component &&
       id == other.id &&
       weight == other.weight &&
-      const DeepCollectionEquality().equals(
-        componentProperties,
-        other.componentProperties,
-      );
+      const DeepCollectionEquality().equals(props, other.props);
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    weight,
-    const DeepCollectionEquality().hash(componentProperties),
-  );
+  int get hashCode =>
+      Object.hash(id, weight, const DeepCollectionEquality().hash(props));
 }

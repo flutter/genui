@@ -346,11 +346,9 @@ the user can return to the main booking flow once they have done some research.
 
 ## Controlling the UI
 
-Use the provided tools to build and manage the user interface in response to the
-user's requests. To display or update a UI, you must first call the
-`surfaceUpdate` tool to define all the necessary components. After defining the
-components, you must call the `beginRendering` tool to specify the root
-component that should be displayed.
+To display or update a UI, you must output a `updateComponents` message in JSONL format.
+The `updateComponents` message must define all necessary components and specify the root
+component in the `components` list. The root component must have the ID "root".
 
 - Adding surfaces: Most of the time, you should only add new surfaces to the
   conversation. This is less confusing for the user, because they can easily
@@ -360,9 +358,6 @@ component that should be displayed.
   an itinerary or a booking accommodation etc. This is less confusing for the
   user because it avoids confusing the conversation with many versions of the
   same itinerary etc.
-
-Once you add or update a surface and are waiting for user input, the
-conversation turn is complete, and you should call the provideFinalOutput tool.
 
 If you are displaying more than one component, you should use a `Column` widget
 as the root and add the other components as children.
@@ -426,110 +421,23 @@ ${_imagesJson ?? ''}
 
 ## Example
 
-Here is an example of the arguments to the `surfaceUpdate` tool. Note that the
-`root` widget ID must be present in the `widgets` list, and it should contain
-the other widgets.
+Here is an example of a `createSurface` message followed by a `updateComponents` message.
+Note that the `root` component ID must be present in the `components` list, and it
+should contain the other components.
 
-```json
-{
-  "surfaceId": "mexico_trip_planner",
-  "definition": {
-    "root": "root_column",
-    "widgets": [
-      {
-        "id": "root_column",
-        "widget": {
-          "Column": {
-            "children": ["trip_title", "itinerary"]
-          }
-        }
-      },
-      {
-        "id": "trip_title",
-        "widget": {
-          "Text": {
-            "text": "Trip to Mexico City"
-          }
-        }
-      },
-      {
-        "id": "itinerary",
-        "widget": {
-          "ItineraryWithDetails": {
-            "title": "Mexico City Adventure",
-            "subheading": "3-day Itinerary",
-            "imageChildId": "mexico_city_image",
-            "child": "itinerary_details"
-          }
-        }
-      },
-      {
-        "id": "mexico_city_image",
-        "widget": {
-          "Image": {
-            "location": "assets/travel_images/mexico_city.jpg"
-          }
-        }
-      },
-      {
-        "id": "itinerary_details",
-        "widget": {
-          "Column": {
-            "children": ["day1"]
-          }
-        }
-      },
-      {
-        "id": "day1",
-        "widget": {
-          "ItineraryDay": {
-            "title": "Day 1",
-            "subtitle": "Arrival and Exploration",
-            "description": "Your first day in Mexico City will be focused on settling in and exploring the historic center.",
-            "imageChildId": "day1_image",
-            "children": ["day1_entry1", "day1_entry2"]
-          }
-        }
-      },
-      {
-        "id": "day1_image",
-        "widget": {
-          "Image": {
-            "location": "assets/travel_images/mexico_city.jpg"
-          }
-        }
-      },
-      {
-        "id": "day1_entry1",
-        "widget": {
-          "ItineraryEntry": {
-            "type": "transport",
-            "title": "Arrival at MEX Airport",
-            "time": "2:00 PM",
-            "bodyText": "Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage.",
-            "status": "noBookingRequired"
-          }
-        }
-      },
-      {
-        "id": "day1_entry2",
-        "widget": {
-          "ItineraryEntry": {
-            "type": "activity",
-            "title": "Explore the Zocalo",
-            "subtitle": "Historic Center",
-            "time": "4:00 PM - 6:00 PM",
-            "address": "Plaza de la Constitución S/N, Centro Histórico, Ciudad de México",
-            "bodyText": "Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace.",
-            "status": "noBookingRequired"
-          }
-        }
-      }
-    ]
-  }
-}
+```jsonl
+{"createSurface":{"surfaceId":"mexico_trip_planner","catalogId":"example.com:travel_v0"}}
+{"updateComponents":{"surfaceId":"mexico_trip_planner","components":[{"id":"root","component":"Column","children":{"explicitList":["trip_title","itinerary"]}},{"id":"trip_title","component":"Text","text":{"literalString":"Trip to Mexico City"}},{"id":"itinerary","component":"Itinerary","title":{"literalString":"Mexico City Adventure"},"subheading":{"literalString":"3-day Itinerary"},"imageChildId":"mexico_city_image","days":[{"title":{"literalString":"Day 1"},"subtitle":{"literalString":"Arrival and Exploration"},"description":{"literalString":"Your first day in Mexico City will be focused on settling in and exploring the historic center."},"imageChildId":"day1_image","entries":[{"type":"transport","title":{"literalString":"Arrival at MEX Airport"},"time":{"literalString":"2:00 PM"},"bodyText":{"literalString":"Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage."},"status":"noBookingRequired"},{"type":"activity","title":{"literalString":"Explore the Zocalo"},"subtitle":{"literalString":"Historic Center"},"time":{"literalString":"4:00 PM - 6:00 PM"},"address":{"literalString":"Plaza de la Constitución S/N, Centro Histórico, Ciudad de México"},"bodyText":{"literalString":"Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace."},"status":"noBookingRequired"}]}]},{"id":"mexico_city_image","component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}},{"id":"day1_image","component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}}]}}
 ```
 
-When updating or showing UIs, **ALWAYS** use the surfaceUpdate tool to supply
+When updating or showing UIs, **ALWAYS** send a `updateComponents` message to supply
 them. Prefer to collect and show information by creating a UI for it.
+
+**IMPORTANT**:
+1. Output strictly valid JSONL (one JSON object per line).
+2. Each top-level JSON object must be on a SINGLE line.
+3. Do NOT use newlines inside the JSON object.
+4. Do NOT pretty-print.
+5. Do NOT include any text other than the JSONL messages, unless you are providing a short explanation.
+6. When creating a new UI, FIRST send a `createSurface` message with `catalogId: 'example.com:travel_v0'`.
 ''';

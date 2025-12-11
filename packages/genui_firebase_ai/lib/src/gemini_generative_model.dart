@@ -11,6 +11,11 @@ import 'package:firebase_ai/firebase_ai.dart';
 abstract class GeminiGenerativeModelInterface {
   /// Generates content from the given [content].
   Future<GenerateContentResponse> generateContent(Iterable<Content> content);
+
+  /// Generates a stream of content from the given [content].
+  Stream<GenerateContentResponse> generateContentStream(
+    Iterable<Content> content,
+  );
 }
 
 /// A wrapper for the `firebase_ai` [GenerativeModel] that implements the
@@ -28,5 +33,12 @@ class GeminiGenerativeModel implements GeminiGenerativeModelInterface {
   @override
   Future<GenerateContentResponse> generateContent(Iterable<Content> content) {
     return _model.generateContent(content);
+  }
+
+  @override
+  Stream<GenerateContentResponse> generateContentStream(
+    Iterable<Content> content,
+  ) {
+    return _model.generateContentStream(content);
   }
 }

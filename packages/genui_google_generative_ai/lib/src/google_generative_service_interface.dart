@@ -15,6 +15,11 @@ abstract class GoogleGenerativeServiceInterface {
     google_ai.GenerateContentRequest request,
   );
 
+  /// Generates a stream of content from the given [request].
+  Stream<google_ai.GenerateContentResponse> streamGenerateContent(
+    google_ai.GenerateContentRequest request,
+  );
+
   /// Closes the service and releases any resources.
   void close();
 }
@@ -39,6 +44,13 @@ class GoogleGenerativeServiceWrapper
     google_ai.GenerateContentRequest request,
   ) {
     return _service.generateContent(request);
+  }
+
+  @override
+  Stream<google_ai.GenerateContentResponse> streamGenerateContent(
+    google_ai.GenerateContentRequest request,
+  ) {
+    return _service.streamGenerateContent(request);
   }
 
   @override

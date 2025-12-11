@@ -76,18 +76,15 @@ final optionsFilterChipInput = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "OptionsFilterChipInput": {
-              "chipLabel": "Budget",
-              "options": [
-                "\$",
-                "\$\$",
-                "\$\$\$"
-              ],
-              "value": {
-                "literalString": "\$\$"
-              }
-            }
+          "component": "OptionsFilterChipInput",
+          "chipLabel": "Budget",
+          "options": [
+            "\$",
+            "\$\$",
+            "\$\$\$"
+          ],
+          "value": {
+            "literalString": "\$\$"
           }
         }
       ]

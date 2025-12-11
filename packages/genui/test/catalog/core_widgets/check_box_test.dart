@@ -12,30 +12,25 @@ void main() {
   ) async {
     final manager = A2uiMessageProcessor(
       catalogs: [
-        Catalog([CoreCatalogItems.checkBox], catalogId: 'test_catalog'),
+        Catalog([CoreCatalogItems.checkBox], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'checkbox',
-        componentProperties: {
-          'CheckBox': {
-            'label': {'literalString': 'Check me'},
-            'value': {'path': '/myValue'},
-          },
+        id: 'root',
+        props: {
+          'component': 'CheckBox',
+          'label': {'literalString': 'Check me'},
+          'value': {'path': '/myValue'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'checkbox',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
 

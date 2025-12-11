@@ -16,60 +16,52 @@ void main() {
           CoreCatalogItems.modal,
           CoreCatalogItems.button,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog'),
+        ], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'modal',
-        componentProperties: {
-          'Modal': {'entryPointChild': 'button', 'contentChild': 'text'},
+        id: 'root',
+        props: {
+          'component': 'Modal',
+          'entryPointChild': 'button',
+          'contentChild': 'text',
         },
       ),
       const Component(
         id: 'button',
-        componentProperties: {
-          'Button': {
-            'child': 'button_text',
-            'action': {
-              'name': 'showModal',
-              'context': [
-                {
-                  'key': 'modalId',
-                  'value': {'literalString': 'modal'},
-                },
-              ],
+        props: {
+          'component': 'Button',
+          'child': 'button_text',
+          'action': {
+            'name': 'showModal',
+            'context': {
+              'modalId': {'literalString': 'root'},
             },
           },
         },
       ),
       const Component(
         id: 'button_text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Open Modal'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Open Modal'},
         },
       ),
       const Component(
         id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is a modal.'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'This is a modal.'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'modal',
-        catalogId: 'test_catalog',
-      ),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
 
     await tester.pumpWidget(
@@ -79,6 +71,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Open Modal'), findsOneWidget);
     expect(find.text('This is a modal.'), findsNothing);

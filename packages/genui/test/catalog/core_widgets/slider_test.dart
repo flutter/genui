@@ -12,29 +12,26 @@ void main() {
   ) async {
     final manager = A2uiMessageProcessor(
       catalogs: [
-        Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
+        Catalog([CoreCatalogItems.slider], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'slider',
-        componentProperties: {
-          'Slider': {
-            'value': {'path': '/myValue'},
-          },
+        id: 'root',
+        props: {
+          'component': 'Slider',
+          'value': {'path': '/myValue'},
+          'min': {'literalNumber': 0.0},
+          'max': {'literalNumber': 1.0},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'slider',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
 
@@ -56,5 +53,65 @@ void main() {
           .getValue<double>(DataPath('/myValue')),
       greaterThan(0.5),
     );
+  });
+
+  testWidgets('Slider widget handles data-bound min/max values', (
+    WidgetTester tester,
+  ) async {
+    final manager = A2uiMessageProcessor(
+      catalogs: [
+        Catalog([CoreCatalogItems.slider], catalogId: standardCatalogId),
+      ],
+    );
+    const surfaceId = 'testSurface';
+    final components = [
+      const Component(
+        id: 'root',
+        props: {
+          'component': 'Slider',
+          'value': {'path': '/myValue'},
+          'min': {'path': '/myMin'},
+          'max': {'path': '/myMax'},
+        },
+      ),
+    ];
+    manager.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
+    manager.handleMessage(
+      const UpdateDataModel(
+        surfaceId: surfaceId,
+        value: {'myValue': 5.0, 'myMin': 0.0, 'myMax': 10.0},
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+        ),
+      ),
+    );
+
+    final Slider slider = tester.widget(find.byType(Slider));
+    expect(slider.value, 5.0);
+    expect(slider.min, 0.0);
+    expect(slider.max, 10.0);
+
+    // Update min/max via data model
+    manager.handleMessage(
+      const UpdateDataModel(
+        surfaceId: surfaceId,
+        value: {'myMin': 2.0, 'myMax': 8.0},
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final Slider sliderUpdated = tester.widget(find.byType(Slider));
+    expect(sliderUpdated.min, 2.0);
+    expect(sliderUpdated.max, 8.0);
   });
 }

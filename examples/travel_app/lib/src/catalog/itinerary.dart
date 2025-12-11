@@ -155,65 +155,56 @@ final itinerary = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Itinerary": {
+          "component": "Itinerary",
+          "title": {
+            "literalString": "My Awesome Trip"
+          },
+          "subheading": {
+            "literalString": "A 3-day adventure"
+          },
+          "imageChildId": "image1",
+          "days": [
+            {
               "title": {
-                "literalString": "My Awesome Trip"
+                "literalString": "Day 1"
               },
-              "subheading": {
-                "literalString": "A 3-day adventure"
+              "subtitle": {
+                "literalString": "Arrival and Exploration"
               },
-              "imageChildId": "image1",
-              "days": [
+              "description": {
+                "literalString": "Welcome to the city!"
+              },
+              "imageChildId": "image2",
+              "entries": [
                 {
                   "title": {
-                    "literalString": "Day 1"
+                    "literalString": "Check-in to Hotel"
                   },
-                  "subtitle": {
-                    "literalString": "Arrival and Exploration"
+                  "bodyText": {
+                    "literalString": "Check-in to your hotel and relax."
                   },
-                  "description": {
-                    "literalString": "Welcome to the city!"
+                  "time": {
+                    "literalString": "3:00 PM"
                   },
-                  "imageChildId": "image2",
-                  "entries": [
-                    {
-                      "title": {
-                        "literalString": "Check-in to Hotel"
-                      },
-                      "bodyText": {
-                        "literalString": "Check-in to your hotel and relax."
-                      },
-                      "time": {
-                        "literalString": "3:00 PM"
-                      },
-                      "type": "accommodation",
-                      "status": "noBookingRequired"
-                    }
-                  ]
+                  "type": "accommodation",
+                  "status": "noBookingRequired"
                 }
               ]
             }
-          }
+          ]
         },
         {
           "id": "image1",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
-              }
-            }
+          "component": "Image",
+          "url": {
+            "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
           }
         },
         {
           "id": "image2",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/brooklyn_bridge_new_york.jpg"
-              }
-            }
+          "component": "Image",
+          "url": {
+            "literalString": "assets/travel_images/brooklyn_bridge_new_york.jpg"
           }
         }
       ]
@@ -550,9 +541,10 @@ class _ItineraryEntry extends StatelessWidget {
                               return;
                             }
                             final actionName = actionData['name'] as String;
-                            final List<Object?> contextDefinition =
-                                (actionData['context'] as List<Object?>?) ??
-                                <Object>[];
+                            final Map<String, Object?> contextDefinition =
+                                (actionData['context']
+                                    as Map<String, Object?>?) ??
+                                {};
                             final JsonMap resolvedContext = resolveContext(
                               dataContext,
                               contextDefinition,

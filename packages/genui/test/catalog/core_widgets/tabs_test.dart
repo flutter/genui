@@ -15,54 +15,47 @@ void main() {
         Catalog([
           CoreCatalogItems.tabs,
           CoreCatalogItems.text,
-        ], catalogId: 'test_catalog'),
+        ], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'tabs',
-        componentProperties: {
-          'Tabs': {
-            'tabItems': [
-              {
-                'title': {'literalString': 'Tab 1'},
-                'child': 'text1',
-              },
-              {
-                'title': {'literalString': 'Tab 2'},
-                'child': 'text2',
-              },
-            ],
-          },
+        id: 'root',
+        props: {
+          'component': 'Tabs',
+          'tabItems': [
+            {
+              'title': {'literalString': 'Tab 1'},
+              'child': 'text1',
+            },
+            {
+              'title': {'literalString': 'Tab 2'},
+              'child': 'text2',
+            },
+          ],
         },
       ),
       const Component(
         id: 'text1',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is the first tab.'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'This is the first tab.'},
         },
       ),
       const Component(
         id: 'text2',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is the second tab.'},
-          },
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'This is the second tab.'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'tabs',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
 
     await tester.pumpWidget(

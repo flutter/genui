@@ -59,50 +59,35 @@ final modal = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Modal": {
-              "entryPointChild": "button",
-              "contentChild": "text"
-            }
-          }
+          "component": "Modal",
+          "entryPointChild": "button",
+          "contentChild": "text"
         },
         {
           "id": "button",
-          "component": {
-            "Button": {
-              "child": "button_text",
-              "action": {
-                "name": "showModal",
-                "context": [
-                  {
-                    "key": "modalId",
-                    "value": {
-                      "literalString": "root"
-                    }
-                  }
-                ]
+          "component": "Button",
+          "child": "button_text",
+          "action": {
+            "name": "showModal",
+            "context": {
+              "modalId": {
+                "literalString": "root"
               }
             }
           }
         },
         {
           "id": "button_text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Open Modal"
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "Open Modal"
           }
         },
         {
           "id": "text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is a modal."
-              }
-            }
+          "component": "Text",
+          "text": {
+            "literalString": "This is a modal."
           }
         }
       ]

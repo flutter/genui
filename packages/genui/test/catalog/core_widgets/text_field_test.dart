@@ -7,16 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  testWidgets('Button widget renders and handles taps', (
+  testWidgets('TextField renders and handles changes/submissions', (
     WidgetTester tester,
   ) async {
     ChatMessage? message;
     final manager = A2uiMessageProcessor(
       catalogs: [
-        Catalog([
-          CoreCatalogItems.button,
-          CoreCatalogItems.text,
-        ], catalogId: standardCatalogId),
+        Catalog([CoreCatalogItems.textField], catalogId: standardCatalogId),
       ],
     );
     manager.onSubmit.listen((event) => message = event);
@@ -25,16 +22,10 @@ void main() {
       const Component(
         id: 'root',
         props: {
-          'component': 'Button',
-          'child': 'button_text',
-          'action': {'name': 'testAction'},
-        },
-      ),
-      const Component(
-        id: 'button_text',
-        props: {
-          'component': 'Text',
-          'text': {'literalString': 'Click Me'},
+          'component': 'TextField',
+          'text': {'path': '/myValue'},
+          'label': {'literalString': 'My Label'},
+          'onSubmittedAction': {'name': 'submit'},
         },
       ),
     ];
@@ -44,6 +35,9 @@ void main() {
     manager.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
+    manager
+        .dataModelForSurface(surfaceId)
+        .update(DataPath('/myValue'), 'initial');
 
     await tester.pumpWidget(
       MaterialApp(
@@ -52,16 +46,25 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    final Finder buttonFinder = find.byType(ElevatedButton);
-    expect(buttonFinder, findsOneWidget);
+    final Finder textFieldFinder = find.byType(TextField);
+    expect(find.widgetWithText(TextField, 'initial'), findsOneWidget);
+    final TextField textField = tester.widget<TextField>(textFieldFinder);
+    expect(textField.decoration?.labelText, 'My Label');
+
+    // Test onChanged
+    await tester.enterText(textFieldFinder, 'new value');
     expect(
-      find.descendant(of: buttonFinder, matching: find.text('Click Me')),
-      findsOneWidget,
+      manager
+          .dataModelForSurface(surfaceId)
+          .getValue<String>(DataPath('/myValue')),
+      'new value',
     );
 
+    // Test onSubmitted
     expect(message, null);
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     expect(message, isNotNull);
   });
 }

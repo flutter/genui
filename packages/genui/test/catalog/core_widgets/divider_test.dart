@@ -10,25 +10,18 @@ void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
     final manager = A2uiMessageProcessor(
       catalogs: [
-        Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog'),
+        Catalog([CoreCatalogItems.divider], catalogId: standardCatalogId),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'divider',
-        componentProperties: {'Divider': <String, Object?>{}},
-      ),
+      const Component(id: 'root', props: {'component': 'Divider'}),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'divider',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
     );
 
     await tester.pumpWidget(

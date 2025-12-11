@@ -7,57 +7,34 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  testWidgets('Icon widget renders with literal string', (
-    WidgetTester tester,
-  ) async {
-    final manager = A2uiMessageProcessor(
-      catalogs: [
-        Catalog([CoreCatalogItems.icon], catalogId: standardCatalogId),
-      ],
-    );
-    const surfaceId = 'testSurface';
-    final components = [
-      const Component(
-        id: 'root',
-        props: {
-          'component': 'Icon',
-          'name': {'literalString': 'add'},
-        },
-      ),
-    ];
-    manager.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
-    );
-    manager.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
-    );
+  late A2uiMessageProcessor manager;
+  final testCatalog = Catalog([
+    CoreCatalogItems.button,
+    CoreCatalogItems.text,
+  ], catalogId: standardCatalogId);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
-      ),
-    );
-
-    expect(find.byIcon(Icons.add), findsOneWidget);
+  setUp(() {
+    manager = A2uiMessageProcessor(catalogs: [testCatalog]);
   });
 
-  testWidgets('Icon widget renders with data binding', (
+  testWidgets('SurfaceWidget builds a widget from a definition', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
-      catalogs: [
-        Catalog([CoreCatalogItems.icon], catalogId: standardCatalogId),
-      ],
-    );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
         id: 'root',
         props: {
-          'component': 'Icon',
-          'name': {'path': '/iconName'},
+          'component': 'Button',
+          'child': 'text',
+          'action': {'name': 'testAction'},
+        },
+      ),
+      const Component(
+        id: 'text',
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Hello'},
         },
       ),
     ];
@@ -65,11 +42,40 @@ void main() {
       UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const UpdateDataModel(
-        surfaceId: 'testSurface',
-        path: '/iconName',
-        value: 'close',
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: GenUiSurface(host: manager, surfaceId: surfaceId),
       ),
+    );
+
+    expect(find.text('Hello'), findsOneWidget);
+    expect(find.byType(ElevatedButton), findsOneWidget);
+  });
+
+  testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
+    const surfaceId = 'testSurface';
+    final components = [
+      const Component(
+        id: 'root',
+        props: {
+          'component': 'Button',
+          'child': 'text',
+          'action': {'name': 'testAction'},
+        },
+      ),
+      const Component(
+        id: 'text',
+        props: {
+          'component': 'Text',
+          'text': {'literalString': 'Hello'},
+        },
+      ),
+    ];
+    manager.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
@@ -77,12 +83,10 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
-        ),
+        home: GenUiSurface(host: manager, surfaceId: surfaceId),
       ),
     );
 
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    await tester.tap(find.byType(ElevatedButton));
   });
 }

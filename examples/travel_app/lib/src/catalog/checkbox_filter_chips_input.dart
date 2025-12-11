@@ -80,22 +80,19 @@ final checkboxFilterChipsInput = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "CheckboxFilterChipsInput": {
-              "chipLabel": "Amenities",
-              "options": [
-                "Wifi",
-                "Gym",
-                "Pool",
-                "Parking"
-              ],
-              "selectedOptions": {
-                "literalArray": [
-                  "Wifi",
-                  "Gym"
-                ]
-              }
-            }
+          "component": "CheckboxFilterChipsInput",
+          "chipLabel": "Amenities",
+          "options": [
+            "Wifi",
+            "Gym",
+            "Pool",
+            "Parking"
+          ],
+          "selectedOptions": {
+            "literalArray": [
+              "Wifi",
+              "Gym"
+            ]
           }
         }
       ]
