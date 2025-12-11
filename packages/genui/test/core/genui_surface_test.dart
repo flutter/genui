@@ -7,14 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  late GenUiManager manager;
+  late A2uiMessageProcessor manager;
   final testCatalog = Catalog([
     CoreCatalogItems.button,
     CoreCatalogItems.text,
   ], catalogId: standardCatalogId);
 
   setUp(() {
-    manager = GenUiManager(catalogs: [testCatalog]);
+    manager = A2uiMessageProcessor(catalogs: [testCatalog]);
   });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (

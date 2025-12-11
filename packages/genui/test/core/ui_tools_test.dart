@@ -7,12 +7,12 @@ import 'package:genui/genui.dart';
 
 void main() {
   group('UI Tools', () {
-    late GenUiManager genUiManager;
+    late A2uiMessageProcessor genUiManager;
     late Catalog catalog;
 
     setUp(() {
       catalog = CoreCatalogItems.asCatalog();
-      genUiManager = GenUiManager(catalogs: [catalog]);
+      genUiManager = A2uiMessageProcessor(catalogs: [catalog]);
     });
 
     test('UpdateComponentsTool sends UpdateComponents message', () async {

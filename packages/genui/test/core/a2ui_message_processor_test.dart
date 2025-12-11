@@ -45,7 +45,8 @@ void main() {
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<GenUiUpdate> futureUpdated = messageProcessor.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureUpdated =
+          messageProcessor.surfaceUpdates.first;
       messageProcessor.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
       );
@@ -66,7 +67,8 @@ void main() {
       'new surface',
       () async {
         const surfaceId = 'newSurface';
-        final Future<GenUiUpdate> futureUpdate = messageProcessor.surfaceUpdates.first;
+        final Future<GenUiUpdate> futureUpdate =
+            messageProcessor.surfaceUpdates.first;
         messageProcessor.handleMessage(
           const CreateSurface(
             surfaceId: surfaceId,
@@ -84,7 +86,8 @@ void main() {
         'CreateSurface', () async {
       const surfaceId = 's2';
       // 1. CreateSurface
-      final Future<GenUiUpdate> futureCreate = messageProcessor.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureCreate =
+          messageProcessor.surfaceUpdates.first;
       messageProcessor.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
       );
@@ -98,7 +101,8 @@ void main() {
           props: {'component': 'Text', 'text': 'Updated'},
         ),
       ];
-      final Future<GenUiUpdate> futureUpdate = messageProcessor.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureUpdate =
+          messageProcessor.surfaceUpdates.first;
       messageProcessor.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
