@@ -432,16 +432,24 @@ With functions:
 
   void _processLine(String line) {
     line = line.trim();
+    // Strip markdown code block delimiters
+    if (line.startsWith('```')) {
+      line = line.replaceFirst(RegExp(r'^```[a-zA-Z]*'), '');
+    }
+    if (line.endsWith('```')) {
+      line = line.substring(0, line.length - 3);
+    }
+    line = line.trim();
+
     if (line.isEmpty) {
       return;
     }
 
     // If the line doesn't start with '{', it's not a JSONL object.
-    // However, we still want to emit it as text if it's not JSON.
-    // if (!line.startsWith('{')) {
-    //   genUiLogger.fine('Ignored non-JSONL line: $line');
-    //   return;
-    // }
+    if (!line.startsWith('{')) {
+      genUiLogger.fine('Ignored non-JSONL line: $line');
+      return;
+    }
 
     genUiLogger.fine('Processing line: $line');
 

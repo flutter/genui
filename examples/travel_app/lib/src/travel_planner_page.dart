@@ -346,8 +346,8 @@ the user can return to the main booking flow once they have done some research.
 
 ## Controlling the UI
 
-To display or update a UI, you must output a `surfaceUpdate` message in JSONL format.
-The `surfaceUpdate` message must define all necessary components and specify the root
+To display or update a UI, you must output a `updateComponents` message in JSONL format.
+The `updateComponents` message must define all necessary components and specify the root
 component in the `components` list. The root component must have the ID "root".
 
 - Adding surfaces: Most of the time, you should only add new surfaces to the
@@ -421,14 +421,23 @@ ${_imagesJson ?? ''}
 
 ## Example
 
-Here is an example of a `surfaceUpdate` message. Note that the `root` component
-ID must be present in the `components` list, and it should contain the other
-components.
+Here is an example of a `createSurface` message followed by a `updateComponents` message.
+Note that the `root` component ID must be present in the `components` list, and it
+should contain the other components.
 
 ```jsonl
-{"surfaceUpdate":{"surfaceId":"mexico_trip_planner","components":[{"id":"root","props":{"component":"Column","children":{"explicitList":["trip_title","itinerary"]}}},{"id":"trip_title","props":{"component":"Text","text":{"literalString":"Trip to Mexico City"}}},{"id":"itinerary","props":{"component":"Itinerary","title":{"literalString":"Mexico City Adventure"},"subheading":{"literalString":"3-day Itinerary"},"imageChildId":"mexico_city_image","days":[{"title":{"literalString":"Day 1"},"subtitle":{"literalString":"Arrival and Exploration"},"description":{"literalString":"Your first day in Mexico City will be focused on settling in and exploring the historic center."},"imageChildId":"day1_image","entries":[{"type":"transport","title":{"literalString":"Arrival at MEX Airport"},"time":{"literalString":"2:00 PM"},"bodyText":{"literalString":"Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage."},"status":"noBookingRequired"},{"type":"activity","title":{"literalString":"Explore the Zocalo"},"subtitle":{"literalString":"Historic Center"},"time":{"literalString":"4:00 PM - 6:00 PM"},"address":{"literalString":"Plaza de la Constitución S/N, Centro Histórico, Ciudad de México"},"bodyText":{"literalString":"Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace."},"status":"noBookingRequired"}]}]}},{"id":"mexico_city_image","props":{"component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}}},{"id":"day1_image","props":{"component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}}}]}}
+{"createSurface":{"surfaceId":"mexico_trip_planner","catalogId":"example.com:travel_v0"}}
+{"updateComponents":{"surfaceId":"mexico_trip_planner","components":[{"id":"root","component":"Column","children":{"explicitList":["trip_title","itinerary"]}},{"id":"trip_title","component":"Text","text":{"literalString":"Trip to Mexico City"}},{"id":"itinerary","component":"Itinerary","title":{"literalString":"Mexico City Adventure"},"subheading":{"literalString":"3-day Itinerary"},"imageChildId":"mexico_city_image","days":[{"title":{"literalString":"Day 1"},"subtitle":{"literalString":"Arrival and Exploration"},"description":{"literalString":"Your first day in Mexico City will be focused on settling in and exploring the historic center."},"imageChildId":"day1_image","entries":[{"type":"transport","title":{"literalString":"Arrival at MEX Airport"},"time":{"literalString":"2:00 PM"},"bodyText":{"literalString":"Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage."},"status":"noBookingRequired"},{"type":"activity","title":{"literalString":"Explore the Zocalo"},"subtitle":{"literalString":"Historic Center"},"time":{"literalString":"4:00 PM - 6:00 PM"},"address":{"literalString":"Plaza de la Constitución S/N, Centro Histórico, Ciudad de México"},"bodyText":{"literalString":"Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace."},"status":"noBookingRequired"}]}]},{"id":"mexico_city_image","component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}},{"id":"day1_image","component":"Image","url":{"literalString":"assets/travel_images/mexico_city.jpg"}}]}}
 ```
 
-When updating or showing UIs, **ALWAYS** send a `surfaceUpdate` message to supply
+When updating or showing UIs, **ALWAYS** send a `updateComponents` message to supply
 them. Prefer to collect and show information by creating a UI for it.
+
+**IMPORTANT**:
+1. Output strictly valid JSONL (one JSON object per line).
+2. Each top-level JSON object must be on a SINGLE line.
+3. Do NOT use newlines inside the JSON object.
+4. Do NOT pretty-print.
+5. Do NOT include any text other than the JSONL messages, unless you are providing a short explanation.
+6. When creating a new UI, FIRST send a `createSurface` message with `catalogId: 'example.com:travel_v0'`.
 ''';
