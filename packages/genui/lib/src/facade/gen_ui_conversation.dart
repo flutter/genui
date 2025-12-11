@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../content_generator.dart';
-import '../core/genui_manager.dart';
+import '../core/a2ui_message_processor.dart';
 import '../model/a2ui_client_capabilities.dart';
 import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
@@ -17,8 +17,8 @@ import '../model/ui_models.dart';
 ///
 /// This class simplifies the process of creating a generative UI by managing
 /// the conversation loop and the interaction with the AI. It encapsulates a
-/// `GenUiManager` and a `ContentGenerator`, providing a single entry point for
-/// sending user requests and receiving UI updates.
+/// `A2uiMessageProcessor` and a `ContentGenerator`, providing a single entry
+/// point for sending user requests and receiving UI updates.
 ///
 /// This is a convenience facade for the specific use case of a linear
 /// conversation that can contain Gen UI surfaces.
@@ -34,13 +34,13 @@ class GenUiConversation {
     this.onTextResponse,
     this.onError,
     required this.contentGenerator,
-    required this.genUiManager,
+    required this.a2uiMessageProcessor,
   }) {
     _a2uiSubscription = contentGenerator.a2uiMessageStream.listen(
-      genUiManager.handleMessage,
+      a2uiMessageProcessor.handleMessage,
     );
-    _userEventSubscription = genUiManager.onSubmit.listen(sendRequest);
-    _surfaceUpdateSubscription = genUiManager.surfaceUpdates.listen(
+    _userEventSubscription = a2uiMessageProcessor.onSubmit.listen(sendRequest);
+    _surfaceUpdateSubscription = a2uiMessageProcessor.surfaceUpdates.listen(
       _handleSurfaceUpdate,
     );
     _textResponseSubscription = contentGenerator.textResponseStream.listen(
@@ -53,7 +53,7 @@ class GenUiConversation {
   final ContentGenerator contentGenerator;
 
   /// The manager for the UI surfaces in the conversation.
-  final GenUiManager genUiManager;
+  final A2uiMessageProcessor a2uiMessageProcessor;
 
   /// A callback for when a new surface is added by the AI.
   final ValueChanged<SurfaceAdded>? onSurfaceAdded;
@@ -126,11 +126,11 @@ class GenUiConversation {
     _textResponseSubscription.cancel();
     _errorSubscription.cancel();
     contentGenerator.dispose();
-    genUiManager.dispose();
+    a2uiMessageProcessor.dispose();
   }
 
   /// The host for the UI surfaces managed by this agent.
-  GenUiHost get host => genUiManager;
+  GenUiHost get host => a2uiMessageProcessor;
 
   /// A [ValueListenable] that provides the current conversation history.
   ValueListenable<List<ChatMessage>> get conversation => _conversation;
@@ -141,7 +141,7 @@ class GenUiConversation {
 
   /// Returns a [ValueNotifier] for the given [surfaceId].
   ValueNotifier<UiDefinition?> surface(String surfaceId) {
-    return genUiManager.getSurfaceNotifier(surfaceId);
+    return a2uiMessageProcessor.getSurfaceNotifier(surfaceId);
   }
 
   /// Sends a user message to the AI to generate a UI response.
@@ -151,7 +151,7 @@ class GenUiConversation {
       _conversation.value = [...history, message];
     }
     final clientCapabilities = A2UiClientCapabilities(
-      supportedCatalogIds: genUiManager.catalogs
+      supportedCatalogIds: a2uiMessageProcessor.catalogs
           .map((c) => c.catalogId)
           .where((id) => id != null)
           .cast<String>()

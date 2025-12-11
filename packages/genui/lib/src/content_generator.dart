@@ -30,7 +30,7 @@ abstract interface class ContentGenerator {
   /// A stream of A2UI messages produced by the generator.
   ///
   /// The `GenUiConversation` will listen to this stream and forward messages
-  /// to the `GenUiManager`.
+  /// to the `A2uiMessageProcessor`.
   Stream<A2uiMessage> get a2uiMessageStream;
 
   /// A stream of text responses from the agent.

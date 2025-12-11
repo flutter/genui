@@ -8,14 +8,13 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('List widget renders children', (WidgetTester tester) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.list,
           CoreCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

@@ -23,7 +23,7 @@ This example highlights several core concepts of the `genui` package:
 - **Dynamic UI Generation**: The entire user interface is constructed on-the-fly by the AI based on the conversation.
 - **Component Catalog**: The AI builds the UI from a custom, domain-specific catalog of widgets defined in `lib/src/catalog.dart`. This includes widgets like `TravelCarousel`, `ItineraryEntry`, and `OptionsFilterChipInput`.
 - **System Prompt Engineering**: The behavior of the AI is guided by a detailed system prompt located in `lib/src/travel_planner_page.dart`. This prompt instructs the AI on how to act like a travel agent and which widgets to use in various scenarios.
-- **Dynamic UI State Management**: The `GenUiConversation` and `GenUiManager` from `genui` handle the orchestration of AI interaction, state of the dynamically generated UI surfaces, and event processing.
+- **Dynamic UI State Management**: The `GenUiConversation` and `A2uiMessageProcessor` from `genui` handle the orchestration of AI interaction, state of the dynamically generated UI surfaces, and event processing.
 - **Multiple AI Backends**: The app supports switching between **Google Generative AI** (direct API) and **Firebase Vertex AI**. This is configured in `lib/src/config/configuration.dart`.
 - **Tool Use**: The AI uses tools like `ListHotelsTool` to fetch real-world data (mocked in this example) and present it to the user.
 - **Widget Catalog**: A dedicated tab allows developers to inspect all available widgets in the catalog, facilitating development and debugging.

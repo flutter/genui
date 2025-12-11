@@ -8,11 +8,10 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../core/genui_manager.dart';
+import '../core/a2ui_message_processor.dart';
 import '../core/genui_surface.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
@@ -45,7 +45,7 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final GenUiManager _genUi;
+  late final A2uiMessageProcessor _a2uiMessageProcessor;
   final surfaceIds = <String>[];
   late final StreamSubscription<UserUiInteractionMessage>? _subscription;
 
@@ -53,9 +53,9 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   void initState() {
     super.initState();
 
-    _genUi = GenUiManager(catalogs: [widget.catalog]);
+    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
-      _subscription = _genUi.onSubmit.listen(widget.onSubmit);
+      _subscription = _a2uiMessageProcessor.onSubmit.listen(widget.onSubmit);
     } else {
       _subscription = null;
     }
@@ -84,10 +84,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
           continue;
         }
 
-        _genUi.handleMessage(
+        _a2uiMessageProcessor.handleMessage(
           SurfaceUpdate(surfaceId: surfaceId, components: components),
         );
-        _genUi.handleMessage(
+        _a2uiMessageProcessor.handleMessage(
           BeginRendering(surfaceId: surfaceId, root: rootComponent.id),
         );
         surfaceIds.add(surfaceId);
@@ -98,7 +98,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   @override
   void dispose() {
     _subscription?.cancel();
-    _genUi.dispose();
+    _a2uiMessageProcessor.dispose();
     super.dispose();
   }
 
@@ -108,7 +108,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
-        final surfaceWidget = GenUiSurface(host: _genUi, surfaceId: surfaceId);
+        final surfaceWidget = GenUiSurface(
+          host: _a2uiMessageProcessor,
+          surfaceId: surfaceId,
+        );
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,
           child: Padding(

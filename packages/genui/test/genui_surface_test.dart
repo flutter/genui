@@ -8,17 +8,14 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  late GenUiManager manager;
+  late A2uiMessageProcessor processor;
   final testCatalog = Catalog([
     CoreCatalogItems.button,
     CoreCatalogItems.text,
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    manager = GenUiManager(
-      catalogs: [testCatalog],
-      configuration: const GenUiConfiguration(),
-    );
+    processor = A2uiMessageProcessor(catalogs: [testCatalog]);
   });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
@@ -44,10 +41,10 @@ void main() {
         },
       ),
     ];
-    manager.handleMessage(
+    processor.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
+    processor.handleMessage(
       const BeginRendering(
         surfaceId: surfaceId,
         root: 'root',
@@ -57,7 +54,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(host: manager, surfaceId: surfaceId),
+        home: GenUiSurface(host: processor, surfaceId: surfaceId),
       ),
     );
 
@@ -86,10 +83,10 @@ void main() {
         },
       ),
     ];
-    manager.handleMessage(
+    processor.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
+    processor.handleMessage(
       const BeginRendering(
         surfaceId: surfaceId,
         root: 'root',
@@ -99,7 +96,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(host: manager, surfaceId: surfaceId),
+        home: GenUiSurface(host: processor, surfaceId: surfaceId),
       ),
     );
 
@@ -120,11 +117,11 @@ void main() {
           },
         ),
       ];
-      manager.handleMessage(
+      processor.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      // Request a catalogId that doesn't exist in the manager.
-      manager.handleMessage(
+      // Request a catalogId that doesn't exist in the processor.
+      processor.handleMessage(
         const BeginRendering(
           surfaceId: surfaceId,
           root: 'root',
@@ -137,7 +134,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: GenUiSurface(host: manager, surfaceId: surfaceId),
+          home: GenUiSurface(host: processor, surfaceId: surfaceId),
         ),
       );
 

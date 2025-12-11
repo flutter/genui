@@ -43,14 +43,14 @@ Future<A2uiAgentConnector> a2uiAgentConnector(Ref ref) async {
 class AiClientState {
   /// Creates an [AiClientState].
   AiClientState({
-    required this.genUiManager,
+    required this.a2uiMessageProcessor,
     required this.contentGenerator,
     required this.conversation,
     required this.surfaceUpdateController,
   });
 
-  /// The GenUI manager.
-  final GenUiManager genUiManager;
+  /// The A2uiMessageProcessor.
+  final A2uiMessageProcessor a2uiMessageProcessor;
 
   /// The content generator.
   final A2uiContentGenerator contentGenerator;
@@ -67,7 +67,9 @@ class AiClientState {
 class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
-    final genUiManager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
+    final a2uiMessageProcessor = A2uiMessageProcessor(
+      catalogs: [CoreCatalogItems.asCatalog()],
+    );
     final A2uiAgentConnector connector = await ref.watch(
       a2uiAgentConnectorProvider.future,
     );
@@ -78,7 +80,7 @@ class Ai extends _$Ai {
     );
     final conversation = GenUiConversation(
       contentGenerator: contentGenerator,
-      genUiManager: genUiManager,
+      a2uiMessageProcessor: a2uiMessageProcessor,
     );
     final surfaceUpdateController = StreamController<String>.broadcast();
 
@@ -114,7 +116,7 @@ class Ai extends _$Ai {
     });
 
     return AiClientState(
-      genUiManager: genUiManager,
+      a2uiMessageProcessor: a2uiMessageProcessor,
       contentGenerator: contentGenerator,
       conversation: conversation,
       surfaceUpdateController: surfaceUpdateController,

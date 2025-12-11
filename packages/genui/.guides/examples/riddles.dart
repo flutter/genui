@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    final genUiManager = GenUiManager(
+    final a2uiMessageProcessor = A2uiMessageProcessor(
       catalog: CoreCatalogItems.asCatalog().copyWith([riddleCard]),
     );
     final contentGenerator = FirebaseAiContentGenerator(
@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     conversation = GenUiConversation(
       contentGenerator: contentGenerator,
-      genUiManager: genUiManager,
+      a2uiMessageProcessor: a2uiMessageProcessor,
       onSurfaceAdded: (update) {
         setState(() {
           messages.add(
@@ -93,9 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       onError: (error) {
         setState(() {
-          messages.add(
-            InternalMessage('Error: ${error.error}'),
-          );
+          messages.add(InternalMessage('Error: ${error.error}'));
         });
       },
     );
@@ -122,27 +120,27 @@ class _MyHomePageState extends State<MyHomePage> {
                 final message = messages[index];
                 return switch (message) {
                   AiUiMessage() => GenUiSurface(
-                      key: message.uiKey,
-                      host: conversation.host,
-                      surfaceId: message.surfaceId,
-                    ),
+                    key: message.uiKey,
+                    host: conversation.host,
+                    surfaceId: message.surfaceId,
+                  ),
                   AiTextMessage() => ChatMessageWidget(
-                      text: message.text,
+                    text: message.text,
                     isUser: false,
-                    ),
+                  ),
                   UserMessage() => ChatMessageWidget(
-                      text: message.text,
+                    text: message.text,
                     isUser: true,
-                    ),
-                  InternalMessage() =>
-                    InternalMessageWidget(content: message.text),
+                  ),
+                  InternalMessage() => InternalMessageWidget(
+                    content: message.text,
+                  ),
                   _ => Text(message.toString()),
                 };
               },
             ),
           ),
-          if (conversation.isProcessing.value)
-            const LinearProgressIndicator(),
+          if (conversation.isProcessing.value) const LinearProgressIndicator(),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -246,20 +244,14 @@ final _schema = S.object(
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder: ({
-    required data,
-    required id,
-    required buildChild,
-    required dispatchEvent,
-    required context,
-    required dataContext,
-  }) {
-    final questionNotifier =
-        dataContext.subscribeToString(json['question'] as Map<String, Object?>?);
-    final answerNotifier =
-        dataContext.subscribeToString(json['answer'] as Map<String, Object?>?);
+  widgetBuilder: (context) {
+    final questionNotifier = context.dataContext.subscribeToString(
+      context.data['question'] as Map<String, Object?>?,
+    );
+    final answerNotifier = context.dataContext.subscribeToString(
+      context.data['answer'] as Map<String, Object?>?,
+    );
 
-    // 3. Use ValueListenableBuilder to build the UI reactively
     return ValueListenableBuilder<String?>(
       valueListenable: questionNotifier,
       builder: (context, question, _) {

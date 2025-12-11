@@ -32,7 +32,7 @@ The application's logic is contained almost entirely within `lib/main.dart`.
 5. **UI Rendering**:
    - `GenUiConversation` listens to the stream and processes the `A2uiMessage`s, invoking the appropriate callbacks like `onSurfaceAdded`.
    - The `_handleSurfaceAdded` callback adds a new message item to the list, containing the `surfaceId`.
-   - The `ListView` rebuilds, and a `GenUiSurface` widget is rendered for the AI's message, dynamically building the UI based on the `UiDefinition` managed by `GenUiManager`.
+   - The `ListView` rebuilds, and a `GenUiSurface` widget is rendered for the AI's message, dynamically building the UI based on the `UiDefinition` managed by `A2uiMessageProcessor`.
 
 ## Getting Started
 

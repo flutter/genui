@@ -16,15 +16,15 @@ substitute this with your actual `ContentGenerator` implementation (e.g.,
 ## 1. Create the `GenUiConversation`
 
 To connect your app, you'll need to instantiate a `GenUiConversation`.
-This class orchestrates the interaction between your UI, the `GenUiManager`,
+This class orchestrates the interaction between your UI, the `A2uiMessageProcessor`,
 and a `ContentGenerator`.
 
-1.  Create a `GenUiManager`, and provide it with the catalog of widgets you want
+1.  Create a `A2uiMessageProcessor`, and provide it with the catalog of widgets you want
     to make available to the agent.
 2.  Create a `ContentGenerator` implementation. This is your bridge to the AI
     model. You might need to provide system instructions or other
     configurations here.
-3.  Create a `GenUiConversation`, passing in the `GenUiManager` and
+3.  Create a `GenUiConversation`, passing in the `A2uiMessageProcessor` and
     `ContentGenerator` instances. You can also provide callbacks for UI
     events like `onSurfaceAdded`, `onSurfaceUpdated`, `onSurfaceDeleted`, `onTextResponse`, etc.
 
@@ -36,7 +36,7 @@ and a `ContentGenerator`.
     import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 
     class _MyHomePageState extends State<MyHomePage> {
-      late final GenUiManager _genUiManager;
+      late final A2uiMessageProcessor _a2uiMessageProcessor;
       late final GenUiConversation _genUiConversation;
       final _messages = <ChatMessage>[];
 
@@ -44,17 +44,17 @@ and a `ContentGenerator`.
       void initState() {
         super.initState();
 
-        _genUiManager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+        _a2uiMessageProcessor = A2uiMessageProcessor(catalog: CoreCatalogItems.asCatalog());
 
         // Use a concrete implementation of ContentGenerator.
         final contentGenerator = FirebaseAiContentGenerator(
-          catalog: _genUiManager.catalog,
+          catalog: _a2uiMessageProcessor.catalog,
           systemInstruction: 'You are a helpful assistant.',
           additionalTools: const [],
         );
 
         _genUiConversation = GenUiConversation(
-          genUiManager: _genUiManager,
+          a2uiMessageProcessor: _a2uiMessageProcessor,
           contentGenerator: contentGenerator,
           onSurfaceAdded: _onSurfaceAdded,
           onSurfaceUpdated: _onSurfaceUpdated,
@@ -92,7 +92,7 @@ and a `ContentGenerator`.
       @override
       void dispose() {
         _genUiConversation.dispose();
-        // _genUiManager is disposed by _genUiConversation
+        // _a2uiMessageProcessor is disposed by _genUiConversation
         super.dispose();
       }
     }
