@@ -22,7 +22,7 @@ graph TD
     subgraph "genui Package"
         GenUiConversation["GenUiConversation (Facade)"]
         ContentGenerator["ContentGenerator<br>(e.g., a Gemini client)"]
-        GenUiManager["GenUiManager<br>(Manages Surfaces, Tools, State)"]
+        A2uiMessageProcessor["A2uiMessageProcessor<br>(Manages Surfaces, Tools, State)"]
         Catalog["Widget Catalog"]
         DataModel["DataModel"]
     end
@@ -32,24 +32,24 @@ graph TD
     end
 
     AppLogic -- "Initializes and Uses" --> GenUiConversation
-    GenUiConversation -- "Encapsulates" --> GenUiManager
+    GenUiConversation -- "Encapsulates" --> A2uiMessageProcessor
     GenUiConversation -- "Encapsulates" --> ContentGenerator
 
-    GenUiManager -- "Owns" --> DataModel
+    A2uiMessageProcessor -- "Owns" --> DataModel
 
     AppLogic -- "Sends User Input" --> GenUiConversation
     GenUiConversation -- "Manages Conversation &<br>Calls sendRequest()" --> ContentGenerator
     ContentGenerator -- "Sends prompt +<br>tool schemas" --> LLM
     LLM -- "Returns tool call" --> ContentGenerator
 
-    ContentGenerator -- "Executes tool" --> GenUiManager
+    ContentGenerator -- "Executes tool" --> A2uiMessageProcessor
 
-    GenUiManager -- "Notifies of updates" --> UIWidgets
+    A2uiMessageProcessor -- "Notifies of updates" --> UIWidgets
     UIWidgets -- "Builds widgets using" --> Catalog
     UIWidgets -- "Reads/writes state via" --> DataModel
-    UIWidgets -- "Sends UI events to" --> GenUiManager
+    UIWidgets -- "Sends UI events to" --> A2uiMessageProcessor
 
-    GenUiManager -- "Puts user input on stream" --> GenUiConversation
+    A2uiMessageProcessor -- "Puts user input on stream" --> GenUiConversation
 ```
 
 ### 1. Content Generator Layer (`lib/src/content_generator.dart`)
@@ -66,8 +66,8 @@ This layer is responsible for all communication with the generative AI model.
 
 This is the central nervous system of the package, orchestrating the state of all generated UI surfaces.
 
-- **`GenUiManager`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). The AI interacts with the manager by invoking tools defined in `ui_tools.dart` (`SurfaceUpdateTool`, `DeleteSurfaceTool`, `BeginRenderingTool`), which in turn call `genUiManager.handleMessage()`. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiHost` for the `GenUiSurface` widget.
-- **`ui_tools.dart`**: Contains the `SurfaceUpdateTool` and `DeleteSurfaceTool` classes that wrap the `GenUiManager`'s methods, making them available to the AI.
+- **`A2uiMessageProcessor`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). The AI interacts with the manager by invoking tools defined in `ui_tools.dart` (`SurfaceUpdateTool`, `DeleteSurfaceTool`, `BeginRenderingTool`), which in turn call `a2uiMessageProcessor.handleMessage()`. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `SurfaceUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiHost` for the `GenUiSurface` widget.
+- **`ui_tools.dart`**: Contains the `SurfaceUpdateTool` and `DeleteSurfaceTool` classes that wrap the `A2uiMessageProcessor`'s methods, making them available to the AI.
 
 ### 3. UI Model Layer (`lib/src/model/`)
 
@@ -95,8 +95,8 @@ This layer provides a set of core, general-purpose UI widgets that can be used o
 
 This layer provides high-level widgets and controllers for easily building a generative UI application.
 
-- **`GenUiConversation`**: The primary entry point for the package. This facade class encapsulates the `GenUiManager` and `ContentGenerator`, managing the conversation loop and orchestrating the entire generative UI process. It listens to the streams from the `ContentGenerator` and routes messages accordingly (e.g., `A2uiMessage` to `GenUiManager`, text to `onTextResponse` callback).
-- **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiHost` (typically the `GenUiManager`) for a specific `surfaceId` and rebuilds itself when the definition changes.
+- **`GenUiConversation`**: The primary entry point for the package. This facade class encapsulates the `A2uiMessageProcessor` and `ContentGenerator`, managing the conversation loop and orchestrating the entire generative UI process. It listens to the streams from the `ContentGenerator` and routes messages accordingly (e.g., `A2uiMessage` to `A2uiMessageProcessor`, text to `onTextResponse` callback).
+- **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiHost` (typically the `A2uiMessageProcessor`) for a specific `surfaceId` and rebuilds itself when the definition changes.
 
 ### 6. Primitives Layer (`lib/src/primitives/`)
 
@@ -123,10 +123,10 @@ sequenceDiagram
     participant GenUiConversation
     participant ContentGenerator
     participant LLM
-    participant GenUiManager
+    participant A2uiMessageProcessor
     participant GenUiSurface as "GenUiSurface"
 
-    AppLogic->>+GenUiConversation: Creates GenUiConversation(genUiManager, contentGenerator)
+    AppLogic->>+GenUiConversation: Creates GenUiConversation(a2uiMessageProcessor, contentGenerator)
     AppLogic->>+GenUiConversation: (Optional) sendRequest(instructionMessage)
 
     User->>+AppLogic: Provides input (e.g., text prompt)
@@ -137,9 +137,9 @@ sequenceDiagram
     LLM-->>-ContentGenerator: Responds with content (A2UI messages, text)
 
     ContentGenerator-->>GenUiConversation: Emits A2uiMessage on a2uiMessageStream
-    GenUiConversation->>+GenUiManager: Calls genUiManager.handleMessage(a2uiMessage)
-    GenUiManager->>GenUiManager: Updates state and broadcasts GenUiUpdate
-    GenUiManager-->>-GenUiConversation: (No return value from handleMessage)
+    GenUiConversation->>+A2uiMessageProcessor: Calls a2uiMessageProcessor.handleMessage(a2uiMessage)
+    A2uiMessageProcessor->>A2uiMessageProcessor: Updates state and broadcasts GenUiUpdate
+    A2uiMessageProcessor-->>-GenUiConversation: (No return value from handleMessage)
 
     ContentGenerator-->>GenUiConversation: Emits text on textResponseStream
     GenUiConversation->>AppLogic: Calls onTextResponse callback
@@ -148,7 +148,7 @@ sequenceDiagram
     GenUiConversation->>AppLogic: Calls onError callback
 
     %% The UI updates asynchronously based on the stream
-    GenUiManager->>GenUiSurface: Notifies of the update via a Stream
+    A2uiMessageProcessor->>GenUiSurface: Notifies of the update via a Stream
     activate GenUiSurface
     GenUiSurface->>GenUiSurface: Rebuilds its widget tree using the new definition
     GenUiSurface->>User: Renders the new UI
@@ -156,23 +156,23 @@ sequenceDiagram
 
     %% Later, the user interacts
     User->>+GenUiSurface: Interacts with a widget (e.g., clicks a button)
-    GenUiSurface-->>GenUiManager: Fires onEvent, which calls handleUiEvent()
-    GenUiManager-->>GenUiConversation: Emits a UserMessage on the onSubmit stream
+    GenUiSurface-->>A2uiMessageProcessor: Fires onEvent, which calls handleUiEvent()
+    A2uiMessageProcessor-->>GenUiConversation: Emits a UserMessage on the onSubmit stream
     GenUiConversation->>GenUiConversation: Receives UserMessage, adds to conversation
     deactivate GenUiConversation
     Note over GenUiConversation, LLM: The cycle repeats...
 ```
 
-1. **Initialization**: The developer creates a `GenUiConversation`, providing it with a `GenUiManager` and a `ContentGenerator`. The developer may also provide a system instruction to the `GenUiConversation` by sending an an initial `UserMessage`.
+1. **Initialization**: The developer creates a `GenUiConversation`, providing it with a `A2uiMessageProcessor` and a `ContentGenerator`. The developer may also provide a system instruction to the `GenUiConversation` by sending an an initial `UserMessage`.
 2. **User Input**: The user enters a prompt.
 3. **Send Request**: The developer calls `genUiConversation.sendRequest(UserMessage.text(prompt))`.
 4. **Conversation Management**: The `GenUiConversation` adds the `UserMessage` to its internal conversation history.
 5. **AI Invocation**: The `GenUiConversation` calls `contentGenerator.sendRequest()`, passing in the conversation history.
 6. **Model Processing & Response**: The LLM processes the conversation and the `ContentGenerator` emits responses on its streams.
-7. **A2UI Message Handling**: When an `A2uiMessage` is received on the `a2uiMessageStream`, `GenUiConversation` calls `genUiManager.handleMessage()` with the message (e.g., `SurfaceUpdate`, `BeginRendering`).
-8. **State Update & Notification**: The `GenUiManager` updates its internal state (the `UiDefinition` for the surface) based on the `A2uiMessage` and broadcasts a `GenUiUpdate` event on its `surfaceUpdates` stream.
+7. **A2UI Message Handling**: When an `A2uiMessage` is received on the `a2uiMessageStream`, `GenUiConversation` calls `a2uiMessageProcessor.handleMessage()` with the message (e.g., `SurfaceUpdate`, `BeginRendering`).
+8. **State Update & Notification**: The `A2uiMessageProcessor` updates its internal state (the `UiDefinition` for the surface) based on the `A2uiMessage` and broadcasts a `GenUiUpdate` event on its `surfaceUpdates` stream.
 9. **Text/Error Handling**: Text responses or errors from the `ContentGenerator`'s other streams trigger the `onTextResponse` or `onError` callbacks, respectively.
-10. **UI Rendering**: A `GenUiSurface` widget listening to the `GenUiManager` (via the `GenUiHost` interface) receives the update and rebuilds, rendering the new UI based on the updated `UiDefinition`.
+10. **UI Rendering**: A `GenUiSurface` widget listening to the `A2uiMessageProcessor` (via the `GenUiHost` interface) receives the update and rebuilds, rendering the new UI based on the updated `UiDefinition`.
 11. **User Interaction**: The user interacts with the newly generated UI (e.g., clicks a submit button).
 12. **Event Dispatch**: The widget's builder calls a `dispatchEvent` function, which causes the `GenUiSurface` to call `host.handleUiEvent()`.
-13. **Cycle Repeats**: The `GenUiManager`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `DataModel`) and emits it on its `onSubmit` stream. The `GenUiConversation` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.
+13. **Cycle Repeats**: The `A2uiMessageProcessor`'s `handleUiEvent` method creates a `UserMessage` containing the state of the widgets on the surface (from its `DataModel`) and emits it on its `onSubmit` stream. The `GenUiConversation` is listening to this stream, receives the message, adds it to the conversation, and calls the AI again, thus continuing the cycle.

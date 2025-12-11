@@ -5,7 +5,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../core/genui_manager.dart';
+import '../core/a2ui_message_processor.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
@@ -171,7 +171,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       genUiLogger.severe(
         'Catalog with id "$catalogId" not found for surface '
         '"${widget.surfaceId}". Ensure the catalog is provided to '
-        'GenUiManager.',
+        'A2uiMessageProcessor.',
       );
     }
     return catalog;

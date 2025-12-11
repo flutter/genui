@@ -11,14 +11,13 @@ void main() {
     WidgetTester tester,
   ) async {
     ChatMessage? message;
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.button,
           CoreCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     manager.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';

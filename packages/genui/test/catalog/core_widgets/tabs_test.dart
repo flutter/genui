@@ -10,14 +10,13 @@ void main() {
   testWidgets('Tabs widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.tabs,
           CoreCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

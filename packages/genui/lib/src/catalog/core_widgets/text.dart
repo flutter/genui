@@ -79,7 +79,7 @@ final text = CatalogItem(
           'h4' => textTheme.titleLarge,
           'h5' => textTheme.titleMedium,
           'caption' => textTheme.bodySmall,
-          _ => textTheme.bodyMedium,
+          _ => DefaultTextStyle.of(context).style,
         };
         final double verticalPadding = switch (usageHint) {
           'h1' => 20.0,

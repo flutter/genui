@@ -17,7 +17,7 @@ This document provides context for AI agents making changes to the `genui_a2ui` 
     -   The main entry point for `GenUiConversation`.
     -   Orchestrates the connection and message flow.
     -   Listens to events from `A2uiAgentConnector` and forwards them on its own streams (`a2uiMessageStream`, `textResponseStream`, `errorStream`).
-    -   Receives `UiEvent`s from `GenUiManager` (via a listener setup in `GenUiConversation`) and passes them to `A2uiAgentConnector` to be sent to the server.
+    -   Receives `UiEvent`s from `A2uiMessageProcessor` (via a listener setup in `GenUiConversation`) and passes them to `A2uiAgentConnector` to be sent to the server.
 
 2.  **`A2uiAgentConnector`** (`lib/src/a2ui_agent_connector.dart`):
     -   Handles all WebSocket and JSON-RPC communication with the A2A server using `A2AClient`.

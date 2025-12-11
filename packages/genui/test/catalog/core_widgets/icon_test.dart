@@ -10,11 +10,10 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -52,11 +51,10 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [

@@ -10,11 +10,10 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
       ],
-      configuration: const GenUiConfiguration(),
     );
     const surfaceId = 'testSurface';
     final components = [
