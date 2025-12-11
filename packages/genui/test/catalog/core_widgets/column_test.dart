@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.column,
@@ -64,7 +64,7 @@ void main() {
   testWidgets('Column widget applies weight property to children', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.column,

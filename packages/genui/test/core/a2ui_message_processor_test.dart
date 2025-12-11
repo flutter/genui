@@ -9,21 +9,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('$GenUiManager', () {
-    late GenUiManager manager;
+  group('$A2uiMessageProcessor', () {
+    late A2uiMessageProcessor messageProcessor;
 
     setUp(() {
-      manager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
+      messageProcessor = A2uiMessageProcessor(
+        catalogs: [CoreCatalogItems.asCatalog()],
+      );
     });
 
     tearDown(() {
-      manager.dispose();
+      messageProcessor.dispose();
     });
 
     test('can be initialized with multiple catalogs', () {
       final catalog1 = const Catalog([], catalogId: 'cat1');
       final catalog2 = const Catalog([], catalogId: 'cat2');
-      final multiManager = GenUiManager(catalogs: [catalog1, catalog2]);
+      final multiManager = A2uiMessageProcessor(catalogs: [catalog1, catalog2]);
       expect(multiManager.catalogs, contains(catalog1));
       expect(multiManager.catalogs, contains(catalog2));
       expect(multiManager.catalogs.length, 2);
@@ -39,12 +41,12 @@ void main() {
         ),
       ];
 
-      manager.handleMessage(
+      messageProcessor.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<GenUiUpdate> futureUpdated = manager.surfaceUpdates.first;
-      manager.handleMessage(
+      final Future<GenUiUpdate> futureUpdated = messageProcessor.surfaceUpdates.first;
+      messageProcessor.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
       );
       final GenUiUpdate updatedUpdate = await futureUpdated;
@@ -55,7 +57,7 @@ void main() {
           (updatedUpdate as SurfaceUpdated).definition;
       expect(definition, isNotNull);
       // expect(definition.rootComponentId, 'root'); // CreateSurface no longer sets root
-      expect(manager.surfaces[surfaceId]!.value, isNotNull);
+      expect(messageProcessor.surfaces[surfaceId]!.value, isNotNull);
       // expect(manager.surfaces[surfaceId]!.value!.rootComponentId, 'root');
     });
 
@@ -64,8 +66,8 @@ void main() {
       'new surface',
       () async {
         const surfaceId = 'newSurface';
-        final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-        manager.handleMessage(
+        final Future<GenUiUpdate> futureUpdate = messageProcessor.surfaceUpdates.first;
+        messageProcessor.handleMessage(
           const CreateSurface(
             surfaceId: surfaceId,
             catalogId: standardCatalogId,
@@ -82,8 +84,8 @@ void main() {
         'CreateSurface', () async {
       const surfaceId = 's2';
       // 1. CreateSurface
-      final Future<GenUiUpdate> futureCreate = manager.surfaceUpdates.first;
-      manager.handleMessage(
+      final Future<GenUiUpdate> futureCreate = messageProcessor.surfaceUpdates.first;
+      messageProcessor.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
       );
       final GenUiUpdate createUpdate = await futureCreate;
@@ -96,8 +98,8 @@ void main() {
           props: {'component': 'Text', 'text': 'Updated'},
         ),
       ];
-      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-      manager.handleMessage(
+      final Future<GenUiUpdate> futureUpdate = messageProcessor.surfaceUpdates.first;
+      messageProcessor.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
       final GenUiUpdate update = await futureUpdate;
@@ -126,20 +128,20 @@ void main() {
         ];
 
         final Future<void> expectation = expectLater(
-          manager.surfaceUpdates,
+          messageProcessor.surfaceUpdates,
           emitsInOrder([isA<SurfaceUpdated>(), isA<SurfaceUpdated>()]),
         );
 
-        manager.handleMessage(
+        messageProcessor.handleMessage(
           UpdateComponents(surfaceId: surfaceId, components: oldComponents),
         );
-        manager.handleMessage(
+        messageProcessor.handleMessage(
           const CreateSurface(
             surfaceId: surfaceId,
             catalogId: standardCatalogId,
           ),
         );
-        manager.handleMessage(
+        messageProcessor.handleMessage(
           UpdateComponents(surfaceId: surfaceId, components: newComponents),
         );
 
@@ -155,50 +157,52 @@ void main() {
           props: {'component': 'Text', 'text': 'Hello'},
         ),
       ];
-      manager.handleMessage(
+      messageProcessor.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<GenUiUpdate> futureUpdate = manager.surfaceUpdates.first;
-      manager.handleMessage(const SurfaceDeletion(surfaceId: surfaceId));
+      final Future<GenUiUpdate> futureUpdate =
+          messageProcessor.surfaceUpdates.first;
+      messageProcessor.handleMessage(
+        const SurfaceDeletion(surfaceId: surfaceId),
+      );
       final GenUiUpdate update = await futureUpdate;
 
       expect(update, isA<SurfaceRemoved>());
       expect(update.surfaceId, surfaceId);
-      expect(manager.surfaces.containsKey(surfaceId), isFalse);
+      expect(messageProcessor.surfaces.containsKey(surfaceId), isFalse);
     });
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
-      final ValueNotifier<UiDefinition?> notifier1 = manager.getSurfaceNotifier(
-        's1',
-      );
-      final ValueNotifier<UiDefinition?> notifier2 = manager.getSurfaceNotifier(
-        's1',
-      );
+      final ValueNotifier<UiDefinition?> notifier1 = messageProcessor
+          .getSurfaceNotifier('s1');
+      final ValueNotifier<UiDefinition?> notifier2 = messageProcessor
+          .getSurfaceNotifier('s1');
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
     });
 
     test('dispose() closes the updates stream', () async {
       var isClosed = false;
-      manager.surfaceUpdates.listen(
+      messageProcessor.surfaceUpdates.listen(
         null,
         onDone: () {
           isClosed = true;
         },
       );
 
-      manager.dispose();
+      messageProcessor.dispose();
 
       await Future<void>.delayed(Duration.zero);
       expect(isClosed, isTrue);
     });
 
     test('can handle UI event', () async {
-      manager
+      messageProcessor
           .dataModelForSurface('testSurface')
           .update(DataPath('/myValue'), 'testValue');
-      final Future<UserUiInteractionMessage> future = manager.onSubmit.first;
+      final Future<UserUiInteractionMessage> future =
+          messageProcessor.onSubmit.first;
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
@@ -207,7 +211,7 @@ void main() {
         timestamp: now,
         context: {'key': 'value'},
       );
-      manager.handleUiEvent(event);
+      messageProcessor.handleUiEvent(event);
       final UserUiInteractionMessage message = await future;
       expect(message, isA<UserUiInteractionMessage>());
       final String expectedJson = jsonEncode({

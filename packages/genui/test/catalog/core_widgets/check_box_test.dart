@@ -10,7 +10,7 @@ void main() {
   testWidgets('CheckBox widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
+    final manager = A2uiMessageProcessor(
       catalogs: [
         Catalog([CoreCatalogItems.checkBox], catalogId: standardCatalogId),
       ],

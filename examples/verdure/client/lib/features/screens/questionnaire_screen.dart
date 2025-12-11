@@ -54,9 +54,8 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.genUiManager.getSurfaceNotifier(
-                  'questionnaire',
-                ),
+                valueListenable: aiState.a2uiMessageProcessor
+                    .getSurfaceNotifier('questionnaire'),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
@@ -64,7 +63,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
                   return SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                     child: GenUiSurface(
-                      host: aiState.genUiManager,
+                      host: aiState.a2uiMessageProcessor,
                       surfaceId: 'questionnaire',
                     ),
                   );

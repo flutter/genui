@@ -19,7 +19,7 @@ This package provides the core functionality for GenUI. For concrete implementat
 
 The package is built around the following main components:
 
-1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `GenUiManager` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
+1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `A2uiMessageProcessor` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
 
 2.  **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
@@ -37,10 +37,10 @@ The `GenUiConversation` manages the interaction cycle:
 2. **AI Invocation**: The `GenUiConversation` adds the user's message to its internal conversation history and calls `contentGenerator.sendRequest()`.
 3. **AI Response**: The `ContentGenerator` interacts with the AI model. The AI, guided by the widget schemas, sends back responses.
 4. **Stream Handling**: The `ContentGenerator` emits `A2uiMessage`s, text responses, or errors on its streams.
-5. **UI State Update**: `GenUiConversation` listens to these streams. `A2uiMessage`s are passed to `GenUiManager.handleMessage()`, which updates the UI state and `DataModel`.
-6. **UI Rendering**: The `GenUiManager` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
+5. **UI State Update**: `GenUiConversation` listens to these streams. `A2uiMessage`s are passed to `A2uiMessageProcessor.handleMessage()`, which updates the UI state and `DataModel`.
+6. **UI Rendering**: The `A2uiMessageProcessor` broadcasts an update, and any `GenUiSurface` widgets listening for that surface ID will rebuild. Widgets are bound to the `DataModel`, so they update automatically when their data changes.
 7. **Callbacks**: Text responses and errors trigger the `onTextResponse` and `onError` callbacks on `GenUiConversation`.
-8. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `GenUiConversation`'s `GenUiManager`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
+8. **User Interaction**: The user interacts with the newly generated UI (e.g., by typing in a text field). This interaction directly updates the `DataModel`. If the interaction is an action (like a button click), the `GenUiSurface` captures the event and forwards it to the `GenUiConversation`'s `A2uiMessageProcessor`, which automatically creates a new `UserMessage` containing the current state of the data model and restarts the cycle.
 
 ```mermaid
 graph TD
@@ -52,19 +52,19 @@ graph TD
     subgraph "GenUI Framework"
         GenUiConversation("GenUiConversation")
         ContentGenerator("ContentGenerator")
-        GenUiManager("GenUiManager")
+        A2uiMessageProcessor("A2uiMessageProcessor")
         GenUiSurface("GenUiSurface")
     end
 
     UserInput -- "calls sendRequest()" --> GenUiConversation;
     GenUiConversation -- "sends prompt" --> ContentGenerator;
     ContentGenerator -- "returns A2UI messages" --> GenUiConversation;
-    GenUiConversation -- "handles messages" --> GenUiManager;
-    GenUiManager -- "notifies of updates" --> GenUiSurface;
+    GenUiConversation -- "handles messages" --> A2uiMessageProcessor;
+    A2uiMessageProcessor -- "notifies of updates" --> GenUiSurface;
     GenUiSurface -- "renders UI" --> UserInteraction;
     UserInteraction -- "creates event" --> GenUiSurface;
-    GenUiSurface -- "sends event to host" --> GenUiManager;
-    GenUiManager -- "sends user input to" --> GenUiConversation;
+    GenUiSurface -- "sends event to host" --> A2uiMessageProcessor;
+    A2uiMessageProcessor -- "sends user input to" --> GenUiConversation;
 ```
 
 See [DESIGN.md](./DESIGN.md) for more detailed information about the design.
@@ -143,31 +143,31 @@ requests:
 Next, use the following instructions to connect your app to your chosen agent
 provider.
 
-1. Create a `GenUiManager`, and provide it with the catalog of widgets you want
+1. Create a `A2uiMessageProcessor`, and provide it with the catalog of widgets you want
    to make available to the agent.
 2. Create a `ContentGenerator`, and provide it with a system instruction and a set of
    tools (functions you want the agent to be able to invoke). You should always
-   include those provided by `GenUiManager`, but feel free to include others.
-3. Create a `GenUiConversation` using the instances of `ContentGenerator` and `GenUiManager`. Your
+   include those provided by `A2uiMessageProcessor`, but feel free to include others.
+3. Create a `GenUiConversation` using the instances of `ContentGenerator` and `A2uiMessageProcessor`. Your
    app will primarily interact with this object to get things done.
 
    For example:
 
    ```dart
    class _MyHomePageState extends State<MyHomePage> {
-     late final GenUiManager _genUiManager;
+     late final A2uiMessageProcessor _a2uiMessageProcessor;
      late final GenUiConversation _genUiConversation;
 
      @override
      void initState() {
        super.initState();
 
-       // Create a GenUiManager with a widget catalog.
+       // Create a A2uiMessageProcessor with a widget catalog.
        // The CoreCatalogItems contain basic widgets for text, markdown, and images.
-       _genUiManager = GenUiManager(catalogs: [CoreCatalogItems.asCatalog()]);
+       _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [CoreCatalogItems.asCatalog()]);
 
        // Create a ContentGenerator to communicate with the LLM.
-       // Provide system instructions and the tools from the GenUiManager.
+       // Provide system instructions and the tools from the A2uiMessageProcessor.
        final contentGenerator = FirebaseAiContentGenerator(
          catalog: CoreCatalogItems.asCatalog(),
          systemInstruction: '''
@@ -179,7 +179,7 @@ provider.
 
        // Create the GenUiConversation to orchestrate everything.
        _genUiConversation = GenUiConversation(
-         genUiManager: _genUiManager,
+         a2uiMessageProcessor: _a2uiMessageProcessor,
          contentGenerator: contentGenerator,
          onSurfaceAdded: _onSurfaceAdded, // Added in the next step.
          onSurfaceDeleted: _onSurfaceDeleted, // Added in the next step.
@@ -342,42 +342,53 @@ produces the widgets that compose the generated UI.
 final riddleCard = CatalogItem(
   name: 'RiddleCard',
   dataSchema: _schema,
-  widgetBuilder:
-      ({
-        required data,
-        required id,
-        required buildChild,
-        required dispatchEvent,
-        required context,
-        required dataContext,
-      }) {
-        final json = data as Map<String, Object?>;
-        final question = json['question'] as String;
-        final answer = json['answer'] as String;
+  widgetBuilder: (context) {
+    final questionNotifier = context.dataContext.subscribeToString(
+      context.data['question'] as Map<String, Object?>?,
+    );
+    final answerNotifier = context.dataContext.subscribeToString(
+      context.data['answer'] as Map<String, Object?>?,
+    );
 
-        return Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          decoration: BoxDecoration(border: Border.all()),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(question, style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 8.0),
-              Text(answer, style: Theme.of(context).textTheme.headlineSmall),
-            ],
-          ),
+    return ValueListenableBuilder<String?>(
+      valueListenable: questionNotifier,
+      builder: (context, question, _) {
+        return ValueListenableBuilder<String?>(
+          valueListenable: answerNotifier,
+          builder: (context, answer, _) {
+            return Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              decoration: BoxDecoration(border: Border.all()),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    question ?? '',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    answer ?? '',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
+    );
+  },
 );
 ```
 
 #### Add the `CatalogItem` to the catalog
 
-Include your catalog items when instantiating `GenUiManager`.
+Include your catalog items when instantiating `A2uiMessageProcessor`.
 
 ```dart
-_genUiManager = GenUiManager(
+_a2uiMessageProcessor = A2uiMessageProcessor(
   catalogs: [CoreCatalogItems.asCatalog().copyWith([riddleCard])],
 );
 ```
@@ -395,7 +406,7 @@ final contentGenerator = FirebaseAiContentGenerator(
       you should generate a RiddleCard that displays one new riddle related to that word.
       Each riddle should have both a question and an answer.
       ''',
-  tools: _genUiManager.getTools(),
+  tools: _a2uiMessageProcessor.getTools(),
 );
 ```
 
