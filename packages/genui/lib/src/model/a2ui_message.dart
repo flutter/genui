@@ -5,11 +5,11 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/simple_items.dart';
+import 'a2ui_protocol.dart';
 import 'a2ui_schemas.dart';
 import 'catalog.dart';
 import 'tools.dart';
 import 'ui_models.dart';
-import 'v0_8/a2ui_protocol_v0_8.dart';
 
 /// A sealed class representing a message in the A2UI stream.
 sealed class A2uiMessage {
@@ -17,9 +17,12 @@ sealed class A2uiMessage {
   const A2uiMessage();
 
   /// Creates an [A2uiMessage] from a JSON map.
-  @Deprecated('Use A2uiProtocol.parsePayload instead.')
+  @Deprecated(
+    'Use A2uiProtocol.fromVersion(version).parseJson instead. '
+    'If the version is unknown, use parsePayload which handles streaming.',
+  )
   factory A2uiMessage.fromJson(JsonMap json) {
-    return const A2uiProtocolV0_8().parseJson(json);
+    return A2uiProtocol.fromVersion(A2uiProtocolVersion.v0_8).parseJson(json);
   }
 
   /// Returns the JSON schema for an A2UI message.

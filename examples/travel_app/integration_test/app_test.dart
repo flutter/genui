@@ -16,7 +16,7 @@ void main() {
     testWidgets('send a request and verify the UI', (tester) async {
       final mockContentGenerator = FakeContentGenerator();
       mockContentGenerator.addA2uiMessage(
-        const A2uiProtocolV0_8().parseJson(_baliResponse),
+        const A2uiProtocolV08().parseJson(_baliResponse),
       );
 
       runApp(app.TravelApp(contentGenerator: mockContentGenerator));

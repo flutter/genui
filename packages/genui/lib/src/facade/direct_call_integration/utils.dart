@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import '../../model/a2ui_message.dart';
+import '../../model/a2ui_protocol.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog.dart';
 import '../../model/tools.dart';
@@ -43,13 +44,15 @@ GenUiFunctionDeclaration catalogToFunctionDeclaration(
 }
 
 /// Parses a [ToolCall] into a [ParsedToolCall].
-ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
+ParsedToolCall parseToolCall(
+  ToolCall toolCall,
+  String toolName, {
+  A2uiProtocol protocol = const A2uiProtocolV08(),
+}) {
   assert(toolCall.name == toolName);
 
   final Map<String, Object?> messageJson = {'surfaceUpdate': toolCall.args};
-  final A2uiMessage surfaceUpdateMessage = const A2uiProtocolV0_8().parseJson(
-    messageJson,
-  );
+  final A2uiMessage surfaceUpdateMessage = protocol.parseJson(messageJson);
 
   final surfaceId = (toolCall.args as JsonMap)[surfaceIdKey] as String;
 
@@ -68,12 +71,11 @@ ParsedToolCall parseToolCall(ToolCall toolCall, String toolName) {
 ToolCall catalogExampleToToolCall(
   JsonMap example,
   String toolName,
-  String surfaceId,
-) {
+  String surfaceId, {
+  A2uiProtocol protocol = const A2uiProtocolV08(),
+}) {
   final messageJson = {'surfaceUpdate': example};
-  final A2uiMessage surfaceUpdateMessage = const A2uiProtocolV0_8().parseJson(
-    messageJson,
-  );
+  final A2uiMessage surfaceUpdateMessage = protocol.parseJson(messageJson);
 
   return ToolCall(
     name: toolName,

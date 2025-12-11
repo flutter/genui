@@ -38,7 +38,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
     this.modelName = 'models/gemini-2.5-flash',
     this.apiKey,
     A2uiProtocol? protocol,
-  }) : protocol = protocol ?? const A2uiProtocolV0_8();
+  }) : protocol = protocol ?? const A2uiProtocolV08();
 
   /// The catalog of UI components available to the AI.
   final Catalog catalog;
@@ -384,9 +384,9 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
 
       // Build system instruction if provided
       final systemInstructionText = [
-        if (protocol.systemPreamble != null) protocol.systemPreamble,
-        if (systemInstruction != null) systemInstruction,
-      ].join('\n\n');
+        protocol.systemPreamble,
+        systemInstruction,
+      ].where((s) => s != null && s.isNotEmpty).join('\n\n');
 
       final systemInstructionContent = systemInstructionText.isNotEmpty
           ? [

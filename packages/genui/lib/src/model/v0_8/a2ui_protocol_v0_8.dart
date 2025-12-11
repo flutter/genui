@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: camel_case_types
-
 import 'dart:async';
 
 import '../../core/ui_tools.dart';
@@ -14,9 +12,9 @@ import '../catalog.dart';
 import '../tools.dart';
 
 /// Implementation of the A2UI protocol for version 0.8.
-class A2uiProtocolV0_8 implements A2uiProtocol {
-  /// Creates an instance of [A2uiProtocolV0_8].
-  const A2uiProtocolV0_8();
+class A2uiProtocolV08 implements A2uiProtocol {
+  /// Creates an instance of [A2uiProtocolV08].
+  const A2uiProtocolV08();
 
   @override
   A2uiProtocolVersion get version => A2uiProtocolVersion.v0_8;
@@ -27,14 +25,15 @@ class A2uiProtocolV0_8 implements A2uiProtocol {
       // Direct JSON map (single message)
       try {
         return Stream.value(parseJson(payload));
-      } catch (e) {
-        // If it's not a valid 0.8 message, return empty or error.
-        // For backwards compatibility with the lenient parser, we'll return
-        // empty if keys are missing from the dispatch check in parseJson,
-        // but parseJson throws ArgumentError if keys are unknown.
-        // However, parsePayload might receive partial data or tool outputs that
-        // are not A2UI messages.
+      } on FormatException {
+        // This is likely not an A2UI message (e.g. a tool output), so we
+        // can safely ignore it, maintaining backward compatibility with the
+        // lenient parsing behavior.
         return const Stream.empty();
+      } catch (e, s) {
+        // Any other exception is a potential issue with a message that was
+        // intended to be a valid A2UI message and should be reported.
+        return Stream.error(e, s);
       }
     }
     // If we handle lines (String) or other formats, logic goes here.
@@ -42,6 +41,7 @@ class A2uiProtocolV0_8 implements A2uiProtocol {
   }
 
   /// Parses a single JSON map into an [A2uiMessage].
+  @override
   A2uiMessage parseJson(JsonMap json) {
     if (json.containsKey('surfaceUpdate')) {
       return SurfaceUpdate.fromJson(json['surfaceUpdate'] as JsonMap);
@@ -55,7 +55,7 @@ class A2uiProtocolV0_8 implements A2uiProtocol {
     if (json.containsKey('deleteSurface')) {
       return SurfaceDeletion.fromJson(json['deleteSurface'] as JsonMap);
     }
-    throw ArgumentError('Unknown A2UI message type: $json');
+    throw FormatException('Unknown A2UI message type: $json');
   }
 
   @override

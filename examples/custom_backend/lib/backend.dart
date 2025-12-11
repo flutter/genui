@@ -32,8 +32,8 @@ class UiSchemaDefinition {
 }
 
 class Backend {
-  Backend(this.schema);
-
+  Backend(this.schema, {this.protocol = const A2uiProtocolV08()});
+  final A2uiProtocol protocol;
   final UiSchemaDefinition schema;
 
   Future<ParsedToolCall?> sendRequest(
@@ -57,6 +57,6 @@ class Backend {
 
     debugSaveToFileObject('toolCall', toolCall);
 
-    return parseToolCall(toolCall, toolCall.name);
+    return parseToolCall(toolCall, toolCall.name, protocol: protocol);
   }
 }

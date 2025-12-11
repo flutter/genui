@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import '../primitives/simple_items.dart' show JsonMap;
 import 'a2ui_message.dart';
 import 'catalog.dart';
 import 'tools.dart';
@@ -33,7 +34,7 @@ abstract interface class A2uiProtocol {
   factory A2uiProtocol.fromVersion(A2uiProtocolVersion version) {
     switch (version) {
       case A2uiProtocolVersion.v0_8:
-        return const A2uiProtocolV0_8();
+        return const A2uiProtocolV08();
       case A2uiProtocolVersion.v0_9:
         throw UnimplementedError(
           'A2uiProtocol version ${version.label} is not yet supported.',
@@ -49,6 +50,12 @@ abstract interface class A2uiProtocol {
   /// The [payload] can be a JSON Map, a String (for text-based protocols or
   /// scripts), or other formats.
   Stream<A2uiMessage> parsePayload(Object payload);
+
+  /// Parses a single JSON map into an [A2uiMessage].
+  ///
+  /// This is synchronous and expects a well-formed JSON object representing a
+  /// single message.
+  A2uiMessage parseJson(JsonMap json);
 
   /// Returns the tools required by this protocol version for inference.
   ///

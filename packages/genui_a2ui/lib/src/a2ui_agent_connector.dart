@@ -44,7 +44,7 @@ class A2uiAgentConnector {
     A2AClient? client,
     String? contextId,
   }) : _contextId = contextId,
-       protocol = protocol ?? const genui.A2uiProtocolV0_8() {
+       protocol = protocol ?? const genui.A2uiProtocolV08() {
     this.client = client ?? A2AClient(url.toString());
   }
 
@@ -63,6 +63,9 @@ class A2uiAgentConnector {
 
   String? _contextId;
   String? get contextId => _contextId;
+
+  String get _a2aExtensionUrl =>
+      'https://a2ui.org/a2a-extension/a2ui/${protocol.version.label}';
 
   /// The stream of A2UI protocol lines.
   ///
@@ -146,9 +149,7 @@ class A2uiAgentConnector {
     }
     final payload = A2AMessageSendParams()..message = message;
     // Map protocol version to extension URL.
-    final extensionUrl =
-        'https://a2ui.org/a2a-extension/a2ui/${protocol.version.label}';
-    payload.extensions = [extensionUrl];
+    payload.extensions = [_a2aExtensionUrl];
 
     _log.info('--- OUTGOING REQUEST ---');
     _log.info('URL: ${url.toString()}');
@@ -251,14 +252,7 @@ class A2uiAgentConnector {
 
     final payload = A2AMessageSendParams()..message = message;
     // Map protocol version to extension URL.
-    // Map protocol version to extension URL.
-    final String extensionUrl = switch (protocol.version) {
-      genui.A2uiProtocolVersion.v0_8 =>
-        'https://a2ui.org/a2a-extension/a2ui/v0.8',
-      genui.A2uiProtocolVersion.v0_9 =>
-        'https://a2ui.org/a2a-extension/a2ui/v0.9',
-    };
-    payload.extensions = [extensionUrl];
+    payload.extensions = [_a2aExtensionUrl];
 
     try {
       await client.sendMessage(payload);
