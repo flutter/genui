@@ -10,7 +10,7 @@ void main() {
   testWidgets('MultipleChoice widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final processor = A2uiMessageProcessor(
       catalogs: [
         Catalog([
           CoreCatalogItems.multipleChoice,
@@ -39,24 +39,24 @@ void main() {
         },
       ),
     ];
-    manager.handleMessage(
+    processor.handleMessage(
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
-    manager.handleMessage(
+    processor.handleMessage(
       const BeginRendering(
         surfaceId: surfaceId,
         root: 'multiple_choice',
         catalogId: 'test_catalog',
       ),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
+    processor.dataModelForSurface(surfaceId).update(DataPath('/mySelections'), [
       '1',
     ]);
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: GenUiSurface(host: processor, surfaceId: surfaceId),
         ),
       ),
     );
@@ -74,7 +74,7 @@ void main() {
 
     await tester.tap(find.text('Option 2'));
     expect(
-      manager
+      processor
           .dataModelForSurface(surfaceId)
           .getValue<List<Object?>>(DataPath('/mySelections')),
       ['1', '2'],
@@ -84,14 +84,13 @@ void main() {
   testWidgets(
     'MultipleChoice widget handles non-integer maxAllowedSelections from JSON',
     (WidgetTester tester) async {
-      final manager = GenUiManager(
+      final processor = A2uiMessageProcessor(
         catalogs: [
           Catalog([
             CoreCatalogItems.multipleChoice,
             CoreCatalogItems.text,
           ], catalogId: 'test_catalog'),
         ],
-        configuration: const GenUiConfiguration(),
       );
       const surfaceId = 'testSurface';
 
@@ -117,10 +116,10 @@ void main() {
         ),
       ];
 
-      manager.handleMessage(
+      processor.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager.handleMessage(
+      processor.handleMessage(
         const BeginRendering(
           surfaceId: surfaceId,
           root: 'multiple_choice',
@@ -128,13 +127,13 @@ void main() {
         ),
       );
 
-      manager
+      processor
           .dataModelForSurface(surfaceId)
           .update(DataPath('/mySelections'), []);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: manager, surfaceId: surfaceId),
+            body: GenUiSurface(host: processor, surfaceId: surfaceId),
           ),
         ),
       );
