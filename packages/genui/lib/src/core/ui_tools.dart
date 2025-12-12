@@ -35,6 +35,7 @@ class SurfaceUpdateTool extends AiTool<JsonMap> {
       return Component(
         id: component['id'] as String,
         componentProperties: component['component'] as JsonMap,
+        weight: (component['weight'] as num?)?.toInt(),
       );
     }).toList();
     handleMessage(SurfaceUpdate(surfaceId: surfaceId, components: components));
