@@ -314,7 +314,7 @@ class GoogleGenerativeAiContentGenerator implements ContentGenerator {
         google_ai.Part(
           functionResponse: google_ai.FunctionResponse(
             id: call.id,
-            name: call.name!,
+            name: call.name,
             response: protobuf.Struct.fromJson(toolResult),
           ),
         ),
@@ -403,7 +403,7 @@ With functions:
           final request = google_ai.GenerateContentRequest(
             model: modelName,
             contents: [...systemInstructionContent, ...content],
-            tools: tools,
+            tools: tools!,
             toolConfig: isForcedToolCalling
                 ? google_ai.ToolConfig(
                     functionCallingConfig: google_ai.FunctionCallingConfig(
@@ -429,10 +429,9 @@ With functions:
         final elapsed = DateTime.now().difference(inferenceStartTime);
 
         if (response.usageMetadata != null) {
-          inputTokenUsage += (response.usageMetadata!.promptTokenCount ?? 0)
+          inputTokenUsage += response.usageMetadata!.promptTokenCount.toInt();
+          outputTokenUsage += response.usageMetadata!.candidatesTokenCount
               .toInt();
-          outputTokenUsage +=
-              (response.usageMetadata!.candidatesTokenCount ?? 0).toInt();
         }
         genUiLogger.info(
           '****** Completed Inference ******\n'
@@ -442,17 +441,17 @@ With functions:
           'Prompt tokens = ${response.usageMetadata?.promptTokenCount ?? 0}',
         );
 
-        if (response.candidates == null || response.candidates!.isEmpty) {
+        if (response.candidates.isEmpty) {
           genUiLogger.warning(
             'Response has no candidates: ${response.promptFeedback}',
           );
           return isForcedToolCalling ? null : '';
         }
 
-        final candidate = response.candidates!.first;
+        final candidate = response.candidates.first;
         final functionCalls = <google_ai.FunctionCall>[];
         if (candidate.content?.parts != null) {
-          for (final part in candidate.content!.parts!) {
+          for (final part in candidate.content!.parts) {
             if (part.functionCall != null) {
               functionCalls.add(part.functionCall!);
             }
@@ -469,7 +468,7 @@ With functions:
             // Extract text from parts
             String? text;
             if (candidate.content?.parts != null) {
-              final textParts = candidate.content!.parts!
+              final textParts = candidate.content!.parts
                   .where((google_ai.Part p) => p.text != null)
                   .map((google_ai.Part p) => p.text!)
                   .toList();
@@ -491,7 +490,7 @@ With functions:
             // Extract text from parts
             var text = '';
             if (candidate.content?.parts != null) {
-              final textParts = candidate.content!.parts!
+              final textParts = candidate.content!.parts
                   .where((google_ai.Part p) => p.text != null)
                   .map((google_ai.Part p) => p.text!)
                   .toList();
@@ -514,7 +513,7 @@ With functions:
         }
         genUiLogger.fine(
           'Added assistant message with '
-          '${candidate.content?.parts?.length ?? 0} '
+          '${candidate.content?.parts.length ?? 0} '
           'parts to conversation.',
         );
 
@@ -540,7 +539,7 @@ With functions:
         // If the model returned a text response, we assume it's the final
         // response and we should stop the tool calling loop.
         if (!isForcedToolCalling && candidate.content?.parts != null) {
-          final textParts = candidate.content!.parts!
+          final textParts = candidate.content!.parts
               .where((google_ai.Part p) => p.text != null)
               .map((google_ai.Part p) => p.text!)
               .toList();
@@ -586,37 +585,35 @@ String _responseToString(google_ai.GenerateContentResponse response) {
   buffer.writeln('  usageMetadata: ${response.usageMetadata},');
   buffer.writeln('  promptFeedback: ${response.promptFeedback},');
   buffer.writeln('  candidates: [');
-  if (response.candidates != null) {
-    for (final candidate in response.candidates!) {
-      buffer.writeln('    Candidate(');
-      buffer.writeln('      finishReason: ${candidate.finishReason},');
-      buffer.writeln('      finishMessage: "${candidate.finishMessage}",');
-      buffer.writeln('      content: Content(');
-      buffer.writeln('        role: "${candidate.content?.role}",');
-      buffer.writeln('        parts: [');
-      if (candidate.content?.parts != null) {
-        for (final part in candidate.content!.parts!) {
-          if (part.text != null) {
-            buffer.writeln('          Part(text: "${part.text}"),');
-          } else if (part.functionCall != null) {
-            buffer.writeln('          Part(functionCall:');
-            buffer.writeln('            FunctionCall(');
-            buffer.writeln('              name: "${part.functionCall!.name}",');
-            final indentedLines = (const JsonEncoder.withIndent('  ').convert(
-              part.functionCall!.args ?? {},
-            )).split('\n').join('\n              ');
-            buffer.writeln('              args: $indentedLines,');
-            buffer.writeln('            ),');
-            buffer.writeln('          ),');
-          } else {
-            buffer.writeln('          Unknown Part,');
-          }
+  for (final candidate in response.candidates) {
+    buffer.writeln('    Candidate(');
+    buffer.writeln('      finishReason: ${candidate.finishReason},');
+    buffer.writeln('      finishMessage: "${candidate.finishMessage}",');
+    buffer.writeln('      content: Content(');
+    buffer.writeln('        role: "${candidate.content?.role}",');
+    buffer.writeln('        parts: [');
+    if (candidate.content?.parts != null) {
+      for (final part in candidate.content!.parts) {
+        if (part.text != null) {
+          buffer.writeln('          Part(text: "${part.text}"),');
+        } else if (part.functionCall != null) {
+          buffer.writeln('          Part(functionCall:');
+          buffer.writeln('            FunctionCall(');
+          buffer.writeln('              name: "${part.functionCall!.name}",');
+          final indentedLines = (const JsonEncoder.withIndent('  ').convert(
+            part.functionCall!.args ?? {},
+          )).split('\n').join('\n              ');
+          buffer.writeln('              args: $indentedLines,');
+          buffer.writeln('            ),');
+          buffer.writeln('          ),');
+        } else {
+          buffer.writeln('          Unknown Part,');
         }
       }
-      buffer.writeln('        ],');
-      buffer.writeln('      ),');
-      buffer.writeln('    ),');
     }
+    buffer.writeln('        ],');
+    buffer.writeln('      ),');
+    buffer.writeln('    ),');
   }
   buffer.writeln('  ],');
   buffer.writeln(')');

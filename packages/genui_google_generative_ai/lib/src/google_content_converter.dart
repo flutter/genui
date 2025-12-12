@@ -61,7 +61,7 @@ class GoogleContentConverter {
             result.add(
               google_ai.Part(
                 inlineData: google_ai.Blob(
-                  mimeType: part.mimeType,
+                  mimeType: part.mimeType!,
                   data: part.bytes,
                 ),
               ),
@@ -70,7 +70,7 @@ class GoogleContentConverter {
             result.add(
               google_ai.Part(
                 inlineData: google_ai.Blob(
-                  mimeType: part.mimeType,
+                  mimeType: part.mimeType!,
                   data: Uint8List.fromList(base64.decode(part.base64!)),
                 ),
               ),

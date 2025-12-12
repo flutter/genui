@@ -62,8 +62,8 @@ void main() {
       expect(result.schema, isNotNull);
       expect(result.schema!.type, google_ai.Type.object);
       expect(result.schema!.properties, hasLength(2));
-      expect(result.schema!.properties!['name']!.type, google_ai.Type.string);
-      expect(result.schema!.properties!['age']!.type, google_ai.Type.integer);
+      expect(result.schema!.properties['name']!.type, google_ai.Type.string);
+      expect(result.schema!.properties['age']!.type, google_ai.Type.integer);
       expect(result.schema!.required, contains('name'));
       expect(result.errors, isEmpty);
     });
@@ -92,7 +92,7 @@ void main() {
       expect(result.schema, isNotNull);
       expect(result.schema!.type, google_ai.Type.object);
       expect(result.schema!.properties, hasLength(1));
-      final userSchema = result.schema!.properties!['user']!;
+      final userSchema = result.schema!.properties['user']!;
       expect(userSchema.type, google_ai.Type.object);
       expect(userSchema.properties, hasLength(2));
       expect(result.errors, isEmpty);

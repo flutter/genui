@@ -269,8 +269,8 @@ class GoogleSchemaAdapter {
     return google_ai.Schema(
       type: google_ai.Type.object,
       properties: properties,
-      required: objectSchema.required,
-      description: dsbSchema.description,
+      required: objectSchema.required ?? [],
+      description: dsbSchema.description ?? '',
     );
   }
 
@@ -362,7 +362,7 @@ class GoogleSchemaAdapter {
     return google_ai.Schema(
       type: google_ai.Type.array,
       items: adaptedItems,
-      description: dsbSchema.description,
+      description: dsbSchema.description ?? '',
     );
   }
 
@@ -395,9 +395,9 @@ class GoogleSchemaAdapter {
     }
     return google_ai.Schema(
       type: google_ai.Type.string,
-      format: stringSchema.format,
-      enum$: stringSchema.enumValues?.map((e) => e.toString()).toList(),
-      description: dsbSchema.description,
+      format: stringSchema.format ?? '',
+      enum$: stringSchema.enumValues?.map((e) => e.toString()).toList() ?? [],
+      description: dsbSchema.description ?? '',
     );
   }
 
@@ -446,7 +446,7 @@ class GoogleSchemaAdapter {
     }
     return google_ai.Schema(
       type: google_ai.Type.number,
-      description: dsbSchema.description,
+      description: dsbSchema.description ?? '',
     );
   }
 
@@ -495,7 +495,7 @@ class GoogleSchemaAdapter {
     }
     return google_ai.Schema(
       type: google_ai.Type.integer,
-      description: dsbSchema.description,
+      description: dsbSchema.description ?? '',
     );
   }
 
@@ -503,7 +503,7 @@ class GoogleSchemaAdapter {
   google_ai.Schema? _adaptBoolean(dsb.Schema dsbSchema, List<String> path) {
     return google_ai.Schema(
       type: google_ai.Type.boolean,
-      description: dsbSchema.description,
+      description: dsbSchema.description ?? '',
     );
   }
 
@@ -512,7 +512,7 @@ class GoogleSchemaAdapter {
     return google_ai.Schema(
       type: google_ai.Type.object,
       nullable: true,
-      description: dsbSchema.description,
+      description: dsbSchema.description ?? '',
     );
   }
 }

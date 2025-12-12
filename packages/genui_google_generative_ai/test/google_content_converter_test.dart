@@ -23,7 +23,7 @@ void main() {
       expect(result, hasLength(1));
       expect(result.first.role, 'user');
       expect(result.first.parts, hasLength(1));
-      expect(result.first.parts!.first.text, 'Hello');
+      expect(result.first.parts.first.text, 'Hello');
     });
 
     test('toGoogleAiContent converts AiTextMessage with TextPart', () {
@@ -33,7 +33,7 @@ void main() {
       expect(result, hasLength(1));
       expect(result.first.role, 'model');
       expect(result.first.parts, hasLength(1));
-      expect(result.first.parts!.first.text, 'Hi there');
+      expect(result.first.parts.first.text, 'Hi there');
     });
 
     test('toGoogleAiContent converts AiUiMessage', () {
@@ -67,7 +67,7 @@ void main() {
 
       expect(result, hasLength(1));
       expect(result.first.parts, hasLength(1));
-      final part = result.first.parts!.first;
+      final part = result.first.parts.first;
       expect(part.inlineData, isNotNull);
       expect(part.inlineData!.mimeType, 'image/png');
     });
@@ -80,7 +80,7 @@ void main() {
 
       expect(result, hasLength(1));
       expect(result.first.parts, hasLength(1));
-      final part = result.first.parts!.first;
+      final part = result.first.parts.first;
       expect(part.fileData, isNotNull);
       expect(part.fileData!.fileUri, 'gs://bucket/image.png');
     });
@@ -99,7 +99,7 @@ void main() {
 
       expect(result, hasLength(1));
       expect(result.first.parts, hasLength(1));
-      final part = result.first.parts!.first;
+      final part = result.first.parts.first;
       expect(part.functionCall, isNotNull);
       expect(part.functionCall!.id, 'call-1');
       expect(part.functionCall!.name, 'calculator');
