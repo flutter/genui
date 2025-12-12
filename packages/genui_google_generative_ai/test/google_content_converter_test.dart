@@ -74,7 +74,12 @@ void main() {
 
     test('toGoogleAiContent converts ImagePart with URL', () {
       final messages = [
-        UserMessage([ImagePart.fromUrl(Uri.parse('gs://bucket/image.png'))]),
+        UserMessage([
+          ImagePart.fromUrl(
+            Uri.parse('gs://bucket/image.png'),
+            mimeType: 'image/png',
+          ),
+        ]),
       ];
       final result = converter.toGoogleAiContent(messages);
 

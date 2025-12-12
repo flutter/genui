@@ -133,7 +133,7 @@ void main() {
     test('toFirebaseAiContent converts $ImagePart from URL', () {
       final Uri url = Uri.parse('http://example.com/image.jpg');
       final messages = [
-        UserMessage([ImagePart.fromUrl(url)]),
+        UserMessage([ImagePart.fromUrl(url, mimeType: 'image/jpeg')]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,

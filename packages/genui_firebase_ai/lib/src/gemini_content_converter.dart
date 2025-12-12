@@ -69,11 +69,11 @@ class GeminiContentConverter {
           );
         case ImagePart():
           if (part.bytes != null) {
-            result.add(firebase_ai.InlineDataPart(part.mimeType!, part.bytes!));
+            result.add(firebase_ai.InlineDataPart(part.mimeType, part.bytes!));
           } else if (part.base64 != null) {
             result.add(
               firebase_ai.InlineDataPart(
-                part.mimeType!,
+                part.mimeType,
                 base64.decode(part.base64!),
               ),
             );
