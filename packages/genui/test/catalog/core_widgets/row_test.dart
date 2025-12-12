@@ -8,9 +8,13 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Row widget renders children', (WidgetTester tester) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.row, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+    final manager = A2uiMessageProcessor(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.row,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -45,7 +49,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'row'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'row',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(
@@ -63,9 +71,13 @@ void main() {
   testWidgets('Row widget applies weight property to children', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.row, CoreCatalogItems.text]),
-      configuration: const GenUiConfiguration(),
+    final manager = A2uiMessageProcessor(
+      catalogs: [
+        Catalog([
+          CoreCatalogItems.row,
+          CoreCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -110,7 +122,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'row'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'row',
+        catalogId: 'test_catalog',
+      ),
     );
 
     await tester.pumpWidget(

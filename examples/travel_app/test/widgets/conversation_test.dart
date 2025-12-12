@@ -9,10 +9,10 @@ import 'package:travel_app/src/widgets/conversation.dart';
 
 void main() {
   group('Conversation', () {
-    late GenUiManager manager;
+    late A2uiMessageProcessor manager;
 
     setUp(() {
-      manager = GenUiManager(catalog: CoreCatalogItems.asCatalog());
+      manager = A2uiMessageProcessor(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {

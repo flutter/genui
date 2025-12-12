@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'model/a2ui_client_capabilities.dart';
 import 'model/a2ui_message.dart';
 import 'model/chat_message.dart';
 
@@ -29,7 +30,7 @@ abstract interface class ContentGenerator {
   /// A stream of A2UI messages produced by the generator.
   ///
   /// The `GenUiConversation` will listen to this stream and forward messages
-  /// to the `GenUiManager`.
+  /// to the `A2uiMessageProcessor`.
   Stream<A2uiMessage> get a2uiMessageStream;
 
   /// A stream of text responses from the agent.
@@ -49,6 +50,7 @@ abstract interface class ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   });
 
   /// Disposes of the resources used by this generator.

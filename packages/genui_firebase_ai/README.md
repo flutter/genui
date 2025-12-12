@@ -19,7 +19,7 @@ Then, you can create an instance of `FirebaseAiContentGenerator` and pass it to 
 
 ```dart
 final catalog = CoreCatalogItems.asCatalog();
-final genUiManager = GenUiManager(catalog: catalog);
+final a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
 // Example of a custom tool
 final myCustomTool = DynamicAiTool<Map<String, Object?>>(
   name: 'my_custom_action',
@@ -40,7 +40,7 @@ final contentGenerator = FirebaseAiContentGenerator(
   additionalTools: [myCustomTool],
 );
 final genUiConversation = GenUiConversation(
-  genUiManager: genUiManager,
+  a2uiMessageProcessor: a2uiMessageProcessor,
   contentGenerator: contentGenerator,
   ...
 );

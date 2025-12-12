@@ -24,35 +24,20 @@ import 'catalog/travel_carousel.dart';
 /// for a travel planning experience, such as [travelCarousel], [itinerary],
 /// and [inputGroup]. The AI selects from these components to build a dynamic
 /// and interactive UI in response to user prompts.
-final Catalog travelAppCatalog = CoreCatalogItems.asCatalog()
-    .copyWithout([
-      CoreCatalogItems.audioPlayer,
-      CoreCatalogItems.card,
-      CoreCatalogItems.checkBox,
-      CoreCatalogItems.dateTimeInput,
-      CoreCatalogItems.divider,
-      CoreCatalogItems.textField,
-      CoreCatalogItems.list,
-      CoreCatalogItems.modal,
-      CoreCatalogItems.multipleChoice,
-      CoreCatalogItems.slider,
-      CoreCatalogItems.tabs,
-      CoreCatalogItems.video,
-      CoreCatalogItems.icon,
-      CoreCatalogItems.row,
-      CoreCatalogItems.image,
-    ])
-    .copyWith([
-      CoreCatalogItems.imageFixedSize,
-      checkboxFilterChipsInput,
-      dateInputChip,
-      informationCard,
-      inputGroup,
-      itinerary,
-      listingsBooker,
-      optionsFilterChipInput,
-      tabbedSections,
-      textInputChip,
-      trailhead,
-      travelCarousel,
-    ]);
+final Catalog travelAppCatalog = Catalog([
+  CoreCatalogItems.button,
+  CoreCatalogItems.column,
+  CoreCatalogItems.text,
+  CoreCatalogItems.imageFixedSize,
+  checkboxFilterChipsInput,
+  dateInputChip,
+  informationCard,
+  inputGroup,
+  itinerary,
+  listingsBooker,
+  optionsFilterChipInput,
+  tabbedSections,
+  textInputChip,
+  trailhead,
+  travelCarousel,
+], catalogId: 'example.com:travel_v0');

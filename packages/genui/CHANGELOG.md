@@ -1,7 +1,14 @@
 # `genui` Changelog
 
 ## 0.5.2 (in progress)
+
 - Updated README sample code to reflect current `FirebaseAiContentGenerator` API (added `catalog` parameter and replaced `tools` with `additionalTools`).
+- **Feature**: `GenUiManager` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
+- **Feature**: `A2uiMessageProcessor` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
+- **Feature**: `catalogId` property added to `UiDefinition` to specify which catalog a UI surface should use.
+- **Refactor**: Moved `standardCatalogId` constant from `core_catalog.dart` to `primitives/constants.dart` for better organization and accessibility.
+- **Fix**: `MultipleChoice` widget now correctly handles `maxAllowedSelections` when provided as a `double` in JSON, preventing type cast errors.
+- **Fix**: The `Text` catalog item now respects the ambient `DefaultTextStyle`, resolving contrast issues where, for example, text inside a dark purple primary `Button` would be black instead of white.
 
 ## 0.5.1
 

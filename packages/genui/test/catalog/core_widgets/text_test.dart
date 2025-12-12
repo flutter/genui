@@ -131,4 +131,49 @@ void main() {
     // `find.textContaining` matches substring.
     expect(find.textContaining('Bold', findRichText: true), findsOneWidget);
   });
+
+  testWidgets('Text widget respects ambient DefaultTextStyle color', (
+    WidgetTester tester,
+  ) async {
+    const Color requiredColor = Colors.red;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: DefaultTextStyle(
+              style: const TextStyle(color: requiredColor),
+              child: text.widgetBuilder(
+                CatalogItemContext(
+                  data: {
+                    'text': {'literalString': 'Contrast Text'},
+                  },
+                  id: 'test_contrast',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(DataModel(), '/'),
+                  getComponent: (String componentId) => null,
+                  surfaceId: 'surface1',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final Finder markdownBodyFinder = find.byType(MarkdownBody);
+    final MarkdownBody markdownBody = tester.widget<MarkdownBody>(
+      markdownBodyFinder,
+    );
+    expect(markdownBody.styleSheet?.p?.color, requiredColor);
+
+    final RichText richText = tester.widget(
+      find
+          .descendant(of: markdownBodyFinder, matching: find.byType(RichText))
+          .first,
+    );
+    expect(richText.text.style?.color, requiredColor);
+  });
 }

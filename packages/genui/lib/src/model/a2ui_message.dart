@@ -113,6 +113,7 @@ final class BeginRendering extends A2uiMessage {
     required this.surfaceId,
     required this.root,
     this.styles,
+    this.catalogId,
   });
 
   /// Creates a [BeginRendering] message from a JSON map.
@@ -121,6 +122,7 @@ final class BeginRendering extends A2uiMessage {
       surfaceId: json[surfaceIdKey] as String,
       root: json['root'] as String,
       styles: json['styles'] as JsonMap?,
+      catalogId: json['catalogId'] as String?,
     );
   }
 
@@ -132,6 +134,9 @@ final class BeginRendering extends A2uiMessage {
 
   /// The styles to apply to the UI.
   final JsonMap? styles;
+
+  /// The ID of the catalog to use for rendering this surface.
+  final String? catalogId;
 }
 
 /// An A2UI message that deletes a surface.

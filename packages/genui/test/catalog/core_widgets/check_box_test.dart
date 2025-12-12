@@ -10,9 +10,10 @@ void main() {
   testWidgets('CheckBox widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiManager(
-      catalog: Catalog([CoreCatalogItems.checkBox]),
-      configuration: const GenUiConfiguration(),
+    final manager = A2uiMessageProcessor(
+      catalogs: [
+        Catalog([CoreCatalogItems.checkBox], catalogId: 'test_catalog'),
+      ],
     );
     const surfaceId = 'testSurface';
     final components = [
@@ -30,7 +31,11 @@ void main() {
       SurfaceUpdate(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(surfaceId: surfaceId, root: 'checkbox'),
+      const BeginRendering(
+        surfaceId: surfaceId,
+        root: 'checkbox',
+        catalogId: 'test_catalog',
+      ),
     );
     manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
 

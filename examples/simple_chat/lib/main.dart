@@ -11,8 +11,6 @@ import 'package:genui_firebase_ai/genui_firebase_ai.dart';
 import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
 import 'package:logging/logging.dart';
 
-import 'configuration.dart';
-
 // If you want to convert to using Firebase AI, run:
 //
 //   sh tool/refresh_firebase.sh <project_id>
@@ -26,7 +24,9 @@ import 'configuration.dart';
 
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
-import 'io_get_api_key.dart' if (dart.library.html) 'web_get_api_key.dart';
+import 'api_key/io_get_api_key.dart'
+    if (dart.library.html) 'api_key/web_get_api_key.dart';
+import 'configuration.dart';
 import 'message.dart';
 
 void main() async {
@@ -69,14 +69,14 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<MessageController> _messages = [];
   late final GenUiConversation _genUiConversation;
-  late final GenUiManager _genUiManager;
+  late final A2uiMessageProcessor _a2uiMessageProcessor;
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     final Catalog catalog = CoreCatalogItems.asCatalog();
-    _genUiManager = GenUiManager(catalog: catalog);
+    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
 
     final systemInstruction =
         '''You are a helpful assistant who chats with a user,
@@ -107,7 +107,7 @@ ${GenUiPromptFragments.basicChat}''';
     };
 
     _genUiConversation = GenUiConversation(
-      genUiManager: _genUiManager,
+      a2uiMessageProcessor: _a2uiMessageProcessor,
       contentGenerator: contentGenerator,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,

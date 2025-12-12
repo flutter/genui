@@ -113,3 +113,10 @@ releasing a new version.
 [P1]: https://github.com/flutter/genui/labels?q=P1
 [P2]: https://github.com/flutter/genui/labels?q=P2
 [P3]: https://github.com/flutter/genui/labels?q=P3
+
+## pubspec.lock files
+
+`pubspec.lock` files are not git ignored to make the bots faster.
+
+If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
+when your Flutter is latest at beta channel.

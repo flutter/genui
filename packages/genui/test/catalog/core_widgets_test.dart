@@ -11,7 +11,7 @@ void main() {
     final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
-    GenUiManager? manager;
+    A2uiMessageProcessor? messageProcessor;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -19,23 +19,24 @@ void main() {
       List<Component> components,
     ) async {
       message = null;
-      manager?.dispose();
-      manager = GenUiManager(
-        catalog: testCatalog,
-        configuration: const GenUiConfiguration(),
-      );
-      manager!.onSubmit.listen((event) => message = event);
+      messageProcessor?.dispose();
+      messageProcessor = A2uiMessageProcessor(catalogs: [testCatalog]);
+      messageProcessor!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
-      manager!.handleMessage(
+      messageProcessor!.handleMessage(
         SurfaceUpdate(surfaceId: surfaceId, components: components),
       );
-      manager!.handleMessage(
-        BeginRendering(surfaceId: surfaceId, root: rootId),
+      messageProcessor!.handleMessage(
+        BeginRendering(
+          surfaceId: surfaceId,
+          root: rootId,
+          catalogId: testCatalog.catalogId,
+        ),
       );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: manager!, surfaceId: surfaceId),
+            body: GenUiSurface(host: messageProcessor!, surfaceId: surfaceId),
           ),
         ),
       );
@@ -84,7 +85,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'text', components);
-      manager!
+      messageProcessor!
           .dataModelForSurface('testSurface')
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
@@ -145,7 +146,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      manager!
+      messageProcessor!
           .dataModelForSurface('testSurface')
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
@@ -158,7 +159,7 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        manager!
+        messageProcessor!
             .dataModelForSurface('testSurface')
             .getValue<String>(DataPath('/myValue')),
         'new value',
