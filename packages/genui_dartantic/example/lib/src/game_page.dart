@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 import 'dart:math';
 
@@ -23,7 +27,7 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  late final GenUiManager _genUiManager;
+  late final A2uiMessageProcessor _genUiManager;
   late final GenUiConversation _conversation;
   String? _latestSurfaceId;
   String? _statusMessage;
@@ -41,10 +45,10 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
-    _genUiManager = GenUiManager(catalog: ticTacToeCatalog);
+    _genUiManager = A2uiMessageProcessor(catalogs: [ticTacToeCatalog]);
     _conversation = GenUiConversation(
       contentGenerator: widget.generator,
-      genUiManager: _genUiManager,
+      a2uiMessageProcessor: _genUiManager,
       onSurfaceAdded: _handleSurfaceAdded,
       onTextResponse: _onTextResponse,
       onError: (error) {

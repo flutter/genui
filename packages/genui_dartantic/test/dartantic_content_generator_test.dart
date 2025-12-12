@@ -36,7 +36,6 @@ void main() {
           provider: testProvider,
           catalog: const genui.Catalog({}),
           systemInstruction: 'You are a helpful assistant.',
-          configuration: const genui.GenUiConfiguration(),
           additionalTools: [
             genui.DynamicAiTool<Map<String, Object?>>(
               name: 'testTool',
@@ -86,48 +85,6 @@ void main() {
           generator.errorStream,
           isA<Stream<genui.ContentGeneratorError>>(),
         );
-
-        generator.dispose();
-      });
-    });
-
-    group('configuration', () {
-      test('creates tools based on allowCreate configuration', () {
-        // When allowCreate is true (default), should create SurfaceUpdateTool
-        // and BeginRenderingTool
-        final generator = DartanticContentGenerator(
-          provider: testProvider,
-          catalog: const genui.Catalog({}),
-          configuration: const genui.GenUiConfiguration(
-            actions: genui.ActionsConfig(
-              allowCreate: true,
-              allowUpdate: false,
-              allowDelete: false,
-            ),
-          ),
-        );
-
-        expect(generator.configuration.actions.allowCreate, isTrue);
-        expect(generator.configuration.actions.allowUpdate, isFalse);
-        expect(generator.configuration.actions.allowDelete, isFalse);
-
-        generator.dispose();
-      });
-
-      test('creates tools based on allowDelete configuration', () {
-        final generator = DartanticContentGenerator(
-          provider: testProvider,
-          catalog: const genui.Catalog({}),
-          configuration: const genui.GenUiConfiguration(
-            actions: genui.ActionsConfig(
-              allowCreate: false,
-              allowUpdate: false,
-              allowDelete: true,
-            ),
-          ),
-        );
-
-        expect(generator.configuration.actions.allowDelete, isTrue);
 
         generator.dispose();
       });

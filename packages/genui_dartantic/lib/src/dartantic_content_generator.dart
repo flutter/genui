@@ -35,8 +35,7 @@ class DartanticContentGenerator implements ContentGenerator {
   ///   `Providers.openai`, `Providers.anthropic`).
   /// - [catalog]: The catalog of UI components available to the AI.
   /// - [systemInstruction]: Optional system instruction for the AI model.
-  /// - [configuration]: Configuration for allowed actions
-  ///   (create/update/delete).
+
   /// - [additionalTools]: Additional GenUI [AiTool] instances to make
   ///   available.
   DartanticContentGenerator({
@@ -44,22 +43,16 @@ class DartanticContentGenerator implements ContentGenerator {
     required this.catalog,
     this.systemInstruction,
     this.modelName,
-    this.configuration = const GenUiConfiguration(),
     List<AiTool<JsonMap>> additionalTools = const [],
   }) {
-    // Build GenUI tools based on configuration
+    // Build GenUI tools
     final genUiTools = <AiTool<JsonMap>>[
-      if (configuration.actions.allowCreate ||
-          configuration.actions.allowUpdate) ...[
-        SurfaceUpdateTool(
-          handleMessage: _a2uiMessageController.add,
-          catalog: catalog,
-          configuration: configuration,
-        ),
-        BeginRenderingTool(handleMessage: _a2uiMessageController.add),
-      ],
-      if (configuration.actions.allowDelete)
-        DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
+      SurfaceUpdateTool(
+        handleMessage: _a2uiMessageController.add,
+        catalog: catalog,
+      ),
+      BeginRenderingTool(handleMessage: _a2uiMessageController.add),
+      DeleteSurfaceTool(handleMessage: _a2uiMessageController.add),
       ...additionalTools,
     ];
 
@@ -84,7 +77,6 @@ class DartanticContentGenerator implements ContentGenerator {
   final String? modelName;
 
   /// The configuration of the GenUI system.
-  final GenUiConfiguration configuration;
 
   late final dartantic.Agent _agent;
   final DartanticContentConverter _converter = DartanticContentConverter();
@@ -130,6 +122,7 @@ class DartanticContentGenerator implements ContentGenerator {
   Future<void> sendRequest(
     ChatMessage message, {
     Iterable<ChatMessage>? history,
+    A2UiClientCapabilities? clientCapabilities,
   }) async {
     _isProcessing.value = true;
     try {
