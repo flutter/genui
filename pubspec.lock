@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: a2a
-      sha256: "5cba260d1b9ad3b37417b327c6f0fdcec372cbb86789fde4e3f333d5212bd8ba"
+      sha256: "93dbf07010a08b3d7972571b7f3f3ce282f173a37e9ff38b5ae111966c5b55a6"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   analyzer:
     dependency: transitive
     description:
@@ -269,18 +269,18 @@ packages:
     dependency: transitive
     description:
       name: dartantic_ai
-      sha256: cb64fcd314a224bcd8f7323db0456b6516dfcbe3fcb439b95a5fa23b6fe0e060
+      sha256: "1f10916d7ebdca633e939fa717c87eb883ec5115ee599cb9784960aea83ae293"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "2.0.1"
   dartantic_interface:
     dependency: transitive
     description:
       name: dartantic_interface
-      sha256: "0527564d60de6800713bfee54165b054ed750fc206a6f84b000e9c52e4ce35c3"
+      sha256: "4c6eac329920b3426dc6673604dd70cee2462317dad80e03cc2ad60fd3d8b7f9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "2.0.0"
   darto:
     dependency: transitive
     description:
@@ -590,58 +590,50 @@ packages:
     dependency: transitive
     description:
       name: go_router
-      sha256: c92d18e1fe994cb06d48aa786c46b142a5633067e8297cff6b5a3ac742620104
+      sha256: eff94d2a6fc79fa8b811dde79c7549808c2346037ee107a1121b4a644c745f2a
       url: "https://pub.dev"
     source: hosted
-    version: "17.0.0"
+    version: "17.0.1"
   google_cloud_ai_generativelanguage_v1beta:
     dependency: transitive
     description:
       name: google_cloud_ai_generativelanguage_v1beta
-      sha256: "5dfd0733d9e7c0535bb054ac9d0d6d0d92e4399cc7e0cfbf0753aa02d4442ad8"
+      sha256: b98c7b0c7369d796e8ba177e6743f959e7700dc9a7d0aef6c0431a147e014062
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.2"
-  google_cloud_gax:
-    dependency: transitive
-    description:
-      name: google_cloud_gax
-      sha256: fe1648255357f9558ad4d31c342b04cad7b84837bbfa225cbfac7767fa186ef8
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
+    version: "0.3.0"
   google_cloud_longrunning:
     dependency: transitive
     description:
       name: google_cloud_longrunning
-      sha256: "5901bc32df1e588d22e415160fc117351bc6eda92effe5ce626913a41a7dabe3"
+      sha256: b724fc477c300d1c641a109bb5aafbc44f8b15833f509f4d69484add0ba6b96e
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.2"
+    version: "0.3.0"
   google_cloud_protobuf:
     dependency: transitive
     description:
       name: google_cloud_protobuf
-      sha256: b7f80161de99b0e3a609b5d2e42cff0e95d9bdd5068ea1ce7cc33a401956f1b3
+      sha256: "644f7b0be6293fdf5222f7be48a6d218dc28d3ac10e45b815bbff1ae9a43a572"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.3.0"
   google_cloud_rpc:
     dependency: transitive
     description:
       name: google_cloud_rpc
-      sha256: ef7da3b89a8eb55d7125e356eba4cc672b4f167d0eb2380d93c8297ebafbe4ae
+      sha256: "60cf014120298ac2229e755a74f659265fbf062f54b9512a9e38f24e84c26e1f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.3.0"
   google_cloud_type:
     dependency: transitive
     description:
       name: google_cloud_type
-      sha256: "41e93086da9e868ffac491bc78464aa5fe525746c0d86cc1057774a240289d50"
+      sha256: "355a5648b9e1eaeb37baf8bd16f2d446e2f55ccdba22480792b829b0776208e7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.3.0"
   google_identity_services_web:
     dependency: transitive
     description:
@@ -891,10 +883,10 @@ packages:
     dependency: transitive
     description:
       name: mcp_dart
-      sha256: "022d20178e86d336bd1677f568fe2675e79e3ca2175cab5541e7c6f5ca1a0359"
+      sha256: c3011200d0e35495effd6e8e635533f0c92d40c90a8a7f87f3cb61f715309170
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.4"
+    version: "1.0.2"
   meta:
     dependency: transitive
     description:
@@ -1220,6 +1212,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
+  sse:
+    dependency: transitive
+    description:
+      name: sse
+      sha256: fcc97470240bb37377f298e2bd816f09fd7216c07928641c0560719f50603643
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.8"
+  sse_channel:
+    dependency: transitive
+    description:
+      name: sse_channel
+      sha256: ad85fda353fae12533fd762dbd3ff275e710f216644e39459bf11a138124acad
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   stack_trace:
     dependency: transitive
     description:
@@ -1376,10 +1384,10 @@ packages:
     dependency: transitive
     description:
       name: watcher
-      sha256: "592ab6e2892f67760543fb712ff0177f4ec76c031f02f5b4ff8d3fc5eb9fb61a"
+      sha256: f52385d4f73589977c80797e60fe51014f7f2b957b5e9a62c3f6ada439889249
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.2.0"
   web:
     dependency: transitive
     description:

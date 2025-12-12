@@ -16,8 +16,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  dartantic_ai: ^1.3.0
-  dartantic_interface: '>=1.1.0 <1.2.0'
+  dartantic_ai: ^2.0.1
   flutter:
     sdk: flutter
   genui: ^0.5.1

@@ -61,8 +61,9 @@ class GoogleContentConverter {
             result.add(
               google_ai.Part(
                 inlineData: google_ai.Blob(
-                  mimeType: part.mimeType,
-                  data: part.bytes,
+                  mimeType: part.mimeType ?? 'application/octet-stream',
+                  data: part
+                      .bytes!, // Assuming bytes is not null here as per logic
                 ),
               ),
             );
@@ -70,7 +71,7 @@ class GoogleContentConverter {
             result.add(
               google_ai.Part(
                 inlineData: google_ai.Blob(
-                  mimeType: part.mimeType,
+                  mimeType: part.mimeType ?? 'application/octet-stream',
                   data: Uint8List.fromList(base64.decode(part.base64!)),
                 ),
               ),

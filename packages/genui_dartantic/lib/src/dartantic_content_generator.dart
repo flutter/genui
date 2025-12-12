@@ -7,7 +7,6 @@
 import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
-import 'package:dartantic_interface/dartantic_interface.dart' as di;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema/json_schema.dart';
@@ -17,7 +16,7 @@ import 'dartantic_schema_adapter.dart';
 
 /// A [ContentGenerator] that uses Dartantic AI to generate content.
 ///
-/// This generator utilizes a [di.Provider] to interact with various
+/// This generator utilizes a [dartantic.Provider] to interact with various
 /// AI providers (OpenAI, Anthropic, Google, Mistral, Cohere, Ollama) through
 /// the dartantic_ai package.
 ///
@@ -39,7 +38,7 @@ class DartanticContentGenerator implements ContentGenerator {
   /// - [additionalTools]: Additional GenUI [AiTool] instances to make
   ///   available.
   DartanticContentGenerator({
-    required di.Provider provider,
+    required dartantic.Provider provider,
     required this.catalog,
     this.systemInstruction,
     this.modelName,
@@ -57,7 +56,7 @@ class DartanticContentGenerator implements ContentGenerator {
     ];
 
     // Convert all tools to dartantic format
-    final List<di.Tool> dartanticTools = _convertTools(genUiTools);
+    final List<dartantic.Tool> dartanticTools = _convertTools(genUiTools);
 
     // Create agent with converted tools
     _agent = dartantic.Agent.forProvider(
@@ -127,18 +126,18 @@ class DartanticContentGenerator implements ContentGenerator {
     _isProcessing.value = true;
     try {
       // Convert GenUI history to dartantic ChatMessage list
-      final List<di.ChatMessage> dartanticHistory = _converter.toHistory(
+      final List<dartantic.ChatMessage> dartanticHistory = _converter.toHistory(
         history,
         systemInstruction: systemInstruction,
       );
 
       // Convert the current GenUI message into prompt text plus parts so we
       // preserve text, data, and tool content.
-      final ({String prompt, List<di.Part> parts}) promptAndParts = _converter
-          .toPromptAndParts(message);
+      final ({String prompt, List<dartantic.Part> parts}) promptAndParts =
+          _converter.toPromptAndParts(message);
 
       // We should never have tool calls or results in request message.
-      assert(promptAndParts.parts.every((part) => part is! di.ToolPart));
+      assert(promptAndParts.parts.every((part) => part is! dartantic.ToolPart));
 
       genUiLogger.info(
         'Sending request to Dartantic: "${promptAndParts.prompt}"',
@@ -147,7 +146,7 @@ class DartanticContentGenerator implements ContentGenerator {
 
       // Use Agent.sendFor with structured output so the model returns a single
       // response string instead of dumping JSON/tool content as text.
-      final di.ChatResult<Map<String, dynamic>> result = await _agent
+      final dartantic.ChatResult<Map<String, dynamic>> result = await _agent
           .sendFor<Map<String, dynamic>>(
             promptAndParts.prompt,
             outputSchema: _outputSchema,
@@ -167,10 +166,10 @@ class DartanticContentGenerator implements ContentGenerator {
     }
   }
 
-  /// Converts GenUI [AiTool] instances to dartantic [di.Tool] instances.
-  List<di.Tool> _convertTools(List<AiTool<JsonMap>> tools) => tools
+  /// Converts GenUI [AiTool] instances to dartantic [dartantic.Tool] instances.
+  List<dartantic.Tool> _convertTools(List<AiTool<JsonMap>> tools) => tools
       .map(
-        (aiTool) => di.Tool(
+        (aiTool) => dartantic.Tool(
           name: aiTool.name,
           description: aiTool.description,
           inputSchema: adaptSchema(aiTool.parameters),

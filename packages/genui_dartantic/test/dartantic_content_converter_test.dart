@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:dartantic_interface/dartantic_interface.dart' as di;
+import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart' as genui;
 import 'package:genui_dartantic/genui_dartantic.dart';
@@ -19,7 +19,7 @@ void main() {
       test('converts UserMessage with text to prompt string', () {
         final message = genui.UserMessage.text('Hello, world!');
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, 'Hello, world!');
@@ -34,7 +34,7 @@ void main() {
           const genui.TextPart('Second part'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, 'First part\nSecond part');
@@ -46,7 +46,7 @@ void main() {
       test('converts UserUiInteractionMessage to prompt string', () {
         final message = genui.UserUiInteractionMessage.text('UI interaction');
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, 'UI interaction');
@@ -55,7 +55,7 @@ void main() {
       test('converts AiTextMessage to prompt string', () {
         final message = genui.AiTextMessage.text('AI response');
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, 'AI response');
@@ -64,7 +64,7 @@ void main() {
       test('converts InternalMessage to prompt string', () {
         const message = genui.InternalMessage('System instruction');
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, 'System instruction');
@@ -77,7 +77,7 @@ void main() {
           genui.ToolResultPart(callId: 'call1', result: '{"status": "ok"}'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, contains('ToolResult(call1)'));
@@ -90,13 +90,13 @@ void main() {
           const genui.DataPart({'key': 'value'}),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, contains('Check this data:'));
         expect(result.prompt, contains('Data:'));
         expect(
-          result.parts.whereType<di.DataPart>().length,
+          result.parts.whereType<dartantic.DataPart>().length,
           greaterThanOrEqualTo(1),
         );
       });
@@ -107,7 +107,7 @@ void main() {
           genui.ImagePart.fromUrl(Uri.parse('https://example.com/image.png')),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, contains('Look at this image:'));
@@ -115,7 +115,7 @@ void main() {
           result.prompt,
           contains('Image at https://example.com/image.png'),
         );
-        expect(result.parts.whereType<di.LinkPart>(), isNotEmpty);
+        expect(result.parts.whereType<dartantic.LinkPart>(), isNotEmpty);
       });
 
       test('handles ThinkingPart in message', () {
@@ -124,7 +124,7 @@ void main() {
           const genui.TextPart('Here is my answer.'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, contains('Thinking: Let me think about this...'));
@@ -141,11 +141,11 @@ void main() {
           ),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, contains('ToolCall(test_tool)'));
-        expect(result.parts.whereType<di.ToolPart>(), isNotEmpty);
+        expect(result.parts.whereType<dartantic.ToolPart>(), isNotEmpty);
       });
 
       test('includes ToolResultPart in prompt', () {
@@ -154,17 +154,17 @@ void main() {
           const genui.ToolResultPart(callId: 'call1', result: '{}'),
         ]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, contains('ToolResult(call1)'));
-        expect(result.parts.whereType<di.ToolPart>(), isNotEmpty);
+        expect(result.parts.whereType<dartantic.ToolPart>(), isNotEmpty);
       });
 
       test('handles empty message parts', () {
         final message = genui.UserMessage([]);
 
-        final ({String prompt, List<di.Part> parts}) result = converter
+        final ({String prompt, List<dartantic.Part> parts}) result = converter
             .toPromptAndParts(message);
 
         expect(result.prompt, '');
@@ -173,55 +173,55 @@ void main() {
 
     group('toHistory', () {
       test('returns empty list for null history', () {
-        final List<di.ChatMessage> result = converter.toHistory(null);
+        final List<dartantic.ChatMessage> result = converter.toHistory(null);
 
         expect(result, isEmpty);
       });
 
       test('returns empty list for empty history', () {
-        final List<di.ChatMessage> result = converter.toHistory([]);
+        final List<dartantic.ChatMessage> result = converter.toHistory([]);
 
         expect(result, isEmpty);
       });
 
       test('includes system instruction as first message', () {
-        final List<di.ChatMessage> result = converter.toHistory(
+        final List<dartantic.ChatMessage> result = converter.toHistory(
           null,
           systemInstruction: 'You are a helpful assistant.',
         );
 
         expect(result, hasLength(1));
-        expect(result[0].role, di.ChatMessageRole.system);
+        expect(result[0].role, dartantic.ChatMessageRole.system);
         expect(result[0].text, 'You are a helpful assistant.');
       });
 
       test('converts UserMessage to user role', () {
         final history = [genui.UserMessage.text('Hello')];
 
-        final List<di.ChatMessage> result = converter.toHistory(history);
+        final List<dartantic.ChatMessage> result = converter.toHistory(history);
 
         expect(result, hasLength(1));
-        expect(result[0].role, di.ChatMessageRole.user);
+        expect(result[0].role, dartantic.ChatMessageRole.user);
         expect(result[0].text, 'Hello');
       });
 
       test('converts UserUiInteractionMessage to user role', () {
         final history = [genui.UserUiInteractionMessage.text('Clicked button')];
 
-        final List<di.ChatMessage> result = converter.toHistory(history);
+        final List<dartantic.ChatMessage> result = converter.toHistory(history);
 
         expect(result, hasLength(1));
-        expect(result[0].role, di.ChatMessageRole.user);
+        expect(result[0].role, dartantic.ChatMessageRole.user);
         expect(result[0].text, 'Clicked button');
       });
 
       test('converts AiTextMessage to model role', () {
         final history = [genui.AiTextMessage.text('AI response')];
 
-        final List<di.ChatMessage> result = converter.toHistory(history);
+        final List<dartantic.ChatMessage> result = converter.toHistory(history);
 
         expect(result, hasLength(1));
-        expect(result[0].role, di.ChatMessageRole.model);
+        expect(result[0].role, dartantic.ChatMessageRole.model);
         expect(result[0].text, 'AI response');
       });
 
@@ -232,12 +232,12 @@ void main() {
           genui.AiTextMessage.text('Response'),
         ];
 
-        final List<di.ChatMessage> result = converter.toHistory(history);
+        final List<dartantic.ChatMessage> result = converter.toHistory(history);
 
         expect(result, hasLength(3));
-        expect(result[0].role, di.ChatMessageRole.user);
-        expect(result[1].role, di.ChatMessageRole.system);
-        expect(result[2].role, di.ChatMessageRole.model);
+        expect(result[0].role, dartantic.ChatMessageRole.user);
+        expect(result[1].role, dartantic.ChatMessageRole.system);
+        expect(result[2].role, dartantic.ChatMessageRole.model);
       });
 
       test('includes ToolResponseMessage as user tool results', () {
@@ -249,16 +249,16 @@ void main() {
           genui.AiTextMessage.text('Response'),
         ];
 
-        final List<di.ChatMessage> result = converter.toHistory(history);
+        final List<dartantic.ChatMessage> result = converter.toHistory(history);
 
         expect(result, hasLength(3));
-        expect(result[0].role, di.ChatMessageRole.user);
-        expect(result[1].role, di.ChatMessageRole.user);
+        expect(result[0].role, dartantic.ChatMessageRole.user);
+        expect(result[1].role, dartantic.ChatMessageRole.user);
         expect(
-          result[1].parts.whereType<di.ToolPart>().length,
+          result[1].parts.whereType<dartantic.ToolPart>().length,
           greaterThanOrEqualTo(1),
         );
-        expect(result[2].role, di.ChatMessageRole.model);
+        expect(result[2].role, dartantic.ChatMessageRole.model);
       });
 
       test('handles full conversation with system instruction', () {
@@ -268,19 +268,19 @@ void main() {
           genui.UserMessage.text('And 3+3?'),
         ];
 
-        final List<di.ChatMessage> result = converter.toHistory(
+        final List<dartantic.ChatMessage> result = converter.toHistory(
           history,
           systemInstruction: 'You are a math tutor.',
         );
 
         expect(result, hasLength(4));
-        expect(result[0].role, di.ChatMessageRole.system);
+        expect(result[0].role, dartantic.ChatMessageRole.system);
         expect(result[0].text, 'You are a math tutor.');
-        expect(result[1].role, di.ChatMessageRole.user);
+        expect(result[1].role, dartantic.ChatMessageRole.user);
         expect(result[1].text, 'What is 2+2?');
-        expect(result[2].role, di.ChatMessageRole.model);
+        expect(result[2].role, dartantic.ChatMessageRole.model);
         expect(result[2].text, '2+2 equals 4.');
-        expect(result[3].role, di.ChatMessageRole.user);
+        expect(result[3].role, dartantic.ChatMessageRole.user);
         expect(result[3].text, 'And 3+3?');
       });
     });

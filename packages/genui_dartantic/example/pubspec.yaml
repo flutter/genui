@@ -17,9 +17,7 @@ dependencies:
     sdk: flutter
   genui: ^0.5.1
   genui_dartantic: ^0.5.1
-  dartantic_ai: ^1.3.0
-  dartantic_interface: 1.1.0
-
+  dartantic_ai: ^2.0.1
   json_schema: ^5.2.0
   json_schema_builder: ^0.1.3
   provider: ^6.0.0

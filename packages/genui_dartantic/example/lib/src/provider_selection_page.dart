@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
-import 'package:dartantic_interface/dartantic_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:genui_dartantic/genui_dartantic.dart';
 
@@ -43,7 +42,7 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
       : _anthropicApiKeyEnv;
 
   void _startGame() {
-    final Provider provider;
+    final dartantic.Provider provider;
     final String providerName;
 
     switch (_selectedProvider) {
