@@ -46,10 +46,15 @@ final class ImagePart implements MessagePart {
 
   /// The MIME type of the image (e.g., 'image/jpeg', 'image/png').
   /// Required when providing image data directly.
-  final String? mimeType;
+  final String mimeType;
 
   // Private constructor to enforce creation via factories.
-  const ImagePart._({this.bytes, this.base64, this.url, this.mimeType});
+  const ImagePart._({
+    this.bytes,
+    this.base64,
+    this.url,
+    required this.mimeType,
+  });
 
   /// Creates an [ImagePart] from raw image bytes.
   const factory ImagePart.fromBytes(
@@ -64,22 +69,24 @@ final class ImagePart implements MessagePart {
   }) = _ImagePartFromBase64;
 
   /// Creates an [ImagePart] from a URL.
-  const factory ImagePart.fromUrl(Uri url) = _ImagePartFromUrl;
+  const factory ImagePart.fromUrl(Uri url, {required String mimeType}) =
+      _ImagePartFromUrl;
 }
 
 // Private implementation classes for ImagePart factories
 final class _ImagePartFromBytes extends ImagePart {
-  const _ImagePartFromBytes(Uint8List bytes, {required String mimeType})
-    : super._(bytes: bytes, mimeType: mimeType);
+  const _ImagePartFromBytes(Uint8List bytes, {required super.mimeType})
+    : super._(bytes: bytes);
 }
 
 final class _ImagePartFromBase64 extends ImagePart {
-  const _ImagePartFromBase64(String base64, {required String mimeType})
-    : super._(base64: base64, mimeType: mimeType);
+  const _ImagePartFromBase64(String base64, {required super.mimeType})
+    : super._(base64: base64);
 }
 
 final class _ImagePartFromUrl extends ImagePart {
-  const _ImagePartFromUrl(Uri url) : super._(url: url);
+  const _ImagePartFromUrl(Uri url, {required super.mimeType})
+    : super._(url: url);
 }
 
 /// A part representing a request from the model to call a tool.

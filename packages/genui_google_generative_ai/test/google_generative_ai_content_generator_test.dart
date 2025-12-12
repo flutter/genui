@@ -170,75 +170,70 @@ void main() {
       expect(generator.isProcessing.value, isFalse);
     });
 
-    // TODO(implementation): This test is timing out, needs investigation
-    test(
-      'can call a tool and return a result',
-      () async {
-        final generator = GoogleGenerativeAiContentGenerator(
-          catalog: const genui.Catalog({}),
-          additionalTools: [
-            genui.DynamicAiTool<Map<String, Object?>>(
-              name: 'testTool',
-              description: 'A test tool',
-              parameters: dsb.Schema.object(),
-              invokeFunction: (args) async => {'result': 'tool result'},
+    test('can call a tool and return a result', () async {
+      final generator = GoogleGenerativeAiContentGenerator(
+        catalog: const genui.Catalog({}),
+        additionalTools: [
+          genui.DynamicAiTool<Map<String, Object?>>(
+            name: 'testTool',
+            description: 'A test tool',
+            parameters: dsb.Schema.object(),
+            invokeFunction: (args) async => {'result': 'tool result'},
+          ),
+        ],
+        serviceFactory: ({required configuration}) {
+          return FakeGoogleGenerativeService([
+            google_ai.GenerateContentResponse(
+              candidates: [
+                google_ai.Candidate(
+                  content: google_ai.Content(
+                    role: 'model',
+                    parts: [
+                      google_ai.Part(
+                        functionCall: google_ai.FunctionCall(
+                          id: '1',
+                          name: 'testTool',
+                          args: protobuf.Struct.fromJson(<String, dynamic>{}),
+                        ),
+                      ),
+                    ],
+                  ),
+                  finishReason: google_ai.Candidate_FinishReason.stop,
+                ),
+              ],
             ),
-          ],
-          serviceFactory: ({required configuration}) {
-            return FakeGoogleGenerativeService([
-              google_ai.GenerateContentResponse(
-                candidates: [
-                  google_ai.Candidate(
-                    content: google_ai.Content(
-                      role: 'model',
-                      parts: [
-                        google_ai.Part(
-                          functionCall: google_ai.FunctionCall(
-                            id: '1',
-                            name: 'testTool',
-                            args: protobuf.Struct.fromJson({}),
-                          ),
+            google_ai.GenerateContentResponse(
+              candidates: [
+                google_ai.Candidate(
+                  content: google_ai.Content(
+                    role: 'model',
+                    parts: [
+                      google_ai.Part(
+                        functionCall: google_ai.FunctionCall(
+                          id: '2',
+                          name: 'provideFinalOutput',
+                          args: protobuf.Struct.fromJson(<String, dynamic>{
+                            'output': {'response': 'Tool called'},
+                          }),
                         ),
-                      ],
-                    ),
-                    finishReason: google_ai.Candidate_FinishReason.stop,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              google_ai.GenerateContentResponse(
-                candidates: [
-                  google_ai.Candidate(
-                    content: google_ai.Content(
-                      role: 'model',
-                      parts: [
-                        google_ai.Part(
-                          functionCall: google_ai.FunctionCall(
-                            id: '2',
-                            name: 'provideFinalOutput',
-                            args: protobuf.Struct.fromJson({
-                              'output': {'response': 'Tool called'},
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                    finishReason: google_ai.Candidate_FinishReason.stop,
-                  ),
-                ],
-              ),
-            ]);
-          },
-        );
+                  finishReason: google_ai.Candidate_FinishReason.stop,
+                ),
+              ],
+            ),
+          ]);
+        },
+      );
 
-        final hi = genui.UserMessage([const genui.TextPart('Hi')]);
-        final completer = Completer<String>();
-        unawaited(generator.textResponseStream.first.then(completer.complete));
-        await generator.sendRequest(hi);
-        final response = await completer.future;
-        expect(response, 'Tool called');
-      },
-      skip: 'Test is timing out, needs debugging',
-    );
+      final hi = genui.UserMessage([const genui.TextPart('Hi')]);
+      final completer = Completer<String>();
+      unawaited(generator.textResponseStream.first.then(completer.complete));
+      await generator.sendRequest(hi);
+      final response = await completer.future;
+      expect(response, 'Tool called');
+    });
 
     test('returns a simple text response', () async {
       final generator = GoogleGenerativeAiContentGenerator(

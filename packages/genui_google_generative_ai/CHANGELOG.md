@@ -2,6 +2,8 @@
 
 ## 0.5.2 (in progress)
 
+- Bump dependent package versions to the latest that work with Flutter stable.
+
 ## 0.5.1
 
 - Homepage URL was updated.

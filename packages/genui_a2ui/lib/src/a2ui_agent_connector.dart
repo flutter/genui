@@ -103,7 +103,7 @@ class A2uiAgentConnector {
               return A2AFilePart()
                 ..file = (A2AFileWithUri()
                   ..uri = part.url.toString()
-                  ..mimeType = part.mimeType ?? 'image/jpeg');
+                  ..mimeType = part.mimeType);
             } else {
               String base64Data;
               if (part.bytes != null) {
@@ -117,7 +117,7 @@ class A2uiAgentConnector {
               return A2AFilePart()
                 ..file = (A2AFileWithBytes()
                   ..bytes = base64Data
-                  ..mimeType = part.mimeType ?? 'image/jpeg');
+                  ..mimeType = part.mimeType);
             }
           default:
             _log.warning('Unknown message part type: ${part.runtimeType}');
