@@ -185,6 +185,9 @@ class _GamePageState extends State<GamePage> {
                           child: GenUiSurface(
                             host: _genUiManager,
                             surfaceId: _latestSurfaceId!,
+                            defaultBuilder: (context) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                           ),
                         ),
                       ),

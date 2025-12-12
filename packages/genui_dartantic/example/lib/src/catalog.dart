@@ -40,4 +40,4 @@ final Catalog ticTacToeCatalog = Catalog([
     },
     exampleData: [],
   ),
-]);
+], catalogId: 'a2ui.org:standard_catalog_0_8_0');
