@@ -18,7 +18,7 @@ dependencies:
 
   json_schema: ^5.2.0
   json_schema_builder: ^0.1.3
-  provider: ^6.0.0 # Using provider for state management simplicity
+  provider: ^6.0.0
   logging: ^1.3.0
 
 dev_dependencies:
