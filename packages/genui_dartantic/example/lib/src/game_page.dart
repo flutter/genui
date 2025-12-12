@@ -9,9 +9,14 @@ import 'jumping_dots.dart';
 import 'thinking_verbs.dart';
 
 class GamePage extends StatefulWidget {
-  const GamePage({required this.generator, super.key});
+  const GamePage({
+    required this.generator,
+    required this.providerName,
+    super.key,
+  });
 
   final ContentGenerator generator;
+  final String providerName;
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -89,7 +94,7 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tic Tac Toe'),
+        title: Text('Tic Tac Toe with ${widget.providerName}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

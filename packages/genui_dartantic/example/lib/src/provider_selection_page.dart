@@ -40,16 +40,20 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
 
   void _startGame() {
     final Provider provider;
+    final String providerName;
 
     switch (_selectedProvider) {
       case AiProviderType.google:
         provider = dartantic.GoogleProvider(apiKey: _geminiApiKey);
+        providerName = 'Google';
         break;
       case AiProviderType.openai:
-        provider = dartantic.OpenAIProvider(apiKey: _openaiApiKey);
+        provider = dartantic.OpenAIResponsesProvider(apiKey: _openaiApiKey);
+        providerName = 'OpenAI';
         break;
       case AiProviderType.anthropic:
         provider = dartantic.AnthropicProvider(apiKey: _anthropicApiKey);
+        providerName = 'Anthropic';
         break;
     }
 
@@ -60,7 +64,10 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
     );
 
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => GamePage(generator: generator)),
+      MaterialPageRoute(
+        builder: (context) =>
+            GamePage(generator: generator, providerName: providerName),
+      ),
     );
   }
 
@@ -91,7 +98,7 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
                 .map(
                   (type) => DropdownMenuItem(
                     value: type,
-                    child: Text(type.name.toUpperCase()),
+                    child: Text(_providerDisplayName(type.name)),
                   ),
                 )
                 .toList(),
@@ -111,4 +118,11 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
       ),
     ),
   );
+
+  String _providerDisplayName(String name) => switch (name) {
+    'google' => 'Google',
+    'openai' => 'OpenAI',
+    'anthropic' => 'Anthropic',
+    _ => name,
+  };
 }
