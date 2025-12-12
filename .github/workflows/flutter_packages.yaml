@@ -34,7 +34,7 @@ jobs:
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           # Fetch the full history to be able to diff against the base branch
           fetch-depth: 0
@@ -100,7 +100,7 @@ jobs:
         flutter_version: [beta, stable]
         os: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
         with:
           distribution: "zulu"
