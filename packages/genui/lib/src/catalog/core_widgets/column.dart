@@ -13,6 +13,10 @@ import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a layout widget that displays its children in a
+vertical array.
+''',
   properties: {
     'distribution': S.string(
       description: 'How children are aligned on the main axis. ',

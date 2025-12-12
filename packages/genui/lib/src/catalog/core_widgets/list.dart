@@ -12,6 +12,9 @@ import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a scrollable list of widgets.
+''',
   properties: {
     'children': A2uiSchemas.componentArrayReference(),
     'direction': S.string(enumValues: ['vertical', 'horizontal']),
