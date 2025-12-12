@@ -104,7 +104,10 @@ void main() {
       test('handles ImagePart with URL in message', () {
         final message = genui.UserMessage([
           const genui.TextPart('Look at this image:'),
-          genui.ImagePart.fromUrl(Uri.parse('https://example.com/image.png')),
+          genui.ImagePart.fromUrl(
+            Uri.parse('https://example.com/image.png'),
+            mimeType: 'image/png',
+          ),
         ]);
 
         final ({String prompt, List<dartantic.Part> parts}) result = converter

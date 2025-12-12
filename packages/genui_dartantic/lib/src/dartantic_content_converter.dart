@@ -198,16 +198,16 @@ class DartanticContentConverter {
                 name: null,
               ),
             );
-          } else if (part.base64 != null && part.mimeType != null) {
+          } else if (part.base64 != null) {
             converted.add(
               dartantic.DataPart(
                 base64Decode(part.base64!),
-                mimeType: part.mimeType!,
+                mimeType: part.mimeType,
               ),
             );
-          } else if (part.bytes != null && part.mimeType != null) {
+          } else if (part.bytes != null) {
             converted.add(
-              dartantic.DataPart(part.bytes!, mimeType: part.mimeType!),
+              dartantic.DataPart(part.bytes!, mimeType: part.mimeType),
             );
           } else {
             converted.add(const dartantic.TextPart('[Image data]'));

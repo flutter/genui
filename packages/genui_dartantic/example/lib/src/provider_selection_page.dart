@@ -94,34 +94,40 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('New Tic Tac Toe Game')),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          DropdownButtonFormField<AiProviderType>(
-            initialValue: _selectedProvider,
-            decoration: const InputDecoration(labelText: 'AI Provider'),
-            items: AiProviderType.values
-                .map(
-                  (type) => DropdownMenuItem(
-                    value: type,
-                    child: Text(_providerDisplayName(type.name)),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              if (value != null) setState(() => _selectedProvider = value);
-            },
+    body: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<AiProviderType>(
+                initialValue: _selectedProvider,
+                decoration: const InputDecoration(labelText: 'AI Provider'),
+                items: AiProviderType.values
+                    .map(
+                      (type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(_providerDisplayName(type.name)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) setState(() => _selectedProvider = value);
+                },
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _startGame,
+                  child: const Text('Start Game'),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _startGame,
-              child: const Text('Start Game'),
-            ),
-          ),
-        ],
+        ),
       ),
     ),
   );
