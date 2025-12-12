@@ -1,36 +1,31 @@
-# Copyright 2025 The Flutter Authors.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-name: genui_dartantic_example
-description: "genui_dartantic example app"
-publish_to: "none"
+name: tic_tac_toe
+description: A Tic Tac Toe example using GenUI and Dartantic.
+publish_to: 'none'
 version: 0.1.0
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
   flutter: ">=3.35.7 <4.0.0"
 
-resolution: workspace
-
 dependencies:
-  dartantic_ai: ^1.3.0
   flutter:
     sdk: flutter
-  genui: ^0.5.1
-  genui_dartantic: ^0.5.1
-  gpt_markdown: ^1.1.4
-  intl: ^0.20.2
+  genui:
+    path: ../../../genui
+  genui_dartantic:
+    path: ../..
+  dartantic_ai: ^1.3.0
+  dartantic_interface: 1.1.0
+
+  json_schema: ^5.2.0
   json_schema_builder: ^0.1.3
+  provider: ^6.0.0 # Using provider for state management simplicity
   logging: ^1.3.0
 
 dev_dependencies:
-  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/travel_images/
-    - assets/booking_service/

@@ -109,7 +109,7 @@ class DartanticContentConverter {
           case genui.AiUiMessage():
             result.add(
               di.ChatMessage(
-                role: di.ChatMessageRole.model,
+                role: di.ChatMessageRole.user,
                 parts: _toParts(message.parts),
               ),
             );

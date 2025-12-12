@@ -20,7 +20,8 @@ dependencies:
   dartantic_interface: '>=1.1.0 <1.2.0'
   flutter:
     sdk: flutter
-  genui: ^0.5.1
+  genui:
+    path: ../genui
   json_schema: ^5.2.0
   json_schema_builder: ^0.1.3
 

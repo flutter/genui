@@ -1,6 +1,6 @@
 {
-    "name": "genui_dartantic_example",
-    "short_name": "genui_dartantic_example",
+    "name": "tic_tac_toe",
+    "short_name": "tic_tac_toe",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

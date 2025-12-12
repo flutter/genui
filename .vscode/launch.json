@@ -32,12 +32,14 @@
       "type": "dart"
     },
     {
-      "name": "travel_app (dartantic)",
+      "name": "tic_tac_toe (dartantic)",
       "cwd": "packages/genui_dartantic/example",
       "request": "launch",
       "type": "dart",
       "args": [
-        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "--dart-define=OPENAI_API_KEY=${env:OPENAI_API_KEY}",
+        "--dart-define=ANTHROPIC_API_KEY=${env:ANTHROPIC_API_KEY}"
       ]
     },
     {
