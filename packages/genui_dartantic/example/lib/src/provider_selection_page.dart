@@ -9,7 +9,23 @@ import 'package:genui_dartantic/genui_dartantic.dart';
 import 'catalog.dart';
 import 'game_page.dart';
 
-enum AiProviderType { google, openai, anthropic }
+enum AiProviderType {
+  google,
+  openai,
+  anthropic;
+
+  String get displayName => switch (this) {
+    AiProviderType.google => 'Google',
+    AiProviderType.openai => 'OpenAI',
+    AiProviderType.anthropic => 'Anthropic',
+  };
+
+  String get modelName => switch (this) {
+    AiProviderType.google => 'gemini-2.5-flash',
+    AiProviderType.openai => 'gpt-5-mini',
+    AiProviderType.anthropic => 'claude-haiku-4-5',
+  };
+}
 
 class ProviderSelectionPage extends StatefulWidget {
   const ProviderSelectionPage({super.key});
@@ -22,46 +38,24 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
   AiProviderType _selectedProvider = AiProviderType.google;
 
   // API key from dart-define
-  static const _geminiApiKeyEnv = String.fromEnvironment('GEMINI_API_KEY');
-  static final String? _geminiApiKey = _geminiApiKeyEnv.isEmpty
-      ? null
-      : _geminiApiKeyEnv;
-
-  static const _openaiApiKeyEnv = String.fromEnvironment('OPENAI_API_KEY');
-
-  static final String? _openaiApiKey = _openaiApiKeyEnv.isEmpty
-      ? null
-      : _openaiApiKeyEnv;
-
-  static const _anthropicApiKeyEnv = String.fromEnvironment(
-    'ANTHROPIC_API_KEY',
-  );
-
-  static final String? _anthropicApiKey = _anthropicApiKeyEnv.isEmpty
-      ? null
-      : _anthropicApiKeyEnv;
+  static const _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
+  static const _openaiApiKey = String.fromEnvironment('OPENAI_API_KEY');
+  static const _anthropicApiKey = String.fromEnvironment('ANTHROPIC_API_KEY');
 
   void _startGame() {
-    final dartantic.Provider provider;
-    final String providerName;
-
-    switch (_selectedProvider) {
-      case AiProviderType.google:
-        provider = dartantic.GoogleProvider(apiKey: _geminiApiKey);
-        providerName = 'Google';
-        break;
-      case AiProviderType.openai:
-        provider = dartantic.OpenAIResponsesProvider(apiKey: _openaiApiKey);
-        providerName = 'OpenAI';
-        break;
-      case AiProviderType.anthropic:
-        provider = dartantic.AnthropicProvider(apiKey: _anthropicApiKey);
-        providerName = 'Anthropic';
-        break;
-    }
+    final dartantic.Provider provider = switch (_selectedProvider) {
+      AiProviderType.google => dartantic.GoogleProvider(apiKey: _geminiApiKey),
+      AiProviderType.openai => dartantic.OpenAIResponsesProvider(
+        apiKey: _openaiApiKey,
+      ),
+      AiProviderType.anthropic => dartantic.AnthropicProvider(
+        apiKey: _anthropicApiKey,
+      ),
+    };
 
     final generator = DartanticContentGenerator(
       provider: provider,
+      modelName: _selectedProvider.modelName,
       catalog: ticTacToeCatalog,
       systemInstruction: _systemInstruction,
     );
@@ -69,27 +63,32 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) =>
-            GamePage(generator: generator, providerName: providerName),
+            GamePage(generator: generator, providerName: provider.displayName),
       ),
     );
   }
 
-  static const _systemInstruction =
-      'You are a Tic Tac Toe master. I want to play a game with you. '
-      'I will play "X" and you will play "O". '
-      'When I make a move, you should determine your move and then display the '
-      'updated board using the "updateSurface" tool with the "TicTacToeBoard" component.\n\n'
-      'CRITICAL: You must use TWO tools to show the board:\n'
-      '1. "updateSurface" to create the "TicTacToeBoard" component (give it an ID like "board").\n'
-      '2. "beginRendering" to set the root of the surface to that ID (e.g. "board").\n'
-      'You can call these tools in parallel.\n\n'
-      'The component expects a "cells" array of 9 strings. '
-      'If I win, you lose. If you win, I lose. If the board is full, it is a draw.\n\n'
-      'IMPORTANT: Do not include the JSON representation of the board (or "A user interface is shown...") in your text response. '
-      'Only provide your conversational move commentary.\n\n'
-      'CRITICAL: You MUST use the "updateSurface" tool to show the board. '
-      'Do NOT use ASCII art or text to represent the board state. '
-      'If you do not call the tool, the user cannot see the board.';
+  static const _systemInstruction = '''
+You are a Tic Tac Toe master. The user plays "X" and you play "O".
+
+<output_verbosity_spec>
+- Keep move commentary to 1-2 sentences.
+- Do not rephrase the game state or user's move.
+- Do not include JSON representations or "A user interface is shown..." text.
+</output_verbosity_spec>
+
+<tool_usage_rules>
+- You MUST call both tools to display the board—never use ASCII art or text representations.
+- Parallelize these two calls:
+  1. "updateSurface" — create a "TicTacToeBoard" component (ID: "board") with a "cells" array of 9 strings.
+  2. "beginRendering" — set the surface root to that ID.
+- If you do not call these tools, the user cannot see the board.
+</tool_usage_rules>
+
+<game_rules>
+- If the user wins, you lose. If you win, the user loses. Full board with no winner is a draw.
+</game_rules>
+''';
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -109,7 +108,7 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
                     .map(
                       (type) => DropdownMenuItem(
                         value: type,
-                        child: Text(_providerDisplayName(type.name)),
+                        child: Text(type.displayName),
                       ),
                     )
                     .toList(),
@@ -131,11 +130,4 @@ class _ProviderSelectionPageState extends State<ProviderSelectionPage> {
       ),
     ),
   );
-
-  String _providerDisplayName(String name) => switch (name) {
-    'google' => 'Google',
-    'openai' => 'OpenAI',
-    'anthropic' => 'Anthropic',
-    _ => name,
-  };
 }

@@ -64,6 +64,20 @@ class DartanticContentGenerator implements ContentGenerator {
       chatModelName: modelName,
       tools: dartanticTools,
     );
+
+    // Create additional system instructions to augment what the client sends
+    _extraInstructions =
+        '''
+<tools>
+${dartanticTools.map((tool) => tool.toJson()).join('\n\n')}
+</tools>
+
+<output_schema>
+${_outputSchema.toJson()}
+</output_schema>
+''';
+
+    genUiLogger.info('Extra system instructions: $_extraInstructions');
   }
 
   /// The catalog of UI components available to the AI.
@@ -84,6 +98,7 @@ class DartanticContentGenerator implements ContentGenerator {
   final _textResponseController = StreamController<String>.broadcast();
   final _errorController = StreamController<ContentGeneratorError>.broadcast();
   final _isProcessing = ValueNotifier<bool>(false);
+  late final String _extraInstructions;
 
   /// Structured output schema: a simple object with a required string response.
   static final JsonSchema _outputSchema = JsonSchema.create({
@@ -128,7 +143,7 @@ class DartanticContentGenerator implements ContentGenerator {
       // Convert GenUI history to dartantic ChatMessage list
       final List<dartantic.ChatMessage> dartanticHistory = _converter.toHistory(
         history,
-        systemInstruction: systemInstruction,
+        systemInstruction: '$systemInstruction\n\n$_extraInstructions',
       );
 
       // Convert the current GenUI message into prompt text plus parts so we
