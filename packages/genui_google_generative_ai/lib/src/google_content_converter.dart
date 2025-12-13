@@ -62,7 +62,8 @@ class GoogleContentConverter {
               google_ai.Part(
                 inlineData: google_ai.Blob(
                   mimeType: part.mimeType,
-                  data: part.bytes,
+                  data: part
+                      .bytes!, // Assuming bytes is not null here as per logic
                 ),
               ),
             );

@@ -42,7 +42,7 @@ final conversation = GenUiConversation(
 
 The API key can be provided in two ways:
 
-1. **Environment Variable** (recommended): Set the `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable
+1. **Environment Variable** (recommended): Set the `GEMINI_API_KEY` environment variable
 2. **Constructor Parameter**: Pass the API key directly to the constructor
 
 If neither is provided, the package will attempt to use the default environment variable.

@@ -1,41 +1,6 @@
-# Diagrams, produced by https://pub.dev/packages/layerlens.
-DEPS.md
-
-# Firebase
-google-services.json
-**/lib/firebase_options.dart
-firebase.json
-GoogleService-Info.plist
-.firebase
-.firebaserc
-
-# This package's specific logs.
-*.log.*
-*.log
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv
-venv/
-ENV/
-.env
-build/
-dist/
-*.egg-info/
-.pytest_cache/
-.coverage
-htmlcov/
-
-# ==============================================================================
-#
-# STANDARD FLUTTER GITIGNORE
-#
-# ==============================================================================
-
 # Miscellaneous
 *.class
+*.log
 *.pyc
 *.swp
 .DS_Store
@@ -78,4 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-.vscode/settings.json

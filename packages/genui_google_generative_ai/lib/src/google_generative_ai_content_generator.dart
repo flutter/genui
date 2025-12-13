@@ -403,7 +403,7 @@ With functions:
           final request = google_ai.GenerateContentRequest(
             model: modelName,
             contents: [...systemInstructionContent, ...content],
-            tools: tools!,
+            tools: tools ?? [],
             toolConfig: isForcedToolCalling
                 ? google_ai.ToolConfig(
                     functionCallingConfig: google_ai.FunctionCallingConfig(
@@ -429,9 +429,8 @@ With functions:
         final elapsed = DateTime.now().difference(inferenceStartTime);
 
         if (response.usageMetadata != null) {
-          inputTokenUsage += response.usageMetadata!.promptTokenCount.toInt();
-          outputTokenUsage += response.usageMetadata!.candidatesTokenCount
-              .toInt();
+          inputTokenUsage += response.usageMetadata!.promptTokenCount;
+          outputTokenUsage += response.usageMetadata!.candidatesTokenCount;
         }
         genUiLogger.info(
           '****** Completed Inference ******\n'

@@ -14,7 +14,10 @@
       "name": "travel_app",
       "cwd": "examples/travel_app",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": [
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+      ]
     },
     {
       "name": "catalog_gallery",
@@ -27,6 +30,17 @@
       "cwd": "examples/custom_backend",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "tic_tac_toe (dartantic)",
+      "cwd": "packages/genui_dartantic/example",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "--dart-define=OPENAI_API_KEY=${env:OPENAI_API_KEY}",
+        "--dart-define=ANTHROPIC_API_KEY=${env:ANTHROPIC_API_KEY}"
+      ]
     },
     {
       "name": "fix_copyright",
