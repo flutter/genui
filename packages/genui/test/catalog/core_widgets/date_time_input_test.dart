@@ -7,42 +7,171 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  testWidgets('DateTimeInput widget renders and handles changes', (
-    WidgetTester tester,
-  ) async {
-    final manager = A2uiMessageProcessor(
-      catalogs: [
-        Catalog([
-          CoreCatalogItems.dateTimeInput,
-          CoreCatalogItems.text,
-        ], catalogId: 'test_catalog'),
-      ],
-    );
-    const surfaceId = 'testSurface';
-    final components = [
-      const Component(
-        id: 'datetime',
-        componentProperties: {
-          'DateTimeInput': {
-            'value': {'path': '/myDateTime'},
-          },
-        },
-      ),
-    ];
-    manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
-    );
-    manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'datetime',
-        catalogId: 'test_catalog',
-      ),
-    );
+  testWidgets('renders and handles explicit updates', (tester) async {
+    final robot = DateTimeInputRobot(tester);
+    final (GenUiHost manager, String surfaceId) = setup('datetime', {
+      'value': {'path': '/myDateTime'},
+      'enableTime': false,
+    });
+
     manager
         .dataModelForSurface(surfaceId)
         .update(DataPath('/myDateTime'), '2025-10-15');
 
+    await robot.pumpSurface(manager, surfaceId);
+
+    robot.expectInputText('datetime', 'Wed, Oct 15');
+  });
+
+  testWidgets('displays correct placeholder/initial text based on mode', (
+    tester,
+  ) async {
+    final robot = DateTimeInputRobot(tester);
+
+    var (GenUiHost manager, String surfaceId) = setup('datetime_default', {
+      'value': {'path': '/myDateTimeDefault'},
+    });
+    await robot.pumpSurface(manager, surfaceId);
+    robot.expectInputText('datetime_default', 'Select a date and time');
+
+    (manager, surfaceId) = setup('datetime_date_only', {
+      'value': {'path': '/myDateOnly'},
+      'enableTime': false,
+    });
+    await robot.pumpSurface(manager, surfaceId);
+    robot.expectInputText('datetime_date_only', 'Select a date');
+
+    (manager, surfaceId) = setup('datetime_time_only', {
+      'value': {'path': '/myTimeOnly'},
+      'enableDate': false,
+    });
+    await robot.pumpSurface(manager, surfaceId);
+    robot.expectInputText('datetime_time_only', 'Select a time');
+  });
+
+  group('combined mode', () {
+    testWidgets('aborts update when time picker is cancelled', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('combined_mode', {
+        'value': {'path': '/myDateTime'},
+      });
+
+      manager
+          .dataModelForSurface(surfaceId)
+          .update(DataPath('/myDateTime'), '2022-01-01T14:30:00');
+
+      await robot.pumpSurface(manager, surfaceId);
+
+      await robot.openPicker('combined_mode');
+      await robot.selectDate('15');
+
+      robot.expectTimePickerVisible();
+      await robot.cancelPicker();
+
+      final String? value = manager
+          .dataModelForSurface(surfaceId)
+          .getValue<String>(DataPath('/myDateTime'));
+      expect(value, equals('2022-01-01T14:30:00'));
+    });
+  });
+
+  group('time only mode', () {
+    testWidgets('aborts when time picker is cancelled', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('time_only_mode', {
+        'value': {'path': '/myTime'},
+        'enableDate': false,
+      });
+
+      await robot.pumpSurface(manager, surfaceId);
+
+      await robot.openPicker('time_only_mode');
+      robot.expectTimePickerVisible();
+      await robot.cancelPicker();
+
+      final String? value = manager
+          .dataModelForSurface(surfaceId)
+          .getValue<String>(DataPath('/myTime'));
+      expect(value, isNull);
+    });
+
+    testWidgets('parses initial value correctly', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('time_only_parsing', {
+        'value': {'path': '/myTimeProp'},
+        'enableDate': false,
+      });
+
+      manager
+          .dataModelForSurface(surfaceId)
+          .update(DataPath('/myTimeProp'), '14:32:00');
+
+      await robot.pumpSurface(manager, surfaceId);
+
+      await robot.openPicker('time_only_parsing');
+
+      robot.expectPickerText('32');
+
+      await robot.cancelPicker();
+    });
+  });
+
+  group('date only mode', () {
+    testWidgets('updates immediately after date selection', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('date_only_mode', {
+        'value': {'path': '/myDate'},
+        'enableTime': false,
+      });
+
+      await robot.pumpSurface(manager, surfaceId);
+
+      await robot.openPicker('date_only_mode');
+      await robot.selectDate('20');
+
+      final String? value = manager
+          .dataModelForSurface(surfaceId)
+          .getValue<String>(DataPath('/myDate'));
+      expect(value, isNotNull);
+      expect(value, contains('2025-12-20'));
+
+      robot.expectTimePickerHidden();
+    });
+  });
+}
+
+(GenUiHost, String) setup(String componentId, Map<String, dynamic> props) {
+  final catalog = Catalog([
+    CoreCatalogItems.dateTimeInput,
+  ], catalogId: 'test_catalog');
+
+  final manager = A2uiMessageProcessor(catalogs: [catalog]);
+  const surfaceId = 'testSurface';
+
+  final components = [
+    Component(id: componentId, componentProperties: {'DateTimeInput': props}),
+  ];
+
+  manager.handleMessage(
+    SurfaceUpdate(surfaceId: surfaceId, components: components),
+  );
+  manager.handleMessage(
+    BeginRendering(
+      surfaceId: surfaceId,
+      root: componentId,
+      catalogId: 'test_catalog',
+    ),
+  );
+
+  return (manager, surfaceId);
+}
+
+class DateTimeInputRobot {
+  final WidgetTester tester;
+
+  DateTimeInputRobot(this.tester);
+
+  Future<void> pumpSurface(GenUiHost manager, String surfaceId) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -50,7 +179,40 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
+  }
 
-    expect(find.text('2025-10-15'), findsOneWidget);
-  });
+  Future<void> openPicker(String componentId) async {
+    await tester.tap(find.byKey(Key(componentId)));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> selectDate(String day) async {
+    await tester.tap(find.text(day));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> cancelPicker() async {
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+  }
+
+  void expectInputText(String componentId, String text) {
+    final Finder finder = find.byKey(Key('${componentId}_text'));
+    expect(finder, findsOneWidget);
+    expect(tester.widget<Text>(finder).data, text);
+  }
+
+  void expectPickerText(String text) {
+    expect(find.text(text), findsOneWidget);
+  }
+
+  void expectTimePickerVisible() {
+    expect(find.text('Select time'), findsOneWidget);
+  }
+
+  void expectTimePickerHidden() {
+    expect(find.text('Select time'), findsNothing);
+  }
 }
