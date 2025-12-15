@@ -13,6 +13,7 @@ import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: 'A text input field.',
   properties: {
     'text': A2uiSchemas.stringReference(
       description: 'The initial value of the text field.',

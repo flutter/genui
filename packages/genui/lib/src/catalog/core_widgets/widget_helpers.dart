@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
-import '../../model/ui_models.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 
@@ -133,9 +132,8 @@ Widget buildWeightedChild({
   required String componentId,
   required DataContext dataContext,
   required ChildBuilderCallback buildChild,
-  required Component? component,
+  required int? weight,
 }) {
-  final int? weight = component?.weight;
   final Widget childWidget = buildChild(componentId, dataContext);
   if (weight != null) {
     return Flexible(flex: weight, child: childWidget);

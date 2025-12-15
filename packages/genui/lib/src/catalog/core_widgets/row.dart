@@ -123,7 +123,11 @@ final row = CatalogItem(
                   componentId: componentId,
                   dataContext: dataContext,
                   buildChild: buildChild,
-                  component: getComponent(componentId),
+                  weight:
+                      getComponent(componentId)?.weight ??
+                      (getComponent(componentId)?.type == 'TextField'
+                          ? 1
+                          : null),
                 ),
               )
               .toList(),
@@ -142,7 +146,11 @@ final row = CatalogItem(
                   DataPath('$dataBinding/$i'),
                 ),
                 buildChild: itemContext.buildChild,
-                component: itemContext.getComponent(componentId),
+                weight:
+                    itemContext.getComponent(componentId)?.weight ??
+                    (itemContext.getComponent(componentId)?.type == 'TextField'
+                        ? 1
+                        : null),
               ),
             ],
           ],
