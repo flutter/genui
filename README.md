@@ -35,13 +35,13 @@ chatbots and next-generation agent-based user experiences.
 
 ## Features
 
-* Support for multiple agent and LLM providers or backends
+* Multiple agent and LLM provider support
 * A2UI support
 * Standard UI catalog
 * Custom widgets
 * Data binding
-* Supports chat UX
-* Supports canvas UX
+* Chat UX
+* Canvas UX
 
 ## Use cases
 
