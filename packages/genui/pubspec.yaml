@@ -4,7 +4,7 @@
 
 name: genui
 description: Generates and displays generative user interfaces (GenUI) in Flutter using AI.
-version: 0.5.1
+version: 0.6.0
 homepage: https://github.com/flutter/genui/tree/main/packages/genui
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues

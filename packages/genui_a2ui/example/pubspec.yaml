@@ -16,8 +16,8 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  genui: ^0.5.1
-  genui_a2ui: ^0.5.1
+  genui: ^0.6.0
+  genui_a2ui: ^0.6.0
   logging: ^1.3.0
 
 dev_dependencies:

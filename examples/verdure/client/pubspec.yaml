@@ -18,8 +18,8 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.0.3
   flutter_svg: ^2.2.2
-  genui: ^0.5.1
-  genui_a2ui: ^0.5.1
+  genui: ^0.6.0
+  genui_a2ui: ^0.6.0
   go_router: ^17.0.0
   image_picker: ^1.2.0
   logging: ^1.3.0

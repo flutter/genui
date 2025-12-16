@@ -15,7 +15,7 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  genui: ^0.5.1
+  genui: ^0.6.0
   http: ^1.6.0
   intl: ^0.20.2
   json_schema_builder: ^0.1.3
