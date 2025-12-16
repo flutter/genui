@@ -7,8 +7,6 @@
 - **BREAKING**: Removed `GenUiConfiguration` and `ActionsConfig`.
 - **BREAKING**: Removed `GenUiHost.catalog` in favor of `GenUiHost.catalogs`.
 - Improved surface rendering logic to cache components before rendering.
-
-
 - Updated README sample code to reflect current `FirebaseAiContentGenerator` API (added `catalog` parameter and replaced `tools` with `additionalTools`).
 - **Feature**: `GenUiManager` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
 - **Feature**: `A2uiMessageProcessor` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
