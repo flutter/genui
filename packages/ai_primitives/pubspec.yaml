@@ -1,0 +1,9 @@
+name: ai_primitives
+version: 0.0.1-dev.1
+
+environment:
+  sdk: ^3.11.0-200.1.beta
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
