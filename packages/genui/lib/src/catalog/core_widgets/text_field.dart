@@ -13,6 +13,12 @@ import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: '''
+A catalog item representing a text field.
+
+This widget allows the user to enter and edit text. The `text` parameter
+bidirectionally binds the field's content to the data model.
+''',
   properties: {
     'text': A2uiSchemas.stringReference(
       description: 'The initial value of the text field.',
