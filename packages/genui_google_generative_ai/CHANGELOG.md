@@ -1,6 +1,9 @@
 # `genui_google_generative_ai` Changelog
 
-## 0.5.2 (in progress)
+## 0.6.0
+
+- **BREAKING**: Removed `GenUiConfiguration` from `GoogleGenerativeAiContentGenerator`.
+- Bumped dependencies: `google_cloud_ai_generativelanguage_v1beta` to ^0.3.0 and `google_cloud_protobuf` to ^0.3.0.
 
 - Bump dependent package versions to the latest that work with Flutter stable.
 

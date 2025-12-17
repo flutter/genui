@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
+import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
@@ -123,13 +124,21 @@ final row = CatalogItem(
                   componentId: componentId,
                   dataContext: dataContext,
                   buildChild: buildChild,
-                  component: getComponent(componentId),
+                  weight:
+                      getComponent(componentId)?.weight ??
+                      (getComponent(componentId)?.type == 'TextField'
+                          ? 1
+                          : null),
                 ),
               )
               .toList(),
         );
       },
       templateListWidgetBuilder: (context, list, componentId, dataBinding) {
+        final Component? component = itemContext.getComponent(componentId);
+        final int? weight =
+            component?.weight ?? (component?.type == 'TextField' ? 1 : null);
+
         return Row(
           mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
           crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
@@ -142,7 +151,7 @@ final row = CatalogItem(
                   DataPath('$dataBinding/$i'),
                 ),
                 buildChild: itemContext.buildChild,
-                component: itemContext.getComponent(componentId),
+                weight: weight,
               ),
             ],
           ],

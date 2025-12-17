@@ -56,6 +56,57 @@ void main() {
       expect(surfaceUpdate.components[0].componentProperties, {
         'Text': {'text': 'Hello'},
       });
+      expect(surfaceUpdate.components[0].weight, isNull);
+    });
+
+    test('invoke correctly parses int weight', () async {
+      final messages = <A2uiMessage>[];
+      final tool = SurfaceUpdateTool(
+        handleMessage: messages.add,
+        catalog: const Catalog([], catalogId: 'test_catalog'),
+      );
+
+      final Map<String, Object> args = {
+        surfaceIdKey: 'testSurface',
+        'components': [
+          {
+            'id': 'weightedWidget',
+            'component': {'Text': <Object?, Object?>{}},
+            'weight': 1,
+          },
+        ],
+      };
+
+      await tool.invoke(args);
+
+      expect(messages.length, 1);
+      final surfaceUpdate = messages[0] as SurfaceUpdate;
+      expect(surfaceUpdate.components[0].weight, 1);
+    });
+
+    test('invoke correctly parses double weight', () async {
+      final messages = <A2uiMessage>[];
+      final tool = SurfaceUpdateTool(
+        handleMessage: messages.add,
+        catalog: const Catalog([], catalogId: 'test_catalog'),
+      );
+
+      final Map<String, Object> args = {
+        surfaceIdKey: 'testSurface',
+        'components': [
+          {
+            'id': 'weightedWidget',
+            'component': {'Text': <Object?, Object?>{}},
+            'weight': 1.0,
+          },
+        ],
+      };
+
+      await tool.invoke(args);
+
+      expect(messages.length, 1);
+      final surfaceUpdate = messages[0] as SurfaceUpdate;
+      expect(surfaceUpdate.components[0].weight, 1);
     });
   });
 

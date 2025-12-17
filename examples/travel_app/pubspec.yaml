@@ -18,9 +18,9 @@ dependencies:
   firebase_core: ^4.2.1
   flutter:
     sdk: flutter
-  genui: ^0.5.1
-  genui_firebase_ai: ^0.5.1
-  genui_google_generative_ai: ^0.5.1
+  genui: ^0.6.0
+  genui_firebase_ai: ^0.6.0
+  genui_google_generative_ai: ^0.6.0
   gpt_markdown: ^1.1.4
   intl: ^0.20.2
   json_schema_builder: ^0.1.3
