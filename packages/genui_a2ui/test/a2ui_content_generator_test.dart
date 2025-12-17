@@ -2,6 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO: Remove this tag once this test is fixed.
+// https://github.com/flutter/genui/issues/614
+// Fails with "--test-randomize-ordering-seed=39720092"
+@Tags(<String>['no-shuffle'])
+library;
+
 import 'dart:async';
 
 import 'package:a2a/a2a.dart' as a2a;
