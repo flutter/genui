@@ -4,7 +4,7 @@
 
 name: genui_dartantic
 description: Integration package for genui and Dartantic AI.
-version: 0.5.1
+version: 0.6.0
 homepage: https://github.com/flutter/genui/tree/main/packages/genui_dartantic
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
@@ -13,13 +13,11 @@ environment:
   sdk: ">=3.9.2 <4.0.0"
   flutter: ">=3.35.7 <4.0.0"
 
-resolution: workspace
-
 dependencies:
   dartantic_ai: ^2.0.1
   flutter:
     sdk: flutter
-  genui: ^0.5.1
+  genui: ^0.6.0
   json_schema: ^5.2.0
   json_schema_builder: ^0.1.3
 

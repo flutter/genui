@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: a2a
-      sha256: "93dbf07010a08b3d7972571b7f3f3ce282f173a37e9ff38b5ae111966c5b55a6"
+      sha256: "5cba260d1b9ad3b37417b327c6f0fdcec372cbb86789fde4e3f333d5212bd8ba"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.1"
+    version: "3.2.0"
   analyzer:
     dependency: transitive
     description:
@@ -57,14 +57,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  anthropic_sdk_dart:
-    dependency: transitive
-    description:
-      name: anthropic_sdk_dart
-      sha256: ea5775add9f3f9a92f9f2d28eb655fa72708cbbcf30df9ea1630eb92eeda0549
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0+1"
   args:
     dependency: transitive
     description:
@@ -225,14 +217,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
-  csslib:
-    dependency: transitive
-    description:
-      name: csslib
-      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   custom_lint_core:
     dependency: transitive
     description:
@@ -265,22 +249,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.3"
-  dartantic_ai:
-    dependency: transitive
-    description:
-      name: dartantic_ai
-      sha256: "1f10916d7ebdca633e939fa717c87eb883ec5115ee599cb9784960aea83ae293"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
-  dartantic_interface:
-    dependency: transitive
-    description:
-      name: dartantic_interface
-      sha256: "4c6eac329920b3426dc6673604dd70cee2462317dad80e03cc2ad60fd3d8b7f9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   darto:
     dependency: transitive
     description:
@@ -666,14 +634,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
-  html:
-    dependency: transitive
-    description:
-      name: html
-      sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.6"
   http:
     dependency: transitive
     description:
@@ -799,14 +759,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  json_schema:
-    dependency: transitive
-    description:
-      name: json_schema
-      sha256: f37d9c3fdfe8c9aae55fdfd5af815d24ce63c3a0f6a2c1f0982c30f43643fa1a
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.2.2"
   leak_tracker:
     dependency: transitive
     description:
@@ -883,10 +835,10 @@ packages:
     dependency: transitive
     description:
       name: mcp_dart
-      sha256: c3011200d0e35495effd6e8e635533f0c92d40c90a8a7f87f3cb61f715309170
+      sha256: "022d20178e86d336bd1677f568fe2675e79e3ca2175cab5541e7c6f5ca1a0359"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "0.6.4"
   meta:
     dependency: transitive
     description:
@@ -903,14 +855,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  mistralai_dart:
-    dependency: transitive
-    description:
-      name: mistralai_dart
-      sha256: "4ada36f323dd0c5081ef23ed8989a88a04c3ac02764a1aefb776c3158b4f2697"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0+1"
   mockito:
     dependency: transitive
     description:
@@ -951,30 +895,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
-  ollama_dart:
-    dependency: transitive
-    description:
-      name: ollama_dart
-      sha256: "7ced51fa4151bef696a9e1571ca7b4ac4bc4b35331e45ae5e0684560fcd26d99"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0+1"
-  openai_core:
-    dependency: transitive
-    description:
-      name: openai_core
-      sha256: dc2906e3e5a746bf90576f4f9dd7e0b538c66b48537dac38aa5dbff0666d89cb
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.2"
-  openai_dart:
-    dependency: transitive
-    description:
-      name: openai_dart
-      sha256: "9c74e1ff38243c8987890d9fe4d03f5298352576d4db3a90402625f3f21e2164"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0+1"
   oxy:
     dependency: transitive
     description:
@@ -1079,14 +999,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.2"
   rational:
     dependency: transitive
     description:
@@ -1095,14 +1007,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.3"
-  rfc_6901:
-    dependency: transitive
-    description:
-      name: rfc_6901
-      sha256: "6a43b1858dca2febaf93e15639aa6b0c49ccdfd7647775f15a499f872b018154"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
   riverpod:
     dependency: transitive
     description:
@@ -1212,22 +1116,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
-  sse:
-    dependency: transitive
-    description:
-      name: sse
-      sha256: fcc97470240bb37377f298e2bd816f09fd7216c07928641c0560719f50603643
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.8"
-  sse_channel:
-    dependency: transitive
-    description:
-      name: sse_channel
-      sha256: ad85fda353fae12533fd762dbd3ff275e710f216644e39459bf11a138124acad
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
   stack_trace:
     dependency: transitive
     description:
@@ -1324,14 +1212,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  uri:
-    dependency: transitive
-    description:
-      name: uri
-      sha256: "889eea21e953187c6099802b7b4cf5219ba8f3518f604a1033064d45b1b8268a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   uuid:
     dependency: transitive
     description:
@@ -1461,5 +1341,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.10.0 <4.0.0"
+  dart: ">=3.9.2 <4.0.0"
   flutter: ">=3.35.7 <4.0.0"

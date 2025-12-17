@@ -14,8 +14,6 @@ workspace:
   - packages/genui
   - packages/genui_a2ui
   - packages/genui_a2ui/example
-  - packages/genui_dartantic
-  - packages/genui_dartantic/example
   - packages/genui_firebase_ai
   - packages/genui_google_generative_ai
   - packages/json_schema_builder

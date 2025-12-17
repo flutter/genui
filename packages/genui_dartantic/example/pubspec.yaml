@@ -6,7 +6,6 @@ name: tic_tac_toe
 description: A Tic Tac Toe example using GenUI and Dartantic.
 publish_to: 'none'
 version: 0.1.0
-resolution: workspace
 
 environment:
   sdk: ^3.10.0
@@ -15,8 +14,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  genui: ^0.5.1
-  genui_dartantic: ^0.5.1
+  genui: ^0.6.0
+  genui_dartantic: ^0.6.0
   dartantic_ai: ^2.0.1
   json_schema: ^5.2.0
   json_schema_builder: ^0.1.3
