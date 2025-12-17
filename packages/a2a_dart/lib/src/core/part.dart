@@ -35,6 +35,9 @@ abstract class Part with _$Part {
 
     /// The file details, specifying the file's location (URI) or content
     /// (bytes).
+    // Annotation is placed on the parameter, but is intended for the generated
+    // field. This is a false positive.
+    // ignore: invalid_annotation_target
     @JsonKey(name: 'data') required FileType file,
 
     /// Optional metadata associated with this file part.
