@@ -7,6 +7,6 @@
 /// More dartdocs go here.
 library;
 
-export 'src/ai_primitives_base.dart';
+export 'src/genai_primitives_base.dart';
 
 // TODO: Export any libraries intended for clients of this package.
