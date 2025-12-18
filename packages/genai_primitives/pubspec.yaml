@@ -3,11 +3,18 @@
 # found in the LICENSE file.
 
 name: genai_primitives
-description: TODO - add description
+description: A set of primitives for working with generative AI.
 version: 0.0.1-dev.1
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
+
+dependencies:
+  cross_file: ^0.3.5+1
+  json_schema: ^5.2.0
+  meta: ^1.17.0
+  mime: ^2.0.0
+  path: ^1.9.1
 
 dev_dependencies:
   lints: ^6.0.0
