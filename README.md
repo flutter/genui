@@ -116,6 +116,7 @@ graph TD
   examples/custom_backend --> genui
   genui --> json_schema_builder
   genui_a2ui --> genui
+  genui_dartantic --> genui
   genui_firebase_ai --> genui
   genui_google_generative_ai --> genui
 ```
