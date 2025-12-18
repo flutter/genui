@@ -22,7 +22,7 @@ void main() {
       );
       expect(tool.name, equals('test_tool'));
       expect(tool.description, equals('A test tool'));
-      expect(tool.inputSchema.schemaMap, isNotNull);
+      expect(tool.inputSchema.value, isNotNull);
     });
 
     test('Can create ToolPart.call', () {
