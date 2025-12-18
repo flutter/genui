@@ -5,7 +5,6 @@
 name: genai_primitives
 description: A set of primitives for working with generative AI.
 version: 0.1.0
-repository: https://github.com/flutter/genui/
 homepage: https://github.com/flutter/genui/tree/main/packages/genai_primitives
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
