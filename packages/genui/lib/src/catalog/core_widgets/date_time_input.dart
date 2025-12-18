@@ -18,7 +18,6 @@ final _schema = S.object(
     ),
     'enableDate': S.boolean(),
     'enableTime': S.boolean(),
-    'outputFormat': S.string(),
     'firstDate': S.string(
       description:
           'The earliest selectable date (YYYY-MM-DD). Defaults to -9999-01-01.',
@@ -36,14 +35,12 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
     required JsonMap value,
     bool? enableDate,
     bool? enableTime,
-    String? outputFormat,
     String? firstDate,
     String? lastDate,
   }) => _DateTimeInputData.fromMap({
     'value': value,
     'enableDate': enableDate,
     'enableTime': enableTime,
-    'outputFormat': outputFormat,
     'firstDate': firstDate,
     'lastDate': lastDate,
   });
@@ -51,7 +48,6 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
   JsonMap get value => _json['value'] as JsonMap;
   bool get enableDate => (_json['enableDate'] as bool?) ?? true;
   bool get enableTime => (_json['enableTime'] as bool?) ?? true;
-  String? get outputFormat => _json['outputFormat'] as String?;
   DateTime get firstDate =>
       DateTime.tryParse(_json['firstDate'] as String? ?? '') ?? DateTime(-9999);
   DateTime get lastDate =>
@@ -132,8 +128,7 @@ final dateTimeInput = CatalogItem(
               "value": {
                 "path": "/myDate"
               },
-              "enableTime": false,
-              "outputFormat": "date_only"
+              "enableTime": false
             }
           }
         }
@@ -148,8 +143,7 @@ final dateTimeInput = CatalogItem(
               "value": {
                 "path": "/myTime"
               },
-              "enableDate": false,
-              "outputFormat": "time_only"
+              "enableDate": false
             }
           }
         }
@@ -206,15 +200,16 @@ Future<void> _handleTap({
   );
 
   String formattedValue;
-  final String? format = data.outputFormat;
 
-  if (format == 'date_only' || (!data.enableTime && format == null)) {
+  if (data.enableDate && !data.enableTime) {
     formattedValue = finalDateTime.toIso8601String().split('T').first;
-  } else if (format == 'time_only' || (!data.enableDate && format == null)) {
+  } else if (!data.enableDate && data.enableTime) {
     final String hour = finalDateTime.hour.toString().padLeft(2, '0');
     final String minute = finalDateTime.minute.toString().padLeft(2, '0');
     formattedValue = '$hour:$minute:00';
   } else {
+    // Both enabled (or both disabled, which shouldn't happen),
+    // write full ISO string.
     formattedValue = finalDateTime.toIso8601String();
   }
 
