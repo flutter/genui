@@ -109,7 +109,7 @@ class ChatMessage {
           mapEquals(metadata, other.metadata);
 
   @override
-  int get hashCode => role.hashCode ^ parts.hashCode ^ metadata.hashCode;
+  int get hashCode => Object.hash(role, Object.hashAll(parts), Object.hashAll(metadata.entries));
 
   @override
   String toString() =>
