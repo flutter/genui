@@ -199,7 +199,7 @@ class DataPart extends Part {
           name == other.name;
 
   @override
-  int get hashCode => bytes.hashCode ^ mimeType.hashCode ^ name.hashCode;
+  int get hashCode => Object.hash(mimeType, name, Object.hashAll(bytes));
 
   @override
   String toString() =>
