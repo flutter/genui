@@ -168,8 +168,8 @@ Future<void> _handleTap({
       DateTime.tryParse('1970-01-01T$value') ??
       DateTime.now();
 
-  DateTime resultDate = initialDate;
-  TimeOfDay resultTime = TimeOfDay.fromDateTime(initialDate);
+  var resultDate = initialDate;
+  var resultTime = TimeOfDay.fromDateTime(initialDate);
 
   if (data.enableDate) {
     final DateTime? pickedDate = await showDatePicker(
@@ -237,7 +237,7 @@ String _getDisplayText(
   }
 
   String formatDateTime(DateTime date) {
-    final parts = [
+    final List<String> parts = [
       if (data.enableDate) localizations.formatFullDate(date),
       if (data.enableTime)
         localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date)),
