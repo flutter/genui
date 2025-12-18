@@ -19,6 +19,14 @@ final _schema = S.object(
     'enableDate': S.boolean(),
     'enableTime': S.boolean(),
     'outputFormat': S.string(),
+    'firstDate': S.string(
+      description:
+          'The earliest selectable date (YYYY-MM-DD). Defaults to 1900-01-01.',
+    ),
+    'lastDate': S.string(
+      description:
+          'The latest selectable date (YYYY-MM-DD). Defaults to 2100-12-31.',
+    ),
   },
   required: ['value'],
 );
@@ -29,17 +37,25 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
     bool? enableDate,
     bool? enableTime,
     String? outputFormat,
+    String? firstDate,
+    String? lastDate,
   }) => _DateTimeInputData.fromMap({
     'value': value,
     'enableDate': enableDate,
     'enableTime': enableTime,
     'outputFormat': outputFormat,
+    'firstDate': firstDate,
+    'lastDate': lastDate,
   });
 
   JsonMap get value => _json['value'] as JsonMap;
   bool get enableDate => (_json['enableDate'] as bool?) ?? true;
   bool get enableTime => (_json['enableTime'] as bool?) ?? true;
   String? get outputFormat => _json['outputFormat'] as String?;
+  DateTime get firstDate =>
+      DateTime.tryParse(_json['firstDate'] as String? ?? '') ?? DateTime(1900);
+  DateTime get lastDate =>
+      DateTime.tryParse(_json['lastDate'] as String? ?? '') ?? DateTime(2100);
 }
 
 /// A catalog item representing a Material Design date and/or time input field.
@@ -157,39 +173,35 @@ Future<void> _handleTap({
       DateTime.tryParse('1970-01-01T$value') ??
       DateTime.now();
 
-  DateTime? newDate;
+  DateTime resultDate = initialDate;
+  TimeOfDay resultTime = TimeOfDay.fromDateTime(initialDate);
+
   if (data.enableDate) {
-    newDate = await showDatePicker(
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: data.firstDate,
+      lastDate: data.lastDate,
     );
-    if (newDate == null) return; // User cancelled.
-  } else {
-    newDate = initialDate;
+    if (pickedDate == null) return; // User cancelled.
+    resultDate = pickedDate;
   }
 
-  TimeOfDay? newTime;
   if (data.enableTime) {
-    newTime = await showTimePicker(
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initialDate),
     );
-    if (newTime == null) {
-      // User cancelled.
-      return;
-    }
-  } else {
-    newTime = TimeOfDay.fromDateTime(initialDate);
+    if (pickedTime == null) return; // User cancelled.
+    resultTime = pickedTime;
   }
 
   final finalDateTime = DateTime(
-    newDate.year,
-    newDate.month,
-    newDate.day,
-    data.enableTime ? newTime.hour : 0,
-    data.enableTime ? newTime.minute : 0,
+    resultDate.year,
+    resultDate.month,
+    resultDate.day,
+    data.enableTime ? resultTime.hour : 0,
+    data.enableTime ? resultTime.minute : 0,
   );
 
   String formattedValue;
@@ -229,27 +241,12 @@ String _getDisplayText(
   }
 
   String formatDateTime(DateTime date) {
-    var datePart = '';
-    var timePart = '';
-
-    if (data.enableDate) {
-      datePart = localizations.formatMediumDate(date);
-    }
-
-    if (data.enableTime) {
-      timePart = localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date));
-    }
-
-    if (data.enableDate && data.enableTime) {
-      return '$datePart $timePart';
-    } else if (data.enableDate) {
-      return datePart;
-    } else if (data.enableTime) {
-      return timePart;
-    }
-
-    // Fallback if neither is enabled (shouldn't happen with defaults).
-    return '$datePart $timePart'.trim();
+    final parts = [
+      if (data.enableDate) localizations.formatMediumDate(date),
+      if (data.enableTime)
+        localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date)),
+    ];
+    return parts.join(' ');
   }
 
   if (value == null) {

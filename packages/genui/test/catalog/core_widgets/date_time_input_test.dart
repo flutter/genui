@@ -144,6 +144,47 @@ void main() {
       robot.expectTimePickerHidden();
     });
   });
+
+  group('date range configuration', () {
+    testWidgets('respects custom firstDate and lastDate', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('custom_range', {
+        'value': {'path': '/myDate'},
+        'firstDate': '2020-01-01',
+        'lastDate': '2030-12-31',
+      });
+
+      await robot.pumpSurface(manager, surfaceId);
+
+      await robot.openPicker('custom_range');
+
+      final DatePickerDialog dialog = tester.widget(
+        find.byType(DatePickerDialog),
+      );
+      expect(dialog.firstDate, DateTime(2020));
+      expect(dialog.lastDate, DateTime(2030, 12, 31));
+
+      await robot.cancelPicker();
+    });
+
+    testWidgets('defaults to 1900-2100 when not specified', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('default_range', {
+        'value': {'path': '/myDate'},
+      });
+
+      await robot.pumpSurface(manager, surfaceId);
+      await robot.openPicker('default_range');
+
+      final DatePickerDialog dialog = tester.widget(
+        find.byType(DatePickerDialog),
+      );
+      expect(dialog.firstDate, DateTime(1900));
+      expect(dialog.lastDate, DateTime(2100));
+
+      await robot.cancelPicker();
+    });
+  });
 }
 
 (GenUiHost, String) setup(String componentId, Map<String, dynamic> props) {
