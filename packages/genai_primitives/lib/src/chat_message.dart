@@ -23,7 +23,7 @@ class ChatMessage {
     parts: (json['parts'] as List<dynamic>)
         .map((p) => Part.fromJson(p as Map<String, dynamic>))
         .toList(),
-    metadata: json['metadata'] as Map<String, dynamic>,
+    metadata: (json['metadata'] as Map<String, dynamic>?) ?? const {},
   );
 
   /// Creates a system message.
