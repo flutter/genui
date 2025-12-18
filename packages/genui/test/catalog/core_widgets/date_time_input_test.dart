@@ -20,7 +20,7 @@ void main() {
 
     await robot.pumpSurface(manager, surfaceId);
 
-    robot.expectInputText('datetime', 'Wed, Oct 15');
+    robot.expectInputText('datetime', 'Wednesday, October 15, 2025');
   });
 
   testWidgets('displays correct placeholder/initial text based on mode', (
@@ -140,6 +140,7 @@ void main() {
       expect(value, isNotNull);
       // Verify that no time is included in the value.
       expect(value, equals('2022-01-20'));
+      robot.expectInputText('date_only_mode', 'Thursday, January 20, 2022');
 
       robot.expectTimePickerHidden();
     });
@@ -248,7 +249,11 @@ class DateTimeInputRobot {
   void expectInputText(String componentId, String text) {
     final Finder finder = find.byKey(Key('${componentId}_text'));
     expect(finder, findsOneWidget);
-    expect(tester.widget<Text>(finder).data, text);
+    final String actualText = tester.widget<Text>(finder).data!;
+    if (actualText != text) {
+      print('EXPECTATION FAILED: Expected "$text", found "$actualText"');
+    }
+    expect(actualText, text);
   }
 
   void expectPickerText(String text) {

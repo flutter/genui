@@ -243,7 +243,7 @@ String _getDisplayText(
 
   String formatDateTime(DateTime date) {
     final parts = [
-      if (data.enableDate) localizations.formatMediumDate(date),
+      if (data.enableDate) localizations.formatFullDate(date),
       if (data.enableTime)
         localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date)),
     ];
