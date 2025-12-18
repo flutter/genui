@@ -1,5 +1,7 @@
 # `genui_google_generative_ai` Changelog
 
+## 0.6.1 (in progress)
+
 ## 0.6.0
 
 - **BREAKING**: Removed `GenUiConfiguration` from `GoogleGenerativeAiContentGenerator`.
