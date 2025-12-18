@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Helper functions for equality checks
 bool listEquals<T>(List<T>? a, List<T>? b) {
   if (a == null) return b == null;
