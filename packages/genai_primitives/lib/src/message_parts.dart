@@ -86,40 +86,47 @@ abstract class Part {
   }
 
   /// Converts the part to a JSON-compatible map.
-  Map<String, dynamic> toJson() => {
-    'type': runtimeType.toString(),
-    'content': switch (this) {
-      TextPart(text: final text) => text,
-      DataPart(
-        bytes: final bytes,
-        mimeType: final mimeType,
-        name: final name,
-      ) =>
-        {
-          if (name != null) 'name': name,
-          'mimeType': mimeType,
-          'bytes': 'data:$mimeType;base64,${base64Encode(bytes)}',
-        },
-      LinkPart(url: final url, mimeType: final mimeType, name: final name) => {
-        if (name != null) 'name': name,
-        if (mimeType != null) 'mimeType': mimeType,
-        'url': url.toString(),
-      },
-      ToolPart(
-        id: final id,
-        name: final name,
-        arguments: final arguments,
-        result: final result,
-      ) =>
-        {
-          'id': id,
-          'name': name,
-          if (arguments != null) 'arguments': arguments,
-          if (result != null) 'result': result,
-        },
-      _ => throw UnimplementedError('Unknown part type: $runtimeType'),
-    },
-  };
+  Map<String, dynamic> toJson() {
+    final String typeName;
+    final Object content;
+    switch (this) {
+      case final TextPart p:
+        typeName = "TextPart";
+        content = p.text;
+        break;
+      case final DataPart p:
+        typeName = "DataPart";
+        content = {
+          if (p.name != null) 'name': p.name,
+          'mimeType': p.mimeType,
+          'bytes': 'data:${p.mimeType};base64,${base64Encode(p.bytes)}',
+        };
+        break;
+      case final LinkPart p:
+        typeName = "LinkPart";
+        content = {
+          if (p.name != null) 'name': p.name,
+          if (p.mimeType != null) 'mimeType': p.mimeType,
+          'url': p.url.toString(),
+        };
+        break;
+      case final ToolPart p:
+        typeName = "ToolPart";
+        content = {
+          'id': p.id,
+          'name': p.name,
+          if (p.arguments != null) 'arguments': p.arguments,
+          if (p.result != null) 'result': p.result,
+        };
+        break;
+      default:
+        throw UnimplementedError('Unknown part type: $runtimeType');
+    }
+    return {
+      'type': typeName,
+      'content': content,
+    };
+  }
 }
 
 /// A text part of a message.
