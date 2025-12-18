@@ -22,9 +22,14 @@ class FakeA2AClient implements a2a.A2AClient {
   a2a.A2AMessageSendParams? lastSendMessageParams;
 
   @override
+  Future<a2a.A2AClient> init() async {
+    return this;
+  }
+
+  @override
   Future<a2a.A2AAgentCard> getAgentCard({
     String? agentBaseUrl,
-    String agentCardPath = '/agent_card',
+    String? agentCardPath,
   }) async {
     getAgentCardCalled++;
     if (agentCard != null) {
@@ -94,12 +99,6 @@ class FakeA2AClient implements a2a.A2AClient {
   }
 
   @override
-  String agentBaseUrl = '';
-
-  @override
-  String agentCardPath = '';
-
-  @override
   Future<a2a.A2AListTaskPushNotificationConfigResponse>
   listTaskPushNotificationConfig(
     a2a.A2AListTaskPushNotificationConfigParams params,
@@ -119,6 +118,18 @@ class FakeA2AClient implements a2a.A2AClient {
   @override
   // TODO: implement serviceEndpoint
   Future<String> get serviceEndpoint => throw UnimplementedError();
+
+  @override
+  String? agentBaseUrl;
+
+  @override
+  String? agentCardPath;
+
+  @override
+  a2a.A2AAuthenticationHandler? authenticationHandler;
+
+  @override
+  Map<String, String> customHeaders = {};
 }
 
 class FakeA2uiAgentConnector implements A2uiAgentConnector {
