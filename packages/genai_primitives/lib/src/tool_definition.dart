@@ -1,4 +1,4 @@
-import 'package:json_schema/json_schema.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 /// A tool that can be called by the LLM.
 class ToolDefinition<TInput extends Object> {
@@ -6,12 +6,12 @@ class ToolDefinition<TInput extends Object> {
   ToolDefinition({
     required this.name,
     required this.description,
-    JsonSchema? inputSchema,
+    Schema? inputSchema,
   }) : inputSchema =
            inputSchema ??
-           JsonSchema.create({
+           Schema.fromMap({
              'type': 'object',
-             'properties': <String, JsonSchema>{},
+             'properties': <String, dynamic>{},
            });
 
   /// The unique name of the tool that clearly communicates its purpose.
@@ -23,12 +23,12 @@ class ToolDefinition<TInput extends Object> {
 
   /// Schema to parse and validate tool's input arguments. Following the [JSON
   /// Schema specification](https://json-schema.org).
-  final JsonSchema inputSchema;
+  final Schema inputSchema;
 
   /// Converts the tool to a JSON-serializable map.
   Map<String, dynamic> toJson() => {
     'name': name,
     'description': description,
-    'inputSchema': inputSchema.schemaMap ?? {},
+    'inputSchema': inputSchema.value,
   };
 }
