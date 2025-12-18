@@ -117,12 +117,17 @@ void main() {
   });
 
   group('date only mode', () {
-    testWidgets('updates immediately after date selection', (tester) async {
+    testWidgets('updates immediately with date-only string after '
+        'date selection', (tester) async {
       final robot = DateTimeInputRobot(tester);
       final (GenUiHost manager, String surfaceId) = setup('date_only_mode', {
         'value': {'path': '/myDate'},
         'enableTime': false,
       });
+
+      manager
+          .dataModelForSurface(surfaceId)
+          .update(DataPath('/myDate'), '2022-01-01');
 
       await robot.pumpSurface(manager, surfaceId);
 
@@ -133,7 +138,8 @@ void main() {
           .dataModelForSurface(surfaceId)
           .getValue<String>(DataPath('/myDate'));
       expect(value, isNotNull);
-      expect(value, contains('2025-12-20'));
+      // Verify that no time is included in the value.
+      expect(value, equals('2022-01-20'));
 
       robot.expectTimePickerHidden();
     });
