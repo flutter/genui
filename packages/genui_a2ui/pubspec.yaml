@@ -16,7 +16,6 @@ environment:
 resolution: workspace
 
 dependencies:
-  # TODO: Unpin when fixed: https://github.com/flutter/genui/issues/614
   a2a: ^3.3.0
   flutter:
     sdk: flutter
