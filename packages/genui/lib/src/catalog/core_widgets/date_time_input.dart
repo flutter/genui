@@ -21,11 +21,11 @@ final _schema = S.object(
     'outputFormat': S.string(),
     'firstDate': S.string(
       description:
-          'The earliest selectable date (YYYY-MM-DD). Defaults to 1900-01-01.',
+          'The earliest selectable date (YYYY-MM-DD). Defaults to -9999-01-01.',
     ),
     'lastDate': S.string(
       description:
-          'The latest selectable date (YYYY-MM-DD). Defaults to 2100-12-31.',
+          'The latest selectable date (YYYY-MM-DD). Defaults to 9999-12-31.',
     ),
   },
   required: ['value'],
@@ -53,9 +53,10 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
   bool get enableTime => (_json['enableTime'] as bool?) ?? true;
   String? get outputFormat => _json['outputFormat'] as String?;
   DateTime get firstDate =>
-      DateTime.tryParse(_json['firstDate'] as String? ?? '') ?? DateTime(1900);
+      DateTime.tryParse(_json['firstDate'] as String? ?? '') ?? DateTime(-9999);
   DateTime get lastDate =>
-      DateTime.tryParse(_json['lastDate'] as String? ?? '') ?? DateTime(2100);
+      DateTime.tryParse(_json['lastDate'] as String? ?? '') ??
+      DateTime(9999, 12, 31);
 }
 
 /// A catalog item representing a Material Design date and/or time input field.

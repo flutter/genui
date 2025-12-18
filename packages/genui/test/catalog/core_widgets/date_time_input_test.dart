@@ -167,7 +167,7 @@ void main() {
       await robot.cancelPicker();
     });
 
-    testWidgets('defaults to 1900-2100 when not specified', (tester) async {
+    testWidgets('defaults to -9999 to 9999 when not specified', (tester) async {
       final robot = DateTimeInputRobot(tester);
       final (GenUiHost manager, String surfaceId) = setup('default_range', {
         'value': {'path': '/myDate'},
@@ -179,8 +179,8 @@ void main() {
       final DatePickerDialog dialog = tester.widget(
         find.byType(DatePickerDialog),
       );
-      expect(dialog.firstDate, DateTime(1900));
-      expect(dialog.lastDate, DateTime(2100));
+      expect(dialog.firstDate, DateTime(-9999));
+      expect(dialog.lastDate, DateTime(9999, 12, 31));
 
       await robot.cancelPicker();
     });
