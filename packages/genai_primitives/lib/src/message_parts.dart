@@ -91,11 +91,11 @@ abstract class Part {
     final Object content;
     switch (this) {
       case final TextPart p:
-        typeName = "TextPart";
+        typeName = 'TextPart';
         content = p.text;
         break;
       case final DataPart p:
-        typeName = "DataPart";
+        typeName = 'DataPart';
         content = {
           if (p.name != null) 'name': p.name,
           'mimeType': p.mimeType,
@@ -103,7 +103,7 @@ abstract class Part {
         };
         break;
       case final LinkPart p:
-        typeName = "LinkPart";
+        typeName = 'LinkPart';
         content = {
           if (p.name != null) 'name': p.name,
           if (p.mimeType != null) 'mimeType': p.mimeType,
@@ -111,7 +111,7 @@ abstract class Part {
         };
         break;
       case final ToolPart p:
-        typeName = "ToolPart";
+        typeName = 'ToolPart';
         content = {
           'id': p.id,
           'name': p.name,
@@ -122,10 +122,7 @@ abstract class Part {
       default:
         throw UnimplementedError('Unknown part type: $runtimeType');
     }
-    return {
-      'type': typeName,
-      'content': content,
-    };
+    return {'type': typeName, 'content': content};
   }
 }
 
