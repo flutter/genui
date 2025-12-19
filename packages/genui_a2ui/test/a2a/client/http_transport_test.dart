@@ -43,5 +43,23 @@ void main() {
 
       expect(transport.send({}), throwsException);
     });
+
+    test('sendStream throws A2AException.unsupportedOperation', () {
+      final transport = HttpTransport(
+        url: 'http://localhost:8080',
+        client: FakeHttpClient({}),
+      );
+
+      expect(
+        () => transport.sendStream({}),
+        throwsA(
+          isA<A2AException>().having(
+            (e) => e.mapOrNull(unsupportedOperation: (_) => true),
+            'is unsupportedOperation',
+            true,
+          ),
+        ),
+      );
+    });
   });
 }

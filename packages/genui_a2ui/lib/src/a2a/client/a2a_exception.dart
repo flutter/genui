@@ -81,6 +81,10 @@ sealed class A2AException with _$A2AException implements Exception {
     required String message,
   }) = A2AParsingException;
 
+  /// Represents an operation that is not supported by the current implementation.
+  const factory A2AException.unsupportedOperation({required String message}) =
+      A2AUnsupportedOperationException;
+
   /// Deserializes an [A2AException] from a JSON object.
   factory A2AException.fromJson(Map<String, Object?> json) =>
       _$A2AExceptionFromJson(json);

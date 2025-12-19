@@ -129,3 +129,17 @@ Map<String, dynamic> _$A2AParsingExceptionToJson(
   'message': instance.message,
   'runtimeType': instance.$type,
 };
+
+A2AUnsupportedOperationException _$A2AUnsupportedOperationExceptionFromJson(
+  Map<String, dynamic> json,
+) => A2AUnsupportedOperationException(
+  message: json['message'] as String,
+  $type: json['runtimeType'] as String?,
+);
+
+Map<String, dynamic> _$A2AUnsupportedOperationExceptionToJson(
+  A2AUnsupportedOperationException instance,
+) => <String, dynamic>{
+  'message': instance.message,
+  'runtimeType': instance.$type,
+};

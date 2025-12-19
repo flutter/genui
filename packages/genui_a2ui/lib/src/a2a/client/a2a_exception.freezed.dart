@@ -47,6 +47,10 @@ A2AException _$A2AExceptionFromJson(
           return A2AParsingException.fromJson(
             json
           );
+                case 'unsupportedOperation':
+          return A2AUnsupportedOperationException.fromJson(
+            json
+          );
         
           default:
             throw CheckedFromJsonException(
@@ -105,7 +109,7 @@ extension A2AExceptionPatterns on A2AException {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( A2AJsonRpcException value)?  jsonRpc,TResult Function( A2ATaskNotFoundException value)?  taskNotFound,TResult Function( A2ATaskNotCancelableException value)?  taskNotCancelable,TResult Function( A2APushNotificationNotSupportedException value)?  pushNotificationNotSupported,TResult Function( A2APushNotificationConfigNotFoundException value)?  pushNotificationConfigNotFound,TResult Function( A2AHttpException value)?  http,TResult Function( A2ANetworkException value)?  network,TResult Function( A2AParsingException value)?  parsing,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( A2AJsonRpcException value)?  jsonRpc,TResult Function( A2ATaskNotFoundException value)?  taskNotFound,TResult Function( A2ATaskNotCancelableException value)?  taskNotCancelable,TResult Function( A2APushNotificationNotSupportedException value)?  pushNotificationNotSupported,TResult Function( A2APushNotificationConfigNotFoundException value)?  pushNotificationConfigNotFound,TResult Function( A2AHttpException value)?  http,TResult Function( A2ANetworkException value)?  network,TResult Function( A2AParsingException value)?  parsing,TResult Function( A2AUnsupportedOperationException value)?  unsupportedOperation,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case A2AJsonRpcException() when jsonRpc != null:
@@ -116,7 +120,8 @@ return pushNotificationNotSupported(_that);case A2APushNotificationConfigNotFoun
 return pushNotificationConfigNotFound(_that);case A2AHttpException() when http != null:
 return http(_that);case A2ANetworkException() when network != null:
 return network(_that);case A2AParsingException() when parsing != null:
-return parsing(_that);case _:
+return parsing(_that);case A2AUnsupportedOperationException() when unsupportedOperation != null:
+return unsupportedOperation(_that);case _:
   return orElse();
 
 }
@@ -134,7 +139,7 @@ return parsing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( A2AJsonRpcException value)  jsonRpc,required TResult Function( A2ATaskNotFoundException value)  taskNotFound,required TResult Function( A2ATaskNotCancelableException value)  taskNotCancelable,required TResult Function( A2APushNotificationNotSupportedException value)  pushNotificationNotSupported,required TResult Function( A2APushNotificationConfigNotFoundException value)  pushNotificationConfigNotFound,required TResult Function( A2AHttpException value)  http,required TResult Function( A2ANetworkException value)  network,required TResult Function( A2AParsingException value)  parsing,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( A2AJsonRpcException value)  jsonRpc,required TResult Function( A2ATaskNotFoundException value)  taskNotFound,required TResult Function( A2ATaskNotCancelableException value)  taskNotCancelable,required TResult Function( A2APushNotificationNotSupportedException value)  pushNotificationNotSupported,required TResult Function( A2APushNotificationConfigNotFoundException value)  pushNotificationConfigNotFound,required TResult Function( A2AHttpException value)  http,required TResult Function( A2ANetworkException value)  network,required TResult Function( A2AParsingException value)  parsing,required TResult Function( A2AUnsupportedOperationException value)  unsupportedOperation,}){
 final _that = this;
 switch (_that) {
 case A2AJsonRpcException():
@@ -145,7 +150,8 @@ return pushNotificationNotSupported(_that);case A2APushNotificationConfigNotFoun
 return pushNotificationConfigNotFound(_that);case A2AHttpException():
 return http(_that);case A2ANetworkException():
 return network(_that);case A2AParsingException():
-return parsing(_that);}
+return parsing(_that);case A2AUnsupportedOperationException():
+return unsupportedOperation(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -159,7 +165,7 @@ return parsing(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( A2AJsonRpcException value)?  jsonRpc,TResult? Function( A2ATaskNotFoundException value)?  taskNotFound,TResult? Function( A2ATaskNotCancelableException value)?  taskNotCancelable,TResult? Function( A2APushNotificationNotSupportedException value)?  pushNotificationNotSupported,TResult? Function( A2APushNotificationConfigNotFoundException value)?  pushNotificationConfigNotFound,TResult? Function( A2AHttpException value)?  http,TResult? Function( A2ANetworkException value)?  network,TResult? Function( A2AParsingException value)?  parsing,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( A2AJsonRpcException value)?  jsonRpc,TResult? Function( A2ATaskNotFoundException value)?  taskNotFound,TResult? Function( A2ATaskNotCancelableException value)?  taskNotCancelable,TResult? Function( A2APushNotificationNotSupportedException value)?  pushNotificationNotSupported,TResult? Function( A2APushNotificationConfigNotFoundException value)?  pushNotificationConfigNotFound,TResult? Function( A2AHttpException value)?  http,TResult? Function( A2ANetworkException value)?  network,TResult? Function( A2AParsingException value)?  parsing,TResult? Function( A2AUnsupportedOperationException value)?  unsupportedOperation,}){
 final _that = this;
 switch (_that) {
 case A2AJsonRpcException() when jsonRpc != null:
@@ -170,7 +176,8 @@ return pushNotificationNotSupported(_that);case A2APushNotificationConfigNotFoun
 return pushNotificationConfigNotFound(_that);case A2AHttpException() when http != null:
 return http(_that);case A2ANetworkException() when network != null:
 return network(_that);case A2AParsingException() when parsing != null:
-return parsing(_that);case _:
+return parsing(_that);case A2AUnsupportedOperationException() when unsupportedOperation != null:
+return unsupportedOperation(_that);case _:
   return null;
 
 }
@@ -187,7 +194,7 @@ return parsing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int code,  String message,  Map<String, Object?>? data)?  jsonRpc,TResult Function( String message,  Map<String, Object?>? data)?  taskNotFound,TResult Function( String message,  Map<String, Object?>? data)?  taskNotCancelable,TResult Function( String message,  Map<String, Object?>? data)?  pushNotificationNotSupported,TResult Function( String message,  Map<String, Object?>? data)?  pushNotificationConfigNotFound,TResult Function( int statusCode,  String? reason)?  http,TResult Function( String message)?  network,TResult Function( String message)?  parsing,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int code,  String message,  Map<String, Object?>? data)?  jsonRpc,TResult Function( String message,  Map<String, Object?>? data)?  taskNotFound,TResult Function( String message,  Map<String, Object?>? data)?  taskNotCancelable,TResult Function( String message,  Map<String, Object?>? data)?  pushNotificationNotSupported,TResult Function( String message,  Map<String, Object?>? data)?  pushNotificationConfigNotFound,TResult Function( int statusCode,  String? reason)?  http,TResult Function( String message)?  network,TResult Function( String message)?  parsing,TResult Function( String message)?  unsupportedOperation,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case A2AJsonRpcException() when jsonRpc != null:
 return jsonRpc(_that.code,_that.message,_that.data);case A2ATaskNotFoundException() when taskNotFound != null:
@@ -197,7 +204,8 @@ return pushNotificationNotSupported(_that.message,_that.data);case A2APushNotifi
 return pushNotificationConfigNotFound(_that.message,_that.data);case A2AHttpException() when http != null:
 return http(_that.statusCode,_that.reason);case A2ANetworkException() when network != null:
 return network(_that.message);case A2AParsingException() when parsing != null:
-return parsing(_that.message);case _:
+return parsing(_that.message);case A2AUnsupportedOperationException() when unsupportedOperation != null:
+return unsupportedOperation(_that.message);case _:
   return orElse();
 
 }
@@ -215,7 +223,7 @@ return parsing(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int code,  String message,  Map<String, Object?>? data)  jsonRpc,required TResult Function( String message,  Map<String, Object?>? data)  taskNotFound,required TResult Function( String message,  Map<String, Object?>? data)  taskNotCancelable,required TResult Function( String message,  Map<String, Object?>? data)  pushNotificationNotSupported,required TResult Function( String message,  Map<String, Object?>? data)  pushNotificationConfigNotFound,required TResult Function( int statusCode,  String? reason)  http,required TResult Function( String message)  network,required TResult Function( String message)  parsing,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int code,  String message,  Map<String, Object?>? data)  jsonRpc,required TResult Function( String message,  Map<String, Object?>? data)  taskNotFound,required TResult Function( String message,  Map<String, Object?>? data)  taskNotCancelable,required TResult Function( String message,  Map<String, Object?>? data)  pushNotificationNotSupported,required TResult Function( String message,  Map<String, Object?>? data)  pushNotificationConfigNotFound,required TResult Function( int statusCode,  String? reason)  http,required TResult Function( String message)  network,required TResult Function( String message)  parsing,required TResult Function( String message)  unsupportedOperation,}) {final _that = this;
 switch (_that) {
 case A2AJsonRpcException():
 return jsonRpc(_that.code,_that.message,_that.data);case A2ATaskNotFoundException():
@@ -225,7 +233,8 @@ return pushNotificationNotSupported(_that.message,_that.data);case A2APushNotifi
 return pushNotificationConfigNotFound(_that.message,_that.data);case A2AHttpException():
 return http(_that.statusCode,_that.reason);case A2ANetworkException():
 return network(_that.message);case A2AParsingException():
-return parsing(_that.message);}
+return parsing(_that.message);case A2AUnsupportedOperationException():
+return unsupportedOperation(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -239,7 +248,7 @@ return parsing(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int code,  String message,  Map<String, Object?>? data)?  jsonRpc,TResult? Function( String message,  Map<String, Object?>? data)?  taskNotFound,TResult? Function( String message,  Map<String, Object?>? data)?  taskNotCancelable,TResult? Function( String message,  Map<String, Object?>? data)?  pushNotificationNotSupported,TResult? Function( String message,  Map<String, Object?>? data)?  pushNotificationConfigNotFound,TResult? Function( int statusCode,  String? reason)?  http,TResult? Function( String message)?  network,TResult? Function( String message)?  parsing,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int code,  String message,  Map<String, Object?>? data)?  jsonRpc,TResult? Function( String message,  Map<String, Object?>? data)?  taskNotFound,TResult? Function( String message,  Map<String, Object?>? data)?  taskNotCancelable,TResult? Function( String message,  Map<String, Object?>? data)?  pushNotificationNotSupported,TResult? Function( String message,  Map<String, Object?>? data)?  pushNotificationConfigNotFound,TResult? Function( int statusCode,  String? reason)?  http,TResult? Function( String message)?  network,TResult? Function( String message)?  parsing,TResult? Function( String message)?  unsupportedOperation,}) {final _that = this;
 switch (_that) {
 case A2AJsonRpcException() when jsonRpc != null:
 return jsonRpc(_that.code,_that.message,_that.data);case A2ATaskNotFoundException() when taskNotFound != null:
@@ -249,7 +258,8 @@ return pushNotificationNotSupported(_that.message,_that.data);case A2APushNotifi
 return pushNotificationConfigNotFound(_that.message,_that.data);case A2AHttpException() when http != null:
 return http(_that.statusCode,_that.reason);case A2ANetworkException() when network != null:
 return network(_that.message);case A2AParsingException() when parsing != null:
-return parsing(_that.message);case _:
+return parsing(_that.message);case A2AUnsupportedOperationException() when unsupportedOperation != null:
+return unsupportedOperation(_that.message);case _:
   return null;
 
 }
@@ -897,6 +907,79 @@ class _$A2AParsingExceptionCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
   return _then(A2AParsingException(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class A2AUnsupportedOperationException implements A2AException {
+  const A2AUnsupportedOperationException({required this.message, final  String? $type}): $type = $type ?? 'unsupportedOperation';
+  factory A2AUnsupportedOperationException.fromJson(Map<String, dynamic> json) => _$A2AUnsupportedOperationExceptionFromJson(json);
+
+ final  String message;
+
+@JsonKey(name: 'runtimeType')
+final String $type;
+
+
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$A2AUnsupportedOperationExceptionCopyWith<A2AUnsupportedOperationException> get copyWith => _$A2AUnsupportedOperationExceptionCopyWithImpl<A2AUnsupportedOperationException>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$A2AUnsupportedOperationExceptionToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is A2AUnsupportedOperationException&&(identical(other.message, message) || other.message == message));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'A2AException.unsupportedOperation(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $A2AUnsupportedOperationExceptionCopyWith<$Res> implements $A2AExceptionCopyWith<$Res> {
+  factory $A2AUnsupportedOperationExceptionCopyWith(A2AUnsupportedOperationException value, $Res Function(A2AUnsupportedOperationException) _then) = _$A2AUnsupportedOperationExceptionCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$A2AUnsupportedOperationExceptionCopyWithImpl<$Res>
+    implements $A2AUnsupportedOperationExceptionCopyWith<$Res> {
+  _$A2AUnsupportedOperationExceptionCopyWithImpl(this._self, this._then);
+
+  final A2AUnsupportedOperationException _self;
+  final $Res Function(A2AUnsupportedOperationException) _then;
+
+/// Create a copy of A2AException
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(A2AUnsupportedOperationException(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
   ));

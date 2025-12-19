@@ -75,11 +75,12 @@ class A2uiAgentConnector {
     genui.ChatMessage chatMessage, {
     genui.A2UiClientCapabilities? clientCapabilities,
   }) async {
-    final List<genui.MessagePart> parts = (chatMessage is genui.UserMessage)
-        ? chatMessage.parts
-        : (chatMessage is genui.UserUiInteractionMessage)
-        ? chatMessage.parts
-        : <genui.MessagePart>[];
+    final List<genui.MessagePart> parts = switch (chatMessage) {
+      genui.UserMessage(parts: final p) => p,
+      genui.UserUiInteractionMessage(parts: final p) => p,
+      _ => <genui.MessagePart>[],
+    };
+
     final message = Message(
       messageId: const Uuid().v4(),
       role: Role.user,

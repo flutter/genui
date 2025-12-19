@@ -99,7 +99,7 @@ class HttpTransport implements Transport {
     Map<String, Object?> request, {
     Map<String, String> headers = const {},
   }) {
-    throw const A2AException.network(
+    throw const A2AException.unsupportedOperation(
       message:
           'Streaming is not supported by HttpTransport. Use SseTransport '
           'instead.',
