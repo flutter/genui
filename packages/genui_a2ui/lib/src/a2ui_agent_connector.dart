@@ -186,6 +186,37 @@ class A2uiAgentConnector {
             }
           }
         }
+        if (event is StatusUpdate) {
+          taskId = event.taskId;
+          _contextId = event.contextId;
+          final Message? message = event.status.message;
+
+          switch (event.status.state) {
+            case TaskState.failed:
+            case TaskState.canceled:
+            case TaskState.rejected:
+              final errorMessage =
+                  'A2A Error: ${event.status.state}: ${event.status.message}';
+              _log.severe(errorMessage);
+              if (!_errorController.isClosed) {
+                _errorController.add(errorMessage);
+              }
+              continue;
+            default:
+          }
+
+          if (message != null) {
+            finalResponse = message;
+            _log.info(
+              'Received A2A Message:\n${encoder.convert(message.toJson())}',
+            );
+            for (final Part part in message.parts) {
+              if (part is DataPart) {
+                _processA2uiMessages(part.data);
+              }
+            }
+          }
+        }
       }
       if (finalResponse != null) {
         for (final Part part in finalResponse.parts) {

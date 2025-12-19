@@ -16,12 +16,30 @@ part 'events.g.dart';
 /// This is a discriminated union based on the `kind` field. It's used by the
 /// client to handle various types of updates from the server in a type-safe
 /// way.
-@Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.snake)
+@Freezed(unionKey: 'kind', unionValueCase: FreezedUnionCase.kebab)
 sealed class Event with _$Event {
   /// Indicates an update to the task's status.
+  const factory Event.statusUpdate({
+    /// The type of this event, always 'status-update'.
+    @Default('status-update') String kind,
+
+    /// The unique ID of the updated task.
+    required String taskId,
+
+    /// The unique context ID for the task.
+    required String contextId,
+
+    /// The new status of the task.
+    required TaskStatus status,
+
+    /// If `true`, this is the final event for this task stream.
+    @JsonKey(name: 'final') @Default(false) bool final_,
+  }) = StatusUpdate;
+
+  /// Indicates an update to the task's status in a streaming context.
   const factory Event.taskStatusUpdate({
-    /// The type of this event, always 'task_status_update'.
-    @Default('task_status_update') String kind,
+    /// The type of this event, always 'task-status-update'.
+    @Default('task-status-update') String kind,
 
     /// The unique ID of the updated task.
     required String taskId,
@@ -37,9 +55,9 @@ sealed class Event with _$Event {
   }) = TaskStatusUpdate;
 
   /// Indicates a new or updated artifact related to the task.
-  const factory Event.taskArtifactUpdate({
-    /// The type of this event, always 'task_artifact_update'.
-    @Default('task_artifact_update') String kind,
+  const factory Event.artifactUpdate({
+    /// The type of this event, always 'task-artifact-update'.
+    @Default('artifact-update') String kind,
 
     /// The unique ID of the task this artifact belongs to.
     required String taskId,
@@ -56,7 +74,7 @@ sealed class Event with _$Event {
 
     /// If `true`, this is the last chunk of data for this artifact.
     required bool lastChunk,
-  }) = TaskArtifactUpdate;
+  }) = ArtifactUpdate;
 
   /// Deserializes an [Event] from a JSON object.
   factory Event.fromJson(Map<String, Object?> json) => _$EventFromJson(json);

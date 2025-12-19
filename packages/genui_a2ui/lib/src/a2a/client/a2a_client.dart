@@ -210,22 +210,14 @@ class A2AClient {
               if (data['kind'] == 'task') {
                 final task = Task.fromJson(data);
                 sink.add(
-                  Event.taskStatusUpdate(
+                  Event.statusUpdate(
                     taskId: task.id,
                     contextId: task.contextId,
                     status: task.status,
                     final_: false,
                   ),
                 );
-              } else if (data['kind'] == 'status-update') {
-                final mutableData = Map<String, Object?>.from(data);
-                mutableData['kind'] = 'task_status_update';
-                if (mutableData.containsKey('end')) {
-                  mutableData['final'] = mutableData['end'] ?? false;
-                }
-                sink.add(Event.fromJson(mutableData));
               } else {
-                // Skip keepalive events
                 sink.add(Event.fromJson(data));
               }
             }

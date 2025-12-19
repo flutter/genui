@@ -15,12 +15,16 @@ Event _$EventFromJson(
   Map<String, dynamic> json
 ) {
         switch (json['kind']) {
-                  case 'task_status_update':
+                  case 'status-update':
+          return StatusUpdate.fromJson(
+            json
+          );
+                case 'task-status-update':
           return TaskStatusUpdate.fromJson(
             json
           );
-                case 'task_artifact_update':
-          return TaskArtifactUpdate.fromJson(
+                case 'artifact-update':
+          return ArtifactUpdate.fromJson(
             json
           );
         
@@ -38,7 +42,7 @@ Event _$EventFromJson(
 /// @nodoc
 mixin _$Event {
 
-/// The type of this event, always 'task_status_update'.
+/// The type of this event, always 'task-status-update'.
  String get kind;/// The unique ID of the updated task.
  String get taskId;/// The unique context ID for the task.
  String get contextId;
@@ -117,12 +121,13 @@ extension EventPatterns on Event {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( TaskStatusUpdate value)?  taskStatusUpdate,TResult Function( TaskArtifactUpdate value)?  taskArtifactUpdate,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( StatusUpdate value)?  statusUpdate,TResult Function( TaskStatusUpdate value)?  taskStatusUpdate,TResult Function( ArtifactUpdate value)?  artifactUpdate,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case TaskStatusUpdate() when taskStatusUpdate != null:
-return taskStatusUpdate(_that);case TaskArtifactUpdate() when taskArtifactUpdate != null:
-return taskArtifactUpdate(_that);case _:
+case StatusUpdate() when statusUpdate != null:
+return statusUpdate(_that);case TaskStatusUpdate() when taskStatusUpdate != null:
+return taskStatusUpdate(_that);case ArtifactUpdate() when artifactUpdate != null:
+return artifactUpdate(_that);case _:
   return orElse();
 
 }
@@ -140,12 +145,13 @@ return taskArtifactUpdate(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( TaskStatusUpdate value)  taskStatusUpdate,required TResult Function( TaskArtifactUpdate value)  taskArtifactUpdate,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( StatusUpdate value)  statusUpdate,required TResult Function( TaskStatusUpdate value)  taskStatusUpdate,required TResult Function( ArtifactUpdate value)  artifactUpdate,}){
 final _that = this;
 switch (_that) {
-case TaskStatusUpdate():
-return taskStatusUpdate(_that);case TaskArtifactUpdate():
-return taskArtifactUpdate(_that);}
+case StatusUpdate():
+return statusUpdate(_that);case TaskStatusUpdate():
+return taskStatusUpdate(_that);case ArtifactUpdate():
+return artifactUpdate(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -159,12 +165,13 @@ return taskArtifactUpdate(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( TaskStatusUpdate value)?  taskStatusUpdate,TResult? Function( TaskArtifactUpdate value)?  taskArtifactUpdate,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( StatusUpdate value)?  statusUpdate,TResult? Function( TaskStatusUpdate value)?  taskStatusUpdate,TResult? Function( ArtifactUpdate value)?  artifactUpdate,}){
 final _that = this;
 switch (_that) {
-case TaskStatusUpdate() when taskStatusUpdate != null:
-return taskStatusUpdate(_that);case TaskArtifactUpdate() when taskArtifactUpdate != null:
-return taskArtifactUpdate(_that);case _:
+case StatusUpdate() when statusUpdate != null:
+return statusUpdate(_that);case TaskStatusUpdate() when taskStatusUpdate != null:
+return taskStatusUpdate(_that);case ArtifactUpdate() when artifactUpdate != null:
+return artifactUpdate(_that);case _:
   return null;
 
 }
@@ -181,11 +188,12 @@ return taskArtifactUpdate(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)?  taskStatusUpdate,TResult Function( String kind,  String taskId,  String contextId,  Artifact artifact,  bool append,  bool lastChunk)?  taskArtifactUpdate,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)?  statusUpdate,TResult Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)?  taskStatusUpdate,TResult Function( String kind,  String taskId,  String contextId,  Artifact artifact,  bool append,  bool lastChunk)?  artifactUpdate,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case TaskStatusUpdate() when taskStatusUpdate != null:
-return taskStatusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case TaskArtifactUpdate() when taskArtifactUpdate != null:
-return taskArtifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact,_that.append,_that.lastChunk);case _:
+case StatusUpdate() when statusUpdate != null:
+return statusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case TaskStatusUpdate() when taskStatusUpdate != null:
+return taskStatusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case ArtifactUpdate() when artifactUpdate != null:
+return artifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact,_that.append,_that.lastChunk);case _:
   return orElse();
 
 }
@@ -203,11 +211,12 @@ return taskArtifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)  taskStatusUpdate,required TResult Function( String kind,  String taskId,  String contextId,  Artifact artifact,  bool append,  bool lastChunk)  taskArtifactUpdate,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)  statusUpdate,required TResult Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)  taskStatusUpdate,required TResult Function( String kind,  String taskId,  String contextId,  Artifact artifact,  bool append,  bool lastChunk)  artifactUpdate,}) {final _that = this;
 switch (_that) {
-case TaskStatusUpdate():
-return taskStatusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case TaskArtifactUpdate():
-return taskArtifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact,_that.append,_that.lastChunk);}
+case StatusUpdate():
+return statusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case TaskStatusUpdate():
+return taskStatusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case ArtifactUpdate():
+return artifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact,_that.append,_that.lastChunk);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -221,11 +230,12 @@ return taskArtifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)?  taskStatusUpdate,TResult? Function( String kind,  String taskId,  String contextId,  Artifact artifact,  bool append,  bool lastChunk)?  taskArtifactUpdate,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)?  statusUpdate,TResult? Function( String kind,  String taskId,  String contextId,  TaskStatus status, @JsonKey(name: 'final')  bool final_)?  taskStatusUpdate,TResult? Function( String kind,  String taskId,  String contextId,  Artifact artifact,  bool append,  bool lastChunk)?  artifactUpdate,}) {final _that = this;
 switch (_that) {
-case TaskStatusUpdate() when taskStatusUpdate != null:
-return taskStatusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case TaskArtifactUpdate() when taskArtifactUpdate != null:
-return taskArtifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact,_that.append,_that.lastChunk);case _:
+case StatusUpdate() when statusUpdate != null:
+return statusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case TaskStatusUpdate() when taskStatusUpdate != null:
+return taskStatusUpdate(_that.kind,_that.taskId,_that.contextId,_that.status,_that.final_);case ArtifactUpdate() when artifactUpdate != null:
+return artifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact,_that.append,_that.lastChunk);case _:
   return null;
 
 }
@@ -236,11 +246,102 @@ return taskArtifactUpdate(_that.kind,_that.taskId,_that.contextId,_that.artifact
 /// @nodoc
 @JsonSerializable()
 
+class StatusUpdate implements Event {
+  const StatusUpdate({this.kind = 'status-update', required this.taskId, required this.contextId, required this.status, @JsonKey(name: 'final') this.final_ = false});
+  factory StatusUpdate.fromJson(Map<String, dynamic> json) => _$StatusUpdateFromJson(json);
+
+/// The type of this event, always 'task-status-update'.
+@override@JsonKey() final  String kind;
+/// The unique ID of the updated task.
+@override final  String taskId;
+/// The unique context ID for the task.
+@override final  String contextId;
+/// The new status of the task.
+ final  TaskStatus status;
+/// If `true`, this is the final event for this task stream.
+@JsonKey(name: 'final') final  bool final_;
+
+/// Create a copy of Event
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StatusUpdateCopyWith<StatusUpdate> get copyWith => _$StatusUpdateCopyWithImpl<StatusUpdate>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$StatusUpdateToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StatusUpdate&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.status, status) || other.status == status)&&(identical(other.final_, final_) || other.final_ == final_));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,kind,taskId,contextId,status,final_);
+
+@override
+String toString() {
+  return 'Event.statusUpdate(kind: $kind, taskId: $taskId, contextId: $contextId, status: $status, final_: $final_)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $StatusUpdateCopyWith<$Res> implements $EventCopyWith<$Res> {
+  factory $StatusUpdateCopyWith(StatusUpdate value, $Res Function(StatusUpdate) _then) = _$StatusUpdateCopyWithImpl;
+@override @useResult
+$Res call({
+ String kind, String taskId, String contextId, TaskStatus status,@JsonKey(name: 'final') bool final_
+});
+
+
+$TaskStatusCopyWith<$Res> get status;
+
+}
+/// @nodoc
+class _$StatusUpdateCopyWithImpl<$Res>
+    implements $StatusUpdateCopyWith<$Res> {
+  _$StatusUpdateCopyWithImpl(this._self, this._then);
+
+  final StatusUpdate _self;
+  final $Res Function(StatusUpdate) _then;
+
+/// Create a copy of Event
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? kind = null,Object? taskId = null,Object? contextId = null,Object? status = null,Object? final_ = null,}) {
+  return _then(StatusUpdate(
+kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String,taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as String,contextId: null == contextId ? _self.contextId : contextId // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as TaskStatus,final_: null == final_ ? _self.final_ : final_ // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+/// Create a copy of Event
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TaskStatusCopyWith<$Res> get status {
+  
+  return $TaskStatusCopyWith<$Res>(_self.status, (value) {
+    return _then(_self.copyWith(status: value));
+  });
+}
+}
+
+/// @nodoc
+@JsonSerializable()
+
 class TaskStatusUpdate implements Event {
-  const TaskStatusUpdate({this.kind = 'task_status_update', required this.taskId, required this.contextId, required this.status, @JsonKey(name: 'final') this.final_ = false});
+  const TaskStatusUpdate({this.kind = 'task-status-update', required this.taskId, required this.contextId, required this.status, @JsonKey(name: 'final') this.final_ = false});
   factory TaskStatusUpdate.fromJson(Map<String, dynamic> json) => _$TaskStatusUpdateFromJson(json);
 
-/// The type of this event, always 'task_status_update'.
+/// The type of this event, always 'task-status-update'.
 @override@JsonKey() final  String kind;
 /// The unique ID of the updated task.
 @override final  String taskId;
@@ -327,11 +428,11 @@ $TaskStatusCopyWith<$Res> get status {
 /// @nodoc
 @JsonSerializable()
 
-class TaskArtifactUpdate implements Event {
-  const TaskArtifactUpdate({this.kind = 'task_artifact_update', required this.taskId, required this.contextId, required this.artifact, required this.append, required this.lastChunk});
-  factory TaskArtifactUpdate.fromJson(Map<String, dynamic> json) => _$TaskArtifactUpdateFromJson(json);
+class ArtifactUpdate implements Event {
+  const ArtifactUpdate({this.kind = 'artifact-update', required this.taskId, required this.contextId, required this.artifact, required this.append, required this.lastChunk});
+  factory ArtifactUpdate.fromJson(Map<String, dynamic> json) => _$ArtifactUpdateFromJson(json);
 
-/// The type of this event, always 'task_artifact_update'.
+/// The type of this event, always 'task-artifact-update'.
 @override@JsonKey() final  String kind;
 /// The unique ID of the task this artifact belongs to.
 @override final  String taskId;
@@ -349,16 +450,16 @@ class TaskArtifactUpdate implements Event {
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$TaskArtifactUpdateCopyWith<TaskArtifactUpdate> get copyWith => _$TaskArtifactUpdateCopyWithImpl<TaskArtifactUpdate>(this, _$identity);
+$ArtifactUpdateCopyWith<ArtifactUpdate> get copyWith => _$ArtifactUpdateCopyWithImpl<ArtifactUpdate>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$TaskArtifactUpdateToJson(this, );
+  return _$ArtifactUpdateToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskArtifactUpdate&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.artifact, artifact) || other.artifact == artifact)&&(identical(other.append, append) || other.append == append)&&(identical(other.lastChunk, lastChunk) || other.lastChunk == lastChunk));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ArtifactUpdate&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.contextId, contextId) || other.contextId == contextId)&&(identical(other.artifact, artifact) || other.artifact == artifact)&&(identical(other.append, append) || other.append == append)&&(identical(other.lastChunk, lastChunk) || other.lastChunk == lastChunk));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -367,15 +468,15 @@ int get hashCode => Object.hash(runtimeType,kind,taskId,contextId,artifact,appen
 
 @override
 String toString() {
-  return 'Event.taskArtifactUpdate(kind: $kind, taskId: $taskId, contextId: $contextId, artifact: $artifact, append: $append, lastChunk: $lastChunk)';
+  return 'Event.artifactUpdate(kind: $kind, taskId: $taskId, contextId: $contextId, artifact: $artifact, append: $append, lastChunk: $lastChunk)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $TaskArtifactUpdateCopyWith<$Res> implements $EventCopyWith<$Res> {
-  factory $TaskArtifactUpdateCopyWith(TaskArtifactUpdate value, $Res Function(TaskArtifactUpdate) _then) = _$TaskArtifactUpdateCopyWithImpl;
+abstract mixin class $ArtifactUpdateCopyWith<$Res> implements $EventCopyWith<$Res> {
+  factory $ArtifactUpdateCopyWith(ArtifactUpdate value, $Res Function(ArtifactUpdate) _then) = _$ArtifactUpdateCopyWithImpl;
 @override @useResult
 $Res call({
  String kind, String taskId, String contextId, Artifact artifact, bool append, bool lastChunk
@@ -386,17 +487,17 @@ $ArtifactCopyWith<$Res> get artifact;
 
 }
 /// @nodoc
-class _$TaskArtifactUpdateCopyWithImpl<$Res>
-    implements $TaskArtifactUpdateCopyWith<$Res> {
-  _$TaskArtifactUpdateCopyWithImpl(this._self, this._then);
+class _$ArtifactUpdateCopyWithImpl<$Res>
+    implements $ArtifactUpdateCopyWith<$Res> {
+  _$ArtifactUpdateCopyWithImpl(this._self, this._then);
 
-  final TaskArtifactUpdate _self;
-  final $Res Function(TaskArtifactUpdate) _then;
+  final ArtifactUpdate _self;
+  final $Res Function(ArtifactUpdate) _then;
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? kind = null,Object? taskId = null,Object? contextId = null,Object? artifact = null,Object? append = null,Object? lastChunk = null,}) {
-  return _then(TaskArtifactUpdate(
+  return _then(ArtifactUpdate(
 kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as String,taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as String,contextId: null == contextId ? _self.contextId : contextId // ignore: cast_nullable_to_non_nullable

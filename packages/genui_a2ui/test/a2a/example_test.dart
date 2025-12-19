@@ -29,7 +29,7 @@ void main() {
 
     stream.listen((event) {
       taskId ??= event.taskId;
-      if (event is TaskArtifactUpdate) {
+      if (event is ArtifactUpdate) {
         for (final Part part in event.artifact.parts) {
           if (part is TextPart) {
             events.add(part.text);
@@ -61,7 +61,7 @@ void main() {
 
     for (var i = 10; i >= 0; i--) {
       transport.addEvent(
-        Event.taskArtifactUpdate(
+        Event.artifactUpdate(
           taskId: 'task-123',
           contextId: 'context-123',
           artifact: Artifact(
@@ -83,7 +83,7 @@ void main() {
       ),
     );
     transport.addEvent(
-      const Event.taskArtifactUpdate(
+      const Event.artifactUpdate(
         taskId: 'task-123',
         contextId: 'context-123',
         artifact: Artifact(

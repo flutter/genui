@@ -165,7 +165,7 @@ void main() {
       expect(
         stream,
         emitsInOrder([
-          isA<TaskStatusUpdate>()
+          isA<StatusUpdate>()
               .having((e) => e.taskId, 'taskId', '123')
               .having((e) => e.contextId, 'contextId', '456')
               .having((e) => e.status.state, 'status.state', TaskState.working),
@@ -238,7 +238,7 @@ void main() {
       expect(
         stream,
         emitsInOrder([
-          isA<TaskStatusUpdate>()
+          isA<StatusUpdate>()
               .having((e) => e.taskId, 'taskId', '123')
               .having((e) => e.contextId, 'contextId', '456')
               .having((e) => e.status.state, 'status.state', TaskState.working),
