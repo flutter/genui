@@ -27,7 +27,6 @@ dependencies:
   riverpod_annotation: ^3.0.3
 
 dev_dependencies:
-  # TODO: Unpin when fixed: https://github.com/flutter/genui/issues/614
   a2a: ^3.3.0
   build_runner: ^2.7.1
   dart_flutter_team_lints: ^3.5.2

@@ -1,5 +1,9 @@
 # `genui_a2ui` Changelog
 
+## 0.6.1 (in progress)
+
+- Updated `a2a` dependency to `^3.3.0`.
+
 ## 0.6.0
 
 - **BREAKING**: Updated to use `A2uiMessageProcessor` instead of `GenUiManager`.

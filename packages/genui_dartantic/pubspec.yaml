@@ -9,6 +9,8 @@ homepage: https://github.com/flutter/genui/tree/main/packages/genui_dartantic
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
 
+resolution: workspace
+
 environment:
   sdk: ">=3.9.2 <4.0.0"
   flutter: ">=3.35.7 <4.0.0"
