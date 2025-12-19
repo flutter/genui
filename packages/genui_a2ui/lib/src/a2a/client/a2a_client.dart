@@ -52,15 +52,6 @@ class A2AClient {
 
   int _requestId = 0;
 
-  /// Creates an [A2AClient] instance with a specific [Transport].
-  ///
-  /// The [url] parameter is required and specifies the base URL of the A2A
-  /// server.
-  ///
-  /// The [transport] parameter specifies the communication layer. If omitted,
-  /// an [SseTransport] is created using the provided [url].
-  ///
-  /// An optional [log] instance can be provided for logging client activities.
   /// Creates an [A2AClient] instance.
   ///
   /// The [url] parameter is required and specifies the base URL of the A2A

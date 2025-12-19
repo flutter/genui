@@ -66,7 +66,7 @@ void main() {
       expect(result.id, equals(Task.fromJson(taskJson).id));
     });
 
-    test('messageStream returns a stream of StreamingEvents on success', () {
+    test('messageStream returns a stream of Events on success', () {
       final streamController = StreamController<Map<String, Object?>>();
       final event = const Event.taskStatusUpdate(
         taskId: '123',
