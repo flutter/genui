@@ -11,6 +11,11 @@ environment:
   flutter: ">=3.35.7 <4.0.0"
 
 workspace:
+  - examples/catalog_gallery
+  - examples/custom_backend
+  - examples/simple_chat
+  - examples/travel_app
+  - examples/verdure/client
   - packages/genui
   - packages/genui_a2ui
   - packages/genui_a2ui/example
@@ -19,14 +24,9 @@ workspace:
   - packages/genui_firebase_ai
   - packages/genui_google_generative_ai
   - packages/json_schema_builder
-  - examples/catalog_gallery
-  - examples/custom_backend
-  - examples/simple_chat
-  - examples/travel_app
-  - examples/verdure/client
   - tool/fix_copyright
-  - tool/test_and_fix
   - tool/release
+  - tool/test_and_fix
 
 flutter:
   uses-material-design: true
