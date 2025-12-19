@@ -25,7 +25,17 @@ typedef ExampleBuilderCallback = String Function();
 /// A callback that builds a widget for a catalog item.
 typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext itemContext);
 
+/// Context provided to a [CatalogItem]'s widget builder.
+///
+/// This class encapsulates all the information and callbacks needed to build
+/// a catalog widget, including access to the widget's data, its position in
+/// the component tree, and mechanisms for building children and dispatching
+/// events.
 class CatalogItemContext {
+  /// Creates a [CatalogItemContext] with the required parameters.
+  ///
+  /// All parameters are required to ensure the widget builder has complete
+  /// context for rendering and interaction.
   CatalogItemContext({
     required this.data,
     required this.id,
@@ -37,13 +47,28 @@ class CatalogItemContext {
     required this.surfaceId,
   });
 
+  /// The parsed data for this component from the AI-generated definition.
   final Object data;
+
+  /// The unique identifier for this component instance.
   final String id;
+
+  /// Callback to build a child widget by its component ID.
   final ChildBuilderCallback buildChild;
+
+  /// Callback to dispatch UI events (e.g., button taps) back to the system.
   final DispatchEventCallback dispatchEvent;
+
+  /// The Flutter [BuildContext] for this widget.
   final BuildContext buildContext;
+
+  /// The [DataContext] for accessing and modifying the data model.
   final DataContext dataContext;
+
+  /// Callback to retrieve a component definition by its ID.
   final GetComponentCallback getComponent;
+
+  /// The ID of the surface this component belongs to.
   final String surfaceId;
 }
 

@@ -243,5 +243,9 @@ final class AiUiMessage extends ChatMessage {
 
   final String surfaceId;
 
+  /// The parts of this message, containing a text description of the UI.
+  ///
+  /// This is automatically generated from the [definition] and provides
+  /// context for the AI about the current UI state.
   final List<MessagePart> parts;
 }

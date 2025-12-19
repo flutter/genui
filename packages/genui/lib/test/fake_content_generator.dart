@@ -2,6 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// A fake implementation of [ContentGenerator] for testing purposes.
+///
+/// This library provides [FakeContentGenerator], which allows tests to
+/// simulate AI responses without making actual API calls.
+library fake_content_generator;
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -9,7 +15,15 @@ import 'package:flutter/foundation.dart';
 import '../genui.dart';
 
 /// A fake [ContentGenerator] for use in tests.
+///
+/// This implementation allows tests to control AI responses by:
+/// - Tracking calls to [sendRequest] via [sendRequestCallCount]
+/// - Capturing the last message and history via [lastMessage] and [lastHistory]
+/// - Emitting fake A2UI messages via [addA2uiMessage]
+/// - Emitting fake text responses via [addTextResponse]
+/// - Pausing execution via [sendRequestCompleter]
 class FakeContentGenerator implements ContentGenerator {
+  /// Creates a new [FakeContentGenerator] instance.
   FakeContentGenerator();
 
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
