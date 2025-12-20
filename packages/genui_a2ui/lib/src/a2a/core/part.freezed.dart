@@ -189,7 +189,7 @@ return data(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String kind,  String text,  Map<String, Object?>? metadata)?  text,TResult Function( String kind, @JsonKey(name: 'data')  FileType file,  Map<String, Object?>? metadata)?  file,TResult Function( String kind,  Map<String, Object?> data,  Map<String, Object?>? metadata)?  data,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String kind,  String text,  Map<String, Object?>? metadata)?  text,TResult Function( String kind,  FileType file,  Map<String, Object?>? metadata)?  file,TResult Function( String kind,  Map<String, Object?> data,  Map<String, Object?>? metadata)?  data,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case TextPart() when text != null:
 return text(_that.kind,_that.text,_that.metadata);case FilePart() when file != null:
@@ -212,7 +212,7 @@ return data(_that.kind,_that.data,_that.metadata);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String kind,  String text,  Map<String, Object?>? metadata)  text,required TResult Function( String kind, @JsonKey(name: 'data')  FileType file,  Map<String, Object?>? metadata)  file,required TResult Function( String kind,  Map<String, Object?> data,  Map<String, Object?>? metadata)  data,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String kind,  String text,  Map<String, Object?>? metadata)  text,required TResult Function( String kind,  FileType file,  Map<String, Object?>? metadata)  file,required TResult Function( String kind,  Map<String, Object?> data,  Map<String, Object?>? metadata)  data,}) {final _that = this;
 switch (_that) {
 case TextPart():
 return text(_that.kind,_that.text,_that.metadata);case FilePart():
@@ -234,7 +234,7 @@ return data(_that.kind,_that.data,_that.metadata);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String kind,  String text,  Map<String, Object?>? metadata)?  text,TResult? Function( String kind, @JsonKey(name: 'data')  FileType file,  Map<String, Object?>? metadata)?  file,TResult? Function( String kind,  Map<String, Object?> data,  Map<String, Object?>? metadata)?  data,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String kind,  String text,  Map<String, Object?>? metadata)?  text,TResult? Function( String kind,  FileType file,  Map<String, Object?>? metadata)?  file,TResult? Function( String kind,  Map<String, Object?> data,  Map<String, Object?>? metadata)?  data,}) {final _that = this;
 switch (_that) {
 case TextPart() when text != null:
 return text(_that.kind,_that.text,_that.metadata);case FilePart() when file != null:
@@ -336,16 +336,14 @@ as Map<String, Object?>?,
 @JsonSerializable()
 
 class FilePart implements Part {
-  const FilePart({this.kind = 'file', @JsonKey(name: 'data') required this.file, final  Map<String, Object?>? metadata}): _metadata = metadata;
+  const FilePart({this.kind = 'file', required this.file, final  Map<String, Object?>? metadata}): _metadata = metadata;
   factory FilePart.fromJson(Map<String, dynamic> json) => _$FilePartFromJson(json);
 
 /// The type discriminator, always 'file'.
 @override@JsonKey() final  String kind;
 /// The file details, specifying the file's location (URI) or content
 /// (bytes).
-// Annotation is placed on the parameter, but is intended for the generated
-// field. This is a false positive.
-@JsonKey(name: 'data') final  FileType file;
+ final  FileType file;
 /// Optional metadata associated with this file part.
  final  Map<String, Object?>? _metadata;
 /// Optional metadata associated with this file part.
@@ -391,7 +389,7 @@ abstract mixin class $FilePartCopyWith<$Res> implements $PartCopyWith<$Res> {
   factory $FilePartCopyWith(FilePart value, $Res Function(FilePart) _then) = _$FilePartCopyWithImpl;
 @override @useResult
 $Res call({
- String kind,@JsonKey(name: 'data') FileType file, Map<String, Object?>? metadata
+ String kind, FileType file, Map<String, Object?>? metadata
 });
 
 

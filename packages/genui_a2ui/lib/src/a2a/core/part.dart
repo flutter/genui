@@ -37,9 +37,7 @@ abstract class Part with _$Part {
 
     /// The file details, specifying the file's location (URI) or content
     /// (bytes).
-    // Annotation is placed on the parameter, but is intended for the generated
-    // field. This is a false positive.
-    @JsonKey(name: 'data') required FileType file,
+    required FileType file,
 
     /// Optional metadata associated with this file part.
     Map<String, Object?>? metadata,
@@ -92,6 +90,14 @@ abstract class FileType with _$FileType {
   }) = FileWithBytes;
 
   /// Deserializes a [FileType] instance from a JSON object.
-  factory FileType.fromJson(Map<String, Object?> json) =>
-      _$FileTypeFromJson(json);
+  factory FileType.fromJson(Map<String, Object?> json) {
+    if (!json.containsKey('type')) {
+      if (json.containsKey('bytes')) {
+        json = <String, Object?>{...json, 'type': 'bytes'};
+      } else if (json.containsKey('uri')) {
+        json = <String, Object?>{...json, 'type': 'uri'};
+      }
+    }
+    return _$FileTypeFromJson(json);
+  }
 }

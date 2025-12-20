@@ -42,7 +42,7 @@ Event _$EventFromJson(
 /// @nodoc
 mixin _$Event {
 
-/// The type of this event, always 'task-status-update'.
+/// The type of this event, always 'status-update'.
  String get kind;/// The unique ID of the updated task.
  String get taskId;/// The unique context ID for the task.
  String get contextId;
@@ -250,7 +250,7 @@ class StatusUpdate implements Event {
   const StatusUpdate({this.kind = 'status-update', required this.taskId, required this.contextId, required this.status, @JsonKey(name: 'final') this.final_ = false});
   factory StatusUpdate.fromJson(Map<String, dynamic> json) => _$StatusUpdateFromJson(json);
 
-/// The type of this event, always 'task-status-update'.
+/// The type of this event, always 'status-update'.
 @override@JsonKey() final  String kind;
 /// The unique ID of the updated task.
 @override final  String taskId;
