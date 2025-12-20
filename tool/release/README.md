@@ -6,6 +6,26 @@ This Dart-based command-line tool automates the package publishing process for t
 
 The process is split into two distinct commands, `bump` and `publish`, to separate release preparation from the act of publishing.
 
+### 0. Update Dependencies
+
+Before running `bump`, make sure to update dependencies to the latest stable versions. This can be done by running:
+
+```bash
+dart pub upgrade --major-versions
+```
+
+Also, use Antigravity or Gemini CLI to update `CHANGELOG.md` files. You can use a prompt like:
+
+```txt
+Look at the git diffs since the <previous tag> tag and add any missing changelog entries to each of the packages with CHANGELOG.md files for breaking and other changes.
+```
+
+Where `<previous tag>` is the tag of the previous release. For example, if the previous release was `genui-0.6.0`, then the command would be:
+
+```txt
+Look at the git diffs since the genui-0.6.0 tag and add any missing changelog entries to each of the packages with CHANGELOG.md files for breaking and other changes.
+```
+
 ### 1. Prepare for Publish with `bump`
 
 First, run the `bump` command to prepare the repository for a new release. This will bump the version numbers, finalize the changelogs, and upgrade dependencies. After running this command, you should review the changes, make any necessary manual adjustments, and then commit the changes to your version control system.

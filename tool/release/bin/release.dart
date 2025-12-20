@@ -12,7 +12,13 @@ import 'package:release/release.dart';
 import 'package:release/src/exceptions.dart';
 
 void main(List<String> arguments) async {
-  final parser = ArgParser();
+  final parser = ArgParser()
+    ..addFlag(
+      'help',
+      abbr: 'h',
+      negatable: false,
+      help: 'Print this usage information.',
+    );
 
   final bumpParser = ArgParser()
     ..addOption(
@@ -32,24 +38,32 @@ void main(List<String> arguments) async {
       help: 'Actually publish packages and create tags.',
     );
   parser.addCommand('publish', publishParser);
+  parser.addCommand('help');
+
+  void printUsage({IOSink? sink}) {
+    sink ??= stdout;
+    sink.writeln(
+      'Usage: dart run tool/release/bin/release.dart <command> [options]',
+    );
+    sink.writeln(parser.usage);
+  }
 
   final ArgResults argResults;
   try {
     argResults = parser.parse(arguments);
   } on FormatException catch (e) {
     stderr.writeln(e.message);
-    stderr.writeln(
-      'Usage: dart run tool/release/bin/release.dart <command> [options]',
-    );
-    stderr.writeln(parser.usage);
+    printUsage(sink: stderr);
     exit(1);
   }
 
+  if (argResults['help'] as bool) {
+    printUsage();
+    exit(0);
+  }
+
   if (argResults.command == null) {
-    stderr.writeln(
-      'Usage: dart run tool/release/bin/release.dart <command> [options]',
-    );
-    stderr.writeln(parser.usage);
+    printUsage(sink: stderr);
     exit(1);
   }
 
@@ -74,6 +88,23 @@ void main(List<String> arguments) async {
         break;
       case 'publish':
         await tool.publish(force: command['force'] as bool);
+        break;
+      case 'help':
+        if (command.rest.isEmpty) {
+          printUsage();
+        } else {
+          final String subcommand = command.rest.first;
+          final ArgParser? subParser = parser.commands[subcommand];
+          if (subParser == null) {
+            stderr.writeln('Unknown command: $subcommand');
+            printUsage(sink: stderr);
+            exit(1);
+          }
+          print(
+            'Usage: dart run tool/release/bin/release.dart $subcommand [options]',
+          );
+          print(subParser.usage);
+        }
         break;
     }
   } on ReleaseException catch (e) {
