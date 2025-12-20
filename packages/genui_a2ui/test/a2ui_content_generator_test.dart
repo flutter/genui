@@ -4,10 +4,10 @@
 
 import 'dart:async';
 
-import 'package:a2a/a2a.dart' as a2a;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_a2ui/genui_a2ui.dart';
+import 'package:genui_a2ui/src/a2a/a2a.dart' as a2a;
 
 import 'fakes.dart';
 
@@ -19,10 +19,17 @@ void main() {
 
     setUp(() {
       fakeA2AClient = FakeA2AClient();
-      fakeA2AClient.agentCard = a2a.A2AAgentCard()
-        ..name = 'Test Agent'
-        ..description = 'A test agent'
-        ..version = '1.0.0';
+      fakeA2AClient.agentCard = const a2a.AgentCard(
+        name: 'Test Agent',
+        description: 'A test agent',
+        version: '1.0.0',
+        protocolVersion: '0.1.0',
+        url: 'http://localhost:8080',
+        capabilities: a2a.AgentCapabilities(),
+        defaultInputModes: ['text/plain'],
+        defaultOutputModes: ['text/plain'],
+        skills: [],
+      );
       final Uri fakeUrl = Uri.parse('http://fake.url');
       fakeConnector = FakeA2uiAgentConnector(url: fakeUrl)
         ..client = fakeA2AClient;
