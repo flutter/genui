@@ -1,6 +1,8 @@
 # `genui` Changelog
 
 ## 0.6.1 (in progress)
+- Moved simple chat example to example so that pub.dev recognizes examples are provided.
+- Documented some variable for better dartcode documentation.
 
 ## 0.6.0
 
