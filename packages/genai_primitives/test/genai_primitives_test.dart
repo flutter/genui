@@ -120,13 +120,13 @@ void main() {
       group('Call', () {
         test('creation', () {
           final part = const ToolPart.call(
-            id: 'call_1',
-            name: 'get_weather',
+            interactionId: 'call_1',
+            toolName: 'get_weather',
             arguments: {'city': 'London'},
           );
           expect(part.kind, equals(ToolPartKind.call));
-          expect(part.id, equals('call_1'));
-          expect(part.name, equals('get_weather'));
+          expect(part.interactionId, equals('call_1'));
+          expect(part.toolName, equals('get_weather'));
           expect(part.arguments, equals({'city': 'London'}));
           expect(part.result, isNull);
           expect(part.argumentsRaw, contains('"city":"London"'));
@@ -134,8 +134,8 @@ void main() {
 
         test('JSON serialization', () {
           final part = const ToolPart.call(
-            id: 'call_1',
-            name: 'get_weather',
+            interactionId: 'call_1',
+            toolName: 'get_weather',
             arguments: {'city': 'London'},
           );
           final Map<String, dynamic> json = part.toJson();
@@ -154,7 +154,7 @@ void main() {
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.call));
-          expect(toolPart.id, equals('call_1'));
+          expect(toolPart.interactionId, equals('call_1'));
           expect(toolPart.arguments, equals({'city': 'London'}));
         });
       });
@@ -162,21 +162,21 @@ void main() {
       group('Result', () {
         test('creation', () {
           final part = const ToolPart.result(
-            id: 'call_1',
-            name: 'get_weather',
+            interactionId: 'call_1',
+            toolName: 'get_weather',
             result: {'temp': 20},
           );
           expect(part.kind, equals(ToolPartKind.result));
-          expect(part.id, equals('call_1'));
-          expect(part.name, equals('get_weather'));
+          expect(part.interactionId, equals('call_1'));
+          expect(part.toolName, equals('get_weather'));
           expect(part.result, equals({'temp': 20}));
           expect(part.arguments, isNull);
         });
 
         test('JSON serialization', () {
           final part = const ToolPart.result(
-            id: 'call_1',
-            name: 'get_weather',
+            interactionId: 'call_1',
+            toolName: 'get_weather',
             result: {'temp': 20},
           );
           final Map<String, dynamic> json = part.toJson();
@@ -191,7 +191,7 @@ void main() {
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.result));
-          expect(toolPart.id, equals('call_1'));
+          expect(toolPart.interactionId, equals('call_1'));
           expect(toolPart.result, equals({'temp': 20}));
         });
       });
@@ -215,13 +215,13 @@ void main() {
 
     test('helpers', () {
       final toolCall = const ToolPart.call(
-        id: '1',
-        name: 'tool',
+        interactionId: '1',
+        toolName: 'tool',
         arguments: {},
       );
       final toolResult = const ToolPart.result(
-        id: '1',
-        name: 'tool',
+        interactionId: '1',
+        toolName: 'tool',
         result: 'ok',
       );
 
