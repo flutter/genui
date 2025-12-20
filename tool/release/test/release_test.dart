@@ -2,114 +2,152 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
+
+import '../bin/release.dart' as app;
 
 void main() {
   group('release.dart CLI', () {
-    late String releaseScript;
+    late InMemoryIOSink stdout;
+    late InMemoryIOSink stderr;
 
     setUp(() {
-      // Find the release.dart script relative to the current working directory.
-      // This supports running tests from the monorepo root or the package root.
-      final List<String> relativePaths = [
-        path.join('tool', 'release', 'bin', 'release.dart'),
-        path.join('bin', 'release.dart'),
-      ];
-
-      var found = false;
-      for (final relativePath in relativePaths) {
-        final script = File(path.join(Directory.current.path, relativePath));
-        if (script.existsSync()) {
-          releaseScript = script.path;
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        throw StateError(
-          'Could not find release.dart script. '
-          'Checked: ${relativePaths.join(', ')} from ${Directory.current.path}',
-        );
-      }
+      stdout = InMemoryIOSink();
+      stderr = InMemoryIOSink();
     });
 
     test('--help prints usage to stdout', () async {
-      final ProcessResult result = await Process.run(Platform.executable, [
-        'run',
-        releaseScript,
-        '--help',
-      ]);
-      expect(result.exitCode, 0, reason: 'Exit code should be 0');
+      final int exitCode = await app.run(
+        ['--help'],
+        stdout: stdout,
+        stderr: stderr,
+      );
+      expect(exitCode, 0, reason: 'Exit code should be 0');
       expect(
-        result.stdout,
+        stdout.toString(),
         contains('Usage: dart run tool/release/bin/release.dart'),
         reason: 'Stdout should contain usage',
       );
       expect(
-        result.stdout,
+        stdout.toString(),
         contains('Print this usage information.'),
         reason: 'Stdout should contain help description',
       );
-      expect(result.stderr, isEmpty, reason: 'Stderr should be empty');
+      expect(stderr.toString(), isEmpty, reason: 'Stderr should be empty');
     });
 
     test('help command prints usage to stdout', () async {
-      final ProcessResult result = await Process.run(Platform.executable, [
-        'run',
-        releaseScript,
-        'help',
-      ]);
-      expect(result.exitCode, 0);
+      final int exitCode = await app.run(
+        ['help'],
+        stdout: stdout,
+        stderr: stderr,
+      );
+      expect(exitCode, 0);
       expect(
-        result.stdout,
+        stdout.toString(),
         contains('Usage: dart run tool/release/bin/release.dart'),
       );
-      expect(result.stderr, isEmpty);
+      expect(stderr.toString(), isEmpty);
     });
 
     test('no arguments prints usage to stderr and exits with 1', () async {
-      final ProcessResult result = await Process.run(Platform.executable, [
-        'run',
-        releaseScript,
-      ]);
-      expect(result.exitCode, 1);
+      final int exitCode = await app.run([], stdout: stdout, stderr: stderr);
+      expect(exitCode, 1);
       expect(
-        result.stderr,
+        stderr.toString(),
         contains('Usage: dart run tool/release/bin/release.dart'),
       );
-      expect(result.stdout, isEmpty);
+      expect(stdout.toString(), isEmpty);
     });
 
     test('unknown command prints usage to stderr and exits with 1', () async {
-      final ProcessResult result = await Process.run(Platform.executable, [
-        'run',
-        releaseScript,
-        'unknown',
-      ]);
-      expect(result.exitCode, 1);
+      final int exitCode = await app.run(
+        ['unknown'],
+        stdout: stdout,
+        stderr: stderr,
+      );
+      expect(exitCode, 1);
       expect(
-        result.stderr,
+        stderr.toString(),
         contains('Usage: dart run tool/release/bin/release.dart'),
       );
     });
 
     test('help unknown_command prints error to stderr', () async {
-      final ProcessResult result = await Process.run(Platform.executable, [
-        'run',
-        releaseScript,
-        'help',
-        'unknown',
-      ]);
-      expect(result.exitCode, 1);
-      expect(result.stderr, contains('Unknown command: unknown'));
+      final int exitCode = await app.run(
+        ['help', 'unknown'],
+        stdout: stdout,
+        stderr: stderr,
+      );
+      expect(exitCode, 1);
+      expect(stderr.toString(), contains('Unknown command: unknown'));
       expect(
-        result.stderr,
+        stderr.toString(),
         contains('Usage: dart run tool/release/bin/release.dart'),
       );
     });
   });
+}
+
+class InMemoryIOSink implements IOSink {
+  final StringBuffer _buffer = StringBuffer();
+  final Completer<void> _doneCompleter = Completer<void>();
+
+  @override
+  Encoding encoding = utf8;
+
+  @override
+  void add(List<int> data) {
+    _buffer.write(encoding.decode(data));
+  }
+
+  @override
+  void addError(Object error, [StackTrace? stackTrace]) {
+    _buffer.writeln('Error: $error');
+  }
+
+  @override
+  Future<void> addStream(Stream<List<int>> stream) async {
+    await for (final chunk in stream) {
+      add(chunk);
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    _doneCompleter.complete();
+  }
+
+  @override
+  Future<void> get done => _doneCompleter.future;
+
+  @override
+  Future<void> flush() async {}
+
+  @override
+  void write(Object? object) {
+    _buffer.write(object);
+  }
+
+  @override
+  void writeAll(Iterable<Object?> objects, [String separator = '']) {
+    _buffer.writeAll(objects, separator);
+  }
+
+  @override
+  void writeCharCode(int charCode) {
+    _buffer.writeCharCode(charCode);
+  }
+
+  @override
+  void writeln([Object? object = '']) {
+    _buffer.writeln(object);
+  }
+
+  @override
+  String toString() => _buffer.toString();
 }

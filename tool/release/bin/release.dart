@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:io';
+import 'dart:io' as io;
+import 'dart:io' show IOSink, Platform, exit;
 
 import 'package:args/args.dart';
 import 'package:file/file.dart';
@@ -11,7 +12,17 @@ import 'package:process_runner/process_runner.dart';
 import 'package:release/release.dart';
 import 'package:release/src/exceptions.dart';
 
-void main(List<String> arguments) async {
+Future<void> main(List<String> arguments) async {
+  exit(await run(arguments));
+}
+
+Future<int> run(
+  List<String> arguments, {
+  IOSink? stdout,
+  IOSink? stderr,
+}) async {
+  final IOSink actualStdout = stdout ?? io.stdout;
+  final IOSink actualStderr = stderr ?? io.stderr;
   final parser = ArgParser()
     ..addFlag(
       'help',
@@ -41,30 +52,30 @@ void main(List<String> arguments) async {
   parser.addCommand('help');
 
   void printUsage({IOSink? sink}) {
-    sink ??= stdout;
-    sink.writeln(
+    final IOSink actualSink = sink ?? actualStdout;
+    actualSink.writeln(
       'Usage: dart run tool/release/bin/release.dart <command> [options]',
     );
-    sink.writeln(parser.usage);
+    actualSink.writeln(parser.usage);
   }
 
   final ArgResults argResults;
   try {
     argResults = parser.parse(arguments);
   } on FormatException catch (e) {
-    stderr.writeln(e.message);
-    printUsage(sink: stderr);
-    exit(1);
+    actualStderr.writeln(e.message);
+    printUsage(sink: actualStderr);
+    return 1;
   }
 
   if (argResults['help'] as bool) {
     printUsage();
-    exit(0);
+    return 0;
   }
 
   if (argResults.command == null) {
-    printUsage(sink: stderr);
-    exit(1);
+    printUsage(sink: actualStderr);
+    return 1;
   }
 
   final fileSystem = const LocalFileSystem();
@@ -72,12 +83,27 @@ void main(List<String> arguments) async {
 
   // Find the repo root, assuming the script is in <repo_root>/tool/release/bin
   final File scriptFile = fileSystem.file(Platform.script.toFilePath());
-  final Directory repoDir = scriptFile.parent.parent.parent.parent;
+  Directory repoDir = scriptFile.parent.parent.parent.parent;
+
+  if (!repoDir.childFile('pubspec.yaml').existsSync()) {
+    // Fallback or check if we are in the wrong place?
+    // Try to find the root by looking up.
+    Directory current = scriptFile.parent;
+    while (current.path != current.parent.path) {
+      if (current.childFile('pubspec.yaml').existsSync() &&
+          current.childDirectory('packages').existsSync()) {
+        repoDir = current;
+        break;
+      }
+      current = current.parent;
+    }
+  }
+
   final tool = ReleaseTool(
     fileSystem: fileSystem,
     processRunner: processRunner,
     repoRoot: repoDir,
-    stdinReader: stdin.readLineSync,
+    stdinReader: io.stdin.readLineSync,
   );
 
   final ArgResults command = argResults.command!;
@@ -96,19 +122,20 @@ void main(List<String> arguments) async {
           final String subcommand = command.rest.first;
           final ArgParser? subParser = parser.commands[subcommand];
           if (subParser == null) {
-            stderr.writeln('Unknown command: $subcommand');
-            printUsage(sink: stderr);
-            exit(1);
+            actualStderr.writeln('Unknown command: $subcommand');
+            printUsage(sink: actualStderr);
+            return 1;
           }
-          print(
+          actualStdout.writeln(
             'Usage: dart run tool/release/bin/release.dart $subcommand [options]',
           );
-          print(subParser.usage);
+          actualStdout.writeln(subParser.usage);
         }
         break;
     }
   } on ReleaseException catch (e) {
-    stderr.writeln(e);
-    exit(1);
+    actualStderr.writeln(e);
+    return 1;
   }
+  return 0;
 }
