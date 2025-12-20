@@ -55,8 +55,8 @@ void main() {
     parts: [
       const TextPart('Thinking: User wants weather for London...'),
       const ToolPart.call(
-        id: 'call_123',
-        name: 'get_weather',
+        interactionId: 'call_123',
+        toolName: 'get_weather',
         arguments: {'location': 'London', 'unit': 'celsius'},
       ),
     ],
@@ -66,7 +66,7 @@ void main() {
   print('\n[Model Response with Tool Call]');
   if (modelResponse.hasToolCalls) {
     for (final ToolPart call in modelResponse.toolCalls) {
-      print('Tool Call: ${call.name}(${call.arguments})');
+      print('Tool Call: ${call.toolName}(${call.arguments})');
     }
   }
 
@@ -75,8 +75,8 @@ void main() {
     '', // User role is typically used for tool results in many APIs
     parts: [
       const ToolPart.result(
-        id: 'call_123',
-        name: 'get_weather',
+        interactionId: 'call_123',
+        toolName: 'get_weather',
         result: {'temperature': 15, 'condition': 'Cloudy'},
       ),
     ],

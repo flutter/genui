@@ -46,14 +46,14 @@ abstract class Part {
       // Check if it's a call or result based on presence of arguments or result
       if (content.containsKey('arguments')) {
         return ToolPart.call(
-          id: content['id'] as String,
-          name: content['name'] as String,
+          interactionId: content['id'] as String,
+          toolName: content['name'] as String,
           arguments: content['arguments'] as Map<String, dynamic>? ?? {},
         );
       } else {
         return ToolPart.result(
-          id: content['id'] as String,
-          name: content['name'] as String,
+          interactionId: content['id'] as String,
+          toolName: content['name'] as String,
           result: content['result'],
         );
       }
@@ -113,8 +113,8 @@ abstract class Part {
       case final ToolPart p:
         typeName = 'ToolPart';
         content = {
-          'id': p.id,
-          'name': p.name,
+          'id': p.interactionId,
+          'name': p.toolName,
           if (p.arguments != null) 'arguments': p.arguments,
           if (p.result != null) 'result': p.result,
         };
@@ -136,11 +136,10 @@ class TextPart extends Part {
   final String text;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TextPart &&
-          runtimeType == other.runtimeType &&
-          text == other.text;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TextPart && other.text == text;
+  }
 
   @override
   int get hashCode => text.hashCode;
@@ -194,13 +193,13 @@ class DataPart extends Part {
   final String? name;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DataPart &&
-          runtimeType == other.runtimeType &&
-          listEquals(bytes, other.bytes) &&
-          mimeType == other.mimeType &&
-          name == other.name;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DataPart &&
+        listEquals(other.bytes, bytes) &&
+        other.mimeType == mimeType &&
+        other.name == name;
+  }
 
   @override
   int get hashCode => Object.hash(mimeType, name, Object.hashAll(bytes));
@@ -226,16 +225,16 @@ class LinkPart extends Part {
   final String? name;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is LinkPart &&
-          runtimeType == other.runtimeType &&
-          url == other.url &&
-          mimeType == other.mimeType &&
-          name == other.name;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is LinkPart &&
+        other.url == url &&
+        other.mimeType == mimeType &&
+        other.name == name;
+  }
 
   @override
-  int get hashCode => url.hashCode ^ mimeType.hashCode ^ name.hashCode;
+  int get hashCode => Object.hash(url, mimeType, name);
 
   @override
   String toString() => 'LinkPart(url: $url, mimeType: $mimeType, name: $name)';
@@ -245,17 +244,18 @@ class LinkPart extends Part {
 @immutable
 class ToolPart extends Part {
   /// Creates a tool call part.
+  /// Creates a tool call part.
   const ToolPart.call({
-    required this.id,
-    required this.name,
+    required this.interactionId,
+    required this.toolName,
     required this.arguments,
   }) : kind = ToolPartKind.call,
        result = null;
 
   /// Creates a tool result part.
   const ToolPart.result({
-    required this.id,
-    required this.name,
+    required this.interactionId,
+    required this.toolName,
     required this.result,
   }) : kind = ToolPartKind.result,
        arguments = null;
@@ -264,10 +264,10 @@ class ToolPart extends Part {
   final ToolPartKind kind;
 
   /// The unique identifier for this tool interaction.
-  final String id;
+  final String interactionId;
 
   /// The name of the tool.
-  final String name;
+  final String toolName;
 
   /// The arguments for a tool call (null for results).
   final Map<String, dynamic>? arguments;
@@ -281,30 +281,33 @@ class ToolPart extends Part {
       : '';
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ToolPart &&
-          runtimeType == other.runtimeType &&
-          kind == other.kind &&
-          id == other.id &&
-          name == other.name &&
-          mapEquals(arguments, other.arguments) &&
-          result == other.result;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ToolPart &&
+        other.kind == kind &&
+        other.interactionId == interactionId &&
+        other.toolName == toolName &&
+        mapEquals(other.arguments, arguments) &&
+        other.result == result;
+  }
 
   @override
-  int get hashCode =>
-      kind.hashCode ^
-      id.hashCode ^
-      name.hashCode ^
-      arguments.hashCode ^
-      result.hashCode;
+  int get hashCode => Object.hash(
+    kind,
+    interactionId,
+    toolName,
+    arguments != null ? Object.hashAll(arguments!.entries) : null,
+    result,
+  );
 
   @override
   String toString() {
     if (kind == ToolPartKind.call) {
-      return 'ToolPart.call(id: $id, name: $name, arguments: $arguments)';
+      return 'ToolPart.call(interactionId: $interactionId, '
+          'toolName: $toolName, arguments: $arguments)';
     } else {
-      return 'ToolPart.result(id: $id, name: $name, result: $result)';
+      return 'ToolPart.result(interactionId: $interactionId, '
+          'toolName: $toolName, result: $result)';
     }
   }
 }

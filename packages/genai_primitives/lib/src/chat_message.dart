@@ -100,13 +100,13 @@ class ChatMessage {
   };
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ChatMessage &&
-          runtimeType == other.runtimeType &&
-          role == other.role &&
-          listEquals(parts, other.parts) &&
-          mapEquals(metadata, other.metadata);
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ChatMessage &&
+        other.role == role &&
+        listEquals(other.parts, parts) &&
+        mapEquals(other.metadata, metadata);
+  }
 
   @override
   int get hashCode => Object.hash(
@@ -121,13 +121,21 @@ class ChatMessage {
 }
 
 /// The role of a message author.
+///
+/// The role indicates the source of the message or the intended perspective.
+/// For example, a system message is sent to the model to set context,
+/// a user message is sent to the model, and a model message is a response
+/// to the user.
 enum ChatMessageRole {
-  /// A message from the system that sets context or instructions.
+  /// A message from the system that sets context or instructions for the model.
+  ///
+  /// System messages are typically sent to the model to define its behavior
+  /// or persona ("system prompt"). They are not usually shown to the end user.
   system,
 
-  /// A message from the end user.
+  /// A message from the end user to the model ("user prompt").
   user,
 
-  /// A message from the model.
+  /// A message from the model to the user ("model response").
   model,
 }
