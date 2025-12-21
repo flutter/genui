@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: a2a
-      sha256: "5cba260d1b9ad3b37417b327c6f0fdcec372cbb86789fde4e3f333d5212bd8ba"
+      sha256: e701207c015144cacf18128c6302f7041d37cddc121bc4ba2a1a06858674d1ea
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
   analyzer:
     dependency: transitive
     description:
@@ -835,10 +835,10 @@ packages:
     dependency: transitive
     description:
       name: mcp_dart
-      sha256: "022d20178e86d336bd1677f568fe2675e79e3ca2175cab5541e7c6f5ca1a0359"
+      sha256: c3011200d0e35495effd6e8e635533f0c92d40c90a8a7f87f3cb61f715309170
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.4"
+    version: "1.0.2"
   meta:
     dependency: transitive
     description:

@@ -24,7 +24,7 @@ class FakeA2AClient implements a2a.A2AClient {
   @override
   Future<a2a.A2AAgentCard> getAgentCard({
     String? agentBaseUrl,
-    String agentCardPath = '/agent_card',
+    String? agentCardPath = '/agent_card',
   }) async {
     getAgentCardCalled++;
     if (agentCard != null) {
@@ -94,10 +94,21 @@ class FakeA2AClient implements a2a.A2AClient {
   }
 
   @override
-  String agentBaseUrl = '';
+  String? agentBaseUrl = '';
 
   @override
-  String agentCardPath = '';
+  String? agentCardPath = '';
+
+  @override
+  Future<a2a.A2AClient> init() async {
+    return this;
+  }
+
+  @override
+  a2a.A2AAuthenticationHandler? authenticationHandler;
+
+  @override
+  Map<String, String> customHeaders = {};
 
   @override
   Future<a2a.A2AListTaskPushNotificationConfigResponse>
