@@ -18,7 +18,14 @@ final _schema = S.object(
     ),
     'enableDate': S.boolean(),
     'enableTime': S.boolean(),
-    'outputFormat': S.string(),
+    'firstDate': S.string(
+      description:
+          'The earliest selectable date (YYYY-MM-DD). Defaults to -9999-01-01.',
+    ),
+    'lastDate': S.string(
+      description:
+          'The latest selectable date (YYYY-MM-DD). Defaults to 9999-12-31.',
+    ),
   },
   required: ['value'],
 );
@@ -28,18 +35,24 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
     required JsonMap value,
     bool? enableDate,
     bool? enableTime,
-    String? outputFormat,
+    String? firstDate,
+    String? lastDate,
   }) => _DateTimeInputData.fromMap({
     'value': value,
     'enableDate': enableDate,
     'enableTime': enableTime,
-    'outputFormat': outputFormat,
+    'firstDate': firstDate,
+    'lastDate': lastDate,
   });
 
   JsonMap get value => _json['value'] as JsonMap;
   bool get enableDate => (_json['enableDate'] as bool?) ?? true;
   bool get enableTime => (_json['enableTime'] as bool?) ?? true;
-  String? get outputFormat => _json['outputFormat'] as String?;
+  DateTime get firstDate =>
+      DateTime.tryParse(_json['firstDate'] as String? ?? '') ?? DateTime(-9999);
+  DateTime get lastDate =>
+      DateTime.tryParse(_json['lastDate'] as String? ?? '') ??
+      DateTime(9999, 12, 31);
 }
 
 /// A catalog item representing a Material Design date and/or time input field.
@@ -69,40 +82,24 @@ final dateTimeInput = CatalogItem(
     return ValueListenableBuilder<String?>(
       valueListenable: valueNotifier,
       builder: (context, value, child) {
+        final MaterialLocalizations localizations = MaterialLocalizations.of(
+          context,
+        );
+        final String displayText = _getDisplayText(
+          value,
+          dateTimeInputData,
+          localizations,
+        );
+
         return ListTile(
-          title: Text(value ?? 'Select a date/time'),
-          onTap: () async {
-            final path = dateTimeInputData.value['path'] as String?;
-            if (path == null) {
-              return;
-            }
-            if (dateTimeInputData.enableDate) {
-              final DateTime? date = await showDatePicker(
-                context: itemContext.buildContext,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
-              if (date != null) {
-                itemContext.dataContext.update(
-                  DataPath(path),
-                  date.toIso8601String(),
-                );
-              }
-            }
-            if (dateTimeInputData.enableTime) {
-              final TimeOfDay? time = await showTimePicker(
-                context: itemContext.buildContext,
-                initialTime: TimeOfDay.now(),
-              );
-              if (time != null) {
-                itemContext.dataContext.update(
-                  DataPath(path),
-                  time.format(itemContext.buildContext),
-                );
-              }
-            }
-          },
+          key: Key(itemContext.id),
+          title: Text(displayText, key: Key('${itemContext.id}_text')),
+          onTap: () => _handleTap(
+            context: itemContext.buildContext,
+            dataContext: itemContext.dataContext,
+            data: dateTimeInputData,
+            value: value,
+          ),
         );
       },
     );
@@ -122,5 +119,140 @@ final dateTimeInput = CatalogItem(
         }
       ]
     ''',
+    () => '''
+       [
+        {
+          "id": "root",
+          "component": {
+            "DateTimeInput": {
+              "value": {
+                "path": "/myDate"
+              },
+              "enableTime": false
+            }
+          }
+        }
+      ]
+    ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": {
+            "DateTimeInput": {
+              "value": {
+                "path": "/myTime"
+              },
+              "enableDate": false
+            }
+          }
+        }
+      ]
+    ''',
   ],
 );
+
+Future<void> _handleTap({
+  required BuildContext context,
+  required DataContext dataContext,
+  required _DateTimeInputData data,
+  required String? value,
+}) async {
+  final path = data.value['path'] as String?;
+  if (path == null) {
+    return;
+  }
+
+  final DateTime initialDate =
+      DateTime.tryParse(value ?? '') ??
+      DateTime.tryParse('1970-01-01T$value') ??
+      DateTime.now();
+
+  var resultDate = initialDate;
+  var resultTime = TimeOfDay.fromDateTime(initialDate);
+
+  if (data.enableDate) {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: data.firstDate,
+      lastDate: data.lastDate,
+    );
+    if (pickedDate == null) return; // User cancelled.
+    resultDate = pickedDate;
+  }
+
+  if (data.enableTime) {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initialDate),
+    );
+    if (pickedTime == null) return; // User cancelled.
+    resultTime = pickedTime;
+  }
+
+  final finalDateTime = DateTime(
+    resultDate.year,
+    resultDate.month,
+    resultDate.day,
+    data.enableTime ? resultTime.hour : 0,
+    data.enableTime ? resultTime.minute : 0,
+  );
+
+  String formattedValue;
+
+  if (data.enableDate && !data.enableTime) {
+    formattedValue = finalDateTime.toIso8601String().split('T').first;
+  } else if (!data.enableDate && data.enableTime) {
+    final String hour = finalDateTime.hour.toString().padLeft(2, '0');
+    final String minute = finalDateTime.minute.toString().padLeft(2, '0');
+    formattedValue = '$hour:$minute:00';
+  } else {
+    // Both enabled (or both disabled, which shouldn't happen),
+    // write full ISO string.
+    formattedValue = finalDateTime.toIso8601String();
+  }
+
+  dataContext.update(DataPath(path), formattedValue);
+}
+
+String _getDisplayText(
+  String? value,
+  _DateTimeInputData data,
+  MaterialLocalizations localizations,
+) {
+  String getPlaceholderText() {
+    if (data.enableDate && data.enableTime) {
+      return 'Select a date and time';
+    } else if (data.enableDate) {
+      return 'Select a date';
+    } else if (data.enableTime) {
+      return 'Select a time';
+    }
+    return 'Select a date/time';
+  }
+
+  DateTime? tryParseDateOrTime(String value) {
+    return DateTime.tryParse(value) ?? DateTime.tryParse('1970-01-01T$value');
+  }
+
+  String formatDateTime(DateTime date) {
+    final List<String> parts = [
+      if (data.enableDate) localizations.formatFullDate(date),
+      if (data.enableTime)
+        localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date)),
+    ];
+    return parts.join(' ');
+  }
+
+  if (value == null) {
+    return getPlaceholderText();
+  }
+
+  final DateTime? date = tryParseDateOrTime(value);
+  if (date == null) {
+    return value;
+  }
+
+  return formatDateTime(date);
+}

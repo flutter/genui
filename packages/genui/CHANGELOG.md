@@ -1,5 +1,7 @@
 # `genui` Changelog
 
+## 0.6.1 (in progress)
+
 ## 0.6.0
 
 - **BREAKING**: Renamed `GenUiManager` to `A2uiMessageProcessor` to better reflect its role.
