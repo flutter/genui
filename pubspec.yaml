@@ -30,3 +30,9 @@ workspace:
 
 flutter:
   uses-material-design: true
+
+# Pin transitive dependencies to versions compatible with dartantic_ai 2.1.1.
+# Newer patch versions have breaking API changes.
+dependency_overrides:
+  mistralai_dart: 0.1.1
+  anthropic_sdk_dart: 0.3.1
