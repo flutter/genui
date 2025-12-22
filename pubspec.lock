@@ -17,14 +17,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.65"
-  a2a:
-    dependency: transitive
-    description:
-      name: a2a
-      sha256: e701207c015144cacf18128c6302f7041d37cddc121bc4ba2a1a06858674d1ea
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.0"
   analyzer:
     dependency: transitive
     description:
@@ -49,22 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.10"
-  ansicolor:
-    dependency: transitive
-    description:
-      name: ansicolor
-      sha256: "50e982d500bc863e1d703448afdbf9e5a72eb48840a4f766fa361ffd6877055f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   anthropic_sdk_dart:
     dependency: transitive
     description:
       name: anthropic_sdk_dart
-      sha256: ea5775add9f3f9a92f9f2d28eb655fa72708cbbcf30df9ea1630eb92eeda0549
+      sha256: "30162d70384f38f98f22e2402776f28d260b721fef684893dbed2a3108e72428"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0+1"
+    version: "0.3.1"
   args:
     dependency: transitive
     description:
@@ -185,14 +169,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
-  colorize:
-    dependency: transitive
-    description:
-      name: colorize
-      sha256: "584746cd6ba1cba0633b6720f494fe6f9601c4170f0666c1579d2aa2a61071ba"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   convert:
     dependency: transitive
     description:
@@ -269,10 +245,10 @@ packages:
     dependency: transitive
     description:
       name: dartantic_ai
-      sha256: "1f10916d7ebdca633e939fa717c87eb883ec5115ee599cb9784960aea83ae293"
+      sha256: "3ef55b0227a33b87bcdf73e4d0ecf8a4328b20f9e9ef90a4f52993ace13141c1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.1"
   dartantic_interface:
     dependency: transitive
     description:
@@ -281,22 +257,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  darto:
-    dependency: transitive
-    description:
-      name: darto
-      sha256: d0320594fe7b00b2b23395de37338eb6a8aece6faa116418b9544b05782de1d4
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.35"
-  darto_types:
-    dependency: transitive
-    description:
-      name: darto_types
-      sha256: "7057ed34b9a96300978cb9a75f2d7cfa27c89f16fd4ba5ef384fb403f4c87f07"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
   decimal:
     dependency: transitive
     description:
@@ -329,14 +289,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  events_emitter:
-    dependency: transitive
-    description:
-      name: events_emitter
-      sha256: d1024256ec6f6ddb18120351c7979d3986fe8d0a3b59c9f57a066e43542187de
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0"
   fake_async:
     dependency: transitive
     description:
@@ -578,14 +530,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  genkit:
-    dependency: transitive
-    description:
-      name: genkit
-      sha256: b6f089525c617dce335bcfca3757b28544a218b8d509012ab12c8ab77a804dfe
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.0"
   glob:
     dependency: transitive
     description:
@@ -863,14 +807,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  mailer:
-    dependency: transitive
-    description:
-      name: mailer
-      sha256: c3b934c0e800ddc946167c0123a900eba5acd009abb73648d0191a742542f2b4
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.6.0"
   markdown:
     dependency: transitive
     description:
@@ -899,10 +835,10 @@ packages:
     dependency: transitive
     description:
       name: mcp_dart
-      sha256: c3011200d0e35495effd6e8e635533f0c92d40c90a8a7f87f3cb61f715309170
+      sha256: "436566d733fd1b9cfaeda148756596cd3e77b755f75df2d576128b55bdbc61e0"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.1.2"
   meta:
     dependency: transitive
     description:
@@ -920,13 +856,13 @@ packages:
     source: hosted
     version: "2.0.0"
   mistralai_dart:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: mistralai_dart
-      sha256: "4ada36f323dd0c5081ef23ed8989a88a04c3ac02764a1aefb776c3158b4f2697"
+      sha256: "479b1a26a4613d1fcf28df27c5c27f9fa6052291a12cfaf26867a349a15dda20"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0+1"
+    version: "0.1.1"
   mockito:
     dependency: transitive
     description:
@@ -935,14 +871,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.6.1"
-  mustache_template:
-    dependency: transitive
-    description:
-      name: mustache_template
-      sha256: daa42be75f2ccfb287c24a75e7ac594f2ea0b32bf9ebe7c15154aa45b2dfb2de
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2"
   nested:
     dependency: transitive
     description:
@@ -987,18 +915,10 @@ packages:
     dependency: transitive
     description:
       name: openai_dart
-      sha256: "9c74e1ff38243c8987890d9fe4d03f5298352576d4db3a90402625f3f21e2164"
+      sha256: "0c392263f5aeadf93c9bef0ce9f4781f4ce45de4e4b84858d5508148dfbfd637"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0+1"
-  oxy:
-    dependency: transitive
-    description:
-      name: oxy
-      sha256: "00f89b18c9559196f9c057008b0173af2e6d8f77f28bc401c20afb160b7f812b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.4"
+    version: "0.6.1"
   package_config:
     dependency: transitive
     description:
