@@ -16,7 +16,7 @@ environment:
   flutter: ">=3.35.7 <4.0.0"
 
 dependencies:
-  dartantic_ai: ^2.1.1
+  dartantic_ai: ^2.0.1
   flutter:
     sdk: flutter
   genui: ^0.6.0
