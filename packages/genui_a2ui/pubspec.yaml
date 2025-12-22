@@ -16,7 +16,6 @@ environment:
 resolution: workspace
 
 dependencies:
-  a2a: ^3.3.0
   flutter:
     sdk: flutter
   freezed_annotation: ^3.1.0

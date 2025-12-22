@@ -46,13 +46,13 @@ abstract class Part {
       // Check if it's a call or result based on presence of arguments or result
       if (content.containsKey('arguments')) {
         return ToolPart.call(
-          interactionId: content['id'] as String,
+          callId: content['id'] as String,
           toolName: content['name'] as String,
           arguments: content['arguments'] as Map<String, dynamic>? ?? {},
         );
       } else {
         return ToolPart.result(
-          interactionId: content['id'] as String,
+          callId: content['id'] as String,
           toolName: content['name'] as String,
           result: content['result'],
         );
@@ -113,7 +113,7 @@ abstract class Part {
       case final ToolPart p:
         typeName = 'ToolPart';
         content = {
-          'id': p.interactionId,
+          'id': p.callId,
           'name': p.toolName,
           if (p.arguments != null) 'arguments': p.arguments,
           if (p.result != null) 'result': p.result,
@@ -246,7 +246,7 @@ class ToolPart extends Part {
   /// Creates a tool call part.
   /// Creates a tool call part.
   const ToolPart.call({
-    required this.interactionId,
+    required this.callId,
     required this.toolName,
     required this.arguments,
   }) : kind = ToolPartKind.call,
@@ -254,7 +254,7 @@ class ToolPart extends Part {
 
   /// Creates a tool result part.
   const ToolPart.result({
-    required this.interactionId,
+    required this.callId,
     required this.toolName,
     required this.result,
   }) : kind = ToolPartKind.result,
@@ -264,7 +264,7 @@ class ToolPart extends Part {
   final ToolPartKind kind;
 
   /// The unique identifier for this tool interaction.
-  final String interactionId;
+  final String callId;
 
   /// The name of the tool.
   final String toolName;
@@ -285,7 +285,7 @@ class ToolPart extends Part {
     if (identical(this, other)) return true;
     return other is ToolPart &&
         other.kind == kind &&
-        other.interactionId == interactionId &&
+        other.callId == callId &&
         other.toolName == toolName &&
         mapEquals(other.arguments, arguments) &&
         other.result == result;
@@ -294,7 +294,7 @@ class ToolPart extends Part {
   @override
   int get hashCode => Object.hash(
     kind,
-    interactionId,
+    callId,
     toolName,
     arguments != null ? Object.hashAll(arguments!.entries) : null,
     result,
@@ -303,10 +303,10 @@ class ToolPart extends Part {
   @override
   String toString() {
     if (kind == ToolPartKind.call) {
-      return 'ToolPart.call(interactionId: $interactionId, '
+      return 'ToolPart.call(callId: $callId, '
           'toolName: $toolName, arguments: $arguments)';
     } else {
-      return 'ToolPart.result(interactionId: $interactionId, '
+      return 'ToolPart.result(callId: $callId, '
           'toolName: $toolName, result: $result)';
     }
   }

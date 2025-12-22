@@ -55,7 +55,7 @@ void main() {
     parts: [
       const TextPart('Thinking: User wants weather for London...'),
       const ToolPart.call(
-        interactionId: 'call_123',
+        callId: 'call_123',
         toolName: 'get_weather',
         arguments: {'location': 'London', 'unit': 'celsius'},
       ),
@@ -75,7 +75,7 @@ void main() {
     '', // User role is typically used for tool results in many APIs
     parts: [
       const ToolPart.result(
-        interactionId: 'call_123',
+        callId: 'call_123',
         toolName: 'get_weather',
         result: {'temperature': 15, 'condition': 'Cloudy'},
       ),

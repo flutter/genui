@@ -120,12 +120,12 @@ void main() {
       group('Call', () {
         test('creation', () {
           final part = const ToolPart.call(
-            interactionId: 'call_1',
+            callId: 'call_1',
             toolName: 'get_weather',
             arguments: {'city': 'London'},
           );
           expect(part.kind, equals(ToolPartKind.call));
-          expect(part.interactionId, equals('call_1'));
+          expect(part.callId, equals('call_1'));
           expect(part.toolName, equals('get_weather'));
           expect(part.arguments, equals({'city': 'London'}));
           expect(part.result, isNull);
@@ -134,7 +134,7 @@ void main() {
 
         test('JSON serialization', () {
           final part = const ToolPart.call(
-            interactionId: 'call_1',
+            callId: 'call_1',
             toolName: 'get_weather',
             arguments: {'city': 'London'},
           );
@@ -154,7 +154,7 @@ void main() {
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.call));
-          expect(toolPart.interactionId, equals('call_1'));
+          expect(toolPart.callId, equals('call_1'));
           expect(toolPart.arguments, equals({'city': 'London'}));
         });
       });
@@ -162,12 +162,12 @@ void main() {
       group('Result', () {
         test('creation', () {
           final part = const ToolPart.result(
-            interactionId: 'call_1',
+            callId: 'call_1',
             toolName: 'get_weather',
             result: {'temp': 20},
           );
           expect(part.kind, equals(ToolPartKind.result));
-          expect(part.interactionId, equals('call_1'));
+          expect(part.callId, equals('call_1'));
           expect(part.toolName, equals('get_weather'));
           expect(part.result, equals({'temp': 20}));
           expect(part.arguments, isNull);
@@ -175,7 +175,7 @@ void main() {
 
         test('JSON serialization', () {
           final part = const ToolPart.result(
-            interactionId: 'call_1',
+            callId: 'call_1',
             toolName: 'get_weather',
             result: {'temp': 20},
           );
@@ -191,7 +191,7 @@ void main() {
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.result));
-          expect(toolPart.interactionId, equals('call_1'));
+          expect(toolPart.callId, equals('call_1'));
           expect(toolPart.result, equals({'temp': 20}));
         });
       });
@@ -215,12 +215,12 @@ void main() {
 
     test('helpers', () {
       final toolCall = const ToolPart.call(
-        interactionId: '1',
+        callId: '1',
         toolName: 'tool',
         arguments: {},
       );
       final toolResult = const ToolPart.result(
-        interactionId: '1',
+        callId: '1',
         toolName: 'tool',
         result: 'ok',
       );
