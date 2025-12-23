@@ -1,6 +1,10 @@
 # `genui` Changelog
 
-## 0.6.1 (in progress)
+## 0.6.1
+
+- **Fix**: Corrected `DateTimeInput` catalog item JSON key mapping (#622).
+- **Fix**: Added missing `weight` property to `Component` constructor (#603).
+- **Fix**: Defaulted `TextField` `width` to 1 when nested in a `Row` (#603).
 
 ## 0.6.0
 

@@ -3,11 +3,21 @@
 # found in the LICENSE file.
 
 name: genai_primitives
-description: TODO - add description
-version: 0.0.1-dev.1
+description: A set of primitives for working with generative AI.
+version: 0.1.0
+homepage: https://github.com/flutter/genui/tree/main/packages/genai_primitives
+license: BSD-3-Clause
+issue_tracker: https://github.com/flutter/genui/issues
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
+
+dependencies:
+  cross_file: ^0.3.5+1
+  json_schema_builder: ^0.1.3
+  meta: ^1.17.0
+  mime: ^2.0.0
+  path: ^1.9.1
 
 dev_dependencies:
   lints: ^6.0.0

@@ -30,3 +30,8 @@ workspace:
 
 flutter:
   uses-material-design: true
+
+# Pin mistralai_dart to 0.1.1 (avoid 0.1.1+1 which has breaking API changes).
+# dartantic_ai 2.1.1 is not compatible with mistralai_dart 0.1.1+1.
+dependency_overrides:
+  mistralai_dart: 0.1.1
