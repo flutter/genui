@@ -23,6 +23,8 @@ on:
       - "packages/**"
       - "examples/**"
       - "tool/**"
+  schedule:
+    - cron: '0 * * * *' # hourly
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
