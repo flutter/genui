@@ -50,7 +50,7 @@ void main() {
   }
 
   // 3. Simulate Model Response with Tool Call
-  final modelResponse = Message.model(
+  final modelResponse = Message(
     '', // Empty text for tool call
     parts: [
       const TextPart('Thinking: User wants weather for London...'),

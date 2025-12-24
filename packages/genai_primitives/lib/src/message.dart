@@ -19,7 +19,11 @@ class Message {
   const Message({this.parts = const [], this.metadata = const {}});
 
   /// Creates a new message with a single text part.
-  Message.text(String text) : this(parts: [TextPart(text)]);
+  Message.text(
+    String text, {
+    List<Part> parts = const [],
+    Map<String, dynamic> metadata = const {},
+  }) : this(parts: [TextPart(text), ...parts], metadata: metadata);
 
   /// Creates a message from a JSON-compatible map.
   factory Message.fromJson(Map<String, dynamic> json) => Message(
