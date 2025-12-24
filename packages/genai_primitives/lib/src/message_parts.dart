@@ -27,10 +27,10 @@ final class _Json {
 }
 
 final class _Part {
-  static const text = 'TextPart';
-  static const data = 'DataPart';
-  static const link = 'LinkPart';
-  static const tool = 'ToolPart';
+  static const text = 'Text';
+  static const data = 'Data';
+  static const link = 'Link';
+  static const tool = 'Tool';
 }
 
 /// Base class for message content parts.
