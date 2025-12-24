@@ -18,7 +18,7 @@ class Message {
   /// Creates a new message.
   const Message.fromParts({this.parts = const [], this.metadata = const {}});
 
-  /// Creates a new message.
+  /// Creates a new message, taking a text string as separate parameter.
   Message(
     String text, {
     List<Part> parts = const [],

@@ -197,13 +197,13 @@ void main() {
   });
 
   group('Message', () {
-    test('default constructor', () {
-      final fromParts = const Message(parts: [TextPart('hello')]);
+    test('fromParts', () {
+      final fromParts = const Message.fromParts(parts: [TextPart('hello')]);
       expect(fromParts.text, equals('hello'));
     });
 
-    test('factories', () {
-      final message = Message.text('instructions');
+    test('default constructor', () {
+      final message = Message('instructions');
       expect(message.text, equals('instructions'));
     });
 
@@ -219,14 +219,14 @@ void main() {
         result: 'ok',
       );
 
-      final msg1 = Message(parts: [const TextPart('Hi'), toolCall]);
+      final msg1 = Message.fromParts(parts: [const TextPart('Hi'), toolCall]);
       expect(msg1.hasToolCalls, isTrue);
       expect(msg1.hasToolResults, isFalse);
       expect(msg1.toolCalls, hasLength(1));
       expect(msg1.toolResults, isEmpty);
       expect(msg1.text, equals('Hi'));
 
-      final msg2 = Message(parts: [toolResult]);
+      final msg2 = Message.fromParts(parts: [toolResult]);
       expect(msg2.hasToolCalls, isFalse);
       expect(msg2.hasToolResults, isTrue);
       expect(msg2.toolCalls, isEmpty);
@@ -234,7 +234,7 @@ void main() {
     });
 
     test('metadata', () {
-      final msg = const Message(
+      final msg = const Message.fromParts(
         parts: [TextPart('hi')],
         metadata: {'key': 'value'},
       );
@@ -248,7 +248,7 @@ void main() {
     });
 
     test('JSON serialization', () {
-      final msg = Message.text('response');
+      final msg = Message('response');
       final Map<String, dynamic> json = msg.toJson();
 
       expect((json['parts'] as List).length, equals(1));
