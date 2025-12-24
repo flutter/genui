@@ -24,8 +24,8 @@ class ChatMessage {
   ChatMessage.model(Message content) : this(role: Role.model, content: content);
 }
 
-void runExample() {
-  print('--- GenAI Primitives Example ---');
+void main({void Function(Object? object) output = print}) {
+  output('--- GenAI Primitives Example ---');
 
   // 1. Define a Tool
   final ToolDefinition<Object> getWeatherTool = ToolDefinition(
@@ -45,8 +45,8 @@ void runExample() {
     ),
   );
 
-  print('\n[Tool Definition]');
-  print(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
+  output('\n[Tool Definition]');
+  output(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
 
   // 2. Create a conversation history
   final history = <ChatMessage>[
@@ -105,8 +105,8 @@ void runExample() {
   );
   history.add(toolResult);
 
-  print('\n[Tool Result]');
-  print('Result: ${toolResult.content.toolResults.first.result}');
+  output('\n[Tool Result]');
+  output('Result: ${toolResult.content.toolResults.first.result}');
 
   // 5. Simulate Final Model Response with Data (e.g. an image generated or
   //    returned)
@@ -124,27 +124,23 @@ void runExample() {
   );
   history.add(finalResponse);
 
-  print('\n[Final Model Response with Data]');
-  print('Text: ${finalResponse.content.text}');
+  output('\n[Final Model Response with Data]');
+  output('Text: ${finalResponse.content.text}');
   if (finalResponse.content.parts.any((p) => p is DataPart)) {
     final DataPart dataPart = finalResponse.content.parts
         .whereType<DataPart>()
         .first;
-    print(
+    output(
       'Attachment: ${dataPart.name} '
       '(${dataPart.mimeType}, ${dataPart.bytes.length} bytes)',
     );
   }
 
   // 6. Demonstrate JSON serialization of the whole history
-  print('\n[Full History JSON]');
-  print(
+  output('\n[Full History JSON]');
+  output(
     const JsonEncoder.withIndent(
       '  ',
     ).convert(history.map((m) => m.content.toJson()).toList()),
   );
-}
-
-void main() {
-  runExample();
 }
