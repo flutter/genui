@@ -8,6 +8,22 @@ import 'dart:typed_data';
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+enum Role { system, user, model }
+
+class ChatMessage {
+  final Role role;
+  final Message content;
+
+  ChatMessage({required this.role, required this.content});
+
+  ChatMessage.system(Message content)
+    : this(role: Role.system, content: content);
+
+  ChatMessage.user(Message content) : this(role: Role.user, content: content);
+
+  ChatMessage.model(Message content) : this(role: Role.model, content: content);
+}
+
 void main() {
   print('--- GenAI Primitives Example ---');
 
@@ -33,77 +49,87 @@ void main() {
   print(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
 
   // 2. Create a conversation history
-  final history = <Message>[
+  final history = <ChatMessage>[
     // System message
-    Message.system(
-      'You are a helpful weather assistant. '
-      'Use the get_weather tool when needed.',
+    ChatMessage.system(
+      Message(
+        'You are a helpful weather assistant. '
+        'Use the get_weather tool when needed.',
+      ),
     ),
 
     // User message asking for weather
-    Message.user('What is the weather in London?'),
+    ChatMessage.user(Message('What is the weather in London?')),
   ];
 
   print('\n[Initial Conversation]');
   for (final msg in history) {
-    print('${msg.role.name}: ${msg.text}');
+    print('${msg.role.name}: ${msg.content.text}');
   }
 
   // 3. Simulate Model Response with Tool Call
-  final modelResponse = Message(
-    '', // Empty text for tool call
-    parts: [
-      const TextPart('Thinking: User wants weather for London...'),
-      const ToolPart.call(
-        callId: 'call_123',
-        toolName: 'get_weather',
-        arguments: {'location': 'London', 'unit': 'celsius'},
-      ),
-    ],
+  final modelResponse = ChatMessage.model(
+    Message(
+      '', // Empty text for tool call
+      parts: [
+        const TextPart('Thinking: User wants weather for London...'),
+        const ToolPart.call(
+          callId: 'call_123',
+          toolName: 'get_weather',
+          arguments: {'location': 'London', 'unit': 'celsius'},
+        ),
+      ],
+    ),
   );
   history.add(modelResponse);
 
   print('\n[Model Response with Tool Call]');
-  if (modelResponse.hasToolCalls) {
-    for (final ToolPart call in modelResponse.toolCalls) {
+  if (modelResponse.content.hasToolCalls) {
+    for (final ToolPart call in modelResponse.content.toolCalls) {
       print('Tool Call: ${call.toolName}(${call.arguments})');
     }
   }
 
   // 4. Simulate Tool Execution & Result
-  final toolResult = Message.user(
-    '', // User role is typically used for tool results in many APIs
-    parts: [
-      const ToolPart.result(
-        callId: 'call_123',
-        toolName: 'get_weather',
-        result: {'temperature': 15, 'condition': 'Cloudy'},
-      ),
-    ],
+  final toolResult = ChatMessage.user(
+    Message(
+      '', // User role is typically used for tool results in many APIs
+      parts: [
+        const ToolPart.result(
+          callId: 'call_123',
+          toolName: 'get_weather',
+          result: {'temperature': 15, 'condition': 'Cloudy'},
+        ),
+      ],
+    ),
   );
   history.add(toolResult);
 
   print('\n[Tool Result]');
-  print('Result: ${toolResult.toolResults.first.result}');
+  print('Result: ${toolResult.content.toolResults.first.result}');
 
   // 5. Simulate Final Model Response with Data (e.g. an image generated or
   //    returned)
-  final finalResponse = Message.model(
-    'Here is a chart of the weather trend:',
-    parts: [
-      DataPart(
-        Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]), // Fake PNG header
-        mimeType: 'image/png',
-        name: 'weather_chart.png',
-      ),
-    ],
+  final finalResponse = ChatMessage.model(
+    Message(
+      'Here is a chart of the weather trend:',
+      parts: [
+        DataPart(
+          Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]), // Fake PNG header
+          mimeType: 'image/png',
+          name: 'weather_chart.png',
+        ),
+      ],
+    ),
   );
   history.add(finalResponse);
 
   print('\n[Final Model Response with Data]');
-  print('Text: ${finalResponse.text}');
-  if (finalResponse.parts.any((p) => p is DataPart)) {
-    final DataPart dataPart = finalResponse.parts.whereType<DataPart>().first;
+  print('Text: ${finalResponse.content.text}');
+  if (finalResponse.content.parts.any((p) => p is DataPart)) {
+    final DataPart dataPart = finalResponse.content.parts
+        .whereType<DataPart>()
+        .first;
     print(
       'Attachment: ${dataPart.name} '
       '(${dataPart.mimeType}, ${dataPart.bytes.length} bytes)',
@@ -115,6 +141,6 @@ void main() {
   print(
     const JsonEncoder.withIndent(
       '  ',
-    ).convert(history.map((m) => m.toJson()).toList()),
+    ).convert(history.map((m) => m.content.toJson()).toList()),
   );
 }

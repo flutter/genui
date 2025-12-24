@@ -16,17 +16,17 @@ final class _Json {
 @immutable
 class Message {
   /// Creates a new message.
-  const Message({this.parts = const [], this.metadata = const {}});
+  const Message.fromParts({this.parts = const [], this.metadata = const {}});
 
-  /// Creates a new message with a single text part.
-  Message.text(
+  /// Creates a new message.
+  Message(
     String text, {
     List<Part> parts = const [],
     Map<String, dynamic> metadata = const {},
-  }) : this(parts: [TextPart(text), ...parts], metadata: metadata);
+  }) : this.fromParts(parts: [TextPart(text), ...parts], metadata: metadata);
 
   /// Creates a message from a JSON-compatible map.
-  factory Message.fromJson(Map<String, dynamic> json) => Message(
+  factory Message.fromJson(Map<String, dynamic> json) => Message.fromParts(
     parts: (json[_Json.parts] as List<dynamic>)
         .map((p) => Part.fromJson(p as Map<String, dynamic>))
         .toList(),
