@@ -78,8 +78,7 @@ class Message {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(Object.hashAll(parts), Object.hashAll(metadata.entries));
+  int get hashCode => Object.hash(Object.hashAll(parts), mapHashCode(metadata));
 
   @override
   String toString() => 'Message(parts: $parts, metadata: $metadata)';

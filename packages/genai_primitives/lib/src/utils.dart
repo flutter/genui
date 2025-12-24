@@ -20,3 +20,12 @@ bool mapEquals<K, V>(Map<K, V>? a, Map<K, V>? b) {
   }
   return true;
 }
+
+int mapHashCode(Map<dynamic, dynamic>? map) {
+  if (map == null) return 0;
+  var hash = 0;
+  for (final MapEntry<dynamic, dynamic> entry in map.entries) {
+    hash ^= Object.hash(entry.key, entry.value);
+  }
+  return hash;
+}
