@@ -24,6 +24,10 @@ class ChatMessage {
   ChatMessage.model(Message content) : this(role: Role.model, content: content);
 }
 
+void runExample() {
+  print('--- GenAI Primitives Example ---');
+}
+
 void main() {
   print('--- GenAI Primitives Example ---');
 
