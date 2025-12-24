@@ -198,11 +198,10 @@ void main() {
     });
   });
 
-  group('ChatMessage', () {
+  group('Message', () {
     test('factories', () {
-      final system = Message.system('instructions');
-      expect(system.role, equals(ChatMessageRole.system));
-      expect(system.text, equals('instructions'));
+      final message = Message('instructions');
+      expect(message.text, equals('instructions'));
 
       final user = Message.user('hello');
       expect(user.role, equals(ChatMessageRole.user));

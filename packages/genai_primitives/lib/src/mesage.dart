@@ -18,9 +18,11 @@ class Message {
   /// Creates a new message.
   const Message({
     String text = '',
-    required this.parts,
+    this.parts = const [],
     this.metadata = const {},
-  });
+  }) {
+
+  };
 
   /// Creates a message from a JSON-compatible map.
   factory Message.fromJson(Map<String, dynamic> json) => Message(
