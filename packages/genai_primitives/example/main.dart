@@ -62,9 +62,9 @@ void main({void Function(Object? object) output = print}) {
     ChatMessage.user(Message('What is the weather in London?')),
   ];
 
-  print('\n[Initial Conversation]');
+  output('\n[Initial Conversation]');
   for (final msg in history) {
-    print('${msg.role.name}: ${msg.content.text}');
+    output('${msg.role.name}: ${msg.content.text}');
   }
 
   // 3. Simulate Model Response with Tool Call
@@ -83,10 +83,10 @@ void main({void Function(Object? object) output = print}) {
   );
   history.add(modelResponse);
 
-  print('\n[Model Response with Tool Call]');
+  output('\n[Model Response with Tool Call]');
   if (modelResponse.content.hasToolCalls) {
     for (final ToolPart call in modelResponse.content.toolCalls) {
-      print('Tool Call: ${call.toolName}(${call.arguments})');
+      output('Tool Call: ${call.toolName}(${call.arguments})');
     }
   }
 
