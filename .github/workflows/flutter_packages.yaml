@@ -24,6 +24,8 @@ on:
       - "examples/**"
       - "tool/**"
   schedule:
+    # Tests may fail due to new dependency releases.
+    # Regular execution provides early detection of such regressions.
     - cron: '0 * * * *' # hourly
 
 concurrency:
