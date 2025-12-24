@@ -94,7 +94,7 @@ abstract class Part {
 
   /// Gets the name for a MIME type.
   static String nameFromMimeType(String mimeType) {
-    final String ext = extensionFromMimeType(mimeType) ?? '.bin';
+    final String ext = extensionFromMimeType(mimeType) ?? 'bin';
     return mimeType.startsWith('image/') ? 'image.$ext' : 'file.$ext';
   }
 
