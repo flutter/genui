@@ -145,7 +145,7 @@ void main() {
           name: 'my_file.png',
         );
 
-        final part = await DataPart.fromFile(file);
+        final DataPart part = await DataPart.fromFile(file);
         expect(part.bytes, equals(bytes));
         expect(part.mimeType, equals('image/png'));
         // XFile.fromData might not preserve the name in some test environments
@@ -166,7 +166,7 @@ void main() {
         ]);
         final file = XFile.fromData(bytes, name: 'temp_file.png');
 
-        final part = await DataPart.fromFile(file);
+        final DataPart part = await DataPart.fromFile(file);
         expect(part.mimeType, equals('image/png'));
         expect(part.name, anyOf(equals('temp_file.png'), equals('image.png')));
       });
@@ -411,11 +411,11 @@ void main() {
     });
 
     test('text concatenation', () {
-      final msg = Message.fromParts(
+      final msg = const Message.fromParts(
         parts: [
-          const TextPart('Part 1. '),
-          const ToolPart.call(callId: '1', toolName: 't', arguments: {}),
-          const TextPart('Part 2.'),
+          TextPart('Part 1. '),
+          ToolPart.call(callId: '1', toolName: 't', arguments: {}),
+          TextPart('Part 2.'),
         ],
       );
       expect(msg.text, equals('Part 1. Part 2.'));
