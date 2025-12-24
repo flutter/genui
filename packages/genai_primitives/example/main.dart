@@ -33,15 +33,15 @@ void main() {
   print(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
 
   // 2. Create a conversation history
-  final history = <ChatMessage>[
+  final history = <Message>[
     // System message
-    ChatMessage.system(
+    Message.system(
       'You are a helpful weather assistant. '
       'Use the get_weather tool when needed.',
     ),
 
     // User message asking for weather
-    ChatMessage.user('What is the weather in London?'),
+    Message.user('What is the weather in London?'),
   ];
 
   print('\n[Initial Conversation]');
@@ -50,7 +50,7 @@ void main() {
   }
 
   // 3. Simulate Model Response with Tool Call
-  final modelResponse = ChatMessage.model(
+  final modelResponse = Message.model(
     '', // Empty text for tool call
     parts: [
       const TextPart('Thinking: User wants weather for London...'),
@@ -71,7 +71,7 @@ void main() {
   }
 
   // 4. Simulate Tool Execution & Result
-  final toolResult = ChatMessage.user(
+  final toolResult = Message.user(
     '', // User role is typically used for tool results in many APIs
     parts: [
       const ToolPart.result(
@@ -88,7 +88,7 @@ void main() {
 
   // 5. Simulate Final Model Response with Data (e.g. an image generated or
   //    returned)
-  final finalResponse = ChatMessage.model(
+  final finalResponse = Message.model(
     'Here is a chart of the weather trend:',
     parts: [
       DataPart(

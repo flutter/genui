@@ -14,6 +14,25 @@ import 'package:path/path.dart' as p;
 
 import 'utils.dart';
 
+final class _Json {
+  static const type = 'type';
+  static const content = 'content';
+  static const mimeType = 'mimeType';
+  static const name = 'name';
+  static const bytes = 'bytes';
+  static const url = 'url';
+  static const id = 'id';
+  static const arguments = 'arguments';
+  static const result = 'result';
+}
+
+final class _Part {
+  static const text = 'TextPart';
+  static const data = 'DataPart';
+  static const link = 'LinkPart';
+  static const tool = 'ToolPart';
+}
+
 /// Base class for message content parts.
 @immutable
 abstract class Part {
@@ -21,45 +40,50 @@ abstract class Part {
   const Part();
 
   /// Creates a part from a JSON-compatible map.
-  factory Part.fromJson(Map<String, dynamic> json) => switch (json['type']) {
-    'TextPart' => TextPart(json['content'] as String),
-    'DataPart' => () {
-      final content = json['content'] as Map<String, dynamic>;
-      final dataUri = content['bytes'] as String;
-      final Uri uri = Uri.parse(dataUri);
-      return DataPart(
-        uri.data!.contentAsBytes(),
-        mimeType: content['mimeType'] as String,
-        name: content['name'] as String?,
-      );
-    }(),
-    'LinkPart' => () {
-      final content = json['content'] as Map<String, dynamic>;
-      return LinkPart(
-        Uri.parse(content['url'] as String),
-        mimeType: content['mimeType'] as String?,
-        name: content['name'] as String?,
-      );
-    }(),
-    'ToolPart' => () {
-      final content = json['content'] as Map<String, dynamic>;
-      // Check if it's a call or result based on presence of arguments or result
-      if (content.containsKey('arguments')) {
-        return ToolPart.call(
-          callId: content['id'] as String,
-          toolName: content['name'] as String,
-          arguments: content['arguments'] as Map<String, dynamic>? ?? {},
+  factory Part.fromJson(Map<String, dynamic> json) {
+    final Object? type = json[_Json.type];
+
+    return switch (type) {
+      _Part.text => TextPart(json[_Json.content] as String),
+      _Part.data => () {
+        final content = json[_Json.content] as Map<String, dynamic>;
+        final dataUri = content[_Json.bytes] as String;
+        final Uri uri = Uri.parse(dataUri);
+        return DataPart(
+          uri.data!.contentAsBytes(),
+          mimeType: content[_Json.mimeType] as String,
+          name: content[_Json.name] as String?,
         );
-      } else {
-        return ToolPart.result(
-          callId: content['id'] as String,
-          toolName: content['name'] as String,
-          result: content['result'],
+      }(),
+      _Part.link => () {
+        final content = json[_Json.content] as Map<String, dynamic>;
+        return LinkPart(
+          Uri.parse(content[_Json.url] as String),
+          mimeType: content[_Json.mimeType] as String?,
+          name: content[_Json.name] as String?,
         );
-      }
-    }(),
-    _ => throw UnimplementedError('Unknown part type: ${json['type']}'),
-  };
+      }(),
+      _Part.tool => () {
+        final content = json[_Json.content] as Map<String, dynamic>;
+        // Check if it's a call or result based on presence of
+        // arguments or result
+        if (content.containsKey(_Json.arguments)) {
+          return ToolPart.call(
+            callId: content[_Json.id] as String,
+            toolName: content[_Json.name] as String,
+            arguments: content[_Json.arguments] as Map<String, dynamic>? ?? {},
+          );
+        } else {
+          return ToolPart.result(
+            callId: content[_Json.id] as String,
+            toolName: content[_Json.name] as String,
+            result: content[_Json.result],
+          );
+        }
+      }(),
+      _ => throw UnimplementedError('Unknown part type: $type'),
+    };
+  }
 
   /// The default MIME type for binary data.
   static const defaultMimeType = 'application/octet-stream';
@@ -91,38 +115,38 @@ abstract class Part {
     final Object content;
     switch (this) {
       case final TextPart p:
-        typeName = 'TextPart';
+        typeName = _Part.text;
         content = p.text;
         break;
       case final DataPart p:
-        typeName = 'DataPart';
+        typeName = _Part.data;
         content = {
-          if (p.name != null) 'name': p.name,
-          'mimeType': p.mimeType,
-          'bytes': 'data:${p.mimeType};base64,${base64Encode(p.bytes)}',
+          if (p.name != null) _Json.name: p.name,
+          _Json.mimeType: p.mimeType,
+          _Json.bytes: 'data:${p.mimeType};base64,${base64Encode(p.bytes)}',
         };
         break;
       case final LinkPart p:
-        typeName = 'LinkPart';
+        typeName = _Part.link;
         content = {
-          if (p.name != null) 'name': p.name,
-          if (p.mimeType != null) 'mimeType': p.mimeType,
-          'url': p.url.toString(),
+          if (p.name != null) _Json.name: p.name,
+          if (p.mimeType != null) _Json.mimeType: p.mimeType,
+          _Json.url: p.url.toString(),
         };
         break;
       case final ToolPart p:
-        typeName = 'ToolPart';
+        typeName = _Part.tool;
         content = {
-          'id': p.callId,
-          'name': p.toolName,
-          if (p.arguments != null) 'arguments': p.arguments,
-          if (p.result != null) 'result': p.result,
+          _Json.id: p.callId,
+          _Json.name: p.toolName,
+          if (p.arguments != null) _Json.arguments: p.arguments,
+          if (p.result != null) _Json.result: p.result,
         };
         break;
       default:
         throw UnimplementedError('Unknown part type: $runtimeType');
     }
-    return {'type': typeName, 'content': content};
+    return {_Json.type: typeName, _Json.content: content};
   }
 }
 

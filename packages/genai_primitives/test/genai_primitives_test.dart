@@ -200,15 +200,15 @@ void main() {
 
   group('ChatMessage', () {
     test('factories', () {
-      final system = ChatMessage.system('instructions');
+      final system = Message.system('instructions');
       expect(system.role, equals(ChatMessageRole.system));
       expect(system.text, equals('instructions'));
 
-      final user = ChatMessage.user('hello');
+      final user = Message.user('hello');
       expect(user.role, equals(ChatMessageRole.user));
       expect(user.text, equals('hello'));
 
-      final model = ChatMessage.model('hi');
+      final model = Message.model('hi');
       expect(model.role, equals(ChatMessageRole.model));
       expect(model.text, equals('hi'));
     });
@@ -225,7 +225,7 @@ void main() {
         result: 'ok',
       );
 
-      final msg1 = ChatMessage(
+      final msg1 = Message(
         role: ChatMessageRole.model,
         parts: [const TextPart('Hi'), toolCall],
       );
@@ -235,7 +235,7 @@ void main() {
       expect(msg1.toolResults, isEmpty);
       expect(msg1.text, equals('Hi'));
 
-      final msg2 = ChatMessage(role: ChatMessageRole.user, parts: [toolResult]);
+      final msg2 = Message(role: ChatMessageRole.user, parts: [toolResult]);
       expect(msg2.hasToolCalls, isFalse);
       expect(msg2.hasToolResults, isTrue);
       expect(msg2.toolCalls, isEmpty);
@@ -243,24 +243,24 @@ void main() {
     });
 
     test('metadata', () {
-      final msg = ChatMessage.user('hi', metadata: {'key': 'value'});
+      final msg = Message.user('hi', metadata: {'key': 'value'});
       expect(msg.metadata['key'], equals('value'));
 
       final Map<String, dynamic> json = msg.toJson();
       expect(json['metadata'], equals({'key': 'value'}));
 
-      final reconstructed = ChatMessage.fromJson(json);
+      final reconstructed = Message.fromJson(json);
       expect(reconstructed.metadata, equals({'key': 'value'}));
     });
 
     test('JSON serialization', () {
-      final msg = ChatMessage.model('response');
+      final msg = Message.model('response');
       final Map<String, dynamic> json = msg.toJson();
 
       expect(json['role'], equals('model'));
       expect((json['parts'] as List).length, equals(1));
 
-      final reconstructed = ChatMessage.fromJson(json);
+      final reconstructed = Message.fromJson(json);
       expect(reconstructed, equals(msg));
     });
   });

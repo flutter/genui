@@ -5,6 +5,6 @@
 /// A set of primitives for working with generative AI.
 library;
 
-export 'src/chat_message.dart';
+export 'src/mesage.dart';
 export 'src/message_parts.dart';
 export 'src/tool_definition.dart';
