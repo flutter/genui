@@ -16,12 +16,10 @@ final class _Json {
 @immutable
 class Message {
   /// Creates a new message.
-  const Message(String text,{
-    Iterable<Part> parts = const [],
-    this.metadata = const {},
-  }) {
+  const Message({this.parts = const [], this.metadata = const {}});
 
-  }
+  /// Creates a new message with a single text part.
+  Message.text(String text) : this(parts: [TextPart(text)]);
 
   /// Creates a message from a JSON-compatible map.
   factory Message.fromJson(Map<String, dynamic> json) => Message(
