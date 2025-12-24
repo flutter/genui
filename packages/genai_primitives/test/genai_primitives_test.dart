@@ -4,11 +4,63 @@
 
 import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('Part', () {
+    test('mimeType helper', () {
+      // Test with extensions (may be environment dependent for text/plain)
+      expect(
+        Part.mimeType('test.png'),
+        anyOf(equals('image/png'), equals('application/octet-stream')),
+      );
+
+      // Test with header bytes (sniffing should be environment independent)
+      final pngHeader = Uint8List.fromList([
+        0x89,
+        0x50,
+        0x4E,
+        0x47,
+        0x0D,
+        0x0A,
+        0x1A,
+        0x0A,
+      ]);
+      expect(
+        Part.mimeType('unknown', headerBytes: pngHeader),
+        equals('image/png'),
+      );
+
+      final pdfHeader = Uint8List.fromList([0x25, 0x50, 0x44, 0x46]);
+      expect(
+        Part.mimeType('file', headerBytes: pdfHeader),
+        equals('application/pdf'),
+      );
+    });
+
+    test('nameFromMimeType helper', () {
+      expect(Part.nameFromMimeType('image/png'), equals('image.png'));
+      expect(Part.nameFromMimeType('application/pdf'), equals('file.pdf'));
+      expect(Part.nameFromMimeType('unknown/type'), equals('file.bin'));
+    });
+
+    test('extensionFromMimeType helper', () {
+      expect(Part.extensionFromMimeType('image/png'), equals('png'));
+      expect(Part.extensionFromMimeType('application/pdf'), equals('pdf'));
+      expect(Part.extensionFromMimeType('unknown/type'), isNull);
+    });
+
+    test('fromJson throws on unknown type', () {
+      expect(
+        () => Part.fromJson({'type': 'Unknown', 'content': ''}),
+        throwsUnimplementedError,
+      );
+    });
+  });
+
   group('MessagePart', () {
     group('TextPart', () {
       test('creation', () {
@@ -74,6 +126,49 @@ void main() {
         expect(dataPart.mimeType, equals('image/png'));
         expect(dataPart.name, equals('test.png'));
         expect(dataPart.bytes, equals(bytes));
+      });
+
+      test('fromFile creation', () async {
+        final bytes = Uint8List.fromList([
+          0x89,
+          0x50,
+          0x4E,
+          0x47,
+          0x0D,
+          0x0A,
+          0x1A,
+          0x0A,
+        ]);
+        final file = XFile.fromData(
+          bytes,
+          mimeType: 'image/png',
+          name: 'my_file.png',
+        );
+
+        final part = await DataPart.fromFile(file);
+        expect(part.bytes, equals(bytes));
+        expect(part.mimeType, equals('image/png'));
+        // XFile.fromData might not preserve the name in some test environments
+        expect(part.name, anyOf(equals('my_file.png'), equals('image.png')));
+      });
+
+      test('fromFile with unknown MIME type detection', () async {
+        // PNG header
+        final bytes = Uint8List.fromList([
+          0x89,
+          0x50,
+          0x4E,
+          0x47,
+          0x0D,
+          0x0A,
+          0x1A,
+          0x0A,
+        ]);
+        final file = XFile.fromData(bytes, name: 'temp_file.png');
+
+        final part = await DataPart.fromFile(file);
+        expect(part.mimeType, equals('image/png'));
+        expect(part.name, anyOf(equals('temp_file.png'), equals('image.png')));
       });
     });
 
@@ -156,6 +251,32 @@ void main() {
           expect(toolPart.callId, equals('call_1'));
           expect(toolPart.arguments, equals({'city': 'London'}));
         });
+
+        test('toString', () {
+          const part = ToolPart.call(
+            callId: 'c1',
+            toolName: 't1',
+            arguments: {'a': 1},
+          );
+          expect(part.toString(), contains('ToolPart.call'));
+          expect(part.toString(), contains('c1'));
+        });
+
+        test('argumentsRaw', () {
+          const part1 = ToolPart.call(
+            callId: 'c1',
+            toolName: 't1',
+            arguments: {},
+          );
+          expect(part1.argumentsRaw, equals('{}'));
+
+          const part2 = ToolPart.call(
+            callId: 'c2',
+            toolName: 't2',
+            arguments: {'a': 1},
+          );
+          expect(part2.argumentsRaw, equals('{"a":1}'));
+        });
       });
 
       group('Result', () {
@@ -170,6 +291,17 @@ void main() {
           expect(part.toolName, equals('get_weather'));
           expect(part.result, equals({'temp': 20}));
           expect(part.arguments, isNull);
+          expect(part.argumentsRaw, equals(''));
+        });
+
+        test('toString', () {
+          const part = ToolPart.result(
+            callId: 'c1',
+            toolName: 't1',
+            result: 'ok',
+          );
+          expect(part.toString(), contains('ToolPart.result'));
+          expect(part.toString(), contains('c1'));
         });
 
         test('JSON serialization', () {
@@ -256,6 +388,60 @@ void main() {
       final reconstructed = Message.fromJson(json);
       expect(reconstructed, equals(msg));
     });
+
+    test('equality and hashCode', () {
+      const msg1 = Message.fromParts(
+        parts: [TextPart('hi')],
+        metadata: {'k': 'v'},
+      );
+      const msg2 = Message.fromParts(
+        parts: [TextPart('hi')],
+        metadata: {'k': 'v'},
+      );
+      const msg3 = Message.fromParts(parts: [TextPart('hello')]);
+      const msg4 = Message.fromParts(
+        parts: [TextPart('hi')],
+        metadata: {'k': 'other'},
+      );
+
+      expect(msg1, equals(msg2));
+      expect(msg1.hashCode, equals(msg2.hashCode));
+      expect(msg1, isNot(equals(msg3)));
+      expect(msg1, isNot(equals(msg4)));
+    });
+
+    test('text concatenation', () {
+      final msg = Message.fromParts(
+        parts: [
+          const TextPart('Part 1. '),
+          const ToolPart.call(callId: '1', toolName: 't', arguments: {}),
+          const TextPart('Part 2.'),
+        ],
+      );
+      expect(msg.text, equals('Part 1. Part 2.'));
+    });
+
+    test('toString', () {
+      final msg = Message('hi');
+      expect(msg.toString(), contains('Message'));
+      expect(msg.toString(), contains('parts: [TextPart(hi)]'));
+    });
+  });
+
+  group('MessagePartHelpers', () {
+    test('extension methods', () {
+      final parts = <Part>[
+        const TextPart('Hello'),
+        const ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
+        const ToolPart.result(callId: 'c2', toolName: 't2', result: 'r'),
+      ];
+
+      expect(parts.text, equals('Hello'));
+      expect(parts.toolCalls, hasLength(1));
+      expect(parts.toolCalls.first.callId, equals('c1'));
+      expect(parts.toolResults, hasLength(1));
+      expect(parts.toolResults.first.callId, equals('c2'));
+    });
   });
 
   group('ToolDefinition', () {
@@ -274,7 +460,7 @@ void main() {
       expect(json['inputSchema'], isNotNull);
 
       // Since we don't have a fromJson in ToolDefinition (yet?), we just test
-      // serialization If we needed it, we would add it. For now, testing that
+      // serialization. If we needed it, we would add it. For now, testing that
       // it produces expected map structure.
       final schemaMap = json['inputSchema'] as Map<String, dynamic>;
       expect(schemaMap['type'], equals('object'));

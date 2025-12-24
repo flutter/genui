@@ -26,10 +26,6 @@ class ChatMessage {
 
 void runExample() {
   print('--- GenAI Primitives Example ---');
-}
-
-void main() {
-  print('--- GenAI Primitives Example ---');
 
   // 1. Define a Tool
   final ToolDefinition<Object> getWeatherTool = ToolDefinition(
@@ -147,4 +143,8 @@ void main() {
       '  ',
     ).convert(history.map((m) => m.content.toJson()).toList()),
   );
+}
+
+void main() {
+  runExample();
 }
