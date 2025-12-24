@@ -30,7 +30,7 @@ void main() {
       test('JSON serialization', () {
         const part = TextPart('hello');
         final Map<String, dynamic> json = part.toJson();
-        expect(json, equals({'type': 'TextPart', 'content': 'hello'}));
+        expect(json, equals({'type': 'Text', 'content': 'hello'}));
 
         final reconstructed = Part.fromJson(json);
         expect(reconstructed, isA<TextPart>());
@@ -62,7 +62,7 @@ void main() {
         final part = DataPart(bytes, mimeType: 'image/png', name: 'test.png');
         final Map<String, dynamic> json = part.toJson();
 
-        expect(json['type'], equals('DataPart'));
+        expect(json['type'], equals('Data'));
         final content = json['content'] as Map<String, dynamic>;
         expect(content['mimeType'], equals('image/png'));
         expect(content['name'], equals('test.png'));
@@ -101,7 +101,7 @@ void main() {
         final part = LinkPart(uri, mimeType: 'image/png', name: 'image');
         final Map<String, dynamic> json = part.toJson();
 
-        expect(json['type'], equals('LinkPart'));
+        expect(json['type'], equals('Link'));
         final content = json['content'] as Map<String, dynamic>;
         expect(content['url'], equals(uri.toString()));
         expect(content['mimeType'], equals('image/png'));
@@ -139,8 +139,7 @@ void main() {
             arguments: {'city': 'London'},
           );
           final Map<String, dynamic> json = part.toJson();
-
-          expect(json['type'], equals('ToolPart'));
+          expect(json['type'], equals('Tool'));
           final content = json['content'] as Map<String, dynamic>;
           expect(content['id'], equals('call_1'));
           expect(content['name'], equals('get_weather'));
@@ -180,8 +179,7 @@ void main() {
             result: {'temp': 20},
           );
           final Map<String, dynamic> json = part.toJson();
-
-          expect(json['type'], equals('ToolPart'));
+          expect(json['type'], equals('Tool'));
           final content = json['content'] as Map<String, dynamic>;
           expect(content['id'], equals('call_1'));
           expect(content['name'], equals('get_weather'));
@@ -199,17 +197,14 @@ void main() {
   });
 
   group('Message', () {
+    test('default constructor', () {
+      final fromParts = const Message(parts: [TextPart('hello')]);
+      expect(fromParts.text, equals('hello'));
+    });
+
     test('factories', () {
-      final message = Message('instructions');
+      final message = Message.text('instructions');
       expect(message.text, equals('instructions'));
-
-      final user = Message.user('hello');
-      expect(user.role, equals(ChatMessageRole.user));
-      expect(user.text, equals('hello'));
-
-      final model = Message.model('hi');
-      expect(model.role, equals(ChatMessageRole.model));
-      expect(model.text, equals('hi'));
     });
 
     test('helpers', () {
@@ -224,17 +219,14 @@ void main() {
         result: 'ok',
       );
 
-      final msg1 = Message(
-        role: ChatMessageRole.model,
-        parts: [const TextPart('Hi'), toolCall],
-      );
+      final msg1 = Message(parts: [const TextPart('Hi'), toolCall]);
       expect(msg1.hasToolCalls, isTrue);
       expect(msg1.hasToolResults, isFalse);
       expect(msg1.toolCalls, hasLength(1));
       expect(msg1.toolResults, isEmpty);
       expect(msg1.text, equals('Hi'));
 
-      final msg2 = Message(role: ChatMessageRole.user, parts: [toolResult]);
+      final msg2 = Message(parts: [toolResult]);
       expect(msg2.hasToolCalls, isFalse);
       expect(msg2.hasToolResults, isTrue);
       expect(msg2.toolCalls, isEmpty);
@@ -242,7 +234,10 @@ void main() {
     });
 
     test('metadata', () {
-      final msg = Message.user('hi', metadata: {'key': 'value'});
+      final msg = const Message(
+        parts: [TextPart('hi')],
+        metadata: {'key': 'value'},
+      );
       expect(msg.metadata['key'], equals('value'));
 
       final Map<String, dynamic> json = msg.toJson();
@@ -253,10 +248,9 @@ void main() {
     });
 
     test('JSON serialization', () {
-      final msg = Message.model('response');
+      final msg = Message.text('response');
       final Map<String, dynamic> json = msg.toJson();
 
-      expect(json['role'], equals('model'));
       expect((json['parts'] as List).length, equals(1));
 
       final reconstructed = Message.fromJson(json);
