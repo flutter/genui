@@ -43,46 +43,52 @@ abstract class Part {
   factory Part.fromJson(Map<String, dynamic> json) {
     final Object? type = json[_Json.type];
 
-    return switch (type) {
-      _Part.text => TextPart(json[_Json.content] as String),
-      _Part.data => () {
-        final content = json[_Json.content] as Map<String, dynamic>;
-        final dataUri = content[_Json.bytes] as String;
-        final Uri uri = Uri.parse(dataUri);
-        return DataPart(
-          uri.data!.contentAsBytes(),
-          mimeType: content[_Json.mimeType] as String,
-          name: content[_Json.name] as String?,
-        );
-      }(),
-      _Part.link => () {
-        final content = json[_Json.content] as Map<String, dynamic>;
-        return LinkPart(
-          Uri.parse(content[_Json.url] as String),
-          mimeType: content[_Json.mimeType] as String?,
-          name: content[_Json.name] as String?,
-        );
-      }(),
-      _Part.tool => () {
-        final content = json[_Json.content] as Map<String, dynamic>;
-        // Check if it's a call or result based on presence of
-        // arguments or result
-        if (content.containsKey(_Json.arguments)) {
-          return ToolPart.call(
-            callId: content[_Json.id] as String,
-            toolName: content[_Json.name] as String,
-            arguments: content[_Json.arguments] as Map<String, dynamic>? ?? {},
-          );
-        } else {
-          return ToolPart.result(
-            callId: content[_Json.id] as String,
-            toolName: content[_Json.name] as String,
-            result: content[_Json.result],
+    switch (type) {
+      case _Part.text:
+        return TextPart(json[_Json.content] as String);
+      case _Part.data:
+        {
+          final content = json[_Json.content] as Map<String, dynamic>;
+          final dataUri = content[_Json.bytes] as String;
+          final Uri uri = Uri.parse(dataUri);
+          return DataPart(
+            uri.data!.contentAsBytes(),
+            mimeType: content[_Json.mimeType] as String,
+            name: content[_Json.name] as String?,
           );
         }
-      }(),
-      _ => throw UnimplementedError('Unknown part type: $type'),
-    };
+      case _Part.link:
+        {
+          final content = json[_Json.content] as Map<String, dynamic>;
+          return LinkPart(
+            Uri.parse(content[_Json.url] as String),
+            mimeType: content[_Json.mimeType] as String?,
+            name: content[_Json.name] as String?,
+          );
+        }
+      case _Part.tool:
+        {
+          final content = json[_Json.content] as Map<String, dynamic>;
+          // Check if it's a call or result based on presence of
+          // arguments or result
+          if (content.containsKey(_Json.arguments)) {
+            return ToolPart.call(
+              callId: content[_Json.id] as String,
+              toolName: content[_Json.name] as String,
+              arguments:
+                  content[_Json.arguments] as Map<String, dynamic>? ?? {},
+            );
+          } else {
+            return ToolPart.result(
+              callId: content[_Json.id] as String,
+              toolName: content[_Json.name] as String,
+              result: content[_Json.result],
+            );
+          }
+        }
+      default:
+        throw UnimplementedError('Unknown part type: $type');
+    }
   }
 
   /// The default MIME type for binary data.
@@ -300,9 +306,7 @@ class ToolPart extends Part {
   final dynamic result;
 
   /// The arguments as a JSON string.
-  String get argumentsRaw => arguments != null
-      ? (arguments!.isEmpty ? '{}' : jsonEncode(arguments))
-      : '';
+  String get argumentsRaw => arguments == null ? '' : jsonEncode(arguments);
 
   @override
   bool operator ==(Object other) {
