@@ -14,14 +14,16 @@ class ChatMessage {
   final Role role;
   final Message content;
 
-  ChatMessage({required this.role, required this.content});
+  const ChatMessage({required this.role, required this.content});
 
-  ChatMessage.system(Message content)
+  const ChatMessage.system(Message content)
     : this(role: Role.system, content: content);
 
-  ChatMessage.user(Message content) : this(role: Role.user, content: content);
+  const ChatMessage.user(Message content)
+    : this(role: Role.user, content: content);
 
-  ChatMessage.model(Message content) : this(role: Role.model, content: content);
+  const ChatMessage.model(Message content)
+    : this(role: Role.model, content: content);
 }
 
 void main({void Function(Object? object) output = print}) {
