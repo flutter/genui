@@ -10,6 +10,7 @@ import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
+import 'widget_helpers.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
   factory _TextData({required JsonMap text, String? usageHint}) =>
@@ -89,6 +90,26 @@ final text = CatalogItem(
           'h5' => 4.0,
           _ => 0.0,
         };
+
+        if (DebugFlags.enableLeafPadding) {
+          final EdgeInsets padding = switch (usageHint) {
+            'h1' || 'h2' || 'h3' => kDefaultLeafComponentPadding.copyWith(
+              top: 24.0,
+              bottom: 12.0,
+            ),
+            _ => kDefaultLeafComponentPadding,
+          };
+
+          return Padding(
+            padding: padding,
+            child: MarkdownBody(
+              data: currentValue ?? '',
+              styleSheet: MarkdownStyleSheet.fromTheme(
+                Theme.of(context),
+              ).copyWith(p: baseStyle),
+            ),
+          );
+        }
 
         return Padding(
           padding: EdgeInsets.symmetric(vertical: verticalPadding),
