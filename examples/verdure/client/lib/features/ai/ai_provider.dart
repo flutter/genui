@@ -49,7 +49,7 @@ class AiClientState {
     required this.surfaceUpdateController,
   });
 
-  /// The A2uiMessageProcessor.
+  /// The A2UI message processor.
   final A2uiMessageProcessor a2uiMessageProcessor;
 
   /// The content generator.

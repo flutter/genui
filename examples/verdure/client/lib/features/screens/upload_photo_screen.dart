@@ -33,7 +33,7 @@ class UploadPhotoScreen extends ConsumerWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -52,7 +52,9 @@ class UploadPhotoScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                '''Upload a photo of your front or back yard, and our designers will use it to create a custom vision. Get ready to see the potential.''',
+                'Upload a photo of your front or back yard, '
+                'and our designers will use it to create a custom vision. '
+                'Get ready to see the potential.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
@@ -146,34 +148,34 @@ class InfoCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 16,
             children: [
               CircleAvatar(
                 maxRadius: 25,
                 child: Icon(icon, size: 25, color: const Color(0xff15a34a)),
               ),
-              if (title != null || subtitle != null) const SizedBox(width: 16),
               if (title != null || subtitle != null)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 4,
                     children: [
-                      if (title != null)
+                      if (title case final title?)
                         Text(
-                          title!,
+                          title,
                           style: Theme.of(context).textTheme.titleMedium!
                               .copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
                         ),
-                      if (subtitle != null) const SizedBox(height: 4),
-                      if (subtitle != null)
+                      if (subtitle case final subtitle?)
                         Text(
-                          subtitle!,
+                          subtitle,
                           style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,

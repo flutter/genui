@@ -25,12 +25,12 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<AiClientState>>(aiProvider, (previous, next) {
-      if (next is AsyncData && !_initialRequestSent) {
+      if (_initialRequestSent) return;
+      if (next case AsyncData(value: final aiState)) {
         setState(() {
           _initialRequestSent = true;
         });
-        final AiClientState? aiState = next.value;
-        aiState?.conversation.sendRequest(
+        aiState.conversation.sendRequest(
           UserMessage.text('USER_SUBMITTED_DETAILS'),
         );
       }

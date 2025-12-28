@@ -37,12 +37,12 @@ class WelcomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 64.0),
+                      padding: const EdgeInsets.only(top: 64),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 8,
                         children: [
                           const Icon(Icons.eco, color: Colors.white, size: 32),
-                          const SizedBox(width: 8),
                           Text(
                             'Verdure',
                             style: Theme.of(context).textTheme.headlineSmall
@@ -55,8 +55,9 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     const Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16),
                       child: Column(
+                        spacing: 16,
                         children: [
                           Text(
                             'Envision Your Dream Landscape',
@@ -68,9 +69,9 @@ class WelcomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 16),
                           Text(
-                            '''Bring your perfect outdoor space to life with our suite of AI design agents.''',
+                            'Bring your perfect outdoor space to life with '
+                            'our suite of AI design agents.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'SpaceGrotesk',
@@ -89,6 +90,7 @@ class WelcomeScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Column(
+              spacing: 16,
               children: [
                 ElevatedButton(
                   onPressed: () => context.push('/upload_photo'),
@@ -99,12 +101,10 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   child: const Text('Start New Project'),
                 ),
-                const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {},
                   child: const Text('Explore Ideas'),
                 ),
-                const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {},
                   child: const Text('I\'m a returning user'),
