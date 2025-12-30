@@ -1,0 +1,14 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true
+      source_gen:combining_builder:
+        options:
+          preamble: |
+            // ignore_for_file: specify_nonobvious_property_types, duplicate_ignore

@@ -119,10 +119,9 @@ class PublishCommand {
         ['dart', 'pub', 'publish', '--force'],
         workingDirectory: packageDir,
         failOk: true,
+        printOutput: true,
       );
       if (result.exitCode != 0) {
-        printer(result.stdout);
-        printer(result.stderr);
         throw ReleaseException('Failed to publish $packageName');
       }
       printer('$packageName published successfully.');

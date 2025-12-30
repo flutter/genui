@@ -27,7 +27,6 @@ dependencies:
   riverpod_annotation: ^3.0.3
 
 dev_dependencies:
-  a2a: ^3.3.0
   build_runner: ^2.7.1
   dart_flutter_team_lints: ^3.5.2
   flutter_lints: ^6.0.0
