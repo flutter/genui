@@ -85,12 +85,19 @@ incrementing only the minor number for breaking changes and the patch number for
 non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
 major number for breaking changes.
 
-We release `genui`, `genui_firebase_ai`,
-`genui_google_generative_ui`, and `genui_a2ui` in lock step,
-with the same version number, so when one is released, they are all released.
+We release the following packages in lock step,
+with the same version number, so when one is released, they are all released:
 
-`json_schema_builder` is released independently on its own schedule, with its
-own version number.
+* `genui`
+* `genui_a2ui`
+* `genui_firebase_ai`
+* `genui_google_generative_ui`
+
+These packages are released independently on their own schedule, with their
+own version number:
+
+* `genai_primitives`
+* `json_schema_builder`
 
 "Releasing" consititutes manually publishing them all to [pub.dev] after the
 pull request containing the version bump has passed CI. The packages must be
@@ -120,3 +127,7 @@ releasing a new version.
 
 If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
 when your Flutter is latest at beta channel.
+
+## Internal information
+
+For Google-internal information see go/flutter-genui-internal.
