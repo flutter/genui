@@ -1,8 +1,9 @@
 # `genui` Changelog
 
-## 0.6.2 (in progress)
+## 0.7.0 (in progress)
 
 - **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
+- **BREAKING**: Renamed `ChatMessageWidget` to `ChatMessageView` and `InternalMessageWidget` to `InternalMessageView` (#661).
 
 ## 0.6.1
 
