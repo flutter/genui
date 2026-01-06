@@ -1,5 +1,7 @@
 # `genui` Changelog
 
+## 0.6.2 (in progress)
+
 ## 0.6.1
 
 - **Fix**: Corrected `DateTimeInput` catalog item JSON key mapping (#622).

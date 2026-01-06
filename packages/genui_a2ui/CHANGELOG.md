@@ -1,5 +1,7 @@
 # `genui_a2ui` Changelog
 
+## 0.6.2 (in progress)
+
 ## 0.6.1
 
 - **Refactor**: Switched to using a local implementation of the A2A client library, removing the dependency on `package:a2a` (#627).
