@@ -14,11 +14,11 @@ To use this package, you will need a Gemini API key. If you don't already have o
 
 ### Installation
 
-Use `dart pub add` to add the latest versions of `genui` and `genui_google_generative_ai` as
+Use `flutter pub add` to add the latest versions of `genui` and `genui_google_generative_ai` as
 dependencies in your `pubspec.yaml` file:
 
 ```bash
-dart pub add genui genui_google_generative_ai
+flutter pub add genui genui_google_generative_ai
 ```
 
 ### Usage

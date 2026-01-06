@@ -40,11 +40,11 @@ Logic, follow these instructions:
    [Firebase's Flutter Setup guide](https://firebase.google.com/docs/flutter/setup)
    to add Firebase to your app. Run `flutterfire configure` to configure your
    app.
-4. Use `dart pub add` to add the `genui` and `genui_firebase_ai` packages as
+4. Use `flutter pub add` to add the `genui` and `genui_firebase_ai` packages as
    dependencies in your `pubspec.yaml` file:
 
    ```bash
-   dart pub add genui genui_firebase_ai
+   flutter pub add genui genui_firebase_ai
    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,
@@ -63,11 +63,11 @@ Logic, follow these instructions:
 To use `genui` with a generic agent provider that supports the A2UI protocol,
 use the `genui_a2ui` package.
 
-1. Use `dart pub add` to add the `genui` and `genui_a2ui` packages as
+1. Use `flutter pub add` to add the `genui` and `genui_a2ui` packages as
    dependencies in your `pubspec.yaml` file:
 
    ```bash
-   dart pub add genui genui_a2ui
+   flutter pub add genui genui_a2ui
    ```
 
 2. Use the `A2uiContentGenerator` to connect to your agent provider.
@@ -77,11 +77,11 @@ use the `genui_a2ui` package.
 To use `genui` with the Google Generative AI API, use the
 `genui_google_generative_ai` package.
 
-1. Use `dart pub add` to add the `genui` and `genui_google_generative_ai` packages as
+1. Use `flutter pub add` to add the `genui` and `genui_google_generative_ai` packages as
    dependencies in your `pubspec.yaml` file:
 
    ```bash
-   dart pub add genui genui_google_generative_ai
+   flutter pub add genui genui_google_generative_ai
    ```
 
 2. Use the `GoogleGenerativeAiContentGenerator` to connect to the Google

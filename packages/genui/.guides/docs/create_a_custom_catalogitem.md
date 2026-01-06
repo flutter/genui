@@ -10,11 +10,11 @@ to the agent for generation.
 
 ## 1. Depend on `json_schema_builder`
 
-Use `dart pub add` to add `json_schema_builder` as a dependency in
+Use `flutter pub add` to add `json_schema_builder` as a dependency in
 your `pubspec.yaml` file:
 
 ```bash
-dart pub add json_schema_builder
+flutter pub add json_schema_builder
 ```
 
 ## 2. Create the new widget's schema

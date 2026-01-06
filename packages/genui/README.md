@@ -97,11 +97,11 @@ Logic, follow these instructions:
 3. Follow the first three steps in
    [Firebase's Flutter Setup guide](https://firebase.google.com/docs/flutter/setup)
    to add Firebase to your app.
-4. Use `dart pub add` to add the `genui` and `genui_firebase_ai` packages as
+4. Use `flutter pub add` to add the `genui` and `genui_firebase_ai` packages as
    dependencies in your `pubspec.yaml` file:
 
    ```bash
-   dart pub add genui genui_firebase_ai
+   flutter pub add genui genui_firebase_ai
    ```
 
 5. In your app's `main` method, ensure that the widget bindings are initialized,
@@ -297,11 +297,11 @@ instructions.
 
 #### Depend on the `json_schema_builder` package
 
-Use `dart pub add` to add `json_schema_builder` as a dependency in
+Use `flutter pub add` to add `json_schema_builder` as a dependency in
 your `pubspec.yaml` file:
 
 ```bash
-dart pub add json_schema_builder
+flutter pub add json_schema_builder
 ```
 
 #### Create the new widget's schema

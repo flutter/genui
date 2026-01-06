@@ -20,11 +20,11 @@ An integration package for [`genui`](https://pub.dev/packages/genui) and the [A2
 
 ### Installation
 
-Use `dart pub add` to add the latest versions of `genui` and `genui_a2ui` as
+Use `flutter pub add` to add the latest versions of `genui` and `genui_a2ui` as
 dependencies in your `pubspec.yaml` file:
 
 ```bash
-dart pub add genui genui_a2ui
+flutter pub add genui genui_a2ui
 ```
 
 ### Basic Usage
