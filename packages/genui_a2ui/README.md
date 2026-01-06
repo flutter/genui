@@ -20,17 +20,12 @@ An integration package for [`genui`](https://pub.dev/packages/genui) and the [A2
 
 ### Installation
 
-Add the following to your `pubspec.yaml`:
+Use `flutter pub add` to add the latest versions of `genui` and `genui_a2ui` as
+dependencies in your `pubspec.yaml` file:
 
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  genui: ^0.6.0 # Or the latest version
-  genui_a2ui: ^0.6.0 # Or the latest version
+```bash
+flutter pub add genui genui_a2ui
 ```
-
-Then run `flutter pub get`.
 
 ### Basic Usage
 
