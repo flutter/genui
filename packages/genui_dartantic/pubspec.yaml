@@ -16,7 +16,7 @@ environment:
   flutter: ">=3.35.7 <4.0.0"
 
 dependencies:
-  dartantic_ai: ">=2.0.3 <2.1.0" # TODO(#637): Pinned due to a breakage in latest (2.1.1) due to a downstream breaking change in mistral_ai 0.1.1+.
+  dartantic_ai: ^2.2.0
   flutter:
     sdk: flutter
   genui: ^0.6.0
