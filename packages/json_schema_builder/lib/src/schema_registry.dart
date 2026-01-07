@@ -97,7 +97,7 @@ class SchemaRegistry {
       _registerIds(Schema.fromMap(map), baseUri);
     }
 
-    void recurseOnList(List list) {
+    void recurseOnList(List<Object?> list) {
       for (final item in list) {
         if (item is Map<String, Object?>) {
           recurseOnMap(item);
@@ -144,7 +144,7 @@ class SchemaRegistry {
     // Keywords with list-of-schemas values
     const listOfSchemasKeywords = ['allOf', 'anyOf', 'oneOf', 'prefixItems'];
     for (final keyword in listOfSchemasKeywords) {
-      if (schema.value[keyword] case final List list) {
+      if (schema.value[keyword] case final List<Object?> list) {
         recurseOnList(list);
       }
     }

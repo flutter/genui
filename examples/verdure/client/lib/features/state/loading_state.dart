@@ -36,7 +36,7 @@ class LoadingState {
       } else if (_isProcessingValue && !isProcessing.value) {
         // Went from true to false, reset messages after a short delay
         // to allow the fade-out animation to complete.
-        Future.delayed(const Duration(milliseconds: 500), clearMessages);
+        Future<void>.delayed(const Duration(milliseconds: 500), clearMessages);
       }
       _isProcessingValue = isProcessing.value;
     });

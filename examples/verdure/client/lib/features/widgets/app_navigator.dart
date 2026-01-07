@@ -23,7 +23,7 @@ class AppNavigator extends ConsumerStatefulWidget {
 }
 
 class _AppNavigatorState extends ConsumerState<AppNavigator> {
-  StreamSubscription? _subscription;
+  StreamSubscription<void>? _subscription;
 
   @override
   void initState() {

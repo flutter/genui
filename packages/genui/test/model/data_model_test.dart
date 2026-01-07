@@ -148,9 +148,9 @@ void main() {
       });
 
       test('notifies on child updates', () {
-        final ValueNotifier<Map<dynamic, dynamic>?> notifier = dataModel
-            .subscribe<Map>(DataPath('/a'));
-        Map? value;
+        final ValueNotifier<Map<Object?, Object?>?> notifier = dataModel
+            .subscribe<Map<Object?, Object?>>(DataPath('/a'));
+        Map<Object?, Object?>? value;
         notifier.addListener(() => value = notifier.value);
         dataModel.update(DataPath('/a/b'), 1);
         expect(value, {'b': 1});
@@ -180,8 +180,8 @@ void main() {
       });
 
       test('does not notify on child updates', () {
-        final ValueNotifier<Map<dynamic, dynamic>?> notifier = dataModel
-            .subscribeToValue<Map>(DataPath('/a'));
+        final ValueNotifier<Map<Object?, Object?>?> notifier = dataModel
+            .subscribeToValue<Map<Object?, Object?>>(DataPath('/a'));
         var callCount = 0;
         notifier.addListener(() => callCount++);
         dataModel.update(DataPath('/a/b'), 1);
@@ -232,7 +232,10 @@ void main() {
             ],
           },
         ]);
-        expect(dataModel.getValue<Map>(DataPath('/d')), {'d1': 'v1', 'd2': 2});
+        expect(dataModel.getValue<Map<Object?, Object?>>(DataPath('/d')), {
+          'd1': 'v1',
+          'd2': 2,
+        });
       });
 
       test('is permissive with multiple value types', () {
@@ -304,7 +307,9 @@ void main() {
 
     test('Empty path on getValue returns current data', () {
       dataModel.update(DataPath('/a'), {'b': 1});
-      expect(dataModel.getValue<Map>(DataPath('/a')), {'b': 1});
+      expect(dataModel.getValue<Map<Object?, Object?>>(DataPath('/a')), {
+        'b': 1,
+      });
     });
 
     test('Nested structures are created automatically', () {

@@ -116,7 +116,7 @@ void main() {
       final result = adaptSchema(schema);
 
       expect(result, isNotNull);
-      expect(result!.schemaMap!['anyOf'], isA<List>());
+      expect(result!.schemaMap!['anyOf'], isA<List<Object?>>());
     });
   });
 }

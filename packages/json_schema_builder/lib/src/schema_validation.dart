@@ -352,7 +352,7 @@ extension SchemaValidation on Schema {
     }
 
     // 2. Schema Combiners: allOf, anyOf, oneOf, not
-    if (allOf case final List allOfList?) {
+    if (allOf case final List<Object?> allOfList) {
       final allOfAnnotations = <AnnotationSet>[];
       for (final subSchema in allOfList) {
         final ValidationResult result = await validateSubSchema(
@@ -370,7 +370,7 @@ extension SchemaValidation on Schema {
       allAnnotations = allAnnotations.mergeAll(allOfAnnotations);
     }
 
-    if (anyOf case final List anyOfList?) {
+    if (anyOf case final List<Object?> anyOfList) {
       var passedCount = 0;
       final anyOfAnnotations = <AnnotationSet>[];
       final allAnyOfErrors = <ValidationError>[];
@@ -397,7 +397,7 @@ extension SchemaValidation on Schema {
       allAnnotations = allAnnotations.mergeAll(anyOfAnnotations);
     }
 
-    if (oneOf case final List oneOfList?) {
+    if (oneOf case final List<Object?> oneOfList) {
       var passedCount = 0;
       AnnotationSet? oneOfAnnotations;
       for (final subSchema in oneOfList) {
@@ -590,7 +590,7 @@ extension SchemaValidation on Schema {
         );
       case JsonType.list:
         return await (this as ListSchema).validateList(
-          data as List,
+          data as List<Object?>,
           currentPath,
           context,
           dynamicScope,
@@ -895,7 +895,7 @@ extension SchemaValidation on Schema {
   /// This method is called by [validateTypeSpecificKeywords] when the data is
   /// a [List].
   Future<ValidationResult> validateList(
-    List data,
+    List<Object?> data,
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
