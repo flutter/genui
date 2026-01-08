@@ -23,7 +23,7 @@ class AppNavigator extends ConsumerStatefulWidget {
 }
 
 class _AppNavigatorState extends ConsumerState<AppNavigator> {
-  StreamSubscription? _subscription;
+  StreamSubscription<void>? _subscription;
 
   @override
   void initState() {
@@ -31,8 +31,8 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
     // It's safe to use ref.read here because we are not rebuilding the widget
     // when the provider changes, but instead subscribing to a stream.
     final AsyncValue<AiClientState> aiState = ref.read(aiProvider);
-    if (aiState is AsyncData) {
-      _subscription = aiState.value!.surfaceUpdateController.stream.listen(
+    if (aiState case AsyncData(:final value)) {
+      _subscription = value.surfaceUpdateController.stream.listen(
         _onSurfaceUpdate,
       );
     }
@@ -62,9 +62,9 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
   @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<AiClientState?>>(aiProvider, (previous, next) {
-      if (next is AsyncData) {
+      if (next case AsyncData(:final value?)) {
         _subscription?.cancel();
-        _subscription = next.value!.surfaceUpdateController.stream.listen(
+        _subscription = value.surfaceUpdateController.stream.listen(
           _onSurfaceUpdate,
         );
       }
