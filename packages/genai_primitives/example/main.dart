@@ -54,14 +54,14 @@ void main({void Function(Object? object) output = print}) {
   final history = <ChatMessage>[
     // System message
     ChatMessage.system(
-      Message(
+      Message.fromText(
         'You are a helpful weather assistant. '
         'Use the get_weather tool when needed.',
       ),
     ),
 
     // User message asking for weather
-    ChatMessage.user(Message('What is the weather in London?')),
+    ChatMessage.user(Message.fromText('What is the weather in London?')),
   ];
 
   output('\n[Initial Conversation]');
@@ -71,7 +71,7 @@ void main({void Function(Object? object) output = print}) {
 
   // 3. Simulate Model Response with Tool Call
   final modelResponse = ChatMessage.model(
-    Message(
+    Message.fromText(
       '', // Empty text for tool call
       parts: [
         const TextPart('Thinking: User wants weather for London...'),
@@ -94,7 +94,7 @@ void main({void Function(Object? object) output = print}) {
 
   // 4. Simulate Tool Execution & Result
   final toolResult = ChatMessage.user(
-    Message(
+    Message.fromText(
       '', // User role is typically used for tool results in many APIs
       parts: [
         const ToolPart.result(
@@ -113,7 +113,7 @@ void main({void Function(Object? object) output = print}) {
   // 5. Simulate Final Model Response with Data (e.g. an image generated or
   //    returned)
   final finalResponse = ChatMessage.model(
-    Message(
+    Message.fromText(
       'Here is a chart of the weather trend:',
       parts: [
         DataPart(

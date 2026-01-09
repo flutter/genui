@@ -15,7 +15,7 @@ class ToolDefinition<TInput extends Object> {
            inputSchema ??
            Schema.fromMap({
              'type': 'object',
-             'properties': <String, dynamic>{},
+             'properties': <String, Object?>{},
            });
 
   /// The unique name of the tool that clearly communicates its purpose.
@@ -30,7 +30,7 @@ class ToolDefinition<TInput extends Object> {
   final Schema inputSchema;
 
   /// Converts the tool to a JSON-serializable map.
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
     'name': name,
     'description': description,
     'inputSchema': inputSchema.value,

@@ -2,48 +2,68 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import 'message_parts.dart';
-import 'utils.dart';
 
 final class _Json {
   static const parts = 'parts';
   static const metadata = 'metadata';
 }
 
-/// A message in a conversation between a user and a model.
+/// A message between participants of the interaction.
 @immutable
 class Message {
   /// Creates a new message.
-  const Message.fromParts({this.parts = const [], this.metadata = const {}});
+  ///
+  /// If `parts` or `metadata` is not provided, an empty collections are used.
+  ///
+  /// If there is no parts of type [TextPart], the [text] property
+  /// will be empty.
+  ///
+  /// If there are many parts of type [TextPart], the [text] property
+  /// will be a concatenation of all of them.
+  /// Many text parts is convenient to have to support
+  /// streaming of the message.
+  const Message({this.parts = const [], this.metadata = const {}});
 
-  /// Creates a new message, taking a text string as separate parameter.
-  Message(
+  /// Creates text message.
+  ///
+  /// Converts [text] to a [TextPart] and puts it as a single member of
+  /// the [parts] list.
+  Message.fromText(
     String text, {
     List<Part> parts = const [],
-    Map<String, dynamic> metadata = const {},
-  }) : this.fromParts(parts: [TextPart(text), ...parts], metadata: metadata);
+    Map<String, Object?> metadata = const {},
+  }) : this(parts: [TextPart(text), ...parts], metadata: metadata);
 
-  /// Creates a message from a JSON-compatible map.
-  factory Message.fromJson(Map<String, dynamic> json) => Message.fromParts(
-    parts: (json[_Json.parts] as List<dynamic>)
-        .map((p) => Part.fromJson(p as Map<String, dynamic>))
+  /// Deserializes a message seriealized with [toJson].
+  factory Message.fromJson(Map<String, Object?> json) => Message(
+    parts: (json[_Json.parts] as List<Object?>)
+        .map((p) => Part.fromJson(p as Map<String, Object?>))
         .toList(),
-    metadata: (json[_Json.metadata] as Map<String, dynamic>?) ?? const {},
+    metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
   );
+
+  /// Serializes the message.
+  Map<String, Object?> toJson() => {
+    _Json.parts: parts.map((p) => p.toJson()).toList(),
+    _Json.metadata: metadata,
+  };
 
   /// The content parts of the message.
   final List<Part> parts;
 
   /// Optional metadata associated with this message.
-  /// Can include information like suppressed content, warnings, etc.
-  final Map<String, dynamic> metadata;
+  ///
+  /// This can include information like suppressed content, warnings, etc.
+  final Map<String, Object?> metadata;
 
-  /// Gets the text content of the message by concatenating all text parts.
+  /// Concatenated [TextPart] parts.
   String get text => parts.whereType<TextPart>().map((p) => p.text).join();
 
-  /// Checks if this message contains any tool calls.
+  /// Whether this message contains any tool calls.
   bool get hasToolCalls =>
       parts.whereType<ToolPart>().any((p) => p.kind == ToolPartKind.call);
 
@@ -53,7 +73,7 @@ class Message {
       .where((p) => p.kind == ToolPartKind.call)
       .toList();
 
-  /// Checks if this message contains any tool results.
+  /// Whether this message contains any tool results.
   bool get hasToolResults =>
       parts.whereType<ToolPart>().any((p) => p.kind == ToolPartKind.result);
 
@@ -63,22 +83,19 @@ class Message {
       .where((p) => p.kind == ToolPartKind.result)
       .toList();
 
-  /// Converts the message to a JSON-compatible map.
-  Map<String, dynamic> toJson() => {
-    _Json.parts: parts.map((p) => p.toJson()).toList(),
-    _Json.metadata: metadata,
-  };
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+
+    final deepEquality = const DeepCollectionEquality();
     return other is Message &&
-        listEquals(other.parts, parts) &&
-        mapEquals(other.metadata, metadata);
+        deepEquality.equals(other.parts, parts) &&
+        deepEquality.equals(other.metadata, metadata);
   }
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(parts), mapHashCode(metadata));
+  int get hashCode => Object.hashAll([parts, metadata]);
 
   @override
   String toString() => 'Message(parts: $parts, metadata: $metadata)';

@@ -5,14 +5,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart' show XFile;
 import 'package:meta/meta.dart';
 import 'package:mime/mime.dart';
 // ignore: implementation_imports
 import 'package:mime/src/default_extension_map.dart';
 import 'package:path/path.dart' as p;
-
-import 'utils.dart';
 
 final class _Json {
   static const type = 'type';
@@ -35,12 +34,12 @@ final class _Part {
 
 /// Base class for message content parts.
 @immutable
-abstract class Part {
+sealed class Part {
   /// Creates a new part.
   const Part();
 
   /// Creates a part from a JSON-compatible map.
-  factory Part.fromJson(Map<String, dynamic> json) {
+  factory Part.fromJson(Map<String, Object?> json) {
     final Object? type = json[_Json.type];
 
     switch (type) {
@@ -48,7 +47,7 @@ abstract class Part {
         return TextPart(json[_Json.content] as String);
       case _Part.data:
         {
-          final content = json[_Json.content] as Map<String, dynamic>;
+          final content = json[_Json.content] as Map<String, Object?>;
           final dataUri = content[_Json.bytes] as String;
           final Uri uri = Uri.parse(dataUri);
           return DataPart(
@@ -59,7 +58,7 @@ abstract class Part {
         }
       case _Part.link:
         {
-          final content = json[_Json.content] as Map<String, dynamic>;
+          final content = json[_Json.content] as Map<String, Object?>;
           return LinkPart(
             Uri.parse(content[_Json.url] as String),
             mimeType: content[_Json.mimeType] as String?,
@@ -68,7 +67,7 @@ abstract class Part {
         }
       case _Part.tool:
         {
-          final content = json[_Json.content] as Map<String, dynamic>;
+          final content = json[_Json.content] as Map<String, Object?>;
           // Check if it's a call or result based on presence of
           // arguments or result
           if (content.containsKey(_Json.arguments)) {
@@ -76,7 +75,7 @@ abstract class Part {
               callId: content[_Json.id] as String,
               toolName: content[_Json.name] as String,
               arguments:
-                  content[_Json.arguments] as Map<String, dynamic>? ?? {},
+                  content[_Json.arguments] as Map<String, Object?>? ?? {},
             );
           } else {
             return ToolPart.result(
@@ -116,7 +115,7 @@ abstract class Part {
   }
 
   /// Converts the part to a JSON-compatible map.
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     final String typeName;
     final Object content;
     switch (this) {
@@ -149,8 +148,6 @@ abstract class Part {
           if (p.result != null) _Json.result: p.result,
         };
         break;
-      default:
-        throw UnimplementedError('Unknown part type: $runtimeType');
     }
     return {_Json.type: typeName, _Json.content: content};
   }
@@ -168,6 +165,7 @@ class TextPart extends Part {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
     return other is TextPart && other.text == text;
   }
 
@@ -225,8 +223,11 @@ class DataPart extends Part {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+
+    final deepEquality = const DeepCollectionEquality();
     return other is DataPart &&
-        listEquals(other.bytes, bytes) &&
+        deepEquality.equals(other.bytes, bytes) &&
         other.mimeType == mimeType &&
         other.name == name;
   }
@@ -257,6 +258,8 @@ class LinkPart extends Part {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+
     return other is LinkPart &&
         other.url == url &&
         other.mimeType == mimeType &&
@@ -300,10 +303,10 @@ class ToolPart extends Part {
   final String toolName;
 
   /// The arguments for a tool call (null for results).
-  final Map<String, dynamic>? arguments;
+  final Map<String, Object?>? arguments;
 
   /// The result of a tool execution (null for calls).
-  final dynamic result;
+  final Object? result;
 
   /// The arguments as a JSON string.
   String get argumentsRaw => arguments == null ? '' : jsonEncode(arguments);
@@ -311,11 +314,14 @@ class ToolPart extends Part {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+
+    final deepEquality = const DeepCollectionEquality();
     return other is ToolPart &&
         other.kind == kind &&
         other.callId == callId &&
         other.toolName == toolName &&
-        mapEquals(other.arguments, arguments) &&
+        deepEquality.equals(other.arguments, arguments) &&
         other.result == result;
   }
 
