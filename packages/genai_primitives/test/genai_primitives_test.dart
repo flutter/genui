@@ -16,7 +16,7 @@ void main() {
     test('mimeType helper', () {
       // Test with extensions (may be environment dependent for text/plain)
       expect(
-        Part.mimeType('test.png'),
+        DataPart.mimeTypeForFile('test.png'),
         anyOf(equals('image/png'), equals('application/octet-stream')),
       );
 
@@ -32,27 +32,27 @@ void main() {
         0x0A,
       ]);
       expect(
-        Part.mimeType('unknown', headerBytes: pngHeader),
+        DataPart.mimeTypeForFile('unknown', headerBytes: pngHeader),
         equals('image/png'),
       );
 
       final pdfHeader = Uint8List.fromList([0x25, 0x50, 0x44, 0x46]);
       expect(
-        Part.mimeType('file', headerBytes: pdfHeader),
+        DataPart.mimeTypeForFile('file', headerBytes: pdfHeader),
         equals('application/pdf'),
       );
     });
 
     test('nameFromMimeType helper', () {
-      expect(Part.nameFromMimeType('image/png'), equals('image.png'));
-      expect(Part.nameFromMimeType('application/pdf'), equals('file.pdf'));
-      expect(Part.nameFromMimeType('unknown/type'), equals('file.bin'));
+      expect(DataPart.nameFromMimeType('image/png'), equals('image.png'));
+      expect(DataPart.nameFromMimeType('application/pdf'), equals('file.pdf'));
+      expect(DataPart.nameFromMimeType('unknown/type'), equals('file.bin'));
     });
 
     test('extensionFromMimeType helper', () {
-      expect(Part.extensionFromMimeType('image/png'), equals('png'));
-      expect(Part.extensionFromMimeType('application/pdf'), equals('pdf'));
-      expect(Part.extensionFromMimeType('unknown/type'), isNull);
+      expect(DataPart.extensionFromMimeType('image/png'), equals('png'));
+      expect(DataPart.extensionFromMimeType('application/pdf'), equals('pdf'));
+      expect(DataPart.extensionFromMimeType('unknown/type'), isNull);
     });
 
     test('fromJson throws on unknown type', () {

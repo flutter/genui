@@ -49,30 +49,6 @@ abstract class Part {
     );
   }
 
-  /// The default MIME type for binary data.
-  static const defaultMimeType = 'application/octet-stream';
-
-  /// Gets the MIME type for a file.
-  static String mimeType(String path, {Uint8List? headerBytes}) =>
-      lookupMimeType(path, headerBytes: headerBytes) ?? defaultMimeType;
-
-  /// Gets the name for a MIME type.
-  static String nameFromMimeType(String mimeType) {
-    final String ext = extensionFromMimeType(mimeType) ?? 'bin';
-    return mimeType.startsWith('image/') ? 'image.$ext' : 'file.$ext';
-  }
-
-  /// Gets the extension for a MIME type.
-  static String? extensionFromMimeType(String mimeType) {
-    final String ext = defaultExtensionMap.entries
-        .firstWhere(
-          (e) => e.value == mimeType,
-          orElse: () => const MapEntry('', ''),
-        )
-        .key;
-    return ext.isNotEmpty ? ext : null;
-  }
-
   /// Converts the part to a JSON-compatible map.
   Map<String, Object?> toJson();
 }
@@ -147,7 +123,7 @@ class TextPart extends Part {
 class DataPart extends Part {
   /// Creates a new data part.
   DataPart(this.bytes, {required this.mimeType, String? name})
-    : name = name ?? Part.nameFromMimeType(mimeType);
+    : name = name ?? nameFromMimeType(mimeType);
 
   /// Creates a data part from a JSON-compatible map.
   factory DataPart.fromJson(Map<String, Object?> json) {
@@ -167,7 +143,7 @@ class DataPart extends Part {
     final String? name = _nameFromPath(file.path) ?? _emptyNull(file.name);
     final String mimeType =
         _emptyNull(file.mimeType) ??
-        Part.mimeType(
+        mimeTypeForFile(
           name ?? '',
           headerBytes: Uint8List.fromList(
             bytes.take(defaultMagicNumbersMaxLength).toList(),
@@ -226,6 +202,32 @@ class DataPart extends Part {
   @override
   String toString() =>
       'DataPart(mimeType: $mimeType, name: $name, bytes: ${bytes.length})';
+
+  static const defaultMimeType = 'application/octet-stream';
+
+  /// Gets the MIME type for a file.
+  @visibleForTesting
+  static String mimeTypeForFile(String path, {Uint8List? headerBytes}) =>
+      lookupMimeType(path, headerBytes: headerBytes) ?? defaultMimeType;
+
+  /// Gets the name for a MIME type.
+  @visibleForTesting
+  static String nameFromMimeType(String mimeType) {
+    final String ext = extensionFromMimeType(mimeType) ?? 'bin';
+    return mimeType.startsWith('image/') ? 'image.$ext' : 'file.$ext';
+  }
+
+  /// Gets the extension for a MIME type.
+  @visibleForTesting
+  static String? extensionFromMimeType(String mimeType) {
+    final String ext = defaultExtensionMap.entries
+        .firstWhere(
+          (e) => e.value == mimeType,
+          orElse: () => const MapEntry('', ''),
+        )
+        .key;
+    return ext.isNotEmpty ? ext : null;
+  }
 }
 
 /// A link part referencing external content.
