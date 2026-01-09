@@ -41,7 +41,7 @@ final class Message {
   /// Deserializes a message seriealized with [toJson].
   factory Message.fromJson(Map<String, Object?> json) => Message(
     parts: (json[_Json.parts] as List<Object?>)
-        .map((p) => Part.fromJson(p as Map<String, Object?>))
+        .map((p) => const PartConverter().convert(p as Map<String, Object?>))
         .toList(),
     metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
   );

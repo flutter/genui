@@ -34,60 +34,19 @@ final class _Part {
 
 /// Base class for message content parts.
 @immutable
-sealed class Part {
+abstract class Part {
   /// Creates a new part.
   const Part();
 
   /// Creates a part from a JSON-compatible map.
-  factory Part.fromJson(Map<String, Object?> json) {
-    final Object? type = json[_Json.type];
-
-    switch (type) {
-      case _Part.text:
-        return TextPart(json[_Json.content] as String);
-      case _Part.data:
-        {
-          final content = json[_Json.content] as Map<String, Object?>;
-          final dataUri = content[_Json.bytes] as String;
-          final Uri uri = Uri.parse(dataUri);
-          return DataPart(
-            uri.data!.contentAsBytes(),
-            mimeType: content[_Json.mimeType] as String,
-            name: content[_Json.name] as String?,
-          );
-        }
-      case _Part.link:
-        {
-          final content = json[_Json.content] as Map<String, Object?>;
-          return LinkPart(
-            Uri.parse(content[_Json.url] as String),
-            mimeType: content[_Json.mimeType] as String?,
-            name: content[_Json.name] as String?,
-          );
-        }
-      case _Part.tool:
-        {
-          final content = json[_Json.content] as Map<String, Object?>;
-          // Check if it's a call or result based on presence of
-          // arguments or result
-          if (content.containsKey(_Json.arguments)) {
-            return ToolPart.call(
-              callId: content[_Json.id] as String,
-              toolName: content[_Json.name] as String,
-              arguments:
-                  content[_Json.arguments] as Map<String, Object?>? ?? {},
-            );
-          } else {
-            return ToolPart.result(
-              callId: content[_Json.id] as String,
-              toolName: content[_Json.name] as String,
-              result: content[_Json.result],
-            );
-          }
-        }
-      default:
-        throw UnimplementedError('Unknown part type: $type');
-    }
+  factory Part.fromJson(
+    Map<String, Object?> json, {
+    JsonToPartConverter? customConverter,
+  }) {
+    return const PartConverter().convert(
+      json,
+      customConverter: customConverter,
+    );
   }
 
   /// The default MIME type for binary data.
@@ -118,6 +77,37 @@ sealed class Part {
   Map<String, Object?> toJson();
 }
 
+typedef JsonToPartConverter = Converter<Map<String, Object?>, Part>;
+
+/// A converter that converts a JSON map to a [Part].
+@visibleForTesting
+class PartConverter extends JsonToPartConverter {
+  const PartConverter();
+
+  @override
+  Part convert(
+    Map<String, Object?> input, {
+    JsonToPartConverter? customConverter,
+  }) {
+    final Object? type = input[_Json.type];
+    switch (type) {
+      case _Part.text:
+        return TextPart.fromJson(input);
+      case _Part.data:
+        return DataPart.fromJson(input);
+      case _Part.link:
+        return LinkPart.fromJson(input);
+      case _Part.tool:
+        return ToolPart.fromJson(input);
+      default:
+        if (customConverter == null) {
+          throw UnimplementedError('Unknown part type: $type');
+        }
+        return customConverter.convert(input);
+    }
+  }
+}
+
 /// A text part of a message.
 @immutable
 class TextPart extends Part {
@@ -126,6 +116,11 @@ class TextPart extends Part {
 
   /// The text content.
   final String text;
+
+  /// Creates a text part from a JSON-compatible map.
+  factory TextPart.fromJson(Map<String, Object?> json) {
+    return TextPart(json[_Json.content] as String);
+  }
 
   @override
   Map<String, Object?> toJson() => {
@@ -153,6 +148,18 @@ class DataPart extends Part {
   /// Creates a new data part.
   DataPart(this.bytes, {required this.mimeType, String? name})
     : name = name ?? Part.nameFromMimeType(mimeType);
+
+  /// Creates a data part from a JSON-compatible map.
+  factory DataPart.fromJson(Map<String, Object?> json) {
+    final content = json[_Json.content] as Map<String, Object?>;
+    final dataUri = content[_Json.bytes] as String;
+    final Uri uri = Uri.parse(dataUri);
+    return DataPart(
+      uri.data!.contentAsBytes(),
+      mimeType: content[_Json.mimeType] as String,
+      name: content[_Json.name] as String?,
+    );
+  }
 
   /// Creates a data part from an [XFile].
   static Future<DataPart> fromFile(XFile file) async {
@@ -236,6 +243,16 @@ class LinkPart extends Part {
   /// Optional name for the link.
   final String? name;
 
+  /// Creates a link part from a JSON-compatible map.
+  factory LinkPart.fromJson(Map<String, Object?> json) {
+    final content = json[_Json.content] as Map<String, Object?>;
+    return LinkPart(
+      Uri.parse(content[_Json.url] as String),
+      mimeType: content[_Json.mimeType] as String?,
+      name: content[_Json.name] as String?,
+    );
+  }
+
   @override
   Map<String, Object?> toJson() => {
     _Json.type: _Part.link,
@@ -267,7 +284,6 @@ class LinkPart extends Part {
 /// A tool interaction part of a message.
 @immutable
 class ToolPart extends Part {
-  /// Creates a tool call part.
   /// Creates a tool call part.
   const ToolPart.call({
     required this.callId,
@@ -301,6 +317,24 @@ class ToolPart extends Part {
 
   /// The arguments as a JSON string.
   String get argumentsRaw => arguments == null ? '' : jsonEncode(arguments);
+
+  /// Creates a tool part from a JSON-compatible map.
+  factory ToolPart.fromJson(Map<String, Object?> json) {
+    final content = json[_Json.content] as Map<String, Object?>;
+    if (content.containsKey(_Json.arguments)) {
+      return ToolPart.call(
+        callId: content[_Json.id] as String,
+        toolName: content[_Json.name] as String,
+        arguments: content[_Json.arguments] as Map<String, Object?>? ?? {},
+      );
+    } else {
+      return ToolPart.result(
+        callId: content[_Json.id] as String,
+        toolName: content[_Json.name] as String,
+        result: content[_Json.result],
+      );
+    }
+  }
 
   @override
   Map<String, Object?> toJson() => {
