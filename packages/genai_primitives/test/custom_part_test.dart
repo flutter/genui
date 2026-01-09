@@ -7,8 +7,7 @@ import 'dart:convert';
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:test/test.dart';
 
-// 1. Define a custom part class
-class CustomPart extends Part {
+base class CustomPart extends Part {
   final String customField;
 
   const CustomPart(this.customField);
@@ -32,7 +31,6 @@ class CustomPart extends Part {
   String toString() => 'CustomPart($customField)';
 }
 
-// 2. Define a custom converter
 class CustomPartConverter extends Converter<Map<String, Object?>, Part> {
   const CustomPartConverter();
 

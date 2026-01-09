@@ -34,7 +34,7 @@ final class _Part {
 
 /// Base class for message content parts.
 @immutable
-abstract class Part {
+abstract base class Part {
   /// Creates a new part.
   const Part();
 
@@ -86,7 +86,7 @@ class PartConverter extends JsonToPartConverter {
 
 /// A text part of a message.
 @immutable
-class TextPart extends Part {
+base class TextPart extends Part {
   /// Creates a new text part.
   const TextPart(this.text);
 
@@ -120,7 +120,7 @@ class TextPart extends Part {
 
 /// A data part containing binary data (e.g., images).
 @immutable
-class DataPart extends Part {
+base class DataPart extends Part {
   /// Creates a new data part.
   DataPart(this.bytes, {required this.mimeType, String? name})
     : name = name ?? nameFromMimeType(mimeType);
@@ -233,7 +233,7 @@ class DataPart extends Part {
 
 /// A link part referencing external content.
 @immutable
-class LinkPart extends Part {
+base class LinkPart extends Part {
   /// Creates a new link part.
   const LinkPart(this.url, {this.mimeType, this.name});
 
@@ -286,7 +286,7 @@ class LinkPart extends Part {
 
 /// A tool interaction part of a message.
 @immutable
-class ToolPart extends Part {
+base class ToolPart extends Part {
   /// Creates a tool call part.
   const ToolPart.call({
     required this.callId,
