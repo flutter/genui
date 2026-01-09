@@ -115,42 +115,7 @@ sealed class Part {
   }
 
   /// Converts the part to a JSON-compatible map.
-  Map<String, Object?> toJson() {
-    final String typeName;
-    final Object content;
-    switch (this) {
-      case final TextPart p:
-        typeName = _Part.text;
-        content = p.text;
-        break;
-      case final DataPart p:
-        typeName = _Part.data;
-        content = {
-          if (p.name != null) _Json.name: p.name,
-          _Json.mimeType: p.mimeType,
-          _Json.bytes: 'data:${p.mimeType};base64,${base64Encode(p.bytes)}',
-        };
-        break;
-      case final LinkPart p:
-        typeName = _Part.link;
-        content = {
-          if (p.name != null) _Json.name: p.name,
-          if (p.mimeType != null) _Json.mimeType: p.mimeType,
-          _Json.url: p.url.toString(),
-        };
-        break;
-      case final ToolPart p:
-        typeName = _Part.tool;
-        content = {
-          _Json.id: p.callId,
-          _Json.name: p.toolName,
-          if (p.arguments != null) _Json.arguments: p.arguments,
-          if (p.result != null) _Json.result: p.result,
-        };
-        break;
-    }
-    return {_Json.type: typeName, _Json.content: content};
-  }
+  Map<String, Object?> toJson();
 }
 
 /// A text part of a message.
@@ -161,6 +126,12 @@ class TextPart extends Part {
 
   /// The text content.
   final String text;
+
+  @override
+  Map<String, Object?> toJson() => {
+    _Json.type: _Part.text,
+    _Json.content: text,
+  };
 
   @override
   bool operator ==(Object other) {
@@ -221,6 +192,16 @@ class DataPart extends Part {
   final String? name;
 
   @override
+  Map<String, Object?> toJson() => {
+    _Json.type: _Part.data,
+    _Json.content: {
+      if (name != null) _Json.name: name,
+      _Json.mimeType: mimeType,
+      _Json.bytes: 'data:$mimeType;base64,${base64Encode(bytes)}',
+    },
+  };
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
@@ -254,6 +235,16 @@ class LinkPart extends Part {
 
   /// Optional name for the link.
   final String? name;
+
+  @override
+  Map<String, Object?> toJson() => {
+    _Json.type: _Part.link,
+    _Json.content: {
+      if (name != null) _Json.name: name,
+      if (mimeType != null) _Json.mimeType: mimeType,
+      _Json.url: url.toString(),
+    },
+  };
 
   @override
   bool operator ==(Object other) {
@@ -310,6 +301,17 @@ class ToolPart extends Part {
 
   /// The arguments as a JSON string.
   String get argumentsRaw => arguments == null ? '' : jsonEncode(arguments);
+
+  @override
+  Map<String, Object?> toJson() => {
+    _Json.type: _Part.tool,
+    _Json.content: {
+      _Json.id: callId,
+      _Json.name: toolName,
+      if (arguments != null) _Json.arguments: arguments,
+      if (result != null) _Json.result: result,
+    },
+  };
 
   @override
   bool operator ==(Object other) {
