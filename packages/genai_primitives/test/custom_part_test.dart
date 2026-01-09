@@ -1,0 +1,94 @@
+import 'dart:convert';
+
+import 'package:genai_primitives/genai_primitives.dart';
+import 'package:test/test.dart';
+
+// 1. Define a custom part class
+class CustomPart extends Part {
+  final String customField;
+
+  const CustomPart(this.customField);
+
+  @override
+  Map<String, Object?> toJson() {
+    return {
+      'type': 'Custom',
+      'content': {'customField': customField},
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is CustomPart && other.customField == customField;
+
+  @override
+  int get hashCode => customField.hashCode;
+
+  @override
+  String toString() => 'CustomPart($customField)';
+}
+
+// 2. Define a custom converter
+class CustomPartConverter extends Converter<Map<String, Object?>, Part> {
+  const CustomPartConverter();
+
+  @override
+  Part convert(Map<String, Object?> input) {
+    if (input['type'] == 'Custom') {
+      final content = input['content'] as Map<String, Object?>;
+      return CustomPart(content['customField'] as String);
+    }
+    throw UnimplementedError('Unknown custom part type: ${input['type']}');
+  }
+}
+
+void main() {
+  group('Custom Part Serialization', () {
+    test('round trip serialization with custom type', () {
+      const originalPart = CustomPart('custom_value');
+
+      // Serialize
+      final Map<String, Object?> json = originalPart.toJson();
+      expect(json['type'], equals('Custom'));
+      expect(
+        (json['content'] as Map<String, Object?>)['customField'],
+        equals('custom_value'),
+      );
+
+      // Deserialize using Part.fromJson with customConverter
+      final reconstructedPart = Part.fromJson(
+        json,
+        customConverter: const CustomPartConverter(),
+      );
+
+      expect(reconstructedPart, isA<CustomPart>());
+      expect(
+        (reconstructedPart as CustomPart).customField,
+        equals('custom_value'),
+      );
+      expect(reconstructedPart, equals(originalPart));
+    });
+
+    test('Part.fromJson throws UnimplementedError for custom type', () {
+      final Map<String, Object> json = {
+        'type': 'Custom',
+        'content': {'customField': 'val'},
+      };
+
+      expect(() => Part.fromJson(json), throwsUnimplementedError);
+    });
+
+    test('Part.fromJson handles standard types even with custom converter', () {
+      const textPart = TextPart('hello');
+      final Map<String, Object?> json = textPart.toJson();
+
+      // Should still work for standard parts
+      final reconstructed = Part.fromJson(
+        json,
+        customConverter: const CustomPartConverter(),
+      );
+
+      expect(reconstructed, equals(textPart));
+    });
+  });
+}
