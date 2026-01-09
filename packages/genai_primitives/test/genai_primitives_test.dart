@@ -55,6 +55,17 @@ void main() {
       expect(DataPart.extensionFromMimeType('unknown/type'), isNull);
     });
 
+    test('defaultMimeType helper', () {
+      expect(DataPart.defaultMimeType, equals('application/octet-stream'));
+    });
+
+    test('uses defaultMimeType when unknown', () {
+      expect(
+        DataPart.mimeTypeForFile('unknown_file_no_extension'),
+        equals(DataPart.defaultMimeType),
+      );
+    });
+
     test('fromJson throws on unknown type', () {
       expect(
         () => const PartConverter().convert({'type': 'Unknown', 'content': ''}),

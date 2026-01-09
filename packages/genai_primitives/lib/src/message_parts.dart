@@ -203,6 +203,7 @@ class DataPart extends Part {
   String toString() =>
       'DataPart(mimeType: $mimeType, name: $name, bytes: ${bytes.length})';
 
+  @visibleForTesting
   static const defaultMimeType = 'application/octet-stream';
 
   /// Gets the MIME type for a file.
