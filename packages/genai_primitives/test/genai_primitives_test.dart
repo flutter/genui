@@ -4,11 +4,76 @@
 
 import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:test/test.dart';
 
 void main() {
+  // In this test dynamic is used instead of Object?
+  // to test support for dynamic types.
+  group('Part', () {
+    test('mimeType helper', () {
+      // Test with extensions (may be environment dependent for text/plain)
+      expect(
+        DataPart.mimeTypeForFile('test.png'),
+        anyOf(equals('image/png'), equals('application/octet-stream')),
+      );
+
+      // Test with header bytes (sniffing should be environment independent)
+      final pngHeader = Uint8List.fromList([
+        0x89,
+        0x50,
+        0x4E,
+        0x47,
+        0x0D,
+        0x0A,
+        0x1A,
+        0x0A,
+      ]);
+      expect(
+        DataPart.mimeTypeForFile('unknown', headerBytes: pngHeader),
+        equals('image/png'),
+      );
+
+      final pdfHeader = Uint8List.fromList([0x25, 0x50, 0x44, 0x46]);
+      expect(
+        DataPart.mimeTypeForFile('file', headerBytes: pdfHeader),
+        equals('application/pdf'),
+      );
+    });
+
+    test('nameFromMimeType helper', () {
+      expect(DataPart.nameFromMimeType('image/png'), equals('image.png'));
+      expect(DataPart.nameFromMimeType('application/pdf'), equals('file.pdf'));
+      expect(DataPart.nameFromMimeType('unknown/type'), equals('file.bin'));
+    });
+
+    test('extensionFromMimeType helper', () {
+      expect(DataPart.extensionFromMimeType('image/png'), equals('png'));
+      expect(DataPart.extensionFromMimeType('application/pdf'), equals('pdf'));
+      expect(DataPart.extensionFromMimeType('unknown/type'), isNull);
+    });
+
+    test('defaultMimeType helper', () {
+      expect(DataPart.defaultMimeType, equals('application/octet-stream'));
+    });
+
+    test('uses defaultMimeType when unknown', () {
+      expect(
+        DataPart.mimeTypeForFile('unknown_file_no_extension'),
+        equals(DataPart.defaultMimeType),
+      );
+    });
+
+    test('fromJson throws on unknown type', () {
+      expect(
+        () => const PartConverter().convert({'type': 'Unknown', 'content': ''}),
+        throwsUnimplementedError,
+      );
+    });
+  });
+
   group('MessagePart', () {
     group('TextPart', () {
       test('creation', () {
@@ -30,9 +95,9 @@ void main() {
       test('JSON serialization', () {
         const part = TextPart('hello');
         final Map<String, dynamic> json = part.toJson();
-        expect(json, equals({'type': 'TextPart', 'content': 'hello'}));
+        expect(json, equals({'type': 'Text', 'content': 'hello'}));
 
-        final reconstructed = Part.fromJson(json);
+        final Part reconstructed = const PartConverter().convert(json);
         expect(reconstructed, isA<TextPart>());
         expect((reconstructed as TextPart).text, equals('hello'));
       });
@@ -62,18 +127,61 @@ void main() {
         final part = DataPart(bytes, mimeType: 'image/png', name: 'test.png');
         final Map<String, dynamic> json = part.toJson();
 
-        expect(json['type'], equals('DataPart'));
+        expect(json['type'], equals('Data'));
         final content = json['content'] as Map<String, dynamic>;
         expect(content['mimeType'], equals('image/png'));
         expect(content['name'], equals('test.png'));
         expect(content['bytes'], startsWith('data:image/png;base64,'));
 
-        final reconstructed = Part.fromJson(json);
+        final Part reconstructed = const PartConverter().convert(json);
         expect(reconstructed, isA<DataPart>());
         final dataPart = reconstructed as DataPart;
         expect(dataPart.mimeType, equals('image/png'));
         expect(dataPart.name, equals('test.png'));
         expect(dataPart.bytes, equals(bytes));
+      });
+
+      test('fromFile creation', () async {
+        final bytes = Uint8List.fromList([
+          0x89,
+          0x50,
+          0x4E,
+          0x47,
+          0x0D,
+          0x0A,
+          0x1A,
+          0x0A,
+        ]);
+        final file = XFile.fromData(
+          bytes,
+          mimeType: 'image/png',
+          name: 'my_file.png',
+        );
+
+        final DataPart part = await DataPart.fromFile(file);
+        expect(part.bytes, equals(bytes));
+        expect(part.mimeType, equals('image/png'));
+        // XFile.fromData might not preserve the name in some test environments
+        expect(part.name, anyOf(equals('my_file.png'), equals('image.png')));
+      });
+
+      test('fromFile with unknown MIME type detection', () async {
+        // PNG header
+        final bytes = Uint8List.fromList([
+          0x89,
+          0x50,
+          0x4E,
+          0x47,
+          0x0D,
+          0x0A,
+          0x1A,
+          0x0A,
+        ]);
+        final file = XFile.fromData(bytes, name: 'temp_file.png');
+
+        final DataPart part = await DataPart.fromFile(file);
+        expect(part.mimeType, equals('image/png'));
+        expect(part.name, anyOf(equals('temp_file.png'), equals('image.png')));
       });
     });
 
@@ -101,13 +209,13 @@ void main() {
         final part = LinkPart(uri, mimeType: 'image/png', name: 'image');
         final Map<String, dynamic> json = part.toJson();
 
-        expect(json['type'], equals('LinkPart'));
+        expect(json['type'], equals('Link'));
         final content = json['content'] as Map<String, dynamic>;
         expect(content['url'], equals(uri.toString()));
         expect(content['mimeType'], equals('image/png'));
         expect(content['name'], equals('image'));
 
-        final reconstructed = Part.fromJson(json);
+        final Part reconstructed = const PartConverter().convert(json);
         expect(reconstructed, isA<LinkPart>());
         final linkPart = reconstructed as LinkPart;
         expect(linkPart.url, equals(uri));
@@ -139,8 +247,7 @@ void main() {
             arguments: {'city': 'London'},
           );
           final Map<String, dynamic> json = part.toJson();
-
-          expect(json['type'], equals('ToolPart'));
+          expect(json['type'], equals('Tool'));
           final content = json['content'] as Map<String, dynamic>;
           expect(content['id'], equals('call_1'));
           expect(content['name'], equals('get_weather'));
@@ -150,12 +257,38 @@ void main() {
             isNull,
           ); // Ensures result is not present or null
 
-          final reconstructed = Part.fromJson(json);
+          final Part reconstructed = const PartConverter().convert(json);
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.call));
           expect(toolPart.callId, equals('call_1'));
           expect(toolPart.arguments, equals({'city': 'London'}));
+        });
+
+        test('toString', () {
+          const part = ToolPart.call(
+            callId: 'c1',
+            toolName: 't1',
+            arguments: {'a': 1},
+          );
+          expect(part.toString(), contains('ToolPart.call'));
+          expect(part.toString(), contains('c1'));
+        });
+
+        test('argumentsRaw', () {
+          const part1 = ToolPart.call(
+            callId: 'c1',
+            toolName: 't1',
+            arguments: {},
+          );
+          expect(part1.argumentsRaw, equals('{}'));
+
+          const part2 = ToolPart.call(
+            callId: 'c2',
+            toolName: 't2',
+            arguments: {'a': 1},
+          );
+          expect(part2.argumentsRaw, equals('{"a":1}'));
         });
       });
 
@@ -171,6 +304,17 @@ void main() {
           expect(part.toolName, equals('get_weather'));
           expect(part.result, equals({'temp': 20}));
           expect(part.arguments, isNull);
+          expect(part.argumentsRaw, equals(''));
+        });
+
+        test('toString', () {
+          const part = ToolPart.result(
+            callId: 'c1',
+            toolName: 't1',
+            result: 'ok',
+          );
+          expect(part.toString(), contains('ToolPart.result'));
+          expect(part.toString(), contains('c1'));
         });
 
         test('JSON serialization', () {
@@ -180,14 +324,13 @@ void main() {
             result: {'temp': 20},
           );
           final Map<String, dynamic> json = part.toJson();
-
-          expect(json['type'], equals('ToolPart'));
+          expect(json['type'], equals('Tool'));
           final content = json['content'] as Map<String, dynamic>;
           expect(content['id'], equals('call_1'));
           expect(content['name'], equals('get_weather'));
           expect(content['result'], equals({'temp': 20}));
 
-          final reconstructed = Part.fromJson(json);
+          final Part reconstructed = const PartConverter().convert(json);
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.result));
@@ -198,19 +341,15 @@ void main() {
     });
   });
 
-  group('ChatMessage', () {
-    test('factories', () {
-      final system = ChatMessage.system('instructions');
-      expect(system.role, equals(ChatMessageRole.system));
-      expect(system.text, equals('instructions'));
+  group('Message', () {
+    test('fromParts', () {
+      final fromParts = const Message(parts: [TextPart('hello')]);
+      expect(fromParts.text, equals('hello'));
+    });
 
-      final user = ChatMessage.user('hello');
-      expect(user.role, equals(ChatMessageRole.user));
-      expect(user.text, equals('hello'));
-
-      final model = ChatMessage.model('hi');
-      expect(model.role, equals(ChatMessageRole.model));
-      expect(model.text, equals('hi'));
+    test('default constructor', () {
+      final message = Message.fromText('instructions');
+      expect(message.text, equals('instructions'));
     });
 
     test('helpers', () {
@@ -225,17 +364,14 @@ void main() {
         result: 'ok',
       );
 
-      final msg1 = ChatMessage(
-        role: ChatMessageRole.model,
-        parts: [const TextPart('Hi'), toolCall],
-      );
+      final msg1 = Message(parts: [const TextPart('Hi'), toolCall]);
       expect(msg1.hasToolCalls, isTrue);
       expect(msg1.hasToolResults, isFalse);
       expect(msg1.toolCalls, hasLength(1));
       expect(msg1.toolResults, isEmpty);
       expect(msg1.text, equals('Hi'));
 
-      final msg2 = ChatMessage(role: ChatMessageRole.user, parts: [toolResult]);
+      final msg2 = Message(parts: [toolResult]);
       expect(msg2.hasToolCalls, isFalse);
       expect(msg2.hasToolResults, isTrue);
       expect(msg2.toolCalls, isEmpty);
@@ -243,25 +379,72 @@ void main() {
     });
 
     test('metadata', () {
-      final msg = ChatMessage.user('hi', metadata: {'key': 'value'});
+      final msg = const Message(
+        parts: [TextPart('hi')],
+        metadata: {'key': 'value'},
+      );
       expect(msg.metadata['key'], equals('value'));
 
       final Map<String, dynamic> json = msg.toJson();
       expect(json['metadata'], equals({'key': 'value'}));
 
-      final reconstructed = ChatMessage.fromJson(json);
+      final reconstructed = Message.fromJson(json);
       expect(reconstructed.metadata, equals({'key': 'value'}));
     });
 
     test('JSON serialization', () {
-      final msg = ChatMessage.model('response');
+      final msg = Message.fromText('response');
       final Map<String, dynamic> json = msg.toJson();
 
-      expect(json['role'], equals('model'));
       expect((json['parts'] as List).length, equals(1));
 
-      final reconstructed = ChatMessage.fromJson(json);
+      final reconstructed = Message.fromJson(json);
       expect(reconstructed, equals(msg));
+    });
+
+    test('equality and hashCode', () {
+      const msg1 = Message(parts: [TextPart('hi')], metadata: {'k': 'v'});
+      const msg2 = Message(parts: [TextPart('hi')], metadata: {'k': 'v'});
+      const msg3 = Message(parts: [TextPart('hello')]);
+      const msg4 = Message(parts: [TextPart('hi')], metadata: {'k': 'other'});
+
+      expect(msg1, equals(msg2));
+      expect(msg1.hashCode, equals(msg2.hashCode));
+      expect(msg1, isNot(equals(msg3)));
+      expect(msg1, isNot(equals(msg4)));
+    });
+
+    test('text concatenation', () {
+      final msg = const Message(
+        parts: [
+          TextPart('Part 1. '),
+          ToolPart.call(callId: '1', toolName: 't', arguments: {}),
+          TextPart('Part 2.'),
+        ],
+      );
+      expect(msg.text, equals('Part 1. Part 2.'));
+    });
+
+    test('toString', () {
+      final msg = Message.fromText('hi');
+      expect(msg.toString(), contains('Message'));
+      expect(msg.toString(), contains('parts: [TextPart(hi)]'));
+    });
+  });
+
+  group('MessagePartHelpers', () {
+    test('extension methods', () {
+      final parts = <Part>[
+        const TextPart('Hello'),
+        const ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
+        const ToolPart.result(callId: 'c2', toolName: 't2', result: 'r'),
+      ];
+
+      expect(parts.text, equals('Hello'));
+      expect(parts.toolCalls, hasLength(1));
+      expect(parts.toolCalls.first.callId, equals('c1'));
+      expect(parts.toolResults, hasLength(1));
+      expect(parts.toolResults.first.callId, equals('c2'));
     });
   });
 
@@ -281,7 +464,7 @@ void main() {
       expect(json['inputSchema'], isNotNull);
 
       // Since we don't have a fromJson in ToolDefinition (yet?), we just test
-      // serialization If we needed it, we would add it. For now, testing that
+      // serialization. If we needed it, we would add it. For now, testing that
       // it produces expected map structure.
       final schemaMap = json['inputSchema'] as Map<String, dynamic>;
       expect(schemaMap['type'], equals('object'));
