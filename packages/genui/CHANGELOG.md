@@ -3,6 +3,8 @@
 ## 0.6.2 (in progress)
 
 ## 0.6.1
+- Moved simple chat example to example so that pub.dev recognizes examples are provided.
+- Documented some variable for better dartcode documentation.
 
 - **Fix**: Corrected `DateTimeInput` catalog item JSON key mapping (#622).
 - **Fix**: Added missing `weight` property to `Component` constructor (#603).
