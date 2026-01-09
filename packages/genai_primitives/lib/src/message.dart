@@ -14,7 +14,7 @@ final class _Json {
 
 /// A message between participants of the interaction.
 @immutable
-class Message {
+final class Message {
   /// Creates a new message.
   ///
   /// If `parts` or `metadata` is not provided, an empty collections are used.
