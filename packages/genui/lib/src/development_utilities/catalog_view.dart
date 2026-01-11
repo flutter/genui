@@ -67,30 +67,39 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
         final surfaceId = '${item.name}$indexPart';
 
         final String exampleJsonString = exampleBuilder();
-        final exampleData = jsonDecode(exampleJsonString) as List<Object?>;
 
-        final List<Component> components = exampleData
-            .map((e) => Component.fromJson(e as JsonMap))
-            .toList();
+        try {
+          final exampleData = jsonDecode(exampleJsonString) as List<Object?>;
 
-        Component? rootComponent;
-        rootComponent = components.firstWhereOrNull((c) => c.id == 'root');
+          final List<Component> components = exampleData
+              .map((e) => Component.fromJson(e as JsonMap))
+              .toList();
 
-        if (rootComponent == null) {
-          debugPrint(
-            'Skipping example for ${item.name} because it is missing a root '
-            'component.',
+          Component? rootComponent;
+          rootComponent = components.firstWhereOrNull((c) => c.id == 'root');
+
+          if (rootComponent == null) {
+            debugPrint(
+              'Skipping example for ${item.name} because it is missing a root '
+              'component.',
+            );
+            continue;
+          }
+
+          _a2uiMessageProcessor.handleMessage(
+            SurfaceUpdate(surfaceId: surfaceId, components: components),
           );
-          continue;
+          _a2uiMessageProcessor.handleMessage(
+            BeginRendering(surfaceId: surfaceId, root: rootComponent.id),
+          );
+          surfaceIds.add(surfaceId);
+        } catch (e, s) {
+          debugPrint('Failed to load example for "${item.name}":\n$e\n$s');
+          throw Exception(
+            'Failed to load example for "${item.name}". Check logs for '
+            'details.',
+          );
         }
-
-        _a2uiMessageProcessor.handleMessage(
-          SurfaceUpdate(surfaceId: surfaceId, components: components),
-        );
-        _a2uiMessageProcessor.handleMessage(
-          BeginRendering(surfaceId: surfaceId, root: rootComponent.id),
-        );
-        surfaceIds.add(surfaceId);
       }
     }
   }
