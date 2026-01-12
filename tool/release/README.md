@@ -6,8 +6,7 @@ This Dart-based command-line tool automates the package publishing process for t
 
 #### Permissions to publish a package to pub.dev
 
-Make sure you have permissions to publish to [labs.flutter.dev](https://pub.dev/publishers/labs.flutter.dev): you should be listed as 'admin'
-on the page [admin of labs.flutter.dev](https://pub.dev/publishers/labs.flutter.dev/admin).
+Make sure you have 'admin' permissions for the [labs.flutter.dev publisher](https://pub.dev/publishers/labs.flutter.dev), which you can verify on the [admin page](https://pub.dev/publishers/labs.flutter.dev/admin).
 
 If you do not have permissions, request someone, who is listed here, to add you as admin.  
 
