@@ -8,7 +8,7 @@ This Dart-based command-line tool automates the package publishing process for t
 
 Make sure you have 'admin' permissions for the [labs.flutter.dev publisher](https://pub.dev/publishers/labs.flutter.dev), which you can verify on the [admin page](https://pub.dev/publishers/labs.flutter.dev/admin).
 
-If you do not have permissions, request someone, who is listed here, to add you as admin.  
+If you do not have permissions, ask an existing admin from the linked page to add you.
 
 ## How to release GenUI SDK
 
