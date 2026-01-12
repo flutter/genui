@@ -2,9 +2,19 @@
 
 This Dart-based command-line tool automates the package publishing process for this monorepo using a safe, two-stage workflow.
 
-## Two-Stage Publish Workflow
+### Prerequisites
 
-The process is split into two distinct commands, `bump` and `publish`, to separate release preparation from the act of publishing.
+#### Permissions to publish a package to pub.dev
+
+Make sure you have permissions to publish to [labs.flutter.dev](https://pub.dev/publishers/labs.flutter.dev): you should be listed as 'admin'
+on the page [admin of labs.flutter.dev](https://pub.dev/publishers/labs.flutter.dev/admin).
+
+If you do not have permissions, request someone, who is listed here, to add you as admin.  
+
+## How to release GenUI SDK
+
+The process is a two-stage publish workflow. It is split into two distinct commands, `bump` and `publish`,
+to separate release preparation from the act of publishing.
 
 ### 0. Update Dependencies
 
