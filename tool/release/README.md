@@ -2,7 +2,7 @@
 
 This Dart-based command-line tool automates the package publishing process for this monorepo using a safe, two-stage workflow.
 
-### Prerequisites
+## Prerequisites
 
 #### Permissions to publish a package to pub.dev
 
