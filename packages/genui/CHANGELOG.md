@@ -2,6 +2,8 @@
 
 ## 0.6.2 (in progress)
 
+- **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
+
 ## 0.6.1
 
 - **Fix**: Corrected `DateTimeInput` catalog item JSON key mapping (#622).
