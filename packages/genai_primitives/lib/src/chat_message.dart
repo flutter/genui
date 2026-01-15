@@ -5,6 +5,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
+import 'parts.dart';
 import 'message_parts.dart';
 
 final class _Json {
@@ -29,7 +30,7 @@ final class ChatMessage {
   /// streaming of the message.
   const ChatMessage({
     required this.role,
-    this.parts = const [],
+    this.parts = const Parts([]),
     this.metadata = const {},
   });
 
@@ -43,7 +44,7 @@ final class ChatMessage {
     Map<String, Object?> metadata = const {},
   }) : this(
          role: ChatMessageRole.system,
-         parts: [TextPart(text), ...parts],
+         parts: Parts.fromText(text, parts: parts),
          metadata: metadata,
        );
 
@@ -57,7 +58,7 @@ final class ChatMessage {
     Map<String, Object?> metadata = const {},
   }) : this(
          role: ChatMessageRole.user,
-         parts: [TextPart(text), ...parts],
+         parts: Parts.fromText(text, parts: parts),
          metadata: metadata,
        );
 
@@ -71,16 +72,18 @@ final class ChatMessage {
     Map<String, Object?> metadata = const {},
   }) : this(
          role: ChatMessageRole.model,
-         parts: [TextPart(text), ...parts],
+         parts: Parts.fromText(text, parts: parts),
          metadata: metadata,
        );
 
   /// Deserializes a message seriealized with [toJson].
   factory ChatMessage.fromJson(Map<String, Object?> json) => ChatMessage(
     role: ChatMessageRole.values.byName(json[_Json.role] as String),
-    parts: (json[_Json.parts] as List<Object?>)
-        .map((p) => const PartConverter().convert(p as Map<String, Object?>))
-        .toList(),
+    parts: Parts(
+      (json[_Json.parts] as List<Object?>)
+          .map((p) => const PartConverter().convert(p as Map<String, Object?>))
+          .toList(),
+    ),
     metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
   );
 
@@ -95,7 +98,7 @@ final class ChatMessage {
   final ChatMessageRole role;
 
   /// The content parts of the message.
-  final List<Part> parts;
+  final Parts parts;
 
   /// Optional metadata associated with this message.
   ///
@@ -103,27 +106,19 @@ final class ChatMessage {
   final Map<String, Object?> metadata;
 
   /// Concatenated [TextPart] parts.
-  String get text => parts.whereType<TextPart>().map((p) => p.text).join();
+  String get text => parts.text;
 
   /// Whether this message contains any tool calls.
-  bool get hasToolCalls =>
-      parts.whereType<ToolPart>().any((p) => p.kind == ToolPartKind.call);
+  bool get hasToolCalls => parts.toolCalls.isNotEmpty;
 
   /// Gets all tool calls in this message.
-  List<ToolPart> get toolCalls => parts
-      .whereType<ToolPart>()
-      .where((p) => p.kind == ToolPartKind.call)
-      .toList();
+  List<ToolPart> get toolCalls => parts.toolCalls;
 
   /// Whether this message contains any tool results.
-  bool get hasToolResults =>
-      parts.whereType<ToolPart>().any((p) => p.kind == ToolPartKind.result);
+  bool get hasToolResults => parts.toolResults.isNotEmpty;
 
   /// Gets all tool results in this message.
-  List<ToolPart> get toolResults => parts
-      .whereType<ToolPart>()
-      .where((p) => p.kind == ToolPartKind.result)
-      .toList();
+  List<ToolPart> get toolResults => parts.toolResults;
 
   @override
   bool operator ==(Object other) {

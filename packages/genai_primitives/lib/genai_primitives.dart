@@ -7,4 +7,5 @@ library;
 
 export 'src/chat_message.dart';
 export 'src/message_parts.dart';
+export 'src/parts.dart';
 export 'src/tool_definition.dart';

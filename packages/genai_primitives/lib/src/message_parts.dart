@@ -393,25 +393,3 @@ enum ToolPartKind {
   /// The result of a tool execution.
   result,
 }
-
-/// Static helper methods for extracting specific types of parts from a list.
-extension MessagePartHelpers on Iterable<Part> {
-  /// Extracts and concatenates all text content from TextPart instances.
-  ///
-  /// Returns a single string with all text content concatenated together
-  /// without any separators. Empty text parts are included in the result.
-  String get text => whereType<TextPart>().map((p) => p.text).join();
-
-  /// Extracts all tool call parts from the list.
-  ///
-  /// Returns only ToolPart instances where kind == ToolPartKind.call.
-  List<ToolPart> get toolCalls =>
-      whereType<ToolPart>().where((p) => p.kind == ToolPartKind.call).toList();
-
-  /// Extracts all tool result parts from the list.
-  ///
-  /// Returns only ToolPart instances where kind == ToolPartKind.result.
-  List<ToolPart> get toolResults => whereType<ToolPart>()
-      .where((p) => p.kind == ToolPartKind.result)
-      .toList();
-}
