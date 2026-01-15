@@ -8,26 +8,8 @@ import 'dart:typed_data';
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-enum Role { system, user, model }
-
-class ChatMessage {
-  final Role role;
-  final Message content;
-
-  const ChatMessage({required this.role, required this.content});
-
-  const ChatMessage.system(Message content)
-    : this(role: Role.system, content: content);
-
-  const ChatMessage.user(Message content)
-    : this(role: Role.user, content: content);
-
-  const ChatMessage.model(Message content)
-    : this(role: Role.model, content: content);
-}
-
-void main({void Function(Object? object) output = print}) {
-  output('--- GenAI Primitives Example ---');
+void main() {
+  print('--- GenAI Primitives Example ---');
 
   // 1. Define a Tool
   final ToolDefinition<Object> getWeatherTool = ToolDefinition(
@@ -47,102 +29,92 @@ void main({void Function(Object? object) output = print}) {
     ),
   );
 
-  output('\n[Tool Definition]');
-  output(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
+  print('\n[Tool Definition]');
+  print(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
 
   // 2. Create a conversation history
   final history = <ChatMessage>[
     // System message
     ChatMessage.system(
-      Message.fromText(
-        'You are a helpful weather assistant. '
-        'Use the get_weather tool when needed.',
-      ),
+      'You are a helpful weather assistant. '
+      'Use the get_weather tool when needed.',
     ),
 
     // User message asking for weather
-    ChatMessage.user(Message.fromText('What is the weather in London?')),
+    ChatMessage.user('What is the weather in London?'),
   ];
 
-  output('\n[Initial Conversation]');
+  print('\n[Initial Conversation]');
   for (final msg in history) {
-    output('${msg.role.name}: ${msg.content.text}');
+    print('${msg.role.name}: ${msg.text}');
   }
 
   // 3. Simulate Model Response with Tool Call
   final modelResponse = ChatMessage.model(
-    Message.fromText(
-      '', // Empty text for tool call
-      parts: [
-        const TextPart('Thinking: User wants weather for London...'),
-        const ToolPart.call(
-          callId: 'call_123',
-          toolName: 'get_weather',
-          arguments: {'location': 'London', 'unit': 'celsius'},
-        ),
-      ],
-    ),
+    '', // Empty text for tool call
+    parts: [
+      const TextPart('Thinking: User wants weather for London...'),
+      const ToolPart.call(
+        callId: 'call_123',
+        toolName: 'get_weather',
+        arguments: {'location': 'London', 'unit': 'celsius'},
+      ),
+    ],
   );
   history.add(modelResponse);
 
-  output('\n[Model Response with Tool Call]');
-  if (modelResponse.content.hasToolCalls) {
-    for (final ToolPart call in modelResponse.content.toolCalls) {
-      output('Tool Call: ${call.toolName}(${call.arguments})');
+  print('\n[Model Response with Tool Call]');
+  if (modelResponse.hasToolCalls) {
+    for (final ToolPart call in modelResponse.toolCalls) {
+      print('Tool Call: ${call.toolName}(${call.arguments})');
     }
   }
 
   // 4. Simulate Tool Execution & Result
   final toolResult = ChatMessage.user(
-    Message.fromText(
-      '', // User role is typically used for tool results in many APIs
-      parts: [
-        const ToolPart.result(
-          callId: 'call_123',
-          toolName: 'get_weather',
-          result: {'temperature': 15, 'condition': 'Cloudy'},
-        ),
-      ],
-    ),
+    '', // User role is typically used for tool results in many APIs
+    parts: [
+      const ToolPart.result(
+        callId: 'call_123',
+        toolName: 'get_weather',
+        result: {'temperature': 15, 'condition': 'Cloudy'},
+      ),
+    ],
   );
   history.add(toolResult);
 
-  output('\n[Tool Result]');
-  output('Result: ${toolResult.content.toolResults.first.result}');
+  print('\n[Tool Result]');
+  print('Result: ${toolResult.toolResults.first.result}');
 
   // 5. Simulate Final Model Response with Data (e.g. an image generated or
   //    returned)
   final finalResponse = ChatMessage.model(
-    Message.fromText(
-      'Here is a chart of the weather trend:',
-      parts: [
-        DataPart(
-          Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]), // Fake PNG header
-          mimeType: 'image/png',
-          name: 'weather_chart.png',
-        ),
-      ],
-    ),
+    'Here is a chart of the weather trend:',
+    parts: [
+      DataPart(
+        Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]), // Fake PNG header
+        mimeType: 'image/png',
+        name: 'weather_chart.png',
+      ),
+    ],
   );
   history.add(finalResponse);
 
-  output('\n[Final Model Response with Data]');
-  output('Text: ${finalResponse.content.text}');
-  if (finalResponse.content.parts.any((p) => p is DataPart)) {
-    final DataPart dataPart = finalResponse.content.parts
-        .whereType<DataPart>()
-        .first;
-    output(
+  print('\n[Final Model Response with Data]');
+  print('Text: ${finalResponse.text}');
+  if (finalResponse.parts.any((p) => p is DataPart)) {
+    final DataPart dataPart = finalResponse.parts.whereType<DataPart>().first;
+    print(
       'Attachment: ${dataPart.name} '
       '(${dataPart.mimeType}, ${dataPart.bytes.length} bytes)',
     );
   }
 
   // 6. Demonstrate JSON serialization of the whole history
-  output('\n[Full History JSON]');
-  output(
+  print('\n[Full History JSON]');
+  print(
     const JsonEncoder.withIndent(
       '  ',
-    ).convert(history.map((m) => m.content.toJson()).toList()),
+    ).convert(history.map((m) => m.toJson()).toList()),
   );
 }

@@ -9,12 +9,13 @@ import 'message_parts.dart';
 
 final class _Json {
   static const parts = 'parts';
+  static const role = 'role';
   static const metadata = 'metadata';
 }
 
 /// A message between participants of the interaction.
 @immutable
-final class Message {
+final class ChatMessage {
   /// Creates a new message.
   ///
   /// If `parts` or `metadata` is not provided, an empty collections are used.
@@ -26,20 +27,57 @@ final class Message {
   /// will be a concatenation of all of them.
   /// Many text parts is convenient to have to support
   /// streaming of the message.
-  const Message({this.parts = const [], this.metadata = const {}});
+  const ChatMessage({
+    required this.role,
+    this.parts = const [],
+    this.metadata = const {},
+  });
 
-  /// Creates text message.
+  /// Creates a system message.
   ///
-  /// Converts [text] to a [TextPart] and puts it as a single member of
+  /// Converts [text] to a [TextPart] and puts it as a first member of
   /// the [parts] list.
-  Message.fromText(
+  ChatMessage.system(
     String text, {
     List<Part> parts = const [],
     Map<String, Object?> metadata = const {},
-  }) : this(parts: [TextPart(text), ...parts], metadata: metadata);
+  }) : this(
+         role: ChatMessageRole.system,
+         parts: [TextPart(text), ...parts],
+         metadata: metadata,
+       );
+
+  /// Creates a user message.
+  ///
+  /// Converts [text] to a [TextPart] and puts it as a first member of
+  /// the [parts] list.
+  ChatMessage.user(
+    String text, {
+    List<Part> parts = const [],
+    Map<String, Object?> metadata = const {},
+  }) : this(
+         role: ChatMessageRole.user,
+         parts: [TextPart(text), ...parts],
+         metadata: metadata,
+       );
+
+  /// Creates a model message.
+  ///
+  /// Converts [text] to a [TextPart] and puts it as a first member of
+  /// the [parts] list.
+  ChatMessage.model(
+    String text, {
+    List<Part> parts = const [],
+    Map<String, Object?> metadata = const {},
+  }) : this(
+         role: ChatMessageRole.model,
+         parts: [TextPart(text), ...parts],
+         metadata: metadata,
+       );
 
   /// Deserializes a message seriealized with [toJson].
-  factory Message.fromJson(Map<String, Object?> json) => Message(
+  factory ChatMessage.fromJson(Map<String, Object?> json) => ChatMessage(
+    role: ChatMessageRole.values.byName(json[_Json.role] as String),
     parts: (json[_Json.parts] as List<Object?>)
         .map((p) => const PartConverter().convert(p as Map<String, Object?>))
         .toList(),
@@ -50,7 +88,11 @@ final class Message {
   Map<String, Object?> toJson() => {
     _Json.parts: parts.map((p) => p.toJson()).toList(),
     _Json.metadata: metadata,
+    _Json.role: role.name,
   };
+
+  /// The role of the message author.
+  final ChatMessageRole role;
 
   /// The content parts of the message.
   final List<Part> parts;
@@ -89,7 +131,7 @@ final class Message {
     if (other.runtimeType != runtimeType) return false;
 
     final deepEquality = const DeepCollectionEquality();
-    return other is Message &&
+    return other is ChatMessage &&
         deepEquality.equals(other.parts, parts) &&
         deepEquality.equals(other.metadata, metadata);
   }
@@ -99,4 +141,24 @@ final class Message {
 
   @override
   String toString() => 'Message(parts: $parts, metadata: $metadata)';
+}
+
+/// The role of a message author.
+///
+/// The role indicates the source of the message or the intended perspective.
+/// For example, a system message is sent to the model to set context,
+/// a user message is sent to the model as a request,
+/// and a model message is a response to the user request.
+enum ChatMessageRole {
+  /// A message from the system that sets context or instructions for the model.
+  ///
+  /// System messages are typically sent to the model to define its behavior
+  /// or persona ("system prompt"). They are not usually shown to the end user.
+  system,
+
+  /// A message from the end user to the model ("user prompt").
+  user,
+
+  /// A message from the model to the user ("model response").
+  model,
 }
