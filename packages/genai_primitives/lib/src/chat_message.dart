@@ -89,7 +89,7 @@ final class ChatMessage {
   factory ChatMessage.fromJson(
     Map<String, Object?> json, {
     Map<String, JsonToPartConverter> converterRegistry =
-        defaultConverterRegistry,
+        defaultPartConverterRegistry,
   }) => ChatMessage(
     role: ChatMessageRole.values.byName(json[_Json.role] as String),
     parts: Parts.fromJson(

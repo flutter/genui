@@ -41,14 +41,14 @@ abstract base class Part {
   /// Deserializes a part from a JSON map.
   ///
   /// The [converterRegistry] parameter is a map of part types to converters.
-  /// If the registry is not provided, [defaultConverterRegistry] is used.
+  /// If the registry is not provided, [defaultPartConverterRegistry] is used.
   ///
   /// If you need to deserialize a part that is not in the default registry,
-  /// extend [defaultConverterRegistry] and pass it to this method.
+  /// extend [defaultPartConverterRegistry] and pass it to this method.
   factory Part.fromJson(
     Map<String, Object?> json, {
     Map<String, JsonToPartConverter> converterRegistry =
-        defaultConverterRegistry,
+        defaultPartConverterRegistry,
   }) {
     final type = json[_Json.type] as String;
     final JsonToPartConverter? converter = converterRegistry[type];
@@ -69,7 +69,7 @@ typedef _JsonToPartFunction = Part Function(Map<String, Object?> json);
 ///
 /// The key of a map entry is the part type.
 /// The value is the converter that knows how to convert that part type.
-const defaultConverterRegistry = <String, JsonToPartConverter>{
+const defaultPartConverterRegistry = <String, JsonToPartConverter>{
   _Part.text: PartConverter(TextPart.fromJson),
   _Part.data: PartConverter(DataPart.fromJson),
   _Part.link: PartConverter(LinkPart.fromJson),

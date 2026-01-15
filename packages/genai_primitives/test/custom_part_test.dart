@@ -88,7 +88,7 @@ void main() {
       final reconstructed = Part.fromJson(
         json,
         converterRegistry: {
-          ...defaultConverterRegistry,
+          ...defaultPartConverterRegistry,
           'Custom': const CustomPartConverter(),
         },
       );
@@ -108,7 +108,7 @@ void main() {
       final reconstructed = ChatMessage.fromJson(
         json,
         converterRegistry: {
-          ...defaultConverterRegistry,
+          ...defaultPartConverterRegistry,
           'Custom': const CustomPartConverter(),
         },
       );

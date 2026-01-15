@@ -26,7 +26,7 @@ final class Parts extends ListBase<Part> {
   factory Parts.fromJson(
     List<Object?> json, {
     Map<String, JsonToPartConverter> converterRegistry =
-        defaultConverterRegistry,
+        defaultPartConverterRegistry,
   }) {
     return Parts(
       json
