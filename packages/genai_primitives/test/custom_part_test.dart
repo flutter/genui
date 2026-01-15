@@ -99,9 +99,9 @@ void main() {
 
   group('ChatMessage with Custom Part', () {
     test('deserialization with custom registry', () {
-      final message = ChatMessage(
+      final message = const ChatMessage(
         role: ChatMessageRole.user,
-        parts: Parts([const CustomPart('custom_content')]),
+        parts: Parts([CustomPart('custom_content')]),
       );
       final json = message.toJson();
 

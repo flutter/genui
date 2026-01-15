@@ -33,6 +33,20 @@ final class _Part {
 }
 
 /// Base class for message content parts.
+///
+/// To create a custom part implementation, extend this class and ensure the
+/// following requirements are met for a robust implementation:
+///
+/// * **Equality and Hashing**: Override [operator ==] and [hashCode] to
+///   ensure value-based equality.
+/// * **Serialization**: Implement a `toJson()` method that returns a
+///   JSON-encodable [Map]. The map must contain a `type` field with a unique
+///   string identifier for the custom part. See [defaultPartConverterRegistry]
+///   for the default registry and existing part types.
+/// * **Deserialization**: Implement a `JsonToPartConverter` that can recreate
+///   the part from its JSON representation.
+/// * Pass extended [defaultPartConverterRegistry] to all methods `fromJson`
+///   that accept a converter registry.
 @immutable
 abstract base class Part {
   /// Creates a new part.
@@ -59,6 +73,10 @@ abstract base class Part {
   }
 
   /// Serializes the part to a JSON map.
+  ///
+  /// The returned map must contain a key `type` with a unique string
+  /// identifier for the custom part. See keys of [defaultPartConverterRegistry]
+  /// for existing part types.
   Map<String, Object?> toJson();
 }
 
@@ -91,7 +109,7 @@ class PartConverter extends JsonToPartConverter {
 
 /// A text part of a message.
 @immutable
-base class TextPart extends Part {
+final class TextPart extends Part {
   /// Creates a new text part.
   const TextPart(this.text);
 
@@ -125,7 +143,7 @@ base class TextPart extends Part {
 
 /// A data part containing binary data (e.g., images).
 @immutable
-base class DataPart extends Part {
+final class DataPart extends Part {
   /// Creates a new data part.
   DataPart(this.bytes, {required this.mimeType, String? name})
     : name = name ?? nameFromMimeType(mimeType);
@@ -238,7 +256,7 @@ base class DataPart extends Part {
 
 /// A link part referencing external content.
 @immutable
-base class LinkPart extends Part {
+final class LinkPart extends Part {
   /// Creates a new link part.
   const LinkPart(this.url, {this.mimeType, this.name});
 
@@ -291,7 +309,7 @@ base class LinkPart extends Part {
 
 /// A tool interaction part of a message.
 @immutable
-base class ToolPart extends Part {
+final class ToolPart extends Part {
   /// Creates a tool call part.
   const ToolPart.call({
     required this.callId,
