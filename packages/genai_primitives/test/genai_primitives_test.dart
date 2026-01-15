@@ -350,6 +350,52 @@ void main() {
       expect(fromParts.text, equals('hello'));
     });
 
+    group('Named constructors', () {
+      test('system', () {
+        final message = ChatMessage.system(
+          'instruction',
+          parts: [const TextPart(' extra')],
+          metadata: {'a': 1},
+        );
+        expect(message.role, equals(ChatMessageRole.system));
+        expect(message.text, equals('instruction extra'));
+        expect(message.parts.first, isA<TextPart>());
+        expect((message.parts.first as TextPart).text, equals('instruction'));
+        expect(message.parts[1], isA<TextPart>());
+        expect((message.parts[1] as TextPart).text, equals(' extra'));
+        expect(message.metadata, equals({'a': 1}));
+      });
+
+      test('user', () {
+        final message = ChatMessage.user(
+          'hello',
+          parts: [const TextPart(' world')],
+          metadata: {'b': 2},
+        );
+        expect(message.role, equals(ChatMessageRole.user));
+        expect(message.text, equals('hello world'));
+        expect(message.parts.first, isA<TextPart>());
+        expect((message.parts.first as TextPart).text, equals('hello'));
+        expect(message.metadata, equals({'b': 2}));
+      });
+
+      test('model', () {
+        final message = ChatMessage.model(
+          'response',
+          parts: [
+            const ToolPart.call(callId: 'id', toolName: 't', arguments: {}),
+          ],
+          metadata: {'c': 3},
+        );
+        expect(message.role, equals(ChatMessageRole.model));
+        expect(message.text, equals('response'));
+        expect(message.parts.first, isA<TextPart>());
+        expect((message.parts.first as TextPart).text, equals('response'));
+        expect(message.parts[1], isA<ToolPart>());
+        expect(message.metadata, equals({'c': 3}));
+      });
+    });
+
     test('default constructor', () {
       final message = ChatMessage.system('instructions');
       expect(message.text, equals('instructions'));
