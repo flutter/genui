@@ -103,7 +103,7 @@ void main() {
         role: ChatMessageRole.user,
         parts: Parts([CustomPart('custom_content')]),
       );
-      final json = message.toJson();
+      final Map<String, Object?> json = message.toJson();
 
       final reconstructed = ChatMessage.fromJson(
         json,
