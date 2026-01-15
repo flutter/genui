@@ -47,7 +47,7 @@ class Conversation extends StatelessWidget {
           case UserMessage():
             return userPromptBuilder != null
                 ? userPromptBuilder!(context, message)
-                : ChatMessageWidget(
+                : ChatMessageView(
                     text: message.parts
                         .whereType<TextPart>()
                         .map((part) => part.text)
@@ -63,7 +63,7 @@ class Conversation extends StatelessWidget {
             if (text.trim().isEmpty) {
               return const SizedBox.shrink();
             }
-            return ChatMessageWidget(
+            return ChatMessageView(
               text: text,
               icon: Icons.smart_toy_outlined,
               alignment: MainAxisAlignment.start,
@@ -78,13 +78,13 @@ class Conversation extends StatelessWidget {
               ),
             );
           case InternalMessage():
-            return InternalMessageWidget(content: message.text);
+            return InternalMessageView(content: message.text);
           case UserUiInteractionMessage():
             return userUiInteractionBuilder != null
                 ? userUiInteractionBuilder!(context, message)
                 : const SizedBox.shrink();
           case ToolResponseMessage():
-            return InternalMessageWidget(content: message.results.toString());
+            return InternalMessageView(content: message.results.toString());
         }
       },
     );
