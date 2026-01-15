@@ -86,9 +86,16 @@ final class ChatMessage {
   /// Deserializes a message.
   ///
   /// The message is compatible with [toJson].
-  factory ChatMessage.fromJson(Map<String, Object?> json) => ChatMessage(
+  factory ChatMessage.fromJson(
+    Map<String, Object?> json, {
+    Map<String, JsonToPartConverter> converterRegistry =
+        defaultConverterRegistry,
+  }) => ChatMessage(
     role: ChatMessageRole.values.byName(json[_Json.role] as String),
-    parts: Parts.fromJson(json[_Json.parts] as List<Object?>),
+    parts: Parts.fromJson(
+      json[_Json.parts] as List<Object?>,
+      converterRegistry: converterRegistry,
+    ),
     metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
   );
 

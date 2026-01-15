@@ -96,4 +96,28 @@ void main() {
       expect(reconstructed, equals(textPart));
     });
   });
+
+  group('ChatMessage with Custom Part', () {
+    test('deserialization with custom registry', () {
+      final message = ChatMessage(
+        role: ChatMessageRole.user,
+        parts: Parts([const CustomPart('custom_content')]),
+      );
+      final json = message.toJson();
+
+      final reconstructed = ChatMessage.fromJson(
+        json,
+        converterRegistry: {
+          ...defaultConverterRegistry,
+          'Custom': const CustomPartConverter(),
+        },
+      );
+
+      expect(reconstructed.parts.first, isA<CustomPart>());
+      expect(
+        (reconstructed.parts.first as CustomPart).customField,
+        equals('custom_content'),
+      );
+    });
+  });
 }

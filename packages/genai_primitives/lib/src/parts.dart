@@ -23,9 +23,20 @@ final class Parts extends ListBase<Part> {
       Parts([TextPart(text), ...parts]);
 
   /// Deserializes parts from a JSON list.
-  factory Parts.fromJson(List<Object?> json) {
+  factory Parts.fromJson(
+    List<Object?> json, {
+    Map<String, JsonToPartConverter> converterRegistry =
+        defaultConverterRegistry,
+  }) {
     return Parts(
-      json.map((e) => Part.fromJson(e as Map<String, Object?>)).toList(),
+      json
+          .map(
+            (e) => Part.fromJson(
+              e as Map<String, Object?>,
+              converterRegistry: converterRegistry,
+            ),
+          )
+          .toList(),
     );
   }
 
