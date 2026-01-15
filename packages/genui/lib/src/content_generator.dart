@@ -11,15 +11,15 @@ import 'model/a2ui_message.dart';
 import 'model/chat_message.dart';
 
 /// An error produced by a [ContentGenerator].
-final class ContentGeneratorError {
+final class ContentGeneratorError implements Exception {
   /// The error that occurred.
   final Object error;
 
   /// The stack trace of the error.
-  final StackTrace stackTrace;
+  final StackTrace? stackTrace;
 
   /// Creates a [ContentGeneratorError].
-  const ContentGeneratorError(this.error, this.stackTrace);
+  const ContentGeneratorError(this.error, [this.stackTrace]);
 }
 
 /// An abstract interface for a content generator.
