@@ -88,17 +88,13 @@ final class ChatMessage {
   /// The message is compatible with [toJson].
   factory ChatMessage.fromJson(Map<String, Object?> json) => ChatMessage(
     role: ChatMessageRole.values.byName(json[_Json.role] as String),
-    parts: Parts(
-      (json[_Json.parts] as List<Object?>)
-          .map((p) => Part.fromJson(p as Map<String, Object?>))
-          .toList(),
-    ),
+    parts: Parts.fromJson(json[_Json.parts] as List<Object?>),
     metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
   );
 
   /// Serializes the message to JSON.
   Map<String, Object?> toJson() => {
-    _Json.parts: parts.map((p) => p.toJson()).toList(),
+    _Json.parts: parts.toJson(),
     _Json.metadata: metadata,
     _Json.role: role.name,
   };

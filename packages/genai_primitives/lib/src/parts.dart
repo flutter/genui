@@ -22,6 +22,13 @@ final class Parts extends ListBase<Part> {
   factory Parts.fromText(String text, {Iterable<Part> parts = const []}) =>
       Parts([TextPart(text), ...parts]);
 
+  /// Deserializes parts from a JSON list.
+  factory Parts.fromJson(List<Object?> json) {
+    return Parts(
+      json.map((e) => Part.fromJson(e as Map<String, Object?>)).toList(),
+    );
+  }
+
   final List<Part> _parts;
 
   @override
@@ -36,6 +43,9 @@ final class Parts extends ListBase<Part> {
   @override
   void operator []=(int index, Part value) =>
       throw UnsupportedError('Parts is immutable');
+
+  /// Serializes parts to a JSON list.
+  List<Object?> toJson() => _parts.map((p) => p.toJson()).toList();
 
   /// Extracts and concatenates all text content from TextPart instances.
   ///

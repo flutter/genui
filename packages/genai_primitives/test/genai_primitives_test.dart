@@ -68,7 +68,7 @@ void main() {
 
     test('fromJson throws on unknown type', () {
       expect(
-        () => const PartConverter().convert({'type': 'Unknown', 'content': ''}),
+        () => Part.fromJson({'type': 'Unknown', 'content': ''}),
         throwsUnimplementedError,
       );
     });
@@ -97,7 +97,7 @@ void main() {
         final Map<String, dynamic> json = part.toJson();
         expect(json, equals({'type': 'Text', 'content': 'hello'}));
 
-        final Part reconstructed = const PartConverter().convert(json);
+        final Part reconstructed = Part.fromJson(json);
         expect(reconstructed, isA<TextPart>());
         expect((reconstructed as TextPart).text, equals('hello'));
       });
@@ -133,7 +133,7 @@ void main() {
         expect(content['name'], equals('test.png'));
         expect(content['bytes'], startsWith('data:image/png;base64,'));
 
-        final Part reconstructed = const PartConverter().convert(json);
+        final Part reconstructed = Part.fromJson(json);
         expect(reconstructed, isA<DataPart>());
         final dataPart = reconstructed as DataPart;
         expect(dataPart.mimeType, equals('image/png'));
@@ -215,7 +215,7 @@ void main() {
         expect(content['mimeType'], equals('image/png'));
         expect(content['name'], equals('image'));
 
-        final Part reconstructed = const PartConverter().convert(json);
+        final Part reconstructed = Part.fromJson(json);
         expect(reconstructed, isA<LinkPart>());
         final linkPart = reconstructed as LinkPart;
         expect(linkPart.url, equals(uri));
@@ -257,7 +257,7 @@ void main() {
             isNull,
           ); // Ensures result is not present or null
 
-          final Part reconstructed = const PartConverter().convert(json);
+          final Part reconstructed = Part.fromJson(json);
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.call));
@@ -330,7 +330,7 @@ void main() {
           expect(content['name'], equals('get_weather'));
           expect(content['result'], equals({'temp': 20}));
 
-          final Part reconstructed = const PartConverter().convert(json);
+          final Part reconstructed = Part.fromJson(json);
           expect(reconstructed, isA<ToolPart>());
           final toolPart = reconstructed as ToolPart;
           expect(toolPart.kind, equals(ToolPartKind.result));
