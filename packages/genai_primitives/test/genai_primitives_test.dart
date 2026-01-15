@@ -519,10 +519,10 @@ void main() {
     });
 
     test('helpers', () {
-      final parts = Parts([
-        const TextPart('Hello'),
-        const ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
-        const ToolPart.result(callId: 'c2', toolName: 't2', result: 'r'),
+      final parts = const Parts([
+        TextPart('Hello'),
+        ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
+        ToolPart.result(callId: 'c2', toolName: 't2', result: 'r'),
       ]);
 
       expect(parts.text, equals('Hello'));

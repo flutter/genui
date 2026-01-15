@@ -16,6 +16,9 @@ final class Parts extends ListBase<Part> {
   const Parts(this._parts);
 
   /// Creates a collection of parts from text and optional other parts.
+  ///
+  /// Converts [text] to a [TextPart] and puts it as a first member of
+  /// the [parts] list.
   factory Parts.fromText(String text, {Iterable<Part> parts = const []}) =>
       Parts([TextPart(text), ...parts]);
 
@@ -57,7 +60,7 @@ final class Parts extends ListBase<Part> {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    final deepEquality = const DeepCollectionEquality();
+    const deepEquality = DeepCollectionEquality();
     return other is Parts && deepEquality.equals(other._parts, _parts);
   }
 

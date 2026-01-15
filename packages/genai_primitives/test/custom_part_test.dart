@@ -60,7 +60,7 @@ void main() {
       // Deserialize using Part.fromJson with customConverter
       final reconstructedPart = Part.fromJson(
         json,
-        customConverter: const CustomPartConverter(),
+        converterRegistry: {'Custom': const CustomPartConverter()},
       );
 
       expect(reconstructedPart, isA<CustomPart>());
@@ -87,7 +87,10 @@ void main() {
       // Should still work for standard parts
       final reconstructed = Part.fromJson(
         json,
-        customConverter: const CustomPartConverter(),
+        converterRegistry: {
+          ...defaultConverterRegistry,
+          'Custom': const CustomPartConverter(),
+        },
       );
 
       expect(reconstructed, equals(textPart));

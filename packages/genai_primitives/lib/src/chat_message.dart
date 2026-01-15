@@ -5,8 +5,8 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import 'parts.dart';
 import 'message_parts.dart';
+import 'parts.dart';
 
 final class _Json {
   static const parts = 'parts';
@@ -21,13 +21,11 @@ final class ChatMessage {
   ///
   /// If `parts` or `metadata` is not provided, an empty collections are used.
   ///
-  /// If there is no parts of type [TextPart], the [text] property
+  /// If there are no parts of type [TextPart], the [text] property
   /// will be empty.
   ///
-  /// If there are many parts of type [TextPart], the [text] property
+  /// If there is more than one part of type [TextPart], the [text] property
   /// will be a concatenation of all of them.
-  /// Many text parts is convenient to have to support
-  /// streaming of the message.
   const ChatMessage({
     required this.role,
     this.parts = const Parts([]),
@@ -38,6 +36,9 @@ final class ChatMessage {
   ///
   /// Converts [text] to a [TextPart] and puts it as a first member of
   /// the [parts] list.
+  ///
+  /// [parts] may contain any type of [Part], including additional
+  /// instances of [TextPart].
   ChatMessage.system(
     String text, {
     List<Part> parts = const [],
@@ -52,6 +53,9 @@ final class ChatMessage {
   ///
   /// Converts [text] to a [TextPart] and puts it as a first member of
   /// the [parts] list.
+  ///
+  /// [parts] may contain any type of [Part], including additional
+  /// instances of [TextPart].
   ChatMessage.user(
     String text, {
     List<Part> parts = const [],
@@ -66,6 +70,9 @@ final class ChatMessage {
   ///
   /// Converts [text] to a [TextPart] and puts it as a first member of
   /// the [parts] list.
+  ///
+  /// [parts] may contain any type of [Part], including additional
+  /// instances of [TextPart].
   ChatMessage.model(
     String text, {
     List<Part> parts = const [],
@@ -76,18 +83,20 @@ final class ChatMessage {
          metadata: metadata,
        );
 
-  /// Deserializes a message seriealized with [toJson].
+  /// Deserializes a message.
+  ///
+  /// The message is compatible with [toJson].
   factory ChatMessage.fromJson(Map<String, Object?> json) => ChatMessage(
     role: ChatMessageRole.values.byName(json[_Json.role] as String),
     parts: Parts(
       (json[_Json.parts] as List<Object?>)
-          .map((p) => const PartConverter().convert(p as Map<String, Object?>))
+          .map((p) => Part.fromJson(p as Map<String, Object?>))
           .toList(),
     ),
     metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
   );
 
-  /// Serializes the message.
+  /// Serializes the message to JSON.
   Map<String, Object?> toJson() => {
     _Json.parts: parts.map((p) => p.toJson()).toList(),
     _Json.metadata: metadata,
@@ -125,7 +134,7 @@ final class ChatMessage {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
 
-    final deepEquality = const DeepCollectionEquality();
+    const deepEquality = DeepCollectionEquality();
     return other is ChatMessage &&
         deepEquality.equals(other.parts, parts) &&
         deepEquality.equals(other.metadata, metadata);

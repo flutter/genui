@@ -38,49 +38,54 @@ abstract base class Part {
   /// Creates a new part.
   const Part();
 
-  /// Creates a part from a JSON-compatible map.
+  /// Deserializes a part from a JSON map.
+  ///
+  /// The [converterRegistry] parameter is a map of part types to converters.
+  /// If the registry is not provided, [defaultConverterRegistry] is used.
+  ///
+  /// If you need to deserialize a part that is not in the default registry,
+  /// extend [defaultConverterRegistry] and pass it to this method.
   factory Part.fromJson(
     Map<String, Object?> json, {
-    JsonToPartConverter? customConverter,
+    Map<String, JsonToPartConverter> converterRegistry =
+        defaultConverterRegistry,
   }) {
-    return const PartConverter().convert(
-      json,
-      customConverter: customConverter,
-    );
+    final type = json[_Json.type] as String;
+    final JsonToPartConverter? converter = converterRegistry[type];
+    if (converter == null) {
+      throw UnimplementedError('Unknown part type: $type');
+    }
+    return converter.convert(json);
   }
 
-  /// Converts the part to a JSON-compatible map.
+  /// Serializes the part to a JSON map.
   Map<String, Object?> toJson();
 }
 
 typedef JsonToPartConverter = Converter<Map<String, Object?>, Part>;
+typedef _JsonToPartFunction = Part Function(Map<String, Object?> json);
+
+/// Converter registry.
+///
+/// The key of a map entry is the part type.
+/// The value is the converter that knows how to convert that part type.
+const defaultConverterRegistry = <String, JsonToPartConverter>{
+  _Part.text: PartConverter(TextPart.fromJson),
+  _Part.data: PartConverter(DataPart.fromJson),
+  _Part.link: PartConverter(LinkPart.fromJson),
+  _Part.tool: PartConverter(ToolPart.fromJson),
+};
 
 /// A converter that converts a JSON map to a [Part].
 @visibleForTesting
 class PartConverter extends JsonToPartConverter {
-  const PartConverter();
+  const PartConverter(this._function);
+
+  final _JsonToPartFunction _function;
 
   @override
-  Part convert(
-    Map<String, Object?> input, {
-    JsonToPartConverter? customConverter,
-  }) {
-    final Object? type = input[_Json.type];
-    switch (type) {
-      case _Part.text:
-        return TextPart.fromJson(input);
-      case _Part.data:
-        return DataPart.fromJson(input);
-      case _Part.link:
-        return LinkPart.fromJson(input);
-      case _Part.tool:
-        return ToolPart.fromJson(input);
-      default:
-        if (customConverter == null) {
-          throw UnimplementedError('Unknown part type: $type');
-        }
-        return customConverter.convert(input);
-    }
+  Part convert(Map<String, Object?> input) {
+    return _function(input);
   }
 }
 
@@ -189,7 +194,7 @@ base class DataPart extends Part {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
 
-    final deepEquality = const DeepCollectionEquality();
+    const deepEquality = DeepCollectionEquality();
     return other is DataPart &&
         deepEquality.equals(other.bytes, bytes) &&
         other.mimeType == mimeType &&
@@ -355,7 +360,7 @@ base class ToolPart extends Part {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
 
-    final deepEquality = const DeepCollectionEquality();
+    const deepEquality = DeepCollectionEquality();
     return other is ToolPart &&
         other.kind == kind &&
         other.callId == callId &&
