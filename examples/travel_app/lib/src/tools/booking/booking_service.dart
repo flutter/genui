@@ -24,8 +24,7 @@ class BookingService {
   }
 
   Future<HotelSearchResult> listHotels(HotelSearch search) async {
-    // ignore: inference_failure_on_instance_creation
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     return listHotelsSync(search);
   }
 
@@ -33,8 +32,7 @@ class BookingService {
     List<String> listingSelectionIds,
     String paymentMethodId,
   ) async {
-    // ignore: inference_failure_on_instance_creation
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
   }
 
   /// Synchronous version for example data generation.
