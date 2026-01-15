@@ -68,7 +68,8 @@ Attachment: weather_chart.png (image/png, 4 bytes)
         "content": "You are a helpful weather assistant. Use the get_weather tool when needed."
       }
     ],
-    "metadata": {}
+    "metadata": {},
+    "role": "system"
   },
   {
     "parts": [
@@ -77,7 +78,8 @@ Attachment: weather_chart.png (image/png, 4 bytes)
         "content": "What is the weather in London?"
       }
     ],
-    "metadata": {}
+    "metadata": {},
+    "role": "user"
   },
   {
     "parts": [
@@ -101,7 +103,8 @@ Attachment: weather_chart.png (image/png, 4 bytes)
         }
       }
     ],
-    "metadata": {}
+    "metadata": {},
+    "role": "model"
   },
   {
     "parts": [
@@ -121,7 +124,8 @@ Attachment: weather_chart.png (image/png, 4 bytes)
         }
       }
     ],
-    "metadata": {}
+    "metadata": {},
+    "role": "user"
   },
   {
     "parts": [
@@ -138,7 +142,8 @@ Attachment: weather_chart.png (image/png, 4 bytes)
         }
       }
     ],
-    "metadata": {}
+    "metadata": {},
+    "role": "model"
   }
 ]
 ''';

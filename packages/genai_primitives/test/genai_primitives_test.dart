@@ -343,12 +343,15 @@ void main() {
 
   group('Message', () {
     test('fromParts', () {
-      final fromParts = const ChatMessage(parts: [TextPart('hello')]);
+      final fromParts = const ChatMessage(
+        role: ChatMessageRole.user,
+        parts: [TextPart('hello')],
+      );
       expect(fromParts.text, equals('hello'));
     });
 
     test('default constructor', () {
-      final message = ChatMessage.fromText('instructions');
+      final message = ChatMessage.system('instructions');
       expect(message.text, equals('instructions'));
     });
 
@@ -364,14 +367,17 @@ void main() {
         result: 'ok',
       );
 
-      final msg1 = ChatMessage(parts: [const TextPart('Hi'), toolCall]);
+      final msg1 = ChatMessage(
+        role: ChatMessageRole.model,
+        parts: [const TextPart('Hi'), toolCall],
+      );
       expect(msg1.hasToolCalls, isTrue);
       expect(msg1.hasToolResults, isFalse);
       expect(msg1.toolCalls, hasLength(1));
       expect(msg1.toolResults, isEmpty);
       expect(msg1.text, equals('Hi'));
 
-      final msg2 = ChatMessage(parts: [toolResult]);
+      final msg2 = ChatMessage(role: ChatMessageRole.user, parts: [toolResult]);
       expect(msg2.hasToolCalls, isFalse);
       expect(msg2.hasToolResults, isTrue);
       expect(msg2.toolCalls, isEmpty);
@@ -380,6 +386,7 @@ void main() {
 
     test('metadata', () {
       final msg = const ChatMessage(
+        role: ChatMessageRole.user,
         parts: [TextPart('hi')],
         metadata: {'key': 'value'},
       );
@@ -393,7 +400,7 @@ void main() {
     });
 
     test('JSON serialization', () {
-      final msg = ChatMessage.fromText('response');
+      final msg = ChatMessage.model('response');
       final Map<String, dynamic> json = msg.toJson();
 
       expect((json['parts'] as List).length, equals(1));
@@ -403,10 +410,22 @@ void main() {
     });
 
     test('equality and hashCode', () {
-      const msg1 = ChatMessage(parts: [TextPart('hi')], metadata: {'k': 'v'});
-      const msg2 = ChatMessage(parts: [TextPart('hi')], metadata: {'k': 'v'});
-      const msg3 = ChatMessage(parts: [TextPart('hello')]);
+      const msg1 = ChatMessage(
+        role: ChatMessageRole.user,
+        parts: [TextPart('hi')],
+        metadata: {'k': 'v'},
+      );
+      const msg2 = ChatMessage(
+        role: ChatMessageRole.user,
+        parts: [TextPart('hi')],
+        metadata: {'k': 'v'},
+      );
+      const msg3 = ChatMessage(
+        role: ChatMessageRole.user,
+        parts: [TextPart('hello')],
+      );
       const msg4 = ChatMessage(
+        role: ChatMessageRole.user,
         parts: [TextPart('hi')],
         metadata: {'k': 'other'},
       );
@@ -419,6 +438,7 @@ void main() {
 
     test('text concatenation', () {
       final msg = const ChatMessage(
+        role: ChatMessageRole.model,
         parts: [
           TextPart('Part 1. '),
           ToolPart.call(callId: '1', toolName: 't', arguments: {}),
@@ -429,7 +449,7 @@ void main() {
     });
 
     test('toString', () {
-      final msg = ChatMessage.fromText('hi');
+      final msg = ChatMessage.user('hi');
       expect(msg.toString(), contains('Message'));
       expect(msg.toString(), contains('parts: [TextPart(hi)]'));
     });
