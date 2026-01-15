@@ -3,6 +3,12 @@
 This folder (./specs) provides technical specifications for the GenUI repository,
 targeted at both AI models and human developers.
 
+## Index of Specifications
+
+This directory contains the following specifications:
+
+- [Style Guide](styleguide.md)
+
 ## Note for AI models
 
 If you are an AI model, please read all the specifications in this folder, and follow them carefully.
