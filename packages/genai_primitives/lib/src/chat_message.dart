@@ -34,8 +34,8 @@ final class ChatMessage {
 
   /// Creates a system message.
   ///
-  /// Converts [text] to a [TextPart] and puts it as a first member of
-  /// the [parts] list.
+  /// If [text] is not empty, converts it to a [TextPart] and puts it as a
+  /// first member of the [parts] list.
   ///
   /// [parts] may contain any type of [Part], including additional
   /// instances of [TextPart].
@@ -51,8 +51,8 @@ final class ChatMessage {
 
   /// Creates a user message.
   ///
-  /// Converts [text] to a [TextPart] and puts it as a first member of
-  /// the [parts] list.
+  /// If [text] is not empty, converts it to a [TextPart] and puts it as a
+  /// first member of the [parts] list.
   ///
   /// [parts] may contain any type of [Part], including additional
   /// instances of [TextPart].
@@ -68,8 +68,8 @@ final class ChatMessage {
 
   /// Creates a model message.
   ///
-  /// Converts [text] to a [TextPart] and puts it as a first member of
-  /// the [parts] list.
+  /// If [text] is not empty, converts it to a [TextPart] and puts it as a
+  /// first member of the [parts] list.
   ///
   /// [parts] may contain any type of [Part], including additional
   /// instances of [TextPart].
