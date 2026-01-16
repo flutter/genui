@@ -14,13 +14,13 @@ void main() {
   // to test support for dynamic types.
   group('Part', () {
     test('mimeType helper', () {
-      // Test with extensions (may be environment dependent for text/plain)
+      // Test with extensions (may be environment dependent for text/plain).
       expect(
         DataPart.mimeTypeForFile('test.png'),
         anyOf(equals('image/png'), equals('application/octet-stream')),
       );
 
-      // Test with header bytes (sniffing should be environment independent)
+      // Test with header bytes (sniffing should be environment independent).
       final pngHeader = Uint8List.fromList([
         0x89,
         0x50,
