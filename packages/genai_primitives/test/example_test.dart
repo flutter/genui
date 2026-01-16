@@ -85,10 +85,6 @@ Attachment: weather_chart.png (image/png, 4 bytes)
     "parts": [
       {
         "type": "Text",
-        "content": ""
-      },
-      {
-        "type": "Text",
         "content": "Thinking: User wants weather for London..."
       },
       {
@@ -108,10 +104,6 @@ Attachment: weather_chart.png (image/png, 4 bytes)
   },
   {
     "parts": [
-      {
-        "type": "Text",
-        "content": ""
-      },
       {
         "type": "Tool",
         "content": {

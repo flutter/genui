@@ -518,6 +518,17 @@ void main() {
       expect(parts.last, isA<ToolPart>());
     });
 
+    test('fromText with empty text', () {
+      final parts = Parts.fromText(
+        '',
+        parts: [
+          const ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
+        ],
+      );
+      expect(parts.length, equals(1));
+      expect(parts.first, isA<ToolPart>());
+    });
+
     test('helpers', () {
       final parts = const Parts([
         TextPart('Hello'),
@@ -548,11 +559,12 @@ void main() {
       expect(json['description'], equals('desc'));
       expect(json['inputSchema'], isNotNull);
 
-      // Since we don't have a fromJson in ToolDefinition (yet?), we just test
-      // serialization. If we needed it, we would add it. For now, testing that
-      // it produces expected map structure.
-      final schemaMap = json['inputSchema'] as Map<String, dynamic>;
-      expect(schemaMap['type'], equals('object'));
+      final ToolDefinition<dynamic> reconstructed = ToolDefinition.fromJson(
+        json,
+      );
+      expect(reconstructed.name, equals('test'));
+      expect(reconstructed.description, equals('desc'));
+      expect(reconstructed.inputSchema.value['type'], equals('object'));
     });
   });
 }

@@ -17,10 +17,10 @@ final class Parts extends ListBase<Part> {
 
   /// Creates a collection of parts from text and optional other parts.
   ///
-  /// Converts [text] to a [TextPart] and puts it as a first member of
-  /// the [parts] list.
+  /// If [text] is not empty, converts it to a [TextPart] and puts it as a
+  /// first member of the [parts] list.
   factory Parts.fromText(String text, {Iterable<Part> parts = const []}) =>
-      Parts([TextPart(text), ...parts]);
+      text.isEmpty ? Parts(parts.toList()) : Parts([TextPart(text), ...parts]);
 
   /// Deserializes parts from a JSON list.
   factory Parts.fromJson(
