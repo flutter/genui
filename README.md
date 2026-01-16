@@ -101,6 +101,7 @@ See the package table below for more details on each.
 | [genui_google_generative_ai](packages/genui_google_generative_ai/) | Provides **`GoogleGenerativeAiContentGenerator`** for connecting to the Google Generative AI API with only an API key. Ideal for getting started quickly. | [![pub package](https://img.shields.io/pub/v/genui_google_generative_ai.svg)](https://pub.dev/packages/genui_google_generative_ai) |
 | [genui_a2ui](packages/genui_a2ui/) | Provides **`A2uiContentGenerator`** for connecting to any server that implements the [A2UI protocol](https://a2ui.org). Use this for integrating with custom agent backends. | [![pub package](https://img.shields.io/pub/v/genui_a2ui.svg)](https://pub.dev/packages/genui_a2ui) |
 | [genui_dartantic](packages/genui_dartantic/) | Integration package for genui and Dartantic AI. | [![pub package](https://img.shields.io/pub/v/genui_dartantic.svg)](https://pub.dev/packages/genui_dartantic) |
+| [genai_primitives](packages/genai_primitives/) | A set of technology-agnostic primitive types and data structures for building Generative AI applications. | [![pub package](https://img.shields.io/pub/v/genai_primitives.svg)](https://pub.dev/packages/genai_primitives) |
 | [json_schema_builder](packages/json_schema_builder/) | A fully featured Dart JSON Schema package with validation, used by the core framework to define widget data structures. | [![pub package](https://img.shields.io/pub/v/json_schema_builder.svg)](https://pub.dev/packages/json_schema_builder) |
 
 ### Dependencies
