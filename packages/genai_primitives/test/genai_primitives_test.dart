@@ -559,9 +559,7 @@ void main() {
       expect(json['description'], equals('desc'));
       expect(json['inputSchema'], isNotNull);
 
-      final ToolDefinition reconstructed = ToolDefinition.fromJson(
-        json,
-      );
+      final ToolDefinition reconstructed = ToolDefinition.fromJson(json);
       expect(reconstructed.name, equals('test'));
       expect(reconstructed.description, equals('desc'));
       expect(reconstructed.inputSchema.value['type'], equals('object'));
