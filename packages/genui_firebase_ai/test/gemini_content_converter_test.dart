@@ -1,7 +1,11 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:firebase_vertexai/firebase_vertexai.dart' as firebase_ai;
+import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_firebase_ai/genui_firebase_ai.dart';
@@ -14,8 +18,8 @@ void main() {
       converter = GeminiContentConverter();
     });
 
-    test('toFirebaseAiContent converts user message with TextPart', () {
-      final messages = [ChatMessage.user('Hello')];
+    test('toFirebaseAiContent converts $UserMessage with $TextPart', () {
+      final messages = [UserMessage.text('Hello')];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
@@ -27,8 +31,8 @@ void main() {
       expect((result.first.parts.first as firebase_ai.TextPart).text, 'Hello');
     });
 
-    test('toFirebaseAiContent converts model message with TextPart', () {
-      final messages = [ChatMessage.model('Hi there')];
+    test('toFirebaseAiContent converts $AiTextMessage with $TextPart', () {
+      final messages = [AiTextMessage.text('Hi there')];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
@@ -43,35 +47,36 @@ void main() {
       );
     });
 
-    test('toFirebaseAiContent converts UiPart', () {
+    test('toFirebaseAiContent converts $AiUiMessage', () {
       final definition = UiDefinition(surfaceId: 'testSurface');
-      final messages = [
-        ChatMessage.model(
-          '',
-          parts: [UiPart(definition: definition, surfaceId: 's1')],
-        ),
-      ];
+      final messages = [AiUiMessage(definition: definition)];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
       expect(result, hasLength(1));
       expect(result.first.role, 'model');
-      expect(result.first.parts, hasLength(1)); // UiPart(json)
-      // Actually, if ChatMessage.model('') assumes empty text, it might add it.
-      // And converter converts TextPart('') -> firebase_ai.TextPart('').
-      // And UiPart -> firebase_ai.TextPart(json).
-      // If we used Parts.fromText('', parts: [UiPart]), it creates TextPart('') + UiPart.
-      // So checks need to be aware.
-      // Or we can construct ChatMessage manually to avoid TextPart if we wanted.
-      // But typically empty text part is fine.
+      expect(result.first.parts, hasLength(1));
+      expect(result.first.parts.first, isA<firebase_ai.TextPart>());
+      expect(
+        (result.first.parts.first as firebase_ai.TextPart).text,
+        definition.asContextDescriptionText(),
+      );
     });
 
-    test('toFirebaseAiContent converts multi-part user message', () {
+    test('toFirebaseAiContent ignores $InternalMessage', () {
+      final messages = [const InternalMessage('Thinking...')];
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
+      expect(result, isEmpty);
+    });
+
+    test('toFirebaseAiContent converts multi-part $UserMessage', () {
       final messages = [
-        ChatMessage.user(
-          'Look at this image',
-          parts: [ImagePart.fromBytes(Uint8List(0), mimeType: 'image/png')],
-        ),
+        UserMessage([
+          const TextPart('Look at this image'),
+          ImagePart.fromBytes(Uint8List(0), mimeType: 'image/png'),
+        ]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
@@ -84,139 +89,110 @@ void main() {
       expect(result.first.parts[1], isA<firebase_ai.InlineDataPart>());
     });
 
-    // Removed DataPart test as it is no longer supported directly
-
-    test('toFirebaseAiContent converts ImagePart from bytes', () {
-      final bytes = Uint8List.fromList([1, 2, 3]);
+    test('toFirebaseAiContent converts $DataPart', () {
+      final data = {'key': 'value'};
       final messages = [
-        ChatMessage.user(
-          '',
-          parts: [ImagePart.fromBytes(bytes, mimeType: 'image/jpeg')],
-        ),
+        UserMessage([DataPart(data)]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
-      // Expect 2 parts because ChatMessage.user('') adds empty TextPart?
-      // Or 1 part if empty text filtering logic exists elsewhere?
-      // Based on my assumption: Index 0 is TextPart(''), Index 1 is ImagePart.
-      // Wait, let's just find the InlineDataPart.
-      final part = result.first.parts
-          .whereType<firebase_ai.InlineDataPart>()
-          .first;
+      final part = result.first.parts.first as firebase_ai.InlineDataPart;
+      expect(part.mimeType, 'application/json');
+      expect(utf8.decode(part.bytes), jsonEncode(data));
+    });
+
+    test('toFirebaseAiContent converts $ImagePart from bytes', () {
+      final bytes = Uint8List.fromList([1, 2, 3]);
+      final messages = [
+        UserMessage([ImagePart.fromBytes(bytes, mimeType: 'image/jpeg')]),
+      ];
+      final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
+        messages,
+      );
+      final part = result.first.parts.first as firebase_ai.InlineDataPart;
       expect(part.mimeType, 'image/jpeg');
       expect(part.bytes, bytes);
     });
 
-    test('toFirebaseAiContent converts ImagePart from base64', () {
+    test('toFirebaseAiContent converts $ImagePart from base64', () {
       const base64String = 'AQID'; // base64 for [1, 2, 3]
       final messages = [
-        ChatMessage.user(
-          '',
-          parts: [
-            const ImagePart.fromBase64(base64String, mimeType: 'image/png'),
-          ],
-        ),
+        UserMessage([
+          const ImagePart.fromBase64(base64String, mimeType: 'image/png'),
+        ]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
-      final part = result.first.parts
-          .whereType<firebase_ai.InlineDataPart>()
-          .first;
+      final part = result.first.parts.first as firebase_ai.InlineDataPart;
       expect(part.mimeType, 'image/png');
       expect(part.bytes, base64.decode(base64String));
     });
 
-    test('toFirebaseAiContent converts ImagePart from URL', () {
+    test('toFirebaseAiContent converts $ImagePart from URL', () {
       final Uri url = Uri.parse('http://example.com/image.jpg');
       final messages = [
-        ChatMessage.user(
-          '',
-          parts: [ImagePart.fromUrl(url, mimeType: 'image/jpeg')],
-        ),
+        UserMessage([ImagePart.fromUrl(url, mimeType: 'image/jpeg')]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
-      // Should find a TextPart with "Image at ..."
-      final parts = result.first.parts.whereType<firebase_ai.TextPart>();
-      // One empty text part (from ''), one from image URL.
-      expect(parts.any((p) => p.text == 'Image at $url'), isTrue);
+      final part = result.first.parts.first as firebase_ai.TextPart;
+      expect(part.text, 'Image at $url');
     });
 
-    test('toFirebaseAiContent converts ToolCall', () {
+    test('toFirebaseAiContent converts $ToolCallPart', () {
       final messages = [
-        ChatMessage.model(
-          '',
-          parts: [
-            const ToolPart.call(
-              callId: 'call1',
-              toolName: 'doSomething',
-              arguments: {'arg': 'value'},
-            ),
-          ],
-        ),
+        AiTextMessage([
+          const ToolCallPart(
+            id: 'call1',
+            toolName: 'doSomething',
+            arguments: {'arg': 'value'},
+          ),
+        ]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
-      // Might have empty TextPart first.
-      final part = result.first.parts
-          .whereType<firebase_ai.FunctionCall>()
-          .first;
+      final part = result.first.parts.first as firebase_ai.FunctionCall;
       expect(part.name, 'doSomething');
       expect(part.args, {'arg': 'value'});
     });
 
-    test('toFirebaseAiContent converts ToolResult', () {
+    test('toFirebaseAiContent converts $ToolResponseMessage', () {
       final messages = [
-        ChatMessage.user(
-          '',
-          parts: [
-            // ToolResultPart -> ToolPart.result
-            // Note: ToolPart.result expects 'result' object.
-            // firebase_vertexai FunctionResponse expects serializable object.
-            const ToolPart.result(
-              callId: 'call1',
-              toolName: 'doSomething',
-              result: {'data': 'ok'},
-            ),
-          ],
-        ),
+        ToolResponseMessage([
+          ToolResultPart(callId: 'call1', result: jsonEncode({'data': 'ok'})),
+        ]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
       expect(result.first.role, 'user');
-      final part = result.first.parts
-          .whereType<firebase_ai.FunctionResponse>()
-          .first;
-      expect(
-        part.name,
-        'doSomething',
-      ); // Note: ToolPart.result in genui has toolName
+      final part = result.first.parts.first as firebase_ai.FunctionResponse;
+      expect(part.name, 'call1');
       expect(part.response, {'data': 'ok'});
     });
 
-    test('toFirebaseAiContent converts ThinkingPart', () {
+    test('toFirebaseAiContent converts $ThinkingPart', () {
       final messages = [
-        ChatMessage.model('', parts: [const ThinkingPart('working on it')]),
+        AiTextMessage([const ThinkingPart('working on it')]),
       ];
       final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
         messages,
       );
-      final parts = result.first.parts.whereType<firebase_ai.TextPart>();
-      expect(parts.any((p) => p.text == 'Thinking: working on it'), isTrue);
+      final part = result.first.parts.first as firebase_ai.TextPart;
+      expect(part.text, 'Thinking: working on it');
     });
 
     test(
       'toFirebaseAiContent handles multiple messages of different types',
       () {
         final List<ChatMessage> messages = [
-          ChatMessage.user('First message'),
-          ChatMessage.model('Second message'),
-          ChatMessage.user('Third message'),
+          UserMessage.text('First message'),
+          AiTextMessage.text('Second message'),
+          UserMessage.text('Third message'),
         ];
         final List<firebase_ai.Content> result = converter.toFirebaseAiContent(
           messages,

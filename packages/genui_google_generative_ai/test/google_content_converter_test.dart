@@ -17,7 +17,7 @@ void main() {
     });
 
     test('toGoogleAiContent converts UserMessage with TextPart', () {
-      final messages = [ChatMessage.user('Hello')];
+      final messages = [UserMessage.text('Hello')];
       final result = converter.toGoogleAiContent(messages);
 
       expect(result, hasLength(1));
@@ -27,7 +27,7 @@ void main() {
     });
 
     test('toGoogleAiContent converts AiTextMessage with TextPart', () {
-      final messages = [ChatMessage.model('Hi there')];
+      final messages = [AiTextMessage.text('Hi there')];
       final result = converter.toGoogleAiContent(messages);
 
       expect(result, hasLength(1));
@@ -38,24 +38,30 @@ void main() {
 
     test('toGoogleAiContent converts AiUiMessage', () {
       final definition = UiDefinition(surfaceId: 'testSurface');
-      final messages = [
-        ChatMessage.model(
-          '',
-          parts: [UiPart(definition: definition, surfaceId: 's1')],
-        ),
-      ];
+      final messages = [AiUiMessage(definition: definition)];
       final result = converter.toGoogleAiContent(messages);
       expect(result, hasLength(1));
       expect(result.first.role, 'model');
     });
 
+    test('toGoogleAiContent skips InternalMessage', () {
+      final messages = [
+        UserMessage.text('Hello'),
+        const InternalMessage('Internal note'),
+        AiTextMessage.text('Response'),
+      ];
+      final result = converter.toGoogleAiContent(messages);
+
+      // Should only have 2 messages (user and ai), internal is skipped
+      expect(result, hasLength(2));
+      expect(result[0].role, 'user');
+      expect(result[1].role, 'model');
+    });
+
     test('toGoogleAiContent converts ImagePart with bytes', () {
       final imageBytes = Uint8List.fromList([1, 2, 3, 4]);
       final messages = [
-        ChatMessage.user(
-          '',
-          parts: [ImagePart.fromBytes(imageBytes, mimeType: 'image/png')],
-        ),
+        UserMessage([ImagePart.fromBytes(imageBytes, mimeType: 'image/png')]),
       ];
       final result = converter.toGoogleAiContent(messages);
 
@@ -68,15 +74,12 @@ void main() {
 
     test('toGoogleAiContent converts ImagePart with URL', () {
       final messages = [
-        ChatMessage.user(
-          '',
-          parts: [
-            ImagePart.fromUrl(
-              Uri.parse('gs://bucket/image.png'),
-              mimeType: 'image/png',
-            ),
-          ],
-        ),
+        UserMessage([
+          ImagePart.fromUrl(
+            Uri.parse('gs://bucket/image.png'),
+            mimeType: 'image/png',
+          ),
+        ]),
       ];
       final result = converter.toGoogleAiContent(messages);
 
@@ -89,16 +92,13 @@ void main() {
 
     test('toGoogleAiContent converts ToolCallPart', () {
       final messages = [
-        ChatMessage.model(
-          '',
-          parts: [
-            const ToolPart.call(
-              callId: 'call-1',
-              toolName: 'calculator',
-              arguments: {'operation': 'add', 'a': 1, 'b': 2},
-            ),
-          ],
-        ),
+        AiTextMessage([
+          const ToolCallPart(
+            id: 'call-1',
+            toolName: 'calculator',
+            arguments: {'operation': 'add', 'a': 1, 'b': 2},
+          ),
+        ]),
       ];
       final result = converter.toGoogleAiContent(messages);
 

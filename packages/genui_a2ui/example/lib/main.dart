@@ -121,7 +121,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    _genUiConversation.sendRequest(ChatMessage.user(text));
+    _genUiConversation.sendRequest(UserMessage.text(text));
   }
 
   void _previousSurface() {
@@ -214,9 +214,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessage(ChatMessage message) {
-    final isUserMessage = message.role == ChatMessageRole.user;
-    var text = message.text;
-
+    final isUserMessage = message is UserMessage;
+    var text = '';
+    if (message is UserMessage) {
+      text = message.text;
+    } else if (message is AiTextMessage) {
+      text = message.text;
+    }
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(

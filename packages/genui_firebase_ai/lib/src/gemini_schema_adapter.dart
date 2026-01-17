@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_vertexai/firebase_vertexai.dart' as firebase_ai;
+import 'package:firebase_ai/firebase_ai.dart' as firebase_ai;
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 /// An error that occurred during schema adaptation.

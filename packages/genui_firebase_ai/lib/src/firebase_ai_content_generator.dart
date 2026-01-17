@@ -5,8 +5,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:firebase_vertexai/firebase_vertexai.dart' as fv;
-import 'package:firebase_vertexai/firebase_vertexai.dart' hide TextPart;
+import 'package:firebase_ai/firebase_ai.dart' hide TextPart;
+// ignore: implementation_imports
+import 'package:firebase_ai/src/api.dart' show ModalityTokenCount;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart' hide Part;
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
@@ -140,7 +141,7 @@ class FirebaseAiContentGenerator implements ContentGenerator {
     ToolConfig? toolConfig,
   }) {
     return GeminiGenerativeModel(
-      FirebaseVertexAI.instance.generativeModel(
+      FirebaseAI.googleAI().generativeModel(
         model: 'gemini-2.5-flash',
         systemInstruction: systemInstruction,
         tools: tools,
@@ -536,37 +537,37 @@ String _usageMetadata(UsageMetadata? metadata) {
   buffer.writeln('  promptTokenCount: ${metadata.promptTokenCount},');
   buffer.writeln('  candidatesTokenCount: ${metadata.candidatesTokenCount},');
   buffer.writeln('  totalTokenCount: ${metadata.totalTokenCount},');
-  // buffer.writeln('  thoughtsTokenCount: ${metadata.thoughtsTokenCount},');
-  // buffer.writeln(
-  //   '  toolUsePromptTokenCount: ${metadata.toolUsePromptTokenCount},',
-  // );
-  // buffer.writeln('  promptTokensDetails: [');
-  // for (final ModalityTokenCount detail
-  //     in metadata.promptTokensDetails ?? <ModalityTokenCount>[]) {
-  //   buffer.writeln('    ModalityTokenCount(');
-  //   buffer.writeln('      modality: ${detail.modality},');
-  //   buffer.writeln('      tokenCount: ${detail.tokenCount},');
-  //   buffer.writeln('    ),');
-  // }
-  // buffer.writeln('  ],');
-  // buffer.writeln('  candidatesTokensDetails: [');
-  // for (final ModalityTokenCount detail
-  //     in metadata.candidatesTokensDetails ?? <ModalityTokenCount>[]) {
-  //   buffer.writeln('    ModalityTokenCount(');
-  //   buffer.writeln('      ${detail.modality},');
-  //   buffer.writeln('      ${detail.tokenCount},');
-  //   buffer.writeln('    ),');
-  // }
-  // buffer.writeln('  ],');
-  // buffer.writeln('  toolUsePromptTokensDetails: [');
-  // for (final ModalityTokenCount detail
-  //     in metadata.toolUsePromptTokensDetails ?? <ModalityTokenCount>[]) {
-  //   buffer.writeln('    ModalityTokenCount(');
-  //   buffer.writeln('      ${detail.modality},');
-  //   buffer.writeln('      ${detail.tokenCount},');
-  //   buffer.writeln('    ),');
-  // }
-  // buffer.writeln('  ],');
+  buffer.writeln('  thoughtsTokenCount: ${metadata.thoughtsTokenCount},');
+  buffer.writeln(
+    '  toolUsePromptTokenCount: ${metadata.toolUsePromptTokenCount},',
+  );
+  buffer.writeln('  promptTokensDetails: [');
+  for (final ModalityTokenCount detail
+      in metadata.promptTokensDetails ?? <ModalityTokenCount>[]) {
+    buffer.writeln('    ModalityTokenCount(');
+    buffer.writeln('      modality: ${detail.modality},');
+    buffer.writeln('      tokenCount: ${detail.tokenCount},');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
+  buffer.writeln('  candidatesTokensDetails: [');
+  for (final ModalityTokenCount detail
+      in metadata.candidatesTokensDetails ?? <ModalityTokenCount>[]) {
+    buffer.writeln('    ModalityTokenCount(');
+    buffer.writeln('      ${detail.modality},');
+    buffer.writeln('      ${detail.tokenCount},');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
+  buffer.writeln('  toolUsePromptTokensDetails: [');
+  for (final ModalityTokenCount detail
+      in metadata.toolUsePromptTokensDetails ?? <ModalityTokenCount>[]) {
+    buffer.writeln('    ModalityTokenCount(');
+    buffer.writeln('      ${detail.modality},');
+    buffer.writeln('      ${detail.tokenCount},');
+    buffer.writeln('    ),');
+  }
+  buffer.writeln('  ],');
   buffer.writeln(')');
   return buffer.toString();
 }
@@ -585,8 +586,10 @@ String _responseToString(GenerateContentResponse response) {
     buffer.writeln('        role: "${candidate.content.role}",');
     buffer.writeln('        parts: [');
     for (final Part part in candidate.content.parts) {
-      if (part is fv.TextPart) {
-        buffer.writeln('          TextPart(text: "${part.text}"),');
+      if (part is TextPart) {
+        buffer.writeln(
+          '          TextPart(text: "${(part as TextPart).text}"),',
+        );
       } else if (part is FunctionCall) {
         buffer.writeln('          FunctionCall(');
         buffer.writeln('            name: "${part.name}",');

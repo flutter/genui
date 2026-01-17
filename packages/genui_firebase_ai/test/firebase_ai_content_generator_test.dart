@@ -1,6 +1,10 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
 
-import 'package:firebase_vertexai/firebase_vertexai.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart' as genui;
 import 'package:genui_firebase_ai/src/firebase_ai_content_generator.dart';
@@ -18,7 +22,7 @@ void main() {
                 GenerateContentResponse([
                   Candidate(
                     Content.model([
-                      FunctionCall('provideFinalOutput', {
+                      const FunctionCall('provideFinalOutput', {
                         'output': {'response': 'Hello'},
                       }),
                     ]),
@@ -34,7 +38,7 @@ void main() {
 
       expect(generator.isProcessing.value, isFalse);
       final Future<void> future = generator.sendRequest(
-        genui.ChatMessage.user('Hi'),
+        genui.UserMessage([const genui.TextPart('Hi')]),
       );
       expect(generator.isProcessing.value, isTrue);
       await future;
@@ -48,7 +52,7 @@ void main() {
           genui.DynamicAiTool<Map<String, Object?>>(
             name: 'testTool',
             description: 'A test tool',
-            parameters: dsb.Schema.object(), // using json_schema_builder Schema
+            parameters: dsb.Schema.object(),
             invokeFunction: (args) async => {'result': 'tool result'},
           ),
         ],
@@ -57,7 +61,7 @@ void main() {
               return FakeGeminiGenerativeModel([
                 GenerateContentResponse([
                   Candidate(
-                    Content.model([FunctionCall('testTool', {})]),
+                    Content.model([const FunctionCall('testTool', {})]),
                     [],
                     null,
                     FinishReason.stop,
@@ -67,7 +71,7 @@ void main() {
                 GenerateContentResponse([
                   Candidate(
                     Content.model([
-                      FunctionCall('provideFinalOutput', {
+                      const FunctionCall('provideFinalOutput', {
                         'output': {'response': 'Tool called'},
                       }),
                     ]),
@@ -81,7 +85,7 @@ void main() {
             },
       );
 
-      final hi = genui.ChatMessage.user('Hi');
+      final hi = genui.UserMessage([const genui.TextPart('Hi')]);
       final completer = Completer<String>();
       unawaited(generator.textResponseStream.first.then(completer.complete));
       await generator.sendRequest(hi);
@@ -98,7 +102,7 @@ void main() {
                 GenerateContentResponse([
                   Candidate(
                     Content.model([
-                      FunctionCall('provideFinalOutput', {
+                      const FunctionCall('provideFinalOutput', {
                         'output': {'response': 'Hello'},
                       }),
                     ]),
@@ -112,7 +116,7 @@ void main() {
             },
       );
 
-      final hi = genui.ChatMessage.user('Hi');
+      final hi = genui.UserMessage([const genui.TextPart('Hi')]);
       final completer = Completer<String>();
       unawaited(generator.textResponseStream.first.then(completer.complete));
       await generator.sendRequest(hi);

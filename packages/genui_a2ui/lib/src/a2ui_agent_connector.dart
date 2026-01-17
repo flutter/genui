@@ -75,7 +75,11 @@ class A2uiAgentConnector {
     genui.ChatMessage chatMessage, {
     genui.A2UiClientCapabilities? clientCapabilities,
   }) async {
-    final List<genui.Part> parts = chatMessage.parts;
+    final List<genui.MessagePart> parts = switch (chatMessage) {
+      genui.UserMessage(parts: final p) => p,
+      genui.UserUiInteractionMessage(parts: final p) => p,
+      _ => <genui.MessagePart>[],
+    };
 
     final message = Message(
       messageId: const Uuid().v4(),
@@ -84,6 +88,8 @@ class A2uiAgentConnector {
         switch (part) {
           case genui.TextPart():
             return Part.text(text: part.text);
+          case genui.DataPart():
+            return Part.data(data: part.data as Map<String, Object?>? ?? {});
           case genui.ImagePart():
             if (part.url != null) {
               return Part.file(
@@ -108,21 +114,6 @@ class A2uiAgentConnector {
                   mimeType: part.mimeType,
                 ),
               );
-            }
-          case genui.UiInteractionPart():
-            try {
-              final data = jsonDecode(part.interaction);
-              if (data is Map<String, Object?>) {
-                return Part.data(data: data);
-              } else {
-                _log.warning(
-                  'UiInteractionPart interaction is not a JSON object',
-                );
-                return const Part.text(text: '[Invalid UI Interaction]');
-              }
-            } catch (e) {
-              _log.warning('Error parsing UiInteractionPart: $e');
-              return const Part.text(text: '[Invalid UI Interaction]');
             }
           default:
             _log.warning('Unknown message part type: ${part.runtimeType}');

@@ -56,7 +56,7 @@ void main() {
       fakeClient.messageStreamHandler = (_) => const Stream.empty();
 
       await connector.connectAndSend(
-        genui.ChatMessage.user('Hi'),
+        genui.UserMessage.text('Hi'),
         clientCapabilities: capabilities,
       );
 
@@ -106,10 +106,10 @@ void main() {
       final messages = <genui.A2uiMessage>[];
       connector.stream.listen(messages.add);
 
-      final userMessage = genui.ChatMessage.user(
-        '',
-        parts: [const genui.TextPart('Hi'), const genui.TextPart('There')],
-      );
+      final userMessage = genui.UserMessage([
+        const genui.TextPart('Hi'),
+        const genui.TextPart('There'),
+      ]);
       final String? responseText = await connector.connectAndSend(userMessage);
 
       expect(responseText, 'Hello');
@@ -137,10 +137,10 @@ void main() {
       fakeClient.messageStreamHandler = (_) => Stream.fromIterable(responses);
 
       await connector.connectAndSend(
-        genui.ChatMessage.user(
-          '',
-          parts: [const genui.TextPart('Hello'), const genui.TextPart('World')],
-        ),
+        genui.UserMessage([
+          const genui.TextPart('Hello'),
+          const genui.TextPart('World'),
+        ]),
       );
 
       expect(fakeClient.messageStreamCalled, 1);
