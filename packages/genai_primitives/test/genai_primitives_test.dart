@@ -367,6 +367,13 @@ void main() {
         expect(reconstructed, isA<ThinkingPart>());
         expect((reconstructed as ThinkingPart).text, equals('thinking'));
       });
+
+      test('fromJson throws with invalid text type', () {
+        expect(
+          () => ThinkingPart.fromJson({'type': 'Thinking', 'text': 123}),
+          throwsA(isA<TypeError>()),
+        );
+      });
     });
 
     group('ToolPart', () {
