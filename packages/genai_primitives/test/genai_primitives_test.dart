@@ -235,6 +235,139 @@ void main() {
         expect(linkPart.name, equals('image'));
       });
     });
+    group('ImagePart', () {
+      final Uint8List bytes = Uint8List.fromList([1, 2, 3]);
+      final String base64 = 'AQID';
+      final Uri uri = Uri.parse('https://example.com/image.png');
+
+      test('fromBytes creation', () {
+        final part = ImagePart.fromBytes(bytes, mimeType: 'image/png');
+        expect(part.bytes, equals(bytes));
+        expect(part.mimeType, equals('image/png'));
+        expect(part.base64, isNull);
+        expect(part.url, isNull);
+      });
+
+      test('fromBase64 creation', () {
+        final part = ImagePart.fromBase64(base64, mimeType: 'image/png');
+        expect(part.base64, equals(base64));
+        expect(part.mimeType, equals('image/png'));
+        expect(part.bytes, isNull);
+        expect(part.url, isNull);
+      });
+
+      test('fromUrl creation', () {
+        final part = ImagePart.fromUrl(uri, mimeType: 'image/png');
+        expect(part.url, equals(uri));
+        expect(part.mimeType, equals('image/png'));
+        expect(part.bytes, isNull);
+        expect(part.base64, isNull);
+      });
+
+      test('equality', () {
+        final part1 = ImagePart.fromBytes(bytes, mimeType: 'image/png');
+        final part2 = ImagePart.fromBytes(bytes, mimeType: 'image/png');
+        final part3 = ImagePart.fromBytes(bytes, mimeType: 'image/jpeg');
+
+        expect(part1, equals(part2));
+        expect(part1.hashCode, equals(part2.hashCode));
+        expect(part1, isNot(equals(part3)));
+      });
+
+      test('JSON serialization (bytes)', () {
+        final part = ImagePart.fromBytes(bytes, mimeType: 'image/png');
+        final Map<String, dynamic> json = part.toJson();
+
+        expect(json['type'], equals('Image'));
+        expect(json['mimeType'], equals('image/png'));
+        expect(json['bytes'], equals(bytes));
+        expect(json['base64'], isNull);
+        expect(json['url'], isNull);
+
+        final reconstructed = Part.fromJson(
+          json,
+          converterRegistry: defaultPartConverterRegistry,
+        );
+        expect(reconstructed, isA<ImagePart>());
+        final imagePart = reconstructed as ImagePart;
+        expect(imagePart.bytes, equals(bytes));
+        expect(imagePart.mimeType, equals('image/png'));
+      });
+
+      test('JSON serialization (base64)', () {
+        final part = ImagePart.fromBase64(base64, mimeType: 'image/png');
+        final Map<String, dynamic> json = part.toJson();
+
+        expect(json['type'], equals('Image'));
+        expect(json['mimeType'], equals('image/png'));
+        expect(json['base64'], equals(base64));
+        expect(json['bytes'], isNull);
+        expect(json['url'], isNull);
+
+        final reconstructed = Part.fromJson(
+          json,
+          converterRegistry: defaultPartConverterRegistry,
+        );
+        expect(reconstructed, isA<ImagePart>());
+        final imagePart = reconstructed as ImagePart;
+        expect(imagePart.base64, equals(base64));
+        expect(imagePart.mimeType, equals('image/png'));
+      });
+
+      test('JSON serialization (url)', () {
+        final part = ImagePart.fromUrl(uri, mimeType: 'image/png');
+        final Map<String, dynamic> json = part.toJson();
+
+        expect(json['type'], equals('Image'));
+        expect(json['mimeType'], equals('image/png'));
+        expect(json['url'], equals(uri.toString()));
+        expect(json['bytes'], isNull);
+        expect(json['base64'], isNull);
+
+        final reconstructed = Part.fromJson(
+          json,
+          converterRegistry: defaultPartConverterRegistry,
+        );
+        expect(reconstructed, isA<ImagePart>());
+        final imagePart = reconstructed as ImagePart;
+        expect(imagePart.url, equals(uri));
+        expect(imagePart.mimeType, equals('image/png'));
+      });
+    });
+
+    group('ThinkingPart', () {
+      test('creation', () {
+        const part = ThinkingPart('thinking process');
+        expect(part.text, equals('thinking process'));
+        expect(
+          part.toString(),
+          contains('ThinkingPart(text: thinking process)'),
+        );
+      });
+
+      test('equality', () {
+        const part1 = ThinkingPart('think');
+        const part2 = ThinkingPart('think');
+        const part3 = ThinkingPart('other');
+
+        expect(part1, equals(part2));
+        expect(part1.hashCode, equals(part2.hashCode));
+        expect(part1, isNot(equals(part3)));
+      });
+
+      test('JSON serialization', () {
+        const part = ThinkingPart('thinking');
+        final Map<String, dynamic> json = part.toJson();
+        expect(json, equals({'type': 'Thinking', 'text': 'thinking'}));
+
+        final reconstructed = Part.fromJson(
+          json,
+          converterRegistry: defaultPartConverterRegistry,
+        );
+        expect(reconstructed, isA<ThinkingPart>());
+        expect((reconstructed as ThinkingPart).text, equals('thinking'));
+      });
+    });
 
     group('ToolPart', () {
       group('Call', () {
