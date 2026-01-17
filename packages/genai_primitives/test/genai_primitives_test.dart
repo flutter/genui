@@ -236,8 +236,8 @@ void main() {
       });
     });
     group('ImagePart', () {
-      final Uint8List bytes = Uint8List.fromList([1, 2, 3]);
-      final String base64 = 'AQID';
+      final bytes = Uint8List.fromList([1, 2, 3]);
+      final base64 = 'AQID';
       final Uri uri = Uri.parse('https://example.com/image.png');
 
       test('fromBytes creation', () {
