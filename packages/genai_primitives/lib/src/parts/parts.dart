@@ -102,10 +102,10 @@ final class Parts extends ListBase<Part> {
 const defaultPartConverterRegistry = <String, JsonToPartConverter>{
   TextPart.type: PartConverter(TextPart.fromJson),
   DataPart.type: PartConverter(DataPart.fromJson),
-  LinkPart.type: PartConverter(LinkPart.fromJson),
-  ToolPart.type: PartConverter(ToolPart.fromJson),
   ImagePart.type: PartConverter(ImagePart.fromJson),
+  LinkPart.type: PartConverter(LinkPart.fromJson),
   ThinkingPart.type: PartConverter(ThinkingPart.fromJson),
+  ToolPart.type: PartConverter(ToolPart.fromJson),
 };
 
 typedef _JsonToPartFunction = Part Function(Map<String, Object?> json);
