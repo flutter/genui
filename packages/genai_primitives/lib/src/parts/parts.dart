@@ -8,7 +8,6 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import 'items.dart';
-export 'items.dart'; // Export items for easier usage
 import 'model.dart';
 
 /// A collection of message parts.
