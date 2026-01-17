@@ -17,7 +17,7 @@ export 'src/core/prompt_fragments.dart';
 export 'src/core/ui_tools.dart';
 export 'src/core/widget_utilities.dart';
 export 'src/development_utilities/catalog_view.dart';
-export 'src/facade/direct_call_integration/model.dart' hide Part;
+export 'src/facade/direct_call_integration/model.dart';
 export 'src/facade/direct_call_integration/utils.dart';
 export 'src/facade/gen_ui_conversation.dart';
 export 'src/facade/widgets/chat_primitives.dart';

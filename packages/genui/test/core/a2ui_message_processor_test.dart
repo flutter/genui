@@ -169,7 +169,8 @@ void main() {
       messageProcessor
           .dataModelForSurface('testSurface')
           .update(DataPath('/myValue'), 'testValue');
-      final Future<ChatMessage> future = messageProcessor.onSubmit.first;
+      final Future<UserUiInteractionMessage> future =
+          messageProcessor.onSubmit.first;
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
@@ -179,13 +180,8 @@ void main() {
         context: {'key': 'value'},
       );
       messageProcessor.handleUiEvent(event);
-      final ChatMessage message = await future;
-      expect(message, isA<ChatMessage>());
-      expect(message.role, ChatMessageRole.user);
-      expect(message.parts.length, 1);
-      final part = message.parts.first;
-      expect(part, isA<UiInteractionPart>());
-
+      final UserUiInteractionMessage message = await future;
+      expect(message, isA<UserUiInteractionMessage>());
       final String expectedJson = jsonEncode({
         'userAction': {
           'surfaceId': 'testSurface',
@@ -196,7 +192,7 @@ void main() {
           'context': {'key': 'value'},
         },
       });
-      expect((part as UiInteractionPart).interaction, expectedJson);
+      expect(message.text, expectedJson);
     });
   });
 }

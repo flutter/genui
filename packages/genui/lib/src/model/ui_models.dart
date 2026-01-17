@@ -103,21 +103,6 @@ class UiDefinition {
     this.styles,
   }) : _components = components;
 
-  /// Creates a [UiDefinition] from a JSON map.
-  factory UiDefinition.fromJson(JsonMap json) {
-    return UiDefinition(
-      surfaceId: json[surfaceIdKey] as String,
-      rootComponentId: json['rootComponentId'] as String?,
-      catalogId: json['catalogId'] as String?,
-      components:
-          (json['components'] as Map<String, dynamic>?)?.map(
-            (key, value) => MapEntry(key, Component.fromJson(value as JsonMap)),
-          ) ??
-          const {},
-      styles: json['styles'] as JsonMap?,
-    );
-  }
-
   /// Creates a copy of this [UiDefinition] with the given fields replaced.
   UiDefinition copyWith({
     String? rootComponentId,
