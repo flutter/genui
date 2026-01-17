@@ -37,9 +37,9 @@ void main() async {
       // options: DefaultFirebaseOptions.currentPlatform,
     );
     await FirebaseAppCheck.instance.activate(
-      appleProvider: AppleProvider.debug,
-      androidProvider: AndroidProvider.debug,
-      webProvider: ReCaptchaV3Provider('debug'),
+      providerApple: const AppleDebugProvider(),
+      providerAndroid: const AndroidDebugProvider(),
+      providerWeb: ReCaptchaV3Provider('debug'),
     );
   }
 

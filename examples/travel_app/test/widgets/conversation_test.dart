@@ -18,19 +18,14 @@ void main() {
     testWidgets('renders a list of messages', (WidgetTester tester) async {
       const surfaceId = 's1';
       final List<ChatMessage> messages = [
-        ChatMessage.user('Hello'),
-        ChatMessage.model(
-          '',
-          parts: [
-            UiPart(
-              surfaceId: surfaceId,
-              definition: UiDefinition(surfaceId: surfaceId),
-            ),
-          ],
+        UserMessage.text('Hello'),
+        AiUiMessage(
+          surfaceId: surfaceId,
+          definition: UiDefinition(surfaceId: surfaceId),
         ),
       ];
       final components = [
-        Component(
+        const Component(
           id: 'r1',
           componentProperties: {
             'Text': {
@@ -60,7 +55,7 @@ void main() {
     });
     testWidgets('renders UserPrompt correctly', (WidgetTester tester) async {
       final messages = [
-        ChatMessage.user('', parts: [const TextPart('Hello')]),
+        UserMessage([const TextPart('Hello')]),
       ];
       await tester.pumpWidget(
         MaterialApp(
@@ -76,18 +71,13 @@ void main() {
     testWidgets('renders UiResponse correctly', (WidgetTester tester) async {
       const surfaceId = 's1';
       final messages = [
-        ChatMessage.model(
-          '',
-          parts: [
-            UiPart(
-              surfaceId: surfaceId,
-              definition: UiDefinition(surfaceId: surfaceId),
-            ),
-          ],
+        AiUiMessage(
+          surfaceId: surfaceId,
+          definition: UiDefinition(surfaceId: surfaceId),
         ),
       ];
       final components = [
-        Component(
+        const Component(
           id: 'root',
           componentProperties: {
             'Text': {
@@ -116,7 +106,7 @@ void main() {
 
     testWidgets('uses custom userPromptBuilder', (WidgetTester tester) async {
       final messages = [
-        ChatMessage.user('', parts: [const TextPart('Hello')]),
+        UserMessage(const [TextPart('Hello')]),
       ];
       await tester.pumpWidget(
         MaterialApp(

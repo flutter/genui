@@ -146,7 +146,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     if (_uiConversation.isProcessing.value || text.trim().isEmpty) return;
     _scrollToBottom();
     _textController.clear();
-    _triggerInference(ChatMessage.user(text));
+    _triggerInference(UserMessage.text(text));
   }
 
   @override

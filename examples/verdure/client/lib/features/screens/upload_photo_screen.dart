@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -112,21 +111,16 @@ class UploadPhotoScreen extends ConsumerWidget {
 
       ref.read(aiProvider).whenData((aiState) {
         aiState.conversation.sendRequest(
-          ChatMessage.user(
-            '',
-            parts: [
-              UiInteractionPart(
-                jsonEncode({
-                  'userAction': {
-                    'name': 'submit_details',
-                    'sourceComponentId': 'upload_button',
-                    'context': <String, Object?>{},
-                  },
-                }),
-              ),
-              ImagePart.fromBytes(bytes, mimeType: mimeType),
-            ],
-          ),
+          UserMessage([
+            const DataPart({
+              'userAction': {
+                'name': 'submit_details',
+                'sourceComponentId': 'upload_button',
+                'context': <String, Object?>{},
+              },
+            }),
+            ImagePart.fromBytes(bytes, mimeType: mimeType),
+          ]),
         );
       });
     }

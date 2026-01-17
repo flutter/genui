@@ -212,7 +212,7 @@ ${GenUiPromptFragments.basicChat}''';
 
     _scrollToBottom();
 
-    unawaited(_genUiConversation.sendRequest(ChatMessage.user(text)));
+    unawaited(_genUiConversation.sendRequest(UserMessage([TextPart(text)])));
   }
 
   void _scrollToBottom() {

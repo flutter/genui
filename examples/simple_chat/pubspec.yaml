@@ -13,7 +13,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  firebase_core:
+  firebase_core: ^4.2.1
   flutter:
     sdk: flutter
   genui: ^0.6.0
