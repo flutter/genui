@@ -52,15 +52,16 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   @override
   void initState() {
     super.initState();
+    final Catalog catalog = widget.catalog;
 
-    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [widget.catalog]);
+    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
     if (widget.onSubmit != null) {
       _subscription = _a2uiMessageProcessor.onSubmit.listen(widget.onSubmit);
     } else {
       _subscription = null;
     }
 
-    for (final CatalogItem item in widget.catalog.items) {
+    for (final CatalogItem item in catalog.items) {
       for (var i = 0; i < item.exampleData.length; i++) {
         final ExampleBuilderCallback exampleBuilder = item.exampleData[i];
         final indexPart = item.exampleData.length > 1 ? '-$i' : '';
@@ -90,7 +91,11 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
             SurfaceUpdate(surfaceId: surfaceId, components: components),
           );
           _a2uiMessageProcessor.handleMessage(
-            BeginRendering(surfaceId: surfaceId, root: rootComponent.id),
+            BeginRendering(
+              surfaceId: surfaceId,
+              root: rootComponent.id,
+              catalogId: catalog.catalogId,
+            ),
           );
           surfaceIds.add(surfaceId);
         } catch (e, s) {
