@@ -2,12 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// A fake implementation of [ContentGenerator] for testing purposes.
-///
-/// This library provides [FakeContentGenerator], which allows tests to
-/// simulate AI responses without making actual API calls.
-library fake_content_generator;
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';

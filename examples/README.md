@@ -121,6 +121,8 @@ verdure/
 **Run Server:**
 ```bash
 cd examples/verdure/server/verdure
+# The following command creates a .env file with your API key.
+# Note: it will overwrite an existing .env file.
 echo "GEMINI_API_KEY=YOUR_API_KEY" > .env
 uv run .
 # Server starts on http://localhost:10002
