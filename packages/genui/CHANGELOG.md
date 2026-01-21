@@ -5,6 +5,7 @@
 - **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
 - **BREAKING**: Renamed `ChatMessageWidget` to `ChatMessageView` and `InternalMessageWidget` to `InternalMessageView` (#661).
 - **Fix**: Pass the correct `catalogId` in `DebugCatalogView` widget (#676).
+- Add standard `example` directory for pub points (#678).
 
 ## 0.6.1
 
