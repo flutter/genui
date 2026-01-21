@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../primitives/simple_items.dart';
 import 'ui_models.dart';
 
 /// A sealed class representing a part of a message.
@@ -227,9 +228,7 @@ final class AiUiMessage extends ChatMessage {
 
       parts = [TextPart(definition.asContextDescriptionText())],
 
-      surfaceId =
-          surfaceId ??
-          ValueKey(DateTime.now().toIso8601String()).hashCode.toString();
+      surfaceId = surfaceId ?? generateId();
 
   /// The JSON definition of the UI.
 

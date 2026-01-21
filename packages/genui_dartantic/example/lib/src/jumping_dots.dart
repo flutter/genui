@@ -55,9 +55,11 @@ class _JumpingDotsState extends State<JumpingDots>
           controller.reverse();
         }
       });
-      await Future.delayed(const Duration(milliseconds: 100)); // Stagger delay
+      await Future<void>.delayed(
+        const Duration(milliseconds: 100),
+      ); // Stagger delay
     }
-    await Future.delayed(
+    await Future<void>.delayed(
       const Duration(milliseconds: 1000),
     ); // Delay between loops
     if (mounted) _startAnimations(); // Loop

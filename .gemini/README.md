@@ -9,7 +9,6 @@ The files in this directory are used to customize the behavior of these tools fo
 
 - **`GEMINI.md`**: Provides project-specific context, instructions, and guidelines that are included in the context when using Gemini CLI and Code Assist. This helps the AI understand the project's conventions and requirements.
 - **`config.yaml`**: Configuration for the Gemini for GitHub tools, such as settings for code review.
-- **`styleguide.md`**: Contains the project's style guide, which is used by the Gemini for Github tools to ensure that generated reviews adhere to the project's conventions.
 - **`commands/`**: A directory containing custom command definitions (e.g., `fix_code.toml`) for the Gemini CLI.
 
 ## Documentation

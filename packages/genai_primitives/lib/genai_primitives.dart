@@ -6,5 +6,7 @@
 library;
 
 export 'src/chat_message.dart';
-export 'src/message_parts.dart';
+export 'src/parts/items.dart';
+export 'src/parts/model.dart';
+export 'src/parts/parts.dart';
 export 'src/tool_definition.dart';

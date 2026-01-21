@@ -1,5 +1,11 @@
 # `genui` Changelog
 
+## 0.7.0 (in progress)
+
+- **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
+- **BREAKING**: Renamed `ChatMessageWidget` to `ChatMessageView` and `InternalMessageWidget` to `InternalMessageView` (#661).
+- **Fix**: Pass the correct `catalogId` in `DebugCatalogView` widget (#676).
+
 ## 0.6.1
 - Moved simple chat example to example so that pub.dev recognizes examples are provided.
 - Documented some variable for better dartcode documentation.

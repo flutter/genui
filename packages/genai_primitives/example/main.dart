@@ -3,12 +3,22 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+import 'dart:core';
+import 'dart:core' as core;
 import 'dart:typed_data';
 
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-void main() {
+void main({void Function(Object?)? output}) {
+  void print(Object? object) {
+    if (output != null) {
+      output(object);
+    } else {
+      core.print(object);
+    }
+  }
+
   print('--- GenAI Primitives Example ---');
 
   // 1. Define a Tool

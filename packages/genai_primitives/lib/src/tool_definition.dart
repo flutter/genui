@@ -4,6 +4,12 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+final class _Json {
+  static const name = 'name';
+  static const description = 'description';
+  static const inputSchema = 'inputSchema';
+}
+
 /// A tool that can be called by the LLM.
 class ToolDefinition<TInput extends Object> {
   /// Creates a [ToolDefinition].
@@ -15,8 +21,26 @@ class ToolDefinition<TInput extends Object> {
            inputSchema ??
            Schema.fromMap({
              'type': 'object',
-             'properties': <String, dynamic>{},
+             'properties': <String, Object?>{},
            });
+
+  /// Deserializes a tool from a JSON map.
+  factory ToolDefinition.fromJson(Map<String, Object?> json) {
+    return ToolDefinition(
+      name: json[_Json.name] as String,
+      description: json[_Json.description] as String,
+      inputSchema: Schema.fromMap(
+        json[_Json.inputSchema] as Map<String, Object?>,
+      ),
+    );
+  }
+
+  /// Serializes the tool to a JSON map.
+  Map<String, Object?> toJson() => {
+    _Json.name: name,
+    _Json.description: description,
+    _Json.inputSchema: inputSchema.value,
+  };
 
   /// The unique name of the tool that clearly communicates its purpose.
   final String name;
@@ -28,11 +52,4 @@ class ToolDefinition<TInput extends Object> {
   /// Schema to parse and validate tool's input arguments. Following the [JSON
   /// Schema specification](https://json-schema.org).
   final Schema inputSchema;
-
-  /// Converts the tool to a JSON-serializable map.
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'description': description,
-    'inputSchema': inputSchema.value,
-  };
 }

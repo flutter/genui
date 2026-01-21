@@ -1,5 +1,7 @@
 # `genui_google_generative_ai` Changelog
 
+## 0.6.2 (in progress)
+
 ## 0.6.1
 
 - **Fix**: Ensure bytes are not null when creating Blob in content converter.

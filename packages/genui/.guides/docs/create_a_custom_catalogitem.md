@@ -8,14 +8,13 @@ description: |
 Follow these steps to create your own, custom widgets and make them available
 to the agent for generation.
 
-## 1. Import `json_schema_builder`
+## 1. Depend on `json_schema_builder`
 
-Add the `json_schema_builder` package as a dependency in `pubspec.yaml`. Use the
-same commit reference as the one for `genui`.
+Use `flutter pub add` to add `json_schema_builder` as a dependency in
+your `pubspec.yaml` file:
 
-```yaml
-dependencies:
-  json_schema_builder: ^0.1.3
+```bash
+flutter pub add json_schema_builder
 ```
 
 ## 2. Create the new widget's schema
