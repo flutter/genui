@@ -16,9 +16,7 @@ void main() {
       ], catalogId: 'some-catalog-id-for-testing');
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: DebugCatalogView(catalog: testCatalog),
-        ),
+        MaterialApp(home: DebugCatalogView(catalog: testCatalog)),
       );
 
       expect(find.text(expectedText), findsOneWidget);
