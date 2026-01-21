@@ -1,6 +1,7 @@
 // Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,25 +27,23 @@ void main() {
 
 /// Returns a simple fork of the core Text catalog item that renders the
 /// incoming [successMessage].
-CatalogItem getCatalogItemForTesting(String successMessage) => CatalogItem(
-  name: 'TextForTesting',
-  dataSchema: CoreCatalogItems.text.dataSchema,
-  widgetBuilder: CoreCatalogItems.text.widgetBuilder,
-  exampleData: [
-    () =>
-        '''
-      [
+CatalogItem getCatalogItemForTesting(String successMessage) {
+  final catalogItemName = 'TextForTesting';
+  return CatalogItem(
+    name: catalogItemName,
+    dataSchema: CoreCatalogItems.text.dataSchema,
+    widgetBuilder: CoreCatalogItems.text.widgetBuilder,
+    exampleData: [
+      () => jsonEncode([
         {
-          "id": "root",
-          "component": {
-            "TextForTesting": {
-              "text": {
-                "literalString": "$successMessage"
-              }
-            }
-          }
-        }
-      ]
-    ''',
-  ],
-);
+          'id': 'root',
+          'component': {
+            catalogItemName: {
+              'text': {'literalString': successMessage},
+            },
+          },
+        },
+      ]),
+    ],
+  );
+}
