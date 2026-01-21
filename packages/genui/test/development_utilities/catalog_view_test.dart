@@ -12,7 +12,7 @@ void main() {
     testWidgets('Renders a custom Catalog', (WidgetTester tester) async {
       final expectedText = 'This Test Is Working!!';
       final testCatalog = Catalog([
-        getTextForTesting(expectedText),
+        getCatalogItemForTesting(expectedText),
       ], catalogId: 'some-catalog-id-for-testing');
 
       await tester.pumpWidget(
@@ -28,7 +28,7 @@ void main() {
 
 /// Returns a simple fork of the core Text catalog item that renders the
 /// incoming [successMessage].
-CatalogItem getTextForTesting(String successMessage) => CatalogItem(
+CatalogItem getCatalogItemForTesting(String successMessage) => CatalogItem(
   name: 'TextForTesting',
   dataSchema: CoreCatalogItems.text.dataSchema,
   widgetBuilder: CoreCatalogItems.text.widgetBuilder,
