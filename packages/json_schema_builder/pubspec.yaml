@@ -18,6 +18,7 @@ dependencies:
   args: ^2.7.0
   characters: ^1.4.0
   collection: ^1.19.1
+  convert: ^3.1.2
   decimal: ^3.2.4
   email_validator: ^3.0.0
   http: ^1.6.0
