@@ -6,7 +6,7 @@
 
 ## 0.1.0
 
-- **Feature**: Differentiate Part(sealed) and BasePart(extendable) (#680).
+- **BREAKING**: Differentiate Part(sealed) and BasePart(extendable) (#680).
 
 ## 0.0.1
 
