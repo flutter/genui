@@ -8,7 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import 'model.dart';
-import 'part.dart';
+import 'standard_part.dart';
 
 /// A collection of parts.
 @immutable
