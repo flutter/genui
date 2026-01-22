@@ -2,7 +2,7 @@
 
 ## 0.2.0
 
-- **BREAKING**: Rename Part to StandardPart (#683).
+- **BREAKING**: Rename Part to StandardPart and BasePart to Part (#683).
 
 ## 0.1.0
 
