@@ -12,7 +12,7 @@ import 'standard_part.dart';
 
 /// A collection of parts.
 @immutable
-final class Parts extends ListBase<BasePart> {
+final class Parts extends ListBase<Part> {
   /// Creates a new collection of parts.
   const Parts(this._parts);
 
@@ -20,7 +20,7 @@ final class Parts extends ListBase<BasePart> {
   ///
   /// If [text] is not empty, converts it to a [TextPart] and puts it as a
   /// first member of the [parts] list.
-  factory Parts.fromText(String text, {Iterable<BasePart> parts = const []}) =>
+  factory Parts.fromText(String text, {Iterable<Part> parts = const []}) =>
       text.isEmpty ? Parts(parts.toList()) : Parts([TextPart(text), ...parts]);
 
   /// Deserializes parts from a JSON list.
@@ -32,7 +32,7 @@ final class Parts extends ListBase<BasePart> {
     return Parts(
       json
           .map(
-            (e) => BasePart.fromJson(
+            (e) => Part.fromJson(
               e as Map<String, Object?>,
               converterRegistry: converterRegistry,
             ),
@@ -41,7 +41,7 @@ final class Parts extends ListBase<BasePart> {
     );
   }
 
-  final List<BasePart> _parts;
+  final List<Part> _parts;
 
   @override
   int get length => _parts.length;
@@ -50,10 +50,10 @@ final class Parts extends ListBase<BasePart> {
   set length(int newLength) => throw UnsupportedError('Parts is immutable');
 
   @override
-  BasePart operator [](int index) => _parts[index];
+  Part operator [](int index) => _parts[index];
 
   @override
-  void operator []=(int index, BasePart value) =>
+  void operator []=(int index, Part value) =>
       throw UnsupportedError('Parts is immutable');
 
   /// Serializes parts to a JSON list.

@@ -68,7 +68,7 @@ void main() {
 
     test('fromJson throws on unknown type', () {
       expect(
-        () => BasePart.fromJson({
+        () => Part.fromJson({
           'type': 'Unknown',
           'content': '',
         }, converterRegistry: defaultPartConverterRegistry),
@@ -100,7 +100,7 @@ void main() {
         final Map<String, dynamic> json = part.toJson();
         expect(json, equals({'type': 'Text', 'content': 'hello'}));
 
-        final reconstructed = BasePart.fromJson(
+        final reconstructed = Part.fromJson(
           json,
           converterRegistry: defaultPartConverterRegistry,
         );
@@ -139,7 +139,7 @@ void main() {
         expect(content['name'], equals('test.png'));
         expect(content['bytes'], startsWith('data:image/png;base64,'));
 
-        final reconstructed = BasePart.fromJson(
+        final reconstructed = Part.fromJson(
           json,
           converterRegistry: defaultPartConverterRegistry,
         );
@@ -224,7 +224,7 @@ void main() {
         expect(content['mimeType'], equals('image/png'));
         expect(content['name'], equals('image'));
 
-        final reconstructed = BasePart.fromJson(
+        final reconstructed = Part.fromJson(
           json,
           converterRegistry: defaultPartConverterRegistry,
         );
@@ -269,7 +269,7 @@ void main() {
             isNull,
           ); // Ensures result is not present or null
 
-          final reconstructed = BasePart.fromJson(
+          final reconstructed = Part.fromJson(
             json,
             converterRegistry: defaultPartConverterRegistry,
           );
@@ -345,7 +345,7 @@ void main() {
           expect(content['name'], equals('get_weather'));
           expect(content['result'], equals({'temp': 20}));
 
-          final reconstructed = BasePart.fromJson(
+          final reconstructed = Part.fromJson(
             json,
             converterRegistry: defaultPartConverterRegistry,
           );

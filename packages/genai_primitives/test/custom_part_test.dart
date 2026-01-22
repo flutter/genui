@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:test/test.dart';
 
-base class CustomPart extends BasePart {
+base class CustomPart extends Part {
   final String customField;
 
   const CustomPart(this.customField);
@@ -31,11 +31,11 @@ base class CustomPart extends BasePart {
   String toString() => 'CustomPart($customField)';
 }
 
-class CustomPartConverter extends Converter<Map<String, Object?>, BasePart> {
+class CustomPartConverter extends Converter<Map<String, Object?>, Part> {
   const CustomPartConverter();
 
   @override
-  BasePart convert(Map<String, Object?> input) {
+  Part convert(Map<String, Object?> input) {
     if (input['type'] == 'Custom') {
       final content = input['content'] as Map<String, Object?>;
       return CustomPart(content['customField'] as String);
@@ -58,7 +58,7 @@ void main() {
       );
 
       // Deserialize using Part.fromJson with customConverter
-      final reconstructedPart = BasePart.fromJson(
+      final reconstructedPart = Part.fromJson(
         json,
         converterRegistry: {'Custom': const CustomPartConverter()},
       );
@@ -78,7 +78,7 @@ void main() {
       };
 
       expect(
-        () => BasePart.fromJson(
+        () => Part.fromJson(
           json,
           converterRegistry: defaultPartConverterRegistry,
         ),
@@ -91,7 +91,7 @@ void main() {
       final Map<String, Object?> json = textPart.toJson();
 
       // Should still work for standard parts
-      final reconstructed = BasePart.fromJson(
+      final reconstructed = Part.fromJson(
         json,
         converterRegistry: {
           ...defaultPartConverterRegistry,

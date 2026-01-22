@@ -24,7 +24,7 @@ import 'model.dart';
 ///
 /// To limit supported part types, or to remove support for part types
 /// in future versions of `genai_primitives`, define a new map.
-const Map<String, JsonToPartConverter<BasePart>> defaultPartConverterRegistry =
+const Map<String, JsonToPartConverter<Part>> defaultPartConverterRegistry =
     _standardPartConverterRegistry;
 
 const _standardPartConverterRegistry =
@@ -39,12 +39,12 @@ const _standardPartConverterRegistry =
 /// Base class for parts that became de-facto standard for AI messages.
 ///
 /// It is sealed to prevent extensions.
-sealed class StandardPart extends BasePart {
+sealed class StandardPart extends Part {
   const StandardPart();
 
   /// Deserializes a part from a JSON map.
   factory StandardPart.fromJson(Map<String, Object?> json) {
-    final type = json[BasePart.typeKey] as String;
+    final type = json[Part.typeKey] as String;
     final JsonToPartConverter<StandardPart> converter =
         _standardPartConverterRegistry[type]!;
     return converter.convert(json);
@@ -79,10 +79,7 @@ final class TextPart extends StandardPart {
   }
 
   @override
-  Map<String, Object?> toJson() => {
-    BasePart.typeKey: type,
-    _Json.content: text,
-  };
+  Map<String, Object?> toJson() => {Part.typeKey: type, _Json.content: text};
 
   @override
   bool operator ==(Object other) {
@@ -158,7 +155,7 @@ final class DataPart extends StandardPart {
 
   @override
   Map<String, Object?> toJson() => {
-    BasePart.typeKey: type,
+    Part.typeKey: type,
     _Json.content: {
       if (name != null) _Json.name: name,
       _Json.mimeType: mimeType,
@@ -242,7 +239,7 @@ final class LinkPart extends StandardPart {
 
   @override
   Map<String, Object?> toJson() => {
-    BasePart.typeKey: type,
+    Part.typeKey: type,
     _Json.content: {
       if (name != null) _Json.name: name,
       if (mimeType != null) _Json.mimeType: mimeType,
@@ -327,7 +324,7 @@ final class ToolPart extends StandardPart {
 
   @override
   Map<String, Object?> toJson() => {
-    BasePart.typeKey: type,
+    Part.typeKey: type,
     _Json.content: {
       _Json.id: callId,
       _Json.name: toolName,
@@ -397,10 +394,7 @@ final class ThinkingPart extends StandardPart {
   }
 
   @override
-  Map<String, Object?> toJson() => {
-    BasePart.typeKey: type,
-    _Json.content: text,
-  };
+  Map<String, Object?> toJson() => {Part.typeKey: type, _Json.content: text};
 
   @override
   bool operator ==(Object other) {
