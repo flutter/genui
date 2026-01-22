@@ -173,7 +173,7 @@ void main() {
         [],
         strictFormat: true,
       );
-      expectFailuresMatch(schema, 'not-a-date', [
+      expectFailuresMatch(schema, 'not-a-date-time', [
         ValidationErrorType.formatInvalid,
       ], strictFormat: true);
     });
@@ -191,7 +191,7 @@ void main() {
       expectFailuresMatch(schema, '12:34:56Z', [], strictFormat: true);
       expectFailuresMatch(schema, '12:34:56.123Z', [], strictFormat: true);
       expectFailuresMatch(schema, '12:34:56+01:00', [], strictFormat: true);
-      expectFailuresMatch(schema, 'not-a-date', [
+      expectFailuresMatch(schema, 'not-a-time', [
         ValidationErrorType.formatInvalid,
       ], strictFormat: true);
     });
