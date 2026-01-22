@@ -5,8 +5,8 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import 'parts/standard_part.dart';
 import 'parts/parts.dart';
+import 'parts/standard_part.dart';
 
 final class _Json {
   static const parts = 'parts';
