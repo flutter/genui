@@ -25,9 +25,9 @@ import 'model.dart';
 /// To limit supported part types, or to remove support for part types
 /// in future versions of `genai_primitives`, define a new map.
 const Map<String, JsonToPartConverter<BasePart>> defaultPartConverterRegistry =
-    _sealedPartConverterRegistry;
+    _standardPartConverterRegistry;
 
-const _sealedPartConverterRegistry =
+const _standardPartConverterRegistry =
     <String, JsonToPartConverter<StandardPart>>{
       TextPart.type: PartConverter(TextPart.fromJson),
       DataPart.type: PartConverter(DataPart.fromJson),
@@ -46,7 +46,7 @@ sealed class StandardPart extends BasePart {
   factory StandardPart.fromJson(Map<String, Object?> json) {
     final type = json[BasePart.typeKey] as String;
     final JsonToPartConverter<StandardPart> converter =
-        _sealedPartConverterRegistry[type]!;
+        _standardPartConverterRegistry[type]!;
     return converter.convert(json);
   }
 }
