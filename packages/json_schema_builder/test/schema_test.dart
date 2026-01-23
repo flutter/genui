@@ -173,6 +173,12 @@ void main() {
         [],
         strictFormat: true,
       );
+      expectFailuresMatch(schema, '2025-07-29', [
+        ValidationErrorType.formatInvalid,
+      ], strictFormat: true);
+      expectFailuresMatch(schema, '12:34:56Z', [
+        ValidationErrorType.formatInvalid,
+      ], strictFormat: true);
       expectFailuresMatch(schema, 'not-a-date-time', [
         ValidationErrorType.formatInvalid,
       ], strictFormat: true);
