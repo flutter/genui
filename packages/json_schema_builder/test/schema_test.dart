@@ -181,6 +181,9 @@ void main() {
     test('format: date', () {
       final schema = StringSchema(format: 'date');
       expectFailuresMatch(schema, '2025-07-29', [], strictFormat: true);
+      expectFailuresMatch(schema, '12:34:56', [
+        ValidationErrorType.formatInvalid,
+      ], strictFormat: true);
       expectFailuresMatch(schema, 'not-a-date', [
         ValidationErrorType.formatInvalid,
       ], strictFormat: true);
@@ -191,6 +194,9 @@ void main() {
       expectFailuresMatch(schema, '12:34:56Z', [], strictFormat: true);
       expectFailuresMatch(schema, '12:34:56.123Z', [], strictFormat: true);
       expectFailuresMatch(schema, '12:34:56+01:00', [], strictFormat: true);
+      expectFailuresMatch(schema, '1234-12-31', [
+        ValidationErrorType.formatInvalid,
+      ], strictFormat: true);
       expectFailuresMatch(schema, 'not-a-time', [
         ValidationErrorType.formatInvalid,
       ], strictFormat: true);
