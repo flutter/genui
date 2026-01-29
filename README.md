@@ -133,7 +133,7 @@ The Flutter Gen UI SDK currently supports A2UI v0.8.
 
 ### AI Coding Agents
 
-If you use the Gemini CLI, use [**Dotguides**](https://github.com/google/dotguides) to guide it to generate the correct code for `genui`.
+If you use the Gemini CLI or other LLM coding agents, use [**Dotguides**](https://github.com/google/dotguides) to guide it to generate the correct code for `genui`.
 
 1.  **Install the CLI:** `npm install -g dotguides`
 2.  **Run the setup:** Navigate to `packages/genui/` and run `dotguides up` (currently the only package with guidance).
