@@ -9,10 +9,7 @@ import 'tools.dart';
 
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
-class A2uiSchemas {
-  /// This class is not meant to be instantiated.
-  A2uiSchemas._();
-
+abstract final class A2uiSchemas {
   /// Schema for a value that can be either a literal string or a
   /// data-bound path to a string in the DataModel. If both path and
   /// literal are provided, the value at the path will be initialized
