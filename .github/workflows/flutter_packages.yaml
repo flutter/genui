@@ -95,7 +95,7 @@ jobs:
   analyze_and_test:
     needs: matrix
     # Only run if the matrix job has produced a non-empty matrix.
-    if: github.repository == 'flutter/genui' && ${{ needs.matrix.outputs.matrix != '[]' }}
+    if: github.repository == 'flutter/genui' && needs.matrix.outputs.matrix != '[]'
     name: ${{ matrix.package.name }} (${{ matrix.flutter_version }})
     runs-on: ${{ matrix.os }}
     strategy:

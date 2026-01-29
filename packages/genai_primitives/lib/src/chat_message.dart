@@ -5,9 +5,8 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import 'parts/items.dart';
-import 'parts/model.dart';
 import 'parts/parts.dart';
+import 'parts/standard_part.dart';
 
 final class _Json {
   static const parts = 'parts';
@@ -27,26 +26,34 @@ final class ChatMessage {
   ///
   /// If there is more than one part of type [TextPart], the [text] property
   /// will be a concatenation of all of them.
-  const ChatMessage({
+  ChatMessage({
     required this.role,
-    this.parts = const Parts([]),
+    this.parts = const [],
     this.metadata = const {},
   });
+
+  static List<StandardPart> _partsFromText(
+    String text, {
+    required List<StandardPart> parts,
+  }) {
+    if (text.isEmpty) return parts;
+    return [TextPart(text), ...parts];
+  }
 
   /// Creates a system message.
   ///
   /// If [text] is not empty, converts it to a [TextPart] and puts it as a
   /// first member of the [parts] list.
   ///
-  /// [parts] may contain any type of [Part], including additional
+  /// [parts] may contain any type of [StandardPart], including additional
   /// instances of [TextPart].
   ChatMessage.system(
     String text, {
-    List<Part> parts = const [],
+    List<StandardPart> parts = const [],
     Map<String, Object?> metadata = const {},
   }) : this(
          role: ChatMessageRole.system,
-         parts: Parts.fromText(text, parts: parts),
+         parts: _partsFromText(text, parts: parts),
          metadata: metadata,
        );
 
@@ -55,15 +62,15 @@ final class ChatMessage {
   /// If [text] is not empty, converts it to a [TextPart] and puts it as a
   /// first member of the [parts] list.
   ///
-  /// [parts] may contain any type of [Part], including additional
+  /// [parts] may contain any type of [StandardPart], including additional
   /// instances of [TextPart].
   ChatMessage.user(
     String text, {
-    List<Part> parts = const [],
+    List<StandardPart> parts = const [],
     Map<String, Object?> metadata = const {},
   }) : this(
          role: ChatMessageRole.user,
-         parts: Parts.fromText(text, parts: parts),
+         parts: _partsFromText(text, parts: parts),
          metadata: metadata,
        );
 
@@ -72,43 +79,38 @@ final class ChatMessage {
   /// If [text] is not empty, converts it to a [TextPart] and puts it as a
   /// first member of the [parts] list.
   ///
-  /// [parts] may contain any type of [Part], including additional
+  /// [parts] may contain any type of [StandardPart], including additional
   /// instances of [TextPart].
   ChatMessage.model(
     String text, {
-    List<Part> parts = const [],
+    List<StandardPart> parts = const [],
     Map<String, Object?> metadata = const {},
   }) : this(
          role: ChatMessageRole.model,
-         parts: Parts.fromText(text, parts: parts),
+         parts: _partsFromText(text, parts: parts),
          metadata: metadata,
        );
 
   /// Deserializes a message.
   ///
   /// The message is compatible with [toJson].
-  ///
-  /// The [converterRegistry] parameter is a map of part types to converters.
-  /// If the registry is not provided, [defaultPartConverterRegistry] is used.
-  ///
-  /// If you do not need to deserialize custom part types, you can omit the
-  /// [converterRegistry] parameter.
-  factory ChatMessage.fromJson(
-    Map<String, Object?> json, {
-    Map<String, JsonToPartConverter> converterRegistry =
-        defaultPartConverterRegistry,
-  }) => ChatMessage(
-    role: ChatMessageRole.values.byName(json[_Json.role] as String),
-    parts: Parts.fromJson(
-      json[_Json.parts] as List<Object?>,
-      converterRegistry: converterRegistry,
-    ),
-    metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
-  );
+  factory ChatMessage.fromJson(Map<String, Object?> json) {
+    final List<StandardPart> parts =
+        (json[_Json.parts] as List<Object?>?)
+            ?.map((e) => StandardPart.fromJson(e as Map<String, Object?>))
+            .toList() ??
+        const [];
+
+    return ChatMessage(
+      role: ChatMessageRole.values.byName(json[_Json.role] as String),
+      parts: parts,
+      metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
+    );
+  }
 
   /// Serializes the message to JSON.
   Map<String, Object?> toJson() => {
-    _Json.parts: parts.toJson(),
+    _Json.parts: Parts(parts).toJson(),
     _Json.metadata: metadata,
     _Json.role: role.name,
   };
@@ -117,7 +119,8 @@ final class ChatMessage {
   final ChatMessageRole role;
 
   /// The content parts of the message.
-  final Parts parts;
+  final List<StandardPart> parts;
+  late final _parts = Parts(parts);
 
   /// Optional metadata associated with this message.
   ///
@@ -125,19 +128,19 @@ final class ChatMessage {
   final Map<String, Object?> metadata;
 
   /// Concatenated [TextPart] parts.
-  String get text => parts.text;
+  String get text => _parts.text;
 
   /// Whether this message contains any tool calls.
-  bool get hasToolCalls => parts.toolCalls.isNotEmpty;
+  bool get hasToolCalls => _parts.toolCalls.isNotEmpty;
 
   /// Gets all tool calls in this message.
-  List<ToolPart> get toolCalls => parts.toolCalls;
+  List<ToolPart> get toolCalls => _parts.toolCalls;
 
   /// Whether this message contains any tool results.
-  bool get hasToolResults => parts.toolResults.isNotEmpty;
+  bool get hasToolResults => _parts.toolResults.isNotEmpty;
 
   /// Gets all tool results in this message.
-  List<ToolPart> get toolResults => parts.toolResults;
+  List<ToolPart> get toolResults => _parts.toolResults;
 
   @override
   bool operator ==(Object other) {

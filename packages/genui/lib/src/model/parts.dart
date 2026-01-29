@@ -5,15 +5,13 @@
 import 'package:genai_primitives/genai_primitives.dart';
 
 import 'parts/image.dart';
-import 'parts/thinking.dart';
 import 'parts/ui.dart';
 export 'parts/image.dart';
-export 'parts/thinking.dart';
 export 'parts/ui.dart';
 
 final _genuiPartConverterRegistry = <String, JsonToPartConverter>{
   ImagePart.type: const PartConverter(ImagePart.fromJson),
-  ThinkingPart.type: const PartConverter(ThinkingPart.fromJson),
+  UiInteractionPart.type: const PartConverter(UiInteractionPart.fromJson),
   UiPart.type: const PartConverter(UiPart.fromJson),
   ...defaultPartConverterRegistry,
 };

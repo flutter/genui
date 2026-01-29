@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport '../parts/parts.dart';
+/// @docImport 'standard_part.dart';
 library;
 
 import 'dart:convert';
@@ -55,4 +55,20 @@ abstract base class Part {
   Map<String, Object?> toJson();
 }
 
-typedef JsonToPartConverter = Converter<Map<String, Object?>, Part>;
+typedef JsonToPartConverter<T extends Part> =
+    Converter<Map<String, Object?>, T>;
+
+typedef _JsonToPartFunction<T> = T Function(Map<String, Object?> json);
+
+/// A converter that converts a JSON map to a [Part].
+@visibleForTesting
+class PartConverter<T extends Part> extends JsonToPartConverter<T> {
+  const PartConverter(this._function);
+
+  final _JsonToPartFunction<T> _function;
+
+  @override
+  T convert(Map<String, Object?> input) {
+    return _function(input);
+  }
+}

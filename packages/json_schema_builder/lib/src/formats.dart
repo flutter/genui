@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:email_validator/email_validator.dart';
-import 'package:intl/intl.dart';
 
 /// A function that validates a string against a format.
 ///
@@ -13,31 +12,13 @@ typedef FormatValidator = bool Function(String);
 /// A map of format names to their validation functions.
 ///
 /// This is used to validate string formats like 'date-time', 'email', etc.
+///
+/// Note: the field `Duration` is not supported.
 final Map<String, FormatValidator> formatValidators = {
-  'date-time': (value) {
-    try {
-      DateTime.parse(value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
-  'date': (value) {
-    try {
-      DateFormat('yyyy-MM-dd').parseStrict(value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
-  'time': (value) {
-    try {
-      DateFormat('HH:mm:ss').parseStrict(value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  },
+  'date-time': (value) =>
+      DateTime.tryParse(value) != null && !_isDate(value) && !_isTime(value),
+  'date': _isDate,
+  'time': _isTime,
   'email': EmailValidator.validate,
   'ipv4': (value) {
     final List<String> parts = value.split('.');
@@ -56,3 +37,7 @@ final Map<String, FormatValidator> formatValidators = {
     }
   },
 };
+
+bool _isTime(String value) => DateTime.tryParse('0000-01-01T$value') != null;
+
+bool _isDate(String value) => DateTime.tryParse('${value}T00:00:00Z') != null;

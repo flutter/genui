@@ -4,14 +4,13 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:intl/intl.dart';
+import 'package:convert/convert.dart';
 
 int _i = 100;
 
-final _formatter = DateFormat('yyyy-MM-dd_HH_mm_ss');
-
 void debugSaveToFile(String name, String content, {String extension = 'txt'}) {
-  final dirName = 'debug/${_formatter.format(DateTime.now())}';
+  final dirName =
+      'debug/${FixedDateTimeFormatter('YYYY-MM-DD_hh_mm_ss').encode(DateTime.now())}';
   final directory = Directory(dirName);
   if (!directory.existsSync()) {
     directory.createSync(recursive: true);
