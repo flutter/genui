@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
 class MessageController {
-  MessageController({this.text, this.surfaceId})
+  MessageController({this.text, this.surfaceId, this.isUser = false})
     : assert((surfaceId == null) != (text == null));
 
-  final String? text;
+  String? text;
   final String? surfaceId;
+  final bool isUser;
 }
 
 class MessageView extends StatelessWidget {

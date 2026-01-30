@@ -10,15 +10,25 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
-  properties: {'child': A2uiSchemas.componentReference()},
-  required: ['child'],
+  properties: {
+    'component': S.string(enumValues: ['Card']),
+    'child': A2uiSchemas.componentReference(),
+  },
+  required: ['component', 'child'],
 );
 
 extension type _CardData.fromMap(JsonMap _json) {
   factory _CardData({required String child}) =>
       _CardData.fromMap({'child': child});
 
-  String get child => _json['child'] as String;
+  String get child {
+    final Object? val = _json['child'];
+    if (val is String) return val;
+    if (val is JsonMap && val.containsKey('literalString')) {
+      return val['literalString'] as String;
+    }
+    throw ArgumentError('Invalid child: $val');
+  }
 }
 
 /// A catalog item representing a Material Design card.
@@ -48,21 +58,13 @@ final card = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Card": {
-              "child": "text"
-            }
-          }
+          "component": "Card",
+          "child": "text"
         },
         {
           "id": "text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is a card."
-              }
-            }
-          }
+          "component": "Text",
+          "text": "This is a card."
         }
       ]
     ''',

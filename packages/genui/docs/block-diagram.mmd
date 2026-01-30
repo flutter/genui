@@ -1,0 +1,25 @@
+graph TD
+    subgraph "User"
+        UserInput("Provide Prompt")
+        UserInteraction("Interact with UI")
+    end
+
+    subgraph "GenUI Framework"
+        GenUiConversation("GenUiConversation")
+        GenUiController("GenUiController")
+        MessageProcessor("A2uiMessageProcessor")
+        Transformer("A2uiParserTransformer")
+        GenUiSurface("GenUiSurface")
+    end
+
+    UserInput -- "calls sendRequest()" --> GenUiConversation;
+    GenUiConversation -- "calls onSend" --> ExternalLLM[External LLM];
+    ExternalLLM -- "returns chunks" --> GenUiController;
+    GenUiController -- "pipes to" --> Transformer;
+    Transformer -- "parses events" --> MessageProcessor;
+    MessageProcessor -- "updates state" --> GenUiSurface;
+    GenUiSurface -- "renders UI" --> UserInteraction;
+    UserInteraction -- "creates event" --> MessageProcessor;
+    MessageProcessor -- "emits client event" --> GenUiController;
+    GenUiController -- "forwards event" --> GenUiConversation;
+    GenUiConversation -- "loops back" --> ExternalLLM;

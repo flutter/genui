@@ -78,9 +78,20 @@ class ComponentChildrenBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String>? explicitList = (childrenData is List)
-        ? (childrenData as List).cast<String>()
-        : ((childrenData as JsonMap?)?['explicitList'] as List?)
-              ?.cast<String>();
+        ? (childrenData as List).map((e) {
+            if (e is String) return e;
+            if (e is Map && e.containsKey('literalString')) {
+              return e['literalString'] as String;
+            }
+            return e.toString();
+          }).toList()
+        : ((childrenData as JsonMap?)?['explicitList'] as List?)?.map((e) {
+            if (e is String) return e;
+            if (e is Map && e.containsKey('literalString')) {
+              return e['literalString'] as String;
+            }
+            return e.toString();
+          }).toList();
 
     if (explicitList != null) {
       return explicitListBuilder(

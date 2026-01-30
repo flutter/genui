@@ -9,7 +9,6 @@ import '../core/a2ui_message_processor.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
-import '../model/tools.dart';
 import '../model/ui_models.dart';
 import '../primitives/constants.dart';
 import '../primitives/logging.dart';
@@ -56,9 +55,13 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
         }
-        final String? rootId = definition.rootComponentId;
-        if (rootId == null || definition.components.isEmpty) {
-          genUiLogger.warning('Surface ${widget.surfaceId} has no widgets.');
+        // Implicit root is "root".
+        const rootId = 'root';
+        if (definition.components.isEmpty ||
+            !definition.components.containsKey(rootId)) {
+          genUiLogger.warning(
+            'Surface ${widget.surfaceId} has no root component.',
+          );
           return const SizedBox.shrink();
         }
 
@@ -93,12 +96,13 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       return Placeholder(child: Text('Widget with id: $widgetId not found.'));
     }
 
-    final JsonMap widgetData = data.componentProperties;
+    final JsonMap widgetData = data.properties;
     genUiLogger.finest('Building widget $widgetId');
     return catalog.buildWidget(
       CatalogItemContext(
         id: widgetId,
         data: widgetData,
+        type: data.type,
         buildChild: (String childId, [DataContext? childDataContext]) =>
             _buildWidget(
               definition,
@@ -135,9 +139,10 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       final modalId = event.context['modalId'] as String;
       final Component? modalComponent = definition.components[modalId];
       if (modalComponent == null) return;
+      // The 'contentChild' property is expected to be a direct property of the
+      // Modal component.
       final contentChildId =
-          (modalComponent.componentProperties['Modal'] as Map)['contentChild']
-              as String;
+          modalComponent.properties['contentChild'] as String;
       showModalBottomSheet<void>(
         context: context,
         builder: (context) => _buildWidget(

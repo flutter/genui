@@ -15,20 +15,13 @@ void main() {
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'divider',
-        componentProperties: {'Divider': <String, Object?>{}},
-      ),
+      const Component(id: 'root', type: 'Divider', properties: {}),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'divider',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(

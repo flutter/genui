@@ -5,19 +5,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:genui/test/fake_content_generator.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:travel_app/main.dart' as app;
+import 'package:travel_app/src/fake_ai_client.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
-      final mockContentGenerator = FakeContentGenerator();
-      mockContentGenerator.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
+      final mockClient = FakeAiClient();
+      mockClient.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
 
-      runApp(app.TravelApp(contentGenerator: mockContentGenerator));
+      runApp(app.TravelApp(aiClient: mockClient));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'Plan a trip to Bali');
       await tester.tap(find.byIcon(Icons.send));

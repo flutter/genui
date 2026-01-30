@@ -39,6 +39,7 @@ class CatalogItemContext {
   CatalogItemContext({
     required this.data,
     required this.id,
+    required this.type,
     required this.buildChild,
     required this.dispatchEvent,
     required this.buildContext,
@@ -52,6 +53,9 @@ class CatalogItemContext {
 
   /// The unique identifier for this component instance.
   final String id;
+
+  /// The type of this component.
+  final String type;
 
   /// Callback to build a child widget by its component ID.
   final ChildBuilderCallback buildChild;

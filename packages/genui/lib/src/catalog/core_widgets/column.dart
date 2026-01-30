@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-// ignore_for_file: avoid_dynamic_calls
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
@@ -14,7 +13,8 @@ import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
-    'distribution': S.string(
+    'component': S.string(enumValues: ['Column']),
+    'justify': S.string(
       description: 'How children are aligned on the main axis. ',
       enumValues: [
         'start',
@@ -23,9 +23,10 @@ final _schema = S.object(
         'spaceBetween',
         'spaceAround',
         'spaceEvenly',
+        'stretch', // Added stretch to match keys
       ],
     ),
-    'alignment': S.string(
+    'align': S.string(
       description: 'How children are aligned on the cross axis. ',
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
@@ -35,22 +36,22 @@ final _schema = S.object(
           'template with a data binding to the list of children.',
     ),
   },
+  required: ['component', 'children'],
 );
 
 extension type _ColumnData.fromMap(JsonMap _json) {
-  factory _ColumnData({
-    Object? children,
-    String? distribution,
-    String? alignment,
-  }) => _ColumnData.fromMap({
-    'children': children,
-    'distribution': distribution,
-    'alignment': alignment,
-  });
+  factory _ColumnData({Object? children, String? justify, String? align}) =>
+      _ColumnData.fromMap({
+        'children': children,
+        'justify': justify,
+        'align': align,
+      });
 
   Object? get children => _json['children'];
-  String? get distribution => _json['distribution'] as String?;
-  String? get alignment => _json['alignment'] as String?;
+  String? get justify =>
+      _json['justify'] as String? ?? _json['distribution'] as String?;
+  String? get align =>
+      _json['align'] as String? ?? _json['alignment'] as String?;
 }
 
 MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
@@ -114,8 +115,8 @@ final column = CatalogItem(
       getComponent: itemContext.getComponent,
       explicitListBuilder: (childIds, buildChild, getComponent, dataContext) {
         return Column(
-          mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
-          crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),
+          mainAxisAlignment: _parseMainAxisAlignment(columnData.justify),
+          crossAxisAlignment: _parseCrossAxisAlignment(columnData.align),
           mainAxisSize: MainAxisSize.min,
           children: childIds
               .map(
@@ -123,7 +124,8 @@ final column = CatalogItem(
                   componentId: componentId,
                   dataContext: dataContext,
                   buildChild: buildChild,
-                  weight: getComponent(componentId)?.weight,
+                  weight:
+                      getComponent(componentId)?.properties['weight'] as int?,
                 ),
               )
               .toList(),
@@ -131,8 +133,8 @@ final column = CatalogItem(
       },
       templateListWidgetBuilder: (context, list, componentId, dataBinding) {
         return Column(
-          mainAxisAlignment: _parseMainAxisAlignment(columnData.distribution),
-          crossAxisAlignment: _parseCrossAxisAlignment(columnData.alignment),
+          mainAxisAlignment: _parseMainAxisAlignment(columnData.justify),
+          crossAxisAlignment: _parseCrossAxisAlignment(columnData.align),
           mainAxisSize: MainAxisSize.min,
           children: [
             for (var i = 0; i < list.length; i++) ...[
@@ -142,7 +144,9 @@ final column = CatalogItem(
                   DataPath('$dataBinding/$i'),
                 ),
                 buildChild: itemContext.buildChild,
-                weight: itemContext.getComponent(componentId)?.weight,
+                weight:
+                    itemContext.getComponent(componentId)?.properties['weight']
+                        as int?,
               ),
             ],
           ],
@@ -155,58 +159,37 @@ final column = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Column": {
-              "children": {
-                "explicitList": [
-                  "advice_text",
-                  "advice_options",
-                  "submit_button"
-                ]
-              }
-            }
-          }
+          "component": "Column",
+          "children": [
+            "advice_text",
+            "advice_options",
+            "submit_button"
+          ]
         },
         {
           "id": "advice_text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "What kind of advice are you looking for?"
-              }
-            }
-          }
+          "component": "Text",
+          "text": "What kind of advice are you looking for?"
         },
         {
           "id": "advice_options",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Some advice options."
-              }
-            }
-          }
+          "component": "Text",
+          "text": "Some advice options."
         },
         {
           "id": "submit_button",
-          "component": {
-            "Button": {
-              "child": "submit_button_text",
-              "action": {
-                "name": "submit"
-              }
+          "component": "Button",
+          "child": "submit_button_text",
+          "action": {
+            "event": {
+              "name": "submit"
             }
           }
         },
         {
           "id": "submit_button_text",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Submit"
-              }
-            }
-          }
+          "component": "Text",
+          "text": "Submit"
         }
       ]
     ''',

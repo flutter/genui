@@ -40,4 +40,4 @@ final Catalog travelAppCatalog = Catalog([
   textInputChip,
   trailhead,
   travelCarousel,
-], catalogId: 'example.com:travel_v0');
+], catalogId: standardCatalogId);

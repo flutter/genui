@@ -76,7 +76,7 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       );
     }
 
-    final surfaceUpdate = SurfaceUpdate(
+    final surfaceUpdate = UpdateComponents(
       surfaceId: 'test-surface',
       components: components,
     );

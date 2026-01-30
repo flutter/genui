@@ -22,54 +22,39 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'modal',
-        componentProperties: {
-          'Modal': {'entryPointChild': 'button', 'contentChild': 'text'},
-        },
+        id: 'root',
+        type: 'Modal',
+        properties: {'entryPointChild': 'button', 'contentChild': 'text'},
       ),
       const Component(
         id: 'button',
-        componentProperties: {
-          'Button': {
-            'child': 'button_text',
-            'action': {
+        type: 'Button',
+        properties: {
+          'child': 'button_text',
+          'action': {
+            'event': {
               'name': 'showModal',
-              'context': [
-                {
-                  'key': 'modalId',
-                  'value': {'literalString': 'modal'},
-                },
-              ],
+              'context': {'modalId': 'root'},
             },
           },
         },
       ),
       const Component(
         id: 'button_text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Open Modal'},
-          },
-        },
+        type: 'Text',
+        properties: {'text': 'Open Modal'},
       ),
       const Component(
         id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is a modal.'},
-          },
-        },
+        type: 'Text',
+        properties: {'text': 'This is a modal.'},
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'modal',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(

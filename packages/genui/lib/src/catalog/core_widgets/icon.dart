@@ -12,23 +12,34 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['Icon']),
     'name': A2uiSchemas.stringReference(
       description:
           '''The name of the icon to display. This can be a literal string ('literalString') or a reference to a value in the data model ('path', e.g. '/icon/name').''',
       enumValues: AvailableIcons.allAvailable,
     ),
   },
-  required: ['name'],
+  required: ['component', 'name'],
 );
 
 extension type _IconData.fromMap(JsonMap _json) {
-  factory _IconData({required JsonMap name}) =>
+  factory _IconData({required Object name}) =>
       _IconData.fromMap({'name': name});
 
-  JsonMap get nameMap => _json['name'] as JsonMap;
+  Object? get _name => _json['name'];
 
-  String? get literalName => nameMap['literalString'] as String?;
-  String? get namePath => nameMap['path'] as String?;
+  String? get literalName {
+    final Object? name = _name;
+    if (name is String) return name;
+    if (name is JsonMap) return name['literalString'] as String?;
+    return null;
+  }
+
+  String? get namePath {
+    final Object? name = _name;
+    if (name is JsonMap) return name['path'] as String?;
+    return null;
+  }
 }
 
 enum AvailableIcons {
@@ -139,13 +150,8 @@ final icon = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Icon": {
-              "name": {
-                "literalString": "add"
-              }
-            }
-          }
+          "component": "Icon",
+          "name": "add"
         }
       ]
     ''',

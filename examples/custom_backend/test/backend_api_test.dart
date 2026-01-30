@@ -32,8 +32,8 @@ void main() {
         );
         expect(result, isNotNull);
         expect(result!.messages.length, 2);
-        expect(result.messages[0], isA<SurfaceUpdate>());
-        expect(result.messages[1], isA<BeginRendering>());
+        expect(result.messages[0], isA<UpdateComponents>());
+        expect(result.messages[1], isA<CreateSurface>());
       },
       retry: 3,
       timeout: const Timeout(Duration(minutes: 2)),

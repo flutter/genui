@@ -33,12 +33,12 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
     final AsyncValue<AiClientState> aiState = ref.read(aiProvider);
     if (aiState case AsyncData(:final value)) {
       _subscription = value.surfaceUpdateController.stream.listen(
-        _onSurfaceUpdate,
+        _onUpdateComponents,
       );
     }
   }
 
-  void _onSurfaceUpdate(String surfaceId) {
+  void _onUpdateComponents(String surfaceId) {
     switch (surfaceId) {
       case 'questionnaire':
         widget.router.push('/questionnaire');
@@ -65,7 +65,7 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
       if (next case AsyncData(:final value?)) {
         _subscription?.cancel();
         _subscription = value.surfaceUpdateController.stream.listen(
-          _onSurfaceUpdate,
+          _onUpdateComponents,
         );
       }
     });

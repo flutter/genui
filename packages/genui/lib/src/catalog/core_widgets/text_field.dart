@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../core/widget_utilities.dart';
+import '../../functions/expression_parser.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
@@ -15,13 +16,18 @@ import '../../primitives/simple_items.dart';
 final _schema = S.object(
   description: 'A text input field.',
   properties: {
+    'component': S.string(enumValues: ['TextField']),
     'text': A2uiSchemas.stringReference(
       description: 'The initial value of the text field.',
     ),
+    'value': A2uiSchemas.stringReference(
+      description: 'The value of the text field.',
+    ),
     'label': A2uiSchemas.stringReference(),
-    'textFieldType': S.string(
+    'variant': S.string(
       enumValues: ['shortText', 'longText', 'number', 'date', 'obscured'],
     ),
+    'checks': S.list(items: A2uiSchemas.validationCheck()),
     'validationRegexp': S.string(),
     'onSubmittedAction': A2uiSchemas.action(),
   },
@@ -29,22 +35,26 @@ final _schema = S.object(
 
 extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
-    JsonMap? text,
-    JsonMap? label,
-    String? textFieldType,
+    Object? value,
+    Object? label,
+    List<JsonMap>? checks,
+    String? variant,
     String? validationRegexp,
     JsonMap? onSubmittedAction,
   }) => _TextFieldData.fromMap({
-    'text': text,
+    'value': value,
     'label': label,
-    'textFieldType': textFieldType,
+    'checks': checks,
+    'variant': variant,
     'validationRegexp': validationRegexp,
     'onSubmittedAction': onSubmittedAction,
   });
 
-  JsonMap? get text => _json['text'] as JsonMap?;
-  JsonMap? get label => _json['label'] as JsonMap?;
-  String? get textFieldType => _json['textFieldType'] as String?;
+  Object? get value => _json['value'] ?? _json['text'];
+  Object? get label => _json['label'];
+  List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
+  String? get variant =>
+      _json['variant'] as String? ?? _json['textFieldType'] as String?;
   String? get validationRegexp => _json['validationRegexp'] as String?;
   JsonMap? get onSubmittedAction => _json['onSubmittedAction'] as JsonMap?;
 }
@@ -53,6 +63,8 @@ class _TextField extends StatefulWidget {
   const _TextField({
     required this.initialValue,
     this.label,
+    this.checks,
+    this.parser,
     this.textFieldType,
     this.validationRegexp,
     required this.onChanged,
@@ -61,6 +73,8 @@ class _TextField extends StatefulWidget {
 
   final String initialValue;
   final String? label;
+  final List<JsonMap>? checks;
+  final ExpressionParser? parser;
   final String? textFieldType;
   final String? validationRegexp;
   final void Function(String) onChanged;
@@ -72,11 +86,13 @@ class _TextField extends StatefulWidget {
 
 class _TextFieldState extends State<_TextField> {
   late final TextEditingController _controller;
+  String? _errorText;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue);
+    _errorText = _calculateError(widget.initialValue);
   }
 
   @override
@@ -84,6 +100,41 @@ class _TextFieldState extends State<_TextField> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != _controller.text) {
       _controller.text = widget.initialValue;
+      final String? newError = _calculateError(widget.initialValue);
+      if (newError != _errorText) {
+        setState(() {
+          _errorText = newError;
+        });
+      }
+    } else if (widget.checks != oldWidget.checks) {
+      // Re-validate if checks changed
+      final String? newError = _calculateError(_controller.text);
+      if (newError != _errorText) {
+        setState(() {
+          _errorText = newError;
+        });
+      }
+    }
+  }
+
+  String? _calculateError(String value) {
+    if (widget.checks == null || widget.parser == null) {
+      return null;
+    }
+
+    for (final JsonMap check in widget.checks!) {
+      final bool isValid = widget.parser!.evaluateLogic(check);
+      if (!isValid) {
+        return check['message'] as String? ?? 'Invalid value';
+      }
+    }
+    return null;
+  }
+
+  void _validate(String value) {
+    final String? newError = _calculateError(value);
+    if (newError != _errorText) {
+      setState(() => _errorText = newError);
     }
   }
 
@@ -97,7 +148,10 @@ class _TextFieldState extends State<_TextField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
-      decoration: InputDecoration(labelText: widget.label),
+      decoration: InputDecoration(
+        labelText: widget.label,
+        errorText: _errorText,
+      ),
       obscureText: widget.textFieldType == 'obscured',
       keyboardType: switch (widget.textFieldType) {
         'number' => TextInputType.number,
@@ -105,8 +159,16 @@ class _TextFieldState extends State<_TextField> {
         'date' => TextInputType.datetime,
         _ => TextInputType.text,
       },
-      onChanged: widget.onChanged,
-      onSubmitted: widget.onSubmitted,
+      onChanged: (val) {
+        widget.onChanged(val);
+        _validate(val);
+      },
+      onSubmitted: (val) {
+        _validate(val);
+        if (_errorText == null) {
+          widget.onSubmitted(val);
+        }
+      },
     );
   }
 }
@@ -134,16 +196,9 @@ final textField = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TextField": {
-              "text": {
-                "literalString": "Hello World"
-              },
-              "label": {
-                "literalString": "Greeting"
-              }
-            }
-          }
+          "component": "TextField",
+          "text": "Hello World",
+          "label": "Greeting"
         }
       ]
     ''',
@@ -151,29 +206,26 @@ final textField = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TextField": {
-              "text": {
-                "literalString": "password123"
-              },
-              "label": {
-                "literalString": "Password"
-              },
-              "textFieldType": "obscured"
-            }
-          }
+          "component": "TextField",
+          "text": "password123",
+          "label": "Password",
+          "textFieldType": "obscured"
         }
       ]
     ''',
   ],
   widgetBuilder: (itemContext) {
     final textFieldData = _TextFieldData.fromMap(itemContext.data as JsonMap);
-    final JsonMap? valueRef = textFieldData.text;
-    final path = valueRef?['path'] as String?;
+    final Object? valueRef = textFieldData.value;
+    final path = (valueRef is Map && valueRef.containsKey('path'))
+        ? valueRef['path'] as String
+        : '${itemContext.id}.value';
     final ValueNotifier<String?> notifier = itemContext.dataContext
-        .subscribeToString(valueRef);
+        .subscribeToString({'path': path});
     final ValueNotifier<String?> labelNotifier = itemContext.dataContext
         .subscribeToString(textFieldData.label);
+
+    final parser = ExpressionParser(itemContext.dataContext);
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
@@ -181,35 +233,49 @@ final textField = CatalogItem(
         return ValueListenableBuilder(
           valueListenable: labelNotifier,
           builder: (context, label, child) {
+            final String? effectiveValue =
+                currentValue ?? (valueRef is String ? valueRef : null);
+
             return _TextField(
-              initialValue: currentValue ?? '',
+              initialValue: effectiveValue ?? '',
               label: label,
-              textFieldType: textFieldData.textFieldType,
+              checks: textFieldData.checks,
+              parser: parser,
+              textFieldType: textFieldData.variant,
               validationRegexp: textFieldData.validationRegexp,
               onChanged: (newValue) {
-                if (path != null) {
-                  itemContext.dataContext.update(DataPath(path), newValue);
-                }
+                itemContext.dataContext.update(DataPath(path), newValue);
               },
               onSubmitted: (newValue) {
                 final JsonMap? actionData = textFieldData.onSubmittedAction;
                 if (actionData == null) {
                   return;
                 }
-                final actionName = actionData['name'] as String;
-                final List<Object?> contextDefinition =
-                    (actionData['context'] as List<Object?>?) ?? <Object?>[];
-                final JsonMap resolvedContext = resolveContext(
-                  itemContext.dataContext,
-                  contextDefinition,
-                );
-                itemContext.dispatchEvent(
-                  UserActionEvent(
-                    name: actionName,
-                    sourceComponentId: itemContext.id,
-                    context: resolvedContext,
-                  ),
-                );
+
+                if (actionData.containsKey('event')) {
+                  final eventMap = actionData['event'] as JsonMap;
+                  final actionName = eventMap['name'] as String;
+                  final contextDefinition = eventMap['context'] as JsonMap?;
+                  final JsonMap resolvedContext = resolveContext(
+                    itemContext.dataContext,
+                    contextDefinition,
+                  );
+                  itemContext.dispatchEvent(
+                    UserActionEvent(
+                      name: actionName,
+                      sourceComponentId: itemContext.id,
+                      context: resolvedContext,
+                    ),
+                  );
+                } else if (actionData.containsKey('functionCall')) {
+                  final funcMap = actionData['functionCall'] as JsonMap;
+                  final callName = funcMap['func'] as String;
+                  if (callName == 'closeModal') {
+                    Navigator.of(itemContext.buildContext).pop();
+                    return;
+                  }
+                  parser.evaluateFunctionCall(funcMap);
+                }
               },
             );
           },

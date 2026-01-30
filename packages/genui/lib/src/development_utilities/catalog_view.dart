@@ -35,7 +35,7 @@ class DebugCatalogView extends StatefulWidget {
   final Catalog catalog;
 
   /// A callback for when a user submits an action.
-  final ValueChanged<UserUiInteractionMessage>? onSubmit;
+  final ValueChanged<ChatMessage>? onSubmit;
 
   /// If provided, constrains each item to the given height.
   final double? itemHeight;
@@ -47,7 +47,7 @@ class DebugCatalogView extends StatefulWidget {
 class _DebugCatalogViewState extends State<DebugCatalogView> {
   late final A2uiMessageProcessor _a2uiMessageProcessor;
   final surfaceIds = <String>[];
-  late final StreamSubscription<UserUiInteractionMessage>? _subscription;
+  late final StreamSubscription<ChatMessage>? _subscription;
 
   @override
   void initState() {
@@ -88,14 +88,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
           }
 
           _a2uiMessageProcessor.handleMessage(
-            SurfaceUpdate(surfaceId: surfaceId, components: components),
+            UpdateComponents(surfaceId: surfaceId, components: components),
           );
           _a2uiMessageProcessor.handleMessage(
-            BeginRendering(
-              surfaceId: surfaceId,
-              root: rootComponent.id,
-              catalogId: catalog.catalogId,
-            ),
+            CreateSurface(surfaceId: surfaceId, catalogId: catalog.catalogId!),
           );
           surfaceIds.add(surfaceId);
         } catch (e, s) {

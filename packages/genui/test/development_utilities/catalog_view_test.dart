@@ -36,14 +36,7 @@ CatalogItem getCatalogItemForTesting(String successMessage) {
     widgetBuilder: CoreCatalogItems.text.widgetBuilder,
     exampleData: [
       () => jsonEncode([
-        {
-          'id': 'root',
-          'component': {
-            catalogItemName: {
-              'text': {'literalString': successMessage},
-            },
-          },
-        },
+        {'id': 'root', 'component': catalogItemName, 'text': successMessage},
       ]),
     ],
   );

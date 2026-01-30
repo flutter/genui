@@ -10,11 +10,9 @@
 library;
 
 export 'src/catalog/core_catalog.dart';
-export 'src/content_generator.dart';
 export 'src/core/a2ui_message_processor.dart';
 export 'src/core/genui_surface.dart';
 export 'src/core/prompt_fragments.dart';
-export 'src/core/ui_tools.dart';
 export 'src/core/widget_utilities.dart';
 export 'src/development_utilities/catalog_view.dart';
 export 'src/facade/direct_call_integration/model.dart';
@@ -28,7 +26,15 @@ export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_message.dart';
 export 'src/model/data_model.dart';
-export 'src/model/tools.dart';
+export 'src/model/gen_ui_events.dart';
+export 'src/model/standard_catalog_embed.dart';
 export 'src/model/ui_models.dart';
+export 'src/primitives/cancellation.dart';
+export 'src/primitives/constants.dart';
 export 'src/primitives/logging.dart';
 export 'src/primitives/simple_items.dart';
+export 'src/transport/a2ui_parser_transformer.dart';
+export 'src/transport/gen_ui_controller.dart';
+export 'src/utils/json_block_parser.dart';
+export 'src/widgets/gen_ui_fallback.dart';
+export 'src/widgets/gen_ui_surface_manager.dart';

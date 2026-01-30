@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
@@ -16,6 +18,14 @@ void main() {
 
   setUp(() {
     processor = A2uiMessageProcessor(catalogs: [testCatalog]);
+    final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
+      (r) => print('[LOG] ${r.message}'),
+    );
+    addTearDown(sub.cancel);
+  });
+
+  tearDown(() {
+    processor.dispose();
   });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
@@ -25,31 +35,21 @@ void main() {
     final components = [
       const Component(
         id: 'root',
-        componentProperties: {
-          'Button': {
-            'child': 'text',
-            'action': {'name': 'testAction'},
+        type: 'Button',
+        properties: {
+          'child': 'text',
+          'action': {
+            'event': {'name': 'testAction'},
           },
         },
       ),
-      const Component(
-        id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Hello'},
-          },
-        },
-      ),
+      const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
     processor.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     processor.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'root',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -67,31 +67,21 @@ void main() {
     final components = [
       const Component(
         id: 'root',
-        componentProperties: {
-          'Button': {
-            'child': 'text',
-            'action': {'name': 'testAction'},
+        type: 'Button',
+        properties: {
+          'child': 'text',
+          'action': {
+            'event': {'name': 'testAction'},
           },
         },
       ),
-      const Component(
-        id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Hello'},
-          },
-        },
-      ),
+      const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
     processor.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     processor.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'root',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -99,7 +89,8 @@ void main() {
         home: GenUiSurface(host: processor, surfaceId: surfaceId),
       ),
     );
-
+    await tester.pumpAndSettle();
+    expect(find.byType(ElevatedButton), findsOneWidget);
     await tester.tap(find.byType(ElevatedButton));
   });
 
@@ -110,21 +101,17 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'Hello'},
-            },
-          },
+          type: 'Text',
+          properties: {'text': 'Hello'},
         ),
       ];
       processor.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
       // Request a catalogId that doesn't exist in the processor.
       processor.handleMessage(
-        const BeginRendering(
+        const CreateSurface(
           surfaceId: surfaceId,
-          root: 'root',
           catalogId: 'non_existent_catalog',
         ),
       );

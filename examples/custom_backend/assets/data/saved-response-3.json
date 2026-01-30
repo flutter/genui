@@ -9,58 +9,49 @@
               "args": {
                 "components": [
                   {
-                    "component": {
-                      "Column": {
-                        "children": {
-                          "explicitList": [
-                            "heading_1",
-                            "multiple_choice_1"
-                          ]
-                        }
-                      }
-                    },
-                    "id": "root"
+                    "component": "Column",
+                    "id": "root",
+                    "children": {
+                      "explicitList": [
+                        "heading_1",
+                        "multiple_choice_1"
+                      ]
+                    }
                   },
                   {
-                    "component": {
-                      "Heading": {
-                        "level": "1",
-                        "text": {
-                          "literalString": "How can I help you?"
-                        }
-                      }
-                    },
-                    "id": "heading_1"
+                    "component": "Heading",
+                    "id": "heading_1",
+                    "level": "1",
+                    "text": {
+                      "literalString": "How can I help you?"
+                    }
                   },
                   {
-                    "component": {
-                      "MultipleChoice": {
-                        "selections": {
-                          "path": "component.multiple_choice_1.selections"
+                    "component": "MultipleChoice",
+                    "id": "multiple_choice_1",
+                    "selections": {
+                      "path": "component.multiple_choice_1.selections"
+                    },
+                    "options": [
+                      {
+                        "label": {
+                          "literalString": "Generate UI"
                         },
-                        "options": [
-                          {
-                            "label": {
-                              "literalString": "Generate UI"
-                            },
-                            "value": "generate_ui"
-                          },
-                          {
-                            "label": {
-                              "literalString": "Answer questions"
-                            },
-                            "value": "answer_questions"
-                          },
-                          {
-                            "value": "summarize_text",
-                            "label": {
-                              "literalString": "Summarize text"
-                            }
-                          }
-                        ]
+                        "value": "generate_ui"
+                      },
+                      {
+                        "label": {
+                          "literalString": "Answer questions"
+                        },
+                        "value": "answer_questions"
+                      },
+                      {
+                        "value": "summarize_text",
+                        "label": {
+                          "literalString": "Summarize text"
+                        }
                       }
-                    },
-                    "id": "multiple_choice_1"
+                    ]
                   }
                 ],
                 "surfaceId": "options_surface"

@@ -3,4 +3,5 @@
 // found in the LICENSE file.
 
 /// The catalog ID for the standard catalog.
-const String standardCatalogId = 'a2ui.org:standard_catalog_0_8_0';
+const String standardCatalogId =
+    'https://a2ui.dev/specification/v0_9/standard_catalog.json';

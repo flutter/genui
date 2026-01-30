@@ -9,6 +9,7 @@ import 'core_widgets/audio_player.dart' as audio_player_item;
 import 'core_widgets/button.dart' as button_item;
 import 'core_widgets/card.dart' as card_item;
 import 'core_widgets/check_box.dart' as check_box_item;
+import 'core_widgets/choice_picker.dart' as choice_picker_item;
 import 'core_widgets/column.dart' as column_item;
 import 'core_widgets/date_time_input.dart' as date_time_input_item;
 import 'core_widgets/divider.dart' as divider_item;
@@ -16,7 +17,6 @@ import 'core_widgets/icon.dart' as icon_item;
 import 'core_widgets/image.dart' as image_item;
 import 'core_widgets/list.dart' as list_item;
 import 'core_widgets/modal.dart' as modal_item;
-import 'core_widgets/multiple_choice.dart' as multiple_choice_item;
 import 'core_widgets/row.dart' as row_item;
 import 'core_widgets/slider.dart' as slider_item;
 import 'core_widgets/tabs.dart' as tabs_item;
@@ -85,7 +85,7 @@ class CoreCatalogItems {
 
   /// Represents a widget allowing the user to select one or more options from a
   /// list.
-  static final CatalogItem multipleChoice = multiple_choice_item.multipleChoice;
+  static final CatalogItem choicePicker = choice_picker_item.choicePicker;
 
   /// Represents a layout widget that arranges its children in a horizontal
   /// sequence.
@@ -123,7 +123,7 @@ class CoreCatalogItems {
       image,
       list,
       modal,
-      multipleChoice,
+      choicePicker,
       row,
       slider,
       tabs,

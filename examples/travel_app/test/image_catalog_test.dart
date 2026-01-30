@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,7 +16,7 @@ void main() {
 
       final String imageAssets = await assetImageCatalogJson();
       final List<String> imageList = (jsonDecode(imageAssets) as List)
-          .map((e) => e['image_file_name'] as String)
+          .map((e) => (e as Map<String, Object?>).values.first as String)
           .toList();
 
       final imageDir = Directory(assetImageCatalogPath);

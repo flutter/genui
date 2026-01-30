@@ -21,11 +21,10 @@ void main() {
             builder: (context) => Scaffold(
               body: image.widgetBuilder(
                 CatalogItemContext(
+                  type: 'Image',
                   data: {
-                    'url': {
-                      'literalString':
-                          'https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png',
-                    },
+                    'url':
+                        'https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png',
                   },
                   id: 'test_image',
                   buildChild: (_, [_]) => const SizedBox(),
@@ -61,8 +60,9 @@ void main() {
             builder: (context) => Scaffold(
               body: image.widgetBuilder(
                 CatalogItemContext(
+                  type: 'Image',
                   data: {
-                    'url': {'literalString': 'https://example.com/avatar.png'},
+                    'url': 'https://example.com/avatar.png',
                     'usageHint': 'avatar',
                   },
                   id: 'test_image_avatar',
@@ -82,7 +82,12 @@ void main() {
       expect(find.byType(CircleAvatar), findsOneWidget);
       final Finder sizeBoxFinder = find.ancestor(
         of: find.byType(Image),
-        matching: find.byType(SizedBox),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is SizedBox &&
+              widget.width == 32.0 &&
+              widget.height == 32.0,
+        ),
       );
       expect(sizeBoxFinder, findsOneWidget);
       final SizedBox sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
@@ -101,8 +106,9 @@ void main() {
             builder: (context) => Scaffold(
               body: image.widgetBuilder(
                 CatalogItemContext(
+                  type: 'Image',
                   data: {
-                    'url': {'literalString': 'https://example.com/header.png'},
+                    'url': 'https://example.com/header.png',
                     'usageHint': 'header',
                   },
                   id: 'test_image_header',
@@ -121,12 +127,14 @@ void main() {
 
       final Finder sizeBoxFinder = find.ancestor(
         of: find.byType(Image),
-        matching: find.byType(SizedBox),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is SizedBox &&
+              widget.width == double.infinity &&
+              widget.height == null,
+        ),
       );
       expect(sizeBoxFinder, findsOneWidget);
-      final SizedBox sizeBox = tester.widget<SizedBox>(sizeBoxFinder);
-      expect(sizeBox.width, double.infinity);
-      expect(sizeBox.height, null);
     });
   });
 }

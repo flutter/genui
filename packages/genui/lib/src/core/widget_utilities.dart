@@ -44,62 +44,74 @@ class OptionalValueBuilder<T> extends StatelessWidget {
 /// Extension methods for [DataContext] to simplify data binding.
 extension DataContextExtensions on DataContext {
   /// Subscribes to a value, which can be a literal or a data-bound path.
-  ValueNotifier<T?> subscribeToValue<T>(JsonMap? ref, String literalKey) {
-    genUiLogger.info(
-      'DataContext.subscribeToValue: ref=$ref, literalKey=$literalKey',
-    );
-    if (ref == null) return ValueNotifier<T?>(null);
-    final path = ref['path'] as String?;
-    final Object? literal = ref[literalKey];
+  ValueNotifier<T?> subscribeToValue<T>(Object? value) {
+    genUiLogger.info('DataContext.subscribeToValue: value=$value');
+    if (value == null) return ValueNotifier<T?>(null);
 
-    if (path != null) {
-      final dataPath = DataPath(path);
-      if (literal != null) {
-        update(dataPath, literal);
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        final path = value['path'] as String;
+        return subscribe<T>(DataPath(path));
       }
-      return subscribe<T>(dataPath);
+      if (value.containsKey('literalString')) {
+        return ValueNotifier<T?>(value['literalString'] as T?);
+      }
+      if (value.containsKey('literalNumber')) {
+        return ValueNotifier<T?>(value['literalNumber'] as T?);
+      }
+      if (value.containsKey('literalBoolean')) {
+        return ValueNotifier<T?>(value['literalBoolean'] as T?);
+      }
     }
 
-    return ValueNotifier<T?>(literal as T?);
+    try {
+      return ValueNotifier<T?>(value as T?);
+    } catch (e) {
+      genUiLogger.warning(
+        'DataContext.subscribeToValue: value $value is not of type $T. '
+        'Returning null.',
+      );
+      return ValueNotifier<T?>(null);
+    }
   }
 
   /// Subscribes to a string value, which can be a literal or a data-bound path.
-  ValueNotifier<String?> subscribeToString(JsonMap? ref) {
-    return subscribeToValue<String>(ref, 'literalString');
+  ValueNotifier<String?> subscribeToString(Object? value) {
+    return subscribeToValue<String>(value);
   }
 
   /// Subscribes to a boolean value, which can be a literal or a data-bound
   /// path.
-  ValueNotifier<bool?> subscribeToBool(JsonMap? ref) {
-    return subscribeToValue<bool>(ref, 'literalBoolean');
+  ValueNotifier<bool?> subscribeToBool(Object? value) {
+    return subscribeToValue<bool>(value);
   }
 
   /// Subscribes to a list of objects, which can be a literal or a data-bound
   /// path.
-  ValueNotifier<List<Object?>?> subscribeToObjectArray(JsonMap? ref) {
-    return subscribeToValue<List<Object?>>(ref, 'literalArray');
+  ValueNotifier<List<Object?>?> subscribeToObjectArray(Object? value) {
+    return subscribeToValue<List<Object?>>(value);
+  }
+
+  /// Subscribes to a number value, which can be a literal or a data-bound
+  /// path.
+  ValueNotifier<num?> subscribeToNumber(Object? value) {
+    return subscribeToValue<num>(value);
   }
 }
 
 /// Resolves a context map definition against a [DataContext].
 ///
-JsonMap resolveContext(
-  DataContext dataContext,
-  List<Object?> contextDefinitions,
-) {
+JsonMap resolveContext(DataContext dataContext, JsonMap? contextDefinition) {
   final resolved = <String, Object?>{};
-  for (final contextEntry in contextDefinitions) {
-    final entry = contextEntry as JsonMap;
-    final key = entry['key']! as String;
-    final value = entry['value'] as JsonMap;
-    if (value.containsKey('path')) {
+  if (contextDefinition == null) return resolved;
+
+  for (final MapEntry<String, Object?> entry in contextDefinition.entries) {
+    final String key = entry.key;
+    final Object? value = entry.value;
+    if (value is Map && value.containsKey('path')) {
       resolved[key] = dataContext.getValue(DataPath(value['path'] as String));
-    } else if (value.containsKey('literalString')) {
-      resolved[key] = value['literalString'];
-    } else if (value.containsKey('literalNumber')) {
-      resolved[key] = value['literalNumber'];
-    } else if (value.containsKey('literalBoolean')) {
-      resolved[key] = value['literalBoolean'];
+    } else {
+      resolved[key] = value;
     }
   }
   return resolved;

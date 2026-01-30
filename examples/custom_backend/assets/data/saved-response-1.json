@@ -9,64 +9,55 @@
               "args": {
                 "components": [
                   {
-                    "component": {
-                      "Heading": {
-                        "level": "3",
-                        "text": {
-                          "literalString": "Here are some of the things I can help you with:"
-                        }
-                      }
-                    },
-                    "id": "heading_1"
-                  },
-                  {
-                    "id": "multiple_choice_1",
-                    "component": {
-                      "MultipleChoice": {
-                        "options": [
-                          {
-                            "label": {
-                              "literalString": "Show a cat fact"
-                            },
-                            "value": "Show a cat fact"
-                          },
-                          {
-                            "label": {
-                              "literalString": "Show a dog fact"
-                            },
-                            "value": "Show a dog fact"
-                          },
-                          {
-                            "value": "Help me generate UI",
-                            "label": {
-                              "literalString": "Help me generate UI"
-                            }
-                          },
-                          {
-                            "label": {
-                              "literalString": "Answer a question"
-                            },
-                            "value": "Answer a question"
-                          }
-                        ],
-                        "selections": {
-                          "path": "selection"
-                        }
-                      }
+                    "component": "Heading",
+                    "id": "heading_1",
+                    "level": "3",
+                    "text": {
+                      "literalString": "Here are some of the things I can help you with:"
                     }
                   },
                   {
-                    "component": {
-                      "Column": {
-                        "children": {
-                          "explicitList": [
-                            "heading_1",
-                            "multiple_choice_1"
-                          ]
+                    "id": "multiple_choice_1",
+                    "component": "MultipleChoice",
+                    "options": [
+                      {
+                        "label": {
+                          "literalString": "Show a cat fact"
+                        },
+                        "value": "Show a cat fact"
+                      },
+                      {
+                        "label": {
+                          "literalString": "Show a dog fact"
+                        },
+                        "value": "Show a dog fact"
+                      },
+                      {
+                        "value": "Help me generate UI",
+                        "label": {
+                          "literalString": "Help me generate UI"
                         }
+                      },
+                      {
+                        "label": {
+                          "literalString": "Answer a question"
+                        },
+                        "value": "Answer a question"
                       }
-                    },
-                    "id": "root"
+                    ],
+                    "selections": {
+                      "path": "selection"
+                    }
+                  },
+                  {
+                    "component": "Column",
+                    "id": "root",
+                    "children": {
+                      "explicitList": [
+                        "heading_1",
+                        "multiple_choice_1"
+                      ]
+                    }
                   }
                 ],
                 "surfaceId": "assisting_options"

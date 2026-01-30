@@ -44,7 +44,7 @@ class AiClientState {
   /// Creates an [AiClientState].
   AiClientState({
     required this.a2uiMessageProcessor,
-    required this.contentGenerator,
+    required this.connector,
     required this.conversation,
     required this.surfaceUpdateController,
   });
@@ -52,8 +52,8 @@ class AiClientState {
   /// The A2UI message processor.
   final A2uiMessageProcessor a2uiMessageProcessor;
 
-  /// The content generator.
-  final A2uiContentGenerator contentGenerator;
+  /// The agent connector.
+  final A2uiAgentConnector connector;
 
   /// The conversation manager.
   final GenUiConversation conversation;
@@ -73,51 +73,62 @@ class Ai extends _$Ai {
     final A2uiAgentConnector connector = await ref.watch(
       a2uiAgentConnectorProvider.future,
     );
-    final String serverUrl = await ref.watch(a2aServerUrlProvider.future);
-    final contentGenerator = A2uiContentGenerator(
-      serverUrl: Uri.parse(serverUrl),
-      connector: connector,
-    );
+
+    // We don't need serverUrl here anymore as connector handles it,
+    // unless we need it for something else? A2uiContentGenerator used it.
+    // But A2uiAgentConnector seems self-contained.
+
+    final controller = GenUiController(messageProcessor: a2uiMessageProcessor);
+
+    // Wire up connector to controller
+    connector.stream.listen(controller.addMessage);
+    connector.textStream.listen(controller.addChunk);
+
     final conversation = GenUiConversation(
-      contentGenerator: contentGenerator,
-      a2uiMessageProcessor: a2uiMessageProcessor,
+      controller: controller,
+      onSend: (message, history) async {
+        // Send request via connector
+        await connector.connectAndSend(message);
+      },
     );
+
     final surfaceUpdateController = StreamController<String>.broadcast();
 
-    contentGenerator.a2uiMessageStream.listen((message) {
-      switch (message) {
-        case BeginRendering():
-          surfaceUpdateController.add(message.surfaceId);
-        case SurfaceUpdate():
-        case DataModelUpdate():
-        case SurfaceDeletion():
-        // We only navigate on BeginRendering.
+    connector.stream.listen((message) {
+      if (message is CreateSurface) {
+        surfaceUpdateController.add(message.surfaceId);
       }
     });
 
     // Fetch the agent card to initialize the connection.
-    await contentGenerator.connector.getAgentCard();
+    await connector.getAgentCard();
+
+    // No isProcessing on connector directly exposed?
+    // GenUiConversation manages isProcessing now.
 
     void updateProcessingState() {
       LoadingState.instance.isProcessing.value =
-          contentGenerator.isProcessing.value;
+          conversation.isProcessing.value;
     }
 
-    contentGenerator.isProcessing.addListener(updateProcessingState);
+    conversation.isProcessing.addListener(updateProcessingState);
 
     ref.onDispose(() {
-      contentGenerator.isProcessing.removeListener(updateProcessingState);
+      conversation.isProcessing.removeListener(updateProcessingState);
       // Reset the loading state when the provider is disposed.
       LoadingState.instance.isProcessing.value = false;
       conversation.dispose();
-      // contentGenerator is disposed by conversation.dispose(), so we don't
-      // need to dispose it again.
+      controller.dispose();
+      // connector is a provider, so we should probably not dispose it here if
+      // it's shared? But it was created in a separate provider?
+      // a2uiAgentConnector is a provider. If we dispose
+      // conversation/controller, we are good.
       surfaceUpdateController.close();
     });
 
     return AiClientState(
       a2uiMessageProcessor: a2uiMessageProcessor,
-      contentGenerator: contentGenerator,
+      connector: connector,
       conversation: conversation,
       surfaceUpdateController: surfaceUpdateController,
     );

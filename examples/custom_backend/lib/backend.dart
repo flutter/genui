@@ -57,6 +57,10 @@ class Backend {
 
     debugSaveToFileObject('toolCall', toolCall);
 
-    return parseToolCall(toolCall, toolCall.name);
+    return parseToolCall(
+      toolCall,
+      toolCall.name,
+      'a2ui.org:standard_catalog_0_8_0',
+    );
   }
 }

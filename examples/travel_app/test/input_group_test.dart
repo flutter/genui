@@ -15,7 +15,9 @@ void main() {
         final Map<String, Object> data = {
           'submitLabel': {'literalString': 'Submit'},
           'children': ['child1', 'child2'],
-          'action': {'name': 'submitAction'},
+          'action': {
+            'event': {'name': 'submitAction'},
+          },
         };
         UiEvent? dispatchedEvent;
 
@@ -30,6 +32,7 @@ void main() {
                     CatalogItemContext(
                       data: data,
                       id: 'testId',
+                      type: 'InputGroup',
                       buildChild: buildChild,
                       dispatchEvent: (event) {
                         dispatchedEvent = event;
@@ -67,7 +70,9 @@ void main() {
       final Map<String, Object> data = {
         'submitLabel': {'literalString': 'Submit'},
         'children': <String>[],
-        'action': {'name': 'submitAction'},
+        'action': {
+          'event': {'name': 'submitAction'},
+        },
       };
 
       await tester.pumpWidget(
@@ -79,6 +84,7 @@ void main() {
                   CatalogItemContext(
                     data: data,
                     id: 'testId',
+                    type: 'InputGroup',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (UiEvent _) {},
                     buildContext: context,

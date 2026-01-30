@@ -13,12 +13,10 @@ environment:
 resolution: workspace
 
 dependencies:
-  firebase_core: ^4.2.1
+  dartantic_ai: ^3.0.0
   flutter:
     sdk: flutter
   genui: ^0.6.0
-  genui_firebase_ai: ^0.6.0
-  genui_google_generative_ai: ^0.6.0
   logging: ^1.3.0
 
 dev_dependencies:

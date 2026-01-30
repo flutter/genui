@@ -22,11 +22,9 @@ void main() {
     ) async {
       final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
       final widgetData = {
-        'Column': {
-          'children': {
-            'explicitList': ['child1'],
-          },
-        },
+        'children': [
+          {'id': 'child1'},
+        ],
       };
 
       await tester.pumpWidget(
@@ -37,6 +35,7 @@ void main() {
                 return catalog.buildWidget(
                   CatalogItemContext(
                     id: 'col1',
+                    type: 'Column',
                     data: widgetData,
                     buildChild: (_, [_]) =>
                         const Text(''), // Mock child builder
@@ -63,9 +62,7 @@ void main() {
       final catalog = const Catalog([]);
       final Map<String, Object> data = {
         'id': 'text1',
-        'widget': {
-          'unknown_widget': {'text': 'hello'},
-        },
+        'unknown_widget': {'text': 'hello'},
       };
 
       final Future<void> logFuture = expectLater(
@@ -85,8 +82,9 @@ void main() {
               builder: (context) {
                 final Widget widget = catalog.buildWidget(
                   CatalogItemContext(
-                    id: data['id'] as String,
-                    data: data['widget'] as JsonMap,
+                    id: 'text1',
+                    type: 'unknown_widget',
+                    data: data,
                     buildChild: (_, [_]) => const SizedBox(),
                     dispatchEvent: (UiEvent event) {},
                     buildContext: context,

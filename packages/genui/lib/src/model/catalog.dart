@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import 'a2ui_schemas.dart';
 import 'catalog_item.dart';
 import 'data_model.dart';
 
@@ -59,8 +60,7 @@ class Catalog {
 
   /// Builds a Flutter widget from a JSON-like data structure.
   Widget buildWidget(CatalogItemContext itemContext) {
-    final widgetData = itemContext.data as JsonMap;
-    final String? widgetType = widgetData.keys.firstOrNull;
+    final String widgetType = itemContext.type;
     final CatalogItem? item = items.firstWhereOrNull(
       (item) => item.name == widgetType,
     );
@@ -72,8 +72,9 @@ class Catalog {
     genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
     return item.widgetBuilder(
       CatalogItemContext(
-        data: JsonMap.from(widgetData[widgetType]! as Map),
+        data: itemContext.data,
         id: itemContext.id,
+        type: widgetType,
         buildChild: (String childId, [DataContext? childDataContext]) =>
             itemContext.buildChild(
               childId,
@@ -122,8 +123,9 @@ class Catalog {
               'properties.',
           properties: {},
         ),
+        'functions': A2uiSchemas.clientFunctions(),
       },
-      required: ['components', 'styles'],
+      required: ['components', 'styles', 'functions'],
     );
   }
 }

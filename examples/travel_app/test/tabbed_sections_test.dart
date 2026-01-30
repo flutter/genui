@@ -50,6 +50,7 @@ void main() {
                         CatalogItemContext(
                           data: data,
                           id: 'testId',
+                          type: 'TabbedSections',
                           buildChild: mockBuildChild,
                           dispatchEvent: (event) {},
                           buildContext: context,

@@ -1,0 +1,69 @@
+classDiagram
+    class GenUiHost {
+        <<interface>>
+        +Stream~GenUiUpdate~ surfaceUpdates
+        +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
+        +Iterable~Catalog~ catalogs
+        +Map~String, DataModel~ dataModels
+        +DataModel dataModelForSurface(String surfaceId)
+        +void handleUiEvent(UiEvent event)
+    }
+
+    class A2uiMessageProcessor {
+        +void handleMessage(A2uiMessage message)
+        +Stream~GenUiUpdate~ surfaceUpdates
+        +Stream~ChatMessage~ onSubmit
+        +Map~String, DataModel~ dataModels
+        +DataModel dataModelForSurface(String surfaceId)
+        +Map~String, Object?~ getClientDataModel()
+        +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
+        +void dispose()
+    }
+
+    class GenUiController {
+        +void addChunk(String text)
+        +void addMessage(A2uiMessage message)
+        +Stream~String~ textStream
+        +Stream~GenUiState~ stateStream
+        +Stream~ChatMessage~ onClientEvent
+        +void dispose()
+    }
+
+    class GenUiSurface {
+        +GenUiHost host
+        +String surfaceId
+        +WidgetBuilder? defaultBuilder
+    }
+
+    class Catalog {
+        +String? catalogId
+        +Iterable~CatalogItem~ items
+        +Schema definition
+        +Widget buildWidget(CatalogItemContext context)
+        +Catalog copyWith(List~CatalogItem~ newItems)
+        +Catalog copyWithout(Iterable~CatalogItem~ itemNames)
+    }
+
+    class CatalogItem {
+        +String name
+        +Schema dataSchema
+        +CatalogWidgetBuilder widgetBuilder
+        +List~ExampleBuilderCallback~ exampleData
+    }
+
+    class DataModel {
+        +void update(DataPath? path, Object? contents)
+        +ValueNotifier subscribe(DataPath path)
+        +ValueNotifier subscribeToValue(DataPath path)
+        +T? getValue(DataPath path)
+        +void bindExternalState(DataPath path, ValueListenable source)
+        +void dispose()
+    }
+
+    GenUiHost <|.. A2uiMessageProcessor
+    GenUiHost <|.. GenUiController
+    GenUiController --> A2uiMessageProcessor : wraps
+    GenUiSurface --> GenUiHost : uses
+    A2uiMessageProcessor --> Catalog : uses
+    Catalog --> CatalogItem : contains
+    GenUiHost --> DataModel : manages

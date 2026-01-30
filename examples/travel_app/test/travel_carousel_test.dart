@@ -19,12 +19,16 @@ void main() {
             {
               'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
             {
               'description': {'literalString': 'Item 2'},
               'imageChildId': 'imageId2',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
           ],
         };
@@ -43,6 +47,7 @@ void main() {
                     CatalogItemContext(
                       data: data,
                       id: 'testId',
+                      type: 'TravelCarousel',
                       buildChild: buildChild,
                       dispatchEvent: (event) {
                         dispatchedEvent = event;
@@ -84,12 +89,16 @@ void main() {
               'description': {'literalString': 'Item 1'},
               'imageChildId': 'imageId1',
               'listingSelectionId': 'listing1',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
             {
               'description': {'literalString': 'Item 2'},
               'imageChildId': 'imageId2',
-              'action': {'name': 'selectItem'},
+              'action': {
+                'event': {'name': 'selectItem'},
+              },
             },
           ],
         };
@@ -108,6 +117,7 @@ void main() {
                     CatalogItemContext(
                       data: data,
                       id: 'testId',
+                      type: 'TravelCarousel',
                       buildChild: buildChild,
                       dispatchEvent: (event) {
                         dispatchedEvent = event;
@@ -148,6 +158,7 @@ void main() {
                     CatalogItemContext(
                       data: data,
                       id: 'testId',
+                      type: 'TravelCarousel',
                       buildChild: (data, [_]) => Text(data),
                       dispatchEvent: (event) {},
                       buildContext: context,

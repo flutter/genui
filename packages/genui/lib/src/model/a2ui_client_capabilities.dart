@@ -35,6 +35,6 @@ class A2UiClientCapabilities {
     if (inlineCatalogs != null) {
       json['inlineCatalogs'] = inlineCatalogs;
     }
-    return json;
+    return {'v0.9': json};
   }
 }

@@ -3,4 +3,3 @@
 // found in the LICENSE file.
 
 export 'src/a2ui_agent_connector.dart';
-export 'src/a2ui_content_generator.dart';

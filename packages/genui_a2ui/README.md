@@ -5,9 +5,9 @@ An integration package for [`genui`](https://pub.dev/packages/genui) and the [A2
 ## Features
 
 -   **A2A Server Connection:** Establishes and manages a WebSocket connection to any server implementing the A2A protocol.
--   **A2UI Message Processing:** Receives and parses A2UI messages (like `SurfaceUpdate`, `DataModelUpdate`, `BeginRendering`) from the A2A stream.
+-   **A2UI Message Processing:** Receives and parses A2UI messages (like `UpdateComponents`, `UpdateDataModel`, `CreateSurface`) from the A2A stream.
 -   **Dynamic UI Rendering:** Integrates seamlessly with `genui`'s `GenUiSurface` to render UIs based on the received A2UI messages.
--   **Content Generator Implementation:** Provides `A2uiContentGenerator`, a specialized `ContentGenerator` for `genui`'s `GenUiConversation` to handle the A2A communication flow.
+-   **Content Generator Integration:** Works with `genui`'s `GenUiController` by piping messages from the connector to the controller.
 -   **Event Handling:** Captures UI events from `genui` and sends them back to the A2A server as A2A messages.
 -   **Stateful Conversation:** Maintains the conversation context (`taskId`, `contextId`) with the A2A server.
 
@@ -29,9 +29,10 @@ flutter pub add genui genui_a2ui
 
 ### Basic Usage
 
-1.  **Initialize `A2uiMessageProcessor`:** Set up `A2uiMessageProcessor` with your widget `Catalog`.
-2.  **Create `A2uiContentGenerator`:** Instantiate `A2uiContentGenerator`, providing the A2A server `Uri`.
-3.  **Create `GenUiConversation`:** Pass the `A2uiContentGenerator` to the `GenUiConversation`.
+1.  **Initialize `GenUiController`:** Set up `GenUiController` with your widget `Catalog`.
+2.  **Create `A2uiAgentConnector`:** Instantiate `A2uiAgentConnector`, providing the A2A server `Uri`.
+3.  **Create `GenUiConversation`:** Pass the `GenUiController` to the `GenUiConversation`.
+4.  **Connect Streams:** Pipe the output of `A2uiAgentConnector` into `GenUiController`.
 4.  **Render with `GenUiSurface`:** Use `GenUiSurface` widgets in your UI to display the agent-generated content.
 5.  **Send Messages:** Use `GenUiConversation.sendRequest` to send user input to the agent.
 
@@ -81,43 +82,57 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
-  final A2uiMessageProcessor _a2uiMessageProcessor =
-      A2uiMessageProcessor(catalog: CoreCatalogItems.asCatalog());
-  late final A2uiContentGenerator _contentGenerator;
-  late final GenUiConversation _uiAgent;
+  late final A2uiAgentConnector _connector;
+  late final GenUiController _controller;
+  late final GenUiConversation _conversation;
+  late final StreamSubscription _subscription;
+  late final StreamSubscription _textSubscription;
   final List<ChatMessage> _messages = [];
 
   @override
   void initState() {
     super.initState();
-    _contentGenerator = A2uiContentGenerator(
-      serverUrl: Uri.parse('http://localhost:8080'), // Replace with your A2A server URL
-    );
-    _uiAgent = GenUiConversation(
-      contentGenerator: _contentGenerator,
-      a2uiMessageProcessor: _a2uiMessageProcessor,
+    // Initialize the controller with the catalog
+    _controller = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+
+    // Create the connector
+    _connector = A2uiAgentConnector(
+      url: Uri.parse('http://localhost:8080'), // Replace with your A2A server URL
     );
 
-    // Listen for text responses from the agent
-    _contentGenerator.textResponseStream.listen((String text) {
-      setState(() {
-        _messages.insert(0, AgentMessage.text(text));
-      });
+    // Create the conversation facade
+    _conversation = GenUiConversation(
+      controller: _controller,
+      onSend: _sendMessageToAgent,
+      onTextResponse: (text) {
+        setState(() {
+          _messages.insert(0, ChatMessage.model(text));
+        });
+      },
+    );
+
+    // Pipe connector output to controller
+    _subscription = _connector.stream.listen((message) {
+      _controller.addMessage(message);
     });
 
-    // Listen for errors
-    _contentGenerator.errorStream.listen((ContentGeneratorError error) {
-      print('Error from ContentGenerator: ${error.error}');
-      // Optionally show error to the user
+    // Pipe text responses (if any separate text events come in)
+    _textSubscription = _connector.textStream.listen((text) {
+        _controller.addChunk(text);
     });
+  }
+
+  Future<void> _sendMessageToAgent(ChatMessage message, Iterable<ChatMessage> history) async {
+      await _connector.connectAndSend(message);
   }
 
   @override
   void dispose() {
     _textController.dispose();
-    _uiAgent.dispose();
-    _a2uiMessageProcessor.dispose();
-    _contentGenerator.dispose();
+    _conversation.dispose();
+    _connector.dispose(); // Dispose connector
+    _subscription.cancel();
+    _textSubscription.cancel();
     super.dispose();
   }
 
@@ -128,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.insert(0, message);
     });
-    _uiAgent.sendRequest(message);
+    _conversation.sendRequest(message);
   }
 
   @override
@@ -157,8 +172,9 @@ class _ChatScreenState extends State<ChatScreen> {
           SizedBox(
               height: 300,
               child: GenUiSurface(
-                host: _a2uiMessageProcessor,
                 surfaceId: 'main_surface',
+                // Use controller as host
+                host: _controller,
               )),
         ],
       ),
@@ -224,7 +240,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
 ## Key Components
 
--   **`A2uiContentGenerator`**: Implements `ContentGenerator`. Manages the connection to the A2A server and processes incoming A2UI messages, updating the `A2uiMessageProcessor`.
 -   **`A2uiAgentConnector`**: Handles the low-level WebSocket communication with the A2A server, including sending messages and parsing stream events.
 -   **`AgentCard`**: A data class holding metadata about the connected AI agent.
 

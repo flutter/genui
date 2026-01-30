@@ -10,59 +10,50 @@
                 "surfaceId": "helpOptions",
                 "components": [
                   {
-                    "component": {
-                      "Column": {
-                        "children": {
-                          "explicitList": [
-                            "heading",
-                            "options"
-                          ]
-                        }
-                      }
-                    },
-                    "id": "root"
+                    "component": "Column",
+                    "id": "root",
+                    "children": {
+                      "explicitList": [
+                        "heading",
+                        "options"
+                      ]
+                    }
                   },
                   {
-                    "component": {
-                      "Heading": {
-                        "level": "2",
-                        "text": {
-                          "literalString": "What can I help you with?"
-                        }
-                      }
-                    },
-                    "id": "heading"
+                    "component": "Heading",
+                    "id": "heading",
+                    "level": "2",
+                    "text": {
+                      "literalString": "What can I help you with?"
+                    }
                   },
                   {
-                    "component": {
-                      "MultipleChoice": {
-                        "maxAllowedSelections": 1,
-                        "options": [
-                          {
-                            "value": "answer_questions",
-                            "label": {
-                              "literalString": "Answer questions"
-                            }
-                          },
-                          {
-                            "value": "generate_ui",
-                            "label": {
-                              "literalString": "Generate UI"
-                            }
-                          },
-                          {
-                            "label": {
-                              "literalString": "Write code"
-                            },
-                            "value": "write_code"
-                          }
-                        ],
-                        "selections": {
-                          "path": "selection"
+                    "component": "MultipleChoice",
+                    "id": "options",
+                    "maxAllowedSelections": 1,
+                    "options": [
+                      {
+                        "value": "answer_questions",
+                        "label": {
+                          "literalString": "Answer questions"
                         }
+                      },
+                      {
+                        "value": "generate_ui",
+                        "label": {
+                          "literalString": "Generate UI"
+                        }
+                      },
+                      {
+                        "label": {
+                          "literalString": "Write code"
+                        },
+                        "value": "write_code"
                       }
-                    },
-                    "id": "options"
+                    ],
+                    "selections": {
+                      "path": "selection"
+                    }
                   }
                 ]
               }

@@ -5,6 +5,8 @@
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../ai_client/tools.dart';
+
 import 'model.dart';
 
 /// An [AiTool] for listing hotels.
@@ -28,10 +30,7 @@ class ListHotelsTool extends AiTool<Map<String, Object?>> {
                   'The check-out date in ISO 8601 format (YYYY-MM-DD).',
               format: 'date',
             ),
-            'guests': S.integer(
-              description: 'The number of guests.',
-              minimum: 1,
-            ),
+            'guests': S.integer(description: 'The number of guests.'),
           },
           required: ['query', 'checkIn', 'checkOut', 'guests'],
         ),

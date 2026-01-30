@@ -12,11 +12,11 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
-  factory _TextData({required JsonMap text, String? usageHint}) =>
-      _TextData.fromMap({'text': text, 'usageHint': usageHint});
+  factory _TextData({required Object text, String? variant}) =>
+      _TextData.fromMap({'text': text, 'variant': variant});
 
-  JsonMap get text => _json['text'] as JsonMap;
-  String? get usageHint => _json['usageHint'] as String?;
+  Object get text => _json['text'] as Object;
+  String? get variant => _json['variant'] as String?;
 }
 
 /// A catalog item representing a block of styled text.
@@ -28,36 +28,32 @@ extension type _TextData.fromMap(JsonMap _json) {
 /// ## Parameters:
 ///
 /// - `text`: The text to display. This supports markdown.
-/// - `usageHint`: A usage hint for the text size and style. One of 'h1', 'h2',
+/// - `variant`: A hint for the text size and style. One of 'h1', 'h2',
 ///   'h3', 'h4', 'h5', 'caption', 'body'.
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
     properties: {
+      'component': S.string(enumValues: ['Text']),
       'text': A2uiSchemas.stringReference(
         description:
             '''While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.''',
       ),
-      'usageHint': S.string(
-        description: 'A usage hint for the base text style.',
+      'variant': S.string(
+        description: 'A hint for the base text style.',
         enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
       ),
     },
-    required: ['text'],
+    required: ['component', 'text'],
   ),
   exampleData: [
     () => '''
       [
         {
           "id": "root",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Hello World"
-              },
-              "usageHint": "h1"
-            }
-          }
+          "component": "Text",
+          "text": "Hello World",
+          "variant": "h1"
         }
       ]
     ''',
@@ -71,8 +67,8 @@ final text = CatalogItem(
       valueListenable: notifier,
       builder: (context, currentValue, child) {
         final TextTheme textTheme = Theme.of(context).textTheme;
-        final String usageHint = textData.usageHint ?? 'body';
-        final TextStyle? baseStyle = switch (usageHint) {
+        final String variant = textData.variant ?? 'body';
+        final TextStyle? baseStyle = switch (variant) {
           'h1' => textTheme.headlineLarge,
           'h2' => textTheme.headlineMedium,
           'h3' => textTheme.headlineSmall,
@@ -81,7 +77,7 @@ final text = CatalogItem(
           'caption' => textTheme.bodySmall,
           _ => DefaultTextStyle.of(context).style,
         };
-        final double verticalPadding = switch (usageHint) {
+        final double verticalPadding = switch (variant) {
           'h1' => 20.0,
           'h2' => 16.0,
           'h3' => 12.0,

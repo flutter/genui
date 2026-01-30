@@ -31,7 +31,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
           _initialRequestSent = true;
         });
         aiState.conversation.sendRequest(
-          UserMessage.text('USER_SUBMITTED_DETAILS'),
+          ChatMessage.user('USER_SUBMITTED_DETAILS'),
         );
       }
     });

@@ -10,11 +10,12 @@ import '../../model/catalog_item.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['Video']),
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the video to play.',
     ),
   },
-  required: ['url'],
+  required: ['component', 'url'],
 );
 
 /// A catalog item representing a video player.
@@ -39,13 +40,8 @@ final video = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Video": {
-              "url": {
-                "literalString": "https://example.com/video.mp4"
-              }
-            }
-          }
+          "component": "Video",
+          "url": "https://example.com/video.mp4"
         }
       ]
     ''',

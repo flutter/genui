@@ -17,24 +17,13 @@ void main() {
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'icon',
-        componentProperties: {
-          'Icon': {
-            'name': {'literalString': 'add'},
-          },
-        },
-      ),
+      const Component(id: 'root', type: 'Icon', properties: {'name': 'add'}),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'icon',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -59,30 +48,25 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'icon',
-        componentProperties: {
-          'Icon': {
-            'name': {'path': '/iconName'},
-          },
+        id: 'root',
+        type: 'Icon',
+        properties: {
+          'name': {'path': '/iconName'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const DataModelUpdate(
+      const UpdateDataModel(
         surfaceId: 'testSurface',
         path: '/iconName',
-        contents: 'close',
+        value: 'close',
       ),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'icon',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(

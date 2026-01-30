@@ -13,27 +13,19 @@ import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['List']),
     'children': A2uiSchemas.componentArrayReference(),
     'direction': S.string(enumValues: ['vertical', 'horizontal']),
-    'alignment': S.string(enumValues: ['start', 'center', 'end', 'stretch']),
   },
-  required: ['children'],
+  required: ['component', 'children'],
 );
 
 extension type _ListData.fromMap(JsonMap _json) {
-  factory _ListData({
-    required Object? children,
-    String? direction,
-    String? alignment,
-  }) => _ListData.fromMap({
-    'children': children,
-    'direction': direction,
-    'alignment': alignment,
-  });
+  factory _ListData({required Object? children, String? direction}) =>
+      _ListData.fromMap({'children': children, 'direction': direction});
 
   Object? get children => _json['children'];
   String? get direction => _json['direction'] as String?;
-  String? get alignment => _json['alignment'] as String?;
 }
 
 /// A catalog item representing a scrollable list of widgets.
@@ -46,8 +38,6 @@ extension type _ListData.fromMap(JsonMap _json) {
 /// - `children`: A list of child widget IDs to display in the list.
 /// - `direction`: The direction of the list. Can be `vertical` or
 ///   `horizontal`. Defaults to `vertical`.
-/// - `alignment`: How the children should be placed along the cross axis.
-///   Can be `start`, `center`, `end`, or `stretch`. Defaults to `start`.
 final list = CatalogItem(
   name: 'List',
   dataSchema: _schema,
@@ -90,36 +80,21 @@ final list = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "List": {
-              "children": {
-                "explicitList": [
-                  "text1",
-                  "text2"
-                ]
-              }
-            }
-          }
+          "component": "List",
+          "children": [
+            "text1",
+            "text2"
+          ]
         },
         {
           "id": "text1",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "First"
-              }
-            }
-          }
+          "component": "Text",
+          "text": "First"
         },
         {
           "id": "text2",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Second"
-              }
-            }
-          }
+          "component": "Text",
+          "text": "Second"
         }
       ]
     ''',

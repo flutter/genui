@@ -48,7 +48,7 @@ void validateCatalogExamples(
             reason: 'Example must have a component with id "root"',
           );
 
-          final surfaceUpdate = SurfaceUpdate(
+          final surfaceUpdate = UpdateComponents(
             surfaceId: 'test-surface',
             components: components,
           );

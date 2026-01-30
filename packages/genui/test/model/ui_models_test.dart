@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/model/tools.dart';
 import 'package:genui/src/model/ui_models.dart';
 import 'package:genui/src/primitives/simple_items.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 void main() {
   group('UserActionEvent', () {
@@ -64,6 +64,63 @@ void main() {
       expect(map['timestamp'], now.toIso8601String());
       expect(map['isAction'], isTrue);
       expect(map['context'], {'key': 'value'});
+    });
+  });
+
+  group('UiDefinition', () {
+    test('validate throws exception on mismatch', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        properties: {'text': 'Hello'},
+      );
+      final uiDef = UiDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      // Schema invalidating the component (e.g., expecting type "Button")
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {'component': S.string(constValue: 'Button')},
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => uiDef.validate(schema),
+        throwsA(isA<GenUiValidationException>()),
+      );
+    });
+
+    test('validate passes on correct match', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        properties: {'text': 'Hello'},
+      );
+      final uiDef = UiDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Text'),
+                'text': S.string(),
+              },
+            ),
+          ),
+        },
+      );
+
+      uiDef.validate(schema); // Should not throw
     });
   });
 }

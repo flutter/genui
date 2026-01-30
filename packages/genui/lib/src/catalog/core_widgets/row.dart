@@ -14,12 +14,13 @@ import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['Row']),
     'children': A2uiSchemas.componentArrayReference(
       description:
           'Either an explicit list of widget IDs for the children, or a '
           'template with a data binding to the list of children.',
     ),
-    'distribution': S.string(
+    'justify': S.string(
       enumValues: [
         'start',
         'center',
@@ -27,29 +28,29 @@ final _schema = S.object(
         'spaceBetween',
         'spaceAround',
         'spaceEvenly',
+        'stretch', // Added stretch
       ],
     ),
-    'alignment': S.string(
+    'align': S.string(
       enumValues: ['start', 'center', 'end', 'stretch', 'baseline'],
     ),
   },
-  required: ['children'],
+  required: ['component', 'children'],
 );
 
 extension type _RowData.fromMap(JsonMap _json) {
-  factory _RowData({
-    Object? children,
-    String? distribution,
-    String? alignment,
-  }) => _RowData.fromMap({
-    'children': children,
-    'distribution': distribution,
-    'alignment': alignment,
-  });
+  factory _RowData({Object? children, String? justify, String? align}) =>
+      _RowData.fromMap({
+        'children': children,
+        'justify': justify,
+        'align': align,
+      });
 
   Object? get children => _json['children'];
-  String? get distribution => _json['distribution'] as String?;
-  String? get alignment => _json['alignment'] as String?;
+  String? get justify =>
+      _json['justify'] as String? ?? _json['distribution'] as String?;
+  String? get align =>
+      _json['align'] as String? ?? _json['alignment'] as String?;
 }
 
 MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
@@ -115,8 +116,8 @@ final row = CatalogItem(
       getComponent: itemContext.getComponent,
       explicitListBuilder: (childIds, buildChild, getComponent, dataContext) {
         return Row(
-          mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
-          crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+          mainAxisAlignment: _parseMainAxisAlignment(rowData.justify),
+          crossAxisAlignment: _parseCrossAxisAlignment(rowData.align),
           mainAxisSize: MainAxisSize.min,
           children: childIds
               .map(
@@ -125,7 +126,7 @@ final row = CatalogItem(
                   dataContext: dataContext,
                   buildChild: buildChild,
                   weight:
-                      getComponent(componentId)?.weight ??
+                      getComponent(componentId)?.properties['weight'] as int? ??
                       (getComponent(componentId)?.type == 'TextField'
                           ? 1
                           : null),
@@ -137,11 +138,12 @@ final row = CatalogItem(
       templateListWidgetBuilder: (context, list, componentId, dataBinding) {
         final Component? component = itemContext.getComponent(componentId);
         final int? weight =
-            component?.weight ?? (component?.type == 'TextField' ? 1 : null);
+            component?.properties['weight'] as int? ??
+            (component?.type == 'TextField' ? 1 : null);
 
         return Row(
-          mainAxisAlignment: _parseMainAxisAlignment(rowData.distribution),
-          crossAxisAlignment: _parseCrossAxisAlignment(rowData.alignment),
+          mainAxisAlignment: _parseMainAxisAlignment(rowData.justify),
+          crossAxisAlignment: _parseCrossAxisAlignment(rowData.align),
           mainAxisSize: MainAxisSize.min,
           children: [
             for (var i = 0; i < list.length; i++) ...[
@@ -164,36 +166,21 @@ final row = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Row": {
-              "children": {
-                "explicitList": [
-                  "text1",
-                  "text2"
-                ]
-              }
-            }
-          }
+          "component": "Row",
+          "children": [
+            "text1",
+            "text2"
+          ]
         },
         {
           "id": "text1",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "First"
-              }
-            }
-          }
+          "component": "Text",
+          "text": "First"
         },
         {
           "id": "text2",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "Second"
-              }
-            }
-          }
+          "component": "Text",
+          "text": "Second"
         }
       ]
     ''',

@@ -5,18 +5,18 @@
 import '../../model/a2ui_message.dart';
 
 /// A sealed class representing a part of a tool call.
-sealed class Part {
-  /// Creates a [Part].
-  const Part();
+sealed class DirectCallPart {
+  /// Creates a [DirectCallPart].
+  const DirectCallPart();
 
-  /// Creates a [Part] from a JSON map.
-  factory Part.fromJson(Map<String, Object?> json) {
+  /// Creates a [DirectCallPart] from a JSON map.
+  factory DirectCallPart.fromJson(Map<String, Object?> json) {
     switch (json['type'] as String) {
       case 'ToolCall':
         return ToolCall.fromJson(json);
 
       default:
-        throw ArgumentError('Invalid Part type: ${json["type"]}');
+        throw ArgumentError('Invalid DirectCallPart type: ${json["type"]}');
     }
   }
 
@@ -25,7 +25,7 @@ sealed class Part {
 }
 
 /// A tool call part.
-class ToolCall extends Part {
+class ToolCall extends DirectCallPart {
   /// The arguments to the tool call.
   final Object? args;
 

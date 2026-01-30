@@ -186,6 +186,33 @@ void main() {
       await robot.cancelPicker();
     });
   });
+
+  group('validation', () {
+    testWidgets('shows error when check fails', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (GenUiHost manager, String surfaceId) = setup('validation_test', {
+        'value': {'path': '/myDate'},
+        'checks': [
+          {
+            'func': 'required',
+            'args': [
+              {'path': '/myDate'},
+            ],
+            'message': 'Date is required',
+          },
+        ],
+      });
+
+      await robot.pumpSurface(manager, surfaceId);
+      robot.expectError('Date is required');
+
+      manager
+          .dataModelForSurface(surfaceId)
+          .update(DataPath('/myDate'), '2022-01-01');
+      await robot.pumpSurface(manager, surfaceId);
+      robot.expectNoError();
+    });
+  });
 }
 
 (GenUiHost, String) setup(String componentId, Map<String, dynamic> props) {
@@ -197,18 +224,14 @@ void main() {
   const surfaceId = 'testSurface';
 
   final components = [
-    Component(id: componentId, componentProperties: {'DateTimeInput': props}),
+    Component(id: 'root', type: 'DateTimeInput', properties: props),
   ];
 
   manager.handleMessage(
-    SurfaceUpdate(surfaceId: surfaceId, components: components),
+    UpdateComponents(surfaceId: surfaceId, components: components),
   );
   manager.handleMessage(
-    BeginRendering(
-      surfaceId: surfaceId,
-      root: componentId,
-      catalogId: 'test_catalog',
-    ),
+    const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
   );
 
   return (manager, surfaceId);
@@ -231,7 +254,7 @@ class DateTimeInputRobot {
   }
 
   Future<void> openPicker(String componentId) async {
-    await tester.tap(find.byKey(Key(componentId)));
+    await tester.tap(find.byKey(const Key('root')));
     await tester.pumpAndSettle();
   }
 
@@ -247,7 +270,7 @@ class DateTimeInputRobot {
   }
 
   void expectInputText(String componentId, String text) {
-    final Finder finder = find.byKey(Key('${componentId}_text'));
+    final Finder finder = find.byKey(const Key('root_text'));
     expect(finder, findsOneWidget);
     final String actualText = tester.widget<Text>(finder).data!;
     if (actualText != text) {
@@ -266,5 +289,19 @@ class DateTimeInputRobot {
 
   void expectTimePickerHidden() {
     expect(find.text('Select time'), findsNothing);
+  }
+
+  void expectError(String errorText) {
+    final Finder finder = find.byType(InputDecorator);
+    expect(finder, findsOneWidget);
+    final InputDecorator decorator = tester.widget(finder);
+    expect(decorator.decoration.errorText, errorText);
+  }
+
+  void expectNoError() {
+    final Finder finder = find.byType(InputDecorator);
+    expect(finder, findsOneWidget);
+    final InputDecorator decorator = tester.widget(finder);
+    expect(decorator.decoration.errorText, isNull);
   }
 }

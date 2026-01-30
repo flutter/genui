@@ -13,6 +13,7 @@ import '../../primitives/simple_items.dart';
 
 Schema _schema({required bool enableUsageHint}) {
   final Map<String, Schema> properties = {
+    'component': S.string(enumValues: ['Image']),
     'url': A2uiSchemas.stringReference(
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
@@ -48,7 +49,7 @@ extension type _ImageData.fromMap(JsonMap _json) {
   factory _ImageData({required JsonMap url, String? fit, String? usageHint}) =>
       _ImageData.fromMap({'url': url, 'fit': fit, 'usageHint': usageHint});
 
-  JsonMap get url => _json['url'] as JsonMap;
+  Object get url => _json['url'] as Object;
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -72,14 +73,9 @@ CatalogItem _imageCatalogItem({
       [
         {
           "id": "root",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png"
-              },
-              "usageHint": "mediumFeature"
-            }
-          }
+          "component": "Image",
+          "url": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png",
+          "usageHint": "mediumFeature"
         }
       ]
     ''',

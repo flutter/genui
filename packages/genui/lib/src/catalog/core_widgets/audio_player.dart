@@ -10,11 +10,12 @@ import '../../model/catalog_item.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['AudioPlayer']),
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the audio to play.',
     ),
   },
-  required: ['url'],
+  required: ['component', 'url'],
 );
 
 /// A catalog item for an audio player.
@@ -39,13 +40,8 @@ final audioPlayer = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "AudioPlayer": {
-              "url": {
-                "literalString": "https://example.com/audio.mp3"
-              }
-            }
-          }
+          "component": "AudioPlayer",
+          "url": "https://example.com/audio.mp3"
         }
       ]
     ''',

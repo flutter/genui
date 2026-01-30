@@ -20,10 +20,9 @@ void main() {
           builder: (context) => Scaffold(
             body: text.widgetBuilder(
               CatalogItemContext(
-                data: {
-                  'text': {'literalString': 'Hello World'},
-                },
+                data: {'text': 'Hello World'},
                 id: 'test_text',
+                type: 'Text',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
@@ -49,11 +48,9 @@ void main() {
           builder: (context) => Scaffold(
             body: text.widgetBuilder(
               CatalogItemContext(
-                data: {
-                  'text': {'literalString': 'Heading 1'},
-                  'usageHint': 'h1',
-                },
+                data: {'text': 'Heading 1', 'variant': 'h1'},
                 id: 'test_text_h1',
+                type: 'Text',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
@@ -103,10 +100,9 @@ void main() {
           builder: (context) => Scaffold(
             body: text.widgetBuilder(
               CatalogItemContext(
-                data: {
-                  'text': {'literalString': 'Hello **Bold**'},
-                },
+                data: {'text': 'Hello **Bold**'},
                 id: 'test_text_markdown',
+                type: 'Text',
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
@@ -145,10 +141,9 @@ void main() {
               style: const TextStyle(color: requiredColor),
               child: text.widgetBuilder(
                 CatalogItemContext(
-                  data: {
-                    'text': {'literalString': 'Contrast Text'},
-                  },
+                  data: {'text': 'Contrast Text'},
                   id: 'test_contrast',
+                  type: 'Text',
                   buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},
                   buildContext: context,

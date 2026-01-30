@@ -13,11 +13,10 @@ void main() {
       WidgetTester tester,
     ) async {
       final Map<String, Object> data = {
-        'topics': [
-          {'literalString': 'Topic A'},
-          {'literalString': 'Topic B'},
-        ],
-        'action': {'name': 'selectTopic'},
+        'topics': ['Topic A', 'Topic B'],
+        'action': {
+          'event': {'name': 'selectTopic'},
+        },
       };
       UiEvent? dispatchedEvent;
 
@@ -30,6 +29,7 @@ void main() {
                   CatalogItemContext(
                     data: data,
                     id: 'testId',
+                    type: 'Trailhead',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {
                       dispatchedEvent = event;
@@ -64,7 +64,9 @@ void main() {
     ) async {
       final Map<String, Object> data = {
         'topics': <Map<String, String>>[],
-        'action': {'name': 'selectTopic'},
+        'action': {
+          'event': {'name': 'selectTopic'},
+        },
       };
 
       await tester.pumpWidget(
@@ -76,6 +78,7 @@ void main() {
                   CatalogItemContext(
                     data: data,
                     id: 'testId',
+                    type: 'Trailhead',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
