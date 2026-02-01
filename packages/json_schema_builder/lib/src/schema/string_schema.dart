@@ -34,14 +34,14 @@ extension type const StringSchema.fromMap(Map<String, Object?> _value)
     String? format,
   }) => StringSchema.fromMap({
     'type': JsonType.string.typeName,
-    if (title != null) 'title': title,
-    if (description != null) 'description': description,
-    if (enumValues != null) 'enum': enumValues,
-    if (constValue != null) 'const': constValue,
-    if (minLength != null) 'minLength': minLength,
-    if (maxLength != null) 'maxLength': maxLength,
-    if (pattern != null) 'pattern': pattern,
-    if (format != null) 'format': format,
+    'title': ?title,
+    'description': ?description,
+    'enum': ?enumValues,
+    'const': ?constValue,
+    'minLength': ?minLength,
+    'maxLength': ?maxLength,
+    'pattern': ?pattern,
+    'format': ?format,
   });
 
   /// The minimum length of the string.

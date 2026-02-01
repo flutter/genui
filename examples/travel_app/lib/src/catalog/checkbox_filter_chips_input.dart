@@ -51,7 +51,7 @@ extension type _CheckboxFilterChipsInputData.fromMap(
   }) => _CheckboxFilterChipsInputData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
-    if (iconName != null) 'iconName': iconName,
+    'iconName': ?iconName,
     'selectedOptions': selectedOptions,
   });
 

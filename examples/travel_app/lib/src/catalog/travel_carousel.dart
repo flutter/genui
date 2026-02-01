@@ -106,7 +106,7 @@ extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
     JsonMap? title,
     required List<Map<String, Object?>> items,
   }) => _TravelCarouselData.fromMap({
-    if (title != null) 'title': title,
+    'title': ?title,
     'items': items,
   });
 
@@ -129,7 +129,7 @@ extension type _TravelCarouselItemSchemaData.fromMap(
   }) => _TravelCarouselItemSchemaData.fromMap({
     'description': description,
     'imageChildId': imageChildId,
-    if (listingSelectionId != null) 'listingSelectionId': listingSelectionId,
+    'listingSelectionId': ?listingSelectionId,
     'action': action,
   });
 

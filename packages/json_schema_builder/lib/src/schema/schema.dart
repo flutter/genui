@@ -178,30 +178,30 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
       _ => null,
     };
     return Schema.fromMap({
-      if (typeValue != null) 'type': typeValue,
-      if (enumValues != null) 'enum': enumValues,
-      if (constValue != null) 'const': constValue,
-      if (title != null) 'title': title,
-      if (description != null) 'description': description,
-      if ($comment != null) '\$comment': $comment,
-      if (defaultValue != null) 'default': defaultValue,
-      if (examples != null) 'examples': examples,
-      if (deprecated != null) 'deprecated': deprecated,
-      if (readOnly != null) 'readOnly': readOnly,
-      if (writeOnly != null) 'writeOnly': writeOnly,
-      if ($defs != null) kDefs: $defs,
-      if ($ref != null) kRef: $ref,
-      if ($dynamicAnchor != null) kDynamicAnchor: $dynamicAnchor,
-      if ($id != null) '\$id': $id,
-      if ($schema != null) '\$schema': $schema,
-      if (allOf != null) 'allOf': allOf,
-      if (anyOf != null) 'anyOf': anyOf,
-      if (oneOf != null) 'oneOf': oneOf,
-      if (not != null) 'not': not,
-      if (ifSchema != null) 'if': ifSchema,
-      if (thenSchema != null) 'then': thenSchema,
-      if (elseSchema != null) 'else': elseSchema,
-      if (dependentSchemas != null) 'dependentSchemas': dependentSchemas,
+      'type': ?typeValue,
+      'enum': ?enumValues,
+      'const': ?constValue,
+      'title': ?title,
+      'description': ?description,
+      '\$comment': ?$comment,
+      'default': ?defaultValue,
+      'examples': ?examples,
+      'deprecated': ?deprecated,
+      'readOnly': ?readOnly,
+      'writeOnly': ?writeOnly,
+      kDefs: ?$defs,
+      kRef: ?$ref,
+      kDynamicAnchor: ?$dynamicAnchor,
+      '\$id': ?$id,
+      '\$schema': ?$schema,
+      'allOf': ?allOf,
+      'anyOf': ?anyOf,
+      'oneOf': ?oneOf,
+      'not': ?not,
+      'if': ?ifSchema,
+      'then': ?thenSchema,
+      'else': ?elseSchema,
+      'dependentSchemas': ?dependentSchemas,
     });
   }
 
@@ -307,8 +307,8 @@ extension type Schema.fromMap(Map<String, Object?> _value) {
 
   /// Creates a JSON schema definition for any value.
   factory Schema.any({String? title, String? description}) => Schema.fromMap({
-    if (title != null) 'title': title,
-    if (description != null) 'description': description,
+    'title': ?title,
+    'description': ?description,
   });
 
   /// Creates a schema from a boolean value.

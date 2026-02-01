@@ -40,7 +40,7 @@ extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
   }) => _ListingsBookerData.fromMap({
     'listingSelectionIds': listingSelectionIds,
     'itineraryName': itineraryName,
-    if (modifyAction != null) 'modifyAction': modifyAction,
+    'modifyAction': ?modifyAction,
   });
 
   List<String> get listingSelectionIds =>

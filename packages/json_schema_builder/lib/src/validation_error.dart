@@ -66,7 +66,7 @@ extension type ValidationError.fromMap(Map<String, Object?> _value) {
   }) => ValidationError.fromMap({
     'error': error.name,
     'path': path.toList(),
-    if (details != null) 'details': details,
+    'details': ?details,
   });
 
   factory ValidationError.typeMismatch({

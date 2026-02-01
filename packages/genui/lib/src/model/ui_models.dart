@@ -61,7 +61,7 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
     DateTime? timestamp,
     JsonMap? context,
   }) : _json = {
-         if (surfaceId != null) surfaceIdKey: surfaceId,
+         surfaceIdKey: ?surfaceId,
          'name': name,
          'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
