@@ -4,6 +4,11 @@ This package provides a set of technology-agnostic primitive types and data stru
 
 It includes core definitions such as `ChatMessage`, `Parts`, `ToolDefinition` and other foundational classes that are used across the `genai` ecosystem to ensure consistency and interoperability between different AI providers.
 
+## Standartization and flexibility
+
+
+
+
 ## Aliasing
 
 If you need to resolve name conflicts with other packages, alias the package as `genai`:
