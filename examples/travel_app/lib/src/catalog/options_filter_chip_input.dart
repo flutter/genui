@@ -48,8 +48,8 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
   }) => _OptionsFilterChipInputData.fromMap({
     'chipLabel': chipLabel,
     'options': options,
-    if (iconName != null) 'iconName': iconName,
-    if (value != null) 'value': value,
+    'iconName': ?iconName,
+    'value': ?value,
   });
 
   String get chipLabel => _json['chipLabel'] as String;

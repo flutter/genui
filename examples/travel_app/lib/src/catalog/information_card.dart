@@ -34,9 +34,9 @@ extension type _InformationCardData.fromMap(Map<String, Object?> _json) {
     JsonMap? subtitle,
     required JsonMap body,
   }) => _InformationCardData.fromMap({
-    if (imageChildId != null) 'imageChildId': imageChildId,
+    'imageChildId': ?imageChildId,
     'title': title,
-    if (subtitle != null) 'subtitle': subtitle,
+    'subtitle': ?subtitle,
     'body': body,
   });
 

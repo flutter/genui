@@ -61,19 +61,17 @@ extension type ObjectSchema.fromMap(Map<String, Object?> _value)
     int? maxProperties,
   }) => ObjectSchema.fromMap({
     'type': JsonType.object.typeName,
-    if (title != null) 'title': title,
-    if (description != null) 'description': description,
-    if (properties != null) 'properties': properties,
-    if (patternProperties != null) 'patternProperties': patternProperties,
-    if (required != null) 'required': required,
-    if (dependentRequired != null) 'dependentRequired': dependentRequired,
-    if (additionalProperties != null)
-      'additionalProperties': additionalProperties,
-    if (unevaluatedProperties != null)
-      'unevaluatedProperties': unevaluatedProperties,
-    if (propertyNames != null) 'propertyNames': propertyNames,
-    if (minProperties != null) 'minProperties': minProperties,
-    if (maxProperties != null) 'maxProperties': maxProperties,
+    'title': ?title,
+    'description': ?description,
+    'properties': ?properties,
+    'patternProperties': ?patternProperties,
+    'required': ?required,
+    'dependentRequired': ?dependentRequired,
+    'additionalProperties': ?additionalProperties,
+    'unevaluatedProperties': ?unevaluatedProperties,
+    'propertyNames': ?propertyNames,
+    'minProperties': ?minProperties,
+    'maxProperties': ?maxProperties,
   });
 
   /// A map of property names to schemas.

@@ -61,17 +61,17 @@ extension type ListSchema.fromMap(Map<String, Object?> _value)
     bool? uniqueItems,
   }) => ListSchema.fromMap({
     'type': JsonType.list.typeName,
-    if (title != null) 'title': title,
-    if (description != null) 'description': description,
-    if (items != null) 'items': items,
-    if (prefixItems != null) 'prefixItems': prefixItems,
-    if (unevaluatedItems != null) 'unevaluatedItems': unevaluatedItems,
-    if (contains != null) 'contains': contains,
-    if (minContains != null) 'minContains': minContains,
-    if (maxContains != null) 'maxContains': maxContains,
-    if (minItems != null) 'minItems': minItems,
-    if (maxItems != null) 'maxItems': maxItems,
-    if (uniqueItems != null) 'uniqueItems': uniqueItems,
+    'title': ?title,
+    'description': ?description,
+    'items': ?items,
+    'prefixItems': ?prefixItems,
+    'unevaluatedItems': ?unevaluatedItems,
+    'contains': ?contains,
+    'minContains': ?minContains,
+    'maxContains': ?maxContains,
+    'minItems': ?minItems,
+    'maxItems': ?maxItems,
+    'uniqueItems': ?uniqueItems,
   });
 
   /// The schema that all items in the list must match.

@@ -29,7 +29,7 @@ extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
     bool? obscured,
   }) => _TextInputChipData.fromMap({
     'label': label,
-    if (value != null) 'value': value,
+    'value': ?value,
     'obscured': obscured ?? false,
   });
 
