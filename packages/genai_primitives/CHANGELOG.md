@@ -1,5 +1,9 @@
 # `genai_primitives` Changelog
 
+## 0.2.1
+
+- Update README.md (#693).
+
 ## 0.2.0
 
 - **BREAKING**: Rename Part to StandardPart and BasePart to Part (#683).
