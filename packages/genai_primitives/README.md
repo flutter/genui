@@ -6,16 +6,15 @@ It includes core definitions such as `ChatMessage`, `Parts`, `ToolDefinition` an
 
 ## Core Types
 
-* [`Part`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/parts/model.dart): Flexible base type for message parts. To define custom parts of message derive from this type.
+* [`Part`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/parts/model.dart): Base type for message parts. Extend this to define custom part types.
 
-* [`Parts`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/parts/parts.dart): collection of instances of `Part` with helpers.
+* [`Parts`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/parts/parts.dart): A collection of `Part` instances with utility methods.
 
-* [`StandardPart` (extends `Part`)](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/parts/standard_part.dart): sealed class with fixed set of implementations, utilized by `ChatMessage`. 
-To reach consistency with other packages and LLM providers, use StandardPart.
+* [`StandardPart`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/parts/standard_part.dart): Sealed class extending `Part` with a fixed set of implementations. Used by `ChatMessage` for cross-provider compatibility.
 
-* [ChatMessage](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/chat_message.dart): class that represent chat message compatible with most gen AI model and framework providers. 
+* [`ChatMessage`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/chat_message.dart): Represents a chat message compatible with most GenAI providers.
 
-* [ToolDefinition](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/tool_definition.dart): definition of a tool that can be called by LLM.
+* [`ToolDefinition`](https://github.com/flutter/genui/blob/main/packages/genai_primitives/lib/src/tool_definition.dart): Defines a tool that can be invoked by an LLM.
 
 ## Aliasing
 
