@@ -4,15 +4,15 @@
 
 import 'package:genui/src/model/a2ui_message.dart';
 
-import 'package:genui/src/transport/gen_ui_controller.dart';
+import 'package:genui/src/transport/a2ui_transport_adapter.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('GenUiController', () {
-    late GenUiController controller;
+  group('A2uiTransportAdapter', () {
+    late A2uiTransportAdapter controller;
 
     setUp(() {
-      controller = GenUiController();
+      controller = A2uiTransportAdapter();
     });
 
     tearDown(() {

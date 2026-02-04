@@ -12,7 +12,7 @@ import 'package:json_schema_builder/src/schema/schema.dart';
 
 void main() {
   group('A2uiMessage', () {
-// ... existing tests ...
+    // ... existing tests ...
     test('CreateSurface.fromJson parses correctly', () {
       final Map<String, Object> json = {
         'version': 'v0.9',

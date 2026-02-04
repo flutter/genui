@@ -10,14 +10,14 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  late A2uiMessageProcessor processor;
+  late GenUiEngine processor;
   final testCatalog = Catalog([
     CoreCatalogItems.button,
     CoreCatalogItems.text,
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    processor = A2uiMessageProcessor(catalogs: [testCatalog]);
+    processor = GenUiEngine(catalogs: [testCatalog]);
     final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
       (r) => print('[LOG] ${r.message}'),
     );

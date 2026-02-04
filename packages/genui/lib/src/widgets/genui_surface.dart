@@ -5,6 +5,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../interfaces/gen_ui_context.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
@@ -12,7 +13,6 @@ import '../model/ui_models.dart';
 import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'interfaces.dart';
 
 /// A callback for when a user interacts with a widget.
 typedef UiEventCallback = void Function(UiEvent event);
@@ -74,10 +74,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           definition,
           catalog,
           rootId,
-          DataContext(
-            widget.genUiContext.dataModel,
-            '/',
-          ),
+          DataContext(widget.genUiContext.dataModel, '/'),
         );
       },
     );
@@ -150,10 +147,7 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
           definition,
           catalog,
           contentChildId,
-          DataContext(
-            widget.genUiContext.dataModel,
-            '/',
-          ),
+          DataContext(widget.genUiContext.dataModel, '/'),
         ),
       );
       return;

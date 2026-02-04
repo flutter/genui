@@ -9,13 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('$A2uiMessageProcessor', () {
-    late A2uiMessageProcessor messageProcessor;
+  group('$GenUiEngine', () {
+    late GenUiEngine messageProcessor;
 
     setUp(() {
-      messageProcessor = A2uiMessageProcessor(
-        catalogs: [CoreCatalogItems.asCatalog()],
-      );
+      messageProcessor = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     tearDown(() {
@@ -25,7 +23,7 @@ void main() {
     test('can be initialized with multiple catalogs', () {
       final catalog1 = const Catalog([], catalogId: 'cat1');
       final catalog2 = const Catalog([], catalogId: 'cat2');
-      final multiManager = A2uiMessageProcessor(catalogs: [catalog1, catalog2]);
+      final multiManager = GenUiEngine(catalogs: [catalog1, catalog2]);
       expect(multiManager.catalogs, contains(catalog1));
       expect(multiManager.catalogs, contains(catalog2));
       expect(multiManager.catalogs.length, 2);
@@ -68,9 +66,9 @@ void main() {
         isNotNull,
       ); // Check if root (or any component) exists
       expect(definition.catalogId, 'test_catalog');
-      expect(messageProcessor.surfaces[surfaceId]!.value, isNotNull);
+      expect(messageProcessor.registry.getSurface(surfaceId), isNotNull);
       expect(
-        messageProcessor.surfaces[surfaceId]!.value!.catalogId,
+        messageProcessor.registry.getSurface(surfaceId)!.catalogId,
         'test_catalog',
       );
     });
@@ -141,14 +139,14 @@ void main() {
 
       expect(update, isA<SurfaceRemoved>());
       expect(update.surfaceId, surfaceId);
-      expect(messageProcessor.surfaces.containsKey(surfaceId), isFalse);
+      expect(messageProcessor.registry.hasSurface(surfaceId), isFalse);
     });
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
-      final ValueNotifier<UiDefinition?> notifier1 = messageProcessor
-          .getSurfaceNotifier('s1');
-      final ValueNotifier<UiDefinition?> notifier2 = messageProcessor
-          .getSurfaceNotifier('s1');
+      final ValueListenable<UiDefinition?> notifier1 = messageProcessor.registry
+          .watchSurface('s1');
+      final ValueListenable<UiDefinition?> notifier2 = messageProcessor.registry
+          .watchSurface('s1');
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
     });
@@ -169,8 +167,8 @@ void main() {
     });
 
     test('can handle UI event', () async {
-      messageProcessor
-          .dataModelForSurface('testSurface')
+      messageProcessor.store
+          .getDataModel('testSurface')
           .update(DataPath('/myValue'), 'testValue');
       final Future<ChatMessage> future = messageProcessor.onSubmit.first;
       final now = DateTime.now();

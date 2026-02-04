@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Row widget renders children', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.row,
@@ -54,7 +54,7 @@ void main() {
   testWidgets('Row widget applies weight property to children', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.row,

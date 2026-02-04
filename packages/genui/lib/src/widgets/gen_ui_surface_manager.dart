@@ -6,9 +6,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../core/a2ui_message_processor.dart';
-import '../core/genui_surface.dart';
-import '../core/interfaces.dart';
+import '../../genui.dart' show GenUiEngine, GenUiHost, GenUiSurface;
+
 import '../model/ui_models.dart';
 
 /// A widget that manages and displays multiple GenUI surfaces.
@@ -58,10 +57,9 @@ class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
     // Initialize with existing surfaces if any (host doesn't expose list
     // directly in interface, but we can track updates. Ideally host should
     // expose active IDs).
-    // A2uiMessageProcessor exposes `surfaces` map but only in concrete class.
-    // We'll rely on updates or check if host is A2uiMessageProcessor.
-    if (widget.host is A2uiMessageProcessor) {
-      _activeSurfaceIds = (widget.host as A2uiMessageProcessor).surfaces.keys
+    // Initialize with existing surfaces if any.
+    if (widget.host is GenUiEngine) {
+      _activeSurfaceIds = (widget.host as GenUiEngine).registry.surfaceOrder
           .toList();
     }
     _subscription = widget.host.surfaceUpdates.listen(_handleUpdate);

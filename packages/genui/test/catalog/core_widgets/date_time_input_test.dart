@@ -57,7 +57,9 @@ void main() {
         'value': {'path': '/myDateTime'},
       });
 
-      manager.contextFor(surfaceId).dataModel
+      manager
+          .contextFor(surfaceId)
+          .dataModel
           .update(DataPath('/myDateTime'), '2022-01-01T14:30:00');
 
       await robot.pumpSurface(manager, surfaceId);
@@ -99,13 +101,10 @@ void main() {
 
     testWidgets('parses initial value correctly', (tester) async {
       final robot = DateTimeInputRobot(tester);
-      final (GenUiHost manager, String surfaceId) = setup(
-        'time_only_parsing',
-        {
-          'value': {'path': '/myTimeProp'},
-          'enableDate': false,
-        },
-      );
+      final (GenUiHost manager, String surfaceId) = setup('time_only_parsing', {
+        'value': {'path': '/myTimeProp'},
+        'enableDate': false,
+      });
 
       manager
           .contextFor(surfaceId)
@@ -198,21 +197,18 @@ void main() {
   group('validation', () {
     testWidgets('shows error when check fails', (tester) async {
       final robot = DateTimeInputRobot(tester);
-      final (GenUiHost manager, String surfaceId) = setup(
-        'validation_test',
-        {
-          'value': {'path': '/myDate'},
-          'checks': [
-            {
-              'func': 'required',
-              'args': [
-                {'path': '/myDate'},
-              ],
-              'message': 'Date is required',
-            },
-          ],
-        },
-      );
+      final (GenUiHost manager, String surfaceId) = setup('validation_test', {
+        'value': {'path': '/myDate'},
+        'checks': [
+          {
+            'func': 'required',
+            'args': [
+              {'path': '/myDate'},
+            ],
+            'message': 'Date is required',
+          },
+        ],
+      });
 
       await robot.pumpSurface(manager, surfaceId);
       robot.expectError('Date is required');
@@ -232,7 +228,7 @@ void main() {
     CoreCatalogItems.dateTimeInput,
   ], catalogId: 'test_catalog');
 
-  final manager = A2uiMessageProcessor(catalogs: [catalog]);
+  final manager = GenUiEngine(catalogs: [catalog]);
   const surfaceId = 'testSurface';
 
   final components = [

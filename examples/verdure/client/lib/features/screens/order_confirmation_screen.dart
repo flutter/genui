@@ -27,8 +27,8 @@ class OrderConfirmationScreen extends ConsumerWidget {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor
-                    .getSurfaceNotifier('confirmation'),
+                valueListenable: aiState.a2uiMessageProcessor.registry
+                    .watchSurface('confirmation'),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());

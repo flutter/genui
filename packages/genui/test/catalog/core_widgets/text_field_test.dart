@@ -9,9 +9,7 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('TextField with no weight in Row defaults to weight: 1 '
       'and expands', (WidgetTester tester) async {
-    final a2uiProcessor = A2uiMessageProcessor(
-      catalogs: [CoreCatalogItems.asCatalog()],
-    );
+    final a2uiProcessor = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -62,9 +60,7 @@ void main() {
   testWidgets('TextField in Row (with weight) expands', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
-      catalogs: [CoreCatalogItems.asCatalog()],
-    );
+    final manager = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -112,9 +108,7 @@ void main() {
   });
 
   testWidgets('TextField validation checks work', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
-      catalogs: [CoreCatalogItems.asCatalog()],
-    );
+    final manager = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
     const surfaceId = 'validationTest';
     // Initialize with invalid value
     manager.handleMessage(

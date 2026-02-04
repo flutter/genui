@@ -6,202 +6,168 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../core/interfaces.dart';
-import '../model/a2ui_message.dart';
+import '../engine/gen_ui_engine.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
-import '../transport/gen_ui_controller.dart';
+import '../transport/a2ui_transport_adapter.dart';
 
-/// A high-level abstraction to manage a generative UI conversation.
-///
-/// This class simplifies the process of creating a generative UI by managing
-/// the conversation loop.
-///
-/// It uses a [GenUiController] to handle the UI updates and leaves the
-/// transport layer to the user via the [GenUiConversation.onSend] callback.
-typedef OnSendCallback =
-    Future<void> Function(ChatMessage message, Iterable<ChatMessage> history);
+/// Events emitted by [GenUiConversation].
+sealed class ConversationEvent {}
 
-class GenUiConversation {
-  /// Creates a new [GenUiConversation].
-  ///
-  /// Callbacks like [onSurfaceAdded], [onComponentsUpdated] and
-  /// [onSurfaceDeleted] can be provided to react to UI changes initiated by
-  /// the AI.
-  GenUiConversation({
-    required this.controller,
-    required A2uiMessageSink messageSink,
-    required GenUiHost host,
-    required this.onSend,
-    this.onSurfaceAdded,
-    this.onComponentsUpdated,
-    this.onSurfaceDeleted,
-    this.onTextResponse,
-    this.onError,
-  }) : _host = host {
-    _messageSubscription = controller.messageStream.listen((message) {
-      messageSink.handleMessage(message);
-    });
-    _surfaceUpdateSubscription = host.surfaceUpdates.listen(
-      _handleUpdateComponents,
+/// Fired when a new surface is added.
+class ConversationSurfaceAdded extends ConversationEvent {
+  ConversationSurfaceAdded(this.surfaceId, this.definition);
+  final String surfaceId;
+  final UiDefinition definition;
+}
+
+/// Fired when components are updated on a surface.
+class ConversationComponentsUpdated extends ConversationEvent {
+  ConversationComponentsUpdated(this.surfaceId, this.definition);
+  final String surfaceId;
+  final UiDefinition definition;
+}
+
+/// Fired when a surface is removed.
+class ConversationSurfaceRemoved extends ConversationEvent {
+  ConversationSurfaceRemoved(this.surfaceId);
+  final String surfaceId;
+}
+
+/// Fired when new content (text) is received from the LLM.
+class ConversationContentReceived extends ConversationEvent {
+  ConversationContentReceived(this.text);
+  final String text;
+}
+
+/// Fired when the conversation is waiting for a response.
+class ConversationWaiting extends ConversationEvent {}
+
+/// Fired when an error occurs.
+class ConversationError extends ConversationEvent {
+  ConversationError(this.error, [this.stackTrace]);
+  final Object error;
+  final StackTrace? stackTrace;
+}
+
+/// State of the conversation.
+class ConversationState {
+  const ConversationState({
+    required this.surfaces,
+    required this.latestText,
+    required this.isWaiting,
+  });
+
+  /// The list of active surface IDs.
+  final List<String> surfaces; // Could be richer if needed
+
+  /// The latest text received.
+  final String latestText;
+
+  /// Whether we are waiting for a response.
+  final bool isWaiting;
+
+  ConversationState copyWith({
+    List<String>? surfaces,
+    String? latestText,
+    bool? isWaiting,
+  }) {
+    return ConversationState(
+      surfaces: surfaces ?? this.surfaces,
+      latestText: latestText ?? this.latestText,
+      isWaiting: isWaiting ?? this.isWaiting,
     );
-    _textSubscription = controller.textStream.listen(_handleTextResponse);
   }
+}
 
-  /// The [GenUiController] managing the transport.
-  final GenUiController controller;
-  final GenUiHost _host;
+/// Facade for managing a GenUI conversation.
+class GenUiConversation {
+  GenUiConversation({
+    required this.engine,
+    required this.adapter,
+    required this.onSend,
+  }) {
+    // Listen to adapter messages and pipe to engine
+    _adapterSubscription = adapter.messageStream.listen(engine.handleMessage);
 
-  /// The callback to call when the user sends a message.
-  ///
-  /// The user of this class is responsible for sending the message to their LLM
-  /// and piping the response back into the [controller] via
-  /// [GenUiController.addChunk].
-  ///
-  /// This callback should invoke the LLM with the given `message` and
-  /// `history`, and stream the response back to the [controller] via
-  /// [GenUiController.addChunk].
-  final OnSendCallback onSend;
+    // Listen to adapter text and emit events
+    _textSubscription = adapter.textStream.listen((text) {
+      _eventController.add(ConversationContentReceived(text));
+      _updateState((s) => s.copyWith(latestText: text));
+    });
 
-  /// A callback for when a new surface is added by the AI.
-  final ValueChanged<SurfaceAdded>? onSurfaceAdded;
-
-  /// A callback for when a surface is deleted by the AI.
-  final ValueChanged<SurfaceRemoved>? onSurfaceDeleted;
-
-  /// A callback for when a surface is updated by the AI.
-  final ValueChanged<ComponentsUpdated>? onComponentsUpdated;
-
-  /// A callback for when a text response is received from the AI.
-  final ValueChanged<String>? onTextResponse;
-
-  /// A callback for when an error occurs.
-  final ValueChanged<Object>? onError;
-
-  late final StreamSubscription<A2uiMessage> _messageSubscription;
-  late final StreamSubscription<GenUiUpdate> _surfaceUpdateSubscription;
-  late final StreamSubscription<String> _textSubscription;
-
-  final ValueNotifier<List<ChatMessage>> _conversation =
-      ValueNotifier<List<ChatMessage>>([]);
-  final ValueNotifier<bool> _isProcessing = ValueNotifier<bool>(false);
-
-  /// Handles updates to the UI components (add, update, remove).
-  ///
-  /// This method updates the local conversation history to reflect the changes
-  /// in the UI. parameters to this method are supplied by the
-  /// [GenUiController].
-  void _handleUpdateComponents(GenUiUpdate update) {
-    switch (update) {
-      case SurfaceAdded():
-        _conversation.value = [
-          ..._conversation.value,
-          ChatMessage.model(
-            '',
-            parts: [
-              UiPart.create(
-                definition: update.definition,
-                surfaceId: update.surfaceId,
-              ),
-            ],
-          ),
-        ];
-        onSurfaceAdded?.call(update);
-      case ComponentsUpdated():
-        final newConversation = List<ChatMessage>.from(_conversation.value);
-        final int index = newConversation.lastIndexWhere(
-          (m) =>
-              m.role == ChatMessageRole.model &&
-              m.parts.uiParts.any((p) => p.surfaceId == update.surfaceId),
-        );
-        final newMessage = ChatMessage.model(
-          '',
-          parts: [
-            UiPart.create(
-              definition: update.definition,
-              surfaceId: update.surfaceId,
+    // Listen to engine updates and emit events
+    _engineSubscription = engine.surfaceUpdates.listen((update) {
+      switch (update) {
+        case SurfaceAdded(:final surfaceId, :final definition):
+          _eventController.add(ConversationSurfaceAdded(surfaceId, definition));
+          _updateState((s) {
+            if (!s.surfaces.contains(surfaceId)) {
+              return s.copyWith(surfaces: [...s.surfaces, surfaceId]);
+            }
+            return s;
+          });
+        case ComponentsUpdated(:final surfaceId, :final definition):
+          _eventController.add(
+            ConversationComponentsUpdated(surfaceId, definition),
+          );
+        case SurfaceRemoved(:final surfaceId):
+          _eventController.add(ConversationSurfaceRemoved(surfaceId));
+          _updateState(
+            (s) => s.copyWith(
+              surfaces: s.surfaces.where((id) => id != surfaceId).toList(),
             ),
-          ],
-        );
-        if (index != -1) {
-          newConversation[index] = newMessage;
-        } else {
-          // This can happen if a surface is created and updated in the same
-          // turn.
-          newConversation.add(newMessage);
-        }
-        _conversation.value = newConversation;
-        onComponentsUpdated?.call(update);
-      case SurfaceRemoved():
-        final newConversation = List<ChatMessage>.from(_conversation.value);
-        newConversation.removeWhere(
-          (m) =>
-              m.role == ChatMessageRole.model &&
-              m.parts.uiParts.any((p) => p.surfaceId == update.surfaceId),
-        );
-        _conversation.value = newConversation;
-        onSurfaceDeleted?.call(update);
-    }
+          );
+      }
+    });
+
+    // Listen for engine submissions (e.g. errors or user actions) and
+    // forward them.
+    _engineSubmitSubscription = engine.onSubmit.listen(onSend);
   }
 
-  /// Disposes of the resources used by this conversation.
-  void dispose() {
-    _messageSubscription.cancel();
-    _surfaceUpdateSubscription.cancel();
-    _textSubscription.cancel();
-    controller.dispose();
-    _isProcessing.dispose();
-    _conversation.dispose();
-  }
+  final GenUiEngine engine;
+  final A2uiTransportAdapter adapter;
+  final Future<void> Function(ChatMessage) onSend;
 
-  /// The host for the UI surfaces managed by this agent.
-  GenUiHost get host => _host;
+  final StreamController<ConversationEvent> _eventController =
+      StreamController.broadcast();
 
-  /// A [ValueListenable] that provides the current conversation history.
-  ValueListenable<List<ChatMessage>> get conversation => _conversation;
+  final ValueNotifier<ConversationState> _stateNotifier = ValueNotifier(
+    const ConversationState(surfaces: [], latestText: '', isWaiting: false),
+  );
 
-  /// Whether the conversation is currently processing a request.
-  ValueListenable<bool> get isProcessing => _isProcessing;
+  StreamSubscription<dynamic>? _adapterSubscription;
+  StreamSubscription<dynamic>? _textSubscription;
+  StreamSubscription<dynamic>? _engineSubscription;
+  StreamSubscription<dynamic>? _engineSubmitSubscription;
 
-  /// Returns a [ValueNotifier] for the given [surfaceId].
-  ValueListenable<UiDefinition?> surface(String surfaceId) {
-    return _host.contextFor(surfaceId).definition;
-  }
+  Stream<ConversationEvent> get events => _eventController.stream;
+  ValueListenable<ConversationState> get state => _stateNotifier;
 
-  /// Sends a user message to the AI.
+  /// Sends a request to the LLM.
   Future<void> sendRequest(ChatMessage message) async {
-    final List<ChatMessage> history = _conversation.value;
-    // Don't add to history if it's purely a UI interaction that shouldn't be
-    // valid chat history.
-    final bool isUiInteraction = message.parts
-        .whereType<UiInteractionPart>()
-        .isNotEmpty;
-    if (!isUiInteraction) {
-      _conversation.value = [...history, message];
-    }
-
-    // We don't construct clientCapabilities here anymore,
-    // the user needs to know what they are doing when they call the LLM.
-    // OR we should expose them from the controller so the user can grab them?
-
-    _isProcessing.value = true;
+    _eventController.add(ConversationWaiting());
+    _updateState((s) => s.copyWith(isWaiting: true));
     try {
-      await onSend(message, history);
-    } catch (e) {
-      _handleError(e);
+      await onSend(message);
+    } catch (e, st) {
+      _eventController.add(ConversationError(e, st));
     } finally {
-      _isProcessing.value = false;
+      _updateState((s) => s.copyWith(isWaiting: false));
     }
   }
 
-  void _handleTextResponse(String text) {
-    _conversation.value = [..._conversation.value, ChatMessage.model(text)];
-    onTextResponse?.call(text);
+  void _updateState(ConversationState Function(ConversationState) updater) {
+    _stateNotifier.value = updater(_stateNotifier.value);
   }
 
-  void _handleError(Object error) {
-    final errorResponseMessage = ChatMessage.model('An error occurred: $error');
-    _conversation.value = [..._conversation.value, errorResponseMessage];
-    onError?.call(error);
+  void dispose() {
+    _adapterSubscription?.cancel();
+    _textSubscription?.cancel();
+    _engineSubscription?.cancel();
+    _engineSubmitSubscription?.cancel();
+    _eventController.close();
+    _stateNotifier.dispose();
   }
 }

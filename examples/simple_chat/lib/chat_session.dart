@@ -21,11 +21,11 @@ class ChatSession extends ChangeNotifier {
   final List<MessageController> _messages = [];
   List<MessageController> get messages => List.unmodifiable(_messages);
 
-  late final A2uiMessageProcessor _messageProcessor;
+  late final GenUiEngine _messageProcessor;
   GenUiHost get genUiContext => _messageProcessor;
 
-  late final GenUiController _genUiController;
-  GenUiController get genUiController => _genUiController;
+  late final A2uiTransportAdapter _genUiController;
+  A2uiTransportAdapter get genUiController => _genUiController;
 
   late final dartantic.GoogleProvider _provider;
   late final dartantic.Agent _agent;
@@ -38,10 +38,10 @@ class ChatSession extends ChangeNotifier {
     final Catalog catalog = CoreCatalogItems.asCatalog();
 
     // Initialize Message Processor
-    _messageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
+    _messageProcessor = GenUiEngine(catalogs: [catalog]);
 
-    // Initialize GenUiController
-    _genUiController = GenUiController();
+    // Initialize A2uiTransportAdapter
+    _genUiController = A2uiTransportAdapter();
 
     // Wire controller to processor
     _genUiController.messageStream.listen(_messageProcessor.handleMessage);

@@ -77,7 +77,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
 
   final _protocol = Backend(uiSchema);
-  late final A2uiMessageProcessor _a2uiMessageProcessor = A2uiMessageProcessor(
+  late final GenUiEngine _a2uiMessageProcessor = GenUiEngine(
     catalogs: [_catalog],
   );
   String? _selectedResponse;

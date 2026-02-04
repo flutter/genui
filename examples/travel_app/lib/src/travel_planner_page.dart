@@ -27,7 +27,7 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [A2uiMessageProcessor] and [GenUiController], maintains
+/// It initializes the [GenUiEngine] and [A2uiTransportAdapter], maintains
 /// the conversation history, and handles the interaction between the user, the
 /// AI, and the dynamically generated UI.
 ///
@@ -54,9 +54,14 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage>
     with AutomaticKeepAliveClientMixin {
-  late final A2uiMessageProcessor _processor;
+  late final GenUiEngine _processor;
   late final GenUiConversation _uiConversation;
-  late final GenUiController _controller;
+  late final A2uiTransportAdapter _controller;
+
+  final ValueNotifier<List<ChatMessage>> _messages = ValueNotifier([]);
+  final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
+  String _currentStreamingText = '';
+
   // We keep a reference to the client to dispose it if we created it.
   AiClient? _client;
   bool _didCreateClient = false;
@@ -67,8 +72,8 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   @override
   void initState() {
     super.initState();
-    _controller = GenUiController();
-    _processor = A2uiMessageProcessor(catalogs: [travelAppCatalog]);
+    _controller = A2uiTransportAdapter();
+    _processor = GenUiEngine(catalogs: [travelAppCatalog]);
 
     // Create the appropriate content generator based on configuration
     _client = widget.aiClient;
@@ -87,26 +92,44 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _wireClient(_client!, _controller);
 
     _uiConversation = GenUiConversation(
-      controller: _controller,
-      messageSink: _processor,
-      host: _processor,
-      onSend: (message, history) => _sendRequest(_client!, message, history),
-      onComponentsUpdated: (update) {
-        _scrollToBottom();
-      },
-      onSurfaceAdded: (update) {
-        _scrollToBottom();
-      },
-      onTextResponse: (text) {
-        if (!mounted) return;
-        if (text.isNotEmpty) {
-          _scrollToBottom();
-        }
+      adapter: _controller,
+      engine: _processor,
+      onSend: (message) async {
+        // Reset streaming text for new turn
+        _currentStreamingText = '';
+        _messages.value = [..._messages.value, message];
+        // Send request
+        await _sendRequest(_client!, message, _messages.value);
       },
     );
+
+    _uiConversation.state.addListener(() {
+      _isProcessing.value = _uiConversation.state.value.isWaiting;
+    });
+
+    _uiConversation.events.listen((event) {
+      if (event is ConversationContentReceived) {
+        if (event.text.isNotEmpty) {
+          _currentStreamingText += event.text;
+
+          final updatedMessages = List<ChatMessage>.from(_messages.value);
+          if (updatedMessages.isNotEmpty &&
+              updatedMessages.last.role == ChatMessageRole.model) {
+            updatedMessages.removeLast();
+          }
+          updatedMessages.add(ChatMessage.model(_currentStreamingText));
+          _messages.value = updatedMessages;
+
+          _scrollToBottom();
+        }
+      } else if (event is ConversationSurfaceAdded ||
+          event is ConversationComponentsUpdated) {
+        _scrollToBottom();
+      }
+    });
   }
 
-  void _wireClient(AiClient client, GenUiController controller) {
+  void _wireClient(AiClient client, A2uiTransportAdapter controller) {
     client.a2uiMessageStream.listen(controller.addMessage);
     client.textResponseStream.listen(controller.addChunk);
   }
@@ -119,7 +142,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     return client.sendRequest(message, history: history);
   }
 
-  ValueListenable<bool> get isProcessing => _uiConversation.isProcessing;
+  ValueListenable<bool> get isProcessing => _isProcessing;
 
   @override
   void dispose() {
@@ -130,6 +153,8 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     }
     _textController.dispose();
     _scrollController.dispose();
+    _messages.dispose();
+    _isProcessing.dispose();
     super.dispose();
   }
 
@@ -150,7 +175,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   }
 
   void _sendPrompt(String text) {
-    if (_uiConversation.isProcessing.value || text.trim().isEmpty) return;
+    if (_isProcessing.value || text.trim().isEmpty) return;
     _scrollToBottom();
     _textController.clear();
     _triggerInference(ChatMessage.user(text));
@@ -167,11 +192,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1000),
                 child: ValueListenableBuilder<List<ChatMessage>>(
-                  valueListenable: _uiConversation.conversation,
+                  valueListenable: _messages,
                   builder: (context, messages, child) {
                     return Conversation(
                       messages: messages,
-                      manager: _uiConversation.host,
+                      manager: _processor,
                       scrollController: _scrollController,
                     );
                   },
@@ -181,7 +206,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ValueListenableBuilder<bool>(
-                valueListenable: _uiConversation.isProcessing,
+                valueListenable: _isProcessing,
                 builder: (context, isThinking, child) {
                   return _ChatInput(
                     controller: _textController,

@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Card widget renders child', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.card,

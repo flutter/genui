@@ -10,7 +10,7 @@ void main() {
   testWidgets('Tabs widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.tabs,
@@ -70,7 +70,7 @@ void main() {
   });
 
   testWidgets('Tabs activeTab binding works', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.tabs,

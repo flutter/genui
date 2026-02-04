@@ -31,7 +31,7 @@ class _SamplesViewState extends State<SamplesView> {
   List<File> _sampleFiles = [];
   File? _selectedFile;
   Sample? _selectedSample;
-  late A2uiMessageProcessor _a2uiMessageProcessor;
+  late GenUiEngine _a2uiMessageProcessor;
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
   StreamSubscription<GenUiUpdate>? _surfaceSubscription;
@@ -40,7 +40,7 @@ class _SamplesViewState extends State<SamplesView> {
   @override
   void initState() {
     super.initState();
-    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [widget.catalog]);
+    _a2uiMessageProcessor = GenUiEngine(catalogs: [widget.catalog]);
     _loadSamples();
     _setupSurfaceListener();
   }
@@ -109,10 +109,10 @@ class _SamplesViewState extends State<SamplesView> {
       _surfaceIds.clear();
       _currentSurfaceIndex = 0;
     });
-    // Re-create A2uiMessageProcessor to ensure a clean state for the new
+    // Re-create GenUiEngine to ensure a clean state for the new
     // sample.
     _a2uiMessageProcessor.dispose();
-    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [widget.catalog]);
+    _a2uiMessageProcessor = GenUiEngine(catalogs: [widget.catalog]);
     _setupSurfaceListener();
 
     try {

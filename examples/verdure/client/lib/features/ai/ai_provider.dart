@@ -50,7 +50,7 @@ class AiClientState {
   });
 
   /// The A2UI message processor.
-  final A2uiMessageProcessor a2uiMessageProcessor;
+  final GenUiEngine a2uiMessageProcessor;
 
   /// The agent connector.
   final A2uiAgentConnector connector;
@@ -67,7 +67,7 @@ class AiClientState {
 class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
-    final a2uiMessageProcessor = A2uiMessageProcessor(
+    final a2uiMessageProcessor = GenUiEngine(
       catalogs: [CoreCatalogItems.asCatalog()],
     );
     final A2uiAgentConnector connector = await ref.watch(
@@ -78,17 +78,16 @@ class Ai extends _$Ai {
     // unless we need it for something else? A2uiContentGenerator used it.
     // But A2uiAgentConnector seems self-contained.
 
-    final controller = GenUiController();
+    final controller = A2uiTransportAdapter();
 
     // Wire up connector to controller
     connector.stream.listen(controller.addMessage);
     connector.textStream.listen(controller.addChunk);
 
     final conversation = GenUiConversation(
-      controller: controller,
-      messageSink: a2uiMessageProcessor,
-      host: a2uiMessageProcessor,
-      onSend: (message, history) async {
+      adapter: controller,
+      engine: a2uiMessageProcessor,
+      onSend: (message) async {
         // Send request via connector
         await connector.connectAndSend(message);
       },
@@ -105,18 +104,15 @@ class Ai extends _$Ai {
     // Fetch the agent card to initialize the connection.
     await connector.getAgentCard();
 
-    // No isProcessing on connector directly exposed?
-    // GenUiConversation manages isProcessing now.
-
     void updateProcessingState() {
       LoadingState.instance.isProcessing.value =
-          conversation.isProcessing.value;
+          conversation.state.value.isWaiting;
     }
 
-    conversation.isProcessing.addListener(updateProcessingState);
+    conversation.state.addListener(updateProcessingState);
 
     ref.onDispose(() {
-      conversation.isProcessing.removeListener(updateProcessingState);
+      conversation.state.removeListener(updateProcessingState);
       // Reset the loading state when the provider is disposed.
       LoadingState.instance.isProcessing.value = false;
       conversation.dispose();

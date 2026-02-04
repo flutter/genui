@@ -8,9 +8,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('A2uiMessageProcessor Validation', () {
+  group('GenUiEngine Validation', () {
     test('CreateSurface fails validation with empty surfaceId', () async {
-      final processor = A2uiMessageProcessor(catalogs: []);
+      final processor = GenUiEngine(catalogs: []);
 
       // Expect an error message on the submit stream
       final Future<void> future = expectLater(

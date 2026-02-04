@@ -11,7 +11,7 @@ void main() {
     final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
-    A2uiMessageProcessor? messageProcessor;
+    GenUiEngine? messageProcessor;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -20,7 +20,7 @@ void main() {
     ) async {
       message = null;
       messageProcessor?.dispose();
-      messageProcessor = A2uiMessageProcessor(catalogs: [testCatalog]);
+      messageProcessor = GenUiEngine(catalogs: [testCatalog]);
       messageProcessor!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
       messageProcessor!.handleMessage(
@@ -80,8 +80,8 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'root', components);
-      messageProcessor!
-          .dataModelForSurface('testSurface')
+      messageProcessor!.store
+          .getDataModel('testSurface')
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
 
@@ -133,8 +133,8 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      messageProcessor!
-          .dataModelForSurface('testSurface')
+      messageProcessor!.store
+          .getDataModel('testSurface')
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
@@ -146,8 +146,8 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        messageProcessor!
-            .dataModelForSurface('testSurface')
+        messageProcessor!.store
+            .getDataModel('testSurface')
             .getValue<String>(DataPath('/myValue')),
         'new value',
       );

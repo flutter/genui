@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../core/widget_utilities.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
+import '../../widgets/widget_utilities.dart';
 
 extension type _TextData.fromMap(JsonMap _json) {
   factory _TextData({required Object text, String? variant}) =>

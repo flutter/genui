@@ -8,14 +8,14 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../core/a2ui_message_processor.dart';
-import '../core/genui_surface.dart';
+import '../engine/gen_ui_engine.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
+import '../widgets/genui_surface.dart';
 
 /// A widget that displays a GenUI catalog widgets.
 ///
@@ -45,7 +45,7 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final A2uiMessageProcessor _a2uiMessageProcessor;
+  late final GenUiEngine _a2uiMessageProcessor;
   final surfaceIds = <String>[];
   late final StreamSubscription<ChatMessage>? _subscription;
 
@@ -54,7 +54,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
     super.initState();
     final Catalog catalog = widget.catalog;
 
-    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
+    _a2uiMessageProcessor = GenUiEngine(catalogs: [catalog]);
     if (widget.onSubmit != null) {
       _subscription = _a2uiMessageProcessor.onSubmit.listen(widget.onSubmit);
     } else {

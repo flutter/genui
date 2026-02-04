@@ -11,7 +11,7 @@ void main() {
     WidgetTester tester,
   ) async {
     ChatMessage? message;
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.button,

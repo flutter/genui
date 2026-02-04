@@ -2,14 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport '../../core/genui_surface.dart';
+/// @docImport '../../widgets/genui_surface.dart';
 library;
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../../genui.dart' show GenUiSurface;
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
+import '../../widgets/genui_surface.dart' show GenUiSurface;
 
 final _schema = S.object(
   properties: {

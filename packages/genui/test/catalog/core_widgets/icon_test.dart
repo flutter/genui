@@ -10,7 +10,7 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
@@ -40,7 +40,7 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],

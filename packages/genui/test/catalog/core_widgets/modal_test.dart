@@ -10,7 +10,7 @@ void main() {
   testWidgets('Modal widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([
           CoreCatalogItems.modal,

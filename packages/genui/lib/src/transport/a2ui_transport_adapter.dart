@@ -13,15 +13,16 @@ export '../model/gen_ui_events.dart'
     show A2uiMessageEvent, GenUiEvent, TextEvent;
 
 /// A state update for the UI.
+/// A state update for the UI.
 typedef GenUiState = GenUiUpdate;
 
 /// The primary high-level API for typical Flutter application development.
 ///
 /// It wraps the [A2uiParserTransformer] to provide an imperative, push-based
 /// interface that is easier to integrate into imperative loops.
-class GenUiController {
-  /// Creates a [GenUiController].
-  GenUiController() {
+class A2uiTransportAdapter {
+  /// Creates a [A2uiTransportAdapter].
+  A2uiTransportAdapter() {
     _pipeline = _inputStream.stream
         .transform(const A2uiParserTransformer())
         .asBroadcastStream();

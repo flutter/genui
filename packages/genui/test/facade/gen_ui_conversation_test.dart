@@ -9,56 +9,52 @@ import 'package:genui/genui.dart';
 
 void main() {
   group('GenUiConversation', () {
-    late GenUiController controller;
-    late A2uiMessageProcessor processor;
+    late A2uiTransportAdapter adapter;
+    late GenUiEngine engine;
 
     setUp(() {
-      controller = GenUiController();
-      processor = A2uiMessageProcessor(catalogs: []);
+      adapter = A2uiTransportAdapter();
+      engine = GenUiEngine(catalogs: []);
     });
 
     tearDown(() {
-      controller.dispose();
-      processor.dispose();
+      adapter.dispose();
+      engine.dispose();
     });
 
-    test('updates isProcessing state during request', () async {
+    test('updates isWaiting state during request', () async {
       final completer = Completer<void>();
       final conversation = GenUiConversation(
-        controller: controller,
-        messageSink: processor,
-        host: processor,
-        onSend: (message, history) async {
+        adapter: adapter,
+        engine: engine,
+        onSend: (message) async {
           await completer.future;
         },
       );
 
-      expect(conversation.isProcessing.value, isFalse);
+      expect(conversation.state.value.isWaiting, isFalse);
 
       final Future<void> future = conversation.sendRequest(
-        ChatMessage.user('', parts: [UiInteractionPart.create('hi')]),
+        ChatMessage.user('hi', parts: [UiInteractionPart.create('hi')]),
       );
 
-      expect(conversation.isProcessing.value, isTrue);
+      expect(conversation.state.value.isWaiting, isTrue);
 
       completer.complete();
       await future;
 
-      expect(conversation.isProcessing.value, isFalse);
+      expect(conversation.state.value.isWaiting, isFalse);
       conversation.dispose();
     });
 
-    test('calls onSend with correct message and history', () async {
+    test('calls onSend with correct message', () async {
       ChatMessage? capturedMessage;
-      Iterable<ChatMessage>? capturedHistory;
 
       final conversation = GenUiConversation(
-        controller: controller,
-        messageSink: processor,
-        host: processor,
-        onSend: (message, history) async {
+        adapter: adapter,
+        engine: engine,
+        onSend: (message) async {
           capturedMessage = message;
-          capturedHistory = history;
         },
       );
 
@@ -67,18 +63,12 @@ void main() {
       await conversation.sendRequest(firstMessage);
 
       expect(capturedMessage, firstMessage);
-      expect(capturedHistory, isEmpty);
-      expect(conversation.conversation.value.last, firstMessage);
 
       // Send second message
       final secondMessage = ChatMessage.user('Second');
       await conversation.sendRequest(secondMessage);
 
       expect(capturedMessage, secondMessage);
-      expect(capturedHistory, isNotEmpty);
-      expect(capturedHistory!.last, firstMessage);
-      expect(conversation.conversation.value.length, 2);
-      expect(conversation.conversation.value.last, secondMessage);
 
       conversation.dispose();
     });

@@ -10,7 +10,7 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = GenUiEngine(
       catalogs: [
         Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
       ],
@@ -46,7 +46,9 @@ void main() {
 
     await tester.drag(find.byType(Slider), const Offset(100, 0));
     expect(
-      manager.contextFor(surfaceId).dataModel
+      manager
+          .contextFor(surfaceId)
+          .dataModel
           .getValue<double>(DataPath('/myValue')),
       greaterThan(0.5),
     );
