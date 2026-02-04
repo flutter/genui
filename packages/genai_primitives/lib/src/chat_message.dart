@@ -19,7 +19,7 @@ final class _Json {
 final class ChatMessage {
   /// Creates a new message.
   ///
-  /// If `parts` or `metadata` is not provided, an empty collections are used.
+  /// If [parts] or [metadata] are not provided, empty collections are used.
   ///
   /// If there are no parts of type [TextPart], the [text] property
   /// will be empty.
