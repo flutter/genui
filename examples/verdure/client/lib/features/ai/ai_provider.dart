@@ -50,7 +50,7 @@ class AiClientState {
   });
 
   /// The A2UI message processor.
-  final GenUiEngine a2uiMessageProcessor;
+  final GenUiController a2uiMessageProcessor;
 
   /// The agent connector.
   final A2uiAgentConnector connector;
@@ -67,7 +67,7 @@ class AiClientState {
 class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
-    final a2uiMessageProcessor = GenUiEngine(
+    final a2uiMessageProcessor = GenUiController(
       catalogs: [CoreCatalogItems.asCatalog()],
     );
     final A2uiAgentConnector connector = await ref.watch(

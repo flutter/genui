@@ -27,6 +27,7 @@ class GenUiSurface extends StatefulWidget {
     super.key,
     required this.genUiContext,
     this.defaultBuilder,
+    this.actionDelegate = const DefaultActionDelegate(),
   });
 
   /// The context that holds the state of this surface.
@@ -34,6 +35,9 @@ class GenUiSurface extends StatefulWidget {
 
   /// A builder for the widget to display when the surface has no definition.
   final WidgetBuilder? defaultBuilder;
+
+  /// The delegate that handles UI actions.
+  final GenUiActionDelegate actionDelegate;
 
   @override
   State<GenUiSurface> createState() => _GenUiSurfaceState();
@@ -120,35 +124,13 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
   }
 
   void _dispatchEvent(UiEvent event) {
-    if (event is UserActionEvent && event.name == 'showModal') {
-      final UiDefinition? definition = widget.genUiContext.definition.value;
-      if (definition == null) return;
-
-      final Catalog? catalog = _findCatalogForDefinition(definition);
-      if (catalog == null) {
-        genUiLogger.severe(
-          'Cannot show modal for surface "${widget.genUiContext.surfaceId}" '
-          'because a catalog was not found.',
-        );
-        return;
-      }
-
-      final modalId = event.context['modalId'] as String;
-      final Component? modalComponent = definition.components[modalId];
-      if (modalComponent == null) return;
-      // The 'contentChild' property is expected to be a direct property of the
-      // Modal component.
-      final contentChildId =
-          modalComponent.properties['contentChild'] as String;
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (context) => _buildWidget(
-          definition,
-          catalog,
-          contentChildId,
-          DataContext(widget.genUiContext.dataModel, '/'),
-        ),
-      );
+    if (widget.actionDelegate.handleEvent(
+      context,
+      event,
+      widget.genUiContext,
+      _findCatalogForDefinition,
+      _buildWidget,
+    )) {
       return;
     }
 
@@ -177,5 +159,89 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       );
     }
     return catalog;
+  }
+}
+
+/// A delegate for handling UI actions in [GenUiSurface].
+///
+/// Implement this interface to provide custom handling for specific actions,
+/// such as showing modals or navigating.
+abstract interface class GenUiActionDelegate {
+  /// Handles a [UiEvent].
+  ///
+  /// Returns `true` if the event was handled, `false` otherwise.
+  ///
+  /// The [context] is the build context of the [GenUiSurface].
+  /// The [genUiContext] provides access to the surface state.
+  /// The [findCatalog] function helps resolve the catalog for the current
+  ///   definition.
+  /// The [buildWidget] function allows building widgets from the definition,
+  /// useful for rendering content inside modals or dialogs.
+  bool handleEvent(
+    BuildContext context,
+    UiEvent event,
+    GenUiContext genUiContext,
+    Catalog? Function(UiDefinition) findCatalog,
+    Widget Function(UiDefinition, Catalog, String, DataContext) buildWidget,
+  );
+}
+
+/// The default action delegate that handles standard actions like 'showModal'.
+class DefaultActionDelegate implements GenUiActionDelegate {
+  /// Creates a [DefaultActionDelegate].
+  const DefaultActionDelegate();
+
+  @override
+  bool handleEvent(
+    BuildContext context,
+    UiEvent event,
+    GenUiContext genUiContext,
+    Catalog? Function(UiDefinition) findCatalog,
+    Widget Function(UiDefinition, Catalog, String, DataContext) buildWidget,
+  ) {
+    if (event is UserActionEvent && event.name == 'showModal') {
+      final UiDefinition? definition = genUiContext.definition.value;
+      if (definition == null) return true;
+
+      final Catalog? catalog = findCatalog(definition);
+      if (catalog == null) {
+        genUiLogger.severe(
+          'Cannot show modal for surface "${genUiContext.surfaceId}" '
+          'because a catalog was not found.',
+        );
+        return true;
+      }
+
+      final modalId = event.context['modalId'] as String?;
+      if (modalId == null) {
+        genUiLogger.severe('Modal action missing "modalId" in context.');
+        return true;
+      }
+
+      final Component? modalComponent = definition.components[modalId];
+      if (modalComponent == null) return true;
+
+      // The 'contentChild' property is expected to be a direct property of the
+      // Modal component.
+      final contentChildId =
+          modalComponent.properties['contentChild'] as String?;
+
+      if (contentChildId == null) {
+        genUiLogger.severe('Modal component missing "contentChild" property.');
+        return true;
+      }
+
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (context) => buildWidget(
+          definition,
+          catalog,
+          contentChildId,
+          DataContext(genUiContext.dataModel, '/'),
+        ),
+      );
+      return true;
+    }
+    return false;
   }
 }

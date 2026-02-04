@@ -34,7 +34,7 @@ class ShoppingCartScreen extends ConsumerWidget {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor.registry
+                valueListenable: aiState.a2uiMessageProcessor
                     .watchSurface('cart'),
                 builder: (context, definition, child) {
                   if (definition == null) {

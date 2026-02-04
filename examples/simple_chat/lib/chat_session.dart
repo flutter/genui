@@ -21,7 +21,7 @@ class ChatSession extends ChangeNotifier {
   final List<MessageController> _messages = [];
   List<MessageController> get messages => List.unmodifiable(_messages);
 
-  late final GenUiEngine _messageProcessor;
+  late final GenUiController _messageProcessor;
   GenUiHost get genUiContext => _messageProcessor;
 
   late final A2uiTransportAdapter _genUiController;
@@ -38,7 +38,7 @@ class ChatSession extends ChangeNotifier {
     final Catalog catalog = CoreCatalogItems.asCatalog();
 
     // Initialize Message Processor
-    _messageProcessor = GenUiEngine(catalogs: [catalog]);
+    _messageProcessor = GenUiController(catalogs: [catalog]);
 
     // Initialize A2uiTransportAdapter
     _genUiController = A2uiTransportAdapter();
@@ -47,7 +47,7 @@ class ChatSession extends ChangeNotifier {
     _genUiController.messageStream.listen(_messageProcessor.handleMessage);
 
     // Listen to UI state updates from the processor
-    _messageProcessor.surfaceUpdates.listen((update) {
+    _messageProcessor.surfaceUpdates.listen((GenUiUpdate update) {
       if (update is SurfaceAdded) {
         // Check if we already have a message with this surfaceId
         final bool exists = _messages.any(

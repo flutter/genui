@@ -11,7 +11,7 @@ void main() {
     final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
-    GenUiEngine? messageProcessor;
+    GenUiController? controller;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -19,21 +19,21 @@ void main() {
       List<Component> components,
     ) async {
       message = null;
-      messageProcessor?.dispose();
-      messageProcessor = GenUiEngine(catalogs: [testCatalog]);
-      messageProcessor!.onSubmit.listen((event) => message = event);
+      controller?.dispose();
+      controller = GenUiController(catalogs: [testCatalog]);
+      controller!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
-      messageProcessor!.handleMessage(
+      controller!.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      messageProcessor!.handleMessage(
+      controller!.handleMessage(
         CreateSurface(surfaceId: surfaceId, catalogId: testCatalog.catalogId!),
       );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: GenUiSurface(
-              genUiContext: messageProcessor!.contextFor(surfaceId),
+              genUiContext: controller!.contextFor(surfaceId),
             ),
           ),
         ),
@@ -80,7 +80,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'root', components);
-      messageProcessor!.store
+      controller!.store
           .getDataModel('testSurface')
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
@@ -133,7 +133,7 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      messageProcessor!.store
+      controller!.store
           .getDataModel('testSurface')
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
@@ -146,7 +146,7 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        messageProcessor!.store
+        controller!.store
             .getDataModel('testSurface')
             .getValue<String>(DataPath('/myValue')),
         'new value',

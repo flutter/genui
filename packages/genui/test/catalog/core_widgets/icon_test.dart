@@ -10,7 +10,7 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
@@ -40,7 +40,7 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
@@ -59,9 +59,9 @@ void main() {
       UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const UpdateDataModel(
+      UpdateDataModel(
         surfaceId: 'testSurface',
-        path: '/iconName',
+        path: DataPath('/iconName'),
         value: 'close',
       ),
     );

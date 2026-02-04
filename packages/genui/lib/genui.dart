@@ -16,7 +16,7 @@ export 'src/catalog/core_catalog.dart';
 export 'src/core/prompt_fragments.dart';
 
 export 'src/development_utilities/catalog_view.dart';
-export 'src/engine/gen_ui_engine.dart';
+export 'src/engine/gen_ui_controller.dart';
 export 'src/engine/surface_registry.dart' show RegistryEvent;
 export 'src/facade/direct_call_integration/model.dart';
 export 'src/facade/direct_call_integration/utils.dart';
@@ -41,7 +41,7 @@ export 'src/primitives/logging.dart';
 export 'src/primitives/simple_items.dart';
 export 'src/transport/a2ui_parser_transformer.dart';
 export 'src/transport/a2ui_transport_adapter.dart';
-export 'src/utils/json_block_parser.dart';
+
 export 'src/widgets/gen_ui_fallback.dart';
 export 'src/widgets/gen_ui_surface_manager.dart';
 export 'src/widgets/genui_surface.dart';

@@ -27,7 +27,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor.registry
+                valueListenable: aiState.a2uiMessageProcessor
                     .watchSurface('confirmation'),
                 builder: (context, definition, child) {
                   if (definition == null) {

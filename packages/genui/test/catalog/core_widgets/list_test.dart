@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('List widget renders children', (WidgetTester tester) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([
           CoreCatalogItems.list,

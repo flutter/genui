@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../engine/gen_ui_engine.dart';
+import '../engine/gen_ui_controller.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
@@ -45,7 +45,7 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final GenUiEngine _a2uiMessageProcessor;
+  late final GenUiController _genUiController;
   final surfaceIds = <String>[];
   late final StreamSubscription<ChatMessage>? _subscription;
 
@@ -54,9 +54,9 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
     super.initState();
     final Catalog catalog = widget.catalog;
 
-    _a2uiMessageProcessor = GenUiEngine(catalogs: [catalog]);
+    _genUiController = GenUiController(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
-      _subscription = _a2uiMessageProcessor.onSubmit.listen(widget.onSubmit);
+      _subscription = _genUiController.onSubmit.listen(widget.onSubmit);
     } else {
       _subscription = null;
     }
@@ -87,10 +87,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
             continue;
           }
 
-          _a2uiMessageProcessor.handleMessage(
+          _genUiController.handleMessage(
             UpdateComponents(surfaceId: surfaceId, components: components),
           );
-          _a2uiMessageProcessor.handleMessage(
+          _genUiController.handleMessage(
             CreateSurface(surfaceId: surfaceId, catalogId: catalog.catalogId!),
           );
           surfaceIds.add(surfaceId);
@@ -108,7 +108,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   @override
   void dispose() {
     _subscription?.cancel();
-    _a2uiMessageProcessor.dispose();
+    _genUiController.dispose();
     super.dispose();
   }
 
@@ -119,7 +119,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
         final surfaceWidget = GenUiSurface(
-          genUiContext: _a2uiMessageProcessor.contextFor(surfaceId),
+          genUiContext: _genUiController.contextFor(surfaceId),
         );
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,

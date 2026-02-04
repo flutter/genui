@@ -10,14 +10,14 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  late GenUiEngine processor;
+  late GenUiController controller;
   final testCatalog = Catalog([
     CoreCatalogItems.button,
     CoreCatalogItems.text,
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    processor = GenUiEngine(catalogs: [testCatalog]);
+    controller = GenUiController(catalogs: [testCatalog]);
     final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
       (r) => print('[LOG] ${r.message}'),
     );
@@ -25,7 +25,7 @@ void main() {
   });
 
   tearDown(() {
-    processor.dispose();
+    controller.dispose();
   });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
@@ -45,16 +45,16 @@ void main() {
       ),
       const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
-    processor.handleMessage(
+    controller.handleMessage(
       UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    processor.handleMessage(
+    controller.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(genUiContext: processor.contextFor(surfaceId)),
+        home: GenUiSurface(genUiContext: controller.contextFor(surfaceId)),
       ),
     );
 
@@ -77,16 +77,16 @@ void main() {
       ),
       const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
-    processor.handleMessage(
+    controller.handleMessage(
       UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    processor.handleMessage(
+    controller.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(genUiContext: processor.contextFor(surfaceId)),
+        home: GenUiSurface(genUiContext: controller.contextFor(surfaceId)),
       ),
     );
     await tester.pumpAndSettle();
@@ -105,11 +105,11 @@ void main() {
           properties: {'text': 'Hello'},
         ),
       ];
-      processor.handleMessage(
+      controller.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      // Request a catalogId that doesn't exist in the processor.
-      processor.handleMessage(
+      // Request a catalogId that doesn't exist in the controller.
+      controller.handleMessage(
         const CreateSurface(
           surfaceId: surfaceId,
           catalogId: 'non_existent_catalog',
@@ -121,7 +121,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: GenUiSurface(genUiContext: processor.contextFor(surfaceId)),
+          home: GenUiSurface(genUiContext: controller.contextFor(surfaceId)),
         ),
       );
 

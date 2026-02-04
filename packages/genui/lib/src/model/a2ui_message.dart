@@ -8,6 +8,7 @@ import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'a2ui_schemas.dart';
 import 'catalog.dart';
+import 'data_model.dart';
 import 'ui_models.dart';
 
 /// A sealed class representing a message in the A2UI stream.
@@ -160,13 +161,17 @@ final class UpdateComponents extends A2uiMessage {
 /// An A2UI message that updates the data model.
 final class UpdateDataModel extends A2uiMessage {
   /// Creates a [UpdateDataModel] message.
-  const UpdateDataModel({required this.surfaceId, this.path = '/', this.value});
+  const UpdateDataModel({
+    required this.surfaceId,
+    this.path = DataPath.root,
+    this.value,
+  });
 
   /// Creates a [UpdateDataModel] message from a JSON map.
   factory UpdateDataModel.fromJson(JsonMap json) {
     return UpdateDataModel(
       surfaceId: json[surfaceIdKey] as String,
-      path: json['path'] as String? ?? '/',
+      path: DataPath(json['path'] as String? ?? '/'),
       value: json['value'],
     );
   }
@@ -175,7 +180,7 @@ final class UpdateDataModel extends A2uiMessage {
   final String surfaceId;
 
   /// The path in the data model to update. Defaults to root '/'.
-  final String path;
+  final DataPath path;
 
   /// The new value to write to the data model.
   ///
@@ -187,7 +192,7 @@ final class UpdateDataModel extends A2uiMessage {
   Map<String, dynamic> toJson() => {
     'version': 'v0.9',
     surfaceIdKey: surfaceId,
-    'path': path,
+    'path': path.toString(),
     if (value != null) 'value': value,
   };
 }

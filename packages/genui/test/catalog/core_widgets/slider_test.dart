@@ -10,7 +10,7 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
       ],

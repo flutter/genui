@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Divider widget renders', (WidgetTester tester) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([CoreCatalogItems.divider], catalogId: 'test_catalog'),
       ],

@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../genui.dart' show GenUiEngine, GenUiHost, GenUiSurface;
+import '../../genui.dart' show GenUiController, GenUiHost, GenUiSurface;
 
 import '../model/ui_models.dart';
 
@@ -58,8 +58,8 @@ class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
     // directly in interface, but we can track updates. Ideally host should
     // expose active IDs).
     // Initialize with existing surfaces if any.
-    if (widget.host is GenUiEngine) {
-      _activeSurfaceIds = (widget.host as GenUiEngine).registry.surfaceOrder
+    if (widget.host is GenUiController) {
+      _activeSurfaceIds = (widget.host as GenUiController).activeSurfaceIds
           .toList();
     }
     _subscription = widget.host.surfaceUpdates.listen(_handleUpdate);

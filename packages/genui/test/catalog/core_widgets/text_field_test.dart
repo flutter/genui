@@ -9,7 +9,10 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('TextField with no weight in Row defaults to weight: 1 '
       'and expands', (WidgetTester tester) async {
-    final a2uiProcessor = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
+    final a2uiProcessor = GenUiController(
+      catalogs: [CoreCatalogItems.asCatalog()],
+    );
+    addTearDown(a2uiProcessor.dispose);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -60,7 +63,8 @@ void main() {
   testWidgets('TextField in Row (with weight) expands', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
+    final manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+    addTearDown(manager.dispose);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
@@ -108,14 +112,15 @@ void main() {
   });
 
   testWidgets('TextField validation checks work', (WidgetTester tester) async {
-    final manager = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
+    final manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+    addTearDown(manager.dispose);
     const surfaceId = 'validationTest';
     // Initialize with invalid value
     manager.handleMessage(
-      const UpdateDataModel(
+      UpdateDataModel(
         surfaceId: surfaceId,
-        path: '/',
-        value: {'inputValue': 'short'},
+        path: DataPath('/myValue'),
+        value: 'initial',
       ),
     );
 

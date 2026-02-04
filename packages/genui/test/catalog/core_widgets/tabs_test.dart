@@ -10,7 +10,7 @@ void main() {
   testWidgets('Tabs widget renders and handles taps', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([
           CoreCatalogItems.tabs,
@@ -70,7 +70,7 @@ void main() {
   });
 
   testWidgets('Tabs activeTab binding works', (WidgetTester tester) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([
           CoreCatalogItems.tabs,
@@ -82,9 +82,9 @@ void main() {
 
     // Initialize data model with tab 1 (index 1) active
     manager.handleMessage(
-      const UpdateDataModel(
+      UpdateDataModel(
         surfaceId: surfaceId,
-        path: '/',
+        path: DataPath('/'),
         value: {'currentTab': 1},
       ),
     );
@@ -137,9 +137,9 @@ void main() {
 
     // Update data model to switch to Tab 1 (index 0)
     manager.handleMessage(
-      const UpdateDataModel(
-        surfaceId: surfaceId,
-        path: '/currentTab',
+      UpdateDataModel(
+        surfaceId: 'testSurface',
+        path: DataPath('/currentTab'),
         value: 0,
       ),
     );

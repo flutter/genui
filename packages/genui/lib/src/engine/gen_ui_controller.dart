@@ -20,19 +20,19 @@ import 'cleanup_strategy.dart';
 import 'data_model_store.dart';
 import 'surface_registry.dart' as surface_reg;
 
-/// The runtime engine for the GenUI system.
-class GenUiEngine implements GenUiHost, A2uiMessageSink {
-  /// Creates a [GenUiEngine].
+/// The runtime controller for the GenUI system.
+class GenUiController implements GenUiHost, A2uiMessageSink {
+  /// Creates a [GenUiController].
   ///
   /// The [catalogs] parameter defines the set of component catalogs available
-  /// for use by surfaces managed by this engine.
+  /// for use by surfaces managed by this controller.
   ///
   /// The [cleanupStrategy] determines when and how surfaces are removed from
   /// the registry to free up resources.
   ///
   /// The [pendingUpdateTimeout] specifies how long to wait for a surface
   /// creation message before discarding buffered updates for that surface.
-  GenUiEngine({
+  GenUiController({
     required this.catalogs,
     this.cleanupStrategy = const ManualCleanupStrategy(),
     this.pendingUpdateTimeout = const Duration(minutes: 1),
@@ -70,12 +70,25 @@ class GenUiEngine implements GenUiHost, A2uiMessageSink {
 
   Stream<ChatMessage> get onSubmit => _onSubmit.stream;
 
+  /// The IDs of the currently active surfaces.
+  Iterable<String> get activeSurfaceIds => _registry.surfaceOrder;
+
   @override
   GenUiContext contextFor(String surfaceId) {
-    return _EngineContext(this, surfaceId);
+    return _ControllerContext(this, surfaceId);
   }
 
+  @override
+  ValueListenable<UiDefinition?> watchSurface(String surfaceId) {
+    return _registry.watchSurface(surfaceId);
+  }
+
+  /// The registry of surfaces managed by this controller.
+  @visibleForTesting
   surface_reg.SurfaceRegistry get registry => _registry;
+
+  /// The store of data models managed by this controller.
+  @visibleForTesting
   DataModelStore get store => _store;
 
   /// Process an [message] from the AI service.
@@ -180,7 +193,7 @@ class GenUiEngine implements GenUiHost, A2uiMessageSink {
         }
 
         final DataModel model = _store.getDataModel(surfaceId);
-        model.update(DataPath(message.path), message.value);
+        model.update(message.path, message.value);
 
         // Trigger generic update on surface to refresh UI
         final UiDefinition current = _registry.getSurface(surfaceId)!;
@@ -227,7 +240,7 @@ class GenUiEngine implements GenUiHost, A2uiMessageSink {
     );
   }
 
-  /// Disposes of the engine and releases all resources.
+  /// Disposes of the controller and releases all resources.
   ///
   /// This closes the [onSubmit] stream and cancels any pending timers.
   void dispose() {
@@ -240,25 +253,25 @@ class GenUiEngine implements GenUiHost, A2uiMessageSink {
   }
 }
 
-class _EngineContext implements GenUiContext {
-  _EngineContext(this._engine, this.surfaceId);
-  final GenUiEngine _engine;
+class _ControllerContext implements GenUiContext {
+  _ControllerContext(this._controller, this.surfaceId);
+  final GenUiController _controller;
 
   @override
   final String surfaceId;
 
   @override
   ValueListenable<UiDefinition?> get definition =>
-      _engine.registry.watchSurface(surfaceId);
+      _controller.registry.watchSurface(surfaceId);
 
   @override
-  DataModel get dataModel => _engine.store.getDataModel(surfaceId);
+  DataModel get dataModel => _controller.store.getDataModel(surfaceId);
 
   @override
-  Iterable<Catalog> get catalogs => _engine.catalogs;
+  Iterable<Catalog> get catalogs => _controller.catalogs;
 
   @override
   void handleUiEvent(UiEvent event) {
-    _engine.handleUiEvent(event);
+    _controller.handleUiEvent(event);
   }
 }

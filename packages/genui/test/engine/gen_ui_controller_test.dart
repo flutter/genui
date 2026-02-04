@@ -9,21 +9,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('$GenUiEngine', () {
-    late GenUiEngine messageProcessor;
+  group('$GenUiController', () {
+    late GenUiController controller;
 
     setUp(() {
-      messageProcessor = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
+      controller = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     tearDown(() {
-      messageProcessor.dispose();
+      controller.dispose();
     });
 
     test('can be initialized with multiple catalogs', () {
       final catalog1 = const Catalog([], catalogId: 'cat1');
       final catalog2 = const Catalog([], catalogId: 'cat2');
-      final multiManager = GenUiEngine(catalogs: [catalog1, catalog2]);
+      final multiManager = GenUiController(catalogs: [catalog1, catalog2]);
       expect(multiManager.catalogs, contains(catalog1));
       expect(multiManager.catalogs, contains(catalog2));
       expect(multiManager.catalogs.length, 2);
@@ -40,15 +40,15 @@ void main() {
         ),
       ];
 
-      messageProcessor.handleMessage(
+      controller.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<List<GenUiUpdate>> futureUpdates = messageProcessor
+      final Future<List<GenUiUpdate>> futureUpdates = controller
           .surfaceUpdates
           .take(2)
           .toList();
-      messageProcessor.handleMessage(
+      controller.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
       final List<GenUiUpdate> updates = await futureUpdates;
@@ -66,9 +66,9 @@ void main() {
         isNotNull,
       ); // Check if root (or any component) exists
       expect(definition.catalogId, 'test_catalog');
-      expect(messageProcessor.registry.getSurface(surfaceId), isNotNull);
+      expect(controller.registry.getSurface(surfaceId), isNotNull);
       expect(
-        messageProcessor.registry.getSurface(surfaceId)!.catalogId,
+        controller.registry.getSurface(surfaceId)!.catalogId,
         'test_catalog',
       );
     });
@@ -93,7 +93,7 @@ void main() {
         ];
 
         final Future<void> expectation = expectLater(
-          messageProcessor.surfaceUpdates,
+          controller.surfaceUpdates,
           emitsInOrder([
             isA<SurfaceAdded>(),
             isA<ComponentsUpdated>(),
@@ -101,13 +101,13 @@ void main() {
           ]),
         );
 
-        messageProcessor.handleMessage(
+        controller.handleMessage(
           const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
         );
-        messageProcessor.handleMessage(
+        controller.handleMessage(
           UpdateComponents(surfaceId: surfaceId, components: oldComponents),
         );
-        messageProcessor.handleMessage(
+        controller.handleMessage(
           UpdateComponents(surfaceId: surfaceId, components: newComponents),
         );
 
@@ -124,28 +124,28 @@ void main() {
           properties: {'text': 'Hello'},
         ),
       ];
-      messageProcessor.handleMessage(
+      controller.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
-      messageProcessor.handleMessage(
+      controller.handleMessage(
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
       final Future<GenUiUpdate> futureUpdate =
-          messageProcessor.surfaceUpdates.first;
+          controller.surfaceUpdates.first;
 
-      messageProcessor.handleMessage(const DeleteSurface(surfaceId: surfaceId));
+      controller.handleMessage(const DeleteSurface(surfaceId: surfaceId));
       final GenUiUpdate update = await futureUpdate;
 
       expect(update, isA<SurfaceRemoved>());
       expect(update.surfaceId, surfaceId);
-      expect(messageProcessor.registry.hasSurface(surfaceId), isFalse);
+      expect(controller.registry.hasSurface(surfaceId), isFalse);
     });
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
-      final ValueListenable<UiDefinition?> notifier1 = messageProcessor.registry
+      final ValueListenable<UiDefinition?> notifier1 = controller.registry
           .watchSurface('s1');
-      final ValueListenable<UiDefinition?> notifier2 = messageProcessor.registry
+      final ValueListenable<UiDefinition?> notifier2 = controller.registry
           .watchSurface('s1');
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
@@ -153,24 +153,24 @@ void main() {
 
     test('dispose() closes the updates stream', () async {
       var isClosed = false;
-      messageProcessor.surfaceUpdates.listen(
+      controller.surfaceUpdates.listen(
         null,
         onDone: () {
           isClosed = true;
         },
       );
 
-      messageProcessor.dispose();
+      controller.dispose();
 
       await Future<void>.delayed(Duration.zero);
       expect(isClosed, isTrue);
     });
 
     test('can handle UI event', () async {
-      messageProcessor.store
+      controller.store
           .getDataModel('testSurface')
           .update(DataPath('/myValue'), 'testValue');
-      final Future<ChatMessage> future = messageProcessor.onSubmit.first;
+      final Future<ChatMessage> future = controller.onSubmit.first;
       final now = DateTime.now();
       final event = UserActionEvent(
         surfaceId: 'testSurface',
@@ -179,7 +179,7 @@ void main() {
         timestamp: now,
         context: {'key': 'value'},
       );
-      messageProcessor.handleUiEvent(event);
+      controller.handleUiEvent(event);
       final ChatMessage message = await future;
       expect(message, isA<ChatMessage>());
       expect(message.role, ChatMessageRole.user);

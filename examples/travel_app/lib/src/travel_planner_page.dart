@@ -27,7 +27,7 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [GenUiEngine] and [A2uiTransportAdapter], maintains
+/// It initializes the [GenUiController] and [A2uiTransportAdapter], maintains
 /// the conversation history, and handles the interaction between the user, the
 /// AI, and the dynamically generated UI.
 ///
@@ -54,7 +54,7 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage>
     with AutomaticKeepAliveClientMixin {
-  late final GenUiEngine _processor;
+  late final GenUiController _processor;
   late final GenUiConversation _uiConversation;
   late final A2uiTransportAdapter _controller;
 
@@ -73,7 +73,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   void initState() {
     super.initState();
     _controller = A2uiTransportAdapter();
-    _processor = GenUiEngine(catalogs: [travelAppCatalog]);
+    _processor = GenUiController(catalogs: [travelAppCatalog]);
 
     // Create the appropriate content generator based on configuration
     _client = widget.aiClient;

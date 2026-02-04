@@ -228,7 +228,7 @@ void main() {
     CoreCatalogItems.dateTimeInput,
   ], catalogId: 'test_catalog');
 
-  final manager = GenUiEngine(catalogs: [catalog]);
+  final manager = GenUiController(catalogs: [catalog]);
   const surfaceId = 'testSurface';
 
   final components = [

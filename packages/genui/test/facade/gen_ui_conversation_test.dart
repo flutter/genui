@@ -10,23 +10,23 @@ import 'package:genui/genui.dart';
 void main() {
   group('GenUiConversation', () {
     late A2uiTransportAdapter adapter;
-    late GenUiEngine engine;
+    late GenUiController controller;
 
     setUp(() {
       adapter = A2uiTransportAdapter();
-      engine = GenUiEngine(catalogs: []);
+      controller = GenUiController(catalogs: []);
     });
 
     tearDown(() {
       adapter.dispose();
-      engine.dispose();
+      controller.dispose();
     });
 
     test('updates isWaiting state during request', () async {
       final completer = Completer<void>();
       final conversation = GenUiConversation(
         adapter: adapter,
-        engine: engine,
+        engine: controller,
         onSend: (message) async {
           await completer.future;
         },
@@ -52,7 +52,7 @@ void main() {
 
       final conversation = GenUiConversation(
         adapter: adapter,
-        engine: engine,
+        engine: controller,
         onSend: (message) async {
           capturedMessage = message;
         },

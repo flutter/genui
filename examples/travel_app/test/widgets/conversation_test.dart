@@ -10,10 +10,10 @@ import 'package:travel_app/src/widgets/conversation.dart';
 
 void main() {
   group('Conversation', () {
-    late GenUiEngine manager;
+    late GenUiController manager;
 
     setUp(() {
-      manager = GenUiEngine(catalogs: [CoreCatalogItems.asCatalog()]);
+      manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {

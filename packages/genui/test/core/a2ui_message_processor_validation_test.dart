@@ -8,13 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('GenUiEngine Validation', () {
+  group('GenUiController Validation', () {
     test('CreateSurface fails validation with empty surfaceId', () async {
-      final processor = GenUiEngine(catalogs: []);
+      final controller = GenUiController(catalogs: []);
 
       // Expect an error message on the submit stream
       final Future<void> future = expectLater(
-        processor.onSubmit,
+        controller.onSubmit,
         emits(
           predicate((ChatMessage message) {
             final UiInteractionPart part =
@@ -27,7 +27,7 @@ void main() {
         ),
       );
 
-      processor.handleMessage(
+      controller.handleMessage(
         const CreateSurface(surfaceId: '', catalogId: 'default'),
       );
 

@@ -31,7 +31,7 @@ class _SamplesViewState extends State<SamplesView> {
   List<File> _sampleFiles = [];
   File? _selectedFile;
   Sample? _selectedSample;
-  late GenUiEngine _a2uiMessageProcessor;
+  late GenUiController _genUiController;
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
   StreamSubscription<GenUiUpdate>? _surfaceSubscription;
@@ -40,7 +40,7 @@ class _SamplesViewState extends State<SamplesView> {
   @override
   void initState() {
     super.initState();
-    _a2uiMessageProcessor = GenUiEngine(catalogs: [widget.catalog]);
+    _genUiController = GenUiController(catalogs: [widget.catalog]);
     _loadSamples();
     _setupSurfaceListener();
   }
@@ -49,12 +49,12 @@ class _SamplesViewState extends State<SamplesView> {
   void dispose() {
     _surfaceSubscription?.cancel();
     _messageSubscription?.cancel();
-    _a2uiMessageProcessor.dispose();
+    _genUiController.dispose();
     super.dispose();
   }
 
   void _setupSurfaceListener() {
-    _surfaceSubscription = _a2uiMessageProcessor.surfaceUpdates.listen((
+    _surfaceSubscription = _genUiController.surfaceUpdates.listen((
       update,
     ) {
       if (update is SurfaceAdded) {
@@ -109,10 +109,10 @@ class _SamplesViewState extends State<SamplesView> {
       _surfaceIds.clear();
       _currentSurfaceIndex = 0;
     });
-    // Re-create GenUiEngine to ensure a clean state for the new
+    // Re-create GenUiController to ensure a clean state for the new
     // sample.
-    _a2uiMessageProcessor.dispose();
-    _a2uiMessageProcessor = GenUiEngine(catalogs: [widget.catalog]);
+    _genUiController.dispose();
+    _genUiController = GenUiController(catalogs: [widget.catalog]);
     _setupSurfaceListener();
 
     try {
@@ -123,7 +123,7 @@ class _SamplesViewState extends State<SamplesView> {
       });
 
       _messageSubscription = sample.messages.listen(
-        _a2uiMessageProcessor.handleMessage,
+        _genUiController.handleMessage,
         onError: (Object e) {
           debugPrint('Error processing message: $e');
           if (!context.mounted) return;
@@ -229,7 +229,7 @@ class _SamplesViewState extends State<SamplesView> {
                           ? const Center(child: Text('No surfaces'))
                           : GenUiSurface(
                               key: ValueKey(_surfaceIds[_currentSurfaceIndex]),
-                              genUiContext: _a2uiMessageProcessor.contextFor(
+                              genUiContext: _genUiController.contextFor(
                                 _surfaceIds[_currentSurfaceIndex],
                               ),
                             ),

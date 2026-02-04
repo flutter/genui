@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/catalog/core_catalog.dart';
 import 'package:genui/src/model/a2ui_message.dart';
 import 'package:genui/src/model/catalog.dart';
+import 'package:genui/src/model/data_model.dart';
 import 'package:genui/src/primitives/simple_items.dart';
 import 'package:json_schema_builder/src/schema/schema.dart';
 
@@ -67,7 +68,7 @@ void main() {
       expect(message, isA<UpdateDataModel>());
       final update = message as UpdateDataModel;
       expect(update.surfaceId, 's1');
-      expect(update.path, '/user/name');
+      expect(update.path, DataPath('/user/name'));
       expect(update.value, 'Alice');
     });
 

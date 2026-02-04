@@ -10,7 +10,7 @@ void main() {
   testWidgets('CheckBox widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiEngine(
+    final manager = GenUiController(
       catalogs: [
         Catalog([CoreCatalogItems.checkBox], catalogId: 'test_catalog'),
       ],

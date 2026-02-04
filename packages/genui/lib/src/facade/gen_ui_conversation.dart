@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../engine/gen_ui_engine.dart';
+import '../engine/gen_ui_controller.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import '../transport/a2ui_transport_adapter.dart';
@@ -82,8 +82,9 @@ class ConversationState {
 
 /// Facade for managing a GenUI conversation.
 ///
-/// This class orchestrates the communication between the [GenUiEngine] and the
-/// [A2uiTransportAdapter]. It manages the state of the conversation, including
+/// This class orchestrates the communication between the [GenUiController] and
+/// the [A2uiTransportAdapter]. It manages the state of the conversation,
+/// including
 /// the list of active surfaces, the latest text response, and whether the
 /// system is waiting for a response.
 class GenUiConversation {
@@ -131,7 +132,7 @@ class GenUiConversation {
     _engineSubmitSubscription = engine.onSubmit.listen(sendRequest);
   }
 
-  final GenUiEngine engine;
+  final GenUiController engine;
   final A2uiTransportAdapter adapter;
   final Future<void> Function(ChatMessage) onSend;
 

@@ -77,7 +77,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
 
   final _protocol = Backend(uiSchema);
-  late final GenUiEngine _a2uiMessageProcessor = GenUiEngine(
+  late final GenUiController _genUiController = GenUiController(
     catalogs: [_catalog],
   );
   String? _selectedResponse;
@@ -118,7 +118,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
               }
               _surfaceId = parsedToolCall.surfaceId;
               for (final A2uiMessage message in parsedToolCall.messages) {
-                _a2uiMessageProcessor.handleMessage(message);
+                _genUiController.handleMessage(message);
               }
               print('UI received for surfaceId=${parsedToolCall.surfaceId}');
               setState(() => _isLoading = false);
@@ -158,7 +158,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
       return const Text('_surfaceId == null');
     }
     return GenUiSurface(
-      genUiContext: _a2uiMessageProcessor.contextFor(surfaceId),
+      genUiContext: _genUiController.contextFor(surfaceId),
       defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
     );
   }
