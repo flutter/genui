@@ -27,7 +27,7 @@ void main() {
       final conversation = GenUiConversation(
         controller: controller,
         messageSink: processor,
-        context: processor,
+        host: processor,
         onSend: (message, history) async {
           await completer.future;
         },
@@ -55,7 +55,7 @@ void main() {
       final conversation = GenUiConversation(
         controller: controller,
         messageSink: processor,
-        context: processor,
+        host: processor,
         onSend: (message, history) async {
           capturedMessage = message;
           capturedHistory = history;

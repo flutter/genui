@@ -22,7 +22,7 @@ class ChatSession extends ChangeNotifier {
   List<MessageController> get messages => List.unmodifiable(_messages);
 
   late final A2uiMessageProcessor _messageProcessor;
-  GenUiContext get genUiContext => _messageProcessor;
+  GenUiHost get genUiContext => _messageProcessor;
 
   late final GenUiController _genUiController;
   GenUiController get genUiController => _genUiController;
@@ -106,18 +106,39 @@ ${GenUiPromptFragments.basicChat}''';
 
   void _handleChatMessage(ChatMessage event) {
     genUiLogger.info('Received chat message: ${event.toJson()}');
+    final buffer = StringBuffer();
+    for (final dartantic.StandardPart part in event.parts) {
+      if (part.isUiInteractionPart) {
+        buffer.write(part.asUiInteractionPart!.interaction);
+      } else if (part is TextPart) {
+        buffer.write(part.text);
+      }
+    }
+    final text = buffer.toString();
+    if (text.isNotEmpty) {
+      _sendInteraction(text);
+    }
+  }
+
+  Future<void> _sendInteraction(String text) async {
+    _chatHistory.add(dartantic.ChatMessage.user(text));
+    await _performGeneration(text);
   }
 
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
 
     _messages.add(MessageController(isUser: true, text: 'You: $text'));
+    _chatHistory.add(dartantic.ChatMessage.user(text));
+
+    await _performGeneration(text);
+  }
+
+  Future<void> _performGeneration(String prompt) async {
     _isProcessing = true;
     notifyListeners();
 
     try {
-      _chatHistory.add(dartantic.ChatMessage.user(text));
-
       var fullResponseText = '';
 
       // Create a message controller for the AI response
@@ -138,7 +159,7 @@ ${GenUiPromptFragments.basicChat}''';
 
       // Use sendStream() to receive chunks of the response.
       final Stream<dartantic.ChatResult<String>> stream = _agent.sendStream(
-        text,
+        prompt,
         history: List.of(_chatHistory),
       );
 

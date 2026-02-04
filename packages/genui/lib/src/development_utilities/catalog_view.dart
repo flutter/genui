@@ -119,8 +119,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
         final surfaceWidget = GenUiSurface(
-          genUiContext: _a2uiMessageProcessor,
-          surfaceId: surfaceId,
+          genUiContext: _a2uiMessageProcessor.contextFor(surfaceId),
         );
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,

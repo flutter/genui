@@ -18,7 +18,7 @@ class MessageView extends StatelessWidget {
   const MessageView(this.controller, this.host, {super.key});
 
   final MessageController controller;
-  final GenUiContext host;
+  final GenUiHost host;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +26,6 @@ class MessageView extends StatelessWidget {
 
     if (surfaceId == null) return Text(controller.text ?? '');
 
-    return GenUiSurface(genUiContext: host, surfaceId: surfaceId);
+    return GenUiSurface(genUiContext: host.contextFor(surfaceId));
   }
 }

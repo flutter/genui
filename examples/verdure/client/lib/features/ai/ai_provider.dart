@@ -87,7 +87,7 @@ class Ai extends _$Ai {
     final conversation = GenUiConversation(
       controller: controller,
       messageSink: a2uiMessageProcessor,
-      context: a2uiMessageProcessor,
+      host: a2uiMessageProcessor,
       onSend: (message, history) async {
         // Send request via connector
         await connector.connectAndSend(message);

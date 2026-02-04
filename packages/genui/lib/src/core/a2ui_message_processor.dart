@@ -35,7 +35,7 @@ enum SurfaceCleanupPolicy {
 /// `updateDataModel`, `deleteSurface`) that the AI uses to manipulate the UI.
 /// It exposes a stream of `GenUiUpdate` events so that the application can
 /// react to changes.
-class A2uiMessageProcessor implements GenUiContext, A2uiMessageSink {
+class A2uiMessageProcessor implements GenUiHost, A2uiMessageSink {
   /// Creates a new [A2uiMessageProcessor] with a list of supported widget
   /// catalogs.
   A2uiMessageProcessor({
@@ -45,7 +45,6 @@ class A2uiMessageProcessor implements GenUiContext, A2uiMessageSink {
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   });
 
-  @override
   final Iterable<Catalog> catalogs;
 
   /// The policy to use for cleaning up old surfaces.
@@ -70,10 +69,8 @@ class A2uiMessageProcessor implements GenUiContext, A2uiMessageSink {
   final _pendingUpdateTimers = <String, Timer>{};
   final _attachedSurfaces = <String>{};
 
-  @override
   Map<String, DataModel> get dataModels => Map.unmodifiable(_dataModels);
 
-  @override
   DataModel dataModelForSurface(String surfaceId) {
     return _dataModels.putIfAbsent(surfaceId, DataModel.new);
   }
@@ -87,7 +84,6 @@ class A2uiMessageProcessor implements GenUiContext, A2uiMessageSink {
   /// A stream of user input messages generated from UI interactions.
   Stream<ChatMessage> get onSubmit => _onSubmit.stream;
 
-  @override
   void handleUiEvent(UiEvent event) {
     if (event is! UserActionEvent) {
       // Or handle other event types if necessary
@@ -107,6 +103,10 @@ class A2uiMessageProcessor implements GenUiContext, A2uiMessageSink {
   }
 
   @override
+  GenUiContext contextFor(String surfaceId) {
+    return _SurfaceContext(this, surfaceId);
+  }
+
   ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId) {
     if (!_surfaces.containsKey(surfaceId)) {
       genUiLogger.fine('Adding new surface $surfaceId');
@@ -344,5 +344,39 @@ class A2uiMessageProcessor implements GenUiContext, A2uiMessageSink {
       }
     }
     return {'version': 'v0.9', 'surfaces': result};
+  }
+}
+
+class _SurfaceContext implements GenUiContext {
+  _SurfaceContext(this._host, this.surfaceId);
+
+  final A2uiMessageProcessor _host;
+
+  @override
+  final String surfaceId;
+
+  @override
+  ValueListenable<UiDefinition?> get definition =>
+      _host.getSurfaceNotifier(surfaceId);
+
+  @override
+  DataModel get dataModel => _host.dataModelForSurface(surfaceId);
+
+  @override
+  Iterable<Catalog> get catalogs => _host.catalogs;
+
+  @override
+  void handleUiEvent(UiEvent event) {
+    // Ensure the event has the correct surfaceId.
+    // The event from the surface widget *might* already have it if the widget
+    // put it there, but we enforce it here or allow the host to handle it.
+    // However, A2uiMessageProcessor.handleUiEvent historically took an event
+    // and just emitted it. It didn't validate surfaceId inside the event map
+    // strictly against "this" surfaceId, but typically listeners need to know
+    // where it came from.
+    //
+    // GenUiSurface._dispatchEvent attaches the surfaceId.
+    // We pass it through to the host.
+    _host.handleUiEvent(event);
   }
 }

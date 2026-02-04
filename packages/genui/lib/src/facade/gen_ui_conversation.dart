@@ -31,18 +31,18 @@ class GenUiConversation {
   GenUiConversation({
     required this.controller,
     required A2uiMessageSink messageSink,
-    required GenUiContext context,
+    required GenUiHost host,
     required this.onSend,
     this.onSurfaceAdded,
     this.onComponentsUpdated,
     this.onSurfaceDeleted,
     this.onTextResponse,
     this.onError,
-  }) : _context = context {
+  }) : _host = host {
     _messageSubscription = controller.messageStream.listen((message) {
       messageSink.handleMessage(message);
     });
-    _surfaceUpdateSubscription = context.surfaceUpdates.listen(
+    _surfaceUpdateSubscription = host.surfaceUpdates.listen(
       _handleUpdateComponents,
     );
     _textSubscription = controller.textStream.listen(_handleTextResponse);
@@ -50,7 +50,7 @@ class GenUiConversation {
 
   /// The [GenUiController] managing the transport.
   final GenUiController controller;
-  final GenUiContext _context;
+  final GenUiHost _host;
 
   /// The callback to call when the user sends a message.
   ///
@@ -155,7 +155,7 @@ class GenUiConversation {
   }
 
   /// The host for the UI surfaces managed by this agent.
-  GenUiContext get host => _context;
+  GenUiHost get host => _host;
 
   /// A [ValueListenable] that provides the current conversation history.
   ValueListenable<List<ChatMessage>> get conversation => _conversation;
@@ -164,8 +164,8 @@ class GenUiConversation {
   ValueListenable<bool> get isProcessing => _isProcessing;
 
   /// Returns a [ValueNotifier] for the given [surfaceId].
-  ValueNotifier<UiDefinition?> surface(String surfaceId) {
-    return _context.getSurfaceNotifier(surfaceId);
+  ValueListenable<UiDefinition?> surface(String surfaceId) {
+    return _host.contextFor(surfaceId).definition;
   }
 
   /// Sends a user message to the AI.

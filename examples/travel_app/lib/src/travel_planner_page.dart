@@ -89,7 +89,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _uiConversation = GenUiConversation(
       controller: _controller,
       messageSink: _processor,
-      context: _processor,
+      host: _processor,
       onSend: (message, history) => _sendRequest(_client!, message, history),
       onComponentsUpdated: (update) {
         _scrollToBottom();

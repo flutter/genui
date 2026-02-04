@@ -34,8 +34,9 @@ class OrderConfirmationScreen extends ConsumerWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return GenUiSurface(
-                    genUiContext: aiState.a2uiMessageProcessor,
-                    surfaceId: 'confirmation',
+                    genUiContext: aiState.a2uiMessageProcessor.contextFor(
+                      'confirmation',
+                    ),
                   );
                 },
               );

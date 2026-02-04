@@ -18,11 +18,12 @@ sealed class A2uiMessage {
   /// Creates an [A2uiMessage] from a JSON map.
   factory A2uiMessage.fromJson(JsonMap json) {
     try {
-      if (json['version'] != 'v0.9') {
+      final Object? version = json['version'];
+      if (version != 'v0.9' && version != '0.9') {
         throw ArgumentError.value(
-          json['version'],
+          version,
           'version',
-          'A2UI message must have version "v0.9"',
+          'A2UI message must have version "v0.9" (or "0.9")',
         );
       }
       if (json.containsKey('createSurface')) {

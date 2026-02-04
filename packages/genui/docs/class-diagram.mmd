@@ -2,7 +2,7 @@ classDiagram
     namespace Facade {
         class GenUiConversation {
             +GenUiController controller
-            +GenUiContext host
+            +GenUiHost host
             +ValueListenable~List~ChatMessage~~ conversation
             +ValueListenable~bool~ isProcessing
             +Future~void~ sendRequest(ChatMessage message)
@@ -21,13 +21,18 @@ classDiagram
     }
 
     namespace Core {
-        class GenUiContext {
+    class GenUiHost {
             <<interface>>
             +Stream~GenUiUpdate~ surfaceUpdates
-            +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
+            +GenUiContext contextFor(String surfaceId)
+        }
+
+        class GenUiContext {
+            <<interface>>
+            +String surfaceId
+            +ValueListenable~UiDefinition?~ definition
+            +DataModel dataModel
             +Iterable~Catalog~ catalogs
-            +Map~String, DataModel~ dataModels
-            +DataModel dataModelForSurface(String surfaceId)
             +void handleUiEvent(UiEvent event)
         }
 
@@ -50,8 +55,8 @@ classDiagram
 
     namespace UI {
         class GenUiSurface {
-            +GenUiContext genUiContext
-            +String surfaceId
+            +GenUiContext context
+            // +String surfaceId (implied by context)
             +WidgetBuilder? defaultBuilder
         }
     }
@@ -83,12 +88,13 @@ classDiagram
         }
     }
 
-    GenUiContext <|.. A2uiMessageProcessor
+    GenUiHost <|.. A2uiMessageProcessor
     A2uiMessageSink <|.. A2uiMessageProcessor
     GenUiSurface --> GenUiContext : uses
+    GenUiHost --> GenUiContext : creates
     Catalog --> CatalogItem : contains
     GenUiContext --> DataModel : manages
     GenUiConversation --> GenUiController : uses
-    GenUiConversation --> GenUiContext : uses
+    GenUiConversation --> GenUiHost : uses
     GenUiConversation --> A2uiMessageSink : converts messages to
     A2uiMessageProcessor --> Catalog : uses

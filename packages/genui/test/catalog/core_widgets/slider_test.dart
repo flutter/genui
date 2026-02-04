@@ -31,12 +31,12 @@ void main() {
     manager.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), 0.5);
+    manager.contextFor(surfaceId).dataModel.update(DataPath('/myValue'), 0.5);
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager, surfaceId: surfaceId),
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -46,8 +46,7 @@ void main() {
 
     await tester.drag(find.byType(Slider), const Offset(100, 0));
     expect(
-      manager
-          .dataModelForSurface(surfaceId)
+      manager.contextFor(surfaceId).dataModel
           .getValue<double>(DataPath('/myValue')),
       greaterThan(0.5),
     );

@@ -52,7 +52,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager, surfaceId: surfaceId),
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -125,7 +125,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager, surfaceId: surfaceId),
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -154,7 +154,7 @@ void main() {
     expect(find.text('Content 2'), findsOneWidget);
 
     // Verify data model updated
-    final DataModel dataModel = manager.dataModelForSurface(surfaceId);
+    final DataModel dataModel = manager.contextFor(surfaceId).dataModel;
     expect(dataModel.getValue<num>(DataPath('currentTab')), 1);
   });
 }

@@ -158,8 +158,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
       return const Text('_surfaceId == null');
     }
     return GenUiSurface(
-      surfaceId: surfaceId,
-      genUiContext: _a2uiMessageProcessor,
+      genUiContext: _a2uiMessageProcessor.contextFor(surfaceId),
       defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
     );
   }
