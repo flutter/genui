@@ -1,3 +1,7 @@
 [submodule "packages/json_schema_builder/submodules/JSON-Schema-Test-Suite"]
 	path = packages/json_schema_builder/submodules/JSON-Schema-Test-Suite
   url = https://github.com/json-schema-org/JSON-Schema-Test-Suite.git
+[submodule "a2ui"]
+	path = packages/genui/submodules/a2ui
+	url = git@github.com:google/A2UI.git
+	branch = main

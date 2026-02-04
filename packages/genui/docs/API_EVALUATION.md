@@ -117,11 +117,11 @@ StreamSubscription<LogRecord> configureGenUiLogging({
 **Recommendation:** Move this export to a separate library file (e.g., `package:genui/parsing.dart`).
 *   **Reasoning:** Keeping the main `package:genui/genui.dart` import focused on the core "Happy Path" reduces cognitive load for standard users (`KISS` principle). Advanced users can explicitly import the parsing tools when needed.
 
-### 2. Conflating Transport and User Interaction
+### 2. Error Reporting Semantics
 **File:** `lib/src/engine/gen_ui_engine.dart`
 **Observation:** `handleMessage` catches internal validation errors and emits them as `ChatMessage.user` on the `onSubmit` stream.
-**Problem:** This disguises system errors as user input, which is conceptually confusing and makes error handling difficult for the host application.
-**Recommendation:** Use a dedicated error stream or specific error types for validation failures.
+**Context:** The A2UI 0.9 protocol specifies that validation errors should be returned to the LLM via the same channel as user events.
+**Recommendation:** Add a named constructor (e.g., `ChatMessage.error`) to clearly semanticize these events in Dart code, improving readability while conforming to the protocol's transport requirement.
 
 ### 3. "Stringly-Typed" APIs
 **File:** `lib/src/model/a2ui_message.dart`
