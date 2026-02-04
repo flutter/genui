@@ -122,8 +122,22 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
 
           _scrollToBottom();
         }
-      } else if (event is ConversationSurfaceAdded ||
-          event is ConversationComponentsUpdated) {
+      } else if (event is ConversationSurfaceAdded) {
+        final updatedMessages = List<ChatMessage>.from(_messages.value);
+        updatedMessages.add(
+          ChatMessage(
+            role: ChatMessageRole.model,
+            parts: [
+              UiPart.create(
+                definition: event.definition,
+                surfaceId: event.surfaceId,
+              ),
+            ],
+          ),
+        );
+        _messages.value = updatedMessages;
+        _scrollToBottom();
+      } else if (event is ConversationComponentsUpdated) {
         _scrollToBottom();
       }
     });

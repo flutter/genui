@@ -128,7 +128,7 @@ class GenUiConversation {
 
     // Listen for engine submissions (e.g. errors or user actions) and
     // forward them.
-    _engineSubmitSubscription = engine.onSubmit.listen(onSend);
+    _engineSubmitSubscription = engine.onSubmit.listen(sendRequest);
   }
 
   final GenUiEngine engine;

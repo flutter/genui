@@ -613,6 +613,11 @@ With functions:
           for (final jsonBlock in jsonBlocks) {
             try {
               if (jsonBlock is Map<String, dynamic>) {
+                // The model sometimes omits the version, so we inject it if
+                // it's missing.
+                if (!jsonBlock.containsKey('version')) {
+                  jsonBlock['version'] = 'v0.9';
+                }
                 final message = A2uiMessage.fromJson(jsonBlock);
                 _a2uiMessageController.add(message);
                 genUiLogger.info(
