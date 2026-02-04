@@ -11,8 +11,6 @@ library;
 
 export 'src/catalog/core_catalog.dart';
 
-
-
 export 'src/core/prompt_fragments.dart';
 
 export 'src/development_utilities/catalog_view.dart';
@@ -25,6 +23,7 @@ export 'src/facade/widgets/chat_primitives.dart';
 export 'src/interfaces/a2ui_message_sink.dart';
 export 'src/interfaces/gen_ui_context.dart';
 export 'src/interfaces/gen_ui_host.dart';
+export 'src/interfaces/gen_ui_transport.dart';
 export 'src/model/a2ui_client_capabilities.dart';
 export 'src/model/a2ui_message.dart';
 export 'src/model/a2ui_schemas.dart';

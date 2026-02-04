@@ -44,8 +44,7 @@ void main() {
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<List<GenUiUpdate>> futureUpdates = controller
-          .surfaceUpdates
+      final Future<List<GenUiUpdate>> futureUpdates = controller.surfaceUpdates
           .take(2)
           .toList();
       controller.handleMessage(
@@ -131,8 +130,7 @@ void main() {
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<GenUiUpdate> futureUpdate =
-          controller.surfaceUpdates.first;
+      final Future<GenUiUpdate> futureUpdate = controller.surfaceUpdates.first;
 
       controller.handleMessage(const DeleteSurface(surfaceId: surfaceId));
       final GenUiUpdate update = await futureUpdate;

@@ -74,23 +74,20 @@ class Ai extends _$Ai {
       a2uiAgentConnectorProvider.future,
     );
 
-    // We don't need serverUrl here anymore as connector handles it,
-    // unless we need it for something else? A2uiContentGenerator used it.
-    // But A2uiAgentConnector seems self-contained.
-
-    final controller = A2uiTransportAdapter();
+    final controller = A2uiTransportAdapter(
+      onSend: (message) async {
+        // Send request via connector
+        await connector.connectAndSend(message);
+      },
+    );
 
     // Wire up connector to controller
     connector.stream.listen(controller.addMessage);
     connector.textStream.listen(controller.addChunk);
 
     final conversation = GenUiConversation(
-      adapter: controller,
-      engine: a2uiMessageProcessor,
-      onSend: (message) async {
-        // Send request via connector
-        await connector.connectAndSend(message);
-      },
+      transport: controller,
+      controller: a2uiMessageProcessor,
     );
 
     final surfaceUpdateController = StreamController<String>.broadcast();
@@ -117,10 +114,6 @@ class Ai extends _$Ai {
       LoadingState.instance.isProcessing.value = false;
       conversation.dispose();
       controller.dispose();
-      // connector is a provider, so we should probably not dispose it here if
-      // it's shared? But it was created in a separate provider?
-      // a2uiAgentConnector is a provider. If we dispose
-      // conversation/controller, we are good.
       surfaceUpdateController.close();
     });
 

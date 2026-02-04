@@ -72,7 +72,16 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   @override
   void initState() {
     super.initState();
-    _controller = A2uiTransportAdapter();
+    // Wire up the controller's onSend to the appropriate client
+    _controller = A2uiTransportAdapter(
+      onSend: (message) async {
+        // Reset streaming text for new turn
+        _currentStreamingText = '';
+        _messages.value = [..._messages.value, message];
+        // Send request
+        await _sendRequest(_client!, message, _messages.value);
+      },
+    );
     _processor = GenUiController(catalogs: [travelAppCatalog]);
 
     // Create the appropriate content generator based on configuration
@@ -92,15 +101,8 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     _wireClient(_client!, _controller);
 
     _uiConversation = GenUiConversation(
-      adapter: _controller,
-      engine: _processor,
-      onSend: (message) async {
-        // Reset streaming text for new turn
-        _currentStreamingText = '';
-        _messages.value = [..._messages.value, message];
-        // Send request
-        await _sendRequest(_client!, message, _messages.value);
-      },
+      transport: _controller,
+      controller: _processor,
     );
 
     _uiConversation.state.addListener(() {

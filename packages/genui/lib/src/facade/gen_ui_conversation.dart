@@ -7,9 +7,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../engine/gen_ui_controller.dart';
+import '../interfaces/gen_ui_transport.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
-import '../transport/a2ui_transport_adapter.dart';
 
 /// Events emitted by [GenUiConversation].
 sealed class ConversationEvent {}
@@ -83,27 +83,27 @@ class ConversationState {
 /// Facade for managing a GenUI conversation.
 ///
 /// This class orchestrates the communication between the [GenUiController] and
-/// the [A2uiTransportAdapter]. It manages the state of the conversation,
-/// including
-/// the list of active surfaces, the latest text response, and whether the
-/// system is waiting for a response.
+/// the [GenUiTransport]. It manages the state of the conversation,
+/// including the list of active surfaces, the latest text response, and whether
+/// the system is waiting for a response.
 class GenUiConversation {
-  GenUiConversation({
-    required this.engine,
-    required this.adapter,
-    required this.onSend,
-  }) {
-    // Listen to adapter messages and pipe to engine
-    _adapterSubscription = adapter.messageStream.listen(engine.handleMessage);
+  /// Creates a [GenUiConversation].
+  ///
+  /// The [controller] manages the state of the UI surfaces.
+  /// The [transport] handles sending and receiving messages.
+  GenUiConversation({required this.controller, required this.transport}) {
+    _transportSubscription = transport.incomingMessages.listen(
+      controller.handleMessage,
+    );
 
-    // Listen to adapter text and emit events
-    _textSubscription = adapter.textStream.listen((text) {
+    // Listen to transport text and emit events
+    _textSubscription = transport.incomingText.listen((text) {
       _eventController.add(ConversationContentReceived(text));
       _updateState((s) => s.copyWith(latestText: text));
     });
 
-    // Listen to engine updates and emit events
-    _engineSubscription = engine.surfaceUpdates.listen((update) {
+    // Listen to controller updates and emit events
+    _engineSubscription = controller.surfaceUpdates.listen((update) {
       switch (update) {
         case SurfaceAdded(:final surfaceId, :final definition):
           _eventController.add(ConversationSurfaceAdded(surfaceId, definition));
@@ -127,14 +127,13 @@ class GenUiConversation {
       }
     });
 
-    // Listen for engine submissions (e.g. errors or user actions) and
+    // Listen for controller submissions (e.g. errors or user actions) and
     // forward them.
-    _engineSubmitSubscription = engine.onSubmit.listen(sendRequest);
+    _engineSubmitSubscription = controller.onSubmit.listen(sendRequest);
   }
 
-  final GenUiController engine;
-  final A2uiTransportAdapter adapter;
-  final Future<void> Function(ChatMessage) onSend;
+  final GenUiController controller;
+  final GenUiTransport transport;
 
   final StreamController<ConversationEvent> _eventController =
       StreamController.broadcast();
@@ -143,7 +142,7 @@ class GenUiConversation {
     const ConversationState(surfaces: [], latestText: '', isWaiting: false),
   );
 
-  StreamSubscription<dynamic>? _adapterSubscription;
+  StreamSubscription<dynamic>? _transportSubscription;
   StreamSubscription<dynamic>? _textSubscription;
   StreamSubscription<dynamic>? _engineSubscription;
   StreamSubscription<dynamic>? _engineSubmitSubscription;
@@ -156,7 +155,7 @@ class GenUiConversation {
     _eventController.add(ConversationWaiting());
     _updateState((s) => s.copyWith(isWaiting: true));
     try {
-      await onSend(message);
+      await transport.sendRequest(message);
     } catch (e, st) {
       _eventController.add(ConversationError(e, st));
     } finally {
@@ -169,7 +168,7 @@ class GenUiConversation {
   }
 
   void dispose() {
-    _adapterSubscription?.cancel();
+    _transportSubscription?.cancel();
     _textSubscription?.cancel();
     _engineSubscription?.cancel();
     _engineSubmitSubscription?.cancel();

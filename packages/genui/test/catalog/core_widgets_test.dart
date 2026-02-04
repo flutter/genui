@@ -32,9 +32,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(
-              genUiContext: controller!.contextFor(surfaceId),
-            ),
+            body: GenUiSurface(genUiContext: controller!.contextFor(surfaceId)),
           ),
         ),
       );

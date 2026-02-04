@@ -24,12 +24,15 @@ void main() {
 
     test('updates isWaiting state during request', () async {
       final completer = Completer<void>();
-      final conversation = GenUiConversation(
-        adapter: adapter,
-        engine: controller,
+      adapter = A2uiTransportAdapter(
         onSend: (message) async {
           await completer.future;
         },
+      );
+
+      final conversation = GenUiConversation(
+        transport: adapter,
+        controller: controller,
       );
 
       expect(conversation.state.value.isWaiting, isFalse);
@@ -50,12 +53,15 @@ void main() {
     test('calls onSend with correct message', () async {
       ChatMessage? capturedMessage;
 
-      final conversation = GenUiConversation(
-        adapter: adapter,
-        engine: controller,
+      adapter = A2uiTransportAdapter(
         onSend: (message) async {
           capturedMessage = message;
         },
+      );
+
+      final conversation = GenUiConversation(
+        transport: adapter,
+        controller: controller,
       );
 
       // Send first message

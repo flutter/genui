@@ -54,8 +54,9 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor
-                    .watchSurface('questionnaire'),
+                valueListenable: aiState.a2uiMessageProcessor.watchSurface(
+                  'questionnaire',
+                ),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());

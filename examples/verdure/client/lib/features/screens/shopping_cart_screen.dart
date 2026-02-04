@@ -34,8 +34,9 @@ class ShoppingCartScreen extends ConsumerWidget {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor
-                    .watchSurface('cart'),
+                valueListenable: aiState.a2uiMessageProcessor.watchSurface(
+                  'cart',
+                ),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());

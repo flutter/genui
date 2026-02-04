@@ -51,8 +51,9 @@ class _PresentationScreenState extends ConsumerState<PresentationScreen> {
           .when(
             data: (aiState) {
               return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor
-                    .watchSurface('options'),
+                valueListenable: aiState.a2uiMessageProcessor.watchSurface(
+                  'options',
+                ),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
