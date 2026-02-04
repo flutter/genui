@@ -83,7 +83,7 @@ classDiagram
     namespace Facade {
         class GenUiConversation {
             +GenUiController controller
-            +GenUiContext host
+            +GenUiHost host
             +ValueListenable~List~ChatMessage~~ conversation
             +ValueListenable~bool~ isProcessing
             +Future~void~ sendRequest(ChatMessage message)
@@ -102,13 +102,18 @@ classDiagram
     }
 
     namespace Core {
-        class GenUiContext {
+        class GenUiHost {
             <<interface>>
             +Stream~GenUiUpdate~ surfaceUpdates
-            +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
+            +GenUiContext contextFor(String surfaceId)
+        }
+
+        class GenUiContext {
+            <<interface>>
+            +String surfaceId
+            +ValueListenable~UiDefinition?~ definition
+            +DataModel dataModel
             +Iterable~Catalog~ catalogs
-            +Map~String, DataModel~ dataModels
-            +DataModel dataModelForSurface(String surfaceId)
             +void handleUiEvent(UiEvent event)
         }
 
@@ -125,6 +130,7 @@ classDiagram
             +DataModel dataModelForSurface(String surfaceId)
             +Map~String, Object?~ getClientDataModel()
             +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
+            +GenUiContext contextFor(String surfaceId)
             +void dispose()
         }
     }
@@ -132,7 +138,6 @@ classDiagram
     namespace UI {
         class GenUiSurface {
             +GenUiContext genUiContext
-            +String surfaceId
             +WidgetBuilder? defaultBuilder
         }
     }
@@ -164,13 +169,14 @@ classDiagram
         }
     }
 
-    GenUiContext <|.. A2uiMessageProcessor
+    GenUiHost <|.. A2uiMessageProcessor
     A2uiMessageSink <|.. A2uiMessageProcessor
     GenUiSurface --> GenUiContext : uses
+    GenUiHost --> GenUiContext : creates
     Catalog --> CatalogItem : contains
     GenUiContext --> DataModel : manages
     GenUiConversation --> GenUiController : uses
-    GenUiConversation --> GenUiContext : uses
+    GenUiConversation --> GenUiHost : uses
     GenUiConversation --> A2uiMessageSink : converts messages to
     A2uiMessageProcessor --> Catalog : uses
 ```
@@ -186,7 +192,7 @@ This layer handles the pipeline from raw text input (from an LLM) to parsed UI e
 
 This is the central nervous system of the package, orchestrating the state of all generated UI surfaces.
 
-- **`A2uiMessageProcessor`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). The AI interacts with the manager by sending structured A2UI messages (parsed from the text stream), which the processor handles via `handleMessage()`. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `ComponentsUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and acts as the `GenUiContext` for the `GenUiSurface` widget.
+- **`A2uiMessageProcessor`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. It takes a `GenUiConfiguration` object that can restrict AI actions (e.g., only allow creating surfaces, not updating or deleting them). The AI interacts with the manager by sending structured A2UI messages (parsed from the text stream), which the processor handles via `handleMessage()`. It exposes a stream of `GenUiUpdate` events (`SurfaceAdded`, `ComponentsUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets (e.g., text field content) and implements `GenUiHost` to provide `GenUiContext`s for `GenUiSurface` widgets.
 
 ### 3. UI Model Layer (`lib/src/model/`)
 
@@ -206,6 +212,8 @@ This layer defines the data structures that represent the dynamic UI and the con
 
 This layer provides a set of core, general-purpose UI widgets that can be used out-of-the-box.
 
+- **`GenUiContext`**: A scoped interface that provides access to the state and behavior of a specific UI surface. It is created by a `GenUiHost` (like `A2uiMessageProcessor` or `GenUiController`).
+- **`GenUiHost`**: The interface that manages multiple surfaces and providers `GenUiContext`s.
 - **`core_catalog.dart`**: Defines the `CoreCatalogItems`, which includes fundamental widgets like `AudioPlayer`, `Button`, `Card`, `CheckBox`, `Column`, `DateTimeInput`, `Divider`, `Icon`, `Image`, `List`, `Modal`, `MultipleChoice`, `Row`, `Slider`, `Tabs`, `Text`, `TextField`, and `Video`.
 - **Widget Implementation**: Each core widget follows the standard `CatalogItem` pattern: a schema definition, a type-safe data accessor using an `extension type`, the `CatalogItem` instance, and the Flutter widget implementation.
 
@@ -214,7 +222,7 @@ This layer provides a set of core, general-purpose UI widgets that can be used o
 This layer provides high-level widgets and controllers for easily building a generative UI application.
 
 - **`GenUiConversation`**: The primary entry point for the package. This facade class encapsulates the `GenUiController` and `A2uiMessageProcessor`, managing the conversation loop. It abstracts away the complexity of piping events back to the `onSend` callback.
-- **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiContext` (implemented by `A2uiMessageProcessor`) for a specific `surfaceId` and rebuilds itself when the definition changes.
+- **`GenUiSurface`**: The Flutter widget responsible for recursively building a UI tree from a `UiDefinition`. It listens for updates from a `GenUiContext` (typically obtained from a `GenUiHost` like `A2uiMessageProcessor`) and rebuilds itself when the definition changes.
 
 ### 6. Primitives Layer (`lib/src/primitives/`)
 
@@ -342,7 +350,7 @@ llmStream.listen((chunk) => controller.addChunk(chunk));
 - `Stream<ChatMessage> onClientEvent`: Stream of user actions to send to LLM.
 - `A2uiMessageProcessor get processor`: Access the underlying processor.
 - `void dispose()`: Closes streams and cleans up resources.
-- **Implements `GenUiHost`**: Can be passed directly to `GenUiSurface`.
+- **Implements `GenUiHost`**: Can be passed directly to `GenUiSurfaceManager`.
 
 #### `lib/src/core/a2ui_message_processor.dart`
 
@@ -377,22 +385,26 @@ processor.handleMessage(
 - `Stream<ChatMessage> get onSubmit`: Stream of user interactions (form submissions).
 - `Stream<GenUiUpdate> get surfaceUpdates`: Stream of events when surfaces change.
 - `ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId)`: Get the notifier for a surface's UI definition.
+- `GenUiContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
 - `void dispose()`: Cleans up surface notifiers and streams.
 - `void handleMessage(A2uiMessage message)`: Processes an incoming `A2uiMessage` (create, update, delete surface).
 - `void handleUiEvent(UiEvent event)`: Handle a UI event from a surface.
 
+##### `GenUiHost` (Interface)
+
+- **The Contract:** Defines how surface managers interact with the backend logic.
+- **API:**
+- `Stream<GenUiUpdate> get surfaceUpdates`: Stream of events when surfaces change.
+- `GenUiContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
+
 ##### `GenUiContext` (Interface)
 
-- **The Contract:** Defines how `GenUiSurface` interacts with the backend logic, decoupling UI rendering from message processing.
-- **Flexibility:** Allows `GenUiSurface` to work with *any* backend implementation:
-  - Use `A2uiMessageProcessor` for structured data (Tools, Databases).
-  - Implement your own for custom backends.
+- **The Contract:** Defines how `GenUiSurface` interacts with the backend logic, scoped to a single surface.
 - **API:**
-- `DataModel dataModelForSurface(String surfaceId)`: Access the data model for a specific surface.
-- `Iterable<Catalog> get catalogs`: The catalogs available to this host.
-- `Map<String, DataModel> get dataModels`: Map of all active data models.
-- `Stream<GenUiUpdate> get surfaceUpdates`: Stream of events when surfaces change.
-- `ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId)`: Get the notifier for a surface's UI definition.
+- `String get surfaceId`: The ID of the surface.
+- `ValueListenable<UiDefinition?> get definition`: The reactive definition of the UI.
+- `DataModel get dataModel`: The data model for this surface.
+- `Iterable<Catalog> get catalogs`: The catalogs available to this context.
 - `void handleUiEvent(UiEvent event)`: Handle a UI event from a surface.
 
 ##### `GenUiUpdate` (Sealed Class)
@@ -407,14 +419,13 @@ processor.handleMessage(
 
 ```
 GenUiSurface(
-  host: myGenUiController,
-  surfaceId: 'main-surface',
+  context: myHost.contextFor('main-surface'),
 )
 ```
 
 ##### `GenUiSurface` (StatefulWidget)
 
-- Constructor: `GenUiSurface({required GenUiHost host, required String surfaceId, WidgetBuilder? defaultBuilder})`
+- Constructor: `GenUiSurface({required GenUiContext context, WidgetBuilder? defaultBuilder})`
 - The `defaultBuilder` renders a placeholder while the surface definition is empty or loading.
 
 #### `lib/src/widgets/gen_ui_surface_manager.dart`

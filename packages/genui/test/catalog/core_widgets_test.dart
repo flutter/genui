@@ -33,8 +33,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: GenUiSurface(
-              genUiContext: messageProcessor!,
-              surfaceId: surfaceId,
+              genUiContext: messageProcessor!.contextFor(surfaceId),
             ),
           ),
         ),

@@ -24,7 +24,7 @@ class Conversation extends StatelessWidget {
   });
 
   final List<ChatMessage> messages;
-  final GenUiContext manager;
+  final GenUiHost manager;
   final UserPromptBuilder? userPromptBuilder;
   final UserUiInteractionBuilder? userUiInteractionBuilder;
   final bool showInternalMessages;
@@ -96,8 +96,7 @@ class Conversation extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: GenUiSurface(
                   key: ValueKey(uiPart.definition.surfaceId),
-                  genUiContext: manager,
-                  surfaceId: uiPart.definition.surfaceId,
+                  genUiContext: manager.contextFor(uiPart.definition.surfaceId),
                 ),
               );
             }

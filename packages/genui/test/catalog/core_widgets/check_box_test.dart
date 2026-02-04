@@ -32,12 +32,12 @@ void main() {
     manager.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
+    manager.contextFor(surfaceId).dataModel.update(DataPath('/myValue'), true);
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager, surfaceId: surfaceId),
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -51,7 +51,8 @@ void main() {
     await tester.tap(find.byType(CheckboxListTile));
     expect(
       manager
-          .dataModelForSurface(surfaceId)
+          .contextFor(surfaceId)
+          .dataModel
           .getValue<bool>(DataPath('/myValue')),
       isFalse,
     );

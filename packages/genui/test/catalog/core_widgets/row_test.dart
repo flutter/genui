@@ -42,7 +42,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager, surfaceId: surfaceId),
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -93,7 +93,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager, surfaceId: surfaceId),
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
