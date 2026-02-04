@@ -25,10 +25,7 @@ classDiagram
         <<interface>>
         +Stream~GenUiUpdate~ surfaceUpdates
         +GenUiContext contextFor(String surfaceId)
-        +Iterable~Catalog~ catalogs
-        +Map~String, DataModel~ dataModels
-        +DataModel dataModelForSurface(String surfaceId)
-        +void handleUiEvent(UiEvent event)
+        +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)
     }
 
     class GenUiContext {
@@ -45,23 +42,28 @@ classDiagram
         +void handleMessage(A2uiMessage message)
     }
 
-    class A2uiMessageProcessor {
+    class GenUiController {
         +void handleMessage(A2uiMessage message)
         +Stream~GenUiUpdate~ surfaceUpdates
         +Stream~ChatMessage~ onSubmit
         +Map~String, DataModel~ dataModels
         +DataModel dataModelForSurface(String surfaceId)
-        +Map~String, Object?~ getClientDataModel()
-        +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
         +GenUiContext contextFor(String surfaceId)
         +void dispose()
     }
 
-    class GenUiController {
+    class GenUiTransport {
+        <<interface>>
+        +Stream~A2uiMessage~ incomingMessages
+        +Stream~String~ incomingText
+        +Future~void~ sendRequest(ChatMessage message)
+    }
+
+    class A2uiTransportAdapter {
         +void addChunk(String text)
         +void addMessage(A2uiMessage message)
-        +Stream~String~ textStream
-        +Stream~A2uiMessage~ messageStream
+        +Stream~String~ incomingText
+        +Stream~A2uiMessage~ incomingMessages
         +void dispose()
     }
 
@@ -95,11 +97,12 @@ classDiagram
         +void dispose()
     }
 
-    GenUiHost <|.. A2uiMessageProcessor
-    A2uiMessageSink <|.. A2uiMessageProcessor
+    GenUiHost <|.. GenUiController
+    A2uiMessageSink <|.. GenUiController
+    GenUiTransport <|.. A2uiTransportAdapter
     GenUiSurface --> GenUiContext : uses
     GenUiHost --> GenUiContext : creates
-    A2uiMessageProcessor --> Catalog : uses
+    GenUiController --> Catalog : uses
     Catalog --> CatalogItem : contains
     GenUiContext --> DataModel : manages
 ```
@@ -120,27 +123,29 @@ These classes form the backbone of the GenUI integration in your app.
 import 'package:genui/genui.dart';
 ```
 
-#### `lib/src/transport/gen_ui_controller.dart`
+#### `lib/src/transport/a2ui_transport_adapter.dart`
 
-**Purpose:** The primary controller for interacting with GenUI via **Streaming Text**.
+**Purpose:** The primary transport implementation for interacting with GenUI via **Streaming Text**.
 **Use Case:** Ideal for "Chat with LLM" scenarios where the model outputs a stream of text that may contain markdown, text, and JSON blocks mixed together.
 **Code Example:**
 
 ```dart
-final controller = GenUiController(catalogs: ...);
+final transport = A2uiTransportAdapter(
+  onSend: (msg) => myLLMClient.sendMessage(msg),
+);
 // Feed raw text chunks (e.g. from a streaming API response)
-llmStream.listen((chunk) => controller.addChunk(chunk));
+llmStream.listen((chunk) => transport.addChunk(chunk));
 ```
 
-**`GenUiController`**
+**`A2uiTransportAdapter`**
 
 - `void addChunk(String text)`: Feed text from LLM.
 - `void addMessage(A2uiMessage message)`: Feed a raw A2UI message directly (e.g. from tool output).
-- `Stream<String> textStream`: Stream of text content (markdown) with UI JSON blocks stripped out.
-- `Stream<A2uiMessage> messageStream`: Stream of parsed A2UI messages.
+- `Stream<String> incomingText`: Stream of text content (markdown) with UI JSON blocks stripped out.
+- `Stream<A2uiMessage> incomingMessages`: Stream of parsed A2UI messages.
 - `void dispose()`: Closes streams and cleans up resources.
 
-#### `lib/src/core/a2ui_message_processor.dart`
+#### `lib/src/engine/gen_ui_controller.dart`
 
 **Purpose:** The central engine for processing **Structured A2UI Messages**.
 **Use Case:** Use this directly when you have structured data instead of raw text. Common scenarios include:
@@ -152,21 +157,19 @@ llmStream.listen((chunk) => controller.addChunk(chunk));
 **Code Example:**
 
 ```dart
-final processor = A2uiMessageProcessor(catalogs: [myCatalog]);
+final controller = GenUiController(catalogs: [myCatalog]);
 // Feed a structured message object directly
-processor.handleMessage(
+controller.handleMessage(
   UpdateComponents(surfaceId: 'main', components: [...])
 );
 ```
 
-**`A2uiMessageProcessor`**
+**`GenUiController`**
 
-- `DataModel dataModelForSurface(String surfaceId)`: Access the data model for a specific surface.
-- `Map<String, DataModel> get dataModels`: Map of all active data models.
-- `Map<String, Object?> getClientDataModel()`: Returns a snapshot of the current data for all attached surfaces.
+- `DataModel store.getDataModel(String surfaceId)`: Access the data model for a specific surface.
 - `Stream<ChatMessage> get onSubmit`: Stream of user interactions (form submissions).
 - `Stream<GenUiUpdate> get surfaceUpdates`: Stream of events when surfaces change.
-- `ValueNotifier<UiDefinition?> getSurfaceNotifier(String surfaceId)`: Get the notifier for a surface's UI definition.
+- `ValueListenable<UiDefinition?> watchSurface(String surfaceId)`: Get the notifier for a surface's UI definition.
 - `GenUiContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
 - `void dispose()`: Cleans up surface notifiers and streams.
 - `void handleMessage(A2uiMessage message)`: Processes an incoming `A2uiMessage` (create, update, delete surface).
@@ -201,7 +204,7 @@ processor.handleMessage(
 
 ```dart
 GenUiSurface(
-  context: myGenUiHost.contextFor('main-surface'),
+  genUiContext: myController.contextFor('main-surface'),
 )
 ```
 
@@ -229,7 +232,7 @@ GenUiSurface(
 ```dart
 final conversation = GenUiConversation(
   controller: myController,
-  onSend: (msg, history) => myLLMClient.sendMessage(msg),
+  transport: myTransport,
 );
 ```
 

@@ -1,9 +1,10 @@
 graph TD
     subgraph "genui Package"
         GenUiConversation["GenUiConversation (Facade)"]
-        GenUiController["GenUiController (Parser)"]
+        GenUiTransport["GenUiTransport (Interface)"]
+        A2uiTransportAdapter["A2uiTransportAdapter"]
+        GenUiController["GenUiController (Engine)"]
         Transformer["A2uiParserTransformer"]
-        A2uiMessageProcessor["A2uiMessageProcessor"]
         Catalog["Widget Catalog"]
         DataModel["DataModel"]
         GenUiSurface["GenUiSurface (Widget)"]
@@ -11,25 +12,27 @@ graph TD
 
 
     AppLogic -- "Initializes" --> GenUiConversation
+    GenUiConversation -- "Uses" --> GenUiTransport
     GenUiConversation -- "Manages" --> GenUiController
-    GenUiConversation -- "Manages" --> A2uiMessageProcessor
 
     AppLogic -- "Sends User Input" --> GenUiConversation
-    GenUiConversation -- "Calls callback" --> ExternalLLM
-    ExternalLLM -- "Returns chunks" --> GenUiController
-    GenUiController -- "Pipes to" --> Transformer
-    Transformer -- "Parses into<br>messages" --> GenUiController
-    GenUiController -- "Stream<A2uiMessage>" --> GenUiConversation
-    GenUiConversation -- "Dispatches to" --> A2uiMessageProcessor
+    GenUiConversation -- "Delegates to" --> GenUiTransport
+    GenUiTransport -- "Calls callback" --> ExternalLLM
+    ExternalLLM -- "Returns chunks" --> A2uiTransportAdapter
+    A2uiTransportAdapter -- "Pipes to" --> Transformer
+    Transformer -- "Parses into<br>messages" --> A2uiTransportAdapter
+    A2uiTransportAdapter -- "Stream<A2uiMessage>" --> GenUiTransport
+    GenUiTransport -- "Pipes to" --> GenUiConversation
+    GenUiConversation -- "Dispatches to" --> GenUiController
 
-    A2uiMessageProcessor -- "Owns" --> DataModel
-    A2uiMessageProcessor -- "Notifies of updates" --> GenUiConversation
-    A2uiMessageProcessor -- "Notifies of updates" --> GenUiSurface
+    GenUiController -- "Owns" --> DataModel
+    GenUiController -- "Notifies of updates" --> GenUiConversation
+    GenUiController -- "Notifies of updates" --> GenUiSurface
 
     UserUI -- "Instantiates" --> GenUiSurface
     GenUiSurface -- "Builds widgets using" --> Catalog
     GenUiSurface -- "Reads/writes state via" --> DataModel
-    GenUiSurface -- "Sends UI events" --> A2uiMessageProcessor
+    GenUiSurface -- "Sends UI events" --> GenUiController
 
-    A2uiMessageProcessor -- "Client events (onSubmit)" --> GenUiConversation
-    GenUiConversation -- "Loops back (onSend)" --> ExternalLLM
+    GenUiController -- "Client events (onSubmit)" --> GenUiConversation
+    GenUiConversation -- "Loops back" --> GenUiTransport

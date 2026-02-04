@@ -2,26 +2,23 @@ classDiagram
     namespace Facade {
         class GenUiConversation {
             +GenUiController controller
-            +GenUiHost host
-            +ValueListenable~List~ChatMessage~~ conversation
-            +ValueListenable~bool~ isProcessing
+            +GenUiTransport transport
+            +ValueListenable~ConversationState~ state
+            +Stream~ConversationEvent~ events
             +Future~void~ sendRequest(ChatMessage message)
             +void dispose()
         }
     }
 
-    namespace Transport {
-        class GenUiController {
-            +void addChunk(String text)
-            +void addMessage(A2uiMessage message)
-            +Stream~String~ textStream
-            +Stream~A2uiMessage~ messageStream
-            +void dispose()
+    namespace Interfaces {
+        class GenUiTransport {
+            <<interface>>
+            +Stream~A2uiMessage~ incomingMessages
+            +Stream~String~ incomingText
+            +Future~void~ sendRequest(ChatMessage message)
         }
-    }
 
-    namespace Core {
-    class GenUiHost {
+        class GenUiHost {
             <<interface>>
             +Stream~GenUiUpdate~ surfaceUpdates
             +GenUiContext contextFor(String surfaceId)
@@ -40,15 +37,28 @@ classDiagram
             <<interface>>
             +void handleMessage(A2uiMessage message)
         }
+    }
 
-        class A2uiMessageProcessor {
+    namespace Transport {
+        class A2uiTransportAdapter {
+            +void addChunk(String text)
+            +void addMessage(A2uiMessage message)
+            +Stream~A2uiMessage~ incomingMessages
+            +Stream~String~ incomingText
+            +Future~void~ sendRequest(ChatMessage message)
+            +void dispose()
+        }
+    }
+
+    namespace Engine {
+        class GenUiController {
             +void handleMessage(A2uiMessage message)
             +Stream~GenUiUpdate~ surfaceUpdates
             +Stream~ChatMessage~ onSubmit
             +Map~String, DataModel~ dataModels
-            +DataModel dataModelForSurface(String surfaceId)
-            +Map~String, Object?~ getClientDataModel()
-            +ValueNotifier~UiDefinition?~ getSurfaceNotifier(String surfaceId)
+            +Iterable~String~ activeSurfaceIds
+            +GenUiContext contextFor(String surfaceId)
+            +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)
             +void dispose()
         }
     }
@@ -56,7 +66,6 @@ classDiagram
     namespace UI {
         class GenUiSurface {
             +GenUiContext context
-            // +String surfaceId (implied by context)
             +WidgetBuilder? defaultBuilder
         }
     }
@@ -88,13 +97,13 @@ classDiagram
         }
     }
 
-    GenUiHost <|.. A2uiMessageProcessor
-    A2uiMessageSink <|.. A2uiMessageProcessor
+    GenUiHost <|.. GenUiController
+    A2uiMessageSink <|.. GenUiController
+    GenUiTransport <|.. A2uiTransportAdapter
     GenUiSurface --> GenUiContext : uses
     GenUiHost --> GenUiContext : creates
     Catalog --> CatalogItem : contains
     GenUiContext --> DataModel : manages
     GenUiConversation --> GenUiController : uses
-    GenUiConversation --> GenUiHost : uses
-    GenUiConversation --> A2uiMessageSink : converts messages to
-    A2uiMessageProcessor --> Catalog : uses
+    GenUiConversation --> GenUiTransport : uses
+    GenUiController --> Catalog : uses
