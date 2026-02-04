@@ -17,7 +17,7 @@ import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
 import '../widgets/genui_surface.dart';
 
-/// A widget that displays a GenUI catalog widgets.
+/// A widget that displays a catalog of GenUI components.
 ///
 /// This widget is intended for development and debugging purposes.
 ///

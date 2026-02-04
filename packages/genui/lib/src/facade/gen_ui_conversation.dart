@@ -81,6 +81,11 @@ class ConversationState {
 }
 
 /// Facade for managing a GenUI conversation.
+///
+/// This class orchestrates the communication between the [GenUiEngine] and the
+/// [A2uiTransportAdapter]. It manages the state of the conversation, including
+/// the list of active surfaces, the latest text response, and whether the
+/// system is waiting for a response.
 class GenUiConversation {
   GenUiConversation({
     required this.engine,

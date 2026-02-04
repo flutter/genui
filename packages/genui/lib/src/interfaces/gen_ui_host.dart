@@ -18,7 +18,7 @@ abstract interface class GenUiHost {
   /// A stream of updates for the surfaces managed by this host.
   ///
   /// Implementations may choose to filter redundant updates. Consumers should
-  /// reply on [contextFor] to get the context for a specific surface.
+  /// rely on [contextFor] to get the context for a specific surface.
   Stream<GenUiUpdate> get surfaceUpdates;
 
   /// Returns a [GenUiContext] for the surface with the given [surfaceId].

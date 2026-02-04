@@ -12,18 +12,24 @@ import '../primitives/logging.dart';
 /// Events emitted by the [SurfaceRegistry].
 sealed class RegistryEvent {}
 
+/// An event indicating that a new surface has been added.
 class SurfaceAdded extends RegistryEvent {
+  /// Creates a [SurfaceAdded] event.
   SurfaceAdded(this.surfaceId, this.definition);
   final String surfaceId;
   final UiDefinition definition;
 }
 
+/// An event indicating that a surface has been removed.
 class SurfaceRemoved extends RegistryEvent {
+  /// Creates a [SurfaceRemoved] event.
   SurfaceRemoved(this.surfaceId);
   final String surfaceId;
 }
 
+/// An event indicating that a surface has been updated.
 class SurfaceUpdated extends RegistryEvent {
+  /// Creates a [SurfaceUpdated] event.
   SurfaceUpdated(this.surfaceId, this.definition);
   final String surfaceId;
   final UiDefinition definition;
@@ -37,10 +43,19 @@ class SurfaceRegistry {
   final StreamController<RegistryEvent> _eventController =
       StreamController.broadcast();
 
+  /// The stream of registry events.
   Stream<RegistryEvent> get events => _eventController.stream;
 
+  /// The list of surface IDs in the order they were created or updated.
+  ///
+  /// This is used by cleanup strategies to determine which surfaces to remove.
   List<String> get surfaceOrder => List.unmodifiable(_surfaceOrder);
 
+  /// Returns a [ValueListenable] that tracks the definition of the surface
+  /// with the given [surfaceId].
+  ///
+  /// If the surface does not exist, a new notifier is created with a null
+  /// value.
   ValueListenable<UiDefinition?> watchSurface(String surfaceId) {
     if (!_surfaces.containsKey(surfaceId)) {
       genUiLogger.fine('Adding new surface $surfaceId');
@@ -53,6 +68,10 @@ class SurfaceRegistry {
     );
   }
 
+  /// Updates the definition of a surface.
+  ///
+  /// If [isNew] is true, a [SurfaceAdded] event is emitted. Otherwise, a
+  /// [SurfaceUpdated] event is emitted.
   void updateSurface(
     String surfaceId,
     UiDefinition definition, {
@@ -76,6 +95,9 @@ class SurfaceRegistry {
     }
   }
 
+  /// Removes a surface from the registry.
+  ///
+  /// Emits a [SurfaceRemoved] event if the surface existed.
   void removeSurface(String surfaceId) {
     if (_surfaces.containsKey(surfaceId)) {
       genUiLogger.info('Deleting surface $surfaceId');
@@ -88,10 +110,15 @@ class SurfaceRegistry {
     }
   }
 
+  /// Returns true if the registry contains a surface with the given
+  /// [surfaceId].
   bool hasSurface(String surfaceId) => _surfaces.containsKey(surfaceId);
 
+  /// Returns the current definition of the surface with the given [surfaceId],
+  /// or null if it doesn't exist.
   UiDefinition? getSurface(String surfaceId) => _surfaces[surfaceId]?.value;
 
+  /// Disposes of the registry and all its resources.
   void dispose() {
     _eventController.close();
     for (final ValueNotifier<UiDefinition?> notifier in _surfaces.values) {

@@ -177,9 +177,10 @@ final class UpdateDataModel extends A2uiMessage {
   /// The path in the data model to update. Defaults to root '/'.
   final String path;
 
-  /// The new value to write to the data model. If null (and key is present in
-  /// JSON), it implies deletion of the key at path. However, dart `fromJson`
-  /// JSON.
+  /// The new value to write to the data model.
+  ///
+  /// If null (and the key is present in the JSON), it implies deletion of the
+  /// key at the path.
   final Object? value;
 
   /// Converts this message to a JSON map.

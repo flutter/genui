@@ -13,7 +13,6 @@ export '../model/gen_ui_events.dart'
     show A2uiMessageEvent, GenUiEvent, TextEvent;
 
 /// A state update for the UI.
-/// A state update for the UI.
 typedef GenUiState = GenUiUpdate;
 
 /// The primary high-level API for typical Flutter application development.

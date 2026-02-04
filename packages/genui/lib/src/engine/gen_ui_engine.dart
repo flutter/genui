@@ -22,14 +22,29 @@ import 'surface_registry.dart' as surface_reg;
 
 /// The runtime engine for the GenUI system.
 class GenUiEngine implements GenUiHost, A2uiMessageSink {
+  /// Creates a [GenUiEngine].
+  ///
+  /// The [catalogs] parameter defines the set of component catalogs available
+  /// for use by surfaces managed by this engine.
+  ///
+  /// The [cleanupStrategy] determines when and how surfaces are removed from
+  /// the registry to free up resources.
+  ///
+  /// The [pendingUpdateTimeout] specifies how long to wait for a surface
+  /// creation message before discarding buffered updates for that surface.
   GenUiEngine({
     required this.catalogs,
     this.cleanupStrategy = const ManualCleanupStrategy(),
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   });
 
+  /// The catalogs available to surfaces in this engine.
   final Iterable<Catalog> catalogs;
+
+  /// The strategy used to clean up unused surfaces.
   final SurfaceCleanupStrategy cleanupStrategy;
+
+  /// The timeout for pending updates waiting for a surface creation.
   final Duration pendingUpdateTimeout;
 
   late final surface_reg.SurfaceRegistry _registry =
@@ -63,6 +78,13 @@ class GenUiEngine implements GenUiHost, A2uiMessageSink {
   surface_reg.SurfaceRegistry get registry => _registry;
   DataModelStore get store => _store;
 
+  /// Process an [message] from the AI service.
+  ///
+  /// This method decodes the message and updates the state of the relevant
+  /// surface, provided the message passes validation.
+  ///
+  /// If validation fails, a [GenUiValidationException] is caught and logged,
+  /// and an error message is sent back via [onSubmit].
   @override
   void handleMessage(A2uiMessage message) {
     try {
@@ -205,6 +227,9 @@ class GenUiEngine implements GenUiHost, A2uiMessageSink {
     );
   }
 
+  /// Disposes of the engine and releases all resources.
+  ///
+  /// This closes the [onSubmit] stream and cancels any pending timers.
   void dispose() {
     _registry.dispose();
     _store.dispose();

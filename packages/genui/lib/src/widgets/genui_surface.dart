@@ -41,7 +41,6 @@ class GenUiSurface extends StatefulWidget {
 
 class _GenUiSurfaceState extends State<GenUiSurface> {
   @override
-  @override
   Widget build(BuildContext context) {
     genUiLogger.fine('Outer Building surface ${widget.genUiContext.surfaceId}');
     return ValueListenableBuilder<UiDefinition?>(

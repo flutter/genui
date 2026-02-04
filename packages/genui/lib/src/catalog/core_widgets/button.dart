@@ -64,8 +64,7 @@ extension type _ButtonData.fromMap(JsonMap _json) {
 ///
 /// - `child`: The ID of a child widget to display inside the button.
 /// - `action`: The action to perform when the button is pressed.
-/// - `primary`: Whether the button invokes a primary action (defaults to
-///   false).
+/// - `variant`: A hint for the button style ('primary' or 'borderless').
 final button = CatalogItem(
   name: 'Button',
   dataSchema: _schema,
