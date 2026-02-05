@@ -1,5 +1,5 @@
 name: Test Sample
 description: This is a test sample to verify the parser.
 ---
-{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "https://a2ui.org/specification/v0.9/standard_catalog.json"}}
-{"version": "v0.9", "updateComponents": {"surfaceId": "default", "components": [{"id": "root", "component": "Text", "text": {"literalString": "Hello World"}}]}}
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Text","text":"Hello World!","variant":"h1"}]}}
