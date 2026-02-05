@@ -1,0 +1,14 @@
+---
+description: A podcast player interface.
+name: podcastEpisode
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a podcast player. 'Card' containing:
+      - 'Image' (Cover Art).
+      - 'Text' (h2) "Episode 42: The Future of AI".
+      - 'Text' "Host: Jane Smith".
+      - 'Slider' labeled "Progress" (initialize value to 0).
+      - 'Row' with 'Button' (child 'Text' "1x"), 'Button' (child 'Text' "Play/Pause"), 'Button' (child 'Text' "Share").
+      Create these as static components, not data bound.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["podcastCard"]},{"id":"podcastCard","component":"Card","child":"podcastContentColumn"},{"id":"podcastContentColumn","component":"Column","children":["coverArtImage","episodeTitleText","hostText","progressBarSlider","controlsRow"]},{"id":"coverArtImage","component":"Image","url":"https://example.com/cover_art.jpg","variant":"mediumFeature"},{"id":"episodeTitleText","component":"Text","text":"Episode 42: The Future of AI","variant":"h2"},{"id":"hostText","component":"Text","text":"Host: Jane Smith","variant":"body"},{"id":"progressBarSlider","component":"Slider","label":"Progress","min":0,"max":100,"value":0},{"id":"controlsRow","component":"Row","justify":"spaceBetween","children":["speedButton","playPauseButton","shareButton"]},{"id":"speedButton","component":"Button","child":"speedButtonText","action":{"event":{"name":"changeSpeed"}}},{"id":"speedButtonText","component":"Text","text":"1x"},{"id":"playPauseButton","component":"Button","child":"playPauseButtonText","action":{"event":{"name":"togglePlayPause"}}},{"id":"playPauseButtonText","component":"Text","text":"Play/Pause"},{"id":"shareButton","component":"Button","child":"shareButtonText","action":{"event":{"name":"shareEpisode"}}},{"id":"shareButtonText","component":"Text","text":"Share"}]}}

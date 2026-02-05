@@ -1,0 +1,10 @@
+---
+description: A text field with client-side validation requirements.
+name: clientSideValidation
+prompt: |
+  Create a 'createSurface' and 'updateComponents' message for a registration form with validation. Surface ID 'main'.
+      Include a 'TextField' for "Username" that MUST match the regex "^[a-zA-Z0-9]{3,}$". If it fails, show error "Username must be at least 3 alphanumeric characters".
+      Include a 'Button' labeled "Register".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["usernameTextField","registerButton"]},{"id":"usernameTextField","component":"TextField","label":"Username","value":{"path":"/username"},"checks":[{"condition":{"call":"regex","args":{"value":{"path":"/username"},"pattern":"^[a-zA-Z0-9]{3,}$"},"returnType":"boolean"},"message":"Username must be at least 3 alphanumeric characters"}]},{"id":"registerButton","component":"Button","child":"registerButtonText","action":{"event":{"name":"registerUser"}}},{"id":"registerButtonText","component":"Text","text":"Register"}]}}

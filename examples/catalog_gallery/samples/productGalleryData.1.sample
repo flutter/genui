@@ -1,0 +1,15 @@
+---
+description: An updateDataModel message to populate the product gallery data.
+name: productGalleryData
+prompt: |
+  Generate a 'createSurface' message with surfaceId 'main', followed by an updateDataModel message to populate the data model for the product gallery. The update should target the path '/products' and include at least two products. Each product in the map should have keys 'id', 'name', and 'imageUrl'. For example:
+      {
+        "product1": {
+          "id": "product1",
+          "name": "Awesome Gadget",
+          "imageUrl": "https://example.com/gadget.jpg"
+        }
+      }
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateDataModel":{"surfaceId":"main","path":"/products","value":{"product1":{"id":"product1","name":"Super Widget","imageUrl":"https://example.com/super_widget.jpg"},"product2":{"id":"product2","name":"Mega Doodad","imageUrl":"https://example.com/mega_doodad.png"},"product3":{"id":"product3","name":"Ultra Gizmo","imageUrl":"https://example.com/ultra_gizmo.jpeg"}}}}

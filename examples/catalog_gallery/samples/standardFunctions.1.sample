@@ -1,0 +1,14 @@
+---
+description: Usage of pluralize.
+name: standardFunctions
+prompt: |
+  Create a 'createSurface' and 'updateComponents' message for a shopping cart summary. Surface ID 'main'.
+      Display a 'Text' component.
+      The text value should be a 'pluralize' function call with returnType 'string'.
+      The pluralize call should use the count from '/cart/count' and provide these options:
+      'zero': "No items"
+      'one': "One item"
+      'other': "${/cart/count} items"
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["cartSummaryText"]},{"id":"cartSummaryText","component":"Text","text":{"call":"pluralize","args":{"value":{"path":"/cart/count"},"zero":"No items","one":"One item","other":"${/cart/count} items"},"returnType":"string"}}]}}

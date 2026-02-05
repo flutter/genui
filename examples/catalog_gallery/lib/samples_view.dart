@@ -116,6 +116,7 @@ class _SamplesViewState extends State<SamplesView> {
     _setupSurfaceListener();
 
     try {
+      debugPrint('Displaying sample in ${file.basename}');
       final Sample sample = await SampleParser.parseFile(file);
       setState(() {
         _selectedFile = file;
@@ -227,10 +228,14 @@ class _SamplesViewState extends State<SamplesView> {
                     Expanded(
                       child: _surfaceIds.isEmpty
                           ? const Center(child: Text('No surfaces'))
-                          : GenUiSurface(
-                              key: ValueKey(_surfaceIds[_currentSurfaceIndex]),
-                              genUiContext: _genUiController.contextFor(
-                                _surfaceIds[_currentSurfaceIndex],
+                          : SingleChildScrollView(
+                              child: GenUiSurface(
+                                key: ValueKey(
+                                  _surfaceIds[_currentSurfaceIndex],
+                                ),
+                                genUiContext: _genUiController.contextFor(
+                                  _surfaceIds[_currentSurfaceIndex],
+                                ),
                               ),
                             ),
                     ),

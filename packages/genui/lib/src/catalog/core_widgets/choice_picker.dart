@@ -62,9 +62,8 @@ final choicePicker = CatalogItem(
         ? valueRef['path'] as String
         : '${itemContext.id}.value';
 
-    final ValueNotifier<List<Object?>?> selectionsNotifier = itemContext
-        .dataContext
-        .subscribeToObjectArray({'path': path});
+    final ValueNotifier<Object?> selectionsNotifier = itemContext.dataContext
+        .subscribeToValue<Object>({'path': path});
 
     final isMutuallyExclusive = data.variant == 'mutuallyExclusive';
 
@@ -90,7 +89,7 @@ final choicePicker = CatalogItem(
               },
             ),
           ),
-        ValueListenableBuilder<List<Object?>?>(
+        ValueListenableBuilder<Object?>(
           valueListenable: selectionsNotifier,
           builder: (context, currentSelections, child) {
             var effectiveSelections = currentSelections;
@@ -100,9 +99,12 @@ final choicePicker = CatalogItem(
               } else if (valueRef is String) {
                 effectiveSelections = [valueRef];
               }
+            } else if (effectiveSelections is! List) {
+              effectiveSelections = [effectiveSelections];
             }
-            final List<String> currentStrings =
-                effectiveSelections?.map((e) => e.toString()).toList() ?? [];
+            final List<String> currentStrings = (effectiveSelections as List)
+                .map((e) => e.toString())
+                .toList();
 
             return Column(
               children: data.options.map((option) {
