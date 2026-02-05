@@ -68,8 +68,8 @@ class ExpressionParser {
     final Object? argsJson = callDefinition['args'];
 
     if (argsJson is Map) {
-      for (final key in argsJson.keys) {
-        final argName = key as String;
+      for (final Object? key in argsJson.keys) {
+        final argName = key.toString();
         final Object? value = argsJson[key];
         if (value is String) {
           args[argName] = parse(value);
@@ -85,11 +85,13 @@ class ExpressionParser {
       }
     } else if (argsJson is List) {
       // Graceful fallback for legacy list args - best effort or error?
-      // Since we are enforcing named args, this might fail unless we map by index?
+      // Since we are enforcing named args, this might fail unless we map by
+      // index?
       // But we don't know parameter names here.
       // We'll log a warning and possibly fail.
       genUiLogger.warning(
-        'Function $name called with List args, expected Map. Arguments dropped.',
+        'Function $name called with List args, expected Map. '
+        'Arguments dropped.',
       );
     }
 

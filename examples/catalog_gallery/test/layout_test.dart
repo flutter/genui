@@ -23,8 +23,9 @@ void main() {
 
     await for (final A2uiMessage message in sample.messages) {
       if (message is CreateSurface) {
-        // We manually inject standardCatalog since createSurface might ref external URL
-        // In this test environment, we just assume standardCatalog is available
+        // We manually inject standardCatalog since createSurface might ref
+        // external URL in this test environment, we just assume standardCatalog
+        // is available
       }
       controller.handleMessage(message);
     }

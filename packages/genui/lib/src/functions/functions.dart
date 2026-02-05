@@ -66,9 +66,10 @@ class FunctionRegistry {
     if (!args.containsKey('values')) return false;
     final Object? values = args['values'];
     if (values is! List) return false;
-    // We assume the caller (parser) has evaluated the list items if they were expressions,
-    // but if the list contains plain boolean values or truthy/falsy values, we check them.
-    for (final element in values) {
+    // We assume the caller (parser) has evaluated the list items if they were
+    // expressions, but if the list contains plain boolean values or
+    // truthy/falsy values, we check them.
+    for (final Object? element in values) {
       if (!_isTruthy(element)) return false;
     }
     return true;
@@ -78,7 +79,7 @@ class FunctionRegistry {
     if (!args.containsKey('values')) return false;
     final Object? values = args['values'];
     if (values is! List) return false;
-    for (final element in values) {
+    for (final Object? element in values) {
       if (_isTruthy(element)) return true;
     }
     return false;
