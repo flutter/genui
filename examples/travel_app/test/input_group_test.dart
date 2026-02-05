@@ -30,6 +30,7 @@ void main() {
                 builder: (context) {
                   return inputGroup.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
                       type: 'InputGroup',
@@ -82,6 +83,7 @@ void main() {
               builder: (context) {
                 return inputGroup.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
                     type: 'InputGroup',

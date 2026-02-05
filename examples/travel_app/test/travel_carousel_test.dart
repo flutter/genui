@@ -45,6 +45,7 @@ void main() {
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
                       type: 'TravelCarousel',
@@ -115,6 +116,7 @@ void main() {
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
                       type: 'TravelCarousel',
@@ -156,6 +158,7 @@ void main() {
                 builder: (context) {
                   return travelCarousel.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
                       type: 'TravelCarousel',

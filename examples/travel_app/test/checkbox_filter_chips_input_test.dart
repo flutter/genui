@@ -19,6 +19,7 @@ void main() {
               return Center(
                 child: checkboxFilterChipsInput.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: {
                       'chipLabel': 'Amenities',
                       'options': ['Wifi', 'Pool', 'Gym'],
@@ -57,6 +58,7 @@ void main() {
                 return Center(
                   child: checkboxFilterChipsInput.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: {
                         'chipLabel': 'Amenities',
                         'options': ['Wifi', 'Pool', 'Gym'],

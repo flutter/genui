@@ -118,6 +118,8 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
         dataContext: dataContext,
         getComponent: (String componentId) =>
             definition.components[componentId],
+        getCatalogItem: (String type) =>
+            catalog.items.firstWhereOrNull((item) => item.name == type),
         surfaceId: widget.genUiContext.surfaceId,
       ),
     );

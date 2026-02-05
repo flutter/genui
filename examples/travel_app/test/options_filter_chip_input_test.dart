@@ -27,6 +27,7 @@ void main() {
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
                     type: 'OptionsFilterChipInput',
@@ -90,6 +91,7 @@ void main() {
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
                     type: 'OptionsFilterChipInput',
@@ -143,6 +145,7 @@ void main() {
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
                     type: 'OptionsFilterChipInput',

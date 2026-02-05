@@ -84,6 +84,8 @@ class Catalog {
         buildContext: itemContext.buildContext,
         dataContext: itemContext.dataContext,
         getComponent: itemContext.getComponent,
+        getCatalogItem: (String type) =>
+            items.firstWhereOrNull((item) => item.name == type),
         surfaceId: itemContext.surfaceId,
       ),
     );

@@ -95,4 +95,5 @@ final checkBox = CatalogItem(
       ]
     ''',
   ],
+  isImplicitlyFlexible: true,
 );

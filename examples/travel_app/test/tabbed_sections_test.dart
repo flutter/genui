@@ -48,6 +48,7 @@ void main() {
                     builder: (context) {
                       return catalogItem.widgetBuilder(
                         CatalogItemContext(
+                          getCatalogItem: (type) => null,
                           data: data,
                           id: 'testId',
                           type: 'TabbedSections',

@@ -99,4 +99,5 @@ final list = CatalogItem(
       ]
     ''',
   ],
+  isImplicitlyFlexible: true,
 );

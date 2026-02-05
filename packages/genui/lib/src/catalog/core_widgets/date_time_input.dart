@@ -373,4 +373,5 @@ final dateTimeInput = CatalogItem(
       ]
     ''',
   ],
+  isImplicitlyFlexible: true,
 );

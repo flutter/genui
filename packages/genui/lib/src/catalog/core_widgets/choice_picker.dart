@@ -190,4 +190,5 @@ final choicePicker = CatalogItem(
       ]
     ''',
   ],
+  isImplicitlyFlexible: true,
 );

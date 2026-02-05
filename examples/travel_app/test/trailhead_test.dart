@@ -27,6 +27,7 @@ void main() {
               builder: (context) {
                 return trailhead.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
                     type: 'Trailhead',
@@ -76,6 +77,7 @@ void main() {
               builder: (context) {
                 return trailhead.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
                     type: 'Trailhead',

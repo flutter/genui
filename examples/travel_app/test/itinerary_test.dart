@@ -52,6 +52,7 @@ void main() {
           builder: (BuildContext context) {
             final Widget itineraryWidget = itinerary.widgetBuilder(
               CatalogItemContext(
+                getCatalogItem: (type) => null,
                 data: testData,
                 id: 'itinerary1',
                 type: 'Itinerary',

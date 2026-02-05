@@ -20,6 +20,7 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {'value': '2025-09-20', 'label': 'Test Date'},
                   id: 'test_chip',
                   type: 'DateInputChip',
@@ -53,6 +54,7 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
@@ -94,6 +96,7 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
@@ -136,6 +139,7 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
@@ -193,6 +197,7 @@ void main() {
               builder: (context) {
                 return dateInputChip.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: {'value': '2025-09-20', 'label': 'Test Date'},
                     id: 'test_chip_implicit',
                     type: 'DateInputChip',
