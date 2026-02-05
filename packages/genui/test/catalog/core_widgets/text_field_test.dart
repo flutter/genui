@@ -134,11 +134,11 @@ void main() {
           'checks': [
             {
               'message': 'Must be at least 6 chars',
-              'func': 'length',
-              'args': [
-                {'path': 'inputValue'},
-                {'min': 6},
-              ],
+              'call': 'length',
+              'args': {
+                'value': {'path': 'inputValue'},
+                'min': 6,
+              },
             },
           ],
         },
@@ -169,5 +169,65 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Must be at least 6 chars'), findsNothing);
+  });
+  testWidgets('TextField validation using condition wrapper and call key', (
+    WidgetTester tester,
+  ) async {
+    final manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+    addTearDown(manager.dispose);
+    const surfaceId = 'validationWrapperTest';
+    // Initialize with invalid value (empty string)
+    manager.handleMessage(
+      UpdateDataModel(surfaceId: surfaceId, path: DataPath('/name'), value: ''),
+    );
+
+    final components = [
+      const Component(
+        id: 'root',
+        type: 'TextField',
+        properties: {
+          'label': 'Name',
+          'value': {'path': '/name'},
+          'checks': [
+            {
+              // Using "condition" wrapper and "call" instead of "func"
+              // Args as list, as expected by function registry
+              'condition': {
+                'call': 'required',
+                'args': {
+                  'value': {'path': '/name'},
+                },
+              },
+              'message': 'Name required',
+            },
+          ],
+        },
+      ),
+    ];
+
+    manager.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: standardCatalogId),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Empty value should trigger required
+    expect(find.text('Name required'), findsOneWidget);
+
+    // Update with valid value
+    await tester.enterText(find.byType(TextField), 'Alice');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Name required'), findsNothing);
   });
 }

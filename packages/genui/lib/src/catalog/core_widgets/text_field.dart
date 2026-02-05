@@ -123,7 +123,10 @@ class _TextFieldState extends State<_TextField> {
     }
 
     for (final JsonMap check in widget.checks!) {
-      final bool isValid = widget.parser!.evaluateLogic(check);
+      // Support both 'condition' wrapper (as seen in some samples) and direct logic expression
+      final JsonMap logic = (check['condition'] as JsonMap?) ?? check;
+
+      final bool isValid = widget.parser!.evaluateLogic(logic);
       if (!isValid) {
         return check['message'] as String? ?? 'Invalid value';
       }

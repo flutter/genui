@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../primitives/logging.dart';
 
 /// A function that can be called from the UI definition.
-typedef ClientFunction = Object? Function(List<Object?> args);
+typedef ClientFunction = Object? Function(Map<String, Object?> args);
 
 /// Registry of available client-side functions.
 class FunctionRegistry {
@@ -28,7 +28,7 @@ class FunctionRegistry {
   }
 
   /// Invokes a registered function with [name] and [args].
-  Object? invoke(String name, List<Object?> args) {
+  Object? invoke(String name, Map<String, Object?> args) {
     final ClientFunction? func = _functions[name];
     if (func == null) {
       genUiLogger.warning('Function not found: $name');
@@ -55,13 +55,50 @@ class FunctionRegistry {
     register('formatCurrency', _formatCurrency);
     register('formatDate', _formatDate);
     register('pluralize', _pluralize);
+    register('and', _and);
+    register('or', _or);
+    register('not', _not);
   }
 
   // --- Implementations ---
 
-  Object? _required(List<Object?> args) {
-    if (args.isEmpty) return false;
-    final Object? value = args[0];
+  Object? _and(Map<String, Object?> args) {
+    if (!args.containsKey('values')) return false;
+    final Object? values = args['values'];
+    if (values is! List) return false;
+    // We assume the caller (parser) has evaluated the list items if they were expressions,
+    // but if the list contains plain boolean values or truthy/falsy values, we check them.
+    for (final element in values) {
+      if (!_isTruthy(element)) return false;
+    }
+    return true;
+  }
+
+  Object? _or(Map<String, Object?> args) {
+    if (!args.containsKey('values')) return false;
+    final Object? values = args['values'];
+    if (values is! List) return false;
+    for (final element in values) {
+      if (_isTruthy(element)) return true;
+    }
+    return false;
+  }
+
+  Object? _not(Map<String, Object?> args) {
+    if (!args.containsKey('value')) return false;
+    return !_isTruthy(args['value']);
+  }
+
+  bool _isTruthy(Object? value) {
+    if (value is bool) return value;
+    if (value == null) return false;
+    // You might want to define other truthy rules here
+    return true;
+  }
+
+  Object? _required(Map<String, Object?> args) {
+    if (!args.containsKey('value')) return false;
+    final Object? value = args['value'];
     if (value == null) return false;
     if (value is String) return value.isNotEmpty;
     if (value is List) return value.isNotEmpty;
@@ -69,10 +106,9 @@ class FunctionRegistry {
     return true;
   }
 
-  Object? _regex(List<Object?> args) {
-    if (args.length < 2) return false;
-    final Object? value = args[0];
-    final Object? pattern = args[1];
+  Object? _regex(Map<String, Object?> args) {
+    final Object? value = args['value'];
+    final Object? pattern = args['pattern'];
     if (value is! String || pattern is! String) return false;
     try {
       return RegExp(pattern).hasMatch(value);
@@ -82,11 +118,9 @@ class FunctionRegistry {
     }
   }
 
-  Object? _length(List<Object?> args) {
-    if (args.length < 2) return false;
-    final Object? value = args[0];
-    final Object? constraints = args[1];
-    if (constraints is! Map) return false;
+  Object? _length(Map<String, Object?> args) {
+    final Object? value = args['value'];
+    if (value == null) return false;
 
     int? len;
     if (value is String) {
@@ -97,52 +131,45 @@ class FunctionRegistry {
       return false;
     }
 
-    if (constraints.containsKey('min')) {
-      final Object? min = constraints['min'];
+    if (args.containsKey('min')) {
+      final Object? min = args['min'];
       if (min is num && len < min) return false;
     }
-    if (constraints.containsKey('max')) {
-      final Object? max = constraints['max'];
+    if (args.containsKey('max')) {
+      final Object? max = args['max'];
       if (max is num && len > max) return false;
     }
     return true;
   }
 
-  Object? _numeric(List<Object?> args) {
-    if (args.length < 2) return false;
-    final Object? value = args[0];
-    final Object? constraints = args[1];
-    if (constraints is! Map) return false;
-
+  Object? _numeric(Map<String, Object?> args) {
+    final Object? value = args['value'];
     if (value is! num) return false;
 
-    if (constraints.containsKey('min')) {
-      final Object? min = constraints['min'];
+    if (args.containsKey('min')) {
+      final Object? min = args['min'];
       if (min is num && value < min) return false;
     }
-    if (constraints.containsKey('max')) {
-      final Object? max = constraints['max'];
+    if (args.containsKey('max')) {
+      final Object? max = args['max'];
       if (max is num && value > max) return false;
     }
     return true;
   }
 
-  Object? _email(List<Object?> args) {
-    if (args.isEmpty) return false;
-    final Object? value = args[0];
+  Object? _email(Map<String, Object?> args) {
+    final Object? value = args['value'];
     if (value is! String) return false;
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
     return emailRegex.hasMatch(value);
   }
 
-  Object? _formatString(List<Object?> args) {
-    if (args.isEmpty) return '';
-    return args[0]?.toString() ?? '';
+  Object? _formatString(Map<String, Object?> args) {
+    return args['value']?.toString() ?? '';
   }
 
-  Object? _openUrl(List<Object?> args) {
-    if (args.isEmpty) return false;
-    final Object? urlStr = args[0];
+  Object? _openUrl(Map<String, Object?> args) {
+    final Object? urlStr = args['url'];
     if (urlStr is! String) return false;
     final Uri? uri = Uri.tryParse(urlStr);
     if (uri != null) {
@@ -155,19 +182,18 @@ class FunctionRegistry {
     return false;
   }
 
-  Object? _formatNumber(List<Object?> args) {
-    if (args.isEmpty) return '';
-    final Object? number = args[0];
-    if (number is! num) return number?.toString();
+  Object? _formatNumber(Map<String, Object?> args) {
+    final Object? number = args['value'];
+    if (number is! num) return number?.toString() ?? '';
 
     int? decimalPlaces;
-    if (args.length > 1 && args[1] is num) {
-      decimalPlaces = (args[1] as num).toInt();
+    if (args['decimalPlaces'] is num) {
+      decimalPlaces = (args['decimalPlaces'] as num).toInt();
     }
 
     var useGrouping = true;
-    if (args.length > 2 && args[2] is bool) {
-      useGrouping = args[2] as bool;
+    if (args['useGrouping'] is bool) {
+      useGrouping = args['useGrouping'] as bool;
     }
 
     final formatter = NumberFormat.decimalPattern(); // Default locale
@@ -182,20 +208,20 @@ class FunctionRegistry {
     return formatter.format(number);
   }
 
-  Object? _formatCurrency(List<Object?> args) {
-    if (args.length < 2) return '';
-    final Object? amount = args[0];
-    final Object? currencyCode = args[1];
-    if (amount is! num || currencyCode is! String) return amount?.toString();
+  Object? _formatCurrency(Map<String, Object?> args) {
+    final Object? amount = args['value'];
+    final Object? currencyCode = args['currencyCode'];
+    if (amount is! num || currencyCode is! String) {
+      return amount?.toString() ?? '';
+    }
 
     final formatter = NumberFormat.simpleCurrency(name: currencyCode);
     return formatter.format(amount);
   }
 
-  Object? _formatDate(List<Object?> args) {
-    if (args.length < 2) return '';
-    final Object? dateVal = args[0];
-    final Object? pattern = args[1];
+  Object? _formatDate(Map<String, Object?> args) {
+    final Object? dateVal = args['value'];
+    final Object? pattern = args['pattern'];
 
     DateTime? date;
     if (dateVal is String) {
@@ -213,18 +239,12 @@ class FunctionRegistry {
     }
   }
 
-  Object? _pluralize(List<Object?> args) {
-    if (args.isEmpty) return '';
-    final Object? count = args[0];
+  Object? _pluralize(Map<String, Object?> args) {
+    final Object? count = args['count'];
     if (count is! num) return '';
 
-    if (args.length == 2 && args[1] is Map) {
-      final options = args[1] as Map;
-      if (count == 0 && options.containsKey('zero')) return options['zero'];
-      if (count == 1 && options.containsKey('one')) return options['one'];
-      return options['other'] ?? '';
-    }
-
-    return '';
+    if (count == 0 && args.containsKey('zero')) return args['zero'];
+    if (count == 1 && args.containsKey('one')) return args['one'];
+    return args['other'] ?? '';
   }
 }

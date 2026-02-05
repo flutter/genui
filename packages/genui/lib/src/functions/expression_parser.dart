@@ -39,51 +39,56 @@ class ExpressionParser {
   /// Supports `and`, `or`, `not`, `call`, `true`, and `false` keys in the
   /// [expression] map.
 
-  bool evaluateLogic(JsonMap expression) {
-    if (expression.containsKey('and')) {
-      final list = expression['and'] as List;
-      return list.every((item) => evaluateLogic(item as JsonMap));
-    }
-    if (expression.containsKey('or')) {
-      final list = expression['or'] as List;
-      return list.any((item) => evaluateLogic(item as JsonMap));
-    }
-    if (expression.containsKey('not')) {
-      return !evaluateLogic(expression['not'] as JsonMap);
-    }
-    if (expression.containsKey('func')) {
-      final Object? result = evaluateFunctionCall(expression);
+  bool evaluateLogic(Object? expression) {
+    if (expression is bool) return expression;
+    if (expression is! Map) return false;
+    final jsonEx = expression as JsonMap;
+
+    if (jsonEx.containsKey('call')) {
+      final Object? result = evaluateFunctionCall(jsonEx);
       return result == true;
     }
-    if (expression.containsKey('true')) return true;
-    if (expression.containsKey('false')) return false;
 
-    // Fallback: strictly assume false for unknown logic operators.
+    // Support DataBinding (path)
+    if (jsonEx.containsKey('path')) {
+      final Object? val = _resolvePath(jsonEx['path'] as String);
+      return val == true;
+    }
+
     return false;
   }
 
   /// Evaluates a function call defined in [callDefinition].
   ///
-  /// The [callDefinition] must contain a 'func' key with the function name
-  /// and an optional 'args' key with a list of arguments.
-  /// Arguments can be literal values, expressions, or nested function calls.
+  /// The [callDefinition] must contain a 'call' key with the function name
+  /// and an optional 'args' key with a map of arguments.
   Object? evaluateFunctionCall(JsonMap callDefinition) {
-    final name = callDefinition['func'] as String;
-    final List<Object?> args =
-        (callDefinition['args'] as List?)?.map((arg) {
-          if (arg is String) {
-            // Check if it's a path or expression string
-            return parse(arg);
-          } else if (arg is Map) {
-            if (arg.containsKey('path')) {
-              return _resolvePath(arg['path'] as String);
-            }
-            // Literal object
-            return arg;
-          }
-          return arg;
-        }).toList() ??
-        [];
+    final name = (callDefinition['call'] ?? callDefinition['func']) as String;
+    final Map<String, Object?> args = {};
+    final Object? argsJson = callDefinition['args'];
+
+    if (argsJson is Map) {
+      for (final key in argsJson.keys) {
+        final argName = key as String;
+        final Object? value = argsJson[key];
+        if (value is String) {
+          args[argName] = parse(value);
+        } else if (value is Map && value.containsKey('path')) {
+          args[argName] = _resolvePath(value['path'] as String);
+        } else {
+          args[argName] = value;
+        }
+      }
+    } else if (argsJson is List) {
+      // Graceful fallback for legacy list args - best effort or error?
+      // Since we are enforcing named args, this might fail unless we map by index?
+      // But we don't know parameter names here.
+      // We'll log a warning and possibly fail.
+      genUiLogger.warning(
+        'Function $name called with List args, expected Map. Arguments dropped.',
+      );
+    }
+
     return _functions.invoke(name, args);
   }
 
@@ -174,21 +179,42 @@ class ExpressionParser {
     if (funcMatch != null) {
       final String funcName = funcMatch.group(1)!;
       final String argsStr = funcMatch.group(2)!;
-      final List<Object?> args = _parseArgs(argsStr, depth + 1);
+      final Map<String, Object?> args = _parseNamedArgs(argsStr, depth + 1);
       return _functions.invoke(funcName, args);
     }
 
     return _resolvePath(content);
   }
 
-  List<Object?> _parseArgs(String argsStr, int depth) {
-    final args = <Object?>[];
+  Map<String, Object?> _parseNamedArgs(String argsStr, int depth) {
+    final args = <String, Object?>{};
     var balanceParens = 0;
     var balanceBraces = 0;
     var inQuote = false;
     var quoteChar = '';
 
     var start = 0;
+
+    void processArg(String segment) {
+      segment = segment.trim();
+      if (segment.isEmpty) return;
+
+      final int colonIndex = segment.indexOf(':');
+      if (colonIndex != -1) {
+        final String key = segment.substring(0, colonIndex).trim();
+        final String valueStr = segment.substring(colonIndex + 1).trim();
+        args[key] = _parseArg(valueStr, depth);
+      } else {
+        // Fallback for positional args? Or ignore?
+        // We could support implicit value arg if strictly 1 arg and no name?
+        // But let's stick to named.
+        // Effectively we ignore or treat as error.
+        genUiLogger.warning(
+          'Invalid named argument format (missing colon): $segment',
+        );
+      }
+    }
+
     for (var i = 0; i < argsStr.length; i++) {
       final String char = argsStr[i];
 
@@ -211,11 +237,11 @@ class ExpressionParser {
       if (char == '}') balanceBraces--;
 
       if (char == ',' && balanceParens == 0 && balanceBraces == 0) {
-        args.add(_parseArg(argsStr.substring(start, i).trim(), depth));
+        processArg(argsStr.substring(start, i));
         start = i + 1;
       }
     }
-    args.add(_parseArg(argsStr.substring(start).trim(), depth));
+    processArg(argsStr.substring(start));
 
     return args;
   }

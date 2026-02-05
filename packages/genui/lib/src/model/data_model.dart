@@ -8,7 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../functions/expression_parser.dart';
-import '../functions/functions.dart';
+
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
@@ -125,12 +125,8 @@ class DataContext {
     if (value is String) {
       return ExpressionParser(this).parse(value);
     }
-    if (value is Map &&
-        value.containsKey('func') &&
-        value.containsKey('args')) {
-      final funcName = value['func'] as String;
-      final List<Object?> args = (value['args'] as List).map(resolve).toList();
-      return FunctionRegistry().invoke(funcName, args);
+    if (value is Map && value.containsKey('call')) {
+      return ExpressionParser(this).evaluateFunctionCall(value as JsonMap);
     }
     return value;
   }
