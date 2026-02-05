@@ -238,7 +238,8 @@ final textField = CatalogItem(
           valueListenable: labelNotifier,
           builder: (context, label, child) {
             final String? effectiveValue =
-                currentValue ?? (valueRef is String ? valueRef : null);
+                currentValue?.toString() ??
+                (valueRef is String ? valueRef : null);
 
             return _TextField(
               initialValue: effectiveValue ?? '',
@@ -248,6 +249,13 @@ final textField = CatalogItem(
               textFieldType: textFieldData.variant,
               validationRegexp: textFieldData.validationRegexp,
               onChanged: (newValue) {
+                if (textFieldData.variant == 'number') {
+                  final num? numberValue = num.tryParse(newValue);
+                  if (numberValue != null) {
+                    itemContext.dataContext.update(DataPath(path), numberValue);
+                    return;
+                  }
+                }
                 itemContext.dataContext.update(DataPath(path), newValue);
               },
               onSubmitted: (newValue) {

@@ -76,13 +76,24 @@ extension DataContextExtensions on DataContext {
   }
 
   /// Subscribes to a string value, which can be a literal or a data-bound path.
+  ///
+  /// This method is robust against type mismatches in the data model. If the
+  /// underlying value is not a String, it will be converted using [toString].
   ValueNotifier<String?> subscribeToString(Object? value) {
+    if (value is Map && value.containsKey('path')) {
+      final ValueNotifier<Object?> raw = subscribeToValue<Object?>(value);
+      return _ToStringNotifier(raw);
+    }
     return subscribeToValue<String>(value);
   }
 
   /// Subscribes to a boolean value, which can be a literal or a data-bound
   /// path.
   ValueNotifier<bool?> subscribeToBool(Object? value) {
+    if (value is Map && value.containsKey('path')) {
+      final ValueNotifier<Object?> raw = subscribeToValue<Object?>(value);
+      return _ToBoolNotifier(raw);
+    }
     return subscribeToValue<bool>(value);
   }
 
@@ -95,7 +106,81 @@ extension DataContextExtensions on DataContext {
   /// Subscribes to a number value, which can be a literal or a data-bound
   /// path.
   ValueNotifier<num?> subscribeToNumber(Object? value) {
+    if (value is Map && value.containsKey('path')) {
+      final ValueNotifier<Object?> raw = subscribeToValue<Object?>(value);
+      return _ToNumberNotifier(raw);
+    }
     return subscribeToValue<num>(value);
+  }
+}
+
+class _ToStringNotifier extends ValueNotifier<String?> {
+  _ToStringNotifier(this._source) : super(_source.value?.toString()) {
+    _source.addListener(_update);
+  }
+
+  final ValueNotifier<Object?> _source;
+
+  void _update() {
+    super.value = _source.value?.toString();
+  }
+
+  @override
+  void dispose() {
+    _source.removeListener(_update);
+    super.dispose();
+  }
+}
+
+class _ToBoolNotifier extends ValueNotifier<bool?> {
+  _ToBoolNotifier(this._source) : super(_convert(_source.value)) {
+    _source.addListener(_update);
+  }
+
+  final ValueNotifier<Object?> _source;
+
+  static bool? _convert(Object? value) {
+    if (value is bool) return value;
+    if (value is String) {
+      if (value.toLowerCase() == 'true') return true;
+      if (value.toLowerCase() == 'false') return false;
+    }
+    if (value is num) return value != 0;
+    return null;
+  }
+
+  void _update() {
+    super.value = _convert(_source.value);
+  }
+
+  @override
+  void dispose() {
+    _source.removeListener(_update);
+    super.dispose();
+  }
+}
+
+class _ToNumberNotifier extends ValueNotifier<num?> {
+  _ToNumberNotifier(this._source) : super(_convert(_source.value)) {
+    _source.addListener(_update);
+  }
+
+  final ValueNotifier<Object?> _source;
+
+  static num? _convert(Object? value) {
+    if (value is num) return value;
+    if (value is String) return num.tryParse(value);
+    return null;
+  }
+
+  void _update() {
+    super.value = _convert(_source.value);
+  }
+
+  @override
+  void dispose() {
+    _source.removeListener(_update);
+    super.dispose();
   }
 }
 
