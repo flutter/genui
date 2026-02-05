@@ -15,7 +15,7 @@ void main() {
       final catalog = Catalog([choicePicker], catalogId: 'test');
 
       // Create a controller with a catalog that has ChoicePicker
-      final controller = GenUiController(catalogs: [catalog]);
+      final controller = SurfaceController(catalogs: [catalog]);
 
       // Initial message to create surface and components
       final createSurface = const CreateSurface(
@@ -58,7 +58,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(genUiContext: controller.contextFor('test')),
+            body: Surface(genUiContext: controller.contextFor('test')),
           ),
         ),
       );
@@ -111,7 +111,7 @@ void main() {
   ) async {
     final catalog = Catalog([choicePicker], catalogId: 'std');
 
-    final controller = GenUiController(catalogs: [catalog]);
+    final controller = SurfaceController(catalogs: [catalog]);
 
     final createSurface = const CreateSurface(
       surfaceId: 'test2',
@@ -151,7 +151,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: controller.contextFor('test2')),
+          body: Surface(genUiContext: controller.contextFor('test2')),
         ),
       ),
     );

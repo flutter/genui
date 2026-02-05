@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('List widget renders children', (WidgetTester tester) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
           CoreCatalogItems.list,
@@ -44,7 +44,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

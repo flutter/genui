@@ -9,7 +9,7 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('TextField with no weight in Row defaults to weight: 1 '
       'and expands', (WidgetTester tester) async {
-    final a2uiProcessor = GenUiController(
+    final a2uiProcessor = SurfaceController(
       catalogs: [CoreCatalogItems.asCatalog()],
     );
     addTearDown(a2uiProcessor.dispose);
@@ -40,7 +40,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: a2uiProcessor.contextFor(surfaceId)),
+          body: Surface(genUiContext: a2uiProcessor.contextFor(surfaceId)),
         ),
       ),
     );
@@ -63,7 +63,7 @@ void main() {
   testWidgets('TextField in Row (with weight) expands', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+    final manager = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
     addTearDown(manager.dispose);
     const surfaceId = 'testSurface';
     final components = [
@@ -91,7 +91,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -112,7 +112,7 @@ void main() {
   });
 
   testWidgets('TextField validation checks work', (WidgetTester tester) async {
-    final manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+    final manager = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
     addTearDown(manager.dispose);
     const surfaceId = 'validationTest';
     // Initialize with invalid value
@@ -155,7 +155,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -173,7 +173,7 @@ void main() {
   testWidgets('TextField validation using condition wrapper and call key', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+    final manager = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
     addTearDown(manager.dispose);
     const surfaceId = 'validationWrapperTest';
     // Initialize with invalid value (empty string)
@@ -215,7 +215,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

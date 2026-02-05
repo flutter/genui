@@ -8,9 +8,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('GenUiController Validation', () {
+  group('SurfaceController Validation', () {
     test('CreateSurface fails validation with empty surfaceId', () async {
-      final controller = GenUiController(catalogs: []);
+      final controller = SurfaceController(catalogs: []);
 
       // Expect an error message on the submit stream
       final Future<void> future = expectLater(

@@ -92,7 +92,7 @@ void main() {
 
       expect(
         () => uiDef.validate(schema),
-        throwsA(isA<GenUiValidationException>()),
+        throwsA(isA<A2uiValidationException>()),
       );
     });
 

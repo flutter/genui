@@ -10,7 +10,7 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([CoreCatalogItems.slider], catalogId: 'test_catalog'),
       ],
@@ -36,7 +36,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

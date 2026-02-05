@@ -48,7 +48,7 @@ class ToolCall extends DirectCallPart {
 }
 
 /// Declaration to be provided to the LLM about a function/tool.
-class GenUiFunctionDeclaration {
+class ClientFunction {
   /// The description of the function.
   final String description;
 
@@ -58,16 +58,15 @@ class GenUiFunctionDeclaration {
   /// The parameters of the function.
   final Object? parameters;
 
-  /// Creates a [GenUiFunctionDeclaration].
-  GenUiFunctionDeclaration({
+  /// Creates a [ClientFunction].
+  ClientFunction({
     required this.description,
     required this.name,
     this.parameters,
   });
 
-  /// Creates a [GenUiFunctionDeclaration] from a JSON map.
-  factory GenUiFunctionDeclaration.fromJson(Map<String, Object?> json) =>
-      GenUiFunctionDeclaration(
+  /// Creates a [ClientFunction] from a JSON map.
+  factory ClientFunction.fromJson(Map<String, Object?> json) => ClientFunction(
         description: json['description'] as String,
         name: json['name'] as String,
         parameters: json['parameters'],

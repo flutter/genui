@@ -8,14 +8,14 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../engine/gen_ui_controller.dart';
+import '../engine/surface_controller.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 import '../primitives/simple_items.dart';
-import '../widgets/genui_surface.dart';
+import '../widgets/surface.dart';
 
 /// A widget that displays a catalog of GenUI components.
 ///
@@ -45,7 +45,7 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final GenUiController _genUiController;
+  late final SurfaceController _genUiController;
   final surfaceIds = <String>[];
   late final StreamSubscription<ChatMessage>? _subscription;
 
@@ -54,7 +54,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
     super.initState();
     final Catalog catalog = widget.catalog;
 
-    _genUiController = GenUiController(catalogs: [widget.catalog]);
+    _genUiController = SurfaceController(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
       _subscription = _genUiController.onSubmit.listen(widget.onSubmit);
     } else {
@@ -118,7 +118,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
-        final surfaceWidget = GenUiSurface(
+        final surfaceWidget = Surface(
           genUiContext: _genUiController.contextFor(surfaceId),
         );
         return Card(

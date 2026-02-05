@@ -4,18 +4,16 @@
 
 import 'dart:async';
 
-import '../interfaces/gen_ui_transport.dart';
+import '../interfaces/transport.dart';
 import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
-import '../model/gen_ui_events.dart';
-import '../model/ui_models.dart';
+import '../model/generation_events.dart';
 import 'a2ui_parser_transformer.dart';
 
-export '../model/gen_ui_events.dart'
-    show A2uiMessageEvent, GenUiEvent, TextEvent;
+export '../model/generation_events.dart'
+    show A2uiMessageEvent, GenerationEvent, TextEvent;
 
-/// A state update for the UI.
-typedef GenUiState = GenUiUpdate;
+
 
 /// A manual sender callback.
 typedef ManualSendCallback = Future<void> Function(ChatMessage message);
@@ -27,7 +25,7 @@ typedef ManualSendCallback = Future<void> Function(ChatMessage message);
 ///
 /// Use [addChunk] to feed text chunks from an LLM.
 /// Use [addMessage] to feed raw A2UI messages.
-class A2uiTransportAdapter implements GenUiTransport {
+class A2uiTransportAdapter implements Transport {
   /// Creates a [A2uiTransportAdapter].
   ///
   /// The [onSend] callback is required if [sendRequest] will be called.
@@ -43,8 +41,8 @@ class A2uiTransportAdapter implements GenUiTransport {
   final StreamController<String> _inputStream = StreamController();
   final StreamController<A2uiMessage> _messageStream =
       StreamController.broadcast();
-  late final Stream<GenUiEvent> _pipeline;
-  StreamSubscription<GenUiEvent>? _pipelineSubscription;
+  late final Stream<GenerationEvent> _pipeline;
+  StreamSubscription<GenerationEvent>? _pipelineSubscription;
 
   /// Feeds a chunk of text from the LLM to the controller.
   ///

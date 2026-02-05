@@ -11,7 +11,7 @@ void main() {
     final Catalog testCatalog = CoreCatalogItems.asCatalog();
 
     ChatMessage? message;
-    GenUiController? controller;
+    SurfaceController? controller;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -20,7 +20,7 @@ void main() {
     ) async {
       message = null;
       controller?.dispose();
-      controller = GenUiController(catalogs: [testCatalog]);
+      controller = SurfaceController(catalogs: [testCatalog]);
       controller!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
       controller!.handleMessage(
@@ -32,7 +32,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(genUiContext: controller!.contextFor(surfaceId)),
+            body: Surface(genUiContext: controller!.contextFor(surfaceId)),
           ),
         ),
       );

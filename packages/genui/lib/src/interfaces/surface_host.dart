@@ -6,27 +6,27 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../genui.dart' show GenUiContext;
+import '../../genui.dart' show SurfaceContext;
 
 import '../model/ui_models.dart';
-import 'gen_ui_context.dart';
+import 'surface_context.dart';
 
 /// An interface for a host that manages UI surfaces.
 ///
 /// This host provides updates when surfaces are added, removed, or changed.
-/// It also acts as a factory for [GenUiContext]s, which provide access to the
+/// It also acts as a factory for [SurfaceContext]s, which provide access to the
 /// state of minimal, individual surfaces.
-abstract interface class GenUiHost {
+abstract interface class SurfaceHost {
   /// A stream of updates for the surfaces managed by this host.
   ///
   /// Implementations may choose to filter redundant updates. Consumers should
   /// rely on [contextFor] to get the context for a specific surface.
-  Stream<GenUiUpdate> get surfaceUpdates;
+  Stream<SurfaceUpdate> get surfaceUpdates;
 
   /// Returns a [ValueListenable] that tracks the definition of the surface
   /// with the given [surfaceId].
   ValueListenable<UiDefinition?> watchSurface(String surfaceId);
 
-  /// Returns a [GenUiContext] for the surface with the given [surfaceId].
-  GenUiContext contextFor(String surfaceId);
+  /// Returns a [SurfaceContext] for the surface with the given [surfaceId].
+  SurfaceContext contextFor(String surfaceId);
 }

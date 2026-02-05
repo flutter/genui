@@ -27,13 +27,13 @@ Ensure one of the generated components has an id of 'root'.
 ''';
 }
 
-/// Converts a [Catalog] to a [GenUiFunctionDeclaration].
-GenUiFunctionDeclaration catalogToFunctionDeclaration(
+/// Converts a [Catalog] to a [ClientFunction].
+ClientFunction catalogToFunctionDeclaration(
   Catalog catalog,
   String toolName,
   String toolDescription,
 ) {
-  return GenUiFunctionDeclaration(
+  return ClientFunction(
     description: toolDescription,
     name: toolName,
     parameters: A2uiSchemas.surfaceUpdateSchema(catalog),

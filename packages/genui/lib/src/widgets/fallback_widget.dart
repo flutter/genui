@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 ///
 /// This is typically used to handle errors during content generation or UI
 /// rendering, or to show a loading indicator while waiting for content.
-class GenUiFallback extends StatelessWidget {
-  /// Creates a [GenUiFallback] widget.
-  const GenUiFallback({
+class FallbackWidget extends StatelessWidget {
+  /// Creates a [FallbackWidget] widget.
+  const FallbackWidget({
     super.key,
     this.error,
     this.stackTrace,

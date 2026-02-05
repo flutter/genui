@@ -8,13 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('GenUiConversation', () {
+  group('Conversation', () {
     late A2uiTransportAdapter adapter;
-    late GenUiController controller;
+    late SurfaceController controller;
 
     setUp(() {
       adapter = A2uiTransportAdapter();
-      controller = GenUiController(catalogs: []);
+      controller = SurfaceController(catalogs: []);
     });
 
     tearDown(() {
@@ -30,7 +30,7 @@ void main() {
         },
       );
 
-      final conversation = GenUiConversation(
+      final conversation = Conversation(
         transport: adapter,
         controller: controller,
       );
@@ -59,7 +59,7 @@ void main() {
         },
       );
 
-      final conversation = GenUiConversation(
+      final conversation = Conversation(
         transport: adapter,
         controller: controller,
       );

@@ -5,12 +5,12 @@
 import 'a2ui_message.dart';
 
 /// A base class for events related to the GenUI generation process.
-sealed class GenUiEvent {
-  const GenUiEvent();
+sealed class GenerationEvent {
+  const GenerationEvent();
 }
 
 /// Fired when a tool execution starts.
-class ToolStartEvent extends GenUiEvent {
+class ToolStartEvent extends GenerationEvent {
   const ToolStartEvent({required this.toolName, required this.args});
 
   final String toolName;
@@ -18,7 +18,7 @@ class ToolStartEvent extends GenUiEvent {
 }
 
 /// Fired when a tool execution completes.
-class ToolEndEvent extends GenUiEvent {
+class ToolEndEvent extends GenerationEvent {
   const ToolEndEvent({
     required this.toolName,
     required this.result,
@@ -31,7 +31,7 @@ class ToolEndEvent extends GenUiEvent {
 }
 
 /// Fired to report token usage.
-class TokenUsageEvent extends GenUiEvent {
+class TokenUsageEvent extends GenerationEvent {
   const TokenUsageEvent({
     required this.inputTokens,
     required this.outputTokens,
@@ -42,14 +42,14 @@ class TokenUsageEvent extends GenUiEvent {
 }
 
 /// Fired when the AI emits a "thinking" chunk (if supported).
-class ThinkingEvent extends GenUiEvent {
+class ThinkingEvent extends GenerationEvent {
   const ThinkingEvent({required this.content});
 
   final String content;
 }
 
 /// An event containing a text chunk from the LLM.
-class TextEvent extends GenUiEvent {
+class TextEvent extends GenerationEvent {
   /// Creates a [TextEvent] with the given [text].
   const TextEvent(this.text);
 
@@ -58,7 +58,7 @@ class TextEvent extends GenUiEvent {
 }
 
 /// An event containing a parsed [A2uiMessage].
-class A2uiMessageEvent extends GenUiEvent {
+class A2uiMessageEvent extends GenerationEvent {
   /// Creates an [A2uiMessageEvent] with the given [message].
   const A2uiMessageEvent(this.message);
 

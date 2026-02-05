@@ -8,8 +8,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../interfaces/a2ui_message_sink.dart';
-import '../interfaces/gen_ui_context.dart';
-import '../interfaces/gen_ui_host.dart';
+import '../interfaces/surface_context.dart';
+import '../interfaces/surface_host.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
@@ -21,8 +21,8 @@ import 'data_model_store.dart';
 import 'surface_registry.dart' as surface_reg;
 
 /// The runtime controller for the GenUI system.
-class GenUiController implements GenUiHost, A2uiMessageSink {
-  /// Creates a [GenUiController].
+class SurfaceController implements SurfaceHost, A2uiMessageSink {
+  /// Creates a [SurfaceController].
   ///
   /// The [catalogs] parameter defines the set of component catalogs available
   /// for use by surfaces managed by this controller.
@@ -32,7 +32,7 @@ class GenUiController implements GenUiHost, A2uiMessageSink {
   ///
   /// The [pendingUpdateTimeout] specifies how long to wait for a surface
   /// creation message before discarding buffered updates for that surface.
-  GenUiController({
+  SurfaceController({
     required this.catalogs,
     this.cleanupStrategy = const ManualCleanupStrategy(),
     this.pendingUpdateTimeout = const Duration(minutes: 1),
@@ -57,7 +57,7 @@ class GenUiController implements GenUiHost, A2uiMessageSink {
 
   // Expose registry events as surface updates
   @override
-  Stream<GenUiUpdate> get surfaceUpdates => _registry.events.map((e) {
+  Stream<SurfaceUpdate> get surfaceUpdates => _registry.events.map((e) {
     switch (e) {
       case surface_reg.SurfaceAdded():
         return SurfaceAdded(e.surfaceId, e.definition);
@@ -74,7 +74,7 @@ class GenUiController implements GenUiHost, A2uiMessageSink {
   Iterable<String> get activeSurfaceIds => _registry.surfaceOrder;
 
   @override
-  GenUiContext contextFor(String surfaceId) {
+  SurfaceContext contextFor(String surfaceId) {
     return _ControllerContext(this, surfaceId);
   }
 
@@ -96,13 +96,13 @@ class GenUiController implements GenUiHost, A2uiMessageSink {
   /// This method decodes the message and updates the state of the relevant
   /// surface, provided the message passes validation.
   ///
-  /// If validation fails, a [GenUiValidationException] is caught and logged,
+  /// If validation fails, a [A2uiValidationException] is caught and logged,
   /// and an error message is sent back via [onSubmit].
   @override
   void handleMessage(A2uiMessage message) {
     try {
       _handleMessageInternal(message);
-    } on GenUiValidationException catch (e) {
+    } on A2uiValidationException catch (e) {
       genUiLogger.warning('Validation failed for surface ${e.surfaceId}: $e');
       final Map<String, Map<String, Object>> errorMsg = {
         'error': {
@@ -129,7 +129,7 @@ class GenUiController implements GenUiHost, A2uiMessageSink {
       case CreateSurface():
         final String surfaceId = message.surfaceId;
         if (surfaceId.isEmpty) {
-          throw GenUiValidationException(
+          throw A2uiValidationException(
             surfaceId: surfaceId,
             message: 'Surface ID cannot be empty',
             path: 'surfaceId',
@@ -253,9 +253,9 @@ class GenUiController implements GenUiHost, A2uiMessageSink {
   }
 }
 
-class _ControllerContext implements GenUiContext {
+class _ControllerContext implements SurfaceContext {
   _ControllerContext(this._controller, this.surfaceId);
-  final GenUiController _controller;
+  final SurfaceController _controller;
 
   @override
   final String surfaceId;

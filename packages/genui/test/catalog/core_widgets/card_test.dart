@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Card widget renders child', (WidgetTester tester) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
           CoreCatalogItems.card,
@@ -35,7 +35,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

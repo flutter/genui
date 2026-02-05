@@ -8,7 +8,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
           CoreCatalogItems.column,
@@ -42,7 +42,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -54,7 +54,7 @@ void main() {
   testWidgets('Column widget applies weight property to children', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
           CoreCatalogItems.column,
@@ -93,7 +93,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

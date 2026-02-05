@@ -6,12 +6,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../engine/gen_ui_controller.dart';
-import '../interfaces/gen_ui_transport.dart';
+import '../engine/surface_controller.dart' show SurfaceController;
+import '../engine/surface_controller.dart';
+import '../interfaces/transport.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 
-/// Events emitted by [GenUiConversation].
+/// Events emitted by [Conversation].
 sealed class ConversationEvent {}
 
 /// Fired when a new surface is added.
@@ -82,16 +83,16 @@ class ConversationState {
 
 /// Facade for managing a GenUI conversation.
 ///
-/// This class orchestrates the communication between the [GenUiController] and
-/// the [GenUiTransport]. It manages the state of the conversation,
+/// This class orchestrates the communication between the [SurfaceController] and
+/// the [Transport]. It manages the state of the conversation,
 /// including the list of active surfaces, the latest text response, and whether
 /// the system is waiting for a response.
-class GenUiConversation {
-  /// Creates a [GenUiConversation].
+class Conversation {
+  /// Creates a [Conversation].
   ///
   /// The [controller] manages the state of the UI surfaces.
   /// The [transport] handles sending and receiving messages.
-  GenUiConversation({required this.controller, required this.transport}) {
+  Conversation({required this.controller, required this.transport}) {
     _transportSubscription = transport.incomingMessages.listen(
       controller.handleMessage,
     );
@@ -132,8 +133,8 @@ class GenUiConversation {
     _engineSubmitSubscription = controller.onSubmit.listen(sendRequest);
   }
 
-  final GenUiController controller;
-  final GenUiTransport transport;
+  final SurfaceController controller;
+  final Transport transport;
 
   final StreamController<ConversationEvent> _eventController =
       StreamController.broadcast();

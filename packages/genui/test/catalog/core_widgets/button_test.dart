@@ -11,7 +11,7 @@ void main() {
     WidgetTester tester,
   ) async {
     ChatMessage? message;
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
           CoreCatalogItems.button,
@@ -48,7 +48,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

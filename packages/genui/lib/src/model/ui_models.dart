@@ -152,7 +152,7 @@ class UiDefinition {
   }
 
   /// Validates the UI definition against a schema.
-  /// Throws [GenUiValidationException] if validation fails.
+  /// Throws [A2uiValidationException] if validation fails.
   void validate(Schema schema) {
     final String jsonOutput = schema.toJson();
     final schemaMap = jsonDecode(jsonOutput) as Map<String, dynamic>;
@@ -200,7 +200,7 @@ class UiDefinition {
 
       if (!matched) {
         if (errors.isNotEmpty) {
-          throw GenUiValidationException(
+          throw A2uiValidationException(
             surfaceId: surfaceId,
             message:
                 'Validation failed for component ${component.id} '
@@ -208,7 +208,7 @@ class UiDefinition {
             path: '/components/${component.id}',
           );
         }
-        throw GenUiValidationException(
+        throw A2uiValidationException(
           surfaceId: surfaceId,
           message: 'Unknown component type: ${component.type}',
           path: '/components/${component.id}',
@@ -246,7 +246,7 @@ class UiDefinition {
     if (schema.containsKey('const')) {
       final Object? constVal = schema['const'];
       if (instance != constVal) {
-        throw GenUiValidationException(
+        throw A2uiValidationException(
           surfaceId: surfaceId,
           message: 'Value mismatch. Expected $constVal, got $instance',
           path: path,
@@ -257,7 +257,7 @@ class UiDefinition {
     if (schema.containsKey('enum')) {
       final enums = schema['enum'] as List;
       if (!enums.contains(instance)) {
-        throw GenUiValidationException(
+        throw A2uiValidationException(
           surfaceId: surfaceId,
           message: 'Value not in enum: $instance',
           path: path,
@@ -269,7 +269,7 @@ class UiDefinition {
       final List<String> required = (schema['required'] as List).cast<String>();
       for (final key in required) {
         if (!instance.containsKey(key)) {
-          throw GenUiValidationException(
+          throw A2uiValidationException(
             surfaceId: surfaceId,
             message: 'Missing required property: $key',
             path: path,
@@ -308,7 +308,7 @@ class UiDefinition {
         } catch (_) {}
       }
       if (!oneMatched) {
-        throw GenUiValidationException(
+        throw A2uiValidationException(
           surfaceId: surfaceId,
           message: 'Value did not match any oneOf schema',
           path: path,
@@ -369,7 +369,7 @@ final class Component {
 }
 
 /// Exception thrown when validation fails.
-class GenUiValidationException implements Exception {
+class A2uiValidationException implements Exception {
   /// The ID of the surface where the validation error occurred.
   final String surfaceId;
 
@@ -379,31 +379,31 @@ class GenUiValidationException implements Exception {
   /// The path in the data/component model where the error occurred.
   final String path;
 
-  /// Creates a [GenUiValidationException].
-  GenUiValidationException({
+  /// Creates a [A2uiValidationException].
+  A2uiValidationException({
     required this.surfaceId,
     required this.message,
     this.path = '/',
   });
 
   @override
-  String toString() => 'GenUiValidationException: $message (at $path)';
+  String toString() => 'A2uiValidationException: $message (at $path)';
 }
 
 /// A sealed class representing an update to the UI managed by the system.
 ///
 /// This class has three subclasses: [SurfaceAdded], [ComponentsUpdated], and
 /// [SurfaceRemoved].
-sealed class GenUiUpdate {
-  /// Creates a [GenUiUpdate] for the given [surfaceId].
-  const GenUiUpdate(this.surfaceId);
+sealed class SurfaceUpdate {
+  /// Creates a [SurfaceUpdate] for the given [surfaceId].
+  const SurfaceUpdate(this.surfaceId);
 
   /// The ID of the surface that was updated.
   final String surfaceId;
 }
 
 /// Fired when a new surface is created.
-class SurfaceAdded extends GenUiUpdate {
+class SurfaceAdded extends SurfaceUpdate {
   /// Creates a [SurfaceAdded] event for the given [surfaceId] and
   /// [definition].
   const SurfaceAdded(super.surfaceId, this.definition);
@@ -413,7 +413,7 @@ class SurfaceAdded extends GenUiUpdate {
 }
 
 /// Fired when an existing surface is modified.
-class ComponentsUpdated extends GenUiUpdate {
+class ComponentsUpdated extends SurfaceUpdate {
   /// Creates a [ComponentsUpdated] event for the given [surfaceId] and
   /// [definition].
   const ComponentsUpdated(super.surfaceId, this.definition);
@@ -423,7 +423,7 @@ class ComponentsUpdated extends GenUiUpdate {
 }
 
 /// Fired when a surface is deleted.
-class SurfaceRemoved extends GenUiUpdate {
+class SurfaceRemoved extends SurfaceUpdate {
   /// Creates a [SurfaceRemoved] event for the given [surfaceId].
   const SurfaceRemoved(super.surfaceId);
 }

@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport '../../widgets/genui_surface.dart';
+/// @docImport '../../widgets/surface.dart';
 library;
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../../genui.dart' show GenUiSurface;
+import '../../../genui.dart' show Surface;
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
-import '../../widgets/genui_surface.dart' show GenUiSurface;
+import '../../widgets/surface.dart' show Surface;
 
 final _schema = S.object(
   properties: {
@@ -58,7 +58,7 @@ extension type _ModalData.fromMap(JsonMap _json) {
 /// This component doesn't render the modal content directly. Instead, it
 /// renders the `entryPointChild` widget. The `entryPointChild` is expected to
 /// trigger an action (e.g., on button press) that causes the `contentChild` to
-/// be displayed within a modal bottom sheet by the [GenUiSurface].
+/// be displayed within a modal bottom sheet by the [Surface].
 ///
 /// ## Parameters:
 ///

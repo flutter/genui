@@ -11,7 +11,7 @@ import '../model/ui_models.dart';
 /// An interface for a specific UI surface context.
 ///
 /// This provides access to the state and definition of a single surface.
-abstract interface class GenUiContext {
+abstract interface class SurfaceContext {
   /// The ID of the surface this context is bound to.
   String get surfaceId;
 

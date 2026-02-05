@@ -10,20 +10,18 @@
 library;
 
 export 'src/catalog/core_catalog.dart';
-
 export 'src/core/prompt_fragments.dart';
-
 export 'src/development_utilities/catalog_view.dart';
-export 'src/engine/gen_ui_controller.dart';
+export 'src/engine/surface_controller.dart';
 export 'src/engine/surface_registry.dart' show RegistryEvent;
+export 'src/facade/conversation.dart';
 export 'src/facade/direct_call_integration/model.dart';
 export 'src/facade/direct_call_integration/utils.dart';
-export 'src/facade/gen_ui_conversation.dart';
 export 'src/facade/widgets/chat_primitives.dart';
 export 'src/interfaces/a2ui_message_sink.dart';
-export 'src/interfaces/gen_ui_context.dart';
-export 'src/interfaces/gen_ui_host.dart';
-export 'src/interfaces/gen_ui_transport.dart';
+export 'src/interfaces/surface_context.dart';
+export 'src/interfaces/surface_host.dart';
+export 'src/interfaces/transport.dart';
 export 'src/model/a2ui_client_capabilities.dart';
 export 'src/model/a2ui_message.dart';
 export 'src/model/a2ui_schemas.dart';
@@ -31,7 +29,7 @@ export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_message.dart';
 export 'src/model/data_model.dart';
-export 'src/model/gen_ui_events.dart';
+export 'src/model/generation_events.dart';
 export 'src/model/standard_catalog_embed.dart';
 export 'src/model/ui_models.dart';
 export 'src/primitives/cancellation.dart';
@@ -40,8 +38,7 @@ export 'src/primitives/logging.dart';
 export 'src/primitives/simple_items.dart';
 export 'src/transport/a2ui_parser_transformer.dart';
 export 'src/transport/a2ui_transport_adapter.dart';
-
-export 'src/widgets/gen_ui_fallback.dart';
-export 'src/widgets/gen_ui_surface_manager.dart';
-export 'src/widgets/genui_surface.dart';
+export 'src/widgets/fallback_widget.dart';
+export 'src/widgets/surface.dart';
+export 'src/widgets/surface_manager.dart';
 export 'src/widgets/widget_utilities.dart';

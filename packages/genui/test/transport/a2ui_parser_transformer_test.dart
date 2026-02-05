@@ -6,14 +6,14 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:genui/src/model/a2ui_message.dart';
-import 'package:genui/src/model/gen_ui_events.dart';
+import 'package:genui/src/model/generation_events.dart';
 import 'package:genui/src/transport/a2ui_parser_transformer.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('A2uiParserTransformer', () {
     late StreamController<String> controller;
-    late Stream<GenUiEvent> stream;
+    late Stream<GenerationEvent> stream;
 
     setUp(() {
       controller = StreamController<String>();
@@ -25,7 +25,7 @@ void main() {
     });
 
     test('emits pure text chunks as TextEvents', () async {
-      final StreamQueue<GenUiEvent> queue = StreamQueue(stream);
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
       controller.add('Hello ');
       controller.add('World');
 
@@ -41,7 +41,7 @@ void main() {
     });
 
     test('extracts Markdown JSON block', () async {
-      final StreamQueue<GenUiEvent> queue = StreamQueue(stream);
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       controller.add('Here is a message:\n');
       controller.add('```json\n');
@@ -70,7 +70,7 @@ void main() {
       var lastText = (await queue.next) as TextEvent;
       while (!lastText.text.contains('End of message.')) {
         if (!await queue.hasNext) break;
-        final GenUiEvent event = await queue.next;
+        final GenerationEvent event = await queue.next;
         if (event is TextEvent) {
           lastText = TextEvent(lastText.text + event.text);
         } else {
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('extracts Balanced JSON block split across chunks', () async {
-      final StreamQueue<GenUiEvent> queue = StreamQueue(stream);
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       controller.add('Start ');
       controller.add('{ "version": "v0.9", "deleteSurface": ');
@@ -111,7 +111,7 @@ void main() {
     });
 
     test('flushes buffer on done', () async {
-      final StreamQueue<GenUiEvent> queue = StreamQueue(stream);
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       controller.add('Incomplete { json');
       unawaited(controller.close());

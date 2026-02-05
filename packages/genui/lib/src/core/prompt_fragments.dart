@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 /// A collection of prompt fragments for use with GenUI.
-class GenUiPromptFragments {
+class PromptFragments {
   /// A basic chat prompt fragment.
   static const String basicChat = '''
 

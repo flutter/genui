@@ -11,7 +11,7 @@ import '../model/chat_message.dart';
 ///
 /// This unifies the concept of incoming streams (text chunks and A2UI messages)
 /// and outgoing requests.
-abstract interface class GenUiTransport {
+abstract interface class Transport {
   /// A stream of raw text chunks received from the AI service.
   ///
   /// This is typically used for "streaming" responses where the text is built

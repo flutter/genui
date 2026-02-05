@@ -6,25 +6,25 @@ import 'dart:async';
 import 'dart:convert';
 
 import '../model/a2ui_message.dart';
-import '../model/gen_ui_events.dart';
+import '../model/generation_events.dart';
 
-/// Transforms a stream of text chunks into a stream of logical [GenUiEvent]s.
+/// Transforms a stream of text chunks into a stream of logical [GenerationEvent]s.
 ///
 /// It handles buffering split tokens, extracting JSON blocks, and sanitizing
 /// text.
-class A2uiParserTransformer extends StreamTransformerBase<String, GenUiEvent> {
+class A2uiParserTransformer extends StreamTransformerBase<String, GenerationEvent> {
   /// Creating a const constructor for the transformer.
   const A2uiParserTransformer();
 
   @override
-  Stream<GenUiEvent> bind(Stream<String> stream) {
+  Stream<GenerationEvent> bind(Stream<String> stream) {
     return _A2uiParserStream(stream).stream;
   }
 }
 
 class _A2uiParserStream {
   _A2uiParserStream(Stream<String> input) {
-    _controller = StreamController<GenUiEvent>(
+    _controller = StreamController<GenerationEvent>(
       onListen: () {
         _subscription = input.listen(
           _onData,
@@ -39,11 +39,11 @@ class _A2uiParserStream {
     );
   }
 
-  late final StreamController<GenUiEvent> _controller;
+  late final StreamController<GenerationEvent> _controller;
   StreamSubscription<String>? _subscription;
   String _buffer = '';
 
-  Stream<GenUiEvent> get stream => _controller.stream;
+  Stream<GenerationEvent> get stream => _controller.stream;
 
   void _onData(String chunk) {
     _buffer += chunk;

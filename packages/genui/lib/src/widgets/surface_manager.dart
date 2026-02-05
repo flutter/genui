@@ -6,22 +6,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../genui.dart' show GenUiController, GenUiHost, GenUiSurface;
+import '../../genui.dart' show Surface, SurfaceController, SurfaceHost;
 
 import '../model/ui_models.dart';
 
 /// A widget that manages and displays multiple GenUI surfaces.
 ///
-/// This widget listens to [GenUiHost.surfaceUpdates] and automatically
-/// adds, updates, or removes [GenUiSurface] widgets based on the active
+/// This widget listens to [SurfaceHost.surfaceUpdates] and automatically
+/// adds, updates, or removes [Surface] widgets based on the active
 /// surfaces managed by the host.
 ///
 /// By default, it displays surfaces in a [Column], but a custom [layoutBuilder]
 /// can be provided to customize the arrangement (e.g., [Stack], [Row], or
 /// custom layout).
-class GenUiSurfaceManager extends StatefulWidget {
-  /// Creates a [GenUiSurfaceManager].
-  const GenUiSurfaceManager({
+class SurfaceManager extends StatefulWidget {
+  /// Creates a [SurfaceManager].
+  const SurfaceManager({
     super.key,
     required this.host,
     this.layoutBuilder,
@@ -29,7 +29,7 @@ class GenUiSurfaceManager extends StatefulWidget {
   });
 
   /// The host that manages the surfaces.
-  final GenUiHost host;
+  final SurfaceHost host;
 
   /// A builder that constructs the layout for the list of surface widgets.
   ///
@@ -37,18 +37,18 @@ class GenUiSurfaceManager extends StatefulWidget {
   final Widget Function(BuildContext context, List<Widget> surfaces)?
   layoutBuilder;
 
-  /// A builder that constructs a [GenUiSurface] or custom widget for a given
+  /// A builder that constructs a [Surface] or custom widget for a given
   /// surface ID.
   ///
-  /// If null, a default [GenUiSurface] is created.
+  /// If null, a default [Surface] is created.
   final Widget Function(BuildContext context, String surfaceId)? surfaceBuilder;
 
   @override
-  State<GenUiSurfaceManager> createState() => _GenUiSurfaceManagerState();
+  State<SurfaceManager> createState() => _SurfaceManagerState();
 }
 
-class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
-  late StreamSubscription<GenUiUpdate> _subscription;
+class _SurfaceManagerState extends State<SurfaceManager> {
+  late StreamSubscription<SurfaceUpdate> _subscription;
   List<String> _activeSurfaceIds = [];
 
   @override
@@ -58,8 +58,8 @@ class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
     // directly in interface, but we can track updates. Ideally host should
     // expose active IDs).
     // Initialize with existing surfaces if any.
-    if (widget.host is GenUiController) {
-      _activeSurfaceIds = (widget.host as GenUiController).activeSurfaceIds
+    if (widget.host is SurfaceController) {
+      _activeSurfaceIds = (widget.host as SurfaceController).activeSurfaceIds
           .toList();
     }
     _subscription = widget.host.surfaceUpdates.listen(_handleUpdate);
@@ -71,7 +71,7 @@ class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
     super.dispose();
   }
 
-  void _handleUpdate(GenUiUpdate update) {
+  void _handleUpdate(SurfaceUpdate update) {
     setState(() {
       switch (update) {
         case SurfaceAdded():
@@ -81,7 +81,7 @@ class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
         case SurfaceRemoved():
           _activeSurfaceIds.remove(update.surfaceId);
         case ComponentsUpdated():
-          // Updates handled by GenUiSurface listening to notifier.
+          // Updates handled by Surface listening to notifier.
           // We just ensure ID is known.
           if (!_activeSurfaceIds.contains(update.surfaceId)) {
             _activeSurfaceIds.add(update.surfaceId);
@@ -96,7 +96,7 @@ class _GenUiSurfaceManagerState extends State<GenUiSurfaceManager> {
       if (widget.surfaceBuilder != null) {
         return widget.surfaceBuilder!(context, id);
       }
-      return GenUiSurface(
+      return Surface(
         key: ValueKey(id),
         genUiContext: widget.host.contextFor(id),
       );

@@ -10,7 +10,7 @@ void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
@@ -29,7 +29,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -40,7 +40,7 @@ void main() {
   testWidgets('Icon widget renders with data binding', (
     WidgetTester tester,
   ) async {
-    final manager = GenUiController(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([CoreCatalogItems.icon], catalogId: 'test_catalog'),
       ],
@@ -72,7 +72,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: manager.contextFor(surfaceId)),
+          body: Surface(genUiContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

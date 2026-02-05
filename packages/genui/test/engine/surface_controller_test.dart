@@ -9,11 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('$GenUiController', () {
-    late GenUiController controller;
+  group('$SurfaceController', () {
+    late SurfaceController controller;
 
     setUp(() {
-      controller = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+      controller = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     tearDown(() {
@@ -23,7 +23,7 @@ void main() {
     test('can be initialized with multiple catalogs', () {
       final catalog1 = const Catalog([], catalogId: 'cat1');
       final catalog2 = const Catalog([], catalogId: 'cat2');
-      final multiManager = GenUiController(catalogs: [catalog1, catalog2]);
+      final multiManager = SurfaceController(catalogs: [catalog1, catalog2]);
       expect(multiManager.catalogs, contains(catalog1));
       expect(multiManager.catalogs, contains(catalog2));
       expect(multiManager.catalogs.length, 2);
@@ -44,18 +44,19 @@ void main() {
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<List<GenUiUpdate>> futureUpdates = controller.surfaceUpdates
+      final Future<List<SurfaceUpdate>> futureUpdates = controller
+          .surfaceUpdates
           .take(2)
           .toList();
       controller.handleMessage(
         const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
-      final List<GenUiUpdate> updates = await futureUpdates;
+      final List<SurfaceUpdate> updates = await futureUpdates;
 
       expect(updates[0], isA<SurfaceAdded>());
       expect(updates[0].surfaceId, surfaceId);
 
-      final GenUiUpdate update2 = updates[1];
+      final SurfaceUpdate update2 = updates[1];
       expect(update2, isA<ComponentsUpdated>());
       final UiDefinition definition = (update2 as ComponentsUpdated).definition;
 
@@ -130,10 +131,11 @@ void main() {
         UpdateComponents(surfaceId: surfaceId, components: components),
       );
 
-      final Future<GenUiUpdate> futureUpdate = controller.surfaceUpdates.first;
+      final Future<SurfaceUpdate> futureUpdate =
+          controller.surfaceUpdates.first;
 
       controller.handleMessage(const DeleteSurface(surfaceId: surfaceId));
-      final GenUiUpdate update = await futureUpdate;
+      final SurfaceUpdate update = await futureUpdate;
 
       expect(update, isA<SurfaceRemoved>());
       expect(update.surfaceId, surfaceId);

@@ -10,14 +10,14 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  late GenUiController controller;
+  late SurfaceController controller;
   final testCatalog = Catalog([
     CoreCatalogItems.button,
     CoreCatalogItems.text,
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    controller = GenUiController(catalogs: [testCatalog]);
+    controller = SurfaceController(catalogs: [testCatalog]);
     final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
       (r) => print('[LOG] ${r.message}'),
     );
@@ -54,7 +54,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(genUiContext: controller.contextFor(surfaceId)),
+        home: Surface(genUiContext: controller.contextFor(surfaceId)),
       ),
     );
 
@@ -86,7 +86,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(genUiContext: controller.contextFor(surfaceId)),
+        home: Surface(genUiContext: controller.contextFor(surfaceId)),
       ),
     );
     await tester.pumpAndSettle();
@@ -121,7 +121,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: GenUiSurface(genUiContext: controller.contextFor(surfaceId)),
+          home: Surface(genUiContext: controller.contextFor(surfaceId)),
         ),
       );
 

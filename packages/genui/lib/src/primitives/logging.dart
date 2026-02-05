@@ -18,7 +18,7 @@ StreamSubscription<LogRecord>? _loggingSubscription;
 ///
 /// If [enableHierarchicalLogging] is true (the default), this function will set
 /// [hierarchicalLoggingEnabled] to true on the [Logger] class.
-Logger configureGenUiLogging({
+Logger configureLogging({
   Level level = Level.INFO,
   void Function(Level, String)? logCallback,
   bool enableHierarchicalLogging = true,
