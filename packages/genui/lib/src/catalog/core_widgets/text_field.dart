@@ -193,6 +193,7 @@ class _TextFieldState extends State<_TextField> {
 ///   text field.
 final textField = CatalogItem(
   name: 'TextField',
+  isImplicitlyFlexible: true,
   dataSchema: _schema,
   exampleData: [
     () => '''
