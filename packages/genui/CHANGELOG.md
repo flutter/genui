@@ -5,6 +5,17 @@
 - **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
 - **BREAKING**: Renamed `ChatMessageWidget` to `ChatMessageView` and `InternalMessageWidget` to `InternalMessageView` (#661).
 - **Fix**: Pass the correct `catalogId` in `DebugCatalogView` widget (#676).
+- **BREAKING**: Renamed most classes with `GenUi` prefix to remove the prefix or use `Surface`.
+  - `GenUiConversation` -> `Conversation`
+  - `GenUiController` -> `SurfaceController`
+  - `GenUiSurface` -> `Surface`
+  - `GenUiHost` -> `SurfaceHost`
+  - `GenUiContext` -> `SurfaceContext`
+  - `GenUiTransport` -> `Transport`
+  - `GenUiPromptFragments` -> `PromptFragments`
+  - `GenUiFunctionDeclaration` -> `ClientFunction`
+  - `GenUiFallback` -> `FallbackWidget`
+  - `configureGenUiLogging` -> `configureLogging`
 - Added some dart documentation and an `example` directory to improve `package:genui` pub score.
 
 ## 0.6.1

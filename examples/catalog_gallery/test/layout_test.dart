@@ -13,7 +13,7 @@ void main() {
   testWidgets('cinemaSeatSelection sample renders without error', (
     WidgetTester tester,
   ) async {
-    final file = File('samples/cinemaSeatSelection.1.sample');
+    final file = File('samples/cinemaSeatSelection.sample');
     final String content = file.readAsStringSync();
     final Sample sample = SampleParser.parseString(content);
 
@@ -45,7 +45,7 @@ void main() {
   testWidgets('nestedLayoutRecursive sample renders without error', (
     WidgetTester tester,
   ) async {
-    final file = File('samples/nestedLayoutRecursive.1.sample');
+    final file = File('samples/nestedLayoutRecursive.sample');
     final String content = file.readAsStringSync();
     final Sample sample = SampleParser.parseString(content);
 

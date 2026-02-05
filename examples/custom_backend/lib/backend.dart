@@ -17,10 +17,7 @@ class UiSchemaDefinition {
       UiSchemaDefinition(
         prompt: json['prompt'] as String,
         tools: (json['tools'] as List<Object?>)
-            .map(
-              (x) =>
-                  ClientFunction.fromJson(x as Map<String, Object?>),
-            )
+            .map((x) => ClientFunction.fromJson(x as Map<String, Object?>))
             .toList(),
       );
 

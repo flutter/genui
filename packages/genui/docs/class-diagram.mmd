@@ -1,8 +1,8 @@
 classDiagram
     namespace Facade {
-        class GenUiConversation {
-            +GenUiController controller
-            +GenUiTransport transport
+        class Conversation {
+            +SurfaceController controller
+            +Transport transport
             +ValueListenable~ConversationState~ state
             +Stream~ConversationEvent~ events
             +Future~void~ sendRequest(ChatMessage message)
@@ -11,20 +11,20 @@ classDiagram
     }
 
     namespace Interfaces {
-        class GenUiTransport {
+        class Transport {
             <<interface>>
             +Stream~A2uiMessage~ incomingMessages
             +Stream~String~ incomingText
             +Future~void~ sendRequest(ChatMessage message)
         }
 
-        class GenUiHost {
+        class SurfaceHost {
             <<interface>>
-            +Stream~GenUiUpdate~ surfaceUpdates
-            +GenUiContext contextFor(String surfaceId)
+            +Stream~SurfaceUpdate~ surfaceUpdates
+            +SurfaceContext contextFor(String surfaceId)
         }
 
-        class GenUiContext {
+        class SurfaceContext {
             <<interface>>
             +String surfaceId
             +ValueListenable~UiDefinition?~ definition
@@ -51,21 +51,21 @@ classDiagram
     }
 
     namespace Engine {
-        class GenUiController {
+        class SurfaceController {
             +void handleMessage(A2uiMessage message)
-            +Stream~GenUiUpdate~ surfaceUpdates
+            +Stream~SurfaceUpdate~ surfaceUpdates
             +Stream~ChatMessage~ onSubmit
             +Map~String, DataModel~ dataModels
             +Iterable~String~ activeSurfaceIds
-            +GenUiContext contextFor(String surfaceId)
+            +SurfaceContext contextFor(String surfaceId)
             +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)
             +void dispose()
         }
     }
 
     namespace UI {
-        class GenUiSurface {
-            +GenUiContext context
+        class Surface {
+            +SurfaceContext context
             +WidgetBuilder? defaultBuilder
         }
     }
@@ -97,13 +97,13 @@ classDiagram
         }
     }
 
-    GenUiHost <|.. GenUiController
-    A2uiMessageSink <|.. GenUiController
-    GenUiTransport <|.. A2uiTransportAdapter
-    GenUiSurface --> GenUiContext : uses
-    GenUiHost --> GenUiContext : creates
+    SurfaceHost <|.. SurfaceController
+    A2uiMessageSink <|.. SurfaceController
+    Transport <|.. A2uiTransportAdapter
+    Surface --> SurfaceContext : uses
+    SurfaceHost --> SurfaceContext : creates
     Catalog --> CatalogItem : contains
-    GenUiContext --> DataModel : manages
-    GenUiConversation --> GenUiController : uses
-    GenUiConversation --> GenUiTransport : uses
-    GenUiController --> Catalog : uses
+    SurfaceContext --> DataModel : manages
+    Conversation --> SurfaceController : uses
+    Conversation --> Transport : uses
+    SurfaceController --> Catalog : uses

@@ -5,7 +5,7 @@ predefined provider packages (`genui_firebase_ai`,
 `genui_google_generative_ai`).
 
 **Key Features:**
-- Direct integration with `A2uiMessageProcessor`
+- Direct integration with `SurfaceController`
 - Manual tool call parsing and handling
 - Saved response testing for development without API calls
 - Shows how to build `UiSchemaDefinition` and `catalogToFunctionDeclaration`

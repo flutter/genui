@@ -9,9 +9,9 @@ This package provides the core functionality for GenUI.
 ## Features
 
 - **Dynamic UI Generation**: Render Flutter UIs from structured data returned by a generative AI.
-- **Simplified Conversation Flow**: A high-level `GenUiConversation` facade manages the interaction loop with the AI.
+- **Simplified Conversation Flow**: A high-level `Conversation` facade manages the interaction loop with the AI.
 - **Customizable Widget Catalog**: Define a "vocabulary" of Flutter widgets that the AI can use to build the interface.
-- **GenUiController**: High-level controller that manages the input/output pipeline and UI state.
+- **SurfaceController**: High-level controller that manages the input/output pipeline and UI state.
 - **Parser Transformer**: `A2uiParserTransformer` for robustly parsing A2UI message streams from text chunks.
 - **Event Handling**: Capture user interactions (button clicks, text input), update a client-side data model, and send the state back to the AI as context for the next turn in the conversation.
 - **Reactive UI**: Widgets automatically rebuild when the data they are bound to changes in the data model.
@@ -20,30 +20,30 @@ This package provides the core functionality for GenUI.
 
 The package is built around the following main components:
 
-1.  **`GenUiConversation`**: The primary facade and entry point for the package. It encapsulates the `A2uiMessageProcessor` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
+1.  **`Conversation`**: The primary facade and entry point for the package. It encapsulates the `SurfaceController` and `ContentGenerator`, manages the conversation history, and orchestrates the entire generative UI process.
 
 2.  **`Catalog`**: A collection of `CatalogItem`s that defines the set of widgets the AI is allowed to use. Each `CatalogItem` specifies a widget's name (for the AI to reference), a data schema for its properties, and a builder function to render the Flutter widget.
 
 3.  **`DataModel`**: A centralized, observable store for all dynamic UI state. Widgets are "bound" to data in this model. When data changes, only the widgets that depend on that specific piece of data are rebuilt.
 
-4.  **`GenUiController`**: The robust controller that manages the pipeline from raw text input to parsed `GenUiUpdate` events. It wraps the `A2uiParserTransformer` and `A2uiMessageProcessor`.
+4.  **`SurfaceController`**: The robust controller that manages the pipeline from raw text input to parsed `SurfaceUpdate` events. It wraps the `A2uiParserTransformer` and `SurfaceController`.
 
-5.  **`A2uiParserTransformer`**: A stream transformer that parses raw text chunks (e.g. from an LLM stream) into structured `GenUiEvent`s (text or A2UI messages).
+5.  **`A2uiParserTransformer`**: A stream transformer that parses raw text chunks (e.g. from an LLM stream) into structured `GenerationEvent`s (text or A2UI messages).
 
 6.  **`A2uiMessage`**: A message sent from the AI to the UI, instructing it to perform actions like `createSurface`, `updateComponents`, `updateDataModel`, or `deleteSurface`.
 
 ## How It Works
 
-The `GenUiConversation` and `GenUiController` manage the interaction cycle:
+The `Conversation` and `SurfaceController` manage the interaction cycle:
 
 1. **User Input**: The user provides a prompt. The app calls `genUiConversation.sendRequest()`.
-2. **AI Invocation**: The `GenUiConversation` triggers the user-provided `onSend` callback.
-3. **Stream Handling**: The app's `onSend` implementation calls the LLM and pipes the response chunks to `GenUiController.addChunk()`.
-4. **Parsing**: The `GenUiController` uses `A2uiParserTransformer` to parse chunks into `TextEvent`s or `A2uiMessageEvent`s.
-5. **UI State Update**: `A2uiMessageProcessor` (managed by `GenUiController`) handles the messages and updates the `DataModel`.
-6. **UI Rendering**: `GenUiSurface` widgets listening to `GenUiController` rebuild automatically.
-7. **User Interaction**: User actions (buttons, etc.) trigger events. `GenUiController` captures them and emits `ChatMessage` events on `onClientEvent`.
-8. **Loop**: `GenUiConversation` listens to `onClientEvent` and automatically triggers a new request to the AI, continuing the conversation.
+2. **AI Invocation**: The `Conversation` triggers the user-provided `onSend` callback.
+3. **Stream Handling**: The app's `onSend` implementation calls the LLM and pipes the response chunks to `SurfaceController.addChunk()`.
+4. **Parsing**: The `SurfaceController` uses `A2uiParserTransformer` to parse chunks into `TextEvent`s or `A2uiMessageEvent`s.
+5. **UI State Update**: `SurfaceController` (managed by `SurfaceController`) handles the messages and updates the `DataModel`.
+6. **UI Rendering**: `Surface` widgets listening to `SurfaceController` rebuild automatically.
+7. **User Interaction**: User actions (buttons, etc.) trigger events. `SurfaceController` captures them and emits `ChatMessage` events on `onClientEvent`.
+8. **Loop**: `Conversation` listens to `onClientEvent` and automatically triggers a new request to the AI, continuing the conversation.
 
 ```mermaid
 graph TD
@@ -53,24 +53,24 @@ graph TD
     end
 
     subgraph "GenUI Framework"
-        GenUiConversation("GenUiConversation")
-        GenUiController("GenUiController")
-        MessageProcessor("A2uiMessageProcessor")
+        Conversation("Conversation")
+        SurfaceController("SurfaceController")
+        MessageProcessor("SurfaceController")
         Transformer("A2uiParserTransformer")
-        GenUiSurface("GenUiSurface")
+        Surface("Surface")
     end
 
-    UserInput -- "calls sendRequest()" --> GenUiConversation;
-    GenUiConversation -- "calls onSend" --> ExternalLLM[External LLM];
-    ExternalLLM -- "returns chunks" --> GenUiController;
-    GenUiController -- "pipes to" --> Transformer;
+    UserInput -- "calls sendRequest()" --> Conversation;
+    Conversation -- "calls onSend" --> ExternalLLM[External LLM];
+    ExternalLLM -- "returns chunks" --> SurfaceController;
+    SurfaceController -- "pipes to" --> Transformer;
     Transformer -- "parses events" --> MessageProcessor;
-    MessageProcessor -- "updates state" --> GenUiSurface;
-    GenUiSurface -- "renders UI" --> UserInteraction;
+    MessageProcessor -- "updates state" --> Surface;
+    Surface -- "renders UI" --> UserInteraction;
     UserInteraction -- "creates event" --> MessageProcessor;
-    MessageProcessor -- "emits client event" --> GenUiController;
-    GenUiController -- "forwards event" --> GenUiConversation;
-    GenUiConversation -- "loops back" --> ExternalLLM;
+    MessageProcessor -- "emits client event" --> SurfaceController;
+    SurfaceController -- "forwards event" --> Conversation;
+    Conversation -- "loops back" --> ExternalLLM;
 ```
 
 See [DESIGN.md](./DESIGN.md) for more detailed information about the design.
@@ -123,7 +123,7 @@ Logic, follow these instructions:
 
 #### Configure another agent provider
 
-provider's instructions to configure your app, and then use the `GenUiController`
+provider's instructions to configure your app, and then use the `SurfaceController`
 to parse the streaming output from that provider. The `genui_a2ui` package provides
 an example of how to pipe data from an A2A server into the controller.
 
@@ -144,26 +144,26 @@ requests:
 Next, use the following instructions to connect your app to your chosen agent
 provider.
 
-2. Create a `GenUiController`, and provide it with the catalog of widgets you want to make available to the agent.
-3. Create a `GenUiConversation` using the `GenUiController`. Implement the `onSend` callback to connect to your AI provider.
+2. Create a `SurfaceController`, and provide it with the catalog of widgets you want to make available to the agent.
+3. Create a `Conversation` using the `SurfaceController`. Implement the `onSend` callback to connect to your AI provider.
 
    For example:
 
    ```dart
    class _MyHomePageState extends State<MyHomePage> {
-     late final GenUiController _controller;
-     late final GenUiConversation _genUiConversation;
+     late final SurfaceController _controller;
+     late final Conversation _genUiConversation;
 
      @override
      void initState() {
        super.initState();
 
-       // Create a GenUiController with a widget catalog.
+       // Create a SurfaceController with a widget catalog.
        // The CoreCatalogItems contain basic widgets for text, markdown, and images.
-       _controller = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+       _controller = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
 
-       // Create the GenUiConversation to orchestrate everything.
-       _genUiConversation = GenUiConversation(
+       // Create the Conversation to orchestrate everything.
+       _genUiConversation = Conversation(
          controller: _controller,
          onSend: _onSendToLLM,
          onSurfaceAdded: _onSurfaceAdded, // Added in the next step.
@@ -192,14 +192,14 @@ provider.
 
 ### 4. Send messages and display the agent's responses
 
-Send a message to the agent using the `sendRequest` method in the `GenUiConversation`
+Send a message to the agent using the `sendRequest` method in the `Conversation`
 class.
 
 To receive and display generated UI:
 
-1. Use `GenUiConversation`'s callbacks to track the addition and removal of UI surfaces as
+1. Use `Conversation`'s callbacks to track the addition and removal of UI surfaces as
    they are generated. These events include a "surface ID" for each surface.
-2. Build a `GenUiSurface` widget for each active surface using the surface IDs
+2. Build a `Surface` widget for each active surface using the surface IDs
    received in the previous step.
 
    For example:
@@ -218,8 +218,8 @@ To receive and display generated UI:
        _genUiConversation.sendRequest(UserMessage.text(text));
      }
 
-     // A callback invoked by the [GenUiConversation] when a new UI surface is generated.
-     // Here, the ID is stored so the build method can create a GenUiSurface to
+     // A callback invoked by the [Conversation] when a new UI surface is generated.
+     // Here, the ID is stored so the build method can create a Surface to
      // display it.
      void _onSurfaceAdded(SurfaceAdded update) {
        setState(() {
@@ -227,7 +227,7 @@ To receive and display generated UI:
        });
      }
 
-     // A callback invoked by GenUiConversation when a UI surface is removed.
+     // A callback invoked by Conversation when a UI surface is removed.
      void _onSurfaceDeleted(SurfaceRemoved update) {
        setState(() {
          _surfaceIds.remove(update.surfaceId);
@@ -247,9 +247,9 @@ To receive and display generated UI:
                child: ListView.builder(
                  itemCount: _surfaceIds.length,
                  itemBuilder: (context, index) {
-                   // For each surface, create a GenUiSurface to display it.
+                   // For each surface, create a Surface to display it.
                    final id = _surfaceIds[index];
-                   return GenUiSurface(host: _genUiConversation.host, surfaceId: id);
+                   return Surface(host: _genUiConversation.host, surfaceId: id);
                  },
                ),
              ),
@@ -373,10 +373,10 @@ final riddleCard = CatalogItem(
 
 #### Add the `CatalogItem` to the catalog
 
-Include your catalog items when instantiating `A2uiMessageProcessor`.
+Include your catalog items when instantiating `SurfaceController`.
 
 ```dart
-_controller = GenUiController(
+_controller = SurfaceController(
   catalogs: [CoreCatalogItems.asCatalog().copyWith([riddleCard])],
 );
 ```
@@ -448,7 +448,7 @@ To observe communication between your app and the agent, enable logging in your
 import 'package:logging/logging.dart';
 import 'package:genui/genui.dart';
 
-final logger = configureGenUiLogging(level: Level.ALL);
+final logger = configureLogging(level: Level.ALL);
 
 void main() async {
   logger.onRecord.listen((record) {

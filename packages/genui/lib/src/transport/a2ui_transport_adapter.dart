@@ -13,8 +13,6 @@ import 'a2ui_parser_transformer.dart';
 export '../model/generation_events.dart'
     show A2uiMessageEvent, GenerationEvent, TextEvent;
 
-
-
 /// A manual sender callback.
 typedef ManualSendCallback = Future<void> Function(ChatMessage message);
 

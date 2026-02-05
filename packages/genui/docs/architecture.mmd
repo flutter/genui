@@ -1,38 +1,38 @@
 graph TD
     subgraph "genui Package"
-        GenUiConversation["GenUiConversation (Facade)"]
-        GenUiTransport["GenUiTransport (Interface)"]
+        Conversation["Conversation (Facade)"]
+        Transport["Transport (Interface)"]
         A2uiTransportAdapter["A2uiTransportAdapter"]
-        GenUiController["GenUiController (Engine)"]
+        SurfaceController["SurfaceController (Engine)"]
         Transformer["A2uiParserTransformer"]
         Catalog["Widget Catalog"]
         DataModel["DataModel"]
-        GenUiSurface["GenUiSurface (Widget)"]
+        Surface["Surface (Widget)"]
     end
 
 
-    AppLogic -- "Initializes" --> GenUiConversation
-    GenUiConversation -- "Uses" --> GenUiTransport
-    GenUiConversation -- "Manages" --> GenUiController
+    AppLogic -- "Initializes" --> Conversation
+    Conversation -- "Uses" --> Transport
+    Conversation -- "Manages" --> SurfaceController
 
-    AppLogic -- "Sends User Input" --> GenUiConversation
-    GenUiConversation -- "Delegates to" --> GenUiTransport
-    GenUiTransport -- "Calls callback" --> ExternalLLM
+    AppLogic -- "Sends User Input" --> Conversation
+    Conversation -- "Delegates to" --> Transport
+    Transport -- "Calls callback" --> ExternalLLM
     ExternalLLM -- "Returns chunks" --> A2uiTransportAdapter
     A2uiTransportAdapter -- "Pipes to" --> Transformer
     Transformer -- "Parses into<br>messages" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Stream<A2uiMessage>" --> GenUiTransport
-    GenUiTransport -- "Pipes to" --> GenUiConversation
-    GenUiConversation -- "Dispatches to" --> GenUiController
+    A2uiTransportAdapter -- "Stream<A2uiMessage>" --> Transport
+    Transport -- "Pipes to" --> Conversation
+    Conversation -- "Dispatches to" --> SurfaceController
 
-    GenUiController -- "Owns" --> DataModel
-    GenUiController -- "Notifies of updates" --> GenUiConversation
-    GenUiController -- "Notifies of updates" --> GenUiSurface
+    SurfaceController -- "Owns" --> DataModel
+    SurfaceController -- "Notifies of updates" --> Conversation
+    SurfaceController -- "Notifies of updates" --> Surface
 
-    UserUI -- "Instantiates" --> GenUiSurface
-    GenUiSurface -- "Builds widgets using" --> Catalog
-    GenUiSurface -- "Reads/writes state via" --> DataModel
-    GenUiSurface -- "Sends UI events" --> GenUiController
+    UserUI -- "Instantiates" --> Surface
+    Surface -- "Builds widgets using" --> Catalog
+    Surface -- "Reads/writes state via" --> DataModel
+    Surface -- "Sends UI events" --> SurfaceController
 
-    GenUiController -- "Client events (onSubmit)" --> GenUiConversation
-    GenUiConversation -- "Loops back" --> GenUiTransport
+    SurfaceController -- "Client events (onSubmit)" --> Conversation
+    Conversation -- "Loops back" --> Transport

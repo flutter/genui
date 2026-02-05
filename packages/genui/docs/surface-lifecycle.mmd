@@ -1,8 +1,8 @@
 sequenceDiagram
     participant LLM as External LLM
-    participant Transport as GenUiTransport
-    participant Controller as GenUiController
-    participant UI as GenUiSurface (Manager)
+    participant Transport as Transport
+    participant Controller as SurfaceController
+    participant UI as Surface (Manager)
 
     Note over Controller: Policy: keepLatest
 

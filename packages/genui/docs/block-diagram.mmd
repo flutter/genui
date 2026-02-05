@@ -5,23 +5,23 @@ graph TD
     end
 
     subgraph "GenUI Framework"
-        GenUiConversation("GenUiConversation")
+        Conversation("Conversation")
         Transport("A2uiTransportAdapter")
-        GenUiController("GenUiController")
+        SurfaceController("SurfaceController")
         Transformer("A2uiParserTransformer")
-        GenUiSurface("GenUiSurface")
+        Surface("Surface")
     end
 
-    UserInput -- "calls sendRequest()" --> GenUiConversation;
-    GenUiConversation -- "delegates to" --> Transport;
+    UserInput -- "calls sendRequest()" --> Conversation;
+    Conversation -- "delegates to" --> Transport;
     Transport -- "calls callback" --> ExternalLLM[External LLM];
     ExternalLLM -- "returns chunks" --> Transport;
     Transport -- "pipes to" --> Transformer;
     Transformer -- "parses events" --> Transport;
-    Transport -- "forwards messages" --> GenUiConversation;
-    GenUiConversation -- "forwards to" --> GenUiController;
-    GenUiController -- "updates state" --> GenUiSurface;
-    GenUiSurface -- "renders UI" --> UserInteraction;
-    UserInteraction -- "creates event" --> GenUiController;
-    GenUiController -- "emits client event" --> GenUiConversation;
-    GenUiConversation -- "loops back" --> Transport;
+    Transport -- "forwards messages" --> Conversation;
+    Conversation -- "forwards to" --> SurfaceController;
+    SurfaceController -- "updates state" --> Surface;
+    Surface -- "renders UI" --> UserInteraction;
+    UserInteraction -- "creates event" --> SurfaceController;
+    SurfaceController -- "emits client event" --> Conversation;
+    Conversation -- "loops back" --> Transport;

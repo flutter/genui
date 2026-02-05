@@ -67,10 +67,10 @@ class ClientFunction {
 
   /// Creates a [ClientFunction] from a JSON map.
   factory ClientFunction.fromJson(Map<String, Object?> json) => ClientFunction(
-        description: json['description'] as String,
-        name: json['name'] as String,
-        parameters: json['parameters'],
-      );
+    description: json['description'] as String,
+    name: json['name'] as String,
+    parameters: json['parameters'],
+  );
 
   /// Converts this object to a JSON representation.
   Map<String, Object?> toJson() => {

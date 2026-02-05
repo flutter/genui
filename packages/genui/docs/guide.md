@@ -15,20 +15,20 @@ The `genui` package is the core Flutter client library for the [A2UI (Agent to U
 - **Streaming Protocol:** Parsing `CreateSurface`, `UpdateComponents`, and `UpdateDataModel` messages.
 - **State Management:** A robust `DataModel` that supports bidirectional binding between UI components and underlying data.
 - **Component System:** An extensible `Catalog` of widgets (`CatalogItem`) that can be customized and expanded.
-- **Rendering:** The `GenUiSurface` widget which acts as the host for dynamic content.
+- **Rendering:** The `Surface` widget which acts as the host for dynamic content.
 
 ## Class Hierarchy
 
 ```mermaid
 classDiagram
-    class GenUiHost {
+    class SurfaceHost {
         <<interface>>
-        +Stream~GenUiUpdate~ surfaceUpdates
-        +GenUiContext contextFor(String surfaceId)
+        +Stream~SurfaceUpdate~ surfaceUpdates
+        +SurfaceContext contextFor(String surfaceId)
         +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)
     }
 
-    class GenUiContext {
+    class SurfaceContext {
         <<interface>>
         +String surfaceId
         +ValueListenable~UiDefinition?~ definition
@@ -42,17 +42,17 @@ classDiagram
         +void handleMessage(A2uiMessage message)
     }
 
-    class GenUiController {
+    class SurfaceController {
         +void handleMessage(A2uiMessage message)
-        +Stream~GenUiUpdate~ surfaceUpdates
+        +Stream~SurfaceUpdate~ surfaceUpdates
         +Stream~ChatMessage~ onSubmit
         +Map~String, DataModel~ dataModels
         +DataModel dataModelForSurface(String surfaceId)
-        +GenUiContext contextFor(String surfaceId)
+        +SurfaceContext contextFor(String surfaceId)
         +void dispose()
     }
 
-    class GenUiTransport {
+    class Transport {
         <<interface>>
         +Stream~A2uiMessage~ incomingMessages
         +Stream~String~ incomingText
@@ -67,8 +67,8 @@ classDiagram
         +void dispose()
     }
 
-    class GenUiSurface {
-        +GenUiContext context
+    class Surface {
+        +SurfaceContext context
         +WidgetBuilder? defaultBuilder
     }
 
@@ -97,14 +97,14 @@ classDiagram
         +void dispose()
     }
 
-    GenUiHost <|.. GenUiController
-    A2uiMessageSink <|.. GenUiController
-    GenUiTransport <|.. A2uiTransportAdapter
-    GenUiSurface --> GenUiContext : uses
-    GenUiHost --> GenUiContext : creates
-    GenUiController --> Catalog : uses
+    SurfaceHost <|.. SurfaceController
+    A2uiMessageSink <|.. SurfaceController
+    Transport <|.. A2uiTransportAdapter
+    Surface --> SurfaceContext : uses
+    SurfaceHost --> SurfaceContext : creates
+    SurfaceController --> Catalog : uses
     Catalog --> CatalogItem : contains
-    GenUiContext --> DataModel : manages
+    SurfaceContext --> DataModel : manages
 ```
 
 ## Detailed API Reference
@@ -145,7 +145,7 @@ llmStream.listen((chunk) => transport.addChunk(chunk));
 - `Stream<A2uiMessage> incomingMessages`: Stream of parsed A2UI messages.
 - `void dispose()`: Closes streams and cleans up resources.
 
-#### `lib/src/engine/gen_ui_controller.dart`
+#### `lib/src/engine/surface_controller.dart`
 
 **Purpose:** The central engine for processing **Structured A2UI Messages**.
 **Use Case:** Use this directly when you have structured data instead of raw text. Common scenarios include:
@@ -157,34 +157,34 @@ llmStream.listen((chunk) => transport.addChunk(chunk));
 **Code Example:**
 
 ```dart
-final controller = GenUiController(catalogs: [myCatalog]);
+final controller = SurfaceController(catalogs: [myCatalog]);
 // Feed a structured message object directly
 controller.handleMessage(
   UpdateComponents(surfaceId: 'main', components: [...])
 );
 ```
 
-**`GenUiController`**
+**`SurfaceController`**
 
 - `DataModel store.getDataModel(String surfaceId)`: Access the data model for a specific surface.
 - `Stream<ChatMessage> get onSubmit`: Stream of user interactions (form submissions).
-- `Stream<GenUiUpdate> get surfaceUpdates`: Stream of events when surfaces change.
+- `Stream<SurfaceUpdate> get surfaceUpdates`: Stream of events when surfaces change.
 - `ValueListenable<UiDefinition?> watchSurface(String surfaceId)`: Get the notifier for a surface's UI definition.
-- `GenUiContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
+- `SurfaceContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
 - `void dispose()`: Cleans up surface notifiers and streams.
 - `void handleMessage(A2uiMessage message)`: Processes an incoming `A2uiMessage` (create, update, delete surface).
 - `void handleUiEvent(UiEvent event)`: Handle a UI event from a surface.
 
-**`GenUiHost` (Interface)**
+**`SurfaceHost` (Interface)**
 
 - **The Contract:** Defines how surface managers interact with the backend logic.
 - **API:**
-- `Stream<GenUiUpdate> get surfaceUpdates`: Stream of events when surfaces change.
-- `GenUiContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
+- `Stream<SurfaceUpdate> get surfaceUpdates`: Stream of events when surfaces change.
+- `SurfaceContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
 
-**`GenUiContext` (Interface)**
+**`SurfaceContext` (Interface)**
 
-- **The Contract:** Defines how `GenUiSurface` interacts with the backend logic, scoped to a single surface.
+- **The Contract:** Defines how `Surface` interacts with the backend logic, scoped to a single surface.
 - **API:**
 - `String get surfaceId`: The ID of the surface.
 - `ValueListenable<UiDefinition?> get definition`: The reactive definition of the UI.
@@ -192,7 +192,7 @@ controller.handleMessage(
 - `Iterable<Catalog> get catalogs`: The catalogs available to this context.
 - `void handleUiEvent(UiEvent event)`: Handle a UI event from a surface.
 
-**`GenUiUpdate` (Sealed Class)**
+**`SurfaceUpdate` (Sealed Class)**
 
 - Subclasses: `SurfaceAdded`, `ComponentsUpdated`, `SurfaceRemoved`.
 
@@ -203,40 +203,40 @@ controller.handleMessage(
 **Code Example:**
 
 ```dart
-GenUiSurface(
+Surface(
   genUiContext: myController.contextFor('main-surface'),
 )
 ```
 
-**`GenUiSurface` (StatefulWidget)**
+**`Surface` (StatefulWidget)**
 
-- Constructor: `GenUiSurface({required GenUiContext context, WidgetBuilder? defaultBuilder})`
+- Constructor: `Surface({required SurfaceContext context, WidgetBuilder? defaultBuilder})`
 - The `defaultBuilder` renders a placeholder while the surface definition is empty or loading.
 
 #### `lib/src/widgets/gen_ui_surface_manager.dart`
 
 **Purpose:** Manages a collection of surfaces.
 **Use Case:** Automatically displaying all active surfaces (e.g. if the LLM creates multiple).
-**`GenUiSurfaceManager`**
+**`SurfaceManager`**
 
-- `host`: The `GenUiHost` to watch.
+- `host`: The `SurfaceHost` to watch.
 - `layoutBuilder`: Custom layout for the list of surfaces.
 - `surfaceBuilder`: Custom builder for individual surfaces (e.g. to wrap them).
 
-#### `lib/src/facade/gen_ui_conversation.dart`
+#### `lib/src/facade/conversation.dart`
 
 **Purpose:** High-level abstraction for managing a chat conversation with GenUI support.
 **Use Case:** Building a chat app where the view binds to a list of messages.
 **Code Example:**
 
 ```dart
-final conversation = GenUiConversation(
+final conversation = Conversation(
   controller: myController,
   transport: myTransport,
 );
 ```
 
-**`GenUiConversation`**
+**`Conversation`**
 
 - `ValueListenable<List<ChatMessage>> get conversation`: The reactive list of chat messages.
 - `ValueListenable<bool> get isProcessing`: Whether the conversation is currently waiting for a response.
@@ -290,11 +290,11 @@ These classes define the data structures and protocol used by GenUI.
 - Subclasses: `CreateSurface`, `UpdateComponents`, `UpdateDataModel`, `DeleteSurface`.
 - `factory fromJson(JsonMap json)`: Parses any A2UI message.
 
-#### `lib/src/model/gen_ui_events.dart`
+#### `lib/src/model/generation_events.dart`
 
 **Purpose:** Events related to the generation process (tokens, tools, text).
 **Use Case:** Monitoring the stream from the LLM.
-**`GenUiEvent` (Sealed Class)**
+**`GenerationEvent` (Sealed Class)**
 
 - Subclasses: `TextEvent`, `A2uiMessageEvent`, `ToolStartEvent`, `ToolEndEvent`, `TokenUsageEvent`.
 
@@ -339,7 +339,7 @@ These classes handle the definition and building of UI components.
 #### `lib/src/model/catalog.dart`
 
 **Purpose:** Represents a collection of `CatalogItem`s.
-**Use Case:** Grouping widgets to provide to the `A2uiMessageProcessor`.
+**Use Case:** Grouping widgets to provide to the `SurfaceController`.
 **`Catalog`**
 
 - `Schema get definition`: Generates the full JSON schema for the catalog (for the LLM).
@@ -370,11 +370,11 @@ final myItem = CatalogItem(
 #### `lib/src/catalog/core_catalog.dart`
 
 **Purpose:** Defines the `CoreCatalogItems` class which provides the standard set of A2UI components.
-**Use Case:** Use `CoreCatalogItems.asCatalog()` to get a ready-to-use catalog for your `A2uiMessageProcessor`.
+**Use Case:** Use `CoreCatalogItems.asCatalog()` to get a ready-to-use catalog for your `SurfaceController`.
 **Code Example:**
 
 ```dart
-final processor = A2uiMessageProcessor(
+final processor = SurfaceController(
   catalogs: [CoreCatalogItems.asCatalog()],
 );
 ```
@@ -397,11 +397,11 @@ final processor = A2uiMessageProcessor(
 
 #### `lib/src/transport/a2ui_parser_transformer.dart`
 
-**Purpose:** A stream transformer that parses raw text chunks into `GenUiEvent`s.
-**Use Case:** Piping an LLM text stream into the `GenUiController`.
+**Purpose:** A stream transformer that parses raw text chunks into `GenerationEvent`s.
+**Use Case:** Piping an LLM text stream into the `SurfaceController`.
 **`A2uiParserTransformer`**
 
-- Transforms `Stream<String>` -> `Stream<GenUiEvent>`. Handles JSON block extraction and balancing.
+- Transforms `Stream<String>` -> `Stream<GenerationEvent>`. Handles JSON block extraction and balancing.
 
 #### `lib/src/core/expression_parser.dart`
 
@@ -436,7 +436,7 @@ final processor = A2uiMessageProcessor(
 
 **Purpose:** Contains static strings useful for prompting the LLM.
 **Use Case:** Injecting instructions into the system prompt.
-**`GenUiPromptFragments`**
+**`PromptFragments`**
 
 - `basicChat`: A standard prompt block instructing the LLM to use UI tools.
 
@@ -468,11 +468,11 @@ final processor = A2uiMessageProcessor(
 **Purpose:** Typedefs and simple utilities.
 **Use Case:** `JsonMap` typedef, `generateId()`.
 
-#### `lib/src/widgets/gen_ui_fallback.dart`
+#### `lib/src/widgets/fallback_widget.dart`
 
 **Purpose:** Generic fallback widget for errors/loading.
 **Use Case:** Displaying errors within the GenUI area.
-**`GenUiFallback`**
+**`FallbackWidget`**
 
 - Parameters: `error`, `isLoading`, `onRetry`.
 
@@ -494,7 +494,7 @@ final processor = A2uiMessageProcessor(
 **`ToolCall`**
 
 - Represents a call to a tool with name and arguments.
-  **`GenUiFunctionDeclaration`**
+  **`ClientFunction`**
 - Represents the schema of a tool to be sent to the LLM.
 
 #### `lib/src/facade/direct_call_integration/utils.dart`
@@ -504,7 +504,7 @@ final processor = A2uiMessageProcessor(
 
 - Generates a system prompt explaining how to use the UI tools.
   **`catalogToFunctionDeclaration`**
-- Converts a `Catalog` into a `GenUiFunctionDeclaration` for the LLM.
+- Converts a `Catalog` into a `ClientFunction` for the LLM.
 
 #### `lib/src/development_utilities/catalog_view.dart`
 
