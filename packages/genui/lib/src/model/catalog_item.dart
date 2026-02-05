@@ -101,11 +101,14 @@ class CatalogItem {
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
 
-  /// Whether this component should be implicitly flexible when placed in a flex container (like Row/Column).
+  /// Whether this component should be implicitly flexible when placed in a flex
+  /// container (like Row/Column).
   ///
-  /// If true, a [Row] or [Column] will automatically assign a flex weight to this component
-  /// if one is not explicitly provided, wrapping it in a [Flexible] widget.
-  /// This is useful for components that require bounded constraints, like [TextField] or [ListView].
+  /// If true, a [Row] or [Column] will automatically assign a flex weight to
+  /// this component if one is not explicitly provided, wrapping it in a
+  /// [Flexible] widget.
+  /// This is useful for components that require bounded constraints, like
+  /// [TextField] or [ListView].
   final bool isImplicitlyFlexible;
 
   /// A list of builder functions that each return a JSON string representing an

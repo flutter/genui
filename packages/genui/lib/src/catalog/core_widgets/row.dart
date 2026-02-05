@@ -108,7 +108,6 @@ final row = CatalogItem(
   name: 'Row',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
-
     final rowData = _RowData.fromMap(itemContext.data as JsonMap);
     return ComponentChildrenBuilder(
       childrenData: rowData.children,
