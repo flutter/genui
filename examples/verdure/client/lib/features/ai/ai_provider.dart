@@ -50,13 +50,13 @@ class AiClientState {
   });
 
   /// The A2UI message processor.
-  final GenUiController a2uiMessageProcessor;
+  final SurfaceController a2uiMessageProcessor;
 
   /// The agent connector.
   final A2uiAgentConnector connector;
 
   /// The conversation manager.
-  final GenUiConversation conversation;
+  final Conversation conversation;
 
   /// A stream that emits the ID of the most recently updated surface.
   final StreamController<String> surfaceUpdateController;
@@ -67,7 +67,7 @@ class AiClientState {
 class Ai extends _$Ai {
   @override
   Future<AiClientState> build() async {
-    final a2uiMessageProcessor = GenUiController(
+    final a2uiMessageProcessor = SurfaceController(
       catalogs: [CoreCatalogItems.asCatalog()],
     );
     final A2uiAgentConnector connector = await ref.watch(
@@ -85,7 +85,7 @@ class Ai extends _$Ai {
     connector.stream.listen(controller.addMessage);
     connector.textStream.listen(controller.addChunk);
 
-    final conversation = GenUiConversation(
+    final conversation = Conversation(
       transport: controller,
       controller: a2uiMessageProcessor,
     );

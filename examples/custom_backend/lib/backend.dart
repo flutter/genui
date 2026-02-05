@@ -9,7 +9,7 @@ import 'gemini_client.dart';
 
 class UiSchemaDefinition {
   final String prompt;
-  final List<GenUiFunctionDeclaration> tools;
+  final List<ClientFunction> tools;
 
   const UiSchemaDefinition({required this.prompt, required this.tools});
 
@@ -19,7 +19,7 @@ class UiSchemaDefinition {
         tools: (json['tools'] as List<Object?>)
             .map(
               (x) =>
-                  GenUiFunctionDeclaration.fromJson(x as Map<String, Object?>),
+                  ClientFunction.fromJson(x as Map<String, Object?>),
             )
             .toList(),
       );

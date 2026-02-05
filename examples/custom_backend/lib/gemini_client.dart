@@ -18,7 +18,7 @@ import 'debug_utils.dart';
 
 abstract class GeminiClient {
   static Future<ToolCall?> sendRequest({
-    required List<GenUiFunctionDeclaration> tools,
+    required List<ClientFunction> tools,
     required String request,
     required String? savedResponse,
   }) async {
@@ -54,7 +54,7 @@ abstract class GeminiClient {
       await rootBundle.loadString(savedResponse);
 
   static Future<String?> _getRawResponseFromApi(
-    List<GenUiFunctionDeclaration> tools,
+    List<ClientFunction> tools,
     String request,
   ) async {
     debugSaveToFileObject('tools', tools);

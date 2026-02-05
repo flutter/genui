@@ -17,7 +17,7 @@ void main() {
     final String content = file.readAsStringSync();
     final Sample sample = SampleParser.parseString(content);
 
-    final controller = GenUiController(
+    final controller = SurfaceController(
       catalogs: [CoreCatalogItems.asCatalog()],
     );
 
@@ -33,7 +33,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: controller.contextFor('main')),
+          body: Surface(genUiContext: controller.contextFor('main')),
         ),
       ),
     );
@@ -49,7 +49,7 @@ void main() {
     final String content = file.readAsStringSync();
     final Sample sample = SampleParser.parseString(content);
 
-    final controller = GenUiController(
+    final controller = SurfaceController(
       catalogs: [CoreCatalogItems.asCatalog()],
     );
 
@@ -60,7 +60,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(genUiContext: controller.contextFor('main')),
+          body: Surface(genUiContext: controller.contextFor('main')),
         ),
       ),
     );

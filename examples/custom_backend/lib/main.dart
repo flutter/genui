@@ -77,7 +77,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
   final _controller = TextEditingController(text: requestText);
 
   final _protocol = Backend(uiSchema);
-  late final GenUiController _genUiController = GenUiController(
+  late final SurfaceController _genUiController = SurfaceController(
     catalogs: [_catalog],
   );
   String? _selectedResponse;
@@ -157,7 +157,7 @@ class _IntegrationTesterState extends State<_IntegrationTester> {
     if (surfaceId == null) {
       return const Text('_surfaceId == null');
     }
-    return GenUiSurface(
+    return Surface(
       genUiContext: _genUiController.contextFor(surfaceId),
       defaultBuilder: (_) => const Text('Fallback to defaultBuilder'),
     );

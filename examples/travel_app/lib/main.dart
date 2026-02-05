@@ -27,7 +27,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await loadImagesJson();
-  configureGenUiLogging(level: Level.ALL);
+  configureLogging(level: Level.ALL);
 
   runApp(const TravelApp());
 }

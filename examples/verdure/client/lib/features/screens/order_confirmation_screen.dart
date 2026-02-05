@@ -34,7 +34,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  return GenUiSurface(
+                  return Surface(
                     genUiContext: aiState.a2uiMessageProcessor.contextFor(
                       'confirmation',
                     ),

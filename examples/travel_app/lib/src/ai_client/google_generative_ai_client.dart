@@ -105,7 +105,7 @@ class GoogleGenerativeAiClient implements AiClient {
 
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
-  final _eventController = StreamController<GenUiEvent>.broadcast();
+  final _eventController = StreamController<GenerationEvent>.broadcast();
   final _errorController = StreamController<Object>.broadcast();
   final _isProcessing = ValueNotifier<bool>(false);
 
@@ -122,7 +122,7 @@ class GoogleGenerativeAiClient implements AiClient {
 
   /// A stream of events related to the generation process (tool calls, usage,
   /// etc.).
-  Stream<GenUiEvent> get eventStream => _eventController.stream;
+  Stream<GenerationEvent> get eventStream => _eventController.stream;
 
   /// Whether the content generator is currently processing a request.
   ValueListenable<bool> get isProcessing => _isProcessing;
@@ -136,7 +136,7 @@ class GoogleGenerativeAiClient implements AiClient {
     _isProcessing.dispose();
   }
 
-  void emitEvent(GenUiEvent event) {
+  void emitEvent(GenerationEvent event) {
     if (!_eventController.isClosed) {
       _eventController.add(event);
     }

@@ -31,16 +31,16 @@ class _SamplesViewState extends State<SamplesView> {
   List<File> _sampleFiles = [];
   File? _selectedFile;
   Sample? _selectedSample;
-  late GenUiController _genUiController;
+  late SurfaceController _genUiController;
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
-  StreamSubscription<GenUiUpdate>? _surfaceSubscription;
+  StreamSubscription<SurfaceUpdate>? _surfaceSubscription;
   StreamSubscription<A2uiMessage>? _messageSubscription;
 
   @override
   void initState() {
     super.initState();
-    _genUiController = GenUiController(catalogs: [widget.catalog]);
+    _genUiController = SurfaceController(catalogs: [widget.catalog]);
     _loadSamples();
     _setupSurfaceListener();
   }
@@ -107,10 +107,10 @@ class _SamplesViewState extends State<SamplesView> {
       _surfaceIds.clear();
       _currentSurfaceIndex = 0;
     });
-    // Re-create GenUiController to ensure a clean state for the new
+    // Re-create SurfaceController to ensure a clean state for the new
     // sample.
     _genUiController.dispose();
-    _genUiController = GenUiController(catalogs: [widget.catalog]);
+    _genUiController = SurfaceController(catalogs: [widget.catalog]);
     _setupSurfaceListener();
 
     try {
@@ -227,7 +227,7 @@ class _SamplesViewState extends State<SamplesView> {
                       child: _surfaceIds.isEmpty
                           ? const Center(child: Text('No surfaces'))
                           : SingleChildScrollView(
-                              child: GenUiSurface(
+                              child: Surface(
                                 key: ValueKey(
                                   _surfaceIds[_currentSurfaceIndex],
                                 ),
