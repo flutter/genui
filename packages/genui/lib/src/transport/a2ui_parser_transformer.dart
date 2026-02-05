@@ -8,11 +8,13 @@ import 'dart:convert';
 import '../model/a2ui_message.dart';
 import '../model/generation_events.dart';
 
-/// Transforms a stream of text chunks into a stream of logical [GenerationEvent]s.
+/// Transforms a stream of text chunks into a stream of logical
+/// [GenerationEvent]s.
 ///
 /// It handles buffering split tokens, extracting JSON blocks, and sanitizing
 /// text.
-class A2uiParserTransformer extends StreamTransformerBase<String, GenerationEvent> {
+class A2uiParserTransformer
+    extends StreamTransformerBase<String, GenerationEvent> {
   /// Creating a const constructor for the transformer.
   const A2uiParserTransformer();
 

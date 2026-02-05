@@ -21,8 +21,8 @@ class ChatSession extends ChangeNotifier {
   final List<MessageController> _messages = [];
   List<MessageController> get messages => List.unmodifiable(_messages);
 
-  late final GenUiController _messageProcessor;
-  GenUiHost get genUiContext => _messageProcessor;
+  late final SurfaceController _messageProcessor;
+  SurfaceHost get genUiContext => _messageProcessor;
 
   late final A2uiTransportAdapter _genUiController;
   A2uiTransportAdapter get genUiController => _genUiController;
@@ -38,7 +38,7 @@ class ChatSession extends ChangeNotifier {
     final Catalog catalog = CoreCatalogItems.asCatalog();
 
     // Initialize Message Processor
-    _messageProcessor = GenUiController(catalogs: [catalog]);
+    _messageProcessor = SurfaceController(catalogs: [catalog]);
 
     // Initialize A2uiTransportAdapter
     _genUiController = A2uiTransportAdapter();
@@ -47,7 +47,7 @@ class ChatSession extends ChangeNotifier {
     _genUiController.messageStream.listen(_messageProcessor.handleMessage);
 
     // Listen to UI state updates from the processor
-    _messageProcessor.surfaceUpdates.listen((GenUiUpdate update) {
+    _messageProcessor.surfaceUpdates.listen((SurfaceUpdate update) {
       if (update is SurfaceAdded) {
         // Check if we already have a message with this surfaceId
         final bool exists = _messages.any(
@@ -88,7 +88,7 @@ $a2uiSchema
 
 ${StandardCatalogEmbed.standardCatalogRules}
 
-${GenUiPromptFragments.basicChat}''';
+${PromptFragments.basicChat}''';
 
     // Initialize Dartantic Provider and Agent
     final String apiKey = getApiKey();

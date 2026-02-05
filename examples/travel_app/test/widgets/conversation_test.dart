@@ -4,16 +4,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/genui.dart';
+import 'package:genui/genui.dart' hide Conversation;
 
 import 'package:travel_app/src/widgets/conversation.dart';
 
 void main() {
   group('Conversation', () {
-    late GenUiController manager;
+    late SurfaceController manager;
 
     setUp(() {
-      manager = GenUiController(catalogs: [CoreCatalogItems.asCatalog()]);
+      manager = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
     });
 
     testWidgets('renders a list of messages', (WidgetTester tester) async {
@@ -103,7 +103,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(GenUiSurface), findsOneWidget);
+      expect(find.byType(Surface), findsOneWidget);
       expect(find.text('UI Content'), findsOneWidget);
     });
 

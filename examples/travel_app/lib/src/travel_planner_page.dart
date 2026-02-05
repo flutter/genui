@@ -6,7 +6,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:genui/genui.dart';
+import 'package:genui/genui.dart' hide Conversation;
+import 'package:genui/genui.dart' as genui;
 
 import 'ai_client/ai_client.dart';
 import 'ai_client/google_generative_ai_client.dart';
@@ -27,7 +28,7 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [GenUiController] and [A2uiTransportAdapter], maintains
+/// It initializes the [SurfaceController] and [A2uiTransportAdapter], maintains
 /// the conversation history, and handles the interaction between the user, the
 /// AI, and the dynamically generated UI.
 ///
@@ -54,8 +55,8 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage>
     with AutomaticKeepAliveClientMixin {
-  late final GenUiController _processor;
-  late final GenUiConversation _uiConversation;
+  late final SurfaceController _processor;
+  late final genui.Conversation _uiConversation;
   late final A2uiTransportAdapter _controller;
 
   final ValueNotifier<List<ChatMessage>> _messages = ValueNotifier([]);
@@ -82,7 +83,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         await _sendRequest(_client!, message, _messages.value);
       },
     );
-    _processor = GenUiController(catalogs: [travelAppCatalog]);
+    _processor = SurfaceController(catalogs: [travelAppCatalog]);
 
     // Create the appropriate content generator based on configuration
     _client = widget.aiClient;
@@ -100,7 +101,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
 
     _wireClient(_client!, _controller);
 
-    _uiConversation = GenUiConversation(
+    _uiConversation = genui.Conversation(
       transport: _controller,
       controller: _processor,
     );
