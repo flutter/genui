@@ -127,7 +127,11 @@ final row = CatalogItem(
                   buildChild: buildChild,
                   weight:
                       getComponent(componentId)?.properties['weight'] as int? ??
-                      (getComponent(componentId)?.type == 'TextField'
+                      (const [
+                            'TextField',
+                            'DateTimeInput',
+                            'ChoicePicker',
+                          ].contains(getComponent(componentId)?.type)
                           ? 1
                           : null),
                 ),
@@ -139,7 +143,13 @@ final row = CatalogItem(
         final Component? component = itemContext.getComponent(componentId);
         final int? weight =
             component?.properties['weight'] as int? ??
-            (component?.type == 'TextField' ? 1 : null);
+            (const [
+                  'TextField',
+                  'DateTimeInput',
+                  'ChoicePicker',
+                ].contains(component?.type)
+                ? 1
+                : null);
 
         return Row(
           mainAxisAlignment: _parseMainAxisAlignment(rowData.justify),
