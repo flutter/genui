@@ -56,7 +56,7 @@ class GoogleGenerativeAiClient implements AiClient {
     this.outputToolName = 'provideFinalOutput',
     this.serviceFactory = defaultGenerativeServiceFactory,
     this.additionalTools = const [],
-    this.modelName = 'models/gemini-2.5-flash',
+    this.modelName = 'models/gemini-3-flash',
     this.apiKey,
   });
 
@@ -90,7 +90,7 @@ class GoogleGenerativeAiClient implements AiClient {
   /// Additional tools to make available to the AI model.
   final List<AiTool> additionalTools;
 
-  /// The model name to use (e.g., 'models/gemini-2.5-flash').
+  /// The model name to use (e.g., 'models/gemini-3-flash').
   final String modelName;
 
   /// The API key to use for authentication.

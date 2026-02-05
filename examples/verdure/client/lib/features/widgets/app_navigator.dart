@@ -40,6 +40,8 @@ class _AppNavigatorState extends ConsumerState<AppNavigator> {
 
   void _onUpdateComponents(String surfaceId) {
     switch (surfaceId) {
+      case 'details':
+        widget.router.push('/upload_photo');
       case 'questionnaire':
         widget.router.push('/questionnaire');
       case 'options':

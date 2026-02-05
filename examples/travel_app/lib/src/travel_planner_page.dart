@@ -433,7 +433,7 @@ Here is an example of creating a trip planner UI.
 {
   "createSurface": {
     "surfaceId": "mexico_trip_planner",
-    "catalogId": "https://a2ui.dev/specification/v0_9/standard_catalog.json",
+    "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
     "attachDataModel": true
   }
 }

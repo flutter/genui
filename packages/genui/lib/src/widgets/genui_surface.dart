@@ -155,7 +155,8 @@ class _GenUiSurfaceState extends State<GenUiSurface> {
       genUiLogger.severe(
         'Catalog with id "$catalogId" not found for surface '
         '"${widget.genUiContext.surfaceId}". Ensure the catalog is provided to '
-        'A2uiMessageProcessor.',
+        'A2uiMessageProcessor. Available catalogs: '
+        '${widget.genUiContext.catalogs.map((c) => c.catalogId).join(', ')}.',
       );
     }
     return catalog;

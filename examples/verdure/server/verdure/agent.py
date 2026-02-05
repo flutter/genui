@@ -60,7 +60,7 @@ AGENT_INSTRUCTION = """
         d. If a user uploads a photo of a grassy lawn, your questions should be about *that* (e.g., "Add a flower bed?", "Install a patio?").
 
     4.  **Get Options:**
-        a. When you receive a query like 'USER_SUBMITTED_QUESTIONNAIRE...', you MUST first call the `get_landscape_options` tool. Extract the budget, style, maintenance, and space description from the query.
+        a. When you receive a query like 'USER_SUBMITTED_QUESTIONNAIRE...', you MUST first call the `get_landscape_options` tool. Pass the `guest_count`, `preserve_bushes`, and `patio_plan` (or `lawn_plan`) from the query to the tool.
         b. After receiving the data, you MUST use the `OPTIONS_PRESENTATION_EXAMPLE` template, populating the `dataModelUpdate.contents` with the JSON data from the tool.
 
     5.  **Shopping Cart:**

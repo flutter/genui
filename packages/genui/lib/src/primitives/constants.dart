@@ -4,4 +4,4 @@
 
 /// The catalog ID for the standard catalog.
 const String standardCatalogId =
-    'https://a2ui.dev/specification/v0_9/standard_catalog.json';
+    'https://a2ui.org/specification/v0_9/standard_catalog.json';
