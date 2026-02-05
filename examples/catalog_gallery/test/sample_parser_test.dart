@@ -36,6 +36,35 @@ description: A test description
     // begin.root check removed as it doesn't exist in CreateSurface
   });
 
+  test(
+    'SampleParser parses sample with frontmatter (leading dashes)',
+    () async {
+      const sampleContent = '''
+---
+name: Frontmatter Sample
+description: A description
+---
+{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
+''';
+      final Sample sample = SampleParser.parseString(sampleContent);
+      expect(sample.name, 'Frontmatter Sample');
+      final List<A2uiMessage> messages = await sample.messages.toList();
+      expect(messages.length, 1);
+    },
+  );
+
+  test('SampleParser parses sample with empty header', () async {
+    const sampleContent = '''
+---
+---
+{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
+''';
+    final Sample sample = SampleParser.parseString(sampleContent);
+    expect(sample.name, 'Untitled Sample');
+    final List<A2uiMessage> messages = await sample.messages.toList();
+    expect(messages.length, 1);
+  });
+
   test('SampleParser throws on missing separator', () {
     const sampleContent = '''
 name: Invalid Sample

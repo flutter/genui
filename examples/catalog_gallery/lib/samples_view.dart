@@ -132,8 +132,8 @@ class _SamplesViewState extends State<SamplesView> {
           );
         },
       );
-    } catch (e) {
-      debugPrint('Error parsing sample: $e');
+    } catch (e, stackTrace) {
+      debugPrint('Error parsing sample in file ${file.path}: $e\n$stackTrace');
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
