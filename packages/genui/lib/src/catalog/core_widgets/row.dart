@@ -108,6 +108,7 @@ final row = CatalogItem(
   name: 'Row',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
+
     final rowData = _RowData.fromMap(itemContext.data as JsonMap);
     return ComponentChildrenBuilder(
       childrenData: rowData.children,
@@ -127,11 +128,12 @@ final row = CatalogItem(
                   buildChild: buildChild,
                   weight:
                       getComponent(componentId)?.properties['weight'] as int? ??
-                      (const [
-                            'TextField',
-                            'DateTimeInput',
-                            'ChoicePicker',
-                          ].contains(getComponent(componentId)?.type)
+                      (itemContext
+                                  .getCatalogItem(
+                                    getComponent(componentId)?.type ?? '',
+                                  )
+                                  ?.isImplicitlyFlexible ??
+                              false
                           ? 1
                           : null),
                 ),
@@ -143,11 +145,10 @@ final row = CatalogItem(
         final Component? component = itemContext.getComponent(componentId);
         final int? weight =
             component?.properties['weight'] as int? ??
-            (const [
-                  'TextField',
-                  'DateTimeInput',
-                  'ChoicePicker',
-                ].contains(component?.type)
+            (itemContext
+                        .getCatalogItem(component?.type ?? '')
+                        ?.isImplicitlyFlexible ??
+                    false
                 ? 1
                 : null);
 

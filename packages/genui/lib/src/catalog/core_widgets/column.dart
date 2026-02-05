@@ -125,7 +125,15 @@ final column = CatalogItem(
                   dataContext: dataContext,
                   buildChild: buildChild,
                   weight:
-                      getComponent(componentId)?.properties['weight'] as int?,
+                      getComponent(componentId)?.properties['weight'] as int? ??
+                      (itemContext
+                                  .getCatalogItem(
+                                    getComponent(componentId)?.type ?? '',
+                                  )
+                                  ?.isImplicitlyFlexible ??
+                              false
+                          ? 1
+                          : null),
                 ),
               )
               .toList(),
@@ -145,8 +153,17 @@ final column = CatalogItem(
                 ),
                 buildChild: itemContext.buildChild,
                 weight:
-                    itemContext.getComponent(componentId)?.properties['weight']
-                        as int?,
+                    (itemContext.getComponent(componentId)?.properties['weight']
+                        as int?) ??
+                    (itemContext
+                                .getCatalogItem(
+                                  itemContext.getComponent(componentId)?.type ??
+                                      '',
+                                )
+                                ?.isImplicitlyFlexible ??
+                            false
+                        ? 1
+                        : null),
               ),
             ],
           ],

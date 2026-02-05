@@ -45,6 +45,7 @@ class CatalogItemContext {
     required this.buildContext,
     required this.dataContext,
     required this.getComponent,
+    required this.getCatalogItem,
     required this.surfaceId,
   });
 
@@ -72,6 +73,9 @@ class CatalogItemContext {
   /// Callback to retrieve a component definition by its ID.
   final GetComponentCallback getComponent;
 
+  /// Callback to retrieve a catalog item definition by its type name.
+  final CatalogItem? Function(String type) getCatalogItem;
+
   /// The ID of the surface this component belongs to.
   final String surfaceId;
 }
@@ -85,6 +89,7 @@ class CatalogItem {
     required this.dataSchema,
     required this.widgetBuilder,
     this.exampleData = const [],
+    this.isImplicitlyFlexible = false,
   });
 
   /// The widget type name used in JSON, e.g., 'TextChatMessage'.
@@ -95,6 +100,13 @@ class CatalogItem {
 
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
+
+  /// Whether this component should be implicitly flexible when placed in a flex container (like Row/Column).
+  ///
+  /// If true, a [Row] or [Column] will automatically assign a flex weight to this component
+  /// if one is not explicitly provided, wrapping it in a [Flexible] widget.
+  /// This is useful for components that require bounded constraints, like [TextField] or [ListView].
+  final bool isImplicitlyFlexible;
 
   /// A list of builder functions that each return a JSON string representing an
   /// example usage of this widget.
