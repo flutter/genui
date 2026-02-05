@@ -20,8 +20,8 @@ void main() {
 
     test('resolves simple function call', () {
       final Map<String, Object> input = {
-        'func': 'formatNumber',
-        'args': [1234.56, 1],
+        'call': 'formatNumber',
+        'args': {'value': 1234.56, 'decimalPlaces': 1},
       };
       final Object? result = context.resolve(input);
       // Default standard formatNumber uses current locale, might vary,
@@ -32,21 +32,21 @@ void main() {
 
     test('resolves required function returning boolean', () {
       final Map<String, Object> input = {
-        'func': 'required',
-        'args': ['some value'],
+        'call': 'required',
+        'args': {'value': 'some value'},
       };
       expect(context.resolve(input), isTrue);
     });
 
     test('resolves nested function calls', () {
       final Map<String, Object> input = {
-        'func': 'required',
-        'args': [
-          {
-            'func': 'formatString',
-            'args': [''],
+        'call': 'required',
+        'args': {
+          'value': {
+            'call': 'formatString',
+            'args': {'value': ''},
           },
-        ],
+        },
       };
       // formatString('') -> ''
       // required('') -> false
@@ -56,8 +56,8 @@ void main() {
     test('resolves arguments with expressions', () {
       dataModel.update(DataPath('/name'), 'World');
       final Map<String, Object> input = {
-        'func': 'formatString',
-        'args': [r'Hello ${/name}'],
+        'call': 'formatString',
+        'args': {'value': r'Hello ${/name}'},
       };
       expect(context.resolve(input), 'Hello World');
     });

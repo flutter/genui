@@ -75,6 +75,10 @@ class ExpressionParser {
           args[argName] = parse(value);
         } else if (value is Map && value.containsKey('path')) {
           args[argName] = _resolvePath(value['path'] as String);
+        } else if (value is Map &&
+            (value.containsKey('call') || value.containsKey('func'))) {
+          // Recursive evaluation for nested calls
+          args[argName] = evaluateFunctionCall(value as JsonMap);
         } else {
           args[argName] = value;
         }

@@ -54,9 +54,7 @@ class _SamplesViewState extends State<SamplesView> {
   }
 
   void _setupSurfaceListener() {
-    _surfaceSubscription = _genUiController.surfaceUpdates.listen((
-      update,
-    ) {
+    _surfaceSubscription = _genUiController.surfaceUpdates.listen((update) {
       if (update is SurfaceAdded) {
         if (!_surfaceIds.contains(update.surfaceId)) {
           setState(() {

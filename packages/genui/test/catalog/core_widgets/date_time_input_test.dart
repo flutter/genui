@@ -201,10 +201,10 @@ void main() {
         'value': {'path': '/myDate'},
         'checks': [
           {
-            'func': 'required',
-            'args': [
-              {'path': '/myDate'},
-            ],
+            'call': 'required',
+            'args': {
+              'value': {'path': '/myDate'},
+            },
             'message': 'Date is required',
           },
         ],
