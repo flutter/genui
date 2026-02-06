@@ -179,7 +179,7 @@ final class ChatMessage {
   int get hashCode => Object.hashAll([role, parts, metadata, finishStatus]);
 
   @override
-  String toString() => 'Message(parts: $parts, metadata: $metadata)';
+String toString() => 'Message(role: $role, parts: $parts, metadata: $metadata, finishStatus: $finishStatus)';
 }
 
 /// The role of a message author.
