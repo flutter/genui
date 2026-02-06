@@ -36,48 +36,11 @@ abstract interface class ContentGenerator {
 
 ## Architecture
 
-The package is designed with a layered architecture, separating concerns to create a flexible and extensible framework. The diagram below shows how the `genui` package integrates with the developer's application and the backend LLM.
+The `genui` package adopts a decoupled, event-driven architecture that separates the UI presentation from the transport and state management layers. This design allows developers to bring their own LLM or backend service while leveraging GenUI's rendering capabilities.
 
-```mermaid
-graph TD
-    subgraph "genui Package"
-        Conversation["Conversation (Facade)"]
-        Transport["Transport (Interface)"]
-        A2uiTransportAdapter["A2uiTransportAdapter"]
-        SurfaceController["SurfaceController (Engine)"]
-        Transformer["A2uiParserTransformer"]
-        Catalog["Widget Catalog"]
-        DataModel["DataModel"]
-        Surface["Surface (Widget)"]
-    end
+The following diagram illustrates the core data flow:
 
-
-    AppLogic -- "Initializes" --> Conversation
-    Conversation -- "Uses" --> Transport
-    Conversation -- "Manages" --> SurfaceController
-
-    AppLogic -- "Sends User Input" --> Conversation
-    Conversation -- "Delegates to" --> Transport
-    Transport -- "Calls callback" --> ExternalLLM
-    ExternalLLM -- "Returns chunks" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Pipes to" --> Transformer
-    Transformer -- "Parses into<br>messages" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Stream<A2uiMessage>" --> Transport
-    Transport -- "Pipes to" --> Conversation
-    Conversation -- "Dispatches to" --> SurfaceController
-
-    SurfaceController -- "Owns" --> DataModel
-    SurfaceController -- "Notifies of updates" --> Conversation
-    SurfaceController -- "Notifies of updates" --> Surface
-
-    UserUI -- "Instantiates" --> Surface
-    Surface -- "Builds widgets using" --> Catalog
-    Surface -- "Reads/writes state via" --> DataModel
-    Surface -- "Sends UI events" --> SurfaceController
-
-    SurfaceController -- "Client events (onSubmit)" --> Conversation
-    Conversation -- "Loops back" --> Transport
-```
+![Architecture](architecture.png)
 
 ## Class Diagram
 
@@ -414,12 +377,6 @@ Surface(
 
 **Purpose:** Manages a collection of surfaces.
 **Used For:** Automatically displaying all active surfaces (e.g. if the LLM creates multiple).
-
-##### `SurfaceManager`
-
-- `host`: The `SurfaceHost` to watch.
-- `layoutBuilder`: Custom layout for the list of surfaces.
-- `surfaceBuilder`: Custom builder for individual surfaces (e.g. to wrap them).
 
 #### `lib/src/facade/conversation.dart`
 

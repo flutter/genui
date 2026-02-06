@@ -1,38 +1,68 @@
 graph TD
-    subgraph "genui Package"
-        Conversation["Conversation (Facade)"]
-        Transport["Transport (Interface)"]
-        A2uiTransportAdapter["A2uiTransportAdapter"]
-        SurfaceController["SurfaceController (Engine)"]
-        Transformer["A2uiParserTransformer"]
-        Catalog["Widget Catalog"]
-        DataModel["DataModel"]
-        Surface["Surface (Widget)"]
+    subgraph ClientApp ["Client Application"]
+        AppLogic["App Logic"]
+        FlutterUI["Flutter UI"]
     end
 
+    subgraph GenUI ["genui Package"]
 
-    AppLogic -- "Initializes" --> Conversation
-    Conversation -- "Uses" --> Transport
-    Conversation -- "Manages" --> SurfaceController
+        subgraph Facade ["Facade Layer"]
+            Conversation["Conversation"]
+        end
 
-    AppLogic -- "Sends User Input" --> Conversation
-    Conversation -- "Delegates to" --> Transport
-    Transport -- "Calls callback" --> ExternalLLM
-    ExternalLLM -- "Returns chunks" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Pipes to" --> Transformer
-    Transformer -- "Parses into<br>messages" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Stream<A2uiMessage>" --> Transport
-    Transport -- "Pipes to" --> Conversation
-    Conversation -- "Dispatches to" --> SurfaceController
+        subgraph TransportLayer ["Transport Layer"]
+            Transport["Transport Interface"]
+            A2uiAdapter["A2uiTransportAdapter"]
+            Transformer["A2uiParserTransformer"]
+        end
 
-    SurfaceController -- "Owns" --> DataModel
-    SurfaceController -- "Notifies of updates" --> Conversation
-    SurfaceController -- "Notifies of updates" --> Surface
+        subgraph Engine ["Engine Layer"]
+            SurfaceController["SurfaceController"]
+            Registry["SurfaceRegistry"]
+            DataModelStore["DataModelStore"]
+        end
 
-    UserUI -- "Instantiates" --> Surface
+        subgraph Presentation ["Presentation Layer"]
+            Surface["Surface Widget"]
+            SurfaceContext["SurfaceContext"]
+            Catalog["Widget Catalog"]
+        end
+    end
+
+    Backend["External LLM / Server"]
+
+    %% Flow Connections
+    AppLogic -- "1. Initializes & Sends Request" --> Conversation
+    Conversation -- "2. Delegates request" --> Transport
+    Transport -. "Implemented by" .-> A2uiAdapter
+
+    A2uiAdapter -- "3. Sends request" --> Backend
+    Backend -- "4. Streams text chunks" --> A2uiAdapter
+    A2uiAdapter -- "5. Pipes to" --> Transformer
+    Transformer -- "6. Parses into A2uiMessage" --> A2uiAdapter
+    A2uiAdapter -- "7. Streams A2uiMessages" --> Conversation
+
+    Conversation -- "8. Dispatches message" --> SurfaceController
+    SurfaceController -- "9. Updates" --> Registry
+    SurfaceController -- "10. Updates" --> DataModelStore
+
+    Registry -- "Provides definition" --> SurfaceContext
+    DataModelStore -- "Provides data" --> SurfaceContext
+
+    FlutterUI -- "Instantiates" --> Surface
+    Surface -- "Reads state & actions" --> SurfaceContext
     Surface -- "Builds widgets using" --> Catalog
-    Surface -- "Reads/writes state via" --> DataModel
-    Surface -- "Sends UI events" --> SurfaceController
 
-    SurfaceController -- "Client events (onSubmit)" --> Conversation
-    Conversation -- "Loops back" --> Transport
+    Surface -- "Dispatches UI Events" --> SurfaceContext
+    SurfaceContext -- "Forwards events" --> SurfaceController
+    SurfaceController -- "Notifies (onSubmit)" --> Conversation
+    Conversation -- "Loops back (if needed)" --> Transport
+
+    %% Styling
+    classDef package fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef component fill:#fff9c4,stroke:#fbc02d,stroke-width:1px;
+    classDef extern fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    class Conversation,Transport,A2uiAdapter,Transformer,SurfaceController,Registry,DataModelStore,Surface,SurfaceContext,Catalog component;
+    class ClientApp,GenUI extern;
+    class Backend extern;
