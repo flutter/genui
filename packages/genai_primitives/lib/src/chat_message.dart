@@ -13,6 +13,7 @@ final class _Json {
   static const parts = 'parts';
   static const role = 'role';
   static const metadata = 'metadata';
+  static const finishStatus = 'finishStatus';
 }
 
 /// A chat message.
@@ -113,6 +114,11 @@ final class ChatMessage {
       role: ChatMessageRole.values.byName(json[_Json.role] as String),
       parts: parts,
       metadata: (json[_Json.metadata] as Map<String, Object?>?) ?? const {},
+      finishStatus: json[_Json.finishStatus] == null
+          ? null
+          : FinishStatus.fromJson(
+              json[_Json.finishStatus] as Map<String, Object?>,
+            ),
     );
   }
 
@@ -121,6 +127,7 @@ final class ChatMessage {
     _Json.parts: Parts(parts).toJson(),
     _Json.metadata: metadata,
     _Json.role: role.name,
+    if (finishStatus != null) _Json.finishStatus: finishStatus!.toJson(),
   };
 
   /// The role of the message author.
@@ -162,12 +169,14 @@ final class ChatMessage {
 
     const deepEquality = DeepCollectionEquality();
     return other is ChatMessage &&
+        role == other.role &&
         deepEquality.equals(other.parts, parts) &&
-        deepEquality.equals(other.metadata, metadata);
+        deepEquality.equals(other.metadata, metadata) &&
+        finishStatus == other.finishStatus;
   }
 
   @override
-  int get hashCode => Object.hashAll([parts, metadata]);
+  int get hashCode => Object.hashAll([role, parts, metadata, finishStatus]);
 
   @override
   String toString() => 'Message(parts: $parts, metadata: $metadata)';

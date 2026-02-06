@@ -16,6 +16,11 @@ enum FinishCategory {
   interrupted,
 }
 
+class _Json {
+  static const category = 'category';
+  static const details = 'details';
+}
+
 @immutable
 class FinishStatus {
   final FinishCategory category;
@@ -31,6 +36,20 @@ class FinishStatus {
 
   const FinishStatus.interrupted({String? details})
     : this(category: FinishCategory.interrupted, details: details);
+
+  /// Deserializes a [FinishStatus].
+  factory FinishStatus.fromJson(Map<String, Object?> json) {
+    return FinishStatus(
+      category: FinishCategory.values.byName(json[_Json.category] as String),
+      details: json[_Json.details] as String?,
+    );
+  }
+
+  /// Serializes the [FinishStatus] to JSON.
+  Map<String, Object?> toJson() => {
+    _Json.category: category.name,
+    if (details != null) _Json.details: details,
+  };
 
   @override
   bool operator ==(Object other) =>
