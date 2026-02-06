@@ -14,7 +14,7 @@ import 'standard_part.dart';
 @immutable
 final class Parts extends ListBase<Part> {
   /// Creates a new collection of parts.
-  Parts(this._parts);
+  Parts(List<Part> parts) : _parts = List.unmodifiable(parts);
 
   /// Creates a collection of parts from text and optional other parts.
   ///
