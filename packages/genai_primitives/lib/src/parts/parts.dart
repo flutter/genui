@@ -14,7 +14,7 @@ import 'standard_part.dart';
 @immutable
 final class Parts extends ListBase<Part> {
   /// Creates a new collection of parts.
-  const Parts(this._parts);
+  Parts(List<Part> parts) : _parts = List.unmodifiable(parts);
 
   /// Creates a collection of parts from text and optional other parts.
   ///
@@ -63,18 +63,19 @@ final class Parts extends ListBase<Part> {
   ///
   /// Returns a single string with all text content concatenated together
   /// without any separators. Empty text parts are included in the result.
-  String get text => whereType<TextPart>().map((p) => p.text).join();
+  late final String text = whereType<TextPart>().map((p) => p.text).join();
 
   /// Extracts all tool call parts from the list.
   ///
   /// Returns only ToolPart instances where kind == ToolPartKind.call.
-  List<ToolPart> get toolCalls =>
-      whereType<ToolPart>().where((p) => p.kind == ToolPartKind.call).toList();
+  late final List<ToolPart> toolCalls = whereType<ToolPart>()
+      .where((p) => p.kind == ToolPartKind.call)
+      .toList();
 
   /// Extracts all tool result parts from the list.
   ///
   /// Returns only ToolPart instances where kind == ToolPartKind.result.
-  List<ToolPart> get toolResults => whereType<ToolPart>()
+  late final List<ToolPart> toolResults = whereType<ToolPart>()
       .where((p) => p.kind == ToolPartKind.result)
       .toList();
 
