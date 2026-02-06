@@ -656,16 +656,10 @@ void main() {
 
     test('JSON serialization', () {
       const status1 = FinishStatus.completed();
-      expect(
-        FinishStatus.fromJson(status1.toJson()),
-        equals(status1),
-      );
+      expect(FinishStatus.fromJson(status1.toJson()), equals(status1));
 
       const status2 = FinishStatus.interrupted(details: 'reason');
-      expect(
-        FinishStatus.fromJson(status2.toJson()),
-        equals(status2),
-      );
+      expect(FinishStatus.fromJson(status2.toJson()), equals(status2));
     });
   });
 
@@ -675,84 +669,18 @@ void main() {
         role: ChatMessageRole.model,
         finishStatus: const FinishStatus.completed(),
       );
-      final json = msg.toJson();
+      final Map<String, Object?> json = msg.toJson();
       expect(json['finishStatus'], isNotNull);
-      
+
       final reconstructed = ChatMessage.fromJson(json);
-      expect(reconstructed.finishStatus, equals(const FinishStatus.completed()));
+      expect(
+        reconstructed.finishStatus,
+        equals(const FinishStatus.completed()),
+      );
     });
 
     test('role and finishStatus equality', () {
-       final msg1 = ChatMessage(
-        role: ChatMessageRole.user,
-        finishStatus: const FinishStatus.completed(),
-      );
-      final msg2 = ChatMessage(
-        role: ChatMessageRole.user,
-        finishStatus: const FinishStatus.completed(),
-      );
-      final msg3 = ChatMessage(
-        role: ChatMessageRole.model, // Different role
-        finishStatus: const FinishStatus.completed(),
-      );
-      final msg4 = ChatMessage(
-        role: ChatMessageRole.user,
-        finishStatus: const FinishStatus.notFinished(), // Different status
-      );
-
-      expect(msg1, equals(msg2));
-      expect(msg1.hashCode, equals(msg2.hashCode));
-      expect(msg1, isNot(equals(msg3))); // Role checking verified
-      expect(msg1, isNot(equals(msg4))); // FinishStatus checking verified
-    });
-  });
-}
-    test('equality', () {
-      const status1 = FinishStatus.completed();
-      const status2 = FinishStatus.completed();
-      const status3 = FinishStatus.notFinished();
-      const status4 = FinishStatus.interrupted(details: 'reason');
-      const status5 = FinishStatus.interrupted(details: 'reason');
-      const status6 = FinishStatus.interrupted(details: 'other');
-
-      expect(status1, equals(status2));
-      expect(status1.hashCode, equals(status2.hashCode));
-      expect(status1, isNot(equals(status3)));
-      expect(status4, equals(status5));
-      expect(status4.hashCode, equals(status5.hashCode));
-      expect(status4, isNot(equals(status6)));
-    });
-
-    test('JSON serialization', () {
-      const status1 = FinishStatus.completed();
-      expect(
-        FinishStatus.fromJson(status1.toJson()),
-        equals(status1),
-      );
-
-      const status2 = FinishStatus.interrupted(details: 'reason');
-      expect(
-        FinishStatus.fromJson(status2.toJson()),
-        equals(status2),
-      );
-    });
-  });
-
-  group('ChatMessage Extended', () {
-    test('finishStatus serialization', () {
-      final msg = ChatMessage(
-        role: ChatMessageRole.model,
-        finishStatus: const FinishStatus.completed(),
-      );
-      final json = msg.toJson();
-      expect(json['finishStatus'], isNotNull);
-      
-      final reconstructed = ChatMessage.fromJson(json);
-      expect(reconstructed.finishStatus, equals(const FinishStatus.completed()));
-    });
-
-    test('role and finishStatus equality', () {
-       final msg1 = ChatMessage(
+      final msg1 = ChatMessage(
         role: ChatMessageRole.user,
         finishStatus: const FinishStatus.completed(),
       );
