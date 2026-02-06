@@ -40,121 +40,11 @@ The `genui` package adopts a decoupled, event-driven architecture that separates
 
 The following diagram illustrates the core data flow:
 
-![Architecture](architecture.png)
+![Architecture](architecture.svg)
 
 ## Class Diagram
 
-```mermaid
-classDiagram
-    namespace Facade {
-        class Conversation {
-            +SurfaceController controller
-            +Transport transport
-            +ValueListenable~ConversationState~ state
-            +Stream~ConversationEvent~ events
-            +Future~void~ sendRequest(ChatMessage message)
-            +void dispose()
-        }
-    }
-
-    namespace Interfaces {
-        class Transport {
-            <<interface>>
-            +Stream~A2uiMessage~ incomingMessages
-            +Stream~String~ incomingText
-            +Future~void~ sendRequest(ChatMessage message)
-        }
-
-        class SurfaceHost {
-            <<interface>>
-            +Stream~SurfaceUpdate~ surfaceUpdates
-            +SurfaceContext contextFor(String surfaceId)
-        }
-
-        class SurfaceContext {
-            <<interface>>
-            +String surfaceId
-            +ValueListenable~UiDefinition~ definition
-            +DataModel dataModel
-            +Iterable~Catalog~ catalogs
-            +void handleUiEvent(UiEvent event)
-        }
-
-        class A2uiMessageSink {
-            <<interface>>
-            +void handleMessage(A2uiMessage message)
-        }
-    }
-
-    namespace TransportLayer {
-        class A2uiTransportAdapter {
-            +void addChunk(String text)
-            +void addMessage(A2uiMessage message)
-            +Stream~A2uiMessage~ incomingMessages
-            +Stream~String~ incomingText
-            +Future~void~ sendRequest(ChatMessage message)
-            +void dispose()
-        }
-    }
-
-    namespace Engine {
-        class SurfaceController {
-            +void handleMessage(A2uiMessage message)
-            +Stream~SurfaceUpdate~ surfaceUpdates
-            +Stream~ChatMessage~ onSubmit
-            +Map~String_DataModel~ dataModels
-            +Iterable~String~ activeSurfaceIds
-            +SurfaceContext contextFor(String surfaceId)
-            +ValueListenable~UiDefinition~ watchSurface(String surfaceId)
-            +void dispose()
-        }
-    }
-
-    namespace UI {
-        class Surface {
-            +SurfaceContext context
-            +WidgetBuilder defaultBuilder
-        }
-    }
-
-    namespace Model {
-        class Catalog {
-            +String catalogId
-            +Iterable~CatalogItem~ items
-            +Schema definition
-            +Widget buildWidget(CatalogItemContext context)
-            +Catalog copyWith(List~CatalogItem~ newItems)
-            +Catalog copyWithout(Iterable~CatalogItem~ itemNames)
-        }
-
-        class CatalogItem {
-            +String name
-            +Schema dataSchema
-            +CatalogWidgetBuilder widgetBuilder
-            +List~ExampleBuilderCallback~ exampleData
-        }
-
-        class DataModel {
-            +void update(DataPath path, Object contents)
-            +ValueNotifier subscribe(DataPath path)
-            +ValueNotifier subscribeToValue(DataPath path)
-            +T getValue(DataPath path)
-            +void bindExternalState(DataPath path, ValueListenable source)
-            +void dispose()
-        }
-    }
-
-    SurfaceHost <|.. SurfaceController
-    A2uiMessageSink <|.. SurfaceController
-    Transport <|.. A2uiTransportAdapter
-    Surface --> SurfaceContext : uses
-    SurfaceHost --> SurfaceContext : creates
-    Catalog --> CatalogItem : contains
-    SurfaceContext --> DataModel : manages
-    Conversation --> SurfaceController : uses
-    Conversation --> Transport : uses
-    SurfaceController --> Catalog : uses
-```
+![Class Diagram](class-diagram.svg)
 
 ### 1. Transport Layer (`lib/src/transport/` and `lib/src/interfaces/`)
 
@@ -216,24 +106,24 @@ This directory provides utilities for a more direct interaction with the AI mode
 
 ## How It Works: The Generative UI Cycle
 
-The `Conversation` simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
+The `Conversation` class simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
 
 ![Generative UI Cycle](block-diagram.svg)
 
 ## Surface Lifecycle & Cleanup
 
-When multiple surfaces are generated in a conversation, `SurfaceController` manages them according to a `SurfaceCleanupPolicy`. The default is `manual` (keep all surfaces until explicitly deleted), but `keepLatest` is common for chat interfaces where only the newest UI matters.
+When multiple surfaces are generated in a conversation, `SurfaceController` manages them according to a `SurfaceCleanupStrategy`. The default is `ManualCleanupStrategy` (keep all surfaces until explicitly deleted), but `KeepLastNCleanupStrategy` is common for chat interfaces where only the newest UI matters.
 
-### Example: `keepLatest` Policy
+### Example: `KeepLastNCleanupStrategy(1)`
 
 ```mermaid
 sequenceDiagram
     participant LLM as External LLM
     participant Transport as Transport
     participant Controller as SurfaceController
-    participant UI as Surface (Manager)
+    participant UI as Surface
 
-    Note over Controller: Policy: keepLatest
+    Note over Controller: Strategy: KeepLastN(1)
 
     LLM->>Transport: "createSurface(id: 'A')"
     Transport->>Controller: CreateSurface('A')
@@ -319,14 +209,11 @@ controller.handleMessage(
 
 **Constructor Options used for Cleanup and Constraints:**
 
-- `cleanupPolicy`: Strategies for removing old surfaces (`manual`, `keepLatest`, `keepLastN`).
-- `maxSurfaces`: Maximum number of surfaces to keep when using `keepLastN`.
+- `cleanupStrategy`: Strategies for removing old surfaces (`ManualCleanupStrategy`, `KeepLastNCleanupStrategy`).
 - `pendingUpdateTimeout`: Duration to wait for a `CreateSurface` message before discarding orphaned updates.
 
 ##### `SurfaceController`
 
-- `DataModel dataModelForSurface(String surfaceId)`: Access the data model for a specific surface.
-- `Map<String, DataModel> get dataModels`: Map of all active data models.
 - `Stream<ChatMessage> get onSubmit`: Stream of user interactions (form submissions).
 - `Stream<SurfaceUpdate> get surfaceUpdates`: Stream of events when surfaces change.
 - `ValueListenable<UiDefinition?> watchSurface(String surfaceId)`: Get the notifier for a surface's UI definition.
@@ -373,10 +260,6 @@ Surface(
 - Constructor: `Surface({required SurfaceContext context, WidgetBuilder? defaultBuilder})`
 - The `defaultBuilder` renders a placeholder while the surface definition is empty or loading.
 
-#### `lib/src/widgets/gen_ui_surface_manager.dart`
-
-**Purpose:** Manages a collection of surfaces.
-**Used For:** Automatically displaying all active surfaces (e.g. if the LLM creates multiple).
 
 #### `lib/src/facade/conversation.dart`
 
@@ -393,10 +276,9 @@ final conversation = Conversation(
 
 **`Conversation`**
 
-- `ValueListenable<List<ChatMessage>> get conversation`: The reactive list of chat messages.
-- `ValueListenable<bool> get isProcessing`: Whether the conversation is currently waiting for a response.
+- `ValueListenable<ConversationState> get state`: The current state (surfaces, latest text, isWaiting).
+- `Stream<ConversationEvent> get events`: A stream of events.
 - `Future<void> sendRequest(ChatMessage message)`: Sends a message to the LLM.
-- **Callbacks:** `onSurfaceAdded`, `onComponentsUpdated`, `onSurfaceDeleted`, `onTextResponse`, `onError`.
 
 ### Data Models & Protocol
 

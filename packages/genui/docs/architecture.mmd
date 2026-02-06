@@ -1,68 +1,83 @@
 graph TD
-    subgraph ClientApp ["Client Application"]
-        AppLogic["App Logic"]
-        FlutterUI["Flutter UI"]
+    %% --- Theme & Style Definitions ---
+    classDef default font-family:'Open Sans', sans-serif, font-size:24px, color:#0a305f;
+
+    %% Regional Containers (Semi-transparent)
+    classDef developer fill:#f1f2f666,stroke:#2f3542,stroke-width:2px,stroke-dasharray: 5 5,rx:10;
+    classDef genui fill:#747d8c11,stroke:#2f3542,stroke-width:2px,rx:15;
+
+    %% Components (Increased rx/ry for more breathing room)
+    classDef component fill:#769CDF,color:#0a305f,rx:8,ry:8;
+    classDef userComponent fill:#bec6dc,color:#283141,rx:8,ry:8;
+    classDef facade fill:#A288A6,color:#000,rx:8,ry:8;
+    classDef layerBox fill:#ffffff33,stroke:#747d8c,stroke-width:1px,stroke-dasharray: 2 2;
+
+    subgraph DevApp ["Developer's Application"]
+        direction LR
+        AppLogic("App Logic / State Management"):::userComponent
+        LLMClient("External LLM Client"):::userComponent
+        AppUI("App UI (Flutter)"):::userComponent
     end
 
-    subgraph GenUI ["genui Package"]
+    subgraph GenUIPkg ["GenUI Package"]
+        direction TB
+        Conversation("Conversation (Facade)"):::facade
 
-        subgraph Facade ["Facade Layer"]
-            Conversation["Conversation"]
+        subgraph Transport ["Transport Layer"]
+            direction LR
+            TransportInt("Transport Interface"):::component
+            Adapter("A2uiTransportAdapter"):::component
+            Transformer("A2uiParserTransformer"):::component
         end
 
-        subgraph TransportLayer ["Transport Layer"]
-            Transport["Transport Interface"]
-            A2uiAdapter["A2uiTransportAdapter"]
-            Transformer["A2uiParserTransformer"]
+        subgraph UILayer ["UI Layer"]
+            direction LR
+            Surface("Surface Widget"):::component
+            SurfaceContext("SurfaceContext"):::component
         end
 
         subgraph Engine ["Engine Layer"]
-            SurfaceController["SurfaceController"]
-            Registry["SurfaceRegistry"]
-            DataModelStore["DataModelStore"]
-        end
-
-        subgraph Presentation ["Presentation Layer"]
-            Surface["Surface Widget"]
-            SurfaceContext["SurfaceContext"]
-            Catalog["Widget Catalog"]
+            direction LR
+            Controller("SurfaceController"):::component
+            Registry("SurfaceRegistry"):::component
+            DataModel("DataModel"):::component
+            Catalog("Component Catalog"):::component
         end
     end
 
-    Backend["External LLM / Server"]
+    %% --- Functional Wiring ---
 
-    %% Flow Connections
-    AppLogic -- "1. Initializes & Sends Request" --> Conversation
-    Conversation -- "2. Delegates request" --> Transport
-    Transport -. "Implemented by" .-> A2uiAdapter
+    AppLogic == "Initializes" ==> Conversation
+    AppLogic == "Sends User Input" ==> Conversation
 
-    A2uiAdapter -- "3. Sends request" --> Backend
-    Backend -- "4. Streams text chunks" --> A2uiAdapter
-    A2uiAdapter -- "5. Pipes to" --> Transformer
-    Transformer -- "6. Parses into A2uiMessage" --> A2uiAdapter
-    A2uiAdapter -- "7. Streams A2uiMessages" --> Conversation
+    Conversation == "Forwards Request" ==> TransportInt
+    TransportInt == "Invokes Callback" ==> LLMClient
+    LLMClient == "Streams Response" ==> Adapter
+    Adapter == "Pipes Text" ==> Transformer
+    Transformer == "Parsed Events" ==> Adapter
+    Adapter == "Incoming Messages" ==> TransportInt
+    TransportInt == "Forwards Messages" ==> Conversation
 
-    Conversation -- "8. Dispatches message" --> SurfaceController
-    SurfaceController -- "9. Updates" --> Registry
-    SurfaceController -- "10. Updates" --> DataModelStore
+    %% Layer Anchoring
+    Adapter == "Parsed Events" ==> Surface
+    AppUI == "Contains" ==> Surface
 
-    Registry -- "Provides definition" --> SurfaceContext
-    DataModelStore -- "Provides data" --> SurfaceContext
+    Surface == "User Interaction" ==> SurfaceContext
+    SurfaceContext == "Forwards Event" ==> Controller
 
-    FlutterUI -- "Instantiates" --> Surface
-    Surface -- "Reads state & actions" --> SurfaceContext
-    Surface -- "Builds widgets using" --> Catalog
+    Controller == "Updates" ==> Registry
+    Registry == "Notifies" ==> Surface
+    Controller == "Updates Protocol" ==> DataModel
+    SurfaceContext == "Accesses" ==> DataModel
+    Surface == "Builds Widgets" ==> Catalog
 
-    Surface -- "Dispatches UI Events" --> SurfaceContext
-    SurfaceContext -- "Forwards events" --> SurfaceController
-    SurfaceController -- "Notifies (onSubmit)" --> Conversation
-    Conversation -- "Loops back (if needed)" --> Transport
+    Controller == "Emits Client Event" ==> Conversation
+    Conversation == "Auto-Replies (Loop)" ==> TransportInt
 
-    %% Styling
-    classDef package fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef component fill:#fff9c4,stroke:#fbc02d,stroke-width:1px;
-    classDef extern fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    %% Apply Classes
+    class DevApp developer;
+    class GenUIPkg genui;
+    class Transport,Engine,UILayer layerBox;
 
-    class Conversation,Transport,A2uiAdapter,Transformer,SurfaceController,Registry,DataModelStore,Surface,SurfaceContext,Catalog component;
-    class ClientApp,GenUI extern;
-    class Backend extern;
+    %% Global line styling (Slightly thicker for the larger font scale)
+    linkStyle default stroke:#57606f,stroke-width:2.5px,font-size:22px;

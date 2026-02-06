@@ -166,7 +166,6 @@ controller.handleMessage(
 
 **`SurfaceController`**
 
-- `DataModel store.getDataModel(String surfaceId)`: Access the data model for a specific surface.
 - `Stream<ChatMessage> get onSubmit`: Stream of user interactions (form submissions).
 - `Stream<SurfaceUpdate> get surfaceUpdates`: Stream of events when surfaces change.
 - `ValueListenable<UiDefinition?> watchSurface(String surfaceId)`: Get the notifier for a surface's UI definition.
@@ -213,15 +212,6 @@ Surface(
 - Constructor: `Surface({required SurfaceContext context, WidgetBuilder? defaultBuilder})`
 - The `defaultBuilder` renders a placeholder while the surface definition is empty or loading.
 
-#### `lib/src/widgets/gen_ui_surface_manager.dart`
-
-**Purpose:** Manages a collection of surfaces.
-**Use Case:** Automatically displaying all active surfaces (e.g. if the LLM creates multiple).
-**`SurfaceManager`**
-
-- `host`: The `SurfaceHost` to watch.
-- `layoutBuilder`: Custom layout for the list of surfaces.
-- `surfaceBuilder`: Custom builder for individual surfaces (e.g. to wrap them).
 
 #### `lib/src/facade/conversation.dart`
 
@@ -238,10 +228,9 @@ final conversation = Conversation(
 
 **`Conversation`**
 
-- `ValueListenable<List<ChatMessage>> get conversation`: The reactive list of chat messages.
-- `ValueListenable<bool> get isProcessing`: Whether the conversation is currently waiting for a response.
+- `ValueListenable<ConversationState> get state`: The current state (surfaces, latest text, isWaiting).
+- `Stream<ConversationEvent> get events`: A stream of events (content received, surface added, etc.).
 - `Future<void> sendRequest(ChatMessage message)`: Sends a message to the LLM.
-- **Callbacks:** `onSurfaceAdded`, `onComponentsUpdated`, `onSurfaceDeleted`, `onTextResponse`, `onError`.
 
 ### Data Models & Protocol
 

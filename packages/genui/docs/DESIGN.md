@@ -12,46 +12,7 @@ The package supplies the essential components for managing the state of the dyna
 
 The package is designed with a layered architecture, separating concerns to create a flexible and extensible framework. The diagram below shows how the `genui` package integrates with the developer's application and the backend LLM.
 
-```mermaid
-graph TD
-    subgraph "Developer's Application"
-        AppLogic["App Logic"]
-        UIWidgets["UI Widgets<br>(e.g., Surface)"]
-        ExternalLLM["External LLM Client"]
-    end
-
-    subgraph "genui Package"
-        Conversation["Conversation (Facade)"]
-        Transport["Transport (Interface)"]
-        A2uiTransportAdapter["A2uiTransportAdapter"]
-        SurfaceController["SurfaceController (Engine)"]
-        Transformer["A2uiParserTransformer"]
-        Catalog["Widget Catalog"]
-        DataModel["DataModel"]
-    end
-
-    AppLogic -- "Initializes" --> Conversation
-    Conversation -- "Uses" --> Transport
-    Conversation -- "Manages" --> SurfaceController
-
-    AppLogic -- "Sends User Input" --> Conversation
-    Conversation -- "Delegates to" --> Transport
-    Transport -- "Calls callback" --> ExternalLLM
-    ExternalLLM -- "Returns chunks" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Pipes to" --> Transformer
-    Transformer -- "Parses into events" --> A2uiTransportAdapter
-    A2uiTransportAdapter -- "Stream<A2uiMessage>" --> Transport
-    Transport -- "Pipes to" --> Conversation
-    Conversation -- "Dispatches to" --> SurfaceController
-
-    SurfaceController -- "Notifies of updates" --> UIWidgets
-    UIWidgets -- "Builds widgets using" --> Catalog
-    UIWidgets -- "Reads/writes state via" --> DataModel
-    UIWidgets -- "Sends UI events to" --> SurfaceController
-
-    SurfaceController -- "Client events" --> Conversation
-    Conversation -- "Loops back" --> Transport
-```
+![Architecture](./architecture.png)
 
 ### 1. Transport Layer (`lib/src/transport/` and `lib/src/interfaces/`)
 
@@ -65,7 +26,7 @@ This layer handles the pipeline from raw text input (from an LLM) to parsed UI e
 
 This is the central nervous system of the package, orchestrating the state of all generated UI surfaces.
 
-- **`SurfaceController`**: The core state manager for the dynamic UI (formerly `GenUiController`). It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. The AI interacts with the manager by sending structured A2UI messages, which the controller handles via `handleMessage()`. It exposes a stream of `SurfaceUpdate` events (`SurfaceAdded`, `ComponentsUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets and implements `SurfaceHost` to provide `SurfaceContext`s for `Surface` widgets.
+- **`SurfaceController`**: The core state manager for the dynamic UI. It maintains a map of all active UI "surfaces", where each surface is represented by a `UiDefinition`. The AI interacts with the manager by sending structured A2UI messages, which the controller handles via `handleMessage()`. It exposes a stream of `SurfaceUpdate` events (`SurfaceAdded`, `ComponentsUpdated`, `SurfaceRemoved`) so that the application can react to changes. It also owns the `DataModel` to manage the state of individual widgets and implements `SurfaceHost` to provide `SurfaceContext`s for `Surface` widgets.
 
 ### 3. UI Model Layer (`lib/src/model/`)
 
@@ -73,12 +34,12 @@ This layer defines the data structures that represent the dynamic UI and the con
 
 - **`Catalog` and `CatalogItem`**: These classes define the registry of available UI components. The `Catalog` holds a list of `CatalogItem`s, and each `CatalogItem` defines a widget's name, its data schema, and a builder function to render it.
 - **`A2uiMessage`**: A sealed class (`lib/src/model/a2ui_message.dart`) representing the commands the AI sends to the UI. It has the following subtypes:
-  - `CreateSurface`: Signals the start of rendering for a surface, specifying the root component.
+  - `CreateSurface`: Signals the start of rendering for a surface.
   - `UpdateComponents`: Adds or updates components on a surface.
   - `UpdateDataModel`: Modifies data within the `DataModel` for a surface.
   - `DeleteSurface`: Requests the removal of a surface.
     The schemas for these messages are defined in `lib/src/model/a2ui_schemas.dart`.
-- **`UiDefinition` and `UiEvent`**: `UiDefinition` represents a complete UI tree to be rendered, including the root widget and a map of all widget definitions. `UiEvent` is a data object representing a user interaction. `UserActionEvent` is a subtype used for events that should trigger a submission to the AI, like a button tap.
+- **`UiDefinition` and `UiEvent`**: `UiDefinition` represents the state of a surface, including the definitions of all components on the surface. `UiEvent` is a data object representing a user interaction. `UserActionEvent` is a subtype used for events that should trigger a submission to the AI, like a button tap.
 - **`ChatMessage`**: A sealed class representing the different types of messages in a conversation: `UserMessage`, `AiTextMessage`, `ToolResponseMessage`, `AiUiMessage`, `InternalMessage`, and `UserUiInteractionMessage`.
 - **`DataModel` and `DataContext`**: The `DataModel` is a centralized, observable key-value store that holds the entire dynamic state of the UI. Widgets receive a `DataContext`, which is a view into the `DataModel` that understands the widget's current scope. This allows widgets to subscribe to changes in the data model and rebuild reactively. This separation of data and UI structure is a core principle of the architecture.
 
@@ -114,16 +75,4 @@ This directory provides utilities for a more direct interaction with the AI mode
 
 The `Conversation` simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant AppLogic as "App Logic"
-    participant Conversation
-5. **AI Invocation**: The `Conversation` invokes the `onSend` callback.
-6. **External LLM Call**: The application's `onSend` logic calls the external LLM.
-7. **Streaming Response**: As data arrives from the LLM, the application feeds it into `SurfaceController.addChunk()`.
-8. **Parsing Pipeline**: `A2uiParserTransformer` parses the chunks, identifying A2UI messages (JSON blocks) and plain text.
-9. **State Update**: `SurfaceController` processes A2UI messages, updating the `DataModel` and `UiDefinition`.
-10. **UI Rendering**: `Surface` receives updates from the controller and rebuilds the UI.
-11. **Client Event**: User interactions trigger `SurfaceController.onClientEvent`, which `Conversation` listens to.
-12. **Loop**: `Conversation` automatically calls `onSend` again with the new event message, perpetuating the conversation.
+![Architecture](./architecture.svg)

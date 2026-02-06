@@ -1,3 +1,4 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryBorderColor': '#808080', 'lineColor': '#808080', 'background': 'transparent', 'mainBkg': '#ffffffaa', 'clusterBkg': 'transparent'}}}%%
 classDiagram
     namespace Facade {
         class Conversation {
@@ -55,7 +56,6 @@ classDiagram
             +void handleMessage(A2uiMessage message)
             +Stream~SurfaceUpdate~ surfaceUpdates
             +Stream~ChatMessage~ onSubmit
-            +Map~String, DataModel~ dataModels
             +Iterable~String~ activeSurfaceIds
             +SurfaceContext contextFor(String surfaceId)
             +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)

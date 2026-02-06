@@ -1,10 +1,11 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryBorderColor': '#808080', 'lineColor': '#808080', 'background': 'transparent', 'mainBkg': '#ffffffaa', 'clusterBkg': 'transparent'}}}%%
 sequenceDiagram
     participant LLM as External LLM
     participant Transport as Transport
     participant Controller as SurfaceController
-    participant UI as Surface (Manager)
+    participant UI as Surface
 
-    Note over Controller: Policy: keepLatest
+    Note over Controller: Strategy: KeepLastN(1)
 
     LLM->>Transport: "createSurface(id: 'A')"
     Transport->>Controller: CreateSurface('A')
