@@ -436,8 +436,7 @@ abstract final class A2uiSchemas {
         additionalProperties: true,
       ),
       'sendDataModel': S.boolean(
-        description:
-            'Whether to send the data model to every client request.',
+        description: 'Whether to send the data model to every client request.',
       ),
     },
     required: [surfaceIdKey, 'catalogId'],
@@ -507,8 +506,7 @@ abstract final class A2uiSchemas {
         additionalProperties: true,
       ),
       'sendDataModel': S.boolean(
-        description:
-            'Whether to send the data model to every client request.',
+        description: 'Whether to send the data model to every client request.',
       ),
     },
     required: [surfaceIdKey],

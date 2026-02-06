@@ -6,7 +6,6 @@ import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 
-
 import 'api_key/io_get_api_key.dart'
     if (dart.library.html) 'api_key/web_get_api_key.dart';
 
@@ -27,9 +26,7 @@ abstract interface class AiClient {
 
 /// An implementation of [AiClient] using `package:dartantic_ai`.
 class DartanticAiClient implements AiClient {
-  DartanticAiClient({
-    String? modelName,
-  }) {
+  DartanticAiClient({String? modelName}) {
     final String apiKey = getApiKey();
     _provider = dartantic.GoogleProvider(apiKey: apiKey);
     _agent = dartantic.Agent.forProvider(

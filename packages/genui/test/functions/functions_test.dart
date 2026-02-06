@@ -67,22 +67,10 @@ void main() {
       });
 
       test('length', () {
-        expect(
-          registry.invoke('length', {'value': 'abc', 'min': 3}),
-          isTrue,
-        );
-        expect(
-          registry.invoke('length', {'value': 'ab', 'min': 3}),
-          isFalse,
-        );
-        expect(
-          registry.invoke('length', {'value': 'abc', 'max': 3}),
-          isTrue,
-        );
-        expect(
-          registry.invoke('length', {'value': 'abcd', 'max': 3}),
-          isFalse,
-        );
+        expect(registry.invoke('length', {'value': 'abc', 'min': 3}), isTrue);
+        expect(registry.invoke('length', {'value': 'ab', 'min': 3}), isFalse);
+        expect(registry.invoke('length', {'value': 'abc', 'max': 3}), isTrue);
+        expect(registry.invoke('length', {'value': 'abcd', 'max': 3}), isFalse);
         expect(
           registry.invoke('length', {
             'value': [1, 2, 3],
@@ -98,14 +86,8 @@ void main() {
           registry.invoke('numeric', {'value': 10, 'min': 5, 'max': 15}),
           isTrue,
         );
-        expect(
-          registry.invoke('numeric', {'value': 4, 'min': 5}),
-          isFalse,
-        );
-        expect(
-          registry.invoke('numeric', {'value': 16, 'max': 15}),
-          isFalse,
-        );
+        expect(registry.invoke('numeric', {'value': 4, 'min': 5}), isFalse);
+        expect(registry.invoke('numeric', {'value': 16, 'max': 15}), isFalse);
         expect(registry.invoke('numeric', {'value': 'not a number'}), isFalse);
       });
 

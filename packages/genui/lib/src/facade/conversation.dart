@@ -17,27 +17,43 @@ sealed class ConversationEvent {}
 
 /// Fired when a new surface is added.
 class ConversationSurfaceAdded extends ConversationEvent {
+  /// Creates a [ConversationSurfaceAdded] event.
   ConversationSurfaceAdded(this.surfaceId, this.definition);
+
+  /// The ID of the added surface.
   final String surfaceId;
+
+  /// The definition of the added surface.
   final UiDefinition definition;
 }
 
 /// Fired when components are updated on a surface.
 class ConversationComponentsUpdated extends ConversationEvent {
+  /// Creates a [ConversationComponentsUpdated] event.
   ConversationComponentsUpdated(this.surfaceId, this.definition);
+
+  /// The ID of the updated surface.
   final String surfaceId;
+
+  /// The new definition of the surface.
   final UiDefinition definition;
 }
 
 /// Fired when a surface is removed.
 class ConversationSurfaceRemoved extends ConversationEvent {
+  /// Creates a [ConversationSurfaceRemoved] event.
   ConversationSurfaceRemoved(this.surfaceId);
+
+  /// The ID of the removed surface.
   final String surfaceId;
 }
 
 /// Fired when new content (text) is received from the LLM.
 class ConversationContentReceived extends ConversationEvent {
+  /// Creates a [ConversationContentReceived] event.
   ConversationContentReceived(this.text);
+
+  /// The text content received.
   final String text;
 }
 
@@ -45,14 +61,21 @@ class ConversationContentReceived extends ConversationEvent {
 class ConversationWaiting extends ConversationEvent {}
 
 /// Fired when an error occurs.
+/// Fired when an error occurs.
 class ConversationError extends ConversationEvent {
+  /// Creates a [ConversationError] event.
   ConversationError(this.error, [this.stackTrace]);
+
+  /// The error that occurred.
   final Object error;
+
+  /// The stack trace associated with the error, if any.
   final StackTrace? stackTrace;
 }
 
 /// State of the conversation.
 class ConversationState {
+  /// Creates a [ConversationState].
   const ConversationState({
     required this.surfaces,
     required this.latestText,
@@ -134,7 +157,10 @@ class Conversation {
     _engineSubmitSubscription = controller.onSubmit.listen(sendRequest);
   }
 
+  /// The controller that manages the surfaces.
   final SurfaceController controller;
+
+  /// The transport layer for sending and receiving messages.
   final Transport transport;
 
   final StreamController<ConversationEvent> _eventController =
@@ -149,7 +175,10 @@ class Conversation {
   StreamSubscription<dynamic>? _engineSubscription;
   StreamSubscription<dynamic>? _engineSubmitSubscription;
 
+  /// A stream of events emitted by the conversation.
   Stream<ConversationEvent> get events => _eventController.stream;
+
+  /// The current state of the conversation.
   ValueListenable<ConversationState> get state => _stateNotifier;
 
   /// Sends a request to the LLM.
@@ -169,6 +198,7 @@ class Conversation {
     _stateNotifier.value = updater(_stateNotifier.value);
   }
 
+  /// Disposes of the conversation and releases resources.
   void dispose() {
     _transportSubscription?.cancel();
     _textSubscription?.cancel();

@@ -68,6 +68,9 @@ class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
   });
 
+  /// A stream of messages to be submitted to the AI service.
+  ///
+  /// This includes user actions and validation errors.
   Stream<ChatMessage> get onSubmit => _onSubmit.stream;
 
   /// The IDs of the currently active surfaces.
@@ -228,17 +231,17 @@ class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
   }
 
+  /// Handles a UI event from a surface.
+  ///
+  /// This converts the event into a [ChatMessage] and adds it to the [onSubmit]
+  /// stream.
   void handleUiEvent(UiEvent event) {
     if (event is! UserActionEvent) return;
     _onSubmit.add(
       ChatMessage.user(
         '',
         parts: [
-          UiInteractionPart.create(
-            jsonEncode({
-              'action': event.toMap(),
-            }),
-          ),
+          UiInteractionPart.create(jsonEncode({'action': event.toMap()})),
         ],
       ),
     );
