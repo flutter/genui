@@ -201,5 +201,58 @@ void main() {
       // UiInteractionPart.interaction is String.
       expect(part.interaction, expectedJson);
     });
+
+    test('drops pending updates after timeout', () async {
+      // Create controller with short timeout
+      final shortTimeoutController = GenUiController(
+        catalogs: [CoreCatalogItems.asCatalog()],
+        pendingUpdateTimeout: const Duration(milliseconds: 100),
+      );
+      addTearDown(shortTimeoutController.dispose);
+
+      const surfaceId = 'timedOutSurface';
+      final components = [
+        const Component(
+          id: 'root',
+          type: 'Text',
+          properties: {'text': 'Should not be seen'},
+        ),
+      ];
+
+      // 1. Send update for non-existent surface (buffered)
+      shortTimeoutController.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
+      );
+
+      // 2. Wait for timeout
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      // 3. Create surface (but first setup listener)
+      final Future<List<GenUiUpdate>> updatesFuture = shortTimeoutController
+          .surfaceUpdates
+          .take(1)
+          .toList();
+      shortTimeoutController.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      );
+
+      // 4. Verify surface created but NO update applied
+      // If update was applied, we'd see [SurfaceAdded, ComponentsUpdated]
+      // If dropped, we only see [SurfaceAdded] (and potentially components from CreateSurface if any, but default is empty)
+      final List<GenUiUpdate> updates = await updatesFuture;
+      expect(updates.length, 1);
+      expect(updates[0], isA<SurfaceAdded>());
+
+      // Allow a small delay to ensure no other events come through
+      // Testing emptiness of a stream is tricky, checking registry state is better
+      await Future<void>.delayed(Duration.zero);
+
+      final UiDefinition? surface = shortTimeoutController.registry.getSurface(
+        surfaceId,
+      );
+      expect(surface, isNotNull);
+      // Updates NOT applied, so components should be empty (or default)
+      expect(surface!.components, isEmpty);
+    });
   });
 }
