@@ -1,6 +1,8 @@
 # `genui_a2ui` Changelog
 
-## 0.6.2 (in progress)
+## 0.7.0
+
+- Updated version to match `genui` 0.7.0.
 
 ## 0.6.1
 

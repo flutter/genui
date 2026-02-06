@@ -16,7 +16,7 @@ dependencies:
   convert: ^3.1.2
   flutter:
     sdk: flutter
-  genui: ^0.6.0
+  genui: ^0.7.0
   http: ^1.6.0
 
 dev_dependencies:

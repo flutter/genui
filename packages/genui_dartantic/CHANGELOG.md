@@ -1,6 +1,6 @@
 # `genui_dartantic` Changelog
 
-## 0.6.2 (in progress)
+## 0.7.0
 
 - **Internal**: Enable stricter dynamic-related analysis (#652).
 

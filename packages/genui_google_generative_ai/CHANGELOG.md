@@ -1,6 +1,8 @@
 # `genui_google_generative_ai` Changelog
 
-## 0.6.2 (in progress)
+## 0.7.0
+
+- Updated version to match `genui` package version.
 
 ## 0.6.1
 
