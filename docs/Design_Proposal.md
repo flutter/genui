@@ -40,11 +40,11 @@ The `genui` package adopts a decoupled, event-driven architecture that separates
 
 The following diagram illustrates the core data flow:
 
-![Architecture](architecture.svg)
+![Architecture](assets/architecture.svg)
 
 ## Class Diagram
 
-![Class Diagram](class-diagram.svg)
+![Class Diagram](assets/class-diagram.svg)
 
 ### 1. Transport Layer (`lib/src/transport/` and `lib/src/interfaces/`)
 

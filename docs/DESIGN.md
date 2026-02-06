@@ -75,4 +75,4 @@ This directory provides utilities for a more direct interaction with the AI mode
 
 The `Conversation` simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
 
-![Architecture](./architecture.svg)
+![Architecture](./assets/architecture.svg)
