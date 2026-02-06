@@ -154,7 +154,8 @@ void main() {
       });
 
       test('formatCurrency', () {
-        // We can't easily test exact output without forcing locale, but we can test it doesn't crash
+        // We can't easily test exact output without forcing locale, but we can
+        // test it doesn't crash.
         expect(
           registry.invoke('formatCurrency', [100, 'USD']),
           contains('100.00'),

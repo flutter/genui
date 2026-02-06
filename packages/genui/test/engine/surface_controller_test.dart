@@ -238,13 +238,15 @@ void main() {
 
       // 4. Verify surface created but NO update applied
       // If update was applied, we'd see [SurfaceAdded, ComponentsUpdated]
-      // If dropped, we only see [SurfaceAdded] (and potentially components from CreateSurface if any, but default is empty)
+      // If dropped, we only see [SurfaceAdded] (and potentially components from
+      // CreateSurface if any, but default is empty)
       final List<GenUiUpdate> updates = await updatesFuture;
       expect(updates.length, 1);
       expect(updates[0], isA<SurfaceAdded>());
 
       // Allow a small delay to ensure no other events come through
-      // Testing emptiness of a stream is tricky, checking registry state is better
+      // Testing emptiness of a stream is tricky, checking registry state is
+      // better.
       await Future<void>.delayed(Duration.zero);
 
       final UiDefinition? surface = shortTimeoutController.registry.getSurface(
