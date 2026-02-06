@@ -573,10 +573,10 @@ void main() {
     });
 
     test('helpers', () {
-      final parts = const Parts([
-        TextPart('Hello'),
-        ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
-        ToolPart.result(callId: 'c2', toolName: 't2', result: 'r'),
+      final parts = Parts([
+        const TextPart('Hello'),
+        const ToolPart.call(callId: 'c1', toolName: 't1', arguments: {}),
+        const ToolPart.result(callId: 'c2', toolName: 't2', result: 'r'),
       ]);
 
       expect(parts.toolResults, hasLength(1));
@@ -584,15 +584,15 @@ void main() {
     });
 
     test('immutability', () {
-      final parts = const Parts([TextPart('text')]);
+      final parts = Parts([const TextPart('text')]);
       expect(() => parts.length = 2, throwsUnsupportedError);
       expect(() => parts[0] = const TextPart('new'), throwsUnsupportedError);
     });
 
     test('equality', () {
-      final parts1 = const Parts([TextPart('a'), TextPart('b')]);
-      final parts2 = const Parts([TextPart('a'), TextPart('b')]);
-      final parts3 = const Parts([TextPart('a')]);
+      final parts1 = Parts([const TextPart('a'), const TextPart('b')]);
+      final parts2 = Parts([const TextPart('a'), const TextPart('b')]);
+      final parts3 = Parts([const TextPart('a')]);
 
       expect(parts1, equals(parts2));
       expect(parts1.hashCode, equals(parts2.hashCode));
@@ -600,9 +600,9 @@ void main() {
     });
 
     test('JSON serialization', () {
-      final parts = const Parts([
-        TextPart('text'),
-        ToolPart.call(callId: '1', toolName: 't', arguments: {}),
+      final parts = Parts([
+        const TextPart('text'),
+        const ToolPart.call(callId: '1', toolName: 't', arguments: {}),
       ]);
 
       final List<Object?> json = parts.toJson();

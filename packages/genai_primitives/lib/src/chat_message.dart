@@ -31,6 +31,7 @@ final class ChatMessage {
     required this.role,
     this.parts = const [],
     this.metadata = const {},
+    this.finishStatus,
   });
 
   static List<StandardPart> _partsFromText(
@@ -52,10 +53,12 @@ final class ChatMessage {
     String text, {
     List<StandardPart> parts = const [],
     Map<String, Object?> metadata = const {},
+    FinishStatus? finishStatus,
   }) : this(
          role: ChatMessageRole.system,
          parts: _partsFromText(text, parts: parts),
          metadata: metadata,
+         finishStatus: finishStatus,
        );
 
   /// Creates a user message.
@@ -69,10 +72,12 @@ final class ChatMessage {
     String text, {
     List<StandardPart> parts = const [],
     Map<String, Object?> metadata = const {},
+    FinishStatus? finishStatus,
   }) : this(
          role: ChatMessageRole.user,
          parts: _partsFromText(text, parts: parts),
          metadata: metadata,
+         finishStatus: finishStatus,
        );
 
   /// Creates a model message.
@@ -86,10 +91,12 @@ final class ChatMessage {
     String text, {
     List<StandardPart> parts = const [],
     Map<String, Object?> metadata = const {},
+    FinishStatus? finishStatus,
   }) : this(
          role: ChatMessageRole.model,
          parts: _partsFromText(text, parts: parts),
          metadata: metadata,
+         finishStatus: finishStatus,
        );
 
   /// Deserializes a message.
@@ -131,7 +138,7 @@ final class ChatMessage {
   /// The finish status of the message.
   ///
   /// When `null`, finish status is unknown.
-  FinishStatus? finishStatus;
+  final FinishStatus? finishStatus;
 
   /// Concatenated [TextPart] parts.
   String get text => _parts.text;
