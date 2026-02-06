@@ -111,7 +111,7 @@ classDiagram
         class SurfaceContext {
             <<interface>>
             +String surfaceId
-            +ValueListenable~UiDefinition?~ definition
+            +ValueListenable~UiDefinition~ definition
             +DataModel dataModel
             +Iterable~Catalog~ catalogs
             +void handleUiEvent(UiEvent event)
@@ -123,7 +123,7 @@ classDiagram
         }
     }
 
-    namespace Transport {
+    namespace TransportLayer {
         class A2uiTransportAdapter {
             +void addChunk(String text)
             +void addMessage(A2uiMessage message)
@@ -139,10 +139,10 @@ classDiagram
             +void handleMessage(A2uiMessage message)
             +Stream~SurfaceUpdate~ surfaceUpdates
             +Stream~ChatMessage~ onSubmit
-            +Map~String, DataModel~ dataModels
+            +Map~String_DataModel~ dataModels
             +Iterable~String~ activeSurfaceIds
             +SurfaceContext contextFor(String surfaceId)
-            +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)
+            +ValueListenable~UiDefinition~ watchSurface(String surfaceId)
             +void dispose()
         }
     }
@@ -150,13 +150,13 @@ classDiagram
     namespace UI {
         class Surface {
             +SurfaceContext context
-            +WidgetBuilder? defaultBuilder
+            +WidgetBuilder defaultBuilder
         }
     }
 
     namespace Model {
         class Catalog {
-            +String? catalogId
+            +String catalogId
             +Iterable~CatalogItem~ items
             +Schema definition
             +Widget buildWidget(CatalogItemContext context)
@@ -172,10 +172,10 @@ classDiagram
         }
 
         class DataModel {
-            +void update(DataPath? path, Object? contents)
+            +void update(DataPath path, Object contents)
             +ValueNotifier subscribe(DataPath path)
             +ValueNotifier subscribeToValue(DataPath path)
-            +T? getValue(DataPath path)
+            +T getValue(DataPath path)
             +void bindExternalState(DataPath path, ValueListenable source)
             +void dispose()
         }
