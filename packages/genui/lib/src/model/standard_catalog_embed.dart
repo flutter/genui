@@ -28,7 +28,7 @@ You must output a VALID JSON object representing one of the A2UI message types (
   "createSurface": {
     "surfaceId": "main",
     "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
-    "attachDataModel": true
+    "sendDataModel": true
   }
 }
 ```

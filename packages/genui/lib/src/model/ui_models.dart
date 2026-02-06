@@ -30,13 +30,6 @@ extension type UiEvent.fromMap(JsonMap _json) {
   /// The type of event that was triggered (e.g., 'onChanged', 'onTap').
   String get eventType => _json['eventType'] as String;
 
-  /// Whether this event should trigger an event.
-  ///
-  /// The event can be a submission to the AI or
-  /// a change in the UI state that should be handled by
-  /// host of the surface.
-  bool get isAction => _json['isAction'] as bool;
-
   /// The value associated with the event, if any (e.g., the text in a
   /// `TextField`, or the value of a `Checkbox`).
   Object? get value => _json['value'];
@@ -65,7 +58,6 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
          'name': name,
          'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
-         'isAction': true,
          'context': context ?? {},
        };
 

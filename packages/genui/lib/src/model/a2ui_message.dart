@@ -94,7 +94,7 @@ final class CreateSurface extends A2uiMessage {
     required this.surfaceId,
     required this.catalogId,
     this.theme,
-    this.attachDataModel = false,
+    this.sendDataModel = false,
   });
 
   /// Creates a [CreateSurface] message from a JSON map.
@@ -103,7 +103,7 @@ final class CreateSurface extends A2uiMessage {
       surfaceId: json[surfaceIdKey] as String,
       catalogId: json['catalogId'] as String,
       theme: json['theme'] as JsonMap?,
-      attachDataModel: json['attachDataModel'] as bool? ?? false,
+      sendDataModel: json['sendDataModel'] as bool? ?? false,
     );
   }
 
@@ -117,7 +117,7 @@ final class CreateSurface extends A2uiMessage {
   final JsonMap? theme;
 
   /// If true, the client sends the full data model in A2A metadata.
-  final bool attachDataModel;
+  final bool sendDataModel;
 
   /// Converts this message to a JSON map.
   Map<String, dynamic> toJson() => {
@@ -125,7 +125,7 @@ final class CreateSurface extends A2uiMessage {
     surfaceIdKey: surfaceId,
     'catalogId': catalogId,
     if (theme != null) 'theme': theme,
-    'attachDataModel': attachDataModel,
+    'sendDataModel': sendDataModel,
   };
 }
 

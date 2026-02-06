@@ -23,7 +23,6 @@ void main() {
       expect(event.name, 'testAction');
       expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.isAction, isTrue);
       expect(event.context, {'key': 'value'});
     });
 
@@ -34,7 +33,6 @@ void main() {
         'name': 'testAction',
         'sourceComponentId': 'testWidget',
         'timestamp': now.toIso8601String(),
-        'isAction': true,
         'context': {'key': 'value'},
       });
 
@@ -42,7 +40,6 @@ void main() {
       expect(event.name, 'testAction');
       expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.isAction, isTrue);
       expect(event.context, {'key': 'value'});
     });
 
@@ -62,7 +59,6 @@ void main() {
       expect(map['name'], 'testAction');
       expect(map['sourceComponentId'], 'testWidget');
       expect(map['timestamp'], now.toIso8601String());
-      expect(map['isAction'], isTrue);
       expect(map['context'], {'key': 'value'});
     });
   });

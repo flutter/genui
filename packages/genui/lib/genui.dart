@@ -40,5 +40,4 @@ export 'src/transport/a2ui_parser_transformer.dart';
 export 'src/transport/a2ui_transport_adapter.dart';
 export 'src/widgets/fallback_widget.dart';
 export 'src/widgets/surface.dart';
-export 'src/widgets/surface_manager.dart';
 export 'src/widgets/widget_utilities.dart';

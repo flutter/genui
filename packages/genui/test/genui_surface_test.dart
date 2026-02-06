@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
@@ -18,10 +16,6 @@ void main() {
 
   setUp(() {
     controller = SurfaceController(catalogs: [testCatalog]);
-    final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
-      (r) => print('[LOG] ${r.message}'),
-    );
-    addTearDown(sub.cancel);
   });
 
   tearDown(() {

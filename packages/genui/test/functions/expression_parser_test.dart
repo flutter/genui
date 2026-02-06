@@ -119,14 +119,14 @@ void main() {
         expect(
           parser.evaluateLogic({
             'func': 'required',
-            'args': ['something'],
+            'args': {'value': 'something'},
           }),
           isTrue,
         );
         expect(
           parser.evaluateLogic({
             'func': 'required',
-            'args': [''],
+            'args': {'value': ''},
           }),
           isFalse,
         );
@@ -135,23 +135,28 @@ void main() {
 
     group('Function calls in expressions', () {
       test('resolves simple function', () {
-        expect(parser.parse(r'${formatString("Hello")}'), 'Hello');
+        expect(parser.parse(r'${formatString(value: "Hello")}'), 'Hello');
       });
 
       test('resolves nested function', () {
         expect(
-          parser.parse(r'${formatString(${formatString("Nested")})}'),
+          parser.parse(
+            r'${formatString(value: ${formatString(value: "Nested")})}',
+          ),
           'Nested',
         );
       });
 
       test('resolves function with path args', () {
         dataModel.update(DataPath('/val'), 'Dynamic');
-        expect(parser.parse(r'${formatString(${/val})}'), 'Dynamic');
+        expect(parser.parse(r'${formatString(value: ${/val})}'), 'Dynamic');
       });
 
       test('resolves function with quoted string containing spaces', () {
-        expect(parser.parse(r'${formatString("Hello World")}'), 'Hello World');
+        expect(
+          parser.parse(r'${formatString(value: "Hello World")}'),
+          'Hello World',
+        );
       });
     });
   });

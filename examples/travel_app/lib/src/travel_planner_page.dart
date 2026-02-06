@@ -406,7 +406,7 @@ To update an existing UI (e.g. adding items to an itinerary):
 1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
 
 Properties:
-- `createSurface`: requires `surfaceId`, `catalogId` (use the standard catalog ID provided in system instructions), and `attachDataModel: true`.
+- `createSurface`: requires `surfaceId`, `catalogId` (use the standard catalog ID provided in system instructions), and `sendDataModel: true`.
 - `updateComponents`: requires `surfaceId` and a list of `components`. One component MUST have `id: "root"`.
 
 IMPORTANT:
@@ -435,7 +435,7 @@ Here is an example of creating a trip planner UI.
   "createSurface": {
     "surfaceId": "mexico_trip_planner",
     "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
-    "attachDataModel": true
+    "sendDataModel": true
   }
 }
 ```

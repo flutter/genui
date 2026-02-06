@@ -191,7 +191,6 @@ void main() {
           'name': 'testAction',
           'sourceComponentId': 'testWidget',
           'timestamp': now.toIso8601String(),
-          'isAction': true,
           'context': {'key': 'value'},
         },
       });
@@ -204,7 +203,7 @@ void main() {
 
     test('drops pending updates after timeout', () async {
       // Create controller with short timeout
-      final shortTimeoutController = GenUiController(
+      final shortTimeoutController = SurfaceController(
         catalogs: [CoreCatalogItems.asCatalog()],
         pendingUpdateTimeout: const Duration(milliseconds: 100),
       );
@@ -228,7 +227,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 200));
 
       // 3. Create surface (but first setup listener)
-      final Future<List<GenUiUpdate>> updatesFuture = shortTimeoutController
+      final Future<List<SurfaceUpdate>> updatesFuture = shortTimeoutController
           .surfaceUpdates
           .take(1)
           .toList();
@@ -240,7 +239,7 @@ void main() {
       // If update was applied, we'd see [SurfaceAdded, ComponentsUpdated]
       // If dropped, we only see [SurfaceAdded] (and potentially components from
       // CreateSurface if any, but default is empty)
-      final List<GenUiUpdate> updates = await updatesFuture;
+      final List<SurfaceUpdate> updates = await updatesFuture;
       expect(updates.length, 1);
       expect(updates[0], isA<SurfaceAdded>());
 

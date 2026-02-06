@@ -21,7 +21,7 @@ void main() {
           surfaceIdKey: 's1',
           'catalogId': 'catalog1',
           'theme': {'color': 'blue'},
-          'attachDataModel': true,
+          'sendDataModel': true,
         },
       };
 
@@ -31,7 +31,7 @@ void main() {
       expect(create.surfaceId, 's1');
       expect(create.catalogId, 'catalog1');
       expect(create.theme, {'color': 'blue'});
-      expect(create.attachDataModel, isTrue);
+      expect(create.sendDataModel, isTrue);
     });
 
     test('UpdateComponents.fromJson parses correctly', () {

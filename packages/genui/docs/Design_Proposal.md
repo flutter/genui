@@ -176,7 +176,7 @@ This layer defines the data structures that represent the dynamic UI and the con
 
 - **`Catalog` and `CatalogItem`**: These classes define the registry of available UI components. The `Catalog` holds a list of `CatalogItem`s, and each `CatalogItem` defines a widget's name, its data schema, and a builder function to render it.
 - **`A2uiMessage`**: A sealed class (`lib/src/model/a2ui_message.dart`) representing the commands the AI sends to the UI. It has the following subtypes:
-  - `CreateSurface`: Signals the start of rendering for a surface, specifying the root component and optionally requests the client to attach the data model (`attachDataModel`).
+  - `CreateSurface`: Signals the start of rendering for a surface, specifying the root component and optionally requests the client to send the data model (`sendDataModel`).
   - `UpdateComponents`: Adds or updates components on a surface.
   - `UpdateDataModel`: Modifies data within the `DataModel` for a surface.
   - `DeleteSurface`: Requests the removal of a surface. The schemas for these messages are defined in `lib/src/model/a2ui_schemas.dart`.

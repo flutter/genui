@@ -44,7 +44,30 @@ class ExpressionParser {
     if (expression is! Map) return false;
     final jsonEx = expression as JsonMap;
 
-    if (jsonEx.containsKey('call')) {
+    if (jsonEx.containsKey('true')) return true;
+    if (jsonEx.containsKey('false')) return false;
+
+    if (jsonEx.containsKey('and')) {
+      final Object? list = jsonEx['and'];
+      if (list is List) {
+        return list.every(evaluateLogic);
+      }
+      return false;
+    }
+
+    if (jsonEx.containsKey('or')) {
+      final Object? list = jsonEx['or'];
+      if (list is List) {
+        return list.any(evaluateLogic);
+      }
+      return false;
+    }
+
+    if (jsonEx.containsKey('not')) {
+      return !evaluateLogic(jsonEx['not']);
+    }
+
+    if (jsonEx.containsKey('call') || jsonEx.containsKey('func')) {
       final Object? result = evaluateFunctionCall(jsonEx);
       return result == true;
     }

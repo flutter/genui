@@ -11,7 +11,7 @@ import 'package:travel_app/main.dart' as app;
 import 'package:travel_app/src/fake_ai_client.dart';
 
 void main() {
-  configureGenUiLogging(level: Level.ALL);
+  configureLogging(level: Level.ALL);
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Initial UI test', () {
@@ -49,7 +49,7 @@ const Map<String, Object> _baliCreateSurface = {
   'createSurface': {
     'surfaceId': 'bali_trip_planning_intro',
     'catalogId': 'https://a2ui.org/specification/v0_9/standard_catalog.json',
-    'attachDataModel': true,
+    'sendDataModel': true,
   },
 };
 

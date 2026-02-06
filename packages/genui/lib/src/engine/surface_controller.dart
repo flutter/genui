@@ -148,7 +148,7 @@ class SurfaceController implements SurfaceHost, A2uiMessageSink {
               theme: message.theme,
             );
 
-        if (message.attachDataModel) {
+        if (message.sendDataModel) {
           _store.attachSurface(surfaceId);
         } else {
           _store.detachSurface(surfaceId);
@@ -234,7 +234,11 @@ class SurfaceController implements SurfaceHost, A2uiMessageSink {
       ChatMessage.user(
         '',
         parts: [
-          UiInteractionPart.create(jsonEncode({'action': event.toMap()})),
+          UiInteractionPart.create(
+            jsonEncode({
+              'action': event.toMap(),
+            }),
+          ),
         ],
       ),
     );

@@ -435,9 +435,9 @@ abstract final class A2uiSchemas {
         description: 'Theme parameters for the surface.',
         additionalProperties: true,
       ),
-      'attachDataModel': S.boolean(
+      'sendDataModel': S.boolean(
         description:
-            'Whether to attach the data model to every client request.',
+            'Whether to send the data model to every client request.',
       ),
     },
     required: [surfaceIdKey, 'catalogId'],
@@ -506,9 +506,9 @@ abstract final class A2uiSchemas {
         description: 'Theme parameters for the surface.',
         additionalProperties: true,
       ),
-      'attachDataModel': S.boolean(
+      'sendDataModel': S.boolean(
         description:
-            'Whether to attach the data model to every client request.',
+            'Whether to send the data model to every client request.',
       ),
     },
     required: [surfaceIdKey],
