@@ -5,6 +5,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
+import 'finish_status.dart';
 import 'parts/parts.dart';
 import 'parts/standard_part.dart';
 
@@ -126,6 +127,11 @@ final class ChatMessage {
   ///
   /// This can include information like suppressed content, warnings, etc.
   final Map<String, Object?> metadata;
+
+  /// The finish status of the message.
+  ///
+  /// When `null`, finish status is unknown.
+  FinishStatus? finishStatus;
 
   /// Concatenated [TextPart] parts.
   String get text => _parts.text;
