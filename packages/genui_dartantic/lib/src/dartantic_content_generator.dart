@@ -9,10 +9,9 @@ import 'dart:async';
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
-import 'package:json_schema/json_schema.dart';
+import 'package:json_schema_builder/json_schema_builder.dart' as jsb;
 
 import 'dartantic_content_converter.dart';
-import 'dartantic_schema_adapter.dart';
 
 /// A [ContentGenerator] that uses Dartantic AI to generate content.
 ///
@@ -101,16 +100,12 @@ ${_outputSchema.toJson()}
   late final String _extraInstructions;
 
   /// Structured output schema: a simple object with a required string response.
-  static final JsonSchema _outputSchema = JsonSchema.create({
-    'type': 'object',
-    'properties': {
-      'response': {
-        'type': 'string',
-        'description': 'The text response to the user.',
-      },
+  static final jsb.Schema _outputSchema = jsb.S.object(
+    properties: {
+      'response': jsb.S.string(description: 'The text response to the user.'),
     },
-    'required': ['response'],
-  });
+    required: ['response'],
+  );
 
   @override
   Stream<A2uiMessage> get a2uiMessageStream => _a2uiMessageController.stream;
@@ -187,7 +182,7 @@ ${_outputSchema.toJson()}
         (aiTool) => dartantic.Tool(
           name: aiTool.name,
           description: aiTool.description,
-          inputSchema: adaptSchema(aiTool.parameters),
+          inputSchema: aiTool.parameters,
           onCall: (Map<String, dynamic> args) async {
             genUiLogger.fine('Invoking tool: ${aiTool.name} with args: $args');
             final JsonMap result = await aiTool.invoke(args);

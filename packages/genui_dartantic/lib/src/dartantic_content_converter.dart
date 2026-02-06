@@ -219,16 +219,16 @@ class DartanticContentConverter {
         case genui.ToolCallPart():
           converted.add(
             dartantic.ToolPart.call(
-              id: part.id,
-              name: part.toolName,
+              callId: part.id,
+              toolName: part.toolName,
               arguments: part.arguments,
             ),
           );
         case genui.ToolResultPart():
           converted.add(
             dartantic.ToolPart.result(
-              id: part.callId,
-              name: 'tool_response',
+              callId: part.callId,
+              toolName: 'tool_response',
               result: _decodeMaybeJson(part.result),
             ),
           );
@@ -255,8 +255,8 @@ class DartanticContentConverter {
     return results
         .map(
           (r) => dartantic.ToolPart.result(
-            id: r.callId,
-            name: 'tool_response',
+            callId: r.callId,
+            toolName: 'tool_response',
             result: _decodeMaybeJson(r.result),
           ),
         )

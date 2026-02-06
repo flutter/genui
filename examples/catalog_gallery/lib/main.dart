@@ -56,7 +56,10 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
         widget.samplesDir != null && widget.samplesDir!.existsSync();
 
     return MaterialApp(
-      theme: ThemeData(
+      theme: ThemeData.light().copyWith(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ),
+      darkTheme: ThemeData.dark().copyWith(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: DefaultTabController(
