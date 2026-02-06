@@ -60,7 +60,7 @@ class FinishStatus {
           details == other.details;
 
   @override
-  int get hashCode => category.hashCode ^ details.hashCode;
+int get hashCode => Object.hash(category, details);
 
   @override
   String toString() => 'FinishStatus(category: $category, details: $details)';
