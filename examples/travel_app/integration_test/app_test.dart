@@ -6,25 +6,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:logging/logging.dart';
 import 'package:travel_app/main.dart' as app;
 import 'package:travel_app/src/fake_ai_client.dart';
 
 void main() {
+  configureGenUiLogging(level: Level.ALL);
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Initial UI test', () {
     testWidgets('send a request and verify the UI', (tester) async {
       final mockClient = FakeAiClient();
-      mockClient.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
-
       runApp(app.TravelApp(aiClient: mockClient));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'Plan a trip to Bali');
       await tester.tap(find.byIcon(Icons.send));
+
+      mockClient.addA2uiMessage(A2uiMessage.fromJson(_baliCreateSurface));
+      mockClient.addA2uiMessage(A2uiMessage.fromJson(_baliResponse));
+
       await tester.pumpAndSettle();
 
       expect(
-        find.text(
+        find.textContaining(
           'Great! I can help you plan a fantastic trip to Bali. To '
           'get started, what kind of experience are you looking for?',
           findRichText: true,
@@ -40,153 +44,108 @@ void main() {
   });
 }
 
+const Map<String, Object> _baliCreateSurface = {
+  'version': 'v0.9',
+  'createSurface': {
+    'surfaceId': 'bali_trip_planning_intro',
+    'catalogId': 'https://a2ui.org/specification/v0_9/standard_catalog.json',
+    'attachDataModel': true,
+  },
+};
+
 const Map<String, Object> _baliResponse = {
-  'actions': [
-    {
-      'action': 'add',
-      'surfaceId': 'bali_trip_planning_intro',
-      'definition': {
-        'root': 'main_column',
-        'widgets': [
+  'version': 'v0.9',
+  'updateComponents': {
+    'surfaceId': 'bali_trip_planning_intro',
+    'components': [
+      {
+        'id': 'root',
+        'component': 'Column',
+        'children': ['welcome_text', 'bali_carousel', 'trip_filters'],
+        'spacing': 16,
+        'crossAxisAlignment': 'start',
+        'mainAxisAlignment': 'start',
+      },
+      {
+        'id': 'welcome_text',
+        'component': 'Text',
+        'text':
+            'Great! I can help you plan a fantastic trip to Bali. To '
+            'get started, what kind of experience are you looking for?',
+      },
+      {
+        'id': 'bali_carousel',
+        'component': 'TravelCarousel',
+        'items': [
           {
-            'id': 'main_column',
-            'widget': {
-              'Column': {
-                'children': ['welcome_text', 'bali_carousel', 'trip_filters'],
-                'spacing': 16,
-                'crossAxisAlignment': 'start',
-                'mainAxisAlignment': 'start',
-              },
-            },
+            'imageChildId': 'bali_memorial_image',
+            'description': 'Cultural Immersion',
+            'action': {'name': 'selectExperience'},
           },
           {
-            'widget': {
-              'Text': {
-                'text':
-                    'Great! I can help you plan a fantastic trip to Bali. To '
-                    'get started, what kind of experience are you looking for?',
-              },
-            },
-            'id': 'welcome_text',
+            'imageChildId': 'nyepi_festival_image',
+            'description': 'Festivals and Traditions',
+            'action': {'name': 'selectExperience'},
           },
           {
-            'id': 'bali_carousel',
-            'widget': {
-              'TravelCarousel': {
-                'items': [
-                  {
-                    'imageChildId': 'bali_memorial_image',
-                    'title': 'Cultural Immersion',
-                  },
-                  {
-                    'imageChildId': 'nyepi_festival_image',
-                    'title': 'Festivals and Traditions',
-                  },
-                  {
-                    'title': 'Beach Relaxation',
-                    'imageChildId': 'kata_noi_beach_image',
-                  },
-                ],
-              },
-            },
-          },
-          {
-            'id': 'bali_memorial_image',
-            'widget': {
-              'Image': {
-                'fit': 'cover',
-                'location': 'assets/travel_images/bali_memorial.jpg',
-              },
-            },
-          },
-          {
-            'id': 'nyepi_festival_image',
-            'widget': {
-              'Image': {
-                'fit': 'cover',
-                'location': 'assets/travel_images/nyepi_festival_bali.jpg',
-              },
-            },
-          },
-          {
-            'id': 'kata_noi_beach_image',
-            'widget': {
-              'Image': {
-                'fit': 'cover',
-                'location':
-                    'assets/travel_images/kata_noi_beach_phuket_thailand.jpg',
-              },
-            },
-          },
-          {
-            'widget': {
-              'FilterChipGroup': {
-                'submitLabel': 'Plan My Trip',
-                'children': [
-                  'travel_style_chip',
-                  'budget_chip',
-                  'duration_chip',
-                ],
-              },
-            },
-            'id': 'trip_filters',
-          },
-          {
-            'widget': {
-              'OptionsFilterChip': {
-                'iconChild': 'travel_icon_hiking',
-                'options': [
-                  'Relaxation',
-                  'Adventure',
-                  'Culture',
-                  'Family Fun',
-                  'Romantic Getaway',
-                ],
-                'chipLabel': 'Travel Style',
-              },
-            },
-            'id': 'travel_style_chip',
-          },
-          {
-            'widget': {
-              'TravelIcon': {'icon': 'hiking'},
-            },
-            'id': 'travel_icon_hiking',
-          },
-          {
-            'widget': {
-              'OptionsFilterChip': {
-                'options': ['Economy', 'Mid-range', 'Luxury'],
-                'iconChild': 'travel_icon_wallet',
-                'chipLabel': 'Budget',
-              },
-            },
-            'id': 'budget_chip',
-          },
-          {
-            'id': 'travel_icon_wallet',
-            'widget': {
-              'TravelIcon': {'icon': 'wallet'},
-            },
-          },
-          {
-            'id': 'duration_chip',
-            'widget': {
-              'OptionsFilterChip': {
-                'chipLabel': 'Duration',
-                'options': ['3-5 Days', '1 Week', '10+ Days'],
-                'iconChild': 'travel_icon_calendar',
-              },
-            },
-          },
-          {
-            'widget': {
-              'TravelIcon': {'icon': 'calendar'},
-            },
-            'id': 'travel_icon_calendar',
+            'imageChildId': 'kata_noi_beach_image',
+            'description': 'Beach Relaxation',
+            'action': {'name': 'selectExperience'},
           },
         ],
       },
-    },
-  ],
+      {
+        'id': 'bali_memorial_image',
+        'component': 'Image',
+        'fit': 'cover',
+        'url': 'assets/travel_images/bali_memorial.jpg',
+      },
+      {
+        'id': 'nyepi_festival_image',
+        'component': 'Image',
+        'fit': 'cover',
+        'url': 'assets/travel_images/nyepi_festival_bali.jpg',
+      },
+      {
+        'id': 'kata_noi_beach_image',
+        'component': 'Image',
+        'fit': 'cover',
+        'url': 'assets/travel_images/kata_noi_beach_phuket_thailand.jpg',
+      },
+      {
+        'id': 'trip_filters',
+        'component': 'InputGroup',
+        'submitLabel': 'Plan My Trip',
+        'children': ['travel_style_chip', 'budget_chip', 'duration_chip'],
+        'action': {'name': 'plan_trip'},
+      },
+      {
+        'id': 'travel_style_chip',
+        'component': 'OptionsFilterChipInput',
+        'iconName': 'location',
+        'options': [
+          'Relaxation',
+          'Adventure',
+          'Culture',
+          'Family Fun',
+          'Romantic Getaway',
+        ],
+        'chipLabel': 'Travel Style',
+      },
+      {
+        'id': 'budget_chip',
+        'component': 'OptionsFilterChipInput',
+        'options': ['Economy', 'Mid-range', 'Luxury'],
+        'iconName': 'wallet',
+        'chipLabel': 'Budget',
+      },
+      {
+        'id': 'duration_chip',
+        'component': 'OptionsFilterChipInput',
+        'chipLabel': 'Duration',
+        'options': ['3-5 Days', '1 Week', '10+ Days'],
+        'iconName': 'calendar',
+      },
+    ],
+  },
 };
