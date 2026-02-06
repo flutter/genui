@@ -6,6 +6,9 @@
 - **BREAKING**: Renamed `ChatMessageWidget` to `ChatMessageView` and `InternalMessageWidget` to `InternalMessageView` (#661).
 - **Fix**: Pass the correct `catalogId` in `DebugCatalogView` widget (#676).
 - Added some dart documentation and an `example` directory to improve `package:genui` pub score.
+- **Fix**: Make `ContentGeneratorError` be an `Exception` (#660).
+- **Feature**: Define genui parts as extensions of `genai_primitives` (#675).
+- **Internal**: Enable stricter dynamic-related analysis (#652).
 
 ## 0.6.1
 

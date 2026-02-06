@@ -1,5 +1,11 @@
 # `json_schema_builder` Change Log
 
+## 0.1.4 (in progress)
+
+- **Fix**: Remove `package:intl` dependency (#682, #686).
+- **Internal**: Enable stricter dynamic-related analysis (#652).
+- **Internal**: Use null-aware elements per latest lint update (#690).
+
 ## 0.1.3
 
 - Use [`email_validator`](https://pub.dev/packages/email_validator) package to

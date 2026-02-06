@@ -17,7 +17,7 @@ to separate release preparation from the act of publishing.
 
 ### 0. Update Dependencies
 
-Before running `bump`, make sure to update dependencies to the latest stable versions. This can be done by running:
+Before running `bump`, make sure you are using the latest Flutter stable release, and update dependencies to the latest stable versions. This can be done by running:
 
 ```bash
 dart pub upgrade --major-versions
@@ -26,13 +26,13 @@ dart pub upgrade --major-versions
 Also, use Antigravity or Gemini CLI to update `CHANGELOG.md` files. You can use a prompt like:
 
 ```txt
-Look at the git diffs since the <previous tag> tag and add any missing changelog entries to each of the packages with CHANGELOG.md files for breaking and other changes.
+Look at the git diffs since the <previous tag> tag and add any missing changelog entries for breaking and other changes to each of the packages which have CHANGELOG.md files.
 ```
 
-Where `<previous tag>` is the tag of the previous release. For example, if the previous release was `genui-0.6.0`, then the command would be:
+Where `<previous tag>` is the tag of the previous release. For example, if the previous release was `genui-0.6.1`, then the command would be:
 
 ```txt
-Look at the git diffs since the genui-0.6.0 tag and add any missing changelog entries to each of the packages with CHANGELOG.md files for breaking and other changes.
+Look at the git diffs since the genui-0.6.1 tag and add any missing changelog entries for breaking and other changes to each of the packages which have CHANGELOG.md files.
 ```
 
 ### 1. Prepare for Publish with `bump`
