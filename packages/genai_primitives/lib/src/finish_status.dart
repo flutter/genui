@@ -12,7 +12,7 @@ enum FinishCategory {
   /// The response is finished as completed.
   completed,
 
-  /// The respone is finished by some type of interruption.
+  /// The respone is finished as result of interruption.
   interrupted,
 }
 
