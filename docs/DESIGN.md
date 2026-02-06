@@ -12,7 +12,7 @@ The package supplies the essential components for managing the state of the dyna
 
 The package is designed with a layered architecture, separating concerns to create a flexible and extensible framework. The diagram below shows how the `genui` package integrates with the developer's application and the backend LLM.
 
-![Architecture](./architecture.png)
+![Class Diagram](./assets/class-diagram.svg)
 
 ### 1. Transport Layer (`lib/src/transport/` and `lib/src/interfaces/`)
 

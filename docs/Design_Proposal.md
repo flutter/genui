@@ -138,7 +138,7 @@ sequenceDiagram
     LLM->>Transport: "createSurface(id: 'B')"
     Transport->>Controller: CreateSurface('B')
 
-    rect rgb(255, 240, 240)
+    rect rgba(255, 240, 240, 0.5)
         Note right of Controller: Policy Enforcement
         Controller->>UI: SurfaceRemoved('A')
         UI->>UI: Dispose Surface A
