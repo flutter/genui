@@ -1,5 +1,9 @@
 # `genai_primitives` Changelog
 
+## 0.2.2
+
+- **Feature**: Define FinishStatus and add finishStatus field to ChatMessage (#698).
+
 ## 0.2.1
 
 - Update README.md (#693).
