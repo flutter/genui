@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+import 'ai_client.dart';
 import 'chat_session.dart';
 import 'message.dart';
 
@@ -32,7 +33,9 @@ class MyApp extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.aiClient});
+
+  final AiClient? aiClient;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -41,11 +44,14 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final ChatSession _chatSession = ChatSession();
+  late final ChatSession _chatSession;
 
   @override
   void initState() {
     super.initState();
+    _chatSession = ChatSession(
+      aiClient: widget.aiClient ?? DartanticAiClient(),
+    );
     // Add a listener to scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
   }

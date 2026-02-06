@@ -8,15 +8,16 @@ import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 
-import 'api_key/io_get_api_key.dart'
-    if (dart.library.html) 'api_key/web_get_api_key.dart';
+import 'ai_client.dart';
 import 'message.dart';
 
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
-  ChatSession() {
+  ChatSession({required AiClient aiClient}) : _aiClient = aiClient {
     _init();
   }
+
+  final AiClient _aiClient;
 
   final List<MessageController> _messages = [];
   List<MessageController> get messages => List.unmodifiable(_messages);
@@ -27,8 +28,6 @@ class ChatSession extends ChangeNotifier {
   late final A2uiTransportAdapter _genUiController;
   A2uiTransportAdapter get genUiController => _genUiController;
 
-  late final dartantic.GoogleProvider _provider;
-  late final dartantic.Agent _agent;
   final List<dartantic.ChatMessage> _chatHistory = [];
 
   bool _isProcessing = false;
@@ -90,16 +89,6 @@ ${StandardCatalogEmbed.standardCatalogRules}
 
 ${PromptFragments.basicChat}''';
 
-    // Initialize Dartantic Provider and Agent
-    final String apiKey = getApiKey();
-
-    _provider = dartantic.GoogleProvider(apiKey: apiKey);
-
-    _agent = dartantic.Agent.forProvider(
-      _provider,
-      chatModelName: 'gemini-3-flash-preview',
-    );
-
     // Add system instruction to history
     _chatHistory.add(dartantic.ChatMessage.system(systemInstruction));
   }
@@ -158,13 +147,12 @@ ${PromptFragments.basicChat}''';
           });
 
       // Use sendStream() to receive chunks of the response.
-      final Stream<dartantic.ChatResult<String>> stream = _agent.sendStream(
+      final Stream<String> stream = _aiClient.sendStream(
         prompt,
         history: List.of(_chatHistory),
       );
 
-      await for (final result in stream) {
-        final String chunk = result.output;
+      await for (final String chunk in stream) {
         if (chunk.isNotEmpty) {
           fullResponseText += chunk;
           _genUiController.addChunk(chunk);
@@ -188,6 +176,7 @@ ${PromptFragments.basicChat}''';
   void dispose() {
     _messageProcessor.dispose();
     _genUiController.dispose();
+    _aiClient.dispose();
     super.dispose();
   }
 }

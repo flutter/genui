@@ -1,0 +1,23 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "sample_3_image",
+      "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "sample_3_image",
+      "components": [
+        {
+          "id": "root",
+          "component": "Image",
+          "url": "https://storage.googleapis.com/cms-storage-bucket/lockup_flutter_horizontal.c823e53b3a1a7b0d36a9.png",
+          "usageHint": "mediumFeature"
+        }
+      ]
+    }
+  }
+]

@@ -22,6 +22,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  network_image_mock: ^2.1.1
 
 flutter:
   uses-material-design: true
