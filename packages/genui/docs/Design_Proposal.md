@@ -255,35 +255,7 @@ This directory provides utilities for a more direct interaction with the AI mode
 
 The `Conversation` simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
 
-```mermaid
-graph TD
-    subgraph "User"
-        UserInput("Provide Prompt")
-        UserInteraction("Interact with UI")
-    end
-
-    subgraph "GenUI Framework"
-        Conversation("Conversation")
-        Transport("A2uiTransportAdapter")
-        SurfaceController("SurfaceController")
-        Transformer("A2uiParserTransformer")
-        Surface("Surface")
-    end
-
-    UserInput -- "calls sendRequest()" --> Conversation;
-    Conversation -- "delegates to" --> Transport;
-    Transport -- "calls callback" --> ExternalLLM[External LLM];
-    ExternalLLM -- "returns chunks" --> Transport;
-    Transport -- "pipes to" --> Transformer;
-    Transformer -- "parses events" --> Transport;
-    Transport -- "forwards messages" --> Conversation;
-    Conversation -- "forwards to" --> SurfaceController;
-    SurfaceController -- "updates state" --> Surface;
-    Surface -- "renders UI" --> UserInteraction;
-    UserInteraction -- "creates event" --> SurfaceController;
-    SurfaceController -- "emits client event" --> Conversation;
-    Conversation -- "loops back" --> Transport;
-```
+![Generative UI Cycle](block-diagram.svg)
 
 ## Surface Lifecycle & Cleanup
 
