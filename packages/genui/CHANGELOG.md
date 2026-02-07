@@ -1,5 +1,7 @@
 # `genui` Changelog
 
+## 0.7.1 (in progress)
+
 ## 0.7.0
 
 - **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
