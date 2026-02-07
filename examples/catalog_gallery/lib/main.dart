@@ -54,14 +54,11 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
   Widget build(BuildContext context) {
     final bool showSamples =
         widget.samplesDir != null && widget.samplesDir!.existsSync();
+    final colorScheme = ColorScheme.fromSeed(seedColor: Colors.blue);
 
     return MaterialApp(
-      theme: ThemeData.light().copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
+      theme: ThemeData.light().copyWith(colorScheme: colorScheme),
+      darkTheme: ThemeData.dark().copyWith(colorScheme: colorScheme),
       home: DefaultTabController(
         length: showSamples ? 2 : 1,
         child: Scaffold(
