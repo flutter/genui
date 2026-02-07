@@ -104,12 +104,6 @@ This directory provides utilities for a more direct interaction with the AI mode
 - **`model.dart`**: Defines data models for direct API calls.
 - **`utils.dart`**: Contains utility functions to assist with direct calls.
 
-## How It Works: The Generative UI Cycle
-
-The `Conversation` class simplifies the process of creating a generative UI by managing the conversation loop and the interaction with the AI.
-
-![Generative UI Cycle](block-diagram.svg)
-
 ## Surface Lifecycle & Cleanup
 
 When multiple surfaces are generated in a conversation, `SurfaceController` manages them according to a `SurfaceCleanupStrategy`. The default is `ManualCleanupStrategy` (keep all surfaces until explicitly deleted), but `KeepLastNCleanupStrategy` is common for chat interfaces where only the newest UI matters.
