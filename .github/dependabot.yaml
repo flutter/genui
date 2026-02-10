@@ -9,6 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    labels:
+      - "autosubmit"
   - package-ecosystem: "pub"
     directory: "/"
     schedule:
