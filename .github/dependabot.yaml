@@ -9,11 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    #  Don't auto-submit github actions updates
-    # labels:
-    #   - "autosubmit"
   - package-ecosystem: "pub"
-    directory: "packages/genui_client"
+    directory: "/"
     schedule:
       interval: "daily"
     labels:
