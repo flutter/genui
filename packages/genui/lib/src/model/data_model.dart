@@ -129,9 +129,13 @@ class DataModel {
       'DataModel.update: path=$absolutePath, contents='
       '${const JsonEncoder.withIndent('  ').convert(contents)}',
     );
+    final Object? parsedContents = contents is List
+        ? _parseDataModelContents(contents)
+        : contents;
+
     if (absolutePath == null || absolutePath.segments.isEmpty) {
       if (contents is List) {
-        _data = _parseDataModelContents(contents);
+        _data = parsedContents as Map<String, Object?>;
       } else if (contents is Map) {
         // Permissive: Allow a map to be sent for the root, even though the
         // schema expects a list.
@@ -151,7 +155,7 @@ class DataModel {
       return;
     }
 
-    _updateValue(_data, absolutePath.segments, contents);
+    _updateValue(_data, absolutePath.segments, parsedContents);
     _notifySubscribers(absolutePath);
   }
 
