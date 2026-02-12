@@ -115,6 +115,13 @@ class DataContext {
 /// Manages the application's Object? data model and provides
 /// a subscription-based mechanism for reactive UI updates.
 class DataModel {
+  static const _a2uiValueKeys = [
+    'valueString',
+    'valueNumber',
+    'valueBoolean',
+    'valueMap',
+  ];
+
   JsonMap _data = {};
   final Map<DataPath, ValueNotifier<Object?>> _subscriptions = {};
   final Map<DataPath, ValueNotifier<Object?>> _valueSubscriptions = {};
@@ -129,9 +136,20 @@ class DataModel {
       'DataModel.update: path=$absolutePath, contents='
       '${const JsonEncoder.withIndent('  ').convert(contents)}',
     );
+    final bool isAdjacencyList = contents is List && _isAdjacencyList(contents);
+    final Object? parsedContents = isAdjacencyList
+        ? _parseDataModelContents(contents)
+        : contents;
+
     if (absolutePath == null || absolutePath.segments.isEmpty) {
-      if (contents is List) {
-        _data = _parseDataModelContents(contents);
+      if (parsedContents is Map) {
+        _data = parsedContents as Map<String, Object?>;
+      } else if (parsedContents is List) {
+        genUiLogger.warning(
+          'DataModel.update: literal list cannot be used as '
+          'root data model: $contents',
+        );
+        _data = <String, Object?>{};
       } else if (contents is Map) {
         // Permissive: Allow a map to be sent for the root, even though the
         // schema expects a list.
@@ -151,7 +169,7 @@ class DataModel {
       return;
     }
 
-    _updateValue(_data, absolutePath.segments, contents);
+    _updateValue(_data, absolutePath.segments, parsedContents);
     _notifySubscribers(absolutePath);
   }
 
@@ -184,6 +202,18 @@ class DataModel {
     return notifier;
   }
 
+  /// Determines if the given contents are likely an A2UI adjacency list.
+  bool _isAdjacencyList(List<Object?> contents) {
+    if (contents.isEmpty) return false;
+    for (final item in contents) {
+      if (item is! Map) return false;
+      if (!item.containsKey('key')) return false;
+
+      if (!_a2uiValueKeys.any(item.containsKey)) return false;
+    }
+    return true;
+  }
+
   /// Retrieves a static, one-time value from the data model at the
   /// specified absolute path without creating a subscription.
   T? getValue<T>(DataPath absolutePath) {
@@ -207,13 +237,7 @@ class DataModel {
       Object? value;
       var valueCount = 0;
 
-      const valueKeys = [
-        'valueString',
-        'valueNumber',
-        'valueBoolean',
-        'valueMap',
-      ];
-      for (final valueKey in valueKeys) {
+      for (final String valueKey in _a2uiValueKeys) {
         if (item.containsKey(valueKey)) {
           if (valueCount == 0) {
             if (valueKey == 'valueMap') {

@@ -257,6 +257,22 @@ void main() {
         ]);
         expect(dataModel.getValue<Object?>(DataPath('/f')), isNull);
       });
+
+      test('parses contents for non-root paths', () {
+        dataModel.update(DataPath('/todos'), <Object?>[
+          {
+            'key': '0',
+            'valueMap': <Object?>[
+              {'key': 'id', 'valueString': 'abc'},
+              {'key': 'title', 'valueString': 'Buy groceries'},
+            ],
+          },
+        ]);
+        expect(
+          dataModel.getValue<Map<Object?, Object?>>(DataPath('/todos/0')),
+          {'id': 'abc', 'title': 'Buy groceries'},
+        );
+      });
     });
   });
 
