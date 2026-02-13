@@ -69,28 +69,15 @@ class ChatSession extends ChangeNotifier {
     // Listen to client events (interactions) from the UI
     _messageProcessor.onSubmit.listen(_handleChatMessage);
 
-    final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
-      catalog,
-    ).toJson(indent: '  ');
-
-    final systemInstruction =
-        '''You are a helpful assistant who chats with a user.
-Your responses should contain acknowledgment of the user message.
-
-IMPORTANT: When you generate UI in a response, you MUST always create
-a new surface with a unique `surfaceId`. Do NOT reuse or update
-existing `surfaceId`s. Each UI response must be in its own new surface.
-
-<a2ui_schema>
-$a2uiSchema
-</a2ui_schema>
-
-${StandardCatalogEmbed.standardCatalogRules}
-
-${PromptFragments.basicChat}''';
+    final promptBuilder = PromptBuilder(
+      catalog: catalog,
+      instructions:
+          'You are a helpful assistant who chats with a user. '
+          'Your responses should contain acknowledgment of the user message.',
+    );
 
     // Add system instruction to history
-    _chatHistory.add(dartantic.ChatMessage.system(systemInstruction));
+    _chatHistory.add(dartantic.ChatMessage.system(promptBuilder.prompt));
   }
 
   void _handleChatMessage(ChatMessage event) {

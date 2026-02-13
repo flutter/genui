@@ -10,11 +10,11 @@
 library;
 
 export 'src/catalog/core_catalog.dart';
-export 'src/core/prompt_fragments.dart';
 export 'src/development_utilities/catalog_view.dart';
 export 'src/engine/surface_controller.dart';
 export 'src/engine/surface_registry.dart' show RegistryEvent;
 export 'src/facade/conversation.dart';
+export 'src/facade/prompt_builder.dart';
 export 'src/facade/widgets/chat_primitives.dart';
 export 'src/interfaces/a2ui_message_sink.dart';
 export 'src/interfaces/surface_context.dart';
