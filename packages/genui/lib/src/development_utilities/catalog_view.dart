@@ -46,7 +46,7 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final SurfaceController _genUiController;
+  late final SurfaceController _surfaceController;
   final surfaceIds = <String>[];
   late final StreamSubscription<ChatMessage>? _subscription;
 
@@ -55,9 +55,9 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
     super.initState();
     final Catalog catalog = widget.catalog;
 
-    _genUiController = SurfaceController(catalogs: [widget.catalog]);
+    _surfaceController = SurfaceController(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
-      _subscription = _genUiController.onSubmit.listen(widget.onSubmit);
+      _subscription = _surfaceController.onSubmit.listen(widget.onSubmit);
     } else {
       _subscription = null;
     }
@@ -88,10 +88,10 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
             continue;
           }
 
-          _genUiController.handleMessage(
+          _surfaceController.handleMessage(
             UpdateComponents(surfaceId: surfaceId, components: components),
           );
-          _genUiController.handleMessage(
+          _surfaceController.handleMessage(
             CreateSurface(surfaceId: surfaceId, catalogId: catalog.catalogId!),
           );
           surfaceIds.add(surfaceId);
@@ -112,7 +112,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   @override
   void dispose() {
     _subscription?.cancel();
-    _genUiController.dispose();
+    _surfaceController.dispose();
     super.dispose();
   }
 
@@ -123,7 +123,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
         final surfaceWidget = Surface(
-          genUiContext: _genUiController.contextFor(surfaceId),
+          surfaceContext: _surfaceController.contextFor(surfaceId),
         );
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,

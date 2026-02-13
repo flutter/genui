@@ -245,7 +245,7 @@ controller.handleMessage(
 
 ```
 Surface(
-  genUiContext: myHost.contextFor('main-surface'),
+  surfaceContext: myHost.contextFor('main-surface'),
 )
 ```
 

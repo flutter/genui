@@ -62,7 +62,7 @@ void main() {
       context.updateDefinition(definition);
 
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: context)),
+        MaterialApp(home: Surface(surfaceContext: context)),
       );
 
       // Should show FallbackWidget
@@ -102,7 +102,7 @@ void main() {
       context.updateDefinition(definition);
 
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: context)),
+        MaterialApp(home: Surface(surfaceContext: context)),
       );
 
       // Verify FallbackWidget and reported error

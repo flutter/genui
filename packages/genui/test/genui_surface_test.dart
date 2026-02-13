@@ -48,7 +48,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Surface(genUiContext: controller.contextFor(surfaceId)),
+        home: Surface(surfaceContext: controller.contextFor(surfaceId)),
       ),
     );
 
@@ -80,7 +80,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Surface(genUiContext: controller.contextFor(surfaceId)),
+        home: Surface(surfaceContext: controller.contextFor(surfaceId)),
       ),
     );
     await tester.pumpAndSettle();
@@ -115,7 +115,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Surface(genUiContext: controller.contextFor(surfaceId)),
+          home: Surface(surfaceContext: controller.contextFor(surfaceId)),
         ),
       );
 

@@ -40,7 +40,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Surface(genUiContext: controller.contextFor('main')),
+          body: Surface(surfaceContext: controller.contextFor('main')),
         ),
       ),
     );
@@ -71,7 +71,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Surface(genUiContext: controller.contextFor('main')),
+            body: Surface(surfaceContext: controller.contextFor('main')),
           ),
         ),
       );

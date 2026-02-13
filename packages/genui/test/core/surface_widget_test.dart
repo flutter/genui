@@ -67,7 +67,7 @@ void main() {
 
     testWidgets('renders empty when no definition', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: surfaceContext)),
+        MaterialApp(home: Surface(surfaceContext: surfaceContext)),
       );
 
       expect(find.byType(SizedBox), findsOneWidget);
@@ -77,7 +77,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Surface(
-            genUiContext: surfaceContext,
+            surfaceContext: surfaceContext,
             defaultBuilder: (context) => const Text('Loading...'),
           ),
         ),
@@ -100,7 +100,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: surfaceContext)),
+        MaterialApp(home: Surface(surfaceContext: surfaceContext)),
       );
 
       expect(find.text('Hello World'), findsOneWidget);
@@ -120,7 +120,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: surfaceContext)),
+        MaterialApp(home: Surface(surfaceContext: surfaceContext)),
       );
 
       expect(find.text('Hidden'), findsNothing);
@@ -144,7 +144,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: surfaceContext)),
+        MaterialApp(home: Surface(surfaceContext: surfaceContext)),
       );
 
       expect(find.text('Dynamic Content'), findsOneWidget);
@@ -193,7 +193,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(home: Surface(genUiContext: surfaceContext)),
+        MaterialApp(home: Surface(surfaceContext: surfaceContext)),
       );
 
       expect(reportedError, isNotNull);

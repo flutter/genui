@@ -35,7 +35,7 @@ The package is built around the following main components:
 
 The `Conversation`, `SurfaceController`, and `A2uiTransportAdapter` manage the interaction cycle:
 
-1. **User Input**: The user provides a prompt. The app calls `genUiConversation.sendRequest()`.
+1. **User Input**: The user provides a prompt. The app calls `conversation.sendRequest()`.
 2. **AI Invocation**: The `Conversation` triggers `A2uiTransportAdapter.onSend`.
 3. **Stream Handling**: The app's `onSend` implementation calls the LLM and pipes the response chunks to `A2uiTransportAdapter.addChunk()`.
 4. **Parsing**: The `A2uiTransportAdapter` uses `A2uiParserTransformer` to parse chunks into `TextEvent`s or `A2uiMessageEvent`s.
@@ -120,7 +120,7 @@ provider.
    class _MyHomePageState extends State<MyHomePage> {
      late final SurfaceController _controller;
      late final A2uiTransportAdapter _transport;
-     late final Conversation _genUiConversation;
+     late final Conversation _conversation;
 
      @override
      void initState() {
@@ -133,13 +133,13 @@ provider.
        _transport = A2uiTransportAdapter(onSend: _onSendToLLM);
 
        // Create the Conversation to orchestrate everything.
-       _genUiConversation = Conversation(
+       _conversation = Conversation(
          controller: _controller,
          transport: _transport,
        );
 
        // Listen to conversation events
-       _genUiConversation.events.listen((event) {
+       _conversation.events.listen((event) {
             if (event is ConversationSurfaceAdded) {
                 _onSurfaceAdded(event);
             } else if (event is ConversationSurfaceRemoved) {
@@ -163,7 +163,7 @@ provider.
      @override
      void dispose() {
        _textController.dispose();
-       _genUiConversation.dispose();
+       _conversation.dispose();
        _transport.dispose();
        _controller.dispose();
        super.dispose();
@@ -196,7 +196,7 @@ To receive and display generated UI:
      // Send a message containing the user's text to the agent.
      void _sendMessage(String text) {
        if (text.trim().isEmpty) return;
-       _genUiConversation.sendRequest(UserMessage.text(text));
+       _conversation.sendRequest(ChatMessage.user(text));
      }
 
      // A callback invoked by the [Conversation] when a new UI surface is generated.
@@ -209,7 +209,7 @@ To receive and display generated UI:
      }
 
      // A callback invoked by Conversation when a UI surface is removed.
-     void _onSurfaceDeleted(SurfaceRemoved update) {
+     void _onSurfaceRemoved(SurfaceRemoved update) {
        setState(() {
          _surfaceIds.remove(update.surfaceId);
        });
@@ -230,7 +230,7 @@ To receive and display generated UI:
                  itemBuilder: (context, index) {
                    // For each surface, create a Surface to display it.
                    final id = _surfaceIds[index];
-                   return Surface(host: _genUiConversation.host, surfaceId: id);
+                   return Surface(host: _conversation.host, surfaceId: id);
                  },
                ),
              ),

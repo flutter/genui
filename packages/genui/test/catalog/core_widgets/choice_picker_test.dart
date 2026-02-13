@@ -58,7 +58,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Surface(genUiContext: controller.contextFor('test')),
+            body: Surface(surfaceContext: controller.contextFor('test')),
           ),
         ),
       );
@@ -151,7 +151,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Surface(genUiContext: controller.contextFor('test2')),
+          body: Surface(surfaceContext: controller.contextFor('test2')),
         ),
       ),
     );
@@ -216,7 +216,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Surface(genUiContext: controller.contextFor('chipsTest')),
+          body: Surface(surfaceContext: controller.contextFor('chipsTest')),
         ),
       ),
     );
@@ -284,7 +284,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Surface(genUiContext: controller.contextFor('nullTest')),
+            body: Surface(surfaceContext: controller.contextFor('nullTest')),
           ),
         ),
       );

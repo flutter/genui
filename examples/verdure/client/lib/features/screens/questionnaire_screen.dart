@@ -64,7 +64,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
                   return SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                     child: Surface(
-                      genUiContext: aiState.a2uiMessageProcessor.contextFor(
+                      surfaceContext: aiState.a2uiMessageProcessor.contextFor(
                         'questionnaire',
                       ),
                     ),

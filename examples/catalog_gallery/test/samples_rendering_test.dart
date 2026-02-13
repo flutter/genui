@@ -84,7 +84,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Material(
-            child: Surface(genUiContext: controller.contextFor('main')),
+            child: Surface(surfaceContext: controller.contextFor('main')),
           ),
         ),
       );

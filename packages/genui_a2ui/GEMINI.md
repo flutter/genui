@@ -6,7 +6,7 @@ This document provides context for AI agents making changes to the `genui_a2ui` 
 
 ## Key Concepts & Responsibilities
 
--   **Content Generator Integration:** `genui_a2ui` provides the `A2uiAgentConnector` which is designed to be used with `genui`'s `GenUiController`.
+-   **Content Generator Integration:** `genui_a2ui` provides the `A2uiAgentConnector` which is designed to be used with `genui`'s `SurfaceController`.
 -   **A2A Communication:** All direct communication with the A2A server happens within this package, mainly in `A2uiAgentConnector` using the `package:a2a` client library.
 -   **A2UI Message Parsing:** This package is responsible for taking the raw data from the A2A server and converting it into the structured `A2uiMessage` objects defined in `genui`.
 -   **UI Event Submission:** It also handles sending UI interaction events from `genui` back to the A2A server.

@@ -233,7 +233,7 @@ class _SamplesViewState extends State<SamplesView> {
                                 key: ValueKey(
                                   _surfaceIds[_currentSurfaceIndex],
                                 ),
-                                genUiContext: _genUiController.contextFor(
+                                surfaceContext: _genUiController.contextFor(
                                   _surfaceIds[_currentSurfaceIndex],
                                 ),
                               ),

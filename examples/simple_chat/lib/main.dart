@@ -75,11 +75,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _scrollController,
                     itemCount: _chatSession.messages.length,
                     itemBuilder: (context, index) {
-                      final MessageController message =
-                          _chatSession.messages[index];
+                      final Message message = _chatSession.messages[index];
                       // Pass the controller as the host.
                       return ListTile(
-                        title: MessageView(message, _chatSession.genUiContext),
+                        title: MessageView(
+                          message,
+                          _chatSession.surfaceController,
+                        ),
                         tileColor: message.isUser
                             ? Colors.blue.withValues(alpha: 0.1)
                             : null,

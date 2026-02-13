@@ -96,7 +96,9 @@ class Conversation extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Surface(
                   key: ValueKey(uiPart.definition.surfaceId),
-                  genUiContext: manager.contextFor(uiPart.definition.surfaceId),
+                  surfaceContext: manager.contextFor(
+                    uiPart.definition.surfaceId,
+                  ),
                 ),
               );
             }

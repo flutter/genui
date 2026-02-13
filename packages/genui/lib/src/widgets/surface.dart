@@ -26,13 +26,13 @@ class Surface extends StatefulWidget {
   /// Creates a [Surface].
   const Surface({
     super.key,
-    required this.genUiContext,
+    required this.surfaceContext,
     this.defaultBuilder,
     this.actionDelegate = const DefaultActionDelegate(),
   });
 
   /// The context that holds the state of this surface.
-  final SurfaceContext genUiContext;
+  final SurfaceContext surfaceContext;
 
   /// A builder for the widget to display when the surface has no definition.
   final WidgetBuilder? defaultBuilder;
@@ -47,14 +47,16 @@ class Surface extends StatefulWidget {
 class _SurfaceState extends State<Surface> {
   @override
   Widget build(BuildContext context) {
-    genUiLogger.fine('Outer Building surface ${widget.genUiContext.surfaceId}');
+    genUiLogger.fine(
+      'Outer Building surface ${widget.surfaceContext.surfaceId}',
+    );
     return ValueListenableBuilder<UiDefinition?>(
-      valueListenable: widget.genUiContext.definition,
+      valueListenable: widget.surfaceContext.definition,
       builder: (context, definition, child) {
-        genUiLogger.fine('Building surface ${widget.genUiContext.surfaceId}');
+        genUiLogger.fine('Building surface ${widget.surfaceContext.surfaceId}');
         if (definition == null) {
           genUiLogger.info(
-            'Surface ${widget.genUiContext.surfaceId} has no definition.',
+            'Surface ${widget.surfaceContext.surfaceId} has no definition.',
           );
           return widget.defaultBuilder?.call(context) ??
               const SizedBox.shrink();
@@ -64,7 +66,7 @@ class _SurfaceState extends State<Surface> {
         if (definition.components.isEmpty ||
             !definition.components.containsKey(rootId)) {
           genUiLogger.warning(
-            'Surface ${widget.genUiContext.surfaceId} has no root component.',
+            'Surface ${widget.surfaceContext.surfaceId} has no root component.',
           );
           return const SizedBox.shrink();
         }
@@ -74,7 +76,7 @@ class _SurfaceState extends State<Surface> {
           final error = Exception(
             'Catalog with id "${definition.catalogId}" not found.',
           );
-          widget.genUiContext.reportError(error, StackTrace.current);
+          widget.surfaceContext.reportError(error, StackTrace.current);
           return FallbackWidget(error: error);
         }
 
@@ -82,7 +84,7 @@ class _SurfaceState extends State<Surface> {
           definition,
           catalog,
           rootId,
-          DataContext(widget.genUiContext.dataModel, '/'),
+          DataContext(widget.surfaceContext.dataModel, '/'),
         );
       },
     );
@@ -103,7 +105,7 @@ class _SurfaceState extends State<Surface> {
       if (data == null) {
         final error = Exception('Widget with id: $widgetId not found.');
         genUiLogger.severe(error.toString());
-        widget.genUiContext.reportError(error, StackTrace.current);
+        widget.surfaceContext.reportError(error, StackTrace.current);
         return FallbackWidget(error: error);
       }
 
@@ -128,7 +130,7 @@ class _SurfaceState extends State<Surface> {
               definition.components[componentId],
           getCatalogItem: (String type) =>
               catalog.items.firstWhereOrNull((item) => item.name == type),
-          surfaceId: widget.genUiContext.surfaceId,
+          surfaceId: widget.surfaceContext.surfaceId,
         ),
       );
     } catch (exception, stackTrace) {
@@ -137,7 +139,7 @@ class _SurfaceState extends State<Surface> {
         exception,
         stackTrace,
       );
-      widget.genUiContext.reportError(exception, stackTrace);
+      widget.surfaceContext.reportError(exception, stackTrace);
       return FallbackWidget(error: exception, stackTrace: stackTrace);
     }
   }
@@ -146,7 +148,7 @@ class _SurfaceState extends State<Surface> {
     if (widget.actionDelegate.handleEvent(
       context,
       event,
-      widget.genUiContext,
+      widget.surfaceContext,
       _findCatalogForDefinition,
       _buildWidget,
     )) {
@@ -156,26 +158,26 @@ class _SurfaceState extends State<Surface> {
     // The event comes in without a surfaceId, which we add here.
     final Map<String, Object?> eventMap = {
       ...event.toMap(),
-      surfaceIdKey: widget.genUiContext.surfaceId,
+      surfaceIdKey: widget.surfaceContext.surfaceId,
     };
     final UiEvent newEvent = event is UserActionEvent
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);
-    widget.genUiContext.handleUiEvent(newEvent);
+    widget.surfaceContext.handleUiEvent(newEvent);
   }
 
   Catalog? _findCatalogForDefinition(UiDefinition definition) {
     final String catalogId = definition.catalogId ?? standardCatalogId;
-    final Catalog? catalog = widget.genUiContext.catalogs.firstWhereOrNull(
+    final Catalog? catalog = widget.surfaceContext.catalogs.firstWhereOrNull(
       (c) => c.catalogId == catalogId,
     );
 
     if (catalog == null) {
       genUiLogger.severe(
         'Catalog with id "$catalogId" not found for surface '
-        '"${widget.genUiContext.surfaceId}". Ensure the catalog is provided to '
-        'A2uiMessageProcessor. Available catalogs: '
-        '${widget.genUiContext.catalogs.map((c) => c.catalogId).join(', ')}.',
+        '"${widget.surfaceContext.surfaceId}". Ensure the catalog is provided '
+        'to A2uiMessageProcessor. Available catalogs: '
+        '${widget.surfaceContext.catalogs.map((c) => c.catalogId).join(', ')}.',
       );
     }
     return catalog;

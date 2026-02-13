@@ -19,14 +19,14 @@ class ChatSession extends ChangeNotifier {
 
   final AiClient _aiClient;
 
-  final List<MessageController> _messages = [];
-  List<MessageController> get messages => List.unmodifiable(_messages);
+  final List<Message> _messages = [];
+  List<Message> get messages => List.unmodifiable(_messages);
 
-  late final SurfaceController _messageProcessor;
-  SurfaceHost get genUiContext => _messageProcessor;
+  late final SurfaceController _surfaceController;
+  SurfaceHost get surfaceController => _surfaceController;
 
-  late final A2uiTransportAdapter _genUiController;
-  A2uiTransportAdapter get genUiController => _genUiController;
+  late final A2uiTransportAdapter _transportAdapter;
+  A2uiTransportAdapter get transportAdapter => _transportAdapter;
 
   final List<dartantic.ChatMessage> _chatHistory = [];
 
@@ -37,16 +37,16 @@ class ChatSession extends ChangeNotifier {
     final Catalog catalog = CoreCatalogItems.asCatalog();
 
     // Initialize Message Processor
-    _messageProcessor = SurfaceController(catalogs: [catalog]);
+    _surfaceController = SurfaceController(catalogs: [catalog]);
 
     // Initialize A2uiTransportAdapter
-    _genUiController = A2uiTransportAdapter();
+    _transportAdapter = A2uiTransportAdapter();
 
     // Wire controller to processor
-    _genUiController.incomingMessages.listen(_messageProcessor.handleMessage);
+    _transportAdapter.incomingMessages.listen(_surfaceController.handleMessage);
 
     // Listen to UI state updates from the processor
-    _messageProcessor.surfaceUpdates.listen((SurfaceUpdate update) {
+    _surfaceController.surfaceUpdates.listen((SurfaceUpdate update) {
       if (update is SurfaceAdded) {
         // Check if we already have a message with this surfaceId
         final bool exists = _messages.any(
@@ -55,11 +55,7 @@ class ChatSession extends ChangeNotifier {
 
         if (!exists) {
           _messages.add(
-            MessageController(
-              isUser: false,
-              text: null,
-              surfaceId: update.surfaceId,
-            ),
+            Message(isUser: false, text: null, surfaceId: update.surfaceId),
           );
           notifyListeners();
         }
@@ -67,7 +63,7 @@ class ChatSession extends ChangeNotifier {
     });
 
     // Listen to client events (interactions) from the UI
-    _messageProcessor.onSubmit.listen(_handleChatMessage);
+    _surfaceController.onSubmit.listen(_handleChatMessage);
 
     final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
@@ -104,7 +100,7 @@ class ChatSession extends ChangeNotifier {
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
 
-    _messages.add(MessageController(isUser: true, text: 'You: $text'));
+    _messages.add(Message(isUser: true, text: 'You: $text'));
     _chatHistory.add(dartantic.ChatMessage.user(text));
 
     await _performGeneration(text);
@@ -118,15 +114,12 @@ class ChatSession extends ChangeNotifier {
       var fullResponseText = '';
 
       // Create a message controller for the AI response
-      final aiMessageController = MessageController(
-        isUser: false,
-        text: 'AI: ',
-      );
+      final aiMessageController = Message(isUser: false, text: 'AI: ');
       _messages.add(aiMessageController);
       notifyListeners();
 
       // Listen for text updates from the controller to update the UI
-      final StreamSubscription<String> subscription = _genUiController
+      final StreamSubscription<String> subscription = _transportAdapter
           .incomingText
           .listen((chunk) {
             aiMessageController.text = (aiMessageController.text ?? '') + chunk;
@@ -142,7 +135,7 @@ class ChatSession extends ChangeNotifier {
       await for (final String chunk in stream) {
         if (chunk.isNotEmpty) {
           fullResponseText += chunk;
-          _genUiController.addChunk(chunk);
+          _transportAdapter.addChunk(chunk);
         }
       }
 
@@ -161,8 +154,8 @@ class ChatSession extends ChangeNotifier {
 
   @override
   void dispose() {
-    _messageProcessor.dispose();
-    _genUiController.dispose();
+    _surfaceController.dispose();
+    _transportAdapter.dispose();
     _aiClient.dispose();
     super.dispose();
   }

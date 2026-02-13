@@ -42,7 +42,7 @@ class ShoppingCartScreen extends ConsumerWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return Surface(
-                    genUiContext: aiState.a2uiMessageProcessor.contextFor(
+                    surfaceContext: aiState.a2uiMessageProcessor.contextFor(
                       'cart',
                     ),
                   );
