@@ -23,7 +23,7 @@ class PromptBuilder {
     ).toJson(indent: '  ');
 
     return '''
-$instructions
+${instructions ?? ''}
 
 IMPORTANT: When you generate UI in a response, you MUST always create
 a new surface with a unique `surfaceId`. Do NOT reuse or update
