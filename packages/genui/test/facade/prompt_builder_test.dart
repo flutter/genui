@@ -7,45 +7,45 @@ import 'package:genui/genui.dart';
 
 void main() {
   group('PromptBuilder', () {
-    const String instructions = 'These are some instructions.';
-    final catalog = Catalog([]); // Empty catalog for testing.
+    const instructions = 'These are some instructions.';
+    final catalog = const Catalog([]); // Empty catalog for testing.
 
     test('includes instructions when provided', () {
-      final builder = PromptBuilder(
+      final builder = PromptBuilder.chat(
         catalog: catalog,
         instructions: instructions,
       );
 
-      expect(builder.prompt, contains(instructions));
+      expect(builder.systemPrompt, contains(instructions));
     });
 
     test('includes warning about surfaceId', () {
-      final builder = PromptBuilder(catalog: catalog);
+      final builder = PromptBuilder.chat(catalog: catalog);
 
-      expect(builder.prompt, contains('IMPORTANT: When you generate UI'));
-      expect(builder.prompt, contains('surfaceId'));
+      expect(builder.systemPrompt, contains('IMPORTANT: When you generate UI'));
+      expect(builder.systemPrompt, contains('surfaceId'));
     });
 
     test('includes A2UI schema', () {
-      final builder = PromptBuilder(catalog: catalog);
+      final builder = PromptBuilder.chat(catalog: catalog);
 
-      expect(builder.prompt, contains('<a2ui_schema>'));
-      expect(builder.prompt, contains('</a2ui_schema>'));
+      expect(builder.systemPrompt, contains('<a2ui_schema>'));
+      expect(builder.systemPrompt, contains('</a2ui_schema>'));
     });
 
     test('includes standard catalog rules', () {
-      final builder = PromptBuilder(catalog: catalog);
+      final builder = PromptBuilder.chat(catalog: catalog);
 
       expect(
-        builder.prompt,
+        builder.systemPrompt,
         contains(StandardCatalogEmbed.standardCatalogRules),
       );
     });
 
     test('includes basic chat prompt fragment', () {
-      final builder = PromptBuilder(catalog: catalog);
+      final builder = PromptBuilder.chat(catalog: catalog);
 
-      expect(builder.prompt, contains('# Outputting UI information'));
+      expect(builder.systemPrompt, contains('# Outputting UI information'));
     });
   });
 }

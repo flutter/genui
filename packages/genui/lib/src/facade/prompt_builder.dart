@@ -3,8 +3,14 @@ import '../../genui.dart';
 // TODO(polina-c): add allowed surface operations
 // TODO(polina-c): consider incorporating catalog rules to the catalog
 
+/// A builder for a prompt to generate UI.
 class PromptBuilder {
-  PromptBuilder({required this.catalog, this.instructions});
+  /// Creates a chat prompt builder.
+  ///
+  /// The builder will generate a prompt for a chat session,
+  /// that instructs to create new surfaces for each response
+  /// and restrict surface deletion and updates.
+  PromptBuilder.chat({required this.catalog, this.instructions});
 
   /// Instructions for the generated UI.
   ///
@@ -17,7 +23,7 @@ class PromptBuilder {
   /// Catalog to use for the generated UI.
   final Catalog catalog;
 
-  late final String prompt = () {
+  late final String systemPrompt = () {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
@@ -28,6 +34,8 @@ ${instructions ?? ''}
 IMPORTANT: When you generate UI in a response, you MUST always create
 a new surface with a unique `surfaceId`. Do NOT reuse or update
 existing `surfaceId`s. Each UI response must be in its own new surface.
+
+Do not delete existing surfaces.
 
 <a2ui_schema>
 $a2uiSchema

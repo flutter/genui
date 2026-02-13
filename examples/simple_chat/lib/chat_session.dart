@@ -69,7 +69,7 @@ class ChatSession extends ChangeNotifier {
     // Listen to client events (interactions) from the UI
     _messageProcessor.onSubmit.listen(_handleChatMessage);
 
-    final promptBuilder = PromptBuilder(
+    final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
       instructions:
           'You are a helpful assistant who chats with a user. '
@@ -77,7 +77,7 @@ class ChatSession extends ChangeNotifier {
     );
 
     // Add system instruction to history
-    _chatHistory.add(dartantic.ChatMessage.system(promptBuilder.prompt));
+    _chatHistory.add(dartantic.ChatMessage.system(promptBuilder.systemPrompt));
   }
 
   void _handleChatMessage(ChatMessage event) {
