@@ -4,7 +4,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:genui/src/facade/prompt_builder.dart';
 
 void main() {
   group('PromptBuilder', () {
