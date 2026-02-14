@@ -246,6 +246,8 @@ String? _imagesJson;
 
 final prompt =
     '''
+Today is ${DateTime.timestamp()}
+
 # Instructions
 
 You are a helpful travel agent assistant that communicates by creating and
