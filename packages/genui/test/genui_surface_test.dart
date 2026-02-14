@@ -8,14 +8,18 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  late A2uiMessageProcessor processor;
+  late SurfaceController controller;
   final testCatalog = Catalog([
-    CoreCatalogItems.button,
-    CoreCatalogItems.text,
+    BasicCatalogItems.button,
+    BasicCatalogItems.text,
   ], catalogId: 'test_catalog');
 
   setUp(() {
-    processor = A2uiMessageProcessor(catalogs: [testCatalog]);
+    controller = SurfaceController(catalogs: [testCatalog]);
+  });
+
+  tearDown(() {
+    controller.dispose();
   });
 
   testWidgets('SurfaceWidget builds a widget from a definition', (
@@ -25,36 +29,26 @@ void main() {
     final components = [
       const Component(
         id: 'root',
-        componentProperties: {
-          'Button': {
-            'child': 'text',
-            'action': {'name': 'testAction'},
+        type: 'Button',
+        properties: {
+          'child': 'text',
+          'action': {
+            'event': {'name': 'testAction'},
           },
         },
       ),
-      const Component(
-        id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Hello'},
-          },
-        },
-      ),
+      const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
-    processor.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    controller.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    processor.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'root',
-        catalogId: 'test_catalog',
-      ),
+    controller.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(host: processor, surfaceId: surfaceId),
+        home: Surface(surfaceContext: controller.contextFor(surfaceId)),
       ),
     );
 
@@ -67,39 +61,30 @@ void main() {
     final components = [
       const Component(
         id: 'root',
-        componentProperties: {
-          'Button': {
-            'child': 'text',
-            'action': {'name': 'testAction'},
+        type: 'Button',
+        properties: {
+          'child': 'text',
+          'action': {
+            'event': {'name': 'testAction'},
           },
         },
       ),
-      const Component(
-        id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Hello'},
-          },
-        },
-      ),
+      const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
-    processor.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+    controller.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    processor.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'root',
-        catalogId: 'test_catalog',
-      ),
+    controller.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: GenUiSurface(host: processor, surfaceId: surfaceId),
+        home: Surface(surfaceContext: controller.contextFor(surfaceId)),
       ),
     );
-
+    await tester.pumpAndSettle();
+    expect(find.byType(ElevatedButton), findsOneWidget);
     await tester.tap(find.byType(ElevatedButton));
   });
 
@@ -110,21 +95,17 @@ void main() {
       final components = [
         const Component(
           id: 'root',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'Hello'},
-            },
-          },
+          type: 'Text',
+          properties: {'text': 'Hello'},
         ),
       ];
-      processor.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      controller.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      // Request a catalogId that doesn't exist in the processor.
-      processor.handleMessage(
-        const BeginRendering(
+      // Request a catalogId that doesn't exist in the controller.
+      controller.handleMessage(
+        const CreateSurface(
           surfaceId: surfaceId,
-          root: 'root',
           catalogId: 'non_existent_catalog',
         ),
       );
@@ -134,13 +115,16 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: GenUiSurface(host: processor, surfaceId: surfaceId),
+          home: Surface(surfaceContext: controller.contextFor(surfaceId)),
         ),
       );
 
-      // Should build an empty container instead of the widget tree.
-      expect(find.byType(Container), findsOneWidget);
-      expect(find.byType(Text), findsNothing);
+      // Should build an FallbackWidget instead of the widget tree.
+      expect(find.byType(FallbackWidget), findsOneWidget);
+      expect(
+        find.textContaining('Catalog with id "non_existent_catalog" not found'),
+        findsOneWidget,
+      );
 
       // Should log a severe error.
       expect(

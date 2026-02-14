@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/model/tools.dart';
 import 'package:genui/src/model/ui_models.dart';
 import 'package:genui/src/primitives/simple_items.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 void main() {
   group('UserActionEvent', () {
@@ -23,7 +23,6 @@ void main() {
       expect(event.name, 'testAction');
       expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.isAction, isTrue);
       expect(event.context, {'key': 'value'});
     });
 
@@ -34,7 +33,6 @@ void main() {
         'name': 'testAction',
         'sourceComponentId': 'testWidget',
         'timestamp': now.toIso8601String(),
-        'isAction': true,
         'context': {'key': 'value'},
       });
 
@@ -42,7 +40,6 @@ void main() {
       expect(event.name, 'testAction');
       expect(event.sourceComponentId, 'testWidget');
       expect(event.timestamp, now);
-      expect(event.isAction, isTrue);
       expect(event.context, {'key': 'value'});
     });
 
@@ -62,8 +59,64 @@ void main() {
       expect(map['name'], 'testAction');
       expect(map['sourceComponentId'], 'testWidget');
       expect(map['timestamp'], now.toIso8601String());
-      expect(map['isAction'], isTrue);
       expect(map['context'], {'key': 'value'});
+    });
+  });
+
+  group('SurfaceDefinition', () {
+    test('validate throws exception on mismatch', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        properties: {'text': 'Hello'},
+      );
+      final uiDef = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      // Schema invalidating the component (e.g., expecting type "Button")
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {'component': S.string(constValue: 'Button')},
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => uiDef.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate passes on correct match', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        properties: {'text': 'Hello'},
+      );
+      final uiDef = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Text'),
+                'text': S.string(),
+              },
+            ),
+          ),
+        },
+      );
+
+      uiDef.validate(schema); // Should not throw
     });
   });
 }

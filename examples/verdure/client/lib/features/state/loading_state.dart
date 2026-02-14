@@ -31,9 +31,8 @@ class LoadingState {
   LoadingState._() {
     // When the processing state changes from true to false, reset messages.
     isProcessing.addListener(() {
-      if (!_isProcessingValue && isProcessing.value) {
-        // Went from false to true
-      } else if (_isProcessingValue && !isProcessing.value) {
+      // Went from false to true: do nothing.
+      if (_isProcessingValue && !isProcessing.value) {
         // Went from true to false, reset messages after a short delay
         // to allow the fade-out animation to complete.
         Future<void>.delayed(const Duration(milliseconds: 500), clearMessages);

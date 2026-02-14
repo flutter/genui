@@ -8,46 +8,34 @@ import 'package:genui/genui.dart';
 
 void main() {
   testWidgets('Card widget renders child', (WidgetTester tester) async {
-    final manager = A2uiMessageProcessor(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
-          CoreCatalogItems.card,
-          CoreCatalogItems.text,
+          BasicCatalogItems.card,
+          BasicCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
-      const Component(
-        id: 'card',
-        componentProperties: {
-          'Card': {'child': 'text'},
-        },
-      ),
+      const Component(id: 'root', type: 'Card', properties: {'child': 'text'}),
       const Component(
         id: 'text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'This is a card.'},
-          },
-        },
+        type: 'Text',
+        properties: {'text': 'This is a card.'},
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'card',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(surfaceContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

@@ -6,13 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
-import 'package:logging/logging.dart';
 
 void main() {
   group('Catalog', () {
     test('has a catalogId', () {
       final catalog = Catalog([
-        CoreCatalogItems.text,
+        BasicCatalogItems.text,
       ], catalogId: 'test_catalog');
       expect(catalog.catalogId, 'test_catalog');
     });
@@ -20,13 +19,14 @@ void main() {
     testWidgets('buildWidget finds and builds the correct widget', (
       WidgetTester tester,
     ) async {
-      final catalog = Catalog([CoreCatalogItems.column, CoreCatalogItems.text]);
+      final catalog = Catalog([
+        BasicCatalogItems.column,
+        BasicCatalogItems.text,
+      ]);
       final widgetData = {
-        'Column': {
-          'children': {
-            'explicitList': ['child1'],
-          },
-        },
+        'children': [
+          {'id': 'child1'},
+        ],
       };
 
       await tester.pumpWidget(
@@ -37,6 +37,7 @@ void main() {
                 return catalog.buildWidget(
                   CatalogItemContext(
                     id: 'col1',
+                    type: 'Column',
                     data: widgetData,
                     buildChild: (_, [_]) =>
                         const Text(''), // Mock child builder
@@ -44,6 +45,7 @@ void main() {
                     buildContext: context,
                     dataContext: DataContext(DataModel(), '/'),
                     getComponent: (String componentId) => null,
+                    getCatalogItem: (String type) => null,
                     surfaceId: 'surfaceId',
                   ),
                 );
@@ -57,56 +59,50 @@ void main() {
       expect(column.children.length, 1);
     });
 
-    testWidgets('buildWidget returns empty container for unknown widget type', (
+    testWidgets('buildWidget throws StateError for unknown widget type', (
       WidgetTester tester,
     ) async {
       final catalog = const Catalog([]);
       final Map<String, Object> data = {
         'id': 'text1',
-        'widget': {
-          'unknown_widget': {'text': 'hello'},
-        },
+        'unknown_widget': {'text': 'hello'},
       };
 
-      final Future<void> logFuture = expectLater(
-        genUiLogger.onRecord,
-        emits(
-          isA<LogRecord>().having(
-            (e) => e.message,
-            'message',
-            contains('Item unknown_widget was not found'),
-          ),
-        ),
-      );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                final Widget widget = catalog.buildWidget(
-                  CatalogItemContext(
-                    id: data['id'] as String,
-                    data: data['widget'] as JsonMap,
-                    buildChild: (_, [_]) => const SizedBox(),
-                    dispatchEvent: (UiEvent event) {},
-                    buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
-                    getComponent: (String componentId) => null,
-                    surfaceId: 'surfaceId',
+                expect(
+                  () => catalog.buildWidget(
+                    CatalogItemContext(
+                      id: 'text1',
+                      type: 'unknown_widget',
+                      data: data,
+                      buildChild: (_, [_]) => const SizedBox(),
+                      dispatchEvent: (UiEvent event) {},
+                      buildContext: context,
+                      dataContext: DataContext(DataModel(), '/'),
+                      getComponent: (String componentId) => null,
+                      getCatalogItem: (String type) => null,
+                      surfaceId: 'surfaceId',
+                    ),
                   ),
+                  throwsA(isA<CatalogItemNotFoundException>()),
                 );
-                expect(widget, isA<Container>());
-                return widget;
+                return const SizedBox();
               },
             ),
           ),
         ),
       );
-      await logFuture;
     });
 
     test('schema generation is correct', () {
-      final catalog = Catalog([CoreCatalogItems.text, CoreCatalogItems.button]);
+      final catalog = Catalog([
+        BasicCatalogItems.text,
+        BasicCatalogItems.button,
+      ]);
       final schema = catalog.definition as ObjectSchema;
 
       expect(schema.properties?.containsKey('components'), isTrue);

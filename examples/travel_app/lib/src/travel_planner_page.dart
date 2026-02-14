@@ -4,14 +4,15 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:genui/genui.dart';
-import 'package:genui_firebase_ai/genui_firebase_ai.dart';
-import 'package:genui_google_generative_ai/genui_google_generative_ai.dart';
+import 'package:genui/genui.dart' hide Conversation;
+import 'package:genui/genui.dart' as genui;
 
+import 'ai_client/ai_client.dart';
+import 'ai_client/google_generative_ai_client.dart';
 import 'asset_images.dart';
 import 'catalog.dart';
-import 'config/configuration.dart';
 // Conditionally import non-web version so we can read from shell env vars in
 // non-web version.
 import 'config/io_get_api_key.dart'
@@ -27,7 +28,7 @@ Future<void> loadImagesJson() async {
 /// The main page for the travel planner application.
 ///
 /// This stateful widget manages the core user interface and application logic.
-/// It initializes the [A2uiMessageProcessor] and [ContentGenerator], maintains
+/// It initializes the [SurfaceController] and [A2uiTransportAdapter], maintains
 /// the conversation history, and handles the interaction between the user, the
 /// AI, and the dynamically generated UI.
 ///
@@ -37,16 +38,16 @@ Future<void> loadImagesJson() async {
 class TravelPlannerPage extends StatefulWidget {
   /// Creates a new [TravelPlannerPage].
   ///
-  /// An optional [contentGenerator] can be provided, which is useful for
+  /// An optional [aiClient] can be provided, which is useful for
   /// testing or using a custom AI client implementation. If not provided, a
-  /// default [FirebaseAiContentGenerator] is created.
-  const TravelPlannerPage({this.contentGenerator, super.key});
+  /// default [GoogleGenerativeAiClient] is created.
+  const TravelPlannerPage({this.aiClient, super.key});
 
   /// The AI client to use for the application.
   ///
-  /// If null, a default instance of [FirebaseAiContentGenerator] will be
-  /// created within the page's state.
-  final ContentGenerator? contentGenerator;
+  /// If null, a default instance will be created.
+  /// This must be an instance of [AiClient].
+  final AiClient? aiClient;
 
   @override
   State<TravelPlannerPage> createState() => _TravelPlannerPageState();
@@ -54,8 +55,17 @@ class TravelPlannerPage extends StatefulWidget {
 
 class _TravelPlannerPageState extends State<TravelPlannerPage>
     with AutomaticKeepAliveClientMixin {
-  late final GenUiConversation _uiConversation;
-  late final StreamSubscription<ChatMessage> _userMessageSubscription;
+  late final SurfaceController _processor;
+  late final genui.Conversation _uiConversation;
+  late final A2uiTransportAdapter _controller;
+
+  final ValueNotifier<List<ChatMessage>> _messages = ValueNotifier([]);
+  final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
+  String _currentStreamingText = '';
+
+  // We keep a reference to the client to dispose it if we created it.
+  AiClient? _client;
+  bool _didCreateClient = false;
 
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
@@ -63,62 +73,113 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
   @override
   void initState() {
     super.initState();
-    final a2uiMessageProcessor = A2uiMessageProcessor(
-      catalogs: [travelAppCatalog],
+    // Wire up the controller's onSend to the appropriate client
+    _controller = A2uiTransportAdapter(
+      onSend: (message) async {
+        // Reset streaming text for new turn
+        _currentStreamingText = '';
+        _messages.value = [..._messages.value, message];
+        // Send request
+        await _sendRequest(_client!, message, _messages.value);
+      },
     );
-    _userMessageSubscription = a2uiMessageProcessor.onSubmit.listen(
-      _handleUserMessageFromUi,
-    );
+    _processor = SurfaceController(catalogs: [travelAppCatalog]);
 
     // Create the appropriate content generator based on configuration
-    final ContentGenerator contentGenerator =
-        widget.contentGenerator ??
-        switch (aiBackend) {
-          AiBackend.googleGenerativeAi => () {
-            return GoogleGenerativeAiContentGenerator(
-              catalog: travelAppCatalog,
-              systemInstruction: prompt,
-              additionalTools: [
-                ListHotelsTool(
-                  onListHotels: BookingService.instance.listHotels,
-                ),
-              ],
-              apiKey: getApiKey(),
-            );
-          }(),
-          AiBackend.firebase => FirebaseAiContentGenerator(
-            catalog: travelAppCatalog,
-            systemInstruction: prompt,
-            additionalTools: [
-              ListHotelsTool(onListHotels: BookingService.instance.listHotels),
-            ],
-          ),
-        };
+    _client = widget.aiClient;
+    if (_client == null) {
+      _didCreateClient = true;
+      _client = GoogleGenerativeAiClient(
+        catalog: travelAppCatalog,
+        systemInstruction: prompt,
+        additionalTools: [
+          ListHotelsTool(onListHotels: BookingService.instance.listHotels),
+        ],
+        apiKey: getApiKey(),
+      );
+    }
 
-    _uiConversation = GenUiConversation(
-      a2uiMessageProcessor: a2uiMessageProcessor,
-      contentGenerator: contentGenerator,
-      onSurfaceUpdated: (update) {
-        _scrollToBottom();
-      },
-      onSurfaceAdded: (update) {
-        _scrollToBottom();
-      },
-      onTextResponse: (text) {
-        if (!mounted) return;
-        if (text.isNotEmpty) {
+    _wireClient(_client!, _controller);
+
+    _uiConversation = genui.Conversation(
+      transport: _controller,
+      controller: _processor,
+    );
+
+    _uiConversation.state.addListener(() {
+      _isProcessing.value = _uiConversation.state.value.isWaiting;
+    });
+
+    _uiConversation.events.listen((event) {
+      if (event is ConversationContentReceived) {
+        if (event.text.isNotEmpty) {
+          _currentStreamingText += event.text;
+
+          final updatedMessages = List<ChatMessage>.from(_messages.value);
+          if (updatedMessages.isNotEmpty &&
+              updatedMessages.last.role == ChatMessageRole.model &&
+              !updatedMessages.last.parts.any(
+                (p) => p is DataPart && p.isUiPart,
+              )) {
+            updatedMessages.removeLast();
+          }
+          updatedMessages.add(ChatMessage.model(_currentStreamingText));
+          _messages.value = updatedMessages;
+
           _scrollToBottom();
         }
-      },
-    );
+      } else if (event is ConversationSurfaceAdded) {
+        final updatedMessages = List<ChatMessage>.from(_messages.value);
+        updatedMessages.add(
+          ChatMessage(
+            role: ChatMessageRole.model,
+            parts: [
+              UiPart.create(
+                definition: event.definition,
+                surfaceId: event.surfaceId,
+              ),
+            ],
+          ),
+        );
+        _messages.value = updatedMessages;
+        // Reset streaming text so that any subsequent text is treated as a new
+        // message chunk after the UI component, rather than being appended to
+        // the previous text block (which would be confusing if the UI is in the
+        // middle).
+        _currentStreamingText = '';
+        _scrollToBottom();
+      } else if (event is ConversationComponentsUpdated) {
+        _scrollToBottom();
+      }
+    });
   }
+
+  void _wireClient(AiClient client, A2uiTransportAdapter controller) {
+    client.a2uiMessageStream.listen(controller.addMessage);
+    client.textResponseStream.listen(controller.addChunk);
+  }
+
+  Future<void> _sendRequest(
+    AiClient client,
+    ChatMessage message,
+    Iterable<ChatMessage> history,
+  ) {
+    return client.sendRequest(message, history: history);
+  }
+
+  ValueListenable<bool> get isProcessing => _isProcessing;
 
   @override
   void dispose() {
-    _userMessageSubscription.cancel();
+    _processor.dispose();
     _uiConversation.dispose();
+    if (_didCreateClient) {
+      _client?.dispose();
+    }
     _textController.dispose();
     _scrollController.dispose();
+    _messages.dispose();
+    _isProcessing.dispose();
     super.dispose();
   }
 
@@ -138,15 +199,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
     await _uiConversation.sendRequest(message);
   }
 
-  void _handleUserMessageFromUi(ChatMessage message) {
-    _scrollToBottom();
-  }
-
   void _sendPrompt(String text) {
-    if (_uiConversation.isProcessing.value || text.trim().isEmpty) return;
+    if (_isProcessing.value || text.trim().isEmpty) return;
     _scrollToBottom();
     _textController.clear();
-    _triggerInference(UserMessage.text(text));
+    _triggerInference(ChatMessage.user(text));
   }
 
   @override
@@ -160,11 +217,11 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1000),
                 child: ValueListenableBuilder<List<ChatMessage>>(
-                  valueListenable: _uiConversation.conversation,
+                  valueListenable: _messages,
                   builder: (context, messages, child) {
                     return Conversation(
                       messages: messages,
-                      manager: _uiConversation.a2uiMessageProcessor,
+                      manager: _processor,
                       scrollController: _scrollController,
                     );
                   },
@@ -174,7 +231,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ValueListenableBuilder<bool>(
-                valueListenable: _uiConversation.isProcessing,
+                valueListenable: _isProcessing,
                 builder: (context, isThinking, child) {
                   return _ChatInput(
                     controller: _textController,
@@ -301,9 +358,9 @@ to the user.
     the itinerary, include all necessary `itineraryEntry` items for hotels and
     transport with generic details and a status of `choiceRequired`.
 
-    Note that during this step, the user may change their search parameters and
-    resubmit, in which case you should regenerate the itinerary to match their
-    desires, updating the existing surface.
+    During this step, the user may change their search parameters and resubmit,
+    in which case you should regenerate the itinerary to match their desires,
+    updating the existing surface.
 
 4.  Booking: Booking each part of the itinerary one step at a time. This
     involves booking every accommodation, transport and activity in the
@@ -346,70 +403,23 @@ the user can return to the main booking flow once they have done some research.
 
 ## Controlling the UI
 
-Use the provided tools to build and manage the user interface in response to the
-user's requests. To display or update a UI, you must first call the
-`surfaceUpdate` tool to define all the necessary components. After defining the
-components, you must call the `beginRendering` tool to specify the root
-component that should be displayed.
+You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
+Supported messages are: `createSurface` and `updateComponents`.
 
-- Adding surfaces: Most of the time, you should only add new surfaces to the
-  conversation. This is less confusing for the user, because they can easily
-  find this new content at the bottom of the conversation.
-- Updating surfaces: You should update surfaces when you are running an
-  iterative search flow, e.g. the user is adjusting filter values and generating
-  an itinerary or a booking accommodation etc. This is less confusing for the
-  user because it avoids confusing the conversation with many versions of the
-  same itinerary etc.
+To show a new UI:
+1. Output a `createSurface` message to define the surface ID and catalog.
+2. Output an `updateComponents` message to populate the surface with components.
 
-Once you add or update a surface and are waiting for user input, the
-conversation turn is complete, and you should call the provideFinalOutput tool.
+To update an existing UI (e.g. adding items to an itinerary):
+1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
 
-If you are displaying more than one component, you should use a `Column` widget
-as the root and add the other components as children.
+Properties:
+- `createSurface`: requires `surfaceId`, `catalogId` (use the catalog ID provided in system instructions), and `sendDataModel: true`.
+- `updateComponents`: requires `surfaceId` and a list of `components`. One component MUST have `id: "root"`.
 
-## UI style
-
-Always prefer to communicate using UI elements rather than text. Only respond
-with text if you need to provide a short explanation of how you've updated the
-UI.
-
-- TravelCarousel: Always make sure there are at least four options in the
-  carousel. If there are only 2 or 3 obvious options, just think of some
-  relevant alternatives that the user might be interested in.
-
-- Guiding the user: When the user has completed some action, e.g. they confirm
-  they want to book some accommodation or activity, always show a trailhead
-  suggesting what the user might want to do next (e.g. book the next detail in
-  the itinerary, repeat a search, research some related topic) so that they can
-  click rather than typing.
-
-- Itinerary Structure: Itineraries have a three-level structure. The root is
-  `itineraryWithDetails`, which provides an overview. Inside the modal view of
-  an `itineraryWithDetails`, you should use one or more `itineraryDay` widgets
-  to represent each day of the trip. Each `itineraryDay` should then contain a
-  list of `itineraryEntry` widgets, which represent specific activities,
-  bookings, or transport for that day.
-
-- Inputs: When you are asking for information from the user, you should always
-  include a submit button of some kind so that the user can indicate that they
-  are done providing information. Suggest initial values for number of people
-  and travel dates (e.g. 2 guests, dates of nearest weekend). The `InputGroup`
-  has a submit button, but if you are not using that, you can use an
-  `ElevatedButton`. Only use `OptionsFilterChipInput` widgets inside of a
-  `InputGroup`. **It is a strict requirement that all input chip widgets bind
-  their state to the data model. Under no circumstances should you use a literal
-  value for their state.** You should invent a suitable path in the data model
-  for each input. For example: `/search/destination`,
-  `/search/preferredActivities`, `/search/budget`. Specifically:
-
-  - For `OptionsFilterChipInput`, `DateInputChip`, and `TextInputChip`, the
-    `value` parameter MUST be bound to the data model using a `path`.
-  - For `CheckboxFilterChipsInput`, the `selectedOptions` parameter MUST be
-    bound to the data model using a `path`.
-
-- State management: Try to maintain state by being aware of the user's
-  selections and preferences and setting them in the initial value fields of
-  input elements when updating surfaces or generating new ones.
+IMPORTANT:
+- Do not use tools or function calls for UI generation. Use JSON text blocks.
+- Ensure all JSON is valid and fenced with ```json ... ```.
 
 ## Images
 
@@ -426,110 +436,81 @@ ${_imagesJson ?? ''}
 
 ## Example
 
-Here is an example of the arguments to the `surfaceUpdate` tool. Note that the
-`root` widget ID must be present in the `widgets` list, and it should contain
-the other widgets.
+Here is an example of creating a trip planner UI.
 
 ```json
 {
-  "surfaceId": "mexico_trip_planner",
-  "definition": {
-    "root": "root_column",
-    "widgets": [
+  "createSurface": {
+    "surfaceId": "mexico_trip_planner",
+    "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+    "sendDataModel": true
+  }
+}
+```
+
+```json
+{
+  "updateComponents": {
+    "surfaceId": "mexico_trip_planner",
+    "components": [
       {
-        "id": "root_column",
-        "widget": {
-          "Column": {
-            "children": ["trip_title", "itinerary"]
-          }
-        }
+        "id": "root",
+        "component": "Column",
+        "children": ["trip_title", "itinerary"]
       },
       {
         "id": "trip_title",
-        "widget": {
-          "Text": {
-            "text": "Trip to Mexico City"
-          }
-        }
+        "component": "Text",
+        "text": "Trip to Mexico City",
+        "variant": "h2"
       },
       {
         "id": "itinerary",
-        "widget": {
-          "ItineraryWithDetails": {
-            "title": "Mexico City Adventure",
-            "subheading": "3-day Itinerary",
-            "imageChildId": "mexico_city_image",
-            "child": "itinerary_details"
-          }
-        }
+        "component": "ItineraryWithDetails",
+        "title": "Mexico City Adventure",
+        "subheading": "3-day Itinerary",
+        "imageChildId": "mexico_city_image",
+        "child": "itinerary_details"
       },
       {
         "id": "mexico_city_image",
-        "widget": {
-          "Image": {
-            "location": "assets/travel_images/mexico_city.jpg"
-          }
-        }
+        "component": "Image",
+        "url": "assets/travel_images/mexico_city.jpg",
+        "variant": "mediumFeature"
       },
       {
         "id": "itinerary_details",
-        "widget": {
-          "Column": {
-            "children": ["day1"]
-          }
-        }
+        "component": "Column",
+        "children": ["day1"]
       },
       {
         "id": "day1",
-        "widget": {
-          "ItineraryDay": {
-            "title": "Day 1",
-            "subtitle": "Arrival and Exploration",
-            "description": "Your first day in Mexico City will be focused on settling in and exploring the historic center.",
-            "imageChildId": "day1_image",
-            "children": ["day1_entry1", "day1_entry2"]
-          }
-        }
+        "component": "ItineraryDay",
+        "title": "Day 1",
+        "subtitle": "Arrival and Exploration",
+        "description": "Your first day in Mexico City...",
+        "imageChildId": "day1_image",
+        "children": ["day1_entry1"]
       },
       {
         "id": "day1_image",
-        "widget": {
-          "Image": {
-            "location": "assets/travel_images/mexico_city.jpg"
-          }
-        }
+        "component": "Image",
+        "url": "assets/travel_images/mexico_city.jpg",
+        "variant": "mediumFeature"
       },
       {
         "id": "day1_entry1",
-        "widget": {
-          "ItineraryEntry": {
-            "type": "transport",
-            "title": "Arrival at MEX Airport",
-            "time": "2:00 PM",
-            "bodyText": "Arrive at Mexico City International Airport (MEX), clear customs, and pick up your luggage.",
-            "status": "noBookingRequired"
-          }
-        }
-      },
-      {
-        "id": "day1_entry2",
-        "widget": {
-          "ItineraryEntry": {
-            "type": "activity",
-            "title": "Explore the Zocalo",
-            "subtitle": "Historic Center",
-            "time": "4:00 PM - 6:00 PM",
-            "address": "Plaza de la Constitución S/N, Centro Histórico, Ciudad de México",
-            "bodyText": "Head to the Zocalo, the main square of Mexico City. Visit the Metropolitan Cathedral and the National Palace.",
-            "status": "noBookingRequired"
-          }
-        }
+        "component": "ItineraryEntry",
+        "type": "transport",
+        "title": "Arrival at MEX Airport",
+        "time": "2:00 PM",
+        "bodyText": "Arrive at Mexico City...",
+        "status": "noBookingRequired"
       }
     ]
   }
 }
 ```
 
-When updating or showing UIs, **ALWAYS** use the surfaceUpdate tool to supply
-them. Prefer to collect and show information by creating a UI for it.
+When updating or showing UIs, **ALWAYS** use the JSON messages as described above. Prefer to collect and show information by creating a UI for it.
 ''';

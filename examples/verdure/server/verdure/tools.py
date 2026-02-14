@@ -19,7 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_landscape_options(
-    budget: str, style: str, maintenance: str, space_description: str
+    budget: str = "Unknown",
+    style: str = "Unknown",
+    maintenance: str = "Unknown",
+    space_description: str = "Unknown",
+    guest_count: int = 4,
+    preserve_bushes: bool = True,
+    lawn_plan: list[str] = [],
 ) -> str:
     """
     Call this tool to get landscape design options based on user preferences.
@@ -27,16 +33,22 @@ def get_landscape_options(
     'style' is the desired landscape vibe (e.g., 'Modern', 'Zen', 'Cottage').
     'maintenance' is the preferred level (e.g., 'Low', 'Medium', 'High').
     'space_description' is the user's text description of their yard.
+    'guest_count' is the number of people for entertaining.
+    'preserve_bushes' whether to keep existing bushes.
+    'lawn_plan' is the plan for the patio/lawn area.
     """
     logger.info("--- TOOL CALLED: get_landscape_options ---")
     logger.info(f"  - Budget: {budget}")
     logger.info(f"  - Style: {style}")
     logger.info(f"  - Maintenance: {maintenance}")
     logger.info(f"  - Space: {space_description}")
+    logger.info(f"  - Guest Count: {guest_count}")
+    logger.info(f"  - Preserve Bushes: {preserve_bushes}")
+    logger.info(f"  - Lawn Plan: {lawn_plan}")
 
     # In a real app, this would query a model or database.
     # Here, we return hardcoded options.
-    options = [
+    items = [
         {
             "name": "Modern Zen Garden",
             "detail": "Low maintenance, drought-tolerant plants, and clean lines. Perfect for relaxation.",
@@ -56,11 +68,6 @@ def get_landscape_options(
             "id": "option2",
         },
     ]
-
-    # --- MODIFICATION ---
-    # Remove the filtering logic to always return both options
-    items = options
-    # --- END MODIFICATION ---
 
     logger.info(f"  - Success: Returning {len(items)} landscape options.")
     return json.dumps(items)

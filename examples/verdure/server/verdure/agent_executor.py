@@ -88,9 +88,9 @@ class LandscapeAgentExecutor(AgentExecutor):
             )
             for i, part in enumerate(context.message.parts):
                 if isinstance(part.root, DataPart):
-                    if "userAction" in part.root.data:
+                    if "action" in part.root.data:
                         logger.info(f"  Part {i}: Found a2ui UI ClientEvent payload.")
-                        ui_event_part = part.root.data["userAction"]
+                        ui_event_part = part.root.data["action"]
                     else:
                         logger.info(f"  Part {i}: DataPart (data: {part.root.data})")
                 elif isinstance(part.root, TextPart):
@@ -100,29 +100,45 @@ class LandscapeAgentExecutor(AgentExecutor):
                     file_data = part.root.file
                     if file_data.bytes:
                         logger.info(f"  Extracting {len(part.root.file.bytes)} bytes")
-                        try:
-                            image_bytes = base64.b64decode(file_data.bytes)
-                            mime_type = file_data.mime_type
-                            extension = {
-                                "image/png": ".png",
-                                "image/jpeg": ".jpg",
-                                "image/heic": ".heic",
-                                "image/webp": ".webp",
-                            }.get(mime_type, ".jpg")
-                            filename = f"{uuid.uuid4()}{extension}"
-                            images_dir = os.path.join(os.path.dirname(__file__), "images", "uploads")
-                            os.makedirs(images_dir, exist_ok=True)
-                            filepath = os.path.join(images_dir, filename)
-                            with open(filepath, "wb") as f:
-                                f.write(image_bytes)
+                        mime_type = file_data.mime_type or ""
+                        logger.info(f"  Part {i}: FilePart mime_type: '{mime_type}'")
+                        if mime_type.startswith("application/json"):
+                            logger.info(f"  Part {i}: Found application/json FilePart. Parsing as UI event.")
+                            try:
+                                json_bytes = base64.b64decode(file_data.bytes)
+                                json_str = json_bytes.decode("utf-8")
+                                json_data = json.loads(json_str)
+                                if "action" in json_data:
+                                    logger.info(f"  Part {i}: Found a2ui UI ClientEvent payload in FilePart.")
+                                    ui_event_part = json_data["action"]
+                                else:
+                                    logger.info(f"  Part {i}: JSON FilePart (data: {json_data})")
+                            except Exception as e:
+                                logger.error(f"Failed to parse application/json FilePart: {e}")
+                        else:
+                            try:
+                                image_bytes = base64.b64decode(file_data.bytes)
+                                mime_type = file_data.mime_type
+                                extension = {
+                                    "image/png": ".png",
+                                    "image/jpeg": ".jpg",
+                                    "image/heic": ".heic",
+                                    "image/webp": ".webp",
+                                }.get(mime_type, ".jpg")
+                                filename = f"{uuid.uuid4()}{extension}"
+                                images_dir = os.path.join(os.path.dirname(__file__), "images", "uploads")
+                                os.makedirs(images_dir, exist_ok=True)
+                                filepath = os.path.join(images_dir, filename)
+                                with open(filepath, "wb") as f:
+                                    f.write(image_bytes)
 
-                            image_url = f"{self.ui_agent.base_url}/images/uploads/{filename}"
-                            mime_type = file_data.mime_type if file_data.mime_type else "image/jpeg"
-                            image_part = ImagePart(image_url, mime_type, image_bytes)
-                            logger.info(f"  Part {i}: Set image_part to a {mime_type} image.")
-                            logger.info(f"  Saved FilePart to {filepath}, URL: {image_url}")
-                        except Exception as e:
-                            logger.error(f"Failed to save FilePart: {e}")
+                                image_url = f"{self.ui_agent.base_url}/images/uploads/{filename}"
+                                mime_type = file_data.mime_type if file_data.mime_type else "image/jpeg"
+                                image_part = ImagePart(image_url, mime_type, image_bytes)
+                                logger.info(f"  Part {i}: Set image_part to a {mime_type} image.")
+                                logger.info(f"  Saved FilePart to {filepath}, URL: {image_url}")
+                            except Exception as e:
+                                logger.error(f"Failed to save FilePart: {e}")
                     elif file_data.uri:
                          logger.info(f"  Part {i}: FilePart has URI: {file_data.uri}")
                          # Handle URI if needed, but for now focus on bytes

@@ -32,18 +32,11 @@ CatalogItem getCatalogItemForTesting(String successMessage) {
   final catalogItemName = 'TextForTesting';
   return CatalogItem(
     name: catalogItemName,
-    dataSchema: CoreCatalogItems.text.dataSchema,
-    widgetBuilder: CoreCatalogItems.text.widgetBuilder,
+    dataSchema: BasicCatalogItems.text.dataSchema,
+    widgetBuilder: BasicCatalogItems.text.widgetBuilder,
     exampleData: [
       () => jsonEncode([
-        {
-          'id': 'root',
-          'component': {
-            catalogItemName: {
-              'text': {'literalString': successMessage},
-            },
-          },
-        },
+        {'id': 'root', 'component': catalogItemName, 'text': successMessage},
       ]),
     ],
   );

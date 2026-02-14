@@ -18,8 +18,8 @@ class A2UiClientCapabilities {
 
   /// A list of identifiers for all pre-defined catalogs the client supports.
   ///
-  /// The client MUST always include the standard catalog ID here if it
-  /// supports it.
+  /// The client MUST always include the basic catalog ID here if it
+  /// supports said catalog.
   final List<String> supportedCatalogIds;
 
   /// An array of full Catalog Definition Documents.
@@ -35,6 +35,6 @@ class A2UiClientCapabilities {
     if (inlineCatalogs != null) {
       json['inlineCatalogs'] = inlineCatalogs;
     }
-    return json;
+    return {'v0.9': json};
   }
 }

@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:process/process.dart';
 import 'package:process_runner/process_runner.dart';
@@ -14,12 +15,15 @@ class TestAndFix {
   TestAndFix({
     this.fs = const LocalFileSystem(),
     ProcessManager? processManager,
+    Logger? logger,
   }) : processRunner = ProcessRunner(
          processManager: processManager ?? const LocalProcessManager(),
-       );
+       ),
+       _log = logger ?? Logger('TestAndFix');
 
   final FileSystem fs;
   final ProcessRunner processRunner;
+  final Logger _log;
 
   Future<bool> run({
     Directory? root,
@@ -77,7 +81,9 @@ class TestAndFix {
       }
     }
 
-    print('Found ${projects.length} projects and created ${jobs.length} jobs.');
+    _log.info(
+      'Found ${projects.length} projects and created ${jobs.length} jobs.',
+    );
 
     final pool = ProcessPool(
       numWorkers: Platform.numberOfProcessors,
@@ -93,26 +99,26 @@ class TestAndFix {
         .where((job) => job.result.exitCode != 0)
         .toList();
 
-    print('--- Successful Jobs ---');
+    _log.info('\n--- Successful Jobs ---');
     for (final job in successfulJobs) {
-      print('  - ${job.name} (exit code ${job.result.exitCode})');
+      _log.info('  - ${job.name} (exit code ${job.result.exitCode})');
       if (verbose && job.result.output.isNotEmpty) {
-        print(job.result.output);
+        _log.info(job.result.output);
       }
     }
 
     if (failedJobs.isNotEmpty) {
-      print('\n--- Failed Jobs ---');
+      _log.severe('\n--- Failed Jobs ---');
       for (final job in failedJobs) {
-        print('  - ${job.name} (exit code ${job.result.exitCode})');
+        _log.severe('  - ${job.name} (exit code ${job.result.exitCode})');
         if (job.result.output.isNotEmpty) {
-          print(job.result.output);
+          _log.severe(job.result.output);
         }
       }
       return false;
     }
 
-    print('\nAll jobs completed successfully!');
+    _log.info('\nAll jobs completed successfully!');
     return true;
   }
 
@@ -147,7 +153,7 @@ class TestAndFix {
         }
       }
     } on FileSystemException catch (exception) {
-      print(
+      _log.warning(
         'Warning: Failed to list directory contents while searching for '
         'projects: $exception',
       );

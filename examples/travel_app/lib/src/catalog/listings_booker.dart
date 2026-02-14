@@ -15,6 +15,7 @@ import '../tools/booking/model.dart';
 final _schema = S.object(
   description: 'A widget to select among a set of listings.',
   properties: {
+    'component': S.string(enumValues: ['ListingsBooker']),
     'listingSelectionIds': S.list(
       description: 'Listings to select among.',
       items: S.string(),
@@ -29,7 +30,7 @@ final _schema = S.object(
           'the key "listingSelectionId".',
     ),
   },
-  required: ['listingSelectionIds'],
+  required: ['component', 'listingSelectionIds'],
 );
 
 extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
@@ -45,7 +46,7 @@ extension type _ListingsBookerData.fromMap(Map<String, Object?> _json) {
 
   List<String> get listingSelectionIds =>
       (_json['listingSelectionIds'] as List).cast<String>();
-  JsonMap get itineraryName => _json['itineraryName'] as JsonMap;
+  Object get itineraryName => _json['itineraryName'] as Object;
   JsonMap? get modifyAction => _json['modifyAction'] as JsonMap?;
 }
 
@@ -99,12 +100,9 @@ final listingsBooker = CatalogItem(
       return jsonEncode([
         {
           'id': 'root',
-          'component': {
-            'ListingsBooker': {
-              'listingSelectionIds': [listingSelectionId1, listingSelectionId2],
-              'itineraryName': {'literalString': 'Dart and Flutter deep dive'},
-            },
-          },
+          'component': 'ListingsBooker',
+          'listingSelectionIds': [listingSelectionId1, listingSelectionId2],
+          'itineraryName': 'Dart and Flutter deep dive',
         },
       ]);
     },
@@ -333,9 +331,8 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                   return;
                                 }
                                 final actionName = actionData['name'] as String;
-                                final List<Object?> contextDefinition =
-                                    (actionData['context'] as List<Object?>?) ??
-                                    <Object?>[];
+                                final contextDefinition =
+                                    actionData['context'] as JsonMap?;
                                 final JsonMap resolvedContext = resolveContext(
                                   widget.dataContext,
                                   contextDefinition,

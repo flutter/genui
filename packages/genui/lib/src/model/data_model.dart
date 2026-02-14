@@ -4,14 +4,20 @@
 
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+
+import '../functions/expression_parser.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
+/// Represents a path in the data model, either absolute or relative.
 @immutable
-class DataPath {
+final class DataPath {
+  /// Creates a [DataPath] from a string representation.
   factory DataPath(String path) {
+    if (path == _separator) return root;
     final List<String> segments = path
         .split(_separator)
         .where((s) => s.isNotEmpty)
@@ -21,17 +27,25 @@ class DataPath {
 
   const DataPath._(this.segments, this.isAbsolute);
 
+  /// The segments of the path.
   final List<String> segments;
+
+  /// Whether the path is absolute (starts with a separator).
   final bool isAbsolute;
 
   static const String _separator = '/';
+
+  /// The root path.
   static const DataPath root = DataPath._([], true);
 
+  /// The last segment of the path.
   String get basename => segments.last;
 
+  /// The path without the last segment.
   DataPath get dirname =>
       DataPath._(segments.sublist(0, segments.length - 1), isAbsolute);
 
+  /// Joins this path with another path.
   DataPath join(DataPath other) {
     if (other.isAbsolute) {
       return other;
@@ -39,6 +53,7 @@ class DataPath {
     return DataPath._([...segments, ...other.segments], isAbsolute);
   }
 
+  /// Returns whether this path starts with the other path.
   bool startsWith(DataPath other) {
     if (other.segments.length > segments.length) {
       return false;
@@ -66,86 +81,179 @@ class DataPath {
           listEquals(segments, other.segments);
 
   @override
-  int get hashCode => Object.hash(isAbsolute, Object.hashAll(segments));
+  int get hashCode =>
+      Object.hash(isAbsolute, const DeepCollectionEquality().hash(segments));
 }
 
 /// A contextual view of the main DataModel, used by widgets to resolve
 /// relative and absolute paths.
 class DataContext {
+  /// Creates a [DataContext] for the given [path].
   DataContext(this._dataModel, String path) : path = DataPath(path);
 
   DataContext._(this._dataModel, this.path);
 
   final DataModel _dataModel;
+
+  /// The path associated with this context.
   final DataPath path;
 
-  /// Subscribes to a path, resolving it against the current context.
-  ValueNotifier<T?> subscribe<T>(DataPath relativeOrAbsolutePath) {
-    final DataPath absolutePath = resolvePath(relativeOrAbsolutePath);
-    return _dataModel.subscribe<T>(absolutePath);
+  /// The underlying data model for this context.
+  DataModel get dataModel => _dataModel;
+
+  /// Subscribes to a path or expression, resolving it against the current
+  /// context.
+  ///
+  /// If [pathOrExpression] contains `${`, it is treated as an expression.
+  /// Otherwise, it is treated as a path.
+  ValueNotifier<T?> subscribe<T>(Object? pathOrExpression) {
+    if (pathOrExpression is String && pathOrExpression.contains(r'${')) {
+      // Expressions require reactivity based on their dependencies.
+      // Since `ExpressionParser` doesn't currently return dependencies, we use
+      // a `_ComputedValueNotifier` that attempts to extract paths from the
+      // expression.
+      return createComputedNotifier<T>(pathOrExpression);
+    } else if (pathOrExpression is Map) {
+      // Map expressions (e.g. function calls)
+      return createComputedNotifier<T>(pathOrExpression);
+    } else if (pathOrExpression is String) {
+      final DataPath absolutePath = resolvePath(DataPath(pathOrExpression));
+      return _dataModel.subscribe<T>(absolutePath);
+    }
+    return ValueNotifier<T?>(pathOrExpression as T?);
   }
 
-  /// Gets a static value, resolving the path against the current context.
-  T? getValue<T>(DataPath relativeOrAbsolutePath) {
-    final DataPath absolutePath = resolvePath(relativeOrAbsolutePath);
-    return _dataModel.getValue<T>(absolutePath);
+  /// Gets a value, resolving the path/expression against the current context.
+  T? getValue<T>(Object? pathOrExpression) {
+    if (pathOrExpression is String && pathOrExpression.contains(r'${')) {
+      final parser = ExpressionParser(this);
+      return parser.parse(pathOrExpression) as T?;
+    } else if (pathOrExpression is Map) {
+      final parser = ExpressionParser(this);
+      return parser.evaluate(pathOrExpression) as T?;
+    } else if (pathOrExpression is String) {
+      final DataPath absolutePath = resolvePath(DataPath(pathOrExpression));
+      return _dataModel.getValue<T>(absolutePath);
+    }
+    return pathOrExpression as T?;
   }
 
   /// Updates the data model, resolving the path against the current context.
-  void update(DataPath relativeOrAbsolutePath, Object? contents) {
-    final DataPath absolutePath = resolvePath(relativeOrAbsolutePath);
+  void update(String pathStr, Object? contents) {
+    final DataPath absolutePath = resolvePath(DataPath(pathStr));
     _dataModel.update(absolutePath, contents);
   }
 
   /// Creates a new, nested DataContext for a child widget.
-  /// Used by list/template widgets for their children.
-  DataContext nested(DataPath relativePath) {
-    final DataPath newPath = resolvePath(relativePath);
+  ///
+  /// Used by list/template widgets to create a context for their children.
+  DataContext nested(String relativePath) {
+    final DataPath newPath = resolvePath(DataPath(relativePath));
     return DataContext._(_dataModel, newPath);
   }
 
+  /// Resolves a path against the current context's path.
   DataPath resolvePath(DataPath pathToResolve) {
     if (pathToResolve.isAbsolute) {
       return pathToResolve;
     }
     return path.join(pathToResolve);
   }
+
+  /// Resolves any expressions in the given value.
+  Object? resolve(Object? value) {
+    if (value is String) {
+      return ExpressionParser(this).parse(value);
+    }
+    if (value is Map && value.containsKey('call')) {
+      return ExpressionParser(this).evaluateFunctionCall(value as JsonMap);
+    }
+    return value;
+  }
+
+  ValueNotifier<T?> createComputedNotifier<T>(Object? expression) {
+    // Create a notifier that re-evaluates the expression when its dependencies
+    // change.
+    return _ComputedValueNotifier<T>(this, expression);
+  }
 }
 
-/// Manages the application's Object? data model and provides
-/// a subscription-based mechanism for reactive UI updates.
-class DataModel {
+class _ComputedValueNotifier<T> extends ValueNotifier<T?> {
+  _ComputedValueNotifier(this.context, this.expression) : super(null) {
+    initialEvaluation();
+  }
+
+  final DataContext context;
+  final Object? expression;
+  final List<VoidCallback> unsubscribers = [];
+
+  void initialEvaluation() {
+    // Use ExpressionParser to robustly extract paths, including those in
+    // function calls and nested expressions.
+    final Set<DataPath> paths = ExpressionParser(
+      context,
+    ).extractDependenciesFrom(expression);
+
+    for (final path in paths) {
+      final ValueNotifier<dynamic> notifier = context.subscribe(
+        path.toString(),
+      ); // Re-enter subscribe for raw paths
+      void listener() => evaluate();
+      notifier.addListener(listener);
+      unsubscribers.add(() => notifier.removeListener(listener));
+    }
+    evaluate();
+  }
+
+  void evaluate() {
+    final parser = ExpressionParser(context);
+    final Object? result = parser.evaluate(expression);
+    value = result as T?;
+  }
+
+  @override
+  void dispose() {
+    for (final VoidCallback unsub in unsubscribers) {
+      unsub();
+    }
+    super.dispose();
+  }
+}
+
+/// Manages the application's data model and provides a subscription-based
+/// mechanism for reactive UI updates.
+interface class DataModel {
   JsonMap _data = {};
   final Map<DataPath, ValueNotifier<Object?>> _subscriptions = {};
-  final Map<DataPath, ValueNotifier<Object?>> _valueSubscriptions = {};
+
+  final List<VoidCallback> _cleanupCallbacks = [];
 
   /// The full contents of the data model.
   JsonMap get data => _data;
 
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
+  ///
+  /// If [absolutePath] is null or root, the entire data model is replaced
+  /// (if contents is a Map).
   void update(DataPath? absolutePath, Object? contents) {
     genUiLogger.info(
       'DataModel.update: path=$absolutePath, contents='
       '${const JsonEncoder.withIndent('  ').convert(contents)}',
     );
-    if (absolutePath == null || absolutePath.segments.isEmpty) {
-      if (contents is List) {
-        _data = _parseDataModelContents(contents);
-      } else if (contents is Map) {
-        // Permissive: Allow a map to be sent for the root, even though the
-        // schema expects a list.
-        genUiLogger.info(
-          'DataModel.update: contents for root path is a Map, not a '
-          'List: $contents',
-        );
+
+    if (absolutePath == null ||
+        absolutePath.segments.isEmpty ||
+        absolutePath == DataPath.root) {
+      if (contents is Map) {
         _data = Map<String, Object?>.from(contents);
       } else {
         genUiLogger.warning(
-          'DataModel.update: contents for root path is not a List or '
-          'Map: $contents',
+          'DataModel.update: contents for root path is not a Map: $contents',
         );
-        _data = <String, Object?>{}; // Fallback
+        if (contents == null) {
+          _data = {};
+        }
       }
       _notifySubscribers(DataPath.root);
       return;
@@ -157,11 +265,11 @@ class DataModel {
 
   /// Subscribes to a specific absolute path in the data model.
   ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
-    genUiLogger.info('DataModel.subscribe: path=$absolutePath');
+    genUiLogger.finer('DataModel.subscribe: path=$absolutePath');
     final T? initialValue = getValue<T>(absolutePath);
     if (_subscriptions.containsKey(absolutePath)) {
       final notifier = _subscriptions[absolutePath]! as ValueNotifier<T?>;
-      notifier.value = initialValue;
+
       return notifier;
     }
     final notifier = ValueNotifier<T?>(initialValue);
@@ -169,93 +277,84 @@ class DataModel {
     return notifier;
   }
 
-  /// Subscribes to a specific absolute path in the data model, only notifying
-  /// when the value at that exact path changes.
-  ValueNotifier<T?> subscribeToValue<T>(DataPath absolutePath) {
-    genUiLogger.info('DataModel.subscribeToValue: path=$absolutePath');
-    final T? initialValue = getValue<T>(absolutePath);
-    if (_valueSubscriptions.containsKey(absolutePath)) {
-      final notifier = _valueSubscriptions[absolutePath]! as ValueNotifier<T?>;
-      notifier.value = initialValue;
-      return notifier;
+  final List<VoidCallback> _externalSubscriptions = [];
+
+  /// Binds an external state [source] to a [path] in the DataModel.
+  ///
+  /// If [twoWay] is true, changes in the DataModel at [path] will also
+  /// update the [source] (assuming [source] is a [ValueNotifier]).
+  void bindExternalState<T>({
+    required DataPath path,
+    required ValueListenable<T> source,
+    bool twoWay = false,
+  }) {
+    update(path, source.value);
+
+    void onSourceChanged() {
+      final T newValue = source.value;
+      final T? currentValue = getValue<T>(path);
+      if (currentValue != newValue) {
+        update(path, newValue);
+      }
     }
-    final notifier = ValueNotifier<T?>(initialValue);
-    _valueSubscriptions[absolutePath] = notifier;
-    return notifier;
+
+    source.addListener(onSourceChanged);
+    _externalSubscriptions.add(() => source.removeListener(onSourceChanged));
+
+    if (twoWay) {
+      if (source is! ValueNotifier<T>) {
+        genUiLogger.warning(
+          'bindExternalState: twoWay is true but source is not a '
+          'ValueNotifier.',
+        );
+      } else {
+        final ValueNotifier<T> notifier = source;
+        final ValueNotifier<T?> subscription = subscribe<T>(path);
+
+        void onModelChanged() {
+          final T? modelValue = subscription.value;
+          if (modelValue != null && modelValue != notifier.value) {
+            notifier.value = modelValue;
+          }
+        }
+
+        subscription.addListener(onModelChanged);
+        _externalSubscriptions.add(
+          () => subscription.removeListener(onModelChanged),
+        );
+      }
+    }
+  }
+
+  /// Disposes resources and bindings.
+  void dispose() {
+    for (final VoidCallback callback in _cleanupCallbacks) {
+      callback();
+    }
+    _cleanupCallbacks.clear();
+
+    for (final VoidCallback callback in _externalSubscriptions) {
+      callback();
+    }
+    _externalSubscriptions.clear();
+
+    for (final ValueNotifier<Object?> notifier in _subscriptions.values) {
+      notifier.dispose();
+    }
+    _subscriptions.clear();
   }
 
   /// Retrieves a static, one-time value from the data model at the
   /// specified absolute path without creating a subscription.
   T? getValue<T>(DataPath absolutePath) {
-    return _getValue(_data, absolutePath.segments) as T?;
-  }
-
-  /// Parses a list of content objects into a [JsonMap].
-  ///
-  /// Each item in [contents] is expected to be a `Map<String, Object?>`
-  /// with a 'key' and a single 'valueString', 'valueNumber', 'valueBoolean',
-  /// or 'valueMap' entry.
-  JsonMap _parseDataModelContents(List<Object?> contents) {
-    final newData = <String, Object?>{};
-    for (final item in contents) {
-      if (item is! Map<String, Object?> || !item.containsKey('key')) {
-        genUiLogger.warning('Invalid item in dataModelUpdate contents: $item');
-        continue;
-      }
-
-      final key = item['key'] as String;
-      Object? value;
-      var valueCount = 0;
-
-      const valueKeys = [
-        'valueString',
-        'valueNumber',
-        'valueBoolean',
-        'valueMap',
-      ];
-      for (final valueKey in valueKeys) {
-        if (item.containsKey(valueKey)) {
-          if (valueCount == 0) {
-            if (valueKey == 'valueMap') {
-              if (item[valueKey] is List) {
-                value = _parseDataModelContents(
-                  (item[valueKey] as List).cast<Object?>(),
-                );
-              } else {
-                genUiLogger.warning(
-                  'valueMap for key "$key" is not a List: ${item[valueKey]}',
-                );
-              }
-            } else {
-              value = item[valueKey];
-            }
-          }
-          valueCount++;
-        }
-      }
-
-      if (valueCount == 0) {
-        genUiLogger.warning(
-          'No value field found for key "$key" in contents: $item',
-        );
-      } else if (valueCount > 1) {
-        genUiLogger.warning(
-          'Multiple value fields found for key "$key" in contents: $item. '
-          'Using the first one found.',
-        );
-      }
-      newData[key] = value;
+    if (absolutePath == DataPath.root) {
+      return _data as T?;
     }
-    return newData;
+    return _getValue(_data, absolutePath.segments) as T?;
   }
 
   /// Retrieves a static, one-time value from the data model at the
   /// specified path segments without creating a subscription.
-  ///
-  /// The [current] parameter is the current node in the data model being
-  /// traversed.
-  /// The [segments] parameter is the list of remaining path segments to
-  /// traverse.
   Object? _getValue(Object? current, List<String> segments) {
     if (segments.isEmpty) {
       return current;
@@ -276,12 +375,6 @@ class DataModel {
   }
 
   /// Updates the given path with a new value without creating a subscription.
-  ///
-  /// The [current] parameter is the current node in the data model being
-  /// traversed.
-  /// The [segments] parameter is the list of remaining path segments to
-  /// traverse.
-  /// The [value] parameter is the new value to set at the specified path.
   void _updateValue(Object? current, List<String> segments, Object? value) {
     if (segments.isEmpty) {
       return;
@@ -292,19 +385,22 @@ class DataModel {
 
     if (current is Map) {
       if (remaining.isEmpty) {
-        current[segment] = value;
+        if (value == null) {
+          current.remove(segment);
+        } else {
+          current[segment] = value;
+        }
         return;
       }
 
-      // If we are here, remaining is not empty.
       Object? nextNode = current[segment];
       if (nextNode == null) {
-        // Create the node if it doesn't exist, so the recursive call can
-        // populate it.
+        if (value == null) {
+          return;
+        }
+
         final String nextSegment = remaining.first;
-        final bool isNextSegmentListIndex = nextSegment.startsWith(
-          RegExp(r'^\d+$'),
-        );
+        final isNextSegmentListIndex = int.tryParse(nextSegment) != null;
         nextNode = isNextSegmentListIndex ? <dynamic>[] : <String, dynamic>{};
         current[segment] = nextNode;
       }
@@ -314,59 +410,50 @@ class DataModel {
       if (index != null && index >= 0) {
         if (remaining.isEmpty) {
           if (index < current.length) {
-            current[index] = value;
+            if (value == null) {
+              current[index] = value;
+            } else {
+              current[index] = value;
+            }
           } else if (index == current.length) {
-            current.add(value);
-          } else {
-            throw ArgumentError(
-              'Index out of bounds for list update: index ($index) is greater '
-              'than list length (${current.length}).',
-            );
+            if (value != null) current.add(value);
           }
         } else {
           if (index < current.length) {
             _updateValue(current[index], remaining, value);
           } else if (index == current.length) {
-            // If the index is the length, we're adding a new item which
-            // should be a map or list based on the next segment.
-            if (remaining.first.startsWith(RegExp(r'^\d+$'))) {
-              current.add(<dynamic>[]);
-            } else {
-              current.add(<String, dynamic>{});
-            }
-            _updateValue(current[index], remaining, value);
-          } else {
-            throw ArgumentError(
-              'Index out of bounds for nested update: index ($index) is '
-              'greater than list length (${current.length}).',
-            );
+            final String nextSegment = remaining.first;
+            final isNextSegmentListIndex = int.tryParse(nextSegment) != null;
+            final Object newItem = isNextSegmentListIndex
+                ? <dynamic>[]
+                : <String, dynamic>{};
+            current.add(newItem);
+            _updateValue(newItem, remaining, value);
           }
         }
-      } else {
-        genUiLogger.warning('Invalid list index segment: $segment');
       }
     }
   }
 
   void _notifySubscribers(DataPath path) {
-    genUiLogger.info(
-      'DataModel._notifySubscribers: notifying '
-      '${_subscriptions.length} subscribers for path=$path',
-    );
-    for (final DataPath p in _subscriptions.keys) {
-      if (p.startsWith(path) || path.startsWith(p)) {
-        genUiLogger.info('  - Notifying subscriber for path=$p');
-        final ValueNotifier<Object?>? subscriber = _subscriptions[p];
-        if (subscriber != null) {
-          subscriber.value = getValue<Object?>(p);
-        }
+    if (_subscriptions.containsKey(path)) {
+      _subscriptions[path]!.value = getValue(path);
+    }
+
+    var parent = path;
+    while (!parent.isAbsolute || parent.segments.isNotEmpty) {
+      if (parent == DataPath.root) break;
+      parent = parent.dirname;
+      if (_subscriptions.containsKey(parent)) {
+        _subscriptions[parent]!.value = getValue(parent);
       }
     }
-    if (_valueSubscriptions.containsKey(path)) {
-      genUiLogger.info('  - Notifying value subscriber for path=$path');
-      final ValueNotifier<Object?>? subscriber = _valueSubscriptions[path];
-      if (subscriber != null) {
-        subscriber.value = getValue<Object?>(path);
+    if (path != DataPath.root && _subscriptions.containsKey(DataPath.root)) {
+      _subscriptions[DataPath.root]!.value = getValue(DataPath.root);
+    }
+    for (final DataPath p in _subscriptions.keys) {
+      if (p.startsWith(path) && p != path) {
+        _subscriptions[p]!.value = getValue(p);
       }
     }
   }

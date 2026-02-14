@@ -22,7 +22,7 @@ void validateCatalogExamples(
     ...catalog.items,
     ...additionalCatalogs.expand((c) => c.items),
   ]);
-  final Schema schema = A2uiSchemas.surfaceUpdateSchema(mergedCatalog);
+  final Schema schema = A2uiSchemas.updateComponentsSchema(mergedCatalog);
 
   for (final CatalogItem item in catalog.items) {
     group('CatalogItem ${item.name}', () {
@@ -48,7 +48,7 @@ void validateCatalogExamples(
             reason: 'Example must have a component with id "root"',
           );
 
-          final surfaceUpdate = SurfaceUpdate(
+          final surfaceUpdate = UpdateComponents(
             surfaceId: 'test-surface',
             components: components,
           );

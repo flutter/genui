@@ -27,8 +27,10 @@ void main() {
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
+                    type: 'OptionsFilterChipInput',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
@@ -89,8 +91,10 @@ void main() {
               builder: (context) {
                 return optionsFilterChipInput.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
+                    type: 'OptionsFilterChipInput',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
@@ -123,6 +127,59 @@ void main() {
 
       // Check if the data model is updated.
       expect(dataModel.getValue<String>(DataPath('/price')), '\$\$\$');
+    });
+
+    testWidgets('renders correctly and handles selection with literal value '
+        '(implicit binding)', (WidgetTester tester) async {
+      final dataModel = DataModel();
+      final Map<String, Object> data = {
+        'chipLabel': 'Price',
+        'options': ['\$', '\$\$', '\$\$\$'],
+        'value': '\$',
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return optionsFilterChipInput.widgetBuilder(
+                  CatalogItemContext(
+                    getCatalogItem: (type) => null,
+                    data: data,
+                    id: 'testId',
+                    type: 'OptionsFilterChipInput',
+                    buildChild: (_, [_]) => const SizedBox.shrink(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      // Check initial state (should show literal value).
+      expect(find.byType(FilterChip), findsOneWidget);
+      expect(find.text('\$'), findsOneWidget);
+
+      // Tap the chip to open the modal bottom sheet.
+      await tester.tap(find.byType(FilterChip));
+      await tester.pumpAndSettle();
+
+      // Tap an option.
+      await tester.tap(find.text('\$\$\$').last);
+      await tester.pumpAndSettle();
+
+      // Check if the chip label is updated.
+      expect(find.text('\$\$\$'), findsOneWidget);
+
+      // Check if the data model is updated at implicit path.
+      expect(dataModel.getValue<String>(DataPath('testId.value')), '\$\$\$');
     });
   });
 }

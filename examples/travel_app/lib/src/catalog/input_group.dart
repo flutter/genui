@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['InputGroup']),
     'submitLabel': A2uiSchemas.stringReference(
       description: 'The label for the submit button.',
     ),
@@ -25,7 +26,7 @@ final _schema = S.object(
           'know what the user has selected.',
     ),
   },
-  required: ['submitLabel', 'children', 'action'],
+  required: ['component', 'submitLabel', 'children', 'action'],
 );
 
 extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
@@ -39,7 +40,7 @@ extension type _InputGroupData.fromMap(Map<String, Object?> _json) {
     'action': action,
   });
 
-  JsonMap get submitLabel => _json['submitLabel'] as JsonMap;
+  Object get submitLabel => _json['submitLabel'] as Object;
   List<String> get children => (_json['children'] as List).cast<String>();
   JsonMap get action => _json['action'] as JsonMap;
 }
@@ -58,60 +59,41 @@ final inputGroup = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "InputGroup": {
-              "submitLabel": {
-                "literalString": "Submit"
-              },
-              "children": [
-                "check_in",
-                "check_out",
-                "text_input1",
-                "text_input2"
-              ],
-              "action": {
-                "name": "submit_form"
-              }
+          "component": "InputGroup",
+          "submitLabel": "Submit",
+          "children": [
+            "check_in",
+            "check_out",
+            "text_input1",
+            "text_input2"
+          ],
+          "action": {
+            "event": {
+              "name": "submit_form"
             }
           }
         },
         {
           "id": "check_in",
-          "component": {
-            "DateInputChip": {
-              "value": {
-                "literalString": "2026-07-22"
-              },
-              "label": "Check-in date"
-            }
-          }
+          "component": "DateInputChip",
+          "value": "2026-07-22",
+          "label": "Check-in date"
         },
         {
           "id": "check_out",
-          "component": {
-            "DateInputChip": {
-              "label": "Check-out date"
-            }
-          }
+          "component": "DateInputChip",
+          "label": "Check-out date"
         },
         {
           "id": "text_input1",
-          "component": {
-            "TextInputChip": {
-              "value": {
-                "literalString": "John Doe"
-              },
-              "label": "Enter your name"
-            }
-          }
+          "component": "TextInputChip",
+          "value": "John Doe",
+          "label": "Enter your name"
         },
         {
           "id": "text_input2",
-          "component": {
-            "TextInputChip": {
-              "label": "Enter your friend's name"
-            }
-          }
+          "component": "TextInputChip",
+          "label": "Enter your friend's name"
         }
       ]
     ''',
@@ -128,9 +110,9 @@ final inputGroup = CatalogItem(
 
     final List<String> children = inputGroupData.children;
     final JsonMap actionData = inputGroupData.action;
-    final name = actionData['name'] as String;
-    final List<Object?> contextDefinition =
-        (actionData['context'] as List<Object?>?) ?? <Object?>[];
+    final event = actionData['event'] as JsonMap?;
+    final String name = event?['name'] as String? ?? 'unknown';
+    final contextDefinition = event?['context'] as JsonMap?;
 
     return Card(
       color: Theme.of(itemContext.buildContext).colorScheme.primaryContainer,

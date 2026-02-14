@@ -31,7 +31,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
           _initialRequestSent = true;
         });
         aiState.conversation.sendRequest(
-          UserMessage.text('USER_SUBMITTED_DETAILS'),
+          ChatMessage.user('USER_SUBMITTED_DETAILS'),
         );
       }
     });
@@ -53,18 +53,20 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
           .watch(aiProvider)
           .when(
             data: (aiState) {
-              return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor
-                    .getSurfaceNotifier('questionnaire'),
+              return ValueListenableBuilder<SurfaceDefinition?>(
+                valueListenable: aiState.a2uiMessageProcessor.watchSurface(
+                  'questionnaire',
+                ),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                    child: GenUiSurface(
-                      host: aiState.a2uiMessageProcessor,
-                      surfaceId: 'questionnaire',
+                    child: Surface(
+                      surfaceContext: aiState.a2uiMessageProcessor.contextFor(
+                        'questionnaire',
+                      ),
                     ),
                   );
                 },

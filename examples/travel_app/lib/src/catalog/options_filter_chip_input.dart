@@ -16,6 +16,7 @@ final _schema = S.object(
       'A chip used to choose from a set of mutually exclusive '
       'options. This *must* be placed inside an InputGroup.',
   properties: {
+    'component': S.string(enumValues: ['OptionsFilterChipInput']),
     'chipLabel': S.string(
       description:
           'The title of the filter chip e.g. "budget" or "activity type" '
@@ -36,7 +37,7 @@ final _schema = S.object(
           'option must exist in the "options" list.',
     ),
   },
-  required: ['chipLabel', 'options'],
+  required: ['component', 'chipLabel', 'options'],
 );
 
 extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
@@ -55,7 +56,9 @@ extension type _OptionsFilterChipInputData.fromMap(Map<String, Object?> _json) {
   String get chipLabel => _json['chipLabel'] as String;
   List<String> get options => (_json['options'] as List).cast<String>();
   String? get iconName => _json['iconName'] as String?;
-  JsonMap? get value => _json['value'] as JsonMap?;
+  JsonMap? get value =>
+      _json['value'] is Map ? _json['value'] as JsonMap : null;
+  Object? get rawValue => _json['value'];
 }
 
 /// An interactive chip that allows the user to select a single option from a
@@ -76,19 +79,10 @@ final optionsFilterChipInput = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "OptionsFilterChipInput": {
-              "chipLabel": "Budget",
-              "options": [
-                "\$",
-                "\$\$",
-                "\$\$\$"
-              ],
-              "value": {
-                "literalString": "\$\$"
-              }
-            }
-          }
+          "component": "OptionsFilterChipInput",
+          "chipLabel": "Budget",
+          "options": ["Low", "Medium", "High"],
+          "value": "Medium"
         }
       ]
     ''',
@@ -108,22 +102,32 @@ final optionsFilterChipInput = CatalogItem(
       }
     }
 
-    final JsonMap? valueRef = optionsFilterChipData.value;
-    final path = valueRef?['path'] as String?;
+    final Object? valueRef = optionsFilterChipData.rawValue;
+    // If the value is a literal, we still want to bind to a path so that we can
+    // update the model (and the UI) when the user changes the value.
+    final path = valueRef is Map && valueRef.containsKey('path')
+        ? valueRef['path'] as String
+        : '${context.id}.value';
+    // Always subscribe to the path, even if we have a literal value.
     final ValueNotifier<String?> notifier = context.dataContext
-        .subscribeToString(valueRef);
+        .subscribeToString({'path': path});
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (builderContext, currentValue, child) {
+        // If the data model is empty at the path, fall back to the literal
+        // value provided in the component definition.
+        final String? effectiveValue =
+            currentValue ?? (valueRef is String ? valueRef : null);
+
         return _OptionsFilterChip(
           chipLabel: optionsFilterChipData.chipLabel,
           options: optionsFilterChipData.options,
           icon: icon,
-          value: currentValue,
+          value: effectiveValue,
           onChanged: (newValue) {
-            if (path != null && newValue != null) {
-              context.dataContext.update(DataPath(path), newValue);
+            if (newValue != null) {
+              context.dataContext.update(path, newValue);
             }
           },
         );

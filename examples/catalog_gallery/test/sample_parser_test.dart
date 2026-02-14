@@ -12,8 +12,8 @@ void main() {
 name: Test Sample
 description: A test description
 ---
-{"surfaceUpdate": {"surfaceId": "default", "components": [{"id": "text1", "component": {"Text": {"text": {"literalString": "Hello"}}}}]}}
-{"beginRendering": {"surfaceId": "default", "root": "text1"}}
+{"version": "v0.9", "updateComponents": {"surfaceId": "default", "components": [{"id": "text1", "component": "Text", "text": "Hello"}]}}
+{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json"}}
 ''';
 
     final Sample sample = SampleParser.parseString(sampleContent);
@@ -23,17 +23,46 @@ description: A test description
 
     final List<A2uiMessage> messages = await sample.messages.toList();
     expect(messages.length, 2);
-    expect(messages.first, isA<SurfaceUpdate>());
-    expect(messages.last, isA<BeginRendering>());
+    expect(messages.first, isA<UpdateComponents>());
+    expect(messages.last, isA<CreateSurface>());
 
-    final update = messages.first as SurfaceUpdate;
+    final update = messages.first as UpdateComponents;
     expect(update.surfaceId, 'default');
     expect(update.components.length, 1);
     expect(update.components.first.type, 'Text');
 
-    final begin = messages.last as BeginRendering;
+    final begin = messages.last as CreateSurface;
     expect(begin.surfaceId, 'default');
-    expect(begin.root, 'text1');
+    // begin.root check removed as it doesn't exist in CreateSurface
+  });
+
+  test(
+    'SampleParser parses sample with frontmatter (leading dashes)',
+    () async {
+      const sampleContent = '''
+---
+name: Frontmatter Sample
+description: A description
+---
+{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
+''';
+      final Sample sample = SampleParser.parseString(sampleContent);
+      expect(sample.name, 'Frontmatter Sample');
+      final List<A2uiMessage> messages = await sample.messages.toList();
+      expect(messages.length, 1);
+    },
+  );
+
+  test('SampleParser parses sample with empty header', () async {
+    const sampleContent = '''
+---
+---
+{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
+''';
+    final Sample sample = SampleParser.parseString(sampleContent);
+    expect(sample.name, 'Untitled Sample');
+    final List<A2uiMessage> messages = await sample.messages.toList();
+    expect(messages.length, 1);
   });
 
   test('SampleParser throws on missing separator', () {

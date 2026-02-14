@@ -9,9 +9,7 @@ homepage: https://github.com/flutter/genui/tree/main/packages/genai_primitives
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
 
-# This package is not included in monorepo, because:
-# 1. This dependency path requires one of the genui packages to be excluded from monorepo: genui_dartantic --> dartantic_ai --> genai_primitives
-# 2. We do not want the community to get new version of primitives with every change of genui
+# This package is not included in monorepo to avoid circular dependencies and unrelated updates.
 
 environment:
   sdk: ">=3.9.2 <4.0.0"
@@ -20,6 +18,7 @@ dependencies:
   collection: ^1.19.1
   cross_file: ^0.3.5+1
   json_schema_builder: ^0.1.3
+  logging: ^1.3.0
   meta: ^1.17.0
   mime: ^2.0.0
   path: ^1.9.1

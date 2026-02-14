@@ -20,11 +20,10 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
-                  data: {
-                    'value': {'literalString': '2025-09-20'},
-                    'label': 'Test Date',
-                  },
+                  getCatalogItem: (type) => null,
+                  data: {'value': '2025-09-20', 'label': 'Test Date'},
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
@@ -55,11 +54,13 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
                   },
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
@@ -95,11 +96,13 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
                   },
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
@@ -136,11 +139,13 @@ void main() {
             builder: (context) {
               return dateInputChip.widgetBuilder(
                 CatalogItemContext(
+                  getCatalogItem: (type) => null,
                   data: {
                     'value': {'path': '/testDate'},
                     'label': 'Test Date',
                   },
                   id: 'test_chip',
+                  type: 'DateInputChip',
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
@@ -179,4 +184,51 @@ void main() {
       findsOneWidget,
     );
   });
+  testWidgets(
+    'DateInputChip updates implicit data model path on date selection when '
+    'initialized with literal',
+    (WidgetTester tester) async {
+      final dataModel = DataModel();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return dateInputChip.widgetBuilder(
+                  CatalogItemContext(
+                    getCatalogItem: (type) => null,
+                    data: {'value': '2025-09-20', 'label': 'Test Date'},
+                    id: 'test_chip_implicit',
+                    type: 'DateInputChip',
+                    buildChild: (data, [_]) => const SizedBox(),
+                    dispatchEvent: (event) {},
+                    buildContext: context,
+                    dataContext: DataContext(dataModel, '/'),
+                    getComponent: (String componentId) => null,
+                    surfaceId: 'surface1',
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Test Date: Sep 20, 2025'), findsOneWidget);
+
+      await tester.tap(find.byType(FilterChip));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('10'));
+      await tester.pumpAndSettle();
+
+      // Verify update to implicit path: test_chip_implicit.value
+      expect(
+        dataModel.getValue<String>(DataPath('test_chip_implicit.value')),
+        '2025-09-10',
+      );
+      expect(find.text('Test Date: Sep 10, 2025'), findsOneWidget);
+    },
+  );
 }

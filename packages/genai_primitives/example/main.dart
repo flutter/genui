@@ -9,17 +9,22 @@ import 'dart:typed_data';
 
 import 'package:genai_primitives/genai_primitives.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
 
 void main({void Function(Object?)? output}) {
-  void print(Object? object) {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
     if (output != null) {
-      output(object);
+      output(record.message);
     } else {
-      core.print(object);
+      // ignore: avoid_print
+      core.print(record.message);
     }
-  }
+  });
 
-  print('--- GenAI Primitives Example ---');
+  final log = Logger('GenAIPrimitivesExample');
+
+  log.info('--- GenAI Primitives Example ---');
 
   // 1. Define a Tool
   final ToolDefinition<Object> getWeatherTool = ToolDefinition(
@@ -39,8 +44,8 @@ void main({void Function(Object?)? output}) {
     ),
   );
 
-  print('\n[Tool Definition]');
-  print(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
+  log.info('\n[Tool Definition]');
+  log.info(const JsonEncoder.withIndent('  ').convert(getWeatherTool.toJson()));
 
   // 2. Create a conversation history
   final history = <ChatMessage>[
@@ -54,9 +59,9 @@ void main({void Function(Object?)? output}) {
     ChatMessage.user('What is the weather in London?'),
   ];
 
-  print('\n[Initial Conversation]');
+  log.info('\n[Initial Conversation]');
   for (final msg in history) {
-    print('${msg.role.name}: ${msg.text}');
+    log.info('${msg.role.name}: ${msg.text}');
   }
 
   // 3. Simulate Model Response with Tool Call
@@ -73,10 +78,10 @@ void main({void Function(Object?)? output}) {
   );
   history.add(modelResponse);
 
-  print('\n[Model Response with Tool Call]');
+  log.info('\n[Model Response with Tool Call]');
   if (modelResponse.hasToolCalls) {
     for (final ToolPart call in modelResponse.toolCalls) {
-      print('Tool Call: ${call.toolName}(${call.arguments})');
+      log.info('Tool Call: ${call.toolName}(${call.arguments})');
     }
   }
 
@@ -93,8 +98,8 @@ void main({void Function(Object?)? output}) {
   );
   history.add(toolResult);
 
-  print('\n[Tool Result]');
-  print('Result: ${toolResult.toolResults.first.result}');
+  log.info('\n[Tool Result]');
+  log.info('Result: ${toolResult.toolResults.first.result}');
 
   // 5. Simulate Final Model Response with Data (e.g. an image generated or
   //    returned)
@@ -110,19 +115,19 @@ void main({void Function(Object?)? output}) {
   );
   history.add(finalResponse);
 
-  print('\n[Final Model Response with Data]');
-  print('Text: ${finalResponse.text}');
+  log.info('\n[Final Model Response with Data]');
+  log.info('Text: ${finalResponse.text}');
   if (finalResponse.parts.any((p) => p is DataPart)) {
     final DataPart dataPart = finalResponse.parts.whereType<DataPart>().first;
-    print(
+    log.info(
       'Attachment: ${dataPart.name} '
       '(${dataPart.mimeType}, ${dataPart.bytes.length} bytes)',
     );
   }
 
   // 6. Demonstrate JSON serialization of the whole history
-  print('\n[Full History JSON]');
-  print(
+  log.info('\n[Full History JSON]');
+  log.info(
     const JsonEncoder.withIndent(
       '  ',
     ).convert(history.map((m) => m.toJson()).toList()),

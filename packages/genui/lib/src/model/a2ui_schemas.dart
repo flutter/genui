@@ -4,248 +4,488 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../primitives/simple_items.dart';
 import 'catalog.dart';
-import 'tools.dart';
 
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 abstract final class A2uiSchemas {
+  /// Defines the usage of the function registry.
+  static Schema clientFunctions() {
+    return S.list(
+      title: 'A2UI Client Functions',
+      description: 'A list of functions available for use in the client.',
+      items: S.combined(
+        oneOf: [
+          _requiredFunction(),
+          _regexFunction(),
+          _lengthFunction(),
+          _numericFunction(),
+          _emailFunction(),
+          _formatStringFunction(),
+          _formatNumberFunction(),
+          _formatCurrencyFunction(),
+          _formatDateFunction(),
+          _andFunction(),
+          _orFunction(),
+          _notFunction(),
+        ],
+      ),
+    );
+  }
+
+  static Schema _functionDefinition({
+    required String name,
+    required String description,
+    required String returnType,
+    required Schema args,
+  }) {
+    return S.object(
+      description: description,
+      properties: {
+        'call': S.string(constValue: name),
+        'args': args,
+        'returnType': S.string(constValue: returnType),
+      },
+      required: ['call', 'args'],
+    );
+  }
+
+  static Schema _requiredFunction() {
+    return _functionDefinition(
+      name: 'required',
+      description: 'Checks that the value is not null, undefined, or empty.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {'value': S.any(description: 'The value to check.')},
+        required: ['value'],
+      ),
+    );
+  }
+
+  static Schema _regexFunction() {
+    return _functionDefinition(
+      name: 'regex',
+      description: 'Checks that the value matches a regular expression string.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {
+          'value': S.any(), // DynamicString
+          'pattern': S.string(
+            description: 'The regex pattern to match against.',
+          ),
+        },
+        required: ['value', 'pattern'],
+      ),
+    );
+  }
+
+  static Schema _lengthFunction() {
+    return _functionDefinition(
+      name: 'length',
+      description: 'Checks string length constraints.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {
+          'value': S.any(), // DynamicString
+          'min': S.integer(
+            minimum: 0,
+            description: 'The minimum allowed length.',
+          ),
+          'max': S.integer(
+            minimum: 0,
+            description: 'The maximum allowed length.',
+          ),
+        },
+        required: ['value'],
+      ),
+    );
+  }
+
+  static Schema _numericFunction() {
+    return _functionDefinition(
+      name: 'numeric',
+      description: 'Checks numeric range constraints.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {
+          'value': S.any(), // DynamicNumber
+          'min': S.number(description: 'The minimum allowed value.'),
+          'max': S.number(description: 'The maximum allowed value.'),
+        },
+        required: ['value'],
+      ),
+    );
+  }
+
+  static Schema _emailFunction() {
+    return _functionDefinition(
+      name: 'email',
+      description: 'Checks that the value is a valid email address.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {
+          'value': S.any(), // DynamicString
+        },
+        required: ['value'],
+      ),
+    );
+  }
+
+  static Schema _formatStringFunction() {
+    return _functionDefinition(
+      name: 'formatString',
+      description:
+          '''Performs string interpolation of data model values and other functions.''',
+      returnType: 'string',
+      args: S.object(
+        properties: {'value': S.any(description: 'The string to format.')},
+        required: ['value'],
+        additionalProperties: true, // Allow other interpolation args
+      ),
+    );
+  }
+
+  static Schema _formatNumberFunction() {
+    return _functionDefinition(
+      name: 'formatNumber',
+      description:
+          'Formats a number with the specified grouping and decimal precision.',
+      returnType: 'string',
+      args: S.object(
+        properties: {
+          'value': S.number(description: 'The number to format.'),
+          'decimalPlaces': S.integer(
+            description: 'Optional. The number of decimal places to show.',
+          ),
+          'useGrouping': S.boolean(
+            description:
+                '''Optional. If true, uses locale-specific grouping separators.''',
+          ),
+        },
+        required: ['value'],
+      ),
+    );
+  }
+
+  static Schema _formatCurrencyFunction() {
+    return _functionDefinition(
+      name: 'formatCurrency',
+      description: 'Formats a number as a currency string.',
+      returnType: 'string',
+      args: S.object(
+        properties: {
+          'value': S.number(description: 'The monetary amount.'),
+          'currencyCode': S.string(
+            description: "The ISO 4217 currency code (e.g., 'USD', 'EUR').",
+          ),
+        },
+        required: ['value', 'currencyCode'],
+      ),
+    );
+  }
+
+  static Schema _formatDateFunction() {
+    return _functionDefinition(
+      name: 'formatDate',
+      description: 'Formats a timestamp into a string using a pattern.',
+      returnType: 'string',
+      args: S.object(
+        properties: {
+          'value': S.any(description: 'The date to format.'),
+          'pattern': S.string(
+            description: 'The format pattern (e.g. "MM/dd/yyyy").',
+          ),
+        },
+        required: ['value', 'pattern'],
+      ),
+    );
+  }
+
+  static Schema _andFunction() {
+    return _functionDefinition(
+      name: 'and',
+      description: 'Performs logical AND on a list of values.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {'values': S.list(items: S.any(), minItems: 2)},
+        required: ['values'],
+      ),
+    );
+  }
+
+  static Schema _orFunction() {
+    return _functionDefinition(
+      name: 'or',
+      description: 'Performs logical OR on a list of values.',
+      returnType: 'boolean',
+      args: S.object(
+        properties: {'values': S.list(items: S.any(), minItems: 2)},
+        required: ['values'],
+      ),
+    );
+  }
+
+  static Schema _notFunction() {
+    return _functionDefinition(
+      name: 'not',
+      description: 'Performs logical NOT on a value.',
+      returnType: 'boolean',
+      args: S.object(properties: {'value': S.any()}, required: ['value']),
+    );
+  }
+
+  /// Schema for a function call.
+  static Schema functionCall() => S.object(
+    properties: {
+      'call': S.string(description: 'The name of the function to call.'),
+      'args': S.object(
+        description: 'Arguments to pass to the function.',
+        additionalProperties: true,
+      ),
+    },
+    required: ['call'],
+  );
+
+  /// Schema for a validation check, including logic and an error message.
+  static Schema validationCheck({String? description}) {
+    return S.object(
+      description: description,
+      properties: {
+        'message': S.string(description: 'Error message if validation fails.'),
+        'condition': S.any(
+          description:
+              'DynamicBoolean condition (FunctionCall, DataBinding, or '
+              'literal).',
+        ),
+      },
+      required: ['message', 'condition'],
+    );
+  }
+
   /// Schema for a value that can be either a literal string or a
-  /// data-bound path to a string in the DataModel. If both path and
-  /// literal are provided, the value at the path will be initialized
-  /// with the literal.
-  ///
-  /// If `enumValues` are provided, the string value (either literal or at the
-  /// path) must be one of the values in the enum.
+  /// data-bound path to a string in the DataModel.
   static Schema stringReference({
     String? description,
     List<String>? enumValues,
-  }) => S.object(
-    description: description,
-    properties: {
-      'path': S.string(
-        description: 'A relative or absolute path in the data model.',
-        enumValues: enumValues,
-      ),
-      'literalString': S.string(enumValues: enumValues),
-    },
-  );
+  }) {
+    final literal = S.string(
+      description: 'A literal string value.',
+      enumValues: enumValues,
+    );
+    final Schema binding = dataBindingSchema(
+      description: 'A path to a string.',
+    );
+    final Schema function = functionCall();
+    return S.combined(
+      oneOf: [literal, binding, function],
+      description: description,
+    );
+  }
 
   /// Schema for a value that can be either a literal number or a
-  /// data-bound path to a number in the DataModel. If both path and
-  /// literal are provided, the value at the path will be initialized
-  /// with the literal.
-  static Schema numberReference({String? description}) => S.object(
-    description: description,
-    properties: {
-      'path': S.string(
-        description: 'A relative or absolute path in the data model.',
-      ),
-      'literalNumber': S.number(),
-    },
-  );
+  /// data-bound path to a number in the DataModel.
+  static Schema numberReference({String? description}) {
+    final literal = S.number(description: 'A literal number value.');
+    final Schema binding = dataBindingSchema(
+      description: 'A path to a number.',
+    );
+    final Schema function = functionCall();
+    return S.combined(
+      oneOf: [literal, binding, function],
+      description: description,
+    );
+  }
 
   /// Schema for a value that can be either a literal boolean or a
-  /// data-bound path to a boolean in the DataModel. If both path and
-  /// literal are provided, the value at the path will be initialized
-  /// with the literal.
-  static Schema booleanReference({String? description}) => S.object(
-    description: description,
-    properties: {
-      'path': S.string(
-        description: 'A relative or absolute path in the data model.',
-      ),
-      'literalBoolean': S.boolean(),
-    },
-  );
+  /// data-bound path to a boolean in the DataModel.
+  static Schema booleanReference({String? description}) {
+    final literal = S.boolean(description: 'A literal boolean value.');
+    final Schema binding = dataBindingSchema(
+      description: 'A path to a boolean.',
+    );
+    final Schema function = functionCall();
+    return S.combined(
+      oneOf: [literal, binding, function],
+      description: description,
+    );
+  }
 
-  /// Schema for a property that holds a reference to a single child
-  /// component by its ID.
-  static Schema componentReference({String? description}) =>
-      S.string(description: description);
+  /// Helper to create a DataBinding schema.
+  static Schema dataBindingSchema({String? description}) {
+    return S.object(
+      description: description,
+      properties: {
+        'path': S.string(
+          description: 'A relative or absolute path in the data model.',
+        ),
+      },
+      required: ['path'],
+    );
+  }
 
   /// Schema for a property that holds a list of child components,
   /// either as an explicit list of IDs or a data-bound template.
-  static Schema componentArrayReference({String? description}) => S.object(
-    description: description,
-    properties: {
-      'explicitList': S.list(items: componentReference()),
-      'template': S.object(
-        properties: {'componentId': S.string(), 'dataBinding': S.string()},
-        required: ['componentId', 'dataBinding'],
-      ),
-    },
-  );
+  static Schema componentArrayReference({String? description}) {
+    final idList = S.list(items: S.string(description: 'Component ID'));
+    final template = S.object(
+      properties: {
+        'componentId': componentReference(),
+        'path': S.string(
+          description: 'A relative or absolute path in the data model.',
+        ),
+      },
+      required: ['componentId', 'path'],
+    );
+    return S.combined(oneOf: [idList, template], description: description);
+  }
 
-  /// Schema for a user-initiated action, including the action name
-  /// and a context map of key-value pairs.
-  static Schema action({String? description}) => S.object(
-    description: description,
-    properties: {
-      'name': S.string(),
-      'context': S.list(
-        description:
-            'A list of name-value pairs to be sent with the action to include '
-            'data associated with the action, e.g. values that are submitted.',
-        items: S.object(
+  /// Schema for a list of validation checks.
+  static Schema checkable({String? description}) {
+    return S.list(
+      description: description ?? 'Validation rules for this component.',
+      items: validationCheck(),
+    );
+  }
+
+  /// Schema for a user-initiated action.
+  ///
+  /// Can be either a server-side event or a client-side function call.
+  static Schema action({String? description}) {
+    final eventSchema = S.object(
+      properties: {
+        'event': S.object(
           properties: {
-            'key': S.string(),
-            'value': S.object(
-              properties: {
-                'path': S.string(
-                  description:
-                      'A path in the data model which should be bound to an '
-                      'input element, e.g. a string reference for a text '
-                      'field, or number reference for a slider.',
-                ),
-                'literalString': S.string(
-                  description: 'A literal string relevant to the action',
-                ),
-                'literalNumber': S.number(
-                  description: 'A literal number relevant to the action',
-                ),
-                'literalBoolean': S.boolean(
-                  description: 'A literal boolean relevant to the action',
-                ),
-              },
+            'name': S.string(
+              description:
+                  'The name of the action to be dispatched to the server.',
+            ),
+            'context': S.object(
+              description: 'Arbitrary context data to send with the action.',
+              additionalProperties: true,
             ),
           },
-          required: ['key', 'value'],
+          required: ['name'],
         ),
-      ),
-    },
-    required: ['name'],
-  );
+      },
+      required: ['event'],
+    );
+
+    final functionCallSchema = S.object(
+      properties: {'functionCall': functionCall()},
+      required: ['functionCall'],
+    );
+
+    return S.combined(
+      description: description,
+      oneOf: [eventSchema, functionCallSchema],
+    );
+  }
 
   /// Schema for a value that can be either a literal array of strings or a
-  /// data-bound path to an array of strings in the DataModel. If both path and
-  /// literalArray are provided, the value at the path will be
-  /// initialized with the literalArray.
-  static Schema stringArrayReference({String? description}) => S.object(
-    description: description,
-    properties: {
-      'path': S.string(
-        description: 'A relative or absolute path in the data model.',
-      ),
-      'literalArray': S.list(items: S.string()),
-    },
-  );
+  /// data-bound path to an array of strings.
+  static Schema stringArrayReference({String? description}) {
+    final literal = S.list(items: S.string());
+    final Schema binding = dataBindingSchema(
+      description: 'A path to a string list.',
+    );
+    final Schema function = functionCall();
+    return S.combined(
+      oneOf: [literal, binding, function],
+      description: description,
+    );
+  }
 
-  /// Schema for a beginRendering message, which provides the root widget ID for
-  /// the given surface so that the surface can be rendered.
-  static Schema beginRenderingSchema() => S.object(
+  /// Schema for a createSurface message.
+  static Schema createSurfaceSchema() => S.object(
     properties: {
-      surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
+      surfaceIdKey: S.string(description: 'The unique ID for the surface.'),
+      'catalogId': S.string(description: 'The URI of the component catalog.'),
+      'theme': S.object(
+        description: 'Theme parameters for the surface.',
+        additionalProperties: true,
       ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'catalogId': S.string(
-        description:
-            'The identifier of the component catalog to use for this surface.',
-      ),
-      'styles': S.object(
-        properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
-          ),
-        },
+      'sendDataModel': S.boolean(
+        description: 'Whether to send the data model to every client request.',
       ),
     },
-    required: [surfaceIdKey, 'root'],
+    required: [surfaceIdKey, 'catalogId'],
   );
 
-  /// Schema for a beginRendering message, which provides the root widget ID for
-  /// the given surface so that the surface can be rendered.
-  static Schema beginRenderingSchemaNoCatalogId() => S.object(
-    properties: {
-      surfaceIdKey: S.string(
-        description: 'The surface ID of the surface to render.',
-      ),
-      'root': S.string(
-        description:
-            'The root widget ID for the surface. '
-            'All components must be descendents of this root in order to be '
-            'displayed.',
-      ),
-      'styles': S.object(
-        properties: {
-          'font': S.string(description: 'The base font for this surface'),
-          'primaryColor': S.string(
-            description: 'The seed color for the theme of this surface.',
-          ),
-        },
-      ),
-    },
-    required: [surfaceIdKey, 'root'],
-  );
-
-  /// Schema for a `deleteSurface` message which will delete the given surface.
-  static Schema surfaceDeletionSchema() => S.object(
+  /// Schema for a deleteSurface message.
+  static Schema deleteSurfaceSchema() => S.object(
     properties: {surfaceIdKey: S.string()},
     required: [surfaceIdKey],
   );
 
-  /// Schema for a `dataModelUpdate` message which will update the given path in
-  /// the data model. If the path is omitted, the entire data model is replaced.
-  static Schema dataModelUpdateSchema() => S.object(
+  /// Schema for a updateDataModel message.
+  static Schema updateDataModelSchema() => S.object(
     properties: {
       surfaceIdKey: S.string(),
-      'path': S.string(),
-      'contents': S.any(
-        description: 'The new contents to write to the data model.',
+      'path': S.combined(type: JsonType.string, defaultValue: '/'),
+      'value': S.any(
+        description:
+            'The new value to write to the data model. If null/omitted, the key is removed.',
       ),
     },
-    required: [surfaceIdKey, 'contents'],
+    required: [surfaceIdKey],
   );
 
-  /// Schema for a `surfaceUpdate` message which defines the components to be
-  /// rendered on a surface.
-  static Schema surfaceUpdateSchema(Catalog catalog) => S.object(
-    properties: {
-      surfaceIdKey: S.string(
-        description:
-            'The unique identifier for the UI surface to create or '
-            'update. If you are adding a new surface this *must* be a '
-            'new, unique identified that has never been used for any '
-            'existing surfaces shown.',
-      ),
-      'components': S.list(
-        description: 'A list of component definitions.',
-        minItems: 1,
-        items: S.object(
-          description:
-              'Represents a *single* component in a UI widget tree. '
-              'This component could be one of many supported types.',
-          properties: {
-            'id': S.string(),
-            'weight': S.integer(
-              description:
-                  'Optional layout weight for use in Row/Column children.',
-            ),
-            'component': S.object(
-              description:
-                  '''A wrapper object that MUST contain exactly one key, which is the name of the component type (e.g., 'Text'). The value is an object containing the properties for that specific component.''',
-              properties: {
-                for (var entry
-                    in ((catalog.definition as ObjectSchema)
-                                .properties!['components']!
-                            as ObjectSchema)
-                        .properties!
-                        .entries)
-                  entry.key: entry.value,
-              },
-            ),
-          },
-          required: ['id', 'component'],
+  /// Schema for a component reference (ID).
+  static Schema componentReference({String? description}) {
+    return S.string(description: description ?? 'The ID of a component.');
+  }
+
+  /// Schema for a updateComponents message.
+  static Schema updateComponentsSchema(Catalog catalog) {
+    // Collect specific component schemas from the catalog.
+    // We assume catalog items have updated schemas (flattened).
+    final List<Schema> componentSchemas = catalog.items
+        .map((item) => item.dataSchema)
+        .toList();
+
+    return S.object(
+      properties: {
+        surfaceIdKey: S.string(
+          description: 'The unique identifier for the UI surface.',
         ),
-      ),
-    },
-    required: [surfaceIdKey, 'components'],
-  );
+        'components': S.list(
+          description: 'A flat list of component definitions.',
+          minItems: 1,
+          items: componentSchemas.isEmpty
+              ? S.object(description: 'No components in catalog.')
+              : S.combined(
+                  oneOf: componentSchemas,
+                  description:
+                      'Must match one of the component definitions in the '
+                      'catalog.',
+                ),
+        ),
+      },
+      required: [surfaceIdKey, 'components'],
+    );
+  }
+
+  /// Schema for a value that can be either a literal list or a reference.
+  static Schema listOrReference({required Schema items, String? description}) {
+    final literal = S.list(items: items);
+    final Schema binding = dataBindingSchema(description: 'A path to a list.');
+    final Schema function = functionCall();
+    return S.combined(
+      oneOf: [literal, binding, function],
+      description: description,
+    );
+  }
+
+  /// Schema for a generic property value (literal, binding, or function).
+  static Schema propertyReference({String? description}) {
+    final Schema binding = dataBindingSchema(description: 'A path to a value.');
+    final Schema function = functionCall();
+    // We allow any type for the literal value since we don't know it here.
+    // Ideally usage would be more specific if possible.
+    return S.combined(
+      oneOf: [S.any(), binding, function],
+      description: description,
+    );
+  }
 }

@@ -1,9 +1,9 @@
 # catalog_gallery
 
-A developer tool for visualizing and testing the core widget catalog. Displays all available `CoreCatalogItems` widgets and allows interaction testing.
+A developer tool for visualizing and testing the basic widget catalog. Displays all available `BasicCatalogItems` widgets and allows interaction testing.
 
 **Key Features:**
-- Browse all core catalog widgets
+- Browse all basic catalog widgets
 - Interactive widget testing with event logging
 - Sample file loading support
 

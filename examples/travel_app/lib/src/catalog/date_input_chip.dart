@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: avoid_dynamic_calls
-
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:intl/intl.dart';
@@ -11,18 +9,20 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['DateInputChip']),
     'value': A2uiSchemas.stringReference(
       description: 'The initial date of the date picker in yyyy-mm-dd format.',
     ),
     'label': S.string(description: 'Label for the date picker.'),
   },
+  required: ['component'],
 );
 
 extension type _DatePickerData.fromMap(JsonMap _json) {
   factory _DatePickerData({JsonMap? value, String? label}) =>
       _DatePickerData.fromMap({'value': value, 'label': label});
 
-  JsonMap? get value => _json['value'] as JsonMap?;
+  Object? get value => _json['value'];
   String? get label => _json['label'] as String?;
 }
 
@@ -116,34 +116,32 @@ final dateInputChip = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "DateInputChip": {
-              "value": {
-                "literalString": "1871-07-22"
-              },
-              "label": "Your birth date"
-            }
-          }
+          "component": "DateInputChip",
+          "value": "1871-07-22",
+          "label": "Your birth date"
         }
       ]
     ''',
   ],
   widgetBuilder: (context) {
     final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
+    final Object? value = datePickerData.value;
+    final path = value is Map && value.containsKey('path')
+        ? value['path'] as String
+        : '${context.id}.value';
     final ValueNotifier<String?> notifier = context.dataContext
-        .subscribeToString(datePickerData.value);
-    final path = datePickerData.value?['path'] as String?;
+        .subscribeToString({'path': path});
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (buildContext, currentValue, child) {
+        final String? effectiveValue =
+            currentValue ?? (value is String ? value : null);
         return _DateInputChip(
-          initialValue: currentValue,
+          initialValue: effectiveValue,
           label: datePickerData.label,
           onChanged: (newValue) {
-            if (path != null) {
-              context.dataContext.update(DataPath(path), newValue);
-            }
+            context.dataContext.update(path, newValue);
           },
         );
       },

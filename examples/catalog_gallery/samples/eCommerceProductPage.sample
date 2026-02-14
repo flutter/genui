@@ -1,0 +1,18 @@
+---
+description: A detailed product page for an e-commerce website.
+name: eCommerceProductPage
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a product details page.
+  The main layout should be a 'Row'.
+  The left side of the row is a 'Column' containing a large main 'Image' of the product, and below it, a 'Row' of three smaller thumbnail 'Image' components.
+  The right side of the row is another 'Column' for product information:
+  - A 'Text' (variant 'h1') for the product name, "Premium Leather Jacket".
+  - A 'Text' component for the price, "$299.99".
+  - A 'Divider'.
+  - A 'ChoicePicker' (variant 'mutuallyExclusive') labeled "Select Size" with options "S", "M", "L", "XL".
+  - A 'ChoicePicker' (variant 'mutuallyExclusive') labeled "Select Color" with options "Black", "Brown", "Red".
+  - A 'Button' with a 'Text' child "Add to Cart".
+  - A 'Text' component for the product description below the button.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Row","children":["productImageColumn","productInfoColumn"]},{"id":"productImageColumn","component":"Column","weight":1,"children":["mainProductImage","thumbnailImagesRow"]},{"id":"mainProductImage","component":"Image","url":"https://example.com/leather-jacket-main.jpg","variant":"largeFeature"},{"id":"thumbnailImagesRow","component":"Row","children":["thumbnailImage1","thumbnailImage2","thumbnailImage3"]},{"id":"thumbnailImage1","component":"Image","url":"https://example.com/leather-jacket-thumb1.jpg","variant":"smallFeature"},{"id":"thumbnailImage2","component":"Image","url":"https://example.com/leather-jacket-thumb2.jpg","variant":"smallFeature"},{"id":"thumbnailImage3","component":"Image","url":"https://example.com/leather-jacket-thumb3.jpg","variant":"smallFeature"},{"id":"productInfoColumn","component":"Column","weight":1,"children":["productName","productPrice","infoDivider","sizePicker","colorPicker","addToCartButton","addToCartButtonText","productDescription"]},{"id":"productName","component":"Text","text":"Premium Leather Jacket","variant":"h1"},{"id":"productPrice","component":"Text","text":"$299.99"},{"id":"infoDivider","component":"Divider"},{"id":"sizePicker","component":"ChoicePicker","label":"Select Size","variant":"mutuallyExclusive","options":[{"label":"S","value":"small"},{"label":"M","value":"medium"},{"label":"L","value":"large"},{"label":"XL","value":"extraLarge"}],"value":{"path":"/selectedSize"}},{"id":"colorPicker","component":"ChoicePicker","label":"Select Color","variant":"mutuallyExclusive","options":[{"label":"Black","value":"black"},{"label":"Brown","value":"brown"},{"label":"Red","value":"red"}],"value":{"path":"/selectedColor"}},{"id":"addToCartButton","component":"Button","child":"addToCartButtonText","action":{"event":{"name":"addToCart","context":{"productId":"jacket123","size":{"path":"/selectedSize"},"color":{"path":"/selectedColor"}}}}},{"id":"addToCartButtonText","component":"Text","text":"Add to Cart"},{"id":"productDescription","component":"Text","text":"Crafted from genuine leather, this jacket offers timeless style and exceptional durability. Perfect for any season."}]}}

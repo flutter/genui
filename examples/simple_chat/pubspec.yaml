@@ -13,17 +13,18 @@ environment:
 resolution: workspace
 
 dependencies:
-  firebase_core: ^4.2.1
+  dartantic_ai: ^3.0.0
   flutter:
     sdk: flutter
   genui: ^0.7.0
-  genui_firebase_ai: ^0.7.0
-  genui_google_generative_ai: ^0.7.0
   logging: ^1.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  network_image_mock: ^2.1.1
 
 flutter:
   uses-material-design: true

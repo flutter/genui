@@ -12,17 +12,13 @@ environment:
 
 workspace:
   - examples/catalog_gallery
-  - examples/custom_backend
   - examples/simple_chat
+
   - examples/travel_app
   - examples/verdure/client
   - packages/genui
   - packages/genui_a2ui
-  - packages/genui_a2ui/example
-  - packages/genui_dartantic
-  - packages/genui_dartantic/example
-  - packages/genui_firebase_ai
-  - packages/genui_google_generative_ai
+
   - packages/json_schema_builder
   - tool/fix_copyright
   - tool/release

@@ -5,26 +5,27 @@
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
-class MessageController {
-  MessageController({this.text, this.surfaceId})
+class Message {
+  Message({this.text, this.surfaceId, this.isUser = false})
     : assert((surfaceId == null) != (text == null));
 
-  final String? text;
+  String? text;
   final String? surfaceId;
+  final bool isUser;
 }
 
 class MessageView extends StatelessWidget {
-  const MessageView(this.controller, this.host, {super.key});
+  const MessageView(this.message, this.host, {super.key});
 
-  final MessageController controller;
-  final GenUiHost host;
+  final Message message;
+  final SurfaceHost host;
 
   @override
   Widget build(BuildContext context) {
-    final String? surfaceId = controller.surfaceId;
+    final String? surfaceId = message.surfaceId;
 
-    if (surfaceId == null) return Text(controller.text ?? '');
+    if (surfaceId == null) return Text(message.text ?? '');
 
-    return GenUiSurface(host: host, surfaceId: surfaceId);
+    return Surface(surfaceContext: host.contextFor(surfaceId));
   }
 }

@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['TabbedSections']),
     'sections': S.list(
       description: 'A list of sections to display as tabs.',
       items: S.object(
@@ -23,7 +24,7 @@ final _schema = S.object(
       ),
     ),
   },
-  required: ['sections'],
+  required: ['component', 'sections'],
 );
 
 extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
@@ -36,12 +37,10 @@ extension type _TabbedSectionsData.fromMap(Map<String, Object?> _json) {
 }
 
 extension type _TabSectionItemData.fromMap(Map<String, Object?> _json) {
-  factory _TabSectionItemData({
-    required Map<String, Object?> title,
-    required String child,
-  }) => _TabSectionItemData.fromMap({'child': child, 'title': title});
+  factory _TabSectionItemData({required Object title, required String child}) =>
+      _TabSectionItemData.fromMap({'child': child, 'title': title});
 
-  Map<String, Object?> get title => _json['title'] as Map<String, Object?>;
+  Object get title => _json['title'] as Object;
   String get childId => _json['child'] as String;
 }
 
@@ -60,44 +59,27 @@ final tabbedSections = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TabbedSections": {
-              "sections": [
-                {
-                  "title": {
-                    "literalString": "Tab 1"
-                  },
-                  "child": "tab1_content"
-                },
-                {
-                  "title": {
-                    "literalString": "Tab 2"
-                  },
-                  "child": "tab2_content"
-                }
-              ]
+          "component": "TabbedSections",
+          "sections": [
+            {
+              "title": "Tab 1",
+              "child": "tab1_content"
+            },
+            {
+              "title": "Tab 2",
+              "child": "tab2_content"
             }
-          }
+          ]
         },
         {
           "id": "tab1_content",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is the content of Tab 1."
-              }
-            }
-          }
+          "component": "Text",
+          "text": "This is the content of Tab 1."
         },
         {
           "id": "tab2_content",
-          "component": {
-            "Text": {
-              "text": {
-                "literalString": "This is the content of Tab 2."
-              }
-            }
-          }
+          "component": "Text",
+          "text": "This is the content of Tab 2."
         }
       ]
     ''',

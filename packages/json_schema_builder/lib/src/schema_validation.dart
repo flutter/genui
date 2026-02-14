@@ -973,9 +973,7 @@ extension SchemaValidation on Schema {
               .vocabularies['https://json-schema.org/draft/2020-12/vocab/validation'] ==
           true) {
         final int matchCount = matches.length;
-        if (listSchema.minContains == 0 && data.isEmpty) {
-          // This is a valid case.
-        } else if (matchCount == 0 &&
+        if (matchCount == 0 &&
             (listSchema.minContains == null || listSchema.minContains! > 0)) {
           errors.add(
             ValidationError(

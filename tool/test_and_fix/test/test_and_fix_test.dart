@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:file/memory.dart';
 import 'package:file/src/interface/directory.dart';
+import 'package:logging/logging.dart';
 import 'package:process_runner/test/fake_process_manager.dart';
 import 'package:test/test.dart';
 import 'package:test_and_fix/test_and_fix.dart';
@@ -20,7 +21,7 @@ void main() {
     setUp(() {
       fs = MemoryFileSystem();
       processManager = FakeProcessManager((input) {
-        print('Stdin supplied: $input');
+        stdout.writeln('Stdin supplied: $input');
       });
       testAndFix = TestAndFix(fs: fs, processManager: processManager);
     });
@@ -234,21 +235,26 @@ void main() {
           ProcessResult(0, 0, '', ''),
         ],
       };
-      final printOutput = <String>[];
-      await runZoned(
-        () async {
-          await testAndFix.run(root: root);
-        },
-        zoneSpecification: ZoneSpecification(
-          print: (Zone self, ZoneDelegate parent, Zone zone, String message) {
-            printOutput.add(message);
-          },
-        ),
+      final logRecords = <String>[];
+      hierarchicalLoggingEnabled = true;
+      final logger = Logger('TestAndFix');
+      logger.level = Level.ALL;
+      final StreamSubscription<LogRecord> sub = logger.onRecord.listen(
+        (r) => logRecords.add(r.message),
+      );
+      addTearDown(sub.cancel);
+
+      testAndFix = TestAndFix(
+        fs: fs,
+        processManager: processManager,
+        logger: logger,
       );
 
-      expect(printOutput, contains('\n--- Failed Jobs ---'));
+      await testAndFix.run(root: root);
+
+      expect(logRecords, contains('\n--- Failed Jobs ---'));
       expect(
-        printOutput.any((line) => line.contains('dart fix (exit code 1)')),
+        logRecords.any((line) => line.contains('dart fix (exit code 1)')),
         isTrue,
       );
     });

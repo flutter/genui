@@ -19,8 +19,11 @@ dependencies:
   flutter:
     sdk: flutter
   genui: ^0.7.0
-  genui_firebase_ai: ^0.7.0
-  genui_google_generative_ai: ^0.7.0
+  google_cloud_ai_generativelanguage_v1beta: ^0.4.0
+  google_cloud_protobuf: ^0.4.0
+  google_cloud_rpc: ^0.4.0
+  google_cloud_type: ^0.4.0
+
   gpt_markdown: ^1.1.4
   intl: ^0.20.2
   json_schema_builder: ^0.1.3

@@ -20,25 +20,24 @@ void main() {
     }
 
     final Map<String, Object> testData = {
-      'title': {'literalString': 'My Awesome Trip'},
-      'subheading': {'literalString': 'A 3-day adventure'},
+      'title': 'My Awesome Trip',
+      'subheading': 'A 3-day adventure',
       'imageChildId': 'image1',
       'days': [
         {
-          'title': {'literalString': 'Day 1'},
-          'subtitle': {'literalString': 'Arrival and Exploration'},
-          'description': {'literalString': 'Welcome to the city!'},
+          'title': 'Day 1',
+          'subtitle': 'Arrival and Exploration',
+          'description': 'Welcome to the city!',
           'imageChildId': 'image2',
           'entries': [
             {
-              'title': {'literalString': 'Choose your hotel'},
-              'bodyText': {'literalString': 'Select a hotel for your stay.'},
-              'time': {'literalString': '3:00 PM'},
+              'title': 'Choose your hotel',
+              'bodyText': 'Select a hotel for your stay.',
+              'time': '3:00 PM',
               'type': 'accommodation',
               'status': 'choiceRequired',
               'choiceRequiredAction': {
-                'name': 'testAction',
-                'context': <Object>[],
+                'event': {'name': 'testAction', 'context': <String, Object?>{}},
               },
             },
           ],
@@ -46,23 +45,29 @@ void main() {
       ],
     };
 
-    final Widget itineraryWidget = itinerary.widgetBuilder(
-      CatalogItemContext(
-        data: testData,
-        id: 'itinerary1',
-        buildChild: (data, [_]) => SizedBox(key: Key(data)),
-        dispatchEvent: mockDispatchEvent,
-        buildContext: tester.element(find.byType(Container)),
-        dataContext: DataContext(DataModel(), '/'),
-        getComponent: (String componentId) => null,
-        surfaceId: 'surface1',
-      ),
-    );
-
-    // 2. Pump the widget
+    // 2. Pump the widget using Builder to get a valid context
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: Center(child: itineraryWidget)),
+        home: Builder(
+          builder: (BuildContext context) {
+            final Widget itineraryWidget = itinerary.widgetBuilder(
+              CatalogItemContext(
+                getCatalogItem: (type) => null,
+                data: testData,
+                id: 'itinerary1',
+                type: 'Itinerary',
+                buildChild: (data, [_]) => SizedBox(key: Key(data)),
+                dispatchEvent: mockDispatchEvent,
+                buildContext: context,
+                dataContext: DataContext(DataModel(), '/'),
+                getComponent: (String componentId) =>
+                    throw UnimplementedError(),
+                surfaceId: 'surface1',
+              ),
+            );
+            return Scaffold(body: Center(child: itineraryWidget));
+          },
+        ),
       ),
     );
 
@@ -80,6 +85,7 @@ void main() {
     expect(find.byType(FilledButton), findsOneWidget);
 
     // 6. Simulate tap on the action button
+    // Find button by text "Choose" inside FilledButton
     await tester.tap(find.widgetWithText(FilledButton, 'Choose'));
     await tester.pumpAndSettle();
 

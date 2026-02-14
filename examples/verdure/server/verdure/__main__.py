@@ -103,7 +103,10 @@ def main(host: str, port: int, base_url: str | None):
             allow_headers=["*"],
         )
 
-        app.mount("/images", StaticFiles(directory="images"), name="images")
+        import pathlib
+        current_dir = pathlib.Path(__file__).parent.resolve()
+        images_dir = current_dir / "images"
+        app.mount("/images", StaticFiles(directory=images_dir), name="images")
 
         uvicorn.run(app, host=host, port=port)
     except MissingAPIKeyError as e:

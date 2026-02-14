@@ -13,9 +13,11 @@ void main() {
       'renders children and dispatches submit event on button press',
       (WidgetTester tester) async {
         final Map<String, Object> data = {
-          'submitLabel': {'literalString': 'Submit'},
+          'submitLabel': 'Submit',
           'children': ['child1', 'child2'],
-          'action': {'name': 'submitAction'},
+          'action': {
+            'event': {'name': 'submitAction'},
+          },
         };
         UiEvent? dispatchedEvent;
 
@@ -28,8 +30,10 @@ void main() {
                 builder: (context) {
                   return inputGroup.widgetBuilder(
                     CatalogItemContext(
+                      getCatalogItem: (type) => null,
                       data: data,
                       id: 'testId',
+                      type: 'InputGroup',
                       buildChild: buildChild,
                       dispatchEvent: (event) {
                         dispatchedEvent = event;
@@ -65,9 +69,11 @@ void main() {
       WidgetTester tester,
     ) async {
       final Map<String, Object> data = {
-        'submitLabel': {'literalString': 'Submit'},
+        'submitLabel': 'Submit',
         'children': <String>[],
-        'action': {'name': 'submitAction'},
+        'action': {
+          'event': {'name': 'submitAction'},
+        },
       };
 
       await tester.pumpWidget(
@@ -77,8 +83,10 @@ void main() {
               builder: (context) {
                 return inputGroup.widgetBuilder(
                   CatalogItemContext(
+                    getCatalogItem: (type) => null,
                     data: data,
                     id: 'testId',
+                    type: 'InputGroup',
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (UiEvent _) {},
                     buildContext: context,

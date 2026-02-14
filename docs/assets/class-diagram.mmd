@@ -1,0 +1,109 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryBorderColor': '#808080', 'lineColor': '#808080', 'background': 'transparent', 'mainBkg': '#ffffffaa', 'clusterBkg': 'transparent'}}}%%
+classDiagram
+    namespace Facade {
+        class Conversation {
+            +SurfaceController controller
+            +Transport transport
+            +ValueListenable~ConversationState~ state
+            +Stream~ConversationEvent~ events
+            +Future~void~ sendRequest(ChatMessage message)
+            +void dispose()
+        }
+    }
+
+    namespace Interfaces {
+        class Transport {
+            <<interface>>
+            +Stream~A2uiMessage~ incomingMessages
+            +Stream~String~ incomingText
+            +Future~void~ sendRequest(ChatMessage message)
+        }
+
+        class SurfaceHost {
+            <<interface>>
+            +Stream~SurfaceUpdate~ surfaceUpdates
+            +SurfaceContext contextFor(String surfaceId)
+        }
+
+        class SurfaceContext {
+            <<interface>>
+            +String surfaceId
+            +ValueListenable~UiDefinition?~ definition
+            +DataModel dataModel
+            +Iterable~Catalog~ catalogs
+            +void handleUiEvent(UiEvent event)
+        }
+
+        class A2uiMessageSink {
+            <<interface>>
+            +void handleMessage(A2uiMessage message)
+        }
+    }
+
+    namespace TransportDefinitions {
+        class A2uiTransportAdapter {
+            +void addChunk(String text)
+            +void addMessage(A2uiMessage message)
+            +Stream~A2uiMessage~ incomingMessages
+            +Stream~String~ incomingText
+            +Future~void~ sendRequest(ChatMessage message)
+            +void dispose()
+        }
+    }
+
+    namespace Engine {
+        class SurfaceController {
+            +void handleMessage(A2uiMessage message)
+            +Stream~SurfaceUpdate~ surfaceUpdates
+            +Stream~ChatMessage~ onSubmit
+            +Iterable~String~ activeSurfaceIds
+            +SurfaceContext contextFor(String surfaceId)
+            +ValueListenable~UiDefinition?~ watchSurface(String surfaceId)
+            +void dispose()
+        }
+    }
+
+    namespace UI {
+        class Surface {
+            +SurfaceContext context
+            +WidgetBuilder? defaultBuilder
+        }
+    }
+
+    namespace Model {
+        class Catalog {
+            +String? catalogId
+            +Iterable~CatalogItem~ items
+            +Schema definition
+            +Widget buildWidget(CatalogItemContext context)
+            +Catalog copyWith(List~CatalogItem~ newItems)
+            +Catalog copyWithout(Iterable~CatalogItem~ itemNames)
+        }
+
+        class CatalogItem {
+            +String name
+            +Schema dataSchema
+            +CatalogWidgetBuilder widgetBuilder
+            +List~ExampleBuilderCallback~ exampleData
+        }
+
+        class DataModel {
+            +void update(DataPath? path, Object? contents)
+            +ValueNotifier subscribe(DataPath path)
+            +ValueNotifier subscribeToValue(DataPath path)
+            +T? getValue(DataPath path)
+            +void bindExternalState(DataPath path, ValueListenable source)
+            +void dispose()
+        }
+    }
+
+    SurfaceHost <|.. SurfaceController
+    A2uiMessageSink <|.. SurfaceController
+    Transport <|.. A2uiTransportAdapter
+    Surface --> SurfaceContext : uses
+    SurfaceHost --> SurfaceContext : creates
+    Catalog --> CatalogItem : contains
+    SurfaceContext --> DataModel : manages
+    Conversation --> SurfaceController : uses
+    Conversation --> Transport : uses
+    SurfaceController --> Catalog : uses

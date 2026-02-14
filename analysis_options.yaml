@@ -13,6 +13,7 @@ analyzer:
 linter:
   rules:
     # consistency
+    - avoid_print
     - combinators_ordering
     - directives_ordering
     - lines_longer_than_80_chars

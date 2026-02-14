@@ -11,11 +11,12 @@ import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
 import 'a2a/a2a.dart';
+import 'logging_utils.dart';
 
 export 'a2a/a2a.dart' show AgentCard;
 
 final Uri a2uiExtensionUri = Uri.parse(
-  'https://a2ui.org/a2a-extension/a2ui/v0.8',
+  'https://a2ui.org/a2a-extension/a2ui/v0.9',
 );
 
 final Logger _log = genui.genUiLogger;
@@ -45,19 +46,25 @@ class A2uiAgentConnector {
   final Uri url;
 
   final _controller = StreamController<genui.A2uiMessage>.broadcast();
+  final _textController = StreamController<String>.broadcast();
   final _errorController = StreamController<Object>.broadcast();
   @visibleForTesting
   late A2AClient client;
+
+  /// The current task ID from the A2A server.
   @visibleForTesting
   String? taskId;
 
   String? _contextId;
+
+  /// The current context ID from the A2A server.
   String? get contextId => _contextId;
 
-  /// The stream of A2UI protocol lines.
-  ///
-  /// This stream emits the JSONL messages from the A2UI protocol.
+  /// The stream of A2UI messages.
   Stream<genui.A2uiMessage> get stream => _controller.stream;
+
+  /// The stream of text responses.
+  Stream<String> get textStream => _textController.stream;
 
   /// A stream of errors from the A2A connection.
   Stream<Object> get errorStream => _errorController.stream;
@@ -70,55 +77,61 @@ class A2uiAgentConnector {
 
   /// Connects to the agent and sends a message.
   ///
+  /// The [clientCapabilities] describe the UI capabilities of the client,
+  /// specifically determining which component catalogs are supported.
+  ///
+  /// The [clientDataModel] allows passing the current state of client-side
+  /// data to the agent, enabling context-aware responses.
+  ///
   /// Returns the text response from the agent, if any.
   Future<String?> connectAndSend(
     genui.ChatMessage chatMessage, {
     genui.A2UiClientCapabilities? clientCapabilities,
+    Map<String, Object?>? clientDataModel,
+    genui.CancellationSignal? cancellationSignal,
   }) async {
-    final List<genui.MessagePart> parts = switch (chatMessage) {
-      genui.UserMessage(parts: final p) => p,
-      genui.UserUiInteractionMessage(parts: final p) => p,
-      _ => <genui.MessagePart>[],
-    };
+    cancellationSignal?.addListener(() {
+      if (taskId != null) {
+        client.cancelTask(taskId!);
+      }
+    });
 
     final message = Message(
       messageId: const Uuid().v4(),
       role: Role.user,
-      parts: parts.map<Part>((part) {
-        switch (part) {
-          case genui.TextPart():
-            return Part.text(text: part.text);
-          case genui.DataPart():
-            return Part.data(data: part.data as Map<String, Object?>? ?? {});
-          case genui.ImagePart():
-            if (part.url != null) {
-              return Part.file(
-                file: FileType.uri(
-                  uri: part.url.toString(),
-                  mimeType: part.mimeType,
-                ),
-              );
-            } else {
-              String base64Data;
-              if (part.bytes != null) {
-                base64Data = base64Encode(part.bytes!);
-              } else if (part.base64 != null) {
-                base64Data = part.base64!;
-              } else {
-                _log.warning('ImagePart has no data (url, bytes, or base64)');
-                return const Part.text(text: '[Empty Image]');
-              }
-              return Part.file(
-                file: FileType.bytes(
-                  bytes: base64Data,
-                  mimeType: part.mimeType,
-                ),
-              );
+      parts: chatMessage.parts.map<Part>((part) {
+        if (part is genui.TextPart) {
+          return Part.text(text: part.text);
+        } else if (part.isUiInteractionPart) {
+          final genui.UiInteractionPart uiPart = part.asUiInteractionPart!;
+          try {
+            final Object? json = jsonDecode(uiPart.interaction);
+            if (json is Map<String, Object?>) {
+              return Part.data(data: json);
             }
-          default:
-            _log.warning('Unknown message part type: ${part.runtimeType}');
-            return const Part.text(text: '[Unknown Part]');
+            return Part.text(text: uiPart.interaction);
+          } catch (e) {
+            return Part.text(text: uiPart.interaction);
+          }
+        } else if (part.isUiPart) {
+          final genui.UiPart uiPart = part.asUiPart!;
+          return Part.data(data: uiPart.definition.toJson());
+        } else if (part is genui.DataPart) {
+          return Part.file(
+            file: FileType.bytes(
+              bytes: base64Encode(part.bytes),
+              mimeType: part.mimeType,
+            ),
+          );
+        } else if (part is genui.LinkPart) {
+          return Part.file(
+            file: FileType.uri(
+              uri: part.url.toString(),
+              mimeType: part.mimeType ?? 'application/octet-stream',
+            ),
+          );
         }
+        return const Part.text(text: '');
       }).toList(),
     );
 
@@ -129,19 +142,29 @@ class A2uiAgentConnector {
     if (contextId != null) {
       messageToSend = messageToSend.copyWith(contextId: contextId);
     }
+
+    final metadata = <String, Object?>{};
     if (clientCapabilities != null) {
-      messageToSend = messageToSend.copyWith(
-        metadata: {'a2uiClientCapabilities': clientCapabilities.toJson()},
-      );
+      metadata['a2uiClientCapabilities'] = clientCapabilities.toJson();
+    }
+    if (clientDataModel != null) {
+      metadata['a2uiClientDataModel'] = clientDataModel;
+    }
+    if (metadata.isNotEmpty) {
+      messageToSend = messageToSend.copyWith(metadata: metadata);
     }
 
     _log.info('--- OUTGOING REQUEST ---');
-    _log.info('URL: ${url.toString()}');
+    _log.info('URL: $url');
     _log.info('Method: message/stream');
-    _log.info(
-      'Payload: '
-      '${const JsonEncoder.withIndent('  ').convert(messageToSend.toJson())}',
-    );
+    try {
+      final String payload = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(sanitizeLogData(messageToSend.toJson()));
+      _log.info('Payload: $payload');
+    } catch (e) {
+      _log.warning('Error logging payload: $e');
+    }
     _log.info('----------------------');
 
     final Stream<Event> events = client.messageStream(messageToSend);
@@ -182,6 +205,10 @@ class A2uiAgentConnector {
             for (final Part part in message.parts) {
               if (part is DataPart) {
                 _processA2uiMessages(part.data);
+              } else if (part is TextPart) {
+                if (!_textController.isClosed) {
+                  _textController.add(part.text);
+                }
               }
             }
           }
@@ -213,6 +240,10 @@ class A2uiAgentConnector {
             for (final Part part in message.parts) {
               if (part is DataPart) {
                 _processA2uiMessages(part.data);
+              } else if (part is TextPart) {
+                if (!_textController.isClosed) {
+                  _textController.add(part.text);
+                }
               }
             }
           }
@@ -225,8 +256,12 @@ class A2uiAgentConnector {
           }
         }
       }
-    } on FormatException catch (e, s) {
-      _log.severe('Error parsing A2A response: $e', e, s);
+    } on FormatException catch (exception, stackTrace) {
+      _log.severe(
+        'Error parsing A2A response: $exception',
+        exception,
+        stackTrace,
+      );
     }
     return responseText;
   }
@@ -242,15 +277,19 @@ class A2uiAgentConnector {
     }
 
     final Map<String, Object?> clientEvent = {
-      'actionName': event['action'],
-      'sourceComponentId': event['sourceComponentId'],
-      'timestamp': DateTime.now().toIso8601String(),
-      'resolvedContext': event['context'],
+      'version': 'v0.9',
+      'action': {
+        'name': event['action'],
+        'sourceComponentId': event['sourceComponentId'],
+        'timestamp': DateTime.now().toIso8601String(),
+        'context': event['context'],
+        if (event.containsKey('surfaceId')) 'surfaceId': event['surfaceId'],
+      },
     };
 
     _log.finest('Sending client event: $clientEvent');
 
-    final dataPart = Part.data(data: {'a2uiEvent': clientEvent});
+    final dataPart = Part.data(data: clientEvent);
     final message = Message(
       role: Role.user,
       parts: [dataPart],
@@ -275,19 +314,21 @@ class A2uiAgentConnector {
   }
 
   void _processA2uiMessages(Map<String, Object?> data) {
-    _log.finest(
-      'Processing a2ui messages from data part:\n'
-      '${const JsonEncoder.withIndent('  ').convert(data)}',
-    );
-    if (data.containsKey('surfaceUpdate') ||
-        data.containsKey('dataModelUpdate') ||
-        data.containsKey('beginRendering') ||
+    var prettyJson = '(Error sanitizing log data)';
+    try {
+      prettyJson = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(sanitizeLogData(data));
+      _log.finest('Processing a2ui messages from data part:\n$prettyJson');
+    } catch (e) {
+      _log.warning('Error logging a2ui messages: $e');
+    }
+    if (data.containsKey('updateComponents') ||
+        data.containsKey('updateDataModel') ||
+        data.containsKey('createSurface') ||
         data.containsKey('deleteSurface')) {
       if (!_controller.isClosed) {
-        _log.finest(
-          'Adding message to stream: '
-          '${const JsonEncoder.withIndent('  ').convert(data)}',
-        );
+        _log.finest('Adding message to stream: $prettyJson');
         _controller.add(genui.A2uiMessage.fromJson(data));
       }
     } else {
@@ -302,6 +343,9 @@ class A2uiAgentConnector {
   void dispose() {
     if (!_controller.isClosed) {
       _controller.close();
+    }
+    if (!_textController.isClosed) {
+      _textController.close();
     }
     if (!_errorController.isClosed) {
       _errorController.close();

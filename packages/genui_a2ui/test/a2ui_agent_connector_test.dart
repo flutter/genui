@@ -56,7 +56,7 @@ void main() {
       fakeClient.messageStreamHandler = (_) => const Stream.empty();
 
       await connector.connectAndSend(
-        genui.UserMessage.text('Hi'),
+        genui.ChatMessage.user('Hi'),
         clientCapabilities: capabilities,
       );
 
@@ -64,7 +64,9 @@ void main() {
       final a2a.Message sentMessage = fakeClient.lastMessageStreamParams!;
       expect(sentMessage.metadata, isNotNull);
       expect(sentMessage.metadata!['a2uiClientCapabilities'], {
-        'supportedCatalogIds': ['cat1', 'cat2'],
+        'v0.9': {
+          'supportedCatalogIds': ['cat1', 'cat2'],
+        },
       });
     });
 
@@ -81,14 +83,14 @@ void main() {
               parts: [
                 a2a.Part.data(
                   data: {
-                    'surfaceUpdate': {
+                    'version': 'v0.9',
+                    'updateComponents': {
                       'surfaceId': 's1',
                       'components': [
                         {
                           'id': 'c1',
-                          'component': {
-                            'Column': {'children': <Object?>[]},
-                          },
+                          'component': 'Column',
+                          'children': <Object?>[],
                         },
                       ],
                     },
@@ -106,10 +108,10 @@ void main() {
       final messages = <genui.A2uiMessage>[];
       connector.stream.listen(messages.add);
 
-      final userMessage = genui.UserMessage([
-        const genui.TextPart('Hi'),
-        const genui.TextPart('There'),
-      ]);
+      final userMessage = genui.ChatMessage.user(
+        '',
+        parts: [const genui.TextPart('Hi'), const genui.TextPart('There')],
+      );
       final String? responseText = await connector.connectAndSend(userMessage);
 
       expect(responseText, 'Hello');
@@ -122,7 +124,7 @@ void main() {
       expect(connector.contextId, 'context1');
       expect(fakeClient.messageStreamCalled, 1);
       expect(messages.length, 1);
-      expect(messages.first, isA<genui.SurfaceUpdate>());
+      expect(messages.first, isA<genui.UpdateComponents>());
     });
 
     test('connectAndSend sends multiple text parts', () async {
@@ -137,10 +139,10 @@ void main() {
       fakeClient.messageStreamHandler = (_) => Stream.fromIterable(responses);
 
       await connector.connectAndSend(
-        genui.UserMessage([
-          const genui.TextPart('Hello'),
-          const genui.TextPart('World'),
-        ]),
+        genui.ChatMessage.user(
+          '',
+          parts: [const genui.TextPart('Hello'), const genui.TextPart('World')],
+        ),
       );
 
       expect(fakeClient.messageStreamCalled, 1);
@@ -171,10 +173,12 @@ void main() {
       expect(sentMessage.referenceTaskIds, ['task1']);
       expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts.first as a2a.DataPart;
-      final a2uiEvent = dataPart.data['a2uiEvent'] as Map<String, Object?>;
-      expect(a2uiEvent['actionName'], 'testAction');
-      expect(a2uiEvent['sourceComponentId'], 'c1');
-      expect(a2uiEvent['resolvedContext'], {'key': 'value'});
+      final Map<String, Object?> eventData = dataPart.data;
+      expect(eventData['version'], 'v0.9');
+      final action = eventData['action'] as Map<String, Object?>;
+      expect(action['name'], 'testAction');
+      expect(action['sourceComponentId'], 'c1');
+      expect(action['context'], {'key': 'value'});
     });
 
     test('sendEvent does nothing if taskId is null', () async {

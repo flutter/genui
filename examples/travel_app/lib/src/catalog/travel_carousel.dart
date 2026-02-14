@@ -14,6 +14,7 @@ import '../tools/booking/model.dart';
 
 final _schema = S.object(
   properties: {
+    'component': S.string(enumValues: ['TravelCarousel']),
     'title': A2uiSchemas.stringReference(
       description: 'An optional title to display above the carousel.',
     ),
@@ -50,7 +51,7 @@ final _schema = S.object(
       ),
     ),
   },
-  required: ['items'],
+  required: ['component', 'items'],
 );
 
 /// A widget that presents a horizontally scrolling list of tappable items, each
@@ -107,7 +108,7 @@ extension type _TravelCarouselData.fromMap(Map<String, Object?> _json) {
     required List<Map<String, Object?>> items,
   }) => _TravelCarouselData.fromMap({'title': ?title, 'items': items});
 
-  JsonMap? get title => _json['title'] as JsonMap?;
+  Object? get title => _json['title'];
   Iterable<_TravelCarouselItemSchemaData> get items => (_json['items'] as List)
       .cast<Map<String, Object?>>()
       .map<_TravelCarouselItemSchemaData>(
@@ -130,7 +131,7 @@ extension type _TravelCarouselItemSchemaData.fromMap(
     'action': action,
   });
 
-  JsonMap get description => _json['description'] as JsonMap? ?? {};
+  Object get description => _json['description'] as Object;
   String get imageChildId => _json['imageChildId'] as String? ?? '';
   String? get listingSelectionId => _json['listingSelectionId'] as String?;
   JsonMap get action => _json['action'] as JsonMap? ?? {};
@@ -232,9 +233,9 @@ class _TravelCarouselItem extends StatelessWidget {
       width: 190,
       child: InkWell(
         onTap: () {
-          final name = data.action['name'] as String;
-          final List<Object?> contextDefinition =
-              (data.action['context'] as List<Object?>?) ?? <Object?>[];
+          final event = data.action['event'] as JsonMap?;
+          final String name = event?['name'] as String? ?? 'unknown';
+          final contextDefinition = event?['context'] as JsonMap?;
           final JsonMap resolvedContext = resolveContext(
             dataContext,
             contextDefinition,
@@ -299,42 +300,37 @@ String _hotelExample() {
   return jsonEncode([
     {
       'id': 'root',
-      'component': {
-        'TravelCarousel': {
-          'items': [
-            {
-              'description': {'literalString': hotel1.description},
-              'imageChildId': 'image_1',
-              'listingSelectionId': '12345',
-              'action': {'name': 'selectHotel'},
-            },
-            {
-              'description': {'literalString': hotel2.description},
-              'imageChildId': 'image_2',
-              'listingSelectionId': '12346',
-              'action': {'name': 'selectHotel'},
-            },
-          ],
+      'component': 'TravelCarousel',
+      'items': [
+        {
+          'description': hotel1.description,
+          'imageChildId': 'image_1',
+          'listingSelectionId': '12345',
+          'action': {
+            'event': {'name': 'selectHotel'},
+          },
         },
-      },
+        {
+          'description': hotel2.description,
+          'imageChildId': 'image_2',
+          'listingSelectionId': '12346',
+          'action': {
+            'event': {'name': 'selectHotel'},
+          },
+        },
+      ],
     },
     {
       'id': 'image_1',
-      'component': {
-        'Image': {
-          'fit': 'cover',
-          'url': {'literalString': hotel1.images[0]},
-        },
-      },
+      'component': 'Image',
+      'fit': 'cover',
+      'url': hotel1.images[0],
     },
     {
       'id': 'image_2',
-      'component': {
-        'Image': {
-          'fit': 'cover',
-          'url': {'literalString': hotel2.images[0]},
-        },
-      },
+      'component': 'Image',
+      'fit': 'cover',
+      'url': hotel2.images[0],
     },
   ]);
 }
@@ -343,115 +339,82 @@ String _inspirationExample() => '''
   [
     {
       "id": "root",
-      "component": {
-        "Column": {
-          "children": {
-            "explicitList": ["inspiration_title", "inspiration_carousel"]
-          }
-        }
-      }
+      "component": "Column",
+      "children": ["inspiration_title", "inspiration_carousel"]
     },
     {
       "id": "inspiration_title",
-      "component": {
-        "Text": {
-          "text": {
-            "literalString": "Let's plan your dream trip to Greece! What kind of experience are you looking for?"
-          }
-        }
-      }
+      "component": "Text",
+      "text": "Let's plan your dream trip to Greece! What kind of experience are you looking for?"
     },
     {
       "id": "inspiration_carousel",
-      "component": {
-        "TravelCarousel": {
-          "items": [
-            {
-              "description": {
-                "literalString": "Relaxing Beach Holiday"
-              },
-              "imageChildId": "santorini_beach_image",
-              "listingSelectionId": "12345",
-              "action": {
-                "name": "selectExperience"
-              }
-            },
-            {
-              "imageChildId": "akrotiri_fresco_image",
-              "description": {
-                "literalString": "Cultural Exploration"
-              },
-              "listingSelectionId": "12346",
-              "action": {
-                "name": "selectExperience"
-              }
-            },
-            {
-              "imageChildId": "santorini_caldera_image",
-              "description": {
-                "literalString": "Adventure & Outdoors"
-              },
-              "listingSelectionId": "12347",
-              "action": {
-                "name": "selectExperience"
-              }
-            },
-            {
-              "description": {
-                "literalString": "Foodie Tour"
-              },
-              "imageChildId": "greece_food_image",
-              "action": {
-                "name": "selectExperience"
-              }
+      "component": "TravelCarousel",
+      "items": [
+        {
+          "description": "Relaxing Beach Holiday",
+          "imageChildId": "santorini_beach_image",
+          "listingSelectionId": "12345",
+          "action": {
+            "event": {
+              "name": "selectExperience"
             }
-          ]
+          }
+        },
+        {
+          "imageChildId": "akrotiri_fresco_image",
+          "description": "Cultural Exploration",
+          "listingSelectionId": "12346",
+          "action": {
+            "event": {
+              "name": "selectExperience"
+            }
+          }
+        },
+        {
+          "imageChildId": "santorini_caldera_image",
+          "description": "Adventure & Outdoors",
+          "listingSelectionId": "12347",
+          "action": {
+            "event": {
+              "name": "selectExperience"
+            }
+          }
+        },
+        {
+          "description": "Foodie Tour",
+          "imageChildId": "greece_food_image",
+          "action": {
+            "event": {
+              "name": "selectExperience"
+            }
+          }
         }
-      }
+      ]
     },
     {
       "id": "santorini_beach_image",
-      "component": {
-        "Image": {
-          "fit": "cover",
-          "url": {
-            "literalString": "assets/travel_images/santorini_panorama.jpg"
-          }
-        }
-      }
+      "component": "Image",
+      "fit": "cover",
+      "url": "assets/travel_images/santorini_panorama.jpg"
     },
     {
       "id": "akrotiri_fresco_image",
-      "component": {
-        "Image": {
-          "fit": "cover",
-          "url": {
-            "literalString": "assets/travel_images/akrotiri_spring_fresco_santorini.jpg"
-          }
-        }
-      }
+      "component": "Image",
+      "fit": "cover",
+      "url": "assets/travel_images/akrotiri_spring_fresco_santorini.jpg"
     },
     {
       "id": "santorini_caldera_image",
-      "component": {
-        "Image": {
-          "url": {
-            "literalString": "assets/travel_images/santorini_from_space.jpg"
-          },
-          "fit": "cover"
-        }
-      }
+      "component": "Image",
+      "url": "assets/travel_images/santorini_from_space.jpg",
+      "fit": "cover"
     },
     {
       "id": "greece_food_image",
-      "component": {
-        "Image": {
-          "fit": "cover",
-          "url": {
-            "literalString": "assets/travel_images/saffron_gatherers_fresco_santorini.jpg"
-          }
-        }
-      }
+      "component": "Image",
+      "fit": "cover",
+      "url": "assets/travel_images/saffron_gatherers_fresco_santorini.jpg"
     }
   ]
 ''';

@@ -1,0 +1,83 @@
+graph TD
+    %% --- Theme & Style Definitions ---
+    classDef default font-family:'Open Sans', sans-serif, font-size:24px, color:#0a305f;
+
+    %% Regional Containers (Semi-transparent)
+    classDef developer fill:#f1f2f666,stroke:#2f3542,stroke-width:2px,stroke-dasharray: 5 5,rx:10;
+    classDef genui fill:#747d8c11,stroke:#2f3542,stroke-width:2px,rx:15;
+
+    %% Components (Increased rx/ry for more breathing room)
+    classDef component fill:#769CDF,color:#0a305f,rx:8,ry:8;
+    classDef userComponent fill:#bec6dc,color:#283141,rx:8,ry:8;
+    classDef facade fill:#A288A6,color:#000,rx:8,ry:8;
+    classDef layerBox fill:#ffffff33,stroke:#747d8c,stroke-width:1px,stroke-dasharray: 2 2;
+
+    subgraph DevApp ["Developer's Application"]
+        direction LR
+        AppLogic("App Logic / State Management"):::userComponent
+        LLMClient("External LLM Client"):::userComponent
+        AppUI("App UI (Flutter)"):::userComponent
+    end
+
+    subgraph GenUIPkg ["GenUI Package"]
+        direction TB
+        Conversation("Conversation (Facade)"):::facade
+
+        subgraph Transport ["Transport Layer"]
+            direction LR
+            TransportInt("Transport Interface"):::component
+            Adapter("A2uiTransportAdapter"):::component
+            Transformer("A2uiParserTransformer"):::component
+        end
+
+        subgraph UILayer ["UI Layer"]
+            direction LR
+            Surface("Surface Widget"):::component
+            SurfaceContext("SurfaceContext"):::component
+        end
+
+        subgraph Engine ["Engine Layer"]
+            direction LR
+            Controller("SurfaceController"):::component
+            Registry("SurfaceRegistry"):::component
+            DataModel("DataModel"):::component
+            Catalog("Component Catalog"):::component
+        end
+    end
+
+    %% --- Functional Wiring ---
+
+    AppLogic == "Initializes" ==> Conversation
+    AppLogic == "Sends User Input" ==> Conversation
+
+    Conversation == "Forwards Request" ==> TransportInt
+    TransportInt == "Invokes Callback" ==> LLMClient
+    LLMClient == "Streams Response" ==> Adapter
+    Adapter == "Pipes Text" ==> Transformer
+    Transformer == "Parsed Events" ==> Adapter
+    Adapter == "Incoming Messages" ==> TransportInt
+    TransportInt == "Forwards Messages" ==> Conversation
+
+    %% Layer Anchoring
+    Adapter == "Parsed Events" ==> Surface
+    AppUI == "Contains" ==> Surface
+
+    Surface == "User Interaction" ==> SurfaceContext
+    SurfaceContext == "Forwards Event" ==> Controller
+
+    Controller == "Updates" ==> Registry
+    Registry == "Notifies" ==> Surface
+    Controller == "Updates Protocol" ==> DataModel
+    SurfaceContext == "Accesses" ==> DataModel
+    Surface == "Builds Widgets" ==> Catalog
+
+    Controller == "Emits Client Event" ==> Conversation
+    Conversation == "Auto-Replies (Loop)" ==> TransportInt
+
+    %% Apply Classes
+    class DevApp developer;
+    class GenUIPkg genui;
+    class Transport,Engine,UILayer layerBox;
+
+    %% Global line styling (Slightly thicker for the larger font scale)
+    linkStyle default stroke:#57606f,stroke-width:2.5px,font-size:22px;

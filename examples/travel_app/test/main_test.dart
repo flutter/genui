@@ -6,33 +6,29 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/test/fake_content_generator.dart';
 import 'package:travel_app/main.dart' as app;
+import 'package:travel_app/src/fake_ai_client.dart';
 
 void main() {
   testWidgets('Can send a prompt', (WidgetTester tester) async {
-    final mockContentGenerator = FakeContentGenerator();
-    await tester.pumpWidget(
-      app.TravelApp(contentGenerator: mockContentGenerator),
-    );
+    final mockClient = FakeAiClient();
+    await tester.pumpWidget(app.TravelApp(aiClient: mockClient));
 
     await tester.enterText(find.byType(TextField), 'test prompt');
     await tester.testTextInput.receiveAction(TextInputAction.send);
-    mockContentGenerator.addTextResponse('AI response');
+    mockClient.addTextResponse('AI response');
     await tester.pumpAndSettle();
 
-    expect(mockContentGenerator.sendRequestCallCount, 1);
+    expect(mockClient.sendRequestCallCount, 1);
     expect(find.text('test prompt'), findsOneWidget);
     expect(find.text('AI response'), findsOneWidget);
   });
 
   testWidgets('Shows spinner while thinking', (WidgetTester tester) async {
-    final mockContentGenerator = FakeContentGenerator();
+    final mockClient = FakeAiClient();
     final completer = Completer<void>();
-    mockContentGenerator.sendRequestCompleter = completer;
-    await tester.pumpWidget(
-      app.TravelApp(contentGenerator: mockContentGenerator),
-    );
+    mockClient.sendRequestCompleter = completer;
+    await tester.pumpWidget(app.TravelApp(aiClient: mockClient));
 
     await tester.enterText(find.byType(TextField), 'test prompt');
     await tester.testTextInput.receiveAction(TextInputAction.send);
@@ -46,7 +42,7 @@ void main() {
 
     // Complete the response.
     completer.complete();
-    mockContentGenerator.addTextResponse('AI response');
+    mockClient.addTextResponse('AI response');
     await tester.pumpAndSettle();
 
     // The spinner should be gone.

@@ -1,0 +1,30 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryBorderColor': '#808080', 'lineColor': '#808080', 'background': 'transparent', 'mainBkg': '#ffffffaa', 'clusterBkg': 'transparent'}}}%%
+sequenceDiagram
+    participant LLM as External LLM
+    participant Transport as Transport
+    participant Controller as SurfaceController
+    participant UI as Surface
+
+    Note over Controller: Strategy: KeepLastN(1)
+
+    LLM->>Transport: "createSurface(id: 'A')"
+    Transport->>Controller: CreateSurface('A')
+    Controller->>UI: SurfaceAdded('A')
+    UI->>UI: Render Surface A
+
+    LLM->>Transport: "updateComponents(id: 'A', ...)"
+    Transport->>Controller: UpdateComponents('A')
+    Controller->>UI: ComponentsUpdated('A')
+    UI->>UI: Update Surface A
+
+    LLM->>Transport: "createSurface(id: 'B')"
+    Transport->>Controller: CreateSurface('B')
+
+    rect rgb(255, 240, 240)
+        Note right of Controller: Policy Enforcement
+        Controller->>UI: SurfaceRemoved('A')
+        UI->>UI: Dispose Surface A
+    end
+
+    Controller->>UI: SurfaceAdded('B')
+    UI->>UI: Render Surface B

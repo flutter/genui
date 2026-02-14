@@ -10,39 +10,34 @@ void main() {
   testWidgets('CheckBox widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
+    final manager = SurfaceController(
       catalogs: [
-        Catalog([CoreCatalogItems.checkBox], catalogId: 'test_catalog'),
+        Catalog([BasicCatalogItems.checkBox], catalogId: 'test_catalog'),
       ],
     );
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'checkbox',
-        componentProperties: {
-          'CheckBox': {
-            'label': {'literalString': 'Check me'},
-            'value': {'path': '/myValue'},
-          },
+        id: 'root',
+        type: 'CheckBox',
+        properties: {
+          'label': 'Check me',
+          'value': {'path': '/myValue'},
         },
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'checkbox',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
-    manager.dataModelForSurface(surfaceId).update(DataPath('/myValue'), true);
+    manager.contextFor(surfaceId).dataModel.update(DataPath('/myValue'), true);
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(surfaceContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -56,7 +51,8 @@ void main() {
     await tester.tap(find.byType(CheckboxListTile));
     expect(
       manager
-          .dataModelForSurface(surfaceId)
+          .contextFor(surfaceId)
+          .dataModel
           .getValue<bool>(DataPath('/myValue')),
       isFalse,
     );

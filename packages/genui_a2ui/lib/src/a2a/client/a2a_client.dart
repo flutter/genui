@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:logging/logging.dart';
 
+import '../../logging_utils.dart';
 import '../core/agent_card.dart';
 import '../core/events.dart';
 import '../core/list_tasks_params.dart';
@@ -200,7 +201,13 @@ class A2AClient {
     return stream.transform(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          _log?.fine('Received event from stream: $data');
+          try {
+            _log?.fine(
+              () => 'Received event from stream: ${sanitizeLogData(data)}',
+            );
+          } catch (e) {
+            _log?.warning('Error logging event from stream: $e');
+          }
           if (data.containsKey('error')) {
             sink.addError(
               _exceptionFrom(data['error'] as Map<String, Object?>),
@@ -313,7 +320,13 @@ class A2AClient {
           'id': _requestId++,
         })
         .map((data) {
-          _log?.fine('Received event from stream: $data');
+          try {
+            _log?.fine(
+              () => 'Received event from stream: ${sanitizeLogData(data)}',
+            );
+          } catch (e) {
+            _log?.warning('Error logging event from stream: $e');
+          }
           if (data.containsKey('error')) {
             throw _exceptionFrom(data['error'] as Map<String, Object?>);
           }

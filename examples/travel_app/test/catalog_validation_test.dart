@@ -9,9 +9,16 @@ import 'package:travel_app/src/catalog.dart';
 
 void main() {
   group('Travel App Catalog Validation', () {
+    final Set<String> existingNames = travelAppCatalog.items
+        .map((i) => i.name)
+        .toSet();
+    final List<CatalogItem> coreItemsToAdd = BasicCatalogItems.asCatalog().items
+        .where((i) => !existingNames.contains(i.name))
+        .toList();
+
     final mergedCatalog = Catalog([
       ...travelAppCatalog.items,
-      ...CoreCatalogItems.asCatalog().items,
+      ...coreItemsToAdd,
     ]);
 
     for (final CatalogItem item in travelAppCatalog.items) {

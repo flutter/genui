@@ -7,14 +7,21 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
 
 Future<void> main(List<String> arguments) async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    stdout.writeln(record.message);
+  });
+  final log = Logger('SchemaValidator');
+
   final parser = ArgParser()..addOption('schema', abbr: 's', mandatory: true);
   final ArgResults argResults = parser.parse(arguments);
 
   final schemaFile = File(argResults['schema'] as String);
   if (!schemaFile.existsSync()) {
-    print('Error: Schema file not found: ${schemaFile.path}');
+    log.severe('Error: Schema file not found: ${schemaFile.path}');
     exit(1);
   }
 
@@ -23,29 +30,32 @@ Future<void> main(List<String> arguments) async {
   final schema = Schema.fromMap(schemaJson);
 
   if (argResults.rest.isEmpty) {
-    print('No JSON files provided to validate.');
+    if (argResults.rest.isEmpty) {
+      log.info('No JSON files provided to validate.');
+      return;
+    }
     return;
   }
 
   for (final String filePath in argResults.rest) {
     final file = File(filePath);
     if (!file.existsSync()) {
-      print('Error: JSON file not found: ${file.path}');
+      log.severe('Error: JSON file not found: ${file.path}');
       continue;
     }
 
-    print('Validating ${file.path}...');
+    log.info('Validating ${file.path}...');
     final String fileContent = file.readAsStringSync();
     final Object? jsonData = jsonDecode(fileContent);
 
     final List<ValidationError> errors = await schema.validate(jsonData);
 
     if (errors.isEmpty) {
-      print('  SUCCESS: ${file.path} is valid.');
+      log.info('  SUCCESS: ${file.path} is valid.');
     } else {
-      print('  FAILURE: ${file.path} is invalid:');
+      log.severe('  FAILURE: ${file.path} is invalid:');
       for (final error in errors) {
-        print('    - ${error.toErrorString()}');
+        log.severe('    - ${error.toErrorString()}');
       }
     }
   }

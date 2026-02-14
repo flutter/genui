@@ -41,63 +41,87 @@ class CatalogGalleryApp extends StatefulWidget {
     super.key,
     this.samplesDir,
     this.fs = const LocalFileSystem(),
+    this.splashFactory,
   });
+
+  final InteractiveInkFeatureFactory? splashFactory;
 
   @override
   State<CatalogGalleryApp> createState() => _CatalogGalleryAppState();
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final Catalog catalog = CoreCatalogItems.asCatalog();
+  final Catalog catalog = BasicCatalogItems.asCatalog();
 
   @override
   Widget build(BuildContext context) {
     final bool showSamples =
         widget.samplesDir != null && widget.samplesDir!.existsSync();
-    final colorScheme = ColorScheme.fromSeed(seedColor: Colors.blue);
 
     return MaterialApp(
-      theme: ThemeData.light().copyWith(colorScheme: colorScheme),
-      darkTheme: ThemeData.dark().copyWith(colorScheme: colorScheme),
-      home: DefaultTabController(
-        length: showSamples ? 2 : 1,
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: const Text('Catalog Gallery'),
-            bottom: showSamples
-                ? const TabBar(
-                    tabs: [
-                      Tab(text: 'Catalog'),
-                      Tab(text: 'Samples'),
-                    ],
-                  )
-                : null,
-          ),
-          body: TabBarView(
-            children: [
-              DebugCatalogView(
-                catalog: catalog,
-                onSubmit: (message) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'User action: '
-                        '${jsonEncode(message.parts.last)}',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              if (showSamples)
-                SamplesView(
-                  samplesDir: widget.samplesDir!,
-                  catalog: catalog,
-                  fs: widget.fs,
-                ),
-            ],
-          ),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        splashFactory: widget.splashFactory,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
         ),
+        splashFactory: widget.splashFactory,
+      ),
+      home: Builder(
+        builder: (context) {
+          return DefaultTabController(
+            length: showSamples ? 2 : 1,
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                title: Text(
+                  'Catalog Gallery',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  ),
+                ),
+                bottom: showSamples
+                    ? TabBar(
+                        labelColor: Theme.of(context).colorScheme.onSecondary,
+                        unselectedLabelColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondary.withValues(alpha: 0.5),
+                        tabs: const [
+                          Tab(text: 'Catalog'),
+                          Tab(text: 'Samples'),
+                        ],
+                      )
+                    : null,
+              ),
+              body: TabBarView(
+                children: [
+                  DebugCatalogView(
+                    catalog: catalog,
+                    onSubmit: (message) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'User action: '
+                            '${jsonEncode(message.parts.last)}',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  if (showSamples)
+                    SamplesView(
+                      samplesDir: widget.samplesDir!,
+                      catalog: catalog,
+                      fs: widget.fs,
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

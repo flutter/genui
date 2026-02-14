@@ -33,16 +33,18 @@ class ShoppingCartScreen extends ConsumerWidget {
           .watch(aiProvider)
           .when(
             data: (aiState) {
-              return ValueListenableBuilder<UiDefinition?>(
-                valueListenable: aiState.a2uiMessageProcessor
-                    .getSurfaceNotifier('cart'),
+              return ValueListenableBuilder<SurfaceDefinition?>(
+                valueListenable: aiState.a2uiMessageProcessor.watchSurface(
+                  'cart',
+                ),
                 builder: (context, definition, child) {
                   if (definition == null) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  return GenUiSurface(
-                    host: aiState.a2uiMessageProcessor,
-                    surfaceId: 'cart',
+                  return Surface(
+                    surfaceContext: aiState.a2uiMessageProcessor.contextFor(
+                      'cart',
+                    ),
                   );
                 },
               );

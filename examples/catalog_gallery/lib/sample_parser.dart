@@ -28,7 +28,12 @@ class SampleParser {
 
   static Sample parseString(String content) {
     final List<String> lines = const LineSplitter().convert(content);
-    final int separatorIndex = lines.indexOf('---');
+    var startLine = 0;
+    if (lines.isNotEmpty && lines.first.trim() == '---') {
+      startLine = 1;
+    }
+
+    final int separatorIndex = lines.indexOf('---', startLine);
 
     if (separatorIndex == -1) {
       throw const FormatException(
@@ -37,10 +42,13 @@ class SampleParser {
       );
     }
 
-    final String yamlHeader = lines.sublist(0, separatorIndex).join('\n');
+    final String yamlHeader = lines
+        .sublist(startLine, separatorIndex)
+        .join('\n');
     final String jsonlBody = lines.sublist(separatorIndex + 1).join('\n');
 
-    final header = loadYaml(yamlHeader) as YamlMap;
+    final dynamic yamlNode = loadYaml(yamlHeader);
+    final Map<dynamic, dynamic> header = (yamlNode is Map) ? yamlNode : {};
     final String name = header['name'] as String? ?? 'Untitled Sample';
     final String description = header['description'] as String? ?? '';
 

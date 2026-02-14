@@ -8,16 +8,17 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../core/a2ui_message_processor.dart';
-import '../core/genui_surface.dart';
+import '../engine/surface_controller.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
+import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import '../widgets/surface.dart';
 
-/// A widget that displays a GenUI catalog widgets.
+/// A widget that displays a catalog of GenUI components.
 ///
 /// This widget is intended for development and debugging purposes.
 ///
@@ -35,7 +36,7 @@ class DebugCatalogView extends StatefulWidget {
   final Catalog catalog;
 
   /// A callback for when a user submits an action.
-  final ValueChanged<UserUiInteractionMessage>? onSubmit;
+  final ValueChanged<ChatMessage>? onSubmit;
 
   /// If provided, constrains each item to the given height.
   final double? itemHeight;
@@ -45,18 +46,18 @@ class DebugCatalogView extends StatefulWidget {
 }
 
 class _DebugCatalogViewState extends State<DebugCatalogView> {
-  late final A2uiMessageProcessor _a2uiMessageProcessor;
+  late final SurfaceController _surfaceController;
   final surfaceIds = <String>[];
-  late final StreamSubscription<UserUiInteractionMessage>? _subscription;
+  late final StreamSubscription<ChatMessage>? _subscription;
 
   @override
   void initState() {
     super.initState();
     final Catalog catalog = widget.catalog;
 
-    _a2uiMessageProcessor = A2uiMessageProcessor(catalogs: [catalog]);
+    _surfaceController = SurfaceController(catalogs: [widget.catalog]);
     if (widget.onSubmit != null) {
-      _subscription = _a2uiMessageProcessor.onSubmit.listen(widget.onSubmit);
+      _subscription = _surfaceController.onSubmit.listen(widget.onSubmit);
     } else {
       _subscription = null;
     }
@@ -80,26 +81,25 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
           rootComponent = components.firstWhereOrNull((c) => c.id == 'root');
 
           if (rootComponent == null) {
-            debugPrint(
+            genUiLogger.info(
               'Skipping example for ${item.name} because it is missing a root '
               'component.',
             );
             continue;
           }
 
-          _a2uiMessageProcessor.handleMessage(
-            SurfaceUpdate(surfaceId: surfaceId, components: components),
+          _surfaceController.handleMessage(
+            UpdateComponents(surfaceId: surfaceId, components: components),
           );
-          _a2uiMessageProcessor.handleMessage(
-            BeginRendering(
-              surfaceId: surfaceId,
-              root: rootComponent.id,
-              catalogId: catalog.catalogId,
-            ),
+          _surfaceController.handleMessage(
+            CreateSurface(surfaceId: surfaceId, catalogId: catalog.catalogId!),
           );
           surfaceIds.add(surfaceId);
-        } catch (e, s) {
-          debugPrint('Failed to load example for "${item.name}":\n$e\n$s');
+        } catch (exception, stackTrace) {
+          genUiLogger.severe(
+            'Failed to load example for "${item.name}":\n'
+            '$exception\n$stackTrace',
+          );
           throw Exception(
             'Failed to load example for "${item.name}". Check logs for '
             'details.',
@@ -112,7 +112,7 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
   @override
   void dispose() {
     _subscription?.cancel();
-    _a2uiMessageProcessor.dispose();
+    _surfaceController.dispose();
     super.dispose();
   }
 
@@ -122,9 +122,8 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
       itemCount: surfaceIds.length,
       itemBuilder: (BuildContext context, int index) {
         final String surfaceId = surfaceIds[index];
-        final surfaceWidget = GenUiSurface(
-          host: _a2uiMessageProcessor,
-          surfaceId: surfaceId,
+        final surfaceWidget = Surface(
+          surfaceContext: _surfaceController.contextFor(surfaceId),
         );
         return Card(
           color: Theme.of(context).colorScheme.secondaryContainer,

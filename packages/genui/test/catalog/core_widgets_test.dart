@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('Core Widgets', () {
-    final Catalog testCatalog = CoreCatalogItems.asCatalog();
+  group('Basic Widgets', () {
+    final Catalog testCatalog = BasicCatalogItems.asCatalog();
 
     ChatMessage? message;
-    A2uiMessageProcessor? messageProcessor;
+    SurfaceController? controller;
 
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
@@ -19,24 +19,20 @@ void main() {
       List<Component> components,
     ) async {
       message = null;
-      messageProcessor?.dispose();
-      messageProcessor = A2uiMessageProcessor(catalogs: [testCatalog]);
-      messageProcessor!.onSubmit.listen((event) => message = event);
+      controller?.dispose();
+      controller = SurfaceController(catalogs: [testCatalog]);
+      controller!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
-      messageProcessor!.handleMessage(
-        SurfaceUpdate(surfaceId: surfaceId, components: components),
+      controller!.handleMessage(
+        UpdateComponents(surfaceId: surfaceId, components: components),
       );
-      messageProcessor!.handleMessage(
-        BeginRendering(
-          surfaceId: surfaceId,
-          root: rootId,
-          catalogId: testCatalog.catalogId,
-        ),
+      controller!.handleMessage(
+        CreateSurface(surfaceId: surfaceId, catalogId: testCatalog.catalogId!),
       );
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GenUiSurface(host: messageProcessor!, surfaceId: surfaceId),
+            body: Surface(surfaceContext: controller!.contextFor(surfaceId)),
           ),
         ),
       );
@@ -45,25 +41,23 @@ void main() {
     testWidgets('Button renders and handles taps', (WidgetTester tester) async {
       final components = [
         const Component(
-          id: 'button',
-          componentProperties: {
-            'Button': {
-              'child': 'text',
-              'action': {'name': 'testAction'},
+          id: 'root',
+          type: 'Button',
+          properties: {
+            'child': 'text',
+            'action': {
+              'event': {'name': 'testAction'},
             },
           },
         ),
         const Component(
           id: 'text',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'Click Me'},
-            },
-          },
+          type: 'Text',
+          properties: {'text': 'Click Me'},
         ),
       ];
 
-      await pumpWidgetWithDefinition(tester, 'button', components);
+      await pumpWidgetWithDefinition(tester, 'root', components);
 
       expect(find.text('Click Me'), findsOneWidget);
 
@@ -75,18 +69,17 @@ void main() {
     testWidgets('Text renders from data model', (WidgetTester tester) async {
       final components = [
         const Component(
-          id: 'text',
-          componentProperties: {
-            'Text': {
-              'text': {'path': '/myText'},
-            },
+          id: 'root',
+          type: 'Text',
+          properties: {
+            'text': {'path': '/myText'},
           },
         ),
       ];
 
-      await pumpWidgetWithDefinition(tester, 'text', components);
-      messageProcessor!
-          .dataModelForSurface('testSurface')
+      await pumpWidgetWithDefinition(tester, 'root', components);
+      controller!.store
+          .getDataModel('testSurface')
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
 
@@ -96,34 +89,25 @@ void main() {
     testWidgets('Column renders children', (WidgetTester tester) async {
       final components = [
         const Component(
-          id: 'col',
-          componentProperties: {
-            'Column': {
-              'children': {
-                'explicitList': ['text1', 'text2'],
-              },
-            },
+          id: 'root',
+          type: 'Column',
+          properties: {
+            'children': ['text1', 'text2'],
           },
         ),
         const Component(
           id: 'text1',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'First'},
-            },
-          },
+          type: 'Text',
+          properties: {'text': 'First'},
         ),
         const Component(
           id: 'text2',
-          componentProperties: {
-            'Text': {
-              'text': {'literalString': 'Second'},
-            },
-          },
+          type: 'Text',
+          properties: {'text': 'Second'},
         ),
       ];
 
-      await pumpWidgetWithDefinition(tester, 'col', components);
+      await pumpWidgetWithDefinition(tester, 'root', components);
 
       expect(find.text('First'), findsOneWidget);
       expect(find.text('Second'), findsOneWidget);
@@ -134,20 +118,21 @@ void main() {
     ) async {
       final components = [
         const Component(
-          id: 'field',
-          componentProperties: {
-            'TextField': {
-              'text': {'path': '/myValue'},
-              'label': {'literalString': 'My Label'},
-              'onSubmittedAction': {'name': 'submit'},
+          id: 'root',
+          type: 'TextField',
+          properties: {
+            'value': {'path': '/myValue'},
+            'label': 'My Label',
+            'onSubmittedAction': {
+              'event': {'name': 'submit'},
             },
           },
         ),
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      messageProcessor!
-          .dataModelForSurface('testSurface')
+      controller!.store
+          .getDataModel('testSurface')
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
@@ -159,8 +144,8 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        messageProcessor!
-            .dataModelForSurface('testSurface')
+        controller!.store
+            .getDataModel('testSurface')
             .getValue<String>(DataPath('/myValue')),
         'new value',
       );

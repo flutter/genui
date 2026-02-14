@@ -9,47 +9,38 @@ import 'package:genui/genui.dart';
 void main() {
   testWidgets('TextField with no weight in Row defaults to weight: 1 '
       'and expands', (WidgetTester tester) async {
-    final a2uiProcessor = A2uiMessageProcessor(
-      catalogs: [CoreCatalogItems.asCatalog()],
+    final a2uiProcessor = SurfaceController(
+      catalogs: [BasicCatalogItems.asCatalog()],
     );
+    addTearDown(a2uiProcessor.dispose);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
-        componentProperties: {
-          'Row': {
-            'children': {
-              'explicitList': ['text_field'],
-            },
-          },
+        id: 'root',
+        type: 'Row',
+        properties: {
+          'children': ['text_field'],
         },
       ),
       const Component(
         id: 'text_field',
-        componentProperties: {
-          'TextField': {
-            'label': {'literalString': 'Input'},
-          },
-        },
+        type: 'TextField',
+        properties: {'label': 'Input'},
         // "weight" property is left unset.
       ),
     ];
 
     a2uiProcessor.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     a2uiProcessor.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'row',
-        catalogId: 'a2ui.org:standard_catalog_0_8_0',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: a2uiProcessor, surfaceId: surfaceId),
+          body: Surface(surfaceContext: a2uiProcessor.contextFor(surfaceId)),
         ),
       ),
     );
@@ -72,47 +63,37 @@ void main() {
   testWidgets('TextField in Row (with weight) expands', (
     WidgetTester tester,
   ) async {
-    final manager = A2uiMessageProcessor(
-      catalogs: [CoreCatalogItems.asCatalog()],
+    final manager = SurfaceController(
+      catalogs: [BasicCatalogItems.asCatalog()],
     );
+    addTearDown(manager.dispose);
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'row',
-        componentProperties: {
-          'Row': {
-            'children': {
-              'explicitList': ['text_field'],
-            },
-          },
+        id: 'root',
+        type: 'Row',
+        properties: {
+          'children': ['text_field'],
         },
       ),
       const Component(
         id: 'text_field',
-        componentProperties: {
-          'TextField': {
-            'label': {'literalString': 'Input'},
-          },
-        },
-        weight: 1,
+        type: 'TextField',
+        properties: {'label': 'Input', 'weight': 1},
       ),
     ];
 
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'row',
-        catalogId: 'a2ui.org:standard_catalog_0_8_0',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(surfaceContext: manager.contextFor(surfaceId)),
         ),
       ),
     );
@@ -130,5 +111,131 @@ void main() {
     // Default test screen width is 800.
     final Size size = tester.getSize(find.byType(TextField));
     expect(size.width, 800.0);
+  });
+
+  testWidgets('TextField validation checks work', (WidgetTester tester) async {
+    final manager = SurfaceController(
+      catalogs: [BasicCatalogItems.asCatalog()],
+    );
+    addTearDown(manager.dispose);
+    const surfaceId = 'validationTest';
+    // Initialize with invalid value
+    manager.handleMessage(
+      UpdateDataModel(
+        surfaceId: surfaceId,
+        path: DataPath('/myValue'),
+        value: 'initial',
+      ),
+    );
+
+    final components = [
+      const Component(
+        id: 'root',
+        type: 'TextField',
+        properties: {
+          'label': 'Input',
+          'value': {'path': 'inputValue'},
+          'checks': [
+            {
+              'message': 'Must be at least 6 chars',
+              'condition': {
+                'call': 'length',
+                'args': {
+                  'value': {'path': 'inputValue'},
+                  'min': 6,
+                },
+              },
+            },
+          ],
+        },
+      ),
+    ];
+
+    manager.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(surfaceContext: manager.contextFor(surfaceId)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify error text is shown
+    expect(find.text('Must be at least 6 chars'), findsOneWidget);
+
+    // Update with valid value
+    await tester.enterText(find.byType(TextField), 'valid value');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Must be at least 6 chars'), findsNothing);
+  });
+  testWidgets('TextField validation using condition wrapper and call key', (
+    WidgetTester tester,
+  ) async {
+    final manager = SurfaceController(
+      catalogs: [BasicCatalogItems.asCatalog()],
+    );
+    addTearDown(manager.dispose);
+    const surfaceId = 'validationWrapperTest';
+    // Initialize with invalid value (empty string)
+    manager.handleMessage(
+      UpdateDataModel(surfaceId: surfaceId, path: DataPath('/name'), value: ''),
+    );
+
+    final components = [
+      const Component(
+        id: 'root',
+        type: 'TextField',
+        properties: {
+          'label': 'Name',
+          'value': {'path': '/name'},
+          'checks': [
+            {
+              // Using "condition" wrapper and "call" instead of "func"
+              // Args as list, as expected by function registry
+              'condition': {
+                'call': 'required',
+                'args': {
+                  'value': {'path': '/name'},
+                },
+              },
+              'message': 'Name required',
+            },
+          ],
+        },
+      ),
+    ];
+
+    manager.handleMessage(
+      UpdateComponents(surfaceId: surfaceId, components: components),
+    );
+    manager.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(surfaceContext: manager.contextFor(surfaceId)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Empty value should trigger required
+    expect(find.text('Name required'), findsOneWidget);
+
+    // Update with valid value
+    await tester.enterText(find.byType(TextField), 'Alice');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Name required'), findsNothing);
   });
 }

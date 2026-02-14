@@ -8,6 +8,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import 'a2ui_schemas.dart';
 import 'catalog_item.dart';
 import 'data_model.dart';
 
@@ -15,21 +16,24 @@ import 'data_model.dart';
 /// to construct a user interface.
 ///
 /// A [Catalog] serves three primary purposes:
-/// 1. It holds a list of [CatalogItem]s, which define the available widgets.
-/// 2. It provides a mechanism to build a Flutter widget from a JSON-like data
+///
+/// 1. Holds a list of [CatalogItem]s, which define the available widgets.
+/// 2. Provides a mechanism to build a Flutter widget from a JSON-like data
 ///    structure ([JsonMap]).
-/// 3. It dynamically generates a [Schema] that describes the structure of all
+/// 3. Dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets, which can be provided to the AI model.
 @immutable
-class Catalog {
+interface class Catalog {
   /// Creates a new catalog with the given list of items.
   const Catalog(this.items, {this.catalogId});
 
   /// The list of [CatalogItem]s available in this catalog.
   final Iterable<CatalogItem> items;
 
-  /// A string that uniquely identifies this catalog. It is recommended to use
-  /// a reverse-domain name notation, e.g. 'com.example.my_catalog'.
+  /// A string that uniquely identifies this catalog.
+  ///
+  /// The recommended format for this string is reverse-domain name notation,
+  /// e.g. 'com.example.my_catalog'.
   final String? catalogId;
 
   /// Returns a new [Catalog] containing the items from both this catalog and
@@ -59,31 +63,35 @@ class Catalog {
 
   /// Builds a Flutter widget from a JSON-like data structure.
   Widget buildWidget(CatalogItemContext itemContext) {
-    final widgetData = itemContext.data as JsonMap;
-    final String? widgetType = widgetData.keys.firstOrNull;
+    final String widgetType = itemContext.type;
     final CatalogItem? item = items.firstWhereOrNull(
       (item) => item.name == widgetType,
     );
     if (item == null) {
-      genUiLogger.severe('Item $widgetType was not found in catalog');
-      return Container();
+      throw CatalogItemNotFoundException(widgetType, catalogId: catalogId);
     }
 
     genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
-    return item.widgetBuilder(
-      CatalogItemContext(
-        data: JsonMap.from(widgetData[widgetType]! as Map),
-        id: itemContext.id,
-        buildChild: (String childId, [DataContext? childDataContext]) =>
-            itemContext.buildChild(
-              childId,
-              childDataContext ?? itemContext.dataContext,
-            ),
-        dispatchEvent: itemContext.dispatchEvent,
-        buildContext: itemContext.buildContext,
-        dataContext: itemContext.dataContext,
-        getComponent: itemContext.getComponent,
-        surfaceId: itemContext.surfaceId,
+    return KeyedSubtree(
+      key: ValueKey(itemContext.id),
+      child: item.widgetBuilder(
+        CatalogItemContext(
+          data: itemContext.data,
+          id: itemContext.id,
+          type: widgetType,
+          buildChild: (String childId, [DataContext? childDataContext]) =>
+              itemContext.buildChild(
+                childId,
+                childDataContext ?? itemContext.dataContext,
+              ),
+          dispatchEvent: itemContext.dispatchEvent,
+          buildContext: itemContext.buildContext,
+          dataContext: itemContext.dataContext,
+          getComponent: itemContext.getComponent,
+          getCatalogItem: (String type) =>
+              items.firstWhereOrNull((item) => item.name == type),
+          surfaceId: itemContext.surfaceId,
+        ),
       ),
     );
   }
@@ -122,8 +130,34 @@ class Catalog {
               'properties.',
           properties: {},
         ),
+        'functions': A2uiSchemas.clientFunctions(),
       },
-      required: ['components', 'styles'],
+      required: ['components', 'styles', 'functions'],
     );
+  }
+}
+
+/// An exception thrown when a requested item is not found in the [Catalog].
+class CatalogItemNotFoundException implements Exception {
+  /// Creates a new [CatalogItemNotFoundException].
+  const CatalogItemNotFoundException(this.widgetType, {this.catalogId});
+
+  /// The type of the widget that was not found.
+  final String widgetType;
+
+  /// The ID of the catalog that was searched.
+  final String? catalogId;
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.write(
+      'CatalogItemNotFoundException: Item "$widgetType" '
+      'was not found in catalog',
+    );
+    if (catalogId != null) {
+      buffer.write(' "$catalogId"');
+    }
+    return buffer.toString();
   }
 }

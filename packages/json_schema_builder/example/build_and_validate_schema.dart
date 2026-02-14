@@ -2,9 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
 
 Future<void> main() async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    stdout.writeln(record.message);
+  });
+  final log = Logger('BuildAndValidateSchema');
   // This example demonstrates how to build a complex, interesting schema to
   // validate a "System Event". Our system can have different types of events,
   // and we want to ensure that the data for each event is structured correctly.
@@ -106,7 +114,7 @@ Future<void> main() async {
   // 3. Create Sample Data and Validate It
   // =========================================================================
 
-  print('--- 1. Validating a Correct Login Event ---');
+  log.info('--- 1. Validating a Correct Login Event ---');
   final Map<String, Object> validLoginEvent = {
     'eventId': 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
     'timestamp': '2025-07-28T10:00:00Z',
@@ -115,7 +123,7 @@ Future<void> main() async {
   };
   await validateAndPrintResults(systemEventSchema, validLoginEvent);
 
-  print('\n--- 2. Validating a Correct File Upload Event ---');
+  log.info('\n--- 2. Validating a Correct File Upload Event ---');
   final Map<String, Object> validFileUploadEvent = {
     'eventId': 'b2c3d4e5-f6a7-8901-2345-67890abcdef1',
     'timestamp': '2025-07-28T11:30:00Z',
@@ -134,7 +142,7 @@ Future<void> main() async {
   };
   await validateAndPrintResults(systemEventSchema, validFileUploadEvent);
 
-  print('\n--- 3. Validating an Invalid Event (Multiple Errors) ---');
+  log.info('\n--- 3. Validating an Invalid Event (Multiple Errors) ---');
   final Map<String, Object> invalidEvent = {
     'eventId': 'not-a-uuid', // Fails pattern
     'timestamp': '2025-07-28 12:00:00', // Fails pattern (not ISO 8601)
@@ -147,7 +155,7 @@ Future<void> main() async {
   };
   await validateAndPrintResults(systemEventSchema, invalidEvent);
 
-  print('\n--- 4. Validating an Invalid Login Event Payload ---');
+  log.info('\n--- 4. Validating an Invalid Login Event Payload ---');
   final Map<String, Object> invalidLoginPayload = {
     'eventId': 'c3d4e5f6-a7b8-9012-3456-7890abcdef12',
     'timestamp': '2025-07-28T14:00:00Z',
@@ -167,16 +175,17 @@ Future<void> validateAndPrintResults(
   Schema schema,
   Map<String, Object?> data,
 ) async {
+  final log = Logger('BuildAndValidateSchema');
   final List<ValidationError> errors = await schema.validate(data);
 
   if (errors.isEmpty) {
-    print('✅ Success! The data is valid.');
+    log.info('✅ Success! The data is valid.');
   } else {
-    print('❌ Failure! The data is invalid. Found ${errors.length} errors:');
+    log.info('❌ Failure! The data is invalid. Found ${errors.length} errors:');
     for (final error in errors) {
       // The toErrorString() method provides a human-readable summary of the
       // error.
-      print('  - ${error.toErrorString()}');
+      log.info('  - ${error.toErrorString()}');
     }
   }
 }

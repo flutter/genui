@@ -54,8 +54,14 @@ jobs:
 
           # Get the list of changed files. The method depends on the event type.
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            # For PRs, use the GitHub CLI to get a precise list of changed files.
-            CHANGED_FILES=$(gh pr diff --name-only ${{ github.event.pull_request.number }})
+            # Try using gh pr diff first to get the precise list of changed files.
+            # This avoids false positives if main has moved forward.
+            # We wrap it in an if statement to catch failures (e.g. diff too large).
+            if ! CHANGED_FILES=$(gh pr diff --name-only ${{ github.event.pull_request.number }}); then
+              echo "Warning: 'gh pr diff' failed. This usually happens when the PR is very large."
+              echo "Falling back to 'git diff' against origin/${{ github.base_ref }}."
+              CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }} HEAD)
+            fi
           else
             # For pushes, diff between the two SHAs of the push.
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})

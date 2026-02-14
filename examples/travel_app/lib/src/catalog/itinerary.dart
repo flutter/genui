@@ -16,6 +16,7 @@ enum ItineraryEntryStatus { noBookingRequired, choiceRequired, chosen }
 final _schema = S.object(
   description: 'Widget to show an itinerary or a plan for travel.',
   properties: {
+    'component': S.string(enumValues: ['Itinerary']),
     'title': A2uiSchemas.stringReference(
       description: 'The title of the itinerary.',
     ),
@@ -114,31 +115,31 @@ final _schema = S.object(
       ),
     ),
   },
-  required: ['title', 'subheading', 'imageChildId', 'days'],
+  required: ['component', 'title', 'subheading', 'imageChildId', 'days'],
 );
 
 extension type _ItineraryData.fromMap(Map<String, Object?> _json) {
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap get subheading => _json['subheading'] as JsonMap;
+  Object get title => _json['title'] as Object;
+  Object get subheading => _json['subheading'] as Object;
   String get imageChildId => _json['imageChildId'] as String;
   List<JsonMap> get days => (_json['days'] as List).cast<JsonMap>();
 }
 
 extension type _ItineraryDayData.fromMap(Map<String, Object?> _json) {
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap get subtitle => _json['subtitle'] as JsonMap;
-  JsonMap get description => _json['description'] as JsonMap;
+  Object get title => _json['title'] as Object;
+  Object get subtitle => _json['subtitle'] as Object;
+  Object get description => _json['description'] as Object;
   String get imageChildId => _json['imageChildId'] as String;
   List<JsonMap> get entries => (_json['entries'] as List).cast<JsonMap>();
 }
 
 extension type _ItineraryEntryData.fromMap(Map<String, Object?> _json) {
-  JsonMap get title => _json['title'] as JsonMap;
-  JsonMap? get subtitle => _json['subtitle'] as JsonMap?;
-  JsonMap get bodyText => _json['bodyText'] as JsonMap;
-  JsonMap? get address => _json['address'] as JsonMap?;
-  JsonMap get time => _json['time'] as JsonMap;
-  JsonMap? get totalCost => _json['totalCost'] as JsonMap?;
+  Object get title => _json['title'] as Object;
+  Object? get subtitle => _json['subtitle'];
+  Object get bodyText => _json['bodyText'] as Object;
+  Object? get address => _json['address'];
+  Object get time => _json['time'] as Object;
+  Object? get totalCost => _json['totalCost'];
   ItineraryEntryType get type =>
       ItineraryEntryType.values.byName(_json['type'] as String);
   ItineraryEntryStatus get status =>
@@ -155,66 +156,37 @@ final itinerary = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "Itinerary": {
-              "title": {
-                "literalString": "My Awesome Trip"
-              },
-              "subheading": {
-                "literalString": "A 3-day adventure"
-              },
-              "imageChildId": "image1",
-              "days": [
+          "component": "Itinerary",
+          "title": "My Awesome Trip",
+          "subheading": "A 3-day adventure",
+          "imageChildId": "image1",
+          "days": [
+            {
+              "title": "Day 1",
+              "subtitle": "Arrival and Exploration",
+              "description": "Welcome to the city!",
+              "imageChildId": "image2",
+              "entries": [
                 {
-                  "title": {
-                    "literalString": "Day 1"
-                  },
-                  "subtitle": {
-                    "literalString": "Arrival and Exploration"
-                  },
-                  "description": {
-                    "literalString": "Welcome to the city!"
-                  },
-                  "imageChildId": "image2",
-                  "entries": [
-                    {
-                      "title": {
-                        "literalString": "Check-in to Hotel"
-                      },
-                      "bodyText": {
-                        "literalString": "Check-in to your hotel and relax."
-                      },
-                      "time": {
-                        "literalString": "3:00 PM"
-                      },
-                      "type": "accommodation",
-                      "status": "noBookingRequired"
-                    }
-                  ]
+                  "title": "Check-in to Hotel",
+                  "bodyText": "Check-in to your hotel and relax.",
+                  "time": "3:00 PM",
+                  "type": "accommodation",
+                  "status": "noBookingRequired"
                 }
               ]
             }
-          }
+          ]
         },
         {
           "id": "image1",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/canyonlands_national_park_utah.jpg"
-              }
-            }
-          }
+          "component": "Image",
+          "url": "assets/travel_images/canyonlands_national_park_utah.jpg"
         },
         {
           "id": "image2",
-          "component": {
-            "Image": {
-              "url": {
-                "literalString": "assets/travel_images/brooklyn_bridge_new_york.jpg"
-              }
-            }
-          }
+          "component": "Image",
+          "url": "assets/travel_images/brooklyn_bridge_new_york.jpg"
         }
       ]
     ''',
@@ -549,10 +521,13 @@ class _ItineraryEntry extends StatelessWidget {
                             if (actionData == null) {
                               return;
                             }
-                            final actionName = actionData['name'] as String;
-                            final List<Object?> contextDefinition =
-                                (actionData['context'] as List<Object?>?) ??
-                                <Object>[];
+                            final event = actionData['event'] as JsonMap?;
+                            if (event == null) {
+                              return;
+                            }
+                            final actionName = event['name'] as String;
+                            final contextDefinition =
+                                event['context'] as JsonMap?;
                             final JsonMap resolvedContext = resolveContext(
                               dataContext,
                               contextDefinition,

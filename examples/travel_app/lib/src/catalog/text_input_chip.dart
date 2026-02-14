@@ -11,6 +11,7 @@ final _schema = S.object(
       'An input chip used to ask the user to enter free text, e.g. to '
       'select a destination. This should only be used inside an InputGroup.',
   properties: {
+    'component': S.string(enumValues: ['TextInputChip']),
     'label': S.string(description: 'The label for the text input chip.'),
     'value': A2uiSchemas.stringReference(
       description: 'The initial value for the text input.',
@@ -19,7 +20,7 @@ final _schema = S.object(
       description: 'Whether the text should be obscured (e.g., for passwords).',
     ),
   },
-  required: ['label'],
+  required: ['component', 'label'],
 );
 
 extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
@@ -34,7 +35,7 @@ extension type _TextInputChipData.fromMap(Map<String, Object?> _json) {
   });
 
   String get label => _json['label'] as String;
-  JsonMap? get value => _json['value'] as JsonMap?;
+  Object? get value => _json['value'];
   bool get obscured => _json['obscured'] as bool? ?? false;
 }
 
@@ -46,14 +47,9 @@ final textInputChip = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TextInputChip": {
-              "value": {
-                "literalString": "John Doe"
-              },
-              "label": "Enter your name"
-            }
-          }
+          "component": "TextInputChip",
+          "value": "John Doe",
+          "label": "Enter your name"
         }
       ]
     ''',
@@ -61,12 +57,9 @@ final textInputChip = CatalogItem(
       [
         {
           "id": "root",
-          "component": {
-            "TextInputChip": {
-              "label": "Enter your password",
-              "obscured": true
-            }
-          }
+          "component": "TextInputChip",
+          "label": "Enter your password",
+          "obscured": true
         }
       ]
     ''',
@@ -76,22 +69,24 @@ final textInputChip = CatalogItem(
       context.data as Map<String, Object?>,
     );
 
-    final JsonMap? valueRef = textInputChipData.value;
-    final path = valueRef?['path'] as String?;
+    final Object? valueRef = textInputChipData.value;
+    final path = valueRef is Map && valueRef.containsKey('path')
+        ? valueRef['path'] as String
+        : '${context.id}.value';
     final ValueNotifier<String?> notifier = context.dataContext
-        .subscribeToString(valueRef);
+        .subscribeToString({'path': path});
 
     return ValueListenableBuilder<String?>(
       valueListenable: notifier,
       builder: (builderContext, currentValue, child) {
+        final String? effectiveValue =
+            currentValue ?? (valueRef is String ? valueRef : null);
         return _TextInputChip(
           label: textInputChipData.label,
-          value: currentValue,
+          value: effectiveValue,
           obscured: textInputChipData.obscured,
           onChanged: (newValue) {
-            if (path != null) {
-              context.dataContext.update(DataPath(path), newValue);
-            }
+            context.dataContext.update(path, newValue);
           },
         );
       },

@@ -26,14 +26,8 @@ void main() {
       final CatalogItem catalogItem = tabbedSections;
       final Map<String, List<Map<String, Object>>> data = {
         'sections': [
-          {
-            'title': {'literalString': 'Tab 1'},
-            'child': 'child1',
-          },
-          {
-            'title': {'literalString': 'Tab 2'},
-            'child': 'child2',
-          },
+          {'title': 'Tab 1', 'child': 'child1'},
+          {'title': 'Tab 2', 'child': 'child2'},
         ],
       };
 
@@ -48,8 +42,10 @@ void main() {
                     builder: (context) {
                       return catalogItem.widgetBuilder(
                         CatalogItemContext(
+                          getCatalogItem: (type) => null,
                           data: data,
                           id: 'testId',
+                          type: 'TabbedSections',
                           buildChild: mockBuildChild,
                           dispatchEvent: (event) {},
                           buildContext: context,

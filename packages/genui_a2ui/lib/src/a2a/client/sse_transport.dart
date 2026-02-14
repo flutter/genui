@@ -11,6 +11,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../logging_utils.dart';
 import 'a2a_exception.dart';
 import 'http_transport.dart';
 import 'sse_parser.dart';
@@ -42,7 +43,15 @@ class SseTransport extends HttpTransport {
   }) async* {
     final Uri uri = Uri.parse(url);
     final String body = jsonEncode(request);
-    log?.fine('Sending SSE request to $uri with body: $body');
+    try {
+      log?.fine(
+        () =>
+            'Sending SSE request to $uri with body: '
+            '${jsonEncode(sanitizeLogData(request))}',
+      );
+    } catch (e) {
+      log?.warning('Error logging SSE request: $e');
+    }
     final Map<String, String> allHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'text/event-stream',

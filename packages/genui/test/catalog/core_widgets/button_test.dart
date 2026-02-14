@@ -11,11 +11,11 @@ void main() {
     WidgetTester tester,
   ) async {
     ChatMessage? message;
-    final manager = A2uiMessageProcessor(
+    final manager = SurfaceController(
       catalogs: [
         Catalog([
-          CoreCatalogItems.button,
-          CoreCatalogItems.text,
+          BasicCatalogItems.button,
+          BasicCatalogItems.text,
         ], catalogId: 'test_catalog'),
       ],
     );
@@ -23,38 +23,32 @@ void main() {
     const surfaceId = 'testSurface';
     final components = [
       const Component(
-        id: 'button',
-        componentProperties: {
-          'Button': {
-            'child': 'button_text',
-            'action': {'name': 'testAction'},
+        id: 'root',
+        type: 'Button',
+        properties: {
+          'child': 'button_text',
+          'action': {
+            'event': {'name': 'testAction'},
           },
         },
       ),
       const Component(
         id: 'button_text',
-        componentProperties: {
-          'Text': {
-            'text': {'literalString': 'Click Me'},
-          },
-        },
+        type: 'Text',
+        properties: {'text': 'Click Me'},
       ),
     ];
     manager.handleMessage(
-      SurfaceUpdate(surfaceId: surfaceId, components: components),
+      UpdateComponents(surfaceId: surfaceId, components: components),
     );
     manager.handleMessage(
-      const BeginRendering(
-        surfaceId: surfaceId,
-        root: 'button',
-        catalogId: 'test_catalog',
-      ),
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: GenUiSurface(host: manager, surfaceId: surfaceId),
+          body: Surface(surfaceContext: manager.contextFor(surfaceId)),
         ),
       ),
     );

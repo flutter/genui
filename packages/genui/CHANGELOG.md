@@ -7,6 +7,17 @@
 - **Fix**: Improved error handling for catalog example loading to include context about the invalid item (#653).
 - **BREAKING**: Renamed `ChatMessageWidget` to `ChatMessageView` and `InternalMessageWidget` to `InternalMessageView` (#661).
 - **Fix**: Pass the correct `catalogId` in `DebugCatalogView` widget (#676).
+- **BREAKING**: Renamed most classes with `GenUi` prefix to remove the prefix or use `Surface`.
+  - `GenUiConversation` -> `Conversation`
+  - `GenUiController` -> `SurfaceController`
+  - `GenUiSurface` -> `Surface`
+  - `GenUiHost` -> `SurfaceHost`
+  - `GenUiContext` -> `SurfaceContext`
+  - `GenUiTransport` -> `Transport`
+  - `GenUiPromptFragments` -> `PromptFragments`
+  - `GenUiFunctionDeclaration` -> `ClientFunction`
+  - `GenUiFallback` -> `FallbackWidget`
+  - `configureGenUiLogging` -> `configureLogging`
 - Added some dart documentation and an `example` directory to improve `package:genui` pub score.
 - **Fix**: Make `ContentGeneratorError` be an `Exception` (#660).
 - **Feature**: Define genui parts as extensions of `genai_primitives` (#675).
@@ -29,7 +40,7 @@
 - **Feature**: `GenUiManager` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
 - **Feature**: `A2uiMessageProcessor` now supports multiple catalogs by accepting an `Iterable<Catalog>` in its constructor.
 - **Feature**: `catalogId` property added to `UiDefinition` to specify which catalog a UI surface should use.
-- **Refactor**: Moved `standardCatalogId` constant from `core_catalog.dart` to `primitives/constants.dart` for better organization and accessibility.
+- **Refactor**: Moved `standardCatalogId` constant from `basic_catalog.dart` to `primitives/constants.dart` for better organization and accessibility.
 - **Fix**: `MultipleChoice` widget now correctly handles `maxAllowedSelections` when provided as a `double` in JSON, preventing type cast errors.
 - **Fix**: The `Text` catalog item now respects the ambient `DefaultTextStyle`, resolving contrast issues where, for example, text inside a dark purple primary `Button` would be black instead of white.
 
@@ -57,9 +68,9 @@
 ## 0.2.0
 
 - **BREAKING**: Replaced `ElevatedButton` with a more generic `Button` component.
-- **BREAKING**: Removed `CheckboxGroup` and `RadioGroup` from the core catalog. The `MultipleChoice` or `CheckBox` widgets can be used as replacements.
+- **BREAKING**: Removed `CheckboxGroup` and `RadioGroup` from the basic catalog. The `MultipleChoice` or `CheckBox` widgets can be used as replacements.
 - **Feature**: Added an `obscured` property to `TextInputChip` to allow for password style inputs.
-- **Feature**: Added many new components to the core catalog: `AudioPlayer` (placeholder), `Button`, `Card`, `CheckBox`, `DateTimeInput`, `Divider`, `Heading`, `List`, `Modal`, `MultipleChoice`, `Row`, `Slider`, `Tabs`, and `Video` (placeholder).
+- **Feature**: Added many new components to the basic catalog: `AudioPlayer` (placeholder), `Button`, `Card`, `CheckBox`, `DateTimeInput`, `Divider`, `Heading`, `List`, `Modal`, `MultipleChoice`, `Row`, `Slider`, `Tabs`, and `Video` (placeholder).
 - **Fix**: Corrected the action key from `actionName` to `name` in `Trailhead` and `TravelCarousel`.
 - **Fix**: Corrected the image property from `location` to `url` in `TravelCarousel`.
 
