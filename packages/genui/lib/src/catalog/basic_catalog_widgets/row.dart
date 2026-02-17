@@ -9,6 +9,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
+import 'shared_constants.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
@@ -112,6 +113,7 @@ final row = CatalogItem(
           mainAxisAlignment: _parseMainAxisAlignment(rowData.justify),
           crossAxisAlignment: _parseCrossAxisAlignment(rowData.align),
           mainAxisSize: MainAxisSize.min,
+          spacing: SharedConstants.spacing,
           children: childIds.map((componentId) {
             final explicitWeight =
                 getComponent(componentId)?.properties['weight'] as int?;
