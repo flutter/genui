@@ -1,4 +1,5 @@
 class SharedConstants {
-  /// The default spacing where some non-zero spacing is needed.
-  static const double spacing = 8;
+  static const double verticalColumnSpacing = 8;
+
+  static const double horizontalRowSpacing = 16;
 }

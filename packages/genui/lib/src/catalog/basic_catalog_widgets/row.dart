@@ -113,7 +113,7 @@ final row = CatalogItem(
           mainAxisAlignment: _parseMainAxisAlignment(rowData.justify),
           crossAxisAlignment: _parseCrossAxisAlignment(rowData.align),
           mainAxisSize: MainAxisSize.min,
-          spacing: SharedConstants.spacing,
+          spacing: SharedConstants.horizontalRowSpacing,
           children: childIds.map((componentId) {
             final explicitWeight =
                 getComponent(componentId)?.properties['weight'] as int?;
