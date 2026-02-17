@@ -9,8 +9,9 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
-import 'ui_styling.dart';
 import 'widget_helpers.dart';
+
+const _horizontalRowSpacing = 16.0;
 
 final _schema = S.object(
   properties: {
@@ -113,7 +114,7 @@ final row = CatalogItem(
           mainAxisAlignment: _parseMainAxisAlignment(rowData.justify),
           crossAxisAlignment: _parseCrossAxisAlignment(rowData.align),
           mainAxisSize: MainAxisSize.min,
-          spacing: UiStyling.horizontalRowSpacing,
+          spacing: _horizontalRowSpacing,
           children: childIds.map((componentId) {
             final explicitWeight =
                 getComponent(componentId)?.properties['weight'] as int?;
