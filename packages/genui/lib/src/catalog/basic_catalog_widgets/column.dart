@@ -9,7 +9,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
-import 'shared_constants.dart';
+import 'ui_styling.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(

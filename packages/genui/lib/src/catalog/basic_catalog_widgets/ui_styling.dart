@@ -1,3 +1,4 @@
+/// Parameters for the catalog components.
 class UiStyling {
   static const double verticalColumnSpacing = 8;
 
