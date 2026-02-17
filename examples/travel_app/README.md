@@ -34,16 +34,7 @@ This application can be run using either the **Google Generative AI** API direct
 
 ### Option 1: Google Generative AI (Default)
 
-This is the simplest way to get started.
-
-1.  **Get an API Key**: Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-2.  **Run the App**: Pass your API key as a dart-define or environment variable:
-
-    ```bash
-    flutter run --dart-define=GEMINI_API_KEY=YOUR_API_KEY
-    ```
-
-    *Alternatively, you can set the `GEMINI_API_KEY` environment variable in your shell.*
+Follow the instructions in the [run_app_with_gemini_key.md](../../docs/run_app_with_gemini_key.md).
 
 ### Option 2: Firebase Vertex AI
 

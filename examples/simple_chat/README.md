@@ -32,20 +32,4 @@ The application's logic is contained almost entirely within `lib/chat_session.da
 
 ## Getting Started
 
-1. **Get an API Key**: Obtain a Google Cloud API key with access
-   to the Generative Language API from the
-   [Google AI Studio](https://aistudio.google.com/app/apikey).
-
-2. **Run the App**: Pass your API key as a Dart environment
-   variable when running the app:
-
-   ```bash
-   flutter run -d <device> --dart-define=GEMINI_API_KEY=your_api_key
-   ```
-
-   Or set it as an environment variable and reference it:
-
-   ```bash
-   export GEMINI_API_KEY=your_api_key_here
-   flutter run -d <device> --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY
-   ```
+Follow the instructions in the [run_app_with_gemini_key.md](../../docs/run_app_with_gemini_key.md).

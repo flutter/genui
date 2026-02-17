@@ -8,7 +8,10 @@
       "name": "simple_chat",
       "cwd": "examples/simple_chat",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": [
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+      ]
     },
     {
       "name": "travel_app",

@@ -11,6 +11,8 @@ import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
+const _verticalColumnSpacing = 8.0;
+
 final _schema = S.object(
   properties: {
     'component': S.string(enumValues: ['Column']),
@@ -116,6 +118,7 @@ final column = CatalogItem(
           mainAxisAlignment: _parseMainAxisAlignment(columnData.justify),
           crossAxisAlignment: _parseCrossAxisAlignment(columnData.align),
           mainAxisSize: MainAxisSize.min,
+          spacing: _verticalColumnSpacing,
           children: childIds.map((componentId) {
             final explicitWeight =
                 getComponent(componentId)?.properties['weight'] as int?;
