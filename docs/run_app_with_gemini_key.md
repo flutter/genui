@@ -9,7 +9,7 @@ to the Generative Language API from the
 
 ## Set up the API key
 
-* Option 1: Using the IDE UI
+* Option 1: Using the VS Code based IDE UI
 
 1. Open the example in the IDE.
 2. Set the API key in the `.env` file of the workspace root:
