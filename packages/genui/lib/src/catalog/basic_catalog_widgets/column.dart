@@ -116,6 +116,7 @@ final column = CatalogItem(
           mainAxisAlignment: _parseMainAxisAlignment(columnData.justify),
           crossAxisAlignment: _parseCrossAxisAlignment(columnData.align),
           mainAxisSize: MainAxisSize.min,
+          spacing: 8,
           children: childIds.map((componentId) {
             final explicitWeight =
                 getComponent(componentId)?.properties['weight'] as int?;
