@@ -24,28 +24,15 @@ void main() {
       const Component(
         id: 'root',
         type: 'Modal',
-        properties: {'trigger': 'button', 'content': 'text'},
+        properties: {'trigger': 'trigger_text', 'content': 'modal_content'},
       ),
       const Component(
-        id: 'button',
-        type: 'Button',
-        properties: {
-          'child': 'button_text',
-          'action': {
-            'event': {
-              'name': 'showModal',
-              'context': {'modalId': 'root'},
-            },
-          },
-        },
-      ),
-      const Component(
-        id: 'button_text',
+        id: 'trigger_text',
         type: 'Text',
         properties: {'text': 'Open Modal'},
       ),
       const Component(
-        id: 'text',
+        id: 'modal_content',
         type: 'Text',
         properties: {'text': 'This is a modal.'},
       ),

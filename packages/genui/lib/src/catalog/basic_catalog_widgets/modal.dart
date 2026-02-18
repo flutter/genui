@@ -5,6 +5,7 @@
 /// @docImport '../../widgets/surface.dart';
 library;
 
+import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../../genui.dart' show Surface;
@@ -63,7 +64,17 @@ final modal = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final modalData = _ModalData.fromMap(itemContext.data as JsonMap);
-    return itemContext.buildChild(modalData.trigger);
+    return ElevatedButton(
+      onPressed: () {
+        showModalBottomSheet<void>(
+          context: itemContext.buildContext,
+          builder: (context) {
+            return itemContext.buildChild(modalData.content);
+          },
+        );
+      },
+      child: itemContext.buildChild(modalData.trigger),
+    );
   },
   exampleData: [
     () => '''
@@ -71,29 +82,16 @@ final modal = CatalogItem(
         {
           "id": "root",
           "component": "Modal",
-          "trigger": "button",
-          "content": "text"
+          "trigger": "trigger_text",
+          "content": "modal_content"
         },
         {
-          "id": "button",
-          "component": "Button",
-          "child": "button_text",
-          "action": {
-            "event": {
-              "name": "showModal",
-              "context": {
-                "modalId": "root"
-              }
-            }
-          }
-        },
-        {
-          "id": "button_text",
+          "id": "trigger_text",
           "component": "Text",
           "text": "Open Modal"
         },
         {
-          "id": "text",
+          "id": "modal_content",
           "component": "Text",
           "text": "This is a modal."
         }

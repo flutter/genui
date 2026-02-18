@@ -165,11 +165,11 @@ void main() {
         surfaceId: 'test_surface',
         dataModel: dataModel,
         catalog: Catalog([
-            CatalogItem(
-              name: 'BrokenWidget',
-              dataSchema: Schema.object(properties: {}),
-              widgetBuilder: (context) => throw Exception('Build failed'),
-            ),
+          CatalogItem(
+            name: 'BrokenWidget',
+            dataSchema: Schema.object(properties: {}),
+            widgetBuilder: (context) => throw Exception('Build failed'),
+          ),
         ], catalogId: 'test_catalog'),
         definition: ValueNotifier<SurfaceDefinition?>(
           SurfaceDefinition(

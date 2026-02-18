@@ -216,48 +216,6 @@ class DefaultActionDelegate implements ActionDelegate {
     Widget Function(SurfaceDefinition, Catalog, String, DataContext)
     buildWidget,
   ) {
-    if (event is UserActionEvent && event.name == 'showModal') {
-      final SurfaceDefinition? definition = genUiContext.definition.value;
-      if (definition == null) return true;
-
-      final Catalog? catalog = genUiContext.catalog;
-      if (catalog == null) {
-        genUiLogger.severe(
-          'Cannot show modal for surface "${genUiContext.surfaceId}" '
-          'because a catalog was not found.',
-        );
-        return true;
-      }
-
-      final modalId = event.context['modalId'] as String?;
-      if (modalId == null) {
-        genUiLogger.severe('Modal action missing "modalId" in context.');
-        return true;
-      }
-
-      final Component? modalComponent = definition.components[modalId];
-      if (modalComponent == null) return true;
-
-      // The 'content' property is expected to be a direct property of the
-      // Modal component.
-      final contentChildId = modalComponent.properties['content'] as String?;
-
-      if (contentChildId == null) {
-        genUiLogger.severe('Modal component missing "content" property.');
-        return true;
-      }
-
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (context) => buildWidget(
-          definition,
-          catalog,
-          contentChildId,
-          DataContext(genUiContext.dataModel, '/'),
-        ),
-      );
-      return true;
-    }
     return false;
   }
 }

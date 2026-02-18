@@ -9,7 +9,6 @@ sealed class GenerationEvent {
   const GenerationEvent();
 }
 
-
 /// An event containing a text chunk from the LLM.
 class TextEvent extends GenerationEvent {
   /// Creates a [TextEvent] with the given [text].
