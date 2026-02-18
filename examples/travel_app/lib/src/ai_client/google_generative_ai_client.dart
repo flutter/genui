@@ -14,6 +14,7 @@ import 'package:google_cloud_protobuf/protobuf.dart' as protobuf;
 import 'package:json_schema_builder/json_schema_builder.dart' as dsb;
 
 import 'ai_client.dart';
+import 'ai_generation_events.dart';
 import 'google_content_converter.dart';
 import 'google_generative_service_interface.dart';
 import 'google_schema_adapter.dart';
@@ -105,7 +106,7 @@ class GoogleGenerativeAiClient implements AiClient {
 
   final _a2uiMessageController = StreamController<A2uiMessage>.broadcast();
   final _textResponseController = StreamController<String>.broadcast();
-  final _eventController = StreamController<GenerationEvent>.broadcast();
+  final _eventController = StreamController<AiGenerationEvent>.broadcast();
   final _errorController = StreamController<Object>.broadcast();
   final _isProcessing = ValueNotifier<bool>(false);
 
@@ -122,7 +123,7 @@ class GoogleGenerativeAiClient implements AiClient {
 
   /// A stream of events related to the generation process (tool calls, usage,
   /// etc.).
-  Stream<GenerationEvent> get eventStream => _eventController.stream;
+  Stream<AiGenerationEvent> get eventStream => _eventController.stream;
 
   /// Whether the content generator is currently processing a request.
   ValueListenable<bool> get isProcessing => _isProcessing;
@@ -136,7 +137,7 @@ class GoogleGenerativeAiClient implements AiClient {
     _isProcessing.dispose();
   }
 
-  void emitEvent(GenerationEvent event) {
+  void emitEvent(AiGenerationEvent event) {
     if (!_eventController.isClosed) {
       _eventController.add(event);
     }

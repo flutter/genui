@@ -92,11 +92,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 
   /// The registry of surfaces managed by this controller.
-  @visibleForTesting
   surface_reg.SurfaceRegistry get registry => _registry;
 
   /// The store of data models managed by this controller.
-  @visibleForTesting
   DataModelStore get store => _store;
 
   /// Process an [message] from the AI service.

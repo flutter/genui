@@ -333,7 +333,7 @@ These classes define the data structures and protocol used by GenUI.
 
 ##### `GenerationEvent` (Sealed Class)
 
-- Subclasses: `TextEvent`, `A2uiMessageEvent`, `ToolStartEvent`, `ToolEndEvent`, `TokenUsageEvent`.
+- Subclasses: `TextEvent`, `A2uiMessageEvent`.
 
 #### `lib/src/model/a2ui_client_capabilities.dart`
 
@@ -436,7 +436,7 @@ final controller = SurfaceController(
 
 - `void register(String name, ClientFunction function)`: Add a custom function.
 - `Object? invoke(String name, List<Object?> args)`: Call a function.
-- `void registerStandardFunctions()`: Registers the default set of functions (e.g. `required`, `regex`, `length`, etc.).
+- `void registerBasicFunctions()`: Registers the default set of functions (e.g. `required`, `regex`, `length`, etc.).
 
 ### Utilities & Helpers
 

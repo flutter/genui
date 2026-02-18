@@ -17,7 +17,7 @@ class FunctionRegistry {
   factory FunctionRegistry() => _instance;
 
   FunctionRegistry._init() {
-    registerStandardFunctions();
+    registerBasicFunctions();
   }
 
   final Map<String, ClientFunction> _functions = {};
@@ -41,8 +41,8 @@ class FunctionRegistry {
     }
   }
 
-  /// Registers all standard A2UI functions.
-  void registerStandardFunctions() {
+  /// Registers all basic A2UI functions.
+  void registerBasicFunctions() {
     register('required', _required);
     register('regex', _regex);
     register('length', _length);

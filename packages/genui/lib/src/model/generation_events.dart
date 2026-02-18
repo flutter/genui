@@ -9,44 +9,6 @@ sealed class GenerationEvent {
   const GenerationEvent();
 }
 
-/// Fired when a tool execution starts.
-class ToolStartEvent extends GenerationEvent {
-  const ToolStartEvent({required this.toolName, required this.args});
-
-  final String toolName;
-  final Map<String, Object?> args;
-}
-
-/// Fired when a tool execution completes.
-class ToolEndEvent extends GenerationEvent {
-  const ToolEndEvent({
-    required this.toolName,
-    required this.result,
-    required this.duration,
-  });
-
-  final String toolName;
-  final Object? result;
-  final Duration duration;
-}
-
-/// Fired to report token usage.
-class TokenUsageEvent extends GenerationEvent {
-  const TokenUsageEvent({
-    required this.inputTokens,
-    required this.outputTokens,
-  });
-
-  final int inputTokens;
-  final int outputTokens;
-}
-
-/// Fired when the AI emits a "thinking" chunk (if supported).
-class ThinkingEvent extends GenerationEvent {
-  const ThinkingEvent({required this.content});
-
-  final String content;
-}
 
 /// An event containing a text chunk from the LLM.
 class TextEvent extends GenerationEvent {

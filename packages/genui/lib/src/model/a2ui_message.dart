@@ -17,13 +17,12 @@ sealed class A2uiMessage {
   const A2uiMessage();
 
   /// Creates an [A2uiMessage] from a JSON map.
-  /// Creates an [A2uiMessage] from a JSON map.
   factory A2uiMessage.fromJson(JsonMap json) {
     try {
       final Object? version = json['version'];
-      if (version != 'v0.9' && version != '0.9') {
+      if (version != 'v0.9') {
         throw A2uiValidationException(
-          'A2UI message must have version "v0.9" (or "0.9")',
+          'A2UI message must have version "v0.9"',
           json: json,
         );
       }
