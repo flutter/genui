@@ -150,7 +150,7 @@ class MockSurfaceContext implements SurfaceContext {
   }
 
   @override
-  List<Catalog> get catalogs => [_testCatalog];
+  Catalog? get catalog => _testCatalog;
 
   final List<Object> reportedErrors = [];
 

@@ -10,7 +10,7 @@ import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/data_model.dart';
 import '../model/ui_models.dart';
-import '../primitives/constants.dart';
+
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'fallback_widget.dart';
@@ -149,7 +149,6 @@ class _SurfaceState extends State<Surface> {
       context,
       event,
       widget.surfaceContext,
-      _findCatalogForDefinition,
       _buildWidget,
     )) {
       return;
@@ -167,17 +166,15 @@ class _SurfaceState extends State<Surface> {
   }
 
   Catalog? _findCatalogForDefinition(SurfaceDefinition definition) {
-    final String catalogId = definition.catalogId ?? basicCatalogId;
-    final Catalog? catalog = widget.surfaceContext.catalogs.firstWhereOrNull(
-      (c) => c.catalogId == catalogId,
-    );
+    // The surfaceContext is responsible for resolving the catalog based on
+    // the current definition in the registry.
+    final Catalog? catalog = widget.surfaceContext.catalog;
 
     if (catalog == null) {
       genUiLogger.severe(
-        'Catalog with id "$catalogId" not found for surface '
+        'Catalog with id "${definition.catalogId}" not found for surface '
         '"${widget.surfaceContext.surfaceId}". Ensure the catalog is provided '
-        'to A2uiMessageProcessor. Available catalogs: '
-        '${widget.surfaceContext.catalogs.map((c) => c.catalogId).join(', ')}.',
+        'to A2uiMessageProcessor.',
       );
     }
     return catalog;
@@ -195,15 +192,12 @@ abstract interface class ActionDelegate {
   ///
   /// The [context] is the build context of the [Surface].
   /// The [genUiContext] provides access to the surface state.
-  /// The [findCatalog] function helps resolve the catalog for the current
-  ///   definition.
   /// The [buildWidget] function allows building widgets from the definition,
   /// useful for rendering content inside modals or dialogs.
   bool handleEvent(
     BuildContext context,
     UiEvent event,
     SurfaceContext genUiContext,
-    Catalog? Function(SurfaceDefinition) findCatalog,
     Widget Function(SurfaceDefinition, Catalog, String, DataContext)
     buildWidget,
   );
@@ -219,7 +213,6 @@ class DefaultActionDelegate implements ActionDelegate {
     BuildContext context,
     UiEvent event,
     SurfaceContext genUiContext,
-    Catalog? Function(SurfaceDefinition) findCatalog,
     Widget Function(SurfaceDefinition, Catalog, String, DataContext)
     buildWidget,
   ) {
@@ -227,7 +220,7 @@ class DefaultActionDelegate implements ActionDelegate {
       final SurfaceDefinition? definition = genUiContext.definition.value;
       if (definition == null) return true;
 
-      final Catalog? catalog = findCatalog(definition);
+      final Catalog? catalog = genUiContext.catalog;
       if (catalog == null) {
         genUiLogger.severe(
           'Cannot show modal for surface "${genUiContext.surfaceId}" '

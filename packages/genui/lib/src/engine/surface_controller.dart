@@ -293,12 +293,13 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 
   Catalog? _findCatalogForDefinition(SurfaceDefinition definition) {
-    final String catalogId = definition.catalogId ?? basicCatalogId;
     genUiLogger.fine(
-      'Finding catalog for $catalogId in '
+      'Finding catalog for ${definition.catalogId} in '
       '${catalogs.map((c) => c.catalogId).toList()}',
     );
-    return catalogs.firstWhereOrNull((c) => c.catalogId == catalogId);
+    return catalogs.firstWhereOrNull(
+      (catalog) => catalog.catalogId == definition.catalogId,
+    );
   }
 
   /// Disposes of the controller and releases all resources.
@@ -329,7 +330,15 @@ class _ControllerContext implements SurfaceContext {
   DataModel get dataModel => _controller.store.getDataModel(surfaceId);
 
   @override
-  Iterable<Catalog> get catalogs => _controller.catalogs;
+  Catalog? get catalog {
+    final ValueListenable<SurfaceDefinition?> definitions = _controller.registry
+        .watchSurface(surfaceId);
+    final SurfaceDefinition? definition = definitions.value;
+    final String catalogId = definition?.catalogId ?? basicCatalogId;
+    return _controller.catalogs.firstWhereOrNull(
+      (catalog) => catalog.catalogId == catalogId,
+    );
+  }
 
   @override
   void handleUiEvent(UiEvent event) {

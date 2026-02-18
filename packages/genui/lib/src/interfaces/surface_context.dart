@@ -21,8 +21,8 @@ abstract interface class SurfaceContext {
   /// The data model for this surface.
   DataModel get dataModel;
 
-  /// The catalogs available to this surface.
-  Iterable<Catalog> get catalogs;
+  /// The catalog this surface is bound to.
+  Catalog? get catalog;
 
   /// Handles a UI event from this surface.
   void handleUiEvent(UiEvent event);

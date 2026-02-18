@@ -12,7 +12,7 @@ class FakeSurfaceContext implements SurfaceContext {
   FakeSurfaceContext({
     required this.surfaceId,
     required this.dataModel,
-    required this.catalogs,
+    required this.catalog,
     required this.definition,
     required this.handleUiEventCallback,
     this.reportErrorCallback,
@@ -25,7 +25,7 @@ class FakeSurfaceContext implements SurfaceContext {
   final DataModel dataModel;
 
   @override
-  final Iterable<Catalog> catalogs;
+  final Catalog? catalog;
 
   @override
   final ValueNotifier<SurfaceDefinition?> definition;
@@ -59,7 +59,7 @@ void main() {
       surfaceContext = FakeSurfaceContext(
         surfaceId: 'test_surface',
         dataModel: dataModel,
-        catalogs: [catalog],
+        catalog: catalog,
         definition: ValueNotifier<SurfaceDefinition?>(null),
         handleUiEventCallback: (event) {},
       );
@@ -164,15 +164,13 @@ void main() {
       surfaceContext = FakeSurfaceContext(
         surfaceId: 'test_surface',
         dataModel: dataModel,
-        catalogs: [
-          Catalog([
+        catalog: Catalog([
             CatalogItem(
               name: 'BrokenWidget',
               dataSchema: Schema.object(properties: {}),
               widgetBuilder: (context) => throw Exception('Build failed'),
             ),
-          ], catalogId: 'test_catalog'),
-        ],
+        ], catalogId: 'test_catalog'),
         definition: ValueNotifier<SurfaceDefinition?>(
           SurfaceDefinition(
             surfaceId: 'test_surface',

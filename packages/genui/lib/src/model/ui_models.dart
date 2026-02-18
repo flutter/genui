@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 
 /// A callback that is called when events are sent.
@@ -85,7 +86,7 @@ class SurfaceDefinition {
   final String surfaceId;
 
   /// The ID of the catalog to use for rendering this surface.
-  final String? catalogId;
+  final String catalogId;
 
   /// A map of all widget definitions in the UI, keyed by their ID.
   Map<String, Component> get components => UnmodifiableMapView(_components);
@@ -97,7 +98,7 @@ class SurfaceDefinition {
   /// Creates a [SurfaceDefinition].
   SurfaceDefinition({
     required this.surfaceId,
-    this.catalogId,
+    this.catalogId = basicCatalogId,
     Map<String, Component> components = const {},
     this.theme,
   }) : _components = components;
@@ -106,7 +107,7 @@ class SurfaceDefinition {
   factory SurfaceDefinition.fromJson(JsonMap json) {
     return SurfaceDefinition(
       surfaceId: json[surfaceIdKey] as String,
-      catalogId: json[_Json.catalogId] as String?,
+      catalogId: json[_Json.catalogId] as String? ?? basicCatalogId,
       components:
           (json[_Json.components] as Map<String, Object?>?)?.map(
             (key, value) => MapEntry(key, Component.fromJson(value as JsonMap)),
@@ -134,7 +135,7 @@ class SurfaceDefinition {
   JsonMap toJson() {
     return {
       surfaceIdKey: surfaceId,
-      if (catalogId != null) _Json.catalogId: catalogId,
+      _Json.catalogId: catalogId,
       _Json.components: components.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),
