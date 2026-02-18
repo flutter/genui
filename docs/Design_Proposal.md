@@ -104,43 +104,7 @@ This directory provides utilities for a more direct interaction with the AI mode
 - **`model.dart`**: Defines data models for direct API calls.
 - **`utils.dart`**: Contains utility functions to assist with direct calls.
 
-## Surface Lifecycle & Cleanup
 
-When multiple surfaces are generated in a conversation, `SurfaceController` manages them according to a `SurfaceCleanupStrategy`. The default is `ManualCleanupStrategy` (keep all surfaces until explicitly deleted), but `KeepLastNCleanupStrategy` is common for chat interfaces where only the newest UI matters.
-
-### Example: `KeepLastNCleanupStrategy(1)`
-
-```mermaid
-sequenceDiagram
-    participant LLM as External LLM
-    participant Transport as Transport
-    participant Controller as SurfaceController
-    participant UI as Surface
-
-    Note over Controller: Strategy: KeepLastN(1)
-
-    LLM->>Transport: "createSurface(id: 'A')"
-    Transport->>Controller: CreateSurface('A')
-    Controller->>UI: SurfaceAdded('A')
-    UI->>UI: Render Surface A
-
-    LLM->>Transport: "updateComponents(id: 'A', ...)"
-    Transport->>Controller: UpdateComponents('A')
-    Controller->>UI: ComponentsUpdated('A')
-    UI->>UI: Update Surface A
-
-    LLM->>Transport: "createSurface(id: 'B')"
-    Transport->>Controller: CreateSurface('B')
-
-    rect rgba(255, 240, 240, 0.5)
-        Note right of Controller: Policy Enforcement
-        Controller->>UI: SurfaceRemoved('A')
-        UI->>UI: Dispose Surface A
-    end
-
-    Controller->>UI: SurfaceAdded('B')
-    UI->>UI: Render Surface B
-```
 
 
 ## Detailed API Reference
@@ -203,7 +167,7 @@ controller.handleMessage(
 
 **Constructor Options used for Cleanup and Constraints:**
 
-- `cleanupStrategy`: Strategies for removing old surfaces (`ManualCleanupStrategy`, `KeepLastNCleanupStrategy`).
+
 - `pendingUpdateTimeout`: Duration to wait for a `CreateSurface` message before discarding orphaned updates.
 
 ##### `SurfaceController`

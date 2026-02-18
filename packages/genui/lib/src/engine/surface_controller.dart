@@ -18,7 +18,7 @@ import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/constants.dart';
 import '../primitives/logging.dart';
-import 'cleanup_strategy.dart';
+
 import 'data_model_store.dart';
 import 'surface_registry.dart' as surface_reg;
 
@@ -32,22 +32,17 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// The [catalogs] parameter defines the set of component catalogs available
   /// for use by surfaces managed by this controller.
   ///
-  /// The [cleanupStrategy] determines when and how surfaces are removed from
-  /// the registry to free up resources.
+
   ///
   /// The [pendingUpdateTimeout] specifies how long to wait for a surface
   /// creation message before discarding buffered updates for that surface.
   SurfaceController({
     required this.catalogs,
-    this.cleanupStrategy = const ManualCleanupStrategy(),
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   });
 
   /// The catalogs available to surfaces in this engine.
   final Iterable<Catalog> catalogs;
-
-  /// The strategy used to clean up unused surfaces.
-  final SurfaceCleanupStrategy cleanupStrategy;
 
   /// The timeout for pending updates waiting for a surface creation.
   final Duration pendingUpdateTimeout;
@@ -192,8 +187,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
           newDefinition.validate(catalog.definition);
         }
 
-        _enforceCleanupPolicy();
-
         if (pending != null) {
           for (final A2uiMessage msg in pending) {
             _handleMessageInternal(msg);
@@ -256,16 +249,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         _pendingUpdates.remove(surfaceId);
         _pendingUpdateTimers.remove(surfaceId);
       });
-    }
-  }
-
-  void _enforceCleanupPolicy() {
-    final List<String> toRemove = cleanupStrategy.cleanup(
-      _registry.surfaceOrder,
-    );
-    for (final id in toRemove) {
-      _registry.removeSurface(id);
-      _store.removeDataModel(id);
     }
   }
 
