@@ -25,6 +25,7 @@ You must output a VALID JSON object representing one of the A2UI message types (
 1. Create a surface:
 ```json
 {
+  "version": "v0.9",
   "createSurface": {
     "surfaceId": "main",
     "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
@@ -36,6 +37,7 @@ You must output a VALID JSON object representing one of the A2UI message types (
 2. Update components:
 ```json
 {
+  "version": "v0.9",
   "updateComponents": {
     "surfaceId": "main",
     "components": [
