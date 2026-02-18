@@ -4,66 +4,67 @@
 
 import 'dart:async';
 
-import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
+import 'package:logging/logging.dart';
 
 import 'ai_client.dart';
+import 'ai_client_transport.dart';
 import 'message.dart';
 
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
-  ChatSession({required AiClient aiClient}) : _aiClient = aiClient {
-    _init();
+  ChatSession({required AiClient aiClient}) {
+    // 1. Create Transport
+    _transport = AiClientTransport(aiClient: aiClient);
+
+    // 2. Initialize Catalog & Controller
+    final Catalog catalog = BasicCatalogItems.asCatalog();
+    _surfaceController = SurfaceController(catalogs: [catalog]);
+
+    // 3. Initialize Conversation
+    _conversation = Conversation(
+      controller: _surfaceController,
+      transport: _transport,
+    );
+    _init(catalog);
   }
 
-  final AiClient _aiClient;
+  late final AiClientTransport _transport;
+  late final SurfaceController _surfaceController;
+  late final Conversation _conversation;
+
+  SurfaceHost get surfaceController => _surfaceController;
+
+  bool get isProcessing => _conversation.state.value.isWaiting;
 
   final List<Message> _messages = [];
   List<Message> get messages => List.unmodifiable(_messages);
 
-  late final SurfaceController _surfaceController;
-  SurfaceHost get surfaceController => _surfaceController;
+  final Logger _logger = Logger('ChatSession');
 
-  late final A2uiTransportAdapter _transportAdapter;
-  A2uiTransportAdapter get transportAdapter => _transportAdapter;
+  void _init(Catalog catalog) {
+    // Listener for Conversation state
+    _conversation.state.addListener(notifyListeners);
 
-  final List<dartantic.ChatMessage> _chatHistory = [];
-
-  bool _isProcessing = false;
-  bool get isProcessing => _isProcessing;
-
-  void _init() {
-    final Catalog catalog = BasicCatalogItems.asCatalog();
-
-    // Initialize Message Processor
-    _surfaceController = SurfaceController(catalogs: [catalog]);
-
-    // Initialize A2uiTransportAdapter
-    _transportAdapter = A2uiTransportAdapter();
-
-    // Wire controller to processor
-    _transportAdapter.incomingMessages.listen(_surfaceController.handleMessage);
-
-    // Listen to UI state updates from the processor
-    _surfaceController.surfaceUpdates.listen((SurfaceUpdate update) {
-      if (update is SurfaceAdded) {
-        // Check if we already have a message with this surfaceId
-        final bool exists = _messages.any(
-          (m) => m.surfaceId == update.surfaceId,
-        );
-
-        if (!exists) {
-          _messages.add(
-            Message(isUser: false, text: null, surfaceId: update.surfaceId),
-          );
+    // Listener for Conversation events
+    _conversation.events.listen((event) {
+      switch (event) {
+        case ConversationSurfaceAdded(:final surfaceId):
+          _addSurfaceMessage(surfaceId);
+        case ConversationContentReceived(:final text):
+          _updateAiMessage(text);
+        case ConversationError(:final error):
+          _logger.severe('Error in conversation', error);
+          _messages.add(Message(isUser: false, text: 'Error: $error'));
           notifyListeners();
-        }
+        case ConversationWaiting():
+        case ConversationComponentsUpdated():
+        case ConversationSurfaceRemoved():
+          // No-op for now
+          break;
       }
     });
-
-    // Listen to client events (interactions) from the UI
-    _surfaceController.onSubmit.listen(_handleChatMessage);
 
     final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
@@ -71,92 +72,48 @@ class ChatSession extends ChangeNotifier {
           'You are a helpful assistant who chats with a user. '
           'Your responses should contain acknowledgment of the user message.',
     );
-
-    // Add system instruction to history
-    _chatHistory.add(dartantic.ChatMessage.system(promptBuilder.systemPrompt));
+    _transport.addSystemMessage(promptBuilder.systemPrompt);
   }
 
-  void _handleChatMessage(ChatMessage event) {
-    genUiLogger.info('Received chat message: ${event.toJson()}');
-    final buffer = StringBuffer();
-    for (final dartantic.StandardPart part in event.parts) {
-      if (part.isUiInteractionPart) {
-        buffer.write(part.asUiInteractionPart!.interaction);
-      } else if (part is TextPart) {
-        buffer.write(part.text);
-      }
-    }
-    final text = buffer.toString();
-    if (text.isNotEmpty) {
-      _sendInteraction(text);
+  void _addSurfaceMessage(String surfaceId) {
+    final bool exists = _messages.any((m) => m.surfaceId == surfaceId);
+    if (!exists) {
+      _messages.add(Message(isUser: false, text: null, surfaceId: surfaceId));
+      notifyListeners();
     }
   }
 
-  Future<void> _sendInteraction(String text) async {
-    _chatHistory.add(dartantic.ChatMessage.user(text));
-    await _performGeneration(text);
+  Message? _currentAiMessage;
+
+  void _updateAiMessage(String chunk) {
+    if (_currentAiMessage == null) {
+      _currentAiMessage = Message(isUser: false, text: '');
+      _messages.add(_currentAiMessage!);
+    }
+    _currentAiMessage!.text = (_currentAiMessage!.text ?? '') + chunk;
+    notifyListeners();
   }
 
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
 
+    // Reset current AI message so new response gets a new bubble
+    _currentAiMessage = null;
+
     _messages.add(Message(isUser: true, text: 'You: $text'));
-    _chatHistory.add(dartantic.ChatMessage.user(text));
-
-    await _performGeneration(text);
-  }
-
-  Future<void> _performGeneration(String prompt) async {
-    _isProcessing = true;
+    // Do NOT notify here if we want to wait for "isWaiting" to update?
+    // Actually we want to show user message immediately.
     notifyListeners();
 
-    try {
-      var fullResponseText = '';
-
-      // Create a message controller for the AI response
-      final aiMessageController = Message(isUser: false, text: 'AI: ');
-      _messages.add(aiMessageController);
-      notifyListeners();
-
-      // Listen for text updates from the controller to update the UI
-      final StreamSubscription<String> subscription = _transportAdapter
-          .incomingText
-          .listen((chunk) {
-            aiMessageController.text = (aiMessageController.text ?? '') + chunk;
-            notifyListeners();
-          });
-
-      // Use sendStream() to receive chunks of the response.
-      final Stream<String> stream = _aiClient.sendStream(
-        prompt,
-        history: List.of(_chatHistory),
-      );
-
-      await for (final String chunk in stream) {
-        if (chunk.isNotEmpty) {
-          fullResponseText += chunk;
-          _transportAdapter.addChunk(chunk);
-        }
-      }
-
-      await subscription.cancel();
-
-      _chatHistory.add(dartantic.ChatMessage.model(fullResponseText));
-    } catch (exception, stackTrace) {
-      genUiLogger.severe('Error generating content', exception, stackTrace);
-      // We might want to expose errors via a listener or separate stream
-      // For now, let's just log it. In a real app, we'd handle error states.
-    } finally {
-      _isProcessing = false;
-      notifyListeners();
-    }
+    final message = ChatMessage.user(text);
+    await _conversation.sendRequest(message);
   }
 
   @override
   void dispose() {
+    _conversation.dispose();
     _surfaceController.dispose();
-    _transportAdapter.dispose();
-    _aiClient.dispose();
+    _transport.dispose();
     super.dispose();
   }
 }

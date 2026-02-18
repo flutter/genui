@@ -82,7 +82,7 @@ class ConversationState {
   });
 
   /// The list of active surface IDs.
-  final List<String> surfaces; // Could be richer if needed
+  final List<String> surfaces;
 
   /// The latest text received.
   final String latestText;
