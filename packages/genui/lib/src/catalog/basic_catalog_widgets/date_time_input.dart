@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -10,6 +12,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
+import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
@@ -114,43 +117,51 @@ class _DateTimeInput extends StatefulWidget {
 
 class _DateTimeInputState extends State<_DateTimeInput> {
   String? _errorText;
+  StreamSubscription<String?>? _validationSubscription;
 
   @override
   void initState() {
     super.initState();
-    _validate();
+    _setupValidation();
   }
 
   @override
   void didUpdateWidget(_DateTimeInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value || widget.checks != oldWidget.checks) {
-      _validate();
+    if (widget.value != oldWidget.value ||
+        widget.checks != oldWidget.checks ||
+        widget.parser != oldWidget.parser) {
+      _setupValidation();
     }
   }
 
-  void _validate() {
-    final String? newError = _calculateError();
-    if (newError != _errorText) {
-      setState(() {
-        _errorText = newError;
-      });
-    }
-  }
+  void _setupValidation() {
+    _validationSubscription?.cancel();
+    _validationSubscription = null;
 
-  String? _calculateError() {
-    if (widget.checks == null || widget.parser == null) {
-      return null;
-    }
-
-    for (final JsonMap check in widget.checks!) {
-      final Object? condition = check['condition'];
-      final bool isValid = widget.parser!.evaluateCondition(condition);
-      if (!isValid) {
-        return check['message'] as String? ?? 'Invalid value';
+    if (widget.checks == null ||
+        widget.checks!.isEmpty ||
+        widget.parser == null) {
+      if (_errorText != null && mounted) {
+        setState(() => _errorText = null);
       }
+      return;
     }
-    return null;
+
+    _validationSubscription =
+        ValidationHelper.validateStream(widget.checks, widget.parser).listen((
+          String? newError,
+        ) {
+          if (newError != _errorText && mounted) {
+            setState(() => _errorText = newError);
+          }
+        });
+  }
+
+  @override
+  void dispose() {
+    _validationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _handleTap(BuildContext context) async {

@@ -2,15 +2,39 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../functions/expression_parser.dart';
-
+import '../interfaces/client_function.dart' as cf;
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+
+extension _ValueListenableStream<T> on ValueListenable<T> {
+  Stream<T> get asStream {
+    late StreamController<T> controller;
+    void listener() {
+      if (!controller.isClosed) {
+        controller.add(value);
+      }
+    }
+
+    controller = StreamController<T>(
+      onListen: () {
+        controller.add(value);
+        addListener(listener);
+      },
+      onCancel: () {
+        removeListener(listener);
+        controller.close();
+      },
+    );
+    return controller.stream;
+  }
+}
 
 /// Represents a path in the data model, either absolute or relative.
 @immutable
@@ -89,17 +113,30 @@ final class DataPath {
 /// relative and absolute paths.
 class DataContext {
   /// Creates a [DataContext] for the given [path].
-  DataContext(this._dataModel, String path) : path = DataPath(path);
+  DataContext(
+    this._dataModel,
+    String path, {
+    Iterable<cf.ClientFunction>? functions,
+  }) : path = DataPath(path),
+       _functions = {
+         if (functions != null)
+           for (final f in functions) f.name: f,
+       };
 
-  DataContext._(this._dataModel, this.path);
+  DataContext._(this._dataModel, this.path, this._functions);
 
   final DataModel _dataModel;
 
   /// The path associated with this context.
   final DataPath path;
 
+  final Map<String, cf.ClientFunction> _functions;
+
   /// The underlying data model for this context.
   DataModel get dataModel => _dataModel;
+
+  /// Retrieves a function by name from this context.
+  cf.ClientFunction? getFunction(String name) => _functions[name];
 
   /// Subscribes to a path or expression, resolving it against the current
   /// context.
@@ -121,6 +158,11 @@ class DataContext {
       return _dataModel.subscribe<T>(absolutePath);
     }
     return ValueNotifier<T?>(pathOrExpression as T?);
+  }
+
+  /// Subscribes to a path or expression and returns a [Stream].
+  Stream<T?> subscribeStream<T>(Object? pathOrExpression) {
+    return subscribe<T>(pathOrExpression).asStream;
   }
 
   /// Gets a value, resolving the path/expression against the current context.
@@ -149,7 +191,7 @@ class DataContext {
   /// Used by list/template widgets to create a context for their children.
   DataContext nested(String relativePath) {
     final DataPath newPath = resolvePath(DataPath(relativePath));
-    return DataContext._(_dataModel, newPath);
+    return DataContext._(_dataModel, newPath, _functions);
   }
 
   /// Resolves a path against the current context's path.
@@ -205,14 +247,37 @@ class _ComputedValueNotifier<T> extends ValueNotifier<T?> {
     evaluate();
   }
 
+  StreamSubscription<Object?>? _streamSubscription;
+
   void evaluate() {
     final parser = ExpressionParser(context);
     final Object? result = parser.evaluate(expression);
-    value = result as T?;
+
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
+
+    if (result is Stream) {
+      _streamSubscription = result.listen(
+        (data) {
+          value = data as T?;
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          genUiLogger.warning(
+            'Error in computed value stream',
+            error,
+            stackTrace,
+          );
+          value = null;
+        },
+      );
+    } else {
+      value = result as T?;
+    }
   }
 
   @override
   void dispose() {
+    _streamSubscription?.cancel();
     for (final VoidCallback unsub in unsubscribers) {
       unsub();
     }

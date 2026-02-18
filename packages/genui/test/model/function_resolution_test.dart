@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/functions/functions.dart';
+import 'package:genui/src/catalog/basic_functions.dart';
 import 'package:genui/src/model/data_model.dart';
 
 void main() {
@@ -13,32 +13,27 @@ void main() {
 
     setUp(() {
       dataModel = DataModel();
-      context = DataContext(dataModel, '/');
-      // Ensure standard functions are registered (singleton)
-      FunctionRegistry();
+      context = DataContext(dataModel, '/', functions: BasicFunctions.all);
     });
 
-    test('resolves simple function call', () {
+    test('resolves simple function call', () async {
       final Map<String, Object> input = {
         'call': 'formatNumber',
         'args': {'value': 1234.56, 'decimalPlaces': 1},
       };
-      final Object? result = context.resolve(input);
-      // Default standard formatNumber uses current locale, might vary,
-      // but usually '1,234.6' or '1234.6' depending on environment.
-      // Let's check regex or simpler function first.
+      final String result = await eval<String>(input, context);
       expect(result, isA<String>());
     });
 
-    test('resolves required function returning boolean', () {
+    test('resolves required function returning boolean', () async {
       final Map<String, Object> input = {
         'call': 'required',
         'args': {'value': 'some value'},
       };
-      expect(context.resolve(input), isTrue);
+      expect(await eval<bool>(input, context), isTrue);
     });
 
-    test('resolves nested function calls', () {
+    test('resolves nested function calls', () async {
       final Map<String, Object> input = {
         'call': 'required',
         'args': {
@@ -50,21 +45,31 @@ void main() {
       };
       // formatString('') -> ''
       // required('') -> false
-      expect(context.resolve(input), isFalse);
+      expect(await eval<bool>(input, context), isFalse);
     });
 
-    test('resolves arguments with expressions', () {
+    test('resolves arguments with expressions', () async {
       dataModel.update(DataPath('/name'), 'World');
       final Map<String, Object> input = {
         'call': 'formatString',
         'args': {'value': r'Hello ${/name}'},
       };
-      expect(context.resolve(input), 'Hello World');
+      expect(await eval<String>(input, context), 'Hello World');
     });
 
     test('returns original object if not a function call', () {
       final input = {'other': 'value'};
+      // resolve should return the object itself if not a function call.
+      // But context.resolve is void? No, it returns Object?.
       expect(context.resolve(input), input);
     });
   });
+}
+
+Future<T> eval<T>(Object? input, DataContext context) async {
+  final Object? result = context.resolve(input);
+  if (result is Stream) {
+    return (await result.first) as T;
+  }
+  return result as T;
 }

@@ -84,7 +84,11 @@ class _SurfaceState extends State<Surface> {
           definition,
           catalog,
           rootId,
-          DataContext(widget.surfaceContext.dataModel, '/'),
+          DataContext(
+            widget.surfaceContext.dataModel,
+            '/',
+            functions: catalog.functions,
+          ),
         );
       },
     );

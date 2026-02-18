@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -10,6 +12,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
+import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
@@ -82,12 +85,13 @@ class _TextField extends StatefulWidget {
 class _TextFieldState extends State<_TextField> {
   late final TextEditingController _controller;
   String? _errorText;
+  StreamSubscription<String?>? _validationSubscription;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue);
-    _errorText = _calculateError(widget.initialValue);
+    _setupValidation();
   }
 
   @override
@@ -95,50 +99,42 @@ class _TextFieldState extends State<_TextField> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != _controller.text) {
       _controller.text = widget.initialValue;
-      final String? newError = _calculateError(widget.initialValue);
-      if (newError != _errorText) {
-        setState(() {
-          _errorText = newError;
-        });
-      }
-    } else if (widget.checks != oldWidget.checks) {
-      // Re-validate if checks changed
-      final String? newError = _calculateError(_controller.text);
-      if (newError != _errorText) {
-        setState(() {
-          _errorText = newError;
-        });
-      }
+      // No need to manually calculate error here, stream should handle it if
+      // related to value.
+    }
+    if (widget.checks != oldWidget.checks ||
+        widget.parser != oldWidget.parser) {
+      _setupValidation();
     }
   }
 
-  String? _calculateError(String value) {
-    if (widget.checks == null || widget.parser == null) {
-      return null;
-    }
+  void _setupValidation() {
+    _validationSubscription?.cancel();
+    _validationSubscription = null;
 
-    for (final JsonMap check in widget.checks!) {
-      // Support both 'condition' wrapper (as seen in some samples) and direct
-      // logic expression
-      final Object? condition = check['condition'];
-      final bool isValid = widget.parser!.evaluateCondition(condition);
-      if (!isValid) {
-        return check['message'] as String? ?? 'Invalid value';
+    if (widget.checks == null ||
+        widget.checks!.isEmpty ||
+        widget.parser == null) {
+      if (_errorText != null && mounted) {
+        setState(() => _errorText = null);
       }
+      return;
     }
-    return null;
-  }
 
-  void _validate(String value) {
-    final String? newError = _calculateError(value);
-    if (newError != _errorText) {
-      setState(() => _errorText = newError);
-    }
+    _validationSubscription =
+        ValidationHelper.validateStream(widget.checks, widget.parser).listen((
+          String? newError,
+        ) {
+          if (newError != _errorText && mounted) {
+            setState(() => _errorText = newError);
+          }
+        });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _validationSubscription?.cancel();
     super.dispose();
   }
 
@@ -158,10 +154,11 @@ class _TextFieldState extends State<_TextField> {
       },
       onChanged: (val) {
         widget.onChanged(val);
-        _validate(val);
+        // Validation is handled via data model updates + stream
       },
       onSubmitted: (val) {
-        _validate(val);
+        // Validation is handled via data model updates + stream
+        // But we might want to check current error state before submitting?
         if (_errorText == null) {
           widget.onSubmitted(val);
         }

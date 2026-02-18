@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:genui/src/functions/functions.dart';
+import 'package:genui/src/interfaces/client_function.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:logging/logging.dart';
 
@@ -74,15 +76,9 @@ void main() {
       );
     });
 
-    testWidgets('Surface reports error when FunctionRegistry throws', (
-      tester,
-    ) async {
-      // Register a failing function
-      FunctionRegistry().register('failFunc', (args) {
-        throw Exception('Function failed explicitly');
-      });
-
+    testWidgets('Surface reports error when Function throws', (tester) async {
       final dataModel = DataModel();
+      // Provide a catalog with a failing function
       final context = MockSurfaceContext('test_surface', dataModel);
 
       final definition = SurfaceDefinition(
@@ -112,21 +108,6 @@ void main() {
         context.reportedErrors.first.toString(),
         contains('Function failed explicitly'),
       );
-    });
-
-    testWidgets('FunctionRegistry._regex throws on invalid regex', (
-      tester,
-    ) async {
-      // We can test this directly via FunctionRegistry
-      // 'regex' function: { 'value': 'foo', 'pattern': '(' } -> Should throw
-
-      final registry = FunctionRegistry();
-      try {
-        registry.invoke('regex', {'value': 'foo', 'pattern': '('});
-        fail('Should have thrown FormatException or similar');
-      } catch (e) {
-        expect(e.toString(), contains('Invalid regex pattern'));
-      }
     });
   });
 }
@@ -163,24 +144,56 @@ class MockSurfaceContext implements SurfaceContext {
   void handleUiEvent(UiEvent event) {}
 }
 
+class FailFunction extends SynchronousClientFunction {
+  const FailFunction();
+
+  @override
+  String get name => 'failFunc';
+
+  // This function is for internal testing only, so description matters less.
+  // But we must implement the interface.
+  @override
+  Schema get argumentSchema => S.object();
+
+  @override
+  Object? executeSync(JsonMap args, DataContext context) {
+    throw Exception('Function failed explicitly');
+  }
+}
+
 // Minimal catalog for testing
-final Catalog _testCatalog = Catalog(catalogId: 'test_catalog', [
-  CatalogItem(
-    name: 'Text',
-    dataSchema: S.object(),
-    widgetBuilder: (ctx) {
-      try {
-        final Object? text = (ctx.data as Map<String, Object?>?)?['text'];
-        if (text is Map && text.containsKey('call')) {
-          FunctionRegistry().invoke(
-            text['call'] as String,
-            (text['args'] as Map<String, Object?>?) ?? {},
-          );
+final Catalog _testCatalog = Catalog(
+  catalogId: 'test_catalog',
+  [
+    CatalogItem(
+      name: 'Text',
+      dataSchema: S.object(),
+      widgetBuilder: (ctx) {
+        try {
+          final Object? text = (ctx.data as Map<String, Object?>?)?['text'];
+          if (text is Map && text.containsKey('call')) {
+            final Object? result = ctx.dataContext.resolve(text);
+            if (result is Stream) {
+              return StreamBuilder(
+                stream: result,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    throw Exception(snapshot.error!);
+                  }
+                  if (!snapshot.hasData) {
+                    return const SizedBox();
+                  }
+                  return const Text('Placeholder');
+                },
+              );
+            }
+          }
+        } catch (e) {
+          rethrow;
         }
-      } catch (e) {
-        rethrow;
-      }
-      return const Text('Placeholder');
-    },
-  ),
-]);
+        return const Text('Placeholder');
+      },
+    ),
+  ],
+  functions: [const FailFunction()],
+);

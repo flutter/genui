@@ -2,9 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/src/catalog/basic_catalog.dart';
 import 'package:genui/src/functions/expression_parser.dart';
 import 'package:genui/src/model/data_model.dart';
+// import 'package:genui/src/primitives/simple_items.dart'; // Unused
 
 void main() {
   group('ExpressionParser', () {
@@ -14,9 +18,20 @@ void main() {
 
     setUp(() {
       dataModel = DataModel();
-      context = DataContext(dataModel, '/');
+      context = DataContext(
+        dataModel,
+        '/',
+        functions: BasicCatalogItems.asCatalog().functions,
+      );
       parser = ExpressionParser(context);
     });
+
+    Future<T> eval<T>(Object? result) async {
+      if (result is Stream) {
+        return (await result.first) as T;
+      }
+      return result as T;
+    }
 
     group('parse', () {
       test('returns input if no expressions', () {
@@ -51,124 +66,152 @@ void main() {
     });
 
     group('evaluateFunctionCall (Logic)', () {
-      test('and', () {
+      test('and', () async {
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'and',
-            'args': {
-              'values': [true, true],
-            },
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'and',
+              'args': {
+                'values': [true, true],
+              },
+            }),
+          ),
           isTrue,
         );
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'and',
-            'args': {
-              'values': [true, false],
-            },
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'and',
+              'args': {
+                'values': [true, false],
+              },
+            }),
+          ),
           isFalse,
         );
       });
 
-      test('or', () {
+      test('or', () async {
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'or',
-            'args': {
-              'values': [false, true],
-            },
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'or',
+              'args': {
+                'values': [false, true],
+              },
+            }),
+          ),
           isTrue,
         );
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'or',
-            'args': {
-              'values': [false, false],
-            },
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'or',
+              'args': {
+                'values': [false, false],
+              },
+            }),
+          ),
           isFalse,
         );
       });
 
-      test('not', () {
+      test('not', () async {
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'not',
-            'args': {'value': true},
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'not',
+              'args': {'value': true},
+            }),
+          ),
           isFalse,
         );
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'not',
-            'args': {'value': false},
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'not',
+              'args': {'value': false},
+            }),
+          ),
           isTrue,
         );
       });
 
-      test('standard function', () {
+      test('standard function', () async {
         // 'required' is a standard function
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'required',
-            'args': {'value': 'something'},
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'required',
+              'args': {'value': 'something'},
+            }),
+          ),
           isTrue,
         );
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'required',
-            'args': {'value': ''},
-          }),
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'required',
+              'args': {'value': ''},
+            }),
+          ),
           isFalse,
         );
       });
 
-      test('nested function calls', () {
+      test('nested function calls via map', () async {
         // not(and(true, false)) -> not(false) -> true
         expect(
-          parser.evaluateFunctionCall({
-            'call': 'not',
-            'args': {
-              'value': {
-                'call': 'and',
-                'args': {
-                  'values': [true, false],
+          await eval<bool>(
+            parser.evaluateFunctionCall({
+              'call': 'not',
+              'args': {
+                'value': {
+                  'call': 'and',
+                  'args': {
+                    'values': [true, false],
+                  },
                 },
               },
-            },
-          }),
+            }),
+          ),
           isTrue,
         );
       });
     });
 
     group('Function calls in expressions', () {
-      test('resolves simple function', () {
-        expect(parser.parse(r'${formatString(value: "Hello")}'), 'Hello');
+      test('resolves simple function', () async {
+        expect(
+          await eval<String>(parser.parse(r'${formatString(value: "Hello")}')),
+          'Hello',
+        );
       });
 
-      test('resolves nested function', () {
+      test('resolves nested function', () async {
         expect(
-          parser.parse(
-            r'${formatString(value: ${formatString(value: "Nested")})}',
+          await eval<String>(
+            parser.parse(
+              r'${formatString(value: ${formatString(value: "Nested")})}',
+            ),
           ),
           'Nested',
         );
       });
 
-      test('resolves function with path args', () {
+      test('resolves function with path args', () async {
         dataModel.update(DataPath('/val'), 'Dynamic');
-        expect(parser.parse(r'${formatString(value: ${/val})}'), 'Dynamic');
+        expect(
+          await eval<String>(parser.parse(r'${formatString(value: ${/val})}')),
+          'Dynamic',
+        );
       });
 
-      test('resolves function with quoted string containing spaces', () {
+      test('resolves function with quoted string containing spaces', () async {
         expect(
-          parser.parse(r'${formatString(value: "Hello World")}'),
+          await eval<String>(
+            parser.parse(r'${formatString(value: "Hello World")}'),
+          ),
           'Hello World',
         );
       });
@@ -224,40 +267,97 @@ void main() {
     });
 
     group('Invalid syntax', () {
-      test('rejects function call with raw function call as argument', () {
-        // ${foo(bar())} should NOT parse bar() as a function call.
-        // It should be treated as a path "bar()" which likely resolves to
-        // null, or fail to parse the outer function call due to syntax error
-        // (missing colon).
-        //
-        // "bar()" is not a valid named argument key (missing colon).
-        // So _parseNamedArgs will likely return empty map or partial map.
-        // "foo" will be called with empty/partial args.
-        //
-        // Verify that "bar" is NOT invoked.
-        parser = ExpressionParser(context);
+      test(
+        'rejects function call with raw function call as argument',
+        () async {
+          // ${foo(bar())} should NOT parse bar() as a function call.
+          // It should be treated as a path "bar()" which likely resolves to
+          // null, or fail to parse the outer function call due to syntax error
+          // (missing colon).
+          //
+          // "bar()" is not a valid named argument key (missing colon).
+          // So _parseNamedArgs will likely return empty map or partial map.
+          // "foo" will be called with empty/partial args.
+          //
+          // Verify that "bar" is NOT invoked.
+          parser = ExpressionParser(context);
 
-        // ${not(true)} -> false.
-        // ${not(not(false))} -> true (if nested).
-        // ${not(not(false))} -> invalid syntax "not(false)" is not
-        //   "key: value".
-        expect(parser.parse(r'${not(not(false))}'), isNot(true));
-      });
+          // ${not(true)} -> false.
+          // ${not(not(false))} -> true (if nested).
+          // ${not(not(false))} -> invalid syntax "not(false)" is not
+          //   "key: value".
+          expect(
+            await eval<Object?>(parser.parse(r'${not(not(false))}')),
+            isNot(true),
+          );
+        },
+      );
 
       test(
         'rejects function call with raw function call as named argument value',
-        () {
-          // ${not(value: not(value: false))}
-          // Inner "not(value: false)" is NOT a string literal or ${...}.
-          // It is treated as a path "not(value: false)".
-          // So outer not receives "value": null (result of path lookup).
-          // not(null) -> true.
-          // But if it was parsed as function, not(true) -> false.
-          // So if it returns true, it means it FAILED to parse inner
-          // function.
-          expect(parser.parse(r'${not(value: not(value: false))}'), true);
+        () async {
+          // ... existing test content ...
+          expect(
+            await eval<Object?>(
+              parser.parse(r'${not(value: not(value: false))}'),
+            ),
+            true,
+          );
         },
       );
+    });
+
+    group('Reactive Validation', () {
+      test('required function with DataContext updates', () {
+        dataModel.update(DataPath('/myDate'), null);
+        final Stream<bool> stream = parser.evaluateConditionStream({
+          'call': 'required',
+          'args': {
+            'value': {'path': '/myDate'},
+          },
+        });
+
+        expect(stream, emitsInOrder([false, true]));
+
+        // Schedule update
+        Future.microtask(
+          () => dataModel.update(DataPath('/myDate'), '2022-01-01'),
+        );
+      });
+    });
+
+    group('Recursion Depth', () {
+      test('evaluateConditionSync throws on exceeding max depth', () {
+        // Create a deeply nested structure: not(not(not(...)))
+        // Depth 101 should trigger the limit of 100.
+        Map<String, Object?> expression = {'value': true};
+        for (var i = 0; i < 105; i++) {
+          expression = {
+            'call': 'not',
+            'args': {'value': expression},
+          };
+        }
+
+        expect(
+          () => parser.evaluateConditionSync(expression),
+          throwsA(isA<RecursionExpectedException>()),
+        );
+      });
+
+      test('evaluateConditionStream throws on exceeding max depth', () {
+        Map<String, Object?> expression = {'value': true};
+        for (var i = 0; i < 105; i++) {
+          expression = {
+            'call': 'not',
+            'args': {'value': expression},
+          };
+        }
+
+        expect(
+          () => parser.evaluateConditionStream(expression),
+          throwsA(isA<RecursionExpectedException>()),
+        );
+      });
     });
   });
 }

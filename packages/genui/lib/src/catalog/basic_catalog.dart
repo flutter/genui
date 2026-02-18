@@ -23,6 +23,7 @@ import 'basic_catalog_widgets/tabs.dart' as tabs_item;
 import 'basic_catalog_widgets/text.dart' as text_item;
 import 'basic_catalog_widgets/text_field.dart' as text_field_item;
 import 'basic_catalog_widgets/video.dart' as video_item;
+import 'basic_functions.dart';
 
 /// A collection of basic catalog items that can be used to build simple
 /// interactive UIs.
@@ -104,25 +105,29 @@ abstract final class BasicCatalogItems {
 
   /// Creates a catalog containing all core catalog items.
   static Catalog asCatalog() {
-    return Catalog([
-      audioPlayer,
-      button,
-      card,
-      checkBox,
-      column,
-      dateTimeInput,
-      divider,
-      icon,
-      image,
-      list,
-      modal,
-      choicePicker,
-      row,
-      slider,
-      tabs,
-      text,
-      textField,
-      video,
-    ], catalogId: basicCatalogId);
+    return Catalog(
+      [
+        audioPlayer,
+        button,
+        card,
+        checkBox,
+        column,
+        dateTimeInput,
+        divider,
+        icon,
+        image,
+        list,
+        modal,
+        choicePicker,
+        row,
+        slider,
+        tabs,
+        text,
+        textField,
+        video,
+      ],
+      functions: BasicFunctions.all,
+      catalogId: basicCatalogId,
+    );
   }
 }

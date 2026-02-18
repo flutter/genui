@@ -2,17 +2,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:rxdart/rxdart.dart';
+
+import '../interfaces/client_function.dart' as cf;
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'functions.dart';
+
+class RecursionExpectedException implements Exception {
+  RecursionExpectedException(this.message);
+  final String message;
+  @override
+  String toString() => 'RecursionExpectedException: $message';
+}
 
 /// Parses and evaluates expressions in the A2UI `${expression}` format.
 class ExpressionParser {
   ExpressionParser(this.context);
 
   final DataContext context;
-  final FunctionRegistry _functions = FunctionRegistry();
 
   static const int _maxRecursionDepth = 100;
 
@@ -20,45 +28,85 @@ class ExpressionParser {
   ///
   /// If the string contains a single expression that encompasses the entire
   /// string (e.g. "${/foo}"), the return value may be of any type (not just
-  /// [String]).
+  /// [String]), and may be a [Stream] if the expression involves a reactive
+  /// function.
   ///
   /// If the string contains text mixed with expressions (e.g. "Value: ${/foo}"),
-  /// the return value will always be a [String].
+  /// the return value will always be a [String] (or a [Stream<String>]).
   ///
   /// This method is the entry point for expression resolution. It handles
   /// escaping of the `${` sequence using a backslash (e.g. `\${`).
-  /// Parses the input string and resolves any embedded expressions.
-  ///
-  /// If the string contains a single expression that encompasses the entire
-  /// string (e.g. "${/foo}"), the return value may be of any type (not just
-  /// [String]).
-  ///
-  /// If the string contains text mixed with expressions (e.g. "Value: ${/foo}"),
-  /// the return value will always be a [String].
-  ///
-  /// This method is the entry point for expression resolution. It handles
-  /// escaping of the `${` sequence using a backslash (e.g. `\${`).
-  Object? parse(String input) {
-    if (!input.contains(r'${')) {
-      return input;
+  // parse method removed here, using the one with asStream support below
+
+  /// Evaluates an expression and returns a [Stream] of the result.
+  Stream<Object?> evaluateStream(Object? expression) {
+    // If expression is static (no interpolation/paths), return Stream.value
+    if (expression == null) return Stream.value(null);
+    if (expression is! String && expression is! Map) {
+      return Stream.value(expression);
     }
-    return _parseStringWithInterpolations(input, null);
+
+    // Use common logic but prefer streams
+    final Object? result = _evaluate(expression, asStream: true);
+    if (result is Stream) {
+      return result.cast<Object?>();
+    }
+    return Stream.value(result);
   }
 
   /// Evaluates an expression which can be a String, Map (function call/path), etc.
   Object? evaluate(Object? expression) {
+    return _evaluate(expression, asStream: false);
+  }
+
+  Object? _evaluate(
+    Object? expression, {
+    required bool asStream,
+    int depth = 0,
+  }) {
+    if (depth > _maxRecursionDepth) {
+      throw RecursionExpectedException(
+        'Max recursion depth reached in _evaluate',
+      );
+    }
+
     if (expression is String) {
-      return parse(expression);
+      return parse(expression, asStream: asStream, depth: depth + 1);
     }
     if (expression is Map) {
       if (expression.containsKey('call')) {
-        return evaluateFunctionCall(expression as JsonMap);
+        return evaluateFunctionCall(
+          expression as JsonMap,
+          asStream: asStream,
+          depth: depth + 1,
+        );
       }
       if (expression.containsKey('path')) {
-        return _resolvePath(expression['path'] as String, null);
+        return _resolvePath(
+          expression['path'] as String,
+          null,
+          asStream: asStream,
+        );
       }
     }
     return expression;
+  }
+
+  /// Parses the input string and resolves any embedded expressions.
+  Object? parse(String input, {bool asStream = false, int depth = 0}) {
+    if (depth > _maxRecursionDepth) {
+      throw RecursionExpectedException('Max recursion depth reached in parse');
+    }
+
+    if (!input.contains(r'${')) {
+      return asStream ? Stream.value(input) : input;
+    }
+    return _parseStringWithInterpolations(
+      input,
+      null,
+      asStream: asStream,
+      depth: depth + 1,
+    );
   }
 
   /// Extracts all data paths referenced in the given input.
@@ -70,7 +118,7 @@ class ExpressionParser {
       return {};
     }
     final Set<DataPath> dependencies = {};
-    _parseStringWithInterpolations(input, dependencies);
+    _parseStringWithInterpolations(input, dependencies, depth: 0);
     return dependencies;
   }
 
@@ -78,17 +126,24 @@ class ExpressionParser {
   /// Map).
   Set<DataPath> extractDependenciesFrom(Object? expression) {
     final Set<DataPath> dependencies = {};
-    _extractDependenciesFrom(expression, dependencies);
+    _extractDependenciesFrom(expression, dependencies, depth: 0);
     return dependencies;
   }
 
   void _extractDependenciesFrom(
     Object? expression,
-    Set<DataPath> dependencies,
-  ) {
+    Set<DataPath> dependencies, {
+    required int depth,
+  }) {
+    if (depth > _maxRecursionDepth) {
+      throw RecursionExpectedException(
+        'Max recursion depth reached in dependency extraction.',
+      );
+    }
+
     if (expression is String) {
       if (expression.contains(r'${')) {
-        _parseStringWithInterpolations(expression, dependencies);
+        _parseStringWithInterpolations(expression, dependencies, depth: depth);
       }
     } else if (expression is Map) {
       if (expression.containsKey('path')) {
@@ -96,20 +151,59 @@ class ExpressionParser {
           context.resolvePath(DataPath(expression['path'] as String)),
         );
       } else if (expression.containsKey('call')) {
-        evaluateFunctionCall(expression as JsonMap, dependencies: dependencies);
+        evaluateFunctionCall(
+          expression as JsonMap,
+          dependencies: dependencies,
+          depth: depth + 1,
+        );
       } else {
-        // Recursively check values for other map types if necessary?
-        // Usually expressions are structured strictly.
-        // But functions args are maps.
         for (final Object? value in expression.values) {
-          _extractDependenciesFrom(value, dependencies);
+          _extractDependenciesFrom(value, dependencies, depth: depth + 1);
         }
       }
     } else if (expression is List) {
       for (final Object? item in expression) {
-        _extractDependenciesFrom(item, dependencies);
+        _extractDependenciesFrom(item, dependencies, depth: depth + 1);
       }
     }
+  }
+
+  /// Evaluates a dynamic boolean condition and returns a [Stream<bool>].
+  ///
+  /// This is the reactive version of [evaluateConditionSync]. It should be used
+  /// when the condition might depend on reactive data sources or functions.
+  Stream<bool> evaluateConditionStream(Object? condition) {
+    if (condition == null) return Stream.value(false);
+    if (condition is bool) return Stream.value(condition);
+
+    Object? result;
+    if (condition is String) {
+      result = parse(condition, asStream: true);
+    } else if (condition is Map) {
+      if (condition.containsKey('call')) {
+        result = evaluateFunctionCall(condition as JsonMap, asStream: true);
+      } else if (condition.containsKey('path')) {
+        result = _resolvePath(
+          condition['path'] as String,
+          null,
+          asStream: true,
+        );
+      } else {
+        return Stream.value(false);
+      }
+    } else {
+      result = condition;
+    }
+
+    if (result is Stream) {
+      return result.map((v) {
+        if (v is bool) return v;
+        return v != null;
+      });
+    }
+
+    if (result is bool) return Stream.value(result);
+    return Stream.value(result != null);
   }
 
   /// Evaluates a dynamic boolean condition.
@@ -120,20 +214,28 @@ class ExpressionParser {
   ///   - If it has a 'call' key, it is evaluated as a function call.
   ///   - If it has a 'path' key, it is evaluated as a data binding.
   /// - [String]: Parsed as an expression, then checked for truthiness.
-  bool evaluateCondition(Object? condition) {
+  ///
+  /// **Note:** If the condition evaluates to a [Stream], this method currently
+  /// checks if the stream itself is non-null (truthy), creating a static check.
+  /// For reactive boolean checks, you should consume the result of [evaluate]
+  /// and listen to the stream.
+  bool evaluateConditionSync(Object? condition) {
     if (condition == null) return false;
     if (condition is bool) return condition;
 
     Object? result;
     if (condition is String) {
-      result = parse(condition);
+      result = parse(condition, asStream: true);
     } else if (condition is Map) {
       if (condition.containsKey('call')) {
-        result = evaluateFunctionCall(condition as JsonMap);
+        result = evaluateFunctionCall(condition as JsonMap, asStream: true);
       } else if (condition.containsKey('path')) {
-        result = _resolvePath(condition['path'] as String, null);
+        result = _resolvePath(
+          condition['path'] as String,
+          null,
+          asStream: true,
+        );
       } else {
-        // Unknown map format, return false safely.
         return false;
       }
     } else {
@@ -141,6 +243,9 @@ class ExpressionParser {
     }
 
     if (result is bool) return result;
+    // Streams are truthy references, but that's probably not what we want
+    // for conditional rendering if we want *reactive* conditions.
+    // However, this method is synchronous.
     return result != null;
   }
 
@@ -151,33 +256,59 @@ class ExpressionParser {
   Object? evaluateFunctionCall(
     JsonMap callDefinition, {
     Set<DataPath>? dependencies,
+    bool asStream = false,
+    int depth = 0,
   }) {
-    final name = callDefinition['call'] as String?;
-    if (name == null) {
-      // Not a function call or missing 'call' property.
-      return null;
+    if (depth > _maxRecursionDepth) {
+      throw RecursionExpectedException(
+        'Max recursion depth reached in evaluateFunctionCall',
+      );
     }
 
+    final name = callDefinition['call'] as String?;
+    if (name == null) {
+      return asStream ? Stream.value(null) : null;
+    }
+
+    // 1. Resolve arguments
     final Map<String, Object?> args = {};
     final Object? argsJson = callDefinition['args'];
+    var hasStreams = false;
 
     if (argsJson is Map) {
       for (final Object? key in argsJson.keys) {
         final argName = key.toString();
         final Object? value = argsJson[key];
+        Object? resolvedValue;
+
         if (value is String) {
-          args[argName] = _parseStringWithInterpolations(value, dependencies);
+          resolvedValue = _parseStringWithInterpolations(
+            value,
+            dependencies,
+            asStream: asStream,
+            depth: depth + 1,
+          );
         } else if (value is Map && value.containsKey('path')) {
-          args[argName] = _resolvePath(value['path'] as String, dependencies);
+          resolvedValue = _resolvePath(
+            value['path'] as String,
+            dependencies,
+            asStream: asStream,
+          );
         } else if (value is Map && value.containsKey('call')) {
-          // Recursive evaluation for nested calls
-          args[argName] = evaluateFunctionCall(
+          resolvedValue = evaluateFunctionCall(
             value as JsonMap,
             dependencies: dependencies,
+            asStream: asStream,
+            depth: depth + 1,
           );
         } else {
-          args[argName] = value;
+          resolvedValue = value;
         }
+
+        if (resolvedValue is Stream) {
+          hasStreams = true;
+        }
+        args[argName] = resolvedValue;
       }
     } else if (argsJson != null) {
       genUiLogger.warning(
@@ -187,19 +318,61 @@ class ExpressionParser {
     }
 
     if (dependencies != null) {
-      return null; // Don't execute function if collecting dependencies
+      return null; // Dependency collection only
     }
 
-    return _functions.invoke(name, args);
+    final cf.ClientFunction? func = context.getFunction(name);
+    if (func == null) {
+      genUiLogger.warning('Function not found: $name');
+      return asStream ? Stream.value(null) : null;
+    }
+
+    // 2. Execute function
+    if (!hasStreams) {
+      // Synchronous execution (returns Stream, but args are static)
+      final Stream<Object?> result = func.execute(args, context);
+      if (asStream) {
+        return Stream.value(result);
+      }
+      return result;
+    }
+
+    // 3. Handle Stream arguments
+    // Create a stream that combines all argument streams, then switches to the
+    // result of execution.
+    final List<String> keys = args.keys.toList();
+    final List<Stream<Object?>> streams = keys.map((key) {
+      final Object? val = args[key];
+      if (val is Stream) return val.cast<Object?>();
+      return Stream<Object?>.value(val);
+    }).toList();
+
+    return CombineLatestStream.list(streams).switchMap((List<Object?> values) {
+      final Map<String, Object?> combinedArgs = {};
+      for (var i = 0; i < keys.length; i++) {
+        combinedArgs[keys[i]] = values[i];
+      }
+      final Stream<Object?> result = func.execute(combinedArgs, context);
+      return result.cast<Object?>();
+      // return Stream<Object?>.value(result); // Dead code removed too
+    });
   }
 
   Object? _parseStringWithInterpolations(
     String input,
-    Set<DataPath>? dependencies,
-  ) {
-    var i = 0;
+    Set<DataPath>? dependencies, {
+    bool asStream = false,
+    int depth = 0,
+  }) {
+    if (depth > _maxRecursionDepth) {
+      throw RecursionExpectedException(
+        'Max recursion depth reached in _parseStringWithInterpolations',
+      );
+    }
 
+    var i = 0;
     final parts = <Object?>[];
+    var hasStreams = false;
 
     while (i < input.length) {
       final int startIndex = input.indexOf(r'${', i);
@@ -227,11 +400,20 @@ class ExpressionParser {
         break;
       }
 
-      final Object? value = _evaluateExpression(content, 0, dependencies);
+      final Object? value = _evaluateExpression(
+        content,
+        depth + 1,
+        dependencies,
+      );
+      if (value is Stream) {
+        hasStreams = true;
+      }
       parts.add(value);
 
       i = endIndex + 1; // Skip closing '}'
     }
+
+    if (parts.isEmpty) return '';
 
     if (parts.length == 1 && parts[0] is! String) {
       return parts[0];
@@ -241,7 +423,19 @@ class ExpressionParser {
       return null;
     }
 
-    return parts.map((e) => e?.toString() ?? '').join('');
+    if (!hasStreams && !asStream) {
+      return parts.map((e) => e?.toString() ?? '').join('');
+    }
+
+    // Combine streams for string interpolation
+    final List<Stream<Object?>> streams = parts.map((part) {
+      if (part is Stream) return part.cast<Object?>();
+      return Stream<Object?>.value(part);
+    }).toList();
+
+    return CombineLatestStream.list(streams).map((List<Object?> values) {
+      return values.map((e) => e?.toString() ?? '').join('');
+    });
   }
 
   (String, int) _extractExpressionContent(String input, int start) {
@@ -277,10 +471,9 @@ class ExpressionParser {
     Set<DataPath>? dependencies,
   ) {
     if (depth > _maxRecursionDepth) {
-      genUiLogger.warning(
+      throw RecursionExpectedException(
         'Max recursion depth reached in expression: $content',
       );
-      return null;
     }
 
     content = content.trim();
@@ -300,7 +493,9 @@ class ExpressionParser {
       if (dependencies != null) {
         return null;
       }
-      return _functions.invoke(funcName, args);
+
+      // Construct a call definition for evaluateFunctionCall to reuse logic
+      return evaluateFunctionCall({'call': funcName, 'args': args});
     }
 
     return _resolvePath(content, dependencies);
@@ -315,13 +510,11 @@ class ExpressionParser {
     var i = 0;
 
     while (i < argsStr.length) {
-      // Skip whitespace
       while (i < argsStr.length && argsStr[i].trim().isEmpty) {
         i++;
       }
       if (i >= argsStr.length) break;
 
-      // Expect key
       final keyStart = i;
       while (i < argsStr.length &&
           argsStr[i] != ':' &&
@@ -331,14 +524,12 @@ class ExpressionParser {
       }
       final String key = argsStr.substring(keyStart, i).trim();
 
-      // Skip whitespace after key
       while (i < argsStr.length && argsStr[i].trim().isEmpty) {
         i++;
       }
 
-      // Expect colon
       if (i < argsStr.length && argsStr[i] == ':') {
-        i++; // skip colon
+        i++;
       } else {
         genUiLogger.warning(
           'Invalid named argument format (missing colon) at index $i: $argsStr',
@@ -346,12 +537,10 @@ class ExpressionParser {
         return args;
       }
 
-      // Skip whitespace after colon
       while (i < argsStr.length && argsStr[i].trim().isEmpty) {
         i++;
       }
 
-      // Parse Value
       final (Object? value, int nextIndex) = _parseValue(
         argsStr,
         i,
@@ -361,15 +550,11 @@ class ExpressionParser {
       args[key] = value;
       i = nextIndex;
 
-      // Skip whitespace after value
       while (i < argsStr.length && argsStr[i].trim().isEmpty) {
         i++;
       }
 
-      // Expect comma or end
-      if (i < argsStr.length && argsStr[i] == ',') {
-        i++;
-      }
+      if (i < argsStr.length && argsStr[i] == ',') i++;
     }
     return args;
   }
@@ -384,7 +569,6 @@ class ExpressionParser {
 
     final String char = input[start];
 
-    // String literal
     if (char == "'" || char == '"') {
       final quote = char;
       int i = start + 1;
@@ -395,15 +579,15 @@ class ExpressionParser {
         i++;
       }
       if (i < input.length) {
-        // Found closing quote
         final String val = input.substring(start + 1, i);
-        // Recursively parse string for interpolations
-        return (_parseStringWithInterpolations(val, dependencies), i + 1);
+        return (
+          _parseStringWithInterpolations(val, dependencies, depth: depth + 1),
+          i + 1,
+        );
       }
-      return (input.substring(start), input.length); // Unclosed string
+      return (input.substring(start), input.length);
     }
 
-    // Expression ${...}
     if (char == r'$' && start + 1 < input.length && input[start + 1] == '{') {
       final (String content, int end) = _extractExpressionContent(
         input,
@@ -414,15 +598,6 @@ class ExpressionParser {
         return (val, end + 1);
       }
     }
-
-    // Heuristic for function calls REMOVED.
-    // Arguments must be Literals (quoted strings, booleans, numbers)
-    // or Nested Expressions (${...}).
-
-    // Number / Boolean / Null / Path
-    // Read the next token, stopping at delimiters like comma, parenthesis, or
-    // brace. This allows `_parseNamedArgs` to handle the delimiters
-    // appropriately.
 
     var i = start;
     while (i < input.length) {
@@ -446,15 +621,21 @@ class ExpressionParser {
     final num? numVal = num.tryParse(token);
     if (numVal != null) return (numVal, i);
 
-    // Treat as a DataPath if no other type matches.
     return (_resolvePath(token, dependencies), i);
   }
 
-  Object? _resolvePath(String pathStr, Set<DataPath>? dependencies) {
+  Object? _resolvePath(
+    String pathStr,
+    Set<DataPath>? dependencies, {
+    bool asStream = false,
+  }) {
     pathStr = pathStr.trim();
     if (dependencies != null) {
       dependencies.add(context.resolvePath(DataPath(pathStr)));
       return null;
+    }
+    if (asStream) {
+      return context.subscribeStream<Object?>(pathStr);
     }
     return context.getValue(pathStr);
   }

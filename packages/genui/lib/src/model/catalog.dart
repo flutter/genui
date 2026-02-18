@@ -6,9 +6,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../interfaces/client_function.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-import 'a2ui_schemas.dart';
 import 'catalog_item.dart';
 import 'data_model.dart';
 
@@ -18,17 +18,21 @@ import 'data_model.dart';
 /// A [Catalog] serves three primary purposes:
 ///
 /// 1. Holds a list of [CatalogItem]s, which define the available widgets.
-/// 2. Provides a mechanism to build a Flutter widget from a JSON-like data
+/// 2. Holds a list of [ClientFunction]s, which define available functions.
+/// 3. Provides a mechanism to build a Flutter widget from a JSON-like data
 ///    structure ([JsonMap]).
-/// 3. Dynamically generates a [Schema] that describes the structure of all
-///    supported widgets, which can be provided to the AI model.
+/// 4. Dynamically generates a [Schema] that describes the structure of all
+///    supported widgets and functions, which can be provided to the AI model.
 @immutable
 interface class Catalog {
   /// Creates a new catalog with the given list of items.
-  const Catalog(this.items, {this.catalogId});
+  const Catalog(this.items, {this.functions = const [], this.catalogId});
 
   /// The list of [CatalogItem]s available in this catalog.
   final Iterable<CatalogItem> items;
+
+  /// The list of [ClientFunction]s available in this catalog.
+  final Iterable<ClientFunction> functions;
 
   /// A string that uniquely identifies this catalog.
   ///
@@ -36,29 +40,68 @@ interface class Catalog {
   /// e.g. 'com.example.my_catalog'.
   final String? catalogId;
 
-  /// Returns a new [Catalog] containing the items from both this catalog and
-  /// the provided [items].
-  ///
-  /// If an item with the same name already exists in the catalog, it will be
-  /// replaced with the new item.
-  Catalog copyWith(List<CatalogItem> newItems, {String? catalogId}) {
+  /// If an item or function with the same name already exists in the catalog,
+  /// it will be replaced with the new one.
+  Catalog copyWith({
+    List<CatalogItem>? newItems,
+    List<ClientFunction>? newFunctions,
+    String? catalogId,
+  }) {
     final Map<String, CatalogItem> itemsByName = {
       for (final item in items) item.name: item,
     };
-    itemsByName.addAll({for (final item in newItems) item.name: item});
-    return Catalog(itemsByName.values, catalogId: catalogId ?? this.catalogId);
+    if (newItems != null) {
+      itemsByName.addAll({for (final item in newItems) item.name: item});
+    }
+
+    final Map<String, ClientFunction> functionsByName = {
+      for (final func in functions) func.name: func,
+    };
+    if (newFunctions != null) {
+      functionsByName.addAll({
+        for (final func in newFunctions) func.name: func,
+      });
+    }
+
+    return Catalog(
+      itemsByName.values,
+      functions: functionsByName.values,
+      catalogId: catalogId ?? this.catalogId,
+    );
   }
 
   /// Returns a new [Catalog] instance containing the items from this catalog
   /// with the specified items removed.
-  Catalog copyWithout(Iterable<CatalogItem> itemNames, {String? catalogId}) {
-    final Set<String> namesToRemove = itemNames
-        .map<String>((item) => item.name)
-        .toSet();
-    final List<CatalogItem> updatedItems = items
-        .where((item) => !namesToRemove.contains(item.name))
-        .toList();
-    return Catalog(updatedItems, catalogId: catalogId ?? this.catalogId);
+  Catalog copyWithout({
+    Iterable<CatalogItem>? itemsToRemove,
+    Iterable<ClientFunction>? functionsToRemove,
+    String? catalogId,
+  }) {
+    List<CatalogItem> updatedItems = items.toList();
+    if (itemsToRemove != null) {
+      final Set<String> namesToRemove = itemsToRemove
+          .map<String>((item) => item.name)
+          .toSet();
+      updatedItems = items
+          .where((item) => !namesToRemove.contains(item.name))
+          .toList();
+    }
+
+    List<ClientFunction> updatedFunctions = functions.toList();
+    if (functionsToRemove != null) {
+      final Set<String> namesToRemove = functionsToRemove
+          .map<String>((func) => func.name)
+          .toSet();
+      updatedFunctions = functions
+          .where((func) => !namesToRemove.contains(func.name))
+          .toList();
+    }
+
+    return Catalog(
+      updatedItems,
+      functions: updatedFunctions,
+      catalogId: catalogId ?? this.catalogId,
+    );
   }
 
   /// Builds a Flutter widget from a JSON-like data structure.
@@ -108,6 +151,10 @@ interface class Catalog {
       for (var item in items) item.name: item.dataSchema,
     };
 
+    final Map<String, Schema> functionProperties = {
+      for (var func in functions) func.name: func.argumentSchema,
+    };
+
     return S.object(
       title: 'A2UI Catalog Description Schema',
       description:
@@ -130,7 +177,14 @@ interface class Catalog {
               'properties.',
           properties: {},
         ),
-        'functions': A2uiSchemas.clientFunctions(),
+        'functions': S.object(
+          title: 'A2UI Functions',
+          description:
+              'A schema that defines a catalog of A2UI functions. Each key is '
+              'a function name, and each value is the JSON schema for that '
+              'function\'s arguments.',
+          properties: functionProperties,
+        ),
       },
       required: ['components', 'styles', 'functions'],
     );
