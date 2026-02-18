@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import '../../genui.dart' show SurfaceContext;
 
 import '../model/ui_models.dart';
@@ -22,10 +20,6 @@ abstract interface class SurfaceHost {
   /// Implementations may choose to filter redundant updates. Consumers should
   /// rely on [contextFor] to get the context for a specific surface.
   Stream<SurfaceUpdate> get surfaceUpdates;
-
-  /// Returns a [ValueListenable] that tracks the definition of the surface
-  /// with the given [surfaceId].
-  ValueListenable<SurfaceDefinition?> watchSurface(String surfaceId);
 
   /// Returns a [SurfaceContext] for the surface with the given [surfaceId].
   SurfaceContext contextFor(String surfaceId);

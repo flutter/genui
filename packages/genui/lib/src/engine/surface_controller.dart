@@ -86,11 +86,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     return _ControllerContext(this, surfaceId);
   }
 
-  @override
-  ValueListenable<SurfaceDefinition?> watchSurface(String surfaceId) {
-    return _registry.watchSurface(surfaceId);
-  }
-
   /// The registry of surfaces managed by this controller.
   surface_reg.SurfaceRegistry get registry => _registry;
 
