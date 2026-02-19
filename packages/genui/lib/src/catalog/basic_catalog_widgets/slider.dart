@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
@@ -75,16 +76,10 @@ final slider = CatalogItem(
         ? valueRef['path'] as String
         : '${itemContext.id}.value';
 
-    final ValueNotifier<num?> valueNotifier = itemContext.dataContext
-        .subscribe<num>(path);
-
-    final ValueNotifier<String?> labelNotifier = sliderData.label != null
-        ? itemContext.dataContext.subscribeToString(sliderData.label!)
-        : ValueNotifier(null);
-
-    return ValueListenableBuilder<num?>(
-      valueListenable: valueNotifier,
-      builder: (context, value, child) {
+    return BoundNumber(
+      dataContext: itemContext.dataContext,
+      value: {'path': path},
+      builder: (context, value) {
         // If value is null (nothing in DataContext yet), fall back to
         // literal value if provided.
         var effectiveValue = value;
@@ -106,7 +101,7 @@ final slider = CatalogItem(
                   max: sliderData.max,
                   divisions: (sliderData.max - sliderData.min).toInt(),
                   onChanged: (newValue) {
-                    itemContext.dataContext.update(path, newValue);
+                    itemContext.dataContext.update(DataPath(path), newValue);
                   },
                 ),
               ),
@@ -117,23 +112,31 @@ final slider = CatalogItem(
           ),
         );
 
-        return ValueListenableBuilder<Object?>(
-          valueListenable: itemContext.dataContext.createComputedNotifier(
-            checksToExpression(sliderData.checks),
-          ),
-          builder: (context, isValid, _) {
-            final isError = isValid == false;
+        return BoundString(
+          dataContext: itemContext.dataContext,
+          value: sliderData.label,
+          builder: (context, label) {
+            return StreamBuilder<bool>(
+              stream: itemContext.dataContext.evaluateConditionStream(
+                checksToExpression(sliderData.checks),
+              ),
+              initialData: true,
+              builder: (context, snapshot) {
+                final bool isValid = snapshot.data ?? true;
+                final bool isError = !isValid;
 
-            return ValueListenableBuilder<String?>(
-              valueListenable: labelNotifier,
-              builder: (context, label, child) {
-                final List<Widget> children = [];
-                if (label != null && label.isNotEmpty) {
-                  children.add(
-                    Text(label, style: Theme.of(context).textTheme.bodySmall),
-                  );
-                }
-                children.add(sliderWidget);
+                final List<Widget> children = [
+                  if (label != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                      child: Text(
+                        label,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                  sliderWidget,
+                ];
+
                 if (isError) {
                   children.add(
                     Padding(

@@ -161,10 +161,6 @@ void main() {
     manager.handleMessage(
       UpdateComponents(surfaceId: surfaceId, components: components),
     );
-    // CreateSurface must be sent to initialize the surface, can be before or after components/data updates are processed
-    // if buffering is working, but usually it comes first in stream.
-    // In this test setup, `manager.handleMessage` processes synchronously?
-    // If CreateSurface is last, it might trigger the build.
     manager.handleMessage(
       const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );

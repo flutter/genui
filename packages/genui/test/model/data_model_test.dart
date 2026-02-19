@@ -85,8 +85,8 @@ void main() {
     late DataContext rootContext;
 
     setUp(() {
-      dataModel = DataModel();
-      rootContext = DataContext(dataModel, '/');
+      dataModel = InMemoryDataModel();
+      rootContext = DataContext(dataModel, DataPath.root);
     });
 
     test('resolves absolute paths', () {
@@ -100,7 +100,7 @@ void main() {
     });
 
     test('nested creates a new context', () {
-      final DataContext nested = rootContext.nested('a');
+      final DataContext nested = rootContext.nested(DataPath('a'));
       expect(nested.path, DataPath('/a'));
     });
   });
@@ -109,7 +109,7 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
     });
 
     test('update with null path replaces the model', () {
@@ -168,6 +168,46 @@ void main() {
       });
     });
 
+    group('DataModel Extended', () {
+      late DataModel dataModel;
+
+      setUp(() {
+        dataModel = InMemoryDataModel();
+      });
+
+      test('getValue throws DataModelTypeException on type mismatch', () {
+        dataModel.update(DataPath.root, {'a': 'hello'});
+        expect(
+          () => dataModel.getValue<int>(DataPath('/a')),
+          throwsA(isA<DataModelTypeException>()),
+        );
+      });
+
+      test('bindExternalState cleanup removes listeners', () {
+        final source = ValueNotifier<int>(0);
+
+        // Act
+        final void Function() cleanup = dataModel.bindExternalState(
+          path: DataPath('/a'),
+          source: source,
+          twoWay: true,
+        );
+
+        // Verify binding active
+        dataModel.update(DataPath('/a'), 1);
+        expect(source.value, 1);
+
+        // Cleanup
+        cleanup();
+
+        // Verify listeners removed
+        // source has no listeners if we were the only one and we removed
+        // ourselves.
+        // ignore: invalid_use_of_protected_member
+        expect(source.hasListeners, isFalse);
+      });
+    });
+
     group('DataModel Update Parsing', () {
       test('parses contents with simple string', () {
         dataModel.update(DataPath.root, {'a': 'hello'});
@@ -207,7 +247,7 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
     });
 
     test('bindExternalState initializes model from source', () {
@@ -263,11 +303,6 @@ void main() {
       );
 
       dataModel.dispose();
-
-      // Update data model shouldn't crash but won't update source if disposed?
-      // Update data model shouldn't crash but won't update source if disposed?
-      // Verify behavior: if we update source, model shouldn't update.
-      // But model is disposed.
     });
   });
 
@@ -275,7 +310,7 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
     });
 
     test('Map: set and get', () {

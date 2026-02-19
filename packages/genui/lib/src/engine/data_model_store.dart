@@ -10,7 +10,7 @@ class DataModelStore {
   final Set<String> _attachedSurfaces = {};
 
   DataModel getDataModel(String surfaceId) {
-    return _dataModels.putIfAbsent(surfaceId, DataModel.new);
+    return _dataModels.putIfAbsent(surfaceId, InMemoryDataModel.new);
   }
 
   void removeDataModel(String surfaceId) {
@@ -25,16 +25,6 @@ class DataModelStore {
 
   void detachSurface(String surfaceId) {
     _attachedSurfaces.remove(surfaceId);
-  }
-
-  Map<String, Object?> getClientDataSnapshot() {
-    final result = <String, Object?>{};
-    for (final String surfaceId in _attachedSurfaces) {
-      if (_dataModels.containsKey(surfaceId)) {
-        result[surfaceId] = _dataModels[surfaceId]!.data;
-      }
-    }
-    return {'version': 'v0.9', 'surfaces': result};
   }
 
   Map<String, DataModel> get dataModels => Map.unmodifiable(_dataModels);

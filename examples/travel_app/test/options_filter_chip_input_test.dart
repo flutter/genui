@@ -12,7 +12,7 @@ void main() {
     testWidgets('renders correctly and handles selection with an icon', (
       WidgetTester tester,
     ) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
       final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
@@ -34,9 +34,10 @@ void main() {
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
-                    dataContext: DataContext(dataModel, '/'),
+                    dataContext: DataContext(dataModel, DataPath.root),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 );
               },
@@ -77,7 +78,7 @@ void main() {
     testWidgets('renders correctly and handles selection without an icon', (
       WidgetTester tester,
     ) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
       final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
@@ -98,9 +99,10 @@ void main() {
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
-                    dataContext: DataContext(dataModel, '/'),
+                    dataContext: DataContext(dataModel, DataPath.root),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 );
               },
@@ -131,7 +133,7 @@ void main() {
 
     testWidgets('renders correctly and handles selection with literal value '
         '(implicit binding)', (WidgetTester tester) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
       final Map<String, Object> data = {
         'chipLabel': 'Price',
         'options': ['\$', '\$\$', '\$\$\$'],
@@ -152,9 +154,10 @@ void main() {
                     buildChild: (_, [_]) => const SizedBox.shrink(),
                     dispatchEvent: (event) {},
                     buildContext: context,
-                    dataContext: DataContext(dataModel, '/'),
+                    dataContext: DataContext(dataModel, DataPath.root),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 );
               },

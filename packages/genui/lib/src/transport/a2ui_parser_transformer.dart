@@ -75,12 +75,14 @@ class _A2uiParserStream {
             _buffer = _buffer.substring(markdownMatch.end);
             continue;
           }
-        } catch (_) {
-          // Invalid JSON in markdown block. Consumed as text implicitly if we
-          // advance? No, we didn't advance. We treat it as text. Fall through
-          // to 3? If we don't handle it here, `firstPotentialStart` might pick
-          // `markdownStart` again and emit it as text. So we successfully
-          // effectively skip "parsing as message".
+        } on FormatException {
+          // Invalid JSON in markdown block.
+          // Emit as text immediately so we don't get stuck in a loop
+          // where the fallback logic waits for more data indefinitely.
+          _emitBefore(markdownMatch.start);
+          _emitText(markdownMatch.original);
+          _buffer = _buffer.substring(markdownMatch.end);
+          continue;
         }
       }
 
@@ -88,7 +90,7 @@ class _A2uiParserStream {
       final _Match? jsonMatch = _findBalancedJson(_buffer);
       if (jsonMatch != null) {
         // Prioritize markdown if it starts BEFORE the balanced JSON logic would
-        // pick it up?
+        // pick it up.
         if (markdownMatch != null && markdownMatch.start <= jsonMatch.start) {
           // We already tried markdown and failed (otherwise we continued).
           // Fall through.
@@ -102,8 +104,13 @@ class _A2uiParserStream {
             _buffer = _buffer.substring(jsonMatch.end);
             continue;
           }
-        } catch (_) {
+        } on FormatException catch (_) {
           // Invalid JSON.
+          // Emit as text immediately to avoid stalling.
+          _emitBefore(jsonMatch.start);
+          _emitText(jsonMatch.original);
+          _buffer = _buffer.substring(jsonMatch.end);
+          continue;
         }
       }
 
@@ -191,7 +198,12 @@ class _A2uiParserStream {
     final regex = RegExp(r'```(?:json)?\s*([\s\S]*?)\s*```');
     final RegExpMatch? match = regex.firstMatch(text);
     if (match != null) {
-      return _Match(match.start, match.end, match.group(1) ?? '');
+      return _Match(
+        match.start,
+        match.end,
+        match.group(1) ?? '',
+        match.group(0) ?? '',
+      );
     }
     return null;
   }
@@ -225,7 +237,8 @@ class _A2uiParserStream {
         } else if (char == '}') {
           balance--;
           if (balance == 0) {
-            return _Match(0, i + 1, input.substring(0, i + 1));
+            final String text = input.substring(0, i + 1);
+            return _Match(0, i + 1, text, text);
           }
         }
       }
@@ -235,8 +248,9 @@ class _A2uiParserStream {
 }
 
 class _Match {
-  _Match(this.start, this.end, this.content);
+  _Match(this.start, this.end, this.content, this.original);
   final int start;
   final int end;
   final String content;
+  final String original;
 }

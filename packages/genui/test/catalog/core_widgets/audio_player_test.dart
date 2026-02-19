@@ -41,14 +41,14 @@ void main() {
       ),
     );
 
-    expect(find.byType(Placeholder), findsOneWidget);
+    expect(find.byIcon(Icons.audiotrack), findsOneWidget);
 
     // Check for Semantics widget properties directly if find.bySemanticsLabel
     // fails
     final Semantics semantics = tester.widget<Semantics>(
       find
           .ancestor(
-            of: find.byType(Placeholder),
+            of: find.byIcon(Icons.audiotrack),
             matching: find.byType(Semantics),
           )
           .first,

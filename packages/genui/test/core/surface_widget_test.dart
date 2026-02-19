@@ -54,7 +54,7 @@ void main() {
     late Catalog catalog;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
       catalog = Catalog([text], catalogId: 'test_catalog');
       surfaceContext = FakeSurfaceContext(
         surfaceId: 'test_surface',
@@ -160,7 +160,7 @@ void main() {
       tester,
     ) async {
       Object? reportedError;
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
       surfaceContext = FakeSurfaceContext(
         surfaceId: 'test_surface',
         dataModel: dataModel,

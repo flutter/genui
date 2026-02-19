@@ -47,6 +47,7 @@ final class CatalogItemContext {
     required this.getComponent,
     required this.getCatalogItem,
     required this.surfaceId,
+    required this.reportError,
   });
 
   /// The parsed data for this component from the AI-generated definition.
@@ -78,6 +79,9 @@ final class CatalogItemContext {
 
   /// The ID of the surface this component belongs to.
   final String surfaceId;
+
+  /// Callback to report an error that occurred within this component.
+  final void Function(Object error, StackTrace? stack) reportError;
 }
 
 /// Defines a UI layout type, its schema, and how to build its widget.

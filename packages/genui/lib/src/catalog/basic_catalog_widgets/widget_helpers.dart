@@ -8,6 +8,7 @@ import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
+import '../../widgets/widget_utilities.dart';
 
 /// Builder function for creating a widget from a template and a list of data.
 ///
@@ -98,11 +99,10 @@ class ComponentChildrenBuilder extends StatelessWidget {
         genUiLogger.finest(
           'Widget $componentId subscribing to ${dataContext.path}',
         );
-        final ValueNotifier<Object?> dataNotifier = dataContext
-            .subscribe<Object?>(path);
-        return ValueListenableBuilder<Object?>(
-          valueListenable: dataNotifier,
-          builder: (context, data, child) {
+        return BoundObject(
+          dataContext: dataContext,
+          value: {'path': path},
+          builder: (context, data) {
             if (data != null) {
               return templateListWidgetBuilder(
                 context,

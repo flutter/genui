@@ -26,10 +26,11 @@ void main() {
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) => null,
                 getCatalogItem: (String type) => null,
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             ),
           ),
@@ -55,10 +56,11 @@ void main() {
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) => null,
                 getCatalogItem: (String type) => null,
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             ),
           ),
@@ -108,10 +110,11 @@ void main() {
                 buildChild: (_, [_]) => const SizedBox(),
                 dispatchEvent: (UiEvent event) {},
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) => null,
                 getCatalogItem: (String type) => null,
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             ),
           ),
@@ -150,10 +153,11 @@ void main() {
                   buildChild: (_, [_]) => const SizedBox(),
                   dispatchEvent: (UiEvent event) {},
                   buildContext: context,
-                  dataContext: DataContext(DataModel(), '/'),
+                  dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                   getComponent: (String componentId) => null,
                   getCatalogItem: (String type) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               ),
             ),
@@ -175,4 +179,38 @@ void main() {
     );
     expect(richText.text.style?.color, requiredColor);
   });
+
+  testWidgets(
+    'Text widget does NOT evaluate expressions implicitly (renders literal)',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: text.widgetBuilder(
+                CatalogItemContext(
+                  data: {'text': '\${foo}'},
+                  id: 'test_text_literal_expression',
+                  type: 'Text',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(InMemoryDataModel(), DataPath.root)
+                    ..update(DataPath('foo'), 'bar'),
+                  getComponent: (String componentId) => null,
+                  getCatalogItem: (String type) => null,
+                  surfaceId: 'surface1',
+                  reportError: (e, s) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Should render "${foo}" literally, NOT "bar".
+      expect(find.text('\${foo}'), findsOneWidget);
+      expect(find.text('bar'), findsNothing);
+    },
+  );
 }

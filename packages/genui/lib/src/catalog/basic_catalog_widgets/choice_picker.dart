@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
@@ -79,60 +80,56 @@ final choicePicker = CatalogItem(
         ? valueRef['path'] as String
         : '${itemContext.id}.value';
 
-    itemContext.dataContext.subscribe<Object>(path);
-
     final isMutuallyExclusive = data.variant == 'mutuallyExclusive';
     final isChips = data.displayStyle == 'chips';
 
-    final Object? optionsRef = data.options;
-    final ValueNotifier<List<Object?>?> optionsNotifier;
-    if (optionsRef is Map && optionsRef.containsKey('path')) {
-      optionsNotifier = itemContext.dataContext.subscribe<List<Object?>>(
-        optionsRef['path'] as String,
-      );
-    } else {
-      optionsNotifier = ValueNotifier(optionsRef as List<Object?>?);
-    }
-
     // Wrap the picker in validation
-    return ValueListenableBuilder<Object?>(
-      valueListenable: itemContext.dataContext.createComputedNotifier(
+    return StreamBuilder<bool>(
+      stream: itemContext.dataContext.evaluateConditionStream(
         checksToExpression(data.checks),
       ),
-      builder: (context, isValid, _) {
-        final isError = isValid == false;
+      initialData: true,
+      builder: (context, snapshot) {
+        final bool isValid = snapshot.data ?? true;
+        final bool isError = !isValid;
 
-        final Widget pickerWidget = _ChoicePicker(
-          label: data.label,
-          optionsNotifier: optionsNotifier,
-          valueRef: valueRef,
-          path: path,
-          itemContext: itemContext,
-          isMutuallyExclusive: isMutuallyExclusive,
-          isChips: isChips,
-          filterable: data.filterable,
-        );
+        return BoundList(
+          dataContext: itemContext.dataContext,
+          value: data.options,
+          builder: (context, options) {
+            final Widget pickerWidget = _ChoicePicker(
+              label: data.label,
+              options: options,
+              valueRef: valueRef,
+              path: path,
+              itemContext: itemContext,
+              isMutuallyExclusive: isMutuallyExclusive,
+              isChips: isChips,
+              filterable: data.filterable,
+            );
 
-        if (!isError) {
-          return pickerWidget;
-        }
+            if (!isError) {
+              return pickerWidget;
+            }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            pickerWidget,
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 4.0),
-              child: Text(
-                'Invalid selection',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 12,
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                pickerWidget,
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, top: 4.0),
+                  child: Text(
+                    'Invalid selection',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
@@ -158,7 +155,7 @@ final choicePicker = CatalogItem(
 class _ChoicePicker extends StatefulWidget {
   const _ChoicePicker({
     required this.label,
-    required this.optionsNotifier,
+    required this.options,
     required this.valueRef,
     required this.path,
     required this.itemContext,
@@ -168,7 +165,7 @@ class _ChoicePicker extends StatefulWidget {
   });
 
   final Object? label;
-  final ValueNotifier<List<Object?>?> optionsNotifier;
+  final List<Object?>? options;
   final Object valueRef;
   final String path;
   final CatalogItemContext itemContext;
@@ -182,15 +179,6 @@ class _ChoicePicker extends StatefulWidget {
 
 class _ChoicePickerState extends State<_ChoicePicker> {
   String _filter = '';
-  late final ValueNotifier<Object?> _selectionsNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectionsNotifier = widget.itemContext.dataContext.subscribe<Object>(
-      widget.path,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,11 +191,10 @@ class _ChoicePickerState extends State<_ChoicePicker> {
         if (widget.label != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0, left: 16.0),
-            child: ValueListenableBuilder<String?>(
-              valueListenable: widget.itemContext.dataContext.subscribeToString(
-                widget.label!,
-              ),
-              builder: (context, label, child) {
+            child: BoundString(
+              dataContext: widget.itemContext.dataContext,
+              value: widget.label!,
+              builder: (context, label) {
                 if (label == null || label.isEmpty) {
                   return const SizedBox.shrink();
                 }
@@ -233,9 +220,10 @@ class _ChoicePickerState extends State<_ChoicePicker> {
               },
             ),
           ),
-        ValueListenableBuilder<Object?>(
-          valueListenable: _selectionsNotifier,
-          builder: (context, currentSelections, child) {
+        BoundObject(
+          dataContext: widget.itemContext.dataContext,
+          value: {'path': widget.path},
+          builder: (context, currentSelections) {
             var effectiveSelections = currentSelections;
             if (effectiveSelections == null) {
               if (widget.valueRef is List) {
@@ -252,108 +240,96 @@ class _ChoicePickerState extends State<_ChoicePicker> {
                     .toList() ??
                 [];
 
-            return ValueListenableBuilder<List<Object?>?>(
-              valueListenable: widget.optionsNotifier,
-              builder: (context, options, child) {
-                if (options == null) {
-                  return const SizedBox.shrink();
-                }
-                final List<JsonMap> castOptions = options.cast<JsonMap>();
-                final List<Widget> optionWidgets = [];
+            if (widget.options == null) {
+              return const SizedBox.shrink();
+            }
+            final List<JsonMap> castOptions = widget.options!.cast<JsonMap>();
+            final List<Widget> optionWidgets = [];
 
-                for (final option in castOptions) {
-                  final ValueNotifier<String?> labelNotifier = widget
-                      .itemContext
-                      .dataContext
-                      .subscribeToString(option['label']);
-                  final optionValue = option['value'] as String;
+            for (final option in castOptions) {
+              final optionValue = option['value'] as String;
 
-                  optionWidgets.add(
-                    ValueListenableBuilder<String?>(
-                      valueListenable: labelNotifier,
-                      builder: (context, label, child) {
-                        if (widget.filterable &&
-                            _filter.isNotEmpty &&
-                            label != null &&
-                            !label.toLowerCase().contains(
-                              _filter.toLowerCase(),
-                            )) {
-                          return const SizedBox.shrink();
-                        }
+              optionWidgets.add(
+                BoundString(
+                  dataContext: widget.itemContext.dataContext,
+                  value: option['label'],
+                  builder: (context, label) {
+                    if (widget.filterable &&
+                        _filter.isNotEmpty &&
+                        label != null &&
+                        !label.toLowerCase().contains(_filter.toLowerCase())) {
+                      return const SizedBox.shrink();
+                    }
 
-                        if (widget.isChips) {
-                          final bool selected = currentStrings.contains(
+                    if (widget.isChips) {
+                      final bool selected = currentStrings.contains(
+                        optionValue,
+                      );
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: FilterChip(
+                          label: Text(label ?? ''),
+                          selected: selected,
+                          onSelected: (bool selected) {
+                            _updateSelection(
+                              selected,
+                              optionValue,
+                              currentStrings,
+                            );
+                          },
+                        ),
+                      );
+                    }
+
+                    if (widget.isMutuallyExclusive) {
+                      final Object? groupValue = currentStrings.isNotEmpty
+                          ? currentStrings.first
+                          : null;
+
+                      return RadioListTile<String>(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        dense: true,
+                        title: Text(label ?? ''),
+                        value: optionValue,
+                        // ignore: deprecated_member_use
+                        groupValue: groupValue is String ? groupValue : null,
+                        // ignore: deprecated_member_use
+                        onChanged: (newValue) {
+                          if (newValue == null) return;
+                          widget.itemContext.dataContext.update(
+                            DataPath(widget.path),
+                            [newValue],
+                          );
+                        },
+                      );
+                    } else {
+                      return CheckboxListTile(
+                        title: Text(label ?? ''),
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: currentStrings.contains(optionValue),
+                        onChanged: (newValue) {
+                          _updateSelection(
+                            newValue == true,
                             optionValue,
+                            currentStrings,
                           );
-                          return Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: FilterChip(
-                              label: Text(label ?? ''),
-                              selected: selected,
-                              onSelected: (bool selected) {
-                                _updateSelection(
-                                  selected,
-                                  optionValue,
-                                  currentStrings,
-                                );
-                              },
-                            ),
-                          );
-                        }
+                        },
+                      );
+                    }
+                  },
+                ),
+              );
+            }
 
-                        if (widget.isMutuallyExclusive) {
-                          final Object? groupValue = currentStrings.isNotEmpty
-                              ? currentStrings.first
-                              : null;
+            if (widget.isChips) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Wrap(children: optionWidgets),
+              );
+            }
 
-                          return RadioListTile<String>(
-                            controlAffinity: ListTileControlAffinity.leading,
-                            dense: true,
-                            title: Text(label ?? ''),
-                            value: optionValue,
-                            // ignore: deprecated_member_use
-                            groupValue: groupValue is String
-                                ? groupValue
-                                : null,
-                            // ignore: deprecated_member_use
-                            onChanged: (newValue) {
-                              if (newValue == null) return;
-                              widget.itemContext.dataContext.update(
-                                widget.path,
-                                [newValue],
-                              );
-                            },
-                          );
-                        } else {
-                          return CheckboxListTile(
-                            title: Text(label ?? ''),
-                            dense: true,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            value: currentStrings.contains(optionValue),
-                            onChanged: (newValue) {
-                              _updateSelection(
-                                newValue == true,
-                                optionValue,
-                                currentStrings,
-                              );
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  );
-                }
-
-                if (widget.isChips) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Wrap(children: optionWidgets),
-                  );
-                }
-
-                return Column(children: optionWidgets);
-              },
-            );
+            return Column(children: optionWidgets);
           },
         ),
       ],
@@ -367,7 +343,9 @@ class _ChoicePickerState extends State<_ChoicePicker> {
   ) {
     if (widget.isMutuallyExclusive) {
       if (selected) {
-        widget.itemContext.dataContext.update(widget.path, [optionValue]);
+        widget.itemContext.dataContext.update(DataPath(widget.path), [
+          optionValue,
+        ]);
       }
     } else {
       final newSelections = List<String>.from(currentStrings);
@@ -378,7 +356,10 @@ class _ChoicePickerState extends State<_ChoicePicker> {
       } else {
         newSelections.remove(optionValue);
       }
-      widget.itemContext.dataContext.update(widget.path, newSelections);
+      widget.itemContext.dataContext.update(
+        DataPath(widget.path),
+        newSelections,
+      );
     }
   }
 }

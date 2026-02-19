@@ -12,7 +12,7 @@ void main() {
   testWidgets('DateInputChip catalog item builds with literal value', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -27,9 +27,10 @@ void main() {
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -44,7 +45,7 @@ void main() {
   testWidgets('DateInputChip catalog item builds with data model value', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
     dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
@@ -64,9 +65,10 @@ void main() {
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -86,7 +88,7 @@ void main() {
   testWidgets('DateInputChip updates data model on date selection', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
     dataModel.update(DataPath('/testDate'), '2025-09-20');
 
     await tester.pumpWidget(
@@ -106,9 +108,10 @@ void main() {
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -130,7 +133,7 @@ void main() {
   testWidgets('DateInputChip selects date when no initial value', (
     WidgetTester tester,
   ) async {
-    final dataModel = DataModel();
+    final dataModel = InMemoryDataModel();
 
     await tester.pumpWidget(
       MaterialApp(
@@ -149,9 +152,10 @@ void main() {
                   buildChild: (data, [_]) => const SizedBox(),
                   dispatchEvent: (event) {},
                   buildContext: context,
-                  dataContext: DataContext(dataModel, '/'),
+                  dataContext: DataContext(dataModel, DataPath.root),
                   getComponent: (String componentId) => null,
                   surfaceId: 'surface1',
+                  reportError: (e, s) {},
                 ),
               );
             },
@@ -188,7 +192,7 @@ void main() {
     'DateInputChip updates implicit data model path on date selection when '
     'initialized with literal',
     (WidgetTester tester) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -204,9 +208,10 @@ void main() {
                     buildChild: (data, [_]) => const SizedBox(),
                     dispatchEvent: (event) {},
                     buildContext: context,
-                    dataContext: DataContext(dataModel, '/'),
+                    dataContext: DataContext(dataModel, DataPath.root),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 );
               },

@@ -43,10 +43,14 @@ void main() {
                         const Text(''), // Mock child builder
                     dispatchEvent: (UiEvent event) {},
                     buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    dataContext: DataContext(
+                      InMemoryDataModel(),
+                      DataPath.root,
+                    ),
                     getComponent: (String componentId) => null,
                     getCatalogItem: (String type) => null,
                     surfaceId: 'surfaceId',
+                    reportError: (e, s) {},
                   ),
                 );
               },
@@ -82,10 +86,14 @@ void main() {
                       buildChild: (_, [_]) => const SizedBox(),
                       dispatchEvent: (UiEvent event) {},
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       getCatalogItem: (String type) => null,
                       surfaceId: 'surfaceId',
+                      reportError: (e, s) {},
                     ),
                   ),
                   throwsA(isA<CatalogItemNotFoundException>()),

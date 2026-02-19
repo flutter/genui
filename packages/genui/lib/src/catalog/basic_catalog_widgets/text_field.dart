@@ -7,9 +7,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../functions/expression_parser.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 import '../../utils/validation_helper.dart';
@@ -62,7 +62,7 @@ class _TextField extends StatefulWidget {
     required this.initialValue,
     this.label,
     this.checks,
-    this.parser,
+    this.context,
     this.textFieldType,
     this.validationRegexp,
     required this.onChanged,
@@ -72,7 +72,7 @@ class _TextField extends StatefulWidget {
   final String initialValue;
   final String? label;
   final List<JsonMap>? checks;
-  final ExpressionParser? parser;
+  final DataContext? context;
   final String? textFieldType;
   final String? validationRegexp;
   final void Function(String) onChanged;
@@ -103,7 +103,7 @@ class _TextFieldState extends State<_TextField> {
       // related to value.
     }
     if (widget.checks != oldWidget.checks ||
-        widget.parser != oldWidget.parser) {
+        widget.context != oldWidget.context) {
       _setupValidation();
     }
   }
@@ -114,7 +114,7 @@ class _TextFieldState extends State<_TextField> {
 
     if (widget.checks == null ||
         widget.checks!.isEmpty ||
-        widget.parser == null) {
+        widget.context == null) {
       if (_errorText != null && mounted) {
         setState(() => _errorText = null);
       }
@@ -122,7 +122,7 @@ class _TextFieldState extends State<_TextField> {
     }
 
     _validationSubscription =
-        ValidationHelper.validateStream(widget.checks, widget.parser).listen((
+        ValidationHelper.validateStream(widget.checks, widget.context).listen((
           String? newError,
         ) {
           if (newError != _errorText && mounted) {
@@ -158,7 +158,7 @@ class _TextFieldState extends State<_TextField> {
       },
       onSubmitted: (val) {
         // Validation is handled via data model updates + stream
-        // But we might want to check current error state before submitting?
+        // But we check current error state before submitting.
         if (_errorText == null) {
           widget.onSubmitted(val);
         }
@@ -215,19 +215,14 @@ final textField = CatalogItem(
     final path = (valueRef is Map && valueRef.containsKey('path'))
         ? valueRef['path'] as String
         : '${itemContext.id}.value';
-    final ValueNotifier<String?> notifier = itemContext.dataContext
-        .subscribeToString({'path': path});
-    final ValueNotifier<String?> labelNotifier = itemContext.dataContext
-        .subscribeToString(textFieldData.label);
-
-    final parser = ExpressionParser(itemContext.dataContext);
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
-        return ValueListenableBuilder(
-          valueListenable: labelNotifier,
-          builder: (context, label, child) {
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: {'path': path},
+      builder: (context, currentValue) {
+        return BoundString(
+          dataContext: itemContext.dataContext,
+          value: textFieldData.label,
+          builder: (context, label) {
             final String? effectiveValue =
                 currentValue?.toString() ??
                 (valueRef is String ? valueRef : null);
@@ -236,20 +231,20 @@ final textField = CatalogItem(
               initialValue: effectiveValue ?? '',
               label: label,
               checks: textFieldData.checks,
-              parser: parser,
+              context: itemContext.dataContext,
               textFieldType: textFieldData.variant,
               validationRegexp: textFieldData.validationRegexp,
               onChanged: (newValue) {
                 if (textFieldData.variant == 'number') {
                   final num? numberValue = num.tryParse(newValue);
                   if (numberValue != null) {
-                    itemContext.dataContext.update(path, numberValue);
+                    itemContext.dataContext.update(DataPath(path), numberValue);
                     return;
                   }
                 }
-                itemContext.dataContext.update(path, newValue);
+                itemContext.dataContext.update(DataPath(path), newValue);
               },
-              onSubmitted: (newValue) {
+              onSubmitted: (newValue) async {
                 final JsonMap? actionData = textFieldData.onSubmittedAction;
                 if (actionData == null) {
                   return;
@@ -259,7 +254,7 @@ final textField = CatalogItem(
                   final eventMap = actionData['event'] as JsonMap;
                   final actionName = eventMap['name'] as String;
                   final contextDefinition = eventMap['context'] as JsonMap?;
-                  final JsonMap resolvedContext = resolveContext(
+                  final JsonMap resolvedContext = await resolveContext(
                     itemContext.dataContext,
                     contextDefinition,
                   );
@@ -274,10 +269,14 @@ final textField = CatalogItem(
                   final funcMap = actionData['functionCall'] as JsonMap;
                   final callName = funcMap['call'] as String;
                   if (callName == 'closeModal') {
-                    Navigator.of(itemContext.buildContext).pop();
+                    if (itemContext.buildContext.mounted) {
+                      Navigator.of(itemContext.buildContext).pop();
+                    }
                     return;
                   }
-                  parser.evaluateFunctionCall(funcMap);
+                  final Stream<Object?> resultStream = itemContext.dataContext
+                      .resolve(funcMap);
+                  await resultStream.first;
                 }
               },
             );

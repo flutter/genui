@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
@@ -49,14 +50,14 @@ class _TabsWidget extends StatefulWidget {
   const _TabsWidget({
     required this.tabs,
     required this.itemContext,
-    required this.activeTabNotifier,
+    required this.activeTab,
     this.initialTab = 0,
     required this.onTabChanged,
   });
 
   final List<JsonMap> tabs;
   final CatalogItemContext itemContext;
-  final ValueNotifier<num?> activeTabNotifier;
+  final int? activeTab;
   final int initialTab;
   final ValueChanged<int> onTabChanged;
 
@@ -71,18 +72,16 @@ class _TabsWidgetState extends State<_TabsWidget>
   @override
   void initState() {
     super.initState();
-    final int initialIndex =
-        (widget.activeTabNotifier.value?.toInt() ?? widget.initialTab).clamp(
-          0,
-          widget.tabs.length - 1,
-        );
+    final int initialIndex = (widget.activeTab ?? widget.initialTab).clamp(
+      0,
+      widget.tabs.length - 1,
+    );
     _tabController = TabController(
       length: widget.tabs.length,
       vsync: this,
       initialIndex: initialIndex,
     );
     _tabController.addListener(_handleTabSelection);
-    widget.activeTabNotifier.addListener(_handleExternalChange);
   }
 
   @override
@@ -90,17 +89,18 @@ class _TabsWidgetState extends State<_TabsWidget>
     super.didUpdateWidget(oldWidget);
     if (widget.tabs.length != oldWidget.tabs.length) {
       _tabController.dispose();
-      final int initialIndex =
-          (widget.activeTabNotifier.value?.toInt() ?? widget.initialTab).clamp(
-            0,
-            widget.tabs.length - 1,
-          );
+      final int initialIndex = (widget.activeTab ?? widget.initialTab).clamp(
+        0,
+        widget.tabs.length - 1,
+      );
       _tabController = TabController(
         length: widget.tabs.length,
         vsync: this,
         initialIndex: initialIndex,
       );
       _tabController.addListener(_handleTabSelection);
+    } else if (widget.activeTab != oldWidget.activeTab) {
+      _handleExternalChange();
     }
   }
 
@@ -111,7 +111,7 @@ class _TabsWidgetState extends State<_TabsWidget>
   }
 
   void _handleExternalChange() {
-    final int? newIndex = widget.activeTabNotifier.value?.toInt();
+    final int? newIndex = widget.activeTab;
     if (newIndex != null &&
         newIndex >= 0 &&
         newIndex < widget.tabs.length &&
@@ -123,7 +123,6 @@ class _TabsWidgetState extends State<_TabsWidget>
   @override
   void dispose() {
     _tabController.dispose();
-    widget.activeTabNotifier.removeListener(_handleExternalChange);
     super.dispose();
   }
 
@@ -136,14 +135,11 @@ class _TabsWidgetState extends State<_TabsWidget>
           controller: _tabController,
           tabs: widget.tabs.map((tabItem) {
             final Object? labelRef = tabItem['label'] ?? tabItem['title'];
-            final ValueNotifier<String?> titleNotifier = widget
-                .itemContext
-                .dataContext
-                .subscribeToString(labelRef);
-            return ValueListenableBuilder<String?>(
-              valueListenable: titleNotifier,
-              builder: (context, title, child) {
-                return Tab(text: title ?? '');
+            return BoundString(
+              dataContext: widget.itemContext.dataContext,
+              value: labelRef,
+              builder: (context, label) {
+                return Tab(text: label ?? '');
               },
             );
           }).toList(),
@@ -191,26 +187,20 @@ final tabs = CatalogItem(
         ? activeTabRef['path'] as String
         : '${itemContext.id}.activeTab';
 
-    final ValueNotifier<num?> activeTabNotifier = itemContext.dataContext
-        .subscribeToNumber({'path': path});
-
-    return ValueListenableBuilder<num?>(
-      valueListenable: activeTabNotifier,
-      builder: (context, currentActiveTab, child) {
-        var effectiveActiveTab = currentActiveTab;
-        if (effectiveActiveTab == null) {
-          if (activeTabRef is num) {
-            effectiveActiveTab = activeTabRef;
-          }
-        }
-
+    return BoundNumber(
+      dataContext: itemContext.dataContext,
+      value: {'path': path},
+      builder: (context, value) {
+        // We pass the current value to _TabsWidget, which will handle
+        // updating the TabController when it changes.
+        // We no longer pass a ValueNotifier.
         return _TabsWidget(
           tabs: tabsData.tabs,
           itemContext: itemContext,
-          activeTabNotifier: activeTabNotifier,
+          activeTab: value?.toInt(),
           initialTab: activeTabRef is num ? activeTabRef.toInt() : 0,
           onTabChanged: (newIndex) {
-            itemContext.dataContext.update(path, newIndex);
+            itemContext.dataContext.update(DataPath(path), newIndex);
           },
         );
       },

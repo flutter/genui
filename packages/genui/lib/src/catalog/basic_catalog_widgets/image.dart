@@ -84,40 +84,24 @@ final CatalogItem image = CatalogItem(
   ],
   widgetBuilder: (itemContext) {
     final imageData = _ImageData.fromMap(itemContext.data as JsonMap);
-    final ValueNotifier<String?> notifier = itemContext.dataContext
-        .subscribeToString(imageData.url);
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentLocation, child) {
-        final location = currentLocation;
-        if (location == null || location.isEmpty) {
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: imageData.url,
+      builder: (context, value) {
+        if (value == null || value.isEmpty) {
           genUiLogger.warning(
             'Image widget created with no URL at path: '
             '${itemContext.dataContext.path}',
           );
           return const SizedBox.shrink();
         }
-        final BoxFit? fit = imageData.fit;
-        final String? variant = imageData.variant;
 
-        late Widget child;
-
-        if (location.startsWith('assets/')) {
-          child = Image.asset(
-            location,
-            fit: fit,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(Icons.broken_image);
-            },
-          );
-        } else {
+        Widget child;
+        if (value.startsWith('http')) {
           child = Image.network(
-            location,
-            fit: fit,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(Icons.broken_image);
-            },
+            value,
+            fit: imageData.fit,
             frameBuilder:
                 (
                   BuildContext context,
@@ -153,18 +137,48 @@ final CatalogItem image = CatalogItem(
                     ),
                   );
                 },
+            errorBuilder:
+                (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return const Icon(Icons.broken_image);
+                },
+          );
+        } else {
+          child = Image.asset(
+            value,
+            fit: imageData.fit,
+            frameBuilder:
+                (
+                  BuildContext context,
+                  Widget child,
+                  int? frame,
+                  bool wasSynchronouslyLoaded,
+                ) {
+                  if (wasSynchronouslyLoaded) {
+                    return child;
+                  }
+                  return AnimatedOpacity(
+                    opacity: frame == null ? 0 : 1,
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.easeOut,
+                    child: child,
+                  );
+                },
+            errorBuilder:
+                (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return const Icon(Icons.broken_image);
+                },
           );
         }
 
-        if (variant == 'avatar') {
+        if (imageData.variant == 'avatar') {
           child = CircleAvatar(child: child);
         }
 
-        if (variant == 'header') {
+        if (imageData.variant == 'header') {
           return SizedBox(width: double.infinity, child: child);
         }
 
-        final double size = switch (variant) {
+        final double size = switch (imageData.variant) {
           'icon' || 'avatar' => 32.0,
           'smallFeature' => 50.0,
           'mediumFeature' => 150.0,

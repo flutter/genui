@@ -105,9 +105,6 @@ final inputGroup = CatalogItem(
       itemContext.data as Map<String, Object?>,
     );
 
-    final ValueNotifier<String?> notifier = itemContext.dataContext
-        .subscribeToString(inputGroupData.submitLabel);
-
     final List<String> children = inputGroupData.children;
     final JsonMap actionData = inputGroupData.action;
     final event = actionData['event'] as JsonMap?;
@@ -127,12 +124,13 @@ final inputGroup = CatalogItem(
               children: children.map(itemContext.buildChild).toList(),
             ),
             const SizedBox(height: 16.0),
-            ValueListenableBuilder<String?>(
-              valueListenable: notifier,
-              builder: (builderContext, submitLabel, child) {
+            BoundString(
+              dataContext: itemContext.dataContext,
+              value: inputGroupData.submitLabel,
+              builder: (builderContext, submitLabel) {
                 return ElevatedButton(
-                  onPressed: () {
-                    final JsonMap resolvedContext = resolveContext(
+                  onPressed: () async {
+                    final JsonMap resolvedContext = await resolveContext(
                       itemContext.dataContext,
                       contextDefinition,
                     );

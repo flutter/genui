@@ -49,9 +49,13 @@ void main() {
                           buildChild: mockBuildChild,
                           dispatchEvent: (event) {},
                           buildContext: context,
-                          dataContext: DataContext(DataModel(), '/'),
+                          dataContext: DataContext(
+                            InMemoryDataModel(),
+                            DataPath.root,
+                          ),
                           getComponent: (String componentId) => null,
                           surfaceId: 'surface1',
+                          reportError: (e, s) {},
                         ),
                       );
                     },

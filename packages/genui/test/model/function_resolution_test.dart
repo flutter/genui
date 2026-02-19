@@ -12,8 +12,12 @@ void main() {
     late DataContext context;
 
     setUp(() {
-      dataModel = DataModel();
-      context = DataContext(dataModel, '/', functions: BasicFunctions.all);
+      dataModel = InMemoryDataModel();
+      context = DataContext(
+        dataModel,
+        DataPath.root,
+        functions: BasicFunctions.all,
+      );
     });
 
     test('resolves simple function call', () async {
@@ -35,6 +39,23 @@ void main() {
 
     test('resolves nested function calls', () async {
       final Map<String, Object> input = {
+        'call': 'not',
+        'args': {
+          'value': {
+            'call': 'and',
+            'args': {
+              'values': [true, false],
+            },
+          },
+        },
+      };
+      // and([true, false]) -> false
+      // not(false) -> true
+      expect(await eval<bool>(input, context), isTrue);
+    });
+
+    test('resolves nested async function calls with asStream', () async {
+      final Map<String, Object> input = {
         'call': 'required',
         'args': {
           'value': {
@@ -43,9 +64,10 @@ void main() {
           },
         },
       };
-      // formatString('') -> ''
-      // required('') -> false
-      expect(await eval<bool>(input, context), isFalse);
+      // formatString('') -> Stream('')
+      // required(Stream('')) -> Stream(false)
+      final Stream<Object?> stream = context.resolve(input);
+      expect(await stream.first, isFalse);
     });
 
     test('resolves arguments with expressions', () async {
@@ -57,17 +79,16 @@ void main() {
       expect(await eval<String>(input, context), 'Hello World');
     });
 
-    test('returns original object if not a function call', () {
+    test('returns original object if not a function call', () async {
       final input = {'other': 'value'};
-      // resolve should return the object itself if not a function call.
-      // But context.resolve is void? No, it returns Object?.
-      expect(context.resolve(input), input);
+      final Stream<Object?> stream = context.resolve(input);
+      expect(await stream.first, input);
     });
   });
 }
 
 Future<T> eval<T>(Object? input, DataContext context) async {
-  final Object? result = context.resolve(input);
+  final Object result = context.resolve(input);
   if (result is Stream) {
     return (await result.first) as T;
   }

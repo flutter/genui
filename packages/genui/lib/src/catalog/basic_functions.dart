@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../functions/format_string.dart';
 import '../interfaces/client_function.dart';
 import '../model/data_model.dart';
 import '../primitives/simple_items.dart';
@@ -251,22 +252,6 @@ class EmailFunction extends SynchronousClientFunction {
     if (value is! String) return false;
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+\$');
     return emailRegex.hasMatch(value);
-  }
-}
-
-/// Formats a value as a string.
-class FormatStringFunction extends SynchronousClientFunction {
-  const FormatStringFunction();
-
-  @override
-  String get name => 'formatString';
-
-  @override
-  Schema get argumentSchema => S.object(properties: {'value': S.any()});
-
-  @override
-  Object? executeSync(JsonMap args, DataContext context) {
-    return args['value']?.toString() ?? '';
   }
 }
 

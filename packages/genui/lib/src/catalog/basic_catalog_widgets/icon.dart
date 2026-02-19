@@ -7,7 +7,9 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+
 import '../../primitives/simple_items.dart';
+import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
   properties: {
@@ -20,25 +22,6 @@ final _schema = S.object(
   },
   required: ['component', 'name'],
 );
-
-extension type _IconData.fromMap(JsonMap _json) {
-  factory _IconData({required Object name}) =>
-      _IconData.fromMap({'name': name});
-
-  Object? get _name => _json['name'];
-
-  String? get literalName {
-    final Object? name = _name;
-    if (name is String) return name;
-    return null;
-  }
-
-  String? get namePath {
-    final Object? name = _name;
-    if (name is JsonMap) return name['path'] as String?;
-    return null;
-  }
-}
 
 enum AvailableIcons {
   accountCircle(Icons.account_circle),
@@ -116,26 +99,10 @@ final icon = CatalogItem(
   name: 'Icon',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
-    final iconData = _IconData.fromMap(itemContext.data as JsonMap);
-    final String? literalName = iconData.literalName;
-    final String? namePath = iconData.namePath;
-
-    if (literalName != null) {
-      final IconData icon =
-          AvailableIcons.fromName(literalName)?.iconData ?? Icons.broken_image;
-      return Icon(icon);
-    }
-
-    if (namePath == null) {
-      return const Icon(Icons.broken_image);
-    }
-
-    final ValueNotifier<String?> notifier = itemContext.dataContext
-        .subscribe<String>(namePath);
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: (itemContext.data as JsonMap)['name'],
+      builder: (context, String? currentValue) {
         final String iconName = currentValue ?? '';
         final IconData icon =
             AvailableIcons.fromName(iconName)?.iconData ?? Icons.broken_image;

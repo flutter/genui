@@ -54,9 +54,13 @@ void main() {
                         dispatchedEvent = event;
                       },
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   );
                 },
@@ -125,9 +129,13 @@ void main() {
                         dispatchedEvent = event;
                       },
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   );
                 },
@@ -165,9 +173,13 @@ void main() {
                       buildChild: (data, [_]) => Text(data),
                       dispatchEvent: (event) {},
                       buildContext: context,
-                      dataContext: DataContext(DataModel(), '/'),
+                      dataContext: DataContext(
+                        InMemoryDataModel(),
+                        DataPath.root,
+                      ),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   );
                 },

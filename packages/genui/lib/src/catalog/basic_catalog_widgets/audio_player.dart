@@ -36,19 +36,11 @@ final audioPlayer = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final Object? description = (itemContext.data as JsonMap)['description'];
-    final ValueNotifier<String?> descriptionNotifier = itemContext.dataContext
-        .subscribeToString(description);
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: descriptionNotifier,
-      builder: (context, description, child) {
-        return Semantics(
-          label: description,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),
-            child: const Placeholder(child: Center(child: Text('AudioPlayer'))),
-          ),
-        );
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: description,
+      builder: (context, value) {
+        return Semantics(label: value, child: const Icon(Icons.audiotrack));
       },
     );
   },

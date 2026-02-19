@@ -123,12 +123,10 @@ final checkboxFilterChipsInput = CatalogItem(
         ? selectedOptionsRef['path'] as String
         : '${context.id}.value';
 
-    final ValueNotifier<List<Object?>?> notifier = context.dataContext
-        .subscribeToObjectArray({'path': path});
-
-    return ValueListenableBuilder<List<Object?>?>(
-      valueListenable: notifier,
-      builder: (buildContext, currentSelectedValues, child) {
+    return BoundList(
+      dataContext: context.dataContext,
+      value: {'path': path},
+      builder: (buildContext, currentSelectedValues) {
         var effectiveSelections = currentSelectedValues;
         if (effectiveSelections == null) {
           if (selectedOptionsRef is List) {
@@ -145,7 +143,10 @@ final checkboxFilterChipsInput = CatalogItem(
           icon: icon,
           selectedOptions: selectedOptionsSet,
           onChanged: (newSelectedOptions) {
-            context.dataContext.update(path, newSelectedOptions.toList());
+            context.dataContext.update(
+              DataPath(path),
+              newSelectedOptions.toList(),
+            );
           },
         );
       },

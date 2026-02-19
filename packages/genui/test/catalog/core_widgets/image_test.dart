@@ -11,6 +11,9 @@ import 'package:genui/genui.dart';
 
 class _FakeHttpClient extends Fake implements HttpClient {
   @override
+  bool autoUncompress = true;
+
+  @override
   Future<HttpClientRequest> getUrl(Uri url) async {
     throw const SocketException('Failed to connect');
   }
@@ -20,88 +23,101 @@ void main() {
   testWidgets('Image widget handles network error gracefully', (
     WidgetTester tester,
   ) async {
-    await HttpOverrides.runZoned(() async {
-      final manager = SurfaceController(
-        catalogs: [
-          Catalog([BasicCatalogItems.image], catalogId: 'test_catalog'),
-        ],
-      );
-      const surfaceId = 'testSurface';
-      final components = [
-        const Component(
-          id: 'root',
-          type: 'Image',
-          properties: {'url': 'https://example.com/nonexistent.png'},
-        ),
-      ];
-      manager.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
-      );
-      manager.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Surface(surfaceContext: manager.contextFor(surfaceId)),
+    debugNetworkImageHttpClientProvider = _FakeHttpClient.new;
+    try {
+      await HttpOverrides.runZoned(() async {
+        final manager = SurfaceController(
+          catalogs: [
+            Catalog([BasicCatalogItems.image], catalogId: 'test_catalog'),
+          ],
+        );
+        const surfaceId = 'testSurface';
+        final components = [
+          const Component(
+            id: 'root',
+            type: 'Image',
+            properties: {'url': 'https://example.com/nonexistent.png'},
           ),
-        ),
-      );
+        ];
+        manager.handleMessage(
+          UpdateComponents(surfaceId: surfaceId, components: components),
+        );
+        manager.handleMessage(
+          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        );
 
-      // Pump to allow image loading to fail
-      await tester.pump();
-      await tester.pump();
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Surface(surfaceContext: manager.contextFor(surfaceId)),
+            ),
+          ),
+        );
 
-      // We expect the check that the image failed and is showing the broken
-      // image icon.
-      expect(find.byType(Image), findsOneWidget);
-      expect(find.byIcon(Icons.broken_image), findsOneWidget);
-    }, createHttpClient: (context) => _FakeHttpClient());
+        // Pump to allow image loading to fail
+        await tester.pump();
+        await tester.pump();
+
+        // We expect the check that the image failed and is showing the broken
+        // image icon.
+        expect(find.byType(Image), findsOneWidget);
+        expect(find.byIcon(Icons.broken_image), findsOneWidget);
+      });
+    } finally {
+      debugNetworkImageHttpClientProvider = null;
+    }
   });
 
   testWidgets('Image widget loads successfully from network', (
     WidgetTester tester,
   ) async {
-    await HttpOverrides.runZoned(() async {
-      final manager = SurfaceController(
-        catalogs: [
-          Catalog([BasicCatalogItems.image], catalogId: 'test_catalog'),
-        ],
-      );
-      const surfaceId = 'testSurface';
-      final components = [
-        const Component(
-          id: 'root',
-          type: 'Image',
-          properties: {'url': 'https://example.com/image.png'},
-        ),
-      ];
-      manager.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
-      );
-      manager.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Surface(surfaceContext: manager.contextFor(surfaceId)),
+    debugNetworkImageHttpClientProvider = _FakeSuccessHttpClient.new;
+    try {
+      await HttpOverrides.runZoned(() async {
+        final manager = SurfaceController(
+          catalogs: [
+            Catalog([BasicCatalogItems.image], catalogId: 'test_catalog'),
+          ],
+        );
+        const surfaceId = 'testSurface';
+        final components = [
+          const Component(
+            id: 'root',
+            type: 'Image',
+            properties: {'url': 'https://example.com/image.png'},
           ),
-        ),
-      );
+        ];
+        manager.handleMessage(
+          UpdateComponents(surfaceId: surfaceId, components: components),
+        );
+        manager.handleMessage(
+          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        );
 
-      // Verify Image widget is present
-      expect(find.byType(Image), findsOneWidget);
-      // We can't easily verify the pixels without comprehensive mocking of
-      // HttpClientResponse but we can verify no error icon.
-      expect(find.byIcon(Icons.broken_image), findsNothing);
-    }, createHttpClient: (context) => _FakeSuccessHttpClient());
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Surface(surfaceContext: manager.contextFor(surfaceId)),
+            ),
+          ),
+        );
+
+        // Verify Image widget is present
+        expect(find.byType(Image), findsOneWidget);
+        // We can't easily verify the pixels without comprehensive mocking of
+        // HttpClientResponse but we can verify no error icon.
+        expect(find.byIcon(Icons.broken_image), findsNothing);
+      });
+    } finally {
+      debugNetworkImageHttpClientProvider = null;
+    }
   });
 }
 
 class _FakeSuccessHttpClient extends Fake implements HttpClient {
+  @override
+  bool autoUncompress = true;
+
   @override
   Future<HttpClientRequest> getUrl(Uri url) async {
     return _FakeHttpClientRequest();

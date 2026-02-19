@@ -139,5 +139,76 @@ void main() {
 
       await queue.cancel();
     });
+
+    test('emits text for invalid JSON in Markdown block (no stall)', () async {
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
+
+      controller.add('Here is bad json:\n');
+      controller.add('```json\n{invalid\n```\n');
+      controller.add('End.');
+
+      expect(
+        (await queue.next) as TextEvent,
+        isA<TextEvent>().having(
+          (e) => e.text,
+          'text',
+          contains('Here is bad json:'),
+        ),
+      );
+
+      // Should emit the invalid markdown block as text immediately
+      expect(
+        (await queue.next) as TextEvent,
+        isA<TextEvent>().having(
+          (e) => e.text,
+          'text',
+          contains('```json\n{invalid\n```'),
+        ),
+      );
+
+      // Consume potential newline after the block
+      GenerationEvent nextEvent = await queue.next;
+      if (nextEvent is TextEvent && nextEvent.text.trim().isEmpty) {
+        nextEvent = await queue.next;
+      }
+
+      expect(
+        nextEvent as TextEvent,
+        isA<TextEvent>().having((e) => e.text, 'text', contains('End.')),
+      );
+
+      await queue.cancel();
+    });
+
+    test('emits text for invalid JSON in balanced block (no stall)', () async {
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
+
+      controller.add('Start ');
+      controller.add('{"key": invalid} '); // Invalid JSON
+      controller.add('End');
+
+      expect(
+        (await queue.next) as TextEvent,
+        isA<TextEvent>().having((e) => e.text, 'text', 'Start '),
+      );
+
+      // Should emit the invalid block as text immediately
+      expect(
+        (await queue.next) as TextEvent,
+        isA<TextEvent>().having((e) => e.text, 'text', '{"key": invalid}'),
+      );
+
+      expect(
+        (await queue.next) as TextEvent,
+        isA<TextEvent>().having((e) => e.text, 'text', ' '),
+      );
+
+      expect(
+        (await queue.next) as TextEvent,
+        isA<TextEvent>().having((e) => e.text, 'text', 'End'),
+      );
+
+      await queue.cancel();
+    });
   });
 }

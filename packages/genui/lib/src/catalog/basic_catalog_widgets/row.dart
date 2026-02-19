@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
@@ -175,7 +176,7 @@ final row = CatalogItem(
               buildWeightedChild(
                 componentId: componentId,
                 dataContext: itemContext.dataContext.nested(
-                  '$dataBinding/${keys[i]}',
+                  DataPath('$dataBinding/${keys[i]}'),
                 ),
                 buildChild: itemContext.buildChild,
                 weight: weight,

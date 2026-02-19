@@ -31,9 +31,13 @@ void main() {
                     buildChild: (_, [_]) => const SizedBox(),
                     dispatchEvent: (_) {},
                     buildContext: context,
-                    dataContext: DataContext(DataModel(), '/'),
+                    dataContext: DataContext(
+                      InMemoryDataModel(),
+                      DataPath.root,
+                    ),
                     getComponent: (String componentId) => null,
                     surfaceId: 'surface1',
+                    reportError: (e, s) {},
                   ),
                 ),
               );
@@ -49,7 +53,7 @@ void main() {
   testWidgets(
     'CheckboxFilterChipsInput updates DataContext with implicit binding',
     (WidgetTester tester) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -70,9 +74,10 @@ void main() {
                       buildChild: (_, [_]) => const SizedBox(),
                       dispatchEvent: (_) {},
                       buildContext: context,
-                      dataContext: DataContext(dataModel, '/'),
+                      dataContext: DataContext(dataModel, DataPath.root),
                       getComponent: (String componentId) => null,
                       surfaceId: 'surface1',
+                      reportError: (e, s) {},
                     ),
                   ),
                 );

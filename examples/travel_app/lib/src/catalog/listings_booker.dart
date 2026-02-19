@@ -58,12 +58,10 @@ final listingsBooker = CatalogItem(
       context.data as Map<String, Object?>,
     );
 
-    final ValueNotifier<String?> itineraryNameNotifier = context.dataContext
-        .subscribeToString(listingsBookerData.itineraryName);
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: itineraryNameNotifier,
-      builder: (builderContext, itineraryName, _) {
+    return BoundString(
+      dataContext: context.dataContext,
+      value: listingsBookerData.itineraryName,
+      builder: (builderContext, itineraryName) {
         return _ListingsBooker(
           listingSelectionIds: listingsBookerData.listingSelectionIds,
           itineraryName: itineraryName ?? '',
@@ -325,7 +323,7 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                             ),
                             const SizedBox(width: 8),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 final JsonMap? actionData = widget.modifyAction;
                                 if (actionData == null) {
                                   return;
@@ -333,10 +331,11 @@ class _ListingsBookerState extends State<_ListingsBooker> {
                                 final actionName = actionData['name'] as String;
                                 final contextDefinition =
                                     actionData['context'] as JsonMap?;
-                                final JsonMap resolvedContext = resolveContext(
-                                  widget.dataContext,
-                                  contextDefinition,
-                                );
+                                final JsonMap resolvedContext =
+                                    await resolveContext(
+                                      widget.dataContext,
+                                      contextDefinition,
+                                    );
                                 resolvedContext['listingSelectionId'] =
                                     listing.listingSelectionId;
                                 widget.dispatchEvent(

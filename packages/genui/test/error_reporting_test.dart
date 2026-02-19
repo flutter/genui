@@ -46,7 +46,7 @@ void main() {
     testWidgets('Surface reports error when catalog item is missing', (
       tester,
     ) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
       final context = MockSurfaceContext('test_surface', dataModel);
 
       final definition = SurfaceDefinition(
@@ -77,7 +77,7 @@ void main() {
     });
 
     testWidgets('Surface reports error when Function throws', (tester) async {
-      final dataModel = DataModel();
+      final dataModel = InMemoryDataModel();
       // Provide a catalog with a failing function
       final context = MockSurfaceContext('test_surface', dataModel);
 
@@ -100,6 +100,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(home: Surface(surfaceContext: context)),
       );
+      await tester.pump();
 
       // Verify FallbackWidget and reported error
       expect(find.byType(FallbackWidget), findsOneWidget);
@@ -172,13 +173,15 @@ final Catalog _testCatalog = Catalog(
         try {
           final Object? text = (ctx.data as Map<String, Object?>?)?['text'];
           if (text is Map && text.containsKey('call')) {
-            final Object? result = ctx.dataContext.resolve(text);
+            final Object result = ctx.dataContext.resolve(text);
             if (result is Stream) {
               return StreamBuilder(
                 stream: result,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    throw Exception(snapshot.error!);
+                    final Object error = snapshot.error!;
+                    ctx.reportError.call(error, snapshot.stackTrace);
+                    return FallbackWidget(error: error);
                   }
                   if (!snapshot.hasData) {
                     return const SizedBox();

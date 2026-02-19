@@ -129,19 +129,17 @@ final dateInputChip = CatalogItem(
     final path = value is Map && value.containsKey('path')
         ? value['path'] as String
         : '${context.id}.value';
-    final ValueNotifier<String?> notifier = context.dataContext
-        .subscribeToString({'path': path});
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (buildContext, currentValue, child) {
+    return BoundString(
+      dataContext: context.dataContext,
+      value: {'path': path},
+      builder: (buildContext, currentValue) {
         final String? effectiveValue =
             currentValue ?? (value is String ? value : null);
         return _DateInputChip(
           initialValue: effectiveValue,
           label: datePickerData.label,
           onChanged: (newValue) {
-            context.dataContext.update(path, newValue);
+            context.dataContext.update(DataPath(path), newValue);
           },
         );
       },

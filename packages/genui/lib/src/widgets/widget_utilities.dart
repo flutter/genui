@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../functions/expression_parser.dart';
 import '../model/data_model.dart';
+import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
 /// A builder widget that simplifies handling of nullable `ValueListenable`s.
@@ -42,53 +44,294 @@ class OptionalValueBuilder<T> extends StatelessWidget {
 }
 
 /// Extension methods for [DataContext] to simplify data binding.
-extension DataContextExtensions on DataContext {
-  /// Subscribes to a string value, which can be a literal or a data-bound path.
-  ///
-  /// This method is robust against type mismatches in the data model. If the
-  /// underlying value is not a String, it will be converted using [toString].
-  ValueNotifier<String?> subscribeToString(Object? value) {
-    if (value is Map && value.containsKey('path')) {
-      final ValueNotifier<Object?> raw = subscribe<Object?>(
-        value['path'] as String,
-      );
+/// A widget that binds to a value in the [DataContext] and rebuilds when it
+/// changes.
+///
+/// This widget handles the lifecycle of the underlying [ValueNotifier],
+/// ensuring it is disposed when the widget is unmounted.
+abstract class BoundValue<T> extends StatefulWidget {
+  /// Creates a [BoundValue].
+  const BoundValue({
+    super.key,
+    required this.dataContext,
+    required this.value,
+    required this.builder,
+  });
 
-      return _ToStringNotifier(raw);
-    }
-    if (value is String && !value.contains(r'${')) {
-      return ValueNotifier<String?>(value);
-    }
-    return subscribe<String>(value);
+  /// The [DataContext] to resolve the value against.
+  final DataContext dataContext;
+
+  /// The value definition (literal, path, or function call).
+  final Object? value;
+
+  /// The builder function to call when the value changes.
+  final Widget Function(BuildContext context, T? value) builder;
+
+  @override
+  State<BoundValue<T>> createState();
+}
+
+/// State class for [BoundValue].
+abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
+  ValueNotifier<T?>? _notifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _initNotifier();
   }
 
-  /// Subscribes to a boolean value, which can be a literal or a data-bound
-  /// path.
-  ValueNotifier<bool?> subscribeToBool(Object? value) {
-    if (value is Map && value.containsKey('path')) {
-      final ValueNotifier<Object?> raw = subscribe<Object?>(
-        value['path'] as String,
-      );
-      return _ToBoolNotifier(raw);
+  @override
+  void didUpdateWidget(W oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value ||
+        widget.dataContext != oldWidget.dataContext) {
+      _disposeNotifier();
+      _initNotifier();
     }
-    return subscribe<bool>(value);
   }
 
-  /// Subscribes to a list of objects, which can be a literal or a data-bound
-  /// path.
-  ValueNotifier<List<Object?>?> subscribeToObjectArray(Object? value) {
-    return subscribe<List<Object?>>(value);
+  @override
+  void dispose() {
+    _disposeNotifier();
+    super.dispose();
   }
 
-  /// Subscribes to a number value, which can be a literal or a data-bound
-  /// path.
-  ValueNotifier<num?> subscribeToNumber(Object? value) {
-    if (value is Map && value.containsKey('path')) {
-      final ValueNotifier<Object?> raw = subscribe<Object?>(
-        value['path'] as String,
-      );
-      return _ToNumberNotifier(raw);
+  void _initNotifier() {
+    _notifier = createNotifier();
+  }
+
+  void _disposeNotifier() {
+    _notifier?.dispose();
+    _notifier = null;
+  }
+
+  /// Subclasses implement this to create the specific notifier type.
+  ValueNotifier<T?> createNotifier();
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<T?>(
+      valueListenable: _notifier!,
+      builder: (context, value, child) {
+        return widget.builder(context, value);
+      },
+    );
+  }
+}
+
+/// Binds to a [String] value.
+class BoundString extends BoundValue<String> {
+  /// Creates a [BoundString].
+  const BoundString({
+    super.key,
+    required super.dataContext,
+    required super.value,
+    required super.builder,
+  });
+
+  @override
+  State<BoundString> createState() => _BoundStringState();
+}
+
+class _BoundStringState extends BoundValueState<String, BoundString> {
+  @override
+  ValueNotifier<String?> createNotifier() {
+    final Object? value = widget.value;
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        final ValueNotifier<Object?> raw = widget.dataContext
+            .subscribe<Object?>(DataPath(value['path'] as String));
+        return _ToStringNotifier(raw);
+      }
+      if (value.containsKey('call')) {
+        return _StreamToValueNotifier<String?>(
+          widget.dataContext.resolve(value).map((v) => v?.toString()),
+        );
+      }
     }
-    return subscribe<num>(value);
+    // Treat as literal
+    return ValueNotifier<String?>(value?.toString());
+  }
+}
+
+/// Binds to a [bool] value.
+class BoundBool extends BoundValue<bool> {
+  /// Creates a [BoundBool].
+  const BoundBool({
+    super.key,
+    required super.dataContext,
+    required super.value,
+    required super.builder,
+  });
+
+  @override
+  State<BoundBool> createState() => _BoundBoolState();
+}
+
+class _BoundBoolState extends BoundValueState<bool, BoundBool> {
+  @override
+  ValueNotifier<bool?> createNotifier() {
+    final Object? value = widget.value;
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        final ValueNotifier<Object?> raw = widget.dataContext
+            .subscribe<Object?>(DataPath(value['path'] as String));
+        return _ToBoolNotifier(raw);
+      }
+      if (value.containsKey('call')) {
+        return _StreamToValueNotifier<bool?>(
+          widget.dataContext.resolve(value).map((v) {
+            if (v is bool) return v;
+            return v != null;
+          }),
+        );
+      }
+    }
+    if (value is bool) {
+      return ValueNotifier<bool?>(value);
+    }
+    return ValueNotifier<bool?>(null);
+  }
+}
+
+/// Binds to a [num] value.
+class BoundNumber extends BoundValue<num> {
+  /// Creates a [BoundNumber].
+  const BoundNumber({
+    super.key,
+    required super.dataContext,
+    required super.value,
+    required super.builder,
+  });
+
+  @override
+  State<BoundNumber> createState() => _BoundNumberState();
+}
+
+class _BoundNumberState extends BoundValueState<num, BoundNumber> {
+  @override
+  ValueNotifier<num?> createNotifier() {
+    final Object? value = widget.value;
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        final ValueNotifier<Object?> raw = widget.dataContext
+            .subscribe<Object?>(DataPath(value['path'] as String));
+        return _ToNumberNotifier(raw);
+      }
+      if (value.containsKey('call')) {
+        return _StreamToValueNotifier<num?>(
+          widget.dataContext.resolve(value).map((v) {
+            if (v is num) return v;
+            if (v is String) return num.tryParse(v);
+            return null;
+          }),
+        );
+      }
+    }
+    if (value is num) {
+      return ValueNotifier<num?>(value);
+    }
+    return ValueNotifier<num?>(null);
+  }
+}
+
+/// Binds to a [List] of objects.
+class BoundList extends BoundValue<List<Object?>> {
+  /// Creates a [BoundList].
+  const BoundList({
+    super.key,
+    required super.dataContext,
+    required super.value,
+    required super.builder,
+  });
+
+  @override
+  State<BoundList> createState() => _BoundListState();
+}
+
+class _BoundListState extends BoundValueState<List<Object?>, BoundList> {
+  @override
+  ValueNotifier<List<Object?>?> createNotifier() {
+    final Object? value = widget.value;
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        return widget.dataContext.subscribe<List<Object?>>(
+          DataPath(value['path'] as String),
+        );
+      }
+      if (value.containsKey('call')) {
+        return _StreamToValueNotifier<List<Object?>?>(
+          widget.dataContext.resolve(value).map((v) {
+            if (v is List) return v.cast<Object?>();
+            return null;
+          }),
+        );
+      }
+    }
+    if (value is List) {
+      return ValueNotifier<List<Object?>?>(value.cast<Object?>());
+    }
+    return ValueNotifier<List<Object?>?>(null);
+  }
+}
+
+/// Binds to any [Object] value.
+class BoundObject extends BoundValue<Object> {
+  /// Creates a [BoundObject].
+  const BoundObject({
+    super.key,
+    required super.dataContext,
+    required super.value,
+    required super.builder,
+  });
+
+  @override
+  State<BoundObject> createState() => _BoundObjectState();
+}
+
+class _BoundObjectState extends BoundValueState<Object, BoundObject> {
+  @override
+  ValueNotifier<Object?> createNotifier() {
+    final Object? value = widget.value;
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        return widget.dataContext.subscribe<Object?>(
+          DataPath(value['path'] as String),
+        );
+      }
+      if (value.containsKey('call')) {
+        return _StreamToValueNotifier<Object?>(
+          widget.dataContext.resolve(value),
+        );
+      }
+    }
+    return ValueNotifier<Object?>(value);
+  }
+}
+
+class _StreamToValueNotifier<T> extends ValueNotifier<T?> {
+  _StreamToValueNotifier(Stream<T?> stream, [T? initialValue])
+    : super(initialValue) {
+    _subscription = stream.listen(
+      (value) => this.value = value,
+      onError: (Object error) {
+        // We log the error but don't crash.
+        // ValueNotifier doesn't support error state.
+        genUiLogger.warning(
+          'Error in stream subscription for ValueNotifier',
+          error,
+        );
+      },
+    );
+  }
+
+  StreamSubscription<T?>? _subscription;
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }
 
@@ -106,6 +349,7 @@ class _ToStringNotifier extends ValueNotifier<String?> {
   @override
   void dispose() {
     _source.removeListener(_update);
+    _source.dispose();
     super.dispose();
   }
 }
@@ -134,6 +378,7 @@ class _ToBoolNotifier extends ValueNotifier<bool?> {
   @override
   void dispose() {
     _source.removeListener(_update);
+    _source.dispose();
     super.dispose();
   }
 }
@@ -158,28 +403,24 @@ class _ToNumberNotifier extends ValueNotifier<num?> {
   @override
   void dispose() {
     _source.removeListener(_update);
+    _source.dispose();
     super.dispose();
   }
 }
 
 /// Resolves a context map definition against a [DataContext].
 ///
-JsonMap resolveContext(DataContext dataContext, JsonMap? contextDefinition) {
+Future<JsonMap> resolveContext(
+  DataContext dataContext,
+  JsonMap? contextDefinition,
+) async {
   final resolved = <String, Object?>{};
   if (contextDefinition == null) return resolved;
-
-  final parser = ExpressionParser(dataContext);
 
   for (final MapEntry<String, Object?> entry in contextDefinition.entries) {
     final String key = entry.key;
     final Object? value = entry.value;
-    if (value is String) {
-      resolved[key] = parser.parse(value);
-    } else if (value is Map && value.containsKey('path')) {
-      resolved[key] = dataContext.getValue(value['path'] as String);
-    } else {
-      resolved[key] = value;
-    }
+    resolved[key] = await dataContext.resolve(value).first;
   }
   return resolved;
 }

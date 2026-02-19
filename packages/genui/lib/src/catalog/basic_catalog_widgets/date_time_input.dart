@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../functions/expression_parser.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
@@ -98,7 +97,6 @@ class _DateTimeInput extends StatefulWidget {
     required this.onChanged,
     this.label,
     this.checks,
-    this.parser,
   });
 
   final String id;
@@ -109,7 +107,6 @@ class _DateTimeInput extends StatefulWidget {
   final VoidCallback onChanged;
   final String? label;
   final List<JsonMap>? checks;
-  final ExpressionParser? parser;
 
   @override
   State<_DateTimeInput> createState() => _DateTimeInputState();
@@ -130,7 +127,7 @@ class _DateTimeInputState extends State<_DateTimeInput> {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value ||
         widget.checks != oldWidget.checks ||
-        widget.parser != oldWidget.parser) {
+        widget.dataContext != oldWidget.dataContext) {
       _setupValidation();
     }
   }
@@ -139,9 +136,7 @@ class _DateTimeInputState extends State<_DateTimeInput> {
     _validationSubscription?.cancel();
     _validationSubscription = null;
 
-    if (widget.checks == null ||
-        widget.checks!.isEmpty ||
-        widget.parser == null) {
+    if (widget.checks == null || widget.checks!.isEmpty) {
       if (_errorText != null && mounted) {
         setState(() => _errorText = null);
       }
@@ -149,9 +144,10 @@ class _DateTimeInputState extends State<_DateTimeInput> {
     }
 
     _validationSubscription =
-        ValidationHelper.validateStream(widget.checks, widget.parser).listen((
-          String? newError,
-        ) {
+        ValidationHelper.validateStream(
+          widget.checks,
+          widget.dataContext,
+        ).listen((String? newError) {
           if (newError != _errorText && mounted) {
             setState(() => _errorText = newError);
           }
@@ -217,7 +213,7 @@ class _DateTimeInputState extends State<_DateTimeInput> {
       formattedValue = finalDateTime.toIso8601String();
     }
 
-    widget.dataContext.update(widget.path, formattedValue);
+    widget.dataContext.update(DataPath(widget.path), formattedValue);
     widget.onChanged();
   }
 
@@ -307,16 +303,10 @@ final dateTimeInput = CatalogItem(
         ? valueRef['path'] as String
         : '${itemContext.id}.value';
 
-    final ValueNotifier<String?> valueNotifier = itemContext.dataContext
-        .subscribeToString({'path': path});
-    final ValueNotifier<String?> labelNotifier = itemContext.dataContext
-        .subscribeToString(dateTimeInputData.label);
-
-    final parser = ExpressionParser(itemContext.dataContext);
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: valueNotifier,
-      builder: (context, value, child) {
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: {'path': path},
+      builder: (context, value) {
         var effectiveValue = value;
         if (effectiveValue == null) {
           final Object val = dateTimeInputData.value;
@@ -325,9 +315,10 @@ final dateTimeInput = CatalogItem(
           }
         }
 
-        return ValueListenableBuilder<String?>(
-          valueListenable: labelNotifier,
-          builder: (context, label, child) {
+        return BoundString(
+          dataContext: itemContext.dataContext,
+          value: dateTimeInputData.label,
+          builder: (context, label) {
             return _DateTimeInput(
               id: itemContext.id,
               value: effectiveValue,
@@ -337,7 +328,6 @@ final dateTimeInput = CatalogItem(
               onChanged: () {},
               label: label,
               checks: dateTimeInputData.checks,
-              parser: parser,
             );
           },
         );

@@ -71,27 +71,20 @@ final travelCarousel = CatalogItem(
       itemContext.data as Map<String, Object?>,
     );
 
-    final ValueNotifier<String?> titleNotifier = itemContext.dataContext
-        .subscribeToString(carouselData.title);
-
-    final List<_TravelCarouselItemData> items = carouselData.items.map((item) {
-      final ValueNotifier<String?> descriptionNotifier = itemContext.dataContext
-          .subscribeToString(item.description);
-
-      return _TravelCarouselItemData(
-        descriptionNotifier: descriptionNotifier,
-        imageChild: itemContext.buildChild(item.imageChildId),
-        listingSelectionId: item.listingSelectionId,
-        action: item.action,
-      );
-    }).toList();
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: titleNotifier,
-      builder: (builderContext, title, _) {
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: carouselData.title,
+      builder: (builderContext, title) {
         return _TravelCarousel(
           title: title,
-          items: items,
+          items: carouselData.items.map((item) {
+            return _TravelCarouselItemData(
+              description: item.description,
+              imageChild: itemContext.buildChild(item.imageChildId),
+              listingSelectionId: item.listingSelectionId,
+              action: item.action,
+            );
+          }).toList(),
           widgetId: itemContext.id,
           dispatchEvent: itemContext.dispatchEvent,
           dataContext: itemContext.dataContext,
@@ -201,13 +194,13 @@ class _TravelCarousel extends StatelessWidget {
 }
 
 class _TravelCarouselItemData {
-  final ValueNotifier<String?> descriptionNotifier;
+  final Object description;
   final Widget imageChild;
   final String? listingSelectionId;
   final JsonMap action;
 
   _TravelCarouselItemData({
-    required this.descriptionNotifier,
+    required this.description,
     required this.imageChild,
     this.listingSelectionId,
     required this.action,
@@ -231,55 +224,60 @@ class _TravelCarouselItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 190,
-      child: InkWell(
-        onTap: () {
-          final event = data.action['event'] as JsonMap?;
-          final String name = event?['name'] as String? ?? 'unknown';
-          final contextDefinition = event?['context'] as JsonMap?;
-          final JsonMap resolvedContext = resolveContext(
-            dataContext,
-            contextDefinition,
-          );
-          resolvedContext['description'] = data.descriptionNotifier.value;
-          if (data.listingSelectionId != null) {
-            resolvedContext['listingSelectionId'] = data.listingSelectionId;
-          }
-          dispatchEvent(
-            UserActionEvent(
-              name: name,
-              sourceComponentId: widgetId,
-              context: resolvedContext,
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: SizedBox(height: 150, width: 190, child: data.imageChild),
-            ),
-            Container(
-              height: 90,
-              padding: const EdgeInsets.all(8.0),
-              alignment: Alignment.center,
-              child: ValueListenableBuilder<String?>(
-                valueListenable: data.descriptionNotifier,
-                builder: (context, description, child) {
-                  return Text(
+      child: BoundString(
+        dataContext: dataContext,
+        value: data.description,
+        builder: (context, description) {
+          return InkWell(
+            onTap: () async {
+              final event = data.action['event'] as JsonMap?;
+              final String name = event?['name'] as String? ?? 'unknown';
+              final contextDefinition = event?['context'] as JsonMap?;
+              final JsonMap resolvedContext = await resolveContext(
+                dataContext,
+                contextDefinition,
+              );
+              resolvedContext['description'] = description;
+              if (data.listingSelectionId != null) {
+                resolvedContext['listingSelectionId'] = data.listingSelectionId;
+              }
+              dispatchEvent(
+                UserActionEvent(
+                  name: name,
+                  sourceComponentId: widgetId,
+                  context: resolvedContext,
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: SizedBox(
+                    height: 150,
+                    width: 190,
+                    child: data.imageChild,
+                  ),
+                ),
+                Container(
+                  height: 90,
+                  padding: const EdgeInsets.all(8.0),
+                  alignment: Alignment.center,
+                  child: Text(
                     description ?? '',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium,
                     softWrap: true,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

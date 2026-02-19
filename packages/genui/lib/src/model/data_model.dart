@@ -7,34 +7,11 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rxdart/rxdart.dart';
 
-import '../functions/expression_parser.dart';
 import '../interfaces/client_function.dart' as cf;
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
-
-extension _ValueListenableStream<T> on ValueListenable<T> {
-  Stream<T> get asStream {
-    late StreamController<T> controller;
-    void listener() {
-      if (!controller.isClosed) {
-        controller.add(value);
-      }
-    }
-
-    controller = StreamController<T>(
-      onListen: () {
-        controller.add(value);
-        addListener(listener);
-      },
-      onCancel: () {
-        removeListener(listener);
-        controller.close();
-      },
-    );
-    return controller.stream;
-  }
-}
 
 /// Represents a path in the data model, either absolute or relative.
 @immutable
@@ -63,11 +40,13 @@ final class DataPath {
   static const DataPath root = DataPath._([], true);
 
   /// The last segment of the path.
-  String get basename => segments.last;
+  String get basename => segments.isEmpty ? '' : segments.last;
 
   /// The path without the last segment.
-  DataPath get dirname =>
-      DataPath._(segments.sublist(0, segments.length - 1), isAbsolute);
+  DataPath get dirname {
+    if (segments.isEmpty) return this;
+    return DataPath._(segments.sublist(0, segments.length - 1), isAbsolute);
+  }
 
   /// Joins this path with another path.
   DataPath join(DataPath other) {
@@ -115,10 +94,9 @@ class DataContext {
   /// Creates a [DataContext] for the given [path].
   DataContext(
     this._dataModel,
-    String path, {
+    this.path, {
     Iterable<cf.ClientFunction>? functions,
-  }) : path = DataPath(path),
-       _functions = {
+  }) : _functions = {
          if (functions != null)
            for (final f in functions) f.name: f,
        };
@@ -138,169 +116,199 @@ class DataContext {
   /// Retrieves a function by name from this context.
   cf.ClientFunction? getFunction(String name) => _functions[name];
 
-  /// Subscribes to a path or expression, resolving it against the current
-  /// context.
-  ///
-  /// If [pathOrExpression] contains `${`, it is treated as an expression.
-  /// Otherwise, it is treated as a path.
-  ValueNotifier<T?> subscribe<T>(Object? pathOrExpression) {
-    if (pathOrExpression is String && pathOrExpression.contains(r'${')) {
-      // Expressions require reactivity based on their dependencies.
-      // Since `ExpressionParser` doesn't currently return dependencies, we use
-      // a `_ComputedValueNotifier` that attempts to extract paths from the
-      // expression.
-      return createComputedNotifier<T>(pathOrExpression);
-    } else if (pathOrExpression is Map) {
-      // Map expressions (e.g. function calls)
-      return createComputedNotifier<T>(pathOrExpression);
-    } else if (pathOrExpression is String) {
-      final DataPath absolutePath = resolvePath(DataPath(pathOrExpression));
-      return _dataModel.subscribe<T>(absolutePath);
-    }
-    return ValueNotifier<T?>(pathOrExpression as T?);
+  /// Subscribes to a path, resolving it against the current context.
+  ValueNotifier<T?> subscribe<T>(DataPath path) {
+    final DataPath absolutePath = resolvePath(path);
+    return _dataModel.subscribe<T>(absolutePath);
   }
 
-  /// Subscribes to a path or expression and returns a [Stream].
-  Stream<T?> subscribeStream<T>(Object? pathOrExpression) {
-    return subscribe<T>(pathOrExpression).asStream;
+  /// Subscribes to a path and returns a [Stream].
+  Stream<T?> subscribeStream<T>(DataPath path) {
+    late StreamController<T?> controller;
+    ValueNotifier<T?>? notifier;
+
+    void listener() {
+      if (!controller.isClosed) {
+        controller.add(notifier!.value);
+      }
+    }
+
+    controller = StreamController<T?>(
+      onListen: () {
+        notifier = subscribe<T>(path);
+        controller.add(notifier!.value);
+        notifier!.addListener(listener);
+      },
+      onCancel: () {
+        notifier?.removeListener(listener);
+        notifier?.dispose();
+        notifier = null;
+        controller.close();
+      },
+    );
+    return controller.stream;
   }
 
-  /// Gets a value, resolving the path/expression against the current context.
-  T? getValue<T>(Object? pathOrExpression) {
-    if (pathOrExpression is String && pathOrExpression.contains(r'${')) {
-      final parser = ExpressionParser(this);
-      return parser.parse(pathOrExpression) as T?;
-    } else if (pathOrExpression is Map) {
-      final parser = ExpressionParser(this);
-      return parser.evaluate(pathOrExpression) as T?;
-    } else if (pathOrExpression is String) {
-      final DataPath absolutePath = resolvePath(DataPath(pathOrExpression));
-      return _dataModel.getValue<T>(absolutePath);
-    }
-    return pathOrExpression as T?;
-  }
+  /// Gets a value, resolving the path against the current context.
+  T? getValue<T>(DataPath path) => _dataModel.getValue<T>(resolvePath(path));
 
   /// Updates the data model, resolving the path against the current context.
-  void update(String pathStr, Object? contents) {
-    final DataPath absolutePath = resolvePath(DataPath(pathStr));
-    _dataModel.update(absolutePath, contents);
-  }
+  void update(DataPath path, Object? contents) =>
+      _dataModel.update(resolvePath(path), contents);
 
   /// Creates a new, nested DataContext for a child widget.
   ///
   /// Used by list/template widgets to create a context for their children.
-  DataContext nested(String relativePath) {
-    final DataPath newPath = resolvePath(DataPath(relativePath));
-    return DataContext._(_dataModel, newPath, _functions);
-  }
+  DataContext nested(DataPath relativePath) =>
+      DataContext._(_dataModel, resolvePath(relativePath), _functions);
 
   /// Resolves a path against the current context's path.
-  DataPath resolvePath(DataPath pathToResolve) {
-    if (pathToResolve.isAbsolute) {
-      return pathToResolve;
+  DataPath resolvePath(DataPath pathToResolve) =>
+      pathToResolve.isAbsolute ? pathToResolve : path.join(pathToResolve);
+
+  /// Resolves any dynamic values (bindings or function calls) in the given
+  /// value.
+  ///
+  /// String values are treated as literals (no interpolation).
+  /// Maps with a 'path' key are resolved to the value at that path.
+  /// Maps with a 'call' key are executed as functions.
+  Stream<Object?> resolve(Object? value) => _evaluateStream(value);
+
+  Stream<Object?> _evaluateStream(Object? value) {
+    if (value is Map) {
+      if (value.containsKey('path')) {
+        return subscribeStream(DataPath(value['path'] as String));
+      }
+      if (value.containsKey('call')) {
+        return _evaluateFunctionCall(value as JsonMap);
+      }
     }
-    return path.join(pathToResolve);
+    if (value is Stream) return value.cast<Object?>();
+    return Stream.value(value);
   }
 
-  /// Resolves any expressions in the given value.
-  Object? resolve(Object? value) {
-    if (value is String) {
-      return ExpressionParser(this).parse(value);
+  Stream<Object?> _evaluateFunctionCall(JsonMap callDefinition) {
+    final name = callDefinition['call'] as String?;
+    if (name == null) {
+      return Stream.value(null);
     }
-    if (value is Map && value.containsKey('call')) {
-      return ExpressionParser(this).evaluateFunctionCall(value as JsonMap);
+
+    final cf.ClientFunction? func = getFunction(name);
+    if (func == null) {
+      genUiLogger.warning('Function not found: $name');
+      return Stream.value(null);
     }
-    return value;
+
+    // Resolve arguments
+    final Map<String, Object?> args = {};
+    final Object? argsJson = callDefinition['args'];
+
+    if (argsJson is Map) {
+      for (final Object? key in argsJson.keys) {
+        final argName = key.toString();
+        final Object? val = argsJson[key];
+        args[argName] = _evaluateStream(val);
+      }
+    }
+
+    final List<String> keys = args.keys.toList();
+    final List<Stream<Object?>> streams = keys.map((key) {
+      return args[key]! as Stream<Object?>;
+    }).toList();
+
+    final Stream<List<Object?>> combinedStream = streams.isEmpty
+        ? Stream.value([])
+        : CombineLatestStream.list(streams);
+
+    return combinedStream.switchMap((List<Object?> values) {
+      final Map<String, Object?> combinedArgs = {};
+      for (var i = 0; i < keys.length; i++) {
+        combinedArgs[keys[i]] = values[i];
+      }
+      return func.execute(combinedArgs, this);
+    });
   }
 
-  ValueNotifier<T?> createComputedNotifier<T>(Object? expression) {
-    // Create a notifier that re-evaluates the expression when its dependencies
-    // change.
-    return _ComputedValueNotifier<T>(this, expression);
+  /// Evaluates a dynamic boolean condition and returns a [Stream<bool>].
+  Stream<bool> evaluateConditionStream(Object? condition) {
+    if (condition == null) return Stream.value(false);
+    if (condition is bool) return Stream.value(condition);
+
+    final Stream<Object?> resultStream = _evaluateStream(condition);
+    return resultStream.map((v) {
+      if (v is bool) return v;
+      return v != null;
+    });
   }
 }
 
-class _ComputedValueNotifier<T> extends ValueNotifier<T?> {
-  _ComputedValueNotifier(this.context, this.expression) : super(null) {
-    initialEvaluation();
-  }
+/// Exception thrown when a value in the [DataModel] is not of the expected
+/// type.
+class DataModelTypeException implements Exception {
+  /// Creates a [DataModelTypeException].
+  DataModelTypeException({
+    required this.path,
+    required this.expectedType,
+    required this.actualType,
+  });
 
-  final DataContext context;
-  final Object? expression;
-  final List<VoidCallback> unsubscribers = [];
+  /// The path where the type mismatch occurred.
+  final DataPath path;
 
-  void initialEvaluation() {
-    // Use ExpressionParser to robustly extract paths, including those in
-    // function calls and nested expressions.
-    final Set<DataPath> paths = ExpressionParser(
-      context,
-    ).extractDependenciesFrom(expression);
+  /// The expected type.
+  final Type expectedType;
 
-    for (final path in paths) {
-      final ValueNotifier<dynamic> notifier = context.subscribe(
-        path.toString(),
-      ); // Re-enter subscribe for raw paths
-      void listener() => evaluate();
-      notifier.addListener(listener);
-      unsubscribers.add(() => notifier.removeListener(listener));
-    }
-    evaluate();
-  }
-
-  StreamSubscription<Object?>? _streamSubscription;
-
-  void evaluate() {
-    final parser = ExpressionParser(context);
-    final Object? result = parser.evaluate(expression);
-
-    _streamSubscription?.cancel();
-    _streamSubscription = null;
-
-    if (result is Stream) {
-      _streamSubscription = result.listen(
-        (data) {
-          value = data as T?;
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          genUiLogger.warning(
-            'Error in computed value stream',
-            error,
-            stackTrace,
-          );
-          value = null;
-        },
-      );
-    } else {
-      value = result as T?;
-    }
-  }
+  /// The actual type found.
+  final Type actualType;
 
   @override
-  void dispose() {
-    _streamSubscription?.cancel();
-    for (final VoidCallback unsub in unsubscribers) {
-      unsub();
-    }
-    super.dispose();
+  String toString() {
+    return 'DataModelTypeException: Expected $expectedType at $path, '
+        'but found $actualType';
   }
 }
 
 /// Manages the application's data model and provides a subscription-based
 /// mechanism for reactive UI updates.
-interface class DataModel {
-  JsonMap _data = {};
-  final Map<DataPath, ValueNotifier<Object?>> _subscriptions = {};
-
-  final List<VoidCallback> _cleanupCallbacks = [];
-
-  /// The full contents of the data model.
-  JsonMap get data => _data;
-
+abstract interface class DataModel {
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
   ///
   /// If [absolutePath] is null or root, the entire data model is replaced
   /// (if contents is a Map).
+  void update(DataPath? absolutePath, Object? contents);
+
+  /// Subscribes to a specific absolute path in the data model.
+  ValueNotifier<T?> subscribe<T>(DataPath absolutePath);
+
+  /// Binds an external state [source] to a [path] in the DataModel.
+  ///
+  /// If [twoWay] is true, changes in the DataModel at [path] will also
+  /// update the [source] (assuming [source] is a [ValueNotifier]).
+  ///
+  /// Returns a function that disposes the binding.
+  void Function() bindExternalState<T>({
+    required DataPath path,
+    required ValueListenable<T> source,
+    bool twoWay = false,
+  });
+
+  /// Disposes resources and bindings.
+  void dispose();
+
+  /// Retrieves a static, one-time value from the data model at the
+  /// specified absolute path without creating a subscription.
+  T? getValue<T>(DataPath absolutePath);
+}
+
+/// Standard in-memory implementation of [DataModel].
+class InMemoryDataModel implements DataModel {
+  JsonMap _data = {};
+  final Map<DataPath, _RefCountedValueNotifier<Object?>> _subscriptions = {};
+
+  final List<VoidCallback> _cleanupCallbacks = [];
+
+  @override
   void update(DataPath? absolutePath, Object? contents) {
     genUiLogger.info(
       'DataModel.update: path=$absolutePath, contents='
@@ -328,27 +336,31 @@ interface class DataModel {
     _notifySubscribers(absolutePath);
   }
 
-  /// Subscribes to a specific absolute path in the data model.
+  @override
   ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
     genUiLogger.finer('DataModel.subscribe: path=$absolutePath');
-    final T? initialValue = getValue<T>(absolutePath);
     if (_subscriptions.containsKey(absolutePath)) {
-      final notifier = _subscriptions[absolutePath]! as ValueNotifier<T?>;
-
+      final notifier =
+          _subscriptions[absolutePath]! as _RefCountedValueNotifier<T?>;
+      notifier.incrementRef();
       return notifier;
     }
-    final notifier = ValueNotifier<T?>(initialValue);
+
+    final T? initialValue = getValue<T>(absolutePath);
+    final notifier = _RefCountedValueNotifier<T?>(
+      initialValue,
+      onDispose: () {
+        _subscriptions.remove(absolutePath);
+      },
+    );
     _subscriptions[absolutePath] = notifier;
     return notifier;
   }
 
   final List<VoidCallback> _externalSubscriptions = [];
 
-  /// Binds an external state [source] to a [path] in the DataModel.
-  ///
-  /// If [twoWay] is true, changes in the DataModel at [path] will also
-  /// update the [source] (assuming [source] is a [ValueNotifier]).
-  void bindExternalState<T>({
+  @override
+  void Function() bindExternalState<T>({
     required DataPath path,
     required ValueListenable<T> source,
     bool twoWay = false,
@@ -364,8 +376,10 @@ interface class DataModel {
     }
 
     source.addListener(onSourceChanged);
-    _externalSubscriptions.add(() => source.removeListener(onSourceChanged));
+    void removeSourceListener() => source.removeListener(onSourceChanged);
+    _externalSubscriptions.add(removeSourceListener);
 
+    VoidCallback? removeModelListener;
     if (twoWay) {
       if (source is! ValueNotifier<T>) {
         genUiLogger.warning(
@@ -384,14 +398,28 @@ interface class DataModel {
         }
 
         subscription.addListener(onModelChanged);
-        _externalSubscriptions.add(
-          () => subscription.removeListener(onModelChanged),
-        );
+        removeModelListener = () {
+          subscription.removeListener(onModelChanged);
+          // When we are done with the subscription, we should dispose it to
+          // decrement ref count.
+          subscription.dispose();
+        };
+        _externalSubscriptions.add(removeModelListener);
       }
     }
+
+    return () {
+      removeSourceListener();
+      _externalSubscriptions.remove(removeSourceListener);
+
+      if (removeModelListener != null) {
+        removeModelListener();
+        _externalSubscriptions.remove(removeModelListener);
+      }
+    };
   }
 
-  /// Disposes resources and bindings.
+  @override
   void dispose() {
     for (final VoidCallback callback in _cleanupCallbacks) {
       callback();
@@ -403,23 +431,36 @@ interface class DataModel {
     }
     _externalSubscriptions.clear();
 
-    for (final ValueNotifier<Object?> notifier in _subscriptions.values) {
+    // Create a copy of values to avoid concurrent modification if dispose
+    // modifies the map
+    for (final _RefCountedValueNotifier<Object?> notifier
+        in _subscriptions.values.toList()) {
       notifier.dispose();
     }
     _subscriptions.clear();
   }
 
-  /// Retrieves a static, one-time value from the data model at the
-  /// specified absolute path without creating a subscription.
+  @override
   T? getValue<T>(DataPath absolutePath) {
     if (absolutePath == DataPath.root) {
+      _checkType<T>(_data, absolutePath);
       return _data as T?;
     }
-    return _getValue(_data, absolutePath.segments) as T?;
+    final Object? value = _getValue(_data, absolutePath.segments);
+    _checkType<T>(value, absolutePath);
+    return value as T?;
   }
 
-  /// Retrieves a static, one-time value from the data model at the
-  /// specified path segments without creating a subscription.
+  void _checkType<T>(Object? value, DataPath path) {
+    if (value != null && value is! T) {
+      throw DataModelTypeException(
+        path: path,
+        expectedType: T,
+        actualType: value.runtimeType,
+      );
+    }
+  }
+
   Object? _getValue(Object? current, List<String> segments) {
     if (segments.isEmpty) {
       return current;
@@ -439,7 +480,6 @@ interface class DataModel {
     return null;
   }
 
-  /// Updates the given path with a new value without creating a subscription.
   void _updateValue(Object? current, List<String> segments, Object? value) {
     if (segments.isEmpty) {
       return;
@@ -508,6 +548,7 @@ interface class DataModel {
     var parent = path;
     while (!parent.isAbsolute || parent.segments.isNotEmpty) {
       if (parent == DataPath.root) break;
+      if (!parent.isAbsolute && parent.segments.isEmpty) break;
       parent = parent.dirname;
       if (_subscriptions.containsKey(parent)) {
         _subscriptions[parent]!.value = getValue(parent);
@@ -520,6 +561,26 @@ interface class DataModel {
       if (p.startsWith(path) && p != path) {
         _subscriptions[p]!.value = getValue(p);
       }
+    }
+  }
+}
+
+class _RefCountedValueNotifier<T> extends ValueNotifier<T> {
+  _RefCountedValueNotifier(super.value, {this.onDispose});
+
+  final VoidCallback? onDispose;
+  int _refCount = 1;
+
+  void incrementRef() {
+    _refCount++;
+  }
+
+  @override
+  void dispose() {
+    _refCount--;
+    if (_refCount <= 0) {
+      onDispose?.call();
+      super.dispose();
     }
   }
 }

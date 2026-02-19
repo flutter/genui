@@ -61,12 +61,10 @@ final text = CatalogItem(
   widgetBuilder: (itemContext) {
     final textData = _TextData.fromMap(itemContext.data as JsonMap);
 
-    final ValueNotifier<String?> notifier = itemContext.dataContext
-        .subscribeToString(textData.text);
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (context, currentValue, child) {
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: textData.text,
+      builder: (context, value) {
         final TextTheme textTheme = Theme.of(context).textTheme;
         final String variant = textData.variant ?? 'body';
         final TextStyle? baseStyle = switch (variant) {
@@ -90,7 +88,7 @@ final text = CatalogItem(
         return Padding(
           padding: EdgeInsets.symmetric(vertical: verticalPadding),
           child: MarkdownBody(
-            data: currentValue ?? '',
+            data: value ?? '',
             styleSheet: MarkdownStyleSheet.fromTheme(
               Theme.of(context),
             ).copyWith(p: baseStyle),

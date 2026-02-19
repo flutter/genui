@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
@@ -49,41 +50,40 @@ final checkBox = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final checkBoxData = _CheckBoxData.fromMap(itemContext.data as JsonMap);
-    final ValueNotifier<String?> labelNotifier = itemContext.dataContext
-        .subscribeToString(checkBoxData.label);
 
     final Object valueRef = checkBoxData.value;
     final path = (valueRef is Map && valueRef.containsKey('path'))
         ? valueRef['path'] as String
         : '${itemContext.id}.value';
 
-    final ValueNotifier<bool?> valueNotifier = itemContext.dataContext
-        .subscribeToBool({'path': path});
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: checkBoxData.label,
+      builder: (context, label) {
+        // Wrap the checkbox in validation
+        return StreamBuilder<bool>(
+          stream: itemContext.dataContext.evaluateConditionStream(
+            checksToExpression(checkBoxData.checks),
+          ),
+          initialData: true,
+          builder: (context, snapshot) {
+            final bool isValid = snapshot.data ?? true;
+            final bool isError = !isValid;
 
-    return ValueListenableBuilder<String?>(
-      valueListenable: labelNotifier,
-      builder: (context, label, child) {
-        return ValueListenableBuilder<bool?>(
-          valueListenable: valueNotifier,
-          builder: (context, value, child) {
-            final bool effectiveValue =
-                value ?? (valueRef is bool ? valueRef : false);
-
-            // Wrap the checkbox in validation
-            return ValueListenableBuilder<Object?>(
-              valueListenable: itemContext.dataContext.createComputedNotifier(
-                checksToExpression(checkBoxData.checks),
-              ),
-              builder: (context, isValid, _) {
-                final isError = isValid == false;
-
-                final Widget checkboxWidget = ListTileTheme.merge(
-                  child: CheckboxListTile(
+            return ListTileTheme.merge(
+              child: BoundBool(
+                dataContext: itemContext.dataContext,
+                value: {'path': path},
+                builder: (context, value) {
+                  return CheckboxListTile(
                     title: Text(label ?? ''),
-                    value: effectiveValue,
-                    onChanged: (newValue) {
+                    value: value ?? false,
+                    onChanged: (bool? newValue) {
                       if (newValue != null) {
-                        itemContext.dataContext.update(path, newValue);
+                        itemContext.dataContext.update(
+                          DataPath(path),
+                          newValue,
+                        );
                       }
                     },
                     subtitle: isError
@@ -96,11 +96,9 @@ final checkBox = CatalogItem(
                           )
                         : null,
                     isError: isError,
-                  ),
-                );
-
-                return checkboxWidget;
-              },
+                  );
+                },
+              ),
             );
           },
         );

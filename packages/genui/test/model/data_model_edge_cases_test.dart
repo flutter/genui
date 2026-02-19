@@ -11,7 +11,7 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
+      dataModel = InMemoryDataModel();
     });
 
     test('Implicit Structure: Creates nested maps by default', () {
@@ -51,14 +51,13 @@ void main() {
       expect((matrix?[0] as List<Object?>)[0], 1);
     });
 
-    test('Type Mismatch: Overwriting primitive with map fails silently '
-        'or clobbers?', () {
+    test('Type Mismatch: Overwriting primitive with map fails silently', () {
       // Setup: /a is a String
       dataModel.update(DataPath('/a'), 'hello');
 
       // Attempt to write /a/b (treating /a as map)
       // Implementation check: _updateValue checks "if (current is Map)".
-      // If current is String, it does nothing?
+      // If current is String, it does nothing.
       dataModel.update(DataPath('/a/b'), 'world');
 
       // Verify /a is still 'hello'

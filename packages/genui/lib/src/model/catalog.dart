@@ -134,6 +134,7 @@ interface class Catalog {
           getCatalogItem: (String type) =>
               items.firstWhereOrNull((item) => item.name == type),
           surfaceId: itemContext.surfaceId,
+          reportError: itemContext.reportError,
         ),
       ),
     );

@@ -7,7 +7,7 @@ have_fun: false
 code_review:
   disable: false
   # Set to -1 for unlimited comments.
-  max_review_comments: 6
+  max_review_comments: 20
   # For now, use the default of MEDIUM for testing. Based on desired verbosity,
   # we can change this to LOW or HIGH in the future.
   comment_severity_threshold: MEDIUM

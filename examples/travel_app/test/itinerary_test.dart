@@ -59,10 +59,11 @@ void main() {
                 buildChild: (data, [_]) => SizedBox(key: Key(data)),
                 dispatchEvent: mockDispatchEvent,
                 buildContext: context,
-                dataContext: DataContext(DataModel(), '/'),
+                dataContext: DataContext(InMemoryDataModel(), DataPath.root),
                 getComponent: (String componentId) =>
                     throw UnimplementedError(),
                 surfaceId: 'surface1',
+                reportError: (e, s) {},
               ),
             );
             return Scaffold(body: Center(child: itineraryWidget));

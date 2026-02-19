@@ -49,7 +49,11 @@ abstract class SynchronousClientFunction implements ClientFunction {
 
   @override
   Stream<Object?> execute(JsonMap args, DataContext context) {
-    return Stream.value(executeSync(args, context));
+    try {
+      return Stream.value(executeSync(args, context));
+    } catch (e, stack) {
+      return Stream.error(e, stack);
+    }
   }
 
   /// Executes the function synchronously.

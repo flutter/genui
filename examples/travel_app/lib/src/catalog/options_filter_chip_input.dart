@@ -109,12 +109,10 @@ final optionsFilterChipInput = CatalogItem(
         ? valueRef['path'] as String
         : '${context.id}.value';
     // Always subscribe to the path, even if we have a literal value.
-    final ValueNotifier<String?> notifier = context.dataContext
-        .subscribeToString({'path': path});
-
-    return ValueListenableBuilder<String?>(
-      valueListenable: notifier,
-      builder: (builderContext, currentValue, child) {
+    return BoundString(
+      dataContext: context.dataContext,
+      value: {'path': path},
+      builder: (builderContext, currentValue) {
         // If the data model is empty at the path, fall back to the literal
         // value provided in the component definition.
         final String? effectiveValue =
@@ -127,7 +125,7 @@ final optionsFilterChipInput = CatalogItem(
           value: effectiveValue,
           onChanged: (newValue) {
             if (newValue != null) {
-              context.dataContext.update(path, newValue);
+              context.dataContext.update(DataPath(path), newValue);
             }
           },
         );

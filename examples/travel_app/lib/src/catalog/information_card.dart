@@ -77,18 +77,12 @@ final informationCard = CatalogItem(
         ? context.buildChild(cardData.imageChildId!)
         : null;
 
-    final ValueNotifier<String?> titleNotifier = context.dataContext
-        .subscribeToString(cardData.title);
-    final ValueNotifier<String?> subtitleNotifier = context.dataContext
-        .subscribeToString(cardData.subtitle);
-    final ValueNotifier<String?> bodyNotifier = context.dataContext
-        .subscribeToString(cardData.body);
-
     return _InformationCard(
       imageChild: imageChild,
-      titleNotifier: titleNotifier,
-      subtitleNotifier: subtitleNotifier,
-      bodyNotifier: bodyNotifier,
+      title: cardData.title,
+      subtitle: cardData.subtitle,
+      body: cardData.body,
+      dataContext: context.dataContext,
     );
   },
 );
@@ -96,15 +90,17 @@ final informationCard = CatalogItem(
 class _InformationCard extends StatelessWidget {
   const _InformationCard({
     this.imageChild,
-    required this.titleNotifier,
-    required this.subtitleNotifier,
-    required this.bodyNotifier,
+    required this.title,
+    required this.subtitle,
+    required this.body,
+    required this.dataContext,
   });
 
   final Widget? imageChild;
-  final ValueNotifier<String?> titleNotifier;
-  final ValueNotifier<String?> subtitleNotifier;
-  final ValueNotifier<String?> bodyNotifier;
+  final Object title;
+  final Object? subtitle;
+  final Object body;
+  final DataContext dataContext;
 
   @override
   Widget build(BuildContext context) {
@@ -122,27 +118,31 @@ class _InformationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ValueListenableBuilder<String?>(
-                    valueListenable: titleNotifier,
-                    builder: (context, title, _) => Text(
+                  BoundString(
+                    dataContext: dataContext,
+                    value: title,
+                    builder: (context, title) => Text(
                       title ?? '',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
-                  ValueListenableBuilder<String?>(
-                    valueListenable: subtitleNotifier,
-                    builder: (context, subtitle, _) {
-                      if (subtitle == null) return const SizedBox.shrink();
-                      return Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      );
-                    },
-                  ),
+                  if (subtitle != null)
+                    BoundString(
+                      dataContext: dataContext,
+                      value: subtitle!,
+                      builder: (context, subtitle) {
+                        if (subtitle == null) return const SizedBox.shrink();
+                        return Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        );
+                      },
+                    ),
                   const SizedBox(height: 8.0),
-                  ValueListenableBuilder<String?>(
-                    valueListenable: bodyNotifier,
-                    builder: (context, body, _) =>
+                  BoundString(
+                    dataContext: dataContext,
+                    value: body,
+                    builder: (context, body) =>
                         MarkdownWidget(text: body ?? ''),
                   ),
                 ],

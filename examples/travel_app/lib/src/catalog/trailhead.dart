@@ -101,23 +101,20 @@ class _Trailhead extends StatelessWidget {
         spacing: 8.0,
         runSpacing: 8.0,
         children: topics.map((topicRef) {
-          final ValueNotifier<String?> notifier = dataContext.subscribeToString(
-            topicRef,
-          );
-
-          return ValueListenableBuilder<String?>(
-            valueListenable: notifier,
-            builder: (context, topic, child) {
+          return BoundString(
+            dataContext: dataContext,
+            value: topicRef,
+            builder: (context, topic) {
               if (topic == null) {
                 return const SizedBox.shrink();
               }
               return InputChip(
                 label: Text(topic),
-                onPressed: () {
+                onPressed: () async {
                   final event = action['event'] as JsonMap?;
                   final String name = event?['name'] as String? ?? 'unknown';
                   final contextDefinition = event?['context'] as JsonMap?;
-                  final JsonMap resolvedContext = resolveContext(
+                  final JsonMap resolvedContext = await resolveContext(
                     dataContext,
                     contextDefinition,
                   );

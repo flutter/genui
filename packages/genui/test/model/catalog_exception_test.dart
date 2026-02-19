@@ -25,10 +25,11 @@ void main() {
           buildChild: (id, [context]) => const SizedBox(),
           dispatchEvent: (event) {},
           buildContext: context,
-          dataContext: DataContext(DataModel(), '/'),
+          dataContext: DataContext(InMemoryDataModel(), DataPath.root),
           getComponent: (id) => null,
           getCatalogItem: (type) => null,
           surfaceId: 'test_surface',
+          reportError: (e, s) {},
         );
 
         expect(
@@ -65,10 +66,11 @@ void main() {
           buildChild: (id, [context]) => const SizedBox(),
           dispatchEvent: (event) {},
           buildContext: context,
-          dataContext: DataContext(DataModel(), '/'),
+          dataContext: DataContext(InMemoryDataModel(), DataPath.root),
           getComponent: (id) => null,
           getCatalogItem: (type) => null,
           surfaceId: 'test_surface',
+          reportError: (e, s) {},
         );
 
         expect(

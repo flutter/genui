@@ -5,14 +5,13 @@
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../../functions/expression_parser.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
+import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
-import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
@@ -103,12 +102,14 @@ final button = CatalogItem(
     };
 
     // Validate checks to determine if button is enabled
-    return ValueListenableBuilder<Object?>(
-      valueListenable: itemContext.dataContext.createComputedNotifier(
-        checksToExpression(buttonData.checks),
+    return StreamBuilder<String?>(
+      stream: ValidationHelper.validateStream(
+        buttonData.checks,
+        itemContext.dataContext,
       ),
-      builder: (context, isValid, _) {
-        final enabled = isValid != false; // Default to true if null (no checks)
+      builder: (context, snapshot) {
+        final isValid = snapshot.data == null;
+        final enabled = isValid;
 
         final Widget buttonWidget = borderless
             ? TextButton(
@@ -194,14 +195,17 @@ final button = CatalogItem(
   ],
 );
 
-void _handlePress(CatalogItemContext itemContext, _ButtonData buttonData) {
+Future<void> _handlePress(
+  CatalogItemContext itemContext,
+  _ButtonData buttonData,
+) async {
   final JsonMap actionData = buttonData.action;
   if (actionData.containsKey('event')) {
     final eventMap = actionData['event'] as JsonMap;
     final actionName = eventMap['name'] as String;
     final contextDefinition = eventMap['context'] as JsonMap?;
 
-    final JsonMap resolvedContext = resolveContext(
+    final JsonMap resolvedContext = await resolveContext(
       itemContext.dataContext,
       contextDefinition,
     );
@@ -217,12 +221,20 @@ void _handlePress(CatalogItemContext itemContext, _ButtonData buttonData) {
     final callName = funcMap['call'] as String;
 
     if (callName == 'closeModal') {
-      Navigator.of(itemContext.buildContext).pop();
+      if (itemContext.buildContext.mounted) {
+        Navigator.of(itemContext.buildContext).pop();
+      }
       return;
     }
 
-    final parser = ExpressionParser(itemContext.dataContext);
-    parser.evaluateFunctionCall(funcMap);
+    final Stream<Object?> resultStream = itemContext.dataContext.resolve(
+      funcMap,
+    );
+    try {
+      await resultStream.first;
+    } catch (e, stack) {
+      itemContext.reportError(e, stack);
+    }
   } else {
     genUiLogger.warning(
       'Button action missing event or functionCall: $actionData',

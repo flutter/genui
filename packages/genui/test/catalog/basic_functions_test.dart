@@ -15,8 +15,8 @@ void main() {
     late DataModel dataModel;
 
     setUp(() {
-      dataModel = DataModel();
-      context = DataContext(dataModel, '/');
+      dataModel = InMemoryDataModel();
+      context = DataContext(dataModel, DataPath.root);
     });
 
     Future<T> run<T>(ClientFunction func, Map<String, Object?> args) async {
@@ -70,12 +70,6 @@ void main() {
         2,
       );
       expect(await run<int>(func, {'value': null}), 0);
-    });
-
-    test('formatString', () async {
-      final FormatStringFunction func = BasicFunctions.formatStringFunction;
-      expect(await run<String>(func, {'value': 'Hello'}), 'Hello');
-      expect(await run<String>(func, {'value': 123}), '123');
     });
 
     test('and', () async {

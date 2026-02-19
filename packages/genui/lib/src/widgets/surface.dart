@@ -86,7 +86,7 @@ class _SurfaceState extends State<Surface> {
           rootId,
           DataContext(
             widget.surfaceContext.dataModel,
-            '/',
+            DataPath.root,
             functions: catalog.functions,
           ),
         );
@@ -135,6 +135,7 @@ class _SurfaceState extends State<Surface> {
           getCatalogItem: (String type) =>
               catalog.items.firstWhereOrNull((item) => item.name == type),
           surfaceId: widget.surfaceContext.surfaceId,
+          reportError: widget.surfaceContext.reportError,
         ),
       );
     } catch (exception, stackTrace) {

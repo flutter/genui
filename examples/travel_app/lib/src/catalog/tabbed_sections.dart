@@ -91,30 +91,34 @@ final tabbedSections = CatalogItem(
     final List<_TabSectionData> sections = tabbedSectionsData.sections.map((
       section,
     ) {
-      final ValueNotifier<String?> titleNotifier = context.dataContext
-          .subscribeToString(section.title);
-      return _TabSectionData(
-        titleNotifier: titleNotifier,
-        childId: section.childId,
-      );
+      return _TabSectionData(title: section.title, childId: section.childId);
     }).toList();
 
-    return _TabbedSections(sections: sections, buildChild: context.buildChild);
+    return _TabbedSections(
+      sections: sections,
+      buildChild: context.buildChild,
+      dataContext: context.dataContext,
+    );
   },
 );
 
 class _TabSectionData {
-  final ValueNotifier<String?> titleNotifier;
+  final Object title;
   final String childId;
 
-  _TabSectionData({required this.titleNotifier, required this.childId});
+  _TabSectionData({required this.title, required this.childId});
 }
 
 class _TabbedSections extends StatefulWidget {
-  const _TabbedSections({required this.sections, required this.buildChild});
+  const _TabbedSections({
+    required this.sections,
+    required this.buildChild,
+    required this.dataContext,
+  });
 
   final List<_TabSectionData> sections;
   final Widget Function(String id) buildChild;
+  final DataContext dataContext;
 
   @override
   State<_TabbedSections> createState() => _TabbedSectionsState();
@@ -150,9 +154,10 @@ class _TabbedSectionsState extends State<_TabbedSections>
           controller: _tabController,
           tabs: widget.sections.map((section) {
             return Tab(
-              child: ValueListenableBuilder<String?>(
-                valueListenable: section.titleNotifier,
-                builder: (context, title, child) {
+              child: BoundString(
+                dataContext: widget.dataContext,
+                value: section.title,
+                builder: (context, title) {
                   return Text(title ?? '');
                 },
               ),
