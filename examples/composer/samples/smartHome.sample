@@ -1,0 +1,8 @@
+---
+description: A smart home control panel.
+name: smartHome
+prompt: |
+  Create a smart home dashboard. It should have a 'Text' (variant 'h1') "Living Room". A 'Grid' of 'Card's. To create the grid, use a 'Column' that contains multiple 'Row's. Each 'Row' should contain 'Card's. Create a row with cards for "Lights" (CheckBox, label "Lights", value true) and "Thermostat" (Slider, label "Thermostat", value 72). Create another row with a card for "Music" (CheckBox, label "Music", value false). Ensure the CheckBox labels are exactly "Lights" and "Music".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["livingRoomTitle","gridColumn"]},{"id":"livingRoomTitle","component":"Text","text":"Living Room","variant":"h1"},{"id":"gridColumn","component":"Column","children":["firstRow","secondRow"]},{"id":"firstRow","component":"Row","children":["lightsCard","thermostatCard"],"justify":"spaceEvenly"},{"id":"lightsCard","component":"Card","child":"lightsCheckbox","weight":1},{"id":"lightsCheckbox","component":"CheckBox","label":"Lights","value":true},{"id":"thermostatCard","component":"Card","child":"thermostatSlider","weight":1},{"id":"thermostatSlider","component":"Slider","label":"Thermostat","min":60,"max":80,"value":72},{"id":"secondRow","component":"Row","children":["musicCard"],"justify":"spaceEvenly"},{"id":"musicCard","component":"Card","child":"musicCheckbox","weight":1},{"id":"musicCheckbox","component":"CheckBox","label":"Music","value":false}]}}
