@@ -1,0 +1,545 @@
+[
+  {
+    "id": "root",
+    "component": {
+      "Column": {
+        "children": {
+          "explicitList": [
+            "display",
+            "buttonRow1",
+            "buttonRow2",
+            "buttonRow3",
+            "buttonRow4"
+          ]
+        },
+        "alignment": "center"
+      }
+    }
+  },
+  {
+    "id": "display",
+    "component": {
+      "TextField": {
+        "label": {
+          "literalString": "Display"
+        },
+        "text": {
+          "path": "/form/display"
+        },
+        "textFieldType": "shortText"
+      }
+    }
+  },
+  {
+    "id": "buttonRow1",
+    "component": {
+      "Row": {
+        "children": {
+          "explicitList": [
+            "btn7",
+            "btn8",
+            "btn9",
+            "btnDivide"
+          ]
+        },
+        "distribution": "spaceAround"
+      }
+    }
+  },
+  {
+    "id": "buttonRow2",
+    "component": {
+      "Row": {
+        "children": {
+          "explicitList": [
+            "btn4",
+            "btn5",
+            "btn6",
+            "btnMultiply"
+          ]
+        },
+        "distribution": "spaceAround"
+      }
+    }
+  },
+  {
+    "id": "buttonRow3",
+    "component": {
+      "Row": {
+        "children": {
+          "explicitList": [
+            "btn1",
+            "btn2",
+            "btn3",
+            "btnSubtract"
+          ]
+        },
+        "distribution": "spaceAround"
+      }
+    }
+  },
+  {
+    "id": "buttonRow4",
+    "component": {
+      "Row": {
+        "children": {
+          "explicitList": [
+            "btn0",
+            "btnClear",
+            "btnEquals",
+            "btnAdd"
+          ]
+        },
+        "distribution": "spaceAround"
+      }
+    }
+  },
+  {
+    "id": "btn7Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "7"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn7",
+    "component": {
+      "Button": {
+        "child": "btn7Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "7"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn8Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "8"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn8",
+    "component": {
+      "Button": {
+        "child": "btn8Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "8"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn9Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "9"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn9",
+    "component": {
+      "Button": {
+        "child": "btn9Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "9"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btnDivideText",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "/"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnDivide",
+    "component": {
+      "Button": {
+        "child": "btnDivideText",
+        "action": {
+          "name": "setOperator",
+          "context": [
+            {
+              "key": "operator",
+              "value": {
+                "literalString": "/"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn4Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "4"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn4",
+    "component": {
+      "Button": {
+        "child": "btn4Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "4"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn5Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "5"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn5",
+    "component": {
+      "Button": {
+        "child": "btn5Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "5"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn6Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "6"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn6",
+    "component": {
+      "Button": {
+        "child": "btn6Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "6"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btnMultiplyText",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "*"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnMultiply",
+    "component": {
+      "Button": {
+        "child": "btnMultiplyText",
+        "action": {
+          "name": "setOperator",
+          "context": [
+            {
+              "key": "operator",
+              "value": {
+                "literalString": "*"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn1Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "1"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn1",
+    "component": {
+      "Button": {
+        "child": "btn1Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn2Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "2"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn2",
+    "component": {
+      "Button": {
+        "child": "btn2Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn3Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "3"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn3",
+    "component": {
+      "Button": {
+        "child": "btn3Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "3"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btnSubtractText",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "-"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnSubtract",
+    "component": {
+      "Button": {
+        "child": "btnSubtractText",
+        "action": {
+          "name": "setOperator",
+          "context": [
+            {
+              "key": "operator",
+              "value": {
+                "literalString": "-"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btn0Text",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "0"
+        }
+      }
+    }
+  },
+  {
+    "id": "btn0",
+    "component": {
+      "Button": {
+        "child": "btn0Text",
+        "action": {
+          "name": "appendDigit",
+          "context": [
+            {
+              "key": "digit",
+              "value": {
+                "literalString": "0"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "btnClearText",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "C"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnClear",
+    "component": {
+      "Button": {
+        "child": "btnClearText",
+        "action": {
+          "name": "clear"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnEqualsText",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "="
+        }
+      }
+    }
+  },
+  {
+    "id": "btnEquals",
+    "component": {
+      "Button": {
+        "child": "btnEqualsText",
+        "action": {
+          "name": "calculate"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnAddText",
+    "component": {
+      "Text": {
+        "text": {
+          "literalString": "+"
+        }
+      }
+    }
+  },
+  {
+    "id": "btnAdd",
+    "component": {
+      "Button": {
+        "child": "btnAddText",
+        "action": {
+          "name": "setOperator",
+          "context": [
+            {
+              "key": "operator",
+              "value": {
+                "literalString": "+"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+]

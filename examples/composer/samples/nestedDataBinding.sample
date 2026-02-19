@@ -1,0 +1,33 @@
+---
+description: A project dashboard with deeply nested data binding.
+name: nestedDataBinding
+prompt: |
+  Generate a stream of JSON messages for a Project Management Dashboard.
+      The output must consist of exactly three JSON objects, one after the other.
+  
+      Generate a createSurface message with surfaceId 'main'.
+      Generate an updateComponents message with surfaceId 'main'.
+      It should have a 'Text' (variant 'h1') "Project Dashboard".
+      Then a 'List' of projects bound to '/projects'.
+      Inside the list template, each item should be a 'Card' containing:
+      - A 'Text' (variant 'h2') bound to the project 'title'.
+      - A 'List' of tasks bound to the 'tasks' property of the project.
+      Inside the tasks list template, each item should be a 'Column' containing:
+      - A 'Text' bound to the task 'description'.
+      - A 'Row' for the assignee, containing:
+        - A 'Text' bound to 'assignee/name'.
+        - A 'Text' bound to 'assignee/role'.
+      - A 'List' of subtasks bound to 'subtasks'.
+      Inside the subtasks list template, each item should be a 'Text' bound to 'title'.
+  
+      Then generate an 'updateDataModel' message.
+      Populate this dashboard with sample data:
+      - At least one project.
+      - The project should have a title, and a list of tasks.
+      - The task should have a description, an assignee object (with name and role), and a list of subtasks.
+  
+      Ensure all referenced component IDs (like 'subtaskList') are explicitly defined in the 'components' list. The component with id 'subtaskList' must effectively exist in the output list.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["dashboardTitle","projectList"]},{"id":"dashboardTitle","component":"Text","variant":"h1","text":"Project Dashboard"},{"id":"projectList","component":"List","direction":"vertical","children":{"componentId":"projectCardTemplate","path":"/projects"}},{"id":"projectCardTemplate","component":"Card","child":"projectCardContent"},{"id":"projectCardContent","component":"Column","children":["projectTitle","taskList"]},{"id":"projectTitle","component":"Text","variant":"h2","text":{"path":"title"}},{"id":"taskList","component":"List","direction":"vertical","children":{"componentId":"taskItemTemplate","path":"tasks"}},{"id":"taskItemTemplate","component":"Column","children":["taskDescription","assigneeRow","subtaskList"]},{"id":"taskDescription","component":"Text","text":{"path":"description"}},{"id":"assigneeRow","component":"Row","children":["assigneeName","assigneeRole"]},{"id":"assigneeName","component":"Text","text":{"path":"assignee/name"}},{"id":"assigneeRole","component":"Text","text":{"path":"assignee/role"}},{"id":"subtaskList","component":"List","direction":"vertical","children":{"componentId":"subtaskItemTemplate","path":"subtasks"}},{"id":"subtaskItemTemplate","component":"Text","text":{"path":"title"}}]}}
+{"version":"v0.9","updateDataModel":{"surfaceId":"main","value":{"projects":[{"title":"Website Redesign","tasks":[{"description":"Design mockups for homepage","assignee":{"name":"Alice Smith","role":"UI Designer"},"subtasks":[{"title":"Gather requirements"},{"title":"Sketch wireframes"},{"title":"Create high-fidelity designs"}]},{"description":"Develop user authentication module","assignee":{"name":"Bob Johnson","role":"Backend Developer"},"subtasks":[{"title":"Set up database"},{"title":"Implement login API"},{"title":"Integrate with frontend"}]}]},{"title":"Mobile App Development","tasks":[{"description":"Plan app features","assignee":{"name":"Charlie Brown","role":"Product Manager"},"subtasks":[{"title":"Market research"},{"title":"User stories"}]}]}]}}}

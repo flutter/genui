@@ -12,6 +12,7 @@ environment:
 
 workspace:
   - examples/catalog_gallery
+  - examples/composer
   - examples/simple_chat
 
   - examples/travel_app

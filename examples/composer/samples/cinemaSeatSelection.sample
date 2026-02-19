@@ -1,0 +1,12 @@
+---
+description: A seat selection grid.
+name: cinemaSeatSelection
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for cinema seat selection. 'Text' (h1) "Select Seats". 'Text' "Screen" (centered). 'Column' of 'Row's representing rows of seats.
+      - Row A: 4 'CheckBox'es.
+      - Row B: 4 'CheckBox'es.
+      - Row C: 4 'CheckBox'es.
+      'Button' "Confirm Selection".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["titleText","screenText","seatRowA","seatRowB","seatRowC","confirmButton"],"align":"center"},{"id":"titleText","component":"Text","text":"Select Seats","variant":"h1"},{"id":"screenText","component":"Text","text":"Screen","align":"center"},{"id":"seatRowA","component":"Row","children":["seatA1","seatA2","seatA3","seatA4"],"justify":"center"},{"id":"seatA1","component":"CheckBox","label":"A1","value":false},{"id":"seatA2","component":"CheckBox","label":"A2","value":false},{"id":"seatA3","component":"CheckBox","label":"A3","value":false},{"id":"seatA4","component":"CheckBox","label":"A4","value":false},{"id":"seatRowB","component":"Row","children":["seatB1","seatB2","seatB3","seatB4"],"justify":"center"},{"id":"seatB1","component":"CheckBox","label":"B1","value":false},{"id":"seatB2","component":"CheckBox","label":"B2","value":false},{"id":"seatB3","component":"CheckBox","label":"B3","value":false},{"id":"seatB4","component":"CheckBox","label":"B4","value":false},{"id":"seatRowC","component":"Row","children":["seatC1","seatC2","seatC3","seatC4"],"justify":"center"},{"id":"seatC1","component":"CheckBox","label":"C1","value":false},{"id":"seatC2","component":"CheckBox","label":"C2","value":false},{"id":"seatC3","component":"CheckBox","label":"C3","value":false},{"id":"seatC4","component":"CheckBox","label":"C4","value":false},{"id":"confirmButton","component":"Button","child":"confirmButtonText","action":{"event":{"name":"confirmSelection"}}},{"id":"confirmButtonText","component":"Text","text":"Confirm Selection"}]}}

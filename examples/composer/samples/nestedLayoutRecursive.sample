@@ -1,0 +1,17 @@
+---
+description: A deeply nested layout to test component recursion.
+name: nestedLayoutRecursive
+prompt: |
+  Create a 'createSurface' and 'updateComponents' message with surfaceId 'main'.
+      Create a layout with at least 5 levels of depth:
+      Level 1: Card
+      Level 2: Column (inside Card)
+      Level 3: Row (inside Column)
+      Level 4: List (inside Row)
+      Level 5: Text (inside List items)
+  
+      Use explicit, static components for this structure (no data binding for the list).
+      Level 5 Text should say "Deep content".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Card","child":"column1"},{"id":"column1","component":"Column","children":["row1"]},{"id":"row1","component":"Row","children":["list1"]},{"id":"list1","component":"List","children":["text1"],"direction":"vertical"},{"id":"text1","component":"Text","text":"Deep content"}]}}

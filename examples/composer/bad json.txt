@@ -1,0 +1,409 @@
+{
+  "version": "v0.9",
+  "createSurface": {
+    "version": "v0.9",
+    "surfaceId": "calculator_surface_882",
+    "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+    "sendDataModel": true
+  }
+}
+
+{
+  "version": "v0.9",
+  "updateDataModel": {
+    "version": "v0.9",
+    "surfaceId": "calculator_surface_882",
+    "path": "/",
+    "value": {
+      "display": "0"
+    }
+  }
+}
+
+{
+  "version": "v0.9",
+  "updateComponents": {
+    "version": "v0.9",
+    "surfaceId": "calculator_surface_882",
+    "components": [
+      {
+        "id": "root",
+        "component": "Column",
+        "justify": "start",
+        "align": "center",
+        "children": [
+          "header",
+          "display_card",
+          "row1",
+          "row2",
+          "row3",
+          "row4"
+        ]
+      },
+      {
+        "id": "header",
+        "component": "Text",
+        "text": "Standard Calculator",
+        "variant": "h3"
+      },
+      {
+        "id": "display_card",
+        "component": "Card",
+        "child": "display_container"
+      },
+      {
+        "id": "display_container",
+        "component": "Column",
+        "align": "end",
+        "children": [
+          "display_text"
+        ]
+      },
+      {
+        "id": "display_text",
+        "component": "Text",
+        "text": {
+          "path": "/display"
+        },
+        "variant": "h2"
+      },
+      {
+        "id": "row1",
+        "component": "Row",
+        "justify": "center",
+        "children": [
+          "btn_7",
+          "btn_8",
+          "btn_9",
+          "btn_div"
+        ]
+      },
+      {
+        "id": "row2",
+        "component": "Row",
+        "justify": "center",
+        "children": [
+          "btn_4",
+          "btn_5",
+          "btn_6",
+          "btn_mult"
+        ]
+      },
+      {
+        "id": "row3",
+        "component": "Row",
+        "justify": "center",
+        "children": [
+          "btn_1",
+          "btn_2",
+          "btn_3",
+          "btn_sub"
+        ]
+      },
+      {
+        "id": "row4",
+        "component": "Row",
+        "justify": "center",
+        "children": [
+          "btn_clear",
+          "btn_0",
+          "btn_eq",
+          "btn_add"
+        ]
+      },
+      {
+        "id": "btn_7",
+        "component": "Button",
+        "child": "t_7",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "7"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_7",
+        "component": "Text",
+        "text": "7"
+      },
+      {
+        "id": "btn_8",
+        "component": "Button",
+        "child": "t_8",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "8"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_8",
+        "component": "Text",
+        "text": "8"
+      },
+      {
+        "id": "btn_9",
+        "component": "Button",
+        "child": "t_9",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "9"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_9",
+        "component": "Text",
+        "text": "9"
+      },
+      {
+        "id": "btn_div",
+        "component": "Button",
+        "child": "t_div",
+        "variant": "primary",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "/"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_div",
+        "component": "Text",
+        "text": "÷"
+      },
+      {
+        "id": "btn_4",
+        "component": "Button",
+        "child": "t_4",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "4"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_4",
+        "component": "Text",
+        "text": "4"
+      },
+      {
+        "id": "btn_5",
+        "component": "Button",
+        "child": "t_5",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "5"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_5",
+        "component": "Text",
+        "text": "5"
+      },
+      {
+        "id": "btn_6",
+        "component": "Button",
+        "child": "t_6",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "6"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_6",
+        "component": "Text",
+        "text": "6"
+      },
+      {
+        "id": "btn_mult",
+        "component": "Button",
+        "child": "t_mult",
+        "variant": "primary",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "*"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_mult",
+        "component": "Text",
+        "text": "×"
+      },
+      {
+        "id": "btn_1",
+        "component": "Button",
+        "child": "t_1",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "1"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_1",
+        "component": "Text",
+        "text": "1"
+      },
+      {
+        "id": "btn_2",
+        "component": "Button",
+        "child": "t_2",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "2"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_2",
+        "component": "Text",
+        "text": "2"
+      },
+      {
+        "id": "btn_3",
+        "component": "Button",
+        "child": "t_3",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "3"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_3",
+        "component": "Text",
+        "text": "3"
+      },
+      {
+        "id": "btn_sub",
+        "component": "Button",
+        "child": "t_sub",
+        "variant": "primary",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "-"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_sub",
+        "component": "Text",
+        "text": "−"
+      },
+      {
+        "id": "btn_clear",
+        "component": "Button",
+        "child": "t_c",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "C"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_c",
+        "component": "Text",
+        "text": "C"
+      },
+      {
+        "id": "btn_0",
+        "component": "Button",
+        "child": "t_0",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "0"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_0",
+        "component": "Text",
+        "text": "0"
+      },
+      {
+        "id": "btn_eq",
+        "component": "Button",
+        "child": "t_eq",
+        "variant": "primary",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "="
+            }
+          }
+        }
+      },
+      {
+        "id": "t_eq",
+        "component": "Text",
+        "text": "="
+      },
+      {
+        "id": "btn_add",
+        "component": "Button",
+        "child": "t_add",
+        "variant": "primary",
+        "action": {
+          "event": {
+            "name": "press",
+            "context": {
+              "key": "+"
+            }
+          }
+        }
+      },
+      {
+        "id": "t_add",
+        "component": "Text",
+        "text": "+"
+      }
+    ]
+  }
+}
