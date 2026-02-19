@@ -229,13 +229,70 @@ class _GallerySampleMeta {
   });
 }
 
-/// A gallery card that shows only the sample name and description.
-/// No live surface rendering — surfaces are created on-demand in the dialog.
-class _GalleryCard extends StatelessWidget {
+/// A gallery card that renders a live, sandboxed surface preview.
+///
+/// Each card creates its own [SurfaceController] on init, feeds the sample
+/// messages into it, and renders the resulting surface scaled down to fit the
+/// card. The preview is non-interactive (taps pass through to the card's
+/// InkWell) and fully clipped to prevent layout overflow.
+class _GalleryCard extends StatefulWidget {
   const _GalleryCard({required this.meta, required this.onTap});
 
   final _GallerySampleMeta meta;
   final VoidCallback onTap;
+
+  @override
+  State<_GalleryCard> createState() => _GalleryCardState();
+}
+
+class _GalleryCardState extends State<_GalleryCard> {
+  SurfaceController? _controller;
+  List<String> _surfaceIds = [];
+  bool _isLoading = true;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSurface();
+  }
+
+  Future<void> _loadSurface() async {
+    final catalog = BasicCatalogItems.asCatalog();
+    final controller = SurfaceController(catalogs: [catalog]);
+    final surfaceIds = <String>[];
+
+    final sub = controller.surfaceUpdates.listen((update) {
+      if (update is SurfaceAdded) {
+        surfaceIds.add(update.surfaceId);
+      }
+    });
+
+    try {
+      final sample = SampleParser.parseString(widget.meta.rawContent);
+      await sample.messages.listen(controller.handleMessage).asFuture<void>();
+    } catch (e) {
+      if (mounted) setState(() => _hasError = true);
+    }
+
+    await sub.cancel();
+
+    if (mounted) {
+      setState(() {
+        _controller = controller;
+        _surfaceIds = surfaceIds;
+        _isLoading = false;
+      });
+    } else {
+      controller.dispose();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -245,46 +302,92 @@ class _GalleryCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       elevation: 1,
       child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.widgets_outlined,
-                    size: 20,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      meta.name,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+        onTap: widget.onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Surface preview area
+            Expanded(child: _buildPreview(theme)),
+            // Name bar at bottom
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: theme.dividerColor)),
               ),
-              if (meta.description.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Text(
-                    meta.description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+              child: Tooltip(
+                message: widget.meta.description,
+                child: Text(
+                  widget.meta.name,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPreview(ThemeData theme) {
+    if (_isLoading) {
+      return Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: theme.colorScheme.onSurfaceVariant.withAlpha(100),
+          ),
+        ),
+      );
+    }
+
+    if (_hasError || _surfaceIds.isEmpty || _controller == null) {
+      return Center(
+        child: Icon(
+          Icons.widgets_outlined,
+          size: 32,
+          color: theme.colorScheme.onSurfaceVariant.withAlpha(60),
+        ),
+      );
+    }
+
+    // Render the surface at a large virtual width with unconstrained height
+    // (matching how the modal dialog renders surfaces). OverflowBox replaces
+    // the parent's tight constraints so the Surface lays out as if it had
+    // real screen space. Transform.scale shrinks the result visually, and
+    // ClipRect clips anything beyond the card bounds.
+    return ClipRect(
+      child: IgnorePointer(
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const virtualWidth = 500.0;
+              final scale = constraints.maxWidth / virtualWidth;
+
+              return Transform.scale(
+                scale: scale,
+                alignment: Alignment.topLeft,
+                child: OverflowBox(
+                  alignment: Alignment.topLeft,
+                  maxWidth: virtualWidth,
+                  minWidth: virtualWidth,
+                  maxHeight: double.infinity,
+                  minHeight: 0,
+                  child: Surface(
+                    key: ValueKey(_surfaceIds.first),
+                    surfaceContext: _controller!.contextFor(
+                      _surfaceIds.first,
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ],
-            ],
+              );
+            },
           ),
         ),
       ),

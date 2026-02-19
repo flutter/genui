@@ -12,4 +12,15 @@ class MainFlutterWindow: NSWindow {
 
     super.awakeFromNib()
   }
+
+  override func orderFront(_ sender: Any?) {
+    super.orderFront(sender)
+
+    // Set the window size after it's fully initialized.
+    // awakeFromNib is too early — Flutter resets the frame.
+    let width: CGFloat = 1400
+    let height: CGFloat = 900
+    self.setContentSize(NSSize(width: width, height: height))
+    self.center()
+  }
 }
