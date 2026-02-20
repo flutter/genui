@@ -9,9 +9,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../interfaces/client_function.dart' as cf;
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import 'client_function.dart' as cf;
 
 /// Represents a path in the data model, either absolute or relative.
 @immutable

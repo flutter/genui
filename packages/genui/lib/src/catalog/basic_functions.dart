@@ -7,7 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../functions/format_string.dart';
-import '../interfaces/client_function.dart';
+import '../model/client_function.dart';
 import '../model/data_model.dart';
 import '../primitives/simple_items.dart';
 

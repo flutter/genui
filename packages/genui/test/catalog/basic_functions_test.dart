@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/catalog/basic_functions.dart';
-import 'package:genui/src/interfaces/client_function.dart';
+import 'package:genui/src/model/client_function.dart';
 import 'package:genui/src/model/data_model.dart';
 
 void main() {

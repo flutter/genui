@@ -6,10 +6,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../interfaces/client_function.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
+import 'client_function.dart';
 import 'data_model.dart';
 
 /// Represents a collection of UI components that a generative AI model can use

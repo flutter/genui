@@ -6,7 +6,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../interfaces/client_function.dart' as cf;
+import '../model/client_function.dart' as cf;
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
