@@ -369,12 +369,9 @@ class InMemoryDataModel implements DataModel {
     }
     _externalSubscriptions.clear();
 
-    // Create a copy of values to avoid concurrent modification if dispose
-    // modifies the map
-    for (final _RefCountedValueNotifier<Object?> notifier
-        in _subscriptions.values.toList()) {
-      notifier.dispose();
-    }
+    // The DataModel does not own the refcounts of the returned notifiers.
+    // They are owned by the subscribers who called subscribe().
+    // We only need to clear our cache. Let the subscribers dispose them.
     _subscriptions.clear();
   }
 
@@ -508,6 +505,7 @@ class _RefCountedValueNotifier<T> extends ValueNotifier<T> {
 
   final VoidCallback? onDispose;
   int _refCount = 1;
+  bool _isDisposed = false;
 
   void incrementRef() {
     _refCount++;
@@ -515,8 +513,17 @@ class _RefCountedValueNotifier<T> extends ValueNotifier<T> {
 
   @override
   void dispose() {
+    if (_isDisposed) {
+      genUiLogger.warning(
+        'Attempt to dispose of already disposed notifier',
+        '_RefCountedValueNotifier.dispose Error',
+        StackTrace.current,
+      );
+      return;
+    }
     _refCount--;
     if (_refCount <= 0) {
+      _isDisposed = true;
       onDispose?.call();
       super.dispose();
     }

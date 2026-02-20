@@ -7,6 +7,8 @@ import 'dart:async';
 import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/data_model.dart';
+import 'package:genui/src/primitives/logging.dart';
+import 'package:logging/logging.dart';
 
 void main() {
   group('DataContext', () {
@@ -94,6 +96,44 @@ void main() {
         notifier.addListener(() => value = notifier.value);
         dataModel.update(DataPath('/a'), {'b': 2});
         expect(value, 2);
+      });
+    });
+
+    group('dispose', () {
+      test('does not forcibly dispose subscriptions', () {
+        final ValueNotifier<int?> notifier = dataModel.subscribe<int>(
+          DataPath('/a'),
+        );
+
+        // Trigger data model dispose
+        expect(() => dataModel.dispose(), returnsNormally);
+
+        // The UI widget would naturally call dispose later.
+        // If the model had forcefully disposed it, this would now log a
+        // warning.
+        expect(notifier.dispose, returnsNormally);
+      });
+
+      test('multiple dispose on subscription is safe and logs warning', () {
+        final ValueNotifier<int?> notifier = dataModel.subscribe<int>(
+          DataPath('/a'),
+        );
+
+        notifier.dispose();
+
+        final List<LogRecord> logRecords = [];
+        final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
+          logRecords.add,
+        );
+
+        // Disposing again should be a no-op & log a warning
+        expect(notifier.dispose, returnsNormally);
+
+        expect(logRecords, hasLength(1));
+        expect(logRecords.first.level, Level.WARNING);
+        expect(logRecords.first.message, contains('Attempt to dispose'));
+
+        sub.cancel();
       });
     });
 
