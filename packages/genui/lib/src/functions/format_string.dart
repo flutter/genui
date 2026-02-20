@@ -22,7 +22,7 @@ class FormatStringFunction implements cf.ClientFunction {
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Stream<String> execute(JsonMap args, DataContext context) {
+  Stream<String> execute(JsonMap args, cf.ExecutionContext context) {
     if (!args.containsKey('value')) return Stream.value('');
     final Object? value = args['value'];
 
@@ -46,7 +46,7 @@ class RecursionExpectedException implements Exception {
 class ExpressionParser {
   ExpressionParser(this.context);
 
-  final DataContext context;
+  final cf.ExecutionContext context;
 
   static const int _maxRecursionDepth = 100;
 

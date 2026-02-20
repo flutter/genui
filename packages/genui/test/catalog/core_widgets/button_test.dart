@@ -266,13 +266,14 @@ class MockFunction implements ClientFunction {
   @override
   final String name;
 
-  final Stream<Object?> Function(JsonMap args, DataContext context) onExecute;
+  final Stream<Object?> Function(JsonMap args, ExecutionContext context)
+  onExecute;
 
   @override
   Schema get argumentSchema => Schema.object();
 
   @override
-  Stream<Object?> execute(JsonMap args, DataContext context) {
+  Stream<Object?> execute(JsonMap args, ExecutionContext context) {
     return onExecute(args, context);
   }
 }

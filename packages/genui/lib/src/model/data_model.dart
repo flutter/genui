@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -13,84 +12,13 @@ import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'client_function.dart' as cf;
 
-/// Represents a path in the data model, either absolute or relative.
-@immutable
-final class DataPath {
-  /// Creates a [DataPath] from a string representation.
-  factory DataPath(String path) {
-    if (path == _separator) return root;
-    final List<String> segments = path
-        .split(_separator)
-        .where((s) => s.isNotEmpty)
-        .toList();
-    return DataPath._(segments, path.startsWith(_separator));
-  }
+import 'data_path.dart';
 
-  const DataPath._(this.segments, this.isAbsolute);
-
-  /// The segments of the path.
-  final List<String> segments;
-
-  /// Whether the path is absolute (starts with a separator).
-  final bool isAbsolute;
-
-  static const String _separator = '/';
-
-  /// The root path.
-  static const DataPath root = DataPath._([], true);
-
-  /// The last segment of the path.
-  String get basename => segments.isEmpty ? '' : segments.last;
-
-  /// The path without the last segment.
-  DataPath get dirname {
-    if (segments.isEmpty) return this;
-    return DataPath._(segments.sublist(0, segments.length - 1), isAbsolute);
-  }
-
-  /// Joins this path with another path.
-  DataPath join(DataPath other) {
-    if (other.isAbsolute) {
-      return other;
-    }
-    return DataPath._([...segments, ...other.segments], isAbsolute);
-  }
-
-  /// Returns whether this path starts with the other path.
-  bool startsWith(DataPath other) {
-    if (other.segments.length > segments.length) {
-      return false;
-    }
-    for (var i = 0; i < other.segments.length; i++) {
-      if (segments[i] != other.segments[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @override
-  String toString() {
-    final String path = segments.join(_separator);
-    return isAbsolute ? '$_separator$path' : path;
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DataPath &&
-          runtimeType == other.runtimeType &&
-          isAbsolute == other.isAbsolute &&
-          listEquals(segments, other.segments);
-
-  @override
-  int get hashCode =>
-      Object.hash(isAbsolute, const DeepCollectionEquality().hash(segments));
-}
+export 'data_path.dart';
 
 /// A contextual view of the main DataModel, used by widgets to resolve
 /// relative and absolute paths.
-class DataContext {
+class DataContext implements cf.ExecutionContext {
   /// Creates a [DataContext] for the given [path].
   DataContext(
     this._dataModel,
@@ -106,6 +34,7 @@ class DataContext {
   final DataModel _dataModel;
 
   /// The path associated with this context.
+  @override
   final DataPath path;
 
   final Map<String, cf.ClientFunction> _functions;
@@ -114,15 +43,18 @@ class DataContext {
   DataModel get dataModel => _dataModel;
 
   /// Retrieves a function by name from this context.
+  @override
   cf.ClientFunction? getFunction(String name) => _functions[name];
 
   /// Subscribes to a path, resolving it against the current context.
+  @override
   ValueNotifier<T?> subscribe<T>(DataPath path) {
     final DataPath absolutePath = resolvePath(path);
     return _dataModel.subscribe<T>(absolutePath);
   }
 
   /// Subscribes to a path and returns a [Stream].
+  @override
   Stream<T?> subscribeStream<T>(DataPath path) {
     late StreamController<T?> controller;
     ValueNotifier<T?>? notifier;
@@ -150,19 +82,23 @@ class DataContext {
   }
 
   /// Gets a value, resolving the path against the current context.
+  @override
   T? getValue<T>(DataPath path) => _dataModel.getValue<T>(resolvePath(path));
 
   /// Updates the data model, resolving the path against the current context.
+  @override
   void update(DataPath path, Object? contents) =>
       _dataModel.update(resolvePath(path), contents);
 
   /// Creates a new, nested DataContext for a child widget.
   ///
   /// Used by list/template widgets to create a context for their children.
+  @override
   DataContext nested(DataPath relativePath) =>
       DataContext._(_dataModel, resolvePath(relativePath), _functions);
 
   /// Resolves a path against the current context's path.
+  @override
   DataPath resolvePath(DataPath pathToResolve) =>
       pathToResolve.isAbsolute ? pathToResolve : path.join(pathToResolve);
 
@@ -172,6 +108,7 @@ class DataContext {
   /// String values are treated as literals (no interpolation).
   /// Maps with a 'path' key are resolved to the value at that path.
   /// Maps with a 'call' key are executed as functions.
+  @override
   Stream<Object?> resolve(Object? value) => _evaluateStream(value);
 
   Stream<Object?> _evaluateStream(Object? value) {
@@ -230,6 +167,7 @@ class DataContext {
   }
 
   /// Evaluates a dynamic boolean condition and returns a [Stream<bool>].
+  @override
   Stream<bool> evaluateConditionStream(Object? condition) {
     if (condition == null) return Stream.value(false);
     if (condition is bool) return Stream.value(condition);
