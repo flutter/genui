@@ -50,6 +50,9 @@ final class DataPath {
 
   /// Returns whether this path starts with the other path.
   bool startsWith(DataPath other) {
+    if (other.isAbsolute && !isAbsolute) {
+      return false;
+    }
     if (other.segments.length > segments.length) {
       return false;
     }

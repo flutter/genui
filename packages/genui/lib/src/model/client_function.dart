@@ -20,7 +20,7 @@ abstract interface class ExecutionContext {
   ClientFunction? getFunction(String name);
 
   /// Subscribes to a path, resolving it against the current context.
-  ValueNotifier<T?> subscribe<T>(DataPath path);
+  ValueListenable<T?> subscribe<T>(DataPath path);
 
   /// Subscribes to a path and returns a [Stream].
   Stream<T?> subscribeStream<T>(DataPath path);
