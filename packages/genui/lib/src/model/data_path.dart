@@ -42,6 +42,9 @@ final class DataPath {
 
   /// Joins this path with another path.
   DataPath join(DataPath other) {
+    if (isAbsolute && other.isAbsolute) {
+      throw ArgumentError('Cannot join two absolute paths: $this and $other');
+    }
     if (other.isAbsolute) {
       return other;
     }
