@@ -114,8 +114,8 @@ void main() {
       dataModel = InMemoryDataModel();
     });
 
-    test('update with null path replaces the model', () {
-      dataModel.update(null, {'a': 1});
+    test('update with root path replaces the model', () {
+      dataModel.update(DataPath.root, {'a': 1});
       expect(dataModel.getValue<int>(DataPath('/a')), 1);
     });
 
