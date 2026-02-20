@@ -7,8 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../functions/format_string.dart';
-import '../interfaces/client_function.dart';
-import '../model/data_model.dart';
+import '../model/client_function.dart';
 import '../primitives/simple_items.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -66,7 +65,7 @@ class AndFunction extends SynchronousClientFunction {
       S.object(properties: {'values': S.list(items: S.any())});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     if (!args.containsKey('values')) return false;
     final Object? values = args['values'];
     if (values is! List) return false;
@@ -89,7 +88,7 @@ class OrFunction extends SynchronousClientFunction {
       S.object(properties: {'values': S.list(items: S.any())});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     if (!args.containsKey('values')) return false;
     final Object? values = args['values'];
     if (values is! List) return false;
@@ -111,7 +110,7 @@ class NotFunction extends SynchronousClientFunction {
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     if (!args.containsKey('value')) return false;
     return !_isTruthy(args['value']);
   }
@@ -128,7 +127,7 @@ class RequiredFunction extends SynchronousClientFunction {
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     if (!args.containsKey('value')) return false;
     final Object? value = args['value'];
     if (value == null) return false;
@@ -151,7 +150,7 @@ class RegexFunction extends SynchronousClientFunction {
       S.object(properties: {'value': S.string(), 'pattern': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? value = args['value'];
     final Object? pattern = args['pattern'];
     if (value is! String || pattern is! String) return false;
@@ -176,7 +175,7 @@ class LengthFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? value = args['value'];
     var length = 0;
     if (value == null) {
@@ -220,7 +219,7 @@ class NumericFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? value = args['value'];
     if (value is! num) return false;
 
@@ -247,7 +246,7 @@ class EmailFunction extends SynchronousClientFunction {
   Schema get argumentSchema => S.object(properties: {'value': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? value = args['value'];
     if (value is! String) return false;
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+\$');
@@ -266,7 +265,7 @@ class OpenUrlFunction extends SynchronousClientFunction {
   Schema get argumentSchema => S.object(properties: {'url': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? urlStr = args['url'];
     if (urlStr is! String) return false;
     final Uri? uri = Uri.tryParse(urlStr);
@@ -297,7 +296,7 @@ class FormatNumberFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? number = args['value'];
     if (number is! num) return number?.toString() ?? '';
 
@@ -336,7 +335,7 @@ class FormatCurrencyFunction extends SynchronousClientFunction {
       S.object(properties: {'value': S.number(), 'currencyCode': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? amount = args['value'];
     final Object? currencyCode = args['currencyCode'];
     if (amount is! num || currencyCode is! String) {
@@ -364,7 +363,7 @@ class FormatDateFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? dateVal = args['value'];
     final Object? pattern = args['pattern'];
 
@@ -403,7 +402,7 @@ class PluralizeFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, DataContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext context) {
     final Object? count = args['count'];
     if (count is! num) return '';
 

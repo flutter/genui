@@ -6,7 +6,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../interfaces/client_function.dart' as cf;
+import '../model/client_function.dart' as cf;
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
@@ -22,7 +22,7 @@ class FormatStringFunction implements cf.ClientFunction {
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Stream<String> execute(JsonMap args, DataContext context) {
+  Stream<String> execute(JsonMap args, cf.ExecutionContext context) {
     if (!args.containsKey('value')) return Stream.value('');
     final Object? value = args['value'];
 
@@ -46,7 +46,7 @@ class RecursionExpectedException implements Exception {
 class ExpressionParser {
   ExpressionParser(this.context);
 
-  final DataContext context;
+  final cf.ExecutionContext context;
 
   static const int _maxRecursionDepth = 100;
 

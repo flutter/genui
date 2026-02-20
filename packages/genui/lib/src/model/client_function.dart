@@ -4,10 +4,46 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../model/data_model.dart';
 import '../primitives/simple_items.dart';
+import 'data_path.dart';
+
+/// An execution context for client functions, providing access to data and
+/// other functions.
+abstract interface class ExecutionContext {
+  /// The path associated with this context.
+  DataPath get path;
+
+  /// Retrieves a function by name from this context.
+  ClientFunction? getFunction(String name);
+
+  /// Subscribes to a path, resolving it against the current context.
+  ValueListenable<T?> subscribe<T>(DataPath path);
+
+  /// Subscribes to a path and returns a [Stream].
+  Stream<T?> subscribeStream<T>(DataPath path);
+
+  /// Gets a value, resolving the path against the current context.
+  T? getValue<T>(DataPath path);
+
+  /// Updates the data model, resolving the path against the current context.
+  void update(DataPath path, Object? contents);
+
+  /// Creates a new, nested ExecutionContext for a child widget.
+  ExecutionContext nested(DataPath relativePath);
+
+  /// Resolves a path against the current context's path.
+  DataPath resolvePath(DataPath pathToResolve);
+
+  /// Resolves any dynamic values (bindings or function calls) in the given
+  /// value.
+  Stream<Object?> resolve(Object? value);
+
+  /// Evaluates a dynamic boolean condition and returns a [Stream<bool>].
+  Stream<bool> evaluateConditionStream(Object? condition);
+}
 
 /// A function that can be invoked by the GenUI expression system.
 ///
@@ -38,7 +74,7 @@ abstract interface class ClientFunction {
   ///
   /// The [context] is provided to allow the function to resolve other paths
   /// or interact with the `DataModel` if necessary (e.g. `subscribeToValue`).
-  Stream<Object?> execute(JsonMap args, DataContext context);
+  Stream<Object?> execute(JsonMap args, ExecutionContext context);
 }
 
 /// A base class for synchronous client functions.
@@ -48,7 +84,7 @@ abstract class SynchronousClientFunction implements ClientFunction {
   const SynchronousClientFunction();
 
   @override
-  Stream<Object?> execute(JsonMap args, DataContext context) {
+  Stream<Object?> execute(JsonMap args, ExecutionContext context) {
     try {
       return Stream.value(executeSync(args, context));
     } catch (e, stack) {
@@ -57,5 +93,5 @@ abstract class SynchronousClientFunction implements ClientFunction {
   }
 
   /// Executes the function synchronously.
-  Object? executeSync(JsonMap args, DataContext context);
+  Object? executeSync(JsonMap args, ExecutionContext context);
 }

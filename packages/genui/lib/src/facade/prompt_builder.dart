@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../../genui.dart';
-
+import '../model/a2ui_message.dart';
+import '../model/basic_catalog_embed.dart';
+import '../model/catalog.dart';
 // TODO(polina-c): add allowed surface operations
 // TODO(polina-c): consider incorporating catalog rules to the catalog
 
