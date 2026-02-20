@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import '../../genui.dart' show SurfaceContext;
-
 import '../model/ui_models.dart';
 import 'surface_context.dart';
 
