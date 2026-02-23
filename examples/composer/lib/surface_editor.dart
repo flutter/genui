@@ -13,11 +13,10 @@ import 'package:highlight/languages/json.dart' as json_lang;
 
 import 'surface_utils.dart';
 
-const _kProtocolVersion = 'v0.9';
 const _kEditorSurfaceId = 'editor';
 const _kDebounceDuration = Duration(milliseconds: 400);
 
-/// A surface editor view that shows A2UI component JSON and data model
+/// A surface editor view that shows A2UI JSONL and data model
 /// on the left and a live rendered preview on the right.
 class SurfaceEditorView extends StatefulWidget {
   const SurfaceEditorView({
@@ -54,7 +53,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   String? _parseError;
   String? _dataError;
 
-  /// The current components JSON text for display/edit.
+  /// The current JSONL text for display/edit.
   late String _currentJson;
 
   /// The current data model JSON for display/edit.
@@ -68,7 +67,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     super.initState();
 
     _catalog = BasicCatalogItems.asCatalog();
-    _currentJson = _normalizeToComponentsJson(widget.initialJsonl);
+    _currentJson = _toJsonl(widget.initialJsonl, widget.initialDataJson);
     if (widget.initialDataJson != null &&
         widget.initialDataJson!.trim().isNotEmpty) {
       _currentDataJson = widget.initialDataJson!;
@@ -91,52 +90,30 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     _dataController.addListener(_onDataControllerChanged);
   }
 
-  /// Normalizes input JSON to the clean components-array format.
-  String _normalizeToComponentsJson(String input) {
+  /// Converts input to pretty-printed JSONL. If the input is already JSONL,
+  /// pretty-prints each line. If it's a components array, wraps it in
+  /// protocol envelopes.
+  static String _toJsonl(String input, String? dataJson) {
     final trimmed = input.trim();
 
-    // Try as a JSON array directly.
+    // If it's a components array, convert to full JSONL.
     if (trimmed.startsWith('[')) {
       try {
         final parsed = jsonDecode(trimmed);
         if (parsed is List) {
-          return const JsonEncoder.withIndent('  ').convert(parsed);
+          return componentsToJsonl(
+            trimmed,
+            dataJson: dataJson,
+            surfaceId: _kEditorSurfaceId,
+          );
         }
       } catch (_) {}
     }
 
-    // Try as JSONL — extract components from A2UI messages.
-    final Map<String, Map<String, dynamic>> componentMap = {};
+    // Already JSONL — pretty-print each line.
     final lines = const LineSplitter()
         .convert(trimmed)
         .where((line) => line.trim().isNotEmpty);
-
-    for (final line in lines) {
-      try {
-        final obj = jsonDecode(line.trim());
-        if (obj is Map<String, dynamic>) {
-          final updateComp = obj['updateComponents'];
-          if (updateComp is Map<String, dynamic>) {
-            mergeComponentsById(
-              updateComp['components'] as List? ?? [],
-              componentMap,
-            );
-          }
-          final components = obj['components'];
-          if (components is List) {
-            mergeComponentsById(components, componentMap);
-          }
-        }
-      } catch (_) {}
-    }
-
-    if (componentMap.isNotEmpty) {
-      return const JsonEncoder.withIndent(
-        '  ',
-      ).convert(componentMap.values.toList());
-    }
-
-    // Fallback: pretty-print each line as JSON.
     final formatted = <String>[];
     for (final line in lines) {
       try {
@@ -199,32 +176,14 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     try {
       final trimmed = json.trim();
 
-      // Try as a components array.
-      if (trimmed.startsWith('[')) {
-        try {
-          final parsed = jsonDecode(trimmed);
-          if (parsed is List) {
-            _applyComponentsArray(parsed);
+      // Split on blank lines to separate pretty-printed JSON messages.
+      final chunks = trimmed.split(RegExp(r'\n\s*\n'));
 
-            // Re-apply data model if we have one.
-            if (_currentDataJson.trim().isNotEmpty &&
-                _currentDataJson.trim() != '{}') {
-              _applyDataModel(_currentDataJson);
-            }
-            return;
-          }
-        } catch (_) {}
-      }
+      for (final chunk in chunks) {
+        final trimmedChunk = chunk.trim();
+        if (trimmedChunk.isEmpty || !trimmedChunk.startsWith('{')) continue;
 
-      // Fallback: try as JSONL (one JSON object per line).
-      final lines = const LineSplitter()
-          .convert(trimmed)
-          .where(
-            (line) => line.trim().isNotEmpty && line.trim().startsWith('{'),
-          );
-
-      for (final line in lines) {
-        final obj = jsonDecode(line.trim());
+        final obj = jsonDecode(trimmedChunk);
         if (obj is Map<String, dynamic>) {
           final message = A2uiMessage.fromJson(obj);
           _surfaceController.handleMessage(message);
@@ -235,125 +194,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       setState(() {
         _parseError = e.toString();
       });
-    }
-  }
-
-  void _applyComponentsArray(List<dynamic> components) {
-    final allIds = components
-        .whereType<Map<String, dynamic>>()
-        .map((c) => c['id'] as String?)
-        .whereType<String>()
-        .toSet();
-
-    // Find which IDs are referenced by other components by scanning all string
-    // values in every component. This is intentionally broad so it works with
-    // any child-reference property (child, children, tabItems, etc.) without
-    // hardcoding property names.
-    final referencedIds = <String>{};
-    for (final comp in components) {
-      if (comp is Map<String, dynamic>) {
-        _collectStringValues(comp, allIds, referencedIds);
-      }
-    }
-
-    final rootCandidates = allIds.difference(referencedIds);
-    final rootId = rootCandidates.isNotEmpty ? rootCandidates.first : 'root';
-
-    _surfaceController.handleMessage(
-      A2uiMessage.fromJson({
-        'version': _kProtocolVersion,
-        'createSurface': {
-          'surfaceId': _kEditorSurfaceId,
-          'catalogId': basicCatalogId,
-          'sendDataModel': true,
-        },
-      }),
-    );
-
-    _surfaceController.handleMessage(
-      A2uiMessage.fromJson({
-        'version': _kProtocolVersion,
-        'updateComponents': {
-          'surfaceId': _kEditorSurfaceId,
-          'root': rootId,
-          'components': components,
-        },
-      }),
-    );
-
-    // Auto-generate a default data model from path references in components.
-    final dataModel = _extractDataModelFromPaths(components);
-    if (dataModel.isNotEmpty) {
-      _surfaceController.handleMessage(
-        A2uiMessage.fromJson({
-          'version': _kProtocolVersion,
-          'updateDataModel': {
-            'surfaceId': _kEditorSurfaceId,
-            'path': '/',
-            'value': dataModel,
-          },
-        }),
-      );
-    }
-  }
-
-  /// Recursively walks [obj] and adds any string values that appear in
-  /// [knownIds] to [result]. Skips the component's own 'id' key.
-  void _collectStringValues(
-    Object? obj,
-    Set<String> knownIds,
-    Set<String> result, {
-    String? parentKey,
-  }) {
-    if (obj is Map<String, dynamic>) {
-      for (final entry in obj.entries) {
-        _collectStringValues(
-          entry.value,
-          knownIds,
-          result,
-          parentKey: entry.key,
-        );
-      }
-    } else if (obj is List) {
-      for (final item in obj) {
-        _collectStringValues(item, knownIds, result);
-      }
-    } else if (obj is String && parentKey != 'id' && knownIds.contains(obj)) {
-      result.add(obj);
-    }
-  }
-
-  /// Scans component definitions for `{"path": "..."}` data bindings and
-  /// builds a default data model with empty string values at those paths.
-  Map<String, dynamic> _extractDataModelFromPaths(List<dynamic> components) {
-    final Map<String, dynamic> model = {};
-
-    for (final comp in components) {
-      if (comp is Map<String, dynamic>) {
-        _findPathRefs(comp, model);
-      }
-    }
-
-    return model;
-  }
-
-  /// Recursively finds {"path": "/..."} references in a JSON structure
-  /// and sets default empty values at those paths in [model].
-  void _findPathRefs(Object? obj, Map<String, dynamic> model) {
-    if (obj is Map<String, dynamic>) {
-      // Check if this map IS a path reference (e.g. {"path": "/display"})
-      if (obj.length <= 2 && obj.containsKey('path') && obj['path'] is String) {
-        final String path = obj['path'] as String;
-        setNestedValue(model, path, '');
-      } else {
-        for (final value in obj.values) {
-          _findPathRefs(value, model);
-        }
-      }
-    } else if (obj is List) {
-      for (final item in obj) {
-        _findPathRefs(item, model);
-      }
     }
   }
 
@@ -371,7 +211,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         final surfaceId = _surfaceIds.first;
         _surfaceController.handleMessage(
           A2uiMessage.fromJson({
-            'version': _kProtocolVersion,
+            'version': kProtocolVersion,
             'updateDataModel': {
               'surfaceId': surfaceId,
               'path': '/',
@@ -451,16 +291,16 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         Expanded(
           child: Row(
             children: [
-              // Left pane: JSON editors (components + data)
+              // Left pane: JSON editors (JSONL + data)
               Expanded(
                 child: Column(
                   children: [
-                    // Components editor (upper)
+                    // JSONL editor (upper)
                     Expanded(
                       flex: 3,
                       child: _buildEditorSection(
                         theme: theme,
-                        label: 'Components',
+                        label: 'JSONL',
                         controller: _jsonController,
                         error: _parseError,
                       ),
@@ -547,7 +387,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     );
   }
 
-  /// Builds a reusable editor section (used for both components and data).
+  /// Builds a reusable editor section (used for both JSONL and data).
   Widget _buildEditorSection({
     required ThemeData theme,
     required String label,
