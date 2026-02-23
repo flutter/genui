@@ -17,6 +17,10 @@ NOTE: For Google-internal projects see go/flutter-genui-internal.
 
 To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
 
+## Detailed documentation for contributors
+
+See [docs/contributing.md](docs/contributing.md).
+
 ## Issue triage
 
 ### Daily front-line triage
