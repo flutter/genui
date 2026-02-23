@@ -1,6 +1,6 @@
 # GenUI specifications
 
-This folder (./specs) provides technical specifications for the GenUI repository,
+This folder provides guidance for contributors,
 targeted at both AI models and human developers.
 
 ## Index of Specifications
@@ -15,7 +15,7 @@ If you are an AI model, please read all the specifications in this folder, and f
 To signal, that you have read and understood the specifications, please start your reviews and responses with the following text:
 
 ```
-I have read and understood the specifications in ./specs.
+I have read and understood ./docs/contributing/README.md.
 ```
 
 ## Documentation
