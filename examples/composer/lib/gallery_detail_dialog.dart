@@ -111,30 +111,6 @@ class _GalleryDetailDialogState extends State<GalleryDetailDialog> {
               Expanded(
                 child: Row(
                   children: [
-                    // Left: Preview
-                    Expanded(
-                      child: Container(
-                        color: theme.colorScheme.surfaceContainerLowest,
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            children: [
-                              for (final surfaceId in widget.surfaceIds)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: Surface(
-                                    key: ValueKey(surfaceId),
-                                    surfaceContext: widget.controller
-                                        .contextFor(surfaceId),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const VerticalDivider(width: 1),
-                    // Right: JSON with syntax highlighting
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -158,7 +134,9 @@ class _GalleryDetailDialogState extends State<GalleryDetailDialog> {
                           ),
                           Expanded(
                             child: Container(
-                              color: theme.colorScheme.surfaceContainerLowest,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surfaceContainerLowest,
+                              ),
                               clipBehavior: Clip.antiAlias,
                               child: CodeTheme(
                                 data: CodeThemeData(styles: vsTheme),
@@ -176,6 +154,28 @@ class _GalleryDetailDialogState extends State<GalleryDetailDialog> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    const VerticalDivider(width: 5),
+                    Expanded(
+                      child: Container(
+                        color: theme.colorScheme.surfaceContainerLowest,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            children: [
+                              for (final surfaceId in widget.surfaceIds)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Surface(
+                                    key: ValueKey(surfaceId),
+                                    surfaceContext: widget.controller
+                                        .contextFor(surfaceId),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
