@@ -618,7 +618,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     required String? error,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
