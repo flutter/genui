@@ -80,7 +80,6 @@ class _GalleryDetailDialogState extends State<GalleryDetailDialog> {
           borderRadius: BorderRadius.circular(16),
           child: Column(
             children: [
-              // Header
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
