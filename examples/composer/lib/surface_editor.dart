@@ -11,6 +11,12 @@ import 'package:flutter_highlight/themes/vs.dart';
 import 'package:genui/genui.dart';
 import 'package:highlight/languages/json.dart' as json_lang;
 
+import 'surface_utils.dart';
+
+const _kProtocolVersion = 'v0.9';
+const _kEditorSurfaceId = 'editor';
+const _kDebounceDuration = Duration(milliseconds: 400);
+
 /// A surface editor view that shows A2UI component JSON and data model
 /// on the left and a live rendered preview on the right.
 class SurfaceEditorView extends StatefulWidget {
@@ -40,8 +46,11 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   late CodeController _jsonController;
   late CodeController _dataController;
   late SurfaceController _surfaceController;
+  late final Catalog _catalog;
   final List<String> _surfaceIds = [];
   StreamSubscription<SurfaceUpdate>? _surfaceSub;
+  Timer? _jsonDebounce;
+  Timer? _dataDebounce;
   String? _parseError;
   String? _dataError;
 
@@ -58,6 +67,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   void initState() {
     super.initState();
 
+    _catalog = BasicCatalogItems.asCatalog();
     _currentJson = _normalizeToComponentsJson(widget.initialJsonl);
     if (widget.initialDataJson != null &&
         widget.initialDataJson!.trim().isNotEmpty) {
@@ -72,8 +82,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       language: json_lang.json,
     );
 
-    final Catalog catalog = BasicCatalogItems.asCatalog();
-    _surfaceController = SurfaceController(catalogs: [catalog]);
+    _surfaceController = SurfaceController(catalogs: [_catalog]);
     _setupSurfaceListener();
     _applyJson(_currentJson);
 
@@ -86,6 +95,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   String _normalizeToComponentsJson(String input) {
     final trimmed = input.trim();
 
+    // Try as a JSON array directly.
     if (trimmed.startsWith('[')) {
       try {
         final parsed = jsonDecode(trimmed);
@@ -95,20 +105,26 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       } catch (_) {}
     }
 
+    // Try as JSONL — extract components from A2UI messages.
     final Map<String, Map<String, dynamic>> componentMap = {};
-    final objects = _extractJsonObjects(trimmed);
+    final lines = const LineSplitter()
+        .convert(trimmed)
+        .where((line) => line.trim().isNotEmpty);
 
-    for (final objStr in objects) {
+    for (final line in lines) {
       try {
-        final obj = jsonDecode(objStr);
+        final obj = jsonDecode(line.trim());
         if (obj is Map<String, dynamic>) {
           final updateComp = obj['updateComponents'];
           if (updateComp is Map<String, dynamic>) {
-            _mergeComponents(componentMap, updateComp['components']);
+            mergeComponentsById(
+              updateComp['components'] as List? ?? [],
+              componentMap,
+            );
           }
           final components = obj['components'];
           if (components is List) {
-            _mergeComponents(componentMap, components);
+            mergeComponentsById(components, componentMap);
           }
         }
       } catch (_) {}
@@ -121,9 +137,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     }
 
     // Fallback: pretty-print each line as JSON.
-    final lines = const LineSplitter()
-        .convert(input)
-        .where((line) => line.trim().isNotEmpty);
     final formatted = <String>[];
     for (final line in lines) {
       try {
@@ -134,18 +147,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       }
     }
     return formatted.join('\n\n');
-  }
-
-  void _mergeComponents(
-    Map<String, Map<String, dynamic>> map,
-    dynamic components,
-  ) {
-    if (components is! List) return;
-    for (final comp in components) {
-      if (comp is Map<String, dynamic> && comp['id'] != null) {
-        map[comp['id'] as String] = comp;
-      }
-    }
   }
 
   void _setupSurfaceListener() {
@@ -187,8 +188,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     _surfaceSub?.cancel();
     _surfaceController.dispose();
 
-    final Catalog catalog = BasicCatalogItems.asCatalog();
-    _surfaceController = SurfaceController(catalogs: [catalog]);
+    _surfaceController = SurfaceController(catalogs: [_catalog]);
     _surfaceIds.clear();
     _setupSurfaceListener();
 
@@ -199,13 +199,14 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     try {
       final trimmed = json.trim();
 
+      // Try as a components array.
       if (trimmed.startsWith('[')) {
         try {
           final parsed = jsonDecode(trimmed);
           if (parsed is List) {
             _applyComponentsArray(parsed);
 
-            // Re-apply data model if we have one
+            // Re-apply data model if we have one.
             if (_currentDataJson.trim().isNotEmpty &&
                 _currentDataJson.trim() != '{}') {
               _applyDataModel(_currentDataJson);
@@ -215,19 +216,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         } catch (_) {}
       }
 
-      final objects = _extractJsonObjects(trimmed);
-      if (objects.isNotEmpty) {
-        for (final objStr in objects) {
-          final obj = jsonDecode(objStr);
-          if (obj is Map<String, dynamic>) {
-            final message = A2uiMessage.fromJson(obj);
-            _surfaceController.handleMessage(message);
-          }
-        }
-        _refreshDataModelDisplay();
-        return;
-      }
-
+      // Fallback: try as JSONL (one JSON object per line).
       final lines = const LineSplitter()
           .convert(trimmed)
           .where(
@@ -256,30 +245,14 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         .whereType<String>()
         .toSet();
 
+    // Find which IDs are referenced by other components by scanning all string
+    // values in every component. This is intentionally broad so it works with
+    // any child-reference property (child, children, tabItems, etc.) without
+    // hardcoding property names.
     final referencedIds = <String>{};
     for (final comp in components) {
       if (comp is Map<String, dynamic>) {
-        final child = comp['child'];
-        if (child is String) referencedIds.add(child);
-        final children = comp['children'];
-        if (children is List) {
-          for (final c in children) {
-            if (c is String) referencedIds.add(c);
-          }
-        }
-        final tabItems = comp['tabItems'];
-        if (tabItems is List) {
-          for (final item in tabItems) {
-            if (item is Map<String, dynamic>) {
-              final itemChild = item['child'];
-              if (itemChild is String) referencedIds.add(itemChild);
-            }
-          }
-        }
-        final entryPointChild = comp['entryPointChild'];
-        if (entryPointChild is String) referencedIds.add(entryPointChild);
-        final contentChild = comp['contentChild'];
-        if (contentChild is String) referencedIds.add(contentChild);
+        _collectStringValues(comp, allIds, referencedIds);
       }
     }
 
@@ -288,11 +261,10 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
     _surfaceController.handleMessage(
       A2uiMessage.fromJson({
-        'version': 'v0.9',
+        'version': _kProtocolVersion,
         'createSurface': {
-          'surfaceId': 'editor',
-          'catalogId':
-              'https://a2ui.org/specification/v0_9/standard_catalog.json',
+          'surfaceId': _kEditorSurfaceId,
+          'catalogId': basicCatalogId,
           'sendDataModel': true,
         },
       }),
@@ -300,9 +272,9 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
     _surfaceController.handleMessage(
       A2uiMessage.fromJson({
-        'version': 'v0.9',
+        'version': _kProtocolVersion,
         'updateComponents': {
-          'surfaceId': 'editor',
+          'surfaceId': _kEditorSurfaceId,
           'root': rootId,
           'components': components,
         },
@@ -310,20 +282,44 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     );
 
     // Auto-generate a default data model from path references in components.
-    // Scan all component properties for {"path": "..."} bindings and create
-    // skeleton values so the Data pane shows the relevant state variables.
     final dataModel = _extractDataModelFromPaths(components);
     if (dataModel.isNotEmpty) {
       _surfaceController.handleMessage(
         A2uiMessage.fromJson({
-          'version': 'v0.9',
+          'version': _kProtocolVersion,
           'updateDataModel': {
-            'surfaceId': 'editor',
+            'surfaceId': _kEditorSurfaceId,
             'path': '/',
             'value': dataModel,
           },
         }),
       );
+    }
+  }
+
+  /// Recursively walks [obj] and adds any string values that appear in
+  /// [knownIds] to [result]. Skips the component's own 'id' key.
+  void _collectStringValues(
+    Object? obj,
+    Set<String> knownIds,
+    Set<String> result, {
+    String? parentKey,
+  }) {
+    if (obj is Map<String, dynamic>) {
+      for (final entry in obj.entries) {
+        _collectStringValues(
+          entry.value,
+          knownIds,
+          result,
+          parentKey: entry.key,
+        );
+      }
+    } else if (obj is List) {
+      for (final item in obj) {
+        _collectStringValues(item, knownIds, result);
+      }
+    } else if (obj is String && parentKey != 'id' && knownIds.contains(obj)) {
+      result.add(obj);
     }
   }
 
@@ -348,9 +344,8 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       // Check if this map IS a path reference (e.g. {"path": "/display"})
       if (obj.length <= 2 && obj.containsKey('path') && obj['path'] is String) {
         final String path = obj['path'] as String;
-        _setDefaultAtPath(model, path, '');
+        setNestedValue(model, path, '');
       } else {
-        // Recurse into all values
         for (final value in obj.values) {
           _findPathRefs(value, model);
         }
@@ -360,31 +355,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         _findPathRefs(item, model);
       }
     }
-  }
-
-  /// Sets a default value at a path in the data model if not already set.
-  /// Path format: "/segment1/segment2/..."
-  void _setDefaultAtPath(
-    Map<String, dynamic> model,
-    String path,
-    Object defaultValue,
-  ) {
-    final segments = path.split('/').where((s) => s.isNotEmpty).toList();
-    if (segments.isEmpty) return;
-
-    Map<String, dynamic> current = model;
-    for (int i = 0; i < segments.length - 1; i++) {
-      current.putIfAbsent(segments[i], () => <String, dynamic>{});
-      final next = current[segments[i]];
-      if (next is Map<String, dynamic>) {
-        current = next;
-      } else {
-        return; // Path conflict, skip
-      }
-    }
-
-    // Only set if not already present
-    current.putIfAbsent(segments.last, () => defaultValue);
   }
 
   /// Applies data model JSON to the current surface.
@@ -401,7 +371,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         final surfaceId = _surfaceIds.first;
         _surfaceController.handleMessage(
           A2uiMessage.fromJson({
-            'version': 'v0.9',
+            'version': _kProtocolVersion,
             'updateDataModel': {
               'surfaceId': surfaceId,
               'path': '/',
@@ -421,32 +391,12 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     }
   }
 
-  List<String> _extractJsonObjects(String text) {
-    final objects = <String>[];
-    int depth = 0;
-    int? start;
-
-    for (int i = 0; i < text.length; i++) {
-      final char = text[i];
-      if (char == '{') {
-        if (depth == 0) start = i;
-        depth++;
-      } else if (char == '}') {
-        depth--;
-        if (depth == 0 && start != null) {
-          objects.add(text.substring(start, i + 1));
-          start = null;
-        }
-      }
-    }
-    return objects;
-  }
-
   void _onJsonControllerChanged() {
     final text = _jsonController.text;
     if (text == _currentJson) return;
     _currentJson = text;
-    _applyJson(text);
+    _jsonDebounce?.cancel();
+    _jsonDebounce = Timer(_kDebounceDuration, () => _applyJson(text));
   }
 
   void _onDataControllerChanged() {
@@ -454,11 +404,14 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     final text = _dataController.text;
     if (text == _currentDataJson) return;
     _currentDataJson = text;
-    _applyDataModel(text);
+    _dataDebounce?.cancel();
+    _dataDebounce = Timer(_kDebounceDuration, () => _applyDataModel(text));
   }
 
   @override
   void dispose() {
+    _jsonDebounce?.cancel();
+    _dataDebounce?.cancel();
     _jsonController.removeListener(_onJsonControllerChanged);
     _dataController.removeListener(_onDataControllerChanged);
     _surfaceSub?.cancel();

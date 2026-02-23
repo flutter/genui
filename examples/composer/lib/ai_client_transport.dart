@@ -11,10 +11,6 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 
 /// A [Transport] that wraps an [AiClient] to communicate with an LLM.
-///
-/// This also exposes a [rawChunks] stream that provides the raw text chunks
-/// from the LLM before they are parsed into A2UI messages. This is used by
-/// the surface editor to display the raw JSONL.
 class AiClientTransport implements Transport {
   AiClientTransport({required this.aiClient});
 
@@ -22,17 +18,12 @@ class AiClientTransport implements Transport {
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
   final List<dartantic.ChatMessage> _history = [];
   final Logger _logger = Logger('AiClientTransport');
-  final StreamController<String> _rawChunks =
-      StreamController<String>.broadcast();
 
   @override
   Stream<A2uiMessage> get incomingMessages => _adapter.incomingMessages;
 
   @override
   Stream<String> get incomingText => _adapter.incomingText;
-
-  /// A stream of raw text chunks received from the LLM.
-  Stream<String> get rawChunks => _rawChunks.stream;
 
   @override
   Future<void> sendRequest(ChatMessage message) async {
@@ -59,7 +50,6 @@ class AiClientTransport implements Transport {
       await for (final chunk in stream) {
         if (chunk.isNotEmpty) {
           fullResponseBuffer.write(chunk);
-          _rawChunks.add(chunk);
           _adapter.addChunk(chunk);
         }
       }
@@ -74,7 +64,6 @@ class AiClientTransport implements Transport {
   @override
   void dispose() {
     _adapter.dispose();
-    _rawChunks.close();
   }
 
   /// Adds a system message to the history.

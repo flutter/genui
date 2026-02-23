@@ -12,6 +12,7 @@ import 'package:logging/logging.dart';
 
 import 'ai_client.dart';
 import 'ai_client_transport.dart';
+import 'surface_utils.dart';
 
 /// The Create tab. Shows a prompt input and, upon submission, generates a UI
 /// surface via AI and transitions to the surface editor.
@@ -106,37 +107,30 @@ class _CreateTabState extends State<CreateTab> {
       final message = ChatMessage.user(prompt);
       await conversation.sendRequest(message);
 
-      // Wait a moment for any remaining events to be processed
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      // Yield to the microtask queue so stream listeners finish processing.
+      await Future<void>.delayed(Duration.zero);
 
       await messageSub.cancel();
       await surfaceSub.cancel();
 
       if (surfaceId != null && parsedMessages.isNotEmpty) {
-        // Consolidate all UpdateComponents messages into a single
-        // components array, merging by component ID (later overrides earlier).
+        // Consolidate all UpdateComponents messages by component ID.
         final Map<String, Map<String, dynamic>> componentMap = {};
         for (final msg in parsedMessages) {
           if (msg is UpdateComponents) {
             final json = msg.toJson();
             final components = json['components'];
             if (components is List) {
-              for (final comp in components) {
-                if (comp is Map<String, dynamic> && comp['id'] != null) {
-                  componentMap[comp['id'] as String] = comp;
-                }
-              }
+              mergeComponentsById(components, componentMap);
             }
           }
         }
 
-        // Output just the final components array
-        final consolidatedComponents = componentMap.values.toList();
         final componentsJson = const JsonEncoder.withIndent(
           '  ',
-        ).convert(consolidatedComponents);
+        ).convert(componentMap.values.toList());
 
-        // Also extract and merge data model from UpdateDataModel messages
+        // Extract and merge data model from UpdateDataModel messages.
         Map<String, dynamic> dataModel = {};
         for (final msg in parsedMessages) {
           if (msg is UpdateDataModel) {
@@ -147,17 +141,7 @@ class _CreateTabState extends State<CreateTab> {
               if (path == null || path == '/' || path.isEmpty) {
                 dataModel = Map<String, dynamic>.from(value);
               } else {
-                // Set nested value at the specified path
-                final segments = path
-                    .split('/')
-                    .where((s) => s.isNotEmpty)
-                    .toList();
-                Map<String, dynamic> current = dataModel;
-                for (int i = 0; i < segments.length - 1; i++) {
-                  current.putIfAbsent(segments[i], () => <String, dynamic>{});
-                  current = current[segments[i]] as Map<String, dynamic>;
-                }
-                current[segments.last] = value;
+                setNestedValue(dataModel, path, value);
               }
             }
           }

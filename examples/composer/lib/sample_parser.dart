@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:file/file.dart';
 import 'package:genui/genui.dart';
 import 'package:yaml/yaml.dart';
 
@@ -25,11 +24,6 @@ class Sample {
 
 /// Parses `.sample` files with a YAML frontmatter header and a JSONL body.
 class SampleParser {
-  static Future<Sample> parseFile(File file) async {
-    final String content = await file.readAsString();
-    return parseString(content);
-  }
-
   static Sample parseString(String content) {
     final List<String> lines = const LineSplitter().convert(content);
     var startLine = 0;

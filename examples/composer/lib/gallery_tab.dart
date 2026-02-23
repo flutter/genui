@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -11,6 +11,7 @@ import 'package:logging/logging.dart';
 
 import 'gallery_detail_dialog.dart';
 import 'sample_parser.dart';
+import 'surface_utils.dart';
 
 /// The Gallery tab displays a grid of pre-generated sample surfaces.
 /// Cards show sample name and description. Clicking a card opens a dialog
@@ -18,8 +19,9 @@ import 'sample_parser.dart';
 class GalleryTab extends StatefulWidget {
   const GalleryTab({super.key, required this.onOpenInEditor});
 
-  /// Called with the JSONL when the user clicks "Open in Surface Editor".
-  final ValueChanged<String> onOpenInEditor;
+  /// Called with the JSONL (and optional data JSON) when the user clicks
+  /// "Open in Surface Editor".
+  final void Function(String jsonl, {String? dataJson}) onOpenInEditor;
 
   @override
   State<GalleryTab> createState() => _GalleryTabState();
@@ -95,32 +97,15 @@ class _GalleryTabState extends State<GalleryTab>
   /// Opens the detail dialog for a sample.
   /// Creates a SurfaceController on-demand and feeds messages to it.
   Future<void> _openSampleDetail(_GallerySampleMeta meta) async {
-    final Catalog catalog = BasicCatalogItems.asCatalog();
-    final controller = SurfaceController(catalogs: [catalog]);
-    final List<String> surfaceIds = [];
-
-    final sub = controller.surfaceUpdates.listen((update) {
-      if (update is SurfaceAdded) {
-        surfaceIds.add(update.surfaceId);
-      }
-    });
-
-    try {
-      final sample = SampleParser.parseString(meta.rawContent);
-      await sample.messages.listen(controller.handleMessage).asFuture<void>();
-    } catch (e) {
-      _logger.warning('Error parsing sample ${meta.name}: $e');
-    }
-
-    await sub.cancel();
+    final result = await loadSampleSurface(meta.rawContent);
 
     if (!mounted) {
-      controller.dispose();
+      result.controller.dispose();
       return;
     }
 
-    if (surfaceIds.isEmpty) {
-      controller.dispose();
+    if (result.surfaceIds.isEmpty) {
+      result.controller.dispose();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('No surfaces found in "${meta.name}"')),
@@ -134,16 +119,26 @@ class _GalleryTabState extends State<GalleryTab>
       builder: (context) => GalleryDetailDialog(
         name: meta.name,
         rawJsonl: meta.rawJsonl,
-        controller: controller,
-        surfaceIds: surfaceIds,
+        controller: result.controller,
+        surfaceIds: result.surfaceIds,
         onOpenInEditor: () {
+          // Extract data model from the controller before closing.
+          String? dataJson;
+          if (result.surfaceIds.isNotEmpty) {
+            final dm = result.controller.store
+                .getDataModel(result.surfaceIds.first);
+            if (dm.data.isNotEmpty) {
+              dataJson =
+                  const JsonEncoder.withIndent('  ').convert(dm.data);
+            }
+          }
           Navigator.of(context).pop();
-          widget.onOpenInEditor(meta.rawJsonl);
+          widget.onOpenInEditor(meta.rawJsonl, dataJson: dataJson);
         },
       ),
     );
 
-    controller.dispose();
+    result.controller.dispose();
   }
 
   @override
@@ -258,33 +253,19 @@ class _GalleryCardState extends State<_GalleryCard> {
   }
 
   Future<void> _loadSurface() async {
-    final catalog = BasicCatalogItems.asCatalog();
-    final controller = SurfaceController(catalogs: [catalog]);
-    final surfaceIds = <String>[];
-
-    final sub = controller.surfaceUpdates.listen((update) {
-      if (update is SurfaceAdded) {
-        surfaceIds.add(update.surfaceId);
-      }
-    });
-
     try {
-      final sample = SampleParser.parseString(widget.meta.rawContent);
-      await sample.messages.listen(controller.handleMessage).asFuture<void>();
+      final result = await loadSampleSurface(widget.meta.rawContent);
+      if (mounted) {
+        setState(() {
+          _controller = result.controller;
+          _surfaceIds = result.surfaceIds;
+          _isLoading = false;
+        });
+      } else {
+        result.controller.dispose();
+      }
     } catch (e) {
       if (mounted) setState(() => _hasError = true);
-    }
-
-    await sub.cancel();
-
-    if (mounted) {
-      setState(() {
-        _controller = controller;
-        _surfaceIds = surfaceIds;
-        _isLoading = false;
-      });
-    } else {
-      controller.dispose();
     }
   }
 

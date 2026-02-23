@@ -14,7 +14,6 @@ resolution: workspace
 
 dependencies:
   dartantic_ai: ^3.0.0
-  file: ^7.0.1
   flutter:
     sdk: flutter
   flutter_code_editor: ^0.3.5
@@ -32,4 +31,3 @@ flutter:
   uses-material-design: true
   assets:
     - samples/
-    - samples/manifest.txt

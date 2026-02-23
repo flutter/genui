@@ -76,6 +76,7 @@ class _ComposerShellState extends State<ComposerShell> {
   void _closeSurfaceEditor() {
     setState(() {
       _editorJsonl = null;
+      _editorDataJson = null;
     });
   }
 

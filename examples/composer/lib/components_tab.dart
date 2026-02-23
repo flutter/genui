@@ -9,13 +9,25 @@ import 'package:genui/genui.dart';
 
 /// The Components tab shows every component in the standard catalog using
 /// the built-in [DebugCatalogView].
-class ComponentsTab extends StatelessWidget {
+class ComponentsTab extends StatefulWidget {
   const ComponentsTab({super.key});
+
+  @override
+  State<ComponentsTab> createState() => _ComponentsTabState();
+}
+
+class _ComponentsTabState extends State<ComponentsTab> {
+  late final Catalog _catalog;
+
+  @override
+  void initState() {
+    super.initState();
+    _catalog = BasicCatalogItems.asCatalog();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final Catalog catalog = BasicCatalogItems.asCatalog();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,7 +39,7 @@ class ComponentsTab extends StatelessWidget {
         const SizedBox(height: 8),
         Expanded(
           child: DebugCatalogView(
-            catalog: catalog,
+            catalog: _catalog,
             onSubmit: (message) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
