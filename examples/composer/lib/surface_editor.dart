@@ -486,15 +486,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
               ),
               const SizedBox(width: 8),
               Text('Surface Editor', style: theme.textTheme.titleMedium),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: () {
-                  _applyJson(_currentJson);
-                  _applyDataModel(_currentDataJson);
-                },
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Re-render'),
-              ),
             ],
           ),
         ),
