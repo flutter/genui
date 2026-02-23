@@ -6,9 +6,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_code_editor/flutter_code_editor.dart';
+import 'package:flutter_highlight/themes/vs.dart';
 import 'package:genui/genui.dart';
-
-import 'json_highlighter.dart';
+import 'package:highlight/languages/json.dart' as json_lang;
 
 /// A surface editor view that shows A2UI component JSON and data model
 /// on the left and a live rendered preview on the right.
@@ -36,8 +37,8 @@ class SurfaceEditorView extends StatefulWidget {
 }
 
 class _SurfaceEditorViewState extends State<SurfaceEditorView> {
-  late TextEditingController _jsonController;
-  late TextEditingController _dataController;
+  late CodeController _jsonController;
+  late CodeController _dataController;
   late SurfaceController _surfaceController;
   final List<String> _surfaceIds = [];
   StreamSubscription<SurfaceUpdate>? _surfaceSub;
@@ -50,11 +51,8 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   /// The current data model JSON for display/edit.
   String _currentDataJson = '{}';
 
-  /// Whether the user is currently editing the components JSON.
-  bool _isEditingComponents = false;
-
-  /// Whether the user is currently editing the data model JSON.
-  bool _isEditingData = false;
+  /// Flag to suppress listener notifications during programmatic updates.
+  bool _isInternalUpdate = false;
 
   @override
   void initState() {
@@ -65,13 +63,23 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         widget.initialDataJson!.trim().isNotEmpty) {
       _currentDataJson = widget.initialDataJson!;
     }
-    _jsonController = TextEditingController(text: _currentJson);
-    _dataController = TextEditingController(text: _currentDataJson);
+    _jsonController = CodeController(
+      text: _currentJson,
+      language: json_lang.json,
+    );
+    _dataController = CodeController(
+      text: _currentDataJson,
+      language: json_lang.json,
+    );
 
     final Catalog catalog = BasicCatalogItems.asCatalog();
     _surfaceController = SurfaceController(catalogs: [catalog]);
     _setupSurfaceListener();
     _applyJson(_currentJson);
+
+    // Add listeners after initial setup to avoid spurious triggers.
+    _jsonController.addListener(_onJsonControllerChanged);
+    _dataController.addListener(_onDataControllerChanged);
   }
 
   /// Normalizes input JSON to the clean components-array format.
@@ -112,7 +120,20 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       ).convert(componentMap.values.toList());
     }
 
-    return JsonHighlighter.prettyPrintJsonl(input);
+    // Fallback: pretty-print each line as JSON.
+    final lines = const LineSplitter()
+        .convert(input)
+        .where((line) => line.trim().isNotEmpty);
+    final formatted = <String>[];
+    for (final line in lines) {
+      try {
+        final parsed = jsonDecode(line.trim());
+        formatted.add(const JsonEncoder.withIndent('  ').convert(parsed));
+      } catch (_) {
+        formatted.add(line);
+      }
+    }
+    return formatted.join('\n\n');
   }
 
   void _mergeComponents(
@@ -148,15 +169,17 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
   /// Refreshes the data model display from the current SurfaceController state.
   void _refreshDataModelDisplay() {
-    if (_surfaceIds.isEmpty || _isEditingData) return;
+    if (_surfaceIds.isEmpty) return;
 
     final surfaceId = _surfaceIds.first;
     final dataModel = _surfaceController.store.getDataModel(surfaceId);
     final dataJson = const JsonEncoder.withIndent('  ').convert(dataModel.data);
 
+    _isInternalUpdate = true;
+    _dataController.text = dataJson;
+    _isInternalUpdate = false;
     setState(() {
       _currentDataJson = dataJson;
-      _dataController.text = dataJson;
     });
   }
 
@@ -419,43 +442,25 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     return objects;
   }
 
-  void _onComponentsChanged(String value) {
-    setState(() {
-      _currentJson = value;
-    });
-    _applyJson(value);
+  void _onJsonControllerChanged() {
+    final text = _jsonController.text;
+    if (text == _currentJson) return;
+    _currentJson = text;
+    _applyJson(text);
   }
 
-  void _onDataChanged(String value) {
-    setState(() {
-      _currentDataJson = value;
-    });
-    _applyDataModel(value);
-  }
-
-  void _toggleEditingComponents() {
-    setState(() {
-      _isEditingComponents = !_isEditingComponents;
-      if (_isEditingComponents) {
-        _jsonController.text = _currentJson;
-      }
-    });
-  }
-
-  void _toggleEditingData() {
-    setState(() {
-      _isEditingData = !_isEditingData;
-      if (_isEditingData) {
-        _dataController.text = _currentDataJson;
-      } else {
-        // When exiting edit mode, re-apply the current text
-        _applyDataModel(_currentDataJson);
-      }
-    });
+  void _onDataControllerChanged() {
+    if (_isInternalUpdate) return;
+    final text = _dataController.text;
+    if (text == _currentDataJson) return;
+    _currentDataJson = text;
+    _applyDataModel(text);
   }
 
   @override
   void dispose() {
+    _jsonController.removeListener(_onJsonControllerChanged);
+    _dataController.removeListener(_onDataControllerChanged);
     _surfaceSub?.cancel();
     _surfaceController.dispose();
     _jsonController.dispose();
@@ -503,11 +508,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
                       child: _buildEditorSection(
                         theme: theme,
                         label: 'Components',
-                        content: _currentJson,
                         controller: _jsonController,
-                        isEditing: _isEditingComponents,
-                        onToggleEdit: _toggleEditingComponents,
-                        onChanged: _onComponentsChanged,
                         error: _parseError,
                       ),
                     ),
@@ -518,11 +519,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
                       child: _buildEditorSection(
                         theme: theme,
                         label: 'Data',
-                        content: _currentDataJson,
                         controller: _dataController,
-                        isEditing: _isEditingData,
-                        onToggleEdit: _toggleEditingData,
-                        onChanged: _onDataChanged,
                         error: _dataError,
                       ),
                     ),
@@ -601,11 +598,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   Widget _buildEditorSection({
     required ThemeData theme,
     required String label,
-    required String content,
-    required TextEditingController controller,
-    required bool isEditing,
-    required VoidCallback onToggleEdit,
-    required ValueChanged<String> onChanged,
+    required CodeController controller,
     required String? error,
   }) {
     return Column(
@@ -613,22 +606,11 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: Row(
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                icon: Icon(isEditing ? Icons.visibility : Icons.edit, size: 18),
-                onPressed: onToggleEdit,
-                tooltip: isEditing ? 'View highlighted' : 'Edit',
-                visualDensity: VisualDensity.compact,
-              ),
-            ],
+          child: Text(
+            label,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         Expanded(
@@ -640,29 +622,20 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
                 borderRadius: BorderRadius.circular(8),
                 color: theme.colorScheme.surfaceContainerLowest,
               ),
-              child: isEditing
-                  ? TextField(
-                      controller: controller,
-                      maxLines: null,
-                      expands: true,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 12,
-                      ),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(12),
-                      ),
-                      onChanged: onChanged,
-                    )
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.all(12),
-                      child: SelectionArea(
-                        child: Text.rich(
-                          JsonHighlighter.instance.highlight(content),
-                        ),
-                      ),
+              clipBehavior: Clip.antiAlias,
+              child: CodeTheme(
+                data: CodeThemeData(styles: vsTheme),
+                child: SingleChildScrollView(
+                  child: CodeField(
+                    controller: controller,
+                    gutterStyle: GutterStyle.none,
+                    textStyle: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
                     ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

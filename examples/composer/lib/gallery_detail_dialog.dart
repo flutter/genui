@@ -2,13 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/material.dart';
-import 'package:genui/genui.dart';
+import 'dart:convert';
 
-import 'json_highlighter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_code_editor/flutter_code_editor.dart';
+import 'package:flutter_highlight/themes/vs.dart';
+import 'package:genui/genui.dart';
+import 'package:highlight/languages/json.dart' as json_lang;
 
 /// A modal dialog showing a gallery surface preview and its backing A2UI JSON.
-class GalleryDetailDialog extends StatelessWidget {
+class GalleryDetailDialog extends StatefulWidget {
   const GalleryDetailDialog({
     super.key,
     required this.name,
@@ -25,10 +28,48 @@ class GalleryDetailDialog extends StatelessWidget {
   final VoidCallback onOpenInEditor;
 
   @override
+  State<GalleryDetailDialog> createState() => _GalleryDetailDialogState();
+}
+
+class _GalleryDetailDialogState extends State<GalleryDetailDialog> {
+  late final CodeController _codeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _codeController = CodeController(
+      text: _prettyPrintJsonl(widget.rawJsonl),
+      language: json_lang.json,
+      readOnly: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  static String _prettyPrintJsonl(String jsonl) {
+    final lines = const LineSplitter()
+        .convert(jsonl)
+        .where((line) => line.trim().isNotEmpty);
+    final formatted = <String>[];
+    for (final line in lines) {
+      try {
+        final parsed = jsonDecode(line.trim());
+        formatted.add(const JsonEncoder.withIndent('  ').convert(parsed));
+      } catch (_) {
+        formatted.add(line);
+      }
+    }
+    return formatted.join('\n\n');
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenSize = MediaQuery.of(context).size;
-    final formattedJson = JsonHighlighter.prettyPrintJsonl(rawJsonl);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -51,10 +92,10 @@ class GalleryDetailDialog extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(name, style: theme.textTheme.titleMedium),
+                    Text(widget.name, style: theme.textTheme.titleMedium),
                     const Spacer(),
                     FilledButton.icon(
-                      onPressed: onOpenInEditor,
+                      onPressed: widget.onOpenInEditor,
                       icon: const Icon(Icons.open_in_new, size: 16),
                       label: const Text('Open in Surface Editor'),
                     ),
@@ -78,14 +119,13 @@ class GalleryDetailDialog extends StatelessWidget {
                           padding: const EdgeInsets.all(24),
                           child: Column(
                             children: [
-                              for (final surfaceId in surfaceIds)
+                              for (final surfaceId in widget.surfaceIds)
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 16),
                                   child: Surface(
                                     key: ValueKey(surfaceId),
-                                    surfaceContext: controller.contextFor(
-                                      surfaceId,
-                                    ),
+                                    surfaceContext: widget.controller
+                                        .contextFor(surfaceId),
                                   ),
                                 ),
                             ],
@@ -97,7 +137,7 @@ class GalleryDetailDialog extends StatelessWidget {
                     // Right: JSON with syntax highlighting
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -109,26 +149,26 @@ class GalleryDetailDialog extends StatelessWidget {
                                 bottom: BorderSide(color: theme.dividerColor),
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'A2UI JSONL',
-                                  style: theme.textTheme.labelMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              'A2UI JSONL',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ),
                           Expanded(
                             child: Container(
                               color: theme.colorScheme.surfaceContainerLowest,
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(12),
-                                child: SelectionArea(
-                                  child: Text.rich(
-                                    JsonHighlighter.instance.highlight(
-                                      formattedJson,
+                              clipBehavior: Clip.antiAlias,
+                              child: CodeTheme(
+                                data: CodeThemeData(styles: vsTheme),
+                                child: SingleChildScrollView(
+                                  child: CodeField(
+                                    controller: _codeController,
+                                    gutterStyle: GutterStyle.none,
+                                    textStyle: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
