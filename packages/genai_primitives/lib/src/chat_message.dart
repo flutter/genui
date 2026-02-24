@@ -162,6 +162,26 @@ final class ChatMessage {
   /// Gets all tool results in this message.
   List<ToolPart> get toolResults => _parts.toolResults;
 
+  /// Concatenates this message with another message.
+  ///
+  /// This is a convenience method that is equivalent to the `+` operator.
+  ChatMessage concatenate(ChatMessage other) => this + other;
+
+  /// Concatenates two messages.
+  ///
+  /// If the roles are different, the second message's role is ignored.
+  ///
+  /// If the finish statuses are different, the second message's finish status
+  /// is ignored.
+  ///
+  /// If metadata keys are the same, the first message's metadata is used.
+  ChatMessage operator +(ChatMessage other) => ChatMessage(
+    role: role,
+    parts: [...parts, ...other.parts],
+    metadata: {...other.metadata, ...metadata},
+    finishStatus: finishStatus ?? other.finishStatus,
+  );
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
