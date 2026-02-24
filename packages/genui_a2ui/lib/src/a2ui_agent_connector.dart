@@ -206,8 +206,9 @@ class A2uiAgentConnector {
               if (part is DataPart) {
                 _processA2uiMessages(part.data);
               } else if (part is TextPart) {
-                if (!_textController.isClosed) {
-                  _textController.add(part.text);
+                final String trimmedText = part.text.trim();
+                if (trimmedText.isNotEmpty && !_textController.isClosed) {
+                  _textController.add(trimmedText);
                 }
               }
             }
@@ -241,8 +242,9 @@ class A2uiAgentConnector {
               if (part is DataPart) {
                 _processA2uiMessages(part.data);
               } else if (part is TextPart) {
-                if (!_textController.isClosed) {
-                  _textController.add(part.text);
+                final String trimmedText = part.text.trim();
+                if (trimmedText.isNotEmpty && !_textController.isClosed) {
+                  _textController.add(trimmedText);
                 }
               }
             }
