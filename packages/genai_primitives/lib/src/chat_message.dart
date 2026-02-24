@@ -169,10 +169,10 @@ final class ChatMessage {
 
   /// Concatenates two messages.
   ///
-  /// If the roles are different, the second message's role is ignored.
+  /// The role of the first message is used; the second message's role is ignored.
   ///
-  /// If the finish statuses are different, the second message's finish status
-  /// is ignored.
+  /// The finish status of the first message is used if it's not null;
+  /// otherwise, the second message's finish status is used.
   ///
   /// If metadata keys are the same, the first message's metadata is used.
   ChatMessage operator +(ChatMessage other) => ChatMessage(
