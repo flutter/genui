@@ -15,6 +15,7 @@ import 'widget_helpers.dart';
 const _verticalColumnSpacing = 8.0;
 
 final _schema = S.object(
+  description: 'A layout widget that arranges its children vertically.',
   properties: {
     'justify': S.string(
       description: 'How children are aligned on the main axis. ',

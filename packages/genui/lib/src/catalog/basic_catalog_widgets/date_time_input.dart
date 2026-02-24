@@ -15,6 +15,7 @@ import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'A widget for selecting a date and/or time.',
   properties: {
     'value': A2uiSchemas.stringReference(
       description: 'The selected date and/or time.',

@@ -9,6 +9,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 
 final _schema = S.object(
+  description: 'A video player.',
   properties: {
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the video to play.',

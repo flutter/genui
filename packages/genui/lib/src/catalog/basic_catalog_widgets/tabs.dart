@@ -12,6 +12,7 @@ import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'A tab layout to navigate between different child components.',
   properties: {
     'tabs': S.list(
       items: S.object(

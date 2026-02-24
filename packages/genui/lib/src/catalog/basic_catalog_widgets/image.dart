@@ -39,7 +39,11 @@ Schema _schema() {
       'header',
     ],
   );
-  return S.object(properties: properties);
+  return S.object(
+    description:
+        'A UI element for displaying image data from a URL or asset path.',
+    properties: properties,
+  );
 }
 
 extension type _ImageData.fromMap(JsonMap _json) {

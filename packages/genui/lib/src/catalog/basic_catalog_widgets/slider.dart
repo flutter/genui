@@ -13,6 +13,7 @@ import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: 'A slider for selecting a value from a range.',
   properties: {
     'value': A2uiSchemas.numberReference(),
     'min': S.number(description: 'The minimum value. Defaults to 0.0.'),
