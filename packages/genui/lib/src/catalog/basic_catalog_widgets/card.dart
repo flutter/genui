@@ -10,11 +10,8 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
-  properties: {
-    'component': S.string(enumValues: ['Card']),
-    'child': A2uiSchemas.componentReference(),
-  },
-  required: ['component', 'child'],
+  properties: {'child': A2uiSchemas.componentReference()},
+  required: ['child'],
 );
 
 extension type _CardData.fromMap(JsonMap _json) {

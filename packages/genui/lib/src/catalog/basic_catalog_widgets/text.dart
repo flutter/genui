@@ -34,7 +34,6 @@ final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
     properties: {
-      'component': S.string(enumValues: ['Text']),
       'text': A2uiSchemas.stringReference(
         description:
             '''While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.''',
@@ -44,7 +43,7 @@ final text = CatalogItem(
         enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
       ),
     },
-    required: ['component', 'text'],
+    required: ['text'],
   ),
   exampleData: [
     () => '''

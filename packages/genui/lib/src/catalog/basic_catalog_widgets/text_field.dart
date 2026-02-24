@@ -18,7 +18,6 @@ import '../../widgets/widget_utilities.dart';
 final _schema = S.object(
   description: 'A text input field.',
   properties: {
-    'component': S.string(enumValues: ['TextField']),
     'value': A2uiSchemas.stringReference(
       description: 'The value of the text field.',
     ),

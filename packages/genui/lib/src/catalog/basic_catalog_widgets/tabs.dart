@@ -13,7 +13,6 @@ import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Tabs']),
     'tabs': S.list(
       items: S.object(
         properties: {
@@ -32,7 +31,7 @@ final _schema = S.object(
       description: 'The index of the currently active tab.',
     ),
   },
-  required: ['component', 'tabs'],
+  required: ['tabs'],
 );
 
 extension type _TabsData.fromMap(JsonMap _json) {

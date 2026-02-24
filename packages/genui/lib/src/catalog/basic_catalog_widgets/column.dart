@@ -16,7 +16,6 @@ const _verticalColumnSpacing = 8.0;
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Column']),
     'justify': S.string(
       description: 'How children are aligned on the main axis. ',
       enumValues: [
@@ -39,7 +38,7 @@ final _schema = S.object(
           'template with a data binding to the list of children.',
     ),
   },
-  required: ['component', 'children'],
+  required: ['children'],
 );
 
 extension type _ColumnData.fromMap(JsonMap _json) {

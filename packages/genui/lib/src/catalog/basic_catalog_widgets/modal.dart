@@ -15,7 +15,6 @@ import '../../widgets/surface.dart' show Surface;
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Modal']),
     'trigger': A2uiSchemas.componentReference(
       description: 'The widget that opens the modal.',
     ),
@@ -23,7 +22,7 @@ final _schema = S.object(
       description: 'The widget to display in the modal.',
     ),
   },
-  required: ['component', 'trigger', 'content'],
+  required: ['trigger', 'content'],
 );
 
 extension type _ModalData.fromMap(JsonMap _json) {

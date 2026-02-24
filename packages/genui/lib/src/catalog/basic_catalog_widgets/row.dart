@@ -16,7 +16,6 @@ const _horizontalRowSpacing = 16.0;
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Row']),
     'children': A2uiSchemas.componentArrayReference(
       description:
           'Either an explicit list of widget IDs for the children, or a '
@@ -35,7 +34,7 @@ final _schema = S.object(
     ),
     'align': S.string(enumValues: ['start', 'center', 'end', 'stretch']),
   },
-  required: ['component', 'children'],
+  required: ['children'],
 );
 
 extension type _RowData.fromMap(JsonMap _json) {

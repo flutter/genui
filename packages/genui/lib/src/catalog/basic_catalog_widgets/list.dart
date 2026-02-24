@@ -14,12 +14,11 @@ import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['List']),
     'children': A2uiSchemas.componentArrayReference(),
     'direction': S.string(enumValues: ['vertical', 'horizontal']),
     'align': S.string(enumValues: ['start', 'center', 'end', 'stretch']),
   },
-  required: ['component', 'children'],
+  required: ['children'],
 );
 
 extension type _ListData.fromMap(JsonMap _json) {

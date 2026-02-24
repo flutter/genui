@@ -10,7 +10,6 @@ import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Divider']),
     'axis': S.string(enumValues: ['horizontal', 'vertical']),
   },
 );

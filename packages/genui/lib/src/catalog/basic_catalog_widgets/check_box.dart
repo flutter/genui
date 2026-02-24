@@ -14,12 +14,11 @@ import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['CheckBox']),
     'label': A2uiSchemas.stringReference(),
     'value': A2uiSchemas.booleanReference(),
     'checks': A2uiSchemas.checkable(),
   },
-  required: ['component', 'label', 'value'],
+  required: ['label', 'value'],
 );
 
 extension type _CheckBoxData.fromMap(JsonMap _json) {

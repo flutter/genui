@@ -10,12 +10,11 @@ import '../../model/catalog_item.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Video']),
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the video to play.',
     ),
   },
-  required: ['component', 'url'],
+  required: ['url'],
 );
 
 /// A video player.

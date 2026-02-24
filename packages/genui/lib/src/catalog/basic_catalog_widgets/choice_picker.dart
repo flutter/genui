@@ -14,7 +14,6 @@ import 'widget_helpers.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['ChoicePicker']),
     'label': A2uiSchemas.stringReference(
       description: 'The label for the group of options.',
     ),
@@ -55,7 +54,7 @@ final _schema = S.object(
     ),
     'checks': A2uiSchemas.checkable(),
   },
-  required: ['component', 'options', 'value'],
+  required: ['options', 'value'],
 );
 
 extension type _ChoicePickerData.fromMap(JsonMap _json) {

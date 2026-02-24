@@ -15,7 +15,6 @@ import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
   properties: {
-    'component': S.string(enumValues: ['Button']),
     'child': A2uiSchemas.componentReference(
       description:
           'The ID of a child widget. This should always be set, e.g. to the ID '
@@ -28,7 +27,7 @@ final _schema = S.object(
     ),
     'checks': A2uiSchemas.checkable(),
   },
-  required: ['component', 'child', 'action'],
+  required: ['child', 'action'],
 );
 
 extension type _ButtonData.fromMap(JsonMap _json) {

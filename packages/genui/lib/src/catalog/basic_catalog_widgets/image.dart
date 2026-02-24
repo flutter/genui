@@ -13,7 +13,6 @@ import '../../widgets/widget_utilities.dart';
 
 Schema _schema() {
   final Map<String, Schema> properties = {
-    'component': S.string(enumValues: ['Image']),
     'url': A2uiSchemas.stringReference(
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
