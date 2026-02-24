@@ -189,7 +189,7 @@ final class ChatMessage {
     return ChatMessage(
       role: role,
       parts: [...parts, ...other.parts],
-      metadata: {...other.metadata, ...metadata},
+      metadata: metadata,
       finishStatus: finishStatus ?? other.finishStatus,
     );
   }
