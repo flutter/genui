@@ -104,7 +104,7 @@ abstract final class BasicCatalogItems {
   static final CatalogItem video = video_item.video;
 
   /// Creates a catalog containing all core catalog items.
-  static Catalog asCatalog() {
+  static Catalog asCatalog({List<String> instructions = const []}) {
     return Catalog(
       [
         audioPlayer,
@@ -128,6 +128,7 @@ abstract final class BasicCatalogItems {
       ],
       functions: BasicFunctions.all,
       catalogId: basicCatalogId,
+      instructions: instructions,
     );
   }
 }

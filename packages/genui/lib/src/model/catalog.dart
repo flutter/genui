@@ -32,7 +32,7 @@ interface class Catalog {
     this.items, {
     this.functions = const [],
     this.catalogId,
-    this.instructions,
+    this.instructions = const [],
   });
 
   /// The list of [CatalogItem]s available in this catalog.
@@ -51,8 +51,9 @@ interface class Catalog {
   ///
   /// This can include explanation when to use which catalog items.
   ///
-  /// It will be incorporated into the system prompt.
-  final String? instructions;
+  /// The items will be incorporated into the system prompt,
+  /// separated by newlines.
+  final List<String> instructions;
 
   /// If an item or function with the same name already exists in the catalog,
   /// it will be replaced with the new one.

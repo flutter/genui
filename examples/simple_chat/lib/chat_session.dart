@@ -19,7 +19,18 @@ class ChatSession extends ChangeNotifier {
     _transport = AiClientTransport(aiClient: aiClient);
 
     // 2. Initialize Catalog & Controller
-    final Catalog catalog = BasicCatalogItems.asCatalog();
+    final Catalog catalog = BasicCatalogItems.asCatalog(
+      instructions: [
+        '''
+When you need additional information from user,
+try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+''',
+        '''
+If there is no way to itemize the options, use the component '${BasicCatalogItems.textField.name}'
+or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+''',
+      ],
+    );
     _surfaceController = SurfaceController(catalogs: [catalog]);
 
     // 3. Initialize Conversation
@@ -68,9 +79,11 @@ class ChatSession extends ChangeNotifier {
 
     final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
-      instructions:
-          'You are a helpful assistant who chats with a user. '
-          'Your responses should contain acknowledgment of the user message.',
+      instructions: [
+       'You are a helpful assistant who chats with a user.',
+       PromptFragments.acknowledgeUser,
+      PromptFragments.atLeastOneSubmitElement,
+      ],
     );
     _transport.addSystemMessage(promptBuilder.systemPrompt);
   }
