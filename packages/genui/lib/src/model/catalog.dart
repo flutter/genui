@@ -26,7 +26,12 @@ import 'data_model.dart';
 @immutable
 interface class Catalog {
   /// Creates a new catalog with the given list of items.
-  const Catalog(this.items, {this.functions = const [], this.catalogId});
+  const Catalog(
+    this.items, {
+    this.functions = const [],
+    this.catalogId,
+    this.instructions,
+  });
 
   /// The list of [CatalogItem]s available in this catalog.
   final Iterable<CatalogItem> items;
@@ -39,6 +44,11 @@ interface class Catalog {
   /// The recommended format for this string is reverse-domain name notation,
   /// e.g. 'com.example.my_catalog'.
   final String? catalogId;
+
+  /// Instructions for the generated UI.
+  ///
+  /// This can include explanation when to use which catalog items.
+  final String? instructions;
 
   /// If an item or function with the same name already exists in the catalog,
   /// it will be replaced with the new one.
