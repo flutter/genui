@@ -164,11 +164,6 @@ final class ChatMessage {
 
   /// Concatenates this message with another message.
   ///
-  /// This is a convenience method that is equivalent to the `+` operator.
-  ChatMessage concatenate(ChatMessage other) => this + other;
-
-  /// Concatenates two messages.
-  ///
   /// The role of the first message is used; the second message's role
   /// is ignored.
   ///
@@ -176,12 +171,37 @@ final class ChatMessage {
   /// otherwise, the second message's finish status is used.
   ///
   /// If metadata keys are the same, the first message's metadata is used.
-  ChatMessage operator +(ChatMessage other) => ChatMessage(
-    role: role,
-    parts: [...parts, ...other.parts],
-    metadata: {...other.metadata, ...metadata},
-    finishStatus: finishStatus ?? other.finishStatus,
-  );
+  ChatMessage concatenate(ChatMessage other, {bool throwOnConflicts = true}) {
+    if (throwOnConflicts) {
+      if (role != other.role) {
+        throw ArgumentError('Roles must match for concatenation');
+      }
+
+      if (finishStatus != null &&
+          other.finishStatus != null &&
+          finishStatus != other.finishStatus) {
+        throw ArgumentError('Finish statuses must match for concatenation');
+      }
+
+      final Iterable<String> conflictingKeys = metadata.keys
+          .toSet()
+          .intersection(other.metadata.keys.toSet())
+          .where((key) => metadata[key] != other.metadata[key]);
+
+      if (conflictingKeys.isNotEmpty) {
+        throw ArgumentError(
+          'There are metadata keys that conflict: $conflictingKeys',
+        );
+      }
+    }
+
+    return ChatMessage(
+      role: role,
+      parts: [...parts, ...other.parts],
+      metadata: {...other.metadata, ...metadata},
+      finishStatus: finishStatus ?? other.finishStatus,
+    );
+  }
 
   @override
   bool operator ==(Object other) {
