@@ -6,6 +6,8 @@ import '../model/a2ui_message.dart';
 import '../model/basic_catalog_embed.dart';
 import '../model/catalog.dart';
 
+const String _importancePrefix = 'IMPORTANT:';
+
 // TODO(polina-c): add allowed surface operations
 
 /// Common fragments for prompts.
@@ -13,11 +15,20 @@ abstract class PromptFragments {
   static const String acknowledgeUser = ''' 
 Your responses should contain acknowledgment of the user message.
 ''';
-  static const String requireAtLeastOneSubmitElement = '''
-IMPORTANT:
-When you are asking for information from the user, you should always include
+  static const String requireAtLeastOneSubmitElement =
+      '''
+$_importancePrefix When you are asking for information from the user, you should always include
 at least one submit button of some kind or another submitting element so that
 the user can indicate that they are done providing information.
+''';
+}
+
+abstract class _SurfaceOperations {
+  static const String uniqueSurfaceId =
+      '''
+$_importancePrefix When you generate UI in a response, you MUST always create
+a new surface with a unique `surfaceId`. Do NOT reuse or update
+previously used `surfaceId`s. Each UI response must be in its own new surface.
 ''';
 }
 
@@ -39,7 +50,7 @@ class PromptBuilder {
   ///
   /// The instructions will be joined with a newline.
   ///
-  /// Check [PromptFragments] for common cases.
+  /// Use constants from [PromptFragments] for common cases.
   final List<String> instructions;
 
   /// Catalog to use for the generated UI.
@@ -54,12 +65,6 @@ class PromptBuilder {
       ...instructions,
       'Use the provided tools to respond to the user using rich UI elements.',
       ...catalog.instructions,
-      '''
-IMPORTANT: When you generate UI in a response, you MUST always create
-a new surface with a unique `surfaceId`. Do NOT reuse or update
-existing `surfaceId`s. Each UI response must be in its own new surface.
-''',
-      'Do not delete existing surfaces.',
       '''
 <a2ui_schema>
 $a2uiSchema
