@@ -166,8 +166,8 @@ final class ChatMessage {
   ///
   /// Throws [ArgumentError] if:
   /// - Roles are different.
-  /// - Finish statuses are different and both are not null.
-  /// - Metadata keys conflict and values are different.
+  /// - Finish statuses are both not null and different.
+  /// - Metadata sets are different.
   ChatMessage concatenate(ChatMessage other) {
     if (role != other.role) {
       throw ArgumentError('Roles must match for concatenation');
@@ -179,14 +179,10 @@ final class ChatMessage {
       throw ArgumentError('Finish statuses must match for concatenation');
     }
 
-    final Iterable<String> conflictingKeys = metadata.keys
-        .toSet()
-        .intersection(other.metadata.keys.toSet())
-        .where((key) => metadata[key] != other.metadata[key]);
-
-    if (conflictingKeys.isNotEmpty) {
+    if (!const DeepCollectionEquality().equals(metadata, other.metadata)) {
       throw ArgumentError(
-        'There are metadata keys that conflict: $conflictingKeys',
+        'Metadata sets should be equal, '
+        'but found $metadata and ${other.metadata}',
       );
     }
 
