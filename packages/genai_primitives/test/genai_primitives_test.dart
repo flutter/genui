@@ -572,7 +572,7 @@ void main() {
         expect(a.concatenate(b).finishStatus, isNull);
       });
 
-      test('same finishStatus on both does not throw', () {
+      test('same finishStatus on both is preserved', () {
         final a = ChatMessage(
           role: ChatMessageRole.model,
           finishStatus: const FinishStatus.completed(),
@@ -585,21 +585,7 @@ void main() {
         expect(result.finishStatus, equals(const FinishStatus.completed()));
       });
 
-      test('disjoint metadata keys are merged', () {
-        final a = ChatMessage(
-          role: ChatMessageRole.model,
-          metadata: const {'only-a': 1},
-        );
-        final b = ChatMessage(
-          role: ChatMessageRole.model,
-          metadata: const {'only-b': 2},
-        );
-        final ChatMessage result = a.concatenate(b);
-        expect(result.metadata['only-a'], equals(1));
-        expect(result.metadata['only-b'], equals(2));
-      });
-
-      test('same metadata key with same value does not throw', () {
+      test('equal metadata is preserved', () {
         final a = ChatMessage(
           role: ChatMessageRole.model,
           metadata: const {'k': 'v'},
@@ -608,7 +594,7 @@ void main() {
           role: ChatMessageRole.model,
           metadata: const {'k': 'v'},
         );
-        expect(a.concatenate(b).metadata['k'], equals('v'));
+        expect(a.concatenate(b).metadata, equals(const {'k': 'v'}));
       });
 
       test('preserves non-text parts', () {
@@ -634,73 +620,46 @@ void main() {
         expect(result.parts[2], isA<ToolPart>());
       });
 
-      group('throwOnConflicts: true (default)', () {
-        test('throws on role mismatch', () {
-          final a = ChatMessage.user('hi');
-          final b = ChatMessage.model('there');
-          expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
-        });
-
-        test('throws on conflicting finish statuses', () {
-          final a = ChatMessage(
-            role: ChatMessageRole.model,
-            finishStatus: const FinishStatus.completed(),
-          );
-          final b = ChatMessage(
-            role: ChatMessageRole.model,
-            finishStatus: const FinishStatus.notFinished(),
-          );
-          expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
-        });
-
-        test('throws on metadata key conflict', () {
-          final a = ChatMessage(
-            role: ChatMessageRole.model,
-            metadata: const {'key': 'from-a'},
-          );
-          final b = ChatMessage(
-            role: ChatMessageRole.model,
-            metadata: const {'key': 'from-b'},
-          );
-          expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
-        });
+      test('throws on role mismatch', () {
+        final a = ChatMessage.user('hi');
+        final b = ChatMessage.model('there');
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
       });
 
-      group('throwOnConflicts: false', () {
-        test('uses role of first message', () {
-          final a = ChatMessage.user('hi');
-          final b = ChatMessage.model('there');
-          final ChatMessage result = a.concatenate(b, throwOnConflicts: false);
-          expect(result.role, equals(ChatMessageRole.user));
-        });
+      test('throws on conflicting finish statuses', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.completed(),
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.notFinished(),
+        );
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
+      });
 
-        test('first message metadata wins on conflict', () {
-          final a = ChatMessage(
-            role: ChatMessageRole.model,
-            metadata: const {'key': 'from-a', 'only-a': 1},
-          );
-          final b = ChatMessage(
-            role: ChatMessageRole.model,
-            metadata: const {'key': 'from-b', 'only-b': 2},
-          );
-          final ChatMessage result = a.concatenate(b, throwOnConflicts: false);
-          expect(result.metadata['key'], equals('from-a'));
-          expect(result.metadata['only-a'], equals(1));
-          expect(result.metadata['only-b'], equals(2));
-        });
+      test('throws when metadata values differ for same key', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'key': 'from-a'},
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'key': 'from-b'},
+        );
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
+      });
 
-        test('uses first finishStatus over second', () {
-          final a = ChatMessage(
-            role: ChatMessageRole.model,
-            finishStatus: const FinishStatus.completed(),
-          );
-          final b = ChatMessage(
-            role: ChatMessageRole.model,
-            finishStatus: const FinishStatus.notFinished(),
-          );
-          final ChatMessage result = a.concatenate(b, throwOnConflicts: false);
-          expect(result.finishStatus, equals(const FinishStatus.completed()));
-        });
+      test('throws when metadata have different keys', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'only-a': 1},
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'only-b': 2},
+        );
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
       });
     });
 
