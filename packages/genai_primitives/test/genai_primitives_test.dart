@@ -637,6 +637,67 @@ void main() {
         expect(result.parts[2], isA<ToolPart>());
       });
     });
+
+    group('copyWith', () {
+      final original = ChatMessage(
+        role: ChatMessageRole.user,
+        parts: const [TextPart('hello')],
+        metadata: const {'k': 'v'},
+        finishStatus: const FinishStatus.completed(),
+      );
+
+      test('no arguments returns equal copy', () {
+        expect(original.copyWith(), equals(original));
+      });
+
+      test('replaces role', () {
+        final ChatMessage result = original.copyWith(
+          role: ChatMessageRole.model,
+        );
+        expect(result.role, equals(ChatMessageRole.model));
+        expect(result.parts, equals(original.parts));
+        expect(result.metadata, equals(original.metadata));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+
+      test('replaces parts', () {
+        final newParts = [const TextPart('world')];
+        final ChatMessage result = original.copyWith(parts: newParts);
+        expect(result.parts, equals(newParts));
+        expect(result.role, equals(original.role));
+        expect(result.metadata, equals(original.metadata));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+
+      test('replaces metadata', () {
+        final ChatMessage result = original.copyWith(metadata: const {'x': 1});
+        expect(result.metadata, equals(const {'x': 1}));
+        expect(result.role, equals(original.role));
+        expect(result.parts, equals(original.parts));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+
+      test('replaces finishStatus', () {
+        final ChatMessage result = original.copyWith(
+          finishStatus: const FinishStatus.notFinished(),
+        );
+        expect(result.finishStatus, equals(const FinishStatus.notFinished()));
+        expect(result.role, equals(original.role));
+        expect(result.parts, equals(original.parts));
+        expect(result.metadata, equals(original.metadata));
+      });
+
+      test('replaces multiple fields at once', () {
+        final ChatMessage result = original.copyWith(
+          role: ChatMessageRole.model,
+          parts: const [TextPart('new')],
+        );
+        expect(result.role, equals(ChatMessageRole.model));
+        expect(result.parts, equals(const [TextPart('new')]));
+        expect(result.metadata, equals(original.metadata));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+    });
   });
 
   group('Parts', () {
