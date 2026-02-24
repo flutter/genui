@@ -13,6 +13,7 @@ import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: 'A scrollable list of child widgets.',
   properties: {
     'component': S.string(enumValues: ['List']),
     'children': A2uiSchemas.componentArrayReference(),

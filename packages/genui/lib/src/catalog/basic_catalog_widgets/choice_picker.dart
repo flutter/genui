@@ -13,6 +13,8 @@ import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description:
+      'A component that allows selecting one or more options from a list.',
   properties: {
     'component': S.string(enumValues: ['ChoicePicker']),
     'label': A2uiSchemas.stringReference(

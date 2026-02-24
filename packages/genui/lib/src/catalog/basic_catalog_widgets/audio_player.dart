@@ -11,6 +11,7 @@ import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'An audio player component that plays audio from a given URL.',
   properties: {
     'component': S.string(enumValues: ['AudioPlayer']),
     'url': A2uiSchemas.stringReference(

@@ -15,6 +15,7 @@ import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'A widget for selecting a date and/or time.',
   properties: {
     'component': S.string(enumValues: ['DateTimeInput']),
     'value': A2uiSchemas.stringReference(

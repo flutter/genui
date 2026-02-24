@@ -13,6 +13,7 @@ import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: 'A slider for selecting a value from a range.',
   properties: {
     'component': S.string(enumValues: ['Slider']),
     'value': A2uiSchemas.numberReference(),

@@ -15,6 +15,7 @@ import 'widget_helpers.dart';
 const _horizontalRowSpacing = 16.0;
 
 final _schema = S.object(
+  description: 'A layout widget that arranges its children horizontally.',
   properties: {
     'component': S.string(enumValues: ['Row']),
     'children': A2uiSchemas.componentArrayReference(

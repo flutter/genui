@@ -33,6 +33,7 @@ extension type _TextData.fromMap(JsonMap _json) {
 final text = CatalogItem(
   name: 'Text',
   dataSchema: S.object(
+    description: 'A block of styled text.',
     properties: {
       'component': S.string(enumValues: ['Text']),
       'text': A2uiSchemas.stringReference(

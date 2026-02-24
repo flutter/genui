@@ -13,6 +13,7 @@ import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: 'A selectable checkbox used for boolean toggles with a label.',
   properties: {
     'component': S.string(enumValues: ['CheckBox']),
     'label': A2uiSchemas.stringReference(),

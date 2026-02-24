@@ -14,6 +14,7 @@ import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'An interactive button that triggers an action when pressed.',
   properties: {
     'component': S.string(enumValues: ['Button']),
     'child': A2uiSchemas.componentReference(

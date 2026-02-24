@@ -10,6 +10,7 @@ import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 
 final _schema = S.object(
+  description: 'A visual container (card) that groups a single child widget.',
   properties: {
     'component': S.string(enumValues: ['Card']),
     'child': A2uiSchemas.componentReference(),
