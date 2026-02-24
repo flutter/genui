@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/material.dart';
+
+import '../../genui.dart';
 import '../model/a2ui_message.dart';
 import '../model/basic_catalog_embed.dart';
 import '../model/catalog.dart';
 
 const String _importancePrefix = 'IMPORTANT:';
-
-// TODO(polina-c): add allowed surface operations
 
 /// Common fragments for prompts.
 abstract class PromptFragments {
@@ -56,7 +57,11 @@ class PromptBuilder {
   /// Catalog to use for the generated UI.
   final Catalog catalog;
 
-  late final String systemPrompt = () {
+  static String _fragmentsToPrompt(List<String> fragments) =>
+      fragments.map((e) => e.trim()).join('\n\n');
+
+  late final String
+  prompt = ({ChatMessage? userMessage, ChatMessage? context}) {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
@@ -73,6 +78,6 @@ $a2uiSchema
       BasicCatalogEmbed.basicCatalogRules,
     ];
 
-    return fragments.map((e) => e.trim()).join('\n\n');
+    return _fragmentsToPrompt(fragments);
   }();
 }
