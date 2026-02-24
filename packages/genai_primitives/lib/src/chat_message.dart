@@ -164,41 +164,30 @@ final class ChatMessage {
 
   /// Concatenates this message with another message.
   ///
-  /// When [throwOnConflicts] is true:
-  /// - Throws [ArgumentError] if roles are different.
-  /// - Throws [ArgumentError] if finish statuses are different and both
-  ///   are not null.
-  /// - Throws [ArgumentError] if metadata keys conflict and values
-  ///   are different.
-  ///
-  /// Otherwise:
-  /// - The role of the first message is used; the second message's role
-  ///   is ignored.
-  /// - The finish status of the first message is used if it's not null;
-  /// otherwise, the second message's finish status is used.
-  /// - If metadata keys are the same, the first message's metadata is used.
-  ChatMessage concatenate(ChatMessage other, {bool throwOnConflicts = true}) {
-    if (throwOnConflicts) {
-      if (role != other.role) {
-        throw ArgumentError('Roles must match for concatenation');
-      }
+  /// Throws [ArgumentError] if:
+  /// - Roles are different.
+  /// - Finish statuses are different and both are not null.
+  /// - Metadata keys conflict and values are different.
+  ChatMessage concatenate(ChatMessage other) {
+    if (role != other.role) {
+      throw ArgumentError('Roles must match for concatenation');
+    }
 
-      if (finishStatus != null &&
-          other.finishStatus != null &&
-          finishStatus != other.finishStatus) {
-        throw ArgumentError('Finish statuses must match for concatenation');
-      }
+    if (finishStatus != null &&
+        other.finishStatus != null &&
+        finishStatus != other.finishStatus) {
+      throw ArgumentError('Finish statuses must match for concatenation');
+    }
 
-      final Iterable<String> conflictingKeys = metadata.keys
-          .toSet()
-          .intersection(other.metadata.keys.toSet())
-          .where((key) => metadata[key] != other.metadata[key]);
+    final Iterable<String> conflictingKeys = metadata.keys
+        .toSet()
+        .intersection(other.metadata.keys.toSet())
+        .where((key) => metadata[key] != other.metadata[key]);
 
-      if (conflictingKeys.isNotEmpty) {
-        throw ArgumentError(
-          'There are metadata keys that conflict: $conflictingKeys',
-        );
-      }
+    if (conflictingKeys.isNotEmpty) {
+      throw ArgumentError(
+        'There are metadata keys that conflict: $conflictingKeys',
+      );
     }
 
     return ChatMessage(
