@@ -195,6 +195,19 @@ final class ChatMessage {
         finishStatus == other.finishStatus;
   }
 
+  /// Creates a copy of this message with optional fields replaced.
+  ChatMessage copyWith({
+    ChatMessageRole? role,
+    List<StandardPart>? parts,
+    Map<String, Object?>? metadata,
+    FinishStatus? finishStatus,
+  }) => ChatMessage(
+    role: role ?? this.role,
+    parts: parts ?? this.parts,
+    metadata: metadata ?? this.metadata,
+    finishStatus: finishStatus ?? this.finishStatus,
+  );
+
   @override
   int get hashCode => Object.hashAll([role, parts, metadata, finishStatus]);
 
