@@ -169,7 +169,8 @@ final class ChatMessage {
 
   /// Concatenates two messages.
   ///
-  /// The role of the first message is used; the second message's role is ignored.
+  /// The role of the first message is used; the second message's role
+  /// is ignored.
   ///
   /// The finish status of the first message is used if it's not null;
   /// otherwise, the second message's finish status is used.
