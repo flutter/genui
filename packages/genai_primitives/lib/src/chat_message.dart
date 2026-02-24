@@ -186,10 +186,8 @@ final class ChatMessage {
       );
     }
 
-    return ChatMessage(
-      role: role,
+    return copyWith(
       parts: [...parts, ...other.parts],
-      metadata: metadata,
       finishStatus: finishStatus ?? other.finishStatus,
     );
   }
