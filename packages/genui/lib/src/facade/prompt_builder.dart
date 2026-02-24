@@ -13,7 +13,7 @@ abstract class PromptFragments {
   static const String acknowledgeUser = ''' 
 Your responses should contain acknowledgment of the user message.
 ''';
-  static const String atLeastOneSubmitElement = '''
+  static const String requireAtLeastOneSubmitElement = '''
 IMPORTANT:
 When you are asking for information from the user, you should always include
 at least one submit button of some kind or another submitting element so that

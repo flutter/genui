@@ -80,9 +80,9 @@ or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
     final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
       instructions: [
-       'You are a helpful assistant who chats with a user.',
-       PromptFragments.acknowledgeUser,
-      PromptFragments.atLeastOneSubmitElement,
+        'You are a helpful assistant who chats with a user.',
+        PromptFragments.acknowledgeUser,
+        PromptFragments.requireAtLeastOneSubmitElement,
       ],
     );
     _transport.addSystemMessage(promptBuilder.systemPrompt);
