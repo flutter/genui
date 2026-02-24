@@ -103,8 +103,10 @@ final class CatalogItem {
 
   /// The schema definition for this widget's data.
   ///
-  /// Automatically injects the `component` discriminator property required by
-  /// A2UI.
+  /// It should contain all of the component specific properties, but not the
+  /// `component` discriminator property, which will be automatically injected
+  /// using the [name]. If the `component` property is already defined in the
+  /// schema, it will be ignored.
   ObjectSchema get dataSchema {
     final Map<String, Object?> originalMap = _originalSchema.value;
     final Map<String, Object?> properties =
@@ -116,11 +118,11 @@ final class CatalogItem {
     return ObjectSchema.fromMap(<String, Object?>{
       ...originalMap,
       'properties': <String, Object?>{
+        ...properties,
         'component': <String, Object?>{
           'type': 'string',
           'enum': <String>[name],
         },
-        ...properties,
       },
       'required': <Object?>['component', ...requiredProps],
     });
