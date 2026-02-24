@@ -7,7 +7,7 @@ import 'package:genui/genui.dart';
 
 void main() {
   group('PromptBuilder', () {
-    const instructions = 'These are some instructions.';
+    const instructions = ['These are some instructions.'];
     final catalog = const Catalog([]); // Empty catalog for testing.
 
     test('includes instructions when provided', () {
