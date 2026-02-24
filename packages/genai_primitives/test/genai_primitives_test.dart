@@ -626,10 +626,7 @@ void main() {
           role: ChatMessageRole.model,
           parts: [const TextPart('text'), toolCall],
         );
-        final b = ChatMessage(
-          role: ChatMessageRole.user,
-          parts: [toolResult],
-        );
+        final b = ChatMessage(role: ChatMessageRole.user, parts: [toolResult]);
         final ChatMessage result = a + b;
         expect(result.parts, hasLength(3));
         expect(result.parts[0], isA<TextPart>());
