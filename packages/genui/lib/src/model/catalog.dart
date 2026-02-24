@@ -23,6 +23,8 @@ import 'data_model.dart';
 ///    structure ([JsonMap]).
 /// 4. Dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets and functions, which can be provided to the AI model.
+/// 5. Provides instructions for the generated UI, which should be incorporated
+///    into the system prompt.
 @immutable
 interface class Catalog {
   /// Creates a new catalog with the given list of items.
@@ -48,6 +50,8 @@ interface class Catalog {
   /// Instructions for the generated UI.
   ///
   /// This can include explanation when to use which catalog items.
+  ///
+  /// It will be incorporated into the system prompt.
   final String? instructions;
 
   /// If an item or function with the same name already exists in the catalog,
