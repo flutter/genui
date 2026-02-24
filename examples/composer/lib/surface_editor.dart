@@ -48,6 +48,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   late final Catalog _catalog;
   final List<String> _surfaceIds = [];
   StreamSubscription<SurfaceUpdate>? _surfaceSub;
+  ValueNotifier<Object?>? _dataModelNotifier;
   Timer? _jsonDebounce;
   Timer? _dataDebounce;
   String? _parseError;
@@ -133,6 +134,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
           setState(() {
             _surfaceIds.add(update.surfaceId);
           });
+          _subscribeToDataModel();
           _refreshDataModelDisplay();
         }
       } else if (update is SurfaceRemoved) {
@@ -143,6 +145,19 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         _refreshDataModelDisplay();
       }
     });
+  }
+
+  void _subscribeToDataModel() {
+    _dataModelNotifier?.removeListener(_onDataModelChanged);
+    if (_surfaceIds.isEmpty) return;
+
+    final dataModel = _surfaceController.store.getDataModel(_surfaceIds.first);
+    _dataModelNotifier = dataModel.subscribe<Object?>(DataPath.root);
+    _dataModelNotifier!.addListener(_onDataModelChanged);
+  }
+
+  void _onDataModelChanged() {
+    _refreshDataModelDisplay();
   }
 
   /// Refreshes the data model display from the current SurfaceController state.
@@ -162,6 +177,8 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   }
 
   void _applyJson(String json) {
+    _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier = null;
     _surfaceSub?.cancel();
     _surfaceController.dispose();
 
@@ -252,6 +269,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
   void dispose() {
     _jsonDebounce?.cancel();
     _dataDebounce?.cancel();
+    _dataModelNotifier?.removeListener(_onDataModelChanged);
     _jsonController.removeListener(_onJsonControllerChanged);
     _dataController.removeListener(_onDataControllerChanged);
     _surfaceSub?.cancel();
