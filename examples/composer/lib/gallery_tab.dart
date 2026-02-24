@@ -125,11 +125,12 @@ class _GalleryTabState extends State<GalleryTab>
           // Extract data model from the controller before closing.
           String? dataJson;
           if (result.surfaceIds.isNotEmpty) {
-            final dm = result.controller.store
-                .getDataModel(result.surfaceIds.first);
-            if (dm.data.isNotEmpty) {
-              dataJson =
-                  const JsonEncoder.withIndent('  ').convert(dm.data);
+            final dm = result.controller.store.getDataModel(
+              result.surfaceIds.first,
+            );
+            final data = dm.getValue<Object?>(DataPath.root);
+            if (data is Map && data.isNotEmpty) {
+              dataJson = const JsonEncoder.withIndent('  ').convert(data);
             }
           }
           Navigator.of(context).pop();
@@ -240,11 +241,15 @@ class _GalleryCard extends StatefulWidget {
   State<_GalleryCard> createState() => _GalleryCardState();
 }
 
-class _GalleryCardState extends State<_GalleryCard> {
+class _GalleryCardState extends State<_GalleryCard>
+    with AutomaticKeepAliveClientMixin {
   SurfaceController? _controller;
   List<String> _surfaceIds = [];
   bool _isLoading = true;
   bool _hasError = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -277,6 +282,7 @@ class _GalleryCardState extends State<_GalleryCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final theme = Theme.of(context);
 
     return Card(
@@ -288,7 +294,14 @@ class _GalleryCardState extends State<_GalleryCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Surface preview area
-            Expanded(child: _buildPreview(theme)),
+            Expanded(
+              child: ClipRect(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: _buildPreview(theme),
+                ),
+              ),
+            ),
             // Name bar at bottom
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -337,38 +350,28 @@ class _GalleryCardState extends State<_GalleryCard> {
       );
     }
 
-    // Render the surface at a large virtual width with unconstrained height
-    // (matching how the modal dialog renders surfaces). OverflowBox replaces
-    // the parent's tight constraints so the Surface lays out as if it had
-    // real screen space. Transform.scale shrinks the result visually, and
-    // ClipRect clips anything beyond the card bounds.
-    return ClipRect(
-      child: IgnorePointer(
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              const virtualWidth = 500.0;
-              final scale = constraints.maxWidth / virtualWidth;
+    final String surfaceId = _surfaceIds.first;
+    final SurfaceContext surfaceContext = _controller!.contextFor(surfaceId);
 
-              return Transform.scale(
-                scale: scale,
-                alignment: Alignment.topLeft,
-                child: OverflowBox(
-                  alignment: Alignment.topLeft,
-                  maxWidth: virtualWidth,
-                  minWidth: virtualWidth,
-                  maxHeight: double.infinity,
-                  minHeight: 0,
-                  child: Surface(
-                    key: ValueKey(_surfaceIds.first),
-                    surfaceContext: _controller!.contextFor(
-                      _surfaceIds.first,
-                    ),
-                  ),
-                ),
-              );
-            },
+    return RepaintBoundary(
+      child: IgnorePointer(
+        child: FittedBox(
+          fit: BoxFit.contain,
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 375, // Virtual mobile width
+            height: 667, // Virtual mobile height
+            child: OverflowBox(
+              minWidth: 375,
+              maxWidth: 375,
+              minHeight: 667,
+              maxHeight: double.infinity, // Allow vertical expansion for layout
+              alignment: Alignment.topCenter,
+              child: Surface(
+                key: ValueKey(surfaceId),
+                surfaceContext: surfaceContext,
+              ),
+            ),
           ),
         ),
       ),

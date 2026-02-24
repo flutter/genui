@@ -166,7 +166,8 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
     final surfaceId = _surfaceIds.first;
     final dataModel = _surfaceController.store.getDataModel(surfaceId);
-    final dataJson = const JsonEncoder.withIndent('  ').convert(dataModel.data);
+    final data = dataModel.getValue<Object?>(DataPath.root);
+    final dataJson = const JsonEncoder.withIndent('  ').convert(data);
 
     _isInternalUpdate = true;
     _dataController.text = dataJson;
