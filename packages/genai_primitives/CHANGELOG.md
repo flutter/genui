@@ -2,7 +2,7 @@
 
 ## 0.2.3
 
-- **Feature**: Add `copyWith` and `concatenate` methods, and `+` operator to `ChatMessage` (#760).
+- **Feature**: Add methods `copyWith` and `concatenate` to `ChatMessage` (#760).
 
 ## 0.2.2
 

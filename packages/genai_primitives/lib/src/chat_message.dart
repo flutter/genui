@@ -164,13 +164,17 @@ final class ChatMessage {
 
   /// Concatenates this message with another message.
   ///
-  /// The role of the first message is used; the second message's role
+  /// When [throwOnConflicts] is true:
+  /// - Throws [ArgumentError] if roles are different.
+  /// - Throws [ArgumentError] if finish statuses are different and both are not null.
+  /// - Throws [ArgumentError] if metadata keys conflict and values are different.
+  ///
+  /// Otherwise:
+  /// - The role of the first message is used; the second message's role
   /// is ignored.
-  ///
-  /// The finish status of the first message is used if it's not null;
+  /// - The finish status of the first message is used if it's not null;
   /// otherwise, the second message's finish status is used.
-  ///
-  /// If metadata keys are the same, the first message's metadata is used.
+  /// - If metadata keys are the same, the first message's metadata is used.
   ChatMessage concatenate(ChatMessage other, {bool throwOnConflicts = true}) {
     if (throwOnConflicts) {
       if (role != other.role) {
