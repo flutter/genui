@@ -474,16 +474,11 @@ class _ItineraryEntry extends StatelessWidget {
     required this.dataContext,
   });
 
-  IconData _getIconForType(ItineraryEntryType type) {
-    switch (type) {
-      case ItineraryEntryType.accommodation:
-        return Icons.hotel;
-      case ItineraryEntryType.transport:
-        return Icons.train;
-      case ItineraryEntryType.activity:
-        return Icons.local_activity;
-    }
-  }
+  IconData _getIconForType(ItineraryEntryType type) => switch (type) {
+    .accommodation => Icons.hotel,
+    .transport => Icons.train,
+    .activity => Icons.local_activity,
+  };
 
   @override
   Widget build(BuildContext context) {

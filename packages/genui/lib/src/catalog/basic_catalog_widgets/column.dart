@@ -57,22 +57,22 @@ extension type _ColumnData.fromMap(JsonMap _json) {
 
 MainAxisAlignment _parseMainAxisAlignment(String? alignment) =>
     switch (alignment) {
-      'start' => MainAxisAlignment.start,
-      'center' => MainAxisAlignment.center,
-      'end' => MainAxisAlignment.end,
-      'spaceBetween' => MainAxisAlignment.spaceBetween,
-      'spaceAround' => MainAxisAlignment.spaceAround,
-      'spaceEvenly' => MainAxisAlignment.spaceEvenly,
-      _ => MainAxisAlignment.start,
+      'start' => .start,
+      'center' => .center,
+      'end' => .end,
+      'spaceBetween' => .spaceBetween,
+      'spaceAround' => .spaceAround,
+      'spaceEvenly' => .spaceEvenly,
+      _ => .start,
     };
 
 CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) =>
     switch (alignment) {
-      'start' => CrossAxisAlignment.start,
-      'center' => CrossAxisAlignment.center,
-      'end' => CrossAxisAlignment.end,
-      'stretch' => CrossAxisAlignment.stretch,
-      _ => CrossAxisAlignment.start,
+      'start' => .start,
+      'center' => .center,
+      'end' => .end,
+      'stretch' => .stretch,
+      _ => .start,
     };
 
 /// A layout widget that arranges its children in a vertical sequence.

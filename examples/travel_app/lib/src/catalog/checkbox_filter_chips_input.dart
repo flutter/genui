@@ -118,10 +118,10 @@ final checkboxFilterChipsInput = CatalogItem(
     }
 
     final Object selectedOptionsRef = checkboxFilterChipsData.selectedOptions;
-    final path =
-        (selectedOptionsRef is Map && selectedOptionsRef.containsKey('path'))
-        ? selectedOptionsRef['path'] as String
-        : '${context.id}.value';
+    final String path = switch (selectedOptionsRef) {
+      {'path': String p} => p,
+      _ => '${context.id}.value',
+    };
 
     return BoundList(
       dataContext: context.dataContext,
