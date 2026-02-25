@@ -34,6 +34,13 @@ class A2UiClientCapabilities {
   });
 
   /// Creates client capabilities from a collection of catalogs.
+  ///
+  /// This is used to create an [A2UiClientCapabilities] instance from a
+  /// collection of [Catalog] objects to send to an A2A server that supports
+  /// the [A2UI extension](https://a2ui.org).
+  ///
+  /// [inlineHandling] determines how catalogs without a `catalogId` are
+  /// handled. See [InlineCatalogHandling] for more information.
   factory A2UiClientCapabilities.fromCatalogs(
     Iterable<Catalog> catalogs, {
     InlineCatalogHandling inlineHandling = InlineCatalogHandling.missingIds,
