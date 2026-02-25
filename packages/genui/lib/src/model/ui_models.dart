@@ -139,7 +139,7 @@ class SurfaceDefinition {
       _Json.components: components.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),
-      if (theme != null) _Json.theme: theme,
+      _Json.theme: ?theme,
     };
   }
 

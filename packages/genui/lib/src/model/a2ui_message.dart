@@ -160,7 +160,7 @@ final class CreateSurface extends A2uiMessage {
     'version': 'v0.9',
     surfaceIdKey: surfaceId,
     'catalogId': catalogId,
-    if (theme != null) 'theme': theme,
+    'theme': ?theme,
     'sendDataModel': sendDataModel,
   };
 }
@@ -229,7 +229,7 @@ final class UpdateDataModel extends A2uiMessage {
     'version': 'v0.9',
     surfaceIdKey: surfaceId,
     'path': path.toString(),
-    if (value != null) 'value': value,
+    'value': ?value,
   };
 }
 

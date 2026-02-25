@@ -232,8 +232,8 @@ Future<void> _handlePress(
     );
     try {
       await resultStream.first;
-    } catch (e, stack) {
-      itemContext.reportError(e, stack);
+    } catch (exception, stackTrace) {
+      itemContext.reportError(exception, stackTrace);
     }
   } else {
     genUiLogger.warning(

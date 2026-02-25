@@ -87,8 +87,8 @@ abstract class SynchronousClientFunction implements ClientFunction {
   Stream<Object?> execute(JsonMap args, ExecutionContext context) {
     try {
       return Stream.value(executeSync(args, context));
-    } catch (e, stack) {
-      return Stream.error(e, stack);
+    } catch (exception, stackTrace) {
+      return Stream.error(exception, stackTrace);
     }
   }
 
