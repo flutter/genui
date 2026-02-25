@@ -51,39 +51,25 @@ extension type _RowData.fromMap(JsonMap _json) {
   String? get align => _json['align'] as String?;
 }
 
-MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
-  switch (alignment) {
-    case 'start':
-      return MainAxisAlignment.start;
-    case 'center':
-      return MainAxisAlignment.center;
-    case 'end':
-      return MainAxisAlignment.end;
-    case 'spaceBetween':
-      return MainAxisAlignment.spaceBetween;
-    case 'spaceAround':
-      return MainAxisAlignment.spaceAround;
-    case 'spaceEvenly':
-      return MainAxisAlignment.spaceEvenly;
-    default:
-      return MainAxisAlignment.start;
-  }
-}
+MainAxisAlignment _parseMainAxisAlignment(String? alignment) =>
+    switch (alignment) {
+      'start' => MainAxisAlignment.start,
+      'center' => MainAxisAlignment.center,
+      'end' => MainAxisAlignment.end,
+      'spaceBetween' => MainAxisAlignment.spaceBetween,
+      'spaceAround' => MainAxisAlignment.spaceAround,
+      'spaceEvenly' => MainAxisAlignment.spaceEvenly,
+      _ => MainAxisAlignment.start,
+    };
 
-CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
-  switch (alignment) {
-    case 'start':
-      return CrossAxisAlignment.start;
-    case 'center':
-      return CrossAxisAlignment.center;
-    case 'end':
-      return CrossAxisAlignment.end;
-    case 'stretch':
-      return CrossAxisAlignment.stretch;
-    default:
-      return CrossAxisAlignment.start;
-  }
-}
+CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) =>
+    switch (alignment) {
+      'start' => CrossAxisAlignment.start,
+      'center' => CrossAxisAlignment.center,
+      'end' => CrossAxisAlignment.end,
+      'stretch' => CrossAxisAlignment.stretch,
+      _ => CrossAxisAlignment.start,
+    };
 
 /// A layout widget that arranges its children in a horizontal sequence.
 ///
