@@ -56,8 +56,8 @@ void main() {
       // extensive scrolling or large content
       // 2400 / 3.0 = 800 logical pixels wide/high
       tester.view.physicalSize = const Size(
-        2400,
-        3000,
+        2_400,
+        3_000,
       ); // Increased height to prevent overflow
       tester.view.devicePixelRatio = 3.0;
 

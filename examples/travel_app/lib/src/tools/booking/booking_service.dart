@@ -16,7 +16,7 @@ class BookingService {
 
   final _random = Random();
   String _generateListingSelectionId() =>
-      _random.nextInt(1000000000).toString();
+      _random.nextInt(1_000_000_000).toString();
 
   T _rememberListing<T extends Listing>(T listing) {
     listings[listing.listingSelectionId] = listing;
