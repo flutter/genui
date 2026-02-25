@@ -23,8 +23,9 @@ enum InlineCatalogHandling {
 /// Describes the client's UI rendering capabilities to the server.
 ///
 /// This class represents the `a2uiClientCapabilities` object that is sent
-/// from the client to the server with each message to inform the server about
-/// the component catalogs the client supports.
+/// from a client using the [A2UI extension](https://a2ui.org) to the
+/// [A2A protocol](https://a2a-protocol.org) with each message it sends, in
+/// order to inform the server about the component catalogs the client supports.
 class A2UiClientCapabilities {
   /// Creates a new [A2UiClientCapabilities] instance.
   const A2UiClientCapabilities({
