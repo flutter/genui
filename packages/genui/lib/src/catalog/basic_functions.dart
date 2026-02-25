@@ -61,6 +61,13 @@ class AndFunction extends SynchronousClientFunction {
   String get name => 'and';
 
   @override
+  String get description =>
+      'Performs a logical AND operation on a list of boolean values.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'values': S.list(items: S.any())});
 
@@ -82,6 +89,13 @@ class OrFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'or';
+
+  @override
+  String get description =>
+      'Performs a logical OR operation on a list of boolean values.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
 
   @override
   Schema get argumentSchema =>
@@ -107,6 +121,13 @@ class NotFunction extends SynchronousClientFunction {
   String get name => 'not';
 
   @override
+  String get description =>
+      'Performs a logical NOT operation on a boolean value.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
@@ -122,6 +143,13 @@ class RequiredFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'required';
+
+  @override
+  String get description =>
+      'Checks that the value is not null, undefined, or empty.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
 
   @override
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
@@ -146,6 +174,13 @@ class RegexFunction extends SynchronousClientFunction {
   String get name => 'regex';
 
   @override
+  String get description =>
+      'Checks that the value matches a regular expression string.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'value': S.string(), 'pattern': S.string()});
 
@@ -168,6 +203,12 @@ class LengthFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'length';
+
+  @override
+  String get description => 'Checks string length constraints.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.any;
 
   @override
   Schema get argumentSchema => S.object(
@@ -214,6 +255,12 @@ class NumericFunction extends SynchronousClientFunction {
   String get name => 'numeric';
 
   @override
+  String get description => 'Checks numeric range constraints.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(
     properties: {'value': S.number(), 'min': S.number(), 'max': S.number()},
   );
@@ -243,6 +290,12 @@ class EmailFunction extends SynchronousClientFunction {
   String get name => 'email';
 
   @override
+  String get description => 'Checks that the value is a valid email address.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'value': S.string()});
 
   @override
@@ -260,6 +313,14 @@ class OpenUrlFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'openUrl';
+
+  @override
+  String get description =>
+      'Opens the specified URL in a browser or handler. '
+      'This function has no return value.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.empty;
 
   @override
   Schema get argumentSchema => S.object(properties: {'url': S.string()});
@@ -285,6 +346,13 @@ class FormatNumberFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'formatNumber';
+
+  @override
+  String get description =>
+      'Formats a number with the specified grouping and decimal precision.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
 
   @override
   Schema get argumentSchema => S.object(
@@ -331,6 +399,12 @@ class FormatCurrencyFunction extends SynchronousClientFunction {
   String get name => 'formatCurrency';
 
   @override
+  String get description => 'Formats a number as a currency string.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'value': S.number(), 'currencyCode': S.string()});
 
@@ -353,6 +427,13 @@ class FormatDateFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'formatDate';
+
+  @override
+  String get description =>
+      'Formats a timestamp into a string using a pattern.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
 
   @override
   Schema get argumentSchema => S.object(
@@ -390,6 +471,15 @@ class PluralizeFunction extends SynchronousClientFunction {
 
   @override
   String get name => 'pluralize';
+
+  @override
+  String get description =>
+      'Returns a localized string based on the Common Locale Data Repository '
+      '(CLDR) plural category of the count (zero, one, two, few, many, other). '
+      "Requires an 'other' fallback. For English, just use 'one' and 'other'.";
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
 
   @override
   Schema get argumentSchema => S.object(

@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
+import 'package:genui/src/catalog/basic_functions.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 void main() {
@@ -122,6 +123,41 @@ void main() {
 
       expect(componentProperties.keys, contains('Text'));
       expect(componentProperties.keys, contains('Button'));
+    });
+
+    test('toCapabilitiesJson generates correct structure', () {
+      final catalog = Catalog(
+        [BasicCatalogItems.text, BasicCatalogItems.button],
+        functions: [const RegexFunction()],
+      );
+
+      final JsonMap json = catalog.toCapabilitiesJson();
+
+      expect(json.containsKey('catalogId'), isTrue);
+      // Because we didn't specify one, it generates a fallback one
+      expect(
+        (json['catalogId'] as String).startsWith('inline_catalog_'),
+        isTrue,
+      );
+
+      expect(json.containsKey('components'), isTrue);
+      final components = json['components'] as JsonMap;
+      expect(components.containsKey('Text'), isTrue);
+      expect(components.containsKey('Button'), isTrue);
+
+      // Check that components map directly to schemas, not inside 'properties'
+      final textSchema = components['Text'] as JsonMap;
+      expect(textSchema['type'], 'object');
+      expect(textSchema.containsKey('properties'), isTrue);
+
+      expect(json.containsKey('functions'), isTrue);
+      final functions = json['functions'] as List<dynamic>;
+      expect(functions.length, 1);
+      final firstFunc = functions.first as JsonMap;
+      expect(firstFunc['name'], 'regex');
+      expect(firstFunc['description'], isNotEmpty);
+      expect(firstFunc['returnType'], 'boolean');
+      expect(firstFunc.containsKey('parameters'), isTrue);
     });
   });
 }

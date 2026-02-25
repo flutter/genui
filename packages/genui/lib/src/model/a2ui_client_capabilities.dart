@@ -3,6 +3,22 @@
 // found in the LICENSE file.
 
 import '../primitives/simple_items.dart';
+import 'catalog.dart';
+
+/// Defines how catalogs should be handled when generating client capabilities.
+enum InlineCatalogHandling {
+  /// Do not inline any catalogs. If a catalog is missing a `catalogId`, an
+  /// exception is thrown.
+  none,
+
+  /// Inline only catalogs that do not have a `catalogId`. Send the rest as
+  /// supported IDs.
+  missingIds,
+
+  /// Inline all provided catalogs, regardless of whether they have a
+  /// `catalogId`.
+  all,
+}
 
 /// Describes the client's UI rendering capabilities to the server.
 ///
@@ -15,6 +31,39 @@ class A2UiClientCapabilities {
     required this.supportedCatalogIds,
     this.inlineCatalogs,
   });
+
+  /// Creates client capabilities from a collection of catalogs.
+  factory A2UiClientCapabilities.fromCatalogs(
+    Iterable<Catalog> catalogs, {
+    InlineCatalogHandling inlineHandling = InlineCatalogHandling.missingIds,
+  }) {
+    final supportedIds = <String>[];
+    final inlineDefinitions = <JsonMap>[];
+
+    for (final catalog in catalogs) {
+      if (inlineHandling == InlineCatalogHandling.all) {
+        inlineDefinitions.add(catalog.toCapabilitiesJson());
+        continue;
+      }
+
+      if (catalog.catalogId != null) {
+        supportedIds.add(catalog.catalogId!);
+      } else {
+        if (inlineHandling == InlineCatalogHandling.none) {
+          throw StateError(
+            'Catalog provided without a catalogId, but '
+            'inlineHandling is set to InlineCatalogHandling.none',
+          );
+        }
+        inlineDefinitions.add(catalog.toCapabilitiesJson());
+      }
+    }
+
+    return A2UiClientCapabilities(
+      supportedCatalogIds: supportedIds,
+      inlineCatalogs: inlineDefinitions.isNotEmpty ? inlineDefinitions : null,
+    );
+  }
 
   /// A list of identifiers for all pre-defined catalogs the client supports.
   ///

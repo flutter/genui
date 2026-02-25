@@ -140,6 +140,32 @@ interface class Catalog {
     );
   }
 
+  /// Generates a JSON map suitable for inclusion in an inline catalog array
+  /// within `A2UiClientCapabilities`.
+  ///
+  /// This differs from [definition] because `a2ui_client_capabilities.json`
+  /// expects `components` to be a direct map of name to schema, and `functions`
+  /// to be an array of objects.
+  JsonMap toCapabilitiesJson() {
+    return {
+      if (catalogId != null) 'catalogId': catalogId,
+      // Provide a fallback ID for inline if catalogId is null
+      if (catalogId == null) 'catalogId': 'inline_catalog_$hashCode',
+      'components': {
+        for (final item in items) item.name: item.dataSchema.value,
+      },
+      'functions': [
+        for (final func in functions)
+          {
+            'name': func.name,
+            'description': func.description,
+            'parameters': func.argumentSchema.value,
+            'returnType': func.returnType.value,
+          },
+      ],
+    };
+  }
+
   /// A dynamically generated [Schema] that describes all widgets in the
   /// catalog.
   ///

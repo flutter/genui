@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import '../interfaces/a2ui_message_sink.dart';
 import '../interfaces/surface_context.dart';
 import '../interfaces/surface_host.dart';
+import '../model/a2ui_client_capabilities.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
@@ -73,6 +74,11 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// The IDs of the currently active surfaces.
   Iterable<String> get activeSurfaceIds => _registry.surfaceOrder;
+
+  /// Evaluates and returns the client capabilities for the catalogs managed
+  /// by this controller.
+  A2UiClientCapabilities get clientCapabilities =>
+      A2UiClientCapabilities.fromCatalogs(catalogs);
 
   @override
   SurfaceContext contextFor(String surfaceId) {
