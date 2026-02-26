@@ -19,6 +19,21 @@ class FormatStringFunction implements cf.ClientFunction {
   String get name => 'formatString';
 
   @override
+  String get description => r'''
+Performs string interpolation of data model values and other functions in the
+catalog functions list and returns the resulting string. The value string can
+contain interpolated expressions in the ${expression} format. Supported
+expression types include: JSON Pointer paths to the data model (e.g.,
+${/absolute/path} or ${relative/path}), and client-side function calls (e.g.,
+${now()}). Function arguments must be named (e.g.,
+${formatDate(value:${/currentDate}, format:'MM-dd')}). To include a literal ${
+sequence, escape it as \${.''';
+
+  @override
+  cf.ClientFunctionReturnType get returnType =>
+      cf.ClientFunctionReturnType.string;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override

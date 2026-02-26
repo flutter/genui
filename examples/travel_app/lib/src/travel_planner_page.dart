@@ -117,7 +117,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
 
           final updatedMessages = List<ChatMessage>.from(_messages.value);
           if (updatedMessages.isNotEmpty &&
-              updatedMessages.last.role == ChatMessageRole.model &&
+              updatedMessages.last.role == .model &&
               !updatedMessages.last.parts.any(
                 (p) => p is DataPart && p.isUiPart,
               )) {
@@ -132,7 +132,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         final updatedMessages = List<ChatMessage>.from(_messages.value);
         updatedMessages.add(
           ChatMessage(
-            role: ChatMessageRole.model,
+            role: .model,
             parts: [
               UiPart.create(
                 definition: event.definition,

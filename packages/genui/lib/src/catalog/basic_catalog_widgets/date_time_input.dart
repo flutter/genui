@@ -15,8 +15,8 @@ import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'A widget for selecting a date and/or time.',
   properties: {
-    'component': S.string(enumValues: ['DateTimeInput']),
     'value': A2uiSchemas.stringReference(
       description: 'The selected date and/or time.',
     ),
@@ -37,7 +37,7 @@ final _schema = S.object(
     ),
     'checks': S.list(items: A2uiSchemas.validationCheck()),
   },
-  required: ['component', 'value'],
+  required: ['value'],
 );
 
 extension type _DateTimeInputData.fromMap(JsonMap _json) {

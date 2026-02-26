@@ -13,13 +13,13 @@ import '../../primitives/simple_items.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: 'A scrollable list of child widgets.',
   properties: {
-    'component': S.string(enumValues: ['List']),
     'children': A2uiSchemas.componentArrayReference(),
     'direction': S.string(enumValues: ['vertical', 'horizontal']),
     'align': S.string(enumValues: ['start', 'center', 'end', 'stretch']),
   },
-  required: ['component', 'children'],
+  required: ['children'],
 );
 
 extension type _ListData.fromMap(JsonMap _json) {
@@ -60,11 +60,11 @@ final list = CatalogItem(
         : Axis.vertical;
 
     final CrossAxisAlignment crossAxisAlignment = switch (listData.align) {
-      'start' => CrossAxisAlignment.start,
-      'center' => CrossAxisAlignment.center,
-      'end' => CrossAxisAlignment.end,
-      'stretch' => CrossAxisAlignment.stretch,
-      _ => CrossAxisAlignment.center,
+      'start' => .start,
+      'center' => .center,
+      'end' => .end,
+      'stretch' => .stretch,
+      _ => .center,
     };
 
     Widget buildList(List<Widget> children) {

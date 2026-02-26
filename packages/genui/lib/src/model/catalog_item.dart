@@ -90,17 +90,43 @@ final class CatalogItem {
   /// Creates a new [CatalogItem].
   const CatalogItem({
     required this.name,
-    required this.dataSchema,
+    required Schema dataSchema,
     required this.widgetBuilder,
     this.exampleData = const [],
     this.isImplicitlyFlexible = false,
-  });
+  }) : _originalSchema = dataSchema;
 
   /// The widget type name used in JSON, e.g., 'TextChatMessage'.
   final String name;
 
+  final Schema _originalSchema;
+
   /// The schema definition for this widget's data.
-  final Schema dataSchema;
+  ///
+  /// It should contain all of the component specific properties, but not the
+  /// `component` discriminator property, which will be automatically injected
+  /// using the [name]. If the `component` property is already defined in the
+  /// schema, it will be ignored.
+  ObjectSchema get dataSchema {
+    final Map<String, Object?> originalMap = _originalSchema.value;
+    final Map<String, Object?> properties =
+        originalMap['properties'] as Map<String, Object?>? ??
+        <String, Object?>{};
+    final List<Object?> requiredProps =
+        originalMap['required'] as List<Object?>? ?? <Object?>[];
+
+    return ObjectSchema.fromMap(<String, Object?>{
+      ...originalMap,
+      'properties': <String, Object?>{
+        ...properties,
+        'component': <String, Object?>{
+          'type': 'string',
+          'enum': <String>[name],
+        },
+      },
+      'required': <Object?>['component', ...requiredProps],
+    });
+  }
 
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;

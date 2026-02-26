@@ -174,7 +174,7 @@ class _A2uiParserStream {
         _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(json)));
       } on A2uiValidationException catch (e) {
         _controller.addError(e);
-      } catch (e) {
+      } catch (_) {
         // Failed to parse A2UI message structure (e.g. invalid type
         // discriminator)
         _controller.add(TextEvent(jsonEncode(json)));

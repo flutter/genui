@@ -497,13 +497,13 @@ class _BookButton extends StatelessWidget {
             ? onPressed
             : null,
         child: switch (bookingStatus) {
-          BookingStatus.initial => const Text('Book'),
-          BookingStatus.inProgress => const SizedBox(
+          .initial => const Text('Book'),
+          .inProgress => const SizedBox(
             height: 24,
             width: 24,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
-          BookingStatus.done => const Icon(Icons.check, size: 24),
+          .done => const Icon(Icons.check, size: 24),
         },
       ),
     );

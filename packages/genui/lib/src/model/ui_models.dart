@@ -139,7 +139,7 @@ class SurfaceDefinition {
       _Json.components: components.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),
-      if (theme != null) _Json.theme: theme,
+      _Json.theme: ?theme,
     };
   }
 
@@ -220,18 +220,14 @@ class SurfaceDefinition {
   }
 
   bool _schemaMatchesType(Map<String, dynamic> schema, String type) {
-    if (schema.containsKey('properties')) {
-      final props = schema['properties'] as Map;
-      if (props.containsKey('component')) {
-        final compProp = props['component'] as Map<String, dynamic>;
-        if (compProp.containsKey('const') && compProp['const'] == type) {
-          return true;
-        }
-        if (compProp.containsKey('enum') &&
-            (compProp['enum'] as List).contains(type)) {
-          return true;
-        }
-      }
+    if (schema case {
+      'properties': {'component': Map<String, dynamic> compProp},
+    }) {
+      return switch (compProp) {
+        {'const': String constType} when constType == type => true,
+        {'enum': List<dynamic> enums} when enums.contains(type) => true,
+        _ => false,
+      };
     }
     return false;
   }
@@ -245,31 +241,26 @@ class SurfaceDefinition {
       return;
     }
 
-    if (schema.containsKey('const')) {
-      final Object? constVal = schema['const'];
-      if (instance != constVal) {
-        throw A2uiValidationException(
-          'Value mismatch. Expected $constVal, got $instance',
-          surfaceId: surfaceId,
-          path: path,
-        );
-      }
+    if (schema case {'const': Object? constVal} when instance != constVal) {
+      throw A2uiValidationException(
+        'Value mismatch. Expected $constVal, got $instance',
+        surfaceId: surfaceId,
+        path: path,
+      );
     }
 
-    if (schema.containsKey('enum')) {
-      final enums = schema['enum'] as List;
-      if (!enums.contains(instance)) {
-        throw A2uiValidationException(
-          'Value not in enum: $instance',
-          surfaceId: surfaceId,
-          path: path,
-        );
-      }
+    if (schema case {
+      'enum': List<dynamic> enums,
+    } when !enums.contains(instance)) {
+      throw A2uiValidationException(
+        'Value not in enum: $instance',
+        surfaceId: surfaceId,
+        path: path,
+      );
     }
 
-    if (schema.containsKey('required') && instance is Map) {
-      final List<String> required = (schema['required'] as List).cast<String>();
-      for (final key in required) {
+    if (schema case {'required': List<dynamic> required} when instance is Map) {
+      for (final String key in required.cast<String>()) {
         if (!instance.containsKey(key)) {
           throw A2uiValidationException(
             'Missing required property: $key',
@@ -280,8 +271,9 @@ class SurfaceDefinition {
       }
     }
 
-    if (schema.containsKey('properties') && instance is Map) {
-      final props = schema['properties'] as Map<String, dynamic>;
+    if (schema case {
+      'properties': Map<String, dynamic> props,
+    } when instance is Map) {
       for (final MapEntry<String, dynamic> entry in props.entries) {
         final String key = entry.key;
         final propSchema = entry.value as Map<String, dynamic>;
@@ -291,18 +283,18 @@ class SurfaceDefinition {
       }
     }
 
-    if (schema.containsKey('items') && instance is List) {
-      final itemsSchema = schema['items'] as Map<String, dynamic>;
+    if (schema case {
+      'items': Map<String, dynamic> itemsSchema,
+    } when instance is List) {
       for (var i = 0; i < instance.length; i++) {
         _validateInstance(instance[i], itemsSchema, '$path/$i');
       }
     }
 
-    if (schema.containsKey('oneOf')) {
-      final List<Map<String, dynamic>> oneOfs = (schema['oneOf'] as List)
-          .cast<Map<String, dynamic>>();
+    if (schema case {'oneOf': List<dynamic> oneOfs}) {
       var oneMatched = false;
-      for (final s in oneOfs) {
+      for (final Map<String, dynamic> s
+          in oneOfs.cast<Map<String, dynamic>>()) {
         try {
           _validateInstance(instance, s, path);
           oneMatched = true;

@@ -12,15 +12,15 @@ import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'Displays an icon from a set of available icons.',
   properties: {
-    'component': S.string(enumValues: ['Icon']),
     'name': A2uiSchemas.stringReference(
       description:
           '''The name of the icon to display. This can be a literal string or a reference to a value in the data model ('path', e.g. '/icon/name').''',
       enumValues: AvailableIcons.allAvailable,
     ),
   },
-  required: ['component', 'name'],
+  required: ['name'],
 );
 
 enum AvailableIcons {

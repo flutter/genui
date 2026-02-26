@@ -14,8 +14,8 @@ import '../../utils/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
+  description: 'An interactive button that triggers an action when pressed.',
   properties: {
-    'component': S.string(enumValues: ['Button']),
     'child': A2uiSchemas.componentReference(
       description:
           'The ID of a child widget. This should always be set, e.g. to the ID '
@@ -28,7 +28,7 @@ final _schema = S.object(
     ),
     'checks': A2uiSchemas.checkable(),
   },
-  required: ['component', 'child', 'action'],
+  required: ['child', 'action'],
 );
 
 extension type _ButtonData.fromMap(JsonMap _json) {
@@ -232,8 +232,8 @@ Future<void> _handlePress(
     );
     try {
       await resultStream.first;
-    } catch (e, stack) {
-      itemContext.reportError(e, stack);
+    } catch (exception, stackTrace) {
+      itemContext.reportError(exception, stackTrace);
     }
   } else {
     genUiLogger.warning(

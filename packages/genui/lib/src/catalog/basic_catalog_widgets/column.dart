@@ -15,8 +15,8 @@ import 'widget_helpers.dart';
 const _verticalColumnSpacing = 8.0;
 
 final _schema = S.object(
+  description: 'A layout widget that arranges its children vertically.',
   properties: {
-    'component': S.string(enumValues: ['Column']),
     'justify': S.string(
       description: 'How children are aligned on the main axis. ',
       enumValues: [
@@ -39,7 +39,7 @@ final _schema = S.object(
           'template with a data binding to the list of children.',
     ),
   },
-  required: ['component', 'children'],
+  required: ['children'],
 );
 
 extension type _ColumnData.fromMap(JsonMap _json) {
@@ -55,39 +55,25 @@ extension type _ColumnData.fromMap(JsonMap _json) {
   String? get align => _json['align'] as String?;
 }
 
-MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
-  switch (alignment) {
-    case 'start':
-      return MainAxisAlignment.start;
-    case 'center':
-      return MainAxisAlignment.center;
-    case 'end':
-      return MainAxisAlignment.end;
-    case 'spaceBetween':
-      return MainAxisAlignment.spaceBetween;
-    case 'spaceAround':
-      return MainAxisAlignment.spaceAround;
-    case 'spaceEvenly':
-      return MainAxisAlignment.spaceEvenly;
-    default:
-      return MainAxisAlignment.start;
-  }
-}
+MainAxisAlignment _parseMainAxisAlignment(String? alignment) =>
+    switch (alignment) {
+      'start' => .start,
+      'center' => .center,
+      'end' => .end,
+      'spaceBetween' => .spaceBetween,
+      'spaceAround' => .spaceAround,
+      'spaceEvenly' => .spaceEvenly,
+      _ => .start,
+    };
 
-CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) {
-  switch (alignment) {
-    case 'start':
-      return CrossAxisAlignment.start;
-    case 'center':
-      return CrossAxisAlignment.center;
-    case 'end':
-      return CrossAxisAlignment.end;
-    case 'stretch':
-      return CrossAxisAlignment.stretch;
-    default:
-      return CrossAxisAlignment.start;
-  }
-}
+CrossAxisAlignment _parseCrossAxisAlignment(String? alignment) =>
+    switch (alignment) {
+      'start' => .start,
+      'center' => .center,
+      'end' => .end,
+      'stretch' => .stretch,
+      _ => .start,
+    };
 
 /// A layout widget that arranges its children in a vertical sequence.
 ///

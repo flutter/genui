@@ -162,6 +162,36 @@ final class ChatMessage {
   /// Gets all tool results in this message.
   List<ToolPart> get toolResults => _parts.toolResults;
 
+  /// Concatenates this message with another message.
+  ///
+  /// Throws [ArgumentError] if:
+  /// - Roles are different.
+  /// - Finish statuses are both not null and different.
+  /// - Metadata sets are different.
+  ChatMessage concatenate(ChatMessage other) {
+    if (role != other.role) {
+      throw ArgumentError('Roles must match for concatenation');
+    }
+
+    if (finishStatus != null &&
+        other.finishStatus != null &&
+        finishStatus != other.finishStatus) {
+      throw ArgumentError('Finish statuses must match for concatenation');
+    }
+
+    if (!const DeepCollectionEquality().equals(metadata, other.metadata)) {
+      throw ArgumentError(
+        'Metadata sets should be equal, '
+        'but found $metadata and ${other.metadata}',
+      );
+    }
+
+    return copyWith(
+      parts: [...parts, ...other.parts],
+      finishStatus: finishStatus ?? other.finishStatus,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -174,6 +204,19 @@ final class ChatMessage {
         deepEquality.equals(other.metadata, metadata) &&
         finishStatus == other.finishStatus;
   }
+
+  /// Creates a copy of this message with optional fields replaced.
+  ChatMessage copyWith({
+    ChatMessageRole? role,
+    List<StandardPart>? parts,
+    Map<String, Object?>? metadata,
+    FinishStatus? finishStatus,
+  }) => ChatMessage(
+    role: role ?? this.role,
+    parts: parts ?? this.parts,
+    metadata: metadata ?? this.metadata,
+    finishStatus: finishStatus ?? this.finishStatus,
+  );
 
   @override
   int get hashCode => Object.hashAll([role, parts, metadata, finishStatus]);

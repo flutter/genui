@@ -13,8 +13,8 @@ import '../../widgets/widget_utilities.dart';
 import 'widget_helpers.dart';
 
 final _schema = S.object(
+  description: 'A slider for selecting a value from a range.',
   properties: {
-    'component': S.string(enumValues: ['Slider']),
     'value': A2uiSchemas.numberReference(),
     'min': S.number(description: 'The minimum value. Defaults to 0.0.'),
     'max': S.number(description: 'The maximum value. Defaults to 1.0.'),
@@ -23,7 +23,7 @@ final _schema = S.object(
     ),
     'checks': A2uiSchemas.checkable(),
   },
-  required: ['component', 'value'],
+  required: ['value'],
 );
 
 extension type _SliderData.fromMap(JsonMap _json) {

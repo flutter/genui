@@ -18,7 +18,6 @@ import '../../widgets/widget_utilities.dart';
 final _schema = S.object(
   description: 'A text input field.',
   properties: {
-    'component': S.string(enumValues: ['TextField']),
     'value': A2uiSchemas.stringReference(
       description: 'The value of the text field.',
     ),
@@ -148,9 +147,9 @@ class _TextFieldState extends State<_TextField> {
       ),
       obscureText: widget.textFieldType == 'obscured',
       keyboardType: switch (widget.textFieldType) {
-        'number' => TextInputType.number,
-        'longText' => TextInputType.multiline,
-        _ => TextInputType.text,
+        'number' => .number,
+        'longText' => .multiline,
+        _ => .text,
       },
       onChanged: (val) {
         widget.onChanged(val);
