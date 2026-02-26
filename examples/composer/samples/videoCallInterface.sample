@@ -1,0 +1,8 @@
+---
+description: A video conference UI.
+name: videoCallInterface
+prompt: |
+  Create a video call interface. It should have a 'Text' (variant 'h1') "Video Call". A 'Video' component with a valid placeholder URL (e.g. 'https://example.com/video.mp4'). Below that, a 'Row' with three 'Button's, each with a child 'Text' component with the text "Mute", "Camera", and "End Call" respectively.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["videoCallTitle","videoDisplay","callControls"],"justify":"spaceBetween","align":"center"},{"id":"videoCallTitle","component":"Text","text":"Video Call","variant":"h1"},{"id":"videoDisplay","component":"Video","url":"https://example.com/video.mp4"},{"id":"callControls","component":"Row","children":["muteButton","cameraButton","endCallButton"],"justify":"spaceEvenly","align":"center"},{"id":"muteButton","component":"Button","child":"muteButtonText","action":{"event":{"name":"muteToggle"}}},{"id":"muteButtonText","component":"Text","text":"Mute"},{"id":"cameraButton","component":"Button","child":"cameraButtonText","action":{"event":{"name":"cameraToggle"}}},{"id":"cameraButtonText","component":"Text","text":"Camera"},{"id":"endCallButton","component":"Button","child":"endCallButtonText","action":{"event":{"name":"endCall"}}},{"id":"endCallButtonText","component":"Text","text":"End Call"}]}}

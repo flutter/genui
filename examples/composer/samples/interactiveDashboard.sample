@@ -1,0 +1,17 @@
+---
+description: A dashboard with filters and data cards.
+name: interactiveDashboard
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for an interactive analytics dashboard.
+    At the top, a 'Text' (variant 'h1') "Company Dashboard".
+    Below the text heading, a 'Card' containing a 'Row' of filter controls:
+    - A 'DateTimeInput' with a label for "Start Date" (initialize with empty value).
+    - A 'DateTimeInput' with a label for "End Date" (initialize with empty value).
+    - A 'Button' labeled "Apply Filters".
+    Below the filters card, a 'Row' containing two 'Card's for key metrics:
+    - The first 'Card' has a 'Text' (variant 'h2') "Total Revenue" and a 'Text' component showing "$1,234,567".
+    - The second 'Card' has a 'Text' (variant 'h2') "New Users" and a 'Text' component showing "4,321".
+    Finally, a large 'Card' at the bottom with a 'Text' (variant 'h2') "Revenue Over Time" and a placeholder 'Image' with a valid URL to represent a line chart.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["dashboardTitle","filtersCard","metricsRow","revenueChartCard"]},{"id":"dashboardTitle","component":"Text","text":"Company Dashboard","variant":"h1"},{"id":"filtersCard","component":"Card","child":"filterControlsRow"},{"id":"filterControlsRow","component":"Row","children":["startDateInput","endDateInput","applyFiltersButton"],"justify":"spaceBetween"},{"id":"startDateInput","component":"DateTimeInput","label":"Start Date","value":"","enableDate":true},{"id":"endDateInput","component":"DateTimeInput","label":"End Date","value":"","enableDate":true},{"id":"applyFiltersButton","component":"Button","child":"applyFiltersText","action":{"event":{"name":"applyFilters"}}},{"id":"applyFiltersText","component":"Text","text":"Apply Filters"},{"id":"metricsRow","component":"Row","children":["totalRevenueCard","newUsersCard"],"justify":"spaceEvenly"},{"id":"totalRevenueCard","component":"Card","child":"totalRevenueColumn"},{"id":"totalRevenueColumn","component":"Column","children":["totalRevenueTitle","totalRevenueValue"]},{"id":"totalRevenueTitle","component":"Text","text":"Total Revenue","variant":"h2"},{"id":"totalRevenueValue","component":"Text","text":"$1,234,567"},{"id":"newUsersCard","component":"Card","child":"newUsersColumn"},{"id":"newUsersColumn","component":"Column","children":["newUsersTitle","newUsersValue"]},{"id":"newUsersTitle","component":"Text","text":"New Users","variant":"h2"},{"id":"newUsersValue","component":"Text","text":"4,321"},{"id":"revenueChartCard","component":"Card","child":"revenueChartColumn"},{"id":"revenueChartColumn","component":"Column","children":["revenueChartTitle","revenueChartImage"]},{"id":"revenueChartTitle","component":"Text","text":"Revenue Over Time","variant":"h2"},{"id":"revenueChartImage","component":"Image","url":"https://via.placeholder.com/600x300?text=Line+Chart"}]}}

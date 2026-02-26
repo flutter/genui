@@ -1,0 +1,8 @@
+---
+description: A simple login form with username, password, a "remember me" checkbox, and a submit button.
+name: loginForm
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a login form. It should have a "Login" text (variant 'h1'), two text fields for username and password (bound to /login/username and /login/password), a checkbox for "Remember Me" (bound to /login/rememberMe), and a "Sign In" button. The button's action should have a 'event' property with 'name': 'login', and a 'context' containing the username, password, and rememberMe status.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["loginTitle","usernameField","passwordField","rememberMeCheckbox","signInButton"],"justify":"center","align":"center"},{"id":"loginTitle","component":"Text","text":"Login","variant":"h1"},{"id":"usernameField","component":"TextField","label":"Username","value":{"path":"/login/username"}},{"id":"passwordField","component":"TextField","label":"Password","value":{"path":"/login/password"},"variant":"obscured"},{"id":"rememberMeCheckbox","component":"CheckBox","label":"Remember Me","value":{"path":"/login/rememberMe"}},{"id":"signInButton","component":"Button","child":"signInButtonText","action":{"event":{"name":"login","context":{"username":{"path":"/login/username"},"password":{"path":"/login/password"},"rememberMe":{"path":"/login/rememberMe"}}}}},{"id":"signInButtonText","component":"Text","text":"Sign In"}]}}

@@ -1,0 +1,10 @@
+---
+description: A course syllabus outline.
+name: courseSyllabus
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a course syllabus. 'Text' (h1) "Introduction to Computer Science". 'List' of modules.
+  - For module 1, a 'Card' with 'Text' "Algorithms" and 'List' ("Sorting", "Searching").
+  - For module 2, a 'Card' with 'Text' "Data Structures" and 'List' ("Arrays", "Linked Lists").
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["title","modulesList"]},{"id":"title","component":"Text","text":"Introduction to Computer Science","variant":"h1"},{"id":"modulesList","component":"List","children":["module1Card","module2Card"],"direction":"vertical"},{"id":"module1Card","component":"Card","child":"module1Content"},{"id":"module1Content","component":"Column","children":["module1Title","module1Items"]},{"id":"module1Title","component":"Text","text":"Algorithms","variant":"h4"},{"id":"module1Items","component":"List","children":["sortingText","searchingText"],"direction":"vertical"},{"id":"sortingText","component":"Text","text":"Sorting","variant":"body"},{"id":"searchingText","component":"Text","text":"Searching","variant":"body"},{"id":"module2Card","component":"Card","child":"module2Content"},{"id":"module2Content","component":"Column","children":["module2Title","module2Items"]},{"id":"module2Title","component":"Text","text":"Data Structures","variant":"h4"},{"id":"module2Items","component":"List","children":["arraysText","linkedListsText"],"direction":"vertical"},{"id":"arraysText","component":"Text","text":"Arrays","variant":"body"},{"id":"linkedListsText","component":"Text","text":"Linked Lists","variant":"body"}]}}

@@ -1,0 +1,8 @@
+---
+description: A file explorer list.
+name: fileBrowser
+prompt: |
+  Create a file browser. It should have a 'Text' (variant 'h1') "My Files". A 'List' of 'Row's. Each row has an 'Icon' (folder or attachFile) and a 'Text' (filename). Examples (create these as static rows, not data bound): "Documents", "Images", "Work.txt".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["myFilesTitle","fileList"]},{"id":"myFilesTitle","component":"Text","text":"My Files","variant":"h1"},{"id":"fileList","component":"List","direction":"vertical","children":["row1","row2","row3"]},{"id":"row1","component":"Row","children":["iconFolder1","textDocuments"]},{"id":"iconFolder1","component":"Icon","name":"folder"},{"id":"textDocuments","component":"Text","text":"Documents"},{"id":"row2","component":"Row","children":["iconFolder2","textImages"]},{"id":"iconFolder2","component":"Icon","name":"folder"},{"id":"textImages","component":"Text","text":"Images"},{"id":"row3","component":"Row","children":["iconFile3","textWorkTxt"]},{"id":"iconFile3","component":"Icon","name":"attachFile"},{"id":"textWorkTxt","component":"Text","text":"Work.txt"}]}}

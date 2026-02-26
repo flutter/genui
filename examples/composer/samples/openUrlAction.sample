@@ -1,0 +1,10 @@
+---
+description: A button that opens an external URL.
+name: openUrlAction
+prompt: |
+  Create a 'createSurface' and 'updateComponents' message. Surface ID 'main'.
+      Include a 'Button' labeled "Visit Website".
+      The button's action should be a client-side function call to 'openUrl' with the argument 'url': 'https://a2ui.org'.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["websiteButton"]},{"id":"websiteButton","component":"Button","child":"buttonLabel","action":{"functionCall":{"call":"openUrl","args":{"url":"https://a2ui.org"},"returnType":"void"}}},{"id":"buttonLabel","component":"Text","text":"Visit Website"}]}}

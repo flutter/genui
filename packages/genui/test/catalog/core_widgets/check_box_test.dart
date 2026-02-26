@@ -48,12 +48,12 @@ void main() {
     );
 
     expect(find.text('Check me'), findsOneWidget);
-    final CheckboxListTile checkbox = tester.widget<CheckboxListTile>(
-      find.byType(CheckboxListTile),
+    final Checkbox checkbox = tester.widget<Checkbox>(
+      find.byType(Checkbox),
     );
     expect(checkbox.value, isTrue);
 
-    await tester.tap(find.byType(CheckboxListTile));
+    await tester.tap(find.byType(Checkbox));
     expect(
       surfaceController
           .contextFor(surfaceId)

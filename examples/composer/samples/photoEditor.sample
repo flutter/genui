@@ -1,0 +1,9 @@
+---
+description: A photo editing interface with sliders.
+name: photoEditor
+prompt: |
+  Create a photo editor. It should have a large 'Image' (photo). Below it, a 'Row' of 'Button's (Filters, Crop, Adjust). Below that, a 'Slider' labeled "Intensity" (initialize value to 50).
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["photo","buttonRow","intensitySlider"]},{"id":"photo","component":"Image","url":"https://a2ui.org/img/image_placeholder.png","variant":"largeFeature"},{"id":"buttonRow","component":"Row","justify":"spaceBetween","children":["filtersButton","cropButton","adjustButton"]},{"id":"filtersButton","component":"Button","child":"filtersButtonText","action":{"event":{"name":"filters_clicked"}}},{"id":"filtersButtonText","component":"Text","text":"Filters"},{"id":"cropButton","component":"Button","child":"cropButtonText","action":{"event":{"name":"crop_clicked"}}},{"id":"cropButtonText","component":"Text","text":"Crop"},{"id":"adjustButton","component":"Button","child":"adjustButtonText","action":{"event":{"name":"adjust_clicked"}}},{"id":"adjustButtonText","component":"Text","text":"Adjust"},{"id":"intensitySlider","component":"Slider","label":"Intensity","min":0,"max":100,"value":{"path":"/intensity"}}]}}
+{"version":"v0.9","updateDataModel":{"surfaceId":"main","value":{"intensity":50}}}
