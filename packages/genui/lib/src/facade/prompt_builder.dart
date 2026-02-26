@@ -42,7 +42,7 @@ abstract class PromptBuilder {
   /// and restrict surface deletion and updates.
   factory PromptBuilder.chat({
     required Catalog catalog,
-    ChatMessage? systemPrompt,
+    List<String> systemPrompt = const [],
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
@@ -55,7 +55,7 @@ abstract class PromptBuilder {
 
   factory PromptBuilder.custom({
     required Catalog catalog,
-    ChatMessage? systemPrompt,
+    required List<String> systemPrompt,
     required bool allowSurfaceCreation,
     required bool allowSurfaceUpdate,
     required bool allowSurfaceDeletion,
@@ -69,7 +69,7 @@ abstract class PromptBuilder {
     );
   }
 
-  String prompt({ChatMessage? userMessage, ChatMessage? context});
+  ChatMessage prompt({ChatMessage? userMessage, Object? context});
 }
 
 class BasicPromptBuilder implements PromptBuilder {
@@ -85,14 +85,18 @@ class BasicPromptBuilder implements PromptBuilder {
       fragments.map((e) => e.trim()).join('\n\n');
 
   @override
-  String prompt({ChatMessage? userMessage, ChatMessage? context}) {
+  ChatMessage prompt({ChatMessage? userMessage, Object? context}) {}
+
+  /// System prompt that combines [systemPrompt], [catalog],
+  /// and allowed surface operations.
+  late final String _systemPrompt = () {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
 
     final fragments = <String>[
       ...systemPrompt,
-      'Use the provided tools to respond to the user using rich UI elements.',
+      'Use the provided tools to respond to user using rich UI elements.',
       ...catalog.systemPrompt,
       '''
   <a2ui_schema>
@@ -103,13 +107,13 @@ class BasicPromptBuilder implements PromptBuilder {
     ];
 
     return _fragmentsToPrompt(fragments);
-  }
+  }();
 
   @override
   final Catalog catalog;
 
   @override
-  final ChatMessage? systemPrompt;
+  final List<String> systemPrompt;
 
   final bool allowSurfaceCreation;
   final bool allowSurfaceUpdate;
