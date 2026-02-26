@@ -24,7 +24,7 @@ the user can indicate that they are done providing information.
 ''';
 }
 
-abstract class _SurfaceOperations {
+abstract class _SurfaceSystemPrompt {
   static const String uniqueSurfaceId =
       '''
 $_importancePrefix When you generate UI in a response, you MUST always create
@@ -34,50 +34,84 @@ previously used `surfaceId`s. Each UI response must be in its own new surface.
 }
 
 /// A builder for a prompt to generate UI.
-class PromptBuilder {
+abstract class PromptBuilder {
   /// Creates a chat prompt builder.
   ///
   /// The builder will generate a prompt for a chat session,
   /// that instructs to create new surfaces for each response
   /// and restrict surface deletion and updates.
-  PromptBuilder.chat({required this.catalog, this.instructions = const []});
+  factory PromptBuilder.chat({
+    required Catalog catalog,
+    ChatMessage? systemPrompt,
+  }) {
+    return BasicPromptBuilder(
+      catalog: catalog,
+      systemPrompt: systemPrompt,
+      allowSurfaceCreation: true,
+      allowSurfaceUpdate: false,
+      allowSurfaceDeletion: false,
+    );
+  }
 
-  /// Instructions for the generated UI.
-  ///
-  /// This can include description of target user profile,
-  /// description of the typical tasks the user wants to perform,
-  /// wanted profile of the AI agent, examples of good responses,
-  /// instructions of mandatory elements to include in the UI.
-  ///
-  /// The instructions will be joined with a newline.
-  ///
-  /// Use constants from [PromptFragments] for common cases.
-  final List<String> instructions;
+  factory PromptBuilder.custom({
+    required Catalog catalog,
+    ChatMessage? systemPrompt,
+    required bool allowSurfaceCreation,
+    required bool allowSurfaceUpdate,
+    required bool allowSurfaceDeletion,
+  }) {
+    return BasicPromptBuilder(
+      catalog: catalog,
+      systemPrompt: systemPrompt,
+      allowSurfaceCreation: allowSurfaceCreation,
+      allowSurfaceUpdate: allowSurfaceUpdate,
+      allowSurfaceDeletion: allowSurfaceDeletion,
+    );
+  }
 
-  /// Catalog to use for the generated UI.
-  final Catalog catalog;
+  String prompt({ChatMessage? userMessage, ChatMessage? context});
+}
+
+class BasicPromptBuilder implements PromptBuilder {
+  BasicPromptBuilder({
+    required this.catalog,
+    required this.systemPrompt,
+    required this.allowSurfaceCreation,
+    required this.allowSurfaceUpdate,
+    required this.allowSurfaceDeletion,
+  });
 
   static String _fragmentsToPrompt(List<String> fragments) =>
       fragments.map((e) => e.trim()).join('\n\n');
 
-  late final String
-  prompt = ({ChatMessage? userMessage, ChatMessage? context}) {
+  @override
+  String prompt({ChatMessage? userMessage, ChatMessage? context}) {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
 
     final fragments = <String>[
-      ...instructions,
+      ...systemPrompt,
       'Use the provided tools to respond to the user using rich UI elements.',
-      ...catalog.instructions,
+      ...catalog.systemPrompt,
       '''
-<a2ui_schema>
-$a2uiSchema
-</a2ui_schema>
-''',
+  <a2ui_schema>
+  $a2uiSchema
+  </a2ui_schema>
+  ''',
       BasicCatalogEmbed.basicCatalogRules,
     ];
 
     return _fragmentsToPrompt(fragments);
-  }();
+  }
+
+  @override
+  final Catalog catalog;
+
+  @override
+  final ChatMessage? systemPrompt;
+
+  final bool allowSurfaceCreation;
+  final bool allowSurfaceUpdate;
+  final bool allowSurfaceDeletion;
 }

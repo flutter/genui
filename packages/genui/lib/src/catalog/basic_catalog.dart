@@ -128,7 +128,7 @@ abstract final class BasicCatalogItems {
       ],
       functions: BasicFunctions.all,
       catalogId: basicCatalogId,
-      instructions: instructions,
+      systemPrompt: instructions,
     );
   }
 }

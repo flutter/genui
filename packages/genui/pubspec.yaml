@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_markdown_plus: ^1.0.5
-  genai_primitives: ^0.2.0
+  genai_primitives: ^0.2.3
   intl: ^0.20.2
   json_schema_builder: ^0.1.3
   logging: ^1.3.0

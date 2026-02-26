@@ -13,7 +13,7 @@ void main() {
     test('includes instructions when provided', () {
       final builder = PromptBuilder.chat(
         catalog: catalog,
-        instructions: instructions,
+        systemPrompt: instructions,
       );
 
       expect(builder.systemPrompt, contains(instructions));

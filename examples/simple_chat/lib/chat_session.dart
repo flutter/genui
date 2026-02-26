@@ -79,13 +79,13 @@ or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 
     final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
-      instructions: [
+      systemPrompt: [
         'You are a helpful assistant who chats with a user.',
         PromptFragments.acknowledgeUser,
         PromptFragments.requireAtLeastOneSubmitElement,
       ],
     );
-    _transport.addSystemMessage(promptBuilder.systemPrompt);
+    _transport.addSystemMessage(promptBuilder.prompt);
   }
 
   void _addSurfaceMessage(String surfaceId) {
