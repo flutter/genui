@@ -22,7 +22,6 @@ the user can indicate that they are done providing information.
 ''';
 }
 
-const String _defaultSectionSeparator = '\n\n-------\n\n';
 const String _defaultImportancePrefix = 'IMPORTANT:';
 
 // ignore: unused_element
@@ -45,8 +44,7 @@ abstract class PromptBuilder {
   /// and restrict surface deletion and updates.
   factory PromptBuilder.chat({
     required Catalog catalog,
-    List<String> systemPromptFragments = const [],
-    String sectionSeparator = _defaultSectionSeparator,
+    Iterable<String> systemPromptFragments = const [],
     String importancePrefix = _defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
@@ -55,18 +53,16 @@ abstract class PromptBuilder {
       allowSurfaceCreation: true,
       allowSurfaceUpdate: false,
       allowSurfaceDeletion: false,
-      sectionSeparator: _defaultSectionSeparator,
       importancePrefix: _defaultImportancePrefix,
     );
   }
 
   factory PromptBuilder.custom({
     required Catalog catalog,
-    required List<String> systemPromptFragments,
+    required Iterable<String> systemPromptFragments,
     required bool allowSurfaceCreation,
     required bool allowSurfaceUpdate,
     required bool allowSurfaceDeletion,
-    String sectionSeparator = _defaultSectionSeparator,
     String importancePrefix = _defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
@@ -75,12 +71,11 @@ abstract class PromptBuilder {
       allowSurfaceCreation: allowSurfaceCreation,
       allowSurfaceUpdate: allowSurfaceUpdate,
       allowSurfaceDeletion: allowSurfaceDeletion,
-      sectionSeparator: sectionSeparator,
       importancePrefix: importancePrefix,
     );
   }
 
-  String get systemPrompt;
+  Iterable<String> get systemPrompt;
 }
 
 final class BasicPromptBuilder implements PromptBuilder {
@@ -90,7 +85,6 @@ final class BasicPromptBuilder implements PromptBuilder {
     required this.allowSurfaceCreation,
     required this.allowSurfaceUpdate,
     required this.allowSurfaceDeletion,
-    required this.sectionSeparator,
     required this.importancePrefix,
   });
 
@@ -99,11 +93,6 @@ final class BasicPromptBuilder implements PromptBuilder {
   final bool allowSurfaceCreation;
   final bool allowSurfaceUpdate;
   final bool allowSurfaceDeletion;
-
-  /// Separator between sections of the prompt.
-  ///
-  /// The sections will be trimmed and joined with this separator.
-  final String sectionSeparator;
 
   /// Prefix for important sections of the prompt.
   ///
@@ -114,13 +103,13 @@ final class BasicPromptBuilder implements PromptBuilder {
   /// Additional system prompt fragments.
   ///
   /// These fragments are added on top of what is provided by the catalog.
-  final List<String> systemPromptFragments;
+  final Iterable<String> systemPromptFragments;
 
-  String _fragmentsToPrompt(List<String> fragments) =>
-      fragments.map((e) => e.trim()).join(sectionSeparator);
+  Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
+      fragments.map((e) => e.trim());
 
   @override
-  late final String systemPrompt = () {
+  late final Iterable<String> systemPrompt = () {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
