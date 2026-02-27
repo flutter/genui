@@ -1,0 +1,142 @@
+{
+  "appTitle": "Glow",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "welcomeSubtitle": "Personalized Wallpaper & GenUI Showcase",
+  "@welcomeSubtitle": {
+    "description": "Subtitle on the welcome screen"
+  },
+  "welcomeDescription": "Welcome to Glow! Take a fun, interactive personality quiz driven by Gemini AI to discover your unique visual style. We'll generate a one-of-a-kind phone wallpaper, and then you can refine it through an iterative, agent-assisted creative process.",
+  "@welcomeDescription": {
+    "description": "Description on the welcome screen"
+  },
+  "personalityQuiz": "Personality Quiz",
+  "@personalityQuiz": {
+    "description": "Label for personality quiz feature"
+  },
+  "aiGeneration": "AI Generation",
+  "@aiGeneration": {
+    "description": "Label for AI generation feature"
+  },
+  "iterativeRefinement": "Iterative Refinement",
+  "@iterativeRefinement": {
+    "description": "Label for iterative refinement feature"
+  },
+  "getStarted": "Get Started",
+  "@getStarted": {
+    "description": "Button text to get started"
+  },
+  "changeApiKey": "Change API Key",
+  "@changeApiKey": {
+    "description": "Button text to change API key"
+  },
+  "poweredBy": "Powered by GenUI SDK for Flutter & Gemini Models",
+  "@poweredBy": {
+    "description": "Footer text showing technology stack"
+  },
+  "apiKeyDialogTitle": "Enter Gemini API Key",
+  "@apiKeyDialogTitle": {
+    "description": "Title of the API key dialog"
+  },
+  "apiKeyDialogDescription": "To use Glow, you need a free Gemini API Key.",
+  "@apiKeyDialogDescription": {
+    "description": "Description in the API key dialog"
+  },
+  "getApiKeyHere": "Get an API Key here",
+  "@getApiKeyHere": {
+    "description": "Link text to get an API key"
+  },
+  "apiKeyLabel": "API Key",
+  "@apiKeyLabel": {
+    "description": "Label for API key input field"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "quizTitle": "Glow Personality Quiz",
+  "@quizTitle": {
+    "description": "Title of the quiz screen"
+  },
+  "questionCount": "Question {currentIndex} of {totalQuestions}",
+  "@questionCount": {
+    "description": "Counter for the current question",
+    "placeholders": {
+      "currentIndex": {
+        "type": "int"
+      },
+      "totalQuestions": {
+        "type": "int"
+      }
+    }
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Next button text"
+  },
+  "skipToGeneration": "Skip to generation",
+  "@skipToGeneration": {
+    "description": "Skip to generation button text"
+  },
+  "generatingGlow": "Generating your personal glow...",
+  "@generatingGlow": {
+    "description": "Text shown during wallpaper generation"
+  },
+  "generationDescription": "Using Gemini to create your wallpaper.\nThis may take a moment.",
+  "@generationDescription": {
+    "description": "Description shown during wallpaper generation"
+  },
+  "adjustWallpaper": "Adjust Wallpaper",
+  "@adjustWallpaper": {
+    "description": "Header for adjusting wallpaper settings"
+  },
+  "wallpaperStyle": "Wallpaper Style",
+  "@wallpaperStyle": {
+    "description": "Header for wallpaper style selection"
+  },
+  "regenerate": "Regenerate",
+  "@regenerate": {
+    "description": "Label for the regenerate button"
+  },
+  "styleCosmic": "Cosmic",
+  "@styleCosmic": {
+    "description": "Label for the Cosmic style"
+  },
+  "styleAbstract": "Abstract",
+  "@styleAbstract": {
+    "description": "Label for the Abstract style"
+  },
+  "styleNature": "Nature",
+  "@styleNature": {
+    "description": "Label for the Nature style"
+  },
+  "styleCrystal": "Crystal",
+  "@styleCrystal": {
+    "description": "Label for the Crystal style"
+  },
+  "atmosphereWarmCalm": "Warm & Calm",
+  "@atmosphereWarmCalm": {
+    "description": "Label for the warm and calm atmosphere setting"
+  },
+  "atmosphereCoolEnergetic": "Cool & Energetic",
+  "@atmosphereCoolEnergetic": {
+    "description": "Label for the cool and energetic atmosphere setting"
+  },
+  "atmosphereLabel": "Atmosphere",
+  "@atmosphereLabel": {
+    "description": "Label for the atmosphere slider"
+  },
+  "keyElementLabel": "Key Element",
+  "@keyElementLabel": {
+    "description": "Label for the key element selection"
+  },
+  "myGlowWallpaper": "My Glow Wallpaper",
+  "@myGlowWallpaper": {
+    "description": "Default title for the wallpaper editor"
+  }
+}
