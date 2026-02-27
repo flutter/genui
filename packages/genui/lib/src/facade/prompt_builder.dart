@@ -52,52 +52,52 @@ abstract class PromptBuilder {
     return BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
-      allowSurfaceCreation: true,
-      allowSurfaceUpdate: false,
-      allowSurfaceDeletion: false,
-      importancePrefix: _defaultImportancePrefix,
+      allowedOperations: const SurfaceOperations.createOnly(),
+      importancePrefix: importancePrefix,
     );
   }
 
   factory PromptBuilder.custom({
     required Catalog catalog,
     required Iterable<String> systemPromptFragments,
-    required bool allowSurfaceCreation,
-    required bool allowSurfaceUpdate,
-    required bool allowSurfaceDeletion,
+    required SurfaceOperations allowedOperations,
     String importancePrefix = _defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
-      allowSurfaceCreation: allowSurfaceCreation,
-      allowSurfaceUpdate: allowSurfaceUpdate,
-      allowSurfaceDeletion: allowSurfaceDeletion,
+      allowedOperations: allowedOperations,
       importancePrefix: importancePrefix,
     );
   }
 
   Iterable<String> get systemPrompt;
 
-  String systemPromptJoined({String separator = '\n\n----\n\n'}) =>
-      systemPrompt.map((e) => e.trim()).join(separator);
+  String systemPromptJoined({String sectionSeparator = '\n\n----\n\n'}) =>
+      systemPrompt.map((e) => e.trim()).join(sectionSeparator);
+}
+
+/// Defines the set of allowed surface operations.
+final class SurfaceOperations {
+  const SurfaceOperations.createOnly() : create = true, update = false;
+  const SurfaceOperations.updateOnly() : create = false, update = true;
+  const SurfaceOperations.createAndUpdate() : create = true, update = true;
+
+  final bool create;
+  final bool update;
 }
 
 final class BasicPromptBuilder extends PromptBuilder {
   const BasicPromptBuilder({
     required this.catalog,
     required this.systemPromptFragments,
-    required this.allowSurfaceCreation,
-    required this.allowSurfaceUpdate,
-    required this.allowSurfaceDeletion,
+    required this.allowedOperations,
     required this.importancePrefix,
   });
 
   final Catalog catalog;
 
-  final bool allowSurfaceCreation;
-  final bool allowSurfaceUpdate;
-  final bool allowSurfaceDeletion;
+  final SurfaceOperations allowedOperations;
 
   /// Prefix for important sections of the prompt.
   ///
@@ -128,7 +128,6 @@ final class BasicPromptBuilder extends PromptBuilder {
   $a2uiSchema
   </a2ui_schema>
   ''',
-      '', // Empty line to separate anything concatenated later.
     ];
 
     return _fragmentsToPrompt(fragments);
