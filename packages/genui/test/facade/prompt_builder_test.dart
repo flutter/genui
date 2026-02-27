@@ -16,28 +16,31 @@ void main() {
         systemPrompt: instructions,
       );
 
-      expect(builder.systemPrompt, contains(instructions));
+      expect(builder.systemPromptFragments, contains(instructions));
     });
 
     test('includes warning about surfaceId', () {
       final builder = PromptBuilder.chat(catalog: catalog);
 
-      expect(builder.systemPrompt, contains('IMPORTANT: When you generate UI'));
-      expect(builder.systemPrompt, contains('surfaceId'));
+      expect(
+        builder.systemPromptFragments,
+        contains('IMPORTANT: When you generate UI'),
+      );
+      expect(builder.systemPromptFragments, contains('surfaceId'));
     });
 
     test('includes A2UI schema', () {
       final builder = PromptBuilder.chat(catalog: catalog);
 
-      expect(builder.systemPrompt, contains('<a2ui_schema>'));
-      expect(builder.systemPrompt, contains('</a2ui_schema>'));
+      expect(builder.systemPromptFragments, contains('<a2ui_schema>'));
+      expect(builder.systemPromptFragments, contains('</a2ui_schema>'));
     });
 
     test('includes basic catalog rules', () {
       final builder = PromptBuilder.chat(catalog: catalog);
 
       expect(
-        builder.systemPrompt,
+        builder.systemPromptFragments,
         contains(BasicCatalogEmbed.basicCatalogRules),
       );
     });
@@ -45,7 +48,10 @@ void main() {
     test('includes basic chat prompt fragment', () {
       final builder = PromptBuilder.chat(catalog: catalog);
 
-      expect(builder.systemPrompt, contains('# Outputting UI information'));
+      expect(
+        builder.systemPromptFragments,
+        contains('# Outputting UI information'),
+      );
     });
   });
 }

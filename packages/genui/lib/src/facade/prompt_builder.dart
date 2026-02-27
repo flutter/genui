@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import '../../genui.dart';
 import '../model/a2ui_message.dart';
-import '../model/basic_catalog_embed.dart';
 import '../model/catalog.dart';
 
 const String _importancePrefix = 'IMPORTANT:';
@@ -24,14 +23,14 @@ the user can indicate that they are done providing information.
 ''';
 }
 
-abstract class _SurfaceSystemPrompt {
-  static const String uniqueSurfaceId =
-      '''
-$_importancePrefix When you generate UI in a response, you MUST always create
-a new surface with a unique `surfaceId`. Do NOT reuse or update
-previously used `surfaceId`s. Each UI response must be in its own new surface.
-''';
-}
+// abstract class _SurfaceSystemPrompt {
+//   static const String uniqueSurfaceId =
+//       '''
+// $_importancePrefix When you generate UI in a response, you MUST always create
+// a new surface with a unique `surfaceId`. Do NOT reuse or update
+// previously used `surfaceId`s. Each UI response must be in its own new surface.
+// ''';
+// }
 
 /// A builder for a prompt to generate UI.
 abstract class PromptBuilder {
@@ -42,11 +41,11 @@ abstract class PromptBuilder {
   /// and restrict surface deletion and updates.
   factory PromptBuilder.chat({
     required Catalog catalog,
-    List<String> systemPrompt = const [],
+    List<String> systemPromptFragments = const [],
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
-      systemPrompt: systemPrompt,
+      systemPromptFragments: systemPromptFragments,
       allowSurfaceCreation: true,
       allowSurfaceUpdate: false,
       allowSurfaceDeletion: false,
@@ -55,67 +54,66 @@ abstract class PromptBuilder {
 
   factory PromptBuilder.custom({
     required Catalog catalog,
-    required List<String> systemPrompt,
+    required List<String> systemPromptFragments,
     required bool allowSurfaceCreation,
     required bool allowSurfaceUpdate,
     required bool allowSurfaceDeletion,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
-      systemPrompt: systemPrompt,
+      systemPromptFragments: systemPromptFragments,
       allowSurfaceCreation: allowSurfaceCreation,
       allowSurfaceUpdate: allowSurfaceUpdate,
       allowSurfaceDeletion: allowSurfaceDeletion,
     );
   }
 
-  ChatMessage prompt({ChatMessage? userMessage, Object? context});
+  String get systemPrompt;
 }
 
 class BasicPromptBuilder implements PromptBuilder {
   BasicPromptBuilder({
     required this.catalog,
-    required this.systemPrompt,
+    required this.systemPromptFragments,
     required this.allowSurfaceCreation,
     required this.allowSurfaceUpdate,
     required this.allowSurfaceDeletion,
   });
 
+  final Catalog catalog;
+
+  final bool allowSurfaceCreation;
+  final bool allowSurfaceUpdate;
+  final bool allowSurfaceDeletion;
+
+  /// Additional system prompt fragments.
+  ///
+  /// These fragments are added on top of what is provided by the catalog.
+  final List<String> systemPromptFragments;
+
+  static const _separator = '-------';
+
   static String _fragmentsToPrompt(List<String> fragments) =>
-      fragments.map((e) => e.trim()).join('\n\n');
+      fragments.map((e) => e.trim()).join('\n$_separator\n');
 
   @override
-  ChatMessage prompt({ChatMessage? userMessage, Object? context}) {}
-
-  /// System prompt that combines [systemPrompt], [catalog],
-  /// and allowed surface operations.
-  late final String _systemPrompt = () {
+  late final String systemPrompt = () {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
 
     final fragments = <String>[
-      ...systemPrompt,
+      ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
-      ...catalog.systemPrompt,
+      ...catalog.systemPromptFragments,
       '''
   <a2ui_schema>
   $a2uiSchema
   </a2ui_schema>
   ''',
-      BasicCatalogEmbed.basicCatalogRules,
+      '', // Empty line to separate anything concatenated later.
     ];
 
     return _fragmentsToPrompt(fragments);
   }();
-
-  @override
-  final Catalog catalog;
-
-  @override
-  final List<String> systemPrompt;
-
-  final bool allowSurfaceCreation;
-  final bool allowSurfaceUpdate;
-  final bool allowSurfaceDeletion;
 }

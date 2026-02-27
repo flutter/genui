@@ -32,7 +32,7 @@ interface class Catalog {
     this.items, {
     this.functions = const [],
     this.catalogId,
-    this.systemPrompt = const [],
+    this.systemPromptFragments = const [],
   });
 
   /// The list of [CatalogItem]s available in this catalog.
@@ -47,13 +47,12 @@ interface class Catalog {
   /// e.g. 'com.example.my_catalog'.
   final String? catalogId;
 
-  /// Instructions for the generated UI.
+  /// Instructions for UI generation.
   ///
   /// This can include explanation when to use which catalog items.
   ///
-  /// The items will be concatenated into the system prompt,
-  /// separated by newlines.
-  final List<String> systemPrompt;
+  /// The items will be incorporated into the system prompt.
+  final List<String> systemPromptFragments;
 
   /// If an item or function with the same name already exists in the catalog,
   /// it will be replaced with the new one.

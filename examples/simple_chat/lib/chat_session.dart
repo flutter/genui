@@ -20,13 +20,13 @@ class ChatSession extends ChangeNotifier {
 
     // 2. Initialize Catalog & Controller
     final Catalog catalog = BasicCatalogItems.asCatalog(
-      instructions: [
+      systemPrompt: [
         '''
 When you need additional information from user,
 try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
 ''',
         '''
-If there is no way to itemize the options, use the component '${BasicCatalogItems.textField.name}'
+If there is no way to itemize all the options, eitheruse the component '${BasicCatalogItems.textField.name}'
 or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 ''',
       ],
@@ -79,13 +79,13 @@ or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 
     final promptBuilder = PromptBuilder.chat(
       catalog: catalog,
-      systemPrompt: [
+      systemPromptFragments: [
         'You are a helpful assistant who chats with a user.',
         PromptFragments.acknowledgeUser,
         PromptFragments.requireAtLeastOneSubmitElement,
       ],
     );
-    _transport.addSystemMessage(promptBuilder.prompt);
+    _transport.addSystemMessage(promptBuilder.systemPrompt);
   }
 
   void _addSurfaceMessage(String surfaceId) {
