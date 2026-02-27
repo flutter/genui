@@ -82,7 +82,9 @@ or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
       systemPromptFragments: [
         'You are a helpful assistant who chats with a user.',
         PromptFragments.acknowledgeUser(),
-        PromptFragments.requireAtLeastOneSubmitElement(),
+        PromptFragments.requireAtLeastOneSubmitElement(
+          prefix: PromptBuilder.defaultImportancePrefix,
+        ),
       ],
     );
     _transport.addSystemMessage(promptBuilder.systemPromptJoined());

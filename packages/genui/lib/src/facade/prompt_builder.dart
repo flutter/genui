@@ -7,36 +7,35 @@ import '../model/catalog.dart';
 
 /// Common fragments for prompts.
 abstract class PromptFragments {
-  static String acknowledgeUser({
-    String importancePrefix = _defaultImportancePrefix,
-  }) => ''' 
-Your responses should contain acknowledgment of the user message.
-''';
-  static String requireAtLeastOneSubmitElement({
-    String importancePrefix = _defaultImportancePrefix,
-  }) =>
+  static String acknowledgeUser({String prefix = ''}) =>
+      ''' 
+${prefix}Your responses should contain acknowledgment of the user message.
+'''
+          .trim();
+  static String requireAtLeastOneSubmitElement({String prefix = ''}) =>
       '''
-$importancePrefix When you are asking for information from the user, you should always include
+${prefix}When you are asking for information from the user, you should always include
 at least one submit button of some kind or another submitting element so that
 the user can indicate that they are done providing information.
-''';
+'''
+          .trim();
 }
-
-const String _defaultImportancePrefix = 'IMPORTANT:';
 
 // ignore: unused_element
 abstract class _SurfaceSystemPrompt {
   // ignore: unused_field
-  static const String uniqueSurfaceId =
+  static String uniqueSurfaceId({String prefix = ''}) =>
       '''
-$_defaultImportancePrefix When you generate UI in a response, you MUST always create
+${prefix}When you generate UI in a response, you MUST always create
 a new surface with a unique `surfaceId`. Do NOT reuse or update
 previously used `surfaceId`s. Each UI response must be in its own new surface.
-''';
+'''
+          .trim();
 }
 
 /// A builder for a prompt to generate UI.
 abstract class PromptBuilder {
+  static const String defaultImportancePrefix = 'IMPORTANT: ';
   const PromptBuilder();
 
   /// Creates a chat prompt builder.
@@ -47,7 +46,7 @@ abstract class PromptBuilder {
   factory PromptBuilder.chat({
     required Catalog catalog,
     Iterable<String> systemPromptFragments = const [],
-    String importancePrefix = _defaultImportancePrefix,
+    String importancePrefix = defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
@@ -61,7 +60,7 @@ abstract class PromptBuilder {
     required Catalog catalog,
     required Iterable<String> systemPromptFragments,
     required SurfaceOperations allowedOperations,
-    String importancePrefix = _defaultImportancePrefix,
+    String importancePrefix = defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
