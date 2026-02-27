@@ -111,7 +111,8 @@ final class BasicPromptBuilder extends PromptBuilder {
 
   /// Prefix for important sections of the prompt.
   ///
-  /// Sections, generated from the catalog that are marked as important
+  /// Sections, generated from the catalog that are marked,
+  /// to make sure AI follows them
   /// will be prefixed with this string.
   final String importancePrefix;
 
