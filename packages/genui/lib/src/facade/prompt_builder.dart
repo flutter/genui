@@ -78,12 +78,23 @@ abstract class PromptBuilder {
 
 /// Defines the set of allowed surface operations.
 final class SurfaceOperations {
-  const SurfaceOperations.createOnly() : create = true, update = false;
-  const SurfaceOperations.updateOnly() : create = false, update = true;
-  const SurfaceOperations.createAndUpdate() : create = true, update = true;
+  const SurfaceOperations({
+    required this.create,
+    required this.update,
+    required this.delete,
+  });
+  const SurfaceOperations.createOnly()
+    : this(create: true, update: false, delete: false);
+  const SurfaceOperations.updateOnly()
+    : this(create: false, update: true, delete: false);
+  const SurfaceOperations.createAndUpdate()
+    : this(create: true, update: true, delete: false);
+  const SurfaceOperations.all()
+    : this(create: true, update: true, delete: true);
 
   final bool create;
   final bool update;
+  final bool delete;
 }
 
 final class BasicPromptBuilder extends PromptBuilder {
