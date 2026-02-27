@@ -2,35 +2,39 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/material.dart';
-
-import '../../genui.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 
-const String _importancePrefix = 'IMPORTANT:';
-
 /// Common fragments for prompts.
 abstract class PromptFragments {
-  static const String acknowledgeUser = ''' 
+  static String acknowledgeUser({
+    String importancePrefix = _defaultImportancePrefix,
+  }) => ''' 
 Your responses should contain acknowledgment of the user message.
 ''';
-  static const String requireAtLeastOneSubmitElement =
+  static String requireAtLeastOneSubmitElement({
+    String importancePrefix = _defaultImportancePrefix,
+  }) =>
       '''
-$_importancePrefix When you are asking for information from the user, you should always include
+$importancePrefix When you are asking for information from the user, you should always include
 at least one submit button of some kind or another submitting element so that
 the user can indicate that they are done providing information.
 ''';
 }
 
-// abstract class _SurfaceSystemPrompt {
-//   static const String uniqueSurfaceId =
-//       '''
-// $_importancePrefix When you generate UI in a response, you MUST always create
-// a new surface with a unique `surfaceId`. Do NOT reuse or update
-// previously used `surfaceId`s. Each UI response must be in its own new surface.
-// ''';
-// }
+const String _defaultSectionSeparator = '\n\n-------\n\n';
+const String _defaultImportancePrefix = 'IMPORTANT:';
+
+// ignore: unused_element
+abstract class _SurfaceSystemPrompt {
+  // ignore: unused_field
+  static const String uniqueSurfaceId =
+      '''
+$_defaultImportancePrefix When you generate UI in a response, you MUST always create
+a new surface with a unique `surfaceId`. Do NOT reuse or update
+previously used `surfaceId`s. Each UI response must be in its own new surface.
+''';
+}
 
 /// A builder for a prompt to generate UI.
 abstract class PromptBuilder {
@@ -42,6 +46,8 @@ abstract class PromptBuilder {
   factory PromptBuilder.chat({
     required Catalog catalog,
     List<String> systemPromptFragments = const [],
+    String sectionSeparator = _defaultSectionSeparator,
+    String importancePrefix = _defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
@@ -49,6 +55,8 @@ abstract class PromptBuilder {
       allowSurfaceCreation: true,
       allowSurfaceUpdate: false,
       allowSurfaceDeletion: false,
+      sectionSeparator: _defaultSectionSeparator,
+      importancePrefix: _defaultImportancePrefix,
     );
   }
 
@@ -58,6 +66,8 @@ abstract class PromptBuilder {
     required bool allowSurfaceCreation,
     required bool allowSurfaceUpdate,
     required bool allowSurfaceDeletion,
+    String sectionSeparator = _defaultSectionSeparator,
+    String importancePrefix = _defaultImportancePrefix,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
@@ -65,19 +75,23 @@ abstract class PromptBuilder {
       allowSurfaceCreation: allowSurfaceCreation,
       allowSurfaceUpdate: allowSurfaceUpdate,
       allowSurfaceDeletion: allowSurfaceDeletion,
+      sectionSeparator: sectionSeparator,
+      importancePrefix: importancePrefix,
     );
   }
 
   String get systemPrompt;
 }
 
-class BasicPromptBuilder implements PromptBuilder {
+final class BasicPromptBuilder implements PromptBuilder {
   BasicPromptBuilder({
     required this.catalog,
     required this.systemPromptFragments,
     required this.allowSurfaceCreation,
     required this.allowSurfaceUpdate,
     required this.allowSurfaceDeletion,
+    required this.sectionSeparator,
+    required this.importancePrefix,
   });
 
   final Catalog catalog;
@@ -86,15 +100,24 @@ class BasicPromptBuilder implements PromptBuilder {
   final bool allowSurfaceUpdate;
   final bool allowSurfaceDeletion;
 
+  /// Separator between sections of the prompt.
+  ///
+  /// The sections will be trimmed and joined with this separator.
+  final String sectionSeparator;
+
+  /// Prefix for important sections of the prompt.
+  ///
+  /// Sections, generated from the catalog that are marked as important
+  /// will be prefixed with this string.
+  final String importancePrefix;
+
   /// Additional system prompt fragments.
   ///
   /// These fragments are added on top of what is provided by the catalog.
   final List<String> systemPromptFragments;
 
-  static const _separator = '-------';
-
-  static String _fragmentsToPrompt(List<String> fragments) =>
-      fragments.map((e) => e.trim()).join('\n$_separator\n');
+  String _fragmentsToPrompt(List<String> fragments) =>
+      fragments.map((e) => e.trim()).join(sectionSeparator);
 
   @override
   late final String systemPrompt = () {

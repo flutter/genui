@@ -26,7 +26,7 @@ When you need additional information from user,
 try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
 ''',
         '''
-If there is no way to itemize all the options, eitheruse the component '${BasicCatalogItems.textField.name}'
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}'
 or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 ''',
       ],
@@ -81,8 +81,8 @@ or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
       catalog: catalog,
       systemPromptFragments: [
         'You are a helpful assistant who chats with a user.',
-        PromptFragments.acknowledgeUser,
-        PromptFragments.requireAtLeastOneSubmitElement,
+        PromptFragments.acknowledgeUser(),
+        PromptFragments.requireAtLeastOneSubmitElement(),
       ],
     );
     _transport.addSystemMessage(promptBuilder.systemPrompt);
