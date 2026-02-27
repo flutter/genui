@@ -85,7 +85,7 @@ or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
         PromptFragments.requireAtLeastOneSubmitElement(),
       ],
     );
-    _transport.addSystemMessage(promptBuilder.systemPrompt);
+    _transport.addSystemMessage(promptBuilder.systemPromptJoined());
   }
 
   void _addSurfaceMessage(String surfaceId) {

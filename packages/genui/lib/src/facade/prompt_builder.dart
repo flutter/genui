@@ -37,6 +37,8 @@ previously used `surfaceId`s. Each UI response must be in its own new surface.
 
 /// A builder for a prompt to generate UI.
 abstract class PromptBuilder {
+  const PromptBuilder();
+
   /// Creates a chat prompt builder.
   ///
   /// The builder will generate a prompt for a chat session,
@@ -76,10 +78,13 @@ abstract class PromptBuilder {
   }
 
   Iterable<String> get systemPrompt;
+
+  String systemPromptJoined({String separator = '\n\n----\n\n'}) =>
+      systemPrompt.map((e) => e.trim()).join(separator);
 }
 
-final class BasicPromptBuilder implements PromptBuilder {
-  BasicPromptBuilder({
+final class BasicPromptBuilder extends PromptBuilder {
+  const BasicPromptBuilder({
     required this.catalog,
     required this.systemPromptFragments,
     required this.allowSurfaceCreation,
@@ -109,7 +114,7 @@ final class BasicPromptBuilder implements PromptBuilder {
       fragments.map((e) => e.trim());
 
   @override
-  late final Iterable<String> systemPrompt = () {
+  Iterable<String> get systemPrompt {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
@@ -127,5 +132,5 @@ final class BasicPromptBuilder implements PromptBuilder {
     ];
 
     return _fragmentsToPrompt(fragments);
-  }();
+  }
 }
