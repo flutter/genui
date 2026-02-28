@@ -301,10 +301,9 @@ class _ChatInput extends StatelessWidget {
 
 String? _imagesJson;
 
-final prompt =
-    '''
-Today is ${DateTime.timestamp()}
-
+final prompt = <String>[
+  PromptFragments.currentDate(),
+  '''
 # Instructions
 
 You are a helpful travel agent assistant that communicates by creating and
@@ -515,4 +514,5 @@ Here is an example of creating a trip planner UI.
 ```
 
 When updating or showing UIs, **ALWAYS** use the JSON messages as described above. Prefer to collect and show information by creating a UI for it.
-''';
+''',
+];

@@ -53,7 +53,7 @@ class GoogleGenerativeAiClient implements AiClient {
   /// [apiKey] is the API key to use for authentication.
   GoogleGenerativeAiClient({
     required this.catalog,
-    this.systemInstruction,
+    this.systemInstruction = const [],
     this.outputToolName = 'provideFinalOutput',
     this.serviceFactory = defaultGenerativeServiceFactory,
     this.additionalTools = const [],
@@ -65,7 +65,7 @@ class GoogleGenerativeAiClient implements AiClient {
   final Catalog catalog;
 
   /// The system instruction to use for the AI model.
-  final String? systemInstruction;
+  final List<String> systemInstruction;
 
   /// The name of an internal pseudo-tool used to retrieve the final structured
   /// output from the AI.
@@ -475,8 +475,7 @@ class GoogleGenerativeAiClient implements AiClient {
       final promptBuilder = PromptBuilder.custom(
         catalog: catalog,
         systemPromptFragments: [
-          ?systemInstruction,
-          PromptFragments.currentDate(),
+          ...systemInstruction,
           PromptFragments.codeExecutionRestriction(),
         ],
         allowedOperations: const SurfaceOperations.createAndUpdate(),
