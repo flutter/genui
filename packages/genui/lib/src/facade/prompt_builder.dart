@@ -204,6 +204,26 @@ previously used `surfaceId`s. Each UI response must be in its own new surface.
           .trim();
 }
 
+// ## Controlling the UI
+
+// You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
+// Supported messages are: `createSurface` and `updateComponents`.
+
+// To show a new UI:
+// 1. Output a `createSurface` message to define the surface ID and catalog.
+// 2. Output an `updateComponents` message to populate the surface with components.
+
+// To update an existing UI (e.g. adding items to an itinerary):
+// 1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
+
+// Properties:
+// - `createSurface`: requires `surfaceId`, `catalogId` (use the catalog ID provided in system instructions), and `sendDataModel: true`.
+// - `updateComponents`: requires `surfaceId` and a list of `components`. One component MUST have `id: "root"`.
+
+// IMPORTANT:
+// - Do not use tools or function calls for UI generation. Use JSON text blocks.
+// - Ensure all JSON is valid and fenced with ```json ... ```.
+
 Iterable<String> _allowedOperationsPrompt(SurfaceOperations allowedOperations) {
   if (allowedOperations.delete) {
     throw UnimplementedError(
