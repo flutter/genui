@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../../genui.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 
@@ -47,12 +48,14 @@ abstract class PromptBuilder {
     required Catalog catalog,
     Iterable<String> systemPromptFragments = const [],
     String importancePrefix = defaultImportancePrefix,
+    JsonMap? clientDataModel,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
       allowedOperations: const SurfaceOperations.createOnly(),
       importancePrefix: importancePrefix,
+      clientDataModel: clientDataModel,
     );
   }
 
@@ -61,12 +64,14 @@ abstract class PromptBuilder {
     required Iterable<String> systemPromptFragments,
     required SurfaceOperations allowedOperations,
     String importancePrefix = defaultImportancePrefix,
+    JsonMap? clientDataModel,
   }) {
     return BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
       allowedOperations: allowedOperations,
       importancePrefix: importancePrefix,
+      clientDataModel: clientDataModel,
     );
   }
 
@@ -98,11 +103,16 @@ final class SurfaceOperations {
 }
 
 final class BasicPromptBuilder extends PromptBuilder {
+  /// Creates a prompt builder.
+  ///
+  /// Even nullable parameters are required for readability, discoverability and
+  /// reliability. To skip them, use helper methods of [PromptBuilder].
   const BasicPromptBuilder({
     required this.catalog,
     required this.systemPromptFragments,
     required this.allowedOperations,
     required this.importancePrefix,
+    required this.clientDataModel,
   });
 
   final Catalog catalog;
@@ -120,6 +130,8 @@ final class BasicPromptBuilder extends PromptBuilder {
   ///
   /// These fragments are added on top of what is provided by the catalog.
   final Iterable<String> systemPromptFragments;
+
+  final JsonMap? clientDataModel;
 
   Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
       fragments.map((e) => e.trim());
@@ -139,6 +151,7 @@ final class BasicPromptBuilder extends PromptBuilder {
   $a2uiSchema
   </a2ui_schema>
   ''',
+      if (clientDataModel != null) 'Client Data Model:\n${clientDataModel!}',
     ];
 
     return _fragmentsToPrompt(fragments);

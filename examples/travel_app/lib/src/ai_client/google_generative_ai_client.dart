@@ -472,24 +472,19 @@ class GoogleGenerativeAiClient implements AiClient {
       var toolUsageCycle = 0;
       const maxToolUsageCycles = 40; // Safety break for tool loops
 
-      // Build system instruction if provided
-      final parts = <google_ai.Part>[];
-      if (systemInstruction != null) {
-        parts.add(google_ai.Part(text: systemInstruction));
-      }
-      parts.add(
-        google_ai.Part(
-          text:
-              'Current Date: '
-              '${DateTime.now().toIso8601String().split('T').first}\n'
-              'You do not have the ability to execute code. If you need to '
-              'perform calculations, do them yourself.',
-        ),
+      final systemInstructionFragments = <String>[
+        ?systemInstruction,
+        'Current Date: '
+            '${DateTime.now().toIso8601String().split('T').first}\n'
+            'You do not have the ability to execute code. If you need to '
+            'perform calculations, do them yourself.',
+      ];
+
+      final promptBuilder = PromptBuilder.chat(
+        catalog: catalog,
+        systemPromptFragments: systemInstructionFragments,
       );
-      parts.add(google_ai.Part(text: BasicCatalogEmbed.basicCatalogRules));
-      final String catalogJson = A2uiMessage.a2uiMessageSchema(
-        catalog,
-      ).toJson(indent: '  ');
+
       if (clientDataModel != null) {
         final String dataString = const JsonEncoder.withIndent(
           '  ',
