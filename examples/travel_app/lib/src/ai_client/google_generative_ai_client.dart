@@ -480,22 +480,19 @@ class GoogleGenerativeAiClient implements AiClient {
             'perform calculations, do them yourself.',
       ];
 
-      final promptBuilder = PromptBuilder.chat(
+      final promptBuilder = PromptBuilder.custom(
         catalog: catalog,
         systemPromptFragments: systemInstructionFragments,
+        allowedOperations: const SurfaceOperations.createOnly(),
+        clientDataModel: clientDataModel,
       );
 
-      if (clientDataModel != null) {
-        final String dataString = const JsonEncoder.withIndent(
-          '  ',
-        ).convert(clientDataModel);
-        parts.add(google_ai.Part(text: 'Client Data Model:\n$dataString'));
-      }
-      parts.add(google_ai.Part(text: 'A2UI Message Schema:\n$catalogJson'));
-
-      final systemInstructionContent = parts.isNotEmpty
-          ? [google_ai.Content(role: 'user', parts: parts)]
-          : <google_ai.Content>[];
+      final systemInstructionContent = [
+        google_ai.Content(
+          role: 'user',
+          parts: [google_ai.Part(text: promptBuilder.systemPromptJoined())],
+        ),
+      ];
 
       while (toolUsageCycle < maxToolUsageCycles) {
         if (cancellationSignal?.isCancelled ?? false) {

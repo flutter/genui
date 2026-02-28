@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import '../../genui.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
@@ -75,10 +77,10 @@ abstract class PromptBuilder {
     );
   }
 
-  Iterable<String> get systemPrompt;
+  Iterable<String> systemPrompt();
 
   String systemPromptJoined({String sectionSeparator = '\n\n----\n\n'}) =>
-      systemPrompt.map((e) => e.trim()).join(sectionSeparator);
+      systemPrompt().map((e) => e.trim()).join(sectionSeparator);
 }
 
 /// Defines the set of allowed surface operations.
@@ -136,8 +138,16 @@ final class BasicPromptBuilder extends PromptBuilder {
   Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
       fragments.map((e) => e.trim());
 
+  String? _encodedDataModel() {
+    if (clientDataModel == null) return null;
+    final String encodedModel = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(clientDataModel);
+    return 'Client Data Model:\n$encodedModel';
+  }
+
   @override
-  Iterable<String> get systemPrompt {
+  Iterable<String> systemPrompt() {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
@@ -146,12 +156,8 @@ final class BasicPromptBuilder extends PromptBuilder {
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
       ...catalog.systemPromptFragments,
-      '''
-  <a2ui_schema>
-  $a2uiSchema
-  </a2ui_schema>
-  ''',
-      if (clientDataModel != null) 'Client Data Model:\n${clientDataModel!}',
+      'A2UI Message Schema:\n$a2uiSchema',
+      ?_encodedDataModel(),
     ];
 
     return _fragmentsToPrompt(fragments);
