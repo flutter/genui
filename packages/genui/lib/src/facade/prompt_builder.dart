@@ -5,8 +5,6 @@
 import 'dart:convert';
 
 import '../../genui.dart';
-import '../model/a2ui_message.dart';
-import '../model/catalog.dart';
 
 /// Common fragments for prompts.
 abstract class PromptFragments {
