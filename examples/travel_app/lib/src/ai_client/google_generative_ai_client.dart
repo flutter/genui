@@ -472,18 +472,14 @@ class GoogleGenerativeAiClient implements AiClient {
       var toolUsageCycle = 0;
       const maxToolUsageCycles = 40; // Safety break for tool loops
 
-      final systemInstructionFragments = <String>[
-        ?systemInstruction,
-        'Current Date: '
-            '${DateTime.now().toIso8601String().split('T').first}\n'
-            'You do not have the ability to execute code. If you need to '
-            'perform calculations, do them yourself.',
-      ];
-
       final promptBuilder = PromptBuilder.custom(
         catalog: catalog,
-        systemPromptFragments: systemInstructionFragments,
-        allowedOperations: const SurfaceOperations.createOnly(),
+        systemPromptFragments: [
+          ?systemInstruction,
+          PromptFragments.currentDate(),
+          PromptFragments.codeExecutionRestriction(),
+        ],
+        allowedOperations: const SurfaceOperations.createAndUpdate(),
         clientDataModel: clientDataModel,
       );
 

@@ -8,11 +8,26 @@ import '../../genui.dart';
 
 /// Common fragments for prompts.
 abstract class PromptFragments {
+  /// Requirement to acknowledges the user message.
+  ///
+  /// This is useful for chat-based prompts where the AI should
+  /// acknowledge the user's message before responding.
+  ///
+  /// [prefix] is a prefix to be added to the system prompt.
+  /// Is useful when you want to emphasize the importance of this fragment.
   static String acknowledgeUser({String prefix = ''}) =>
       ''' 
 ${prefix}Your responses should contain acknowledgment of the user message.
 '''
           .trim();
+
+  /// Requirement to include at least one submit element.
+  ///
+  /// This is useful for chat-based prompts where the AI should
+  /// include at least one submit element in each response.
+  ///
+  /// [prefix] is a prefix to be added to the system prompt.
+  /// Is useful when you want to emphasize the importance of this fragment.
   static String requireAtLeastOneSubmitElement({String prefix = ''}) =>
       '''
 ${prefix}When you are asking for information from the user, you should always include
@@ -20,21 +35,32 @@ at least one submit button of some kind or another submitting element so that
 the user can indicate that they are done providing information.
 '''
           .trim();
-}
 
-// ignore: unused_element
-abstract class _SurfaceSystemPrompt {
-  // ignore: unused_field
-  static String uniqueSurfaceId({String prefix = ''}) =>
-      '''
-${prefix}When you generate UI in a response, you MUST always create
-a new surface with a unique `surfaceId`. Do NOT reuse or update
-previously used `surfaceId`s. Each UI response must be in its own new surface.
-'''
-          .trim();
+  /// Current date.
+  ///
+  /// This is useful when AI needs to know the current date.
+  ///
+  /// [prefix] is a prefix to be added to the system prompt.
+  /// Is useful when you want to emphasize the importance of this fragment.
+  static String currentDate({String prefix = ''}) =>
+      'Current Date: '
+      '${DateTime.now().toIso8601String().split('T').first}';
+
+  /// Code execution restriction.
+  ///
+  /// This is useful when AI may need to execute code.
+  ///
+  /// [prefix] is a prefix to be added to the system prompt.
+  /// Is useful when you want to emphasize the importance of this fragment.
+  static String codeExecutionRestriction({String prefix = ''}) =>
+      'You do not have the ability to execute code. If you need to '
+      'perform calculations, do them yourself.';
 }
 
 /// A builder for a prompt to generate UI.
+// TODO: consider adding operations that incorporate the user message and produce
+// a final [ChatMessage].
+// TODO: consider supporting non-text parts in system prompt.
 abstract class PromptBuilder {
   static const String defaultImportancePrefix = 'IMPORTANT: ';
   const PromptBuilder();
@@ -50,7 +76,7 @@ abstract class PromptBuilder {
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) {
-    return BasicPromptBuilder(
+    return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
       allowedOperations: const SurfaceOperations.createOnly(),
@@ -66,7 +92,7 @@ abstract class PromptBuilder {
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) {
-    return BasicPromptBuilder(
+    return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
       allowedOperations: allowedOperations,
@@ -77,6 +103,10 @@ abstract class PromptBuilder {
 
   Iterable<String> systemPrompt();
 
+  /// Returns the system prompt as a single string.
+  ///
+  /// The prompt sections are trimmed and then
+  /// joined with the given section separator.
   String systemPromptJoined({String sectionSeparator = '\n\n----\n\n'}) =>
       systemPrompt().map((e) => e.trim()).join(sectionSeparator);
 }
@@ -102,12 +132,12 @@ final class SurfaceOperations {
   final bool delete;
 }
 
-final class BasicPromptBuilder extends PromptBuilder {
+final class _BasicPromptBuilder extends PromptBuilder {
   /// Creates a prompt builder.
   ///
   /// Even nullable parameters are required for readability, discoverability and
   /// reliability. To skip them, use helper methods of [PromptBuilder].
-  const BasicPromptBuilder({
+  const _BasicPromptBuilder({
     required this.catalog,
     required this.systemPromptFragments,
     required this.allowedOperations,
@@ -136,14 +166,6 @@ final class BasicPromptBuilder extends PromptBuilder {
   Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
       fragments.map((e) => e.trim());
 
-  String? _encodedDataModel() {
-    if (clientDataModel == null) return null;
-    final String encodedModel = const JsonEncoder.withIndent(
-      '  ',
-    ).convert(clientDataModel);
-    return 'Client Data Model:\n$encodedModel';
-  }
-
   @override
   Iterable<String> systemPrompt() {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
@@ -155,9 +177,48 @@ final class BasicPromptBuilder extends PromptBuilder {
       'Use the provided tools to respond to user using rich UI elements.',
       ...catalog.systemPromptFragments,
       'A2UI Message Schema:\n$a2uiSchema',
-      ?_encodedDataModel(),
+      ?_encodedDataModel(clientDataModel),
     ];
 
     return _fragmentsToPrompt(fragments);
   }
+}
+
+String? _encodedDataModel(JsonMap? clientDataModel) {
+  if (clientDataModel == null) return null;
+  final String encodedModel = const JsonEncoder.withIndent(
+    '  ',
+  ).convert(clientDataModel);
+  return 'Client Data Model:\n$encodedModel';
+}
+
+// ignore: unused_element
+abstract class _SurfaceSystemPrompt {
+  // ignore: unused_field
+  static String uniqueSurfaceId({String prefix = ''}) =>
+      '''
+${prefix}When you generate UI in a response, you MUST always create
+a new surface with a unique `surfaceId`. Do NOT reuse or update
+previously used `surfaceId`s. Each UI response must be in its own new surface.
+'''
+          .trim();
+}
+
+Iterable<String> _allowedOperationsPrompt(SurfaceOperations allowedOperations) {
+  if (allowedOperations.delete) {
+    throw UnimplementedError(
+      'Delete is not supported yet. Please file an issue if you need it, '
+      'and explain your scenario.',
+    );
+  }
+
+  final parts = <String>[];
+  if (allowedOperations.create) {
+    parts.add('create');
+  }
+  if (allowedOperations.update) {
+    parts.add('update');
+  }
+
+  return parts;
 }
