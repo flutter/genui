@@ -105,6 +105,64 @@ void main() {
       expect(message.toJson(), containsPair('version', 'v0.9'));
     });
 
+    test('CreateSurface round-trip: toJson then fromJson', () {
+      const message = CreateSurface(
+        surfaceId: 's1',
+        catalogId: 'c1',
+        theme: {'color': 'blue'},
+        sendDataModel: true,
+      );
+      final decoded = A2uiMessage.fromJson(message.toJson());
+      expect(decoded, isA<CreateSurface>());
+      final create = decoded as CreateSurface;
+      expect(create.surfaceId, message.surfaceId);
+      expect(create.catalogId, message.catalogId);
+      expect(create.theme, message.theme);
+      expect(create.sendDataModel, message.sendDataModel);
+    });
+
+    test('UpdateComponents round-trip: toJson then fromJson', () {
+      const message = UpdateComponents(
+        surfaceId: 's1',
+        components: [
+          Component(id: 'c1', type: 'Text', properties: {'text': 'Hi'}),
+        ],
+      );
+      final decoded = A2uiMessage.fromJson(
+        Map<String, dynamic>.from(message.toJson()),
+      );
+      expect(decoded, isA<UpdateComponents>());
+      final update = decoded as UpdateComponents;
+      expect(update.surfaceId, message.surfaceId);
+      expect(update.components.length, message.components.length);
+      expect(update.components.first.id, message.components.first.id);
+    });
+
+    test('UpdateDataModel round-trip: toJson then fromJson', () {
+      final message = UpdateDataModel(
+        surfaceId: 's1',
+        path: DataPath('/user/name'),
+        value: 'Alice',
+      );
+      final decoded = A2uiMessage.fromJson(
+        Map<String, dynamic>.from(message.toJson()),
+      );
+      expect(decoded, isA<UpdateDataModel>());
+      final update = decoded as UpdateDataModel;
+      expect(update.surfaceId, message.surfaceId);
+      expect(update.path, message.path);
+      expect(update.value, message.value);
+    });
+
+    test('DeleteSurface round-trip: toJson then fromJson', () {
+      const message = DeleteSurface(surfaceId: 's1');
+      final decoded = A2uiMessage.fromJson(
+        Map<String, dynamic>.from(message.toJson()),
+      );
+      expect(decoded, isA<DeleteSurface>());
+      expect((decoded as DeleteSurface).surfaceId, message.surfaceId);
+    });
+
     test('fromJson throws on unknown message type', () {
       final json = <String, Object>{'version': 'v0.9', 'unknown': {}};
       expect(
