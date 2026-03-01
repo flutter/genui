@@ -14,7 +14,9 @@ void verifyGoldenText(String text, String goldenFileName) {
   final String goldenFilePath = _goldenFilePath(goldenFileName);
 
   if (autoUpdateGoldenFiles) {
-    File(goldenFilePath).writeAsStringSync(text);
+    final goldenFile = File(goldenFilePath);
+    goldenFile.parent.createSync(recursive: true);
+    goldenFile.writeAsStringSync(text);
   } else {
     final String goldenFileContent;
     try {
@@ -28,8 +30,6 @@ void verifyGoldenText(String text, String goldenFileName) {
     expect(goldenFileContent, text);
   }
 }
-
-/// Returns absolute path to the golden file.
 
 /// Extracts the test file URI from the call stack, skipping frames from
 /// this file.
@@ -47,6 +47,7 @@ Uri _testFileUri() {
   throw StateError('Could not determine test file URI from stack trace');
 }
 
+/// Returns absolute path to the golden file.
 String _goldenFilePath(String fileName) {
   final Uri testUri = _testFileUri();
   final String scriptName = testUri.pathSegments.last;
