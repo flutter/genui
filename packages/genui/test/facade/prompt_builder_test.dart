@@ -120,7 +120,7 @@ void main() {
         }
 
         verifyGoldenText(prompt, '${b.key}.txt');
-      }, skip: b.key.contains('_with_dataModel_false'));
+      });
     }
   });
 }
