@@ -6,51 +6,49 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 void main() {
-  group('PromptBuilder', () {
-    const instructions = ['These are some instructions.'];
-    final catalog = const Catalog([]); // Empty catalog for testing.
+  final testCatalog = Catalog([
+    BasicCatalogItems.button,
+    BasicCatalogItems.text,
+  ], catalogId: 'test_catalog');
 
-    test('includes instructions when provided', () {
-      final builder = PromptBuilder.chat(
-        catalog: catalog,
-        systemPrompt: instructions,
+  group('Chat prompt', () {
+    test('is equivalent to custom prompt with create only operations', () {
+      final chatBuilder = PromptBuilder.chat(catalog: testCatalog);
+      final customBuilder = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(),
       );
+      expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
+    });
+  });
 
-      expect(builder.systemPromptFragments, contains(instructions));
+  group('Prompt contains right parts', () {
+    test('create only', () {
+      final builder = PromptBuilder.chat(catalog: testCatalog);
     });
 
-    test('includes warning about surfaceId', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
-
-      expect(
-        builder.systemPromptFragments,
-        contains('IMPORTANT: When you generate UI'),
-      );
-      expect(builder.systemPromptFragments, contains('surfaceId'));
+    test('create only', () {
+      final builder = PromptBuilder.chat(catalog: testCatalog);
     });
 
-    test('includes A2UI schema', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
-
-      expect(builder.systemPromptFragments, contains('<a2ui_schema>'));
-      expect(builder.systemPromptFragments, contains('</a2ui_schema>'));
-    });
-
-    test('includes basic catalog rules', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
-
-      expect(
-        builder.systemPromptFragments,
-        contains(BasicCatalogEmbed.basicCatalogRules),
+    test('custom prompt - update only', () {
+      final builder = PromptBuilder.custom(
+        catalog: const Catalog([]),
+        allowedOperations: SurfaceOperations.updateOnly(),
       );
     });
 
-    test('includes basic chat prompt fragment', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
+    test('custom prompt - create and update', () {
+      final builder = PromptBuilder.custom(
+        catalog: const Catalog([]),
+        allowedOperations: SurfaceOperations.createAndUpdate(),
+      );
+    });
 
-      expect(
-        builder.systemPromptFragments,
-        contains('# Outputting UI information'),
+    test('custom prompt - all', () {
+      final builder = PromptBuilder.custom(
+        catalog: const Catalog([]),
+        allowedOperations: SurfaceOperations.all(),
       );
     });
   });

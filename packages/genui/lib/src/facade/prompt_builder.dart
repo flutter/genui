@@ -63,7 +63,7 @@ the user can indicate that they are done providing information.
 // TODO: consider supporting non-text parts in system prompt.
 abstract class PromptBuilder {
   static const String defaultImportancePrefix = 'IMPORTANT: ';
-  const PromptBuilder();
+  const PromptBuilder._();
 
   /// Creates a chat prompt builder.
   ///
@@ -87,8 +87,8 @@ abstract class PromptBuilder {
 
   factory PromptBuilder.custom({
     required Catalog catalog,
-    required Iterable<String> systemPromptFragments,
     required SurfaceOperations allowedOperations,
+    Iterable<String> systemPromptFragments = const [],
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) {
@@ -254,7 +254,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
     required this.allowedOperations,
     required this.importancePrefix,
     required this.clientDataModel,
-  });
+  }) : super._();
 
   final Catalog catalog;
 
