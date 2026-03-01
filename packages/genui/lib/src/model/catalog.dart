@@ -60,6 +60,7 @@ interface class Catalog {
     List<CatalogItem>? newItems,
     List<ClientFunction>? newFunctions,
     String? catalogId,
+    List<String>? systemPromptFragments,
   }) {
     final Map<String, CatalogItem> itemsByName = {
       for (final item in items) item.name: item,
@@ -81,6 +82,8 @@ interface class Catalog {
       itemsByName.values,
       functions: functionsByName.values,
       catalogId: catalogId ?? this.catalogId,
+      systemPromptFragments:
+          systemPromptFragments ?? this.systemPromptFragments,
     );
   }
 
@@ -90,6 +93,7 @@ interface class Catalog {
     Iterable<CatalogItem>? itemsToRemove,
     Iterable<ClientFunction>? functionsToRemove,
     String? catalogId,
+    List<String>? systemPromptFragments,
   }) {
     List<CatalogItem> updatedItems = items.toList();
     if (itemsToRemove != null) {
@@ -115,6 +119,8 @@ interface class Catalog {
       updatedItems,
       functions: updatedFunctions,
       catalogId: catalogId ?? this.catalogId,
+      systemPromptFragments:
+          systemPromptFragments ?? this.systemPromptFragments,
     );
   }
 
