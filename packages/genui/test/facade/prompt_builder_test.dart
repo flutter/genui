@@ -5,47 +5,60 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../test_infra/golden_texts.dart';
+
 void main() {
-  group('PromptBuilder', () {
-    const instructions = 'These are some instructions.';
-    final catalog = const Catalog([]); // Empty catalog for testing.
+  final testCatalog = Catalog([
+    BasicCatalogItems.text,
+  ], catalogId: 'test_catalog');
 
-    test('includes instructions when provided', () {
-      final builder = PromptBuilder.chat(
-        catalog: catalog,
-        instructions: instructions,
+  group('Chat prompt', () {
+    test('is equivalent to custom prompt with create only operations', () {
+      final systemPromptFragments = ['You are a chat assistant.'];
+      final chatBuilder = PromptBuilder.chat(
+        catalog: testCatalog,
+        systemPromptFragments: systemPromptFragments,
+      );
+      final customBuilder = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(),
+        systemPromptFragments: systemPromptFragments,
+      );
+      expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
+    });
+  });
+
+  group('Custom prompt', () {
+    test('create only', () {
+      final builder = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(),
       );
 
-      expect(builder.systemPrompt, contains(instructions));
+      final String prompt = builder.systemPromptJoined();
+
+      verifyGoldenText(prompt, 'create_only_prompt.txt');
     });
 
-    test('includes warning about surfaceId', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
+    // test('update only', () {
+    //   final builder = PromptBuilder.custom(
+    //     catalog: testCatalog,
+    //     allowedOperations: SurfaceOperations.updateOnly(),
+    //   );
+    // });
 
-      expect(builder.systemPrompt, contains('IMPORTANT: When you generate UI'));
-      expect(builder.systemPrompt, contains('surfaceId'));
-    });
+    // test('create and update', () {
+    //   final builder = PromptBuilder.custom(
+    //     catalog: testCatalog,
+    //     allowedOperations: SurfaceOperations.createAndUpdate(),
+    //   );
+    // });
 
-    test('includes A2UI schema', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
-
-      expect(builder.systemPrompt, contains('<a2ui_schema>'));
-      expect(builder.systemPrompt, contains('</a2ui_schema>'));
-    });
-
-    test('includes basic catalog rules', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
-
-      expect(
-        builder.systemPrompt,
-        contains(BasicCatalogEmbed.basicCatalogRules),
-      );
-    });
-
-    test('includes basic chat prompt fragment', () {
-      final builder = PromptBuilder.chat(catalog: catalog);
-
-      expect(builder.systemPrompt, contains('# Outputting UI information'));
-    });
+    // test('custom prompt - all', () {
+    //   final builder = PromptBuilder.custom(
+    //     catalog: const Catalog([]),
+    //     allowedOperations: SurfaceOperations.all(),
+    //   );
+    // });
   });
 }

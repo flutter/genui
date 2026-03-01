@@ -1,0 +1,219 @@
+Use the provided tools to respond to user using rich UI elements.
+
+-------------------------------------
+
+## Controlling the UI
+
+You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
+
+Supported messages are: `createSurface`, `updateComponents`.
+
+- `createSurface`: Creates a new surface.
+- `updateComponents`: Updates components in a surface.
+
+Properties:
+
+- `createSurface`: Requires `surfaceId` (you must always use a unique ID for each created surface),
+`catalogId` (use the catalog ID provided in system instructions), 
+and `sendDataModel: true`.
+
+- `updateComponents`: Requires `surfaceId` and a list of `components`. 
+One component MUST have `id: "root"`.
+
+To create a new UI:
+1. Output a `createSurface` message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
+2. Output an `updateComponents` message with the `surfaceId` and the component definitions.
+
+IMPORTANT:
+- Do not use tools or function calls for UI generation. Use JSON text blocks.
+- Ensure all JSON is valid and fenced with ```json ... ```.
+
+-------------------------------------
+
+A2UI Message Schema:
+{
+  "allOf": [
+    {
+      "type": "object",
+      "title": "A2UI Message Schema",
+      "description": "Describes a JSON payload for an A2UI (Agent to UI) message. A message MUST contain exactly ONE of the action properties.",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "v0.9"
+        },
+        "createSurface": {
+          "type": "object",
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "description": "The unique ID for the surface."
+            },
+            "catalogId": {
+              "type": "string",
+              "description": "The URI of the component catalog."
+            },
+            "theme": {
+              "type": "object",
+              "description": "Theme parameters for the surface.",
+              "additionalProperties": true
+            },
+            "sendDataModel": {
+              "type": "boolean",
+              "description": "Whether to send the data model to every client request."
+            }
+          },
+          "required": [
+            "surfaceId",
+            "catalogId"
+          ]
+        },
+        "updateComponents": {
+          "type": "object",
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "description": "The unique identifier for the UI surface."
+            },
+            "components": {
+              "type": "array",
+              "description": "A flat list of component definitions.",
+              "items": {
+                "description": "Must match one of the component definitions in the catalog.",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "description": "A block of styled text.",
+                    "properties": {
+                      "text": {
+                        "description": "While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.",
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "A literal string value."
+                          },
+                          {
+                            "type": "object",
+                            "description": "A path to a string.",
+                            "properties": {
+                              "path": {
+                                "type": "string",
+                                "description": "A relative or absolute path in the data model."
+                              }
+                            },
+                            "required": [
+                              "path"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "call": {
+                                "type": "string",
+                                "description": "The name of the function to call."
+                              },
+                              "args": {
+                                "type": "object",
+                                "description": "Arguments to pass to the function.",
+                                "additionalProperties": true
+                              }
+                            },
+                            "required": [
+                              "call"
+                            ]
+                          }
+                        ]
+                      },
+                      "variant": {
+                        "type": "string",
+                        "description": "A hint for the base text style.",
+                        "enum": [
+                          "h1",
+                          "h2",
+                          "h3",
+                          "h4",
+                          "h5",
+                          "caption",
+                          "body"
+                        ]
+                      },
+                      "component": {
+                        "type": "string",
+                        "enum": [
+                          "Text"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "component",
+                      "text"
+                    ]
+                  }
+                ]
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "surfaceId",
+            "components"
+          ]
+        },
+        "updateDataModel": {
+          "type": "object",
+          "properties": {
+            "surfaceId": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "default": "/"
+            },
+            "value": {
+              "description": "The new value to write to the data model. If null/omitted, the key is removed."
+            }
+          },
+          "required": [
+            "surfaceId"
+          ]
+        },
+        "deleteSurface": {
+          "type": "object",
+          "properties": {
+            "surfaceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "surfaceId"
+          ]
+        }
+      },
+      "required": [
+        "version"
+      ]
+    }
+  ],
+  "anyOf": [
+    {
+      "required": [
+        "createSurface"
+      ]
+    },
+    {
+      "required": [
+        "updateComponents"
+      ]
+    },
+    {
+      "required": [
+        "updateDataModel"
+      ]
+    },
+    {
+      "required": [
+        "deleteSurface"
+      ]
+    }
+  ]
+}

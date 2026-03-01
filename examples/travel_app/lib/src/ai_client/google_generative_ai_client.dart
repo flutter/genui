@@ -53,7 +53,7 @@ class GoogleGenerativeAiClient implements AiClient {
   /// [apiKey] is the API key to use for authentication.
   GoogleGenerativeAiClient({
     required this.catalog,
-    this.systemInstruction,
+    this.systemInstruction = const [],
     this.outputToolName = 'provideFinalOutput',
     this.serviceFactory = defaultGenerativeServiceFactory,
     this.additionalTools = const [],
@@ -65,7 +65,7 @@ class GoogleGenerativeAiClient implements AiClient {
   final Catalog catalog;
 
   /// The system instruction to use for the AI model.
-  final String? systemInstruction;
+  final List<String> systemInstruction;
 
   /// The name of an internal pseudo-tool used to retrieve the final structured
   /// output from the AI.
@@ -472,35 +472,22 @@ class GoogleGenerativeAiClient implements AiClient {
       var toolUsageCycle = 0;
       const maxToolUsageCycles = 40; // Safety break for tool loops
 
-      // Build system instruction if provided
-      final parts = <google_ai.Part>[];
-      if (systemInstruction != null) {
-        parts.add(google_ai.Part(text: systemInstruction));
-      }
-      parts.add(
-        google_ai.Part(
-          text:
-              'Current Date: '
-              '${DateTime.now().toIso8601String().split('T').first}\n'
-              'You do not have the ability to execute code. If you need to '
-              'perform calculations, do them yourself.',
-        ),
+      final promptBuilder = PromptBuilder.custom(
+        catalog: catalog,
+        systemPromptFragments: [
+          ...systemInstruction,
+          PromptFragments.codeExecutionRestriction(),
+        ],
+        allowedOperations: SurfaceOperations.createAndUpdate(),
+        clientDataModel: clientDataModel,
       );
-      parts.add(google_ai.Part(text: BasicCatalogEmbed.basicCatalogRules));
-      final String catalogJson = A2uiMessage.a2uiMessageSchema(
-        catalog,
-      ).toJson(indent: '  ');
-      if (clientDataModel != null) {
-        final String dataString = const JsonEncoder.withIndent(
-          '  ',
-        ).convert(clientDataModel);
-        parts.add(google_ai.Part(text: 'Client Data Model:\n$dataString'));
-      }
-      parts.add(google_ai.Part(text: 'A2UI Message Schema:\n$catalogJson'));
 
-      final systemInstructionContent = parts.isNotEmpty
-          ? [google_ai.Content(role: 'user', parts: parts)]
-          : <google_ai.Content>[];
+      final systemInstructionContent = [
+        google_ai.Content(
+          role: 'user',
+          parts: [google_ai.Part(text: promptBuilder.systemPromptJoined())],
+        ),
+      ];
 
       while (toolUsageCycle < maxToolUsageCycles) {
         if (cancellationSignal?.isCancelled ?? false) {
