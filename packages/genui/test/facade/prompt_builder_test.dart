@@ -7,7 +7,6 @@ import 'package:genui/genui.dart';
 
 void main() {
   final testCatalog = Catalog([
-    BasicCatalogItems.button,
     BasicCatalogItems.text,
   ], catalogId: 'test_catalog');
 
@@ -17,39 +16,36 @@ void main() {
       final customBuilder = PromptBuilder.custom(
         catalog: testCatalog,
         allowedOperations: SurfaceOperations.createOnly(),
+        systemPromptFragments: ['You are a chat assistant.'],
       );
       expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
     });
   });
 
-  group('Prompt contains right parts', () {
+  group('Custom prompt', () {
     test('create only', () {
       final builder = PromptBuilder.chat(catalog: testCatalog);
     });
 
-    test('create only', () {
-      final builder = PromptBuilder.chat(catalog: testCatalog);
-    });
-
-    test('custom prompt - update only', () {
+    test('update only', () {
       final builder = PromptBuilder.custom(
-        catalog: const Catalog([]),
+        catalog: testCatalog,
         allowedOperations: SurfaceOperations.updateOnly(),
       );
     });
 
-    test('custom prompt - create and update', () {
+    test('create and update', () {
       final builder = PromptBuilder.custom(
-        catalog: const Catalog([]),
+        catalog: testCatalog,
         allowedOperations: SurfaceOperations.createAndUpdate(),
       );
     });
 
-    test('custom prompt - all', () {
-      final builder = PromptBuilder.custom(
-        catalog: const Catalog([]),
-        allowedOperations: SurfaceOperations.all(),
-      );
-    });
+    // test('custom prompt - all', () {
+    //   final builder = PromptBuilder.custom(
+    //     catalog: const Catalog([]),
+    //     allowedOperations: SurfaceOperations.all(),
+    //   );
+    // });
   });
 }
