@@ -22,7 +22,10 @@ void main() {
 
   group('Chat prompt', () {
     test('is equivalent to custom prompt with create only operations', () {
-      final systemPromptFragments = ['You are a chat assistant.'];
+      final systemPromptFragments = [
+        'You are a chat assistant.',
+        'You sometimes tell jokes to the user',
+      ];
       final chatBuilder = PromptBuilder.chat(
         catalog: testCatalog,
         systemPromptFragments: systemPromptFragments,
@@ -37,43 +40,37 @@ void main() {
   });
 
   group('Custom prompt', () {
-    test('create only', () {
-      final builder = PromptBuilder.custom(
-        catalog: testCatalog,
-        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
-        systemPromptFragments: [
-          'You are a helpful assistant who chats with a user.',
-          PromptFragments.acknowledgeUser(),
-          PromptFragments.requireAtLeastOneSubmitElement(
-            prefix: PromptBuilder.defaultImportancePrefix,
-          ),
-        ],
-      );
+    final systemPromptFragments = <String>[
+      'You are a helpful assistant who chats with a user.',
+      PromptFragments.acknowledgeUser(),
+      PromptFragments.requireAtLeastOneSubmitElement(
+        prefix: PromptBuilder.defaultImportancePrefix,
+      ),
+    ];
 
-      final String prompt = builder.systemPromptJoined();
+    final Map<String, SurfaceOperations> operationsUnderTheTest = {};
+    for (final dataModel in [false, true]) {
+      operationsUnderTheTest['create_only_with_dataModel_$dataModel'] =
+          SurfaceOperations.createOnly(dataModel: dataModel);
+      operationsUnderTheTest['update_only_with_dataModel_$dataModel'] =
+          SurfaceOperations.updateOnly(dataModel: dataModel);
+      operationsUnderTheTest['create_and_update_with_dataModel_$dataModel'] =
+          SurfaceOperations.createAndUpdate(dataModel: dataModel);
+      operationsUnderTheTest['all_operations_with_dataModel_$dataModel'] =
+          SurfaceOperations.all(dataModel: dataModel);
+    }
 
-      verifyGoldenText(prompt, 'create_only_prompt.txt');
-    });
+    for (MapEntry<String, SurfaceOperations> b
+        in operationsUnderTheTest.entries) {
+      test(b.key, () {
+        final String prompt = PromptBuilder.custom(
+          catalog: testCatalog,
+          allowedOperations: b.value,
+          systemPromptFragments: systemPromptFragments,
+        ).systemPromptJoined();
 
-    // test('update only', () {
-    //   final builder = PromptBuilder.custom(
-    //     catalog: testCatalog,
-    //     allowedOperations: SurfaceOperations.updateOnly(),
-    //   );
-    // });
-
-    // test('create and update', () {
-    //   final builder = PromptBuilder.custom(
-    //     catalog: testCatalog,
-    //     allowedOperations: SurfaceOperations.createAndUpdate(),
-    //   );
-    // });
-
-    // test('custom prompt - all', () {
-    //   final builder = PromptBuilder.custom(
-    //     catalog: const Catalog([]),
-    //     allowedOperations: SurfaceOperations.all(),
-    //   );
-    // });
+        verifyGoldenText(prompt, '${b.key}.txt');
+      });
+    }
   });
 }
