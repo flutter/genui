@@ -227,6 +227,10 @@ final class SurfaceOperations {
 
     final parts = <String>[];
 
+    final String operationsFormatted = operations
+        .map((e) => e.tickedName)
+        .join(', ');
+
     parts.add('''
 ## Controlling the UI
 
@@ -255,7 +259,7 @@ IMPORTANT:
 - Ensure all JSON is valid and fenced with ```json ... ```.
 
 **OUTPUT FORMAT:**
-You must output a VALID JSON object representing one of the A2UI message types ($operations).
+You must output a VALID JSON object representing one of the A2UI message types ($operationsFormatted).
 - Do NOT use function blocks or tool calls for these messages.
 - You can treat the A2UI schema as a specification for the JSON you typically output.
 - You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.

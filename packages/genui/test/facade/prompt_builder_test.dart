@@ -29,7 +29,7 @@ void main() {
       );
       final customBuilder = PromptBuilder.custom(
         catalog: testCatalog,
-        allowedOperations: SurfaceOperations.createOnly(),
+        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
         systemPromptFragments: systemPromptFragments,
       );
       expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
@@ -40,7 +40,7 @@ void main() {
     test('create only', () {
       final builder = PromptBuilder.custom(
         catalog: testCatalog,
-        allowedOperations: SurfaceOperations.createOnly(),
+        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
         systemPromptFragments: [
           'You are a helpful assistant who chats with a user.',
           PromptFragments.acknowledgeUser(),

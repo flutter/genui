@@ -22,13 +22,6 @@ Use the provided tools to respond to user using rich UI elements.
 - For 'Button', you MUST provide 'action'.
 - For 'TextField', 'CheckBox', etc., you MUST provide 'label'.
 
-**OUTPUT FORMAT:**
-You must output a VALID JSON object representing one of the A2UI message types (`createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface`).
-- Do NOT use function blocks or tool calls for these messages.
-- You can treat the A2UI schema as a specification for the JSON you typically output.
-- You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
-- Ensure your JSON is fenced with ```json and ```.
-
 **EXAMPLES:**
 
 1. Create a surface:
@@ -108,6 +101,13 @@ To create a new UI:
 IMPORTANT:
 - Do not use tools or function calls for UI generation. Use JSON text blocks.
 - Ensure all JSON is valid and fenced with ```json ... ```.
+
+**OUTPUT FORMAT:**
+You must output a VALID JSON object representing one of the A2UI message types (`createSurface`, `updateComponents`).
+- Do NOT use function blocks or tool calls for these messages.
+- You can treat the A2UI schema as a specification for the JSON you typically output.
+- You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
+- Ensure your JSON is fenced with ```json and ```.
 
 -------------------------------------
 
