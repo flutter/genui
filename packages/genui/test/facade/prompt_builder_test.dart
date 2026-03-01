@@ -32,6 +32,12 @@ void main() {
         catalog: testCatalog,
         allowedOperations: SurfaceOperations.createOnly(),
       );
+
+      if (autoUpdateGoldenFiles) {
+        updateGoldenFile(builder.systemPrompt());
+      } else {
+        expect(builder.systemPrompt(), goldenSystemPrompt);
+      }
     });
 
     test('update only', () {
