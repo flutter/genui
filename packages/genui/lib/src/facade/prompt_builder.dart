@@ -107,8 +107,9 @@ abstract class PromptBuilder {
   ///
   /// The prompt sections are trimmed and then
   /// joined with the given section separator.
-  String systemPromptJoined({String sectionSeparator = '\n\n----\n\n'}) =>
-      systemPrompt().map((e) => e.trim()).join(sectionSeparator);
+  String systemPromptJoined({
+    String sectionSeparator = '\n\n-------------------------------------\n\n',
+  }) => systemPrompt().map((e) => e.trim()).join(sectionSeparator);
 }
 
 enum _ProtocolMessages {
