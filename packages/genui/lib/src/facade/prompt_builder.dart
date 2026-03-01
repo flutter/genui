@@ -6,7 +6,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import '../../genui.dart';
+import '../model/a2ui_message.dart';
+import '../model/catalog.dart';
+import '../primitives/simple_items.dart';
 
 /// Common fragments for prompts.
 abstract class PromptFragments {
@@ -125,7 +127,7 @@ Requires `surfaceId` (you must always use a unique ID for each created surface),
 and `sendDataModel: true`.
 ''',
     // TODO: figure out why we instruct AI to always set sendDataModel: true,
-    // instead of always sending it deterministically.
+    // instead of always sending it deterministically when needed.
     // TODO: generate warning or error if surfaceId is not unique.
   ),
   updateComponents(

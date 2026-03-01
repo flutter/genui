@@ -115,6 +115,10 @@ void main() {
           expect(prompt, contains('unique `surfaceId`'));
         }
 
+        if (allowedMessages.contains(ProtocolMessages.updateComponents)) {
+          expect(prompt, contains('root'));
+        }
+
         verifyGoldenText(prompt, '${b.key}.txt');
       }, skip: b.key.contains('_with_dataModel_false'));
     }
