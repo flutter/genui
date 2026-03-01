@@ -161,17 +161,17 @@ Requires `surfaceId`.
 
   final String name;
   final String explanation;
-  final String? properties;
+  final String properties;
 
   String get tickedName => '`$name`';
 
   static String explainMessages(Set<ProtocolMessages> operations) {
     final String names = operations.map((e) => e.tickedName).join(', ');
     final String explanations = operations
-        .map((e) => '- ${e.tickedName}: ${e.explanation}')
+        .map((e) => '- ${e.tickedName}: ${e.explanation.trim()}')
         .join('\n');
     final String properties = operations
-        .map((e) => '- ${e.tickedName}: ${e.properties}')
+        .map((e) => '- ${e.tickedName}: ${e.properties.trim()}')
         .join('\n');
 
     return '''
