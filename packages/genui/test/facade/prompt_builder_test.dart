@@ -28,7 +28,10 @@ void main() {
 
   group('Custom prompt', () {
     test('create only', () {
-      final builder = PromptBuilder.chat(catalog: testCatalog);
+      final builder = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(),
+      );
     });
 
     test('update only', () {
