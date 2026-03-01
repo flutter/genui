@@ -12,11 +12,15 @@ void main() {
 
   group('Chat prompt', () {
     test('is equivalent to custom prompt with create only operations', () {
-      final chatBuilder = PromptBuilder.chat(catalog: testCatalog);
+      final systemPromptFragments = ['You are a chat assistant.'];
+      final chatBuilder = PromptBuilder.chat(
+        catalog: testCatalog,
+        systemPromptFragments: systemPromptFragments,
+      );
       final customBuilder = PromptBuilder.custom(
         catalog: testCatalog,
         allowedOperations: SurfaceOperations.createOnly(),
-        systemPromptFragments: ['You are a chat assistant.'],
+        systemPromptFragments: systemPromptFragments,
       );
       expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
     });
