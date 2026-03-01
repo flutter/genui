@@ -111,6 +111,10 @@ void main() {
           }
         }
 
+        if (allowedMessages.contains(ProtocolMessages.createSurface)) {
+          expect(prompt, contains('unique `surfaceId`'));
+        }
+
         verifyGoldenText(prompt, '${b.key}.txt');
       }, skip: b.key.contains('_with_dataModel_false'));
     }
