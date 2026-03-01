@@ -185,6 +185,10 @@ final class SurfaceOperations {
   final bool update;
   final bool delete;
 
+  /// System prompt fragment related to the surface operations.
+  ///
+  /// This fragment should be added to the system prompt and should be used to
+  /// instruct the model on how to use the surface operations.
   late final String systemPromptFragment = () {
     if (delete) {
       throw UnimplementedError(
