@@ -79,7 +79,7 @@ abstract class PromptBuilder {
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
-      allowedOperations: SurfaceOperations.createOnly(),
+      allowedOperations: SurfaceOperations.createOnly(dataModel: false),
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
     );
@@ -131,6 +131,20 @@ and `sendDataModel: true`.
 Requires `surfaceId` and a list of `components`. 
 One component MUST have `id: "root"`.
 ''',
+  ),
+  updateDataModel(
+    name: 'updateDataModel',
+    explanation: 'Updates the data model.',
+    properties: '''
+Requires `surfaceId`, `path` and `value`. 
+''',
+  ),
+  deleteSurface(
+    name: 'deleteSurface',
+    explanation: 'Deletes a surface.',
+    properties: '''
+Requires `surfaceId`.
+''',
   );
 
   const _ProtocolMessages({
@@ -173,32 +187,27 @@ final class SurfaceOperations {
     required this.create,
     required this.update,
     required this.delete,
+    required this.dataModel,
   });
-  SurfaceOperations.createOnly()
-    : this(create: true, update: false, delete: false);
-  SurfaceOperations.updateOnly()
-    : this(create: false, update: true, delete: false);
-  SurfaceOperations.createAndUpdate()
-    : this(create: true, update: true, delete: false);
-  SurfaceOperations.all() : this(create: true, update: true, delete: true);
+  SurfaceOperations.createOnly({required bool dataModel})
+    : this(create: true, update: false, delete: false, dataModel: dataModel);
+  SurfaceOperations.updateOnly({required bool dataModel})
+    : this(create: false, update: true, delete: false, dataModel: dataModel);
+  SurfaceOperations.createAndUpdate({required bool dataModel})
+    : this(create: true, update: true, delete: false, dataModel: dataModel);
+  SurfaceOperations.all({required bool dataModel})
+    : this(create: true, update: true, delete: true, dataModel: dataModel);
 
   final bool create;
   final bool update;
   final bool delete;
+  final bool dataModel;
 
   /// System prompt fragment related to the surface operations.
   ///
   /// This fragment should be added to the system prompt and should be used to
   /// instruct the model on how to use the surface operations.
   late final String systemPromptFragment = () {
-    if (delete) {
-      throw UnimplementedError(
-        'Operation to delete a surface is not supported yet. '
-        'Please file an issue if you need it, '
-        'and explain your scenario.',
-      );
-    }
-
     final operations = <_ProtocolMessages>{};
     if (create) {
       operations.addAll([
@@ -208,6 +217,12 @@ final class SurfaceOperations {
     }
     if (update) {
       operations.add(_ProtocolMessages.updateComponents);
+    }
+    if (delete) {
+      operations.add(_ProtocolMessages.deleteSurface);
+    }
+    if (dataModel) {
+      operations.add(_ProtocolMessages.updateDataModel);
     }
 
     final parts = <String>[];
@@ -238,6 +253,13 @@ To update an existing UI:
 IMPORTANT:
 - Do not use tools or function calls for UI generation. Use JSON text blocks.
 - Ensure all JSON is valid and fenced with ```json ... ```.
+
+**OUTPUT FORMAT:**
+You must output a VALID JSON object representing one of the A2UI message types ($operations).
+- Do NOT use function blocks or tool calls for these messages.
+- You can treat the A2UI schema as a specification for the JSON you typically output.
+- You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
+- Ensure your JSON is fenced with ```json and ```.
 ''');
 
     return parts.map((e) => e.trim()).join('\n\n');

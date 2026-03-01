@@ -20,7 +20,7 @@ class ChatSession extends ChangeNotifier {
 
     // 2. Initialize Catalog & Controller
     final Catalog catalog = BasicCatalogItems.asCatalog(
-      systemPrompt: [
+      systemPromptFragments: [
         '''
 When you need additional information from user,
 try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.

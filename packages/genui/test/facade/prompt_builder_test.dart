@@ -8,9 +8,17 @@ import 'package:genui/genui.dart';
 import '../test_infra/golden_texts.dart';
 
 void main() {
-  final testCatalog = Catalog([
-    BasicCatalogItems.text,
-  ], catalogId: 'test_catalog');
+  final testCatalog = Catalog(
+    [BasicCatalogItems.text],
+    catalogId: 'test_catalog',
+    systemPromptFragments: [
+      BasicCatalogItems.basicCatalogRules,
+      PromptFragments.acknowledgeUser(),
+      PromptFragments.requireAtLeastOneSubmitElement(
+        prefix: PromptBuilder.defaultImportancePrefix,
+      ),
+    ],
+  );
 
   group('Chat prompt', () {
     test('is equivalent to custom prompt with create only operations', () {
@@ -33,6 +41,13 @@ void main() {
       final builder = PromptBuilder.custom(
         catalog: testCatalog,
         allowedOperations: SurfaceOperations.createOnly(),
+        systemPromptFragments: [
+          'You are a helpful assistant who chats with a user.',
+          PromptFragments.acknowledgeUser(),
+          PromptFragments.requireAtLeastOneSubmitElement(
+            prefix: PromptBuilder.defaultImportancePrefix,
+          ),
+        ],
       );
 
       final String prompt = builder.systemPromptJoined();

@@ -103,8 +103,10 @@ abstract final class BasicCatalogItems {
   /// This typically includes controls like play/pause, seek, and volume.
   static final CatalogItem video = video_item.video;
 
+  static final String basicCatalogRules = _basicCatalogRules;
+
   /// Creates a catalog containing all core catalog items.
-  static Catalog asCatalog({List<String> systemPrompt = const []}) {
+  static Catalog asCatalog({List<String> systemPromptFragments = const []}) {
     return Catalog(
       [
         audioPlayer,
@@ -128,7 +130,7 @@ abstract final class BasicCatalogItems {
       ],
       functions: BasicFunctions.all,
       catalogId: basicCatalogId,
-      systemPromptFragments: [_basicCatalogRules, ...systemPrompt],
+      systemPromptFragments: [basicCatalogRules, ...systemPromptFragments],
     );
   }
 }
@@ -140,13 +142,6 @@ const String _basicCatalogRules = r'''
 - For 'Image', you MUST provide 'url'. If dynamic, use { "path": "..." }.
 - For 'Button', you MUST provide 'action'.
 - For 'TextField', 'CheckBox', etc., you MUST provide 'label'.
-
-**OUTPUT FORMAT:**
-You must output a VALID JSON object representing one of the A2UI message types (`createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface`).
-- Do NOT use function blocks or tool calls for these messages.
-- You can treat the A2UI schema as a specification for the JSON you typically output.
-- You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
-- Ensure your JSON is fenced with ```json and ```.
 
 **EXAMPLES:**
 
