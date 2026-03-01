@@ -89,7 +89,6 @@ Properties:
 
 - `updateComponents`: Requires `surfaceId` and a list of `components`. 
 One component MUST have `id: "root"`.
-
 - `updateDataModel`: Requires `surfaceId`, `path` and `value`.
 
 To update an existing UI:

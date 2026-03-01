@@ -91,10 +91,8 @@ Properties:
 - `createSurface`: Requires `surfaceId` (you must always use a unique ID for each created surface),
 `catalogId` (use the catalog ID provided in system instructions), 
 and `sendDataModel: true`.
-
 - `updateComponents`: Requires `surfaceId` and a list of `components`. 
 One component MUST have `id: "root"`.
-
 - `updateDataModel`: Requires `surfaceId`, `path` and `value`.
 
 To create a new UI:
