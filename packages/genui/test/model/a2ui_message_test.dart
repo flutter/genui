@@ -112,9 +112,7 @@ void main() {
         theme: {'color': 'blue'},
         sendDataModel: true,
       );
-      final decoded = A2uiMessage.fromJson(
-        Map<String, dynamic>.from(message.toJson()),
-      );
+      final decoded = A2uiMessage.fromJson(message.toJson());
       expect(decoded, isA<CreateSurface>());
       final create = decoded as CreateSurface;
       expect(create.surfaceId, message.surfaceId);
