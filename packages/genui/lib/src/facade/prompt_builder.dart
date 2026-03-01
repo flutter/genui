@@ -79,7 +79,7 @@ abstract class PromptBuilder {
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
-      allowedOperations: _SurfaceOperations.createOnly(),
+      allowedOperations: SurfaceOperations.createOnly(),
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
     );
@@ -88,7 +88,7 @@ abstract class PromptBuilder {
   factory PromptBuilder.custom({
     required Catalog catalog,
     required Iterable<String> systemPromptFragments,
-    required _SurfaceOperations allowedOperations,
+    required SurfaceOperations allowedOperations,
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) {
@@ -167,28 +167,29 @@ $properties
 }
 
 /// Creates prompt for allowed surface operations.
-final class _SurfaceOperations {
-  _SurfaceOperations({
+final class SurfaceOperations {
+  SurfaceOperations({
     required this.create,
     required this.update,
     required this.delete,
   });
-  _SurfaceOperations.createOnly()
+  SurfaceOperations.createOnly()
     : this(create: true, update: false, delete: false);
-  _SurfaceOperations.updateOnly()
+  SurfaceOperations.updateOnly()
     : this(create: false, update: true, delete: false);
-  _SurfaceOperations.createAndUpdate()
+  SurfaceOperations.createAndUpdate()
     : this(create: true, update: true, delete: false);
-  _SurfaceOperations.all() : this(create: true, update: true, delete: true);
+  SurfaceOperations.all() : this(create: true, update: true, delete: true);
 
   final bool create;
   final bool update;
   final bool delete;
 
-  late final String explanation = () {
+  late final String systemPromptFragment = () {
     if (delete) {
       throw UnimplementedError(
-        'Surface delete is not supported yet. Please file an issue if you need it, '
+        'Operation to delete a surface is not supported yet. '
+        'Please file an issue if you need it, '
         'and explain your scenario.',
       );
     }
@@ -253,7 +254,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   final Catalog catalog;
 
-  final _SurfaceOperations allowedOperations;
+  final SurfaceOperations allowedOperations;
 
   /// Prefix for important sections of the prompt.
   ///
@@ -282,7 +283,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
       ...catalog.systemPromptFragments,
-      allowedOperations.explanation,
+      allowedOperations.systemPromptFragment,
       'A2UI Message Schema:\n$a2uiSchema',
       ?_encodedDataModel(clientDataModel),
     ];

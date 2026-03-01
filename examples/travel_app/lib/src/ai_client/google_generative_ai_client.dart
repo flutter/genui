@@ -478,7 +478,7 @@ class GoogleGenerativeAiClient implements AiClient {
           ...systemInstruction,
           PromptFragments.codeExecutionRestriction(),
         ],
-        allowedOperations: const SurfaceOperations.createAndUpdate(),
+        allowedOperations: SurfaceOperations.createAndUpdate(),
         clientDataModel: clientDataModel,
       );
 
