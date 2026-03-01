@@ -125,6 +125,66 @@ void main() {
       expect(componentProperties.keys, contains('Button'));
     });
 
+    group('copyWith', () {
+      test('preserves systemPromptFragments when not specified', () {
+        final catalog = Catalog(
+          [BasicCatalogItems.text],
+          systemPromptFragments: ['fragment one', 'fragment two'],
+        );
+        final Catalog copy = catalog.copyWith(
+          newItems: [BasicCatalogItems.button],
+        );
+        expect(copy.systemPromptFragments, ['fragment one', 'fragment two']);
+      });
+
+      test('replaces systemPromptFragments when specified', () {
+        final catalog = Catalog(
+          [BasicCatalogItems.text],
+          systemPromptFragments: ['old fragment'],
+        );
+        final Catalog copy = catalog.copyWith(
+          systemPromptFragments: ['new fragment'],
+        );
+        expect(copy.systemPromptFragments, ['new fragment']);
+      });
+
+      test('propagates empty systemPromptFragments by default', () {
+        final catalog = Catalog([BasicCatalogItems.text]);
+        final Catalog copy = catalog.copyWith();
+        expect(copy.systemPromptFragments, isEmpty);
+      });
+    });
+
+    group('copyWithout', () {
+      test('preserves systemPromptFragments when not specified', () {
+        final catalog = Catalog(
+          [BasicCatalogItems.text, BasicCatalogItems.button],
+          systemPromptFragments: ['fragment one', 'fragment two'],
+        );
+        final Catalog copy = catalog.copyWithout(
+          itemsToRemove: [BasicCatalogItems.button],
+        );
+        expect(copy.systemPromptFragments, ['fragment one', 'fragment two']);
+      });
+
+      test('replaces systemPromptFragments when specified', () {
+        final catalog = Catalog(
+          [BasicCatalogItems.text],
+          systemPromptFragments: ['old fragment'],
+        );
+        final Catalog copy = catalog.copyWithout(
+          systemPromptFragments: ['new fragment'],
+        );
+        expect(copy.systemPromptFragments, ['new fragment']);
+      });
+
+      test('propagates empty systemPromptFragments by default', () {
+        final catalog = Catalog([BasicCatalogItems.text]);
+        final Catalog copy = catalog.copyWithout();
+        expect(copy.systemPromptFragments, isEmpty);
+      });
+    });
+
     test('toCapabilitiesJson generates correct structure', () {
       final catalog = Catalog(
         [BasicCatalogItems.text, BasicCatalogItems.button],
