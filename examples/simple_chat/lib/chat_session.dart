@@ -22,12 +22,10 @@ class ChatSession extends ChangeNotifier {
     final Catalog catalog = BasicCatalogItems.asCatalog(
       systemPromptFragments: [
         '''
-When you need additional information from user,
-try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+When you need additional information from user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
 ''',
         '''
-If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}'
-or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 ''',
       ],
     );
