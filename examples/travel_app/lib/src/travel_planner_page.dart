@@ -403,6 +403,10 @@ user helpful information in InformationCard and TravelCarousel. Always add new
 surfaces when doing this and do not update or delete existing ones. That way,
 the user can return to the main booking flow once they have done some research.
 
+## Updating UI
+
+Update surfaces to modify existing UI, for example to add items to an itinerary.
+
 ## Images
 
 If you need to use any images, find the most relevant ones from the following
