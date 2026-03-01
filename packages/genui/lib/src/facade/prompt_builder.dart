@@ -60,8 +60,8 @@ the user can indicate that they are done providing information.
 }
 
 /// A builder for a prompt to generate UI.
-// TODO: consider adding operations that incorporate the user message and produce
-// a final [ChatMessage].
+// TODO: consider adding operations that incorporate the user message
+// and produce a final [ChatMessage].
 // TODO: consider supporting non-text parts in system prompt.
 abstract class PromptBuilder {
   static const String defaultImportancePrefix = 'IMPORTANT: ';
@@ -124,7 +124,8 @@ Requires `surfaceId` (you must always use a unique ID for each created surface),
 `catalogId` (use the catalog ID provided in system instructions), 
 and `sendDataModel: true`.
 ''',
-    // TODO: figure out why we instruct AI to always set sendDataModel: true, instead of always sending it deterministically.
+    // TODO: figure out why we instruct AI to always set sendDataModel: true,
+    // instead of always sending it deterministically.
     // TODO: generate warning or error if surfaceId is not unique.
   ),
   updateComponents(

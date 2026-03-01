@@ -101,7 +101,8 @@ void main() {
           if (allowedMessages.contains(message)) {
             expect(prompt, contains(message.name), reason: b.key);
           } else {
-            // TODO: remove this check when examples will stop containing not supported operations.
+            // TODO: remove this check when examples will stop containing
+            // not supported operations.
             if (!b.key.contains('_with_dataModel_false') &&
                 !b.key.contains('only') &&
                 !b.key.contains('create_and_update')) {
