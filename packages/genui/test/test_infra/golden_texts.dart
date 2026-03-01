@@ -5,23 +5,32 @@ import 'package:flutter_test/flutter_test.dart';
 /// Verifies that the given [text] matches the content of the golden file.
 ///
 /// If [autoUpdateGoldenFiles] is true, the golden file will be updated.
+///
+/// The file resides in the directory, named as the test file, located
+/// in the same directory as the test file.
+/// For example, if the test file is `utils/my_main_test.dart`,
+/// the golden file will be in `utils/my_main_test.golden/[file_name]`.
 void verifyGoldenText(String text, String goldenFileName) {
   final String goldenFilePath = _goldenFilePath(goldenFileName);
 
   if (autoUpdateGoldenFiles) {
     File(goldenFilePath).writeAsStringSync(text);
   } else {
-    final String goldenFileContent = File(goldenFilePath).readAsStringSync();
+    final String goldenFileContent;
+    try {
+      goldenFileContent = File(goldenFilePath).readAsStringSync();
+    } on PathNotFoundException {
+      fail(
+        'Golden file not found: $goldenFilePath\n'
+        'Run with --update-goldens to create it.',
+      );
+    }
     expect(goldenFileContent, text);
   }
 }
 
 /// Returns absolute path to the golden file.
-///
-/// The file resides in the directory, named as the test file, in the same directory as the test file.
-///
-/// For example, if the test file is `utils/my_main_test.dart`,
-/// the golden file will be in `utils/my_main_test.golden/[file_name]`.
+
 String _goldenFilePath(String fileName) {
   final Uri scriptUri = Platform.script;
   final String scriptName = scriptUri.pathSegments.last;

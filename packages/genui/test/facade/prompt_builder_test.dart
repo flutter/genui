@@ -5,6 +5,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../test_infra/golden_texts.dart';
+
 void main() {
   final testCatalog = Catalog([
     BasicCatalogItems.text,
@@ -33,26 +35,24 @@ void main() {
         allowedOperations: SurfaceOperations.createOnly(),
       );
 
-      if (autoUpdateGoldenFiles) {
-        updateGoldenFile(builder.systemPrompt());
-      } else {
-        expect(builder.systemPrompt(), goldenSystemPrompt);
-      }
+      final String prompt = builder.systemPromptJoined();
+
+      verifyGoldenText(prompt, 'create_only_prompt.txt');
     });
 
-    test('update only', () {
-      final builder = PromptBuilder.custom(
-        catalog: testCatalog,
-        allowedOperations: SurfaceOperations.updateOnly(),
-      );
-    });
+    // test('update only', () {
+    //   final builder = PromptBuilder.custom(
+    //     catalog: testCatalog,
+    //     allowedOperations: SurfaceOperations.updateOnly(),
+    //   );
+    // });
 
-    test('create and update', () {
-      final builder = PromptBuilder.custom(
-        catalog: testCatalog,
-        allowedOperations: SurfaceOperations.createAndUpdate(),
-      );
-    });
+    // test('create and update', () {
+    //   final builder = PromptBuilder.custom(
+    //     catalog: testCatalog,
+    //     allowedOperations: SurfaceOperations.createAndUpdate(),
+    //   );
+    // });
 
     // test('custom prompt - all', () {
     //   final builder = PromptBuilder.custom(
