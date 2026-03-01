@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 import '../../genui.dart';
 
 /// Common fragments for prompts.
@@ -112,7 +114,8 @@ abstract class PromptBuilder {
   }) => systemPrompt().map((e) => e.trim()).join(sectionSeparator);
 }
 
-enum _ProtocolMessages {
+@visibleForTesting
+enum ProtocolMessages {
   createSurface(
     name: 'createSurface',
     explanation: 'Creates a new surface.',
@@ -147,7 +150,7 @@ Requires `surfaceId`.
 ''',
   );
 
-  const _ProtocolMessages({
+  const ProtocolMessages({
     required this.name,
     required this.explanation,
     required this.properties,
@@ -159,7 +162,7 @@ Requires `surfaceId`.
 
   String get tickedName => '`$name`';
 
-  static String explainMessages(Set<_ProtocolMessages> operations) {
+  static String explainMessages(Set<ProtocolMessages> operations) {
     final String names = operations.map((e) => e.tickedName).join(', ');
     final String explanations = operations
         .map((e) => '- ${e.tickedName}: ${e.explanation}')
@@ -208,21 +211,21 @@ final class SurfaceOperations {
   /// This fragment should be added to the system prompt and should be used to
   /// instruct the model on how to use the surface operations.
   late final String systemPromptFragment = () {
-    final operations = <_ProtocolMessages>{};
+    final operations = <ProtocolMessages>{};
     if (create) {
       operations.addAll([
-        _ProtocolMessages.createSurface,
-        _ProtocolMessages.updateComponents,
+        ProtocolMessages.createSurface,
+        ProtocolMessages.updateComponents,
       ]);
     }
     if (update) {
-      operations.add(_ProtocolMessages.updateComponents);
+      operations.add(ProtocolMessages.updateComponents);
     }
     if (delete) {
-      operations.add(_ProtocolMessages.deleteSurface);
+      operations.add(ProtocolMessages.deleteSurface);
     }
     if (dataModel) {
-      operations.add(_ProtocolMessages.updateDataModel);
+      operations.add(ProtocolMessages.updateDataModel);
     }
 
     final parts = <String>[];
@@ -236,20 +239,20 @@ final class SurfaceOperations {
 
 You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
     ''');
-    parts.add(_ProtocolMessages.explainMessages(operations));
+    parts.add(ProtocolMessages.explainMessages(operations));
 
     if (create) {
       parts.add('''
 To create a new UI:
-1. Output a ${_ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
-2. Output an ${_ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
+1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
+2. Output an ${ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
 ''');
     }
 
     if (update) {
       parts.add('''
 To update an existing UI:
-1. Output an ${_ProtocolMessages.updateComponents.tickedName} message with the existing `surfaceId` and the new component definitions.
+1. Output an ${ProtocolMessages.updateComponents.tickedName} message with the existing `surfaceId` and the new component definitions.
 ''');
     }
 

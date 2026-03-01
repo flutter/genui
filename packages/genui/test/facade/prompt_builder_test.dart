@@ -63,14 +63,55 @@ void main() {
     for (MapEntry<String, SurfaceOperations> b
         in operationsUnderTheTest.entries) {
       test(b.key, () {
+        final SurfaceOperations operations = b.value;
+
         final String prompt = PromptBuilder.custom(
           catalog: testCatalog,
-          allowedOperations: b.value,
+          allowedOperations: operations,
           systemPromptFragments: systemPromptFragments,
         ).systemPromptJoined();
 
+        for (final fragment in systemPromptFragments) {
+          expect(prompt, contains(fragment));
+        }
+
+        for (final ProtocolMessages message in ProtocolMessages.values) {
+          expect(prompt, contains(message.name));
+        }
+
+        final allowedMessages = <ProtocolMessages>{};
+
+        if (operations.create) {
+          allowedMessages.addAll([
+            ProtocolMessages.createSurface,
+            ProtocolMessages.updateComponents,
+          ]);
+        }
+        if (operations.update) {
+          allowedMessages.add(ProtocolMessages.updateComponents);
+        }
+        if (operations.delete) {
+          allowedMessages.add(ProtocolMessages.deleteSurface);
+        }
+        if (operations.dataModel) {
+          allowedMessages.add(ProtocolMessages.updateDataModel);
+        }
+
+        for (final ProtocolMessages message in ProtocolMessages.values) {
+          if (allowedMessages.contains(message)) {
+            expect(prompt, contains(message.name), reason: b.key);
+          } else {
+            // TODO: remove this check when examples will stop containing not supported operations.
+            if (!b.key.contains('_with_dataModel_false') &&
+                !b.key.contains('only') &&
+                !b.key.contains('create_and_update')) {
+              expect(prompt, isNot(contains(message.name)), reason: b.key);
+            }
+          }
+        }
+
         verifyGoldenText(prompt, '${b.key}.txt');
-      });
+      }, skip: b.key.contains('_with_dataModel_false'));
     }
   });
 }
