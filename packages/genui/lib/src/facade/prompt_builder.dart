@@ -79,7 +79,7 @@ abstract class PromptBuilder {
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
-      allowedOperations: SurfaceOperations.createOnly(),
+      allowedOperations: _SurfaceOperations.createOnly(),
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
     );
@@ -88,7 +88,7 @@ abstract class PromptBuilder {
   factory PromptBuilder.custom({
     required Catalog catalog,
     required Iterable<String> systemPromptFragments,
-    required SurfaceOperations allowedOperations,
+    required _SurfaceOperations allowedOperations,
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) {
@@ -120,7 +120,7 @@ Requires `surfaceId` (you must always use a unique ID for each created surface),
 `catalogId` (use the catalog ID provided in system instructions), 
 and `sendDataModel: true`.
 ''',
-    // TODO: fihure out why we instruct AI to always set sendDataModel: true, instead of just setting it deterministically.
+    // TODO: figure out why we instruct AI to always set sendDataModel: true, instead of always sending it deterministically.
     // TODO: generate warning or error if surfaceId is not unique.
   ),
   updateComponents(
@@ -144,12 +144,12 @@ One component MUST have `id: "root"`.
 
   String get tickedName => '`$name`';
 
-  static String explainMessages(List<_ProtocolMessages> operations) {
-    final names = operations.map((e) => e.tickedName).join(', ');
-    final explanations = operations
+  static String explainMessages(Set<_ProtocolMessages> operations) {
+    final String names = operations.map((e) => e.tickedName).join(', ');
+    final String explanations = operations
         .map((e) => '- ${e.tickedName}: ${e.explanation}')
         .join('\n');
-    final properties = operations
+    final String properties = operations
         .map((e) => '- ${e.tickedName}: ${e.properties}')
         .join('\n');
 
@@ -166,85 +166,75 @@ $properties
   }
 }
 
-/// Defines the set of allowed surface operations.
-final class SurfaceOperations {
-  SurfaceOperations({
+/// Creates prompt for allowed surface operations.
+final class _SurfaceOperations {
+  _SurfaceOperations({
     required this.create,
     required this.update,
     required this.delete,
   });
-  SurfaceOperations.createOnly()
+  _SurfaceOperations.createOnly()
     : this(create: true, update: false, delete: false);
-  SurfaceOperations.updateOnly()
+  _SurfaceOperations.updateOnly()
     : this(create: false, update: true, delete: false);
-  SurfaceOperations.createAndUpdate()
+  _SurfaceOperations.createAndUpdate()
     : this(create: true, update: true, delete: false);
-  SurfaceOperations.all() : this(create: true, update: true, delete: true);
+  _SurfaceOperations.all() : this(create: true, update: true, delete: true);
 
   final bool create;
   final bool update;
   final bool delete;
 
-  // Properties:
-  // - `createSurface`: requires `surfaceId`, `catalogId` (use the catalog ID provided in system instructions), and `sendDataModel: true`.
-  // - `updateComponents`: requires `surfaceId` and a list of `components`. One component MUST have `id: "root"`.
-
-  // IMPORTANT:
-  // - Do not use tools or function calls for UI generation. Use JSON text blocks.
-  // - Ensure all JSON is valid and fenced with ```json ... ```.
-
-  // // ignore: unused_element
-  // abstract class _SurfaceSystemPrompt {
-  //   // ignore: unused_field
-  //   static String uniqueSurfaceId({String prefix = ''}) =>
-  //       '''
-  // ${prefix}When you generate UI in a response, you MUST always create
-  // a new surface with a unique `surfaceId`. Do NOT reuse or update
-  // previously used `surfaceId`s. Each UI response must be in its own new surface.
-  // '''
-  //           .trim();
-  // }
-
-  late final Iterable<String> _surfaceOperationsFragments = () {
+  late final String explanation = () {
     if (delete) {
       throw UnimplementedError(
-        'Delete is not supported yet. Please file an issue if you need it, '
+        'Surface delete is not supported yet. Please file an issue if you need it, '
         'and explain your scenario.',
       );
     }
 
+    final operations = <_ProtocolMessages>{};
+    if (create) {
+      operations.addAll([
+        _ProtocolMessages.createSurface,
+        _ProtocolMessages.updateComponents,
+      ]);
+    }
+    if (update) {
+      operations.add(_ProtocolMessages.updateComponents);
+    }
+
     final parts = <String>[];
 
-    //     parts.add('''
-    // ## Controlling the UI
+    parts.add('''
+## Controlling the UI
 
-    // You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
-    // ''');
+You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
+    ''');
+    parts.add(_ProtocolMessages.explainMessages(operations));
 
-    //     } else {
-    //       assert(update);
-    //       parts.add('Supported message is: `updateComponents`.');
-    //     }
+    if (create) {
+      parts.add('''
+To create a new UI:
+1. Output a ${_ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
+2. Output an ${_ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
+''');
+    }
 
-    //     if (update) {
-    //       parts.add('''
-    // To update an existing UI:
-    // 1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
-    // ''');
-    //     }
-    //     // To update an existing UI (e.g. adding items to an itinerary):
-    //     // 1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
-    //     if (create) {
-    //       parts.add('''
+    if (update) {
+      parts.add('''
+To update an existing UI:
+1. Output an ${_ProtocolMessages.updateComponents.tickedName} message with the existing `surfaceId` and the new component definitions.
+''');
+    }
 
-    // ''');
-    //     }
+    parts.add('''
+IMPORTANT:
+- Do not use tools or function calls for UI generation. Use JSON text blocks.
+- Ensure all JSON is valid and fenced with ```json ... ```.
+''');
 
-    //     if (update) {
-    //       parts.add('update');
-    //     }
-
-    return parts;
+    return parts.map((e) => e.trim()).join('\n\n');
   }();
 }
 
@@ -263,7 +253,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   final Catalog catalog;
 
-  final SurfaceOperations allowedOperations;
+  final _SurfaceOperations allowedOperations;
 
   /// Prefix for important sections of the prompt.
   ///
@@ -292,7 +282,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
       ...catalog.systemPromptFragments,
-      ...allowedOperations._surfaceOperationsFragments,
+      allowedOperations.explanation,
       'A2UI Message Schema:\n$a2uiSchema',
       ?_encodedDataModel(clientDataModel),
     ];
