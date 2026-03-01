@@ -121,6 +121,9 @@ sealed class A2uiMessage {
       ],
     );
   }
+
+  /// Converts this message to a JSON map.
+  Map<String, dynamic> toJson();
 }
 
 /// An A2UI message that signals the client to create and show a new surface.
@@ -155,13 +158,15 @@ final class CreateSurface extends A2uiMessage {
   /// If true, the client sends the full data model in A2A metadata.
   final bool sendDataModel;
 
-  /// Converts this message to a JSON map.
+  @override
   Map<String, dynamic> toJson() => {
     'version': 'v0.9',
-    surfaceIdKey: surfaceId,
-    'catalogId': catalogId,
-    'theme': ?theme,
-    'sendDataModel': sendDataModel,
+    'createSurface': {
+      surfaceIdKey: surfaceId,
+      'catalogId': catalogId,
+      'theme': theme,
+      'sendDataModel': sendDataModel,
+    },
   };
 }
 
@@ -187,10 +192,16 @@ final class UpdateComponents extends A2uiMessage {
   final List<Component> components;
 
   /// Converts this message to a JSON map.
+  ///
+  /// The result is compatible with [A2uiMessage.fromJson] for round-trip
+  /// serialization (e.g. when saving messages locally).
+  @override
   Map<String, dynamic> toJson() => {
     'version': 'v0.9',
-    surfaceIdKey: surfaceId,
-    'components': components.map((c) => c.toJson()).toList(),
+    'updateComponents': {
+      surfaceIdKey: surfaceId,
+      'components': components.map((c) => c.toJson()).toList(),
+    },
   };
 }
 
@@ -224,12 +235,14 @@ final class UpdateDataModel extends A2uiMessage {
   /// key at the path.
   final Object? value;
 
-  /// Converts this message to a JSON map.
+  @override
   Map<String, dynamic> toJson() => {
     'version': 'v0.9',
-    surfaceIdKey: surfaceId,
-    'path': path.toString(),
-    'value': ?value,
+    'updateDataModel': {
+      surfaceIdKey: surfaceId,
+      'path': path.toString(),
+      'value': value,
+    },
   };
 }
 
@@ -246,6 +259,9 @@ final class DeleteSurface extends A2uiMessage {
   /// The ID of the surface that this message applies to.
   final String surfaceId;
 
-  /// Converts this message to a JSON map.
-  Map<String, dynamic> toJson() => {'version': 'v0.9', surfaceIdKey: surfaceId};
+  @override
+  Map<String, dynamic> toJson() => {
+    'version': 'v0.9',
+    'deleteSurface': {surfaceIdKey: surfaceId},
+  };
 }
