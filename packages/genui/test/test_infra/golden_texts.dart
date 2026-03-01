@@ -31,12 +31,28 @@ void verifyGoldenText(String text, String goldenFileName) {
 
 /// Returns absolute path to the golden file.
 
+/// Extracts the test file URI from the call stack, skipping frames from
+/// this file.
+Uri _testFileUri() {
+  // Frame format: "#N      name (uri:line:col)"
+  final framePattern = RegExp(r'\((.+\.dart):\d+:\d+\)$');
+  for (final String frame in StackTrace.current.toString().split('\n')) {
+    final RegExpMatch? match = framePattern.firstMatch(frame.trim());
+    if (match == null) continue;
+    final Uri? uri = Uri.tryParse(match.group(1)!);
+    if (uri == null) continue;
+    if (uri.pathSegments.last == 'golden_texts.dart') continue;
+    return uri;
+  }
+  throw StateError('Could not determine test file URI from stack trace');
+}
+
 String _goldenFilePath(String fileName) {
-  final Uri scriptUri = Platform.script;
-  final String scriptName = scriptUri.pathSegments.last;
+  final Uri testUri = _testFileUri();
+  final String scriptName = testUri.pathSegments.last;
   final String stem = scriptName.endsWith('.dart')
       ? scriptName.substring(0, scriptName.length - 5)
       : scriptName;
-  final Uri goldenDir = scriptUri.resolve('$stem.golden/');
+  final Uri goldenDir = testUri.resolve('$stem.golden/');
   return goldenDir.resolve(fileName).toFilePath();
 }
