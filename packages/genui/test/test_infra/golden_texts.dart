@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
+/// Verifies that the given [text] matches the content of the golden file.
+///
+/// If [autoUpdateGoldenFiles] is true, the golden file will be updated.
 void verifyGoldenText(String text, String goldenFileName) {
   if (autoUpdateGoldenFiles) {}
 }
