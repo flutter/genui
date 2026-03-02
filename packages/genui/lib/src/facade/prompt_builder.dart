@@ -47,7 +47,7 @@ the user can indicate that they are done providing information.
   /// [prefix] is a prefix to be added to the system prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String currentDate({String prefix = ''}) =>
-      'Current Date: '
+      '${prefix}Current Date: '
       '${DateTime.now().toIso8601String().split('T').first}';
 
   /// Code execution restriction.
@@ -57,7 +57,7 @@ the user can indicate that they are done providing information.
   /// [prefix] is a prefix to be added to the system prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String codeExecutionRestriction({String prefix = ''}) =>
-      'You do not have the ability to execute code. If you need to '
+      '${prefix}You do not have the ability to execute code. If you need to '
       'perform calculations, do them yourself.';
 }
 
