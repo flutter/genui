@@ -52,7 +52,7 @@ the user can indicate that they are done providing information.
 
   /// Code execution restriction.
   ///
-  /// This is useful when AI may need to execute code.
+  /// This is useful to communicate limitations of code execution to the AI.
   ///
   /// [prefix] is a prefix to be added to the system prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
