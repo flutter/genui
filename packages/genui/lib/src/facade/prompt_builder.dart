@@ -331,7 +331,13 @@ final class _BasicPromptBuilder extends PromptBuilder {
       'Use the provided tools to respond to user using rich UI elements.',
       ...catalog.systemPromptFragments,
       allowedOperations.systemPromptFragment,
-      'A2UI Message Schema:\n$a2uiSchema',
+      '''
+-----A2UI_JSON_SCHEMA_START-----
+```json
+$a2uiSchema
+```
+-----A2UI_JSON_SCHEMA_END-----
+''',
       ?_encodedDataModel(clientDataModel),
     ];
 
