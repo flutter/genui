@@ -10,14 +10,16 @@ import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../primitives/simple_items.dart';
 
-/// Common fragments for prompts.
+/// Common fragments for prompts, to explain agent behavior.
+// This class should not contain technical details.
+// Technical details should be communicated in the [PromptBuilder] constructors.
 abstract class PromptFragments {
   /// Requirement to acknowledges the user message.
   ///
   /// This is useful for chat-based prompts where the AI should
   /// acknowledge the user's message before responding.
   ///
-  /// [prefix] is a prefix to be added to the system prompt.
+  /// [prefix] is a prefix to be added to the prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String acknowledgeUser({String prefix = ''}) =>
       ''' 
@@ -30,7 +32,7 @@ ${prefix}Your responses should contain acknowledgment of the user message.
   /// This is useful for chat-based prompts where the AI should
   /// include at least one submit element in each response.
   ///
-  /// [prefix] is a prefix to be added to the system prompt.
+  /// [prefix] is a prefix to be added to the prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String requireAtLeastOneSubmitElement({String prefix = ''}) =>
       '''
@@ -44,7 +46,7 @@ the user can indicate that they are done providing information.
   ///
   /// This is useful when AI needs to know the current date.
   ///
-  /// [prefix] is a prefix to be added to the system prompt.
+  /// [prefix] is a prefix to be added to the prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String currentDate({String prefix = ''}) =>
       '${prefix}Current Date: '
@@ -54,7 +56,7 @@ the user can indicate that they are done providing information.
   ///
   /// This is useful to communicate limitations of code execution to the AI.
   ///
-  /// [prefix] is a prefix to be added to the system prompt.
+  /// [prefix] is a prefix to be added to the prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String codeExecutionRestriction({String prefix = ''}) =>
       '${prefix}You do not have the ability to execute code. If you need to '
@@ -64,7 +66,7 @@ the user can indicate that they are done providing information.
   ///
   /// This is useful to communicate limitations of UI generation to the AI.
   ///
-  /// [prefix] is a prefix to be added to the system prompt.
+  /// [prefix] is a prefix to be added to the prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String uiGenerationRestriction({String prefix = ''}) =>
       '${prefix}Do not use tools or function calls for UI generation. '
@@ -78,6 +80,7 @@ the user can indicate that they are done providing information.
 // TODO: consider supporting non-text parts in system prompt.
 abstract class PromptBuilder {
   static const String defaultImportancePrefix = 'IMPORTANT: ';
+
   const PromptBuilder._();
 
   /// Creates a chat prompt builder.
@@ -198,7 +201,19 @@ $properties
   }
 }
 
-/// Creates prompt for allowed surface operations.
+final class TechnicalPossibilities {
+  final bool codeExecution;
+  final bool toolCall;
+  final bool functionCall;
+
+  const TechnicalPossibilities({
+    this.codeExecution = false,
+    this.toolCall = false,
+    this.functionCall = false,
+  });
+}
+
+/// Defines allowed surface operations.
 final class SurfaceOperations {
   SurfaceOperations({
     this.create = false,
@@ -275,7 +290,7 @@ To update an existing UI:
 
     parts.add('''
 **OUTPUT FORMAT:**
-You must output a VALID JSON object representing one of the A2UI message types ($operationsFormatted).
+When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types ($operationsFormatted).
 - Do NOT use function blocks or tool calls for these messages.
 - You can treat the A2UI schema as a specification for the JSON you typically output.
 - You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
@@ -336,7 +351,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
 ```json
 $a2uiSchema
 ```
------A2UI_JSON_SCHEMA_END-----
+-----A2UI_JSON_SCHEMA_END-------
 ''',
       ?_encodedDataModel(clientDataModel),
     ];
