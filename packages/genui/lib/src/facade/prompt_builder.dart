@@ -190,11 +190,14 @@ $properties
 /// Creates prompt for allowed surface operations.
 final class SurfaceOperations {
   SurfaceOperations({
-    required this.create,
-    required this.update,
-    required this.delete,
-    required this.dataModel,
-  });
+    this.create = false,
+    this.update = false,
+    this.delete = false,
+    this.dataModel = false,
+  }) : assert(
+         create || update || delete,
+         'At least one operation must be enabled.',
+       );
   SurfaceOperations.createOnly({required bool dataModel})
     : this(create: true, update: false, delete: false, dataModel: dataModel);
   SurfaceOperations.updateOnly({required bool dataModel})
