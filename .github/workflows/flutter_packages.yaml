@@ -50,7 +50,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Find all directories containing pubspec.yaml in packages, tools, and examples.
-          ALL_DIRS=$(find packages examples tool -name pubspec.yaml -not -path "*/.dart_tool/*" -exec dirname {} \;)
+          ALL_DIRS=$(find packages examples tool -name pubspec.yaml -not -path "*/.dart_tool/*" -not -path "examples/eval/*" -exec dirname {} \;)
 
           # Get the list of changed files. The method depends on the event type.
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then

@@ -1,0 +1,65 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Eval CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Tests may fail due to new dependency releases.
+    # Regular execution provides early detection of such regressions.
+    - cron: '0 * * * *' # hourly
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Prevents the job from running on forks or fork PRs (which don't have access to secrets).
+    # if: github.repository == 'flutter/genui' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    name: examples/eval (${{ matrix.flutter_version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter_version: [beta, stable]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          cache: "gradle"
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        with:
+          channel: ${{ matrix.flutter_version }}
+          cache: true
+      - name: check api key
+        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+      - name: Print Flutter version
+        run: flutter --version
+      - name: Cache Pub dependencies
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: ${{ env.PUB_CACHE }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+      - name: Install dependencies
+        working-directory: examples/eval
+        run: dart pub get
+      - name: Run tests
+        working-directory: examples/eval
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: flutter test --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
