@@ -59,6 +59,17 @@ the user can indicate that they are done providing information.
   static String codeExecutionRestriction({String prefix = ''}) =>
       '${prefix}You do not have the ability to execute code. If you need to '
       'perform calculations, do them yourself.';
+
+  /// Restriction on using tools or function calls for UI generation.
+  ///
+  /// This is useful to communicate limitations of UI generation to the AI.
+  ///
+  /// [prefix] is a prefix to be added to the system prompt.
+  /// Is useful when you want to emphasize the importance of this fragment.
+  static String uiGenerationRestriction({String prefix = ''}) =>
+      '${prefix}Do not use tools or function calls for UI generation. '
+      'Use JSON text blocks.\n'
+      'Ensure all JSON is valid and fenced with ```json ... ```.';
 }
 
 /// A builder for a prompt to generate UI.
@@ -263,10 +274,6 @@ To update an existing UI:
     }
 
     parts.add('''
-IMPORTANT:
-- Do not use tools or function calls for UI generation. Use JSON text blocks.
-- Ensure all JSON is valid and fenced with ```json ... ```.
-
 **OUTPUT FORMAT:**
 You must output a VALID JSON object representing one of the A2UI message types ($operationsFormatted).
 - Do NOT use function blocks or tool calls for these messages.

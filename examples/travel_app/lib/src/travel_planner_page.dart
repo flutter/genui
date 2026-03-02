@@ -500,4 +500,7 @@ Here is an example of creating a trip planner UI.
 
 When updating or showing UIs, **ALWAYS** use the JSON messages as described above. Prefer to collect and show information by creating a UI for it.
 ''',
+  PromptFragments.uiGenerationRestriction(
+    prefix: PromptBuilder.defaultImportancePrefix,
+  ),
 ];

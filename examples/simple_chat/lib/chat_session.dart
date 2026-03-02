@@ -83,6 +83,9 @@ If there is no way to itemize all the options, either use the component '${Basic
         PromptFragments.requireAtLeastOneSubmitElement(
           prefix: PromptBuilder.defaultImportancePrefix,
         ),
+        PromptFragments.uiGenerationRestriction(
+          prefix: PromptBuilder.defaultImportancePrefix,
+        ),
       ],
     );
     _transport.addSystemMessage(promptBuilder.systemPromptJoined());
