@@ -262,6 +262,8 @@ final class SurfaceOperations {
   final bool delete;
   final bool dataModel;
 
+  String get _controllingUi() {}
+
   /// System prompt fragment related to the surface operations.
   ///
   /// This fragment should be added to the system prompt and should be used to
@@ -312,14 +314,14 @@ To update an existing UI:
 ''');
     }
 
-    parts.add('''
-**OUTPUT FORMAT:**
+    parts.add(
+      _fenced('''
 When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types ($operationsFormatted).
-- Do NOT use function blocks or tool calls for these messages.
 - You can treat the A2UI schema as a specification for the JSON you typically output.
 - You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
 - Ensure your JSON is fenced with ```json and ```.
-''');
+''', sectionName: 'OUTPUT FORMAT'),
+    );
 
     return parts.map((e) => e.trim()).join('\n\n');
   }();
@@ -374,13 +376,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       allowedOperations.systemPromptFragment,
-      '''
------A2UI_JSON_SCHEMA_START-----
-```json
-$a2uiSchema
-```
------A2UI_JSON_SCHEMA_END-------
-''',
+      _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
       ?_encodedDataModel(clientDataModel),
     ];
 
@@ -394,4 +390,11 @@ $a2uiSchema
     ).convert(clientDataModel);
     return 'Client Data Model:\n$encodedModel';
   }
+}
+
+String _fenced(String content, {required String sectionName}) {
+  final String name = sectionName.toUpperCase().replaceAll(' ', '_');
+  return '-----${name}_START-----\n'
+      '${content.trim()}\n'
+      '-----${name}_END-----';
 }
