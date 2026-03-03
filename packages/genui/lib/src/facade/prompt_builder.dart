@@ -120,8 +120,8 @@ abstract class PromptBuilder {
   /// The prompt sections are trimmed and then
   /// joined with the given section separator.
   String systemPromptJoined({
-    String sectionSeparator = '\n\n-------------------------------------\n\n',
-  }) => systemPrompt().map((e) => e.trim()).join(sectionSeparator);
+    String sectionSeparator = '\n-------------------------------------\n\n',
+  }) => systemPrompt().map((e) => '${e.trim()}\n').join(sectionSeparator);
 }
 
 @visibleForTesting
@@ -367,7 +367,6 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...allowedOperations.systemPromptFragments,
       _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
       ?_encodedDataModel(clientDataModel),
-      '', //empty line for better readability
     ];
 
     return _fragmentsToPrompt(fragments);

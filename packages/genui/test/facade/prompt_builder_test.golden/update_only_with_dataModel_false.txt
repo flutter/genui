@@ -303,6 +303,3 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
   ]
 }
 -----A2UI_JSON_SCHEMA_END-----
-
--------------------------------------
-
