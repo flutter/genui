@@ -52,16 +52,6 @@ the user can indicate that they are done providing information.
       '${prefix}Current Date: '
       '${DateTime.now().toIso8601String().split('T').first}';
 
-  /// Code execution restriction.
-  ///
-  /// This is useful to communicate limitations of code execution to the AI.
-  ///
-  /// [prefix] is a prefix to be added to the prompt.
-  /// Is useful when you want to emphasize the importance of this fragment.
-  static String codeExecutionRestriction({String prefix = ''}) =>
-      '${prefix}You do not have the ability to execute code. If you need to '
-      'perform calculations, do them yourself.';
-
   /// Restriction on using tools or function calls for UI generation.
   ///
   /// This is useful to communicate limitations of UI generation to the AI.
@@ -100,6 +90,7 @@ abstract class PromptBuilder {
       allowedOperations: SurfaceOperations.createOnly(dataModel: false),
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
+      technicalPossibilities: TechnicalPossibilities(),
     );
   }
 
@@ -108,6 +99,8 @@ abstract class PromptBuilder {
     required SurfaceOperations allowedOperations,
     Iterable<String> systemPromptFragments = const [],
     String importancePrefix = defaultImportancePrefix,
+    TechnicalPossibilities technicalPossibilities =
+        const TechnicalPossibilities(),
     JsonMap? clientDataModel,
   }) {
     return _BasicPromptBuilder(
@@ -116,6 +109,7 @@ abstract class PromptBuilder {
       allowedOperations: allowedOperations,
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
+      technicalPossibilities: technicalPossibilities,
     );
   }
 
@@ -205,15 +199,45 @@ final class TechnicalPossibilities {
   final bool codeExecution;
   final bool toolCall;
   final bool functionCall;
+  final String importancePrefix;
 
   const TechnicalPossibilities({
     this.codeExecution = false,
     this.toolCall = false,
     this.functionCall = false,
+    this.importancePrefix = PromptBuilder.defaultImportancePrefix,
   });
+
+  /// System prompt fragment related to the surface operations.
+  ///
+  /// This fragment should be added to the system prompt and should be used to
+  /// instruct the model on how to use the surface operations.
+  Iterable<String> systemPromptFragment() {
+    final result = <String>[];
+
+    if (!codeExecution) {
+      result.add(
+        '${importancePrefix}You do not have the ability to execute code. '
+        'If you need to perform calculations, do them yourself.',
+      );
+    }
+    if (!toolCall) {
+      result.add(
+        '${importancePrefix}You do not have the ability '
+        'to use tools for UI generation.',
+      );
+    }
+    if (!functionCall) {
+      result.add(
+        '${importancePrefix}You do not have the ability '
+        'to use function calls for UI generation.',
+      );
+    }
+    return result;
+  }
 }
 
-/// Defines allowed surface operations.
+/// Pieces of prompt that defines allowed surface operations.
 final class SurfaceOperations {
   SurfaceOperations({
     this.create = false,
@@ -312,6 +336,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
     required this.allowedOperations,
     required this.importancePrefix,
     required this.clientDataModel,
+    required this.technicalPossibilities,
   }) : super._();
 
   final Catalog catalog;
@@ -335,6 +360,8 @@ final class _BasicPromptBuilder extends PromptBuilder {
   Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
       fragments.map((e) => e.trim());
 
+  final TechnicalPossibilities technicalPossibilities;
+
   @override
   Iterable<String> systemPrompt() {
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
@@ -344,6 +371,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
     final fragments = <String>[
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
+      ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       allowedOperations.systemPromptFragment,
       '''

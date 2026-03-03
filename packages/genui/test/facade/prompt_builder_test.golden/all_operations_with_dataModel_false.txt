@@ -16,6 +16,18 @@ Use the provided tools to respond to user using rich UI elements.
 
 -------------------------------------
 
+IMPORTANT: You do not have the ability to execute code. If you need to perform calculations, do them yourself.
+
+-------------------------------------
+
+IMPORTANT: You do not have the ability to use tools for UI generation.
+
+-------------------------------------
+
+IMPORTANT: You do not have the ability to use function calls for UI generation.
+
+-------------------------------------
+
 **REQUIRED PROPERTIES:** You MUST include ALL required properties for every component, even if they are inside a template or will be bound to data.
 - For 'Text', you MUST provide 'text'. If dynamic, use { "path": "..." }.
 - For 'Image', you MUST provide 'url'. If dynamic, use { "path": "..." }.
@@ -102,12 +114,8 @@ To create a new UI:
 To update an existing UI:
 1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
 
-IMPORTANT:
-- Do not use tools or function calls for UI generation. Use JSON text blocks.
-- Ensure all JSON is valid and fenced with ```json ... ```.
-
 **OUTPUT FORMAT:**
-You must output a VALID JSON object representing one of the A2UI message types (`createSurface`, `updateComponents`, `deleteSurface`).
+When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types (`createSurface`, `updateComponents`, `deleteSurface`).
 - Do NOT use function blocks or tool calls for these messages.
 - You can treat the A2UI schema as a specification for the JSON you typically output.
 - You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
@@ -115,7 +123,8 @@ You must output a VALID JSON object representing one of the A2UI message types (
 
 -------------------------------------
 
-A2UI Message Schema:
+-----A2UI_JSON_SCHEMA_START-----
+```json
 {
   "allOf": [
     {
@@ -302,3 +311,5 @@ A2UI Message Schema:
     }
   ]
 }
+```
+-----A2UI_JSON_SCHEMA_END-------

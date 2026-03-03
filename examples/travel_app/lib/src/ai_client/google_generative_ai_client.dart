@@ -474,10 +474,7 @@ class GoogleGenerativeAiClient implements AiClient {
 
       final promptBuilder = PromptBuilder.custom(
         catalog: catalog,
-        systemPromptFragments: [
-          ...systemInstruction,
-          PromptFragments.codeExecutionRestriction(),
-        ],
+        systemPromptFragments: systemInstruction,
         allowedOperations: SurfaceOperations.createAndUpdate(dataModel: true),
         clientDataModel: clientDataModel,
       );
