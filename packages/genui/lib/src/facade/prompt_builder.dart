@@ -262,66 +262,57 @@ final class SurfaceOperations {
   final bool delete;
   final bool dataModel;
 
+  late final _operations = <ProtocolMessages>{
+    if (create) ...{
+      ProtocolMessages.createSurface,
+      ProtocolMessages.updateComponents,
+    },
+    if (update) ProtocolMessages.updateComponents,
+    if (delete) ProtocolMessages.deleteSurface,
+    if (dataModel) ProtocolMessages.updateDataModel,
+  };
+
+  late final String _operationsFormatted = _operations
+      .map((e) => e.tickedName)
+      .join(', ');
+
+  late final String _controllingUI = [
+    '''
+You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
+    ''',
+    ProtocolMessages.explainMessages(_operations),
+    if (create)
+      '''
+To create a new UI:
+1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
+2. Output an ${ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
+''',
+    if (update)
+      '''
+To update an existing UI:
+1. Output an ${ProtocolMessages.updateComponents.tickedName} message with the existing `surfaceId` and the new component definitions.
+''',
+  ].map((e) => e.trim()).join('\n\n');
+
   /// System prompt fragment related to the surface operations.
   ///
   /// This fragment should be added to the system prompt and should be used to
   /// instruct the model on how to use the surface operations.
-  late final String systemPromptFragment = () {
-    final operations = <ProtocolMessages>{};
-    if (create) {
-      operations.addAll([
-        ProtocolMessages.createSurface,
-        ProtocolMessages.updateComponents,
-      ]);
-    }
-    if (update) {
-      operations.add(ProtocolMessages.updateComponents);
-    }
-    if (delete) {
-      operations.add(ProtocolMessages.deleteSurface);
-    }
-    if (dataModel) {
-      operations.add(ProtocolMessages.updateDataModel);
-    }
-
+  late final Iterable<String> systemPromptFragments = () {
     final parts = <String>[];
 
-    final String operationsFormatted = operations
-        .map((e) => e.tickedName)
-        .join(', ');
-
-    parts.add('''
-## Controlling the UI
-
-You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
-    ''');
-    parts.add(ProtocolMessages.explainMessages(operations));
-
-    if (create) {
-      parts.add('''
-To create a new UI:
-1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
-2. Output an ${ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
-''');
-    }
-
-    if (update) {
-      parts.add('''
-To update an existing UI:
-1. Output an ${ProtocolMessages.updateComponents.tickedName} message with the existing `surfaceId` and the new component definitions.
-''');
-    }
+    parts.add(_fenced(_controllingUI, sectionName: 'CONTROLLING THE UI'));
 
     parts.add(
       _fenced('''
-When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types ($operationsFormatted).
+When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types ($_operationsFormatted).
 - You can treat the A2UI schema as a specification for the JSON you typically output.
 - You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
 - Ensure your JSON is fenced with ```json and ```.
 ''', sectionName: 'OUTPUT FORMAT'),
     );
 
-    return parts.map((e) => e.trim()).join('\n\n');
+    return parts;
   }();
 }
 
@@ -373,9 +364,10 @@ final class _BasicPromptBuilder extends PromptBuilder {
       'Use the provided tools to respond to user using rich UI elements.',
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
-      allowedOperations.systemPromptFragment,
+      ...allowedOperations.systemPromptFragments,
       _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
       ?_encodedDataModel(clientDataModel),
+      '', //empty line for better readability
     ];
 
     return _fragmentsToPrompt(fragments);

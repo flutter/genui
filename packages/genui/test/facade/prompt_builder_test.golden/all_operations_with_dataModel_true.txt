@@ -88,8 +88,7 @@ the user can indicate that they are done providing information.
 
 -------------------------------------
 
-## Controlling the UI
-
+-----CONTROLLING_THE_UI_START-----
 You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
 
 Supported messages are: `createSurface`, `updateComponents`, `deleteSurface`, `updateDataModel`.
@@ -115,17 +114,20 @@ To create a new UI:
 
 To update an existing UI:
 1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
+-----CONTROLLING_THE_UI_END-----
 
-**OUTPUT FORMAT:**
+-------------------------------------
+
+-----OUTPUT_FORMAT_START-----
 When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types (`createSurface`, `updateComponents`, `deleteSurface`, `updateDataModel`).
 - You can treat the A2UI schema as a specification for the JSON you typically output.
 - You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
 - Ensure your JSON is fenced with ```json and ```.
+-----OUTPUT_FORMAT_END-----
 
 -------------------------------------
 
 -----A2UI_JSON_SCHEMA_START-----
-```json
 {
   "allOf": [
     {
@@ -312,5 +314,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
     }
   ]
 }
-```
------A2UI_JSON_SCHEMA_END-------
+-----A2UI_JSON_SCHEMA_END-----
+
+-------------------------------------
+
