@@ -262,8 +262,6 @@ final class SurfaceOperations {
   final bool delete;
   final bool dataModel;
 
-  String get _controllingUi() {}
-
   /// System prompt fragment related to the surface operations.
   ///
   /// This fragment should be added to the system prompt and should be used to
