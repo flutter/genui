@@ -90,7 +90,7 @@ abstract class PromptBuilder {
       allowedOperations: SurfaceOperations.createOnly(dataModel: false),
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
-      technicalPossibilities: TechnicalPossibilities(),
+      technicalPossibilities: const TechnicalPossibilities(),
     );
   }
 
