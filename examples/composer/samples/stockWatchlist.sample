@@ -1,0 +1,11 @@
+---
+description: A stock market watchlist.
+name: stockWatchlist
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a stock watchlist. 'Text' (h1) "Market Watch". 'List' of 'Row's.
+      - Row 1: 'Text' "AAPL", 'Text' "$150.00", 'Text' "+1.2%".
+      - Row 2: 'Text' "GOOGL", 'Text' "$2800.00", 'Text' "-0.5%".
+      - Row 3: 'Text' "AMZN", 'Text' "$3400.00", 'Text' "+0.8%".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["marketWatchTitle","stockList"]},{"id":"marketWatchTitle","component":"Text","text":"Market Watch","variant":"h1"},{"id":"stockList","component":"List","children":["aaplRow","googlRow","amznRow"]},{"id":"aaplRow","component":"Row","children":["aaplSymbol","aaplPrice","aaplChange"],"justify":"spaceBetween"},{"id":"aaplSymbol","component":"Text","text":"AAPL"},{"id":"aaplPrice","component":"Text","text":"$150.00"},{"id":"aaplChange","component":"Text","text":"+1.2%"},{"id":"googlRow","component":"Row","children":["googlSymbol","googlPrice","googlChange"],"justify":"spaceBetween"},{"id":"googlSymbol","component":"Text","text":"GOOGL"},{"id":"googlPrice","component":"Text","text":"$2800.00"},{"id":"googlChange","component":"Text","text":"-0.5%"},{"id":"amznRow","component":"Row","children":["amznSymbol","amznPrice","amznChange"],"justify":"spaceBetween"},{"id":"amznSymbol","component":"Text","text":"AMZN"},{"id":"amznPrice","component":"Text","text":"$3400.00"},{"id":"amznChange","component":"Text","text":"+0.8%"}]}}

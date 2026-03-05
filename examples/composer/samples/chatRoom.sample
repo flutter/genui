@@ -1,0 +1,8 @@
+---
+description: A chat application interface.
+name: chatRoom
+prompt: |
+  Create a chat room interface. It should have a 'Column' for the message history. Inside, include several 'Card's representing messages, each with a 'Text' for the sender and a 'Text' for the message body. Specifically include these messages: "Alice: Hi there!", "Bob: Hello!". At the bottom, a 'Row' with a 'TextField' (label "Type a message...") and a 'Button' labeled "Send".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["messageHistoryColumn","messageInputRow"]},{"id":"messageHistoryColumn","component":"Column","children":["messageCardAlice","messageCardBob"]},{"id":"messageCardAlice","component":"Card","child":"messageContentAlice"},{"id":"messageContentAlice","component":"Column","children":["senderAlice","bodyAlice"]},{"id":"senderAlice","component":"Text","text":"Alice:"},{"id":"bodyAlice","component":"Text","text":"Hi there!"},{"id":"messageCardBob","component":"Card","child":"messageContentBob"},{"id":"messageContentBob","component":"Column","children":["senderBob","bodyBob"]},{"id":"senderBob","component":"Text","text":"Bob:"},{"id":"bodyBob","component":"Text","text":"Hello!"},{"id":"messageInputRow","component":"Row","children":["messageTextField","sendButton"]},{"id":"messageTextField","component":"TextField","label":"Type a message...","value":""},{"id":"sendButton","component":"Button","child":"sendButtonText","action":{"event":{"name":"sendMessage"}}},{"id":"sendButtonText","component":"Text","text":"Send"}]}}

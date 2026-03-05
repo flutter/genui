@@ -1,0 +1,12 @@
+---
+description: A Kanban-style task tracking board.
+name: kanbanBoard
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a Kanban board. It should have a 'Text' (variant 'h1') "Project Tasks". Below, a 'Row' containing three 'Column's representing "To Do", "In Progress", and "Done". Each column should have a 'Text' (variant 'h2') header and a list of 'Card's.
+      - "To Do" column: Card "Research", Card "Design".
+      - "In Progress" column: Card "Implementation".
+      - "Done" column: Card "Planning".
+      Each card should just contain a 'Text' with the task name.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["projectTitle","kanbanBoard"]},{"id":"projectTitle","component":"Text","text":"Project Tasks","variant":"h1"},{"id":"kanbanBoard","component":"Row","children":["toDoColumn","inProgressColumn","doneColumn"],"justify":"spaceEvenly"},{"id":"toDoColumn","component":"Column","children":["toDoHeader","cardResearch","cardDesign"],"align":"start"},{"id":"toDoHeader","component":"Text","text":"To Do","variant":"h2"},{"id":"cardResearch","component":"Card","child":"textResearch"},{"id":"textResearch","component":"Text","text":"Research"},{"id":"cardDesign","component":"Card","child":"textDesign"},{"id":"textDesign","component":"Text","text":"Design"},{"id":"inProgressColumn","component":"Column","children":["inProgressHeader","cardImplementation"],"align":"start"},{"id":"inProgressHeader","component":"Text","text":"In Progress","variant":"h2"},{"id":"cardImplementation","component":"Card","child":"textImplementation"},{"id":"textImplementation","component":"Text","text":"Implementation"},{"id":"doneColumn","component":"Column","children":["doneHeader","cardPlanning"],"align":"start"},{"id":"doneHeader","component":"Text","text":"Done","variant":"h2"},{"id":"cardPlanning","component":"Card","child":"textPlanning"},{"id":"textPlanning","component":"Text","text":"Planning"}]}}
