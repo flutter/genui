@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import '../interfaces/a2ui_message_sink.dart';
 import '../interfaces/surface_context.dart';
 import '../interfaces/surface_host.dart';
+import '../model/a2ui_client_capabilities.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
@@ -55,16 +56,15 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   // Expose registry events as surface updates
   @override
-  Stream<SurfaceUpdate> get surfaceUpdates => _registry.events.map((e) {
-    switch (e) {
-      case surface_reg.SurfaceAdded():
-        return SurfaceAdded(e.surfaceId, e.definition);
-      case surface_reg.SurfaceUpdated():
-        return ComponentsUpdated(e.surfaceId, e.definition);
-      case surface_reg.SurfaceRemoved():
-        return SurfaceRemoved(e.surfaceId);
-    }
-  });
+  Stream<SurfaceUpdate> get surfaceUpdates => _registry.events.map(
+    (e) => switch (e) {
+      surface_reg.SurfaceAdded(:final surfaceId, :final definition) =>
+        SurfaceAdded(surfaceId, definition),
+      surface_reg.SurfaceUpdated(:final surfaceId, :final definition) =>
+        ComponentsUpdated(surfaceId, definition),
+      surface_reg.SurfaceRemoved(:final surfaceId) => SurfaceRemoved(surfaceId),
+    },
+  );
 
   /// A stream of messages to be submitted to the AI service.
   ///
@@ -73,6 +73,11 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// The IDs of the currently active surfaces.
   Iterable<String> get activeSurfaceIds => _registry.surfaceOrder;
+
+  /// Evaluates and returns the client capabilities for the catalogs managed
+  /// by this controller.
+  A2UiClientCapabilities get clientCapabilities =>
+      A2UiClientCapabilities.fromCatalogs(catalogs);
 
   @override
   SurfaceContext contextFor(String surfaceId) {
@@ -146,8 +151,12 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   void _handleMessageInternal(A2uiMessage message) {
     switch (message) {
-      case CreateSurface():
-        final String surfaceId = message.surfaceId;
+      case CreateSurface(
+        :final surfaceId,
+        :final catalogId,
+        :final theme,
+        :final sendDataModel,
+      ):
         if (surfaceId.isEmpty) {
           throw A2uiValidationException(
             'Surface ID cannot be empty',
@@ -164,11 +173,11 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         final SurfaceDefinition? existing = _registry.getSurface(surfaceId);
         final SurfaceDefinition newDefinition =
             (existing ?? SurfaceDefinition(surfaceId: surfaceId)).copyWith(
-              catalogId: message.catalogId,
-              theme: message.theme,
+              catalogId: catalogId,
+              theme: theme,
             );
 
-        if (message.sendDataModel) {
+        if (sendDataModel) {
           _store.attachSurface(surfaceId);
         } else {
           _store.detachSurface(surfaceId);
@@ -191,8 +200,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
           }
         }
 
-      case UpdateComponents():
-        final String surfaceId = message.surfaceId;
+      case UpdateComponents(:final surfaceId, :final components):
         if (!_registry.hasSurface(surfaceId)) {
           _bufferMessage(surfaceId, message);
           return;
@@ -200,7 +208,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
         final SurfaceDefinition current = _registry.getSurface(surfaceId)!;
         final Map<String, Component> newComponents = Map.of(current.components);
-        for (final Component component in message.components) {
+        for (final component in components) {
           newComponents[component.id] = component;
         }
 
@@ -217,22 +225,20 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
           updatedDefinition.validate(catalog.definition);
         }
 
-      case UpdateDataModel():
-        final String surfaceId = message.surfaceId;
+      case UpdateDataModel(:final surfaceId, :final path, :final value):
         if (!_registry.hasSurface(surfaceId)) {
           _bufferMessage(surfaceId, message);
           return;
         }
 
         final DataModel model = _store.getDataModel(surfaceId);
-        model.update(message.path, message.value);
+        model.update(path, value);
 
         // Trigger generic update on surface to refresh UI
         final SurfaceDefinition current = _registry.getSurface(surfaceId)!;
         _registry.updateSurface(surfaceId, current);
 
-      case DeleteSurface():
-        final String surfaceId = message.surfaceId;
+      case DeleteSurface(:final surfaceId):
         _pendingUpdates.remove(surfaceId);
         _pendingUpdateTimers.remove(surfaceId)?.cancel();
         _registry.removeSurface(surfaceId);

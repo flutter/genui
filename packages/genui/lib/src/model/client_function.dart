@@ -50,13 +50,34 @@ abstract interface class ExecutionContext {
 /// Functions are reactive, returning a [Stream] of values.
 /// This allows functions to push updates to the UI (e.g. a clock or network
 /// status).
+/// The type of value a client function returns.
+enum ClientFunctionReturnType {
+  string('string'),
+  number('number'),
+  boolean('boolean'),
+  array('array'),
+  object('object'),
+  any('any'),
+  empty('void'); // Called empty because void is a keyword.
+
+  const ClientFunctionReturnType(this.value);
+  final String value;
+}
+
 abstract interface class ClientFunction {
   /// The name of the function as used in expressions (e.g. 'stringFormat').
   String get name;
 
+  /// A human-readable description of what the function does and how to use it.
+  String get description;
+
   /// The schema for the arguments this function accepts.
   /// Used for validation and tool definition generation for the LLM.
   Schema get argumentSchema;
+
+  /// The type of value this function returns.
+  /// Defaults to [ClientFunctionReturnType.any].
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.any;
 
   /// Invokes the function with the given [args].
   ///
@@ -87,8 +108,8 @@ abstract class SynchronousClientFunction implements ClientFunction {
   Stream<Object?> execute(JsonMap args, ExecutionContext context) {
     try {
       return Stream.value(executeSync(args, context));
-    } catch (e, stack) {
-      return Stream.error(e, stack);
+    } catch (exception, stackTrace) {
+      return Stream.error(exception, stackTrace);
     }
   }
 

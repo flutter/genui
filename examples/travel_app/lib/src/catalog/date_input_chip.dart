@@ -126,9 +126,10 @@ final dateInputChip = CatalogItem(
   widgetBuilder: (context) {
     final datePickerData = _DatePickerData.fromMap(context.data as JsonMap);
     final Object? value = datePickerData.value;
-    final path = value is Map && value.containsKey('path')
-        ? value['path'] as String
-        : '${context.id}.value';
+    final String path = switch (value) {
+      {'path': String p} => p,
+      _ => '${context.id}.value',
+    };
     return BoundString(
       dataContext: context.dataContext,
       value: {'path': path},

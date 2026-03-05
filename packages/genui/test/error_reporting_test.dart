@@ -151,13 +151,19 @@ class FailFunction extends SynchronousClientFunction {
   @override
   String get name => 'failFunc';
 
+  @override
+  String get description => 'Fails the test.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.empty;
+
   // This function is for internal testing only, so description matters less.
   // But we must implement the interface.
   @override
   Schema get argumentSchema => S.object();
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     throw Exception('Function failed explicitly');
   }
 }

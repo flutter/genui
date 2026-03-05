@@ -60,11 +60,11 @@ final list = CatalogItem(
         : Axis.vertical;
 
     final CrossAxisAlignment crossAxisAlignment = switch (listData.align) {
-      'start' => CrossAxisAlignment.start,
-      'center' => CrossAxisAlignment.center,
-      'end' => CrossAxisAlignment.end,
-      'stretch' => CrossAxisAlignment.stretch,
-      _ => CrossAxisAlignment.center,
+      'start' => .start,
+      'center' => .center,
+      'end' => .end,
+      'stretch' => .stretch,
+      _ => .center,
     };
 
     Widget buildList(List<Widget> children) {

@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
-import 'package:genui_a2ui/genui_a2ui.dart';
+import 'package:genui_a2a/genui_a2a.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/logging.dart';

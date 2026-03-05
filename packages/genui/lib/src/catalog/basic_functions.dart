@@ -61,11 +61,18 @@ class AndFunction extends SynchronousClientFunction {
   String get name => 'and';
 
   @override
+  String get description =>
+      'Performs a logical AND operation on a list of boolean values.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'values': S.list(items: S.any())});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     if (!args.containsKey('values')) return false;
     final Object? values = args['values'];
     if (values is! List) return false;
@@ -84,11 +91,18 @@ class OrFunction extends SynchronousClientFunction {
   String get name => 'or';
 
   @override
+  String get description =>
+      'Performs a logical OR operation on a list of boolean values.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'values': S.list(items: S.any())});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     if (!args.containsKey('values')) return false;
     final Object? values = args['values'];
     if (values is! List) return false;
@@ -107,10 +121,17 @@ class NotFunction extends SynchronousClientFunction {
   String get name => 'not';
 
   @override
+  String get description =>
+      'Performs a logical NOT operation on a boolean value.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     if (!args.containsKey('value')) return false;
     return !_isTruthy(args['value']);
   }
@@ -124,10 +145,17 @@ class RequiredFunction extends SynchronousClientFunction {
   String get name => 'required';
 
   @override
+  String get description =>
+      'Checks that the value is not null, undefined, or empty.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     if (!args.containsKey('value')) return false;
     final Object? value = args['value'];
     if (value == null) return false;
@@ -146,11 +174,18 @@ class RegexFunction extends SynchronousClientFunction {
   String get name => 'regex';
 
   @override
+  String get description =>
+      'Checks that the value matches a regular expression string.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'value': S.string(), 'pattern': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? value = args['value'];
     final Object? pattern = args['pattern'];
     if (value is! String || pattern is! String) return false;
@@ -170,12 +205,18 @@ class LengthFunction extends SynchronousClientFunction {
   String get name => 'length';
 
   @override
+  String get description => 'Checks string length constraints.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.any;
+
+  @override
   Schema get argumentSchema => S.object(
     properties: {'value': S.any(), 'min': S.integer(), 'max': S.integer()},
   );
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? value = args['value'];
     var length = 0;
     if (value == null) {
@@ -214,12 +255,18 @@ class NumericFunction extends SynchronousClientFunction {
   String get name => 'numeric';
 
   @override
+  String get description => 'Checks numeric range constraints.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(
     properties: {'value': S.number(), 'min': S.number(), 'max': S.number()},
   );
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? value = args['value'];
     if (value is! num) return false;
 
@@ -243,10 +290,16 @@ class EmailFunction extends SynchronousClientFunction {
   String get name => 'email';
 
   @override
+  String get description => 'Checks that the value is a valid email address.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'value': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? value = args['value'];
     if (value is! String) return false;
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+\$');
@@ -262,10 +315,18 @@ class OpenUrlFunction extends SynchronousClientFunction {
   String get name => 'openUrl';
 
   @override
+  String get description =>
+      'Opens the specified URL in a browser or handler. '
+      'This function has no return value.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.empty;
+
+  @override
   Schema get argumentSchema => S.object(properties: {'url': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? urlStr = args['url'];
     if (urlStr is! String) return false;
     final Uri? uri = Uri.tryParse(urlStr);
@@ -287,6 +348,13 @@ class FormatNumberFunction extends SynchronousClientFunction {
   String get name => 'formatNumber';
 
   @override
+  String get description =>
+      'Formats a number with the specified grouping and decimal precision.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
+
+  @override
   Schema get argumentSchema => S.object(
     properties: {
       'value': S.number(),
@@ -296,7 +364,7 @@ class FormatNumberFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? number = args['value'];
     if (number is! num) return number?.toString() ?? '';
 
@@ -331,11 +399,17 @@ class FormatCurrencyFunction extends SynchronousClientFunction {
   String get name => 'formatCurrency';
 
   @override
+  String get description => 'Formats a number as a currency string.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
+
+  @override
   Schema get argumentSchema =>
       S.object(properties: {'value': S.number(), 'currencyCode': S.string()});
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? amount = args['value'];
     final Object? currencyCode = args['currencyCode'];
     if (amount is! num || currencyCode is! String) {
@@ -355,6 +429,13 @@ class FormatDateFunction extends SynchronousClientFunction {
   String get name => 'formatDate';
 
   @override
+  String get description =>
+      'Formats a timestamp into a string using a pattern.';
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
+
+  @override
   Schema get argumentSchema => S.object(
     properties: {
       'value': S.any(), // String or int (millis)
@@ -363,7 +444,7 @@ class FormatDateFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? dateVal = args['value'];
     final Object? pattern = args['pattern'];
 
@@ -378,7 +459,7 @@ class FormatDateFunction extends SynchronousClientFunction {
 
     try {
       return DateFormat(pattern).format(date);
-    } catch (e) {
+    } catch (_) {
       return date.toString();
     }
   }
@@ -392,6 +473,15 @@ class PluralizeFunction extends SynchronousClientFunction {
   String get name => 'pluralize';
 
   @override
+  String get description =>
+      'Returns a localized string based on the Common Locale Data Repository '
+      '(CLDR) plural category of the count (zero, one, two, few, many, other). '
+      "Requires an 'other' fallback. For English, just use 'one' and 'other'.";
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
+
+  @override
   Schema get argumentSchema => S.object(
     properties: {
       'count': S.number(),
@@ -402,7 +492,7 @@ class PluralizeFunction extends SynchronousClientFunction {
   );
 
   @override
-  Object? executeSync(JsonMap args, ExecutionContext context) {
+  Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? count = args['count'];
     if (count is! num) return '';
 

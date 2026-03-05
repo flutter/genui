@@ -103,8 +103,10 @@ abstract final class BasicCatalogItems {
   /// This typically includes controls like play/pause, seek, and volume.
   static final CatalogItem video = video_item.video;
 
+  static final String basicCatalogRules = _basicCatalogRules;
+
   /// Creates a catalog containing all core catalog items.
-  static Catalog asCatalog() {
+  static Catalog asCatalog({List<String> systemPromptFragments = const []}) {
     return Catalog(
       [
         audioPlayer,
@@ -128,6 +130,58 @@ abstract final class BasicCatalogItems {
       ],
       functions: BasicFunctions.all,
       catalogId: basicCatalogId,
+      systemPromptFragments: [basicCatalogRules, ...systemPromptFragments],
     );
   }
 }
+
+/// The text content of basic_catalog_rules.txt.
+const String _basicCatalogRules = r'''
+**REQUIRED PROPERTIES:** You MUST include ALL required properties for every component, even if they are inside a template or will be bound to data.
+- For 'Text', you MUST provide 'text'. If dynamic, use { "path": "..." }.
+- For 'Image', you MUST provide 'url'. If dynamic, use { "path": "..." }.
+- For 'Button', you MUST provide 'action'.
+- For 'TextField', 'CheckBox', etc., you MUST provide 'label'.
+
+**EXAMPLES:**
+
+1. Create a surface:
+```json
+{
+  "version": "v0.9",
+  "createSurface": {
+    "surfaceId": "main",
+    "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+    "sendDataModel": true
+  }
+}
+```
+
+2. Update components:
+```json
+{
+  "version": "v0.9",
+  "updateComponents": {
+    "surfaceId": "main",
+    "components": [
+      {
+        // The root component MUST have id "root"
+        "id": "root",
+        "component": "Column",
+        "justify": "start",
+        "children": [
+          "headerText",
+          "content"
+        ]
+      }
+    ]
+  }
+}
+```
+
+**IMPORTANT:**
+- One of the components sent in one of the `updateComponents` MUST have id "root", or nothing will be displayed.
+- Do NOT nest `components` inside `createSurface`. Use `updateComponents` to add components to a surface.
+- `createSurface` ONLY sets up the surface (ID and catalog). It does NOT take content.
+- To show a UI, you typically send a `createSurface` message (if the surface doesn't exist), followed by an `updateComponents` message.
+''';

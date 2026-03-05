@@ -136,21 +136,15 @@ class BoundString extends BoundValue<String> {
 class _BoundStringState extends BoundValueState<String, BoundString> {
   @override
   ValueNotifier<String?> createNotifier() {
-    final Object? value = widget.value;
-    if (value is Map) {
-      if (value.containsKey('path')) {
-        final ValueNotifier<Object?> raw = widget.dataContext
-            .subscribe<Object?>(DataPath(value['path'] as String));
-        return _ToStringNotifier(raw);
-      }
-      if (value.containsKey('call')) {
-        return _StreamToValueNotifier<String?>(
-          widget.dataContext.resolve(value).map((v) => v?.toString()),
-        );
-      }
-    }
-    // Treat as literal
-    return ValueNotifier<String?>(value?.toString());
+    return switch (widget.value) {
+      {'path': String path} => _ToStringNotifier(
+        widget.dataContext.subscribe<Object?>(DataPath(path)),
+      ),
+      {'call': _} => _StreamToValueNotifier<String?>(
+        widget.dataContext.resolve(widget.value).map((v) => v?.toString()),
+      ),
+      Object? value => ValueNotifier<String?>(value?.toString()),
+    };
   }
 }
 
@@ -171,26 +165,19 @@ class BoundBool extends BoundValue<bool> {
 class _BoundBoolState extends BoundValueState<bool, BoundBool> {
   @override
   ValueNotifier<bool?> createNotifier() {
-    final Object? value = widget.value;
-    if (value is Map) {
-      if (value.containsKey('path')) {
-        final ValueNotifier<Object?> raw = widget.dataContext
-            .subscribe<Object?>(DataPath(value['path'] as String));
-        return _ToBoolNotifier(raw);
-      }
-      if (value.containsKey('call')) {
-        return _StreamToValueNotifier<bool?>(
-          widget.dataContext.resolve(value).map((v) {
-            if (v is bool) return v;
-            return v != null;
-          }),
-        );
-      }
-    }
-    if (value is bool) {
-      return ValueNotifier<bool?>(value);
-    }
-    return ValueNotifier<bool?>(null);
+    return switch (widget.value) {
+      {'path': String path} => _ToBoolNotifier(
+        widget.dataContext.subscribe<Object?>(DataPath(path)),
+      ),
+      {'call': _} => _StreamToValueNotifier<bool?>(
+        widget.dataContext.resolve(widget.value).map((v) {
+          if (v is bool) return v;
+          return v != null;
+        }),
+      ),
+      bool value => ValueNotifier<bool?>(value),
+      _ => ValueNotifier<bool?>(null),
+    };
   }
 }
 
@@ -211,27 +198,20 @@ class BoundNumber extends BoundValue<num> {
 class _BoundNumberState extends BoundValueState<num, BoundNumber> {
   @override
   ValueNotifier<num?> createNotifier() {
-    final Object? value = widget.value;
-    if (value is Map) {
-      if (value.containsKey('path')) {
-        final ValueNotifier<Object?> raw = widget.dataContext
-            .subscribe<Object?>(DataPath(value['path'] as String));
-        return _ToNumberNotifier(raw);
-      }
-      if (value.containsKey('call')) {
-        return _StreamToValueNotifier<num?>(
-          widget.dataContext.resolve(value).map((v) {
-            if (v is num) return v;
-            if (v is String) return num.tryParse(v);
-            return null;
-          }),
-        );
-      }
-    }
-    if (value is num) {
-      return ValueNotifier<num?>(value);
-    }
-    return ValueNotifier<num?>(null);
+    return switch (widget.value) {
+      {'path': String path} => _ToNumberNotifier(
+        widget.dataContext.subscribe<Object?>(DataPath(path)),
+      ),
+      {'call': _} => _StreamToValueNotifier<num?>(
+        widget.dataContext.resolve(widget.value).map((v) {
+          if (v is num) return v;
+          if (v is String) return num.tryParse(v);
+          return null;
+        }),
+      ),
+      num value => ValueNotifier<num?>(value),
+      _ => ValueNotifier<num?>(null),
+    };
   }
 }
 
@@ -252,26 +232,21 @@ class BoundList extends BoundValue<List<Object?>> {
 class _BoundListState extends BoundValueState<List<Object?>, BoundList> {
   @override
   ValueNotifier<List<Object?>?> createNotifier() {
-    final Object? value = widget.value;
-    if (value is Map) {
-      if (value.containsKey('path')) {
-        return widget.dataContext.subscribe<List<Object?>>(
-          DataPath(value['path'] as String),
-        );
-      }
-      if (value.containsKey('call')) {
-        return _StreamToValueNotifier<List<Object?>?>(
-          widget.dataContext.resolve(value).map((v) {
-            if (v is List) return v.cast<Object?>();
-            return null;
-          }),
-        );
-      }
-    }
-    if (value is List) {
-      return ValueNotifier<List<Object?>?>(value.cast<Object?>());
-    }
-    return ValueNotifier<List<Object?>?>(null);
+    return switch (widget.value) {
+      {'path': String path} => widget.dataContext.subscribe<List<Object?>>(
+        DataPath(path),
+      ),
+      {'call': _} => _StreamToValueNotifier<List<Object?>?>(
+        widget.dataContext.resolve(widget.value).map((v) {
+          if (v is List) return v.cast<Object?>();
+          return null;
+        }),
+      ),
+      List<dynamic> value => ValueNotifier<List<Object?>?>(
+        value.cast<Object?>(),
+      ),
+      _ => ValueNotifier<List<Object?>?>(null),
+    };
   }
 }
 
@@ -292,20 +267,15 @@ class BoundObject extends BoundValue<Object> {
 class _BoundObjectState extends BoundValueState<Object, BoundObject> {
   @override
   ValueNotifier<Object?> createNotifier() {
-    final Object? value = widget.value;
-    if (value is Map) {
-      if (value.containsKey('path')) {
-        return widget.dataContext.subscribe<Object?>(
-          DataPath(value['path'] as String),
-        );
-      }
-      if (value.containsKey('call')) {
-        return _StreamToValueNotifier<Object?>(
-          widget.dataContext.resolve(value),
-        );
-      }
-    }
-    return ValueNotifier<Object?>(value);
+    return switch (widget.value) {
+      {'path': String path} => widget.dataContext.subscribe<Object?>(
+        DataPath(path),
+      ),
+      {'call': _} => _StreamToValueNotifier<Object?>(
+        widget.dataContext.resolve(widget.value),
+      ),
+      Object? value => ValueNotifier<Object?>(value),
+    };
   }
 }
 

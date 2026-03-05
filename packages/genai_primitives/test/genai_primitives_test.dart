@@ -546,6 +546,183 @@ void main() {
       expect(msg.toString(), contains('Message'));
       expect(msg.toString(), contains('parts: [TextPart(hi)]'));
     });
+
+    group('concatenate', () {
+      test('combines parts and text from both messages', () {
+        final a = ChatMessage.model('hello ');
+        final b = ChatMessage.model('world');
+        final ChatMessage result = a.concatenate(b);
+        expect(result.parts, hasLength(2));
+        expect(result.text, equals('hello world'));
+      });
+
+      test('falls back to second finishStatus when first is null', () {
+        final a = ChatMessage(role: ChatMessageRole.model);
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.completed(),
+        );
+        final ChatMessage result = a.concatenate(b);
+        expect(result.finishStatus, equals(const FinishStatus.completed()));
+      });
+
+      test('finishStatus is null when both are null', () {
+        final a = ChatMessage(role: ChatMessageRole.model);
+        final b = ChatMessage(role: ChatMessageRole.model);
+        expect(a.concatenate(b).finishStatus, isNull);
+      });
+
+      test('same finishStatus on both is preserved', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.completed(),
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.completed(),
+        );
+        final ChatMessage result = a.concatenate(b);
+        expect(result.finishStatus, equals(const FinishStatus.completed()));
+      });
+
+      test('equal metadata is preserved', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'k': 'v'},
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'k': 'v'},
+        );
+        expect(a.concatenate(b).metadata, equals(const {'k': 'v'}));
+      });
+
+      test('preserves non-text parts', () {
+        const toolCall = ToolPart.call(
+          callId: 'c1',
+          toolName: 't1',
+          arguments: {},
+        );
+        const toolResult = ToolPart.result(
+          callId: 'c1',
+          toolName: 't1',
+          result: 'ok',
+        );
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          parts: [const TextPart('text'), toolCall],
+        );
+        final b = ChatMessage(role: ChatMessageRole.model, parts: [toolResult]);
+        final ChatMessage result = a.concatenate(b);
+        expect(result.parts, hasLength(3));
+        expect(result.parts[0], isA<TextPart>());
+        expect(result.parts[1], isA<ToolPart>());
+        expect(result.parts[2], isA<ToolPart>());
+      });
+
+      test('throws on role mismatch', () {
+        final a = ChatMessage.user('hi');
+        final b = ChatMessage.model('there');
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
+      });
+
+      test('throws on conflicting finish statuses', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.completed(),
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          finishStatus: const FinishStatus.notFinished(),
+        );
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
+      });
+
+      test('throws when metadata values differ for same key', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'key': 'from-a'},
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'key': 'from-b'},
+        );
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
+      });
+
+      test('throws when metadata have different keys', () {
+        final a = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'only-a': 1},
+        );
+        final b = ChatMessage(
+          role: ChatMessageRole.model,
+          metadata: const {'only-b': 2},
+        );
+        expect(() => a.concatenate(b), throwsA(isA<ArgumentError>()));
+      });
+    });
+
+    group('copyWith', () {
+      final original = ChatMessage(
+        role: ChatMessageRole.user,
+        parts: const [TextPart('hello')],
+        metadata: const {'k': 'v'},
+        finishStatus: const FinishStatus.completed(),
+      );
+
+      test('no arguments returns equal copy', () {
+        expect(original.copyWith(), equals(original));
+      });
+
+      test('replaces role', () {
+        final ChatMessage result = original.copyWith(
+          role: ChatMessageRole.model,
+        );
+        expect(result.role, equals(ChatMessageRole.model));
+        expect(result.parts, equals(original.parts));
+        expect(result.metadata, equals(original.metadata));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+
+      test('replaces parts', () {
+        final newParts = [const TextPart('world')];
+        final ChatMessage result = original.copyWith(parts: newParts);
+        expect(result.parts, equals(newParts));
+        expect(result.role, equals(original.role));
+        expect(result.metadata, equals(original.metadata));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+
+      test('replaces metadata', () {
+        final ChatMessage result = original.copyWith(metadata: const {'x': 1});
+        expect(result.metadata, equals(const {'x': 1}));
+        expect(result.role, equals(original.role));
+        expect(result.parts, equals(original.parts));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+
+      test('replaces finishStatus', () {
+        final ChatMessage result = original.copyWith(
+          finishStatus: const FinishStatus.notFinished(),
+        );
+        expect(result.finishStatus, equals(const FinishStatus.notFinished()));
+        expect(result.role, equals(original.role));
+        expect(result.parts, equals(original.parts));
+        expect(result.metadata, equals(original.metadata));
+      });
+
+      test('replaces multiple fields at once', () {
+        final ChatMessage result = original.copyWith(
+          role: ChatMessageRole.model,
+          parts: const [TextPart('new')],
+        );
+        expect(result.role, equals(ChatMessageRole.model));
+        expect(result.parts, equals(const [TextPart('new')]));
+        expect(result.metadata, equals(original.metadata));
+        expect(result.finishStatus, equals(original.finishStatus));
+      });
+    });
   });
 
   group('Parts', () {

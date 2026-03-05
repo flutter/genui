@@ -26,9 +26,9 @@ sealed class A2uiMessage {
           json: json,
         );
       }
-      if (json.containsKey('createSurface')) {
+      if (json case {'createSurface': JsonMap data}) {
         try {
-          return CreateSurface.fromJson(json['createSurface'] as JsonMap);
+          return CreateSurface.fromJson(data);
         } catch (e) {
           throw A2uiValidationException(
             'Failed to parse CreateSurface message',
@@ -37,9 +37,9 @@ sealed class A2uiMessage {
           );
         }
       }
-      if (json.containsKey('updateComponents')) {
+      if (json case {'updateComponents': JsonMap data}) {
         try {
-          return UpdateComponents.fromJson(json['updateComponents'] as JsonMap);
+          return UpdateComponents.fromJson(data);
         } catch (e) {
           throw A2uiValidationException(
             'Failed to parse UpdateComponents message',
@@ -48,9 +48,9 @@ sealed class A2uiMessage {
           );
         }
       }
-      if (json.containsKey('updateDataModel')) {
+      if (json case {'updateDataModel': JsonMap data}) {
         try {
-          return UpdateDataModel.fromJson(json['updateDataModel'] as JsonMap);
+          return UpdateDataModel.fromJson(data);
         } catch (e) {
           throw A2uiValidationException(
             'Failed to parse UpdateDataModel message',
@@ -59,9 +59,9 @@ sealed class A2uiMessage {
           );
         }
       }
-      if (json.containsKey('deleteSurface')) {
+      if (json case {'deleteSurface': JsonMap data}) {
         try {
-          return DeleteSurface.fromJson(json['deleteSurface'] as JsonMap);
+          return DeleteSurface.fromJson(data);
         } catch (e) {
           throw A2uiValidationException(
             'Failed to parse DeleteSurface message',
@@ -160,7 +160,7 @@ final class CreateSurface extends A2uiMessage {
     'version': 'v0.9',
     surfaceIdKey: surfaceId,
     'catalogId': catalogId,
-    if (theme != null) 'theme': theme,
+    'theme': ?theme,
     'sendDataModel': sendDataModel,
   };
 }
@@ -229,7 +229,7 @@ final class UpdateDataModel extends A2uiMessage {
     'version': 'v0.9',
     surfaceIdKey: surfaceId,
     'path': path.toString(),
-    if (value != null) 'value': value,
+    'value': ?value,
   };
 }
 

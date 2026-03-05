@@ -93,7 +93,7 @@ We release the following packages in lock step,
 with the same version number, so when one is released, they are all released:
 
 * `genui`
-* `genui_a2ui`
+* `genui_a2a`
 * `genui_firebase_ai`
 * `genui_google_generative_ui`
 

@@ -17,7 +17,7 @@ workspace:
   - examples/travel_app
   - examples/verdure/client
   - packages/genui
-  - packages/genui_a2ui
+  - packages/genui_a2a
 
   - packages/json_schema_builder
   - tool/fix_copyright

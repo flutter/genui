@@ -23,10 +23,17 @@ import 'data_model.dart';
 ///    structure ([JsonMap]).
 /// 4. Dynamically generates a [Schema] that describes the structure of all
 ///    supported widgets and functions, which can be provided to the AI model.
+/// 5. Provides instructions for the generated UI, which should be incorporated
+///    into the system prompt.
 @immutable
 interface class Catalog {
   /// Creates a new catalog with the given list of items.
-  const Catalog(this.items, {this.functions = const [], this.catalogId});
+  const Catalog(
+    this.items, {
+    this.functions = const [],
+    this.catalogId,
+    this.systemPromptFragments = const [],
+  });
 
   /// The list of [CatalogItem]s available in this catalog.
   final Iterable<CatalogItem> items;
@@ -40,12 +47,20 @@ interface class Catalog {
   /// e.g. 'com.example.my_catalog'.
   final String? catalogId;
 
+  /// Instructions for UI generation.
+  ///
+  /// This can include explanation when to use which catalog items.
+  ///
+  /// The items will be incorporated into the system prompt.
+  final List<String> systemPromptFragments;
+
   /// If an item or function with the same name already exists in the catalog,
   /// it will be replaced with the new one.
   Catalog copyWith({
     List<CatalogItem>? newItems,
     List<ClientFunction>? newFunctions,
     String? catalogId,
+    List<String>? systemPromptFragments,
   }) {
     final Map<String, CatalogItem> itemsByName = {
       for (final item in items) item.name: item,
@@ -67,6 +82,8 @@ interface class Catalog {
       itemsByName.values,
       functions: functionsByName.values,
       catalogId: catalogId ?? this.catalogId,
+      systemPromptFragments:
+          systemPromptFragments ?? this.systemPromptFragments,
     );
   }
 
@@ -76,6 +93,7 @@ interface class Catalog {
     Iterable<CatalogItem>? itemsToRemove,
     Iterable<ClientFunction>? functionsToRemove,
     String? catalogId,
+    List<String>? systemPromptFragments,
   }) {
     List<CatalogItem> updatedItems = items.toList();
     if (itemsToRemove != null) {
@@ -101,6 +119,8 @@ interface class Catalog {
       updatedItems,
       functions: updatedFunctions,
       catalogId: catalogId ?? this.catalogId,
+      systemPromptFragments:
+          systemPromptFragments ?? this.systemPromptFragments,
     );
   }
 
@@ -138,6 +158,32 @@ interface class Catalog {
         ),
       ),
     );
+  }
+
+  /// Generates a JSON map suitable for inclusion in an inline catalog array
+  /// within `A2UiClientCapabilities`.
+  ///
+  /// This differs from [definition] because `a2ui_client_capabilities.json`
+  /// expects `components` to be a direct map of name to schema, and `functions`
+  /// to be an array of objects.
+  JsonMap toCapabilitiesJson() {
+    return {
+      if (catalogId != null) 'catalogId': catalogId,
+      // Provide a fallback ID for inline if catalogId is null
+      if (catalogId == null) 'catalogId': 'inline_catalog_$hashCode',
+      'components': {
+        for (final item in items) item.name: item.dataSchema.value,
+      },
+      'functions': [
+        for (final func in functions)
+          {
+            'name': func.name,
+            'description': func.description,
+            'parameters': func.argumentSchema.value,
+            'returnType': func.returnType.value,
+          },
+      ],
+    };
   }
 
   /// A dynamically generated [Schema] that describes all widgets in the

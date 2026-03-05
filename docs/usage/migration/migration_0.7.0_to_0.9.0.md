@@ -19,7 +19,7 @@ The provider-specific packages that previously implemented `ContentGenerator` (e
 
 **Action**:
 -   Remove dependencies on `genui_dartantic`, `genui_google_generative_ai`, etc., and replace them with direct usage of the underlying SDKs (e.g. `dartantic_ai`, `firebase_ai`, `google_generative_ai`, etc.).
--   If you were using `genui_a2ui`, it is still supported but has been updated to use the new `A2uiAgentConnector` pattern, and no longer has a `ContentGenerator`.
+-   If you were using `genui_a2ui`, it has been renamed to `genui_a2a` and is still supported but has been updated to use the new `A2uiAgentConnector` pattern, and no longer has a `ContentGenerator`.
 
 ## 2. Replacing `ContentGenerator`
 
@@ -154,7 +154,7 @@ if (part.isUiPart) {
 
 ## 7. Connecting to Remote Agents
 
-If you are using `genui_a2ui` (A2A/A2UI adapter) to connect to a remote A2A/A2UI agent:
+If you are using `genui_a2ui` (now called `genui_a2a`, an A2A/A2UI adapter) to connect to a remote A2A/A2UI agent:
 
 **Old Way:**
 ```dart

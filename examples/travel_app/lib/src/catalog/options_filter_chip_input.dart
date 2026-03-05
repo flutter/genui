@@ -105,9 +105,10 @@ final optionsFilterChipInput = CatalogItem(
     final Object? valueRef = optionsFilterChipData.rawValue;
     // If the value is a literal, we still want to bind to a path so that we can
     // update the model (and the UI) when the user changes the value.
-    final path = valueRef is Map && valueRef.containsKey('path')
-        ? valueRef['path'] as String
-        : '${context.id}.value';
+    final String path = switch (valueRef) {
+      {'path': String p} => p,
+      _ => '${context.id}.value',
+    };
     // Always subscribe to the path, even if we have a literal value.
     return BoundString(
       dataContext: context.dataContext,

@@ -147,9 +147,9 @@ class _TextFieldState extends State<_TextField> {
       ),
       obscureText: widget.textFieldType == 'obscured',
       keyboardType: switch (widget.textFieldType) {
-        'number' => TextInputType.number,
-        'longText' => TextInputType.multiline,
-        _ => TextInputType.text,
+        'number' => .number,
+        'longText' => .multiline,
+        _ => .text,
       },
       onChanged: (val) {
         widget.onChanged(val);

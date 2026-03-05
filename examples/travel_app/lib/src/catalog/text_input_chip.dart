@@ -70,9 +70,10 @@ final textInputChip = CatalogItem(
     );
 
     final Object? valueRef = textInputChipData.value;
-    final path = valueRef is Map && valueRef.containsKey('path')
-        ? valueRef['path'] as String
-        : '${context.id}.value';
+    final String path = switch (valueRef) {
+      {'path': String p} => p,
+      _ => '${context.id}.value',
+    };
     return BoundString(
       dataContext: context.dataContext,
       value: {'path': path},

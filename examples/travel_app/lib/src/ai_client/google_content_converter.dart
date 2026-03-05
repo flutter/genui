@@ -29,9 +29,9 @@ class GoogleContentConverter {
     final result = <google_ai.Content>[];
     for (final message in messages) {
       final String? role = switch (message.role) {
-        ChatMessageRole.user => 'user',
-        ChatMessageRole.model => 'model',
-        ChatMessageRole.system => null,
+        .user => 'user',
+        .model => 'model',
+        .system => null,
       };
 
       if (role == null) continue;

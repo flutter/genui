@@ -21,35 +21,19 @@ enum TravelIcon {
   receipt,
 }
 
-IconData iconFor(TravelIcon icon) {
-  switch (icon) {
-    case TravelIcon.location:
-      return Icons.location_on;
-    case TravelIcon.hotel:
-      return Icons.hotel;
-    case TravelIcon.restaurant:
-      return Icons.restaurant;
-    case TravelIcon.airport:
-      return Icons.airplanemode_active;
-    case TravelIcon.train:
-      return Icons.train;
-    case TravelIcon.car:
-      return Icons.directions_car;
-    case TravelIcon.date:
-      return Icons.date_range;
-    case TravelIcon.time:
-      return Icons.access_time;
-    case TravelIcon.calendar:
-      return Icons.calendar_today;
-    case TravelIcon.people:
-      return Icons.people;
-    case TravelIcon.person:
-      return Icons.person;
-    case TravelIcon.family:
-      return Icons.family_restroom;
-    case TravelIcon.wallet:
-      return Icons.account_balance_wallet;
-    case TravelIcon.receipt:
-      return Icons.receipt;
-  }
-}
+IconData iconFor(TravelIcon icon) => switch (icon) {
+  .location => Icons.location_on,
+  .hotel => Icons.hotel,
+  .restaurant => Icons.restaurant,
+  .airport => Icons.airplanemode_active,
+  .train => Icons.train,
+  .car => Icons.directions_car,
+  .date => Icons.date_range,
+  .time => Icons.access_time,
+  .calendar => Icons.calendar_today,
+  .people => Icons.people,
+  .person => Icons.person,
+  .family => Icons.family_restroom,
+  .wallet => Icons.account_balance_wallet,
+  .receipt => Icons.receipt,
+};

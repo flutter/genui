@@ -23,7 +23,6 @@ export 'src/interfaces/transport.dart';
 export 'src/model/a2ui_client_capabilities.dart';
 export 'src/model/a2ui_message.dart';
 export 'src/model/a2ui_schemas.dart';
-export 'src/model/basic_catalog_embed.dart';
 export 'src/model/catalog.dart';
 export 'src/model/catalog_item.dart';
 export 'src/model/chat_message.dart';
