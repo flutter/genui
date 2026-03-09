@@ -181,9 +181,8 @@ loadSampleSurface(String rawContent) async {
   try {
     final sample = SampleParser.parseString(rawContent);
     await sample.messages.listen(controller.handleMessage).asFuture<void>();
-  } catch (e) {
-    // Caller can check surfaceIds.isEmpty to detect failure.
-    _logger.fine('Error loading sample surface', e);
+  } catch (e, s) {
+    _logger.warning('Error loading sample surface', e, s);
   }
 
   await sub.cancel();
