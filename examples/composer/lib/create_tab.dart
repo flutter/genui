@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import 'package:logging/logging.dart';
 
 import 'ai_client.dart';
 import 'ai_client_transport.dart';
-import 'surface_utils.dart';
 
 /// The Create tab. Shows a prompt input and, upon submission, generates a UI
 /// surface via AI and transitions to the surface editor.
@@ -90,74 +88,35 @@ class _CreateTabState extends State<CreateTab> {
       );
       transport.addSystemMessage(promptBuilder.systemPromptJoined());
 
-      final List<A2uiMessage> parsedMessages = [];
-      final StreamSubscription<A2uiMessage> messageSubscription = transport
-          .incomingMessages
-          .listen((message) {
-            parsedMessages.add(message);
-          });
-
-      String? surfaceId;
-      final StreamSubscription<SurfaceUpdate> surfaceSubscription = controller
-          .surfaceUpdates
-          .listen((update) {
-            if (update is SurfaceAdded) {
-              surfaceId = update.surfaceId;
-            }
-          });
-
       final message = ChatMessage.user(prompt);
       await conversation.sendRequest(message);
 
-      // Yield twice to handle cases where message processing itself schedules
-      // additional async work.
-      await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
 
-      await messageSubscription.cancel();
-      await surfaceSubscription.cancel();
-
-      // Bail out if the widget was disposed while awaiting the AI response.
       if (_disposed) return;
 
-      if (surfaceId != null && parsedMessages.isNotEmpty) {
-        final Map<String, Map<String, Object?>> componentMap = {};
-        for (final message in parsedMessages) {
-          if (message is UpdateComponents) {
-            final json = message.toJson();
-            final components = json['components'];
-            if (components is List) {
-              mergeComponentsById(components, componentMap);
-            }
-          }
+      final surfaceId = controller.activeSurfaceIds.firstOrNull;
+      if (surfaceId != null) {
+        final context = controller.contextFor(surfaceId);
+        final definition = context.definition.value;
+        if (definition != null) {
+          final componentsJson = const JsonEncoder.withIndent('  ').convert(
+            definition.components.values.map((c) => c.toJson()).toList(),
+          );
+
+          final dataModel = context.dataModel;
+          final data = dataModel.getValue<Object?>(DataPath.root);
+          final String? dataJson =
+              data is Map<String, Object?> && data.isNotEmpty
+              ? const JsonEncoder.withIndent('  ').convert(data)
+              : null;
+
+          widget.onSurfaceCreated(componentsJson, dataJson: dataJson);
+        } else {
+          setState(() {
+            _error = 'Surface was created but has no definition.';
+          });
         }
-
-        final componentsJson = const JsonEncoder.withIndent(
-          '  ',
-        ).convert(componentMap.values.toList());
-
-        // Extract and merge data model from UpdateDataModel messages.
-        Map<String, Object?> dataModel = {};
-        for (final message in parsedMessages) {
-          if (message is UpdateDataModel) {
-            final json = message.toJson();
-            final value = json['value'];
-            if (value is Map<String, Object?>) {
-              final path = json['path'] as String?;
-              if (path == null || path == '/' || path.isEmpty) {
-                dataModel = Map<String, Object?>.from(value);
-              } else {
-                setNestedValue(dataModel, path, value);
-              }
-            }
-          }
-        }
-
-        final String? dataJson = dataModel.isNotEmpty
-            ? const JsonEncoder.withIndent('  ').convert(dataModel)
-            : null;
-
-        widget.onSurfaceCreated(componentsJson, dataJson: dataJson);
       } else {
         setState(() {
           _error =
