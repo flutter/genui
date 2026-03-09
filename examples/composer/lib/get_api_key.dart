@@ -4,9 +4,6 @@
 
 import 'dart:io';
 
-/// API key for Google Generative AI.
-/// Get an API key from https://aistudio.google.com/app/apikey
-/// Specify this when running the app with "-D GEMINI_API_KEY=$GEMINI_API_KEY"
 const String _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 String? debugApiKey;

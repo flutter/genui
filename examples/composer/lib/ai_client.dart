@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 
-import 'api_key/io_get_api_key.dart';
+import 'get_api_key.dart';
 
 /// An abstract interface for AI clients.
 abstract interface class AiClient {

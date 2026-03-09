@@ -10,14 +10,9 @@ import 'package:logging/logging.dart';
 import 'sample_parser.dart';
 import 'surface_utils.dart';
 
-/// The Gallery tab displays a grid of pre-generated sample surfaces.
-/// Cards show sample name and description. Clicking a card opens a dialog
-/// that renders the live surface.
 class GalleryTab extends StatefulWidget {
   const GalleryTab({super.key, required this.onOpenInEditor});
 
-  /// Called with the JSONL (and optional data JSON) when the user clicks
-  /// "Open in Surface Editor".
   final void Function(String jsonl, {String? dataJson}) onOpenInEditor;
 
   @override
@@ -27,7 +22,7 @@ class GalleryTab extends StatefulWidget {
 class _GalleryTabState extends State<GalleryTab>
     with AutomaticKeepAliveClientMixin {
   final Logger _logger = Logger('GalleryTab');
-  List<_GallerySampleMeta> _samples = [];
+  List<_GallerySampleMetadata> _samples = [];
   bool _isLoading = true;
 
   @override
@@ -54,7 +49,7 @@ class _GalleryTabState extends State<GalleryTab>
               .toList()
             ..sort();
 
-      final samples = <_GallerySampleMeta>[];
+      final samples = <_GallerySampleMetadata>[];
 
       for (final filename in filenames) {
         try {
@@ -63,7 +58,7 @@ class _GalleryTabState extends State<GalleryTab>
           );
           final Sample sample = SampleParser.parseString(content);
           samples.add(
-            _GallerySampleMeta(
+            _GallerySampleMetadata(
               name: sample.name,
               description: sample.description,
               rawContent: content,
@@ -91,7 +86,7 @@ class _GalleryTabState extends State<GalleryTab>
     }
   }
 
-  void _openSampleInEditor(_GallerySampleMeta meta) {
+  void _openSampleInEditor(_GallerySampleMetadata meta) {
     widget.onOpenInEditor(meta.rawJsonl);
   }
 
@@ -144,9 +139,11 @@ class _GalleryTabState extends State<GalleryTab>
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              for (int i = col;
-                                  i < _samples.length;
-                                  i += crossAxisCount) ...[
+                              for (
+                                int i = col;
+                                i < _samples.length;
+                                i += crossAxisCount
+                              ) ...[
                                 if (i >= crossAxisCount)
                                   const SizedBox(height: 12),
                                 _GalleryCard(
@@ -170,14 +167,13 @@ class _GalleryTabState extends State<GalleryTab>
   }
 }
 
-/// Lightweight metadata for a gallery sample (no live rendering).
-class _GallerySampleMeta {
+class _GallerySampleMetadata {
   final String name;
   final String description;
   final String rawContent;
   final String rawJsonl;
 
-  _GallerySampleMeta({
+  _GallerySampleMetadata({
     required this.name,
     required this.description,
     required this.rawContent,
@@ -194,7 +190,7 @@ class _GallerySampleMeta {
 class _GalleryCard extends StatefulWidget {
   const _GalleryCard({required this.meta, required this.onTap});
 
-  final _GallerySampleMeta meta;
+  final _GallerySampleMetadata meta;
   final VoidCallback onTap;
 
   @override
@@ -259,7 +255,6 @@ class _GalleryCardState extends State<_GalleryCard>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Small name label at top
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
               child: Tooltip(
@@ -274,7 +269,6 @@ class _GalleryCardState extends State<_GalleryCard>
                 ),
               ),
             ),
-            // Surface preview area
             ClipRect(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),

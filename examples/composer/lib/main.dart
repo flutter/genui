@@ -46,7 +46,6 @@ class ComposerApp extends StatelessWidget {
   }
 }
 
-/// The main shell widget with a NavigationRail for switching between tabs.
 class ComposerShell extends StatefulWidget {
   const ComposerShell({super.key});
 
@@ -57,9 +56,6 @@ class ComposerShell extends StatefulWidget {
 class _ComposerShellState extends State<ComposerShell> {
   int _selectedIndex = 0;
 
-  /// When set, the surface editor is shown with this JSON pre-loaded.
-  /// This is used when the user clicks "Open in Surface Editor" from the
-  /// gallery detail dialog.
   String? _editorJsonl;
   String? _editorDataJson;
   int _editorKey = 0;
@@ -116,7 +112,6 @@ class _ComposerShellState extends State<ComposerShell> {
             child: IndexedStack(
               index: _selectedIndex,
               children: [
-                // Create tab - shows editor if JSON is loaded, else prompt
                 _editorJsonl != null
                     ? SurfaceEditorView(
                         key: ValueKey('editor-$_editorKey'),

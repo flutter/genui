@@ -17,8 +17,8 @@ import 'surface_utils.dart';
 const _kEditorSurfaceId = 'editor';
 const _kDebounceDuration = Duration(milliseconds: 400);
 
-/// A surface editor view that shows A2UI JSONL and data model
-/// on the left and a live rendered preview on the right.
+/// A surface editor view that shows A2UI JSONL and data model and a live
+/// rendered preview.
 class SurfaceEditorView extends StatefulWidget {
   const SurfaceEditorView({
     super.key,
@@ -87,7 +87,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     _setupSurfaceListener();
     _applyJson(_currentJson);
 
-    // Add listeners after initial setup to avoid spurious triggers.
     _jsonController.addListener(_onJsonControllerChanged);
     _dataController.addListener(_onDataControllerChanged);
   }
@@ -112,7 +111,6 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       } catch (_) {}
     }
 
-    // Already JSONL — pretty-print each line.
     final lines = const LineSplitter()
         .convert(trimmed)
         .where((line) => line.trim().isNotEmpty);
@@ -203,7 +201,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
         if (trimmedChunk.isEmpty || !trimmedChunk.startsWith('{')) continue;
 
         final obj = jsonDecode(trimmedChunk);
-        if (obj is Map<String, dynamic>) {
+        if (obj is Map<String, Object?>) {
           final message = A2uiMessage.fromJson(obj);
           _surfaceController.handleMessage(message);
         }
@@ -226,7 +224,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
     try {
       final parsed = jsonDecode(dataJson.trim());
-      if (parsed is Map<String, dynamic>) {
+      if (parsed is Map<String, Object?>) {
         final surfaceId = _surfaceIds.first;
         _surfaceController.handleMessage(
           A2uiMessage.fromJson({
@@ -287,119 +285,13 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
     return Column(
       children: [
-        // Header bar
-        Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            border: Border(bottom: BorderSide(color: theme.dividerColor)),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: widget.onClose,
-                tooltip: 'Back to Create',
-              ),
-              const SizedBox(width: 8),
-              Text('Surface Editor', style: theme.textTheme.titleMedium),
-            ],
-          ),
-        ),
-        // Editor body
+        _buildHeaderBar(theme),
         Expanded(
           child: Row(
             children: [
-              // Left pane: JSON editors (JSONL + data)
-              Expanded(
-                child: Column(
-                  children: [
-                    // JSONL editor (upper)
-                    Expanded(
-                      flex: 3,
-                      child: _buildEditorSection(
-                        theme: theme,
-                        label: 'JSONL',
-                        controller: _jsonController,
-                        error: _parseError,
-                      ),
-                    ),
-                    Divider(height: 1, color: theme.dividerColor),
-                    // Data model editor (lower)
-                    Expanded(
-                      flex: 2,
-                      child: _buildEditorSection(
-                        theme: theme,
-                        label: 'Data',
-                        controller: _dataController,
-                        error: _dataError,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Divider
+              Expanded(child: _buildEditorPane(theme)),
               const VerticalDivider(width: 1),
-              // Right pane: Preview
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'Preview',
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(4, 0, 8, 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: theme.dividerColor),
-                          borderRadius: BorderRadius.circular(8),
-                          color: theme.colorScheme.surfaceContainerLowest,
-                        ),
-                        child: _surfaceIds.isEmpty
-                            ? Center(
-                                child: Text(
-                                  _parseError != null
-                                      ? 'Fix the JSON to see a preview'
-                                      : 'No surfaces to display',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              )
-                            : SingleChildScrollView(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    for (final surfaceId in _surfaceIds)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 16,
-                                        ),
-                                        child: Surface(
-                                          key: ValueKey(surfaceId),
-                                          surfaceContext: _surfaceController
-                                              .contextFor(surfaceId),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              Expanded(child: _buildPreviewPane(theme)),
             ],
           ),
         ),
@@ -407,15 +299,118 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     );
   }
 
-  /// Builds a reusable editor section (used for both JSONL and data).
+  Widget _buildHeaderBar(ThemeData theme) {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        border: Border(bottom: BorderSide(color: theme.dividerColor)),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: widget.onClose,
+            tooltip: 'Back to Create',
+          ),
+          const SizedBox(width: 8),
+          Text('Surface Editor', style: theme.textTheme.titleMedium),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditorPane(ThemeData theme) {
+    return Column(
+      children: [
+        Expanded(
+          flex: 3,
+          child: _buildEditorSection(
+            theme: theme,
+            label: 'JSONL',
+            controller: _jsonController,
+            error: _parseError,
+          ),
+        ),
+        Divider(height: 1, color: theme.dividerColor),
+        Expanded(
+          flex: 2,
+          child: _buildEditorSection(
+            theme: theme,
+            label: 'Data',
+            controller: _dataController,
+            error: _dataError,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPreviewPane(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            'Preview',
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(4, 0, 8, 8),
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.dividerColor),
+              borderRadius: BorderRadius.circular(8),
+              color: theme.colorScheme.surfaceContainerLowest,
+            ),
+            child: _surfaceIds.isEmpty
+                ? Center(
+                    child: Text(
+                      _parseError != null
+                          ? 'Fix the JSON to see a preview'
+                          : 'No surfaces to display',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        for (final surfaceId in _surfaceIds)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Surface(
+                              key: ValueKey(surfaceId),
+                              surfaceContext: _surfaceController.contextFor(
+                                surfaceId,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildEditorSection({
     required ThemeData theme,
     required String label,
     required CodeController controller,
     required String? error,
   }) {
-    final codeStyles =
-        theme.brightness == Brightness.dark ? vs2015Theme : vsTheme;
+    final codeStyles = theme.brightness == Brightness.dark
+        ? vs2015Theme
+        : vsTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

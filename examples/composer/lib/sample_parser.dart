@@ -45,8 +45,8 @@ class SampleParser {
         .join('\n');
     final String jsonlBody = lines.sublist(separatorIndex + 1).join('\n');
 
-    final dynamic yamlNode = loadYaml(yamlHeader);
-    final Map<dynamic, dynamic> header = (yamlNode is Map) ? yamlNode : {};
+    final Object? yamlNode = loadYaml(yamlHeader);
+    final Map<Object?, Object?> header = (yamlNode is Map) ? yamlNode : {};
     final String name = header['name'] as String? ?? 'Untitled Sample';
     final String description = header['description'] as String? ?? '';
 
@@ -55,8 +55,8 @@ class SampleParser {
           .convert(jsonlBody)
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
-            final dynamic json = jsonDecode(line);
-            if (json is Map<String, dynamic>) {
+            final Object? json = jsonDecode(line);
+            if (json is Map<String, Object?>) {
               return A2uiMessage.fromJson(json);
             }
             throw FormatException('Invalid JSON line: $line');

@@ -19,8 +19,6 @@ import 'surface_utils.dart';
 class CreateTab extends StatefulWidget {
   const CreateTab({super.key, required this.onSurfaceCreated});
 
-  /// Called with the components JSON and optional data model JSON
-  /// when a surface is successfully generated.
   final void Function(String componentsJson, {String? dataJson})
   onSurfaceCreated;
 
@@ -68,8 +66,9 @@ class _CreateTabState extends State<CreateTab> {
 
     try {
       final AiClient aiClient = DartanticAiClient();
-      final transport = _activeTransport =
-          AiClientTransport(aiClient: aiClient);
+      final transport = _activeTransport = AiClientTransport(
+        aiClient: aiClient,
+      );
 
       final Catalog catalog = BasicCatalogItems.asCatalog();
       final controller = _activeController = SurfaceController(
@@ -81,7 +80,6 @@ class _CreateTabState extends State<CreateTab> {
         transport: transport,
       );
 
-      // Set up system prompt
       final promptBuilder = PromptBuilder.chat(
         catalog: catalog,
         systemPromptFragments: [
@@ -92,17 +90,15 @@ class _CreateTabState extends State<CreateTab> {
       );
       transport.addSystemMessage(promptBuilder.systemPromptJoined());
 
-      // Capture parsed A2UI messages (these are validated and complete)
       final List<A2uiMessage> parsedMessages = [];
-      final StreamSubscription<A2uiMessage> messageSub = transport
+      final StreamSubscription<A2uiMessage> messageSubscription = transport
           .incomingMessages
           .listen((message) {
             parsedMessages.add(message);
           });
 
-      // Wait for surface to be created
       String? surfaceId;
-      final StreamSubscription<SurfaceUpdate> surfaceSub = controller
+      final StreamSubscription<SurfaceUpdate> surfaceSubscription = controller
           .surfaceUpdates
           .listen((update) {
             if (update is SurfaceAdded) {
@@ -110,26 +106,25 @@ class _CreateTabState extends State<CreateTab> {
             }
           });
 
-      // Send the request
       final message = ChatMessage.user(prompt);
       await conversation.sendRequest(message);
-      // Yield twice to handle cases
-      // where message processing itself schedules additional async work.
+
+      // Yield twice to handle cases where message processing itself schedules
+      // additional async work.
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
 
-      await messageSub.cancel();
-      await surfaceSub.cancel();
+      await messageSubscription.cancel();
+      await surfaceSubscription.cancel();
 
       // Bail out if the widget was disposed while awaiting the AI response.
       if (_disposed) return;
 
       if (surfaceId != null && parsedMessages.isNotEmpty) {
-        // Consolidate all UpdateComponents messages by component ID.
-        final Map<String, Map<String, dynamic>> componentMap = {};
-        for (final msg in parsedMessages) {
-          if (msg is UpdateComponents) {
-            final json = msg.toJson();
+        final Map<String, Map<String, Object?>> componentMap = {};
+        for (final message in parsedMessages) {
+          if (message is UpdateComponents) {
+            final json = message.toJson();
             final components = json['components'];
             if (components is List) {
               mergeComponentsById(components, componentMap);
@@ -142,15 +137,15 @@ class _CreateTabState extends State<CreateTab> {
         ).convert(componentMap.values.toList());
 
         // Extract and merge data model from UpdateDataModel messages.
-        Map<String, dynamic> dataModel = {};
-        for (final msg in parsedMessages) {
-          if (msg is UpdateDataModel) {
-            final json = msg.toJson();
+        Map<String, Object?> dataModel = {};
+        for (final message in parsedMessages) {
+          if (message is UpdateDataModel) {
+            final json = message.toJson();
             final value = json['value'];
-            if (value is Map<String, dynamic>) {
+            if (value is Map<String, Object?>) {
               final path = json['path'] as String?;
               if (path == null || path == '/' || path.isEmpty) {
-                dataModel = Map<String, dynamic>.from(value);
+                dataModel = Map<String, Object?>.from(value);
               } else {
                 setNestedValue(dataModel, path, value);
               }
@@ -170,7 +165,6 @@ class _CreateTabState extends State<CreateTab> {
               'valid A2UI output. Try a different description.';
         });
       }
-
     } catch (e, stack) {
       _logger.severe('Error generating surface', e, stack);
       setState(() {
