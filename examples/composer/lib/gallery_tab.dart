@@ -230,7 +230,12 @@ class _GalleryCardState extends State<_GalleryCard>
         result.controller.dispose();
       }
     } catch (e) {
-      if (mounted) setState(() => _hasError = true);
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
     }
   }
 

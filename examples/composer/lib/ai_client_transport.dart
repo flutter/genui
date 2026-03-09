@@ -64,6 +64,7 @@ class AiClientTransport implements Transport {
   @override
   void dispose() {
     _adapter.dispose();
+    aiClient.dispose();
   }
 
   /// Adds a system message to the history.

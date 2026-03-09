@@ -47,7 +47,14 @@ class _CreateTabState extends State<CreateTab> {
   );
 
   bool _isGenerating = false;
+  bool _disposed = false;
   String? _error;
+
+  /// Resources for the current in-flight request, stored so they can be
+  /// disposed if the widget is torn down mid-generation.
+  AiClientTransport? _activeTransport;
+  SurfaceController? _activeController;
+  Conversation? _activeConversation;
 
   Future<void> _generate() async {
     final String prompt = _promptController.text.trim().isEmpty
@@ -59,18 +66,17 @@ class _CreateTabState extends State<CreateTab> {
       _error = null;
     });
 
-    AiClientTransport? transport;
-
     try {
       final AiClient aiClient = DartanticAiClient();
-      transport = AiClientTransport(aiClient: aiClient);
+      final transport = _activeTransport =
+          AiClientTransport(aiClient: aiClient);
 
       final Catalog catalog = BasicCatalogItems.asCatalog();
-      final SurfaceController controller = SurfaceController(
+      final controller = _activeController = SurfaceController(
         catalogs: [catalog],
       );
 
-      final Conversation conversation = Conversation(
+      final conversation = _activeConversation = Conversation(
         controller: controller,
         transport: transport,
       );
@@ -107,12 +113,16 @@ class _CreateTabState extends State<CreateTab> {
       // Send the request
       final message = ChatMessage.user(prompt);
       await conversation.sendRequest(message);
-
-      // Yield to the microtask queue so stream listeners finish processing.
+      // Yield twice to handle cases
+      // where message processing itself schedules additional async work.
+      await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
 
       await messageSub.cancel();
       await surfaceSub.cancel();
+
+      // Bail out if the widget was disposed while awaiting the AI response.
+      if (_disposed) return;
 
       if (surfaceId != null && parsedMessages.isNotEmpty) {
         // Consolidate all UpdateComponents messages by component ID.
@@ -161,15 +171,13 @@ class _CreateTabState extends State<CreateTab> {
         });
       }
 
-      conversation.dispose();
-      controller.dispose();
     } catch (e, stack) {
       _logger.severe('Error generating surface', e, stack);
       setState(() {
         _error = 'Error: $e';
       });
     } finally {
-      transport?.dispose();
+      _disposeActiveResources();
       if (mounted) {
         setState(() {
           _isGenerating = false;
@@ -178,8 +186,19 @@ class _CreateTabState extends State<CreateTab> {
     }
   }
 
+  void _disposeActiveResources() {
+    _activeConversation?.dispose();
+    _activeController?.dispose();
+    _activeTransport?.dispose();
+    _activeConversation = null;
+    _activeController = null;
+    _activeTransport = null;
+  }
+
   @override
   void dispose() {
+    _disposed = true;
+    _disposeActiveResources();
     _focusNode.dispose();
     _promptController.dispose();
     super.dispose();

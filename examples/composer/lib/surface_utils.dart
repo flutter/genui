@@ -6,20 +6,23 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:genui/genui.dart';
+import 'package:logging/logging.dart';
 
 import 'sample_parser.dart';
+
+final _logger = Logger('SurfaceUtils');
 
 const kProtocolVersion = 'v0.9';
 
 /// Merges a list of component maps by their `id` field.
 /// Later entries override earlier ones with the same ID.
-Map<String, Map<String, dynamic>> mergeComponentsById(
-  List<dynamic> components, [
-  Map<String, Map<String, dynamic>>? existing,
+Map<String, Map<String, Object?>> mergeComponentsById(
+  List<Object?> components, [
+  Map<String, Map<String, Object?>>? existing,
 ]) {
-  final map = existing ?? <String, Map<String, dynamic>>{};
+  final map = existing ?? <String, Map<String, Object?>>{};
   for (final comp in components) {
-    if (comp is Map<String, dynamic> && comp['id'] != null) {
+    if (comp is Map<String, Object?> && comp['id'] != null) {
       map[comp['id'] as String] = comp;
     }
   }
@@ -28,48 +31,50 @@ Map<String, Map<String, dynamic>> mergeComponentsById(
 
 /// Sets a value at a nested path in a data model map.
 /// Path format: "/segment1/segment2/..." — leading slashes are stripped.
-void setNestedValue(
-  Map<String, dynamic> model,
-  String path,
-  Object value,
-) {
+void setNestedValue(Map<String, Object?> model, String path, Object value) {
   final segments = path.split('/').where((s) => s.isNotEmpty).toList();
   if (segments.isEmpty) return;
 
-  Map<String, dynamic> current = model;
+  Map<String, Object?> current = model;
   for (int i = 0; i < segments.length - 1; i++) {
-    current.putIfAbsent(segments[i], () => <String, dynamic>{});
+    current.putIfAbsent(segments[i], () => <String, Object?>{});
     final next = current[segments[i]];
-    if (next is Map<String, dynamic>) {
+    if (next is Map<String, Object?>) {
       current = next;
     } else {
-      return; // Path conflict, skip
+      return; // Path conflict, skip.
     }
   }
 
-  current.putIfAbsent(segments.last, () => value);
+  current[segments.last] = value;
 }
 
 /// Detects the root component ID from a list of component maps.
 ///
 /// The root is the component whose ID is not referenced as a child by any
 /// other component. Falls back to `'root'` if detection is ambiguous.
-String detectRootId(List<dynamic> components) {
+String detectRootId(List<Object?> components) {
   final allIds = components
-      .whereType<Map<String, dynamic>>()
+      .whereType<Map<String, Object?>>()
       .map((c) => c['id'] as String?)
       .whereType<String>()
-      .toSet();
+      .toList();
+
+  final allIdSet = allIds.toSet();
 
   final referencedIds = <String>{};
   for (final comp in components) {
-    if (comp is Map<String, dynamic>) {
-      _collectStringValues(comp, allIds, referencedIds);
+    if (comp is Map<String, Object?>) {
+      _collectStringValues(comp, allIdSet, referencedIds);
     }
   }
 
-  final rootCandidates = allIds.difference(referencedIds);
-  return rootCandidates.isNotEmpty ? rootCandidates.first : 'root';
+  final rootCandidates = allIdSet.difference(referencedIds);
+  if (rootCandidates.isEmpty) return 'root';
+
+  // Return the first candidate by list position to ensure deterministic
+  // ordering when there are multiple unreferenced components.
+  return allIds.firstWhere(rootCandidates.contains);
 }
 
 /// Recursively walks [obj] and adds any string values that appear in
@@ -80,14 +85,9 @@ void _collectStringValues(
   Set<String> result, {
   String? parentKey,
 }) {
-  if (obj is Map<String, dynamic>) {
+  if (obj is Map<String, Object?>) {
     for (final entry in obj.entries) {
-      _collectStringValues(
-        entry.value,
-        knownIds,
-        result,
-        parentKey: entry.key,
-      );
+      _collectStringValues(entry.value, knownIds, result, parentKey: entry.key);
     }
   } else if (obj is List) {
     for (final item in obj) {
@@ -109,48 +109,56 @@ String componentsToJsonl(
   final messages = <String>[];
 
   // 1. createSurface
-  messages.add(encoder.convert({
-    'version': kProtocolVersion,
-    'createSurface': {
-      'surfaceId': surfaceId,
-      'catalogId': basicCatalogId,
-      'sendDataModel': true,
-    },
-  }));
+  messages.add(
+    encoder.convert({
+      'version': kProtocolVersion,
+      'createSurface': {
+        'surfaceId': surfaceId,
+        'catalogId': basicCatalogId,
+        'sendDataModel': true,
+      },
+    }),
+  );
 
   // 2. updateComponents
   try {
     final parsed = jsonDecode(componentsJson.trim());
     if (parsed is List) {
       final rootId = detectRootId(parsed);
-      messages.add(encoder.convert({
-        'version': kProtocolVersion,
-        'updateComponents': {
-          'surfaceId': surfaceId,
-          'root': rootId,
-          'components': parsed,
-        },
-      }));
+      messages.add(
+        encoder.convert({
+          'version': kProtocolVersion,
+          'updateComponents': {
+            'surfaceId': surfaceId,
+            'root': rootId,
+            'components': parsed,
+          },
+        }),
+      );
     }
-  } catch (_) {
-    // If components can't be parsed, skip the updateComponents message.
+  } catch (e) {
+    _logger.fine('Could not parse components JSON, skipping', e);
   }
 
   // 3. updateDataModel (optional)
   if (dataJson != null && dataJson.trim().isNotEmpty) {
     try {
       final parsed = jsonDecode(dataJson.trim());
-      if (parsed is Map<String, dynamic> && parsed.isNotEmpty) {
-        messages.add(encoder.convert({
-          'version': kProtocolVersion,
-          'updateDataModel': {
-            'surfaceId': surfaceId,
-            'path': '/',
-            'value': parsed,
-          },
-        }));
+      if (parsed is Map<String, Object?> && parsed.isNotEmpty) {
+        messages.add(
+          encoder.convert({
+            'version': kProtocolVersion,
+            'updateDataModel': {
+              'surfaceId': surfaceId,
+              'path': '/',
+              'value': parsed,
+            },
+          }),
+        );
       }
-    } catch (_) {}
+    } catch (e) {
+      _logger.fine('Could not parse data model JSON, skipping', e);
+    }
   }
 
   return messages.join('\n\n');
@@ -159,7 +167,7 @@ String componentsToJsonl(
 /// Creates a [SurfaceController], feeds the parsed sample messages into it,
 /// and returns the controller along with the discovered surface IDs.
 Future<({SurfaceController controller, List<String> surfaceIds})>
-    loadSampleSurface(String rawContent) async {
+loadSampleSurface(String rawContent) async {
   final catalog = BasicCatalogItems.asCatalog();
   final controller = SurfaceController(catalogs: [catalog]);
   final surfaceIds = <String>[];
@@ -173,8 +181,9 @@ Future<({SurfaceController controller, List<String> surfaceIds})>
   try {
     final sample = SampleParser.parseString(rawContent);
     await sample.messages.listen(controller.handleMessage).asFuture<void>();
-  } catch (_) {
+  } catch (e) {
     // Caller can check surfaceIds.isEmpty to detect failure.
+    _logger.fine('Error loading sample surface', e);
   }
 
   await sub.cancel();
