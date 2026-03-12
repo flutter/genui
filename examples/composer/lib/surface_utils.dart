@@ -14,8 +14,6 @@ final _logger = Logger('SurfaceUtils');
 
 const kProtocolVersion = 'v0.9';
 
-/// Merges a list of component maps by their `id` field.
-/// Later entries override earlier ones with the same ID.
 Map<String, Map<String, Object?>> mergeComponentsById(
   List<Object?> components, [
   Map<String, Map<String, Object?>>? existing,
@@ -49,55 +47,6 @@ void setNestedValue(Map<String, Object?> model, String path, Object value) {
   current[segments.last] = value;
 }
 
-/// Detects the root component ID from a list of component maps.
-///
-/// The root is the component whose ID is not referenced as a child by any
-/// other component. Falls back to `'root'` if detection is ambiguous.
-String detectRootId(List<Object?> components) {
-  final allIds = components
-      .whereType<Map<String, Object?>>()
-      .map((c) => c['id'] as String?)
-      .whereType<String>()
-      .toList();
-
-  final allIdSet = allIds.toSet();
-
-  final referencedIds = <String>{};
-  for (final comp in components) {
-    if (comp is Map<String, Object?>) {
-      _collectStringValues(comp, allIdSet, referencedIds);
-    }
-  }
-
-  final rootCandidates = allIdSet.difference(referencedIds);
-  if (rootCandidates.isEmpty) return 'root';
-
-  // Return the first candidate by list position to ensure deterministic
-  // ordering when there are multiple unreferenced components.
-  return allIds.firstWhere(rootCandidates.contains);
-}
-
-/// Recursively walks [obj] and adds any string values that appear in
-/// [knownIds] to [result]. Skips the component's own 'id' key.
-void _collectStringValues(
-  Object? obj,
-  Set<String> knownIds,
-  Set<String> result, {
-  String? parentKey,
-}) {
-  if (obj is Map<String, Object?>) {
-    for (final entry in obj.entries) {
-      _collectStringValues(entry.value, knownIds, result, parentKey: entry.key);
-    }
-  } else if (obj is List) {
-    for (final item in obj) {
-      _collectStringValues(item, knownIds, result);
-    }
-  } else if (obj is String && parentKey != 'id' && knownIds.contains(obj)) {
-    result.add(obj);
-  }
-}
-
 /// Reconstructs full A2UI JSONL from a components array and optional data
 /// model. Each message is pretty-printed and separated by a blank line.
 String componentsToJsonl(
@@ -108,7 +57,6 @@ String componentsToJsonl(
   final encoder = const JsonEncoder.withIndent('  ');
   final messages = <String>[];
 
-  // 1. createSurface
   messages.add(
     encoder.convert({
       'version': kProtocolVersion,
@@ -120,17 +68,15 @@ String componentsToJsonl(
     }),
   );
 
-  // 2. updateComponents
   try {
     final parsed = jsonDecode(componentsJson.trim());
     if (parsed is List) {
-      final rootId = detectRootId(parsed);
       messages.add(
         encoder.convert({
           'version': kProtocolVersion,
           'updateComponents': {
             'surfaceId': surfaceId,
-            'root': rootId,
+            'root': 'root',
             'components': parsed,
           },
         }),
@@ -140,7 +86,6 @@ String componentsToJsonl(
     _logger.fine('Could not parse components JSON, skipping', e);
   }
 
-  // 3. updateDataModel (optional)
   if (dataJson != null && dataJson.trim().isNotEmpty) {
     try {
       final parsed = jsonDecode(dataJson.trim());
