@@ -91,8 +91,6 @@ class _CreateTabState extends State<CreateTab> {
       final message = ChatMessage.user(prompt);
       await conversation.sendRequest(message);
 
-      await Future<void>.delayed(Duration.zero);
-
       if (_disposed) return;
 
       final surfaceId = controller.activeSurfaceIds.firstOrNull;

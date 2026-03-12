@@ -54,6 +54,7 @@ class AiClientTransport implements Transport {
         }
       }
 
+      await _adapter.flush();
       _history.add(dartantic.ChatMessage.model(fullResponseBuffer.toString()));
     } catch (e, stack) {
       _logger.severe('Error sending request', e, stack);
