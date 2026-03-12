@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'components_tab.dart';
 import 'create_tab.dart';
@@ -12,6 +13,11 @@ import 'surface_editor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await windowManager.ensureInitialized();
+  await windowManager.setSize(const Size(1700, 1000));
+  await windowManager.center();
+
   Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
