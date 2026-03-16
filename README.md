@@ -129,7 +129,7 @@ See the [genui getting started guide](packages/genui/README.md#getting-started-w
 This repo contains [skill files](packages/genui/skills/) for developers building with agentic coding tools. They can be copied directly into an agent's preferred location or installed using the [`skills`](https://www.npmjs.com/package/skills) package:
 
 ```bash
-npx skills add https://github.com/redbrogdon/genui/tree/main/packages/genui/skills
+npx skills add https://github.com/flutter/genui/tree/main/packages/genui/skills
 ```
 
 ## Constraints
