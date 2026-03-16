@@ -64,8 +64,8 @@ class _BasicCardData {
         title: json['title'] as String,
         action: json['action'] as JsonMap?,
       );
-    } catch (_) {
-      throw Exception('Invalid JSON for _BasicCardData');
+    } catch (e) {
+      throw Exception('Invalid JSON for _BasicCardData: $e');
     }
   }
 }
