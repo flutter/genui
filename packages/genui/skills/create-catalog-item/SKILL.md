@@ -6,7 +6,7 @@ description: Use this skill when the user asks to create a new CatalogItem, data
 # Create CatalogItem
 
 ## Goal
-To correctly implement a GenUI CatalogItem based on a provided json_schema_builder Schema, including its corresponding data class, top-level function, and Widget class. This ensures the AI model can properly generate and interact with the UI component.
+To correctly implement a GenUI CatalogItem based on a provided json_schema_builder Schema, including its corresponding data class, CatalogItem instance, and Widget class. This ensures the AI model can properly generate and interact with the UI component.
 
 ## Instructions
 When tasked with creating a CatalogItem from a `Schema`, follow these steps:
@@ -19,7 +19,7 @@ When tasked with creating a CatalogItem from a `Schema`, follow these steps:
    - Cast each property from the `json` map to its expected type, e.g., `title: json['title'] as String,` or `action: json['action'] as JsonMap?,`.
    - Throw an `Exception('Invalid JSON for _<SchemaName>Data')` in the `catch` block if an error occurs.
 
-2. **Create the CatalogItem Top-Level Function**:
+2. **Create the CatalogItem Instance**:
    - Name it identical to the schema name but without the "Schema" suffix (e.g., `myCard` for `myCardSchema`).
    - Declare as a `final CatalogItem`.
    - Set `name` to the capitalized version of the name (e.g., `'MyCard'`).
@@ -83,8 +83,7 @@ final basicCard = CatalogItem(
         final action = data.action;
         if (action == null) return;
         final event = action['event'] as JsonMap?;
-        final name = event?['name'] as String?;
-        if (name == null || name.isEmpty) return;
+        final name = (event?['name'] as String?) ?? '';
         final JsonMap contextDefinition =
             (event?['context'] as JsonMap?) ?? <String, Object?>{};
         final JsonMap resolvedContext = await resolveContext(
