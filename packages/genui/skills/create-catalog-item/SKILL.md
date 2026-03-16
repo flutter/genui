@@ -83,7 +83,8 @@ final basicCard = CatalogItem(
         final action = data.action;
         if (action == null) return;
         final event = action['event'] as JsonMap?;
-        final name = (event?['name'] as String?) ?? '';
+        final name = event?['name'] as String?;
+        if (name == null || name.isEmpty) return;
         final JsonMap contextDefinition =
             (event?['context'] as JsonMap?) ?? <String, Object?>{};
         final JsonMap resolvedContext = await resolveContext(
