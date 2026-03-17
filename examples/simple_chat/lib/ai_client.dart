@@ -49,7 +49,6 @@ class DartanticAiClient implements AiClient {
     );
 
     await for (final result in stream) {
-      print('!!! finish reason: ${result.finishReason}');
       if (result.output.isNotEmpty) {
         yield result.output;
       }

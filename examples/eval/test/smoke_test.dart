@@ -16,8 +16,8 @@ void main() {
       final tester = _ChatSessionTester();
       addTearDown(tester.dispose);
 
-      await tester.chatSession.sendMessage('Hello!');
-      final messages = await tester.waitForResponse();
+      final Iterable<sc.Message> messages = await tester
+          .sendMessageAndWaitForResponse('Hello!');
       expect(messages.length, 1);
     },
   );
@@ -29,24 +29,34 @@ class _ChatSessionTester {
     chatSession.addListener(() {});
   }
 
-  Future<Iterable<sc.Message>> waitForResponse() async {
+  final sc.ChatSession chatSession = sc.ChatSession(
+    aiClient: sc.DartanticAiClient(),
+  );
+
+  Future<Iterable<sc.Message>> sendMessageAndWaitForResponse(
+    String message,
+  ) async {
+    print('!!! Length before send: ${chatSession.messages.length}');
+    await chatSession.sendMessage(message);
+    print('Length after send: ${chatSession.messages.length}');
     final completer = Completer<void>();
     final int initialLength = chatSession.messages.length;
-    chatSession.addListener(completer.complete);
+
+    chatSession.addListener(() {
+      if (!chatSession.isProcessing) {
+        completer.complete();
+      }
+    });
 
     await completer.future;
+
+    print('!!!Length after processing: ${chatSession.messages.length}');
 
     return chatSession.messages.getRange(
       initialLength,
       chatSession.messages.length,
     );
   }
-
-  final sc.ChatSession chatSession = sc.ChatSession(
-    aiClient: sc.DartanticAiClient(),
-  );
-
-  Future<void> sendMessage(String message) => chatSession.sendMessage(message);
 
   void dispose() {
     chatSession.dispose();
