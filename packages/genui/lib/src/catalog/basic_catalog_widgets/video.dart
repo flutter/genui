@@ -101,6 +101,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     _controller = vp.VideoPlayerController.networkUrl(Uri.parse(url))
       ..initialize()
           .then((_) {
+            _controller?.setVolume(0.5);
             if (mounted) setState(() {});
           })
           .catchError((Object error) {

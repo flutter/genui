@@ -87,12 +87,13 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   bool _hasStarted = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
-  double _volume = 1.0;
+  double _volume = 0.5;
 
   @override
   void initState() {
     super.initState();
     _player = ap.AudioPlayer();
+    _player.setVolume(_volume);
 
     _subscriptions = [
       _player.onPlayerStateChanged.listen((state) {
