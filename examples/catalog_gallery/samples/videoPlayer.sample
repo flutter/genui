@@ -1,0 +1,8 @@
+---
+description: A video player playing a public domain clip.
+name: videoPlayer
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a Video component that plays a short video clip.
+---
+{"version":"v0.10","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_10/standard_catalog.json"}}
+{"version":"v0.10","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["videoComponent"]},{"id":"videoComponent","component":"Video","url":"https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4"}]}}

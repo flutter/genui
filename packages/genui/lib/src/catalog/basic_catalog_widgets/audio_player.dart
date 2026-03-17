@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -23,24 +24,34 @@ final _schema = S.object(
   required: ['url'],
 );
 
-/// A catalog item for an audio player.
-///
-/// This widget displays a placeholder for an audio player, used to represent
-/// a component capable of playing audio from a given URL.
+/// A simple audio player.
 ///
 /// ## Parameters:
 ///
 /// - `url`: The URL of the audio to play.
+/// - `description`: An optional description of the audio.
 final audioPlayer = CatalogItem(
   name: 'AudioPlayer',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
-    final Object? description = (itemContext.data as JsonMap)['description'];
+    final data = itemContext.data as JsonMap;
+    final Object? url = data['url'];
+    final Object? description = data['description'];
+
     return BoundString(
       dataContext: itemContext.dataContext,
-      value: description,
-      builder: (context, value) {
-        return Semantics(label: value, child: const Icon(Icons.audiotrack));
+      value: url,
+      builder: (context, urlValue) {
+        return BoundString(
+          dataContext: itemContext.dataContext,
+          value: description,
+          builder: (context, descriptionValue) {
+            return _AudioPlayerWidget(
+              url: urlValue,
+              description: descriptionValue,
+            );
+          },
+        );
       },
     );
   },
@@ -50,9 +61,175 @@ final audioPlayer = CatalogItem(
         {
           "id": "root",
           "component": "AudioPlayer",
-          "url": "https://example.com/audio.mp3"
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/db/Minuet_in_G_%28Beethoven%29%2C_piano.ogg"
         }
       ]
     ''',
   ],
 );
+
+class _AudioPlayerWidget extends StatefulWidget {
+  const _AudioPlayerWidget({required this.url, this.description});
+
+  final String? url;
+  final String? description;
+
+  @override
+  State<_AudioPlayerWidget> createState() => _AudioPlayerWidgetState();
+}
+
+class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
+  late final ap.AudioPlayer _player;
+  bool _isPlaying = false;
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
+  double _volume = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _player = ap.AudioPlayer();
+
+    _player.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state == ap.PlayerState.playing;
+        });
+      }
+    });
+
+    _player.onPositionChanged.listen((position) {
+      if (mounted) {
+        setState(() => _position = position);
+      }
+    });
+
+    _player.onDurationChanged.listen((duration) {
+      if (mounted) {
+        setState(() => _duration = duration);
+      }
+    });
+
+    _setSource();
+  }
+
+  @override
+  void didUpdateWidget(_AudioPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.url != oldWidget.url) {
+      _player.stop();
+      _setSource();
+    }
+  }
+
+  void _setSource() {
+    final String? url = widget.url;
+    if (url != null && url.isNotEmpty) {
+      _player.setSource(ap.UrlSource(url));
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration d) {
+    final String minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final String seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    if (d.inHours > 0) {
+      return '${d.inHours}:$minutes:$seconds';
+    }
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.description != null && widget.description!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  widget.description!,
+                  style: theme.textTheme.titleSmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                  onPressed: () {
+                    if (_isPlaying) {
+                      _player.pause();
+                    } else {
+                      _player.resume();
+                    }
+                  },
+                ),
+                Text(
+                  _formatDuration(_position),
+                  style: theme.textTheme.bodySmall,
+                ),
+                Expanded(
+                  child: Slider(
+                    value: _duration.inMilliseconds > 0
+                        ? _position.inMilliseconds
+                              .clamp(0, _duration.inMilliseconds)
+                              .toDouble()
+                        : 0,
+                    max: _duration.inMilliseconds > 0
+                        ? _duration.inMilliseconds.toDouble()
+                        : 1,
+                    onChanged: (value) {
+                      _player.seek(Duration(milliseconds: value.toInt()));
+                    },
+                  ),
+                ),
+                Text(
+                  _formatDuration(_duration),
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(width: 12),
+                Icon(
+                  _volume == 0
+                      ? Icons.volume_off
+                      : _volume < 0.5
+                          ? Icons.volume_down
+                          : Icons.volume_up,
+                  size: 20,
+                ),
+                SizedBox(
+                  width: 100,
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      overlayShape: SliderComponentShape.noOverlay,
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Slider(
+                      value: _volume,
+                      onChanged: (value) {
+                        setState(() => _volume = value);
+                        _player.setVolume(value);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

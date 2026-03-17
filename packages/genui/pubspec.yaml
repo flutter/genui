@@ -16,6 +16,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  audioplayers: ^6.6.0
   collection: ^1.19.1
   flutter:
     sdk: flutter
@@ -28,6 +29,8 @@ dependencies:
   rxdart: ^0.28.0
   url_launcher: ^6.3.2
   uuid: ^4.4.0
+  video_player: ^2.11.1
+  video_player_win: ^3.2.2
 
 dev_dependencies:
   async: ^2.13.0

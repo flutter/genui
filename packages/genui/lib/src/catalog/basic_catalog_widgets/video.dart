@@ -2,11 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:video_player/video_player.dart' as vp;
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../primitives/logging.dart';
+import '../../primitives/simple_items.dart';
+import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
   description: 'A video player.',
@@ -18,10 +23,11 @@ final _schema = S.object(
   required: ['url'],
 );
 
+// Linux is the only platform without video_player support.
+bool get _isVideoSupported =>
+    defaultTargetPlatform != TargetPlatform.linux || kIsWeb;
+
 /// A video player.
-///
-/// This widget currently displays a placeholder for a video player. It is
-/// intended to play video content from the given `url`.
 ///
 /// ## Parameters:
 ///
@@ -30,9 +36,14 @@ final video = CatalogItem(
   name: 'Video',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 200, maxHeight: 100),
-      child: const Placeholder(child: Center(child: Text('Video'))),
+    final Object? url = (itemContext.data as JsonMap)['url'];
+
+    return BoundString(
+      dataContext: itemContext.dataContext,
+      value: url,
+      builder: (context, urlValue) {
+        return _VideoPlayerWidget(url: urlValue);
+      },
     );
   },
   exampleData: [
@@ -41,9 +52,237 @@ final video = CatalogItem(
         {
           "id": "root",
           "component": "Video",
-          "url": "https://example.com/video.mp4"
+          "url": "https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4"
         }
       ]
     ''',
   ],
 );
+
+class _VideoPlayerWidget extends StatefulWidget {
+  const _VideoPlayerWidget({required this.url});
+
+  final String? url;
+
+  @override
+  State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
+  vp.VideoPlayerController? _controller;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initController();
+  }
+
+  @override
+  void didUpdateWidget(_VideoPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.url != oldWidget.url) {
+      _disposeController();
+      _initController();
+    }
+  }
+
+  void _initController() {
+    final String? url = widget.url;
+    if (url == null || url.isEmpty || !_isVideoSupported) return;
+
+    _hasError = false;
+    _controller = vp.VideoPlayerController.networkUrl(Uri.parse(url))
+      ..initialize().then((_) {
+        if (mounted) setState(() {});
+      }).catchError((Object error) {
+        genUiLogger.warning('Failed to initialize video player', error);
+        if (mounted) setState(() => _hasError = true);
+      });
+  }
+
+  void _disposeController() {
+    _controller?.dispose();
+    _controller = null;
+  }
+
+  @override
+  void dispose() {
+    _disposeController();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isVideoSupported) {
+      genUiLogger.warning(
+        'Video playback is not supported on '
+        '${defaultTargetPlatform.name}.',
+      );
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.videocam_off),
+              SizedBox(width: 8),
+              Text('Video playback is not supported on this platform.'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final vp.VideoPlayerController? controller = _controller;
+
+    if (_hasError) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline),
+              SizedBox(width: 8),
+              Text('Failed to load video.'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (controller == null || !controller.value.isInitialized) {
+      return const AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: () => controller.value.isPlaying
+              ? controller.pause()
+              : controller.play(),
+          child: AspectRatio(
+            aspectRatio: controller.value.aspectRatio,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                vp.VideoPlayer(controller),
+                _CenterPlayButton(controller: controller),
+              ],
+            ),
+          ),
+        ),
+        _BottomControlBar(controller: controller),
+      ],
+    );
+  }
+}
+
+class _CenterPlayButton extends StatelessWidget {
+  const _CenterPlayButton({required this.controller});
+
+  final vp.VideoPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<vp.VideoPlayerValue>(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        if (value.isPlaying) return const SizedBox.shrink();
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.black54,
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(12),
+          child: const Icon(
+            Icons.play_arrow,
+            color: Colors.white,
+            size: 48,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BottomControlBar extends StatelessWidget {
+  const _BottomControlBar({required this.controller});
+
+  final vp.VideoPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<vp.VideoPlayerValue>(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        final Duration position = value.position;
+        final Duration duration = value.duration;
+
+        return Row(
+          children: [
+            IconButton(
+              icon: Icon(
+                value.isPlaying ? Icons.pause : Icons.play_arrow,
+              ),
+              onPressed: () {
+                if (value.isPlaying) {
+                  controller.pause();
+                } else {
+                  controller.play();
+                }
+              },
+            ),
+            Text(
+              _formatDuration(position),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            Expanded(
+              child: Slider(
+                value: duration.inMilliseconds > 0
+                    ? position.inMilliseconds
+                        .clamp(0, duration.inMilliseconds)
+                        .toDouble()
+                    : 0,
+                max: duration.inMilliseconds > 0
+                    ? duration.inMilliseconds.toDouble()
+                    : 1,
+                onChanged: (v) {
+                  controller.seekTo(Duration(milliseconds: v.toInt()));
+                },
+              ),
+            ),
+            Text(
+              _formatDuration(duration),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            IconButton(
+              icon: Icon(
+                value.volume > 0 ? Icons.volume_up : Icons.volume_off,
+              ),
+              onPressed: () {
+                controller.setVolume(value.volume > 0 ? 0.0 : 1.0);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatDuration(Duration d) {
+    final String minutes =
+        d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final String seconds =
+        d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    if (d.inHours > 0) {
+      return '${d.inHours}:$minutes:$seconds';
+    }
+    return '$minutes:$seconds';
+  }
+}

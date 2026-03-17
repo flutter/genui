@@ -1,0 +1,8 @@
+---
+description: An audio player playing a public domain piano clip (Beethoven — Minuet in G).
+name: audioPlayer
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for an AudioPlayer component that plays a short audio clip.
+---
+{"version":"v0.10","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_10/standard_catalog.json"}}
+{"version":"v0.10","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["audioPlayerComponent"]},{"id":"audioPlayerComponent","component":"AudioPlayer","url":"https://upload.wikimedia.org/wikipedia/commons/d/db/Minuet_in_G_%28Beethoven%29%2C_piano.ogg","description":"Beethoven — Minuet in G (public domain)"}]}}
