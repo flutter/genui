@@ -157,10 +157,11 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    const contentPadding = EdgeInsets.all(12);
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: contentPadding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,6 +242,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                     ),
                   ),
                 ),
+                SizedBox(width: contentPadding.right),
               ],
             ),
           ],
