@@ -82,6 +82,11 @@ class A2uiTransportAdapter implements Transport {
     await onSend!(message);
   }
 
+  Future<void> flush() async {
+    await _inputStream.close();
+    await _pipelineSubscription?.asFuture<void>();
+  }
+
   /// Closes the controller and cleans up resources.
   @override
   void dispose() {

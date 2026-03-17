@@ -1,0 +1,9 @@
+---
+description: A trivia question card.
+name: triviaQuiz
+prompt: |
+  Create a trivia quiz. It should have a 'Text' (variant 'h1') "Question 1". A 'Text' "What is the capital of France?". A 'ChoicePicker' (variant 'mutuallyExclusive') for answers (options: "Paris", "London", "Berlin", "Madrid"). A 'Button' "Submit Answer".
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["question1Title","question1Text","answerChoicePicker","submitButton"]},{"id":"question1Title","component":"Text","variant":"h1","text":"Question 1"},{"id":"question1Text","component":"Text","text":"What is the capital of France?"},{"id":"answerChoicePicker","component":"ChoicePicker","label":"Select your answer","variant":"mutuallyExclusive","options":[{"label":"Paris","value":"Paris"},{"label":"London","value":"London"},{"label":"Berlin","value":"Berlin"},{"label":"Madrid","value":"Madrid"}],"value":{"path":"/selectedAnswer"}},{"id":"submitButton","component":"Button","child":"submitButtonText","action":{"event":{"name":"submitAnswer","context":{"answer":{"path":"/selectedAnswer"}}}}},{"id":"submitButtonText","component":"Text","text":"Submit Answer"}]}}
+{"version":"v0.9","updateDataModel":{"surfaceId":"main","path":"/","value":{"selectedAnswer":[]}}}

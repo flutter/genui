@@ -1,0 +1,60 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: eval-workflow
+
+on:
+  push: 
+    # Workflow runs on push to any branch.
+  schedule:
+    - cron: "0 * * * *" # hourly
+
+# TODO(polina-c): add steps that run tests
+
+jobs:
+  eval-job:
+    runs-on: ubuntu-latest
+    environment: eval
+    steps:
+      - name: Check that REPO_GEMINI_API_KEY is set and available
+        env:
+          # REPO_GEMINI_API_KEY is expected to be set in the repository secrets
+          # See https://docs.github.com/en/actions/security-guides/encrypted-secrets
+          GEMINI_API_KEY: ${{ secrets.REPO_GEMINI_API_KEY }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "ERROR: REPO_GEMINI_API_KEY is not set"
+            exit 1
+          fi
+          echo "GEMINI_API_KEY has ${#GEMINI_API_KEY} characters"
+      - name: Install Flutter
+        uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        with:
+          channel: beta
+          cache: true
+      - name: Print Flutter version
+        run: flutter --version
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Install dependencies
+        working-directory: examples/eval
+        run: dart pub get
+      - name: Run eval tests
+        working-directory: examples/eval
+        env:
+          GEMINI_API_KEY: ${{ secrets.REPO_GEMINI_API_KEY }}
+        run: flutter test --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY
+      - name: Cache dependencies
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: ${{ env.PUB_CACHE }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+      
+          
+        
+          
+          
+          
+

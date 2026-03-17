@@ -487,14 +487,22 @@ class InMemoryDataModel implements DataModel {
       if (parent == DataPath.root) break;
       if (!parent.isAbsolute && parent.segments.isEmpty) break;
       parent = parent.dirname;
-      if (_subscriptions.containsKey(parent)) {
-        _subscriptions[parent]!.value = getValue(parent);
+      final _RefCountedValueNotifier<Object?>? notifier =
+          _subscriptions[parent];
+      if (notifier != null) {
+        final Object? newValue = getValue<Object?>(parent);
+        if (newValue != notifier.value) {
+          notifier.value = newValue;
+        } else {
+          // _updateValue mutates containers in place, which means
+          // listeners on this ancestor won't get automatically notified by
+          // the `ValueNotifier.value` setter.
+          notifier.forceNotify();
+        }
       }
     }
-    if (path != DataPath.root && _subscriptions.containsKey(DataPath.root)) {
-      _subscriptions[DataPath.root]!.value = getValue(DataPath.root);
-    }
-    for (final DataPath p in _subscriptions.keys) {
+
+    for (final DataPath p in _subscriptions.keys.toList()) {
       if (p.startsWith(path) && p != path) {
         _subscriptions[p]!.value = getValue(p);
       }
@@ -511,6 +519,10 @@ class _RefCountedValueNotifier<T> extends ValueNotifier<T> {
 
   void incrementRef() {
     _refCount++;
+  }
+
+  void forceNotify() {
+    notifyListeners();
   }
 
   @override
