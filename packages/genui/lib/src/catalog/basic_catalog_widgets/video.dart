@@ -75,6 +75,12 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   @override
   void initState() {
     super.initState();
+    if (!_isVideoSupported) {
+      genUiLogger.warning(
+        'Video playback is not supported on '
+        '${defaultTargetPlatform.name}.',
+      );
+    }
     _initController();
   }
 
@@ -93,12 +99,14 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
 
     _hasError = false;
     _controller = vp.VideoPlayerController.networkUrl(Uri.parse(url))
-      ..initialize().then((_) {
-        if (mounted) setState(() {});
-      }).catchError((Object error) {
-        genUiLogger.warning('Failed to initialize video player', error);
-        if (mounted) setState(() => _hasError = true);
-      });
+      ..initialize()
+          .then((_) {
+            if (mounted) setState(() {});
+          })
+          .catchError((Object error) {
+            genUiLogger.warning('Failed to initialize video player', error);
+            if (mounted) setState(() => _hasError = true);
+          });
   }
 
   void _disposeController() {
@@ -115,10 +123,6 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   @override
   Widget build(BuildContext context) {
     if (!_isVideoSupported) {
-      genUiLogger.warning(
-        'Video playback is not supported on '
-        '${defaultTargetPlatform.name}.',
-      );
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
@@ -200,11 +204,7 @@ class _CenterPlayButton extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           padding: const EdgeInsets.all(12),
-          child: const Icon(
-            Icons.play_arrow,
-            color: Colors.white,
-            size: 48,
-          ),
+          child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
         );
       },
     );
@@ -227,9 +227,7 @@ class _BottomControlBar extends StatelessWidget {
         return Row(
           children: [
             IconButton(
-              icon: Icon(
-                value.isPlaying ? Icons.pause : Icons.play_arrow,
-              ),
+              icon: Icon(value.isPlaying ? Icons.pause : Icons.play_arrow),
               onPressed: () {
                 if (value.isPlaying) {
                   controller.pause();
@@ -246,8 +244,8 @@ class _BottomControlBar extends StatelessWidget {
               child: Slider(
                 value: duration.inMilliseconds > 0
                     ? position.inMilliseconds
-                        .clamp(0, duration.inMilliseconds)
-                        .toDouble()
+                          .clamp(0, duration.inMilliseconds)
+                          .toDouble()
                     : 0,
                 max: duration.inMilliseconds > 0
                     ? duration.inMilliseconds.toDouble()
@@ -262,9 +260,7 @@ class _BottomControlBar extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             IconButton(
-              icon: Icon(
-                value.volume > 0 ? Icons.volume_up : Icons.volume_off,
-              ),
+              icon: Icon(value.volume > 0 ? Icons.volume_up : Icons.volume_off),
               onPressed: () {
                 controller.setVolume(value.volume > 0 ? 0.0 : 1.0);
               },
@@ -276,10 +272,8 @@ class _BottomControlBar extends StatelessWidget {
   }
 
   String _formatDuration(Duration d) {
-    final String minutes =
-        d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final String seconds =
-        d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final String minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final String seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     if (d.inHours > 0) {
       return '${d.inHours}:$minutes:$seconds';
     }
