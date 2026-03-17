@@ -221,8 +221,8 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                   _volume == 0
                       ? Icons.volume_off
                       : _volume < 0.5
-                          ? Icons.volume_down
-                          : Icons.volume_up,
+                      ? Icons.volume_down
+                      : Icons.volume_up,
                   size: 20,
                 ),
                 SizedBox(
