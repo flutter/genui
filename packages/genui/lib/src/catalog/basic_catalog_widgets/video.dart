@@ -212,15 +212,22 @@ class _CenterPlayButton extends StatelessWidget {
   }
 }
 
-class _BottomControlBar extends StatelessWidget {
+class _BottomControlBar extends StatefulWidget {
   const _BottomControlBar({required this.controller});
 
   final vp.VideoPlayerController controller;
 
   @override
+  State<_BottomControlBar> createState() => _BottomControlBarState();
+}
+
+class _BottomControlBarState extends State<_BottomControlBar> {
+  double _volume = 0.5;
+
+  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<vp.VideoPlayerValue>(
-      valueListenable: controller,
+      valueListenable: widget.controller,
       builder: (context, value, child) {
         final Duration position = value.position;
         final Duration duration = value.duration;
@@ -231,9 +238,9 @@ class _BottomControlBar extends StatelessWidget {
               icon: Icon(value.isPlaying ? Icons.pause : Icons.play_arrow),
               onPressed: () {
                 if (value.isPlaying) {
-                  controller.pause();
+                  widget.controller.pause();
                 } else {
-                  controller.play();
+                  widget.controller.play();
                 }
               },
             ),
@@ -252,7 +259,7 @@ class _BottomControlBar extends StatelessWidget {
                     ? duration.inMilliseconds.toDouble()
                     : 1,
                 onChanged: (v) {
-                  controller.seekTo(Duration(milliseconds: v.toInt()));
+                  widget.controller.seekTo(Duration(milliseconds: v.toInt()));
                 },
               ),
             ),
@@ -260,12 +267,32 @@ class _BottomControlBar extends StatelessWidget {
               _formatDuration(duration),
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            IconButton(
-              icon: Icon(value.volume > 0 ? Icons.volume_up : Icons.volume_off),
-              onPressed: () {
-                controller.setVolume(value.volume > 0 ? 0.0 : 1.0);
-              },
+            const SizedBox(width: 12),
+            Icon(
+              _volume == 0
+                  ? Icons.volume_off
+                  : _volume < 0.5
+                  ? Icons.volume_down
+                  : Icons.volume_up,
+              size: 20,
             ),
+            SizedBox(
+              width: 100,
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  overlayShape: SliderComponentShape.noOverlay,
+                  padding: EdgeInsets.zero,
+                ),
+                child: Slider(
+                  value: _volume,
+                  onChanged: (value) {
+                    setState(() => _volume = value);
+                    widget.controller.setVolume(value);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
           ],
         );
       },

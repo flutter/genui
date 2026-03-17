@@ -63,7 +63,8 @@ final audioPlayer = CatalogItem(
         {
           "id": "root",
           "component": "AudioPlayer",
-          "url": "https://upload.wikimedia.org/wikipedia/commons/d/db/Minuet_in_G_%28Beethoven%29%2C_piano.ogg"
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/db/Minuet_in_G_%28Beethoven%29%2C_piano.ogg",
+          "description": "Beethoven — Minuet in G (public domain)"
         }
       ]
     ''',
