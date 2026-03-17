@@ -12,31 +12,41 @@ import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
 
+final Catalog _catalog = BasicCatalogItems.asCatalog(
+  systemPromptFragments: [
+    '''
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+''',
+    '''
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+''',
+  ],
+);
+
+final PromptBuilder _promptBuilder = PromptBuilder.chat(
+  catalog: _catalog,
+  systemPromptFragments: [
+    'You are a helpful assistant who chats with a user.',
+    PromptFragments.acknowledgeUser(),
+    PromptFragments.requireAtLeastOneSubmitElement(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+    PromptFragments.uiGenerationRestriction(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+  ],
+);
+
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
   ChatSession({required AiClient aiClient}) {
-    // 1. Create Transport
     _transport = AiClientTransport(aiClient: aiClient);
-
-    // 2. Initialize Catalog & Controller
-    final Catalog catalog = BasicCatalogItems.asCatalog(
-      systemPromptFragments: [
-        '''
-When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
-''',
-        '''
-If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
-''',
-      ],
-    );
-    _surfaceController = SurfaceController(catalogs: [catalog]);
-
-    // 3. Initialize Conversation
+    _surfaceController = SurfaceController(catalogs: [_catalog]);
     _conversation = Conversation(
       controller: _surfaceController,
       transport: _transport,
     );
-    _init(catalog);
+    _init(_catalog);
   }
 
   late final AiClientTransport _transport;
@@ -75,20 +85,7 @@ If there is no way to itemize all the options, either use the component '${Basic
       }
     });
 
-    final promptBuilder = PromptBuilder.chat(
-      catalog: catalog,
-      systemPromptFragments: [
-        'You are a helpful assistant who chats with a user.',
-        PromptFragments.acknowledgeUser(),
-        PromptFragments.requireAtLeastOneSubmitElement(
-          prefix: PromptBuilder.defaultImportancePrefix,
-        ),
-        PromptFragments.uiGenerationRestriction(
-          prefix: PromptBuilder.defaultImportancePrefix,
-        ),
-      ],
-    );
-    _transport.addSystemMessage(promptBuilder.systemPromptJoined());
+    _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
 
   void _addSurfaceMessage(String surfaceId) {

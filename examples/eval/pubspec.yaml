@@ -16,6 +16,8 @@ dependencies:
   flutter:
     sdk: flutter
   genui: ^0.7.0
+  simple_chat:
+    path: ../simple_chat
 
 dev_dependencies:
   flutter_test:
