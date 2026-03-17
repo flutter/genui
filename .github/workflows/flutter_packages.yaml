@@ -104,10 +104,10 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c
+      - name: Install dependencies
+        run: dart pub get > /dev/null
       - name: Check copyrights
-        run: |
-          (cd tool/fix_copyright && dart pub upgrade) > /dev/null 2>&1
-          dart tool/fix_copyright/bin/fix_copyright.dart --year 2025
+        run: dart tool/fix_copyright/bin/fix_copyright.dart --year 2025
 
   analyze_and_test:
     needs: matrix
