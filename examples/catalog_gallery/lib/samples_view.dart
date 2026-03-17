@@ -101,6 +101,7 @@ class _SamplesViewState extends State<SamplesView> {
   }
 
   Future<void> _selectSample(File file) async {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     await _messageSubscription?.cancel();
     // Reset surfaces
     setState(() {
@@ -125,8 +126,8 @@ class _SamplesViewState extends State<SamplesView> {
         _surfaceController.handleMessage,
         onError: (Object e) {
           genUiLogger.severe('Error processing message: $e');
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
+          if (!mounted) return;
+          messenger.showSnackBar(
             SnackBar(content: Text('Error processing sample: $e')),
           );
         },
@@ -135,8 +136,8 @@ class _SamplesViewState extends State<SamplesView> {
       genUiLogger.severe(
         'Error parsing sample in file ${file.path}: $exception\n$stackTrace',
       );
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!mounted) return;
+      messenger.showSnackBar(
         SnackBar(content: Text('Error parsing sample: $exception')),
       );
     }
