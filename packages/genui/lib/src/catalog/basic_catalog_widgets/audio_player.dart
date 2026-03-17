@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
@@ -80,6 +82,7 @@ class _AudioPlayerWidget extends StatefulWidget {
 
 class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   late final ap.AudioPlayer _player;
+  late final List<StreamSubscription<dynamic>> _subscriptions;
   bool _isPlaying = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
@@ -90,25 +93,25 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
     super.initState();
     _player = ap.AudioPlayer();
 
-    _player.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() {
-          _isPlaying = state == ap.PlayerState.playing;
-        });
-      }
-    });
-
-    _player.onPositionChanged.listen((position) {
-      if (mounted) {
-        setState(() => _position = position);
-      }
-    });
-
-    _player.onDurationChanged.listen((duration) {
-      if (mounted) {
-        setState(() => _duration = duration);
-      }
-    });
+    _subscriptions = [
+      _player.onPlayerStateChanged.listen((state) {
+        if (mounted) {
+          setState(() {
+            _isPlaying = state == ap.PlayerState.playing;
+          });
+        }
+      }),
+      _player.onPositionChanged.listen((position) {
+        if (mounted) {
+          setState(() => _position = position);
+        }
+      }),
+      _player.onDurationChanged.listen((duration) {
+        if (mounted) {
+          setState(() => _duration = duration);
+        }
+      }),
+    ];
 
     _setSource();
   }
@@ -131,6 +134,9 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
 
   @override
   void dispose() {
+    for (final StreamSubscription<dynamic> sub in _subscriptions) {
+      sub.cancel();
+    }
     _player.dispose();
     super.dispose();
   }
