@@ -103,9 +103,12 @@ jobs:
     if: github.repository == 'flutter/genui'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        with:
+          channel: stable
+          cache: true
       - name: Install dependencies
-        run: dart pub get > /dev/null
+        run: flutter pub get > /dev/null
       - name: Check copyrights
         run: dart tool/fix_copyright/bin/fix_copyright.dart --year 2025
 
