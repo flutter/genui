@@ -6,11 +6,15 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:simple_chat/chat_session.dart';
+import 'package:simple_chat/simple_chat.dart' as sc;
+
+import 'test_infra/ai_client.dart';
 
 void main() {
-  test('Model respects configuration of prompt builder.', () async {
-    // final Catalog catalog = simpleChatCatalog;
-    // final promptBuilder = simpleChatPromptBuilder;
-  });
+  test(
+    'Model respects configuration of prompt builder in simple chat example.',
+    () async {
+      final session = sc.ChatSession(aiClient: sc.DartanticAiClient());
+    },
+  );
 }
