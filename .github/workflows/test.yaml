@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: my-test-env
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
 
     - name: secret
       env:
