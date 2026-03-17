@@ -84,6 +84,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   late final ap.AudioPlayer _player;
   late final List<StreamSubscription<dynamic>> _subscriptions;
   bool _isPlaying = false;
+  bool _hasStarted = false;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   double _volume = 1.0;
@@ -121,6 +122,9 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
     super.didUpdateWidget(oldWidget);
     if (widget.url != oldWidget.url) {
       _player.stop();
+      _position = Duration.zero;
+      _duration = Duration.zero;
+      _hasStarted = false;
       _setSource();
     }
   }
@@ -178,6 +182,12 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                   onPressed: () {
                     if (_isPlaying) {
                       _player.pause();
+                    } else if (!_hasStarted) {
+                      final String? url = widget.url;
+                      if (url != null && url.isNotEmpty) {
+                        _hasStarted = true;
+                        _player.play(ap.UrlSource(url));
+                      }
                     } else {
                       _player.resume();
                     }
