@@ -40,9 +40,37 @@ void main() {
       reason: 'Model should produce surfaces',
     );
 
+    final created = <String>[];
+    final removed = <String>[];
+    final updated = <String>[];
+    var content = 0;
+    var waiting = 0;
+    final errors = <String>[];
+
     for (final ConversationEvent event in tester.events) {
       print(event.runtimeType);
+      switch (event) {
+        case ConversationSurfaceAdded():
+          created.add(event.surfaceId);
+        case ConversationComponentsUpdated():
+          updated.add(event.surfaceId);
+        case ConversationSurfaceRemoved():
+          removed.add(event.surfaceId);
+        case ConversationContentReceived():
+          content++;
+        case ConversationWaiting():
+          waiting++;
+        case ConversationError():
+          errors.add(event.error.toString());
+      }
     }
+
+    print('Created: $created');
+    print('Removed: $removed');
+    print('Updated: $updated');
+    print('Content: $content');
+    print('Waiting: $waiting');
+    print('Errors: $errors');
   });
 }
 
