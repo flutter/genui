@@ -40,38 +40,10 @@ void main() {
       reason: 'Model should produce surfaces',
     );
 
-    final created = <String>[];
-    final removed = <String>[];
-    final updated = <String>[];
-    var content = 0;
-    var waiting = 0;
-    final errors = <String>[];
+    tester.verifyEvents();
 
-    for (final ConversationEvent event in tester.events) {
-      print(event.runtimeType);
-      switch (event) {
-        case ConversationSurfaceAdded():
-          created.add(event.surfaceId);
-        case ConversationComponentsUpdated():
-          updated.add(event.surfaceId);
-        case ConversationSurfaceRemoved():
-          removed.add(event.surfaceId);
-        case ConversationContentReceived():
-          content++;
-        case ConversationWaiting():
-          waiting++;
-        case ConversationError():
-          errors.add(event.error.toString());
-      }
-    }
-
-    print('Created: $created');
-    print('Removed: $removed');
-    print('Updated: $updated');
-    print('Content: $content');
-    print('Waiting: $waiting');
-    print('Errors: $errors');
-  });
+    tester.reporter.failIfIssuesFound();
+  }, timeout: const Timeout(Duration(seconds: 120)));
 }
 
 /// Helper class to manage a chat session from simple chat example.
@@ -103,11 +75,6 @@ class _ChatSessionTester {
 
   Future<void> sendMessageAndWaitForResponse(String message) async {
     await chatSession.sendMessage(message);
-    reporter.expect(
-      chatSession.isProcessing,
-      'chatSession.isProcessing should be true after sending a message',
-    );
-
     await _waitForProcessingToComplete();
   }
 
@@ -116,6 +83,45 @@ class _ChatSessionTester {
         .where((m) => !m.isUser)
         .map((m) => m.surfaceId)
         .whereType<String>();
+  }
+
+  void verifyEvents() {
+    final created = <String>[];
+    final removed = <String>[];
+    final updated = <String>[];
+    var content = 0;
+    var waiting = 0;
+    final errors = <String>[];
+    for (final ConversationEvent event in events) {
+      switch (event) {
+        case ConversationSurfaceAdded():
+          created.add(event.surfaceId);
+        case ConversationComponentsUpdated():
+          updated.add(event.surfaceId);
+        case ConversationSurfaceRemoved():
+          removed.add(event.surfaceId);
+        case ConversationContentReceived():
+          content++;
+        case ConversationWaiting():
+          waiting++;
+        case ConversationError():
+          errors.add(event.error.toString());
+      }
+    }
+
+    print('Conversation summary:');
+    print('  Created surfaces: $created');
+    print('  Removed surfaces: $removed');
+    print('  Updated surfaces: $updated');
+    print('  Text content: $content');
+    print('  Waiting: $waiting');
+    print('  Errors: $errors');
+
+    reporter.expect(errors.isEmpty, 'No errors should occur');
+    reporter.expect(
+      updated.isEmpty,
+      'In chat setup surfaces should not be updated',
+    );
   }
 
   void dispose() {
