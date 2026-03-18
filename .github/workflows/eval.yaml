@@ -10,8 +10,6 @@ on:
   schedule:
     - cron: "0 * * * *" # hourly
 
-# TODO(polina-c): add steps that run tests
-
 jobs:
   eval-job:
     runs-on: ubuntu-latest
