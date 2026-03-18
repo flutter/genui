@@ -42,7 +42,7 @@ class ChatSession extends ChangeNotifier {
   ChatSession({required AiClient aiClient}) {
     _transport = AiClientTransport(aiClient: aiClient);
     _surfaceController = SurfaceController(catalogs: [_catalog]);
-    _conversation = Conversation(
+    conversation = Conversation(
       controller: _surfaceController,
       transport: _transport,
     );
@@ -51,11 +51,11 @@ class ChatSession extends ChangeNotifier {
 
   late final AiClientTransport _transport;
   late final SurfaceController _surfaceController;
-  late final Conversation _conversation;
+  late final Conversation conversation;
 
   SurfaceHost get surfaceController => _surfaceController;
 
-  bool get isProcessing => _conversation.state.value.isWaiting;
+  bool get isProcessing => conversation.state.value.isWaiting;
 
   final List<Message> _messages = [];
   List<Message> get messages => List.unmodifiable(_messages);
@@ -64,10 +64,10 @@ class ChatSession extends ChangeNotifier {
 
   void _init(Catalog catalog) {
     // Listener for Conversation state
-    _conversation.state.addListener(notifyListeners);
+    conversation.state.addListener(notifyListeners);
 
     // Listener for Conversation events
-    _conversation.events.listen((event) {
+    conversation.events.listen((event) {
       switch (event) {
         case ConversationSurfaceAdded(:final surfaceId):
           _addSurfaceMessage(surfaceId);
@@ -119,12 +119,12 @@ class ChatSession extends ChangeNotifier {
     notifyListeners();
 
     final message = ChatMessage.user(text);
-    await _conversation.sendRequest(message);
+    await conversation.sendRequest(message);
   }
 
   @override
   void dispose() {
-    _conversation.dispose();
+    conversation.dispose();
     _surfaceController.dispose();
     _transport.dispose();
     super.dispose();
