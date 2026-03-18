@@ -18,7 +18,9 @@ class IssueReporter {
 
   void failIfIssuesFound() {
     if (_issuesFound > 0) {
-      fail('Found $_issuesFound issues');
+      fail(
+        'Found $_issuesFound issues. Find them above prefixed with "Issue: "',
+      );
     }
   }
 }

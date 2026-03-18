@@ -32,17 +32,15 @@ void main() {
       await tester.sendMessageAndWaitForResponse(message);
     }
 
-    final Iterable<String> surfaceIds = tester.surfaceIds();
-
     expect(
-      surfaceIds.length,
+      tester.surfaceIds().length,
       isPositive,
       reason: 'Model should produce surfaces',
     );
 
     tester.verifyEvents();
 
-    tester.reporter.failIfIssuesFound();
+    tester.failIfIssuesFound();
   }, timeout: const Timeout(Duration(seconds: 120)));
 }
 
@@ -123,6 +121,8 @@ class _ChatSessionTester {
       'In chat setup surfaces should not be updated',
     );
   }
+
+  void failIfIssuesFound() => reporter.failIfIssuesFound();
 
   void dispose() {
     chatSession.dispose();
