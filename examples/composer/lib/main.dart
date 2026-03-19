@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:window_manager/window_manager.dart';
@@ -14,9 +15,11 @@ import 'surface_editor.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await windowManager.ensureInitialized();
-  await windowManager.setSize(const Size(1700, 1000));
-  await windowManager.center();
+  if (!kIsWeb) {
+    await windowManager.ensureInitialized();
+    await windowManager.setSize(const Size(1700, 1000));
+    await windowManager.center();
+  }
 
   Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
