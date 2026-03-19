@@ -1,0 +1,21 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: "Install Flutter"
+description: "Installs Flutter by cloning the repository at a given channel."
+inputs:
+  channel:
+    description: "The Flutter channel (branch) to install, e.g. 'stable' or 'beta'."
+    required: false
+    default: "stable"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Flutter
+      shell: bash
+      run: |
+        cd $HOME
+        git clone https://github.com/flutter/flutter.git --depth 1 -b ${{ inputs.channel }} _flutter
+        echo "$HOME/_flutter/bin" >> $GITHUB_PATH
+        cd $GITHUB_WORKSPACE

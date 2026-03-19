@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: eval
     steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Check that REPO_GEMINI_API_KEY is set and available
         env:
           # REPO_GEMINI_API_KEY is expected to be set in the repository secrets
@@ -27,14 +29,11 @@ jobs:
           fi
           echo "GEMINI_API_KEY has ${#GEMINI_API_KEY} characters"
       - name: Install Flutter
-        uses: subosito/flutter-action@0ca7a949e71ae44c8e688a51c5e7e93b2c87e295
+        uses: ./.github/workflows/internals/install_flutter
         with:
           channel: beta
-          cache: true
       - name: Print Flutter version
         run: flutter --version
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Install dependencies
         working-directory: examples/eval
         run: dart pub get
@@ -49,10 +48,3 @@ jobs:
           path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
-      
-          
-        
-          
-          
-          
-
