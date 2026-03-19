@@ -98,7 +98,17 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     if (url == null || url.isEmpty || !_isVideoSupported) return;
 
     _hasError = false;
-    _controller = vp.VideoPlayerController.networkUrl(Uri.parse(url))
+
+    final Uri uri;
+    try {
+      uri = Uri.parse(url);
+    } on FormatException {
+      genUiLogger.warning('Invalid video URL: $url');
+      _hasError = true;
+      return;
+    }
+
+    _controller = vp.VideoPlayerController.networkUrl(uri)
       ..initialize()
           .then((_) {
             _controller?.setVolume(0.5);
@@ -212,25 +222,19 @@ class _CenterPlayButton extends StatelessWidget {
   }
 }
 
-class _BottomControlBar extends StatefulWidget {
+class _BottomControlBar extends StatelessWidget {
   const _BottomControlBar({required this.controller});
 
   final vp.VideoPlayerController controller;
 
   @override
-  State<_BottomControlBar> createState() => _BottomControlBarState();
-}
-
-class _BottomControlBarState extends State<_BottomControlBar> {
-  double _volume = 0.5;
-
-  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<vp.VideoPlayerValue>(
-      valueListenable: widget.controller,
+      valueListenable: controller,
       builder: (context, value, child) {
         final Duration position = value.position;
         final Duration duration = value.duration;
+        final double volume = value.volume;
 
         return Row(
           children: [
@@ -238,9 +242,9 @@ class _BottomControlBarState extends State<_BottomControlBar> {
               icon: Icon(value.isPlaying ? Icons.pause : Icons.play_arrow),
               onPressed: () {
                 if (value.isPlaying) {
-                  widget.controller.pause();
+                  controller.pause();
                 } else {
-                  widget.controller.play();
+                  controller.play();
                 }
               },
             ),
@@ -259,7 +263,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
                     ? duration.inMilliseconds.toDouble()
                     : 1,
                 onChanged: (v) {
-                  widget.controller.seekTo(Duration(milliseconds: v.toInt()));
+                  controller.seekTo(Duration(milliseconds: v.toInt()));
                 },
               ),
             ),
@@ -269,9 +273,9 @@ class _BottomControlBarState extends State<_BottomControlBar> {
             ),
             const SizedBox(width: 12),
             Icon(
-              _volume == 0
+              volume == 0
                   ? Icons.volume_off
-                  : _volume < 0.5
+                  : volume < 0.5
                   ? Icons.volume_down
                   : Icons.volume_up,
               size: 20,
@@ -284,11 +288,8 @@ class _BottomControlBarState extends State<_BottomControlBar> {
                   padding: EdgeInsets.zero,
                 ),
                 child: Slider(
-                  value: _volume,
-                  onChanged: (value) {
-                    setState(() => _volume = value);
-                    widget.controller.setVolume(value);
-                  },
+                  value: volume,
+                  onChanged: controller.setVolume,
                 ),
               ),
             ),
@@ -299,7 +300,7 @@ class _BottomControlBarState extends State<_BottomControlBar> {
     );
   }
 
-  String _formatDuration(Duration d) {
+  static String _formatDuration(Duration d) {
     final String minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final String seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     if (d.inHours > 0) {
