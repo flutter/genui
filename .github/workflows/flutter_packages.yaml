@@ -131,14 +131,14 @@ jobs:
           distribution: "zulu"
           java-version: "17"
           cache: "gradle"
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@0ca7a949e71ae44c8e688a51c5e7e93b2c87e295
         with:
           channel: ${{ matrix.flutter_version }}
           cache: true
       - name: Print Flutter version
         run: flutter --version
       - name: Cache Pub dependencies
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
