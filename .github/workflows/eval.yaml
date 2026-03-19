@@ -27,6 +27,8 @@ jobs:
           fi
           echo "GEMINI_API_KEY has ${#GEMINI_API_KEY} characters"
       - name: Install Flutter
+        # Before bumping, verify the new version is on the flutter org's
+        # enterprise actions allowlist, or CI will fail with startup_failure.
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: beta
