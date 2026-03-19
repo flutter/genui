@@ -12,40 +12,50 @@ import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
 
+final Catalog _catalog = BasicCatalogItems.asCatalog(
+  systemPromptFragments: [
+    '''
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+''',
+    '''
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+''',
+  ],
+);
+
+final PromptBuilder _promptBuilder = PromptBuilder.chat(
+  catalog: _catalog,
+  systemPromptFragments: [
+    'You are a helpful assistant who chats with a user.',
+    PromptFragments.acknowledgeUser(),
+    PromptFragments.requireAtLeastOneSubmitElement(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+    PromptFragments.uiGenerationRestriction(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+  ],
+);
+
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
   ChatSession({required AiClient aiClient}) {
-    // 1. Create Transport
     _transport = AiClientTransport(aiClient: aiClient);
-
-    // 2. Initialize Catalog & Controller
-    final Catalog catalog = BasicCatalogItems.asCatalog(
-      systemPromptFragments: [
-        '''
-When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
-''',
-        '''
-If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
-''',
-      ],
-    );
-    _surfaceController = SurfaceController(catalogs: [catalog]);
-
-    // 3. Initialize Conversation
-    _conversation = Conversation(
+    _surfaceController = SurfaceController(catalogs: [_catalog]);
+    conversation = Conversation(
       controller: _surfaceController,
       transport: _transport,
     );
-    _init(catalog);
+    _init(_catalog);
   }
 
   late final AiClientTransport _transport;
   late final SurfaceController _surfaceController;
-  late final Conversation _conversation;
+  late final Conversation conversation;
 
   SurfaceHost get surfaceController => _surfaceController;
 
-  bool get isProcessing => _conversation.state.value.isWaiting;
+  bool get isProcessing => conversation.state.value.isWaiting;
 
   final List<Message> _messages = [];
   List<Message> get messages => List.unmodifiable(_messages);
@@ -54,10 +64,10 @@ If there is no way to itemize all the options, either use the component '${Basic
 
   void _init(Catalog catalog) {
     // Listener for Conversation state
-    _conversation.state.addListener(notifyListeners);
+    conversation.state.addListener(notifyListeners);
 
     // Listener for Conversation events
-    _conversation.events.listen((event) {
+    conversation.events.listen((event) {
       switch (event) {
         case ConversationSurfaceAdded(:final surfaceId):
           _addSurfaceMessage(surfaceId);
@@ -75,20 +85,7 @@ If there is no way to itemize all the options, either use the component '${Basic
       }
     });
 
-    final promptBuilder = PromptBuilder.chat(
-      catalog: catalog,
-      systemPromptFragments: [
-        'You are a helpful assistant who chats with a user.',
-        PromptFragments.acknowledgeUser(),
-        PromptFragments.requireAtLeastOneSubmitElement(
-          prefix: PromptBuilder.defaultImportancePrefix,
-        ),
-        PromptFragments.uiGenerationRestriction(
-          prefix: PromptBuilder.defaultImportancePrefix,
-        ),
-      ],
-    );
-    _transport.addSystemMessage(promptBuilder.systemPromptJoined());
+    _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
 
   void _addSurfaceMessage(String surfaceId) {
@@ -122,12 +119,12 @@ If there is no way to itemize all the options, either use the component '${Basic
     notifyListeners();
 
     final message = ChatMessage.user(text);
-    await _conversation.sendRequest(message);
+    await conversation.sendRequest(message);
   }
 
   @override
   void dispose() {
-    _conversation.dispose();
+    conversation.dispose();
     _surfaceController.dispose();
     _transport.dispose();
     super.dispose();
