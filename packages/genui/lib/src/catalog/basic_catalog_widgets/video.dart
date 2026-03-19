@@ -12,6 +12,7 @@ import '../../model/catalog_item.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'format_duration.dart';
 
 final _schema = S.object(
   description: 'A video player.',
@@ -249,7 +250,7 @@ class _BottomControlBar extends StatelessWidget {
               },
             ),
             Text(
-              _formatDuration(position),
+              formatDuration(position),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             Expanded(
@@ -268,7 +269,7 @@ class _BottomControlBar extends StatelessWidget {
               ),
             ),
             Text(
-              _formatDuration(duration),
+              formatDuration(duration),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(width: 12),
@@ -300,12 +301,4 @@ class _BottomControlBar extends StatelessWidget {
     );
   }
 
-  static String _formatDuration(Duration d) {
-    final String minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final String seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    if (d.inHours > 0) {
-      return '${d.inHours}:$minutes:$seconds';
-    }
-    return '$minutes:$seconds';
-  }
 }

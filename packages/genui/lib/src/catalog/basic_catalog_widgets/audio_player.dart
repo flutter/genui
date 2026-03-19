@@ -12,6 +12,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'format_duration.dart';
 
 final _schema = S.object(
   description: 'An audio player component that plays audio from a given URL.',
@@ -145,15 +146,6 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
     super.dispose();
   }
 
-  String _formatDuration(Duration d) {
-    final String minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final String seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    if (d.inHours > 0) {
-      return '${d.inHours}:$minutes:$seconds';
-    }
-    return '$minutes:$seconds';
-  }
-
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -191,7 +183,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                       : null,
                 ),
                 Text(
-                  _formatDuration(_position),
+                  formatDuration(_position),
                   style: theme.textTheme.bodySmall,
                 ),
                 Expanded(
@@ -210,7 +202,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                   ),
                 ),
                 Text(
-                  _formatDuration(_duration),
+                  formatDuration(_duration),
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(width: 12),
