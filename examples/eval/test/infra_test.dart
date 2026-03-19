@@ -20,9 +20,11 @@ void main() {
     final aiClient = DartanticAiClient();
     addTearDown(aiClient.dispose);
 
-    final String result = await aiClient
-        .sendStream('Please, tell me a joke.', history: [])
-        .first;
+    final String result =
+        (await aiClient
+                .sendStream('Please, tell me a joke.', history: [])
+                .toList())
+            .join(' ');
     expect(result, isNotEmpty);
     print('Result: $result');
   });
