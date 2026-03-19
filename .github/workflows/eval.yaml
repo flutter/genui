@@ -5,7 +5,7 @@
 name: eval-workflow
 
 on:
-  push: 
+  push:
     # Workflow runs on push to any branch.
   schedule:
     - cron: "0 * * * *" # hourly
@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: eval
     steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Check that REPO_GEMINI_API_KEY is set and available
         env:
           # REPO_GEMINI_API_KEY is expected to be set in the repository secrets
@@ -29,11 +27,14 @@ jobs:
           fi
           echo "GEMINI_API_KEY has ${#GEMINI_API_KEY} characters"
       - name: Install Flutter
-        uses: ./.github/workflows/internals/install_flutter
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: beta
+          cache: true
       - name: Print Flutter version
         run: flutter --version
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Install dependencies
         working-directory: examples/eval
         run: dart pub get

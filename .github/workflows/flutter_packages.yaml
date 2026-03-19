@@ -103,9 +103,10 @@ jobs:
     if: github.repository == 'flutter/genui'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: ./.github/workflows/internals/install_flutter
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: stable
+          cache: true
       - name: Install dependencies
         run: flutter pub get > /dev/null
       - name: Check copyrights
@@ -130,9 +131,10 @@ jobs:
           distribution: "zulu"
           java-version: "17"
           cache: "gradle"
-      - uses: ./.github/workflows/internals/install_flutter
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: ${{ matrix.flutter_version }}
+          cache: true
       - name: Print Flutter version
         run: flutter --version
       - name: Cache Pub dependencies
