@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       # Before bumping, verify the new version is on the flutter org's
       # enterprise actions allowlist, or CI will fail with startup_failure.
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@0ca7a949e71ae44c8e688a51c5e7e93b2c87e295
         with:
           channel: stable
           cache: true
@@ -135,7 +135,7 @@ jobs:
           cache: "gradle"
       # Before bumping, verify the new version is on the flutter org's
       # enterprise actions allowlist, or CI will fail with startup_failure.
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@0ca7a949e71ae44c8e688a51c5e7e93b2c87e295
         with:
           channel: ${{ matrix.flutter_version }}
           cache: true
