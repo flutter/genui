@@ -288,10 +288,7 @@ class _BottomControlBar extends StatelessWidget {
                   overlayShape: SliderComponentShape.noOverlay,
                   padding: EdgeInsets.zero,
                 ),
-                child: Slider(
-                  value: volume,
-                  onChanged: controller.setVolume,
-                ),
+                child: Slider(value: volume, onChanged: controller.setVolume),
               ),
             ),
             const SizedBox(width: 8),
@@ -300,5 +297,4 @@ class _BottomControlBar extends StatelessWidget {
       },
     );
   }
-
 }
