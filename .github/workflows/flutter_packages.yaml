@@ -103,6 +103,8 @@ jobs:
     if: github.repository == 'flutter/genui'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      # Before bumping, verify the new version is on the flutter org's
+      # enterprise actions allowlist, or CI will fail with startup_failure.
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: stable
@@ -131,6 +133,8 @@ jobs:
           distribution: "zulu"
           java-version: "17"
           cache: "gradle"
+      # Before bumping, verify the new version is on the flutter org's
+      # enterprise actions allowlist, or CI will fail with startup_failure.
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: ${{ matrix.flutter_version }}
