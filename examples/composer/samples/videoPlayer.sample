@@ -1,0 +1,8 @@
+---
+description: A video player embedded in a card with descriptive text about the film.
+name: videoPlayer
+prompt: |
+  Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a Card containing a heading, a short description, and a Video component playing a public domain animated short.
+---
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Card","child":"contentColumn"},{"id":"contentColumn","component":"Column","children":["heading","description","player"]},{"id":"heading","component":"Text","text":"Big Buck Bunny","variant":"h4"},{"id":"description","component":"Text","text":"Big Buck Bunny is a short, open-source animated film created by the Blender Institute. It follows a giant rabbit who takes revenge on three bullying rodents. The film was made entirely with free software and is released under a Creative Commons license.","variant":"body"},{"id":"player","component":"Video","url":"https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4"}]}}
