@@ -13,7 +13,8 @@ import 'assertions.dart';
 import 'platform.dart';
 import 'print.dart';
 
-export 'dart:ui' show Brightness;
+import '../dart_ui/window.dart';
+import '../primitives/basics.dart';
 
 export 'print.dart' show DebugPrintCallback;
 
@@ -126,7 +127,7 @@ String debugFormatDouble(double? value) {
 ///
 ///  * [WidgetsApp], which uses the [debugBrightnessOverride] setting in debug mode
 ///    to construct a [MediaQueryData].
-ui.Brightness? debugBrightnessOverride;
+Brightness? debugBrightnessOverride;
 
 /// The address for the active DevTools server used for debugging this
 /// application.
@@ -134,42 +135,3 @@ String? activeDevToolsServerAddress;
 
 /// The uri for the connected vm service protocol.
 String? connectedVmServiceUri;
-
-/// If memory allocation tracking is enabled, dispatch Flutter object creation.
-///
-/// This method is not member of FlutterMemoryAllocations, because
-/// [FlutterMemoryAllocations] should not increase size of the Flutter application
-/// if memory allocations are disabled.
-///
-/// The [flutterLibrary] argument is the name of the Flutter library where
-/// the object is declared. For example, 'widgets' for widgets.dart.
-///
-/// Should be called only from within an assert and only inside Flutter Framework.
-///
-/// Returns true to make it easier to be wrapped into `assert`.
-bool debugMaybeDispatchCreated(
-  String flutterLibrary,
-  String className,
-  Object object,
-) {
-  if (kFlutterMemoryAllocationsEnabled) {
-    FlutterMemoryAllocations.instance.dispatchObjectCreated(
-      library: 'package:flutter/$flutterLibrary.dart',
-      className: className,
-      object: object,
-    );
-  }
-  return true;
-}
-
-/// If memory allocations tracking is enabled, dispatch object disposal.
-///
-/// Should be called only from within an assert.
-///
-/// Returns true to make it easier to be wrapped into `assert`.
-bool debugMaybeDispatchDisposed(Object object) {
-  if (kFlutterMemoryAllocationsEnabled) {
-    FlutterMemoryAllocations.instance.dispatchObjectDisposed(object: object);
-  }
-  return true;
-}
