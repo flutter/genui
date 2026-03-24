@@ -11,6 +11,7 @@ import '_timeline_io.dart'
     if (dart.library.js_interop) '_timeline_web.dart'
     as impl;
 import '../primitives/constants.dart';
+import 'constants.dart';
 
 /// Measures how long blocks of code take to run.
 ///

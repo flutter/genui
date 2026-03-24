@@ -11,6 +11,7 @@ import '_platform_io.dart'
     as platform;
 import 'assertions.dart';
 import '../primitives/constants.dart';
+import 'constants.dart';
 
 /// The [TargetPlatform] that matches the platform on which the framework is
 /// currently executing.

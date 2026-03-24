@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 
 import 'basic_types.dart';
 import '../primitives/constants.dart';
+import 'constants.dart';
 import 'diagnostics.dart';
 import 'error_dumper.dart';
 import 'stack_frame.dart';

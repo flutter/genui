@@ -5,6 +5,7 @@
 import 'package:meta/meta.dart';
 
 import '../primitives/constants.dart';
+import 'constants.dart';
 import 'object.dart';
 
 /// A object representation of a frame from a stack trace.

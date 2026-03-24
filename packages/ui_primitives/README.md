@@ -1,3 +1,3 @@
 # UI Primitives
 
-Very experimental package.
+Highly experimental package.

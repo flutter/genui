@@ -15,6 +15,7 @@ import 'package:meta/meta.dart';
 
 import 'assertions.dart';
 import '../primitives/constants.dart';
+import 'constants.dart';
 import 'debug.dart';
 import 'object.dart';
 
