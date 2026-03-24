@@ -10,9 +10,13 @@ library;
 
 import 'dart:collection';
 import 'dart:math' as math;
+import 'dart:ui' show clampDouble;
 
 import 'package:meta/meta.dart';
+
 import 'assertions.dart';
+import 'constants.dart';
+import 'debug.dart';
 import 'object.dart';
 
 // Examples can assume:
@@ -724,23 +728,22 @@ final TextTreeConfiguration singleLineTextConfiguration = TextTreeConfiguration(
 ///
 ///  * [DiagnosticsTreeStyle.errorProperty], uses this style for ASCII art
 ///    display.
-final TextTreeConfiguration errorPropertyTextConfiguration =
-    TextTreeConfiguration(
-      propertySeparator: ', ',
-      beforeProperties: '(',
-      afterProperties: ')',
-      prefixLineOne: '',
-      prefixOtherLines: '',
-      prefixLastChildLineOne: '',
-      lineBreakProperties: false,
-      addBlankLineIfNoChildren: false,
-      showChildren: false,
-      propertyPrefixIfChildren: '  ',
-      propertyPrefixNoChildren: '  ',
-      linkCharacter: '',
-      prefixOtherLinesRootNode: '',
-      isNameOnOwnLine: true,
-    );
+final TextTreeConfiguration errorPropertyTextConfiguration = TextTreeConfiguration(
+  propertySeparator: ', ',
+  beforeProperties: '(',
+  afterProperties: ')',
+  prefixLineOne: '',
+  prefixOtherLines: '',
+  prefixLastChildLineOne: '',
+  lineBreakProperties: false,
+  addBlankLineIfNoChildren: false,
+  showChildren: false,
+  propertyPrefixIfChildren: '  ',
+  propertyPrefixNoChildren: '  ',
+  linkCharacter: '',
+  prefixOtherLinesRootNode: '',
+  isNameOnOwnLine: true,
+);
 
 /// Render a node on multiple lines omitting children.
 ///
@@ -800,10 +803,7 @@ class _PrefixedStringBuilder {
   }
 
   String? _nextPrefixOtherLines;
-  void incrementPrefixOtherLines(
-    String suffix, {
-    required bool updateCurrentLine,
-  }) {
+  void incrementPrefixOtherLines(String suffix, {required bool updateCurrentLine}) {
     if (_currentLine.isEmpty || updateCurrentLine) {
       _prefixOtherLines = prefixOtherLines! + suffix;
       _nextPrefixOtherLines = null;
@@ -841,11 +841,7 @@ class _PrefixedStringBuilder {
 
     if (_wrappableRanges.isEmpty) {
       // Fast path. There were no wrappable spans of text.
-      _writeLine(
-        text,
-        includeLineBreak: addTrailingLineBreak,
-        firstLine: firstLine,
-      );
+      _writeLine(text, includeLineBreak: addTrailingLineBreak, firstLine: firstLine);
       return;
     }
     final Iterable<String> lines = _wordWrapLine(
@@ -859,11 +855,7 @@ class _PrefixedStringBuilder {
     final int length = lines.length;
     for (final line in lines) {
       i++;
-      _writeLine(
-        line,
-        includeLineBreak: addTrailingLineBreak || i < length,
-        firstLine: firstLine,
-      );
+      _writeLine(line, includeLineBreak: addTrailingLineBreak || i < length, firstLine: firstLine);
     }
     _wrappableRanges.clear();
   }
@@ -924,19 +916,15 @@ class _PrefixedStringBuilder {
           }
           lastWordStart = index;
           mode = _WordWrapParseMode.inWord;
-        case _WordWrapParseMode
-            .inWord: // looking for a good break point. Treat all text
-          while ((index < message.length) &&
-              (message[index] != ' ' || noWrap(index))) {
+        case _WordWrapParseMode.inWord: // looking for a good break point. Treat all text
+          while ((index < message.length) && (message[index] != ' ' || noWrap(index))) {
             index += 1;
           }
           mode = _WordWrapParseMode.atBreak;
         case _WordWrapParseMode.atBreak: // at start of break point
-          if ((index - startForLengthCalculations > width) ||
-              (index == message.length)) {
+          if ((index - startForLengthCalculations > width) || (index == message.length)) {
             // we are over the width line, so break
-            if ((index - startForLengthCalculations <= width) ||
-                (lastWordEnd == null)) {
+            if ((index - startForLengthCalculations <= width) || (lastWordEnd == null)) {
               // we should use this point, because either it doesn't actually go over the
               // end (last line), or it does, but there was no earlier break point
               lastWordEnd = index;
@@ -1018,11 +1006,7 @@ class _PrefixedStringBuilder {
     }
   }
 
-  void _writeLine(
-    String line, {
-    required bool includeLineBreak,
-    required bool firstLine,
-  }) {
+  void _writeLine(String line, {required bool includeLineBreak, required bool firstLine}) {
     line = '${_getCurrentPrefix(firstLine)}$line';
     _buffer.write(line.trimRight());
     if (includeLineBreak) {
@@ -1058,8 +1042,7 @@ class _PrefixedStringBuilder {
   /// Finishes the current line with a stretched version of text.
   void writeStretched(String text, int targetLineLength) {
     write(text);
-    final int currentLineLength =
-        _currentLine.length + _getCurrentPrefix(_buffer.isEmpty)!.length;
+    final int currentLineLength = _currentLine.length + _getCurrentPrefix(_buffer.isEmpty)!.length;
     assert(_currentLine.length > 0);
     final int targetLength = targetLineLength - currentLineLength;
     if (targetLength > 0) {
@@ -1136,8 +1119,7 @@ class TextTreeRenderer {
     TextTreeConfiguration textStyle,
   ) {
     final DiagnosticsTreeStyle? childStyle = child.style;
-    return (_isSingleLine(childStyle) ||
-            childStyle == DiagnosticsTreeStyle.errorProperty)
+    return (_isSingleLine(childStyle) || childStyle == DiagnosticsTreeStyle.errorProperty)
         ? textStyle
         : child.textTreeConfiguration;
   }
@@ -1168,8 +1150,7 @@ class TextTreeRenderer {
     TextTreeConfiguration? parentConfiguration,
   }) {
     final bool isSingleLine =
-        _isSingleLine(node.style) &&
-        parentConfiguration?.lineBreakProperties != true;
+        _isSingleLine(node.style) && parentConfiguration?.lineBreakProperties != true;
     prefixOtherLines ??= prefixLineOne;
     if (node.linePrefix != null) {
       prefixLineOne += node.linePrefix!;
@@ -1224,17 +1205,12 @@ class TextTreeRenderer {
     final builder = _PrefixedStringBuilder(
       prefixLineOne: prefixLineOne,
       prefixOtherLines: prefixOtherLines,
-      wrapWidth: math.max(
-        _wrapWidth,
-        prefixOtherLines.length + _wrapWidthProperties,
-      ),
+      wrapWidth: math.max(_wrapWidth, prefixOtherLines.length + _wrapWidthProperties),
     );
 
     List<DiagnosticsNode> children = node.getChildren();
 
-    String description = node.toDescription(
-      parentConfiguration: parentConfiguration,
-    );
+    String description = node.toDescription(parentConfiguration: parentConfiguration);
     if (config.beforeName.isNotEmpty) {
       builder.write(config.beforeName);
     }
@@ -1263,18 +1239,14 @@ class TextTreeRenderer {
           allowWrap: wrapName,
         );
       }
-      if (!isSingleLine &&
-          builder.requiresMultipleLines &&
-          !builder.isCurrentLineEmpty) {
+      if (!isSingleLine && builder.requiresMultipleLines && !builder.isCurrentLineEmpty) {
         // Make sure there is a break between the current line and next one if
         // there is not one already.
         builder.write('\n');
       }
       if (includeName) {
         builder.incrementPrefixOtherLines(
-          children.isEmpty
-              ? config.propertyPrefixNoChildren
-              : config.propertyPrefixIfChildren,
+          children.isEmpty ? config.propertyPrefixNoChildren : config.propertyPrefixIfChildren,
           updateCurrentLine: true,
         );
       }
@@ -1286,9 +1258,7 @@ class TextTreeRenderer {
 
       if (!includeName) {
         builder.incrementPrefixOtherLines(
-          children.isEmpty
-              ? config.propertyPrefixNoChildren
-              : config.propertyPrefixIfChildren,
+          children.isEmpty ? config.propertyPrefixNoChildren : config.propertyPrefixIfChildren,
           updateCurrentLine: false,
         );
       }
@@ -1297,15 +1267,13 @@ class TextTreeRenderer {
       builder.writeStretched(config.suffixLineOne, builder.wrapWidth!);
     }
 
-    final Iterable<DiagnosticsNode> propertiesIterable = node
-        .getProperties()
-        .where((DiagnosticsNode n) => !n.isFiltered(_minLevel));
+    final Iterable<DiagnosticsNode> propertiesIterable = node.getProperties().where(
+      (DiagnosticsNode n) => !n.isFiltered(_minLevel),
+    );
     List<DiagnosticsNode> properties;
     if (_maxDescendentsTruncatableNode >= 0 && node.allowTruncate) {
       if (propertiesIterable.length < _maxDescendentsTruncatableNode) {
-        properties = propertiesIterable
-            .take(_maxDescendentsTruncatableNode)
-            .toList();
+        properties = propertiesIterable.take(_maxDescendentsTruncatableNode).toList();
         properties.add(DiagnosticsNode.message('...'));
       } else {
         properties = propertiesIterable.toList();
@@ -1321,9 +1289,7 @@ class TextTreeRenderer {
     // If the node does not show a separator and there is no description then
     // we should not place a separator between the name and the value.
     // Essentially in this case the properties are treated a bit like a value.
-    if ((properties.isNotEmpty ||
-            children.isNotEmpty ||
-            node.emptyBodyDescription != null) &&
+    if ((properties.isNotEmpty || children.isNotEmpty || node.emptyBodyDescription != null) &&
         (node.showSeparator || description.isNotEmpty)) {
       builder.write(config.afterDescriptionIfBody);
     }
@@ -1336,10 +1302,7 @@ class TextTreeRenderer {
       builder.write(config.beforeProperties);
     }
 
-    builder.incrementPrefixOtherLines(
-      config.bodyIndent,
-      updateCurrentLine: false,
-    );
+    builder.incrementPrefixOtherLines(config.bodyIndent, updateCurrentLine: false);
 
     if (node.emptyBodyDescription != null &&
         properties.isEmpty &&
@@ -1357,8 +1320,7 @@ class TextTreeRenderer {
         builder.write(config.propertySeparator);
       }
 
-      final TextTreeConfiguration propertyStyle =
-          property.textTreeConfiguration!;
+      final TextTreeConfiguration propertyStyle = property.textTreeConfiguration!;
       if (_isSingleLine(property.style)) {
         // We have to treat single line properties slightly differently to deal
         // with cases where a single line properties output may not have single
@@ -1366,8 +1328,7 @@ class TextTreeRenderer {
         final String propertyRender = render(
           property,
           prefixLineOne: propertyStyle.prefixLineOne,
-          prefixOtherLines:
-              '${propertyStyle.childLinkSpace}${propertyStyle.prefixOtherLines}',
+          prefixOtherLines: '${propertyStyle.childLinkSpace}${propertyStyle.prefixOtherLines}',
           parentConfiguration: config,
         );
         final List<String> propertyLines = propertyRender.split('\n');
@@ -1382,8 +1343,7 @@ class TextTreeRenderer {
       } else {
         final String propertyRender = render(
           property,
-          prefixLineOne:
-              '${builder.prefixOtherLines}${propertyStyle.prefixLineOne}',
+          prefixLineOne: '${builder.prefixOtherLines}${propertyStyle.prefixLineOne}',
           prefixOtherLines:
               '${builder.prefixOtherLines}${propertyStyle.childLinkSpace}${propertyStyle.prefixOtherLines}',
           parentConfiguration: config,
@@ -1413,10 +1373,7 @@ class TextTreeRenderer {
     if (children.isNotEmpty && config.showChildren) {
       if (config.isBlankLineBetweenPropertiesAndChildren &&
           properties.isNotEmpty &&
-          children
-              .first
-              .textTreeConfiguration!
-              .isBlankLineBetweenPropertiesAndChildren) {
+          children.first.textTreeConfiguration!.isBlankLineBetweenPropertiesAndChildren) {
         builder.write(config.lineBreak);
       }
 
@@ -1424,13 +1381,9 @@ class TextTreeRenderer {
 
       for (var i = 0; i < children.length; i++) {
         final DiagnosticsNode child = children[i];
-        final TextTreeConfiguration childConfig = _childTextConfiguration(
-          child,
-          config,
-        )!;
+        final TextTreeConfiguration childConfig = _childTextConfiguration(child, config)!;
         if (i == children.length - 1) {
-          final lastChildPrefixLineOne =
-              '$prefixChildrenRaw${childConfig.prefixLastChildLineOne}';
+          final lastChildPrefixLineOne = '$prefixChildrenRaw${childConfig.prefixLastChildLineOne}';
           final childPrefixOtherLines =
               '$prefixChildrenRaw${childConfig.childLinkSpace}${childConfig.prefixOtherLines}';
           builder.writeRawLines(
@@ -1447,10 +1400,7 @@ class TextTreeRenderer {
             if (childConfig.mandatoryFooter.isNotEmpty) {
               builder.writeStretched(
                 childConfig.mandatoryFooter,
-                math.max(
-                  builder.wrapWidth!,
-                  _wrapWidthProperties + childPrefixOtherLines.length,
-                ),
+                math.max(builder.wrapWidth!, _wrapWidthProperties + childPrefixOtherLines.length),
               );
             }
             builder.write(config.lineBreak);
@@ -1460,8 +1410,7 @@ class TextTreeRenderer {
             children[i + 1],
             config,
           )!;
-          final childPrefixLineOne =
-              '$prefixChildrenRaw${childConfig.prefixLineOne}';
+          final childPrefixLineOne = '$prefixChildrenRaw${childConfig.prefixLineOne}';
           final childPrefixOtherLines =
               '$prefixChildrenRaw${nextChildStyle.linkCharacter}${childConfig.prefixOtherLines}';
           builder.writeRawLines(
@@ -1478,10 +1427,7 @@ class TextTreeRenderer {
             if (childConfig.mandatoryFooter.isNotEmpty) {
               builder.writeStretched(
                 childConfig.mandatoryFooter,
-                math.max(
-                  builder.wrapWidth!,
-                  _wrapWidthProperties + childPrefixOtherLines.length,
-                ),
+                math.max(builder.wrapWidth!, _wrapWidthProperties + childPrefixOtherLines.length),
               );
             }
             builder.write(config.lineBreak);
@@ -1505,8 +1451,7 @@ typedef _JsonDiagnosticsNode = Map<String, Object?>;
 ///
 /// Using a stack is required to process the widget tree iteratively instead of
 /// recursively.
-typedef _NodesToJsonifyStack =
-    ListQueue<(DiagnosticsNode, void Function(_JsonDiagnosticsNode))>;
+typedef _NodesToJsonifyStack = ListQueue<(DiagnosticsNode, void Function(_JsonDiagnosticsNode))>;
 
 /// Defines diagnostics data for a [value].
 ///
@@ -1588,8 +1533,7 @@ abstract class DiagnosticsNode {
   ///
   /// If `minLevel` is [DiagnosticLevel.hidden] no diagnostics will be filtered.
   /// If `minLevel` is [DiagnosticLevel.off] all diagnostics will be filtered.
-  bool isFiltered(DiagnosticLevel minLevel) =>
-      kReleaseMode || level.index < minLevel.index;
+  bool isFiltered(DiagnosticLevel minLevel) => kReleaseMode || level.index < minLevel.index;
 
   /// Priority level of the diagnostic used to control which diagnostics should
   /// be shown and filtered.
@@ -1600,8 +1544,7 @@ abstract class DiagnosticsNode {
   /// the value returned here but other factors also influence it. For example,
   /// whether an exception is thrown computing a property value
   /// [DiagnosticLevel.error] is returned.
-  DiagnosticLevel get level =>
-      kReleaseMode ? DiagnosticLevel.hidden : DiagnosticLevel.info;
+  DiagnosticLevel get level => kReleaseMode ? DiagnosticLevel.hidden : DiagnosticLevel.info;
 
   /// Whether the name of the property should be shown when showing the default
   /// view of the tree.
@@ -1722,11 +1665,7 @@ abstract class DiagnosticsNode {
             delegate,
           ),
         if (delegate.subtreeDepth > 0)
-          'children': toJsonList(
-            delegate.filterChildren(getChildren(), this),
-            this,
-            delegate,
-          ),
+          'children': toJsonList(delegate.filterChildren(getChildren(), this), this, delegate),
       };
       return true;
     }());
@@ -1742,11 +1681,8 @@ abstract class DiagnosticsNode {
   ///
   /// See https://github.com/flutter/devtools/issues/8553 for details about this
   /// iterative approach.
-  Map<String, Object?> toJsonMapIterative(
-    DiagnosticsSerializationDelegate delegate,
-  ) {
-    final childrenToJsonify =
-        ListQueue<(DiagnosticsNode, void Function(_JsonDiagnosticsNode))>();
+  Map<String, Object?> toJsonMapIterative(DiagnosticsSerializationDelegate delegate) {
+    final childrenToJsonify = ListQueue<(DiagnosticsNode, void Function(_JsonDiagnosticsNode))>();
     var result = <String, Object?>{};
     assert(() {
       result = _toJson(delegate, childrenToJsonify: childrenToJsonify);
@@ -1776,9 +1712,7 @@ abstract class DiagnosticsNode {
       nodes.add(DiagnosticsNode.message('...'));
       truncated = true;
     }
-    final List<_JsonDiagnosticsNode> json = nodes.map<_JsonDiagnosticsNode>((
-      DiagnosticsNode node,
-    ) {
+    final List<_JsonDiagnosticsNode> json = nodes.map<_JsonDiagnosticsNode>((DiagnosticsNode node) {
       return node.toJsonMap(delegate.delegateForNode(node));
     }).toList();
     if (truncated) {
@@ -1808,14 +1742,9 @@ abstract class DiagnosticsNode {
     assert(style != null);
     assert(() {
       if (_isSingleLine(style)) {
-        result = toStringDeep(
-          parentConfiguration: parentConfiguration,
-          minLevel: minLevel,
-        );
+        result = toStringDeep(parentConfiguration: parentConfiguration, minLevel: minLevel);
       } else {
-        final String description = toDescription(
-          parentConfiguration: parentConfiguration,
-        );
+        final String description = toDescription(parentConfiguration: parentConfiguration);
 
         if (name == null || name!.isEmpty || !showName) {
           result = description;
@@ -1886,13 +1815,12 @@ abstract class DiagnosticsNode {
   }) {
     var result = '';
     assert(() {
-      result = TextTreeRenderer(minLevel: minLevel, wrapWidth: wrapWidth)
-          .render(
-            this,
-            prefixLineOne: prefixLineOne,
-            prefixOtherLines: prefixOtherLines,
-            parentConfiguration: parentConfiguration,
-          );
+      result = TextTreeRenderer(minLevel: minLevel, wrapWidth: wrapWidth).render(
+        this,
+        prefixLineOne: prefixLineOne,
+        prefixOtherLines: prefixOtherLines,
+        parentConfiguration: parentConfiguration,
+      );
       return true;
     }());
     return result;
@@ -1903,10 +1831,7 @@ abstract class DiagnosticsNode {
     required DiagnosticsSerializationDelegate delegate,
   }) {
     while (toJsonify.isNotEmpty) {
-      final (
-        DiagnosticsNode nextNode,
-        void Function(_JsonDiagnosticsNode) callback,
-      ) = toJsonify
+      final (DiagnosticsNode nextNode, void Function(_JsonDiagnosticsNode) callback) = toJsonify
           .removeFirst();
       final _JsonDiagnosticsNode nodeAsJson = nextNode._toJson(
         delegate,
@@ -1921,16 +1846,12 @@ abstract class DiagnosticsNode {
     required _NodesToJsonifyStack childrenToJsonify,
   }) {
     final childrenJsonList = <_JsonDiagnosticsNode>[];
-    final bool includeChildren =
-        getChildren().isNotEmpty && delegate.subtreeDepth > 0;
+    final bool includeChildren = getChildren().isNotEmpty && delegate.subtreeDepth > 0;
 
     // Collect the children nodes to convert to JSON later.
     var truncated = false;
     if (includeChildren) {
-      List<DiagnosticsNode> childrenNodes = delegate.filterChildren(
-        getChildren(),
-        this,
-      );
+      List<DiagnosticsNode> childrenNodes = delegate.filterChildren(getChildren(), this);
       final int originalNodeCount = childrenNodes.length;
       childrenNodes = delegate.truncateNodesList(childrenNodes, this);
       if (childrenNodes.length != originalNodeCount) {
@@ -1952,8 +1873,7 @@ abstract class DiagnosticsNode {
         ? 'RootWidget'
         : description.split('-').first;
     final bool shouldIndent =
-        style != DiagnosticsTreeStyle.flat &&
-        style != DiagnosticsTreeStyle.error;
+        style != DiagnosticsTreeStyle.flat && style != DiagnosticsTreeStyle.error;
 
     return <String, Object?>{
       'description': description,
@@ -2046,9 +1966,7 @@ class StringProperty extends DiagnosticsProperty<String> {
   @override
   String valueToString({TextTreeConfiguration? parentConfiguration}) {
     String? text = _description ?? value;
-    if (parentConfiguration != null &&
-        !parentConfiguration.lineBreakProperties &&
-        text != null) {
+    if (parentConfiguration != null && !parentConfiguration.lineBreakProperties && text != null) {
       // Escape linebreaks in multiline strings to avoid confusing output when
       // the parent of this node is trying to display all properties on the same
       // line.
@@ -2269,13 +2187,7 @@ class FlagProperty extends DiagnosticsProperty<bool> {
     Object? defaultValue,
     DiagnosticLevel level = DiagnosticLevel.info,
   }) : assert(ifTrue != null || ifFalse != null),
-       super(
-         name,
-         value,
-         showName: showName,
-         defaultValue: defaultValue,
-         level: level,
-       );
+       super(name, value, showName: showName, defaultValue: defaultValue, level: level);
 
   @override
   Map<String, Object?> toJsonMap(DiagnosticsSerializationDelegate delegate) {
@@ -2377,8 +2289,7 @@ class IterableProperty<T> extends DiagnosticsProperty<Iterable<T>> {
       }
     });
 
-    if (parentConfiguration != null &&
-        !parentConfiguration.lineBreakProperties) {
+    if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
       // Always display the value as a single line and enclose the iterable
       // value in brackets to avoid ambiguity.
       return '[${formattedValues.join(', ')}]';
@@ -2409,9 +2320,7 @@ class IterableProperty<T> extends DiagnosticsProperty<Iterable<T>> {
   Map<String, Object?> toJsonMap(DiagnosticsSerializationDelegate delegate) {
     final Map<String, Object?> json = super.toJsonMap(delegate);
     if (value != null) {
-      json['values'] = value!
-          .map<String>((T value) => value.toString())
-          .toList();
+      json['values'] = value!.map<String>((T value) => value.toString()).toList();
     }
     return json;
   }
@@ -2434,12 +2343,7 @@ class EnumProperty<T extends Enum?> extends DiagnosticsProperty<T> {
   /// Create a diagnostics property that displays an enum.
   ///
   /// The [level] argument must also not be null.
-  EnumProperty(
-    String super.name,
-    super.value, {
-    super.defaultValue,
-    super.level,
-  });
+  EnumProperty(String super.name, super.value, {super.defaultValue, super.level});
 
   @override
   String valueToString({TextTreeConfiguration? parentConfiguration}) {
@@ -2515,8 +2419,7 @@ class ObjectFlagProperty<T> extends DiagnosticsProperty<T> {
 
   @override
   bool get showName {
-    if ((value != null && ifPresent == null) ||
-        (value == null && ifNull == null)) {
+    if ((value != null && ifPresent == null) || (value == null && ifNull == null)) {
       // We are missing a description for the flag value so we need to show the
       // flag name. The property will have DiagnosticLevel.hidden for this case
       // so users will not see this property in this case unless they are
@@ -2597,8 +2500,7 @@ class FlagsSummary<T> extends DiagnosticsProperty<Map<String, T?>> {
     }
 
     final Iterable<String> formattedValues = _formattedValues();
-    if (parentConfiguration != null &&
-        !parentConfiguration.lineBreakProperties) {
+    if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
       // Always display the value as a single line and enclose the iterable
       // value in brackets to avoid ambiguity.
       return '[${formattedValues.join(', ')}]';
@@ -2930,8 +2832,7 @@ class DiagnosticsProperty<T> extends DiagnosticsNode {
   /// Whether to consider the property's value interesting. When a property is
   /// uninteresting, its [level] is downgraded to [DiagnosticLevel.fine]
   /// regardless of the value provided as the constructor's `level` argument.
-  bool get isInteresting =>
-      defaultValue == kNoDefaultValue || value != defaultValue;
+  bool get isInteresting => defaultValue == kNoDefaultValue || value != defaultValue;
 
   final DiagnosticLevel _defaultLevel;
 
@@ -3038,9 +2939,8 @@ class DiagnosticableNode<T extends Diagnosticable> extends DiagnosticsNode {
       (kReleaseMode || kProfileMode) ? '' : builder!.emptyBodyDescription;
 
   @override
-  List<DiagnosticsNode> getProperties() => (kReleaseMode || kProfileMode)
-      ? const <DiagnosticsNode>[]
-      : builder!.properties;
+  List<DiagnosticsNode> getProperties() =>
+      (kReleaseMode || kProfileMode) ? const <DiagnosticsNode>[] : builder!.properties;
 
   @override
   List<DiagnosticsNode> getChildren() {
@@ -3061,11 +2961,7 @@ class DiagnosticableNode<T extends Diagnosticable> extends DiagnosticsNode {
 /// [DiagnosticsNode] for an instance of [DiagnosticableTree].
 class DiagnosticableTreeNode extends DiagnosticableNode<DiagnosticableTree> {
   /// Creates a [DiagnosticableTreeNode].
-  DiagnosticableTreeNode({
-    super.name,
-    required super.value,
-    required super.style,
-  });
+  DiagnosticableTreeNode({super.name, required super.value, required super.style});
 
   @override
   List<DiagnosticsNode> getChildren() => value.debugDescribeChildren();
@@ -3156,8 +3052,7 @@ class DiagnosticPropertiesBuilder {
   final List<DiagnosticsNode> properties;
 
   /// Default style to use for the [DiagnosticsNode] if no style is specified.
-  DiagnosticsTreeStyle defaultDiagnosticsTreeStyle =
-      DiagnosticsTreeStyle.sparse;
+  DiagnosticsTreeStyle defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.sparse;
 
   /// Description to show if the node has no displayed properties or children.
   String? emptyBodyDescription;
@@ -3220,15 +3115,8 @@ mixin Diagnosticable {
   /// Typically the [style] argument is only specified to indicate an atypical
   /// relationship between the parent and the node. For example, pass
   /// [DiagnosticsTreeStyle.offstage] to indicate that a node is offstage.
-  DiagnosticsNode toDiagnosticsNode({
-    String? name,
-    DiagnosticsTreeStyle? style,
-  }) {
-    return DiagnosticableNode<Diagnosticable>(
-      name: name,
-      value: this,
-      style: style,
-    );
+  DiagnosticsNode toDiagnosticsNode({String? name, DiagnosticsTreeStyle? style}) {
+    return DiagnosticableNode<Diagnosticable>(name: name, value: this, style: style);
   }
 
   /// Add additional properties associated with the node.
@@ -3481,10 +3369,7 @@ abstract class DiagnosticableTree with Diagnosticable {
   ///
   ///  * [toString], for a brief description of the object.
   ///  * [toStringDeep], for a description of the subtree rooted at this object.
-  String toStringShallow({
-    String joiner = ', ',
-    DiagnosticLevel minLevel = DiagnosticLevel.debug,
-  }) {
+  String toStringShallow({String joiner = ', ', DiagnosticLevel minLevel = DiagnosticLevel.debug}) {
     String? shallowString;
     assert(() {
       final result = StringBuffer();
@@ -3493,9 +3378,7 @@ abstract class DiagnosticableTree with Diagnosticable {
       final builder = DiagnosticPropertiesBuilder();
       debugFillProperties(builder);
       result.write(
-        builder.properties
-            .where((DiagnosticsNode n) => !n.isFiltered(minLevel))
-            .join(joiner),
+        builder.properties.where((DiagnosticsNode n) => !n.isFiltered(minLevel)).join(joiner),
       );
       shallowString = result.toString();
       return true;
@@ -3542,10 +3425,7 @@ abstract class DiagnosticableTree with Diagnosticable {
   String toStringShort() => describeIdentity(this);
 
   @override
-  DiagnosticsNode toDiagnosticsNode({
-    String? name,
-    DiagnosticsTreeStyle? style,
-  }) {
+  DiagnosticsNode toDiagnosticsNode({String? name, DiagnosticsTreeStyle? style}) {
     return DiagnosticableTreeNode(name: name, value: this, style: style);
   }
 
@@ -3576,16 +3456,11 @@ abstract class DiagnosticableTree with Diagnosticable {
 mixin DiagnosticableTreeMixin implements DiagnosticableTree {
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return toDiagnosticsNode(
-      style: DiagnosticsTreeStyle.singleLine,
-    ).toString(minLevel: minLevel);
+    return toDiagnosticsNode(style: DiagnosticsTreeStyle.singleLine).toString(minLevel: minLevel);
   }
 
   @override
-  String toStringShallow({
-    String joiner = ', ',
-    DiagnosticLevel minLevel = DiagnosticLevel.debug,
-  }) {
+  String toStringShallow({String joiner = ', ', DiagnosticLevel minLevel = DiagnosticLevel.debug}) {
     String? shallowString;
     assert(() {
       final result = StringBuffer();
@@ -3594,9 +3469,7 @@ mixin DiagnosticableTreeMixin implements DiagnosticableTree {
       final builder = DiagnosticPropertiesBuilder();
       debugFillProperties(builder);
       result.write(
-        builder.properties
-            .where((DiagnosticsNode n) => !n.isFiltered(minLevel))
-            .join(joiner),
+        builder.properties.where((DiagnosticsNode n) => !n.isFiltered(minLevel)).join(joiner),
       );
       shallowString = result.toString();
       return true;
@@ -3623,10 +3496,7 @@ mixin DiagnosticableTreeMixin implements DiagnosticableTree {
   String toStringShort() => describeIdentity(this);
 
   @override
-  DiagnosticsNode toDiagnosticsNode({
-    String? name,
-    DiagnosticsTreeStyle? style,
-  }) {
+  DiagnosticsNode toDiagnosticsNode({String? name, DiagnosticsTreeStyle? style}) {
     return DiagnosticableTreeNode(name: name, value: this, style: style);
   }
 
@@ -3682,8 +3552,7 @@ class DiagnosticsBlock extends DiagnosticsNode {
   List<DiagnosticsNode> getProperties() => _properties;
 
   @override
-  String toDescription({TextTreeConfiguration? parentConfiguration}) =>
-      _description;
+  String toDescription({TextTreeConfiguration? parentConfiguration}) => _description;
 }
 
 /// A delegate that configures how a hierarchy of [DiagnosticsNode]s should be
@@ -3698,20 +3567,15 @@ abstract class DiagnosticsSerializationDelegate {
   /// For additional configuration options, extend
   /// [DiagnosticsSerializationDelegate] and provide custom implementations
   /// for the methods of this class.
-  const factory DiagnosticsSerializationDelegate({
-    int subtreeDepth,
-    bool includeProperties,
-  }) = _DefaultDiagnosticsSerializationDelegate;
+  const factory DiagnosticsSerializationDelegate({int subtreeDepth, bool includeProperties}) =
+      _DefaultDiagnosticsSerializationDelegate;
 
   /// Returns a serializable map of additional information that will be included
   /// in the serialization of the given [DiagnosticsNode].
   ///
   /// This method is called for every [DiagnosticsNode] that's included in
   /// the serialization.
-  Map<String, Object?> additionalNodeProperties(
-    DiagnosticsNode node, {
-    bool fullDetails = true,
-  });
+  Map<String, Object?> additionalNodeProperties(DiagnosticsNode node, {bool fullDetails = true});
 
   /// Filters the list of [DiagnosticsNode]s that will be included as children
   /// for the given `owner` node.
@@ -3723,10 +3587,7 @@ abstract class DiagnosticsSerializationDelegate {
   ///
   ///  * [subtreeDepth], which controls how many levels of children will be
   ///    included in the serialization.
-  List<DiagnosticsNode> filterChildren(
-    List<DiagnosticsNode> nodes,
-    DiagnosticsNode owner,
-  );
+  List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
 
   /// Filters the list of [DiagnosticsNode]s that will be included as properties
   /// for the given `owner` node.
@@ -3740,10 +3601,7 @@ abstract class DiagnosticsSerializationDelegate {
   ///
   ///  * [includeProperties], which controls whether properties will be included
   ///    at all.
-  List<DiagnosticsNode> filterProperties(
-    List<DiagnosticsNode> nodes,
-    DiagnosticsNode owner,
-  );
+  List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
 
   /// Truncates the given list of [DiagnosticsNode] that will be added to the
   /// serialization as children or properties of the `owner` node.
@@ -3755,10 +3613,7 @@ abstract class DiagnosticsSerializationDelegate {
   /// result that are not included in the current serialization.
   ///
   /// By default, `nodes` is returned as-is.
-  List<DiagnosticsNode> truncateNodesList(
-    List<DiagnosticsNode> nodes,
-    DiagnosticsNode? owner,
-  );
+  List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode? owner);
 
   /// Returns the [DiagnosticsSerializationDelegate] to be used
   /// for adding the provided [DiagnosticsNode] to the serialization.
@@ -3799,24 +3654,17 @@ abstract class DiagnosticsSerializationDelegate {
 
   /// Creates a copy of this [DiagnosticsSerializationDelegate] with the
   /// provided values.
-  DiagnosticsSerializationDelegate copyWith({
-    int subtreeDepth,
-    bool includeProperties,
-  });
+  DiagnosticsSerializationDelegate copyWith({int subtreeDepth, bool includeProperties});
 }
 
-class _DefaultDiagnosticsSerializationDelegate
-    implements DiagnosticsSerializationDelegate {
+class _DefaultDiagnosticsSerializationDelegate implements DiagnosticsSerializationDelegate {
   const _DefaultDiagnosticsSerializationDelegate({
     this.includeProperties = false,
     this.subtreeDepth = 0,
   });
 
   @override
-  Map<String, Object?> additionalNodeProperties(
-    DiagnosticsNode node, {
-    bool fullDetails = true,
-  }) {
+  Map<String, Object?> additionalNodeProperties(DiagnosticsNode node, {bool fullDetails = true}) {
     return const <String, Object?>{};
   }
 
@@ -3829,18 +3677,12 @@ class _DefaultDiagnosticsSerializationDelegate
   bool get expandPropertyValues => false;
 
   @override
-  List<DiagnosticsNode> filterChildren(
-    List<DiagnosticsNode> nodes,
-    DiagnosticsNode owner,
-  ) {
+  List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
     return nodes;
   }
 
   @override
-  List<DiagnosticsNode> filterProperties(
-    List<DiagnosticsNode> nodes,
-    DiagnosticsNode owner,
-  ) {
+  List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
     return nodes;
   }
 
@@ -3851,18 +3693,12 @@ class _DefaultDiagnosticsSerializationDelegate
   final int subtreeDepth;
 
   @override
-  List<DiagnosticsNode> truncateNodesList(
-    List<DiagnosticsNode> nodes,
-    DiagnosticsNode? owner,
-  ) {
+  List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode? owner) {
     return nodes;
   }
 
   @override
-  DiagnosticsSerializationDelegate copyWith({
-    int? subtreeDepth,
-    bool? includeProperties,
-  }) {
+  DiagnosticsSerializationDelegate copyWith({int? subtreeDepth, bool? includeProperties}) {
     return _DefaultDiagnosticsSerializationDelegate(
       subtreeDepth: subtreeDepth ?? this.subtreeDepth,
       includeProperties: includeProperties ?? this.includeProperties,
