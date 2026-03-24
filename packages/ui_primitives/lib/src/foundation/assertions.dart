@@ -806,9 +806,7 @@ class FlutterError extends Error
     final List<String> lines = message.split('\n');
     return FlutterError.fromParts(<DiagnosticsNode>[
       ErrorSummary(lines.first),
-      ...lines
-          .skip(1)
-          .map<DiagnosticsNode>(ErrorDescription.new),
+      ...lines.skip(1).map<DiagnosticsNode>(ErrorDescription.new),
     ]);
   }
 

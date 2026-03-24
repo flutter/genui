@@ -188,7 +188,12 @@ class CachingIterable<E> extends IterableBase<E> {
     RangeError.checkNotNegative(index, 'index');
     while (_results.length <= index) {
       if (!_fillNext()) {
-        throw IndexError.withLength(index, _results.length, indexable: this, name: 'index');
+        throw IndexError.withLength(
+          index,
+          _results.length,
+          indexable: this,
+          name: 'index',
+        );
       }
     }
     return _results[index];
@@ -223,7 +228,9 @@ class _LazyListIterator<E> implements Iterator<E> {
   E get current {
     assert(_index >= 0); // called "current" before "moveNext()"
     if (_index < 0 || _index == _owner._results.length) {
-      throw StateError('current can not be call after moveNext has returned false');
+      throw StateError(
+        'current can not be call after moveNext has returned false',
+      );
     }
     return _owner._results[_index];
   }
@@ -261,6 +268,7 @@ class Factory<T> {
 /// Linearly interpolate between two `Duration`s.
 Duration lerpDuration(Duration a, Duration b, double t) {
   return Duration(
-    microseconds: (a.inMicroseconds + (b.inMicroseconds - a.inMicroseconds) * t).round(),
+    microseconds: (a.inMicroseconds + (b.inMicroseconds - a.inMicroseconds) * t)
+        .round(),
   );
 }

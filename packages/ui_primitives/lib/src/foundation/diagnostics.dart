@@ -1942,10 +1942,7 @@ abstract class DiagnosticsNode {
         truncated = true;
       }
       for (final child in childrenNodes) {
-        childrenToJsonify.add((
-          child,
-          childrenJsonList.add,
-        ));
+        childrenToJsonify.add((child, childrenJsonList.add));
       }
     }
 

@@ -2,4 +2,5 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export '_error_dumper_io.dart' if (dart.library.js_interop) '_error_dumper_web.dart';
+export '_error_dumper_io.dart'
+    if (dart.library.js_interop) '_error_dumper_web.dart';
