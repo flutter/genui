@@ -28,10 +28,3 @@ double lerpDoubleNonNull(double a, double b, double t) {
   // with infinity and nan.
   return a * (1.0 - t) + b * t;
 }
-
-/// Linearly interpolate between two integers.
-///
-/// Same as [lerpDouble] but specialized for non-null `int` type.
-double _lerpInt(int a, int b, double t) {
-  return a + (b - a) * t;
-}

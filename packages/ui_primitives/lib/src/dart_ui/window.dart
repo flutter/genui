@@ -593,26 +593,6 @@ enum Brightness {
   light,
 }
 
-/// Additional data available on each flutter frame.
-///
-/// See also:
-///
-///  * [Window.frameData] and [PlatformDispatcher.frameData], which expose the
-///    frame data for the current frame.
-///  * [PlatformDispatcher.onFrameDataChanged], which notifies listeners when
-///    a window's frame data has changed.
-class FrameData {
-  const FrameData._({this.frameNumber = -1});
-
-  /// The number of the current frame.
-  ///
-  /// This number monotonically increases, but doesn't necessarily
-  /// start at a particular value.
-  ///
-  /// If not provided, defaults to -1.
-  final int frameNumber;
-}
-
 /// Platform specific configuration for gesture behavior, such as touch slop.
 ///
 /// These settings are provided via [FlutterView.gestureSettings] to each

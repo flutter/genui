@@ -707,15 +707,6 @@ class Rect {
         math.max(a.dy, b.dy),
       );
 
-  Float32List _getValue32() {
-    final result = Float32List(4);
-    result[0] = left;
-    result[1] = top;
-    result[2] = right;
-    result[3] = bottom;
-    return result;
-  }
-
   /// The offset of the left edge of this rectangle from the x axis.
   final double left;
 
@@ -1762,23 +1753,6 @@ class RRect extends _RRectLike<RRect> {
     brRadiusX: brRadiusX,
     brRadiusY: brRadiusY,
   );
-
-  Float32List _getValue32() {
-    final result = Float32List(12);
-    result[0] = left;
-    result[1] = top;
-    result[2] = right;
-    result[3] = bottom;
-    result[4] = tlRadiusX;
-    result[5] = tlRadiusY;
-    result[6] = trRadiusX;
-    result[7] = trRadiusY;
-    result[8] = brRadiusX;
-    result[9] = brRadiusY;
-    result[10] = blRadiusX;
-    result[11] = blRadiusY;
-    return result;
-  }
 
   /// A rounded rectangle with all the values set to zero.
   static const RRect zero = RRect._raw();
