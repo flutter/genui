@@ -1,0 +1,13 @@
+name: listen
+description: Highly experimental package.
+version: 1.0.0-beta.1
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+
+dependencies:
+
+dev_dependencies:
+  test: ^1.26.2
