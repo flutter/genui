@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// ignore_for_file: unintended_html_in_doc_comment
+
 /// @docImport 'dart:developer';
 ///
 /// @docImport 'package:flutter/rendering.dart';
