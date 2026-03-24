@@ -8,7 +8,6 @@ library;
 import 'package:meta/meta.dart';
 
 import 'basic_types.dart';
-import '../primitives/constants.dart';
 import 'constants.dart';
 import 'diagnostics.dart';
 import 'error_dumper.dart';
@@ -809,7 +808,7 @@ class FlutterError extends Error
       ErrorSummary(lines.first),
       ...lines
           .skip(1)
-          .map<DiagnosticsNode>((String line) => ErrorDescription(line)),
+          .map<DiagnosticsNode>(ErrorDescription.new),
     ]);
   }
 

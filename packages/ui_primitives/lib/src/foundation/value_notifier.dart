@@ -8,11 +8,10 @@ library;
 
 import 'package:meta/meta.dart';
 
+import '../primitives/basics.dart';
 import '../primitives/private_leak_tracking.dart';
 import 'assertions.dart';
-import 'debug.dart';
 import 'diagnostics.dart';
-import '../primitives/basics.dart';
 import 'listenable.dart';
 
 /// A class that can be extended or mixed in that provides a change notification
@@ -66,13 +65,6 @@ class _ChangeNotifier implements Listenable {
   int _notificationCallStackDepth = 0;
   int _reentrantlyRemovedListeners = 0;
   bool _debugDisposed = false;
-
-  /// If true, the event [ObjectCreated] for this instance was dispatched to
-  /// [FlutterMemoryAllocations].
-  ///
-  /// As [_ChangeNotifier] is used as mixin, it does not have constructor,
-  /// so we use [addListener] to dispatch the event.
-  bool _debugCreationDispatched = false;
 
   /// Used by subclasses to assert that the [_ChangeNotifier] has not yet been
   /// disposed.

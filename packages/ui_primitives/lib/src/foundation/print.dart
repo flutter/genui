@@ -12,6 +12,10 @@ library;
 import 'dart:async';
 import 'dart:collection';
 
+import '_error_dumper_io.dart' show ErrorToConsoleDumper;
+
+import 'error_dumper.dart' show ErrorToConsoleDumper;
+
 /// Signature for [debugPrint] implementations.
 ///
 /// If a [wrapWidth] is provided, each line of the [message] is word-wrapped to

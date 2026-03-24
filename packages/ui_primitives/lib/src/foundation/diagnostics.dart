@@ -13,12 +13,11 @@ import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 
+import '../dart_ui/math.dart';
 import 'assertions.dart';
 import 'constants.dart';
 import 'debug.dart';
 import 'object.dart';
-
-import '../dart_ui/math.dart';
 
 // Examples can assume:
 // late int rows, columns;
@@ -1945,9 +1944,7 @@ abstract class DiagnosticsNode {
       for (final child in childrenNodes) {
         childrenToJsonify.add((
           child,
-          (_JsonDiagnosticsNode jsonChild) {
-            childrenJsonList.add(jsonChild);
-          },
+          childrenJsonList.add,
         ));
       }
     }

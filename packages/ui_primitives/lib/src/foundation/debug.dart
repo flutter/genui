@@ -9,14 +9,10 @@
 /// @docImport 'package:flutter/widgets.dart';
 library;
 
-import 'package:leak_tracker/leak_tracker.dart';
-
+import '../dart_ui/window.dart';
 import 'assertions.dart';
 import 'platform.dart';
 import 'print.dart';
-
-import '../dart_ui/window.dart';
-import '../primitives/basics.dart';
 
 export 'print.dart' show DebugPrintCallback;
 
