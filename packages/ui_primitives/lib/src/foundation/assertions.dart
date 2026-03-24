@@ -47,14 +47,16 @@ typedef InformationCollector = Iterable<DiagnosticsNode> Function();
 ///
 /// See also:
 ///
-///   * [FlutterError.demangleStackTrace], which shows an example implementation.
+///   * [FlutterError.demangleStackTrace], which shows an example
+///     implementation.
 typedef StackTraceDemangler = StackTrace Function(StackTrace details);
 
 /// Partial information from a stack frame for stack filtering purposes.
 ///
 /// See also:
 ///
-///  * [RepetitiveStackFrameFilter], which uses this class to compare against [StackFrame]s.
+///  * [RepetitiveStackFrameFilter], which uses this class to compare against
+///    [StackFrame]s.
 @immutable
 class PartialStackFrame {
   /// Creates a new [PartialStackFrame] instance.
@@ -71,7 +73,8 @@ class PartialStackFrame {
     method: 'asynchronous suspension',
   );
 
-  /// The package to match, e.g. `package:flutter/src/foundation/assertions.dart`,
+  /// The package to match, e.g.
+  /// `package:flutter/src/foundation/assertions.dart`,
   /// or `dart:ui/window.dart`.
   final Pattern package;
 
@@ -188,7 +191,8 @@ abstract class _ErrorDiagnostic extends DiagnosticsProperty<List<Object>> {
       );
 
   /// In debug builds, a kernel transformer rewrites calls to the default
-  /// constructors for [ErrorSummary], [ErrorDescription], and [ErrorHint] to use
+  /// constructors for [ErrorSummary], [ErrorDescription], and [ErrorHint] to
+  /// use
   /// this constructor.
   //
   // ```dart
@@ -196,7 +200,8 @@ abstract class _ErrorDiagnostic extends DiagnosticsProperty<List<Object>> {
   // ```
   // Desugars to:
   // ```dart
-  // _ErrorDiagnostic.fromParts(<Object>['Element ', element, ' must be ', color])
+  // _ErrorDiagnostic.fromParts(<Object>['Element ', element, ' must be ',
+  // color])
   // ```
   //
   // Slightly more complex case:
@@ -207,7 +212,8 @@ abstract class _ErrorDiagnostic extends DiagnosticsProperty<List<Object>> {
   //```dart
   // _ErrorDiagnostic.fromParts(<Object>[
   //   'Element ',
-  //   DiagnosticsProperty(null, element, description: element.runtimeType?.toString()),
+  //   DiagnosticsProperty(null, element, description:
+  // element.runtimeType?.toString()),
   //   ' must be ',
   //   color,
   // ])
@@ -428,7 +434,8 @@ class FlutterErrorDetails with Diagnosticable {
     );
   }
 
-  /// Transformers to transform [DiagnosticsNode] in [DiagnosticPropertiesBuilder]
+  /// Transformers to transform [DiagnosticsNode] in
+  /// [DiagnosticPropertiesBuilder]
   /// into a more descriptive form.
   ///
   /// There are layers that attach certain [DiagnosticsNode] into
@@ -444,7 +451,8 @@ class FlutterErrorDetails with Diagnosticable {
 
   /// The exception.
   ///
-  /// Often this will be an [AssertionError], maybe specifically a [FlutterError].
+  /// Often this will be an [AssertionError], maybe specifically a
+  /// [FlutterError].
   /// However, this could be any value at all.
   final Object exception;
 
@@ -461,9 +469,11 @@ class FlutterErrorDetails with Diagnosticable {
   /// [StackTrace.toString].
   final StackTrace? stack;
 
-  /// A human-readable brief name describing the library that caught the error message.
+  /// A human-readable brief name describing the library that caught the error
+  /// message.
   ///
-  /// This is used by the default error handler in the header dumped to the console.
+  /// This is used by the default error handler in the header dumped to the
+  /// console.
   final String? library;
 
   /// A [DiagnosticsNode] that provides a human-readable description of where
@@ -510,7 +520,8 @@ class FlutterErrorDetails with Diagnosticable {
   /// A callback which filters the [stack] trace.
   ///
   /// Receives an iterable of strings representing the frames encoded in the way
-  /// that [StackTrace.toString()] provides. Should return an iterable of lines to
+  /// that [StackTrace.toString()] provides. Should return an iterable of lines
+  /// to
   /// output for the stack.
   ///
   /// If this is not provided, then [FlutterError.dumpErrorToConsole] will use
@@ -531,13 +542,16 @@ class FlutterErrorDetails with Diagnosticable {
   /// information should be cached by the caller, rather than the callback being
   /// called multiple times.
   ///
-  /// The callback is expected to return an iterable of [DiagnosticsNode] objects,
+  /// The callback is expected to return an iterable of [DiagnosticsNode]
+  /// objects,
   /// typically implemented using `sync*` and `yield`.
   ///
   /// {@tool snippet}
-  /// In this example, the information collector returns two pieces of information,
+  /// In this example, the information collector returns two pieces of
+  /// information,
   /// one broadly-applicable statement regarding how the error happened, and one
-  /// giving a specific piece of information that may be useful in some cases but
+  /// giving a specific piece of information that may be useful in some cases
+  /// but
   /// may also be irrelevant most of the time (an argument to the method).
   ///
   /// ```dart
@@ -789,7 +803,8 @@ class FlutterError extends Error
   /// substantial additional information, ideally sufficient to develop a
   /// correct solution to the problem.
   ///
-  /// In some cases, when a [FlutterError] is reported to the user, only the first
+  /// In some cases, when a [FlutterError] is reported to the user, only the
+  /// first
   /// line is included. For example, Flutter will typically only fully report
   /// the first exception at runtime, displaying only the first line of
   /// subsequent errors.
@@ -1064,7 +1079,8 @@ class FlutterError extends Error
       return;
     }
     if (_errorCount == 0 || forceReport) {
-      // Diagnostics is only available in debug mode. In profile and release modes fallback to plain print.
+      // Diagnostics is only available in debug mode. In profile and release
+      // modes fallback to plain print.
       if (isInDebugMode) {
         ErrorToConsoleDumper.dump(
           TextTreeRenderer(

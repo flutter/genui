@@ -38,8 +38,10 @@ typedef DebugPrintCallback = void Function(String? message, {int? wrapWidth});
 /// Prints a message to the console, which you can access using the "flutter"
 /// tool's "logs" command ("flutter logs").
 ///
-/// The [debugPrint] function logs to console even in [release mode](https://docs.flutter.dev/testing/build-modes#release).
-/// As per convention, calls to [debugPrint] should be within a debug mode check or an assert:
+/// The [debugPrint] function logs to console even in [release
+/// mode](https://docs.flutter.dev/testing/build-modes#release).
+/// As per convention, calls to [debugPrint] should be within a debug mode check
+/// or an assert:
 /// ```dart
 /// if (kDebugMode) {
 ///   debugPrint('A useful message');
@@ -71,7 +73,8 @@ void debugPrintSynchronously(String? message, {int? wrapWidth}) {
 
 /// Implementation of [debugPrint] that throttles messages.
 ///
-/// This avoids dropping messages on platforms that rate-limit their logging (for example, Android).
+/// This avoids dropping messages on platforms that rate-limit their logging
+/// (for example, Android).
 ///
 /// If `wrapWidth` is not null, the message is wrapped using [debugWordWrap].
 void debugPrintThrottled(String? message, {int? wrapWidth}) {
@@ -192,7 +195,8 @@ Iterable<String> debugWordWrap(
           // we are over the width line, so break
           if ((index - startForLengthCalculations <= width) ||
               (lastWordEnd == null)) {
-            // we should use this point, because either it doesn't actually go over the
+            // we should use this point, because either it doesn't actually go
+            // over the
             // end (last line), or it does, but there was no earlier break point
             lastWordEnd = index;
           }
@@ -215,7 +219,8 @@ Iterable<String> debugWordWrap(
             start = index;
             mode = _WordWrapParseMode.inWord;
           } else {
-            // we broke at the previous break point, and we're at the start of a new one
+            // we broke at the previous break point, and we're at the start of a
+            // new one
             assert(lastWordStart > lastWordEnd);
             start = lastWordStart;
             mode = _WordWrapParseMode.atBreak;

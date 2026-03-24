@@ -15,7 +15,8 @@ import 'object.dart';
 /// the current [StackTrace].
 ///
 /// ```dart
-/// final List<StackFrame> currentFrames = StackFrame.fromStackTrace(StackTrace.current);
+/// final List<StackFrame> currentFrames =
+/// StackFrame.fromStackTrace(StackTrace.current);
 /// ```
 /// {@end-tool}
 @immutable
@@ -78,8 +79,10 @@ class StackFrame {
         // On the Web in non-debug builds the stack trace includes the exception
         // message that precedes the stack trace itself. fromStackTraceLine will
         // return null in that case. We will skip it here.
-        // TODO(polina-c): if one of lines was parsed to null, the entire stack trace
-        // is in unexpected format and should be returned as is, without partial parsing.
+        // TODO(polina-c): if one of lines was parsed to null, the entire stack
+        // trace
+        // is in unexpected format and should be returned as is, without partial
+        // parsing.
         // https://github.com/flutter/flutter/issues/131877
         .whereType<StackFrame>()
         .toList();
@@ -157,9 +160,12 @@ class StackFrame {
       // message that precedes the stack trace itself. Example:
       //
       // TypeError: Cannot read property 'hello$0' of null
-      //    at _GalleryAppState.build$1 (http://localhost:8080/main.dart.js:149790:13)
-      //    at StatefulElement.build$0 (http://localhost:8080/main.dart.js:129138:37)
-      //    at StatefulElement.performRebuild$0 (http://localhost:8080/main.dart.js:129032:23)
+      //    at _GalleryAppState.build$1
+      // (http://localhost:8080/main.dart.js:149790:13)
+      //    at StatefulElement.build$0
+      // (http://localhost:8080/main.dart.js:129138:37)
+      //    at StatefulElement.performRebuild$0
+      // (http://localhost:8080/main.dart.js:129032:23)
       //
       // Instead of crashing when a line is not recognized as a stack frame, we
       // return null. The caller, such as fromStackString, can then just skip

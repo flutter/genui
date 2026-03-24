@@ -17,7 +17,8 @@ import 'listenable.dart';
 /// A class that can be extended or mixed in that provides a change notification
 /// API using [VoidCallback] for notifications.
 ///
-/// It is O(1) for adding listeners and O(N) for removing listeners and dispatching
+/// It is O(1) for adding listeners and O(N) for removing listeners and
+/// dispatching
 /// notifications (where N is the number of listeners).
 ///
 /// ## Using ChangeNotifier subclasses for data models
@@ -29,19 +30,24 @@ import 'listenable.dart';
 /// {@tool dartpad}
 /// The following example implements a simple counter that utilizes a
 /// [ListenableBuilder] to limit rebuilds to only the [Text] widget containing
-/// the count. The current count is stored in a [_ChangeNotifier] subclass, which
+/// the count. The current count is stored in a [_ChangeNotifier] subclass,
+/// which
 /// rebuilds the [ListenableBuilder]'s contents when its value is changed.
 ///
-/// ** See code in examples/api/lib/widgets/transitions/listenable_builder.2.dart **
+/// ** See code in
+/// examples/api/lib/widgets/transitions/listenable_builder.2.dart **
 /// {@end-tool}
 ///
 /// {@tool dartpad}
-/// In this case, the [_ChangeNotifier] subclass encapsulates a list, and notifies
-/// the clients any time an item is added to the list. This example only supports
+/// In this case, the [_ChangeNotifier] subclass encapsulates a list, and
+/// notifies
+/// the clients any time an item is added to the list. This example only
+/// supports
 /// adding items; as an exercise, consider adding buttons to remove items from
 /// the list as well.
 ///
-/// ** See code in examples/api/lib/widgets/transitions/listenable_builder.3.dart **
+/// ** See code in
+/// examples/api/lib/widgets/transitions/listenable_builder.3.dart **
 /// {@end-tool}
 ///
 /// See also:
@@ -215,7 +221,8 @@ class _ChangeNotifier implements Listenable {
   void removeListener(VoidCallback listener) {
     // This method is allowed to be called on disposed instances for usability
     // reasons. Due to how our frame scheduling logic between render objects and
-    // overlays, it is common that the owner of this instance would be disposed a
+    // overlays, it is common that the owner of this instance would be disposed
+    // a
     // frame earlier than the listeners. Allowing calls to this method after it
     // is disposed makes it easier for listeners to properly clean up.
     for (var i = 0; i < _count; i++) {
@@ -241,7 +248,8 @@ class _ChangeNotifier implements Listenable {
   /// Discards any resources used by the object.
   ///
   /// After this is called, the object is not in a usable state and should be
-  /// discarded (calls to [addListener] will throw after the object is disposed).
+  /// discarded (calls to [addListener] will throw after the object is
+  /// disposed).
   ///
   /// This method should only be called by the object's owner.
   ///
@@ -296,7 +304,8 @@ class _ChangeNotifier implements Listenable {
 
     // To allow potential listeners to recursively call notifyListener, we track
     // the number of times this method is called in _notificationCallStackDepth.
-    // Once every recursive iteration is finished (i.e. when _notificationCallStackDepth == 0),
+    // Once every recursive iteration is finished (i.e. when
+    // _notificationCallStackDepth == 0),
     // we can safely shrink our list so that it will only contain not null
     // listeners.
 
@@ -381,7 +390,8 @@ class _ChangeNotifier implements Listenable {
 ///
 /// For example, a `ValueNotifier<List<int>>` will not notify listeners when
 /// the contents of the existing list are modified in-place; it only notifies
-/// when a new value is assigned to the `value` property (i.e. `value = newValue`),
+/// when a new value is assigned to the `value` property (i.e. `value =
+/// newValue`),
 /// where equality is determined by `==`.
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data

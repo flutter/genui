@@ -87,7 +87,8 @@ Future<T> debugInstrumentAction<T>(
   if (instrument) {
     // dart format off
     final stopwatch = Stopwatch() ..start(); // flutter_ignore: stopwatch (see analyze.dart)
-    // Ignore context: The framework does not use this function internally so it will not cause flakes.
+    // Ignore context: The framework does not use this function internally so it
+    // will not cause flakes.
     // dart format on
     try {
       return await action();
@@ -123,7 +124,8 @@ String debugFormatDouble(double? value) {
 ///
 /// See also:
 ///
-///  * [WidgetsApp], which uses the [debugBrightnessOverride] setting in debug mode
+///  * [WidgetsApp], which uses the [debugBrightnessOverride] setting in debug
+///    mode
 ///    to construct a [MediaQueryData].
 Brightness? debugBrightnessOverride;
 

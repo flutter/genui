@@ -230,7 +230,8 @@ enum DiagnosticsTreeStyle {
 /// See also:
 ///
 ///  * [sparseTextConfiguration], which is a typical style.
-///  * [transitionTextConfiguration], which is an example of a complex tree style.
+///  * [transitionTextConfiguration], which is an example of a complex tree
+///    style.
 ///  * [DiagnosticsNode.toStringDeep], for code using [TextTreeConfiguration]
 ///    to render text art for arbitrary trees of [DiagnosticsNode] objects.
 class TextTreeConfiguration {
@@ -266,7 +267,8 @@ class TextTreeConfiguration {
   /// Prefix to add to the first line to display a child with this style.
   final String prefixLineOne;
 
-  /// Suffix to add to end of the first line to make its length match the footer.
+  /// Suffix to add to end of the first line to make its length match the
+  /// footer.
   final String suffixLineOne;
 
   /// Prefix to add to other lines to display a child with this style.
@@ -381,8 +383,10 @@ class TextTreeConfiguration {
 
   /// Footer to add as its own line at the end of a non-root node.
   ///
-  /// See [transitionTextConfiguration] for an example of using footer to draw a box
-  /// around the node. [footer] is indented the same amount as [prefixOtherLines].
+  /// See [transitionTextConfiguration] for an example of using footer to draw a
+  /// box
+  /// around the node. [footer] is indented the same amount as
+  /// [prefixOtherLines].
   final String footer;
 
   /// Footer to add even for root nodes.
@@ -629,7 +633,8 @@ final TextTreeConfiguration errorTextConfiguration = TextTreeConfiguration(
 /// two spaces.
 ///
 /// Use this style for displaying properties with structured values or for
-/// displaying children within a [transitionTextConfiguration] as using a style that
+/// displaying children within a [transitionTextConfiguration] as using a style
+/// that
 /// draws line art would be visually distracting for those cases.
 ///
 /// Example:
@@ -879,7 +884,8 @@ class _PrefixedStringBuilder {
   /// Wrapping occurs at space characters (U+0020).
   ///
   /// This is not suitable for use with arbitrary Unicode text. For example, it
-  /// doesn't implement UAX #14, can't handle ideographic text, doesn't hyphenate,
+  /// doesn't implement UAX #14, can't handle ideographic text, doesn't
+  /// hyphenate,
   /// and so forth. It is only intended for formatting error messages.
   ///
   /// This method wraps a sequence of text where only some spans of text can be
@@ -943,8 +949,10 @@ class _PrefixedStringBuilder {
             // we are over the width line, so break
             if ((index - startForLengthCalculations <= width) ||
                 (lastWordEnd == null)) {
-              // we should use this point, because either it doesn't actually go over the
-              // end (last line), or it does, but there was no earlier break point
+              // we should use this point, because either it doesn't actually go
+              // over the
+              // end (last line), or it does, but there was no earlier break
+              // point
               lastWordEnd = index;
             }
             final String line = message.substring(start, lastWordEnd);
@@ -964,7 +972,8 @@ class _PrefixedStringBuilder {
               start = index;
               mode = _WordWrapParseMode.inWord;
             } else {
-              // we broke at the previous break point, and we're at the start of a new one
+              // we broke at the previous break point, and we're at the start of
+              // a new one
               assert(lastWordStart > lastWordEnd);
               start = lastWordStart;
               mode = _WordWrapParseMode.atBreak;
@@ -1103,7 +1112,8 @@ bool _isSingleLine(DiagnosticsTreeStyle? style) {
 ///
 /// See also:
 ///
-///  * [DiagnosticsNode.toStringDeep], which uses a [TextTreeRenderer] to return a
+///  * [DiagnosticsNode.toStringDeep], which uses a [TextTreeRenderer] to return
+///    a
 ///    string representation of this node and its descendants.
 class TextTreeRenderer {
   /// Creates a [TextTreeRenderer] object with the given arguments specifying
@@ -1536,7 +1546,8 @@ abstract class DiagnosticsNode {
     this.showSeparator = true,
     this.linePrefix,
   }) : assert(
-         // A name ending with ':' indicates that the user forgot that the ':' will
+         // A name ending with ':' indicates that the user forgot that the ':'
+         // will
          // be automatically added for them when generating descriptions of the
          // property.
          name == null || !name.endsWith(':'),
@@ -1667,10 +1678,12 @@ abstract class DiagnosticsNode {
   ///    data exchange (e.g. with an IDE).
   Map<String, String>? toTimelineArguments() {
     if (!kReleaseMode) {
-      // We don't throw in release builds, to avoid hurting users. We also don't do anything useful.
+      // We don't throw in release builds, to avoid hurting users. We also don't
+      // do anything useful.
       if (kProfileMode) {
         throw FlutterError(
-          // Parts of this string are searched for verbatim by a test in dev/bots/test.dart.
+          // Parts of this string are searched for verbatim by a test in
+          // dev/bots/test.dart.
           '$DiagnosticsNode.toTimelineArguments used in non-debug build.\n'
           'The $DiagnosticsNode.toTimelineArguments API is expensive and causes timeline traces '
           'to be non-representative. As such, it should not be used in profile builds. However, '
@@ -1742,8 +1755,10 @@ abstract class DiagnosticsNode {
   /// Iteratively serialize the node to a JSON map according to the
   /// configuration provided in the [DiagnosticsSerializationDelegate].
   ///
-  /// This is only used when [WidgetInspectorServiceExtensions.getRootWidgetTree]
-  /// is called with fullDetails=false. To get the full widget details, including
+  /// This is only used when
+  /// [WidgetInspectorServiceExtensions.getRootWidgetTree]
+  /// is called with fullDetails=false. To get the full widget details,
+  /// including
   /// any details provided by subclasses, [toJsonMap] should be used instead.
   ///
   /// See https://github.com/flutter/devtools/issues/8553 for details about this
@@ -1981,8 +1996,10 @@ abstract class DiagnosticsNode {
 /// of an actual property of the object:
 ///
 /// ```dart
-/// MessageProperty table = MessageProperty('table size', '$columns\u00D7$rows');
-/// MessageProperty usefulness = MessageProperty('usefulness ratio', 'no metrics collected yet (never painted)');
+/// MessageProperty table = MessageProperty('table size',
+/// '$columns\u00D7$rows');
+/// MessageProperty usefulness = MessageProperty('usefulness ratio', 'no metrics
+/// collected yet (never painted)');
 /// ```
 /// {@end-tool}
 /// {@tool snippet}
@@ -1999,7 +2016,8 @@ abstract class DiagnosticsNode {
 ///
 ///  * [DiagnosticsNode.message], which serves the same role for messages
 ///    without a clear property name.
-///  * [StringProperty], which is a better fit for properties with string values.
+///  * [StringProperty], which is a better fit for properties with string
+///    values.
 class MessageProperty extends DiagnosticsProperty<void> {
   /// Create a diagnostics property that displays a message.
   ///
@@ -2124,7 +2142,8 @@ abstract class _NumProperty<T extends num> extends DiagnosticsProperty<T> {
   }
 }
 
-/// Property describing a [double] [value] with an optional [unit] of measurement.
+/// Property describing a [double] [value] with an optional [unit] of
+/// measurement.
 ///
 /// Numeric formatting is optimized for debug message readability.
 class DoubleProperty extends _NumProperty<double> {
@@ -2257,7 +2276,8 @@ class PercentProperty extends DoubleProperty {
 ///  * [ObjectFlagProperty], which provides similar behavior describing whether
 ///    a [value] is null.
 class FlagProperty extends DiagnosticsProperty<bool> {
-  /// Constructs a FlagProperty with the given descriptions with the specified descriptions.
+  /// Constructs a FlagProperty with the given descriptions with the specified
+  /// descriptions.
   ///
   /// [showName] defaults to false as typically [ifTrue] and [ifFalse] should
   /// be descriptions that make the property name redundant.
@@ -2779,7 +2799,8 @@ class DiagnosticsProperty<T> extends DiagnosticsNode {
       json['isDiagnosticableValue'] = true;
     }
     if (v is num) {
-      // TODO(jacob314): Workaround, since JSON.stringify replaces infinity and NaN with null,
+      // TODO(jacob314): Workaround, since JSON.stringify replaces infinity and
+      // NaN with null,
       // https://github.com/flutter/flutter/issues/39937#issuecomment-529558033)
       json['value'] = v.isFinite ? v : v.toString();
     }
@@ -2924,7 +2945,8 @@ class DiagnosticsProperty<T> extends DiagnosticsNode {
   /// downgraded to [DiagnosticLevel.fine] on the basis that the property value
   /// is uninteresting. This is implemented by [isInteresting].
   ///
-  /// The [defaultValue] is [kNoDefaultValue] by default. Otherwise it must be of
+  /// The [defaultValue] is [kNoDefaultValue] by default. Otherwise it must be
+  /// of
   /// type `T?`.
   final Object? defaultValue;
 
@@ -3165,7 +3187,15 @@ class DiagnosticPropertiesBuilder {
 }
 
 // Examples can assume:
-// class ExampleSuperclass with Diagnosticable { late String message; late double stepWidth; late double scale; late double paintExtent; late double hitTestExtent; late double paintExtend; late double maxWidth; late bool primary; late double progress; late int maxLines; late Duration duration; late int depth; Iterable<BoxShadow>? boxShadow; late DiagnosticsTreeStyle style; late bool hasSize; late Matrix4 transform; Map<Listenable, VoidCallback>? handles; late Color color; late bool obscureText; late ImageRepeat repeat; late Size size; late Widget widget; late bool isCurrent; late bool keepAlive; late TextAlign textAlign; }
+// class ExampleSuperclass with Diagnosticable { late String message; late
+// double stepWidth; late double scale; late double paintExtent; late double
+// hitTestExtent; late double paintExtend; late double maxWidth; late bool
+// primary; late double progress; late int maxLines; late Duration duration;
+// late int depth; Iterable<BoxShadow>? boxShadow; late DiagnosticsTreeStyle
+// style; late bool hasSize; late Matrix4 transform; Map<Listenable,
+// VoidCallback>? handles; late Color color; late bool obscureText; late
+// ImageRepeat repeat; late Size size; late Widget widget; late bool isCurrent;
+// late bool keepAlive; late TextAlign textAlign; }
 
 /// A mixin class for providing string and [DiagnosticsNode] debug
 /// representations describing the properties of an object.
@@ -3258,12 +3288,14 @@ mixin Diagnosticable {
   ///  * Specify `showName` and `showSeparator` in rare cases where the string
   ///    output would look clumsy if they were not set.
   ///    ```dart
-  ///    DiagnosticsProperty<Object>('child(3, 4)', null, ifNull: 'is null', showSeparator: false).toString()
+  ///    DiagnosticsProperty<Object>('child(3, 4)', null, ifNull: 'is null',
+  /// showSeparator: false).toString()
   ///    ```
   ///    Shows using `showSeparator` to get output `child(3, 4) is null` which
   ///    is more polished than `child(3, 4): is null`.
   ///    ```dart
-  ///    DiagnosticsProperty<IconData>('icon', icon, ifNull: '<empty>', showName: false).toString()
+  ///    DiagnosticsProperty<IconData>('icon', icon, ifNull: '<empty>',
+  /// showName: false).toString()
   ///    ```
   ///    Shows using `showName` to omit the property name as in this context the
   ///    property name does not add useful information.
@@ -3571,7 +3603,8 @@ abstract class DiagnosticableTree with Diagnosticable {
   List<DiagnosticsNode> debugDescribeChildren() => const <DiagnosticsNode>[];
 }
 
-/// A mixin that helps dump string and [DiagnosticsNode] representations of trees.
+/// A mixin that helps dump string and [DiagnosticsNode] representations of
+/// trees.
 ///
 /// This mixin is identical to class [DiagnosticableTree].
 mixin DiagnosticableTreeMixin implements DiagnosticableTree {
