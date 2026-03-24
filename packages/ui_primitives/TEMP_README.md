@@ -10,7 +10,7 @@ The code is copied from flutter and dart:ui
 with the following changes:
 
 1. Word `flutter` is replaced with `ui`.
-2. Web-debugging support (like plutfrom_web.dart) is partially removed, in placies where it was not compiling, because it is not trivial. It can be added later if needed.
+2. Web support (like plutfrom_web.dart) is partially removed, in placies where it was not compiling. It can be added later if needed.
 3. `_lerpDouble` is renamed to `lerpDoubleNonNull`.
 
 ## What is copied
