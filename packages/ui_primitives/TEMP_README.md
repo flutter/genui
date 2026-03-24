@@ -7,3 +7,4 @@ with the following changes:
 
 1. Word `flutter` is replaced with `ui`.
 2. Web support is removed, because it is not trivial to support, and the support can be added later if needed.
+3. `_lerpDouble` is renamed to `lerpDoubleNonNull`.
