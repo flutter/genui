@@ -1,6 +1,7 @@
 name: ui_primitives
 description: Highly experimental package.
-version: 0.0.1
+repository: https://github.com/flutter/genui/tree/main/packages/ui_primitives
+version: 0.0.1-dev-001
 
 resolution: workspace
 
