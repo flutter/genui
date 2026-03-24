@@ -1,6 +1,6 @@
-// TODO(polinach): move to leak_tracker.
 import 'package:leak_tracker/leak_tracker.dart';
 
+// TODO(polinach): move this constant to leak_tracker package.
 const bool kTrackMemoryLeaks = bool.fromEnvironment(
   'leak_tracker.track_memory_leaks',
 );
