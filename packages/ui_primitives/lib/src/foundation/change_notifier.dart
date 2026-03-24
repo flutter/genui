@@ -8,7 +8,7 @@ library;
 
 import 'package:meta/meta.dart';
 
-import '../private_leak_tracking.dart';
+import '../primitives/private_leak_tracking.dart';
 import 'assertions.dart';
 import 'debug.dart';
 import 'diagnostics.dart';
