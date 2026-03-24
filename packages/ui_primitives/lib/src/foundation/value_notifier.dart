@@ -397,7 +397,8 @@ class _ChangeNotifier implements Listenable {
 ///
 /// For mutable data types, consider extending [_ChangeNotifier] directly and
 /// calling [notifyListeners] manually when changes occur.
-class ValueNotifier<T> extends _ChangeNotifier implements ValueListenable<T> {
+final class ValueNotifier<T> extends _ChangeNotifier
+    implements ValueListenable<T> {
   /// Creates a [_ChangeNotifier] that wraps this value.
   ValueNotifier(this._value) {
     if (kTrackMemoryLeaks) {
