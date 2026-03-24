@@ -8,6 +8,7 @@ void main() {
     var count = 0;
     notifier.addListener(() => count++);
 
+    expect(notifier, isA<ValueListenable<int>>());
     expect(notifier.value, 1);
     expect(count, 0);
 
