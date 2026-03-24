@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:leak_tracker/leak_tracker.dart';
 
 // TODO(polinach): move this constant to leak_tracker package.
