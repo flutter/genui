@@ -86,7 +86,8 @@ Future<T> debugInstrumentAction<T>(
   }());
   if (instrument) {
     // dart format off
-    final stopwatch = Stopwatch() ..start(); // flutter_ignore: stopwatch (see analyze.dart)
+    // flutter_ignore: stopwatch (see analyze.dart)
+    final stopwatch = Stopwatch() ..start();
     // Ignore context: The framework does not use this function internally so it
     // will not cause flakes.
     // dart format on

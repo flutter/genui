@@ -496,8 +496,8 @@ final TextTreeConfiguration dashedTextConfiguration = TextTreeConfiguration(
 /// Example:
 ///
 ///     <root_name>: <root_description>(<property1>; <property2> <propertyN>)
-///     ├<child_name>: <child_description>(<property1>, <property2>, <propertyN>)
-///     └<child_name>: <child_description>(<property1>, <property2>, <propertyN>)
+///     ├<name>: <description>(<property1>, <property2>, <propertyN>)
+///     └<name>: <description>(<property1>, <property2>, <propertyN>)
 ///
 /// See also:
 ///

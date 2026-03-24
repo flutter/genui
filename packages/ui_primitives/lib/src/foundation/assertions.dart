@@ -497,7 +497,8 @@ class FlutterErrorDetails with Diagnosticable {
   ///     FlutterError.reportError(FlutterErrorDetails(
   ///       exception: error,
   ///       library: 'Flutter test framework',
-  ///       context: ErrorDescription('while dispatching notifications for $runtimeType'),
+  ///       context: ErrorDescription(
+  ///         'while dispatching notifications for $runtimeType'),
   ///     ));
   ///   }
   /// }
@@ -563,7 +564,8 @@ class FlutterErrorDetails with Diagnosticable {
   ///       exception: error,
   ///       stack: stack,
   ///       informationCollector: () => <DiagnosticsNode>[
-  ///         ErrorDescription('This happened while climbing the space elevator.'),
+  ///         ErrorDescription(
+  ///           'This happened while climbing the space elevator.'),
   ///         ErrorHint('The process ID is: $pid'),
   ///       ],
   ///     ));
@@ -628,7 +630,8 @@ class FlutterErrorDetails with Diagnosticable {
             final int splitPoint = body.indexOf(' Failed assertion:');
             if (splitPoint >= 0) {
               body =
-                  '${body.substring(0, splitPoint)}\n${body.substring(splitPoint + 1)}';
+                  '${body.substring(0, splitPoint)}\n'
+                  '${body.substring(splitPoint + 1)}';
             }
             longMessage = '${message.trimRight()}\n$body';
           }
@@ -738,10 +741,13 @@ class FlutterErrorDetails with Diagnosticable {
           properties.add(ErrorSpacer());
           properties.add(
             ErrorHint(
-              'Either the assertion indicates an error in the framework itself, or we should '
-              'provide substantially more information in this error message to help you determine '
+              'Either the assertion indicates an error in the framework '
+              'itself, or we should '
+              'provide substantially more information in this error '
+              'message to help you determine '
               'and fix the underlying cause.\n'
-              'In either case, please report this assertion by filing a bug on GitHub:\n'
+              'In either case, please report this assertion by filing '
+              'a bug on GitHub:\n'
               '  https://github.com/flutter/flutter/issues/new?template=02_bug.yml',
             ),
           );
@@ -860,7 +866,9 @@ class FlutterError extends Error
   ///     if (!draconisAlive || !draconisAmulet) {
   ///       throw FlutterError.fromParts(<DiagnosticsNode>[
   ///         ErrorSummary('Cannot control Draconis in current state.'),
-  ///         ErrorDescription('Draconis can only be controlled while alive and while the amulet is wielded.'),
+  ///         ErrorDescription(
+  ///           'Draconis can only be controlled while alive and while '
+  ///           'the amulet is wielded.'),
   ///         if (!draconisAlive)
   ///           ErrorHint('Draconis is currently not alive.'),
   ///         if (!draconisAmulet)

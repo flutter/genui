@@ -206,9 +206,12 @@ class StackFrame {
 
     assert(
       line != '===== asynchronous gap ===========================',
-      'Got a stack frame from package:stack_trace, where a vm or web frame was expected. '
-      'This can happen if FlutterError.demangleStackTrace was not set in an environment '
-      'that propagates non-standard stack traces to the framework, such as during tests.',
+      'Got a stack frame from package:stack_trace, where a vm or '
+      'web frame was expected. '
+      'This can happen if FlutterError.demangleStackTrace was not '
+      'set in an environment '
+      'that propagates non-standard stack traces to the framework, '
+      'such as during tests.',
     );
 
     // Web frames.

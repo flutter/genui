@@ -178,7 +178,8 @@ Iterable<String> debugWordWrap(
   while (true) {
     switch (mode) {
       case _WordWrapParseMode
-          .inSpace: // at start of break point (or start of line); can't break until next break
+          .inSpace: // at start of break point (or start of line);
+                    // can't break until next break
         while ((index < message.length) && (message[index] == ' ')) {
           index += 1;
         }
