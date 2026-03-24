@@ -10,7 +10,6 @@ library;
 
 import 'dart:collection';
 import 'dart:math' as math;
-import 'dart:ui' show clampDouble;
 
 import 'package:meta/meta.dart';
 
@@ -18,6 +17,8 @@ import 'assertions.dart';
 import '../primitives/constants.dart';
 import 'debug.dart';
 import 'object.dart';
+
+import '../dart_ui/math.dart';
 
 // Examples can assume:
 // late int rows, columns;
