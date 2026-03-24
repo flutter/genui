@@ -16,7 +16,9 @@ import 'dart:async';
 import 'dart:convert' show json;
 import 'dart:developer' as developer;
 import 'dart:io' show exit;
-import 'dart:ui' as ui show Brightness, PlatformDispatcher, SingletonFlutterWindow, window;
+import 'dart:ui'
+    as ui
+    show Brightness, PlatformDispatcher, SingletonFlutterWindow, window;
 
 // Before adding any more dart:ui imports, please read the README.
 
@@ -34,7 +36,8 @@ import 'timeline.dart';
 
 export 'dart:ui' show PlatformDispatcher, SingletonFlutterWindow, clampDouble;
 
-export 'basic_types.dart' show AsyncCallback, AsyncValueGetter, AsyncValueSetter;
+export 'basic_types.dart'
+    show AsyncCallback, AsyncValueGetter, AsyncValueSetter;
 
 // Examples can assume:
 // mixin BarBinding on BindingBase { }
@@ -173,7 +176,10 @@ abstract class BindingBase {
     assert(_debugServiceExtensionsRegistered);
 
     if (!kReleaseMode) {
-      developer.postEvent('Flutter.FrameworkInitialization', <String, String>{});
+      developer.postEvent(
+        'Flutter.FrameworkInitialization',
+        <String, String>{},
+      );
       FlutterTimeline.finishSync();
     }
   }
@@ -246,7 +252,8 @@ abstract class BindingBase {
   /// for use by other bindings. A subclass of [BindingBase], such as
   /// [TestWidgetsFlutterBinding], can override this accessor to return a
   /// different [ui.PlatformDispatcher] implementation.
-  ui.PlatformDispatcher get platformDispatcher => ui.PlatformDispatcher.instance;
+  ui.PlatformDispatcher get platformDispatcher =>
+      ui.PlatformDispatcher.instance;
 
   /// The initialization method.
   ///
@@ -336,7 +343,9 @@ abstract class BindingBase {
       if (instance == null) {
         assert(_debugInitializedType == null);
         throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary('Binding mixin instance is null but bindings are already initialized.'),
+          ErrorSummary(
+            'Binding mixin instance is null but bindings are already initialized.',
+          ),
           ErrorDescription(
             'The "instance" property of the $T binding mixin was accessed, but that binding was not initialized when '
             'the "initInstances()" method was called.',
@@ -351,7 +360,9 @@ abstract class BindingBase {
             'It is also possible that $T does not implement "initInstances()" to assign a value to "instance". See the '
             'documentation of the BindingBase class for more details.',
           ),
-          ErrorHint('The binding that was initialized was of the type "$_debugInitializedType". '),
+          ErrorHint(
+            'The binding that was initialized was of the type "$_debugInitializedType". ',
+          ),
         ]);
       }
       try {
@@ -616,12 +627,16 @@ abstract class BindingBase {
             };
             _postExtensionStateChangedEvent(
               FoundationServiceExtensions.brightnessOverride.name,
-              (debugBrightnessOverride ?? platformDispatcher.platformBrightness).toString(),
+              (debugBrightnessOverride ?? platformDispatcher.platformBrightness)
+                  .toString(),
             );
             await reassembleApplication();
           }
           return <String, dynamic>{
-            'value': (debugBrightnessOverride ?? platformDispatcher.platformBrightness).toString(),
+            'value':
+                (debugBrightnessOverride ??
+                        platformDispatcher.platformBrightness)
+                    .toString(),
           };
         },
       );
@@ -745,7 +760,10 @@ abstract class BindingBase {
   ///
   /// {@macro flutter.foundation.BindingBase.registerServiceExtension}
   @protected
-  void registerSignalServiceExtension({required String name, required AsyncCallback callback}) {
+  void registerSignalServiceExtension({
+    required String name,
+    required AsyncCallback callback,
+  }) {
     registerServiceExtension(
       name: name,
       callback: (Map<String, String> parameters) async {
@@ -780,7 +798,10 @@ abstract class BindingBase {
       callback: (Map<String, String> parameters) async {
         if (parameters.containsKey('enabled')) {
           await setter(parameters['enabled'] == 'true');
-          _postExtensionStateChangedEvent(name, await getter() ? 'true' : 'false');
+          _postExtensionStateChangedEvent(
+            name,
+            await getter() ? 'true' : 'false',
+          );
         }
         return <String, dynamic>{'enabled': await getter() ? 'true' : 'false'};
       },
@@ -933,7 +954,10 @@ abstract class BindingBase {
     required ServiceExtensionCallback callback,
   }) {
     final methodName = 'ext.flutter.$name';
-    developer.registerExtension(methodName, (String method, Map<String, String> parameters) async {
+    developer.registerExtension(methodName, (
+      String method,
+      Map<String, String> parameters,
+    ) async {
       assert(method == methodName);
       assert(() {
         if (debugInstrumentationEnabled) {
@@ -964,7 +988,9 @@ abstract class BindingBase {
           FlutterErrorDetails(
             exception: exception,
             stack: stack,
-            context: ErrorDescription('during a service extension callback for "$method"'),
+            context: ErrorDescription(
+              'during a service extension callback for "$method"',
+            ),
           ),
         );
         return developer.ServiceExtensionResponse.error(

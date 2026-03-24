@@ -4,7 +4,7 @@
 
 import 'package:meta/meta.dart';
 
-import 'constants.dart';
+import '../primitives/constants.dart';
 import 'object.dart';
 
 /// A object representation of a frame from a stack trace.
@@ -123,7 +123,10 @@ class StackFrame {
       packageScheme = 'package';
       final Uri packageUri = Uri.parse(match.group(1)!);
       package = packageUri.pathSegments[0];
-      packagePath = packageUri.path.replaceFirst('${packageUri.pathSegments[0]}/', '');
+      packagePath = packageUri.path.replaceFirst(
+        '${packageUri.pathSegments[0]}/',
+        '',
+      );
     }
 
     return StackFrame(
@@ -165,7 +168,9 @@ class StackFrame {
     }
 
     final List<String> classAndMethod = match.group(1)!.split('.');
-    final String className = classAndMethod.length > 1 ? classAndMethod.first : '<unknown>';
+    final String className = classAndMethod.length > 1
+        ? classAndMethod.first
+        : '<unknown>';
     final String method = classAndMethod.length > 1
         ? classAndMethod.skip(1).join('.')
         : classAndMethod.single;
@@ -235,7 +240,10 @@ class StackFrame {
     String packagePath = packageUri.path;
     if (packageUri.scheme == 'dart' || packageUri.scheme == 'package') {
       package = packageUri.pathSegments[0];
-      packagePath = packageUri.path.replaceFirst('${packageUri.pathSegments[0]}/', '');
+      packagePath = packageUri.path.replaceFirst(
+        '${packageUri.pathSegments[0]}/',
+        '',
+      );
     }
 
     return StackFrame(
@@ -299,7 +307,8 @@ class StackFrame {
   final bool isConstructor;
 
   @override
-  int get hashCode => Object.hash(number, package, line, column, className, method, source);
+  int get hashCode =>
+      Object.hash(number, package, line, column, className, method, source);
 
   @override
   bool operator ==(Object other) {

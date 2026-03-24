@@ -7,8 +7,10 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 
-import '_timeline_io.dart' if (dart.library.js_interop) '_timeline_web.dart' as impl;
-import 'constants.dart';
+import '_timeline_io.dart'
+    if (dart.library.js_interop) '_timeline_web.dart'
+    as impl;
+import '../primitives/constants.dart';
 
 /// Measures how long blocks of code take to run.
 ///
@@ -51,7 +53,9 @@ abstract final class FlutterTimeline {
   }
 
   static StateError _createReleaseModeNotSupportedError() {
-    return StateError('FlutterTimeline metric collection not supported in release mode.');
+    return StateError(
+      'FlutterTimeline metric collection not supported in release mode.',
+    );
   }
 
   static bool _collectionEnabled = false;
@@ -63,7 +67,11 @@ abstract final class FlutterTimeline {
   /// [finishSync] before returning to the event queue.
   ///
   /// This is a drop-in replacement for [Timeline.startSync].
-  static void startSync(String name, {Map<String, Object?>? arguments, Flow? flow}) {
+  static void startSync(
+    String name, {
+    Map<String, Object?>? arguments,
+    Flow? flow,
+  }) {
     Timeline.startSync(name, arguments: arguments, flow: flow);
     if (!kReleaseMode && _collectionEnabled) {
       _buffer.startSync(name, arguments: arguments, flow: flow);
@@ -161,7 +169,10 @@ final class TimedBlock {
   /// The [name] should be sufficiently unique and descriptive for someone to
   /// easily tell which part of code was measured.
   const TimedBlock({required this.name, required this.start, required this.end})
-    : assert(end >= start, 'The start timestamp must not be greater than the end timestamp.');
+    : assert(
+        end >= start,
+        'The start timestamp must not be greater than the end timestamp.',
+      );
 
   /// A readable label for a block of code that was measured.
   ///
@@ -200,16 +211,29 @@ final class AggregatedTimings {
   /// Does not guarantee that all code blocks will be reported. Only those that
   /// executed since the last reset are listed here. Use [getAggregated] for
   /// graceful handling of missing code blocks.
-  late final List<AggregatedTimedBlock> aggregatedBlocks = _computeAggregatedBlocks();
+  late final List<AggregatedTimedBlock> aggregatedBlocks =
+      _computeAggregatedBlocks();
 
   List<AggregatedTimedBlock> _computeAggregatedBlocks() {
     final aggregate = <String, (double, int)>{};
     for (final TimedBlock block in timedBlocks) {
-      final (double, int) previousValue = aggregate.putIfAbsent(block.name, () => (0, 0));
-      aggregate[block.name] = (previousValue.$1 + block.duration, previousValue.$2 + 1);
+      final (double, int) previousValue = aggregate.putIfAbsent(
+        block.name,
+        () => (0, 0),
+      );
+      aggregate[block.name] = (
+        previousValue.$1 + block.duration,
+        previousValue.$2 + 1,
+      );
     }
-    return aggregate.entries.map<AggregatedTimedBlock>((MapEntry<String, (double, int)> entry) {
-      return AggregatedTimedBlock(name: entry.key, duration: entry.value.$1, count: entry.value.$2);
+    return aggregate.entries.map<AggregatedTimedBlock>((
+      MapEntry<String, (double, int)> entry,
+    ) {
+      return AggregatedTimedBlock(
+        name: entry.key,
+        duration: entry.value.$1,
+        count: entry.value.$2,
+      );
     }).toList();
   }
 
@@ -239,8 +263,11 @@ final class AggregatedTimedBlock {
   ///
   /// The [name] should be sufficiently unique and descriptive for someone to
   /// easily tell which part of code was measured.
-  const AggregatedTimedBlock({required this.name, required this.duration, required this.count})
-    : assert(duration >= 0);
+  const AggregatedTimedBlock({
+    required this.name,
+    required this.duration,
+    required this.count,
+  }) : assert(duration >= 0);
 
   /// A readable label for a block of code that was measured.
   ///
@@ -358,7 +385,10 @@ final class _BlockBuffer {
   // add the (start, finish) tuple to the _block.
   static const int _stackDepth = 1000;
   static final Float64List _startStack = Float64List(_stackDepth);
-  static final List<String?> _nameStack = List<String?>.filled(_stackDepth, null);
+  static final List<String?> _nameStack = List<String?>.filled(
+    _stackDepth,
+    null,
+  );
   static int _stackPointer = 0;
 
   final _Float64ListChain _starts = _Float64ListChain();
@@ -385,7 +415,9 @@ final class _BlockBuffer {
     assert(names.length == length);
 
     for (var i = 0; i < length; i++) {
-      result.add(TimedBlock(start: starts[i], end: finishes[i], name: names[i]));
+      result.add(
+        TimedBlock(start: starts[i], end: finishes[i], name: names[i]),
+      );
     }
 
     return result;

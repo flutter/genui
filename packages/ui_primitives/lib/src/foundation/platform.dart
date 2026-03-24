@@ -6,9 +6,11 @@
 /// @docImport 'package:flutter_test/flutter_test.dart';
 library;
 
-import '_platform_io.dart' if (dart.library.js_interop) '_platform_web.dart' as platform;
+import '_platform_io.dart'
+    if (dart.library.js_interop) '_platform_web.dart'
+    as platform;
 import 'assertions.dart';
-import 'constants.dart';
+import '../primitives/constants.dart';
 
 /// The [TargetPlatform] that matches the platform on which the framework is
 /// currently executing.
@@ -101,11 +103,14 @@ enum TargetPlatform {
 /// button, which will make those widgets unusable since iOS has no such button.
 ///
 /// Attempting to override this property in non-debug builds causes an error.
-TargetPlatform? get debugDefaultTargetPlatformOverride => _debugDefaultTargetPlatformOverride;
+TargetPlatform? get debugDefaultTargetPlatformOverride =>
+    _debugDefaultTargetPlatformOverride;
 
 set debugDefaultTargetPlatformOverride(TargetPlatform? value) {
   if (!kDebugMode) {
-    throw FlutterError('Cannot modify debugDefaultTargetPlatformOverride in non-debug builds.');
+    throw FlutterError(
+      'Cannot modify debugDefaultTargetPlatformOverride in non-debug builds.',
+    );
   }
   _debugDefaultTargetPlatformOverride = value;
 }

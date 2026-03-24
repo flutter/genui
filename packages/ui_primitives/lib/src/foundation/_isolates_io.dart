@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'constants.dart';
+import '../primitives/constants.dart';
 import 'isolates.dart' as isolates;
 
 export 'isolates.dart' show ComputeCallback;

@@ -4,7 +4,7 @@
 
 import 'dart:io';
 import 'assertions.dart';
-import 'constants.dart';
+import '../primitives/constants.dart';
 import 'platform.dart' as platform;
 
 export 'platform.dart' show TargetPlatform;
