@@ -6,16 +6,13 @@
 /// @docImport 'package:flutter/widgets.dart';
 library;
 
-import 'dart:ui' show VoidCallback;
-
 import 'package:meta/meta.dart';
 
+import '../private_leak_tracking.dart';
 import 'assertions.dart';
 import 'debug.dart';
 import 'diagnostics.dart';
-import '../memory_allocations.dart';
-
-export 'dart:ui' show VoidCallback;
+import '../primitives/basics.dart';
 
 /// An object that maintains a list of listeners.
 ///
@@ -137,7 +134,7 @@ abstract class ValueListenable<T> extends Listenable {
 /// See also:
 ///
 ///  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
-mixin class ChangeNotifier implements Listenable {
+class ChangeNotifier implements Listenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
   // of const [].
@@ -216,36 +213,6 @@ mixin class ChangeNotifier implements Listenable {
   @protected
   bool get hasListeners => _count > 0;
 
-  /// Dispatches event of the [object] creation to [FlutterMemoryAllocations.instance].
-  ///
-  /// If the event was already dispatched or [kFlutterMemoryAllocationsEnabled]
-  /// is false, the method is noop.
-  ///
-  /// Tools like leak_tracker use the event of object creation to help
-  /// developers identify the owner of the object, for troubleshooting purposes,
-  /// by taking stack trace at the moment of the event.
-  ///
-  /// But, as [ChangeNotifier] is mixin, it does not have its own constructor. So, it
-  /// communicates object creation in first `addListener`, that results
-  /// in the stack trace pointing to `addListener`, not to constructor.
-  ///
-  /// To make debugging easier, invoke [ChangeNotifier.maybeDispatchObjectCreation]
-  /// in constructor of the class. It will help
-  /// to identify the owner.
-  ///
-  /// Make sure to invoke it with condition `if (kFlutterMemoryAllocationsEnabled) ...`
-  /// so that the method is tree-shaken away when the flag is false.
-  @protected
-  static void maybeDispatchObjectCreation(ChangeNotifier object) {
-    assert(() {
-      if (!object._debugCreationDispatched) {
-        debugMaybeDispatchCreated('foundation', 'ChangeNotifier', object);
-        object._debugCreationDispatched = true;
-      }
-      return true;
-    }());
-  }
-
   /// Register a closure to be called when the object changes.
   ///
   /// If the given closure is already registered, an additional instance is
@@ -275,10 +242,6 @@ mixin class ChangeNotifier implements Listenable {
   @override
   void addListener(VoidCallback listener) {
     assert(ChangeNotifier.debugAssertNotDisposed(this));
-
-    if (kFlutterMemoryAllocationsEnabled) {
-      maybeDispatchObjectCreation(this);
-    }
 
     if (_count == _listeners.length) {
       if (_count == 0) {
@@ -390,9 +353,7 @@ mixin class ChangeNotifier implements Listenable {
     );
     assert(() {
       _debugDisposed = true;
-      if (_debugCreationDispatched) {
-        assert(debugMaybeDispatchDisposed(this));
-      }
+      assert(debugMaybeDispatchDisposed(this));
       return true;
     }());
     _listeners = _emptyListeners;
@@ -551,8 +512,8 @@ class _MergingListenable extends Listenable {
 class ValueNotifier<T> extends ChangeNotifier implements ValueListenable<T> {
   /// Creates a [ChangeNotifier] that wraps this value.
   ValueNotifier(this._value) {
-    if (kFlutterMemoryAllocationsEnabled) {
-      ChangeNotifier.maybeDispatchObjectCreation(this);
+    if (kTrackMemoryLeaks) {
+      debugMaybeDispatchCreated(runtimeType.toString(), this);
     }
   }
 

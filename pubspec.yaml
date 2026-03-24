@@ -21,6 +21,7 @@ workspace:
   - packages/genui
   - packages/genui_a2a
   - packages/json_schema_builder
+  - packages/ui_primitives
 
   - tool/fix_copyright
   - tool/release

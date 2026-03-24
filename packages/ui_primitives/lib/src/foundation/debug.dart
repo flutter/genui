@@ -9,6 +9,8 @@
 /// @docImport 'package:flutter/widgets.dart';
 library;
 
+import 'package:leak_tracker/leak_tracker.dart';
+
 import 'assertions.dart';
 import 'platform.dart';
 import 'print.dart';
