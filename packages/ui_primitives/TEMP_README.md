@@ -10,7 +10,7 @@ The code is copied from flutter and dart:ui
 with the following changes:
 
 1. Word `flutter` is replaced with `ui` in some APIs (for example, `FlutterError` -> `UiError`).
-2. `_lerpDouble` is renamed to `lerpDoubleNonNull`, but remails private.
+2. `_lerpDouble` is renamed to `lerpDoubleNonNull`, but remains private.
 
 ## TODO before publishing 0.0.1
 
