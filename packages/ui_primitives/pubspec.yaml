@@ -14,6 +14,6 @@ environment:
 
 dependencies:
   leak_tracker: ^11.0.2
-  meta: ^1.18.0
+  meta: ^1.17.0
 dev_dependencies:
   test: ^1.26.2
