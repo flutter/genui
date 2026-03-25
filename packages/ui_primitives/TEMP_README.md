@@ -9,7 +9,7 @@ This text is not part of 'normal' README.md, because it is not relevant for the 
 The code is copied from flutter and dart:ui
 with the following changes:
 
-1. Word `flutter` is replaced with `ui` in API.
+1. Word `flutter` is replaced with `ui` in some APIs.
 2. `_lerpDouble` is renamed to `lerpDoubleNonNull`, but remails private.
 
 ## What is copied
