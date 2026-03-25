@@ -12,10 +12,6 @@ with the following changes:
 1. Word `flutter` is replaced with `ui` in some APIs.
 2. `_lerpDouble` is renamed to `lerpDoubleNonNull`, but remails private.
 
-## What is copied
-
-For now only code needed 
-
 ## TODO before publishing 0.0.1
 
 1. Address TODO's in the code
