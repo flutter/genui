@@ -16,7 +16,7 @@ with the following changes:
 
 For now only code needed 
 
-## TODO before publishing
+## TODO before publishing 0.0.1
 
 1. Address TODO's in the code
 2. Remove commented code
