@@ -38,7 +38,7 @@ bool debugAssertAllFoundationVarsUnset(
         debugDefaultTargetPlatformOverride != null ||
         debugDoublePrecision != null ||
         debugBrightnessOverride != null) {
-      throw FlutterError(reason);
+      throw UiError(reason);
     }
     return true;
   }());

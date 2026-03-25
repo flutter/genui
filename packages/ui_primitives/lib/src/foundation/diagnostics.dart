@@ -174,7 +174,7 @@ enum DiagnosticsTreeStyle {
   ///
   /// See also:
   ///
-  ///  * [FlutterError], which uses this style for the root node in a tree
+  ///  * [UiError], which uses this style for the root node in a tree
   ///    describing an error.
   error,
 
@@ -1681,7 +1681,7 @@ abstract class DiagnosticsNode {
       // We don't throw in release builds, to avoid hurting users. We also don't
       // do anything useful.
       if (kProfileMode) {
-        throw FlutterError(
+        throw UiError(
           // Parts of this string are searched for verbatim by a test in
           // dev/bots/test.dart.
           '$DiagnosticsNode.toTimelineArguments used in non-debug build.\n'

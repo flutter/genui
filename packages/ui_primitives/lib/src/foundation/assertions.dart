@@ -31,7 +31,7 @@ export 'stack_frame.dart' show StackFrame;
 // class Trace implements StackTrace { late StackTrace vmTrace; }
 // class Chain implements StackTrace { Trace toTrace() => Trace(); }
 
-/// Signature for [FlutterError.onError] handler.
+/// Signature for [UiError.onError] handler.
 typedef FlutterExceptionHandler = void Function(FlutterErrorDetails details);
 
 /// Signature for [DiagnosticPropertiesBuilder] transformer.
@@ -47,7 +47,7 @@ typedef InformationCollector = Iterable<DiagnosticsNode> Function();
 ///
 /// See also:
 ///
-///   * [FlutterError.demangleStackTrace], which shows an example
+///   * [UiError.demangleStackTrace], which shows an example
 ///     implementation.
 typedef StackTraceDemangler = StackTrace Function(StackTrace details);
 
@@ -108,7 +108,7 @@ class PartialStackFrame {
 }
 
 /// A class that filters stack frames for additional filtering on
-/// [FlutterError.defaultStackFilter].
+/// [UiError.defaultStackFilter].
 abstract class StackFilter {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
@@ -126,8 +126,8 @@ abstract class StackFilter {
 ///
 /// See also:
 ///
-///   * [FlutterError.addDefaultStackFilter], a method to register additional
-///     stack filters for [FlutterError.defaultStackFilter].
+///   * [UiError.addDefaultStackFilter], a method to register additional
+///     stack filters for [UiError.defaultStackFilter].
 ///   * [StackFrame], a class that can help with parsing stack frames.
 ///   * [PartialStackFrame], a class that helps match partial method information
 ///     to a stack frame.
@@ -147,7 +147,7 @@ class RepetitiveStackFrameFilter extends StackFilter {
   /// The string to replace the frames with.
   ///
   /// If the same replacement string is used multiple times in a row, the
-  /// [FlutterError.defaultStackFilter] will insert a repeat count after this
+  /// [UiError.defaultStackFilter] will insert a repeat count after this
   /// line rather than repeating it.
   final String replacement;
 
@@ -264,7 +264,7 @@ abstract class _ErrorDiagnostic extends DiagnosticsProperty<List<Object>> {
 ///  * [ErrorHint], which provides specific, non-obvious advice that may be
 ///    applicable.
 ///  * [ErrorSpacer], which renders as a blank line.
-///  * [FlutterError], which is the most common place to use an
+///  * [UiError], which is the most common place to use an
 ///    [ErrorDescription].
 class ErrorDescription extends _ErrorDiagnostic {
   /// A lint enforces that this constructor can only be called with a string
@@ -291,7 +291,7 @@ class ErrorDescription extends _ErrorDiagnostic {
 /// so that they can be recognized as related. For example, they shouldn't
 /// include hash codes.
 ///
-/// A [FlutterError] must start with an [ErrorSummary] and may not contain
+/// A [UiError] must start with an [ErrorSummary] and may not contain
 /// multiple summaries.
 ///
 /// In debug builds, values interpolated into the `message` are
@@ -305,7 +305,7 @@ class ErrorDescription extends _ErrorDiagnostic {
 ///    information, etc.
 ///  * [ErrorHint], which provides specific, non-obvious advice that may be
 ///    applicable.
-///  * [FlutterError], which is the most common place to use an [ErrorSummary].
+///  * [UiError], which is the most common place to use an [ErrorSummary].
 class ErrorSummary extends _ErrorDiagnostic {
   /// A lint enforces that this constructor can only be called with a string
   /// literal to match the limitations of the Dart Kernel transformer that
@@ -342,7 +342,7 @@ class ErrorSummary extends _ErrorDiagnostic {
 ///    cause, any information that may help track down the problem, background
 ///    information, etc.
 ///  * [ErrorSpacer], which renders as a blank line.
-///  * [FlutterError], which is the most common place to use an [ErrorHint].
+///  * [UiError], which is the most common place to use an [ErrorHint].
 class ErrorHint extends _ErrorDiagnostic {
   /// A lint enforces that this constructor can only be called with a string
   /// literal to match the limitations of the Dart Kernel transformer that
@@ -366,7 +366,7 @@ class ErrorHint extends _ErrorDiagnostic {
 /// tune the spacing between other [DiagnosticsNode] objects.
 class ErrorSpacer extends DiagnosticsProperty<void> {
   /// Creates an empty space to insert into a list of [DiagnosticsNode] objects
-  /// typically within a [FlutterError] object.
+  /// typically within a [UiError] object.
   ErrorSpacer() : super('', null, description: '', showName: false);
 }
 
@@ -374,7 +374,7 @@ class ErrorSpacer extends DiagnosticsProperty<void> {
 ///
 /// {@tool snippet}
 /// This is an example of using [FlutterErrorDetails] when calling
-/// [FlutterError.reportError].
+/// [UiError.reportError].
 ///
 /// ```dart
 /// void main() {
@@ -394,14 +394,14 @@ class ErrorSpacer extends DiagnosticsProperty<void> {
 ///
 /// See also:
 ///
-///   * [FlutterError.onError], which is called whenever the Flutter framework
+///   * [UiError.onError], which is called whenever the Flutter framework
 ///     catches an error.
 class FlutterErrorDetails with Diagnosticable {
   /// Creates a [FlutterErrorDetails] object with the given arguments setting
   /// the object's properties.
   ///
   /// The framework calls this constructor when catching an exception that will
-  /// subsequently be reported using [FlutterError.onError].
+  /// subsequently be reported using [UiError.onError].
   const FlutterErrorDetails({
     required this.exception,
     this.stack,
@@ -452,7 +452,7 @@ class FlutterErrorDetails with Diagnosticable {
   /// The exception.
   ///
   /// Often this will be an [AssertionError], maybe specifically a
-  /// [FlutterError].
+  /// [UiError].
   /// However, this could be any value at all.
   final Object exception;
 
@@ -464,7 +464,7 @@ class FlutterErrorDetails with Diagnosticable {
   /// If this field is not null, then the [stackFilter] callback, if any, will
   /// be called with the result of calling [toString] on this object and
   /// splitting that result on line breaks. If there's no [stackFilter]
-  /// callback, then [FlutterError.defaultStackFilter] is used instead. That
+  /// callback, then [UiError.defaultStackFilter] is used instead. That
   /// function expects the stack to be in the format used by
   /// [StackTrace.toString].
   final StackTrace? stack;
@@ -486,7 +486,7 @@ class FlutterErrorDetails with Diagnosticable {
   ///
   /// {@tool snippet}
   /// This is an example of using and [ErrorDescription] as the
-  /// [FlutterErrorDetails.context] when calling [FlutterError.reportError].
+  /// [FlutterErrorDetails.context] when calling [UiError.reportError].
   ///
   /// ```dart
   /// void maybeDoSomething() {
@@ -514,7 +514,7 @@ class FlutterErrorDetails with Diagnosticable {
   ///    problem that was detected.
   ///  * [ErrorHint], which provides specific, non-obvious advice that may be
   ///    applicable.
-  ///  * [FlutterError], which is the most common place to use
+  ///  * [UiError], which is the most common place to use
   ///    [FlutterErrorDetails].
   final DiagnosticsNode? context;
 
@@ -525,10 +525,10 @@ class FlutterErrorDetails with Diagnosticable {
   /// to
   /// output for the stack.
   ///
-  /// If this is not provided, then [FlutterError.dumpErrorToConsole] will use
-  /// [FlutterError.defaultStackFilter] instead.
+  /// If this is not provided, then [UiError.dumpErrorToConsole] will use
+  /// [UiError.defaultStackFilter] instead.
   ///
-  /// If the [FlutterError.defaultStackFilter] behavior is desired, then the
+  /// If the [UiError.defaultStackFilter] behavior is desired, then the
   /// callback should manually call that function. That function expects the
   /// incoming list to be in the [StackTrace.toString()] format. The output of
   /// that function, however, does not always follow this format.
@@ -654,11 +654,11 @@ class FlutterErrorDetails with Diagnosticable {
 
   Diagnosticable? _exceptionToDiagnosticable() {
     final Object exception = this.exception;
-    if (exception is FlutterError) {
+    if (exception is UiError) {
       return exception;
     }
-    if (exception is AssertionError && exception.message is FlutterError) {
-      return exception.message! as FlutterError;
+    if (exception is AssertionError && exception.message is UiError) {
+      return exception.message! as UiError;
     }
     return null;
   }
@@ -730,7 +730,7 @@ class FlutterErrorDetails with Diagnosticable {
         // If so:  Error is in Framework. We either need an assertion higher up
         //         in the stack, or we've violated our own assertions.
         final List<StackFrame> stackFrames =
-            StackFrame.fromStackTrace(FlutterError.demangleStackTrace(stack!))
+            StackFrame.fromStackTrace(UiError.demangleStackTrace(stack!))
                 .skipWhile((StackFrame frame) => frame.packageScheme == 'dart')
                 .toList();
         final bool ourFault =
@@ -798,7 +798,7 @@ class FlutterErrorDetails with Diagnosticable {
 ///
 ///  * <https://docs.flutter.dev/testing/errors>, more information about error
 ///    handling in Flutter.
-class FlutterError extends Error
+class UiError extends Error
     with DiagnosticableTreeMixin
     implements AssertionError {
   /// Create an error message from a string.
@@ -809,7 +809,7 @@ class FlutterError extends Error
   /// substantial additional information, ideally sufficient to develop a
   /// correct solution to the problem.
   ///
-  /// In some cases, when a [FlutterError] is reported to the user, only the
+  /// In some cases, when a [UiError] is reported to the user, only the
   /// first
   /// line is included. For example, Flutter will typically only fully report
   /// the first exception at runtime, displaying only the first line of
@@ -823,9 +823,9 @@ class FlutterError extends Error
   /// lines are wrapped in implied [ErrorDescription]s. Consider using the
   /// [FlutterError.fromParts] constructor to provide more detail, e.g.
   /// using [ErrorHint]s or other [DiagnosticsNode]s.
-  factory FlutterError(String message) {
+  factory UiError(String message) {
     final List<String> lines = message.split('\n');
-    return FlutterError.fromParts(<DiagnosticsNode>[
+    return UiError.fromParts(<DiagnosticsNode>[
       ErrorSummary(lines.first),
       ...lines.skip(1).map<DiagnosticsNode>(ErrorDescription.new),
     ]);
@@ -882,22 +882,22 @@ class FlutterError extends Error
   /// }
   /// ```
   /// {@end-tool}
-  FlutterError.fromParts(this.diagnostics)
+  UiError.fromParts(this.diagnostics)
     : assert(
         diagnostics.isNotEmpty,
-        FlutterError.fromParts(<DiagnosticsNode>[
+        UiError.fromParts(<DiagnosticsNode>[
           ErrorSummary('Empty FlutterError'),
         ]),
       ) {
     assert(
       diagnostics.first.level == DiagnosticLevel.summary,
-      FlutterError.fromParts(<DiagnosticsNode>[
+      UiError.fromParts(<DiagnosticsNode>[
         ErrorSummary('FlutterError is missing a summary.'),
         ErrorDescription(
           'All FlutterError objects should start with a short (one line) '
           'summary description of the problem that was detected.',
         ),
-        DiagnosticsProperty<FlutterError>(
+        DiagnosticsProperty<UiError>(
           'Malformed',
           this,
           expandableValue: true,
@@ -924,7 +924,7 @@ class FlutterError extends Error
             '(one line) summary description of the problem that was '
             'detected.',
           ),
-          DiagnosticsProperty<FlutterError>(
+          DiagnosticsProperty<UiError>(
             'Malformed',
             this,
             expandableValue: true,
@@ -954,7 +954,7 @@ class FlutterError extends Error
             '  https://github.com/flutter/flutter/issues/new?template=02_bug.yml',
           ),
         );
-        throw FlutterError.fromParts(message);
+        throw UiError.fromParts(message);
       }
       return true;
     }());
@@ -1275,7 +1275,7 @@ class FlutterError extends Error
 }
 
 /// Dump the stack to the console using [debugPrint] and
-/// [FlutterError.defaultStackFilter].
+/// [UiError.defaultStackFilter].
 ///
 /// If the `stackTrace` parameter is null, the [StackTrace.current] is used to
 /// obtain the stack.
@@ -1292,7 +1292,7 @@ void debugPrintStack({StackTrace? stackTrace, String? label, int? maxFrames}) {
   if (stackTrace == null) {
     stackTrace = StackTrace.current;
   } else {
-    stackTrace = FlutterError.demangleStackTrace(stackTrace);
+    stackTrace = UiError.demangleStackTrace(stackTrace);
   }
   Iterable<String> lines = stackTrace.toString().trimRight().split('\n');
   if (kIsWeb && lines.isNotEmpty) {
@@ -1308,18 +1308,18 @@ void debugPrintStack({StackTrace? stackTrace, String? label, int? maxFrames}) {
   if (maxFrames != null) {
     lines = lines.take(maxFrames);
   }
-  ErrorToConsoleDumper.dump(FlutterError.defaultStackFilter(lines).join('\n'));
+  ErrorToConsoleDumper.dump(UiError.defaultStackFilter(lines).join('\n'));
 }
 
 /// Diagnostic with a [StackTrace] [value] suitable for displaying stack traces
-/// as part of a [FlutterError] object.
+/// as part of a [UiError] object.
 class DiagnosticsStackTrace extends DiagnosticsBlock {
   /// Creates a diagnostic for a stack trace.
   ///
   /// [name] describes a name the stack trace is given, e.g.
   /// `When the exception was thrown, this was the stack`.
   /// [stackFilter] provides an optional filter to use to filter which frames
-  /// are included. If no filter is specified, [FlutterError.defaultStackFilter]
+  /// are included. If no filter is specified, [UiError.defaultStackFilter]
   /// is used.
   /// [showSeparator] indicates whether to include a ':' after the [name].
   DiagnosticsStackTrace(
@@ -1354,9 +1354,9 @@ class DiagnosticsStackTrace extends DiagnosticsBlock {
       return <DiagnosticsNode>[];
     }
     final IterableFilter<String> filter =
-        stackFilter ?? FlutterError.defaultStackFilter;
+        stackFilter ?? UiError.defaultStackFilter;
     final Iterable<String> frames = filter(
-      '${FlutterError.demangleStackTrace(stack)}'.trimRight().split('\n'),
+      '${UiError.demangleStackTrace(stack)}'.trimRight().split('\n'),
     );
     return frames.map<DiagnosticsNode>(_createStackFrame).toList();
   }
