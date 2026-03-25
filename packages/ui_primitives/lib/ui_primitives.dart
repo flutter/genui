@@ -3,5 +3,6 @@
 // found in the LICENSE file.
 
 export 'src/foundation/assertions.dart' show UiError, UiErrorDetails;
-export 'src/foundation/listenable.dart';
-export 'src/foundation/value_notifier.dart';
+export 'src/foundation/listenable.dart' show Listenable, ValueListenable;
+export 'src/foundation/value_notifier.dart' show ValueNotifier;
+export 'src/primitives/basics.dart' show VoidCallback;

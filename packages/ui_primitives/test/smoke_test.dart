@@ -5,8 +5,26 @@
 import 'package:test/test.dart';
 import 'package:ui_primitives/ui_primitives.dart';
 
+// ignore: unused_element, tests that ValueNotifier can be implemented.
+class _ValueNotifierOtherImplementaion<T> implements ValueNotifier<T> {
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
+
+  @override
+  T get value => throw UnimplementedError();
+
+  @override
+  void dispose() {}
+
+  @override
+  set value(T newValue) {}
+}
+
 void main() {
-  test('smoke', () {
+  test('ValueNotifier basic functionality is working', () {
     final ValueNotifier<int> notifier = ValueNotifier(1);
     addTearDown(notifier.dispose);
     var count = 0;

@@ -399,8 +399,9 @@ class _ChangeNotifier implements Listenable {
 ///
 /// For mutable data types, consider extending [_ChangeNotifier] directly and
 /// calling [notifyListeners] manually when changes occur.
-final class ValueNotifier<T> extends _ChangeNotifier
-    implements ValueListenable<T> {
+interface class ValueNotifier<T> implements ValueListenable<T> {
+  final _ChangeNotifier _changeNotifier = _ChangeNotifier();
+
   /// Creates a [_ChangeNotifier] that wraps this value.
   ValueNotifier(this._value) {
     if (kTrackMemoryLeaks) {
@@ -421,17 +422,24 @@ final class ValueNotifier<T> extends _ChangeNotifier
       return;
     }
     _value = newValue;
-    notifyListeners();
+    _changeNotifier.notifyListeners();
   }
 
   @override
   String toString() => '${describeIdentity(this)}($value)';
 
-  @override
   void dispose() {
     if (kTrackMemoryLeaks) {
       debugMaybeDispatchDisposed(this);
     }
-    super.dispose();
+    _changeNotifier.dispose();
   }
+
+  @override
+  void addListener(VoidCallback listener) =>
+      _changeNotifier.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      _changeNotifier.removeListener(listener);
 }
