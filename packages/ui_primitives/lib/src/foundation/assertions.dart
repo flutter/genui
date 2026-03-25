@@ -32,13 +32,13 @@ export 'stack_frame.dart' show StackFrame;
 // class Chain implements StackTrace { Trace toTrace() => Trace(); }
 
 /// Signature for [UiError.onError] handler.
-typedef FlutterExceptionHandler = void Function(FlutterErrorDetails details);
+typedef FlutterExceptionHandler = void Function(UiErrorDetails details);
 
 /// Signature for [DiagnosticPropertiesBuilder] transformer.
 typedef DiagnosticPropertiesTransformer =
     Iterable<DiagnosticsNode> Function(Iterable<DiagnosticsNode> properties);
 
-/// Signature for [FlutterErrorDetails.informationCollector] callback
+/// Signature for [UiErrorDetails.informationCollector] callback
 /// and other callbacks that collect information describing an error.
 typedef InformationCollector = Iterable<DiagnosticsNode> Function();
 
@@ -373,7 +373,7 @@ class ErrorSpacer extends DiagnosticsProperty<void> {
 /// Class for information provided to [FlutterExceptionHandler] callbacks.
 ///
 /// {@tool snippet}
-/// This is an example of using [FlutterErrorDetails] when calling
+/// This is an example of using [UiErrorDetails] when calling
 /// [UiError.reportError].
 ///
 /// ```dart
@@ -396,13 +396,13 @@ class ErrorSpacer extends DiagnosticsProperty<void> {
 ///
 ///   * [UiError.onError], which is called whenever the Flutter framework
 ///     catches an error.
-class FlutterErrorDetails with Diagnosticable {
-  /// Creates a [FlutterErrorDetails] object with the given arguments setting
+class UiErrorDetails with Diagnosticable {
+  /// Creates a [UiErrorDetails] object with the given arguments setting
   /// the object's properties.
   ///
   /// The framework calls this constructor when catching an exception that will
   /// subsequently be reported using [UiError.onError].
-  const FlutterErrorDetails({
+  const UiErrorDetails({
     required this.exception,
     this.stack,
     this.library = 'Flutter framework',
@@ -414,7 +414,7 @@ class FlutterErrorDetails with Diagnosticable {
 
   /// Creates a copy of the error details but with the given fields replaced
   /// with new values.
-  FlutterErrorDetails copyWith({
+  UiErrorDetails copyWith({
     DiagnosticsNode? context,
     Object? exception,
     InformationCollector? informationCollector,
@@ -423,7 +423,7 @@ class FlutterErrorDetails with Diagnosticable {
     StackTrace? stack,
     IterableFilter<String>? stackFilter,
   }) {
-    return FlutterErrorDetails(
+    return UiErrorDetails(
       context: context ?? this.context,
       exception: exception ?? this.exception,
       informationCollector: informationCollector ?? this.informationCollector,
@@ -439,7 +439,7 @@ class FlutterErrorDetails with Diagnosticable {
   /// into a more descriptive form.
   ///
   /// There are layers that attach certain [DiagnosticsNode] into
-  /// [FlutterErrorDetails] that require knowledge from other layers to parse.
+  /// [UiErrorDetails] that require knowledge from other layers to parse.
   /// To correctly interpret those [DiagnosticsNode], register transformers in
   /// the layers that possess the knowledge.
   ///
@@ -486,7 +486,7 @@ class FlutterErrorDetails with Diagnosticable {
   ///
   /// {@tool snippet}
   /// This is an example of using and [ErrorDescription] as the
-  /// [FlutterErrorDetails.context] when calling [UiError.reportError].
+  /// [UiErrorDetails.context] when calling [UiError.reportError].
   ///
   /// ```dart
   /// void maybeDoSomething() {
@@ -515,7 +515,7 @@ class FlutterErrorDetails with Diagnosticable {
   ///  * [ErrorHint], which provides specific, non-obvious advice that may be
   ///    applicable.
   ///  * [UiError], which is the most common place to use
-  ///    [FlutterErrorDetails].
+  ///    [UiErrorDetails].
   final DiagnosticsNode? context;
 
   /// A callback which filters the [stack] trace.
@@ -1073,7 +1073,7 @@ class UiError extends Error
   ///
   /// The default behavior for the [onError] handler is to call this function.
   static void dumpErrorToConsole(
-    FlutterErrorDetails details, {
+    UiErrorDetails details, {
     bool forceReport = false,
   }) {
     var isInDebugMode = false;
@@ -1132,7 +1132,7 @@ class UiError extends Error
   /// frames that correspond to Dart internals.
   ///
   /// This is the default filter used by [dumpErrorToConsole] if the
-  /// [FlutterErrorDetails] object has no [FlutterErrorDetails.stackFilter]
+  /// [UiErrorDetails] object has no [UiErrorDetails.stackFilter]
   /// callback.
   ///
   /// This function expects its input to be in the format used by
@@ -1269,7 +1269,7 @@ class UiError extends Error
   /// }
   /// ```
   /// {@end-tool}
-  static void reportError(FlutterErrorDetails details) {
+  static void reportError(UiErrorDetails details) {
     onError?.call(details);
   }
 }
@@ -1369,7 +1369,7 @@ class DiagnosticsStackTrace extends DiagnosticsBlock {
   bool get allowTruncate => false;
 }
 
-class _FlutterErrorDetailsNode extends DiagnosticableNode<FlutterErrorDetails> {
+class _FlutterErrorDetailsNode extends DiagnosticableNode<UiErrorDetails> {
   _FlutterErrorDetailsNode({
     super.name,
     required super.value,
@@ -1384,7 +1384,7 @@ class _FlutterErrorDetailsNode extends DiagnosticableNode<FlutterErrorDetails> {
     }
     Iterable<DiagnosticsNode> properties = builder.properties;
     for (final DiagnosticPropertiesTransformer transformer
-        in FlutterErrorDetails.propertiesTransformers) {
+        in UiErrorDetails.propertiesTransformers) {
       properties = transformer(properties);
     }
     return DiagnosticPropertiesBuilder.fromProperties(properties.toList());

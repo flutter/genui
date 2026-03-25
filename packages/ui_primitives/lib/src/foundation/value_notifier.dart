@@ -317,7 +317,7 @@ class _ChangeNotifier implements Listenable {
         _listeners[i]?.call();
       } catch (exception, stack) {
         UiError.reportError(
-          FlutterErrorDetails(
+          UiErrorDetails(
             exception: exception,
             stack: stack,
             library: 'foundation library',
