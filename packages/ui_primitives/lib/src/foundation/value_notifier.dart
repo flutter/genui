@@ -396,9 +396,6 @@ class _ChangeNotifier implements Listenable {
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data
 /// types.
-///
-/// For mutable data types, consider extending [_ChangeNotifier] directly and
-/// calling [notifyListeners] manually when changes occur.
 interface class ValueNotifier<T> implements ValueListenable<T> {
   final _ChangeNotifier _changeNotifier = _ChangeNotifier();
 
