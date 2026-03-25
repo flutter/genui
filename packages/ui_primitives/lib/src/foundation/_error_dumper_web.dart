@@ -4,7 +4,7 @@
 
 import 'dart:js_interop';
 
-import '../web.dart' as web;
+import 'package:web/web.dart' as web;
 
 /// Dumps error messages to the console.
 class ErrorToConsoleDumper {
