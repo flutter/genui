@@ -9,9 +9,8 @@ This text is not part of 'normal' README.md, because it is not relevant for the 
 The code is copied from flutter and dart:ui
 with the following changes:
 
-1. Word `flutter` is replaced with `ui`.
-2. Web support (like plutfrom_web.dart) is partially removed, in placies where it was not compiling. It can be added later if needed.
-3. `_lerpDouble` is renamed to `lerpDoubleNonNull`.
+1. Word `flutter` is replaced with `ui` in API.
+2. `_lerpDouble` is renamed to `lerpDoubleNonNull`, but remails private.
 
 ## What is copied
 
