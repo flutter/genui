@@ -19,3 +19,4 @@ with the following changes:
 3. Review documentation
 4. Add test coverage
 5. Get green light from Flutter Framework team
+6. Try to remove cycle dependencies
