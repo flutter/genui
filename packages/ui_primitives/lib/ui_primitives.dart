@@ -19,10 +19,12 @@ export 'src/foundation/diagnostics.dart'
         DiagnosticLevel,
         DiagnosticPropertiesBuilder,
         Diagnosticable,
+        DiagnosticableNode,
         DiagnosticsNode,
         DiagnosticsSerializationDelegate,
         DiagnosticsTreeStyle,
-        TextTreeConfiguration;
+        TextTreeConfiguration,
+        TextTreeRenderer;
 export 'src/foundation/listenable.dart' show Listenable, ValueListenable;
 export 'src/foundation/print.dart'
     show
