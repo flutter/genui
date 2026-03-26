@@ -401,9 +401,12 @@ class ValueNotifier<T> implements ValueListenable<T> {
 
   /// Creates a [_ChangeNotifier] that wraps this value.
   ValueNotifier(this._value) {
-    if (kTrackMemoryLeaks) {
-      debugMaybeDispatchCreated(runtimeType.toString(), this);
-    }
+    assert(() {
+      if (kTrackMemoryLeaks) {
+        debugMaybeDispatchCreated(runtimeType.toString(), this);
+      }
+      return true;
+    }());
   }
 
   bool _debugDisposed = false;

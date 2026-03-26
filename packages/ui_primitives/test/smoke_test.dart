@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'package:ui_primitives/ui_primitives.dart';
 
 // ignore: unused_element, tests that ValueNotifier can be implemented.
-class _ValueNotifierOtherImplementaion<T> implements ValueNotifier<T> {
+class _ValueNotifierImplementaion<T> implements ValueNotifier<T> {
   @override
   void addListener(VoidCallback listener) {}
 
@@ -21,6 +21,17 @@ class _ValueNotifierOtherImplementaion<T> implements ValueNotifier<T> {
 
   @override
   set value(T newValue) {}
+
+  @override
+  bool get hasListeners => throw UnimplementedError();
+
+  @override
+  void notifyListeners() {}
+}
+
+// ignore: unused_element, tests that ValueNotifier can be extended.
+class _ValueNotifierExtention<T> extends ValueNotifier<T> {
+  _ValueNotifierExtention(super.value);
 }
 
 void main() {
