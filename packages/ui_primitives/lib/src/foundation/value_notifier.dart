@@ -411,7 +411,7 @@ class ValueNotifier<T> implements ValueListenable<T> {
 
   bool _debugDisposed = false;
 
-  static bool debugAssertNotDisposed(ValueNotifier notifier) {
+  static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
         throw UiError(
