@@ -396,7 +396,7 @@ class _ChangeNotifier implements Listenable {
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data
 /// types.
-interface class ValueNotifier<T> implements ValueListenable<T> {
+class ValueNotifier<T> implements ValueListenable<T> {
   final _ChangeNotifier _changeNotifier = _ChangeNotifier();
 
   /// Creates a [_ChangeNotifier] that wraps this value.
@@ -439,4 +439,7 @@ interface class ValueNotifier<T> implements ValueListenable<T> {
   @override
   void removeListener(VoidCallback listener) =>
       _changeNotifier.removeListener(listener);
+
+  @protected
+  bool get hasListeners => _changeNotifier.hasListeners;
 }
