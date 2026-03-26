@@ -89,35 +89,43 @@ sealed class A2uiMessage {
   /// Returns the JSON schema for an A2UI message.
   static Schema a2uiMessageSchema(Catalog catalog) {
     return S.combined(
-      allOf: [
+      title: 'A2UI Message Schema',
+      description:
+          'Describes a JSON payload for an A2UI (Agent to UI) message, '
+          'which is used to dynamically construct and update user interfaces.',
+      oneOf: [
         S.object(
-          title: 'A2UI Message Schema',
-          description:
-              'Describes a JSON payload for an A2UI (Agent to UI) message. '
-              'A message MUST contain exactly ONE of the action properties.',
           properties: {
             'version': S.string(constValue: 'v0.9'),
             'createSurface': A2uiSchemas.createSurfaceSchema(),
+          },
+          required: ['version', 'createSurface'],
+          additionalProperties: false,
+        ),
+        S.object(
+          properties: {
+            'version': S.string(constValue: 'v0.9'),
             'updateComponents': A2uiSchemas.updateComponentsSchema(catalog),
+          },
+          required: ['version', 'updateComponents'],
+          additionalProperties: false,
+        ),
+        S.object(
+          properties: {
+            'version': S.string(constValue: 'v0.9'),
             'updateDataModel': A2uiSchemas.updateDataModelSchema(),
+          },
+          required: ['version', 'updateDataModel'],
+          additionalProperties: false,
+        ),
+        S.object(
+          properties: {
+            'version': S.string(constValue: 'v0.9'),
             'deleteSurface': A2uiSchemas.deleteSurfaceSchema(),
           },
-          required: ['version'],
+          required: ['version', 'deleteSurface'],
+          additionalProperties: false,
         ),
-      ],
-      anyOf: [
-        {
-          'required': ['createSurface'],
-        },
-        {
-          'required': ['updateComponents'],
-        },
-        {
-          'required': ['updateDataModel'],
-        },
-        {
-          'required': ['deleteSurface'],
-        },
       ],
     );
   }
