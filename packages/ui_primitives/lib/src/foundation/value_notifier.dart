@@ -465,5 +465,6 @@ class ValueNotifier<T> implements ValueListenable<T> {
   @protected
   bool get hasListeners => _changeNotifier.hasListeners;
 
+  @protected
   void notifyListeners() => _changeNotifier.notifyListeners();
 }
