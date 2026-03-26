@@ -4,7 +4,10 @@
 
 export 'src/foundation/assertions.dart'
     show
+        DiagnosticsStackTrace,
         ErrorDescription,
+        ErrorSpacer,
+        ErrorSummary,
         PartialStackFrame,
         RepetitiveStackFrameFilter,
         StackFilter,
@@ -21,5 +24,12 @@ export 'src/foundation/diagnostics.dart'
         DiagnosticsTreeStyle,
         TextTreeConfiguration;
 export 'src/foundation/listenable.dart' show Listenable, ValueListenable;
+export 'src/foundation/print.dart'
+    show
+        DebugPrintCallback,
+        debugPrint,
+        debugPrintSynchronously,
+        debugPrintThrottled,
+        debugWordWrap;
 export 'src/foundation/value_notifier.dart' show ValueNotifier;
 export 'src/primitives/basics.dart' show VoidCallback;
