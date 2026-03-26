@@ -18,5 +18,6 @@ with the following changes:
 2. Remove commented code
 3. Review documentation
 4. Add test coverage
-5. Get green light from Flutter Framework team
-6. Try to remove cycle dependencies
+5. Remove occurrences of word 'flutter'.
+6. Get green light from Flutter Framework team
+7. Try to remove cycle dependencies
