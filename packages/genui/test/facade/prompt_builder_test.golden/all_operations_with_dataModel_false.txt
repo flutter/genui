@@ -127,11 +127,11 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
 
 -----A2UI_JSON_SCHEMA_START-----
 {
-  "allOf": [
+  "title": "A2UI Message Schema",
+  "description": "Describes a JSON payload for an A2UI (Agent to UI) message, which is used to dynamically construct and update user interfaces.",
+  "oneOf": [
     {
       "type": "object",
-      "title": "A2UI Message Schema",
-      "description": "Describes a JSON payload for an A2UI (Agent to UI) message. A message MUST contain exactly ONE of the action properties.",
       "properties": {
         "version": {
           "type": "string",
@@ -139,6 +139,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
         },
         "createSurface": {
           "type": "object",
+          "description": "Signals the client to create a new surface and begin rendering it. When this message is sent, the client will expect 'updateComponents' and/or 'updateDataModel' messages for the same surfaceId that define the component tree.",
           "properties": {
             "surfaceId": {
               "type": "string",
@@ -162,9 +163,24 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
             "surfaceId",
             "catalogId"
           ]
+        }
+      },
+      "required": [
+        "version",
+        "createSurface"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "v0.9"
         },
         "updateComponents": {
           "type": "object",
+          "description": "Updates a surface with a new set of components. This message can be sent multiple times to update the component tree of an existing surface. One of the components in one of the components lists MUST have an 'id' of 'root' to serve as the root of the component tree. The createSurface message MUST have been previously sent with the 'catalogId' that is in this message.",
           "properties": {
             "surfaceId": {
               "type": "string",
@@ -253,9 +269,24 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
             "surfaceId",
             "components"
           ]
+        }
+      },
+      "required": [
+        "version",
+        "updateComponents"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "v0.9"
         },
         "updateDataModel": {
           "type": "object",
+          "description": "Updates the data model for an existing surface. This message can be sent multiple times to update the data model. The createSurface message MUST have been previously sent with the 'catalogId' that is in this message.",
           "properties": {
             "surfaceId": {
               "type": "string"
@@ -271,9 +302,24 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
           "required": [
             "surfaceId"
           ]
+        }
+      },
+      "required": [
+        "version",
+        "updateDataModel"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "v0.9"
         },
         "deleteSurface": {
           "type": "object",
+          "description": "Signals the client to delete the surface identified by 'surfaceId'. The createSurface message MUST have been previously sent with the 'catalogId' that is in this message.",
           "properties": {
             "surfaceId": {
               "type": "string"
@@ -285,30 +331,10 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
         }
       },
       "required": [
-        "version"
-      ]
-    }
-  ],
-  "anyOf": [
-    {
-      "required": [
-        "createSurface"
-      ]
-    },
-    {
-      "required": [
-        "updateComponents"
-      ]
-    },
-    {
-      "required": [
-        "updateDataModel"
-      ]
-    },
-    {
-      "required": [
+        "version",
         "deleteSurface"
-      ]
+      ],
+      "additionalProperties": false
     }
   ]
 }

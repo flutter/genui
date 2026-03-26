@@ -398,6 +398,11 @@ abstract final class A2uiSchemas {
 
   /// Schema for a createSurface message.
   static Schema createSurfaceSchema() => S.object(
+    description:
+        'Signals the client to create a new surface and begin rendering it. '
+        "When this message is sent, the client will expect 'updateComponents' "
+        "and/or 'updateDataModel' messages for the same surfaceId that define "
+        'the component tree.',
     properties: {
       surfaceIdKey: S.string(description: 'The unique ID for the surface.'),
       'catalogId': S.string(description: 'The URI of the component catalog.'),
@@ -414,12 +419,21 @@ abstract final class A2uiSchemas {
 
   /// Schema for a deleteSurface message.
   static Schema deleteSurfaceSchema() => S.object(
+    description:
+        "Signals the client to delete the surface identified by 'surfaceId'. "
+        'The createSurface message MUST have been previously sent with the '
+        "'catalogId' that is in this message.",
     properties: {surfaceIdKey: S.string()},
     required: [surfaceIdKey],
   );
 
   /// Schema for a updateDataModel message.
   static Schema updateDataModelSchema() => S.object(
+    description:
+        'Updates the data model for an existing surface. This message can be '
+        'sent multiple times to update the data model. The createSurface '
+        "message MUST have been previously sent with the 'catalogId' that is "
+        'in this message.',
     properties: {
       surfaceIdKey: S.string(),
       'path': S.combined(type: JsonType.string, defaultValue: '/'),
@@ -445,6 +459,13 @@ abstract final class A2uiSchemas {
         .toList();
 
     return S.object(
+      description:
+          'Updates a surface with a new set of components. This message can '
+          'be sent multiple times to update the component tree of an existing '
+          'surface. One of the components in one of the components lists MUST '
+          "have an 'id' of 'root' to serve as the root of the component tree. "
+          'The createSurface message MUST have been previously sent with the '
+          "'catalogId' that is in this message.",
       properties: {
         surfaceIdKey: S.string(
           description: 'The unique identifier for the UI surface.',
