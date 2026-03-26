@@ -406,6 +406,22 @@ class ValueNotifier<T> implements ValueListenable<T> {
     }
   }
 
+  bool _debugDisposed = false;
+
+  static bool debugAssertNotDisposed(ValueNotifier notifier) {
+    assert(() {
+      if (notifier._debugDisposed) {
+        throw UiError(
+          'A ${notifier.runtimeType} was used after being disposed.\n'
+          'Once you have called dispose() on a ${notifier.runtimeType}, it '
+          'can no longer be used.',
+        );
+      }
+      return true;
+    }());
+    return true;
+  }
+
   /// The current value stored in this notifier.
   ///
   /// When the value is replaced with something that is not equal to the old
@@ -426,9 +442,12 @@ class ValueNotifier<T> implements ValueListenable<T> {
   String toString() => '${describeIdentity(this)}($value)';
 
   void dispose() {
-    if (kTrackMemoryLeaks) {
-      debugMaybeDispatchDisposed(this);
-    }
+    assert(() {
+      _debugDisposed = true;
+      if (kTrackMemoryLeaks) debugMaybeDispatchDisposed(this);
+      return true;
+    }());
+
     _changeNotifier.dispose();
   }
 
@@ -442,4 +461,6 @@ class ValueNotifier<T> implements ValueListenable<T> {
 
   @protected
   bool get hasListeners => _changeNotifier.hasListeners;
+
+  void notifyListeners() => _changeNotifier.notifyListeners();
 }
