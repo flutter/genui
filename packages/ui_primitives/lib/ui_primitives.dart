@@ -6,6 +6,7 @@ export 'src/foundation/assertions.dart'
     show
         DiagnosticsStackTrace,
         ErrorDescription,
+        ErrorHint,
         ErrorSpacer,
         ErrorSummary,
         PartialStackFrame,
@@ -13,18 +14,41 @@ export 'src/foundation/assertions.dart'
         StackFilter,
         StackFrame,
         UiError,
-        UiErrorDetails;
+        UiErrorDetails,
+        debugPrintStack;
+
 export 'src/foundation/diagnostics.dart'
     show
         DiagnosticLevel,
         DiagnosticPropertiesBuilder,
         Diagnosticable,
         DiagnosticableNode,
+        DiagnosticableTree,
+        DiagnosticableTreeMixin,
+        DiagnosticableTreeNode,
+        DiagnosticsBlock,
         DiagnosticsNode,
+        DiagnosticsProperty,
         DiagnosticsSerializationDelegate,
         DiagnosticsTreeStyle,
+        DoubleProperty,
+        EnumProperty,
+        FlagProperty,
+        FlagsSummary,
+        IntProperty,
+        IterableProperty,
+        MessageProperty,
+        ObjectFlagProperty,
+        PercentProperty,
+        StringProperty,
         TextTreeConfiguration,
-        TextTreeRenderer;
+        TextTreeRenderer,
+        describeEnum,
+        describeIdentity,
+        kNoDefaultValue,
+        shortHash,
+        singleLineTextConfiguration,
+        sparseTextConfiguration;
 export 'src/foundation/listenable.dart' show Listenable, ValueListenable;
 export 'src/foundation/print.dart'
     show
