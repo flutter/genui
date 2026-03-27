@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:rxdart/rxdart.dart';
-
 import '../model/data_model.dart';
 import '../primitives/simple_items.dart';
 import '../widgets/widget_utilities.dart';
+import 'stream_extensions.dart';
 
 /// A validation error with a message.
 class ValidationError {
@@ -47,7 +46,7 @@ class ValidationHelper {
       );
     }
 
-    return CombineLatestStream.list(streams).map((results) {
+    return streams.combineLatestAll().map((results) {
       for (final (isValid, msg) in results) {
         if (!isValid) return msg;
       }

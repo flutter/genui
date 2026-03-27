@@ -4,12 +4,13 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:meta/meta.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../model/client_function.dart' as cf;
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import '../utils/stream_extensions.dart';
 
 /// Formats a value as a string.
 class FormatStringFunction implements cf.ClientFunction {
@@ -173,7 +174,7 @@ class ExpressionParser {
       return Stream<Object?>.value(val);
     }).toList();
 
-    return CombineLatestStream.list(streams).switchMap((List<Object?> values) {
+    return streams.combineLatestAll().switchMap((List<Object?> values) {
       final Map<String, Object?> combinedArgs = {};
       for (var i = 0; i < keys.length; i++) {
         combinedArgs[keys[i]] = values[i];
@@ -249,7 +250,7 @@ class ExpressionParser {
       return Stream<Object?>.value(part);
     }).toList();
 
-    return CombineLatestStream.list(streams).map((List<Object?> values) {
+    return streams.combineLatestAll().map((List<Object?> values) {
       return values.map((e) => e?.toString() ?? '').join('');
     });
   }
