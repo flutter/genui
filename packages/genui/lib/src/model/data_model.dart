@@ -6,10 +6,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import '../utils/stream_extensions.dart';
 import 'client_function.dart' as cf;
 
 import 'data_path.dart';
@@ -155,7 +156,7 @@ class DataContext implements cf.ExecutionContext {
 
     final Stream<List<Object?>> combinedStream = streams.isEmpty
         ? Stream.value([])
-        : CombineLatestStream.list(streams);
+        : streams.combineLatestAll();
 
     return combinedStream.switchMap((List<Object?> values) {
       final Map<String, Object?> combinedArgs = {};
