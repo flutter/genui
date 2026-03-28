@@ -13,8 +13,8 @@ export 'src/foundation/assertions.dart'
         RepetitiveStackFrameFilter,
         StackFilter,
         StackFrame,
-        UiError,
-        UiErrorDetails,
+        FrameworkError,
+        FrameworkErrorDetails,
         debugPrintStack;
 
 export 'src/foundation/diagnostics.dart'

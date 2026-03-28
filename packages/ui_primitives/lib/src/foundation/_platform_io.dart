@@ -37,7 +37,7 @@ platform.TargetPlatform get defaultTargetPlatform {
     result = platform.debugDefaultTargetPlatformOverride;
   }
   if (result == null) {
-    throw UiError(
+    throw FrameworkError(
       'Unknown platform.\n'
       '${Platform.operatingSystem} was not recognized as a target platform. '
       'Consider updating the list of TargetPlatforms to include this platform.',
