@@ -63,8 +63,8 @@ Future<void> main() async {
 
   test('Error reporting - assert with message', () async {
     expect(console, isEmpty);
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(
         exception: getAssertionErrorWithMessage(),
         stack: sampleStack,
         library: 'error handling test',
@@ -94,21 +94,21 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(exception: getAssertionErrorWithMessage()),
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(exception: getAssertionErrorWithMessage()),
     );
     expect(
       console.join('\n'),
       'Another exception was thrown: Message goes here.',
     );
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 
   test('Error reporting - assert with long message', () async {
     expect(console, isEmpty);
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(exception: getAssertionErrorWithLongMessage()),
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(exception: getAssertionErrorWithLongMessage()),
     );
     expect(
       console.join('\n'),
@@ -128,8 +128,8 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(exception: getAssertionErrorWithLongMessage()),
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(exception: getAssertionErrorWithLongMessage()),
     );
     expect(
       console.join('\n'),
@@ -141,13 +141,13 @@ Future<void> main() async {
       'word word word word word word word word word word word word word word word word word word word word',
     );
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 
   test('Error reporting - assert with no message', () async {
     expect(console, isEmpty);
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(
         exception: getAssertionErrorWithoutMessage(),
         stack: sampleStack,
         library: 'error handling test',
@@ -178,8 +178,8 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(exception: getAssertionErrorWithoutMessage()),
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(exception: getAssertionErrorWithoutMessage()),
     );
     expect(
       console.join('\n'),
@@ -190,7 +190,7 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 
   test('Error reporting - NoSuchMethodError', () async {
@@ -200,7 +200,9 @@ Future<void> main() async {
       Invocation.method(#foo, <dynamic>[2, 4]),
     );
 
-    UiError.dumpErrorToConsole(UiErrorDetails(exception: exception));
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(exception: exception),
+    );
     expect(
       console.join('\n'),
       matches(
@@ -211,18 +213,22 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.dumpErrorToConsole(UiErrorDetails(exception: exception));
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(exception: exception),
+    );
     expect(
       console.join('\n'),
       'Another exception was thrown: NoSuchMethodError: int has no foo method accepting arguments (_, _)',
     );
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 
   test('Error reporting - NoSuchMethodError', () async {
     expect(console, isEmpty);
-    UiError.dumpErrorToConsole(const UiErrorDetails(exception: 'hello'));
+    FrameworkError.dumpErrorToConsole(
+      const FrameworkErrorDetails(exception: 'hello'),
+    );
     expect(
       console.join('\n'),
       matches(
@@ -233,17 +239,19 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.dumpErrorToConsole(const UiErrorDetails(exception: 'hello again'));
+    FrameworkError.dumpErrorToConsole(
+      const FrameworkErrorDetails(exception: 'hello again'),
+    );
     expect(console.join('\n'), 'Another exception was thrown: hello again');
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 
   // Regression test for https://github.com/flutter/flutter/issues/62223
   test('Error reporting - empty stack', () async {
     expect(console, isEmpty);
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(
         exception: 'exception - empty stack',
         stack: StackTrace.fromString(''),
       ),
@@ -260,7 +268,7 @@ Future<void> main() async {
       ),
     );
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 
   test('Stack traces are not truncated', () async {
@@ -278,8 +286,8 @@ Future<void> main() async {
 #10      Element.inflateWidget (package:flutter/src/widgets/framework.dart:3276:14)''';
 
     expect(console, isEmpty);
-    UiError.dumpErrorToConsole(
-      UiErrorDetails(
+    FrameworkError.dumpErrorToConsole(
+      FrameworkErrorDetails(
         exception: AssertionError('Test assertion'),
         stack: StackTrace.fromString(stackString),
       ),
@@ -305,6 +313,6 @@ When the exception was thrown, this was the stack:
       ),
     );
     console.clear();
-    UiError.resetErrorCount();
+    FrameworkError.resetErrorCount();
   });
 }
