@@ -8,6 +8,7 @@ library;
 
 import 'package:meta/meta.dart';
 
+import '../error_reporter.dart';
 import '../primitives/basics.dart';
 import '../primitives/private_leak_tracking.dart';
 import 'assertions.dart';
@@ -94,7 +95,7 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkError(
+        throw FrameworkErrorReporter.instance.create(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -316,7 +317,7 @@ class _ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        FrameworkError.reportError(
+        FrameworkErrorReporter.instance.report(
           FrameworkErrorDetails(
             exception: exception,
             stack: stack,
