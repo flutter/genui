@@ -38,6 +38,13 @@ Future<StackTrace> getSampleStack() async {
   return Future<StackTrace>.sync(() => StackTrace.current);
 }
 
+String _setPath(String source) {
+  return source.replaceAll(
+    r'$path$',
+    'ui_primitives/test/error_reporting_test.dart',
+  );
+}
+
 Future<void> main() async {
   final console = <String?>[];
 
@@ -72,17 +79,19 @@ Future<void> main() async {
     expect(
       console.join('\n'),
       matches(
-        r'^══╡ EXCEPTION CAUGHT BY ERROR HANDLING TEST ╞═══════════════════════════════════════════════════════\n'
-        r'The following assertion was thrown testing the error handling logic:\n'
-        r'Message goes here\.\n'
-        r"'[^']+flutter/test/foundation/error_reporting_test\.dart':\n"
-        r"Failed assertion: line [0-9]+ pos [0-9]+: 'false'\n"
-        r'\n'
-        r'When the exception was thrown, this was the stack:\n'
-        r'#0      getSampleStack\.<anonymous closure> \([^)]+flutter/test/foundation/error_reporting_test\.dart:[0-9]+:[0-9]+\)\n'
-        r'#2      getSampleStack \([^)]+flutter/test/foundation/error_reporting_test\.dart:[0-9]+:[0-9]+\)\n'
-        r'#3      main \([^)]+flutter/test/foundation/error_reporting_test\.dart:[0-9]+:[0-9]+\)\n'
-        r'(.+\n)+', // TODO(ianh): when fixing #4021, also filter out frames from the test infrastructure below the first call to our main()
+        _setPath(
+          r'^══╡ EXCEPTION CAUGHT BY ERROR HANDLING TEST ╞═══════════════════════════════════════════════════════\n'
+          r'The following assertion was thrown testing the error handling logic:\n'
+          r'Message goes here\.\n'
+          r"'[^']+$path$':\n"
+          r"Failed assertion: line [0-9]+ pos [0-9]+: 'false'\n"
+          r'\n'
+          r'When the exception was thrown, this was the stack:\n'
+          r'#0      getSampleStack\.<anonymous closure> \([^)]+$path$:[0-9]+:[0-9]+\)\n'
+          r'#2      getSampleStack \([^)]+$path$:[0-9]+:[0-9]+\)\n'
+          r'#3      main \([^)]+$path$:[0-9]+:[0-9]+\)\n'
+          r'(.+\n)+', // TODO(ianh): when fixing #4021, also filter out frames from the test infrastructure below the first call to our main()
+        ),
       ),
     );
     console.clear();
@@ -105,16 +114,18 @@ Future<void> main() async {
     expect(
       console.join('\n'),
       matches(
-        r'^══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════\n'
-        r'The following assertion was thrown:\n'
-        r'word word word word word word word word word word word word word word word word word word word word\n'
-        r'word word word word word word word word word word word word word word word word word word word word\n'
-        r'word word word word word word word word word word word word word word word word word word word word\n'
-        r'word word word word word word word word word word word word word word word word word word word word\n'
-        r'word word word word word word word word word word word word word word word word word word word word\n'
-        r"'[^']+flutter/test/foundation/error_reporting_test\.dart':\n"
-        r"Failed assertion: line [0-9]+ pos [0-9]+: 'false'\n"
-        r'════════════════════════════════════════════════════════════════════════════════════════════════════$',
+        _setPath(
+          r'^══╡ EXCEPTION CAUGHT BY FLUTTER FRAMEWORK ╞═════════════════════════════════════════════════════════\n'
+          r'The following assertion was thrown:\n'
+          r'word word word word word word word word word word word word word word word word word word word word\n'
+          r'word word word word word word word word word word word word word word word word word word word word\n'
+          r'word word word word word word word word word word word word word word word word word word word word\n'
+          r'word word word word word word word word word word word word word word word word word word word word\n'
+          r'word word word word word word word word word word word word word word word word word word word word\n'
+          r"'[^']+$path$':\n"
+          r"Failed assertion: line [0-9]+ pos [0-9]+: 'false'\n"
+          r'════════════════════════════════════════════════════════════════════════════════════════════════════$',
+        ),
       ),
     );
     console.clear();
@@ -153,16 +164,18 @@ Future<void> main() async {
     expect(
       console.join('\n'),
       matches(
-        r'^══╡ EXCEPTION CAUGHT BY ERROR HANDLING TEST ╞═══════════════════════════════════════════════════════\n'
-        r'The following assertion was thrown testing the error handling logic:\n'
-        r"'[^']+flutter/test/foundation/error_reporting_test\.dart':[\n ]"
-        r"Failed[\n ]assertion:[\n ]line[\n ][0-9]+[\n ]pos[\n ][0-9]+:[\n ]'false':[\n ]is[\n ]not[\n ]true\.\n"
-        r'\n'
-        r'When the exception was thrown, this was the stack:\n'
-        r'#0      getSampleStack\.<anonymous closure> \([^)]+flutter/test/foundation/error_reporting_test\.dart:[0-9]+:[0-9]+\)\n'
-        r'#2      getSampleStack \([^)]+flutter/test/foundation/error_reporting_test\.dart:[0-9]+:[0-9]+\)\n'
-        r'#3      main \([^)]+flutter/test/foundation/error_reporting_test\.dart:[0-9]+:[0-9]+\)\n'
-        r'(.+\n)+', // TODO(ianh): when fixing #4021, also filter out frames from the test infrastructure below the first call to our main()
+        _setPath(
+          r'^══╡ EXCEPTION CAUGHT BY ERROR HANDLING TEST ╞═══════════════════════════════════════════════════════\n'
+          r'The following assertion was thrown testing the error handling logic:\n'
+          r"'[^']+$path$':[\n ]"
+          r"Failed[\n ]assertion:[\n ]line[\n ][0-9]+[\n ]pos[\n ][0-9]+:[\n ]'false':[\n ]is[\n ]not[\n ]true\.\n"
+          r'\n'
+          r'When the exception was thrown, this was the stack:\n'
+          r'#0      getSampleStack\.<anonymous closure> \([^)]+$path$:[0-9]+:[0-9]+\)\n'
+          r'#2      getSampleStack \([^)]+$path$:[0-9]+:[0-9]+\)\n'
+          r'#3      main \([^)]+$path$:[0-9]+:[0-9]+\)\n'
+          r'(.+\n)+', // TODO(ianh): when fixing #4021, also filter out frames from the test infrastructure below the first call to our main()
+        ),
       ),
     );
     console.clear();
@@ -172,7 +185,9 @@ Future<void> main() async {
     expect(
       console.join('\n'),
       matches(
-        r"Another exception was thrown: '[^']+flutter/test/foundation/error_reporting_test\.dart': Failed assertion: line [0-9]+ pos [0-9]+: 'false': is not true\.",
+        _setPath(
+          r"Another exception was thrown: '[^']+$path$': Failed assertion: line [0-9]+ pos [0-9]+: 'false': is not true\.",
+        ),
       ),
     );
     console.clear();
