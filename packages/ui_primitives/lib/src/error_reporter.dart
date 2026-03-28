@@ -5,5 +5,5 @@ class FrameworkErrorReporter {
 
   Error create(FrameworkErrorDetails details) => Error();
 
-  void report() {}
+  void report(FrameworkErrorDetails details) => throw create(details);
 }
