@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-library;
-
 import 'package:test/test.dart';
 import 'package:ui_primitives/ui_primitives.dart';
 
@@ -13,7 +11,7 @@ Object getAssertionErrorWithMessage() {
   } catch (e) {
     return e;
   }
-  throw 'assert failed';
+  throw Error();
 }
 
 Object getAssertionErrorWithoutMessage() {
@@ -22,8 +20,7 @@ Object getAssertionErrorWithoutMessage() {
   } catch (e) {
     return e;
   }
-  // ignore: only_throw_errors
-  throw 'assert failed';
+  throw Error();
 }
 
 Object getAssertionErrorWithLongMessage() {
