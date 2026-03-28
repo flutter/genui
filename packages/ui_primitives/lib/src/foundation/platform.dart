@@ -108,7 +108,7 @@ TargetPlatform? get debugDefaultTargetPlatformOverride =>
 
 set debugDefaultTargetPlatformOverride(TargetPlatform? value) {
   if (!kDebugMode) {
-    throw UiError(
+    throw FrameworkError(
       'Cannot modify debugDefaultTargetPlatformOverride in non-debug builds.',
     );
   }

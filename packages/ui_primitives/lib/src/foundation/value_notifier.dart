@@ -94,7 +94,7 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw UiError(
+        throw FrameworkError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -281,7 +281,7 @@ class _ChangeNotifier implements Listenable {
   /// not be visited after they are removed.
   ///
   /// Exceptions thrown by listeners will be caught and reported using
-  /// [UiError.reportError].
+  /// [FrameworkError.reportError].
   ///
   /// This method must not be called after [dispose] has been called.
   ///
@@ -316,8 +316,8 @@ class _ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        UiError.reportError(
-          UiErrorDetails(
+        FrameworkError.reportError(
+          FrameworkErrorDetails(
             exception: exception,
             stack: stack,
             library: 'foundation library',
@@ -414,7 +414,7 @@ class ValueNotifier<T> implements ValueListenable<T> {
   static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw UiError(
+        throw FrameworkError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',

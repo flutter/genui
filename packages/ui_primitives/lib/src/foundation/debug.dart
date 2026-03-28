@@ -38,7 +38,7 @@ bool debugAssertAllFoundationVarsUnset(
         debugDefaultTargetPlatformOverride != null ||
         debugDoublePrecision != null ||
         debugBrightnessOverride != null) {
-      throw UiError(reason);
+      throw FrameworkError(reason);
     }
     return true;
   }());
