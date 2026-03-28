@@ -22,6 +22,7 @@ Object getAssertionErrorWithoutMessage() {
   } catch (e) {
     return e;
   }
+  // ignore: only_throw_errors
   throw 'assert failed';
 }
 
@@ -31,6 +32,7 @@ Object getAssertionErrorWithLongMessage() {
   } catch (e) {
     return e;
   }
+  // ignore: only_throw_errors
   throw 'assert failed';
 }
 
