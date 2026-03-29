@@ -4,7 +4,6 @@
 
 export 'src/foundation/assertions.dart'
     show
-        DiagnosticsStackTrace,
         ErrorDescription,
         ErrorHint,
         ErrorSpacer,
@@ -12,10 +11,7 @@ export 'src/foundation/assertions.dart'
         PartialStackFrame,
         RepetitiveStackFrameFilter,
         StackFilter,
-        StackFrame,
-        FrameworkError,
-        FrameworkErrorDetails,
-        debugPrintStack;
+        StackFrame;
 
 export 'src/foundation/diagnostics.dart'
     show
