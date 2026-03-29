@@ -18,7 +18,7 @@ class FrameworkErrorReporter {
   void report(FrameworkErrorDetails details) => throw FrameworkError(details);
 }
 
-class FrameworkError extends Error {
+interface class FrameworkError extends Error {
   FrameworkError(this.details);
 
   final FrameworkErrorDetails details;
@@ -55,14 +55,9 @@ class FrameworkErrorDetails extends Error {
 typedef ContextCollector = Iterable<ValueContext> Function();
 
 // Interface for Flutter's DiagnosticsNode.
-class ValueContext {
-  final Object? _context;
+final class ValueContext {
+  final Object? context;
   final Object? value;
 
-  ValueContext({Object? context, this.value}) : _context = context;
-
-  @override
-  String toString() {
-    return _context?.toString() ?? value?.toString() ?? '';
-  }
+  ValueContext({this.context, this.value});
 }
