@@ -7,7 +7,6 @@ library;
 
 import 'package:meta/meta.dart';
 
-import 'basic_types.dart';
 import 'constants.dart';
 import 'diagnostics.dart';
 import 'error_reporter.dart';
