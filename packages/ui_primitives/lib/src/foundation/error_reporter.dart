@@ -5,13 +5,16 @@ class FrameworkErrorReporter {
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
   /// Creates a new [FrameworkErrorDetails] instance.
-  FrameworkError create(FrameworkErrorDetails details) =>
+  FrameworkError byDetails(FrameworkErrorDetails details) =>
       FrameworkError(details);
 
   FrameworkError byMessage(String message) =>
       FrameworkError(FrameworkErrorDetails(message: message));
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
+  ///
+  /// Depending on settings, it may throw an exception, log an error,
+  /// or debug-stop the execution.
   void report(FrameworkErrorDetails details) => throw FrameworkError(details);
 }
 
@@ -30,7 +33,7 @@ class FrameworkErrorDetails extends Error {
   FrameworkErrorDetails({
     this.context,
     this.exception,
-    this.informationCollector,
+    this.contextCollector,
     this.library,
     this.silent,
     this.stack,
@@ -39,11 +42,22 @@ class FrameworkErrorDetails extends Error {
   });
 
   final String? message;
-  final DiagnosticsNode? context;
+  final ValueContext? context;
   final Object? exception;
-  final InformationCollector? informationCollector;
+  final ContextCollector? contextCollector;
   final String? library;
   final bool? silent;
   final StackTrace? stack;
   final IterableFilter<String>? stackFilter;
+}
+
+// Interface for Flutter's InformationCollector.
+typedef ContextCollector = Iterable<ValueContext> Function();
+
+// Interface for Flutter's DiagnosticsNode.
+class ValueContext {
+  final String? message;
+  final String? value;
+
+  ValueContext({this.message, this.value});
 }

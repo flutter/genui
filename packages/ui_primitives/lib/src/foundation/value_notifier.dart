@@ -322,14 +322,13 @@ class _ChangeNotifier implements Listenable {
             exception: exception,
             stack: stack,
             library: 'foundation library',
-            context: ErrorDescription(
-              'while dispatching notifications for $runtimeType',
+            context: ValueContext(
+              message: 'while dispatching notifications for $runtimeType',
             ),
-            informationCollector: () => <DiagnosticsNode>[
-              DiagnosticsProperty<_ChangeNotifier>(
-                'The $runtimeType sending notification was',
-                this,
-                style: DiagnosticsTreeStyle.errorProperty,
+            contextCollector: () => <ValueContext>[
+              ValueContext(
+                message: 'The $runtimeType sending notification was',
+                value: toString(),
               ),
             ],
           ),
