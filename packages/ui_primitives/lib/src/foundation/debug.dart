@@ -11,6 +11,7 @@ library;
 
 import '../dart_ui/window.dart';
 import 'assertions.dart';
+import 'error_reporter.dart';
 import 'platform.dart';
 import 'print.dart';
 
@@ -38,7 +39,7 @@ bool debugAssertAllFoundationVarsUnset(
         debugDefaultTargetPlatformOverride != null ||
         debugDoublePrecision != null ||
         debugBrightnessOverride != null) {
-      throw FrameworkError(reason);
+      throw FrameworkErrorReporter.instance.byMessage(reason);
     }
     return true;
   }());

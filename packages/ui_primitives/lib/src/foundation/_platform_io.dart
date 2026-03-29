@@ -4,8 +4,8 @@
 
 import 'dart:io';
 
-import 'assertions.dart';
 import 'constants.dart';
+import 'error_reporter.dart';
 import 'platform.dart' as platform;
 
 export 'platform.dart' show TargetPlatform;
@@ -37,7 +37,7 @@ platform.TargetPlatform get defaultTargetPlatform {
     result = platform.debugDefaultTargetPlatformOverride;
   }
   if (result == null) {
-    throw FrameworkError(
+    throw FrameworkErrorReporter.instance.byMessage(
       'Unknown platform.\n'
       '${Platform.operatingSystem} was not recognized as a target platform. '
       'Consider updating the list of TargetPlatforms to include this platform.',

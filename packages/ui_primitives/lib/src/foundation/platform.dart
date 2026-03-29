@@ -11,6 +11,7 @@ import '_platform_io.dart'
     as platform;
 import 'assertions.dart';
 import 'constants.dart';
+import 'error_reporter.dart';
 
 /// The [TargetPlatform] that matches the platform on which the framework is
 /// currently executing.
@@ -108,7 +109,7 @@ TargetPlatform? get debugDefaultTargetPlatformOverride =>
 
 set debugDefaultTargetPlatformOverride(TargetPlatform? value) {
   if (!kDebugMode) {
-    throw FrameworkError(
+    throw FrameworkErrorReporter.instance.byMessage(
       'Cannot modify debugDefaultTargetPlatformOverride in non-debug builds.',
     );
   }
