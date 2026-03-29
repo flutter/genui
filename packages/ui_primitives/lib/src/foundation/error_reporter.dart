@@ -1,4 +1,4 @@
-import 'basic_types.dart';
+import '../primitives/basics.dart';
 
 class FrameworkErrorReporter {
   /// Set this instance to customize error reporting for the framework.

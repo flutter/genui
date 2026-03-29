@@ -24,3 +24,6 @@ String describeIdentity(Object? object) =>
 String shortHash(Object? object) {
   return object.hashCode.toUnsigned(20).toRadixString(16).padLeft(5, '0');
 }
+
+/// Signature for callbacks that filter an iterable.
+typedef IterableFilter<T> = Iterable<T> Function(Iterable<T> input);
