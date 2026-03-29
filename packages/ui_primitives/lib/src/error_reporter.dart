@@ -5,10 +5,10 @@ class FrameworkErrorReporter {
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
   /// Creates a new [FrameworkErrorDetails] instance.
-  FrameworkError errorByDetails(FrameworkErrorDetails details) =>
+  Error errorByDetails(FrameworkErrorDetails details) =>
       FrameworkError(details);
 
-  FrameworkError errorByMessage(String message) =>
+  Error errorByMessage(String message) =>
       FrameworkError(FrameworkErrorDetails(message: message));
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
@@ -18,7 +18,7 @@ class FrameworkErrorReporter {
   void report(FrameworkErrorDetails details) => throw FrameworkError(details);
 }
 
-interface class FrameworkError extends Error {
+final class FrameworkError extends Error {
   FrameworkError(this.details);
 
   final FrameworkErrorDetails details;
@@ -29,7 +29,7 @@ interface class FrameworkError extends Error {
   String toString() => message;
 }
 
-class FrameworkErrorDetails extends Error {
+final class FrameworkErrorDetails extends Error {
   FrameworkErrorDetails({
     this.context,
     this.exception,
