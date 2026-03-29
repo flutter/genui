@@ -10,8 +10,6 @@ import 'package:meta/meta.dart';
 
 import '../primitives/basics.dart';
 import '../primitives/private_leak_tracking.dart';
-import 'assertions.dart';
-import 'diagnostics.dart';
 import 'error_reporter.dart';
 import 'listenable.dart';
 
@@ -95,7 +93,7 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.byMessage(
+        throw FrameworkErrorReporter.instance.errorByMessage(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -414,7 +412,7 @@ class ValueNotifier<T> implements ValueListenable<T> {
   static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.byMessage(
+        throw FrameworkErrorReporter.instance.errorByMessage(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',

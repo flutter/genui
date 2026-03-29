@@ -19,7 +19,7 @@ import '../dart_ui/math.dart';
 import 'constants.dart';
 import 'debug.dart';
 import 'error_reporter.dart';
-import 'object.dart';
+import '../primitives/object.dart';
 
 // Examples can assume:
 // late int rows, columns;
@@ -1681,7 +1681,7 @@ abstract class DiagnosticsNode {
       // We don't throw in release builds, to avoid hurting users. We also don't
       // do anything useful.
       if (kProfileMode) {
-        throw FrameworkErrorReporter.instance.byMessage(
+        throw FrameworkErrorReporter.instance.errorByMessage(
           // Parts of this string are searched for verbatim by a test in
           // dev/bots/test.dart.
           '$DiagnosticsNode.toTimelineArguments used in non-debug build.\n'

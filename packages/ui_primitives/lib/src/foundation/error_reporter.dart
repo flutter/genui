@@ -1,14 +1,14 @@
-import 'assertions.dart';
+import 'basic_types.dart';
 
 class FrameworkErrorReporter {
   /// Set this instance to customize error reporting for the framework.
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
   /// Creates a new [FrameworkErrorDetails] instance.
-  FrameworkError byDetails(FrameworkErrorDetails details) =>
+  FrameworkError errorByDetails(FrameworkErrorDetails details) =>
       FrameworkError(details);
 
-  FrameworkError byMessage(String message) =>
+  FrameworkError errorByMessage(String message) =>
       FrameworkError(FrameworkErrorDetails(message: message));
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
