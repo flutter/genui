@@ -8,11 +8,11 @@ library;
 
 import 'package:meta/meta.dart';
 
-import '../error_reporter.dart';
 import '../primitives/basics.dart';
 import '../primitives/private_leak_tracking.dart';
 import 'assertions.dart';
 import 'diagnostics.dart';
+import 'error_reporter.dart';
 import 'listenable.dart';
 
 /// A class that can be extended or mixed in that provides a change notification
@@ -95,11 +95,10 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.create(
-          message:
-              'A ${notifier.runtimeType} was used after being disposed.\n'
-              'Once you have called dispose() on a ${notifier.runtimeType}, it '
-              'can no longer be used.',
+        throw FrameworkErrorReporter.instance.byMessage(
+          'A ${notifier.runtimeType} was used after being disposed.\n'
+          'Once you have called dispose() on a ${notifier.runtimeType}, it '
+          'can no longer be used.',
         );
       }
       return true;
@@ -319,7 +318,7 @@ class _ChangeNotifier implements Listenable {
         _listeners[i]?.call();
       } catch (exception, stack) {
         FrameworkErrorReporter.instance.report(
-          details: FrameworkErrorDetails(
+          FrameworkErrorDetails(
             exception: exception,
             stack: stack,
             library: 'foundation library',
@@ -416,11 +415,10 @@ class ValueNotifier<T> implements ValueListenable<T> {
   static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.create(
-          message:
-              'A ${notifier.runtimeType} was used after being disposed.\n'
-              'Once you have called dispose() on a ${notifier.runtimeType}, it '
-              'can no longer be used.',
+        throw FrameworkErrorReporter.instance.byMessage(
+          'A ${notifier.runtimeType} was used after being disposed.\n'
+          'Once you have called dispose() on a ${notifier.runtimeType}, it '
+          'can no longer be used.',
         );
       }
       return true;
