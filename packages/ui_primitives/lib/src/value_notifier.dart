@@ -321,11 +321,11 @@ class _ChangeNotifier implements Listenable {
             stack: stack,
             library: 'foundation library',
             context: ValueContext(
-              message: 'while dispatching notifications for $runtimeType',
+              context: 'while dispatching notifications for $runtimeType',
             ),
             contextCollector: () => <ValueContext>[
               ValueContext(
-                message: 'The $runtimeType sending notification was',
+                context: 'The $runtimeType sending notification was',
                 value: toString(),
               ),
             ],

@@ -56,8 +56,13 @@ typedef ContextCollector = Iterable<ValueContext> Function();
 
 // Interface for Flutter's DiagnosticsNode.
 class ValueContext {
-  final String? message;
-  final String? value;
+  final Object? _context;
+  final Object? value;
 
-  ValueContext({this.message, this.value});
+  ValueContext({Object? context, this.value}) : _context = context;
+
+  @override
+  String toString() {
+    return _context?.toString() ?? value?.toString() ?? '';
+  }
 }
