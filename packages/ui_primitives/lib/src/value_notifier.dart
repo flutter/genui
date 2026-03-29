@@ -8,8 +8,8 @@ library;
 
 import 'package:meta/meta.dart';
 
-import '../primitives/basics.dart';
-import '../primitives/private_leak_tracking.dart';
+import 'basics.dart';
+import 'private_leak_tracking.dart';
 import 'error_reporter.dart';
 import 'listenable.dart';
 

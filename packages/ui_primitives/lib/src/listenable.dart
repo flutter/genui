@@ -6,7 +6,7 @@
 /// @docImport 'package:flutter/widgets.dart';
 library;
 
-import '../primitives/basics.dart';
+import 'basics.dart';
 
 /// An object that maintains a list of listeners.
 ///

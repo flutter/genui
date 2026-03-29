@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'object.dart';
-
 /// Signature of callbacks that have no arguments and return no data.
 typedef VoidCallback = void Function();
 
@@ -27,3 +25,22 @@ String shortHash(Object? object) {
 
 /// Signature for callbacks that filter an iterable.
 typedef IterableFilter<T> = Iterable<T> Function(Iterable<T> input);
+
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// Framework code should use this method in favor of calling `toString` on
+/// [Object.runtimeType].
+///
+/// Calling `toString` on a runtime type is a non-trivial operation that can
+/// negatively impact performance. If asserts are enabled, this method will
+/// return `object.runtimeType.toString()`; otherwise, it will return the
+/// [optimizedValue], which must be a simple constant string.
+String objectRuntimeType(Object? object, String optimizedValue) {
+  assert(() {
+    optimizedValue = object.runtimeType.toString();
+    return true;
+  }());
+  return optimizedValue;
+}
