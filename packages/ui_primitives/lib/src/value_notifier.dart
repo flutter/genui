@@ -319,10 +319,8 @@ class _ChangeNotifier implements Listenable {
           FrameworkErrorDetails(
             exception: exception,
             stack: stack,
-            library: 'foundation library',
-            context: ValueContext(
-              context: 'while dispatching notifications for $runtimeType',
-            ),
+            library: libraryName,
+            dispatchingObject: runtimeType,
             contextCollector: () => <ValueContext>[
               ValueContext(
                 context: 'The $runtimeType sending notification was',

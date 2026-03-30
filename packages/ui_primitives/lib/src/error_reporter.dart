@@ -1,15 +1,8 @@
-import 'primitives.dart';
-
 class FrameworkErrorReporter {
   /// Set this instance to customize error reporting for the framework.
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
-  /// Creates a new [FrameworkErrorDetails] instance.
-  Error errorByDetails(FrameworkErrorDetails details) =>
-      FrameworkError(details);
-
-  Error errorByMessage(String message) =>
-      FrameworkError(FrameworkErrorDetails(message: message));
+  Error errorByMessage(String message) => UnimplementedError(message);
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
   ///
@@ -31,24 +24,20 @@ final class FrameworkError extends Error {
 
 final class FrameworkErrorDetails extends Error {
   FrameworkErrorDetails({
-    this.context,
-    this.exception,
+    required this.exception,
+    this.dispatchingObject,
     this.contextCollector,
-    this.library,
-    this.silent,
     this.stack,
-    this.stackFilter,
     this.message,
+    this.library,
   });
 
   final String? message;
-  final ValueContext? context;
-  final Object? exception;
-  final ContextCollector? contextCollector;
   final String? library;
-  final bool? silent;
+  final Object? dispatchingObject;
+  final Object exception;
+  final ContextCollector? contextCollector;
   final StackTrace? stack;
-  final IterableFilter<String>? stackFilter;
 }
 
 // Interface for Flutter's InformationCollector.
