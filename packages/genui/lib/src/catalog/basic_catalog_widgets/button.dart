@@ -11,7 +11,6 @@ import '../../model/ui_models.dart';
 import '../../model/validation_helper.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
-import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
   description: 'An interactive button that triggers an action when pressed.',
@@ -205,8 +204,7 @@ Future<void> _handlePress(
     final actionName = eventMap['name'] as String;
     final contextDefinition = eventMap['context'] as JsonMap?;
 
-    final JsonMap resolvedContext = await resolveContext(
-      itemContext.dataContext,
+    final JsonMap resolvedContext = await itemContext.dataContext.resolveMap(
       contextDefinition,
     );
     itemContext.dispatchEvent(

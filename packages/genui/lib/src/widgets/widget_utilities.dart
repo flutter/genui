@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
-import '../primitives/simple_items.dart';
 
 /// A builder widget that simplifies handling of nullable `ValueListenable`s.
 ///
@@ -375,21 +374,4 @@ class _ToNumberNotifier extends ValueNotifier<num?> {
     _source.dispose();
     super.dispose();
   }
-}
-
-/// Resolves a context map definition against a [DataContext].
-///
-Future<JsonMap> resolveContext(
-  DataContext dataContext,
-  JsonMap? contextDefinition,
-) async {
-  final resolved = <String, Object?>{};
-  if (contextDefinition == null) return resolved;
-
-  for (final MapEntry<String, Object?> entry in contextDefinition.entries) {
-    final String key = entry.key;
-    final Object? value = entry.value;
-    resolved[key] = await dataContext.resolve(value).first;
-  }
-  return resolved;
 }

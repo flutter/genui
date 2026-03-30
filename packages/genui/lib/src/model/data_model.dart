@@ -179,6 +179,20 @@ class DataContext implements cf.ExecutionContext {
       return v != null;
     });
   }
+
+  /// Resolves a map of dynamic values into a map of literal values.
+  @override
+  Future<JsonMap> resolveMap(JsonMap? map) async {
+    final resolved = <String, Object?>{};
+    if (map == null) return resolved;
+
+    for (final MapEntry<String, Object?> entry in map.entries) {
+      final String key = entry.key;
+      final Object? value = entry.value;
+      resolved[key] = await resolve(value).first;
+    }
+    return resolved;
+  }
 }
 
 /// Exception thrown when a value in the [DataModel] is not of the expected

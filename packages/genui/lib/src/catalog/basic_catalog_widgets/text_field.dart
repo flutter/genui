@@ -253,10 +253,8 @@ final textField = CatalogItem(
                   final eventMap = actionData['event'] as JsonMap;
                   final actionName = eventMap['name'] as String;
                   final contextDefinition = eventMap['context'] as JsonMap?;
-                  final JsonMap resolvedContext = await resolveContext(
-                    itemContext.dataContext,
-                    contextDefinition,
-                  );
+                  final JsonMap resolvedContext = await itemContext.dataContext
+                      .resolveMap(contextDefinition);
                   itemContext.dispatchEvent(
                     UserActionEvent(
                       name: actionName,
