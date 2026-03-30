@@ -93,7 +93,7 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.errorByMessage(
+        throw FrameworkErrorReporter.instance.error(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -410,7 +410,7 @@ class ValueNotifier<T> implements ValueListenable<T> {
   static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.errorByMessage(
+        throw FrameworkErrorReporter.instance.error(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
