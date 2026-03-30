@@ -10,7 +10,7 @@ import '../../model/catalog_item.dart';
 import '../../model/ui_models.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
-import '../../utils/validation_helper.dart';
+import '../../model/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(

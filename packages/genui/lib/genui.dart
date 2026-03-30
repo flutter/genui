@@ -29,6 +29,7 @@ export 'src/model/chat_message.dart';
 export 'src/model/data_model.dart';
 export 'src/model/generation_events.dart';
 export 'src/model/ui_models.dart';
+export 'src/model/validation_helper.dart';
 export 'src/primitives/cancellation.dart';
 export 'src/primitives/constants.dart';
 export 'src/primitives/logging.dart';

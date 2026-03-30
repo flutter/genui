@@ -11,7 +11,7 @@ import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
-import '../../utils/validation_helper.dart';
+import '../../model/validation_helper.dart';
 import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
